@@ -6,8 +6,8 @@ class STARS_Form extends Zend_Form
     
     public function __construct($config = null)
     {
-        $this->addPrefixPath('STARS', 'STARS/');
-        $this->addElementPrefixPath('STARS', 'STARS/');
+        $this->addPrefixPath('STARS', 'STARS/TRUNK');
+        $this->addElementPrefixPath('STARS', 'STARS/TRUNK');
         
         // This may seem like weird placement, but you need to add the 
         // prefixes before the elements and the decorators after.
