@@ -1,0 +1,26 @@
+<?php include('../application/views/scripts/header.phtml') ?>
+
+<div id="title">
+	Delete User
+	<div id="breadcrumbs"><a href="/">Home</a> / <a href="/dashboard/">Dashboard</a> / Delete User</div>
+</div>
+
+<?php if($this->code == STARS_UserDeleter::SUCCESS) { ?>
+    <p>
+        The user's login data has been deleted.
+    </p>
+<?php } elseif($this->code == STARS_UserDeleter::SELF_ERROR) { ?>
+    <div class="errors">
+        You cannot delete yourself.
+    </div>
+<?php } elseif($this->code == STARS_UserDeleter::NOT_EXISTS_ERROR) { ?>
+    <div class="errors">
+        The specified user no longer exists.
+    </div>
+<?php } else { ?>
+    <div class="errors">
+        Something failed.
+    </div>
+<?php } ?>
+
+<?php include('../application/views/scripts/footer.phtml') ?>

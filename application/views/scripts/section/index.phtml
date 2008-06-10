@@ -1,0 +1,59 @@
+<?php include('../application/views/scripts/header.phtml') ?>
+
+<div id="title">
+    <?php echo $this->title ?>
+    <div id="breadcrumbs">
+        <a href="/">Home</a> / <a href="/dashboard/">Dashboard</a> / <a href="/tracker/">My Tracker</a> / <?php echo $this->title ?>
+    </div>
+</div>
+
+<table class="green">
+	<tr>
+    	<th>
+        	Credit Number
+        </th>
+        <th>
+        	Credit Name
+        </th>
+        <th>
+        	Anticipated Points Earned
+        </th>
+        <th>
+        	Status
+        </th>
+        <th>
+        	Points at Time of Last Submission
+        </th>
+    </tr>
+    <?php $prevtitle = '' /* Prerequisite section name is '' */ ?>
+    <?php foreach($this->credits as $credit) { ?>
+        <?php if($prevtitle != $credit['subsectiontitle']) { ?>
+            <tr>
+                <th colspan="5">
+                    <?php echo $prevtitle = $credit['subsectiontitle'] ?>
+                </th>
+            </tr>
+        <?php } ?>
+        <tr>
+            <td>
+                <?php echo $credit['sectionabbr'] ?>
+                <?php echo ($credit['prerequisite'] == 1) ? 'Prerequisite' : 'Credit' ?>
+                <?php echo $credit['creditnumber'] ?>
+            </td>
+            <td>
+                <a href="/credit/<?php echo $credit['creditid'] ?>/"><?php echo $credit['creditname'] ?></a>
+            </td>
+            <td>
+                <?php echo ($credit['pointsavailable'] == 0) ? 'N/A' : intval($credit['estimatedpoints']).'/'.$credit['pointsavailable'] ?>
+            </td>
+            <td>
+                <?php echo empty($credit['status']) ? 'Incomplete' : $credit['status'] ?>
+            </td>
+            <td>
+                N/A
+            </td>
+        </tr>
+    <?php } ?>
+</table>
+
+<?php include('../application/views/scripts/footer.phtml') ?>

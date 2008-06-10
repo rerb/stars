@@ -1,0 +1,60 @@
+<?php include('../application/views/scripts/header.phtml') ?>
+
+<div id="title">
+    <?php echo $this->title ?>
+    <div id="breadcrumbs">
+        <a href="/">Home</a> / <a href="/dashboard/">Dashboard</a> / <a href="/tracker/">My Tracker</a> / <?php echo $this->title ?>
+    </div>
+</div>
+
+<?php if(count($this->messages) > 0) { ?>
+<div class="errors">
+   <?php echo $this->messages[0]; ?>
+</div>
+<?php } ?>
+
+<?php echo $this->form ?>
+
+<?php if($this->hasNorms) { ?>
+    <table class="green mini">
+        <tr>
+            <th>
+                Normalization Year
+            </th>
+            <th>
+                Status
+            </th>
+            <th>
+                Actions
+            </th>
+        </tr>
+        <?php foreach($this->list as $year) { ?>
+            <tr>
+                <td>
+                    <?php echo $year['calendaryear']-1 ?>&#150;<?php echo $year['calendaryear'] ?>
+                </td>
+                <td>
+                    <?php if($year['status'] == STARS_STATUS_COMPLETE) { ?>
+                        Complete
+                    <?php } else { ?>
+                        Incomplete
+                    <?php } ?>
+                </td>
+                <td>
+                    <a href="/normalization/edit/<?php echo $year['datanormid'] ?>/">Edit</a><br>
+                    <a href="/normalization/delete/<?php echo $year['datanormid'] ?>/" onclick="return confirm('Are you sure you want to delete the normalization year ending <?php echo $year['calendaryear']?>?')">Delete</a>
+                </td>
+            </tr>
+        <?php } ?>
+    </table>
+<?php } else { ?>
+    <div class="green mini">
+        <h3>Existing Normalization Years</h3>
+        <p>
+            You have no normalization years. To create one, use 
+            the form to the left.
+        </p>
+    </div>
+<?php } ?>
+
+<?php include('../application/views/scripts/footer.phtml') ?>

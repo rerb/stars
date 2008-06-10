@@ -1,0 +1,17 @@
+<?php include('../application/views/scripts/header.phtml') ?>
+
+<div id="title">
+	Enrolled Organizations
+	<div id="breadcrumbs"><a href="/">Home</a> / <a href="/dashboard/">Dashboard</a> / Enrolled Organizations</div>
+</div>
+
+<?php foreach($this->list as $org) { ?>
+    <h2><?php echo $org['orgname'] ?></h2>
+    <!--
+    <ul>
+        <li>There's nothing to say about these.</li>
+    </ul>
+    -->
+<?php } ?>
+
+<?php include('../application/views/scripts/footer.phtml') ?>

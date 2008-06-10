@@ -1,0 +1,33 @@
+<?php include('../application/views/scripts/header.phtml') ?>
+
+<div id="title">
+	Forgot Your Password?
+	<div id="breadcrumbs"><a href="/">Home</a> / Forgot Your Password?</div>
+</div>
+
+<?php if($this->attempted) { ?>
+    <?php if($this->code == STARS_PasswordResetEmailer::SUCCESS) { ?>
+        <p>
+            A password reset link should arrive in your E-mail inbox shortly.
+        </p>
+    <?php } elseif($this->code == STARS_PasswordResetEmailer::NOT_EXISTS_ERROR) { ?>
+        <div class="errors">
+            There is no user on file with the E-mail address you provided.
+        </div>
+
+        <?php echo $this->form ?>
+    <?php } else { ?>
+        <p>
+            There was an error processing your data. Please contact the <a href="mailto:webmaster@aashe.org?subject=STARS Tracking Tool">IT Team</a> with a detailed description of the problem you encountered..
+        </p>
+    <?php } ?>
+<?php } else { ?>
+    <p>
+        Please submit your 
+        E-mail address, and we will mail you a link to reset your password. 
+    </p>
+    
+    <?php echo $this->form ?>
+<?php } ?>
+
+<?php include('../application/views/scripts/footer.phtml') ?>

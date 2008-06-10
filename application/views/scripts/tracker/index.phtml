@@ -1,0 +1,71 @@
+<?php include('../application/views/scripts/header.phtml') ?>
+
+<div id="title">
+    <?php echo $this->title ?>
+    <div id="breadcrumbs">
+        <a href="/">Home</a> / <a href="/dashboard/">Dashboard</a> / <?php echo $this->title ?>
+    </div>
+</div>
+
+<table class="green">
+	<tr>
+    	<th>
+        	Section Name
+        </th>
+<!--        <th>
+        	Status
+        </th>-->
+    </tr>
+    <tr>
+    	<td>
+	    	<a href="/institutional/">Institutional Info</a>
+	    	<div class="help">Basic information about your institution</div>
+        </td>
+<!--        <td>
+
+        	Incomplete
+        </td>-->
+    </tr>
+    <tr>
+    	<td>
+	    	<a href="/normalization/">Annual Normalization Data</a>
+	    	<div class="help">Additional information, changing year to year</div>
+        </td>
+<!--        <td>
+
+        	Incomplete
+        </td>-->
+    </tr>
+	<tr>
+    	<td>
+           	Education and Research
+           	<div class="help">Not available in this release</div>
+        </td>
+<!--        <td>
+        	Not Available
+        </td>-->
+
+    </tr>
+    <tr>
+    	<td>
+	    	Operations
+	    	<div class="help">Not available in this release</div>
+        </td>
+<!--        <td>
+        	Incomplete
+        </td>-->
+    </tr>
+
+    <tr>
+    	<td>
+	    	Administration and Finance
+	    	<div class="help">Not available in this release</div>
+        </td>
+<!--        <td>
+        	Incomplete
+        </td>-->
+    </tr>
+</table>
+
+
+<?php include('../application/views/scripts/footer.phtml') ?>

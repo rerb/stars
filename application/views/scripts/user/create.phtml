@@ -1,0 +1,40 @@
+<?php include('../application/views/scripts/header.phtml') ?>
+
+<div id="title">
+	Create User
+	<div id="breadcrumbs"><a href="/">Home</a> / <a href="/dashboard/">Dashboard</a> / Create User</div>
+</div>
+
+<?php if($this->attempted) { ?>
+    <?php if($this->code == STARS_UserInserter::SUCCESS) { ?>
+        <p>
+            The user has been created successfully.
+        </p>
+        <p>
+            <ul>
+                <li><a href="/admin/">Return to administrative menu.</a></li>
+                <li><a href="/">Go home.</a></li>
+            </ul>
+        </p>
+    <?php } elseif($this->code == STARS_UserInserter::USERNAME_ERROR) { ?>
+        <p>
+            <ul class="errors">
+                <li>That username already exists.</li>
+            </ul>
+        </p>
+        <?php echo $this->form ?>
+    <?php } else { ?>
+        <p>
+            There was an error processing your data. Please contact the <a href="mailto:webmaster@aashe.org?subject=STARS Tracking Tool">IT Team</a> with a detailed description of the problem you encountered..
+        </p>
+    <?php } ?>
+<?php } else { ?>
+    <?php if($this->submitted) { ?>
+        <div class="errors">
+            The errors in your submission have been highlighted below.
+        </div>
+    <?php } ?>
+    <?php echo $this->form ?>
+<?php } ?>
+
+<?php include('../application/views/scripts/footer.phtml') ?>

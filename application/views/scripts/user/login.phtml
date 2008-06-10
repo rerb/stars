@@ -1,0 +1,36 @@
+<?php include('../application/views/scripts/header.phtml') ?>
+
+<div id="title">
+	Login
+	<div id="breadcrumbs"><a href="/">Home</a> / Login</div>
+</div>
+
+<?php if($this->already) { ?>
+    <p>
+        You're already logged in.
+    </p>
+    <p>
+        <a href="/tracker/">Go to My Tracker.</a>
+    </p>
+<?php } else { ?>
+    <?php if($this->attempted) { ?>
+        <?php if(!$this->success) { ?>
+            <p>
+                The username or password you entered was incorrect. <a href="/password/forgot/">Forgot your password?</a>
+            </p>
+        <?php } else { ?>
+            <p>
+                You've successfully logged in.
+            </p>
+            <p>
+                <a href="/tracker/">Go to My Tracker.</a>
+            </p>
+        <?php } ?>
+    <?php } else { ?>
+        <p>
+            You must enter a username and password above.
+        </p>
+    <?php } ?>
+<?php } ?>
+
+<?php include('../application/views/scripts/footer.phtml') ?>

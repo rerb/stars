@@ -1,0 +1,40 @@
+<?php include('../application/views/scripts/header.phtml') ?>
+
+<div id="title">
+	<?php echo $this->title ?>
+	<div id="breadcrumbs"><a href="/">Home</a> / <a href="/dashboard/">Dashboard</a> / <a href="/tracker/">My Tracker</a> / <a href="/normalization/">Annual Normalization Data</a> / <?php echo $this->title ?></div>
+</div>
+
+<?php if($this->notexists) { ?>
+    <div class="errors">
+        The normalization year you tried to edit no longer exists.
+    </div>
+<?php } else { ?>
+    <?php if($this->attempted) { ?>
+        <?php if($this->code == STARS_NormalizationUpdater::SUCCESS) { ?>
+            <p>
+                The data have been saved.
+            </p>
+            <p>
+                <ul>
+                    <li><a href="/">Go home.</a></li>
+                    <li><a href="/tracker/">Go back to My Tracker.</a></li>
+                    <li><a href="/normalization/">Go back to Annual Normalization Data.</a></li>
+                </ul>
+            </p>
+        <?php } else { ?>
+            <div class="errors">
+                 There was an error processing your data. Please contact the <a href="mailto:webmaster@aashe.org?subject=STARS Tracking Tool">IT Team</a> with a detailed description of the problem you encountered.
+            </div>
+        <?php } ?>
+    <?php } else { ?>
+        <?php if($this->submitted) { ?>
+            <div class="errors">
+                Please review the highlighted errors below.
+            </div>
+        <?php } ?>
+        <?php echo $this->form ?>
+    <?php } ?>
+<?php } ?>
+
+<?php include('../application/views/scripts/footer.phtml') ?>

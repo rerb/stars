@@ -1,0 +1,33 @@
+<?php include('../application/views/scripts/header.phtml') ?>
+
+<div id="title">
+	Enroll Organization
+	<div id="breadcrumbs"><a href="/">Home</a> / <a href="/dashboard/">Dashboard</a> / Enroll Organization</div>
+</div>
+
+<?php if($this->attempted) { ?>
+    <?php if($this->code == STARS_OrganizationInserter::SUCCESS) { ?>
+        <p>
+            The organization has been created/enrolled successfully.
+        </p>
+        <p>
+            <ul>
+                <li><a href="/organization/enroll/">Enroll another.</a></li>
+                <li><a href="/dashboard/">Go to Dashboard.</a></li>
+            </ul>
+        </p>
+    <?php } else { ?>
+        <p>
+            There was an error processing your data. Please contact the <a href="mailto:webmaster@aashe.org?subject=STARS Tracking Tool">IT Team</a> with a detailed description of the problem you encountered..
+        </p>
+    <?php } ?>
+<?php } else { ?>
+    <?php if($this->submitted) { ?>
+        <div class="errors">
+            The errors in your submission have been highlighted below.
+        </div>
+    <?php } ?>
+    <?php echo $this->form ?>
+<?php } ?>
+
+<?php include('../application/views/scripts/footer.phtml') ?>

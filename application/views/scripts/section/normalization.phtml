@@ -1,0 +1,21 @@
+<?php include('../application/views/scripts/header.phtml') ?>
+
+<div id="title"><?php echo $this->escape($this->title); ?>
+    <div id="breadcrumbs">
+        <a href="/">Home</a> / <a href="/dashboard/">Dashboard</a> / <a href="/tracker/">My Tracker</a> / Annual Normalization Data
+    </div>
+</div>
+
+<?php if($this->attempted) { ?>
+    Your data has been updated.
+<?php } else { ?>
+    <?php if($this->submitted) { ?>
+        <div class="errors">
+              The errors in your submission have been highlighted below.
+        </div>
+    <?php } ?>
+
+    <?php echo $this->form ?>
+<?php } ?>
+
+<?php include('../application/views/scripts/footer.phtml') ?>
