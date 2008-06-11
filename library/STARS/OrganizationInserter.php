@@ -29,7 +29,7 @@ class STARS_OrganizationInserter
     {
         foreach($info as $key => $value)
         {
-            if(in_array($key, array('nameid', 'orgname')))//removed parentorgid
+            if(in_array($key, array('nameid'))) //removed parentorgid, orgname
             {
                 $this->_organizations[$key] = $value;
             }

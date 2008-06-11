@@ -2,7 +2,7 @@
 
 class STARS_Abstract_SelectList extends Zend_Db_Select
 {
-    protected $_list = array();
+    private $_list = array();
     protected $_options = array();
     
     public function __construct(array $options = array())
@@ -16,14 +16,16 @@ class STARS_Abstract_SelectList extends Zend_Db_Select
     
     public function getList()
     {
-        try
+        if(count($this->_list) == 0)
         {
-            return ($this->_list = Zend_Registry::get('db')->fetchAll($this->__toString(), array(), Zend_Db::FETCH_ASSOC));
+            try
+            {
+                return ($this->_list = Zend_Registry::get('db')->fetchAll($this->__toString(), array(), Zend_Db::FETCH_ASSOC));
+            }
+            
+            catch(Zend_Db_Statement_Mysqli_Exception $e) { }
         }
         
-        catch(Zend_Db_Statement_Mysqli_Exception $e)
-        {
-            return $this->_list;
-        }
+        return $this->_list;
     }
 }

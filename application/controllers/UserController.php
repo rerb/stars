@@ -43,14 +43,14 @@ class UserController extends STARS_ActionController
     {
         $id = $this->_getParam('number');
         
-		//if there is no user id number, create a person
+		//a specified ID means an admin is editing a user other than himself
         if(!empty($id))
         {
             $this->_protect(2);
             $person = STARS_Person::factory($id);
         }
         
-		//get the person if they exist
+		//no specified ID defaults to current user
         else
         {
             $this->_protect(1);
@@ -82,7 +82,7 @@ class UserController extends STARS_ActionController
         $this->_protect(2);
         
         $this->view->code = $this->_deleteUser($this->_getParam('number'));
-        $this->view->title = 'All Users';
+        $this->view->title = 'Delete User';
     }
     
     public function loginAction()

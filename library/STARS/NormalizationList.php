@@ -17,7 +17,7 @@ class STARS_NormalizationList extends STARS_Abstract_SelectList
     {
         $years = array();
         
-        foreach($this->_list as $row)
+        foreach($this->getList() as $row)
         {
             $years[] = $row['calendaryear'];
         }

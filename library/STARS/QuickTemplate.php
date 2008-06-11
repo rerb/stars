@@ -9,22 +9,27 @@ class STARS_QuickTemplate
     
     public function __construct($template)
     {
-        $this->_template = $template;
+        $this->setTemplate($template);
     }
     
     public function bind(array $binds = array())
     {
-        if(!file_exists($this->_template))
-        {
-            throw new STARS_Exception('QuickTemplate does not exist.');
-        }
-        
         if(count($binds) == 0)
         {
             return $this->templateContents();
         }
         
         return str_replace(array_keys($binds), array_values($binds), $this->templateContents());
+    }
+    
+    public function setTemplate($template)
+    {
+        if(!file_exists($template))
+        {
+            throw new STARS_Exception('QuickTemplate does not exist.');
+        }
+        
+        $this->_template = $template;
     }
     
     public function templateContents()
