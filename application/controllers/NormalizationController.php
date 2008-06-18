@@ -47,7 +47,6 @@ class NormalizationController extends STARS_ActionController
 		$data = $form->getValues();
 		$this->_flashMessenger->addMessage($this->_yearRange($data['calendaryear']) . ' added as a normalization year.');
         $this->_redirect('/normalization/');
-
     }
     
     public function deleteAction()

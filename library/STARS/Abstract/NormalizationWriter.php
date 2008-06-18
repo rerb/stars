@@ -20,17 +20,10 @@ abstract class STARS_Abstract_NormalizationWriter
     {
         $info = STARS_Nullifier::nullify($info);
         
-        $adminOnly = array('orgid');
-        
         foreach($info as $key => $value)
         {
             if(in_array($key, array('datanormid', 'orgid', 'calendaryear', 'status', 'boundary', 'academicstart', 'academicend', 'fiscalstart', 'fiscalend', 'residents', 'ftcommuter', 'ptcommuter', 'noncredit', 'ftfaculty', 'ptfaculty', 'ftstaff', 'ptstaff', 'acres', 'impervious', 'aircondition', 'labspace', 'medicalspace', 'budget', 'endowment', 'research', 'susfundsadminalloc', 'susfundsdiscretionary', 'susfundsfees', 'susfundsloanfund', 'normcontext', 'feedback', 'modifierid')))
             {
-                if(in_array($key, $adminOnly) and STARS_Person::getInstance()->get('admin') == 0)
-                {
-                    break;
-                }
-                
                 $this->_datanorm[$key] = $value;
             }
 		}
