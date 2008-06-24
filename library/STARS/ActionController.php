@@ -2,11 +2,33 @@
 
 class STARS_ActionController extends Zend_Controller_Action
 {
+    protected $_flashMessenger = null;
+    
     public function __construct(Zend_Controller_Request_Abstract $request, Zend_Controller_Response_Abstract $response, array $invokeArgs = array())
     {
         parent::__construct($request, $response, $invokeArgs);
         
         $this->_loginForm();
+    }
+    
+    /**
+     * Support of flashMessenger use in Controllers.
+     * @param string $message message to post to flash Messenger, or 
+     *        pass null to get existing flash message to this->view->message
+     */
+    protected function _flashMessage($message = null)
+    {
+       if (!$this->_flashMessenger) { // lazy init
+          $this->_flashMessenger = 
+                  $this->_helper->getHelper('FlashMessenger');
+       }
+       if ($message) {
+         $this->_flashMessenger->addMessage($message);
+       }
+       else if ($this->_flashMessenger->hasMessages()) {
+         $this->view->message = implode("<br />", 
+                     $this->_flashMessenger->getMessages());
+       }
     }
     
     private function _loginForm()

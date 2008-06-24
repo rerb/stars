@@ -11,5 +11,7 @@ class SectionController extends STARS_ActionController
         $this->view->credits = $section->getCredits();
         
         $this->view->title = $section->getTitle();
+
+        $this->_flashMessage();
     }
 }

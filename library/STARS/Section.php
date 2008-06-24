@@ -39,11 +39,11 @@ class STARS_Section
                 ON (c.dicreditcategory = di1.itemid)
                 LEFT JOIN (dataitems AS di2)
                 ON (c.dicreditsubcategory = di2.itemid)
-                LEFT JOIN (orgcreditdata AS o)
+                LEFT JOIN (orgcreditfiles AS o)
                 ON (c.creditid = o.creditid AND o.orgid = ?)
                 WHERE c.dicreditcategory = ?
                 ORDER BY prerequisite DESC, creditnumber ASC',
-                array(STARS_Person::getInstance()->get('orgid'), $this->_sectionId),
+               array(STARS_Person::getInstance()->get('orgid'), $this->_sectionId),
                 Zend_Db::FETCH_ASSOC
             );
         }

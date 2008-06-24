@@ -4,7 +4,9 @@ error_reporting(E_ALL);
 
 // INCLUDES
 
-set_include_path('../library' . PATH_SEPARATOR . get_include_path());
+set_include_path('../library' . PATH_SEPARATOR 
+               . '../application' . PATH_SEPARATOR 
+               . get_include_path());
 
 require_once('Zend/Loader.php');
 
