@@ -60,8 +60,6 @@ class CreditController extends STARS_ActionController
   {
     $this->_protect(1);
     $orgId = STARS_Person::getInstance()->get('orgid');  // restrict access to this org
-echo "Person : ";
-Zend_Debug::dump(STARS_Person::getInstance());
     
     $creditId = intval($this->_getParam('credit'));
     $credit = new STARS_Credit($creditId);
