@@ -46,7 +46,7 @@ class forms_UploadForm extends Zend_Form
                  ->addPrefixPath('STARS_Validate', 'STARS/Validate/', 'validate')
                  ->addValidator('ValidStarsCreditFile');
 
-        $description = new Zend_Form_Element_TextArea('description');
+        $description = new Zend_Form_Element_Textarea('description');
         $description->setLabel('Optional : annotation for this submission')
                     ->setRequired(false)
                     ->setAttrib("rows","5");
