@@ -26,7 +26,7 @@
  * Form for uploading PDF files.
  * @param array $options may contain 'legendLabel' to label upload fieldset
  */
-class forms_UploadForm extends Zend_Form 
+class forms_UploadForm extends STARS_Form 
 { 
     public function __construct($options=null) 
     { 
