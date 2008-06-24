@@ -1,0 +1,36 @@
+<?php $credit = $this->credit;?>
+<div id="title">
+    <?php echo $this->title ?>
+    <div id="breadcrumbs">
+        <a href="/">Home</a> / <a href="/section/<?php echo $credit['dicreditcategory']; ?>"><?php echo $credit['sectiontitle'] .' Credits'; ?> </a> / Delete Credit
+    </div>
+</div>
+
+<h2><?php echo $this->error?
+                  'File Delete Failed':
+                  'Confirm Delete for Credit Submission'; ?>
+</h2>
+<h3><?php echo $credit['sectiontitle'] . ($credit['subsectiontitle']?(': ' . $credit['subsectiontitle']):''); ?> </h3>
+<h3><?php echo $credit['title']; ?></h3>
+
+<?php if ($this->error): ?>
+  <div class='error'>
+    <p>An error occurred - 
+       <a href='/credit/upload/?credit=<?php echo $credit['creditid']; ?> '>please try again</a>.
+    </p>
+    <h2>File was NOT deleted!</h2>
+  </div>
+<?php else: ?>
+  <fieldset>
+    <legend>Confirm Delete</legend>
+    <div align="center">
+      <H2 align='center'>This Action cannot be un-done </H2>
+
+      <H3>Are you sure you want to delete the file: <a href="<?php echo $this->fileOptions['viewURL'];?>"> <img src="/img/page_white_acrobat.png" alt="PDF File" title="Click to View your Submission" border=0/></a> <a href="<?php echo $this->fileOptions['viewURL'];?>"><?php echo $this->fileOptions['filename']; ?> </a> </H3>
+      
+      <?php echo $this->form ;?>
+      
+      <a href="<?php echo $this->cancelAction; ?>">Cancel</a>
+    </div>
+  </fieldset>
+<?php endif; ?>

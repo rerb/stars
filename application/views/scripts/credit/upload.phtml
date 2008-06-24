@@ -1,0 +1,34 @@
+<?php $credit = $this->credit;?>
+<div id="title">
+    <?php echo $this->title ?>
+    <div id="breadcrumbs">
+        <a href="/">Home</a> / <a href="/section/<?php echo $credit['dicreditcategory']; ?>"><?php echo $credit['sectiontitle'] .' Credits'; ?> </a> / Submit Credit
+    </div>
+</div>
+
+<h2><?php echo $credit['sectiontitle'] . ($credit['subsectiontitle']?(': ' . $credit['subsectiontitle']):''); ?> </h2>
+<h3><?php echo $credit['title']; ?> </h3>
+
+<?php if ($this->fileOptions) : ?>
+  <fieldset>
+   <legend>Current Submission</legend>
+   <table width="80%" align="center" cellpadding='10pt' border = 0>
+   <tr><td>
+     <a href="<?php echo $this->fileOptions['viewURL'];?>"> <img src="/img/page_white_acrobat.png" alt="PDF File" title="Click to View your Submission" border=0/></a> <a href="<?php echo $this->fileOptions['viewURL'];?>"><?php echo $this->fileOptions['filename']; ?> </a>
+     </td><td>
+     <a href="<?php echo $this->fileOptions['saveURL'];?>"> <img src="/img/disk.png" alt="Save File" title="Click to Download your Submission" border=0/></a> <a href="<?php echo $this->fileOptions['saveURL'];?>">Download to re-edit Credit Form</a>
+     </td><td>
+     <a href="<?php echo $this->fileOptions['deleteURL'];?>"> <img src="/img/cross.png" alt="Delete File" title="Click to Delete this Submission" border=0/></a> <a href="<?php echo $this->fileOptions['deleteURL'];?>">Delete this File</a>
+    </td></tr>
+    </table>
+  </fieldset>
+<?php endif ?>
+
+<?php if ($this->error): ?>
+  <div class='error'>
+    <h2>No Credit Data was Submitted!</h2>
+    <p>  Please correct any errors below and try again.</p>
+  </div>
+<?php endif ?>
+
+<?php echo $this->form ;?>
