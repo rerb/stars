@@ -28,6 +28,7 @@ class CreditController extends STARS_ActionController
   const INSERT_LABEL = 'Credit File Upload';
   const UPDATE_LABEL = 'Re-submit : Credit File Upload';
 
+     // This should GO - it's only here to allow us to use layouts for these views.
      public function __construct(Zend_Controller_Request_Abstract $request, Zend_Controller_Response_Abstract $response, array $invokeArgs = array())
     {
         parent::__construct($request, $response, $invokeArgs);
@@ -37,16 +38,6 @@ class CreditController extends STARS_ActionController
      define ("ROOT_DIR",$_SERVER['DOCUMENT_ROOT'].'/..');
      //define('ROOT_DIR', dirname(dirname(dirname(__FILE__))));
      Zend_Layout::startMvc(array('layoutPath' => realpath(ROOT_DIR).'/application/views/layouts'));
-  }
-  
-  /**
-   *  /credit/index
-   *  What should this do??
-   * @todo: redirect this to an Error controller?
-   */
-  public function indexAction()
-  {
-    $this->view->title = 'STARS Credits';
   }
   
   /**
