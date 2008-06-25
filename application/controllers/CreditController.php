@@ -141,9 +141,8 @@ class CreditController extends STARS_ActionController
     $this->_protect(1);
     $orgId = STARS_Person::getInstance()->get('orgid');  // restrict access to this org
     
-    $fileId = intval($this->_getParam('id'));
-    $creditFile = new STARS_CreditPdfFile($fileId, $orgId);
-    $creditId = $creditFile->getCreditId();
+    $creditId = intval($this->_getParam('credit'));
+    $creditFile = STARS_CreditPdfFile::getCreditPdfFile($creditId, $orgId);
     $credit = new STARS_Credit($creditId);
     // TO DO: error checking for invalid file / credit.
 
@@ -160,7 +159,7 @@ class CreditController extends STARS_ActionController
       $formData = $this->_request->getPost();
       $success = false;
       // Confirm transaction integirty using the token stored in the form
-      if ( $this->_checkToken($formData['token']) ) 
+      if ( $this->_checkToken($formData['token'], $creditId) ) 
       {
         $this->_generateToken();  // invalidate the token
 
@@ -178,20 +177,24 @@ class CreditController extends STARS_ActionController
     }
     else // GET: trow up the confirmation with a transaction integrity token
     {
-      $form = new forms_ConfirmDeleteForm($this->_generateToken());
+      $form = new forms_ConfirmDeleteForm($this->_generateToken($creditId));
       $this->view->form = $form;
     }
   }
 
   /**
    * Helper: generate a random md5 session token - used to ID a transaction.
-   *  credit: Evans (Guide to ... Zend Framework) p. 32
+   *    credit: Evans (Guide to ... Zend Framework) p. 32
+   *  @param mixed $id - optional: data to verify (pass same id to _checkToken)
+   *    credit: Sklar (PHP cookbook) p. 364
    *   This should be moved somewhere more general (functions.php?)
    */
-  private function _generateToken($seed="43LKdfk*$#980ujfmo4")
+  private function _generateToken($id='', $seed="43LKdfk*$#980ujfmo4")
   {
-    $token = md5($seed.mktime());
+    $seed = $seed.mktime();   // unique token + secret word
+    $token = md5($id.$seed);
     $globalSession = new Zend_Session_Namespace('global_data');
+    $globalSession->tokenSeed = $seed;
     $globalSession->token = $token;
     return $token;
   }
@@ -201,10 +204,13 @@ class CreditController extends STARS_ActionController
    *  credit: Evans (Guide to ... Zend Framework) p. 32
    *   This should be moved somewhere more general (functions.php?)
    */
-  private function _checkToken($token='')
+  private function _checkToken($token='', $id='')
   {
-    $globalSession = new Zend_Session_Namespace('global_data');
-    return !empty($token) && $token==$globalSession->token;
+    $globalSession = new Zend_Session_Namespace('global_data'); 
+    $hashKey = $id.$globalSession->tokenSeed;
+    return !empty($token) &&                 // token returned 
+           $token==$globalSession->token &&  // session confirmed 
+           $token==md5($hashKey);            // $id data verified 
   }
 
   /**
@@ -240,8 +246,8 @@ class CreditController extends STARS_ActionController
   {
     $this->_protect(1);
     $orgId = STARS_Person::getInstance()->get('orgid');  // restrict access to this org
-    $fileId = intval($this->_getParam('id'));
-    $file = new STARS_CreditPdfFile($fileId, $orgId);
+    $creditId = intval($this->_getParam('credit'));
+    $file = STARS_CreditPdfFile::getCreditPdfFile($creditId, $orgId);
     // TO DO: error checking for invalid file.
 
     $this->view->filepath = $file->getFullPath();
@@ -267,11 +273,13 @@ class CreditController extends STARS_ActionController
     {
       return null;   // no existing file - no options.
     }
+    // Never pass the file id - it could be sub'ed for file not owned by user.
+    // Pass the credit id, and we'll look-up the file for the user's org.
     return array(
           'filename' => $file->getDisplayName(),
-          'viewURL'     => '/credit/viewfile/?id=' . $file->getId(),
-          'saveURL'     => '/credit/savefile/?id=' . $file->getId(),
-          'deleteURL'   => '/credit/deletefile/?id=' . $file->getId(),
+          'viewURL'     => '/credit/viewfile/?credit=' . $file->getCreditId(),
+          'saveURL'     => '/credit/savefile/?credit=' . $file->getCreditId(),
+          'deleteURL'   => '/credit/deletefile/?credit=' . $file->getCreditId(),
     );
   }
 }
