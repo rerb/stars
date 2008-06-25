@@ -59,7 +59,7 @@ class CreditController extends STARS_ActionController
     {
        // TO DO: pass this to error handler instead.
        $this->view->pageTitle = "Error";
-       $this->view->bodyCopy = "<p>Invalid Credit ID specified : " . $creditId . " - try again.</p>";
+       $this->view->bodyCopy = "<div class-\"errors\">Invalid Credit ID specified : " . $creditId . " - try again.</div>";
        return;
     }
 

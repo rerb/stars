@@ -311,13 +311,38 @@ div.error
     font-size: .8em;
 }
 
-div#messages {
+/*div#messages {
   font-size: 1.2em;
   background: #00a;
   color : #fff;
   padding : 10pt;
-}
+}*/
   
+/*Added by Julia*/
+div#messages {
+	border:solid 1px #349534; 
+	background:#C9FFCA;
+	color:#008000;
+	font-weight:bold;
+	padding:4px;
+	text-align:center;
+	margin-top: 5px;
+	}
+
+fieldset {
+  font-size: 100%;
+  border: 1px solid #eefac5;
+  margin: 15px 0;
+}
+
+fieldset legend {
+  margin: 0;
+  padding: 8px;
+  background-color: #690;
+  color: #fff;
+  border: 1px solid #eefac5;
+}
+
 span.required
 {
     color: #b44;
