@@ -329,6 +329,15 @@ div#messages {
 	margin-top: 5px;
 	}
 
+.file-error{
+		border:solid 1px #CC0000; 
+		background:#F7CBCA;
+		color:#CC0000;
+		font-weight:bold;
+		padding:4px;
+		text-align:center;
+}
+	
 fieldset {
   font-size: 100%;
   border: 1px solid #eefac5;
@@ -342,6 +351,16 @@ fieldset legend {
   color: #fff;
   border: 1px solid #eefac5;
 }
+
+fieldset dt {
+	float: left;
+}
+
+fieldset dd {
+	margin: 0 5em 1em 5em;
+}
+
+
 
 span.required
 {
