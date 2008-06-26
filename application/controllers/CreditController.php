@@ -22,24 +22,18 @@
  */
 class CreditController extends STARS_ActionController
 {
-  /**#@+
-   * Define labels passed to View.
-   */
-  const INSERT_LABEL = 'Credit File Upload';
-  const UPDATE_LABEL = 'Re-submit : Credit File Upload';
+  // This should GO - it's only here to allow us to use layouts for these views.
+  public function __construct(Zend_Controller_Request_Abstract $request, Zend_Controller_Response_Abstract $response, array $invokeArgs = array())
+  {
+    parent::__construct($request, $response, $invokeArgs);
 
-     // This should GO - it's only here to allow us to use layouts for these views.
-     public function __construct(Zend_Controller_Request_Abstract $request, Zend_Controller_Response_Abstract $response, array $invokeArgs = array())
-    {
-        parent::__construct($request, $response, $invokeArgs);
-        
-     // Initialise Zend_Layout's MVC helpers
-     // This should go in bootstrap if we choose to adopt using layouts.
-     define ("ROOT_DIR",$_SERVER['DOCUMENT_ROOT'].'/..');
-     //define('ROOT_DIR', dirname(dirname(dirname(__FILE__))));
-     Zend_Layout::startMvc(array('layoutPath' => realpath(ROOT_DIR).'/application/views/layouts'));
+    // Initialise Zend_Layout's MVC helpers
+    // This should go in bootstrap if we choose to adopt using layouts.
+    define ("ROOT_DIR",$_SERVER['DOCUMENT_ROOT'].'/..');
+    //define('ROOT_DIR', dirname(dirname(dirname(__FILE__))));
+    Zend_Layout::startMvc(array('layoutPath' => realpath(ROOT_DIR).'/application/views/layouts'));
   }
-  
+
   /**
    * /credit/upload/?credit=#
    * GET:  present file UploadForm to upload a PDF Credit file
@@ -47,40 +41,25 @@ class CreditController extends STARS_ActionController
    * @param integer id is the POID of Credit to upload file for
    * @todo error handling
    */
-  function uploadAction()
+  public function uploadAction()
   {
-    $this->_protect(1);
-    $orgId = STARS_Person::getInstance()->get('orgid');  // restrict access to this org
+    $helper = new CreditFileActionHelper($this);
+    $credit = $helper->_credit;
+    $creditFile = $helper->_creditFile;
     
-    $creditId = intval($this->_getParam('credit'));
-    $credit = new STARS_Credit($creditId);
-
-    if (! $credit->isValidCredit()) 
-    {
-       // TO DO: pass this to error handler instead.
-       $this->view->pageTitle = "Error";
-       $this->view->bodyCopy = "<div class-\"errors\">Invalid Credit ID specified : " . $creditId . " - try again.</div>";
-       return;
-    }
-
-    $this->view->title = 'Submission for ' . $credit->getTitle();
-    $this->view->credit = $credit->getCreditInfo();
-    $this->view->credit['title'] = $credit->getTitle();
+    $helper->initView('Submission');
+    $helper->addViewFileOptions();
     $this->view->error = false;
 
-    // Load existing CreditFile object - this will be null for new uploads.
-    $creditFile = STARS_CreditPdfFile::getCreditPdfFile($creditId, $orgId);
 
-    $this->view->fileOptions = self::_getFileOptions($creditFile);
-
-    $form = new forms_UploadForm( $this->_getLegendLabel($creditFile) );
+    $form = new forms_UploadForm( $helper->getLegendLabel() );
     $this->_populateUploadForm($form, $creditFile);
 
     if ($this->_request->isPost()) 
     {
       $formData = $this->_request->getPost();
       if ($form->isValid($formData) &&
-          $creditFile = $this->_storeData($form->getValues(), $creditId, $orgId) )
+          $creditFile = $this->_storeData($form->getValues(), $credit) )
       { // DONE!  re-direct back to section dashboard
         $this->_flashMessage('File '.$creditFile->getDisplayName() .' was successfully uploaded for credit '.$credit->getTitle());
         $this->_redirect('/section/'. $credit->getCategoryId() );
@@ -98,11 +77,13 @@ class CreditController extends STARS_ActionController
   /**
    * Helper: store post data and save the file itself.
    */
-  private function _storeData($data, $creditId, $orgId)
+  private function _storeData($data, $credit)
   {
-    $file = STARS_CreditPdfFile::upload($data['file'], $creditId, $orgId, $data['description']);
+    $orgId = STARS_Person::getInstance()->get('orgid');
+    $file = STARS_CreditPdfFile::upload($data['file'], $credit->getId(), $orgId, $data['description']);
     return $file;
   }
+  
   /**
    * Helper: re-populate upload form from creditPdfFile data
    */
@@ -118,90 +99,75 @@ class CreditController extends STARS_ActionController
   }
 
   /**
-   * /credit/deletefile/?id=#
+   * /credit/confirmdelete/?credit=#
    * This action should probably move to a fileController in future?
-   * This action uses a session token during the delete confirmation 
-   * to ensure that delete confirmation transaction is legitimate.
-   * GET:  display ConfirmDeleteForm
-   * POST: attempt to delete the file with the given id
-   * @param integer id is the POID of CreditPdfFile to delete
-   * @todo Add error handling
+   * This action passes a session token to the delete confirmation 
+   * so it can validate the delete transaction.
+   * @param integer credit is the POID of Credit to delete file for
+   */
+  function confirmdeleteAction()
+  {
+    $helper = new CreditFileActionHelper($this);
+    $helper->confirmFileExists();
+    $credit = $helper->_credit;
+    $creditId = $credit->getId();
+    $creditFile = $helper->_creditFile;
+    
+    $this->_storeToken( $creditFile->getId() );
+
+    $helper->initView('Delete Submission');
+    $helper->addViewFileOptions();
+    $this->view->deleteAction = "/credit/deletefile/?credit=$creditId";
+    $this->view->cancelAction = "/credit/upload/?credit=$creditId";
+  }
+
+  /**
+   * /credit/deletefile/?credit=#
+   * This action should probably move to a fileController in future?
+   * This action expects a session token from the delete confirmation 
+   * to validate the delete  transaction.
+   * @param integer credit is the POID of Credit to delete file for
    */
   function deletefileAction()
   {
-    $this->_protect(1);
-    $orgId = STARS_Person::getInstance()->get('orgid');  // restrict access to this org
-    
-    $creditId = intval($this->_getParam('credit'));
-    $creditFile = STARS_CreditPdfFile::getCreditPdfFile($creditId, $orgId);
-    $credit = new STARS_Credit($creditId);
-    // TO DO: error checking for invalid file / credit.
+    $helper = new CreditFileActionHelper($this);
+    $helper->confirmFileExists();
+    $credit = $helper->_credit;
+    $creditFile = $helper->_creditFile;
 
-    $this->view->title = 'Delete Submission for ' . $credit->getTitle();
-    $this->view->credit = $credit->getCreditInfo();
-    $this->view->credit['title'] = $credit->getTitle();
-    $this->view->fileOptions = self::_getFileOptions($creditFile);
-    $this->view->filename = $creditFile->getDisplayName();
-    $this->view->cancelAction = "/credit/upload/?credit=$creditId";
-    $this->view->error = false;
-
-    if ($this->_request->isPost()) // POST:
+    // Confirm transaction integirty using the token stored in the session
+    if ( $this->_checkToken($creditFile->getId()) ) 
     {
-      $formData = $this->_request->getPost();
-      $success = false;
-      // Confirm transaction integirty using the token stored in the form
-      if ( $this->_checkToken($formData['token'], $creditId) ) 
-      {
-        $this->_generateToken();  // invalidate the token
+      $this->_storeToken();  // invalidate the token
 
-        $success = $creditFile->delete();
-      }
-      if ($success)  // DONE!  re-direct back to section
-      {
-        $this->_flashMessage('File '. $this->view->filename .' was successfully deleted for credit '. $credit->getTitle() );
-        $this->_redirect('/section/'. $credit->getCategoryId() );
-      }
-      else  // Token did not match or credit could not be deleted for some reason.
-      {  
-        $this->view->error = true;
-      }
+      $success = $creditFile->delete();
     }
-    else // GET: trow up the confirmation with a transaction integrity token
+    if ($success)  // DONE!  re-direct back to section
     {
-      $form = new forms_ConfirmDeleteForm($this->_generateToken($creditId));
-      $this->view->form = $form;
+      $this->_flashMessage('File '. $this->view->filename .' was successfully deleted for credit '. $credit->getTitle() );
+      $this->_redirect('/section/'. $credit->getCategoryId() );
     }
+    // else the deletefile view actually serves an error message: file not deleted
+    $helper->initView('Delete Submission');
   }
 
   /**
-   * Helper: generate a random md5 session token - used to ID a transaction.
-   *    credit: Evans (Guide to ... Zend Framework) p. 32
-   *  @param mixed $id - optional: data to verify (pass same id to _checkToken)
-   *    credit: Sklar (PHP cookbook) p. 364
-   *   This should be moved somewhere more general (functions.php?)
+   * Helper: Store a token in the session to verify the file being deleted.
+   * @param $fileId the ID of the file requested for deletion.
+   * 
    */
-  private function _generateToken($id='', $seed="43LKdfk*$#980ujfmo4")
+  private function _storeToken($fileId=null)
   {
-    $seed = $seed.mktime();   // unique token + secret word
-    $token = md5($id.$seed);
-    $globalSession = new Zend_Session_Namespace('global_data');
-    $globalSession->tokenSeed = $seed;
-    $globalSession->token = $token;
-    return $token;
+    $this->_storeToSession('deleteThisFile', $fileId);
   }
 
   /**
-   * Helper: Check a token for transaction integrity.
-   *  credit: Evans (Guide to ... Zend Framework) p. 32
-   *   This should be moved somewhere more general (functions.php?)
+   * Helper: Check a token for delete transaction integrity.
+   * @param $fileId the Id of the file to check against delete request.
    */
-  private function _checkToken($token='', $id='')
+  private function _checkToken($fileId)
   {
-    $globalSession = new Zend_Session_Namespace('global_data'); 
-    $hashKey = $id.$globalSession->tokenSeed;
-    return !empty($token) &&                 // token returned 
-           $token==$globalSession->token &&  // session confirmed 
-           $token==md5($hashKey);            // $id data verified 
+    return ( $fileId == $this->_getFromSession('deleteThisFile') );
   }
 
   /**
@@ -231,30 +197,107 @@ class CreditController extends STARS_ActionController
    * Should probably move to a fileController in future?
    * GET:  serve a PDF file for viewing with PDF browser plug-in
    * @param integer id is the POID of CreditPdfFile to download
-   * @todo Add error handling
    */
   private function _downloadFile()
   {
-    $this->_protect(1);
-    $orgId = STARS_Person::getInstance()->get('orgid');  // restrict access to this org
-    $creditId = intval($this->_getParam('credit'));
-    $file = STARS_CreditPdfFile::getCreditPdfFile($creditId, $orgId);
-    // TO DO: error checking for invalid file.
+    $helper = new CreditFileActionHelper($this);
+    $helper->confirmFileExists();
+    $file = $helper->_creditFile;
 
     $this->view->filepath = $file->getFullPath();
     $this->view->filename = $file->getDisplayName();
     $this->_helper->layout->disableLayout(); // no layout for PDF views
   }
 
+}
+
+  /**
+   * Helper Class: Perform initilazation for credit file action.
+   * Should really be implemented as private inner-class, but no PHP support!
+   *   Performs common initilization for actions that take a credit ID URL param.
+   *   Loads the credit and associated file objects
+   */
+class CreditFileActionHelper extends STARS_ActionController
+{
+  /**#@+
+   * Define labels passed to View.
+   */
+  const INSERT_LABEL = 'Credit File Upload';
+  const UPDATE_LABEL = 'Re-submit : Credit File Upload';
+
+  private $_controller;  // reference to the controller this helper is helping
+  public $_credit;       // the credit being worked on (guaranteed)
+  public $_creditFile;   // the credit file being contolled (may be null)
+  
+  /**
+   * Initialize a Credit File Action.
+   * Responsibilities: access control, retreive 'credit' URL param;
+   *                   error handling on URL param
+   */
+  public function __construct(STARS_ActionController &$controller)
+  {
+    $controller->_protect(1);  // Access control: authenticated users only
+    
+    $this->_controller = $controller;
+    
+    $creditId = intval($controller->_getParam('credit'));
+    $this->_credit = new STARS_Credit($creditId);
+
+    if (! $this->_credit->isValidCredit()) 
+    {
+       throw new STARS_Exception('Invalid Credit');
+    }
+    
+    // Load existing CreditFile object - this will be null for new uploads.
+    $orgId = STARS_Person::getInstance()->get('orgid');  // restrict access to this org
+    
+    $this->_creditFile = STARS_CreditPdfFile::getCreditPdfFile($creditId, $orgId);
+   }
+   
+   /**
+    * If the file associated with this action must exist - call this method.
+    * Responsibility: re-direct to error page if the file doesn't exist.
+    */
+   public function confirmFileExists()
+   {
+     if (! ($this->_creditFile && $this->_creditFile->fileExists()) )
+     {
+       throw new STARS_Exception('Invalid Credit File');
+     }
+   }
+  
   /**
    * Helper: get an array with the correct legend label
    */
-  private function _getLegendLabel($fileExists)
+  public function getLegendLabel()
   {
-    $label = $fileExists?(self::UPDATE_LABEL):(self::INSERT_LABEL);
+    $label = $this->_creditFile?(self::UPDATE_LABEL):(self::INSERT_LABEL);
     return array('legendLabel' => $label);
   }
 
+  /**
+   * Set up some common view elements, including title, credit, filename
+   */
+  public function initView($titlePrefix)
+  {
+    $this->_controller->view->title = $titlePrefix .' for ' . $this->_credit->getTitle();
+    $this->_controller->view->credit = $this->_credit->getCreditInfo();
+    $this->_controller->view->credit['title'] = $this->_credit->getTitle();
+    if ($this->_creditFile)
+    {
+      $this->_controller->view->filename = $this->_creditFile->getDisplayName();
+    }
+  }
+  
+  /**
+   * Set up the view fileoption element
+   */
+  public function addViewFileOptions()
+  {
+    $this->_controller->view->fileOptions = 
+            self::_getFileOptions($this->_creditFile);
+  }
+  
   /**
    * Helper: Get user options (links) for managing existing file upload
    */
@@ -270,7 +313,7 @@ class CreditController extends STARS_ActionController
           'filename' => $file->getDisplayName(),
           'viewURL'     => '/credit/viewfile/?credit=' . $file->getCreditId(),
           'saveURL'     => '/credit/savefile/?credit=' . $file->getCreditId(),
-          'deleteURL'   => '/credit/deletefile/?credit=' . $file->getCreditId(),
+          'deleteURL'   => '/credit/confirmdelete/?credit=' . $file->getCreditId(),
     );
   }
 }
