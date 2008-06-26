@@ -263,16 +263,25 @@ table.green td
 	padding: 6px 4px;
 }
 
-div.errors
+div.errors, div.messages
 {
     margin: 10px;
     padding: 50px 30px;
     border: 1px solid #eefac5;
-    background-image: url("../img/error.png");
     background-repeat: no-repeat;
     background-position: 0 100%;
     font-size: 1.3em;
     color: #690;
+}
+
+div.errors
+{
+    background-image: url("../img/error.png");
+}
+
+div.messages
+{
+    background-image: url("../img/message.png");
 }
 
 label.optional
@@ -309,33 +318,6 @@ div.error
 {
     color: #b44;
     font-size: .8em;
-}
-
-/*div#messages {
-  font-size: 1.2em;
-  background: #00a;
-  color : #fff;
-  padding : 10pt;
-}*/
-  
-/*Added by Julia*/
-div#messages {
-	border:solid 1px #349534; 
-	background:#C9FFCA;
-	color:#008000;
-	font-weight:bold;
-	padding:4px;
-	text-align:center;
-	margin-top: 5px;
-	}
-
-.file-error{
-		border:solid 1px #CC0000; 
-		background:#F7CBCA;
-		color:#CC0000;
-		font-weight:bold;
-		padding:4px;
-		text-align:center;
 }
 	
 fieldset {

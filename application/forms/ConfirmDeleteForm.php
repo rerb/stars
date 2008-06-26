@@ -17,8 +17,6 @@ class forms_ConfirmDeleteForm extends STARS_Form
 { 
     public function __construct($token, $options=null) 
     { 
-         parent::__construct($options);
-        
         // Hidden field to pass on a session token
         $hidden = new Zend_Form_Element_Hidden('token');
         $hidden->setRequired(true)
@@ -26,8 +24,10 @@ class forms_ConfirmDeleteForm extends STARS_Form
 
         $submit = new Zend_Form_Element_Submit('submit');
         $submit->setLabel('Delete');
-        $submit->setDecorators(array('ViewHelper')); // don't decorate this button
+        $submit->setAttrib('class', 'button');
 
         $this->addElements(array($hidden, $submit));
+        
+         parent::__construct($options);
     } 
 } 

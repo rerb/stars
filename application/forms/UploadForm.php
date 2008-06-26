@@ -30,12 +30,6 @@ class forms_UploadForm extends STARS_Form
 { 
     public function __construct($options=null) 
     { 
-        parent::__construct($options);
-
-        // It may be possible to load most of form from config file...
-        // but I need to figure out how to "plugin" the custom file input type...
-        //parent::__construct(new Zend_Config_Ini('../app/config/uploadcreditform.ini', 'config'));
-        
         $this->setName('upload');
         $this->setAttrib('enctype', 'multipart/form-data');
         
@@ -53,9 +47,12 @@ class forms_UploadForm extends STARS_Form
 
         $submit = new Zend_Form_Element_Submit('submit');
         $submit->setLabel('Upload');
+        $submit->setAttrib('class', 'button');
         
         $this->addElements(array($file, $description, $submit));
 
         $this->addDisplayGroup(array('file', 'description', 'submit'), 'fileupload', array('legend'=>$options['legendLabel']));
+
+        parent::__construct($options);
     } 
 } 
