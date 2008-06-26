@@ -3,6 +3,7 @@
 class STARS_ActionController extends Zend_Controller_Action
 {
     protected $_flashMessenger = null;
+    private $_sessions = array();
     
     public function __construct(Zend_Controller_Request_Abstract $request, Zend_Controller_Response_Abstract $response, array $invokeArgs = array())
     {
@@ -29,6 +30,25 @@ class STARS_ActionController extends Zend_Controller_Action
          $this->view->message = implode("<br />", 
                      $this->_flashMessenger->getMessages());
        }
+    }
+    
+    /**
+     * Support for session variables stored by Controllers.
+     * Each controller will be given its own namespace.
+     * Store a session variable for this controller.
+     * @param strin $name name of the session variable to store.
+     * @param mixed $value the value to store in the session
+     */
+    protected function _storeToSession($name, $value)
+    {
+      $controllerSession = new Zend_Session_Namespace( get_class($this) );
+      $controllerSession->$name = $value;
+    }
+    
+    protected function _getFromSession($name)
+    {
+      $controllerSession = new Zend_Session_Namespace( get_class($this) );
+      return $controllerSession->$name;
     }
     
     private function _loginForm()
