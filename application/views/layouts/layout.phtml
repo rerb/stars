@@ -10,8 +10,7 @@
     <body>
 		<h1><a href="/">Sustainability Tracking and Ratings System</a></h1>
 
-        <div id="login">
-            <?php if(Zend_Auth::getInstance()->hasIdentity()) { ?>
+        <div id="login" class="<?php if(Zend_Auth::getInstance()->hasIdentity()) { ?>loggedin">
                 <p>
                     Logged in as 
                     <strong>
@@ -23,19 +22,22 @@
                      / 
                     <a href="/user/logout/">Logout</a>
                 </p>
-            <?php } else { ?>
+            <?php } else { ?>loggedout">
                 <?php echo $this->loginForm ?>
+                <p>
+                    <a href="/password/forgot/">Forgot your password?</a>
+                </p>
             <?php } ?>
         </div>
         <div id="nav">
-            <a href="../../tracking/STARS_Pilot_Phase_One_Guide.pdf">Pilot Phase 1 Guide (PDF)</a>
+            <a href="http://www.aashe.org/stars/STARS_Pilot_Phase_One_Guide.pdf">Pilot Phase 1 Guide (PDF)</a>
 
-            <a href="../../tracking/faqs.php">STARS FAQ</a>
+            <a href="http://www.aashe.org/stars/faqs.php">STARS FAQ</a>
             <a href="http://www.aashe.org/stars/forum">Discussion Forum</a>
             <a href="mailto:stars@aashe.org?subject=STARS Question">Contact STARS Team</a>
             <a href="mailto:webmaster@aashe.org?subject=STARS Tracking Tool">Help?</a>
-      </div>
-      <div id="content">
+        </div>
+        <div id="content">
          <?php echo $this->layout()->content ?>
      </div>
 	</body>

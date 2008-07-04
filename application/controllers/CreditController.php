@@ -22,18 +22,6 @@
  */
 class CreditController extends STARS_ActionController
 {
-  // This should GO - it's only here to allow us to use layouts for these views.
-  public function __construct(Zend_Controller_Request_Abstract $request, Zend_Controller_Response_Abstract $response, array $invokeArgs = array())
-  {
-    parent::__construct($request, $response, $invokeArgs);
-
-    // Initialise Zend_Layout's MVC helpers
-    // This should go in bootstrap if we choose to adopt using layouts.
-    define ("ROOT_DIR",$_SERVER['DOCUMENT_ROOT'].'/..');
-    //define('ROOT_DIR', dirname(dirname(dirname(__FILE__))));
-    Zend_Layout::startMvc(array('layoutPath' => realpath(ROOT_DIR).'/application/views/layouts'));
-  }
-
   /**
    * /credit/upload/?credit=#
    * GET:  present file UploadForm to upload a PDF Credit file

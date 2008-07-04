@@ -39,6 +39,11 @@ Zend_Registry::set('db', $db);
 // Zend_Registry::set('person', new STARS_Person(Zend_Auth::getInstance()->getIdentity()));
 //
 
+// LAYOUTS
+    //define ("ROOT_DIR",$_SERVER['DOCUMENT_ROOT'].'/..');
+    define('APP_DIR', dirname(__FILE__));
+    Zend_Layout::startMvc(array('layoutPath' => realpath(APP_DIR).'/views/layouts'));
+
 // FRONT CONTROLLER
 
 $front = Zend_Controller_Front::getInstance();
