@@ -4,7 +4,7 @@ header('Content-type: application/pdf');
 
 // It will be called downloaded.pdf
 header('Content-Disposition: attachment; filename="'.$this->filename.'"');
+header('Content-Length: '.filesize($this->filepath));
 
 // The PDF source is in original.pdf
 readfile($this->filepath);
-?>

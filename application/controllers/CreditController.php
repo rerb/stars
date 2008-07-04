@@ -171,10 +171,10 @@ class CreditController extends STARS_ActionController
   }
 
   /**
-   * /credit/viewfile/?id=#
+   * /credit/viewfile/?credit=#
    * This action should probably move to a fileController in future?
    * GET:  serve a PDF file for viewing with PDF browser plug-in
-   * @param integer id is the POID of CreditPdfFile to view
+   * @param integer credit is the POID of CreditPdfFile to view
    */
   function viewfileAction()
   {
@@ -182,10 +182,10 @@ class CreditController extends STARS_ActionController
   }
 
   /**
-   * /credit/savefile/?id=#
+   * /credit/savefile/?credit=#
    * This action should probably move to a fileController in future?
    * GET:  serve a PDF file for download to the client filesystem
-   * @param integer id is the POID of CreditPdfFile to save
+   * @param integer credit is the POID of CreditPdfFile to save
    */
   function savefileAction()
   {
@@ -311,9 +311,9 @@ class CreditFileActionHelper extends STARS_ActionController
     // Pass the credit id, and we'll look-up the file for the user's org.
     return array(
           'filename' => $file->getDisplayName(),
-          'viewURL'     => '/credit/viewfile/?credit=' . $file->getCreditId(),
-          'saveURL'     => '/credit/savefile/?credit=' . $file->getCreditId(),
-          'deleteURL'   => '/credit/confirmdelete/?credit=' . $file->getCreditId(),
+          'viewURL'     => '/credit/viewfile/' . $file->getCreditId(),
+          'saveURL'     => '/credit/savefile/' . $file->getCreditId(),
+          'deleteURL'   => '/credit/confirmdelete/' . $file->getCreditId(),
     );
   }
 }

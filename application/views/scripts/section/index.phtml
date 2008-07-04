@@ -47,20 +47,22 @@
                 <?php echo $credit['creditnumber'] ?>
             </td>
             <td>
-                <a href="/credit/upload/?credit=<?php echo $credit['creditid'] ?>/"><?php echo $credit['creditname'] ?></a>
+                <a href="/credit/upload/<?php echo $credit['creditid'] ?>/"><?php echo $credit['creditname'] ?></a>
             </td>
             <td align="center">
                 <?php echo empty($credit['status']) ? ' - ' : '<img src="/img/tick.png" alt="tick" title="Credit Uploaded">' ?>
             </td>
             <td>
-                <?php  // This is So WRONG & duplicate code - model needs to be re-factored?
+                <?php  
+                // This is So WRONG & duplicate code - model needs to be re-factored?
+                // Lots of opportunity for poor error handling here - sure to break.
                 if (empty($credit['status']))
                 { echo ' '; }
                 else {
                   $file = new STARS_CreditPdfFile($credit['orgcreditfileid']);
-                  // $fileoptions = CreditController::_getFileOptions($file);
+                  //$fileoptions = CreditFileActionHelper::_getFileOptions($file);
                   $filename = $file->getDisplayName();
-                  $viewURL  = '/credit/viewfile/?id=' . $file->getId();
+                  $viewURL  = '/credit/viewfile/' . $credit['creditid'];
                   echo '<a href="' . $viewURL .'"> <img src="/img/page_white_acrobat.png" alt="PDF File" title="Click to View your Submission" border=0/></a> <a href="'
                    . $viewURL .'">'
                    . $filename .'</a>';
