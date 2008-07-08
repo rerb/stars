@@ -29,8 +29,10 @@ class STARS_Section
     
     private function _retrieveCredits()
     {
+        $user = STARS_Person::getInstance();
         try
         {
+          if ($user->exists()) {
             $this->_credits = Zend_Registry::get('db')->fetchAll
             (
                 'SELECT o.*, c.*, di1.itemdisplay AS sectiontitle, di1.itemvalue AS sectionabbr, di2.itemdisplay AS subsectiontitle
@@ -43,9 +45,25 @@ class STARS_Section
                 ON (c.creditid = o.creditid AND o.orgid = ?)
                 WHERE c.dicreditcategory = ?
                 ORDER BY prerequisite DESC, creditnumber ASC',
-               array(STARS_Person::getInstance()->get('orgid'), $this->_sectionId),
+                array($user->get('orgid'), $this->_sectionId),
                 Zend_Db::FETCH_ASSOC
             );
+          }
+          else {
+            $this->_credits = Zend_Registry::get('db')->fetchAll
+            (
+                'SELECT c.*, di1.itemdisplay AS sectiontitle, di1.itemvalue AS sectionabbr, di2.itemdisplay AS subsectiontitle
+                FROM credits AS c
+                INNER JOIN (dataitems AS di1)
+                ON (c.dicreditcategory = di1.itemid)
+                LEFT JOIN (dataitems AS di2)
+                ON (c.dicreditsubcategory = di2.itemid)
+                WHERE c.dicreditcategory = ?
+                ORDER BY prerequisite DESC, creditnumber ASC',
+                array($this->_sectionId),
+                Zend_Db::FETCH_ASSOC
+            );
+          }
         }
         
         catch(Zend_Db_Exception $e) {}
