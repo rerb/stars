@@ -11,7 +11,7 @@
  * @package STARS
  */
 define ("FILES_ROOT",$_SERVER['DOCUMENT_ROOT'].'/../files');
-define("CREDIT_FORMS", 'creditforms'); // sub-path to credit forms directory
+define("CREDIT_FORMS", 'credit_forms'); // sub-path to credit forms directory
 define ("DISPLAY_NAME", 'userfilename');  // field with user's file name
 define ("FILE_PATH", 'filepath');  // field with path to file on server
 
@@ -262,9 +262,9 @@ abstract class STARS_File
       else
       {
         Zend_Registry::get('db')->insert($this->_table, $this->_record);
-        $this->_fileOID = 
-          $this->_record[$this->_key] =Zend_Registry::get('db')->lastInsertId();
+        $this->_fileOID = Zend_Registry::get('db')->lastInsertId();
       }
+      $this->_record[$this->_key] = $this->_fileOID;
       return self::SUCCESS;
     }
 

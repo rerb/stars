@@ -57,9 +57,11 @@ class SectionController extends STARS_ActionController
      */
     private function _getFormFilename($credit)
     {
-      $filename = $credit['sectionabbr'] . ' ' .
-                (($credit['prerequisite'] == 1) ? 'Prereq' : 'Credit') . ' ' .
-                  $credit['creditnumber'] . '.pdf';
+      $creditNumber = $credit['creditnumber']<10?'0':'';
+      $creditNumber .= $credit['creditnumber'];
+      $filename = $credit['sectionabbr'] . '_' .
+                (($credit['prerequisite'] == 1) ? 'Prereq' : 'Credit') . '_' .
+                  $creditNumber . '.pdf';
       return $filename;
     }
     
