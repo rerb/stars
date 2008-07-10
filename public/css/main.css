@@ -383,6 +383,7 @@ p.starsbutton a
 {
 	color: #fff;
 	text-decoration: none;
+    display: block;
 }
 
 p.starsbutton a:hover

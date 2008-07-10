@@ -6,21 +6,14 @@
     </div>
 </div>
 
-<h2>'Confirm Delete for Credit Submission'</h2>
-
-<h3><?php echo $credit['sectiontitle'] . ($credit['subsectiontitle']?(': ' . $credit['subsectiontitle']):''); ?> </h3>
-<h3><?php echo $credit['title']; ?></h3>
-
   <fieldset>
-    <legend>Confirm Delete</legend>
     <div align="center">
-      <H2 align='center'>This Action cannot be un-done </H2>
-
       <H3>Are you sure you want to delete the file: <a href="<?php echo $this->fileOptions['viewURL'];?>"> <img src="/img/page_white_acrobat.png" alt="PDF File" title="Click to View your Submission" border=0/></a> <a href="<?php echo $this->fileOptions['viewURL'];?>"><?php echo $this->fileOptions['filename']; ?> </a> </H3>
+      <H3>This Action cannot be un-done </H3>
       
       <table width="90%"><tr>
-      <td><p class="starsbutton"><a href="<?php echo $this->deleteAction; ?>">Delete It</a></p>
-      <td><p class="starsbutton"><a href="<?php echo $this->cancelAction; ?>">Cancel</a></p>
+      <td align="center"><p class="starsbutton"><a href="<?php echo $this->deleteAction; ?>">Delete It</a></p>
+      <td align="center"><p class="starsbutton"><a href="<?php echo $this->cancelAction; ?>">Cancel</a></p>
       </tr></table>
     </div>
   </fieldset>

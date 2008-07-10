@@ -11,6 +11,7 @@
  * @package STARS
  */
 define ("FILES_ROOT",$_SERVER['DOCUMENT_ROOT'].'/../files');
+define("CREDIT_FORMS", 'creditforms'); // sub-path to credit forms directory
 define ("DISPLAY_NAME", 'userfilename');  // field with user's file name
 define ("FILE_PATH", 'filepath');  // field with path to file on server
 
@@ -183,10 +184,15 @@ abstract class STARS_File
   /**
    * Get the absolute filesystem path to a path relative to files directory.
    * @param string $filepath  a relative filesystem path
+   * @param string $fileType optional file type used to get correct path.
    * @return string abs. filesystem path to $filepath in files directory.
    */
-  protected static function getFullFilesPath($filepath)
+  public static function getFullFilesPath($filepath, $fileType=null)
   {
+    // to do: should do something a litte more elegant here...
+    if ($fileType == 'CREDIT_FORM') {
+      $filepath = CREDIT_FORMS .'/'. $filepath;
+    }
     return realpath(FILES_ROOT) .'/'. $filepath;
   }
 

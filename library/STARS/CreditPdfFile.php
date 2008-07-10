@@ -50,11 +50,11 @@ class STARS_CreditPdfFile extends STARS_File
    * @param $fileInfo  $_FILES array for uploaded file
    * @param integer $creditOID POID for associated credit.
    * @param integer $orgOID POID for associated organization.
-   * @param $desciption string meta-data for this file upload.
+   * @param $points estimated points for this submission.
    * @return new CreditPdfFile object or null if it could not be created.
    * @todo: error handling - encode path and upload could fail!
    */
-  static public function upload($fileInfo, $creditOID, $orgOID, $description)
+  static public function upload($fileInfo, $creditOID, $orgOID, $points)
   {
     $filepath = self::_encodeFilePath($creditOID, $orgOID);  // TO DO: error check!
     $record = array(
@@ -62,7 +62,7 @@ class STARS_CreditPdfFile extends STARS_File
           'orgid'        => $orgOID,
           'modifierid'   => STARS_Person::getInstance()->get('personid'),
           'status'       => 1,
-          'notes'        => $description,
+          'pointsest'    => $points,
           'filepath'     => $filepath,
     );
 
@@ -89,13 +89,13 @@ class STARS_CreditPdfFile extends STARS_File
    }
    
   /**
-   * Get the annotations associated with this file.
-   * @return string annotations for this CreditPdfFile (null if !isValidFile())
+   * Get the estimated points associated with this file.
+   * @return string points for this CreditPdfFile (null if !isValidFile())
    */
-   public function getNotes()
+   public function getPoints()
    {
      $info = $this->getFileInfo();
-     return $info['notes'];
+     return $info['pointsest'];
    }
    
   /**

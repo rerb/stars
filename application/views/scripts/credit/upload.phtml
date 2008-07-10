@@ -14,15 +14,16 @@
         <h3>Current Submission</h3>
         <p style="text-align: center">
             <span style="margin: auto 2em">
-                <a href="<?php echo $this->fileOptions['viewURL'];?>"> <img src="/img/page_white_acrobat.png" alt="PDF File" title="Click to View your Submission" border=0/></a> <a href="<?php echo $this->fileOptions['viewURL'];?>"><?php echo $this->fileOptions['filename']; ?> </a>
+              <img src="/img/page_white_acrobat.png" alt="PDF File" title="Your Submission for this credit" border=0/> <strong><?php echo $this->fileOptions['filename']; ?></strong>
             </span>            
             <span style="margin: auto 2em">
-                <a href="<?php echo $this->fileOptions['saveURL'];?>"> <img src="/img/disk.png" alt="Save File" title="Click to Download your Submission" border=0/></a> <a href="<?php echo $this->fileOptions['saveURL'];?>">Download to re-edit Credit Form</a>
+                <a href="<?php echo $this->fileOptions['saveURL'];?>"> <img src="/img/disk.png" alt="Save File" title="Click to Download your Submission" border=0/></a> <a href="<?php echo $this->fileOptions['saveURL'];?>">Download this File</a>
             </span>
             <span style="margin: auto 2em">
                 <a href="<?php echo $this->fileOptions['deleteURL'];?>"> <img src="/img/cross.png" alt="Delete File" title="Click to Delete this Submission" border=0/></a> <a href="<?php echo $this->fileOptions['deleteURL'];?>">Delete this File</a>
             </span>
         </p>
+        <p>To edit your submission, simply download the file, edit it, and re-submit it below.</p>
     </div>
 <?php endif ?>
 

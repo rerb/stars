@@ -40,18 +40,30 @@ class forms_UploadForm extends STARS_Form
                  ->addPrefixPath('STARS_Validate', 'STARS/Validate/', 'validate')
                  ->addValidator('ValidStarsCreditFile');
 
-        $description = new Zend_Form_Element_Textarea('description');
+        // Don's show points selector if the credit has no points.
+        if ($options['pointsOptions']) {
+          $points = new Zend_Form_Element_Select('points');
+          $points->setLabel('Estimated points for this credit')
+                 ->setRequired(true)
+                 ->setMultiOptions($options['pointsOptions']);
+        }
+        else {
+          $points = new Zend_Form_Element_Hidden('points');
+          $points->setValue('not applicable');
+        }
+/*
+       $description = new Zend_Form_Element_Textarea('description');
         $description->setLabel('Optional : annotation for this submission')
                     ->setRequired(false)
                     ->setAttrib("rows","5");
-
+*/
         $submit = new Zend_Form_Element_Submit('submit');
         $submit->setLabel('Upload');
         $submit->setAttrib('class', 'button');
         
-        $this->addElements(array($file, $description, $submit));
+        $this->addElements(array($file, $points, $submit));
 
-        $this->addDisplayGroup(array('file', 'description', 'submit'), 'fileupload', array('legend'=>$options['legendLabel']));
+        $this->addDisplayGroup(array('file', 'points', 'submit'), 'fileupload', array('legend'=>$options['legendLabel']));
 
         parent::__construct($options);
     } 

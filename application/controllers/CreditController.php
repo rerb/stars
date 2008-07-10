@@ -23,6 +23,28 @@
 class CreditController extends STARS_ActionController
 {
   /**
+   * /credit/formsdownload/?form=filename
+   * Attempt to retrieve the given file for download.
+   * @param form filename is the name of the file to server
+   * @todo Move action to generic FileController
+   */
+  public function downloadformAction()
+  {
+    //Form downloads are not available to the public
+    $this->_protect(1);
+
+    $filename = $this->_getParam('form');
+    $this->view->filepath = STARS_File::getFullFilesPath($filename, 'CREDIT_FORM');
+    if (! file_exists($this->view->filepath)) 
+    {
+       throw new STARS_Exception('Invalid Filename');
+    }
+    $this->view->filename = $filename;
+    $this->_helper->layout->disableLayout(); // no layout for PDF views
+    echo $this->view->render('credit/savefile.phtml');  // re-use the savefile view
+  }
+
+  /**
    * /credit/upload/?credit=#
    * GET:  present file UploadForm to upload a PDF Credit file
    * POST: attempt to upload the user's file
@@ -39,8 +61,17 @@ class CreditController extends STARS_ActionController
     $helper->addViewFileOptions();
     $this->view->error = false;
 
-
-    $form = new forms_UploadForm( $helper->getLegendLabel() );
+    $formOptions = $helper->getLegendLabel();
+    $formOptions['pointsOptions'] = false;
+    $pointsAvail = $credit->getPointsAvailable();
+    if (!$credit->isPrereq() && $pointsAvail>0) {  // pre-req's don't have points
+      $pointsOptions = array('please select...', 'not applicable');
+      for ($i=0; $i<=$pointsAvail; $i++) {
+        $pointsOptions[] = $i;
+      }
+      $formOptions['pointsOptions'] = $pointsOptions;
+    }
+    $form = new forms_UploadForm( $formOptions );
     $this->_populateUploadForm($form, $creditFile);
 
     if ($this->_request->isPost()) 
@@ -68,7 +99,7 @@ class CreditController extends STARS_ActionController
   private function _storeData($data, $credit)
   {
     $orgId = STARS_Person::getInstance()->get('orgid');
-    $file = STARS_CreditPdfFile::upload($data['file'], $credit->getId(), $orgId, $data['description']);
+    $file = STARS_CreditPdfFile::upload($data['file'], $credit->getId(), $orgId, $data['points']);
     return $file;
   }
   
@@ -80,7 +111,7 @@ class CreditController extends STARS_ActionController
     if ($creditPdfFile)
     {
       $data = array(
-        'description' => $creditPdfFile->getNotes(),
+        'points' => $creditPdfFile->getPoints(),
       );
       $form->populate($data);
     }

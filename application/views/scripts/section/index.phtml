@@ -14,16 +14,13 @@
 <table class="green">
 	<tr>
     	<th>
-        	Credit Number
+        	Get Credit Form
         </th>
         <th>
-        	Credit Name
+        	Submit Credit Data
         </th>
-        <th>
+        <th colspan="2">
         	Status
-        </th>
-        <th>
-        	Submission
         </th>
         <th>
         	Updated
@@ -40,32 +37,32 @@
         <?php } ?>
         <tr>
             <td>
-                <?php echo $credit['sectionabbr'] ?>
-                <?php echo ($credit['prerequisite'] == 1) ? 'Prereq' : 'Credit' ?>
-                <?php echo $credit['creditnumber'] ?>
+              <?php if ($credit['formAvailable']): ?>
+                <a href="<?php echo $credit['formLink'] ?>"
+                   title="Click to download form">
+                    <img src="/img/page_white_acrobat.png" 
+                         alt="PDF File" 
+                         border=0/>
+                    <?php echo $credit['formFilename'] ?> </a>
+              <?php else:
+                  echo $credit['creditCode'];
+                endif;
+              ?>
             </td>
             <td>
-                <a href="/credit/upload/<?php echo $credit['creditid'] ?>/"><?php echo $credit['creditname'] ?></a>
+              <a href= "<?php echo $credit['uploadLink'] ?>/"
+                 title="<?php echo $credit['uploadTitle'] ?>" >
+                <?php echo $credit['creditname'] ?></a>
             </td>
             <td align="center">
-                <?php echo empty($credit['status']) ? ' - ' : '<img src="/img/tick.png" alt="tick" title="Credit Uploaded">' ?>
+              <?php echo empty($credit['status']) ? ' - ' : '<img src="/img/tick.png" alt="tick" title="Credit Uploaded">' ?>
             </td>
             <td>
-                <?php  
-                // This is So WRONG & duplicate code - model needs to be re-factored?
-                // Lots of opportunity for poor error handling here - sure to break.
-                if (empty($credit['status']))
-                { echo ' '; }
-                else {
-                  $file = new STARS_CreditPdfFile($credit['orgcreditfileid']);
-                  //$fileoptions = CreditFileActionHelper::_getFileOptions($file);
-                  $filename = $file->getDisplayName();
-                  $viewURL  = '/credit/viewfile/' . $credit['creditid'];
-                  echo '<a href="' . $viewURL .'"> <img src="/img/page_white_acrobat.png" alt="PDF File" title="Click to View your Submission" border=0/></a> <a href="'
-                   . $viewURL .'">'
-                   . $filename .'</a>';
-                } ?>
-             </td>
+              <?php if (!empty($credit['status'])): ?>
+                  <a href="<?php echo $credit['fileLink']; ?>" title="Click to Download your Submission"> <img src="/img/disk.png" alt="PDF File" border=0/>
+                    <?php echo $credit['filename']; ?> </a>
+              <?php endif ?>
+            </td>
             <td>
                 <?php echo empty($credit['status']) ? '': $credit['datemodified'] ?>
             </td>

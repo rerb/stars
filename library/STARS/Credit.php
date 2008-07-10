@@ -62,6 +62,17 @@ class STARS_Credit
     }
     
     /**
+     * Get the points available for this Credit
+     * @return integer points available or null
+     */
+    public function getPointsAvailable()
+    {
+      $credit = $this->getCreditInfo();
+      
+      return $credit['pointsavailable'];
+    }
+
+    /**
      * Get the title for this Credit 
      * @return string  (e.g., "Credit AF6" or "Prerequisit OP1")
      */
