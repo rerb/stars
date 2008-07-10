@@ -41,7 +41,7 @@ class CreditController extends STARS_ActionController
     }
     $this->view->filename = $filename;
     $this->_helper->layout->disableLayout(); // no layout for PDF views
-    echo $this->view->render('credit/savefile.phtml');  // re-use the savefile view
+   // we should just re-use the savefile view here - but how??
   }
 
   /**
