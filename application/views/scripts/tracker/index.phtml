@@ -10,57 +10,75 @@
     	<th>
         	Section Name
         </th>
-<!--        <th>
+        <th>
         	Status
-        </th>-->
+        </th>
+        <th>
+            Credit Forms (pilot phase 1)
+        </th>
     </tr>
     <tr>
     	<td>
 	    	<a href="/institutional/">Institutional Info</a>
 	    	<div class="help">Basic information about your institution</div>
         </td>
-<!--        <td>
-
-        	Incomplete
-        </td>-->
+        <td>
+            &nbsp; <!-- 	Incomplete -->
+        </td>
+        <td>
+            &nbsp; <!-- no files -->
+        </td>
     </tr>
     <tr>
     	<td>
 	    	<a href="/normalization/">Annual Normalization Data</a>
 	    	<div class="help">Additional information, changing year to year</div>
         </td>
-<!--        <td>
-
-        	Incomplete
-        </td>-->
+        <td>
+            &nbsp; <!-- 	Incomplete -->
+        </td>
+        <td>
+            &nbsp; <!-- no files -->
+        </td>
     </tr>
 	<tr>
     	<td>
            	Education and Research
            	<div class="help">Not available in this release</div>
         </td>
-<!--        <td>
-        	Not Available
-        </td>-->
+        <td>
+            Not Available
+        </td>
+        <td>
+            &nbsp; <!-- no files -->
+        </td>
 
     </tr>
-    <tr>
-    	<td>
-	    	<a href="/section/2/">Operations</a>
-	    	<div class="help">In development</div>
+    <?php foreach($this->section as $section) { ?>
+      <tr>
+        <td>
+            <a href=<?php echo $section->path; ?>>
+               <?php echo $section->title; ?></a>
+            <div class="help">Pilot Phase 1</div>
         </td>
-<!--        <td>
-        	Incomplete
-        </td>-->
-    </tr>
-
-    <tr>
-    	<td>
-	    	<a href="/section/3/">Administration and Finance</a>
-	    	<div class="help">In development</div>
+        <td>
+            <?php if ($section->status['complete']) : ?>
+               <img src="/img/tick.png" alt="tick" title="Section Complete" border="0"/>
+            <?php endif ?>
+            <?php echo $section->status['msg']; ?>
+            <div class="help"><?php echo $section->status['stats']; ?></div>
         </td>
-<!--        <td>
-        	Incomplete
-        </td>-->
-    </tr>
+        <td>
+            <?php
+              $forms = $section->forms;
+              if ($forms['fileAvailable']) : ?>
+                <a href="<?php echo $forms['fileLink'];?>"
+                   title="Download Zip file">
+                  <img src="/img/compress.png" alt="ZIP File" border=0/>
+                  <?php echo $forms['filename']; ?></a>
+                <div class="help">download all <?php echo $section->title; ?> credit forms for pilot phase 1 </div>
+            <?php endif ?>
+        </td>
+      </tr>
+    <?php } // foreach section ?>
 </table>
