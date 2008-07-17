@@ -206,4 +206,29 @@ class STARS_Credit
         
         catch(Zend_Db_Exception $e) { return null;}
     }
+    
+    
+    /**
+     * Fectch all the credits.
+     * @return an array containing all credits
+     *         or '' if the credit does not exist.
+     */
+    static public function getAllCredits()
+    {
+      try {
+        $credits = Zend_Registry::get('db')->fetchAll
+        (
+             'SELECT c.*, di1.itemdisplay AS sectiontitle, di1.itemvalue AS sectionabbr, di2.itemdisplay AS subsectiontitle
+             FROM credits AS c
+             INNER JOIN (dataitems AS di1)
+             ON (c.dicreditcategory = di1.itemid)
+             LEFT JOIN (dataitems AS di2)
+             ON (c.dicreditsubcategory = di2.itemid)',
+            array(),
+            Zend_Db::FETCH_ASSOC
+        );
+        return $credits;
+      }
+      catch(Zend_Db_Exception $e) { return null;}
+    }
 }

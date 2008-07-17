@@ -32,6 +32,7 @@ class STARS_Section
         $user = STARS_Person::getInstance();
         try
         {
+          // TO DO: change this to build query conditionally.
           if ($user->exists()) {
             $this->_credits = Zend_Registry::get('db')->fetchAll
             (
