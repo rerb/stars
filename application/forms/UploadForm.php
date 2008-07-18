@@ -35,6 +35,7 @@ class forms_UploadForm extends STARS_Form
         
         $file = new STARS_Form_Element_File('file');
         $file->setLabel('File')
+                 ->setRequired(true)
                  ->addPrefixPath('STARS_Validate', 'STARS/Validate/', 'validate')
                  ->addValidator('ValidStarsCreditFile');
 
