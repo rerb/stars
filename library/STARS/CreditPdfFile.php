@@ -77,6 +77,67 @@ class STARS_CreditPdfFile extends STARS_File
   // Add methods here to assist validating the file based on the
   // credit it is supposed to be attached to.
 
+  /**
+   * Get information about one credit form
+   * @param STARS_Credit $credit - the credit record to retieve info about.
+   * @return array of information about the credit form ('available', 'filename', 'link')
+   * @to do:  this should really work on credit objects!
+   */
+  static public function getFormInfo($credit)
+  {
+    $info = array();
+    //$formFilename = $credit->getFormFilename();
+    $formFilename = STARS_Credit::getFormFilename($credit);
+    $formFilepath = STARS_File::getFullFilesPath($formFilename, 'CREDIT_FORM');
+    if (file_exists($formFilepath)) {
+      $info['available'] = true;
+      $info['filename'] = $formFilename;
+      $info['link'] = '/credit/downloadform/form/'.$formFilename;
+    }
+    else {
+      $info['available'] = false;
+    }
+    return $info;
+  }
+  
+  /**
+   * Get information about one previously submitted credit file
+   * @param STARS_Credit $credit - the credit record to retieve info about.
+   * @return array of information about the creditfile ('exists', 'filename', 'link')
+   * @to do:  this should really work on credit objects!
+   */
+  static public function getSubmissionInfo($credit)
+  {
+    $info = array();
+    if (! empty($credit['status'])) {
+      $file = new STARS_CreditPdfFile($credit['orgcreditfileid']);
+      // @todo: error handling - if file doesn't exist, DB is inconsistent with filesystem.
+      $info['available'] = true;
+      $info['filename'] = $file->getDisplayName();
+      $info['link'] = '/credit/savefile/' . $credit['creditid'];
+    }
+    else {
+      $info['available'] = false;
+    }
+    return $info;
+  }
+  
+  /**
+   * Get information about submitting credit file
+   * @param STARS_Credit $credit - the credit record to retieve info about.
+   * @return array of information about submitting ('code','uploadLink', 'uploadTitle')
+   * @to do:  this should really work on credit objects!
+   */
+  static public function getSubmitInfo($credit)
+  {
+    $info = array();
+    $creditCode = STARS_Credit::buildCreditCode($credit, ' ');
+    $info['creditCode'] = $creditCode;
+    $info['uploadLink'] = '/credit/upload/'.$credit['creditid'];
+    $uploadTitle = (empty($credit['status']) ?'Submit Data':'View / Edit your submission');
+    $info['uploadTitle'] = $uploadTitle . ' for ' . $creditCode;
+    return $info;
+  }
 
   /**
    * Get the Persistent Object ID of the credit associated with this file.
@@ -97,7 +158,7 @@ class STARS_CreditPdfFile extends STARS_File
      $info = $this->getFileInfo();
      return $info['pointsest'];
    }
-   
+
   /**
    * Helper: Attempt to fetch the TABLE KEY for the given org-credit.
    * @param integer $creditOID POID for associated credit.

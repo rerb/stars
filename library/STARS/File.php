@@ -243,6 +243,45 @@ abstract class STARS_File
     }
     return file_exists($dirpath);
   }
+  
+  /**
+   * Does this file contain the the given string?
+   * @param string $tag - text the file might contain.
+   * @return true if the file exsits and contains the tag, false otherwise.
+   */
+  public function contains($tag)
+  {
+    return self::containsTag($this->getFullPath(), $tag);
+  }
+  
+  /**
+   * Does the file at the given path contain the the given string?
+   * @param string $filepath - full path to file
+   * @param string $tag - text the file might contain.
+   * @return true if the file exsits and contains the tag, false otherwise.
+   */
+  static public function containsTag($filepath, $tag)
+  {
+    if ( file_exists($filepath) ) {
+      // Method 1:  load entire file - fast, but bloated
+      $pattern = "/\b$tag\b/i";
+      $matches = preg_grep($pattern, file( $filepath ));
+      return count($matches);
+/*
+    // Method 2: do linear search with short-cut exit.  More efficient.
+    $fh = fopen( $filepath, 'r' ) or die ($php_errormsg);
+    while (!feof($fh)) {
+      $line = fgets($fh, 4096);   // hmmm - will cause problem if pattern spans line...
+      if (preg_match($pattern, $line)) {
+        return true;
+      }
+    }
+    return false;  // no match found
+*/
+    }
+    else
+      return false;
+  }
 
   /**
    * Store array of attributes for this file in the database.
@@ -257,6 +296,9 @@ abstract class STARS_File
     {
       if ($this->persists())
       {
+        // If a file with the same name is uploaded, the modification date doesn't change.
+        // Force the record to update...
+        $this->_record['datemodified'] = null;
         Zend_Registry::get('db')->update($this->_table, $this->_record, $this->_key . '= ' . $this->_fileOID);
       }
       else

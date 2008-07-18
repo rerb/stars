@@ -23,7 +23,7 @@
 	    	<div class="help">Basic information about your institution</div>
         </td>
         <td>
-            &nbsp; <!-- 	Incomplete -->
+            Ready<!-- 	Incomplete -->
         </td>
         <td>
             &nbsp; <!-- no files -->
@@ -35,7 +35,7 @@
 	    	<div class="help">Additional information, changing year to year</div>
         </td>
         <td>
-            &nbsp; <!-- 	Incomplete -->
+            Ready<!-- 	Incomplete -->
         </td>
         <td>
             &nbsp; <!-- no files -->
@@ -44,7 +44,7 @@
 	<tr>
     	<td>
            	Education and Research
-           	<div class="help">Not available in this release</div>
+           	<div class="help">Not available until Phase 2</div>
         </td>
         <td>
             Not Available
@@ -59,14 +59,16 @@
         <td>
             <a href=<?php echo $section->path; ?>>
                <?php echo $section->title; ?></a>
-            <div class="help">Pilot Phase 1</div>
+            <div class="help">Tier-1 Credits for Pilot Phase 1</div>
         </td>
         <td>
-            <?php if ($section->status['complete']) : ?>
+            Ready
+<!--            <?php // if ($section->status['complete']) : ?>
                <img src="/img/tick.png" alt="tick" title="Section Complete" border="0"/>
-            <?php endif ?>
-            <?php echo $section->status['msg']; ?>
+            <?php // endif ?>
+            <?php // echo $section->status['msg']; ?>
             <div class="help"><?php echo $section->status['stats']; ?></div>
+-->
         </td>
         <td>
             <?php

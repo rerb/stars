@@ -37,35 +37,39 @@
         <?php } ?>
         <tr>
             <td>
-              <?php if ($credit['formAvailable']): ?>
-                <a href="<?php echo $credit['formLink'] ?>"
+              <?php if ($credit['form']['available']): ?>
+                <a href="<?php echo $credit['form']['link'] ?>"
                    title="Click to download form">
                     <img src="/img/page_white_acrobat.png" 
                          alt="PDF File" 
                          border=0/>
-                    <?php echo $credit['formFilename'] ?> </a>
+                    <?php echo $credit['form']['filename'] ?> </a>
               <?php else:
-                  echo $credit['creditCode'];
+                  echo $credit['submit']['creditCode'];
                 endif;
               ?>
             </td>
             <td>
-              <a href= "<?php echo $credit['uploadLink'] ?>/"
-                 title="<?php echo $credit['uploadTitle'] ?>" >
+              <a href= "<?php echo $credit['submit']['uploadLink'] ?>/"
+                 title="<?php echo $credit['submit']['uploadTitle'] ?>" >
                 <?php echo $credit['creditname'] ?></a>
             </td>
-            <td align="center">
-              <?php echo empty($credit['status']) ? ' - ' : '<img src="/img/tick.png" alt="tick" title="Credit Uploaded">' ?>
-            </td>
-            <td>
-              <?php if (!empty($credit['status'])): ?>
-                  <a href="<?php echo $credit['fileLink']; ?>" title="Click to Download your Submission"> <img src="/img/disk.png" alt="PDF File" border=0/>
-                    <?php echo $credit['filename']; ?> </a>
-              <?php endif ?>
-            </td>
-            <td>
-                <?php echo empty($credit['status']) ? '': $credit['datemodified'] ?>
-            </td>
+            <?php if ($credit['submission']['available']): ?>
+              <td align="center">
+                <img src="/img/tick.png" alt="tick" title="Credit Uploaded" />
+              </td>
+              <td>
+                <a href="<?php echo $credit['submission']['link']; ?>" title="Click to Download your Submission"> <img src="/img/disk.png" alt="PDF File" border=0/>
+                 <?php echo $credit['submission']['filename']; ?> </a>
+              </td>
+              <td>
+                <?php echo $credit['datemodified']; ?>
+              </td>
+            <?php else: ?>
+              <td align="center"> - </td>
+              <td> &nbsp; </td>
+              <td> &nbsp; </td>
+            <?php endif ?>
         </tr>
     <?php } ?>
 </table>

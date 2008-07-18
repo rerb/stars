@@ -41,7 +41,9 @@ class CreditController extends STARS_ActionController
     }
     $this->view->filename = $filename;
     $this->_helper->layout->disableLayout(); // no layout for PDF views
-   // we should just re-use the savefile view here - but how??
+   // just re-use the savefile view here
+    $this->view->script = 
+         '../application/views/scripts/credit/savefile.phtml';
   }
 
   /**
@@ -77,10 +79,11 @@ class CreditController extends STARS_ActionController
     if ($this->_request->isPost()) 
     {
       $formData = $this->_request->getPost();
+      $formData['STARS_credit'] = $credit; // validation context.
       if ($form->isValid($formData) &&
           $creditFile = $this->_storeData($form->getValues(), $credit) )
       { // DONE!  re-direct back to section dashboard
-        $this->_flashMessage('File '.$creditFile->getDisplayName() .' was successfully uploaded for credit '.$credit->getTitle());
+        $this->_flashMessage('File '.$creditFile->getDisplayName() .' was successfully uploaded for '.$credit->getTitle());
         $this->_redirect('/section/'. $credit->getCategoryId() );
       } 
       else // either the form was invalid or there was an error storing the file
