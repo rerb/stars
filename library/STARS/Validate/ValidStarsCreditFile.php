@@ -35,8 +35,8 @@ class STARS_Validate_ValidStarsCreditFile extends Zend_Validate_Abstract
      * @var array
      */
     protected $_messageTemplates = array(
-        self::NO_FILE   => "No Credit File was uploaded.",
-        self::MIME_TYPE => "The uploaded file is not a valid STARS Credit PDF file.",
+        self::NO_FILE   => "No Credit File was selected for upload.",
+        self::MIME_TYPE => "File %value% is not a valid STARS Credit PDF file.",
         self::MISMATCH  => "File '%value%' is not the correct STARS Credit Form for '%credit%'.",
         self::ERROR => "Unknown STARS Credit File Format error"
     );

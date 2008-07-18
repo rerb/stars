@@ -35,16 +35,19 @@ class forms_UploadForm extends STARS_Form
         
         $file = new STARS_Form_Element_File('file');
         $file->setLabel('File')
-                 ->setRequired(true)
-                 ->addValidator('NotEmpty')
                  ->addPrefixPath('STARS_Validate', 'STARS/Validate/', 'validate')
                  ->addValidator('ValidStarsCreditFile');
 
-        // Don's show points selector if the credit has no points.
+        // Don't show points selector if the credit has no points.
         if ($options['pointsOptions']) {
           $points = new Zend_Form_Element_Select('points');
+          $notEmpty = new Zend_Validate_NotEmpty();
+          $notEmpty->setMessage('Please enter the estimated points for this credit',
+                                 Zend_Validate_NotEmpty::IS_EMPTY);
+          
           $points->setLabel('Estimated points for this credit')
                  ->setRequired(true)
+                 ->addValidator($notEmpty)
                  ->setMultiOptions($options['pointsOptions']);
         }
         else {
