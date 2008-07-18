@@ -42,8 +42,8 @@ class TrackerController extends STARS_ActionController
         //    But, there is no indicator in DB about status of section - 
         //         so these needed to be set here by hand.
         $sections = array (
-                       "Operations" => 2,
-                       "Administration and Finance" => 3,
+                       "OP" => 2,
+                       "AF" => 3,
                     );
         foreach ($sections as $name => $id) {
           if ($id) {
@@ -123,7 +123,7 @@ class TrackerController extends STARS_ActionController
     private function _getZipFilename($sectionName)
     {
       $sectionLabel = str_replace(' ', '_', $sectionName);
-      $filename = 'STARS-' . $sectionLabel . '-Forms.zip';
+      $filename = 'STARS-' . $sectionLabel . '-Phase1-Forms.zip';
       return $filename;
     }
 }
