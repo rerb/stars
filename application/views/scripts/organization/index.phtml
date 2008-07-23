@@ -1,6 +1,8 @@
 <div id="title">
-	Enrolled Organizations
-	<div id="breadcrumbs"><a href="/">Home</a> / <a href="/dashboard/">Dashboard</a> / Enrolled Organizations</div>
+    <?php echo $this->title ?>
+    <div id="breadcrumbs">
+      <?php echo $this->breadcrumb()->render(); ?>
+    </div>
 </div>
 
 <?php foreach($this->list as $org) { ?>

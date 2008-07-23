@@ -17,6 +17,22 @@ class STARS_Section
         return $this->_credits;
     }
     
+    /**
+     *  Required b/c Section is a Transaction Script object rather than a Domain Model.
+     */
+    public function getSectionInfo()
+    {
+        return array(
+                     'id' => $this->getID(),
+                     'title' => $this->getTitle(),
+                    );
+    }
+
+    public function getID()
+    {
+        return $this->_sectionId;
+    }
+
     public function getTitle()
     {
         if(count($this->_credits) > 0)

@@ -84,7 +84,7 @@ class CreditController extends STARS_ActionController
           $creditFile = $this->_storeData($form->getValues(), $credit) )
       { // DONE!  re-direct back to section dashboard
         $this->_flashMessage('File '.$creditFile->getDisplayName() .' was successfully uploaded for '.$credit->getTitle());
-        $this->_redirect('/section/'. $credit->getCategoryId() );
+        $this->_redirect('/section/'. $credit->getSectionId() );
       } 
       else // either the form was invalid or there was an error storing the file
       {    // TO DO: better error handling?
@@ -167,7 +167,7 @@ class CreditController extends STARS_ActionController
     if ($success)  // DONE!  re-direct back to section
     {
       $this->_flashMessage('File '. $this->view->filename .' was successfully deleted for credit '. $credit->getTitle() );
-      $this->_redirect('/section/'. $credit->getCategoryId() );
+      $this->_redirect('/section/'. $credit->getSectionId() );
     }
     // else the deletefile view actually serves an error message: file not deleted
     $helper->initView('Delete Submission');
@@ -303,12 +303,15 @@ class CreditFileActionHelper extends STARS_ActionController
   public function initView($titlePrefix)
   {
     $this->_controller->view->title = $titlePrefix .' for ' . $this->_credit->getTitle();
+
     $this->_controller->view->credit = $this->_credit->getCreditInfo();
     $this->_controller->view->credit['title'] = $this->_credit->getTitle();
     if ($this->_creditFile)
     {
       $this->_controller->view->filename = $this->_creditFile->getDisplayName();
     }
+    $this->_controller->view->breadcrumb()
+                            ->setSection($this->_credit->getSectionInfo());
   }
   
   /**

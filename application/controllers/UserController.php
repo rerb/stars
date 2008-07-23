@@ -31,12 +31,12 @@ class UserController extends STARS_ActionController
         $userlist = new STARS_UserList();
         
         $this->view->list = $userlist->getList();
-        $this->view->title = 'All Users';
+        $this->view->title = 'Administer Users';
     }
     
     public function invalidAction()
     {
-        $this->view->title = 'Error';
+        $this->view->title = 'Invalid User Privileges';
     }
     
     public function editAction()
@@ -137,6 +137,7 @@ class UserController extends STARS_ActionController
     public function logoutAction()
     {
         Zend_Auth::getInstance()->clearIdentity();
+        $this->view->title = 'Logout';
     }
     
     private function _deleteUser($id)

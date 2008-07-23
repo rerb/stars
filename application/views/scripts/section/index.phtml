@@ -1,7 +1,7 @@
 <div id="title">
     <?php echo $this->title ?>
     <div id="breadcrumbs">
-        <a href="/">Home</a> / <a href="/tracker/">My Tracker</a> / <?php echo $this->title ?>
+      <?php echo $this->breadcrumb()->render(); ?>
     </div>
 </div>
 

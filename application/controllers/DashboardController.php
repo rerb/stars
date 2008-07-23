@@ -15,6 +15,7 @@ class DashboardController extends STARS_ActionController
         {
             $this->_normalUser();
         }
+        $this->view->title = 'Dashboard';
     }
     
     private function _admin()

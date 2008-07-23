@@ -4,6 +4,7 @@ class PasswordController extends STARS_ActionController
 {
     public function forgotAction()
     {
+        $this->view->title = 'Forgot Your Password?';
         $form = new STARS_Form(new Zend_Config_Ini('../config/forgotpasswordform.ini', 'config'));
         
         $this->view->attempted = false;
@@ -15,11 +16,11 @@ class PasswordController extends STARS_ActionController
         }
         
         $this->view->form = $form->render(new Zend_View);
-        $this->view->title = 'Forgot Your Password?';
     }
     
     public function resetAction()
     {
+        $this->view->title = 'Reset Password';
         $form = new STARS_Form(new Zend_Config_Ini('../config/resetpasswordform.ini', 'config'));
         
         $this->view->attempted = false;
@@ -51,7 +52,6 @@ class PasswordController extends STARS_ActionController
         }
         
         $this->view->form = $form->render(new Zend_View);
-        $this->view->title = 'Reset Password';
     }
     
     private function _resetPassword($info)

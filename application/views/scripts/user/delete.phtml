@@ -1,6 +1,8 @@
 <div id="title">
-	Delete User
-	<div id="breadcrumbs"><a href="/">Home</a> / <a href="/dashboard/">Dashboard</a> / Delete User</div>
+    <?php echo $this->title ?>
+    <div id="breadcrumbs">
+      <?php echo $this->breadcrumb()->render(); ?>
+    </div>
 </div>
 
 <?php if($this->code == STARS_UserDeleter::SUCCESS) { ?>

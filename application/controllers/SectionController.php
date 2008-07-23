@@ -28,6 +28,7 @@ class SectionController extends STARS_ActionController
           $credits[$i]['submit'] = STARS_CreditPdfFile::getSubmitInfo($credit);
         }
         $this->view->credits = $credits;
+        $this->view->breadcrumb()->setSection($section->getSectionInfo());
     }
 
   /**
@@ -67,6 +68,7 @@ class SectionController extends STARS_ActionController
         }
       }
     }
+    $this->view->title = 'Validate Credit Forms';
     $this->view->formsDir = $dirName;
     $this->view->numCredits = count($files);
     $this->view->numForms = $numForms;

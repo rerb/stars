@@ -1,13 +1,9 @@
-<?php $credit = $this->credit;?>
 <div id="title">
     <?php echo $this->title ?>
     <div id="breadcrumbs">
-        <a href="/">Home</a> / <a href="/section/<?php echo $credit['dicreditcategory']; ?>"><?php echo $credit['sectiontitle'] .' Credits'; ?> </a> / Submit Credit
+      <?php echo $this->breadcrumb()->render(); ?>
     </div>
 </div>
-
-<!--<h2><?php echo $credit['sectiontitle'] . ($credit['subsectiontitle']?(': ' . $credit['subsectiontitle']):''); ?> </h2>
-<h3><?php echo $credit['title']; ?> </h3>-->
 
 <?php if ($this->fileOptions) : ?>
     <div class="green">

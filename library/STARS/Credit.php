@@ -38,16 +38,6 @@ class STARS_Credit
   }
 
   /**
-   * Get Category ID for this Credit
-   * @return integer
-   */
-  public function getCategoryId()
-  {
-    $credit = $this->getCreditInfo();
-    return $credit['dicreditcategory'];
-  }
-
-  /**
    * Get the Persistent Object ID for this Credit
    * @return integer POID or null
    */
@@ -81,6 +71,29 @@ class STARS_Credit
     }
 
     return '';
+  }
+  
+  /**
+   * Get information about this credit's section
+   *  Required b/c Section is a Transaction Script object rather than a Domain Model.
+   * @return array of strings describing the section ('id', 'title')
+   */
+  public function getSectionInfo()
+  {
+    return array(
+                 'id' => $this->getSectionID(),
+                 'title' => $this->getSectionTitle(),
+                );
+  }
+
+  /**
+   * Get Category ID for this Credit
+   * @return integer
+   */
+  public function getSectionId()
+  {
+    $credit = $this->getCreditInfo();
+    return $credit['dicreditcategory'];
   }
 
   /**

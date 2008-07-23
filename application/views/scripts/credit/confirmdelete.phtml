@@ -1,8 +1,7 @@
-<?php $credit = $this->credit;?>
 <div id="title">
     <?php echo $this->title ?>
     <div id="breadcrumbs">
-        <a href="/">Home</a> / <a href="/section/<?php echo $credit['dicreditcategory']; ?>"><?php echo $credit['sectiontitle'] .' Credits'; ?> </a> / Delete Credit
+      <?php echo $this->breadcrumb()->render(); ?>
     </div>
 </div>
 
