@@ -1,0 +1,18 @@
+<tr class="form">
+    <td style="width: 40%">
+        <?php echo $this->label ?>
+    </td>
+    <td>
+        <div>
+            <?php echo $this->input ?> <?php echo $this->extra ?>
+        </div>
+        <div id="nameidsuggest"> </div>
+        <?php if(!empty($this->errors)) { ?>
+            <div class="error">
+                <?php echo $this->errors ?>
+            </div>
+        <?php } ?>
+        <script type="text/javascript" src="/js/nameid.js"> </script>
+        <script type="text/javascript" src="/js/nameid-init.js"> </script>
+    </td>
+</tr>

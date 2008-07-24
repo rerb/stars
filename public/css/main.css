@@ -196,20 +196,6 @@ div#nav a:hover
 	background-color: #eefac5;
 }
 
-div#nav div.nav_section
-{
-    margin: 0 2;
-    padding: 8px 3px;
-    width: 179px;
-    display: block;
-    background-color: #CCCCCC;
-    border-bottom: 1px solid #ccc;
-    border-left: 1px solid #ccc;
-    text-align: left;
-    font-size: .8em;
-    color: #072A60;
-}
-
 div#footer
 {
     background-color: #fff;
@@ -217,6 +203,31 @@ div#footer
     border-bottom: 1px solid #ccc;
     padding: 10px;
     text-align: center;
+}
+
+div#nameidsuggest
+{
+    position: absolute;
+    display: none;
+    background-color: #fff;
+    border-left: 1px solid #888;
+    border-right: 1px solid #888;
+    border-bottom: 1px solid #888;
+    font-size: .8em;
+    text-align: center;
+}
+
+div#nameidsuggest div
+{
+    padding: 3px 3px 3px 8px;
+    text-indent: -5px;
+    text-align: left;
+    cursor: pointer;
+}
+
+div#nameidsuggest div.hover
+{
+    background-color: #eefac5;
 }
 
 a:link, a:visited, a:active, a:hover
