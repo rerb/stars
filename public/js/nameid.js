@@ -1,3 +1,7 @@
+/**
+ * Name ID Suggest
+ * Thu, 24 Jul 2008 22:46:00 GMT
+ */
 var nameIdSuggest =
 {
     timer: null,
@@ -7,7 +11,7 @@ var nameIdSuggest =
     {
         nameIdSuggest.url = url;
         
-        $("div#nameidsuggest").css("width", $("input#nameid").width()+"px");
+        $("div#nameidsuggest").css("width", $("input#nameid").width()+2+"px");
 
         $("input#nameid").keyup(nameIdSuggest.startTimer);
         $("body").click(nameIdSuggest.closeSuggestBox);
