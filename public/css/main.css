@@ -402,3 +402,7 @@ p.starsbutton a:hover
 	color: #394F0F;
 	text-decoration: none;
 }
+
+#help img {
+	border: 1px solid #2B3F00;
+}
