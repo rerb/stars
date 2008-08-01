@@ -406,3 +406,7 @@ p.starsbutton a:hover
 #help img {
 	border: 1px solid #2B3F00;
 }
+
+#help ol li {
+	margin-bottom: 1em;
+}
