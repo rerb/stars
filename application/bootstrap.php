@@ -47,4 +47,5 @@ Zend_Registry::set('db', $db);
 // FRONT CONTROLLER
 
 $front = Zend_Controller_Front::getInstance();
+$front->registerPlugin(new STARS_Plugin_Offline($config->env->offline));
 $front->run('../application/controllers');
