@@ -58,6 +58,7 @@ class STARS_ActionController extends Zend_Controller_Action
         $this->view->loginForm = $this->_loginForm->render(new Zend_View());
     }
     
+    // TO DO: these methods should use the Singleton defined by Person class
     protected function _protect($minlevel)
     {
         if(!Zend_Auth::getInstance()->hasIdentity() or Zend_Auth::getInstance()->getIdentity()->level < $minlevel)

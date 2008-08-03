@@ -90,6 +90,19 @@ class STARS_Person
     }
     
     /**
+     * Check access rights for current user
+     * @param integer minLevel - access level to check
+     * @return true if user has access minLevel or higher, false otherwise
+     */
+    public static function hasAccess($minLevel)
+    {
+        if ( Zend_Auth::getInstance()->hasIdentity() )  // authenticated user?
+          return (Zend_Auth::getInstance()->getIdentity()->level >= $minLevel);
+        else  // un-authenticated user...
+          return ($minLevel == 0);  // everyone has access level 0
+    }
+    
+    /**
      * Gets personal data from DB
      */
     private function _getPersonalData()
