@@ -377,6 +377,7 @@ html body div#content .mini
     margin-right: 20px;
 }
 
+
 p.starsbutton 
 {
 	background-color:#669900 !important;
@@ -409,4 +410,8 @@ p.starsbutton a:hover
 
 #help ol li {
 	margin-bottom: 1em;
+}
+
+#help h2 {
+	margin-top: 3em;
 }
