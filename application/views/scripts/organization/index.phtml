@@ -1,9 +1,18 @@
 
+<table>
+  <tr>
+    <th>DB id</th>
+    <th>Institution Name</th>
+  </tr>
 <?php foreach($this->list as $org) { ?>
-    <h2><?php echo $org['orgname'] ?></h2>
+  <tr>
+    <td><?php echo $org['orgid'] ?></td>
+    <td><?php echo $org['orgname'] ?></td>
+  </tr>
     <!--
     <ul>
         <li>There's nothing to say about these.</li>
     </ul>
     -->
 <?php } ?>
+</table>

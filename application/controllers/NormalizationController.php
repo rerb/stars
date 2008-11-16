@@ -124,7 +124,155 @@ class NormalizationController extends STARS_ActionController
         $this->view->form = $form->render(new Zend_View);
         $this->view->title = 'Edit Normalization Data: '.$range;
     }
+
+    /**
+     * /normalization/export
+     * Export normalization data from DB to CSV files.
+     */
+    public function exportAction()
+    {
+      // This is an admin function
+      $this->_protect(2);
+      set_time_limit(0); // This might take a while - don't let the script time-out...
+                        // This could be bad if the script has an infinite loop!
+      $form = new STARS_Form(new Zend_Config_Ini('../config/exportnorm.ini', 'config'));
+       
+      if ($this->_request->isPost() &&
+          $form->isValid($this->_request->getPost()) )
+      {
+        $this->view->report = $this->_doExport();
+      }
+      else { // show form ONLY for GET requests
+         $this->view->form = $form->render(new Zend_View);
+      }
+    }
+
+    /**
+     * Helper: perform Normalization Data export to CSV files
+     * @return report object with $errorList and $exportList array elements
+     */
+    private function _doExport()
+    {
+      $filename = 'Normalization_export.csv';
+      $report = new stdClass();
+      $report->filename = $filename;
+      $report->errorList = array();
     
+      $records = STARS_Normalization::getAllRecords();
+      if ($records == null) {
+        die("Can't load Normalization Data");  // TO DO: improve error handling
+      }
+      $numFields = count($records[0]) - 5;  // 5 field are not client data
+      $csvFile = fopen(STARS_File ::getFullFilesPath($filename,'CREDIT_EXPORT'), 'w');
+      fputcsv($csvFile, array('STARS Normalization Data', ' ', 'Exported:',date("F j, Y, g:i a"))); 
+      
+      // TO DO: grab range of years from DB.
+      $years = array('2008', '2007', '2006', '2005', '2004', '2003', '2002', '2001');
+      $yearHeadings = array('Years:');
+      foreach ($years as $year) {
+        $yearHeadings[] = $year;
+        $pad = count($yearHeadings) + $numFields;
+        $yearHeadings = array_pad($yearHeadings, $pad, '');
+      }
+      fputcsv($csvFile, $yearHeadings);  // TO DO: error handling
+      
+      // Create a list of the actual fields we want in the output file
+      $keys = array_keys($records[0]);
+      $nonFields = array('orgname', 'datanormid','orgid','datemodified','modifierid');
+      $this->_arrayRemoveElements($keys, $nonFields);
+
+      // Construct the headings, which are also used as data array keys, for each year.
+      $headings = array();
+      $blankRow = array();
+      foreach ($years as $year) {
+        $headings[$year] = array();
+        foreach ($keys as $key) {
+          $headings[$year][] = $key.'-'.$year;
+        }
+        $blankRow[$year] = array_fill_keys($headings[$year], '');
+      }
+      $headingRow = $this->_arrayMerge2D($headings, array('Institution'), true);
+      
+      fputcsv($csvFile, $headingRow);  // TO DO: error handling
+            
+      $org = $records[0]['orgname'];
+      $row = $blankRow;
+      $records[] = 'END-OF-FILE'; // dummy record to signal to write out last real record
+      foreach ($records as $rec) {
+        if ($org != $rec['orgname'] || $rec=='END-OF-FILE') {  // new org - write out the current row
+          $flatRow = $this->_arrayMerge2D($row, array('Institution'=>$org), true);
+          if (fputcsv($csvFile, $flatRow) === false) {
+            $report->errorList[$org] = 'Could not write to CSV file';
+            die("Can't write CSV line");  // TO DO: improve error handling
+          }
+          else {
+            $report->exportList[] = $org;
+          }
+          if ($rec=='END-OF-FILE') 
+            break;
+          $row = $blankRow;
+          $org = $rec['orgname'];
+        }
+        $year = $rec['calendaryear'];
+        if ($year != NULL) {
+          $this->_arrayRemoveKeys($rec, $nonFields);
+          $row[$year] = array_combine($headings[$year], array_values($rec));
+        }     
+      } 
+      fclose($csvFile);
+
+      return $report;
+    }
+    
+    /**
+     * Helper: merge all rows from a 2D array into a simple, flat 1D array
+     *         Uses php array_merge, so all its rules for merging apply here.
+     * @param $array2D  array of rows to merge
+     * @param @prepend  array of values to prepend to the output array
+     * @param $addBlank boolean true if a blank element should be added between rows.
+     * @return array 1D containing data in flat format.
+     */
+    private function _arrayMerge2D($array2D, $prepend, $addBlank)
+    {
+      $output = $prepend;
+      foreach ($array2D as $row) {
+        $output = array_merge($output, $row);
+        if ($addBlank)
+          $output[] = '';
+      }
+      return $output;
+    }
+    
+    /**
+     * Helper: remove a set of elements from an array
+     * @param $array  the array to remove elemnts from
+     * @param $values the set of values for elements to be removed
+     */
+    private function _arrayRemoveElements(&$array, $values)
+    {
+      foreach ($array as $key => $value) {
+        if (in_array($value, $values)===true) {
+          unset($array[$key]);
+        }
+      }
+
+    }
+    
+    /**
+     * Helper: remove a set of elements from an array
+     * @param $array  the array to remove elemnts from
+     * @param $keys   the set of keys for elements to be removed
+     */
+    private function _arrayRemoveKeys(&$array, $keys)
+    {
+      foreach ($array as $key => $value) {
+        if (in_array($key, $keys)===true) {
+          unset($array[$key]);
+        }
+      }
+
+    }
+        
     private function _setBrokenDates(STARS_Form $form, $data)
     {
         foreach(array('fiscal', 'academic') as $type)

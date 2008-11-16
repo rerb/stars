@@ -8,6 +8,8 @@ class TrackerController extends STARS_ActionController
         
         $this->view->title = 'My Tracker';
         
+        $normList = new STARS_NormalizationList();
+        $this->view->normInfo = $normList->getInfo();
         $this->_setCreditSectionInfo();
     }
 
@@ -41,15 +43,17 @@ class TrackerController extends STARS_ActionController
         //         where groupname = "creditcategory"
         //    But, there is no indicator in DB about status of section - 
         //         so these needed to be set here by hand.
+        // Note: this code is duplicated in InstitutionalController report
         $sections = array (
+                       "ER" => 1,
                        "OP" => 2,
                        "AF" => 3,
+                       "IN" => 5,
                     );
         foreach ($sections as $name => $id) {
           if ($id) {
             $section = new STARS_Section($id);
-            $credits = $section->getCredits();
-            $this->view->section[$name]->status = $this->_getSectionStatus($credits);
+            $this->view->section[$name]->status = $section->getStatus();
             $this->view->section[$name]->path = "/section/$id/";
             $this->view->section[$name]->title = $section->getTitle();
             $this->view->section[$name]->forms = $this->_getFormInfo($name);
@@ -65,65 +69,35 @@ class TrackerController extends STARS_ActionController
     //         this is duplicate code - also occurs in CreditController
     private function _getFormInfo($section)
     {
-        $sectionFilename = $this->_getZipFilename($section);
-        $sectionFilepath = STARS_File::getFullFilesPath($sectionFilename, 'CREDIT_FORM');
         $file = array();
-        if (file_exists($sectionFilepath)) {
-          $file['fileAvailable'] = true;
-          $file['filename'] = $sectionFilename;
-          $file['fileLink'] = '/tracker/downloadzip/zip/'.$sectionFilename;
-        }
-        else {
-          $file['fileAvailable'] = false;
+        $file['fileAvailable'] = false;
+        $file['filename'] = array();
+        $file['linkPath'] = '/tracker/downloadzip/zip/';
+
+        $sectionFilenames = $this->_getZipFilenames($section);
+        foreach($sectionFilenames as $filename) {
+          $filepath = STARS_File::getFullFilesPath($filename, 'CREDIT_FORM');
+          if (file_exists($filepath)) {
+            $file['fileAvailable'] = true;
+            $file['filename'][] = $filename;
+          }
         }
         return $file;
     }
     
-    private function _getSectionStatus($credits)
-    {
-        $status = array();
-        $status['complete'] = false;
-        $numCredits = count($credits);
-        $numComplete = $this->_creditsComplete($credits);
-        
-        if ($numComplete == 0) {
-          $status['msg'] = "Incomplete";
-          $status['stats'] = "($numCredits Credits to be submitted)";
-        }
-        else if ($numComplete == $numCredits) {
-          $status['msg'] = "Complete";
-          $status['stats'] = "(All $numCredits Credits have been submitted)";
-          $status['complete'] = true;
-        }
-        else { // 0 < $numComplete < $numCredits
-          $status['msg'] = "Partially Complete";
-          $status['stats'] = "($numComplete of $numCredits Credits submitted)";
-        }
-        return $status;
-    }
-    
-    private function _creditsComplete($credits)
-    {
-        $count = 0;
-        // Load model for each credit 'object'.  Domain Model pattern needed here!
-        foreach ($credits as $credit) {
-          // Previous Submission for this credit
-          if (! empty($credit['status']) ) {
-             $count++;
-          }
-        }
-        return $count;
-    }
     /**
      * Helper - build the section's  zipped forms file name.
      * @param array section definition
-     * @return string filename for the ZIP file of forms for this section.
+     * @return array of filename for the ZIP files of forms for this section.
      * @todo this should be moved to a more generic module.
      */
-    private function _getZipFilename($sectionName)
+    private function _getZipFilenames($sectionName)
     {
       $sectionLabel = str_replace(' ', '_', $sectionName);
-      $filename = 'STARS-' . $sectionLabel . '-Phase1-Forms.zip';
-      return $filename;
+      $filenames = array();
+      $filenames[] = 'STARS-' . $sectionLabel . '-Phase1-Forms.zip';
+      $filenames[] = 'STARS-' . $sectionLabel . '-Phase2-Forms.zip';
+      $filenames[] = 'STARS-' . $sectionLabel . '-TierTwo-Forms.zip';
+      return $filenames;
     }
 }

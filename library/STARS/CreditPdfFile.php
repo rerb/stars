@@ -101,7 +101,30 @@ class STARS_CreditPdfFile extends STARS_File
   }
   
   /**
-   * Get information about one previously submitted credit file
+   * Get admin information about one previously submitted credit file
+   * @param STARS_Credit $credit - the credit record to retieve info about.
+   * @return array of information about the creditfile ('exists', 'filename', 'link')
+   * @to do:  this should really work on credit objects!
+   */
+  static public function getCreditFileInfo($credit)
+  {
+    $info = array();
+    $info['creditCode'] = STARS_Credit::buildCreditCode($credit, ' ');
+    if (! empty($credit['status'])) {
+      $file = new STARS_CreditPdfFile($credit['orgcreditfileid']);
+      // @todo: error handling - if file doesn't exist, DB is inconsistent with filesystem.
+      $info['available'] = true;
+      $info['filename'] = $file->getFileName();
+      $info['link'] = '/credit/getfile/' . $credit['orgcreditfileid'];
+    }
+    else {
+      $info['available'] = false;
+    }
+    return $info;
+  }
+  
+  /**
+   * Get user information about one previously submitted credit file
    * @param STARS_Credit $credit - the credit record to retieve info about.
    * @return array of information about the creditfile ('exists', 'filename', 'link')
    * @to do:  this should really work on credit objects!

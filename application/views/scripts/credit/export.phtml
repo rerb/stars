@@ -1,0 +1,46 @@
+
+<?php if (isset($this->report)): ?>
+  <?php if (count($this->report->exportList)>0): ?>
+    <div class= "messages" >
+      The following credit data was exported successfully:
+    </div>
+    <ul>
+       <?php foreach ($this->report->exportList as $credit) { ?>
+         <li>
+           <strong> <?php echo $credit ?> </strong>
+         </li>
+       <?php } ?>
+    </ul>
+  <?php endif; ?>
+
+  <?php if (count($this->report->errorList)>0): ?>
+    <div class= "errors" >
+      ERROR: The following Credit Data was NOT exported successfully:
+    </div>
+    <table>
+       <?php foreach ($this->report->errorList as $credit => $errors) { ?>
+         <tr>
+            <td> <strong> <?php echo $credit; ?> </strong></td>
+            <td> <?php foreach ($errors as $msg) echo $msg . '<br>'; ?> </td>
+         </tr>
+       <?php } ?>
+    </table>
+  <?php endif; ?>  
+<?php endif; ?>
+
+<?php if ($this->form): ?>
+    <H2>!! ATTENTION !! </H2>
+    <p><b>This is an administrative function used to export credit data from the Database.</b></p>
+    <p>
+      <ul>
+        <li>CSV export files will be placed in the /files/exported_credit_data directory 
+        <li>Each CSV file will contain data for a single credit from all organizations.
+        <li>CSV file are named for the credit (e.g., AF_Credit_03_export.csv) .
+      </ul>
+    <H3>Please confirm you wish to continue with the Credit Data Export:</H3>
+    <?php echo $this->form ?>
+    <p><strong>Please Note:</strong> 
+    <ul>
+    <li>Depending on how much data is in the database, this operation can be server intensive and time consuming - it is recommended that this operation be performed when the server load is expected to be light (e.g. on a holiday or late at night).
+    </ul></p>
+<?php endif; ?>

@@ -15,8 +15,13 @@ Zend_Loader::registerAutoload();
 require_once('../application/functions.php');
 
 // CONFIG
-
-$config = new Zend_Config_Ini('../config/main.ini', 'config');
+// To change environments - uncomment exactly ONE of these lines:
+//$env = 'production';
+//$env = 'staging';
+$env = 'dev';
+//$env = 'local';
+$config = new Zend_Config_Ini('../config/main.ini', 
+                              array('config', $env));
 
 // ROUTES
 
@@ -33,6 +38,7 @@ $db->getConnection();
 
 Zend_Registry::set('config', $config);
 Zend_Registry::set('db', $db);
+Zend_Registry::set('dbEnv', $env);
 
 //
 // Delete this if no problems arise. STARS_Person is a singleton and does not belong here.

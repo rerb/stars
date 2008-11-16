@@ -1,0 +1,76 @@
+
+<?php if ($this->message): ?>
+  <div class="messages">
+    <?php echo $this->message; ?>
+  </div>
+<?php endif; ?>
+
+<table class="green">
+    <tr>
+        <th rowspan="2">
+            Institution
+        </th>
+        <th colspan=2 rowspan="2">
+            Normalization
+        </th>
+        <?php $cols = 2 * count($this->sections);?>
+        <th align="center" colspan="<?php echo $cols?>">
+            Reported Credits
+        </th>
+    </tr>
+    <tr>  
+      <?php foreach ($this->sections as $section) { ?>
+        <th colspan=2 >
+            <?php echo $section['sectionabbr']; ?>
+        </th>
+      <?php } ?>
+    </tr>
+    <?php foreach($this->institutions as $inst) { ?>
+        <tr>
+          <td>
+              <a href='<?php echo $inst->link; ?>' title="Detailed Report" >
+                <?php echo $inst->name; ?>
+              </a>
+          </td>
+
+          <!-- Normalization Data -->
+          <?php if ($inst->norm['isComplete']): ?>
+              <td align="center">
+                <img src="/img/tick.png" alt="tick" title="Compelte" />
+              </td>
+          <?php else: ?>
+              <td > &nbsp; </td>
+          <?php endif ?>
+          <?php if ($inst->norm['numYears'] > 0): ?>
+              <td>
+                <?php echo $inst->norm['yearsComplete'] . ' / ' .
+                            $inst->norm['numYears']; ?> years
+              </td>
+          <?php else: ?>
+              <td> - </td>
+          <?php endif ?>
+
+            <!-- Credit Data -->
+          <?php foreach($inst->section as $section) { ?>
+            <?php if ($section->status['complete']): ?>
+              <td align="center">
+                <img src="/img/tick.png" alt="tick" title="Compelte" />
+              </td>
+            <?php else: ?>
+              <td> &nbsp; </td>
+            <?php endif ?>
+            <td>
+              <?php 
+                if ($section->status['numComplete'] > 0) {
+                  echo $section->status['numComplete'] .' / ' . 
+                       $section->status['numCredits'];
+                }
+                else {
+                   echo '-';
+                }
+              ?>
+            </td>
+          <?php } ?>
+        </tr>
+    <?php } ?>
+</table>

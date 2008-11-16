@@ -43,10 +43,11 @@ class forms_UploadForm extends STARS_Form
         if ($options['pointsOptions']) {
           $points = new Zend_Form_Element_Select('points');
           $notEmpty = new Zend_Validate_NotEmpty();
-          $notEmpty->setMessage('Please enter the estimated points for this credit',
+          $notEmpty->setMessage('Please enter the '.
+                                $options['pointsLabel'],
                                  Zend_Validate_NotEmpty::IS_EMPTY);
           
-          $points->setLabel('Estimated points for this credit')
+          $points->setLabel($options['pointsLabel'])
                  ->setRequired(true)
                  ->addValidator($notEmpty)
                  ->setMultiOptions($options['pointsOptions']);

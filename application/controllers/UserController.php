@@ -99,7 +99,7 @@ class UserController extends STARS_ActionController
             if($this->_loginForm->isValid($_POST))
             {
                 $values = $this->_loginForm->getValues();
-                
+
                 $auth = Zend_Auth::getInstance();
             
                 $adapter = new Zend_Auth_Adapter_DbTable(Zend_Registry::get('db'));
@@ -109,12 +109,15 @@ class UserController extends STARS_ActionController
                 $adapter->setIdentity($values['loginusername']);
                 $adapter->setCredential($values['loginpassword']);
                
+//                $adapter = new STARS_Auth_Adapter_Drupal($values['loginusername'], $values['loginpassword']);
+
                 $this->view->attempted = true;
-                $result = $auth->authenticate($adapter);
-                
+                $result = $auth->authenticate($adapter);              
+                 
                 if($result->isValid())
                 {
                     $auth->getStorage()->write($adapter->getResultRowObject(null, array('salt', 'passhash')));
+//                    $auth->getStorage()->write( $result->getIdentity() );
                     $this->_redirect('/dashboard/');
                 }
                 

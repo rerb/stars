@@ -15,5 +15,6 @@ class ErrorController extends STARS_ActionController
     public function offlineAction()
     {
         $this->view->title = 'Site Offline';
+        $this->getResponse()->setHttpResponseCode(503);
     }
 }

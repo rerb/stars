@@ -362,6 +362,11 @@ span.required
     text-transform: uppercase;
 }
 
+.sectionTitle
+{
+    font-size: 1.35em;
+}
+
 ul li
 {
     margin: 5px 0;

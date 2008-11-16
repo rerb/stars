@@ -30,9 +30,9 @@ class OrganizationController extends STARS_ActionController
     public function indexAction()
     {
         //
-        // $this->_protect(0);
+         $this->_protect(2);
         // Should we protect this page at all?
-        //
+        // Yes - because it now lists database ID's for each organization (JF)
         
         $orgList = new STARS_OrganizationList();
         //$orgList->where('nameid <> 0');

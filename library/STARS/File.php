@@ -12,6 +12,8 @@
  */
 define ("FILES_ROOT",$_SERVER['DOCUMENT_ROOT'].'/../files');
 define("CREDIT_FORMS", 'credit_forms'); // sub-path to credit forms directory
+define("CREDIT_DATA", 'merged_credit_data'); // sub-path to credit data directory
+define("CREDIT_EXPORT", 'exported_credit_data'); // sub-path to credit export directory
 define ("DISPLAY_NAME", 'userfilename');  // field with user's file name
 define ("FILE_PATH", 'filepath');  // field with path to file on server
 
@@ -144,6 +146,17 @@ abstract class STARS_File
   }
   
   /**
+   * Get the actual filename for this File.
+   * PRE: isValidFile()
+   * @return string filename of this File.
+   */
+  public function getFileName()
+  {
+    $record = $this->getFileInfo();
+    return basename($record[FILE_PATH]);
+  }
+  
+  /**
    * Does this File persist in the DB yet?
    * @return boolean true if the File has a POID, false otherwise.
    */
@@ -192,6 +205,12 @@ abstract class STARS_File
     // to do: should do something a litte more elegant here...
     if ($fileType == 'CREDIT_FORM') {
       $filepath = CREDIT_FORMS .'/'. $filepath;
+    }
+    else if ($fileType == 'CREDIT_DATA') {
+      $filepath = CREDIT_DATA .'/'. $filepath;
+    }
+    else if ($fileType == 'CREDIT_EXPORT') {
+      $filepath = CREDIT_EXPORT .'/'. $filepath;
     }
     return realpath(FILES_ROOT) .'/'. $filepath;
   }

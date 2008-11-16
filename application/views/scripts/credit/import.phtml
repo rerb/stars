@@ -1,0 +1,56 @@
+
+<?php if (isset($this->report)): ?>
+  <?php if (count($this->report->importList)>0): ?>
+    <div class= "messages" >
+      The following credit data was imported successfully:
+    </div>
+    <ul>
+       <?php foreach ($this->report->importList as $credit) { ?>
+         <li>
+           <strong> <?php echo $credit ?> </strong>
+         </li>
+       <?php } ?>
+    </ul>
+  <?php endif; ?>
+
+  <?php if (count($this->report->errorList)>0): ?>
+    <div class= "errors" >
+      ERROR: The following Credit Data was NOT imported successfully:
+    </div>
+    <table>
+       <?php foreach ($this->report->errorList as $credit => $errors) { ?>
+         <tr>
+            <td> <strong> <?php echo $credit; ?> </strong></td>
+            <td> <?php foreach ($errors as $msg) echo $msg . '<br>'; ?> </td>
+         </tr>
+       <?php } ?>
+    </table>
+  <?php endif; ?>
+<?php endif; ?>
+
+<?php if ($this->form): ?>
+    <H2>!! CAUTION !! </H2>
+    <p><b>This is an administrative function used to import data from merged PDF credit forms (CSV files) into the Database.  It will overwrite existing answers in the Database.</b></p>
+    <p>
+      <ul>
+        <li>Each CSV file contains data for one credit (but many organizations)
+        <li>CSV files <em>must</em> have same name as the credit file directory (e.g., AF_Credit_03.csv)
+        <li>CSV file lines <em>must</em> end with a LF (line feed) - UNIX standard for text files.
+        <li>CSV files are imported from directory <em>/files/merged_credit_data</em> on the server
+      </ul>
+    <p>The following CSV files were found, and will be imported to the DB:</p>
+    <ul>
+       <?php foreach ($this->fileList as $file) { ?>
+         <li>
+           <strong> <?php echo $file->getFileName() ?> </strong>
+         </li>
+       <?php } ?>
+    </ul>
+    <H3>Please confirm you wish to continue with the Credit Data Import:</H3>
+    <?php echo $this->form ?>
+    <p><strong>Please Note:</strong> 
+    <ul>
+    <li>If a large data set is being imported, this operation can be server intensive and time consuming - it is recommended that this operation be performed when the server load is expected to be light (e.g. on a holiday or late at night).
+    <li>For large data sets, the operation will execute faster if the <em>dataanswers</em> and <em>feedbackanswers</em> tables are emptied (truncated) before running - but this only makes sense if ALL the data is being (re-)imported from CSV files.
+    </ul></p>
+<?php endif; ?>

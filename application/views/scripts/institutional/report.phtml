@@ -1,0 +1,161 @@
+
+<?php if ($this->message): ?>
+  <div class="messages">
+    <?php echo $this->message; ?>
+  </div>
+<?php endif; ?>
+
+<H2>Institutional Information</H2>
+      <?php //echo $this->instForm ?>
+  <table class="green">
+    <?php foreach($this->groups as $title => $fields) { ?>
+      <tr>
+        <th colspan="2"><?php echo $title; ?> : </th>
+      </tr>
+      <?php foreach($fields as $field) { ?>
+        <tr>
+          <td><?php echo $field; ?> : </td>
+          <td><?php 
+              if ($field == 'greenwebsite') {
+                echo '<a target="_blank" href="' . $this->institution[$field] . '"> ' .
+                     $this->institution[$field] . '</a>';
+              }
+              else if ($field == 'email') {
+                echo '<a href= "mailto:' . $this->institution[$field] . '"> ' .
+                     $this->institution[$field] . '</a>';
+               }
+              else {
+                 echo $this->institution[$field]; 
+              } ?> </td>
+        </tr>
+      <?php } ?>
+    <?php } ?>
+  </table>
+
+<H2>Normalization Data</H2>
+  <?php if($this->normInfo['numYears'] == 0): ?>
+    <b>No Normalization Data has been submitted.</b>
+  <?php else: ?>
+    <?php if ($this->normInfo['isComplete']) : ?>
+      <img src="/img/tick.png" alt="tick" title="Normalization Complete" border="0"/> Normalization Complete: 
+    <?php endif ?>
+    Completed <?php echo $this->normInfo['yearsComplete']?>
+    of        <?php echo $this->normInfo['numYears']?> years submitted.
+    <table class="green">
+        <tr>
+            <th>
+                Normalization Year
+            </th>
+            <th>
+                Status
+            </th>
+            <th>
+                Actions
+            </th>
+        </tr>
+        <?php foreach($this->list as $year) { ?>
+            <tr>
+                <td>
+                    <?php echo $year['calendaryear']-1 ?>&#150;<?php echo $year['calendaryear'] ?>
+                </td>
+                <td>
+                    <?php if($year['status'] == STARS_STATUS_COMPLETE) { ?>
+                        <img src="/img/tick.png" alt="tick" title="Complete" />
+                        Complete
+                    <?php } else { ?>
+                        Incomplete
+                    <?php } ?>
+                </td>
+                <td>
+                    <a href="/normalization/edit/<?php echo $year['datanormid'] ?>/">Edit</a><br>
+                </td>
+            </tr>
+        <?php } ?>
+    </table>
+  <?php endif?>
+  
+<H2>Credits Summary</H2>
+  <?php foreach($this->section as $section) { ?>
+    <H3><a href="#<?php echo $section->title; ?>">
+        <?php echo $section->title ?></a></H3>
+    <table><tr>
+      <td> <?php if ($section->status['complete']): ?>
+             <img src="/img/tick.png" alt="tick" title="Section Complete" />
+            <?php else: ?>
+              <td> &nbsp; </td>
+           <?php endif ?>
+      </td>
+      <td> <?php echo $section->status['msg'] ?></td>
+      <td> <?php echo $section->status['stats'] ?></td>
+    </tr></table>
+  <?php } ?>
+
+
+<H2>Credit Submissions</H2>
+  <?php foreach($this->section as $section) { ?>
+    <table class="green">
+      <tr>
+        <th>
+            <a name="<?php echo $section->title; ?>">
+            <?php echo $section->title ?> Credits</a>
+        </th>
+        <th>
+            Status
+        </th>
+        <th>
+            Points
+        </th>
+        <th>
+            Submission
+        </th>
+        <th>
+            Updated
+        </th>
+      </tr>
+      <?php $prevtitle = '' /* Prerequisite section name is '' */ ?>
+      <?php foreach($section->credits as $credit) { ?>
+        <?php if ($credit['submission']['available']): ?>
+          <?php if($prevtitle != $credit['subsectiontitle']) : ?>
+            <tr>
+                <th colspan="6">
+                    <?php echo $prevtitle = $credit['subsectiontitle'] ?>
+                </th>
+            </tr>
+          <?php endif ?>
+          <tr>
+            <td>
+                <?php echo $credit['submission']['creditCode']; ?>
+            </td>
+              <td align="center">
+                <img src="/img/tick.png" alt="tick" title="Credit Uploaded" />
+              </td>
+              <td>
+                <?php 
+                   if ($credit['credittype']==1) { // prerequisite
+                     echo '-';
+                   }
+                   else if ($credit['pointsest']=='not applicable') { 
+                     echo 'N/A';
+                  }
+                  else {
+                     echo $credit['pointsest']
+                          . ' / ' . $credit['pointsavailable'];
+                  }
+                ?> 
+              </td>
+              <td>
+                <a href="<?php echo $credit['submission']['link']; ?>" title="Download Submission"> <img src="/img/disk.png" alt="PDF File" border=0/>
+                 <?php echo $credit['submission']['filename']; ?> </a>
+              </td>
+              <td>
+                <?php echo $credit['datemodified']; ?>
+              </td>
+          </tr>
+        <?php endif ?>
+      <?php } ?>
+    </table>
+    <?php if ($section->status['numComplete'] == 0) : ?>
+      No credits have been submitted for <?php echo $section->title ?>
+    <?php endif ?>
+  <?php } ?>
+

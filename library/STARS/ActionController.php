@@ -9,7 +9,18 @@ class STARS_ActionController extends Zend_Controller_Action
     {
         parent::__construct($request, $response, $invokeArgs);
         
+        $this->view->title = $this->view->breadcrumb()->getTitle();  // default title
         $this->_loginForm();
+        // If we're serving the production site, be sure we're using the production DB!
+        $dbEnv = Zend_Registry::get('dbEnv');
+        if ($_SERVER['SERVER_NAME']=='starstracker.aashe.org') {
+          if ($dbEnv != 'production') {
+            throw new STARS_Exception('Production site configured to use '.$dbEnv.' DB.');
+          }
+        }
+        else {  // on non-prod sites, display the DB envinroment being used.
+            $this->view->dbEnv = $dbEnv;
+        }
     }
     
     /**

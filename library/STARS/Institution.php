@@ -11,7 +11,19 @@ class STARS_Institution extends STARS_Abstract_SelectRow
 		$this->joinInner(array('p' => 'persons'), 'p.personid = d.personid');
 		$this->joinInner(array('a' => 'dataaddresses'), 'a.addresseeid = d.personid AND a.tabletype = 2');
 		$this->joinInner(array('r' => 'relpersons2orgs'), 'r.personid = d.personid');
+        $this->joinLeft(array('n' => 'aashedata01.institutionnames'), 'o.nameid = n.id', new Zend_Db_Expr('n.fullname AS orgname'));
 		$this->where('d.orgid = '.intval($orgid));
+    }
+    
+    public function getName()
+    {
+        $inst = $this->getData();
+        if($inst != STARS_Institution::NOT_EXISTS_ERROR) {
+            return $inst['orgname'];
+        }
+        else {
+            return null;
+        }
     }
     
     public function getContactData()

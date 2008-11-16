@@ -28,14 +28,19 @@
                     <a href="/password/forgot/">Forgot your password?</a>
                 </p>
             <?php } ?>
+            <?php if (isset($this->dbEnv)) { ?>
+               <div class='devmsg'>
+                 <p>Using DB environment: <?php echo $this->dbEnv;?></p>
+               </div> 
+            <?php } ?>
         </div>
         <div id="nav">
             <a href="http://www.aashe.org/stars/STARS_Pilot_Phase_One_Guide.pdf">Pilot Phase 1 Guide (PDF)</a>
-
+            <a href="http://www.aashe.org/stars/STARS_Pilot_Phase_Two.pdf">Pilot Phase 2 Guide (PDF)</a>
             <a href="http://www.aashe.org/stars/faqs.php">STARS FAQ</a>
             <a href="http://www.aashe.org/stars/forum">Discussion Forum</a>
             <a href="mailto:stars@aashe.org?subject=STARS Question">Contact STARS Team</a>
-            <a href="../help/">Help?</a>
+            <a href="<?php echo $this->baseUrl ?>/help/">Help?</a>
         </div>
         <div id="content">
           <div id="title">

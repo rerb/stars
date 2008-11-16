@@ -8,16 +8,16 @@
         	Status
         </th>
         <th>
-            Credit Forms (pilot phase 1)
+            Credit Forms (pilot project)
         </th>
     </tr>
     <tr>
     	<td>
-	    	<a href="/institutional/">Institutional Info</a>
+	    	<span class='sectionTitle'><a href="/institutional/">Institutional Info</a></span>
 	    	<div class="help">Basic information about your institution</div>
         </td>
         <td>
-            Ready<!-- 	Incomplete -->
+            &nbsp;<!-- no status -->
         </td>
         <td>
             &nbsp; <!-- no files -->
@@ -25,54 +25,46 @@
     </tr>
     <tr>
     	<td>
-	    	<a href="/normalization/">Annual Normalization Data</a>
+	    	<span class='sectionTitle'><a href="/normalization/">Annual Normalization Data</a></span>
 	    	<div class="help">Additional information, changing year to year</div>
         </td>
         <td>
-            Ready<!-- 	Incomplete -->
+            <?php if ($this->normInfo['isComplete']) : ?>
+                <img src="/img/tick.png" alt="tick" title="Normalization Complete" border="0"/> 
+            <?php endif ?>
+            <?php echo $this->normInfo['msg']; ?>
+            <div class="help">(<?php echo $this->normInfo['stats']; ?>)</div>
         </td>
         <td>
             &nbsp; <!-- no files -->
         </td>
-    </tr>
-	<tr>
-    	<td>
-           	Education and Research
-           	<div class="help">Not available until Phase 2</div>
-        </td>
-        <td>
-            Not Available
-        </td>
-        <td>
-            &nbsp; <!-- no files -->
-        </td>
-
     </tr>
     <?php foreach($this->section as $section) { ?>
       <tr>
         <td>
-            <a href=<?php echo $section->path; ?>>
-               <?php echo $section->title; ?></a>
-            <div class="help">Tier-1 Credits for Pilot Phase 1</div>
+            <span class='sectionTitle'><a href=<?php echo $section->path; ?>>
+               <?php echo $section->title; ?></a></span>
+            <div class="help">Submit Credits for Pilot Project</div>
         </td>
         <td>
-            Ready
-<!--            <?php // if ($section->status['complete']) : ?>
+            <?php  if ($section->status['complete']) : ?>
                <img src="/img/tick.png" alt="tick" title="Section Complete" border="0"/>
-            <?php // endif ?>
-            <?php // echo $section->status['msg']; ?>
-            <div class="help"><?php echo $section->status['stats']; ?></div>
--->
+            <?php  endif ?>
+            <?php  echo $section->status['msg']; ?>
+            <div class="help">(<?php echo $section->status['stats']; ?>)</div>
+
         </td>
         <td>
             <?php
               $forms = $section->forms;
-              if ($forms['fileAvailable']) : ?>
-                <a href="<?php echo $forms['fileLink'];?>"
+              foreach($forms['filename'] as $filename) { ?>
+                <a href="<?php echo $forms['linkPath'].$filename;?>"
                    title="Download Zip file">
                   <img src="/img/compress.png" alt="ZIP File" border=0/>
-                  <?php echo $forms['filename']; ?></a>
-                <div class="help">download all <?php echo $section->title; ?> credit forms for pilot phase 1 </div>
+                  <?php echo $filename; ?></a><br>
+            <?php }
+              if ($forms['fileAvailable']) : ?>
+                <div class="help">download <?php echo $section->title; ?> credit forms for pilot project </div>
             <?php endif ?>
         </td>
       </tr>

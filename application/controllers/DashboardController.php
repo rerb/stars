@@ -27,4 +27,10 @@ class DashboardController extends STARS_ActionController
     {
         $this->view->script = '../application/views/scripts/dashboard/index.normalUser.phtml';
     }
+    
+    public function utilityAction()
+    {
+        $this->_protect(2);
+        $this->view->title = 'Import / Export Utilities';
+    }
 }
