@@ -77,7 +77,8 @@ class UserController extends STARS_ActionController
             $form->setDefaults($person->getAll());
         }
 */      
-        $this->view->user = $person->getAll();
+        $userInfo = $person->getAll();
+        $this->view->user = $userInfo;
         $this->view->userOrgs = $person->getOrgs();
         
         $this->view->form = $form->render(new Zend_View);
@@ -153,6 +154,7 @@ $message = "Deleting relOrg2Person record: " . $orgPersonRoleId;
                 $values = $this->_loginForm->getValues();
 
                 $this->view->success = STARS_User::login($values['loginusername'], $values['loginpassword']);
+
                 if ($this->view->success) {
                     $this->_redirect('/dashboard/');
                 }

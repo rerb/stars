@@ -12,7 +12,7 @@
 <h2><?php echo $this->user['name'] ?></h2>
     <ul>
         <li>
-            User Level: <?php echo $this->user['roles'] ?>
+            User Level: <?php echo $this->user['starsRole'] ?>
         </li>
         <li>
             e-mail: <?php echo $this->user['mail'] ?>
@@ -29,7 +29,7 @@
     <td><?php echo $org['role'] ?></td>
     <td><?php echo $org['title'] ?></td>
     <td><?php echo $org['department'] ?></td>
-    <td> <a href="/user/deleteorgrole/<?php echo $org['relperson2orgid'] ?>/">Delete</a></td>
+    <td> <a href="/user/deleteorgrole/<?php echo $org['person2orgid'] ?>/">Delete</a></td>
   </tr>
 <?php } ?>
 </table>

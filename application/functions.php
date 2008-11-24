@@ -19,17 +19,20 @@ function issetor(&$var, $default = '')
 }
 
 /**
- * Search an array for any occurrence of the needle (case insensitive, partial strings)
+ * Search an array or string for any occurrence of the needle (case insensitive, partial strings)
  *
  * @param string $needle
- * @param array $haystack
- * @return bool  true if any element of the array has the needle as a sub-string
+ * @param array|string $haystack
+ * @return string|bool  the first element of the array has the needle as a sub-string or false if none.
  */
 function striarray($needle, $haystack)
 {
+    if (!is_array($haystack)) {
+        $haystack = array($haystack);
+    }
     foreach ($haystack as $element) {
         if (stripos($element, $needle) !== false)
-          return true;
+            return $element;
     }
     return false;
 }

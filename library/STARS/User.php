@@ -26,7 +26,7 @@ class STARS_User extends STARS_Person
     }
     
     /**
-     * User is logged in
+     * User is logged in?
      * This is true if authentication passed and user exists in the DB.
      * @return bool  true if user is logged in, false otherwise
      */
@@ -111,11 +111,10 @@ class STARS_User extends STARS_Person
      */
     public static function logout()
     {
-        // For some reason, the login does not 'stick' in Drupal - why?
-        // Probably doing something wrong here with the session id... not sure what.
-        // Just disable logouts from the remote server for now.
         $user = self::getInstance();
-        $user->_xmlrpcClient->logout();
+        if (self::IsLoggedIn()) {
+            $user->_xmlrpcClient->logout();
+        }
         Zend_Auth::getInstance()->clearIdentity();
     }
     

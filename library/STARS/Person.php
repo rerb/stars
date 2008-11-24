@@ -73,9 +73,7 @@ class STARS_Person
                 $this->_info[$key] = $identity[$key];
             }
         }
-        if (isset($this->_info['roles']) && is_array($this->_info['roles'])) {
-            $this->_info['roles'] = implode(', ', $this->_info['roles']);
-        }
+        $this->_info['starsRole'] = striArray('stars', $this->_info['roles']);
     }
     
     
@@ -112,7 +110,7 @@ class STARS_Person
      */
     public function hasAccessLevel($minLevel)
     {
-        if ($this->exists()) {  // authenticated user
+        if ($this->exists()) {  // authenticated user          
           return $this->_hasRole($minLevel);
         }
         else {  // un-authenticated user...
