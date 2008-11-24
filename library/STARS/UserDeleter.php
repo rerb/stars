@@ -16,7 +16,7 @@ class STARS_UserDeleter
     
     public function delete()
     {
-        if($this->_id == STARS_Person::getInstance()->get('personid'))
+        if ($this->_id == STARS_User::getId())
         {
             return self::SELF_ERROR;
         }

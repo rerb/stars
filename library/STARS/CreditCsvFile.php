@@ -27,7 +27,7 @@ class STARS_CreditCsvFile
   public function __construct($credit)
   {
     // assert: $credit != null
-    $this->_userid = STARS_Person::getInstance()->get('personid');
+    $this->_userid = STARS_User::getId();
     $this->_credit = $credit;
     $this->_creditCode = $credit->creditCode();
     $this->_filename = $credit->csvFilename();
@@ -164,6 +164,7 @@ class STARS_CreditCsvFile
         }
       }
       // Attempt to do the insert, if questioncode is a duplicate, just ignore
+      // @todo Search for Mysqli references, change to $db->query() form.
       $sql = "INSERT INTO $table $keys VALUES $values "  .
              "       ON DUPLICATE KEY UPDATE questionid=LAST_INSERT_ID(questionid)";
       $stmt = new Zend_Db_Statement_Mysqli(Zend_Registry::get('db'), $sql);

@@ -1,30 +1,36 @@
+<?php if ($this->message): ?>
+  <div class="messages">
+    <?php echo $this->message; ?>
+  </div>
+<?php endif; ?>
 
-<?php if($this->attempted) { ?>
-    <?php if($this->code == STARS_UserUpdater::SUCCESS) { ?>
-        <p>
-            Profile updated.
-        </p>
-        <p>
-            <ul>
-                <li><a href="/">Go home.</a></li>
-                <li><a href="/tracker/">Go to My Tracker.</a></li>
-            </ul>
-        </p>
-    <?php } elseif($this->code == STARS_UserUpdater::NO_UPDATE_ERROR) { ?>
-        <div class="errors">
-            No changes have been made Either you did not enter changes, or the user does not exist.
-        </div>
-        <?php echo $this->form ?>
-    <?php } else { ?>
-        <p>
-            There was an error processing your data. Please contact the <a href="mailto:webmaster@aashe.org?subject=STARS Tracking Tool">IT Team</a> with a detailed description of the problem you encountered.. Please contact the webmaster if you continue to have problems.
-        </p>
-    <?php } ?>
-<?php } else { ?>
-    <?php if($this->submitted) { ?>
+<?php if($this->submitted) { ?>
         <div class="errors">
             The errors in your submission have been highlighted below.
         </div>
-    <?php } ?>
-    <?php echo $this->form ?>
 <?php } ?>
+<h2><?php echo $this->user['name'] ?></h2>
+    <ul>
+        <li>
+            User Level: <?php echo $this->user['roles'] ?>
+        </li>
+        <li>
+            e-mail: <?php echo $this->user['mail'] ?>
+        </li>
+    </ul>
+
+<table width=80% align='center'>
+  <thead> <tr>
+    <th>Organization</th> <th>Role</th> <th>Title</th> <th>Department</th> <th>Admin Action</th>
+  </tr></thead>
+<?php foreach($this->userOrgs as $org) { ?>
+  <tr>
+	<td><?php echo $org['orgname'] ?></td>
+    <td><?php echo $org['role'] ?></td>
+    <td><?php echo $org['title'] ?></td>
+    <td><?php echo $org['department'] ?></td>
+    <td> <a href="/user/deleteorgrole/<?php echo $org['relperson2orgid'] ?>/">Delete</a></td>
+  </tr>
+<?php } ?>
+</table>
+<?php echo $this->form ?>

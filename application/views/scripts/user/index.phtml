@@ -1,20 +1,23 @@
 
 <?php foreach($this->list as $user) { ?>
-    <h2><?php echo $user['username'] ?></h2>
+    <h2><?php echo $user['name'] ?></h2>
     <ul>
         <li>
-            User Level: <?php echo ($user['level'] == 2) ? 'Administrator' : 'Normal User' ?>
+            User Level: <?php echo $user['role'] ?>
         </li>
         <li>
-            Real Name: <?php echo $user['firstname'].' '.$user['lastname'] ?>
+            e-mail: <?php echo $user['mail'] ?>
         </li>
         <li>
-            Organization: <?php echo $user['orgname'] ?>
+            <?php if ($user['personid']===NULL) { ?>
+            	<b>NO ORGANIZATION ASSIGNED</b>
+            <?php } else { ?>
+            	Organization: <?php echo $user['orgname'] . '   ('. $user['orgrole'] . ')' ?>
+            <?php } ?>
         </li>
         <li>
             Administrative Actions:
-            <a href="/user/edit/<?php echo $user['personid'] ?>/">Edit</a>,
-            <a href="/user/delete/<?php echo $user['personid'] ?>/" onclick="return confirm('Are you sure you want to delete <?php echo str_replace(array('\'', '"'), array('\\\'', '\\\''), $user['firstname'].' '.$user['lastname']) ?>\'s account?')">Delete</a>
+            <a href="/user/edit/<?php echo $user['userid'] ?>/">Edit</a>
         </li>
     </ul>
 <?php } ?>

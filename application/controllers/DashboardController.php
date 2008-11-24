@@ -6,7 +6,7 @@ class DashboardController extends STARS_ActionController
     {
         $this->_protect(1);
         
-        if(STARS_Person::getInstance()->get('level') > 1)
+        if(STARS_User::hasAccess(2))
         {
             $this->_admin();
         }

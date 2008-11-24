@@ -58,15 +58,14 @@ class CreditController extends STARS_ActionController
     $report->errorList = array();
     
     $credits = STARS_Credit::getAllCredits();
-//    foreach ($credits as $credit) {
-$credit = new STARS_credit(79);
+    foreach ($credits as $credit) {
       if ($credit->export()) {
         $report->exportList[] = $credit->exportFilename();
       }
       else {
         $report->errorList[$credit->exportFilename()] = $credit->getExportErrors();
       }
-//    }
+    }
 
     return $report;
   }
@@ -222,7 +221,7 @@ $credit = new STARS_credit(79);
    */
   private function _storeData($data, $credit, $pointsOptions)
   {
-    $orgId = STARS_Person::getInstance()->get('orgid');
+    $orgId = STARS_User::getOrgid();
     // Convert the index from points options to the actual number of points.
     if ($pointsOptions) {
       $points = issetor($pointsOptions[$data['points']], 0);
@@ -420,7 +419,7 @@ class CreditFileActionHelper extends STARS_ActionController
     }
     
     // Load existing CreditFile object - this will be null for new uploads.
-    $orgId = STARS_Person::getInstance()->get('orgid');  // restrict access to this org
+    $orgId = STARS_User::getOrgid();  // restrict access to this org
     
     $this->_creditFile = STARS_CreditPdfFile::getCreditPdfFile($creditId, $orgId);
    }

@@ -29,7 +29,7 @@ abstract class STARS_Abstract_Strategy_InstitutionWriter
             'tabletype' => 2
         );
         
-        $info['modifierid'] = STARS_Person::getInstance()->get('personid');
+        $info['modifierid'] = STARS_User::getId();
         
         $this->_sortInfo($info);
     }

@@ -130,18 +130,17 @@ class STARS_Section
     
     private function _retrieveCredits($orgId = null)
     {
-        $user = STARS_Person::getInstance();
-        if ($orgId == null && $user->exists()) {
-          $orgId = $user->get('orgid');
+        if ($orgId == null) {
+            $orgId = STARS_User::getOrgid();
         }
-        
+       
         try
         {
           // Conditional query was needed to report credit information to anon. users
           // This is not needed until this functionality is implemented... but got
           //   added during development due to changing requirements...
-          // TO DO: change this to build query conditionally.
-          if ($user->exists()) {
+          // @todo change this to build query conditionally.
+          if ( STARS_User::isLoggedIn() ) {
             $this->_credits = Zend_Registry::get('db')->fetchAll
             (
                 'SELECT o.*, c.*, di1.itemdisplay AS sectiontitle, di1.itemvalue AS sectionabbr, di2.itemdisplay AS subsectiontitle, di2.itemvalue as subsectionname

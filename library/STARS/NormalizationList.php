@@ -4,7 +4,7 @@ class STARS_NormalizationList extends STARS_Abstract_SelectList
 {
     public function __construct(array $options = array())
     {
-        $options['orgid'] = issetor($options['orgid'], STARS_Person::getInstance()->get('orgid'));
+        $options['orgid'] = issetor($options['orgid'], STARS_User::getOrgid());
         
         parent::__construct($options);
         

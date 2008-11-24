@@ -10,11 +10,18 @@
     <body>
         <h1><a href="/">Sustainability Tracking and Ratings System</a></h1>
 
-        <div id="login" class="<?php if(Zend_Auth::getInstance()->hasIdentity()) { ?>loggedin">
+        <div id="login" class="<?php if(STARS_User::isLoggedIn()) {   
+                                ?>loggedin">
                 <p>
                     Logged in as 
                     <strong>
-                        <?php echo STARS_Person::getInstance()->get('firstname').' '.STARS_Person::getInstance()->get('lastname') ?>
+                        <?php echo STARS_User::getName(); ?>
+                    </strong>
+                </p>
+                <p>
+                    Org:  
+                    <strong>
+                        <?php echo STARS_User::getOrg(); ?>
                     </strong>
                 </p>
                 <p>
@@ -25,7 +32,7 @@
             <?php } else { ?>loggedout">
                 <?php echo $this->loginForm ?>
                 <p>
-                    <a href="/password/forgot/">Forgot your password?</a>
+                    <a href="http://drupalsandbox.aashedev.org/user/password">Forgot your password?</a>
                 </p>
             <?php } ?>
             <?php if (isset($this->dbEnv)) { ?>

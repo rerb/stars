@@ -23,7 +23,7 @@ class InstitutionalController extends STARS_ActionController
         
         if($this->view->submitted === false)
         {
-            $institution = new STARS_Institution(STARS_Person::getInstance()->get('orgid'));
+            $institution = new STARS_Institution(STARS_User::getOrgid());
             $data = $institution->getData();
 
             if($data != STARS_Institution::NOT_EXISTS_ERROR)

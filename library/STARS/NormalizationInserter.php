@@ -4,7 +4,7 @@ class STARS_NormalizationInserter extends STARS_Abstract_NormalizationWriter
 {
     public function __construct(array $info)
     {
-        $info['orgid'] = issetor($info['orgid'], STARS_Person::getInstance()->get('orgid'));
+        $info['orgid'] = issetor($info['orgid'], STARS_User::getOrgid());
         
         parent::__construct($info);
     }

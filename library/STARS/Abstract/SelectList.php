@@ -20,12 +20,11 @@ class STARS_Abstract_SelectList extends Zend_Db_Select
         {
             try
             {
-                return ($this->_list = Zend_Registry::get('db')->fetchAll($this->__toString(), array(), Zend_Db::FETCH_ASSOC));
+                $this->_list = Zend_Registry::get('db')->fetchAll($this->__toString(), array(), Zend_Db::FETCH_ASSOC);
             }
             
             catch(Zend_Db_Statement_Mysqli_Exception $e) { }
         }
-        
         return $this->_list;
     }
 }

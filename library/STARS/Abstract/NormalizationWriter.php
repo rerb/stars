@@ -11,7 +11,7 @@ abstract class STARS_Abstract_NormalizationWriter
     
     public function __construct(array $info)
     {
-        $info['modifierid'] = STARS_Person::getInstance()->get('personid');
+        $info['modifierid'] = STARS_User::getId();
         
         $this->_sortInfo($info);
     }

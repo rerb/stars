@@ -60,7 +60,7 @@ class STARS_CreditPdfFile extends STARS_File
     $record = array(
           'creditid'     => $creditOID,
           'orgid'        => $orgOID,
-          'modifierid'   => STARS_Person::getInstance()->get('personid'),
+          'modifierid'   => STARS_User::getId(),
           'status'       => 1,
           'pointsest'    => $points,
           'filepath'     => $filepath,

@@ -10,7 +10,7 @@
     <?php if($this->attempted) { ?>
         <?php if(!$this->success) { ?>
             <p>
-                The username or password you entered was incorrect. <a href="/password/forgot/">Forgot your password?</a>
+              <?php echo $this->message; ?>
             </p>
         <?php } else { ?>
             <p>

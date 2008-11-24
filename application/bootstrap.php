@@ -7,7 +7,7 @@ error_reporting(E_ALL);
 set_include_path('../library' . PATH_SEPARATOR 
                . '../application' . PATH_SEPARATOR 
                . get_include_path());
-
+  
 require_once('Zend/Loader.php');
 
 Zend_Loader::registerAutoload();
@@ -39,11 +39,6 @@ $db->getConnection();
 Zend_Registry::set('config', $config);
 Zend_Registry::set('db', $db);
 Zend_Registry::set('dbEnv', $env);
-
-//
-// Delete this if no problems arise. STARS_Person is a singleton and does not belong here.
-// Zend_Registry::set('person', new STARS_Person(Zend_Auth::getInstance()->getIdentity()));
-//
 
 // LAYOUTS
     //define ("ROOT_DIR",$_SERVER['DOCUMENT_ROOT'].'/..');
