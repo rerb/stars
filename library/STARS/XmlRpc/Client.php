@@ -20,7 +20,8 @@ class STARS_XmlRpc_Client extends Zend_XmlRpc_Client
 
   // TO DO: these should be in config main.ini
   const DEFAULT_SERVER = 'http://drupalsandbox.aashedev.org/services/xmlrpc';
-  const SERVER_KEY = '6d1d181fe731e5c1acf55ec2c2de0103';
+//  const SERVER_KEY = '6d1d181fe731e5c1acf55ec2c2de0103';   // stars.local
+  const SERVER_KEY = '5067330c02e76b4bd34d45afde74757c';     // dev.starstracker.aashe.org
   const USE_KEY = true;
   const USE_SESSID = true;
   private $_sessionid;     // the sessionid retrieved during authentication.
