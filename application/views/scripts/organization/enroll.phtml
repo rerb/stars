@@ -1,18 +1,8 @@
 
-<?php if($this->attempted) { ?>
-    <?php if($this->code == STARS_OrganizationInserter::SUCCESS) { ?>
-        <p>
-            The organization has been created/enrolled successfully.
-        </p>
-            <ul>
-                <li><a href="/organization/enroll/">Enroll another.</a></li>
-                <li><a href="/dashboard/">Go to Dashboard.</a></li>
-            </ul>
-    <?php } else { ?>
-        <p>
-            There was an error processing your data. Please contact the <a href="mailto:webmaster@aashe.org?subject=STARS Tracking Tool">IT Team</a> with a detailed description of the problem you encountered..
-        </p>
-    <?php } ?>
+<?php if($this->error) { ?>
+    <div class="errors">
+         There was an error processing your data. Please contact the <a href="mailto:webmaster@aashe.org?subject=STARS Tracking Tool">IT Team</a> with a detailed description of the problem you encountered.
+    </div>
 <?php } else { ?>
     <?php if($this->submitted) { ?>
         <div class="errors">

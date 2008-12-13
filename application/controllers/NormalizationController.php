@@ -2,13 +2,6 @@
 
 class NormalizationController extends STARS_ActionController
 {
-    public function init()
-    {
-	    $this->_flashMessenger = $this->_helper->getHelper('FlashMessenger');
-
- 	    $this->view->messages = $this->_flashMessenger->getMessages();
- 	}
-    
     public function indexAction()
     {
         $this->_protect(1);
@@ -45,7 +38,7 @@ class NormalizationController extends STARS_ActionController
         }
 		
 		$data = $form->getValues();
-		$this->_flashMessenger->addMessage($this->_yearRange($data['calendaryear']) . ' added as a normalization year.');
+		$this->_flashMessage($this->_yearRange($data['calendaryear']) . ' added as a normalization year.');
         $this->_redirect('/normalization/');
     }
     
@@ -69,7 +62,7 @@ class NormalizationController extends STARS_ActionController
 		
 		$data = $normalization->getData();
 
-		$this->_flashMessenger->addMessage($this->_yearRange($data['calendaryear']) . ' deleted as a normalization year.');
+		$this->_flashMessage($this->_yearRange($data['calendaryear']) . ' deleted as a normalization year.');
 			
         $this->_redirect('/normalization/');
     }
@@ -102,7 +95,7 @@ class NormalizationController extends STARS_ActionController
 		$form->getElement('fiscalstart')->setAttrib('extra', $data['calendaryear'] - 1);
 		$form->getElement('fiscalend')->setAttrib('extra', $data['calendaryear']);
 		
-        $this->view->attempted = false;
+        $this->view->error = false;
         
         if($this->view->submitted = $this->getRequest()->isPost())
         {
@@ -110,8 +103,14 @@ class NormalizationController extends STARS_ActionController
             
             if($form->isValid($_POST))
             {
-                $this->view->attempted = true;
-                $this->view->code = $this->_updateNormalization($form);
+                if ($this->_updateNormalization($form) == STARS_NormalizationUpdater::SUCCESS) {
+		            $this->_flashMessage("Data for normalization year $range saved succesfully.");
+                    $this->_redirect('/normalization/');
+                }
+                else {
+                    // @todo log a message here to the watchdog with some context info.
+                    $this->view->error = true;
+                }
             }
         }
         

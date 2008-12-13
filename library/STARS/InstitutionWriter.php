@@ -14,7 +14,7 @@ class STARS_InstitutionWriter
     
     public function __construct(array $info)
     {
-        $info['orgid'] = issetor($info['orgid'], STARS_Usern::getOrgid());
+        $info['orgid'] = issetor($info['orgid'], STARS_User::getOrgid());
         
         $this->_info = $info;
         

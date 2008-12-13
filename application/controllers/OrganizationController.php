@@ -14,13 +14,20 @@ class OrganizationController extends STARS_ActionController
         
        // $form->getElement('parentorgid')->setMultiOptions($multiOptions);
         
-        $this->view->attempted = false;
+        $this->view->error = false;
         $this->view->submitted = $this->getRequest()->isPost();
                 
         if($form->isValid($_POST))
         {
-            $this->view->attempted = true;
-            $this->view->code = $this->_insertOrganization($form->getValues());
+            if ($this->_insertOrganization($form->getValues()) == STARS_OrganizationInserter::SUCCESS) {
+		        $this->_flashMessage("The organization has been created/enrolled successfully");
+                $this->_redirect('/dashboard/');
+            }
+            else {
+                // @todo log a message here to the watchdog with some context info.
+                // Can probably tell quite a bit here:  duplicate orgid would be good to catch.
+                $this->view->error = true;
+            }
         }
         
         $this->view->form = $form->render(new Zend_View);

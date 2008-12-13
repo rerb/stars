@@ -1,10 +1,7 @@
-
-<?php if($this->attempted) { ?>
-    <?php if($this->code == STARS_InstitutionWriter::SUCCESS) { ?>
-        Your information has been saved.
-    <?php } else { ?>
-        There was an error processing your data. Please contact the <a href="mailto:webmaster@aashe.org?subject=STARS Tracking Tool">IT Team</a> with a detailed description of the problem you encountered. 
-    <?php } ?>
+<?php if($this->error) { ?>
+    <div class="errors">
+         There was an error processing your data. Please contact the <a href="mailto:webmaster@aashe.org?subject=STARS Tracking Tool">IT Team</a> with a detailed description of the problem you encountered.
+    </div>
 <?php } else { ?>
     <?php if($this->submitted) { ?>
         <div class="errors">

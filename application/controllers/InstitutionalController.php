@@ -5,11 +5,11 @@ class InstitutionalController extends STARS_ActionController
     public function indexAction()
     {
         $this->_protect(1);
-        
+
         $this->view->title = 'Edit Institutional Information';
         $form = new STARS_Form(new Zend_Config_Ini('../config/createinstitution.ini', 'config'));
 
-        $this->view->attempted = false;
+        $this->view->error = false;
 
         $carnegielist = new STARS_CarnegieList;
 
@@ -17,10 +17,16 @@ class InstitutionalController extends STARS_ActionController
 
         if($this->view->submitted = $this->getRequest()->isPost() and $form->isValid($_POST))
         {
-            $this->view->attempted = true;
-            $this->view->code = $this->_updateInstitution($form->getValues());
+            if ($this->_updateInstitution($form->getValues()) == STARS_InstitutionWriter::SUCCESS) {
+                $this->_flashMessage("Institutional Data was saved succesfully.");
+                $this->_redirect('/tracker/');
+            }
+            else {
+                // @todo log a message here to the watchdog with some context info.
+                $this->view->error = true;
+            }
         }
-        
+
         if($this->view->submitted === false)
         {
             $institution = new STARS_Institution(STARS_User::getOrgid());
@@ -32,7 +38,7 @@ class InstitutionalController extends STARS_ActionController
                 $form->setDefaults($data);
             }
         }
-        
+
         $this->view->form = $form->render(new Zend_View);
     }
 
@@ -43,28 +49,28 @@ class InstitutionalController extends STARS_ActionController
     public function reportAction()
     {
         $this->_protect(2);
-        
+
         $orgid = $this->_getParam('number');
         $institution = new STARS_Institution($orgid);
 
         $this->view->title = 'Institutional Report: ' . $institution->getName();
 
-        // Institutional Info 
+        // Institutional Info
         $data = $institution->getData();
         $carnegielist = new STARS_CarnegieList;
         /*
          * Wouldn't it be neat to present this data in the editable form!
          *  Need to figure out how to get correct orgid to the index action on submit..
          *  Also, TO DO: duplicate code from indexAction...
-        $form = new STARS_Form(new Zend_Config_Ini('../config/createinstitution.ini', 'config'));
-        $form->getElement('dicarnegieclass')->setMultiOptions($carnegielist->getAsMultiOptions());
-        if($data != STARS_Institution::NOT_EXISTS_ERROR)
-        {
-           $data = array_merge($data, $institution->getContactData());
-           $form->setDefaults($data);
-        }
-        $this->view->instForm = $form->render(new Zend_View);
-        */
+         $form = new STARS_Form(new Zend_Config_Ini('../config/createinstitution.ini', 'config'));
+         $form->getElement('dicarnegieclass')->setMultiOptions($carnegielist->getAsMultiOptions());
+         if($data != STARS_Institution::NOT_EXISTS_ERROR)
+         {
+         $data = array_merge($data, $institution->getContactData());
+         $form->setDefaults($data);
+         }
+         $this->view->instForm = $form->render(new Zend_View);
+         */
         $contactData = $institution->getContactData();
         $data['phone'] = $contactData['contactdata'];
         $data['email'] = $contactData['contactdata2'];
@@ -82,11 +88,11 @@ class InstitutionalController extends STARS_ActionController
         $normList = new STARS_NormalizationList(array('orgid'=>$orgid));
         $this->view->list = $normList->getList();
         $this->view->normInfo = $normList->getInfo();
-        
+
         // Credit submissions for each section
         $this->view->section = $this->_getSectionInfo($orgid, true);
     }
-    
+
     private function _getSectionInfo($orgid, $creditDetails=false)
     {
         // Credit Submissions
@@ -96,28 +102,28 @@ class InstitutionalController extends STARS_ActionController
                        "OP" => 2,
                        "AF" => 3,
                        "IN" => 5,
-                     );
+        );
         $sections = array();
         foreach ($ids as $name => $id) {
-          $section = new STARS_Section($id, $orgid);
-          $credits = $section->getCredits();
-          $sections[$name]->status = $section->getStatus();
-          $sections[$name]->title = $section->getTitle();
+            $section = new STARS_Section($id, $orgid);
+            $credits = $section->getCredits();
+            $sections[$name]->status = $section->getStatus();
+            $sections[$name]->title = $section->getTitle();
 
-          if ($creditDetails) {
-          // @to-do: copied from sectrion controller - unify
-          // Load model for each credit 'object' (which is really just a record here).
-            reset($credits);
-            while (list($i, $credit) = each($credits)) {
-              // Existing submission for this credit
-              $credits[$i]['submission'] = STARS_CreditPdfFile::getCreditFileInfo($credit);
+            if ($creditDetails) {
+                // @to-do: copied from sectrion controller - unify
+                // Load model for each credit 'object' (which is really just a record here).
+                reset($credits);
+                while (list($i, $credit) = each($credits)) {
+                    // Existing submission for this credit
+                    $credits[$i]['submission'] = STARS_CreditPdfFile::getCreditFileInfo($credit);
+                }
+                $sections[$name]->credits = $credits;
             }
-            $sections[$name]->credits = $credits;
-          }
         }
         return $sections;
     }
-    
+
     /**
      * Generate a summary report on all institutions' submissions
      */
@@ -130,31 +136,31 @@ class InstitutionalController extends STARS_ActionController
         // Section summary - how many credits, titles, etc. for each section
         $sections = STARS_Section::sectionSummary();
         foreach ($orgs->getList() as $org) {
-          $orgid = $org['orgid'];
-          $inst = new stdClass;
-          // Institution
-          $inst->link = '/institutional/report/' . $orgid;
-          $inst->name = $org['orgname'];
-        
-          // Normalization Data
-          // NOTE: not really the right rule for complete status,
-          //       but this is as close as we can get without loading each norm list.
-          $inst->norm = array('isComplete'  => ($org['normComplete']>=3),
+            $orgid = $org['orgid'];
+            $inst = new stdClass;
+            // Institution
+            $inst->link = '/institutional/report/' . $orgid;
+            $inst->name = $org['orgname'];
+
+            // Normalization Data
+            // NOTE: not really the right rule for complete status,
+            //       but this is as close as we can get without loading each norm list.
+            $inst->norm = array('isComplete'  => ($org['normComplete']>=3),
                               'yearsComplete'=> $org['normComplete'],
                               'numYears'    => $org['normAttempt']);
 
-          // Credit submissions for each section
-          $inst->section = array();
-          foreach($sections as $id=>$section) {
-            $abbr = $section['sectionabbr'];
-            $index = $abbr . '_credits';   // HACK ALERT - to work with SummaryReport
-            $inst->section[$id] = new stdClass;
-            $inst->section[$id]->status = array(
+            // Credit submissions for each section
+            $inst->section = array();
+            foreach($sections as $id=>$section) {
+                $abbr = $section['sectionabbr'];
+                $index = $abbr . '_credits';   // HACK ALERT - to work with SummaryReport
+                $inst->section[$id] = new stdClass;
+                $inst->section[$id]->status = array(
                               'complete'    => ($org[$index] == $section['credits']),
                               'numComplete' => $org[$index],
                               'numCredits'  => $section['credits']);
-          }
-          $this->view->institutions[$orgid] = $inst;
+            }
+            $this->view->institutions[$orgid] = $inst;
         }
         $this->view->sections = $sections;
     }
@@ -162,7 +168,7 @@ class InstitutionalController extends STARS_ActionController
     private function _updateInstitution($values)
     {
         $writer = new STARS_InstitutionWriter($values);
-        
+
         return $writer->write();
     }
 }

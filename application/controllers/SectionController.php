@@ -10,8 +10,6 @@ class SectionController extends STARS_ActionController
         
         $this->view->title = $section->getTitle();
 
-        $this->_flashMessage();
-
         // @to-do: consider re-factoring a CreditList Domain Object?
         $credits = $section->getCredits();
         

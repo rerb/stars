@@ -57,6 +57,12 @@
             </div>
           </div>
           
+          <?php if ($this->flashMessages): ?>
+  			<div class="messages">
+              <?php echo $this->flashMessages; ?>
+  			</div>
+          <?php endif; ?>
+          
           <?php echo $this->layout()->content ?>
           
         </div>

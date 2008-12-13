@@ -24,23 +24,39 @@ class STARS_ActionController extends Zend_Controller_Action
     }
 
     /**
+     * Post-dispatch hook (called by Zend after the action executes successfully, but before rendering view)
+     *   - Grab any messages that need to be flashed on the view
+     */
+    public function postDispatch()
+    {
+        $messenger = $this->_getFlashMessenger();
+        if ($messenger->hasMessages()) {
+            $this->view->flashMessages = implode("<br />", $messenger->getMessages());
+        }
+    }
+    
+    /**
      * Support of flashMessenger use in Controllers.
-     * @param string $message message to post to flash Messenger, or
-     *        pass null to get existing flash message to this->view->message
+     * @param string $message message to post to flash Messenger
      */
     protected function _flashMessage($message = null)
+    {
+        if ($message) {
+            $this->_getFlashMessenger()->addMessage($message);
+        }
+    }
+    
+    /**
+     * Helper - lazy init used to grab the flash messenger
+     * @return  flashMessenger object
+     */
+    private function _getFlashMessenger()
     {
         if (!$this->_flashMessenger) { // lazy init
             $this->_flashMessenger =
             $this->_helper->getHelper('FlashMessenger');
         }
-        if ($message) {
-            $this->_flashMessenger->addMessage($message);
-        }
-        else if ($this->_flashMessenger->hasMessages()) {
-            $this->view->message = implode("<br />",
-            $this->_flashMessenger->getMessages());
-        }
+        return $this->_flashMessenger;    
     }
 
     /**
