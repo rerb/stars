@@ -1,0 +1,55 @@
+
+<h2> Error </h2>
+<table class='green'>
+  <tr>
+    <th>Type</th>
+    <td><?php echo $this->entry['type']; ?></td>
+  </tr>
+  <tr>
+    <th>Severity</th>
+    <td><?php echo ($entry['severity']==WATCHDOG_ERROR?'Error':
+                   ($entry['severity']==WATCHDOG_WARNING?'Warning':'Notice')) ?></td>
+    <td><?php echo $entry['timestamp'] ?></td>
+  </tr>
+  <tr>
+    <th>Date</th>
+    <td><?php echo $this->entry['timestamp'] ?></td>
+  <tr>
+    <th>Message</th>
+    <td><?php echo $this->entry['message'] ?></td>
+  </tr>
+</table>
+
+<h2>Context</h2>
+<table class='green'>
+  <tr>
+    <th>Location</th>
+    <td><?php echo $this->entry['location']; ?></td>
+  </tr>
+  <tr>
+    <th>Referer</th>
+    <td><?php echo $this->entry['referer'] ?></td>
+  <tr>
+    <th>Host</th>
+    <td><?php echo $this->entry['hostname'] ?></td>
+  </tr>
+</table>
+
+<h2>User</h2>
+<table class='green'>
+  <tr>
+    <th>Name</th>
+    <td><?php echo $this->entry['firstname'] . ' ' . $this->entry['lastname']; ?></td>
+  </tr>
+  <tr>
+    <th>Organization</th>
+    <td><?php echo $this->entry['orgname'] ?></td>
+  <tr>
+    <th>Role</th>
+    <td><?php echo $this->entry['role'] ?></td>
+  </tr>
+  <tr>
+    <th>e-mail</th>
+    <td>Not yet available - submit a ticket to Trac!</td>
+  </tr>
+</table>

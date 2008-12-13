@@ -156,6 +156,7 @@ $message = "Deleting relOrg2Person record: " . $orgPersonRoleId;
                 $this->view->success = STARS_User::login($values['loginusername'], $values['loginpassword']);
 
                 if ($this->view->success) {
+                    watchdog('user', 'Session started for User '.$values['loginusername'], WATCHDOG_NOTICE);  // add link to user's profile?
                     $this->_redirect('/dashboard/');
                 }
                 else {
@@ -172,7 +173,14 @@ $message = "Deleting relOrg2Person record: " . $orgPersonRoleId;
     // TO DO: send XML_RPC request to logout from authentication server
     public function logoutAction()
     {
-       STARS_User::logout();
+        $name = STARS_User::getName();
+        if (STARS_User::logout()) {
+            watchdog('user', 'Session ended for User '.$name, WATCHDOG_NOTICE);  // add link to user's profile?
+        }
+        else if ( STARS_User::isLoggedIn() ) {
+            watchdog('user', 'Attempt to logut User '.$name. ' failed', WATCHDOG_NOTICE);  // add link to user's profile?
+        }
+        // we don't log attempts to logout by anonymous users - who cares.
         
         $this->view->title = 'Logout';
     }

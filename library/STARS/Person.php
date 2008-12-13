@@ -87,8 +87,8 @@ class STARS_Person
     {
         if(!$this->exists())
         {
-            throw new STARS_Exception('Person does not exist.');
-            return;
+            watchdog('defect', "Attempt to get($key) for anonymous person", WATCHDOG_ERROR);
+            return null;
         }
         
         return issetor($this->_info[$key]);

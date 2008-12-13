@@ -108,14 +108,18 @@ class STARS_User extends STARS_Person
     
     /**
      * Log the user out and destroy the identity used for this session.
+     * @return true if a user session was terminated, false otherwise
      */
     public static function logout()
     {
+        $loggedOut = false;
         $user = self::getInstance();
         if (self::IsLoggedIn()) {
             $user->_xmlrpcClient->logout();
+            $loggedOut = true;  // @todo actually check result coming back from xmlrpc call!
         }
         Zend_Auth::getInstance()->clearIdentity();
+        return $loggedOut;
     }
     
     /**
@@ -133,7 +137,7 @@ class STARS_User extends STARS_Person
      */
     public static function getMessage()
     {
-        return self::_message;
+        return self::$_message;
     }
     
      /**
@@ -143,7 +147,8 @@ class STARS_User extends STARS_Person
     public static function getId() 
     {
         $user = self::getInstance();
-        return $user->get('personid');
+        // Careful here - anonymous users don't have personid's
+        return $user->exists() ? $user->get('personid') : 0;
     }
     
     /**
@@ -153,8 +158,9 @@ class STARS_User extends STARS_Person
     public static function getOrgid() 
     {
         $user = self::getInstance();
-        return $user->get('orgid');
-    }
+        // Careful here - anonymous users don't have orgid's
+        return $user->exists() ? $user->get('orgid') : 0;
+     }
     
     /**
       *  Get the current (default) organization for the User
@@ -163,7 +169,7 @@ class STARS_User extends STARS_Person
     public static function getOrg() 
     {
         $user = self::getInstance();
-        return $user->get('orgname');
+        return $user->exists() ? $user->get('orgname') : '';
     }
     
      /**
@@ -173,7 +179,7 @@ class STARS_User extends STARS_Person
     public static function getName() 
     {
         $user = self::getInstance();
-        return $user->get('name');
+        return $user->exists() ? $user->get('name') : '';
     }
 
     /**

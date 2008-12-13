@@ -72,8 +72,14 @@ class Zend_View_Helper_Breadcrumb
       if ($action != NULL) {  // only load the controller's leaf paths if there is an action
         $iniSections[] = $controller;
       }
-      $tree = new Zend_Config_Ini('../config/breadcrumb.ini', $iniSections);
-      
+      try {
+          $tree = new Zend_Config_Ini('../config/breadcrumb.ini', $iniSections);
+      }
+      catch (Exception $e) {
+          watchdog('defect','Error loading breadcrumb: '.$e->getMessage(), WATCHDOG_ERROR);
+          // We can recover from this error - just don't display any breadcrumb...
+          $tree = null;   
+      }
       // Set object name of last node in crumb (leaf node of the tree)
       $leaf = ($action==null)?$controller:$action;
       
@@ -103,7 +109,7 @@ class Zend_View_Helper_Breadcrumb
       $crumb = array();
       do {
         if (!isset($tree->$item)) {
-          return $crumb;  // To Do: this is probably an internal error - throw exception?
+          return $crumb;  // To Do: this represents an internal error - log it?
         }
         
         $title = $tree->$item->title;

@@ -1,4 +1,11 @@
 
     <div class="errors">
-      <?php echo $this->errors->exception->getMessage() ?>
+      <?php if (isset($this->userMessage)) :
+               echo $this->userMessage;
+            else :
+      ?>
+               <h2>Sorry!</h2> 
+               <p><b>An internal error has occurred.</b></p>  
+               <p>Please contact AASHE if the problem persists.</p>
+      <?php endif ?>
     </div>
