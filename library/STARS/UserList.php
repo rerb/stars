@@ -35,7 +35,7 @@ class STARS_UserList extends STARS_Abstract_SelectList
         }
         catch(Zend_Db_Statement_Mysqli_Exception $e)
         {
-            print_r($e); exit;  // @todo 
+            print_r($e); exit;  // @todo proper error handling
         }
         
         // Get matching records from users join relperson2orgs join organizations join institutionnames join roles   

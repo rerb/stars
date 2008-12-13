@@ -4,18 +4,14 @@
         <p>
             The user has been created successfully.
         </p>
-        <p>
             <ul>
                 <li><a href="/dashboard/">Return to dashboard.</a></li>
                 <li><a href="/">Go home.</a></li>
             </ul>
-        </p>
     <?php } elseif($this->code == STARS_UserInserter::USERNAME_ERROR) { ?>
-        <p>
             <ul class="errors">
                 <li>That username already exists.</li>
             </ul>
-        </p>
         <?php echo $this->form ?>
     <?php } else { ?>
         <p>
