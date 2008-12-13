@@ -123,8 +123,28 @@ class Zend_Layout_Controller_Plugin_Layout extends Zend_Controller_Plugin_Abstra
             return;
         }
 
-        $response   = $this->getResponse();
-        $content    = $response->getBody(true);
+        // Applied this patch: http://framework.zend.com/issues/browse/ZF-2993?focusedCommentId=20524#action_20524
+        // This is fixed in the version 1.6, so no need to carry this patch forward.
+/* 
+-        $response   = $this->getResponse();
+-        $content    = $response->getBody(true);
++        $response = $this->getResponse();
++
++        // Return early if an exception was thrown, unless this is the error handler
++        if ($response->isException() && !$request->getParam('error_handler')) {
++            return;
++        }
++
++        $content = $response->getBody(true);
+*/
+        $response = $this->getResponse();
+
+        // Return early if an exception was thrown, unless this is the error handler
+        if ($response->isException() && !$request->getParam('error_handler')) {
+            return;
+        }
+        $content = $response->getBody(true);
+
         $contentKey = $layout->getContentKey();
 
         if (isset($content['default'])) {
