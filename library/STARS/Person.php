@@ -41,6 +41,7 @@ class STARS_Person
     
     /**
      * Factory : creates a person based on a personid
+     * @param int $personid  POID of Person to create, null to create 'anonymous' person
      * @return STARS_Person  test exists() to determine if Person was found
      */
     public static function factory($personid)
@@ -53,12 +54,36 @@ class STARS_Person
               $result = $remote->getUser($personid);
               $person->_unpackIdentity($result);
             }
-            // Hmmmmm - what to do if user exists but we can't get their record from remote server? 
-            catch (Zend_XmlRpc_Exception $e) {   
-                ;  // @todo  log an error?
+            catch (Zend_XmlRpc_Client_Exception $e) {
+              throw self::_getErrorTicket($person, $personid, $e);
             }
         }
         return $person;
+    }
+    
+    /**
+     * Helper: generate an error ticket for a failed RPCXML request
+     *
+     * @param Exception $e  - the exception to base the error ticket on
+     * @return Exception $ticket  the exception to throw
+     */
+    private static function _getErrorTicket($person, $personid, $e)
+    {
+        // Possible causes: user doesn't exist on remote server; no such user; other?
+        if (stripos($e->getMessage(),'user') !== false) {   // hackish way to ID user not found
+            if ($person->exists()) { // Oh-oh, DB is inconsistent - person exists in STARS, but not in IRC
+                $error = new STARS_ErrorTicket("User (id = $personid) not found in AASHE IRC.",
+                             new STARS_Exception("DB Inconsistency: User (id = $personid) exists in STARS, but not on remote server. [".$e->getMessage().']'),
+                             true, WATCHDOG_ERROR);
+            }
+            else {  // no such user - invalid personid passed in
+                $error = new STARS_ErrorTicket("No such User (id = $personid) ", $e, true, WATCHDOG_WARNING);
+            }
+        }
+        else {  // Could be some other rpcxml issue?
+             $error = $e;  // default case: no idea, just pass the original exception along
+        }
+        return $error;
     }
     
     /**
@@ -164,7 +189,7 @@ class STARS_Person
     /**
      * Gets personal data from DB
      * @param $uid  unique id for user to load data for
-     * TO DO : User should have a list of organizations plus a default organization - add org-specfic roles
+     * @todo : User should have a list of organizations plus a default organization - add org-specfic roles
      */
     private function _getPersonalData($uid)
     {

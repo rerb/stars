@@ -117,7 +117,9 @@ class STARS_User extends STARS_Person
         $user = self::getInstance();
         if (self::IsLoggedIn()) {
             $user->_xmlrpcClient->logout();
-            $loggedOut = true;  // @todo actually check result coming back from xmlrpc call!
+            $loggedOut = true;  
+            // @todo actually check result coming back from xmlrpc call!  
+            //       Probably need to catch exceptions and perhaps log them, but otherwise ignore them and allow logout to proceed?? Not sure.
         }
         Zend_Auth::getInstance()->clearIdentity();
         return $loggedOut;

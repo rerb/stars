@@ -13,7 +13,8 @@
  * Extended XmlRpc Client services for STARS
  * Provides access to remote procedure calls,
  *  primarily inteded for use with the Drupal Resource Center
- * Each of the methods may throw several types of Zend_XmlRpc_Exception if something goes wrong.
+ * Each of the methods may throw several types of Zend_XmlRpc_Client_FaultException if something goes wrong,
+ *   however server issue exceptions are trapped and re-thrown as a STARS_ErrorTicket
  */
 class STARS_XmlRpc_Client extends Zend_XmlRpc_Client
 {
@@ -110,19 +111,29 @@ class STARS_XmlRpc_Client extends Zend_XmlRpc_Client
 
   /**
    * Helper: make the RPC call and return the results.
+   *         Traps HttpException and re-throws a STARS_ErrorTicket
    *
    * @param $function string name of the RPC function to be called.
    * @param $args     array of arguments to the RPC
    *
    * @return RPC result returned by server
+   * @throws STARS_ErrorTicket if an server error occurred, Zend_XmlRpc_Client_FaultException for other errors.
    */
   public function call($function, $args)
   {
-     $params = $this->_getParams($function);
-     
-     $params  = array_merge($params, $args);
-     
-     return parent::call($function, $params);
+      $params = $this->_getParams($function);
+       
+      $params  = array_merge($params, $args);
+       
+      try {
+          return parent::call($function, $params);
+      }
+      catch (Zend_XmlRpc_Client_HTTPException $e) {
+          watchdog('XML-RPC', "HTTP request to XMLRPC  remote server failed. [{$e->getMessage()}]", WATCHDOG_ERROR);
+          throw new STARS_ErrorTicket("Unable to connect to remote server - please try again later.",
+                                       null, true);
+      }
+       
   }
 
   /** 
