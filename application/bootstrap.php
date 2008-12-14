@@ -32,7 +32,11 @@ $router->addConfig($config->routes);
 
 $db = Zend_Db::factory($config->database);
 $db->setFetchMode(Zend_Db::FETCH_ASSOC);
-$db->getConnection();
+// If we make the connection explicitly, we need special logic here to catch and handle any exceptions
+//  (normal error handling won't work yet, since bootstrap is not complete)
+// Instead, use a lazy connection, so the DB connect is done only when it is first required.
+//    http://framework.zend.com/manual/en/zend.db.html#zend.db.adapter.connecting.getconnection
+//$db->getConnection();
 
 // REGISTRATION
 
