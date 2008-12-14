@@ -132,7 +132,7 @@ class STARS_CreditCsvFile
         // Check for internal consistency - all questions should be loaded now,
         //  if not, serious error with algorithm - abort.
         if (count($missing)>0) {
-          throw new STARS_Exception('Internal Error: credit ' . $this->creditCode . 
+          throw new STARS_Exception('Credit ' . $this->creditCode . 
                                     ' : Unable to add questions ['.
                                     implode(',', $mising) . ']'); 
         }

@@ -1,17 +1,6 @@
-
-<?php if($this->notexists) { ?>
+<?php if($this->submitted) { ?>
     <div class="errors">
-        The normalization year you tried to edit no longer exists.
+        Please review the highlighted errors below.
     </div>
-<?php } else if($this->error) { ?>
-    <div class="errors">
-         There was an error processing your data. Please contact the <a href="mailto:webmaster@aashe.org?subject=STARS Tracking Tool">IT Team</a> with a detailed description of the problem you encountered.
-    </div>
-<?php } else { ?>
-    <?php if($this->submitted) { ?>
-        <div class="errors">
-            Please review the highlighted errors below.
-        </div>
-    <?php } ?>
-    <?php echo $this->form ?>
 <?php } ?>
+<?php echo $this->form ?>

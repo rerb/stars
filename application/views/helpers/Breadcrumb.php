@@ -109,7 +109,8 @@ class Zend_View_Helper_Breadcrumb
       $crumb = array();
       do {
         if (!isset($tree->$item)) {
-          return $crumb;  // To Do: this represents an internal error - log it?
+          watchdog('defect','Missing breadcrumb entry for : '.$item, WATCHDOG_ERROR);
+          return $crumb;
         }
         
         $title = $tree->$item->title;

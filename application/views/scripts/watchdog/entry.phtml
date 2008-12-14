@@ -7,9 +7,8 @@
   </tr>
   <tr>
     <th>Severity</th>
-    <td><?php echo ($entry['severity']==WATCHDOG_ERROR?'Error':
-                   ($entry['severity']==WATCHDOG_WARNING?'Warning':'Notice')) ?></td>
-    <td><?php echo $entry['timestamp'] ?></td>
+    <td><?php echo ($this->entry['severity']==WATCHDOG_ERROR?'Error':
+                   ($this->entry['severity']==WATCHDOG_WARNING?'Warning':'Notice')) ?></td>
   </tr>
   <tr>
     <th>Date</th>

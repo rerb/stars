@@ -1,11 +1,24 @@
 
     <div class="errors">
-      <?php if (isset($this->userMessage)) :
-               echo $this->userMessage;
-            else :
-      ?>
-               <h2>Sorry!</h2> 
-               <p><b>An internal error has occurred.</b></p>  
-               <p>Please contact AASHE if the problem persists.</p>
+      <?php if (isset($this->userMessage)) : ?>
+            <b>  <?php echo $this->userMessage; ?> </b>
+       <?php else : ?>
+        <h2>Sorry!</h2> 
+        <?php if ($this->dbError) : ?>
+           <b>Error connecting to the STARS Database.</b> 
+           <p>Service may be temporarily unavailable.</p> 
+        <?php elseif ($this->pageNotFound) : ?>
+           <b>Page Not Found</b>
+           <p>Try starting from the <a href='/'>STARS Home Page</a></p> 
+        <?php else : ?>
+               <b>An internal system error has occurred.</b> 
+        <?php endif ?>
+      <?php endif ?>
+          
+      <?php if ($this->addContactMsg) : ?>
+        <p>If this problem persists, please contact the 
+            <a href="mailto:webmaster@aashe.org?subject=STARS Tracking Tool">AASHE STARS Team</a> 
+            with a detailed description of the problem you encountered.
+        </p>
       <?php endif ?>
     </div>

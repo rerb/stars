@@ -9,21 +9,19 @@ class InstitutionalController extends STARS_ActionController
         $this->view->title = 'Edit Institutional Information';
         $form = new STARS_Form(new Zend_Config_Ini('../config/createinstitution.ini', 'config'));
 
-        $this->view->error = false;
-
         $carnegielist = new STARS_CarnegieList;
 
         $form->getElement('dicarnegieclass')->setMultiOptions($carnegielist->getAsMultiOptions());
 
         if($this->view->submitted = $this->getRequest()->isPost() and $form->isValid($_POST))
         {
-            if ($this->_updateInstitution($form->getValues()) == STARS_InstitutionWriter::SUCCESS) {
+            $values = $form->getValues();
+            if ($this->_updateInstitution($values) == STARS_InstitutionWriter::SUCCESS) {
                 $this->_flashMessage("Institutional Data was saved succesfully.");
                 $this->_redirect('/tracker/');
             }
             else {
-                // @todo log a message here to the watchdog with some context info.
-                $this->view->error = true;
+                throw new STARS_Exception('Attempt to update Institutional Info (orgid = '.issetor($values['orgid'], STARS_User::getOrgid()).') failed.');
             }
         }
 

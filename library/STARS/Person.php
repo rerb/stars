@@ -81,7 +81,6 @@ class STARS_Person
      * Get Info from _info
      * @param string $key Key (usually a MySQL column name)
      * @return mixed or null if $key does not exist
-     * @throws STARS_Exception
      */
     public function get($key)
     {

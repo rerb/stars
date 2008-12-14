@@ -67,7 +67,8 @@ class STARS_User extends STARS_Person
                     self::$_message='The username or password you entered was incorrect. <a href="http://drupalsandbox.aashedev.org/user/password">Forgot your password?</a>';
                     break;
                 default :
-                    self::$_message='Server or Network error: Could not complete login.  Please try later, or contact AASHE.';
+                    self::$_message='Server or Network error: Could not complete login - please try later.';
+                    throw new STARS_ErrorTicket(self::$_message, null, true);
             }
             return false;
         }

@@ -49,7 +49,7 @@ class STARS_Auth_Adapter_XmlRpc implements Zend_Auth_Adapter_Interface
         // We want to distinguish just 2 cases: Server/Network error vs. Authentication error.
         // Only way to do it is to look at the message returned from the RPC. 
         catch (Exception $e) {   
-          watchdog('XML-RPC', $e->getMessage(), WATCHDOG_NOTICE);
+          watchdog('XML-RPC', $e->getMessage(), WATCHDOG_ERROR);
           if (is_a($e, 'Zend_XmlRpc_Client_FaultException') &&
               stripos($e->getMessage(),'password') !== false) {   // hackish way to ID invalid credential
               return new Zend_Auth_Result(Zend_Auth_Result::FAILURE_IDENTITY_NOT_FOUND, $this->_username); 

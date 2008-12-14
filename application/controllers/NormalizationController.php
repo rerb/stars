@@ -78,24 +78,23 @@ class NormalizationController extends STARS_ActionController
         if($data == STARS_Normalization::NOT_EXISTS_ERROR)
         {
             $this->view->title = 'Edit Normalization Data: Error';
-            $this->view->notexists = true;
-            return;
+            throw new STARS_ErrorTicket("The normalization year you tried to edit no longer exists.", 
+                                        new STARS_Exception('Attempt to edit non-existent Normalization Record : '.$datanormid));
         }
         
-        $this->_protectExceptOrg($data['orgid']);
+        $range = $this->_yearRange($data['calendaryear']);
+        $this->view->title = 'Edit Normalization Data: '.$range;
         
-        $this->view->notexists = false;
+        $this->_protectExceptOrg($data['orgid']);
 	
 		$form = new STARS_Form(new Zend_Config_Ini('../config/editnormalization.ini', 'config'));
 		
-		$form->templateLabels('%year%', $range = $this->_yearRange($data['calendaryear']));
+		$form->templateLabels('%year%', $range);
 		
 		$form->getElement('academicstart')->setAttrib('extra', $data['calendaryear'] - 1);
 		$form->getElement('academicend')->setAttrib('extra', $data['calendaryear']);
 		$form->getElement('fiscalstart')->setAttrib('extra', $data['calendaryear'] - 1);
 		$form->getElement('fiscalend')->setAttrib('extra', $data['calendaryear']);
-		
-        $this->view->error = false;
         
         if($this->view->submitted = $this->getRequest()->isPost())
         {
@@ -108,8 +107,8 @@ class NormalizationController extends STARS_ActionController
                     $this->_redirect('/normalization/');
                 }
                 else {
-                    // @todo log a message here to the watchdog with some context info.
-                    $this->view->error = true;
+                    throw new STARS_Exception('Attempt to update Normalization Record (datanormid = ' .
+                                               $datanormid . ') for year ' . $range . ' failed.');
                 }
             }
         }
@@ -121,7 +120,6 @@ class NormalizationController extends STARS_ActionController
         }
         
         $this->view->form = $form->render(new Zend_View);
-        $this->view->title = 'Edit Normalization Data: '.$range;
     }
 
     /**

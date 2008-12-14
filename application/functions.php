@@ -50,7 +50,15 @@ function watchdog($type, $message, $severity = WATCHDOG_NOTICE, $link = NULL)
       'hostname'=> $_SERVER['REMOTE_ADDR'], 
       // 'timestamp'=> time(),    // timestamp added automatically by MySQL
   );  
-  Zend_Registry::get('db')->insert('watchdog', $log);
+  // Because the watchdog is often called when an exception has occurred, 
+  // we need to be careful not to generate another exception here, so if we can't do the insert, so be it -
+  // that's better than an infinite loop
+  try {
+      Zend_Registry::get('db')->insert('watchdog', $log);
+  }
+  catch (Exception $e) {
+      ;  // just go quietly - there's not much we can do if the DB is down.
+  }
 }
 
 function emptyor(&$var, $default = '')

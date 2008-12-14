@@ -1,13 +1,7 @@
-
-<?php if($this->error) { ?>
-    <div class="errors">
-         There was an error processing your data. Please contact the <a href="mailto:webmaster@aashe.org?subject=STARS Tracking Tool">IT Team</a> with a detailed description of the problem you encountered.
-    </div>
-<?php } else { ?>
-    <?php if($this->submitted) { ?>
+<?php if($this->submitted) { ?>
         <div class="errors">
             The errors in your submission have been highlighted below.
         </div>
-    <?php } ?>
-    <?php echo $this->form ?>
 <?php } ?>
+<?php echo $this->form ?>
+

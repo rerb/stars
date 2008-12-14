@@ -2,7 +2,7 @@
 
 class UserController extends STARS_ActionController
 {
-    // TO DO:  get list of STARS_users not in DB and provide list - link to organization
+    // @todo: createAction is obsolete - users are only created in IRC.  Remove action & script
     public function createAction()
     {
         $this->_protect(2);
@@ -41,12 +41,13 @@ class UserController extends STARS_ActionController
         $this->view->title = 'Invalid User Privileges';
     }
     
+    // @todo : update user record on submit, addorgerole, and deleteorgrole
     public function editAction()
     {
         $id = $this->_getParam('number');
-        $this->_flashMessage();
         
-		//a specified ID means an admin is editing a user other than himself
+        // @todo : editAction is now only an Admin function - users are re-directed to IRC to edit their profile - remove code
+        //a specified ID means an admin is editing a user other than himself
         if(!empty($id))
         {
             $this->_protect(2);
@@ -69,9 +70,9 @@ class UserController extends STARS_ActionController
         $rolelist = new STARS_RoleList;
         $form->getElement('role')->setMultiOptions($rolelist->getAsMultiOptions());
         
+/*        
         $this->view->attempted = false;
         
-/*        
         if($this->view->submitted === false)
         {
             $form->setDefaults($person->getAll());
@@ -137,6 +138,7 @@ $message = "Deleting relOrg2Person record: " . $orgPersonRoleId;
         $this->_redirect('/user/edit/'); // @todo Need to get the personid back for this redirect... hmmmmm.
     }
 
+    // @todo: deleteAction is obsolete - users are only deleted in IRC.  Remove action & script
     public function deleteAction()
     {
         $this->_protect(2);
@@ -147,10 +149,12 @@ $message = "Deleting relOrg2Person record: " . $orgPersonRoleId;
     
     public function loginAction()
     {
-        $this->view->already = STARS_User::isLoggedIn();
-        if(! $this->view->already) {  // not logged in yet - attempt the login
-            $this->view->attempted = $this->_loginForm->isValid($_POST);
-            if($this->view->attempted) {
+        if( STARS_User::isLoggedIn() ) {  
+            $this->_flashMessage("You're already logged in.");
+            $this->_redirect('/tracker/');
+        }
+        else { // not logged in yet - attempt the login
+            if($this->view->attempted = $this->_loginForm->isValid($_POST)) {
                 $values = $this->_loginForm->getValues();
 
                 $this->view->success = STARS_User::login($values['loginusername'], $values['loginpassword']);
@@ -170,8 +174,7 @@ $message = "Deleting relOrg2Person record: " . $orgPersonRoleId;
         $this->view->title = 'Login';
     }
 
-    // TO DO: send XML_RPC request to logout from authentication server
-    public function logoutAction()
+     public function logoutAction()
     {
         $name = STARS_User::getName();
         if (STARS_User::logout()) {
@@ -185,6 +188,7 @@ $message = "Deleting relOrg2Person record: " . $orgPersonRoleId;
         $this->view->title = 'Logout';
     }
     
+    // @todo delete and insert user are obsolete - remove helpers
     private function _deleteUser($id)
     {
         $deleter = new STARS_UserDeleter($id);

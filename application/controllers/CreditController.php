@@ -150,7 +150,9 @@ class CreditController extends STARS_ActionController
     $this->view->filepath = STARS_File::getFullFilesPath($filename, 'CREDIT_FORM');
     if (! file_exists($this->view->filepath)) 
     {
-       throw new STARS_Exception('Invalid Filename');
+       throw new STARS_ErrorTicket('Could not locate the requested file.',
+                                  new STARS_Exception('Failed to download form from :'.$this->view->filepath),
+                                  true);
     }
     $this->view->filename = $filename;
     $this->_helper->layout->disableLayout(); // no layout for PDF views
