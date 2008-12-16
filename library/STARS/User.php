@@ -210,4 +210,15 @@ class STARS_User extends STARS_Person
         $user = self::getInstance();
         return $user->hasAccessLevel($minLevel);
     }
+    
+    /**
+     * Return a list of all STARS users
+     *
+     * @return array of users whose roles match stars*
+     */
+    public static function getAllUsers()
+    {
+            $client = self::getXmlRpcClient();
+            return $client->getUsersByRole('stars');
+    }
 }

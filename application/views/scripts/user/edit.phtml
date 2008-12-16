@@ -1,7 +1,13 @@
 <?php if($this->submitted) { ?>
+    <?php if($this->success) { ?>
+        <div class="messages">
+            <?php echo $this->message ?>
+        </div>
+    <?php } else { ?>
         <div class="errors">
             The errors in your submission have been highlighted below.
         </div>
+    <?php } ?>
 <?php } ?>
 <h2><?php echo $this->user['name'] ?></h2>
     <ul>
@@ -13,17 +19,20 @@
         </li>
     </ul>
 
-<table width=80% align='center'>
+<table width=90% align='center'>
   <thead> <tr>
-    <th>Organization</th> <th>Role</th> <th>Title</th> <th>Department</th> <th>Admin Action</th>
+    <th></th><th>Organization</th> <th>Role</th> <th>Title</th> <th>Department</th> <th>Admin Action</th>
   </tr></thead>
 <?php foreach($this->userOrgs as $org) { ?>
   <tr>
+    <td align="center">
+      <?php if ($org['isdefault']) {?><img src="/img/tick.png" alt="tick" title="Default Org" /> <?php } ?>
+    </td>
 	<td><?php echo $org['orgname'] ?></td>
     <td><?php echo $org['role'] ?></td>
     <td><?php echo $org['title'] ?></td>
     <td><?php echo $org['department'] ?></td>
-    <td> <a href="/user/deleteorgrole/<?php echo $org['person2orgid'] ?>/">Delete</a></td>
+    <td align="center"> <a href="/user/deleteorgrole/<?php echo $org['person2orgid'] ?>" onclick="return confirm('Confirm: delete <?php echo $org['role'] ?> access to <?php echo $org['orgname'] ?>')">Delete</a></td>
   </tr>
 <?php } ?>
 </table>

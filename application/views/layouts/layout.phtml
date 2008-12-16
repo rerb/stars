@@ -18,12 +18,16 @@
                         <?php echo STARS_User::getName(); ?>
                     </strong>
                 </p>
-                <p>
-                    Org:  
-                    <strong>
-                        <?php echo STARS_User::getOrg(); ?>
-                    </strong>
-                </p>
+                <?php if (isset($this->selectOrgForm)) { 
+                          echo $this->selectOrgForm;
+                      } else { ?>
+                    <p>
+                      Org:  
+                        <strong>
+                            <?php echo STARS_User::getOrg(); ?>
+                        </strong>
+                    </p>
+                <?php } ?>
                 <p>
                     <a href="/dashboard/">Dashboard</a>
                      / 

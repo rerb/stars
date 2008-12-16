@@ -4,13 +4,14 @@ class STARS_ActionController extends Zend_Controller_Action
 {
     protected $_flashMessenger = null;
     private $_sessions = array();
-
+    // @todo add protected variables:  forms and orglist
+    
     public function __construct(Zend_Controller_Request_Abstract $request, Zend_Controller_Response_Abstract $response, array $invokeArgs = array())
     {
         parent::__construct($request, $response, $invokeArgs);
 
         $this->view->title = $this->view->breadcrumb()->getTitle();  // default title
-        $this->_loginForm();
+        $this->_headerForms();
         // If we're serving the production site, be sure we're using the production DB!
         $dbEnv = Zend_Registry::get('dbEnv');
         if ($_SERVER['SERVER_NAME']=='starstracker.aashe.org') {
@@ -78,11 +79,24 @@ class STARS_ActionController extends Zend_Controller_Action
         return $controllerSession->$name;
     }
 
-    private function _loginForm()
+    // @todo - define new Form class for the select org form - needs to be very compact.
+    private function _headerForms()
     {
+        if (STARS_User::isLoggedIn()) {
+            $orgs = new STARS_PersonOrgRoleList(STARS_User::getId());
+            $this->orglist  = $orgs->getAsMultiOptions();
+            if (count($this->orglist) > 1) { // only bother with the form if there is something to select
+                $this->_selectorgForm = new Zend_Form(new Zend_Config_Ini('../config/selectorgform.ini', 'config'));
+                $this->_selectorgForm->addElementPrefixPath('STARS', 'STARS/');
+                $this->_selectorgForm->setElementDecorators(array('Element')); 
+                $this->_selectorgForm->getElement('person2orgid')->setMultiOptions($this->orglist);
+            
+                $this->view->selectOrgForm = $this->_selectorgForm->render(new Zend_View()); 
+            }
+        }
         $this->_loginForm = new STARS_Form(new Zend_Config_Ini('../config/loginform.ini', 'config'));
 
-        $this->view->loginForm = $this->_loginForm->render(new Zend_View());
+        $this->view->loginForm = $this->_loginForm->render(new Zend_View()); 
     }
 
     // TO DO: these methods should use the Singleton defined by Person class

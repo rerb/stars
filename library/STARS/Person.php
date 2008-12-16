@@ -6,6 +6,7 @@ class STARS_Person
     private $_info;     // array of info about this Person:
                         // personid    unique user id (uid)
                         // orgid       id of default (current) organization
+                        // orgname     name of the organization
                         // title       title at the organization
                         // department  dept. at org.
                         // name        user name
@@ -18,9 +19,9 @@ class STARS_Person
      */
     protected function __construct($uid)
     {
-        if($uid === null)
-        {
-            $this->_exists = false;
+        $this->_exists = false;
+        $this->_info = array();
+        if($uid === null){
             return;
         }
         
@@ -99,6 +100,7 @@ class STARS_Person
             }
         }
         $this->_info['starsRole'] = striArray('stars', $this->_info['roles']);
+        $this->_info['personid'] = $identity['uid'];
     }
     
     
@@ -109,10 +111,11 @@ class STARS_Person
      */
     public function get($key)
     {
-        if(!$this->exists())
+        // This is just a pre-caution - since much of user's data is loaded from their remote identity
+        //  it should be valid to query a user that doesn't exist in STARS yet.
+        if(!isset($this->_info['personid']))
         {
-            watchdog('defect', "Attempt to get($key) for anonymous person", WATCHDOG_ERROR);
-            return null;
+            watchdog('defect', "Attempt to get($key) for anonymous person", WATCHDOG_WARNING);
         }
         
         return issetor($this->_info[$key]);
@@ -148,21 +151,30 @@ class STARS_Person
      */
     public function getOrgs() 
     {
-        // @todo move this to a PersonOrgsList class
         if ($this->exists()) {
-            $query = new STARS_Abstract_SelectList();  // this is not really right - it's called abstract, but isn't really?
-            $query->from(array('r' => 'relpersons2orgs'));
-            $query->joinLeft(array('o'=>'organizations'), 'o.orgid = r.orgid', array());
-            $query->joinLeft(array('n' => 'aashedata01.institutionnames'), 'o.nameid = n.id', new Zend_Db_Expr('n.fullname AS orgname'));
-            $query->joinLeft('roles', 'roles.roleid = r.roleid', array('role'));
-            $query->where('r.personid = '.$this->get('personid'));
-            $query->order('isdefault DESC');    
-            $query->order('orgname ASC'); 
+            $orgList = new STARS_PersonOrgRoleList($this->get('personid'));
 
-            return $query->getList();
+            return $orgList->getList();
         }
         else {
             return array();
+        }
+    }
+    
+    /**
+     * Add the given organization-role relation for this person
+     *
+     * @param array $values : ('roleid' 'orgid' 'title' 'department')
+     */
+    public function addOrgRole($values)
+    {
+        $values['personid']  = ($uid = $this->get('personid'));
+        $values['isdefault'] = ($newUser = !$this->exists());   // make initial org-role the default. 
+        Zend_Registry::get('db')->insert('relpersons2orgs', $values);
+        
+        // If this is a new user - load up the info we just wrote
+        if (!$this->exists()) {
+            $this->_getPersonalData($uid);
         }
     }
     

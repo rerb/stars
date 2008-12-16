@@ -6,15 +6,9 @@ class STARS_UserList extends STARS_Abstract_SelectList
     {
         parent::__construct($options);
         
-        // Grab all users from remote server where role is stars*
-        // @todo Consider moving this to Person or User class?
-        try {
-            $client = STARS_User::getXmlRpcClient();
-            $users = $client->getUsersByRole('stars');
-        }
-        catch (Zend_XmlRpc_Exception $e) {  
-            print_r(e); exit;  // @todo  error handling for RPC failure.     
-        }
+        // Grab all STARS users
+        $users = STARS_User::getAllUsers();
+            
         // Assumes records are returned in order: uid, name, mail, role
         $values = "";
         foreach ($users as $user) {
@@ -24,19 +18,12 @@ class STARS_UserList extends STARS_Abstract_SelectList
 
         // Create Temporary Table for the user data
         // @todo Consider moving this to an override version of the get method.
-        try 
-        {
             $db = Zend_Registry::get('db');
             $create = "CREATE TEMPORARY TABLE users (userid int, name varchar(40), mail text, role text)";
             $stmt = $db->query($create);
             
             $insert = "INSERT INTO users (userid, name, mail, role) VALUES $values";
             $stmt = $db->query($insert);
-        }
-        catch(Zend_Db_Statement_Mysqli_Exception $e)
-        {
-            print_r($e); exit;  // @todo proper error handling
-        }
         
         // Get matching records from users join relperson2orgs join organizations join institutionnames join roles   
         //  - Do the 'where r.isdefault=1' in the Join so we get ALL users (even those not in relpersons2orgs yet)
