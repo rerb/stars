@@ -33,6 +33,6 @@ class STARS_UserList extends STARS_Abstract_SelectList
         $this->joinLeft(array('o' => 'organizations'), 'o.orgid = r.orgid', array());
         $this->joinLeft(array('n' => 'aashedata01.institutionnames'), 'o.nameid = n.id', array('orgname' => 'n.fullname'));
         $this->joinLeft('roles','roles.roleid = r.roleid', array('orgrole'=>'roles.role'));
-        $this->order(array('role ASC', 'name ASC'));
+        $this->order(array('role DESC', 'name ASC'));
     }
 }
