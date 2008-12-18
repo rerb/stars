@@ -14,14 +14,12 @@ Zend_Loader::registerAutoload();
 
 require_once('../application/functions.php');
 
-// CONFIG
-// To change environments - uncomment exactly ONE of these lines:
-//$env = 'production';
-//$env = 'staging';
-$env = 'dev';
-//$env = 'local';
-$config = new Zend_Config_Ini('../config/main.ini', 
-                              array('config', $env));
+// CONFIG - env-specific settings are selected by server name.
+$sections = array( 'config',
+                   'db.'.$_SERVER['SERVER_NAME'],
+                   'xmlrpc.'.$_SERVER['SERVER_NAME']
+                 );
+$config = new Zend_Config_Ini('../config/main.ini', $sections); 
 
 // ROUTES
 
@@ -42,7 +40,7 @@ $db->setFetchMode(Zend_Db::FETCH_ASSOC);
 
 Zend_Registry::set('config', $config);
 Zend_Registry::set('db', $db);
-Zend_Registry::set('dbEnv', $env);
+Zend_Registry::set('dbEnv', $config->database->env);
 
 // LAYOUTS
     //define ("ROOT_DIR",$_SERVER['DOCUMENT_ROOT'].'/..');
