@@ -23,7 +23,7 @@ require_once('../application/functions.php');
 $dbHost = strtok($_SERVER['SERVER_NAME'],'.');
 $dbName = strtok('.');
 $sections = array( 'config',
-                   'db.'.$dbName,
+//                   'db.'.$dbName,
                    'db.'.$dbHost,
                    'xmlrpc.'.$_SERVER['SERVER_NAME']
                  );
