@@ -15,8 +15,16 @@ Zend_Loader::registerAutoload();
 require_once('../application/functions.php');
 
 // CONFIG - env-specific settings are selected by server name.
+//   DB env is based on first two words in sever name, to provide flexible local vhost configurations...
+//   starstracker.* / dev.* / stage.* will use aashe.net server, and DB aashe_ / dev_aashe / stage_aashe_stars
+//   stars.* / localhost.*  will use server localhost, and DB aashe_stars
+//   ?.dev.* / ?.stage.*  will use server localhost, and DB dev_ / stage_aashe_stars
+//   -> override these defaults by modifying the host or dbname element in main.ini
+$dbHost = strtok($_SERVER['SERVER_NAME'],'.');
+$dbName = strtok('.');
 $sections = array( 'config',
-                   'db.'.$_SERVER['SERVER_NAME'],
+                   'db.'.$dbName,
+                   'db.'.$dbHost,
                    'xmlrpc.'.$_SERVER['SERVER_NAME']
                  );
 $config = new Zend_Config_Ini('../config/main.ini', $sections); 
