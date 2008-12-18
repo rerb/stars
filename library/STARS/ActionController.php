@@ -115,4 +115,22 @@ class STARS_ActionController extends Zend_Controller_Action
             $this->_redirect('/user/invalid/');
         }
     }
+    
+    /**
+     * Following an action that has no view script, this method can be used to 
+     * re-direct back to the referer page, or to $default if no referer exists.
+     * Use _flashMesssage to post a message to the user about success of this action before calling.
+     * This method does not return!
+     * @param string $default  a valid path in STARS to which user should be redirected if back is not an option.
+     */
+    protected function _redirectBack($default='/tracker/')
+    {
+        if (isset($_SERVER['HTTP_REFERER'])) {
+            $target = $_SERVER['HTTP_REFERER'];
+        }
+        else {
+            $target = $default;
+        }
+        $this->_redirect($target);
+    }
 }

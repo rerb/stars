@@ -121,6 +121,17 @@ class STARS_Person
         return issetor($this->_info[$key]);
     }
     
+    
+    /**
+     * Set Info to _info
+     * @param string $key Key (usually a MySQL column name)
+     * @param mixed $value  value to store with this key for this person
+     */
+    protected function _set($key, $value)
+    {
+        $this->_info[$key] = $value;
+    }
+    
     /**
      * Get entire _info array
      * @return array
@@ -151,14 +162,9 @@ class STARS_Person
      */
     public function getOrgs() 
     {
-        if ($this->exists()) {
-            $orgList = new STARS_PersonOrgRoleList($this->get('personid'));
+        $orgList = new STARS_PersonOrgRoleList($this->get('personid'));
 
-            return $orgList->getList();
-        }
-        else {
-            return array();
-        }
+        return $orgList->getList();
     }
     
     /**
@@ -212,7 +218,7 @@ class STARS_Person
             ON (r.orgid = o.orgid)
             LEFT JOIN aashedata01.institutionnames AS a
             ON (o.nameid = a.id)
-            WHERE (r.personid = ?)',
+            WHERE (r.personid = ? AND r.isdefault = 1)',
             issetor($uid, 0)
 /*            'SELECT d.*, r.*, p.*, a.fullname AS orgname FROM persons AS p
             LEFT JOIN datasecurity AS d

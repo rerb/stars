@@ -26,13 +26,21 @@
 <?php foreach($this->userOrgs as $org) { ?>
   <tr>
     <td align="center">
-      <?php if ($org['isdefault']) {?><img src="/img/tick.png" alt="tick" title="Default Org" /> <?php } ?>
+      <?php if ($org['isdefault']) {?>
+         <img src="/img/tick.png" border=0 alt="tick" title="Default Org" /> 
+      <?php } else { ?>
+        <a href="/user/defaultorg/<?php echo $org['person2orgid'] ?>" onclick="return confirm('Confirm: Select <?php echo $org['orgname'] ?> as default Organization')">
+          <img src="/img/tick-greyed.png" border=0 alt="tick" title="" /> 
+        </a>
+      <?php } ?>
     </td>
 	<td><?php echo $org['orgname'] ?></td>
     <td><?php echo $org['role'] ?></td>
     <td><?php echo $org['title'] ?></td>
     <td><?php echo $org['department'] ?></td>
-    <td align="center"> <a href="/user/deleteorgrole/<?php echo $org['person2orgid'] ?>" onclick="return confirm('Confirm: delete <?php echo $org['role'] ?> access to <?php echo $org['orgname'] ?>')">Delete</a></td>
+    <td align="center"> 
+        <a href="/user/deleteorgrole/<?php echo $org['person2orgid'] ?>" onclick="return confirm('Confirm: delete <?php echo $org['role'] ?> access to <?php echo $org['orgname'] ?>')">Delete</a>
+    </td>
   </tr>
 <?php } ?>
 </table>

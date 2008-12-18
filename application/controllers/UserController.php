@@ -72,6 +72,10 @@ class UserController extends STARS_ActionController
         }
     } 
     
+    /**
+     * Admin function to delete an Org-Role relation for a user (STARS_Person)
+     * @param int OrgPersonRoleId passed as url param
+     */
     public function deleteorgroleAction()
     {
         $this->_protect(2);
@@ -94,30 +98,64 @@ class UserController extends STARS_ActionController
         $this->_redirect('/user/edit/'.$info['personid']);
     }
 
+    /**
+     * Admin user selects a default org for a user.
+     * @param int personorgid passed in URL - person-org-role relation to select as default.
+     */
+    public function defaultorgAction()
+    {
+        $this->_protect(2);
+        $personOrgId = $this->_getParam('number');
+
+        $personOrgRole = new STARS_PersonOrgRole($personOrgId, true);
+        $success = $personOrgRole->setAsDefault();
+        
+        $this->_issueOrgChangeMsg($success);
+        $this->_redirectBack();
+    }
+    
+    /**
+     * User selects a new organization to edit - update the user's identity.
+     */
     public function selectorgAction()
     {
         $this->_protect(1);
-        $orgPersonRoleId = $this->_getParam('number');
-
+        
         if($this->_selectorgForm->isValid($_POST)) {
             $values = $this->_selectorgForm->getValues();
-            $orgPersonRoleId = $values['person2orgid'];
-            STARS_PersonOrgRole::selectDefault(STARS_User::getId(), $orgPersonRoleId);
+            $personOrgId = $values['person2orgid'];
+            $personOrgRole = new STARS_PersonOrgRole($personOrgId, true);
+
+            // @todo this is an ACL issue - quite a tough one to solve generically... hmmmm.
+            if (($pid=$personOrgRole->get('personid')) != ($uid=STARS_User::getId())) {
+                watchdog('user', "Person $uid attempted to select personOrgRole $pid.", WATCHDOG_WARNING);
+                $this->_redirect('/user/invalid/');
+            }
             
-            $this->_flashMessage('Organization Successfully Changed : Now Editing: '.$this->orglist[$orgPersonRoleId]);
+            $success = STARS_User::selectOrg($personOrgRole);
+        }
+        
+        $this->_issueOrgChangeMsg($success, $personOrgId);
+        $this->_redirectBack();
+    }
+
+    /**
+     * Helper: issue a message based on success of attempt to switch orgs.
+     * @param bool $success 
+     * @param int $personOrgId - the id for new person-org-role relation selected, or null to not report
+     */
+    private function _issueOrgChangeMsg($success, $personOrgId=null)
+    {
+        if ($success) {
+            $message = 'Default Organization Successfully Changed.' .
+                        (($personOrgId==null) ? '' : ('<br> Editing: '.$this->orglist[$personOrgId]));
+            $this->_flashMessage($message);
         }
         else {
             $this->_flashMessage("Organization was NOT updated - please report error to AASHE.");
         }
-        
-        if (isset($_SERVER['HTTP_REFERER'])) {
-            $target = $_SERVER['HTTP_REFERER'];
-        }
-        else {
-            $target = '/tracker/';
-        }
-        $this->_redirect($target);
     }
+ 
     
     public function loginAction()
     {

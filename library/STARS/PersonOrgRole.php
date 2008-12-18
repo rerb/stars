@@ -16,8 +16,9 @@ class STARS_PersonOrgRole
     /**
      * Constructor
      * @param integer|null $id  unique id or null
+     * @param bool $validate  after constructing, throw an exception if this relation is not valid.
      */
-    public function __construct($id)
+    public function __construct($id, $validate = false)
     {
         $this->_exists = false;
         $this->_info = array();
@@ -25,6 +26,7 @@ class STARS_PersonOrgRole
             return;
         }
         $this->_getData($id);
+        $this->validate();
     }
 
     /**
@@ -66,6 +68,19 @@ class STARS_PersonOrgRole
     }
 
     /**
+     * Make this Person-Org-Role relation the default one.
+     */
+    public function setAsDefault()
+    {
+        if ($this->exists()) {
+            return self::selectDefault($this->get('personid'), $this->get('person2orgid'));
+        }
+        else {
+            return false;
+        }
+    }
+    
+    /**
      * Select the given relation as the default (and unselect all others)
      *
      * @param int $personid      poid for Person to select default for
@@ -73,10 +88,25 @@ class STARS_PersonOrgRole
      */
     public static function selectDefault($personid, $person2orgid)
     {
+        // @todo  transaction integrity issue.  Need to perform these two queries as a single transaction.
         // Set all person's relations to non-default.
         $n = Zend_Registry::get('db')->update('relpersons2orgs', array('isdefault'=>0), 'personid = '.$personid);
 
         self::_setAsDefault($person2orgid);
+        
+        return true;  // failure currently results in an exception
+    }
+    
+    /**
+     * Vaidate this person-org-role relation, throw an exception if it is not a valid relation
+     */
+    public function validate()
+    {
+        if (!$this->exists()) {
+            throw new STARS_ErrorTicket('Invalid id specified',
+            new STARS_Exception("Person-org-role id $personOrgId does not exit"),
+            false, WATCHDOG_WARNING);
+        }
     }
     
     /**

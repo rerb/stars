@@ -7,6 +7,7 @@
  * The STARS_user is created through the authentication process - the instance is stored by
  * Zend_Auth during authentication - this class wraps up that instance.
  * Thus, this class relies on the authentication process to createUser(), then store in Zend_Auth.
+ * All methods assume ACL has been applied, and user has rights to perform this operation.
  *
  */
 class STARS_User extends STARS_Person
@@ -173,6 +174,30 @@ class STARS_User extends STARS_Person
     {
         $user = self::getInstance();
         return $user->exists() ? $user->get('orgname') : '';
+    }
+    
+    /**
+     * Switch the organization being edited by the User
+     *
+     * @param STARS_PersonOrgRole $personOrgRole  Org-Role relation to select
+     */
+    public static function selectOrg($personOrgRole)
+    {
+        if ($personOrgRole->setAsDefault()) {
+            self::getInstance()->_set('orgid', $personOrgRole->get('orgid'));
+        }
+        return true;  // only way to fail, so far, is by exception
+    }
+    
+    /**
+     * Set the given value in the User's identity
+     * @param string $key Key (usually a MySQL column name)
+     * @param mixed $value  value to store with this key for this person
+     */
+    protected function _set($key, $value)
+    {
+        parent::_set($key, $value);
+        Zend_Auth::getInstance()->getStorage()->write($this);
     }
     
      /**
