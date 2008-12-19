@@ -145,7 +145,9 @@ class Zend_Config_Ini extends Zend_Config
                     require_once 'Zend/Config/Exception.php';
                     throw new Zend_Config_Exception("Section '$sectionName' cannot be found in $filename");
                 }
-                $dataArray = array_merge($this->_processExtends($preProcessedArray, $sectionName), $dataArray);
+                // J Fall : this should be recursive for merging deep config trees.
+                //   Appears to fixed in version 1.5.1 (when we upgrade)
+                $dataArray = array_merge_recursive($this->_processExtends($preProcessedArray, $sectionName), $dataArray);
 
             }
             parent::__construct($dataArray, $allowModifications);

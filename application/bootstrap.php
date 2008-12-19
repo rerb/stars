@@ -15,16 +15,16 @@ Zend_Loader::registerAutoload();
 require_once('../application/functions.php');
 
 // CONFIG - env-specific settings are selected by server name.
-//   DB env is based on first two words in sever name, to provide flexible local vhost configurations...
-//   starstracker.* / dev.* / stage.* will use aashe.net server, and DB aashe_ / dev_aashe / stage_aashe_stars
-//   stars.* / localhost.*  will use server localhost, and DB aashe_stars
-//   ?.dev.* / ?.stage.*  will use server localhost, and DB dev_ / stage_aashe_stars
+//   DB env is based on tokens in sever name, to provide flexible local vhost configurations...
+//   Host: selects mysql.aashe.net if server contains the token 'aashe', localhost otherwise
+//   DB  : selects aashe_stars unless server contains token 'dev' or 'stage'
 //   -> override these defaults by modifying the host or dbname element in main.ini
-$dbHost = strtok($_SERVER['SERVER_NAME'],'.');
-$dbName = strtok('.');
+$server=$_SERVER['SERVER_NAME'];
+$dbHost = (stripos($server,'aashe')===false) ? 'localhost' : 'aashe';
+$dbName = (stripos($server,'dev')===false) ? ((stripos($server,'stage')===false) ? 'prod' : 'stage') : 'dev';
 $sections = array( 'config',
-//                   'db.'.$dbName,
-                   'db.'.$dbHost,
+                   'dbhost.'.$dbHost,
+                   'db.'.$dbName,
                    'xmlrpc.'.$_SERVER['SERVER_NAME']
                  );
 $config = new Zend_Config_Ini('../config/main.ini', $sections); 
@@ -48,7 +48,7 @@ $db->setFetchMode(Zend_Db::FETCH_ASSOC);
 
 Zend_Registry::set('config', $config);
 Zend_Registry::set('db', $db);
-Zend_Registry::set('dbEnv', $config->database->env);
+Zend_Registry::set('dbEnv', $config->database->params->dbname . '@' . $config->database->params->host);
 
 // LAYOUTS
     //define ("ROOT_DIR",$_SERVER['DOCUMENT_ROOT'].'/..');
