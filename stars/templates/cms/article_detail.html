@@ -1,0 +1,26 @@
+{% extends 'cms/base.html' %}
+
+{% block title %} {{ block.super }} | {{ article.title }}{% endblock %}
+
+{% block crumbs %}
+    {% load cms_tags %}
+    {% show_cms_crumbs article %}
+{% endblock %}
+
+{% block center %}
+    {% block innertabcontent %}
+      <div class='inner'>
+        <h1><table><tr>
+            <td>{{ article.title }}</td>
+            <td>{% if user.is_staff %}
+                   <a href="{{ article.get_edit_url }}" target="_blank"><img src='/media/static/images/page_edit.png'></a>
+                {% endif %}</td>
+            </tr></table>
+        </h1>
+        {{ article.body|safe }}
+        {% if user.is_staff %}
+            <p class="small">Updated {{ article.get_modified_date }} </p>
+        {% endif %}
+      </div>
+    {% endblock %}
+{% endblock %}

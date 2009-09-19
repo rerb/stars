@@ -1,0 +1,30 @@
+<div id='summary'>
+</div>
+<div id="article-menu">
+  <ul>
+   <li>
+    {% comment %} <!-- Top level category has articles AND sub-categories... hmmmm  handle like a sub-category for now...
+     <img src='/media/static/images/collapse.png' class='collapse' title='collapse' alt='-' onclick='collapse_expand(this);' /> 
+     <a href='{{ mm_category.get_absolute_url }}'>{{ mm_category.label }}</a>
+      -->
+     {% endcomment %}
+     <ul> 
+      {% for subcat in article_menu.subcategories %}
+      <li {% ifequal subcat sub_category %} class= 'current' {% endifequal %}'> 
+       <img src='/media/static/images/collapse.png' class='collapse' title='collapse' alt='-' onclick='collapse_expand(this);' /> 
+       <span {% ifequal subcat mm_category %} class='top-level-category' {% endifequal %}>
+         <a href="{{ subcat.get_absolute_url }}">{{ subcat.label }}</a>
+       </span>
+       <ul>
+         {% for article in subcat.articles %}
+         <li {% ifequal article.nid current_article.nid %} class='current'{% endifequal %}>
+           <a href="{{ article.get_absolute_url }}">{{ article.title }}</a>
+        </li>
+         {% endfor %}
+       </ul>
+      </li>
+      {% endfor %}
+     </ul>
+   </li>
+  </ul>
+</div>

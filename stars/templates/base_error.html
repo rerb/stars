@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %} | Error {% endblock %}
+
+{% block content %}
+  <div id='column_container'>
+    <div id='center'>
+      {% block error_message %}
+        <div class="error">
+          <h2>Sorry!  An error occurred while processing your request.</h2>
+          {% if user_message %}
+              <p> {{ user_message }} </p>
+          {% endif %}
+        </div>
+      {% endblock %}
+    
+      <p>Please use the menu system on this page to navigate to the page you were looking for.</p>
+
+      <p>If this problem persists, please contact the 
+         <a href="mailto:webmaster@aashe.org?subject=STARS Tracking Tool">AASHE STARS Team</a> 
+            with a detailed description of the problem you encountered.
+      </p>
+    </div>
+  </div>
+
+{% endblock %}

@@ -1,0 +1,5 @@
+{% extends "dashboard/credit_editor/standard_form.html" %}
+
+{% block buttons %}
+    <button type='button' onclick='document.location="{{ object_form.instance.get_delete_url }}";'>delete</button>
+{% endblock %}

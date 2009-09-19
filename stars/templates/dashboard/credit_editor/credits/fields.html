@@ -1,0 +1,22 @@
+{% extends "dashboard/credit_editor/credits/base.html" %}
+
+{% block tabclass %}class='tab2'{% endblock %}
+
+{% block tab_content %}
+    <form id='field-ordering-form' action='.' method='POST'>
+        <table class='form' id='dndtable'>
+            {% include "dashboard/credit_editor/credits/field_ordering.html" %}
+        </table>
+    </form>
+    <div class='new_form'>
+        <span style='cursor: pointer' onclick='expand_new_form(this)' title='Add Documentation Field'>
+            <img src='/media/static/images/expand.png' title='Add Documentation Field' alt='+' />
+            Add Documentation Field
+        </span>
+        <form action='{{ credit.get_edit_url }}add-field/' method='POST' style='margin: 0px;'>
+            <div class='form' id='new_form' style='display:none'>
+                {% include 'dashboard/credit_editor/standard_form.html' %}
+            </div>
+        </form>
+    </div>
+{% endblock %}

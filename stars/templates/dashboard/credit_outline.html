@@ -1,0 +1,27 @@
+<ul>
+{% for cat in creditset.category_set.all %}
+    <li{% if not subcategory %}{% if category %}{% ifequal category cat %} class='current'{% endifequal %}{% endif %}{% endif %}>
+        <img src='/media/static/images/collapse.png' class='collapse' title='collapse' alt='-' onclick='collapse_expand(this);' />
+        <a href='{% if edit %}{{ cat.get_edit_url }}{% else %}{{ cat.get_submit_url }}{% endif %}'>{{ cat }}</a>
+        {% if cat.subcategory_set %}
+        <ul>
+            {% for sub in cat.subcategory_set.all %}
+                <li{% if not credit %}{% if subcategory %}{% ifequal subcategory sub %} class='current'{% endifequal %}{% endif %}{% endif %}>
+                    <img src='/media/static/images/collapse.png' class='collapse' title='collapse' alt='-' onclick='collapse_expand(this);' />
+                    <a href='{% if edit %}{{ sub.get_edit_url }}{% else %}{{ sub.get_submit_url }}{% endif %}'>{{ sub }}</a>
+                    {% if sub.credit_set %}
+                    <ul>
+                        {% for c in sub.credit_set.all %}
+                            <li{% if credit %}{% ifequal credit c %} class='current'{% endifequal %}{% endif %}>
+                                <a href='{% if edit %}{{ c.get_edit_url }}{% else %}{{ c.get_submit_url }}{% endif %}'>{{ c }}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </li>
+{% endfor %}
+</ul>

@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %} | {{ category.label }} {% endblock %}
+
+{% block main_menu %} 
+    {% load main_menu %}
+    {% show_main_menu user category.get_root_category %} 
+{% endblock %}
+
+{% block submenu_class %}class='sm_ce'{% endblock %}
+
+{% block content %}
+    <div id='column_container'>
+        <div id='center'>
+            {% block center %}{% endblock %}
+        </div>
+        <div id='leftRail'>
+            {% load cms_tags %}
+            {% show_article_menu %}
+        </div>
+    </div>
+{% endblock %}

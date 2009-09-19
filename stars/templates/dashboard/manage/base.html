@@ -1,0 +1,27 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %} | Manage | {{ user.current_inst }}{% endblock %}
+
+{% block submenu_class %}class='sm_inst'{% endblock %}
+
+{% block crumbs %}
+    <a href='/dashboard/admin/'>Manage</a> &gt;
+    <a href='{{ user.current_inst.get_admin_url }}'>{{ user.current_inst }}</a>
+{% endblock %}
+
+{% block content %}
+    <div id='content'><div class='inner'>
+        <h1>{{ user.current_inst }}</h1>
+        
+        <ul id="tabnav" {% block tabclass %}class='tab1'{% endblock %}>
+    		<li class="tab1"><a href="/dashboard/manage/submissionsets/">Submission Sets</a></li>
+    		<li class="tab2"><a href="/dashboard/manage/users/">Users</a></li>
+    		<li class="tab3"><a href="/dashboard/manage/">Contact</a></li>
+            <li class="tab4"><a href="/dashboard/manage/payments">Receipts</a></li>
+    	</ul>
+    	
+    	<div id='tabcontent'>
+    	    {% block institution_content %}{% endblock %}
+    	</div>
+    </div></div>
+{% endblock %}

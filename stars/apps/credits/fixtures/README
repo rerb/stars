@@ -1,0 +1,12 @@
+Fixtures:
+---------
+initial_data.json - contains a v0.5 creditset object.  At least one creditset object is required to display the credit editor so you can add more!
+v0.5-categories - a set of Cateogry and Subcategory objects pulled from the pilot study, STARS 0.5
+v0.5-credits - a set of Credit and Documentation Field objects (incomplete) pulled from the pilot study, STARS 0.5
+
+Fixture Dependencies:
+---------------------
+empty DB
+ - initial_data
+ -- v0.5-categories
+ --- v0.5-credits

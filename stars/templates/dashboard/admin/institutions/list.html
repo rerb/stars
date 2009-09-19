@@ -1,0 +1,15 @@
+{% extends 'dashboard/admin/institutions/base.html' %}
+
+{% block extra_head %}
+    <script src='/media/static/js/ajax.js' type='text/javascript'></script>
+{% endblock %}
+
+{% block institution_content %}
+    <div id='searchbox'>
+        <h2>Find an Institution</h2>
+        <label>Begin typing an institution:</label>
+        <input type='text' onkeyup='search_institution(this);' />
+    </div>
+    <h2>Search Results</h2>
+    <div id='search_target'></div>
+{% endblock %}

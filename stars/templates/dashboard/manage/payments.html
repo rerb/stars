@@ -1,0 +1,31 @@
+{% extends 'dashboard/manage/base.html' %}
+
+{% block crumbs %} {{ block.super }} &gt; Reciepts {% endblock %}
+
+{% block tabclass %}class='tab4'{% endblock %}
+
+{% block institution_content %}
+   <table class='headed_list'>
+       <tr>
+           <td class='header' colspan='7'>Receipts</td>
+       </tr>
+       <tr>
+           <th colspan=2>Submission Set</th>
+           <th>Amount</th>
+           <th colspan=2>Paid by</th>
+           <th>Date</th>
+           <th>Confirmation</th>
+       </tr>
+       {% for payment in payment_list %}
+       <tr>
+           <td>{{ payment.submissionset }}</td>
+           <td>{{ payment.reason }}</td>
+           <td>${{ payment.amount|floatformat:2 }}</td>
+           <td>{{ payment.user }}</td>
+           <td>({{ payment.type }})</td>
+           <td>{{ payment.date }}</td>
+           <td>{{ payment.confirmation }}</td>
+       </tr>
+       {% endfor %}
+  </table>
+{% endblock %}

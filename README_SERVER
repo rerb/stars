@@ -1,0 +1,42 @@
+= STARS Deployment README =
+
+== Requirements ==
+
+Python 2.5.3
+
+== Release Process ==
+
+http://svn.aashedev.org/stars/wiki/ReleaseProcess
+
+The project is stored at /var/django/projects/stars
+
+There are folders for dev, stage, and production.
+
+Each directory has a release.py script and two checked-out versions of the code with the naming scheme stars_# where # is the revision #.
+
+== Example ==
+To release branch 1.0 onto stars.dev.aashe.org:
+  1) cd /var/django/projects/stars/dev
+  2) sudo ./release.py -update branches/branch-1.0/stars
+  3) ls -la (should show stars linked to ./stars_[date] )
+  4) If new models: cd ./stars and run ./manage.py syncdb
+     Or make other DB changes as required.
+  
+== Script ==
+Usage: release.py [option] [path]
+Example: python release.py -update path/to/tag
+Options:
+
+-update [path/to/tag]
+
+1. Check out stars as stars_[now]
+2. Delete all stars_[date] directories that aren't linked from stars or stars_[now]
+3. Link stars to stars_[now]
+4. Restart web service
+
+-revert
+
+1. Find the directory currently linked from stars
+2. Link stars to the directory with the previous date: stars_[previous]
+3. Delete the currently linked code (you're reverting because it didn't work)
+4. Restart web service (mod_python requires a restart to load new code)

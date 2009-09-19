@@ -1,0 +1,49 @@
+{% extends 'dashboard/manage/base.html' %}
+
+{% block crumbs %} {{ block.super }} &gt; Users {% endblock %}
+
+{% block tabclass %}class='tab2'{% endblock %}
+
+{% block institution_content %}
+    <form method='post' action='/dashboard/manage/users/add/'>
+        <table class='headed_list'>
+            <tr>
+                <td class='header' colspan='4'>Users</td>
+            </tr>
+            <tr>
+                <th>Username</th>
+                <th>Userlevel</th>
+                <th></th>
+            </tr>
+            {% for account in user.current_inst.starsaccount_set.all %}
+            <tr>
+                <td>{{ account.user.email }}</td>
+                <td>{{ account.user_level }}</td>
+                <td class='buttonColumn'>
+                    {% if not account.is_locked %}
+                        <a href='{{ account.get_delete_url }}'>
+                            <img src='/media/static/images/delete.png' alt='delete' title='delete' />
+                        </a>
+                    {% else %}
+                      {% if user.is_staff %}
+                        <a href='{{ account.get_delete_url }}'>
+                            <img src='/media/static/images/cross.png' alt='delete' title='This account should not be deleted!' />
+                        </a>
+	                  {% endif %}
+                    {% endif %}
+            {% block additional_edit_options %} {% endblock %}
+        </td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <td>
+                    {{ account_form.email }}
+                    {% load help %}
+                    {% show_help_context 'add_account' %}
+                </td>
+                <td>{{ account_form.userlevel }}</td>
+                <td class='buttonColumn'><button type='submit'>Add</button></td>
+            </tr>
+        </table>
+    </form>
+{% endblock %}

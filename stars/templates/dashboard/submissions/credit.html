@@ -1,0 +1,72 @@
+{% extends 'dashboard/submissions/columned_layout.html' %}
+
+{% block crumbs %} 
+    {{ block.super }}
+    {% load submit_tags  %}
+    {% show_submit_crumbs credit %}
+{% endblock %}
+
+{% block body_attribute %} onload='toggle_applicability_reasons(get_selected_button(document.forms.submission_form.submission_status));'{% endblock %}
+
+{% block header %}{{ credit.get_identifier }}:<br/>{{ credit }}{% endblock %}
+
+{% block center %}
+    <table class='headed_list wide'>
+        <tr>
+            <td class='header' colspan='4'>Summary</td>
+        </tr>
+        <tr>
+            <th>Status</th>
+            <th>Last Updated</th>
+            <th>Possible Points</th>
+            <th>Points Claimed</th>
+        </tr>
+        <tr>
+            <td>{{ credit_submission.get_status_display }}</td>
+            <td>{{ credit_submission.last_updated|date:"m/d/y fA" }}</td>
+            <td>
+                {% load submit_tags %}
+                {% format_available_points credit_submission %}
+            </td>
+            <td>
+                {% ifnotequal credit_submission.assessed_points None %}
+                    {{ credit_submission.assessed_points }}
+                {% endifnotequal %}
+            </td>
+        </tr>
+    </table>
+    <h2>Criteria</h2>
+    {% autoescape off %}
+        {{ credit.criteria }}
+    {% endautoescape %}
+    <h2>Documentation Fields</h2>
+    <form method='post' action='.' class='submit_form' name='submission_form'>
+        {% include "dashboard/submissions/submission_fields_form.html" %}
+
+        <table>
+            <tr>
+                <td>Submit with status:</td>
+            </tr>
+            <tr>
+                <td class='submission_status'>
+                    {% if submission_form.submission_status.errors %}
+                        {{ submission_form.errors.submission_status }}
+                    {% endif %}
+                    {{ submission_form.submission_status }}
+                </td>
+            </tr>    
+            {% if credit.applicabilityreason_set.all %}
+            <tr>
+                <td><div id='reason_choices'>
+                    Reason this credit does not apply:<br/>
+                        {% if submission_form.applicability_reason.errors %}{{ submission_form.errors.applicability_reason }}{% endif %}
+                        {{ submission_form.applicability_reason }}
+                </div></td>
+            </tr>
+            {% endif %}
+        </table>
+        <div class='button_row'>
+            <input type='submit' value='Submit' />
+        </div>
+    </form>
+{% endblock %}

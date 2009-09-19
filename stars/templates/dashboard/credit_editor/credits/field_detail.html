@@ -1,0 +1,69 @@
+{% extends "dashboard/credit_editor/credits/fields.html" %}
+
+{% block crumbs %}
+    {% load ce_tags %}
+    {% show_editor_crumbs field %}
+{% endblock %}
+
+{% block header %}{{ credit.get_identifier }}: Edit Documentation Field{% endblock %}
+
+{% block tab_content %}
+    <table border='0' width='98%'>
+        <tr>
+            <td align='left'>
+                <a href='{{ credit.get_edit_url }}fields/'>&lt; back to field list</a>
+            </td>
+            <td align='right'>
+                <a href='{{ credit.get_edit_url }}add-field/'>add another field &gt;</a>
+            </td>
+        </tr>
+    </table><br/>
+    <div id='dfAppearance'>
+        <table class='form'>
+            <tr>
+                <td> {% show_field_form field %} </td>
+            </tr>
+        </table>
+    </div>
+    <h2>Properties</h2>
+    <form action='.' method='POST'>
+        {% include 'dashboard/credit_editor/standard_form_with_delete.html' %}
+        {% comment %}
+        {% ifnotequal field.selection_type 'user_defined' %}
+            <!-- Choices are now in the form -->
+            <h3>Choices</h3>
+            <table class='list' id='dndtable'>
+                {% for row in object_ordering %}
+                <tr>
+                    <td>Value:</td>
+                    <td>
+                        {{ row.form.value.errors.as_ul }}
+                        {{ row.form.value }}
+                    </td>
+                    <td>{{ row.form.ordinal }}</td>
+                    <td>
+                        <img src='/media/static/images/drag_vertical.png' alt='drag this row' title='drag this row' />
+                        <a href='{{ row.obj.get_delete_url }}'>
+                            <img src='/media/static/images/delete.png' alt='delete this choice' title='delete this choice'     />
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+                <tr class='new' nodrop="true" nodrag="true">
+                    <td>
+                        Add New Value:
+                    </td>
+                    <td>
+                        {{ new_choice_form.value }}
+                    </td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr nodrop="true" nodrag="true"><td colspan='4' class='buttonRow'>
+                    <input type='submit' value='Save' id='save_ordering'/>
+                </td></tr>
+            </table>
+        {% endifnotequal %}
+    {% endcomment %}
+    </form>
+{% endblock %}

@@ -1,0 +1,16 @@
+<h3>Credit Formula: Documentation Field Identifiers</h3>
+<table id='credit_forumla_legend' width="95%" align="center">
+    <tr><th>Field Identifier</th><th>Question</th><th>Type</th></tr>
+    {% for field in documentation_fields %}
+    <tr>
+        <td width="30%">{{ field.identifier }}</td>
+        <td width="50%">{{ field.title }}</td>
+        <td width="20%">{{ field.type }}</td>
+    </tr>
+    {% endfor %}
+    <tr><td colspan=3>
+        {% load help %}
+        {% show_help_context 'credit_formula' %}
+    </td></tr>
+</table>
+<hr>

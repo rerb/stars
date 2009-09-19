@@ -1,0 +1,14 @@
+
+    {% load help %}	
+    {% if documentation_field.is_required %}
+        <span class='required_note' title="This field is required to complete credit">*</span>
+    {% endif %}
+	<label{% if documentation_field.is_required %} class='required' title='Required'{% endif %}>
+	{{ documentation_field.title }}</label>
+    {% show_help_text documentation_field.tooltip_help_text 1 %}
+	<br/>
+	{% if field_form.value.errors %}{{ field_form.errors.value }}{% endif %}
+	<div class='field-form'>
+	   {{ field_form.value }}
+	</div>
+    {% show_help_text documentation_field.inline_help_text 0 %}

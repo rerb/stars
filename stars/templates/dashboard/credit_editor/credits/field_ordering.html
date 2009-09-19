@@ -1,0 +1,6 @@
+{% extends "dashboard/credit_editor/base_ordering.html" %}
+
+{% block display_row %}
+     {% load ce_tags %}
+     <td> {% show_field_form row.obj %} </td>
+{% endblock %}

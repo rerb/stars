@@ -1,0 +1,23 @@
+{% extends 'dashboard/manage/accounts.html' %}
+
+{% block institution_content %}
+    <h2>Delete User Account: {{account.user}}</h2>
+    {% if account.is_locked %}
+        <div class='warning'>
+            This account is part of an {{account.institution}}'s submission - it should not be deleted!
+        </div>
+    {% endif %}
+    {% ifequal account.user user %}
+        <div class='warning'>
+            You are about to delete your own account!
+        </div>
+    {% endifequal %}
+    <p>Are you sure you want to delete this account:</p>
+    <blockquote>
+      <b>User: {{account.user}}</b><br/>
+      <b>from {{account.institution}}</b>
+    </blockquote>
+    <form method='POST' action='.'>
+        {% include 'helpers/confirm_delete_form.html' %}
+    </form>
+{% endblock %}

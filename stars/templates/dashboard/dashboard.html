@@ -1,0 +1,25 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %} | Dashboard {% endblock %}
+
+{% block content %}
+    <div id='content'><div class='inner'>
+        <h1> Dashboard </h1>
+        {% if user.can_submit %}
+		  <h2><a href='/dashboard/submissions/'>My Submission</a></h2>
+		  <p>Submit STARS credit data for {{ user.current_inst }}.</p>
+		{% endif %}
+		{% if user.can_admin %}
+		  <h2><a href='/dashboard/manage/'>Manage Institution</a></h2>
+		  <p>Institutional Admininstration: Manage users and submission sets for {{ user.current_inst }}.</p>
+		{% endif %}
+		{% if user.is_staff %}
+			<h2><a href='/dashboard/admin/'>Administer Site</a></h2>
+			<p>Staff tools for managing the STARS Web Site.</p>
+			<h2><a href='/process/'>Process Submissions</a></h2>
+			<p>Staff tools for processing submissions.</p>
+			<h2><a href='/dashboard/credit-editor/'>Credit Editor</a></h2>
+			<p>Staff tools for building Credit Sets.</p>    
+	    {% endif %}
+	</div></div>
+{% endblock %}

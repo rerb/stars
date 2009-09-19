@@ -1,0 +1,8 @@
+{% for object in object_set %}
+    &gt;
+    {% if forloop.revcounter0 %}
+        <a href='{{ object.get_submit_url }}'>{{ object }}</a>
+    {% else %}
+        {{ object }}
+    {% endif %}
+{% endfor %}

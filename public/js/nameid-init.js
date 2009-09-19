@@ -1,1 +1,0 @@
-nameIdSuggest.init("/php/fullname-search-xml.php");

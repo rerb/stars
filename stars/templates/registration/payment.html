@@ -1,0 +1,85 @@
+{% extends 'registration/base.html' %}
+
+{% block title %}
+    AASHE: STARS | Participant Registration | Step 3
+{% endblock %}
+
+{% block content %}
+    <div id='content'><div class='inner'>
+        <h1>Participant Registration: <i>{{ institution }}</i></h1>
+        <p>Please review your contact information below.</p>
+        <table style='margin: 10px auto' class='headed_list' width='400'>
+            <tr>
+                <th>Primary Contact</th>
+                <th>Executive Contact</th>
+            </tr>
+            <tr>
+                <td>
+                    {{ institution.contact_first_name }} {{ institution.contact_last_name }}<br/>
+                    {{ institution.contact_title }}, {{ institution.contact_department }}<br/>
+                    {{ institution.contact_phone }}<br/>
+                    {{ institution.contact_email }}<br/>
+                    <a href="/register/step2/">Edit</a>
+                </td>
+                <td>
+                    {{ institution.executive_contact_first_name }} {{ executive_institution.executive_contact_last_name }}<br/>
+                    {{ institution.executive_contact_title }}, {{ executive_institution.executive_contact_department }}<br/>
+                    {{ institution.executive_contact_phone }}<br/>
+                    {{ institution.executive_contact_email }}<br/>
+                    <a href="/register/step2/">Edit</a>
+                </td>
+            </tr>
+        </table>
+        <h2>Payment</h2>
+        <p>This one-time payment covers registration and submission.</p>
+        <div class='note'>
+            {% if is_member %}
+                {{ institution }} is a member of AASHE! You qualify for the discounted rate of: <b>${{ price }}</b>.
+            {% else %}
+                {{ institution }} is not a member of AASHE. Your current rate is: <b>${{ price }}</b>. Members get a discount when registering for STARS.<br/><a href='http://www.aashe.org/membership/description.php'>Become a member</a>.
+                <br/><br/>
+                <i>If you feel this is an error please contact us at <a href='mailto:stars@aashe.org'>stars@aashe.org</a>.</i>
+            {% endif %}
+        </div>
+        <form method='post' action='.'>
+            <table class='payment_table'>
+                <tr>
+                    <th>Member Fee</th>
+                    <th>Non-Member Fee</th>
+                </tr>
+                <tr>
+                    <td>$900</td>
+                    <td>$1400</td>
+                </tr>
+                <tr>
+                    <th>Early Discounted Member Fee</th>
+                    <th>Early Discounted Fee</th>
+                </tr>
+                    <td>
+                        $650
+                    </td>
+                    <td>
+                        $950 <a href='http://www.aashe.org/membership/description.php'>Become a member</a>
+                    </td>
+                </tr>
+            </table>
+            <div class='secure'>
+                <table class='form'>
+                    {{ pay_later_form }}
+                    {{ pay_form }}
+                </table>
+                <div class='button_row'>
+                    {% if is_member %}
+                        Your member rate is: <b>${{ price }}</b>.
+                    {% else %}
+                        Your non-member rate is: <b>${{ price }}</b>.
+                    {% endif %}<br/><br/>
+                    <button type='button' onclick='document.location="/register/step2/";'>&lt;&lt; Back</button>
+                    <button type='submit'>Pay and Complete Registration</button><br/><br/>
+                    Secure Checkout <img src='/media/static/images/lock.png' alt='SSL' style='vertical-align: top'/><br/>
+                    <a href='/register/terms-of-service/'>Terms of Service</a>
+                </div>
+            </div>
+        </form>
+    </div></div>
+{% endblock %}

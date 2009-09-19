@@ -1,0 +1,16 @@
+{% extends "dashboard/credit_editor/base.html" %}
+
+{% block title %} {{ block.super }} | {{ category }} | New Subcategory{% endblock %}
+
+{% block crumbs %}
+    {% load ce_tags %}
+    {% show_editor_crumbs category %}
+{% endblock %}
+
+{% block header %}Add New Subcategory{% endblock %}
+
+{% block center %}
+    <form class='orderform' method='POST' action='.'>
+        {% include 'dashboard/credit_editor/standard_form.html' %}
+    </form>
+{% endblock %}

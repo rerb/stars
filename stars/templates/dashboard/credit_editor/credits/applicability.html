@@ -1,0 +1,24 @@
+{% extends "dashboard/credit_editor/credits/base.html" %}
+
+{% block tabclass %}class='tab4'{% endblock %}
+
+{% block tab_content %}
+    <h2>Applicability Reasons</h2>
+    <p>Some credits can have circumstances where they will not apply to a particular institution. Add any reasons for non-applicability below.</p>
+    <table class='list'>
+        {% ifnotequal object_edit_list|length 0 %}
+            {% include "dashboard/credit_editor/credits/applicability_edit_list.html" %}
+        {% endifnotequal %}
+        
+        <tr>
+            <td>
+                <form method='POST' action='.'>
+                    {% if object_form.reason.errors %}{{ object_form.errors.reason }}<br/>{% endif %}
+                    <label>Add Reason:</label>
+                    {{ object_form.reason }}
+                    <input type='submit' value='Add' />
+                </form>
+            </td>
+        </tr>
+    </table>
+{% endblock %}

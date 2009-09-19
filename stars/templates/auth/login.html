@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div id='content'><div class='inner'>
+        <h1>Login with your AASHE ID</h1>
+        <div class='form_div'>
+            <form action='.' method='post'>
+                <table>
+                    {{ form }}
+                    <input type='hidden' name='next' value='{{ next }}' />
+                </table>
+                <div class='button_row'><input type='submit' value='log in' /></div>
+            </form>
+        </div>
+    </div></div>
+    
+{% endblock %}

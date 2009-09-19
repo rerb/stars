@@ -1,0 +1,39 @@
+{% extends "dashboard/credit_editor/base.html" %}
+
+{% block title %} {{ block.super }} | {{ category }}{% endblock %}
+
+{% block crumbs %}
+    {% load ce_tags %}
+    {% show_editor_crumbs category %}
+{% endblock %}
+
+{% block header %}{{ category }}{% endblock %}
+
+{% block center %}
+    <form class='orderform' method='POST' action='.'>
+        {% include 'dashboard/credit_editor/standard_form_with_delete.html' %}
+        {% if object_ordering %}
+        <table class='list' id='dndtable'>
+            <tr nodrop="true" nodrag="true">
+                <th colspan='2'>Subcategories</th>
+            </tr>
+            {% include 'dashboard/credit_editor/ordering_form_table.html' %}
+        </table>
+        {% endif %}
+    </form>
+
+    <div class='new_form'>
+        <span style='cursor: pointer' onclick='expand_new_form(this)' title='Add Subategory'>
+            <img src='/media/static/images/expand.png' title='Add Subcategory' alt='+' />
+            Add Subcategory
+        </span>
+        <form action='{{ category.get_edit_url }}add-subcategory/' method='POST' style='margin: 0px;'>
+            <div class='form' id='new_form' style='display:none'>
+                {{ new_subcategory_form.as_p }}
+                <p class='buttonRow'>
+                <input type='submit' value='submit' />
+                </p>
+            </div>
+        </form>
+    </div>
+{% endblock %}

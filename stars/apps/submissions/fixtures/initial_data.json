@@ -1,0 +1,5 @@
+[
+{"pk": 1, "model": "submissions.rating", "fields": {"ordinal": 1, "name": "Bronze"}}, 
+{"pk": 2, "model": "submissions.rating", "fields": {"ordinal": 2, "name": "Silver"}},
+{"pk": 3, "model": "submissions.rating", "fields": {"ordinal": 3, "name": "Gold"}}
+]

@@ -1,0 +1,42 @@
+= STARS Web Application README =
+
+== Installation ==
+
+STARS can be deployed in a variety of environments. `settings.py` is used in test environments that don't use mod_python. To add another test environment add another item to the dictionary:
+
+configs = {
+    '/Users/jamstooks/aashe/STARS/src/stars': 'ben',
+}
+
+STARS matches the dictionary key with the directory `settings.py` is being executed from and uses the value to load the configuration file. In this case it loads `config/ben.py` to get the settings for my environment. You should create your own custom settings file in the `config/` directory if you want to do any testing.
+You will need to set up a MEDIA_ROOT directory locally, and set the path in your personal config.  
+The MEDIA_ROOT folder should have the following structure:
+  admin/  # a symbolic link to /django/contrib/admin/media in your Django install.
+  static/ # a symbolic link to /stars/static in your STARS source
+  tp/
+     js/  # a directory for third-party scripts
+          # you can download these scripts from /var/www/vhosts/dev.aashe.org/subdomains/stars/httpdocs/media/tp/ on aashe server.
+
+In a mod_python environment the 'vhost.conf' file will explicitly define the settings file to use and will bypass `settings.py` altogether. Here is an example from our development server:
+
+SetEnv DJANGO_SETTINGS_MODULE stars.config.development
+
+== Package Structure ==
+
+apps/
+    auth/
+    credits/
+    dashboard/
+        admin/
+        credit_editor/
+        processing/
+    helpers/
+    institutions/
+    submissions/
+config/
+static/
+    css/
+    images/
+    js/
+templates/
+tests/

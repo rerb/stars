@@ -1,0 +1,7 @@
+{% extends "dashboard/credit_editor/base_ordering.html" %}
+
+        {% block display_row %} 
+        <td>
+            <a href='{{ row.obj.get_edit_url }}'>{{ row.obj.get_identifier }}: {{ row.obj }}</a>
+        </td>
+        {% endblock %}

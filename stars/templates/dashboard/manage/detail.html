@@ -1,0 +1,15 @@
+{% extends 'dashboard/manage/base.html' %}
+
+{% block crumbs %} {{ block.super }} &gt; Contact {% endblock %}
+
+{% block tabclass %}class='tab3'{% endblock %}
+
+{% block institution_content %}
+    <div class='form_div'>
+        <form method='post' action='.'>
+            {% with institution_form as object_form %}
+                {% include 'helpers/standard_form.html' %}
+            {% endwith %}
+        </form>
+    </div>
+{% endblock %}

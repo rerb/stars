@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block main_menu %} 
+    {% load main_menu %}
+    {% show_main_menu user "institutions" %} 
+{% endblock %}
+
+{% block crumbs %} {{ block.super }} &gt; STARS Institutions {% endblock %}
+
+{% block content %}
+    <div id='content'><div class='inner'>
+      <h1>STARS Institutions</h1>
+      The following institutions are currently registered to participate in STARS:
+      {% if user.is_staff %}
+	      <table id="institution-list" style='padding:10px;'>
+	        <tr><th></th><th colspan=2>Registered</th><th colspan=2>Payment</th></tr>
+		    {% for institution in institution_list %}
+		      <tr>
+		        <td>
+	              <a href='{{ institution.get_admin_url }}'>{{ institution }}</a>
+                  {% if not institution.enabled %}
+                    <span title="This institution is not enabled!"><font color='red'>*</font></span>
+                  {% endif %}
+                </td>
+                {% if institution.submission_set %}
+                    <td style='padding-left:20px'> {{ institution.submission_set.date_registered }} </td>
+                    <td> ({{ institution.submission_set }}) </td>
+                {% else %}
+                  <td colspan=2 align='center'> - </td>
+                {% endif %}
+                {% if institution.payment %}
+                    <td style='padding-left:20px'> {{ institution.payment.date.date}} <strong>${{ institution.payment.amount|floatformat:2 }}</strong> </td>
+                    <td>
+                      {% ifequal institution.payment.type 'later' %}
+                        <img src='/media/static/images/cross.png' title='Awaiting payment from this Institution'>
+                      {% else %}
+                        <img src='/media/static/images/accept.png' title='Institution paid by {{ institution.payment.type }}'>
+                      {% endifequal %}
+                    </td>
+                {% else %}
+                  <td colspan=2 align='center'> - </td>
+                {% endif %}
+              </tr>
+		    {% endfor %}
+	      </table>
+      {% else %}
+        <ul>
+          {% for institution in institution_list %}
+            <li>{{ institution }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+{% endblock %}
