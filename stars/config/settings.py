@@ -11,7 +11,7 @@ DEFAULT_CHARSET = 'utf-8'
 # if True, prevents access by non-staff to any part of the site that is not public.
 HIDE_REPORTING_TOOL = False  
 # if True, log-out and re-direct all non-staff requests to standard 503 (Temporarily Unavailable) view.
-MAINTENANCE_MODE = False
+MAINTENANCE_MODE = True
 # This message will be broadcast to all users on every response - usually used to warn about site maintenance
 #BROADCAST_MESSAGE = "The STARS reporting tool will be unavailable from mm dd yy hh:mm to hh:mm"
 BROADCAST_MESSAGE = None
