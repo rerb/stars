@@ -9,7 +9,7 @@ MANAGERS = ADMINS
 DEFAULT_CHARSET = 'utf-8'
 
 # if True, prevents access by non-staff to any part of the site that is not public.
-HIDE_REPORTING_TOOL = True  
+HIDE_REPORTING_TOOL = False  
 # if True, log-out and re-direct all non-staff requests to standard 503 (Temporarily Unavailable) view.
 MAINTENANCE_MODE = False
 # This message will be broadcast to all users on every response - usually used to warn about site maintenance
