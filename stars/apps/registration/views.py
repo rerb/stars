@@ -21,7 +21,7 @@ from stars.apps.submissions.models import *
 from stars.apps.credits.models import CreditSet, _get_latest_creditset
 
 MEMBER_PRICE = 650
-NON_MEMBER_PRICE = 950
+NON_MEMBER_PRICE = 1150
         
 def reg_select_institution(request):
     """
@@ -45,7 +45,7 @@ def reg_select_institution(request):
     institution_query = """
         SELECT organization_id, name, city, state
         FROM `members`
-        WHERE sector = 'Campus'
+        WHERE (sector = 'Campus' OR organization_type = "System Office")
         and city IS NOT NULL
         and state IS NOT NULL
         ORDER BY name
@@ -159,7 +159,7 @@ def reg_payment(request):
     if is_member:
         price = MEMBER_PRICE
         
-    price = 1
+    #price = 1
     
     pay_form = PaymentForm()
     pay_later_form = PayLaterForm()
@@ -183,7 +183,7 @@ def reg_payment(request):
                     result = process_payment(payment_dict, [product_dict], ref_code=datetime.now().isoformat())
                     if result.has_key('cleared') and result.has_key('msg'):
                         if result['cleared']:
-                            institution = init_institution(request.user, institution, "credit", price)
+                            institution = init_institution(request.user, institution, "credit", price, payment_dict)
                             request.session['selected_institution'] = institution
                             return HttpResponseRedirect("/register/account/")
                         else:
@@ -192,7 +192,7 @@ def reg_payment(request):
                     flashMessage.send("Please correct the errors below", flashMessage.ERROR)
                     
             else:
-                institution = init_institution(request.user, institution, "later", price)
+                institution = init_institution(request.user, institution, "later", price, None)
                 request.session['selected_institution'] = institution
                 return HttpResponseRedirect("/register/account/")
     
@@ -201,7 +201,7 @@ def reg_payment(request):
     return respond(request, template, context)
 
 
-def init_institution(user, institution, payment_type, price):
+def init_institution(user, institution, payment_type, price, payment_dict):
     """
         Initializes a new institution and creates all the necessary registration information
         Send confirmation emails
@@ -235,8 +235,11 @@ def init_institution(user, institution, payment_type, price):
     # Primary Contact
     subject = "STARS Registration Success: %s" % institution
     email_to = institution.contact_email
-    t = Template(CONTACT_EMAIL_TEXT)
-    c = Context({"institution": institution, 'payment': payment})
+    if payment.type == 'later':
+        t = Template(PAY_LATER_EMAIL_TEXT)
+    else:
+        t = Template(RECEIPT_EMAIL_TEXT)
+    c = Context({"institution": institution, 'payment': payment, 'payment_dict': payment_dict})
     message = t.render(c)
     send_mail(  subject,
                 message,
@@ -296,8 +299,16 @@ def reg_account(request):
     
 def get_payment_dict(pay_form, institution):
     """ Extracts the payment dictionary for process_payment from a given form and institution """
+    
+    cc = pay_form.cleaned_data['card_number']
+    l = len(cc)
+    if l >= 4:
+        last_four = cc[l-4:l]
+    else:
+        last_four = None
+    
     payment_dict = {
-        #'name_on_card': pay_form.cleaned_data['name_on_card'],
+        'name_on_card': pay_form.cleaned_data['name_on_card'],
         'cc_number': pay_form.cleaned_data['card_number'],
         'exp_month': pay_form.cleaned_data['exp_month'],
         'exp_year': pay_form.cleaned_data['exp_year'],
@@ -311,6 +322,7 @@ def get_payment_dict(pay_form, institution):
         'billing_firstname': institution.contact_first_name,
         'billing_lastname': institution.contact_last_name,
         'billing_email': institution.contact_email,
+        'last_four': last_four
     }
     return payment_dict
 

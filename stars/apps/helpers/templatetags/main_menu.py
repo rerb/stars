@@ -30,7 +30,7 @@ def show_main_menu(user=None, menu_category=None):
     """
     # Hide the main menu completely if the reporting tool is offline.
     # We may want to finesse this a little to allow access to public parts of the site later.
-    if settings.HIDE_REPORTING_TOOL and (not user or not user.is_staff):
+    if (settings.HIDE_REPORTING_TOOL or settings.MAINTENANCE_MODE) and (not user or not user.is_staff):
         return {'menu_items': []}
      
     # Top-leve, depth 0 article categories are all on the main menu.

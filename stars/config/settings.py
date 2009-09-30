@@ -10,6 +10,11 @@ DEFAULT_CHARSET = 'utf-8'
 
 # if True, prevents access by non-staff to any part of the site that is not public.
 HIDE_REPORTING_TOOL = True  
+# if True, log-out and re-direct all non-staff requests to standard 503 (Temporarily Unavailable) view.
+MAINTENANCE_MODE = False
+# This message will be broadcast to all users on every response - usually used to warn about site maintenance
+#BROADCAST_MESSAGE = "The STARS reporting tool will be unavailable from mm dd yy hh:mm to hh:mm"
+BROADCAST_MESSAGE = None
 
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
@@ -40,6 +45,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'stars.apps.auth.maintenancemode.middleware.MaintenanceModeMiddleware',
     'django.middleware.doc.XViewMiddleware',
     'stars.apps.auth.middleware.AuthenticationMiddleware',  # must come after django.contrib.auth.middleware
     'stars.apps.dashboard.admin.watchdog.middleware.WatchdogMiddleware',  # must come before flatpage so it doesn't log flatpages as 404's
@@ -57,6 +63,7 @@ if TESTING:
     AUTHENTICATION_BACKENDS = AUTHENTICATION_BACKENDS + ('django.contrib.auth.backends.ModelBackend',)
 DASHBOARD_URL = "/dashboard/"
 LOGIN_URL = "/auth/login/"
+LOGOUT_URL = "/auth/logout/"
 LOGIN_REDIRECT_URL = "/"
 ADMIN_URL = "/dashboard/admin/"
 MANAGE_INSTITUTION_URL = "/dashboard/manage/"

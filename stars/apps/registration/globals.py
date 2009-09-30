@@ -1,28 +1,74 @@
-EXEC_EMAIL_TEXT = """Congratulations!  {{ institution }} has successfully registered as a STARS Charter Participant through the Association for the Advancement of Sustainability in Higher Education (AASHE).
+EXEC_EMAIL_TEXT = """Dear {{ institution.executive_contact_title }} {{ institution.executive_contact_last_name }},
+Congratulations!  {{ institution }} has successfully registered to participate in the Sustainability Tracking, Assessment & Rating System (STARS).  STARS is a tool to help guide colleges and universities toward sustainability.  
 
-The primary STARS contact from your institution, listed below, is the person who provided your contact information to notify you about your institution's participation in STARS.  STARS, the Sustainability Tracking, Assessment & Rating System, is a tool to help guide institutions to become more sustainable. STARS requires the participation of many different individuals and departments on campus. As a result, executive level support is helpful to the STARS process. To learn more about the STARS Program we encourage you to connect with your campus liaison, check out the STARS website at www.aashe.org/stars, and email stars@aashe.org with any questions.
+The STARS Liaison for {{ institution }}, listed below, provided your contact information to notify you about your institution's participation in STARS.  Since, many individuals and departments on campus will be involved in the STARS process, executive-level support will help make your institution's participation successful. 
 
-PRIMARY CONTACT:
+To learn more about the STARS Program, visit www.aashe.org/stars or email stars@aashe.org with any questions. 
+
+We're glad to have {{ institution }} as a STARS Charter Participant!
+
+All the best, 
+
+The STARS Team
+stars@aashe.org
+
+{{ institution }} STARS Liaison:
 {{ institution.contact_first_name }} {{ institution.contact_last_name }}
 {{ institution.contact_title }}, {{ institution.contact_department }}
 {{ institution.contact_email }}
 """
 
-CONTACT_EMAIL_TEXT = """Thank you for registering {{ institution }} as a STARS Charter Participant! Your registration has been received and is being processed by AASHE. At this point, we encourage you to review the Technical Manual associated with the Early Release version of STARS 1.0 (www.aashe.org/stars). Please note that minor updates will be made to this document throughout the fall, such as providing additional examples and support text.  However, no changes will be made to the credits so you can immediately begin collecting the required data.  Access to the STARS online reporting tool will be available in January and you may begin submitting your collected data to STARS at that time. 
- 
-Please check the STARS website frequently at www.aashe.org/stars for updates and resources and email stars@aashe.org with any questions.
+RECEIPT_EMAIL_TEXT = """Thank you for registering as a STARS Charter Participant! 
 
-PAYMENT DETAILS:
-{% ifequal payment.type "later" %}
-    Amount Due: ${{ payment.amount }}
-    
-    Please send payment to "AASHE":
-    213 1/2 N. Limestone
-    Lexington, KY 40507
-{% else %}
-    We have successfully processed your payment!
-    Credit Card Payment Ammount: ${{ payment.amount }}
-{% endifequal %}
+Your registration has been received and is being processed by AASHE.  Your receipt is below.  
+
+At this point, we encourage you to review the STARS 1.0 Early Release Technical Manual http://www.aashe.org/stars/early-release. Please note that minor updates will be made to this document before the January release, such as providing additional examples and support text.  However, no changes will be made to the credits, so you can immediately begin collecting the required information.  
+
+Access to the STARS Reporting Tool will be available in January and you may begin submitting your collected data at that time.  To view a list of the reporting fields associated with each credit, please consult the Technical Manual.  
+ 
+Please check the STARS website (www.aashe.org/stars) for updates and resources.  Feel free to email stars@aashe.org with any questions.
+
+STARS REGISTRATION RECEIPT
+
+FEE
+${{ payment.amount }}
+
+BILLING INFORMATION
+
+Billed to:
+{{ payment_dict.name_on_card }}
+{{ payment_dict.billing_address }}
+{{ payment_dict.billing_city }}, {{ payment_dict.billing_state }}, {{ payment_dict.billing_zipcode }}
+{{ institution.contact_email }}
+
+Total Fee ${{ payment.amount }}
+
+Credit Card: [************{{ payment_dict.last_four }}]
+Paid to AASHE
+"""
+
+PAY_LATER_EMAIL_TEXT="""Thank you for registering as a STARS Charter Participant! 
+
+Your registration has been received and is being processed by AASHE.  Your receipt is below.  
+
+At this point, we encourage you to review the STARS 1.0 Early Release Technical Manual (http://www.aashe.org/stars/early-release). Please note that minor updates, such as providing additional examples and support text, will be made to this document before the January release.  However, no changes will be made to the credits, so you can immediately begin collecting the required information.  
+
+Access to the STARS Reporting Tool will be available in January and you may begin submitting your collected data at that time.  To view a list of the reporting fields associated with each credit, please consult the Technical Manual.  
+
+Please check the STARS website (www.aashe.org/stars) for updates and resources and email stars@aashe.org with any questions.
+ 
+STARS REGISTRATION PAYMENT
+
+FEE
+${{ payment.amount }} 
+
+BILLING INFORMATION
+
+You have selected to pay for your STARS registration by check. Please mail a check payable to AASHE in the amount of ${{ payment.amount }} to:
+ 
+AASHE
+213 1/2 N. Limestone Street
+Lexington, Kentucky 40507
 """
 
 CYBERSOURCE_RESPONSE_DICT = {

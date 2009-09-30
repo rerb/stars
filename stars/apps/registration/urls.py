@@ -11,6 +11,6 @@ urlpatterns = patterns(
     (r'^account/$', 'reg_account'),
 )
 
-urlpatterns += patterns('django.views.generic.simple',
-    (r'^terms-of-service/$', 'direct_to_template', {'template': 'registration/terms_of_service.html'}),
-)
+# urlpatterns += patterns('django.views.generic.simple',
+#     (r'^terms-of-service/$', 'direct_to_template', {'template': 'registration/terms_of_service.html'}),
+# )

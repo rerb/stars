@@ -23,7 +23,12 @@ def account_context(request):
     """
         This is a custom template-context processor that adds the current user.
     """        
-    context = {'user': request.user, 'hide_reporting_tool':settings.HIDE_REPORTING_TOOL}
+    site_status = {'hide_reporting_tool': settings.HIDE_REPORTING_TOOL,
+                   'maintenance_mode' : settings.MAINTENANCE_MODE,
+                   'broadcast_message' : settings.BROADCAST_MESSAGE,
+                  }
+
+    context = {'user': request.user, 'site_status':site_status}
     return context
 
 

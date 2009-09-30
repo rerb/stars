@@ -7,15 +7,19 @@
 {% block content %}
     <div id='content'><div class='inner'>
         <h1>STARS Participant Home Page</h1>
-        <h2>{{ institution }} has been successfully registered for STARS 1.0!</h2>
+        <h2>{{ institution }} has registered for STARS 1.0!</h2>
 
         <p style='margin: 10px 50px;'>
-            We encourage you to take a look at the <a href='http://www.aashe.org/stars/'>STARS 1.0 Technical Manual</a> to help get you started on data collection.  Stay tuned for the on-line STARS reporting tool that will be available for data submission this January.  For more information on STARS, including <a href='http://www.aashe.org/stars/faqs.php'>FAQ’s</a>, <a href='http://www.aashe.org/stars/history.php'>key documents</a>, and the <a href='http://www.aashe.org/stars/timeline.php'>STARS timeline</a>, visit our website at <a href='http://www.aashe.org/stars/'>www.aashe.org/stars/</a>.
+
+            To help get started with data collection before the STARS Reporting Tool launches in January, check out the <a href='http://www.aashe.org/files/documents/STARS/STARS_1.0_Early_Release_Technical_Manual.pdf'>STARS 1.0 Early Release Technical Manual</a> (pdf).
+
+            If you have questions about STARS, please visit the <a href='http://www.aashe.org/stars/'>STARS website</a> or contact the AASHE STARS Team (stars@aashe.org).
+
         </p>
 
         {% ifnotequal institution.contact_email user.email %}
         <p style='margin: 10px 50px;'>
-            If you have questions about your institution’s participation in STARS 1.0, please connect with your primary contact:
+            If you have questions about your institution's participation in STARS 1.0, please connect with your STARS Liaison:
             <br/><br/>
             <b>{{ institution.contact_first_name }} {{ institution.contact_last_name }}</b><br/>
             {{ institution.contact_title }}, {{ institution.contact_department }}<br/>

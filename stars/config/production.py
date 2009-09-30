@@ -3,9 +3,9 @@
     Apache bypasses settings.py and calls this file explicitly for setup.
 """
 
-HIDE_REPORTING_TOOL = True
-
 from settings import *
+
+HIDE_REPORTING_TOOL = True
 
 DATABASE_ENGINE = 'mysql'
 DATABASE_NAME = 'stars_production'
@@ -17,7 +17,7 @@ MEDIA_ROOT = '/var/www/vhosts/dev.aashe.org/subdomains/stars/httpdocs/media/'
 
 SSO_SERVER_URI = WWW_SSO_SERVER_URI
 STARS_DOMAIN = WWW_STARS_DOMAIN
-SSO_API_KEY = LIVE_SSO_API_KEY
+SSO_API_KEY = WWW_SSO_API_KEY
 
 XMLRPC_VERBOSE = False
 

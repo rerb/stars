@@ -72,7 +72,7 @@ class PaymentForm(forms.Form):
     """
         Credit Card Payment form
     """
-    #name_on_card = forms.CharField(max_length=64)
+    name_on_card = forms.CharField(max_length=64)
     card_number = forms.CharField(max_length=17)
     exp_month = forms.CharField(max_length=2, initial='mm')
     exp_year = forms.CharField(max_length=4, initial='yyyy')

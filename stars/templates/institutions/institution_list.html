@@ -13,9 +13,12 @@
       The following institutions are currently registered to participate in STARS:
       {% if user.is_staff %}
 	      <table id="institution-list" style='padding:10px;'>
-	        <tr><th></th><th colspan=2>Registered</th><th colspan=2>Payment</th></tr>
+	        <tr><th></th><th>Institution</th><th colspan=2>Registered</th><th colspan=2>Payment</th></tr>
 		    {% for institution in institution_list %}
 		      <tr>
+		        <td>
+		            {{ forloop.counter }}
+		        </td>
 		        <td>
 	              <a href='{{ institution.get_admin_url }}'>{{ institution }}</a>
                   {% if not institution.enabled %}
