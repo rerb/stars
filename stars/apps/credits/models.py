@@ -62,7 +62,7 @@ def _get_latest_creditset():
     
 class Category(models.Model):
     creditset = models.ForeignKey(CreditSet)
-    title = models.CharField(max_length=32)
+    title = models.CharField(max_length=64)
     abbreviation = models.CharField(max_length=6,help_text='Typically a 2 character code for the category. e.g., ER for Education & Research') # TODO validation
     ordinal = models.SmallIntegerField(default=-1)
     max_point_value = models.IntegerField(default=0)
