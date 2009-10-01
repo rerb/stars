@@ -433,14 +433,14 @@ SELECTION_TYPE_CHOICES = (
     ('choose_many_other', 'choose many w/ other'),
 )
 
-UNIT_CHOICES = (
-    ('feet', 'feet'),
-    ('students', 'students'),
-    ('pounds', 'pounds'),
-    ('percent', 'percent'),
-    ('gross square feet', 'gross square feet'),
-    ('tons CO2 equivalent', 'tons CO2 equivalent'),
-)
+class Unit(models.Model):
+    name = models.CharField(max_length=16)
+    
+    class Meta:
+        ordering = ('name',)
+        
+    def __unicode__(self):
+        return self.name
 
 class DocumentationField(models.Model):
     credit = models.ForeignKey(Credit)
@@ -450,7 +450,7 @@ class DocumentationField(models.Model):
     max_range = models.IntegerField(help_text='Text: max character count, LongText: max word count, Numeric: max integer value, Date: latest year.', blank=True, null=True)
     selection_type = models.CharField(max_length=16, choices=SELECTION_TYPE_CHOICES, default='any', help_text='Does the user type a response, or do they select from choices? \'Choose One\' valid for numeric and text fields only. All other choice types valid for text fields only.')
     choices = models.TextField(null=True, blank=True)
-    units = models.CharField(max_length=16, null=True, blank=True, choices=UNIT_CHOICES)
+    units = models.ForeignKey(Unit)
     inline_help_text = models.TextField(null=True, blank=True)
     tooltip_help_text = models.TextField(null=True, blank=True)
     ordinal = models.SmallIntegerField(default=-1)

@@ -45,6 +45,10 @@ class CreditAdmin(admin.ModelAdmin):
           )
 admin.site.register(Credit, CreditAdmin)
 
+class UnitAdmin(admin.ModelAdmin):
+    pass
+admin.site.register(Unit, UnitAdmin)
+
 class DocumentationFieldAdmin(admin.ModelAdmin):
     list_display = ('title', 'type', 'credit','is_required')
     list_filter = ('credit',)
