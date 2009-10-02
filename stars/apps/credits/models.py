@@ -210,8 +210,9 @@ class Credit(models.Model):
     formula = models.TextField('Points Calculation Formula', blank=True, null=True, default="points = 0", help_text='Formula to compute credit points from values of the documentation fields')
     type = models.CharField(max_length=2, choices=CREDIT_TYPE_CHOICES)
     criteria = models.TextField()
-    guidance = models.TextField(blank=True, null=True)
+    applicability = models.TextField(blank=True, null=True)
     scoring = models.TextField()
+    measurement = models.TextField(blank=True, null=True)
     staff_notes = models.TextField('AASHE Staff Notes', blank=True, null=True)
     
     class Meta:
