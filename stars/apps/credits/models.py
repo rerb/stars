@@ -218,7 +218,7 @@ class Credit(models.Model):
         ordering = ('ordinal',)
     
     def __unicode__(self):
-        return "%s: %s" % (self.get_identifier(), self.title)
+        return "%s" % self.title
 
     def __str__(self):  # For DEBUG -  comment out __unicode__ method
         return "#%d: %s (%d)" % (self.number, self.title, self.ordinal)
