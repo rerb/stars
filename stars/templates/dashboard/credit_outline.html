@@ -13,7 +13,7 @@
                     <ul>
                         {% for c in sub.credit_set.all %}
                             <li{% if credit %}{% ifequal credit c %} class='current'{% endifequal %}{% endif %}>
-                                <a href='{% if edit %}{{ c.get_edit_url }}{% else %}{{ c.get_submit_url }}{% endif %}'>{{ c }}</a>
+                                <a href='{% if edit %}{{ c.get_edit_url }}{% else %}{{ c.get_submit_url }}{% endif %}'>{{ c.get_identifier }}: {{ c }}</a>
                             </li>
                         {% endfor %}
                     </ul>
