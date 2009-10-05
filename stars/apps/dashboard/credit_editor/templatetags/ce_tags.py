@@ -17,7 +17,7 @@ register = template.Library()
 @register.inclusion_tag('dashboard/submissions/tags/documentation_field_form.html')
 def show_field_form(doc_field):
     """ Displays the submission form for a documentation field """
-    SubmissionFieldModelClass = DocumentationFieldSubmission.get_field_class(doc_field.type)
+    SubmissionFieldModelClass = DocumentationFieldSubmission.get_field_class(doc_field)
     submission_field = SubmissionFieldModelClass(documentation_field=doc_field) if SubmissionFieldModelClass else None
                     
     SubmissionFieldFormClass = SubmissionFieldForm.get_form_class(submission_field)

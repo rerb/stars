@@ -26,5 +26,8 @@ urlpatterns = patterns(
     (r'^(?P<creditset_id>\d+)/(?P<category_id>\d+)/(?P<subcategory_id>\d+)/(?P<credit_id>\d+)/applicability/(?P<reason_id>\d+)/delete/$', 'delete_applicability'),
     (r'^(?P<creditset_id>\d+)/(?P<category_id>\d+)/(?P<subcategory_id>\d+)/(?P<credit_id>\d+)/(?P<field_id>\d+)/$', 'field_detail'),
     (r'^(?P<creditset_id>\d+)/(?P<category_id>\d+)/(?P<subcategory_id>\d+)/(?P<credit_id>\d+)/(?P<field_id>\d+)/delete/$', 'delete_field'),
-    #(r'^(?P<creditset_id>\d+)/(?P<category_id>\d+)/(?P<subcategory_id>\d+)/(?P<credit_id>\d+)/(?P<field_id>\d+)/delete-choice(?P<choice_id>\d+)/$', 'delete_choice'),
+    (r'^(?P<creditset_id>\d+)/(?P<category_id>\d+)/(?P<subcategory_id>\d+)/(?P<credit_id>\d+)/(?P<field_id>\d+)/add-choice/$', 'add_choice'),
+    (r'^(?P<creditset_id>\d+)/(?P<category_id>\d+)/(?P<subcategory_id>\d+)/(?P<credit_id>\d+)/(?P<field_id>\d+)/reorder-choices/$', 'reorder_choices'),
+    (r'^(?P<creditset_id>\d+)/(?P<category_id>\d+)/(?P<subcategory_id>\d+)/(?P<credit_id>\d+)/(?P<field_id>\d+)/choice/(?P<choice_id>\d+)/$', 'edit_choice'),
+    (r'^(?P<creditset_id>\d+)/(?P<category_id>\d+)/(?P<subcategory_id>\d+)/(?P<credit_id>\d+)/(?P<field_id>\d+)/choice/(?P<choice_id>\d+)/delete/$', 'delete_choice'),
 )

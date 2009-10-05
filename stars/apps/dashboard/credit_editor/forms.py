@@ -155,7 +155,6 @@ class CreditOrderForm(ModelForm):
     form_name = staticmethod(form_name)
 
 class DocumentationFieldForm(ModelForm):
-    choices = forms.CharField(widget=widgets.Textarea(attrs={'class': 'noMCE','rows': '4'}), required=False, help_text='Please provide a list of choices separated by newlines')
     tooltip_help_text = forms.CharField(widget=widgets.Textarea(attrs={'rows': '2'}), required=False)
     inline_help_text = forms.CharField(widget=widgets.Textarea(attrs={'rows': '4'}), required=False)
     
@@ -185,27 +184,27 @@ class DocumentationFieldForm(ModelForm):
                 self._errors["selection_type"] = ErrorList([msg])
                 del cleaned_data["selection_type"]
                 
-            if choices:
-                msg = None
+#            if choices:
+#                msg = None
                 # remove any funky newlines
-                if choices.count('\r\n'): # MS DOS
-                    choices = choices.replace('\r\n', '\n')
-                elif choices.count('\r'): # Mac
-                    choices = choices.replace('\r', '\n')
-                choices = choices.rstrip()
+#                if choices.count('\r\n'): # MS DOS
+#                    choices = choices.replace('\r\n', '\n')
+#                elif choices.count('\r'): # Mac
+#                    choices = choices.replace('\r', '\n')
+#                choices = choices.rstrip()
                 
-                if type == 'numeric':
-                    choice_list = re.split('\n+', choices)
-                    for choice in choice_list:
-                        m = re.match('\d+\.?\d*', choice)
-                        if not m:
-                            msg = u"Please use valid numeric values"
-                            self._errors["choices"] = ErrorList([msg])
-                if not msg:
-                    cleaned_data['choices'] = choices
-            else:
-                msg = u"Please provide choices or set this documentation field to 'user-defined'."
-                self._errors["choices"] = ErrorList([msg])
+#                if type == 'numeric':
+#                    choice_list = re.split('\n+', choices)
+#                    for choice in choice_list:
+#                        m = re.match('\d+\.?\d*', choice)
+#                        if not m:
+#                            msg = u"Please use valid numeric values"
+#                            self._errors["choices"] = ErrorList([msg])
+#                if not msg:
+#                    cleaned_data['choices'] = choices
+#            else:
+#                msg = u"Please provide choices or set this documentation field to 'user-defined'."
+#                self._errors["choices"] = ErrorList([msg])
 
         return cleaned_data
         
@@ -220,6 +219,30 @@ class DocumentationFieldOrderingForm(ModelForm):
     def form_name():
         return u"Documentation Field Ordering Form" 
     form_name = staticmethod(form_name)
+
+
+class ChoiceForm(ModelForm):        
+    class Meta:
+        model = Choice
+        fields = ('choice',)
+        
+#    @staticmethod
+    def form_name():
+        return u"Choice Form" 
+    form_name = staticmethod(form_name)
+
+class ChoiceOrderingForm(ModelForm):
+    ordinal = forms.IntegerField(widget=widgets.HiddenInput(attrs={'size': '3', 'class': 'ordinal',}))
+    
+    class Meta:
+        model = Choice
+        fields = ('ordinal',)
+        
+#    @staticmethod
+    def form_name():
+        return u"Choices Ordering Form" 
+    form_name = staticmethod(form_name)
+
 
 class ApplicabilityReasonForm(ModelForm):
     

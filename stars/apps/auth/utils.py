@@ -6,6 +6,7 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 
 from stars.apps.institutions.models import StarsAccount, Institution
+from stars.apps.helpers import watchdog, flashMessage
 
 def respond(request, template, context):
     """
@@ -116,7 +117,11 @@ def _get_account_from_session(request):
         if not current_inst:  # so, see if the staff member has a cookie with a current institution from a previous session
             if request.COOKIES.has_key('current_inst'): 
                 aashe_id = request.COOKIES['current_inst']
-                current_inst = Institution.load_institution(aashe_id)
+                try:
+                    current_inst = Institution.load_institution(aashe_id)
+                except MySQLdb.Error,e:  # this hack/catch allows staff to continue working when institutions DB is down.
+                    flashMessage.send('Unable to connect to institutions DB: %s'%e, flashMessage.ERROR)
+                    watchdog.log('DB', e.__str__(), watchdog.ERROR)
         return (None, current_inst)
 
     account = None

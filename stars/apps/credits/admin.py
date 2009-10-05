@@ -53,3 +53,8 @@ class DocumentationFieldAdmin(admin.ModelAdmin):
     list_display = ('title', 'type', 'credit','is_required')
     list_filter = ('credit',)
 admin.site.register(DocumentationField, DocumentationFieldAdmin)
+
+class ChoiceAdmin(admin.ModelAdmin):
+    list_display = ('choice', 'documentation_field', 'is_bonafide')
+    list_filter = ('documentation_field',)
+admin.site.register(Choice, ChoiceAdmin)

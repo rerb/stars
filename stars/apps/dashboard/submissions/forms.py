@@ -13,6 +13,19 @@ from stars.apps.submissions.models import *
 
 class SubmissionFieldForm(ModelForm):
     """ Parent class for all submission fields to provide access to clean_value """
+    def __init__(self, *args, **kwargs):
+        """ Add any specified options to the form's value field """
+        super(SubmissionFieldForm, self).__init__(*args, **kwargs)
+        if self.instance and self.instance.get_units():
+            if self.field_includes_units():
+                self.fields['value'].set_units(self.instance.get_units())
+            else:  # for fields that don't include their units, render the units after the field
+                widget = self.fields['value'].widget
+                widget.render = render_with_units(widget.render, self.instance.get_units())
+
+    def field_includes_units(self):
+        """ Returns true if the form field contains its own units, false otherwise """
+        return self.__class__ in (ChoiceWithOtherSubmissionForm, MultiChoiceSubmissionForm, MultiChoiceWithOtherSubmissionForm)
 
 #    def clean_value(self):
 #        """ Ensures that value is set if the submission is marked as complete """
@@ -28,78 +41,65 @@ class SubmissionFieldForm(ModelForm):
 
 #    @staticmethod
     def get_form_class(submission_field):
-        """Return the class for the Form matching the submission_field"""
+        """Return the class for the Form matching the DocumentationFieldSubmission submission_field model"""
         SubmissionFormsModule = sys.modules[__name__]
         FormClass = getattr(SubmissionFormsModule, "%sForm"%submission_field.__class__.__name__ , None)
         return FormClass
     get_form_class = staticmethod(get_form_class)
     
-    def _has_multi_widget(self):
-        """ Return True iff this field has an instance that specifies a multi-valued widget """
-        return self.instance and \
-               self.instance.documentation_field.has_multiple_values()
-               
-    def _add_widget_options(self):
+class AbstractChoiceSubmissionForm(SubmissionFieldForm):
+    """ An abstract base class to provide some of the baseline behaviour for choice-type field forms. """
+    class Meta:
+        abstract = True
+        
+    def __init__(self, *args, **kwargs):
         """ 
-            Add any specified options to the submission field widget, including:
-                - choice options (changes the default widget type)
-                - units (adds units to the widget display)
+            Set up the choice's for the 'value' field on the form:
+             - choices are drawn from the bonafide Choices defined for its doc. field.
+            Note: widget cannot be replaced after this call!!  Currently, subclasses must use value field's default widget...
         """
-        CHOICE_WIDGETS = {
-                      'choose_one': widgets.Select,
-                      'choose_many': widgets.CheckboxSelectMultiple,
-                      'choose_one_other': custom_widgets.SelectWithOtherWidget,
-                      'choose_many_other': custom_widgets.CheckboxSelectMultipleWithOtherWidget,
-        }
+        super(AbstractChoiceSubmissionForm, self).__init__(*args, **kwargs)
         if self.instance:
-            doc_field = self.instance.documentation_field
-            type = doc_field.selection_type
-            if doc_field.choices :
-                choices = doc_field.get_choices()
-                if type in CHOICE_WIDGETS.keys():
-                    self.fields['value'].widget = CHOICE_WIDGETS[type](choices=choices)
-            if doc_field.units:
-                widget = self.fields['value'].widget
-                # special case to display units with "other" for choice_with_other type widgets...
-                if doc_field.has_other_choice():
-                    widget.set_units(doc_field.units)
-                elif not doc_field.includes_units():  # for fields that don't include their units, render the units after the field
-                    widget.render = render_with_units(widget.render, doc_field.units)
-                # else the field includes units and will render them as part of the widget.
-                
-    def _compress(self, value):
-        """ 
-            Value from multi-valued choice widgets (with_other) need to be compressed into a single value
-            Compress should really be part of a multi-value field - but our fields are fixed-type
-            Returns the compressed value or simply value if no need to compress
-        """
-        if not self._has_multi_widget():
-            return value
-        # assert: this field has an instance that used a multi-valued widget to collect the data.
-        print "Multi-value form cleaned_data = %s"%value
-        #### MOVE THIS LOGIC TO THE WIDGET CLASS?  Seems smart - match with decompress?
-        #### Avoids select - just call widget.compress.  Need to subclass CheckboxSelectMultiple to add compress / decompress?
-        #### Maybe we should have another field type to store multi-valued fields as a list?
-        type = self.instance.documentation_field.selection_type 
-        choices = self.instance.documentation_field.get_choices()
-        # assert value is a list and len(value) == 2  # in  python?
-        if type == 'choose_one_other':
-            # if the last choice was selected, then the user specified the 'other' value...
-            # index = value[0].to_numeric()  # ????
-            #if index == len(choices)-1:  # use the 'other' value
-            #    result = value[1]
-            #else:  # use the choice selected
-            #    result = choices[index]
-            result = value
-        elif type == 'choose_many':
-            result = value
-        elif type == 'choose_many_other':
-            result = value
-        else:
-            result = value  # @todo: this indicates a logic inconsistency - log an error or raise an exception? 
-        print "Compressed to: %s"%result
-        return result
+            self.fields['value'].queryset = self.instance.get_choice_queryset()
+            # For "Multi-widget" choice fields, Link the model compress / decompress logic to the Choice field.
+            if self.field_has_other_choice():
+                self.fields['value'].set_compress_methods(self.instance.compress, self.instance.decompress)
+        
+    def field_has_other_choice(self):
+        """ Returns true if the form field contains an 'other' choice, false otherwise """
+        return self.__class__ in (ChoiceWithOtherSubmissionForm, MultiChoiceWithOtherSubmissionForm)
+
+        
+class ChoiceSubmissionForm(AbstractChoiceSubmissionForm):
+    # Uses the defaut ChoiceField and widget.
+    class Meta:
+        model = ChoiceSubmission
+        fields = ['value']
+
+ 
+class ChoiceWithOtherSubmissionForm(AbstractChoiceSubmissionForm):
+    value = custom_widgets.ModelChoiceWithOtherField(ChoiceWithOtherSubmission, required=False)
     
+    class Meta:
+        model = ChoiceSubmission
+        fields = ['value']
+
+class MultiChoiceSubmissionForm(AbstractChoiceSubmissionForm):    
+    value = custom_widgets.ModelMultipleChoiceCheckboxField(MultiChoiceSubmission, required=False)
+
+    class Meta:
+        model = MultiChoiceSubmission
+        fields = ['value']
+
+
+class MultiChoiceWithOtherSubmissionForm(AbstractChoiceSubmissionForm):
+    value = custom_widgets.ModelMultipleChoiceWithOtherField(MultiChoiceWithOtherSubmission, required=False)
+    
+    class Meta:
+        model = MultiChoiceSubmission
+        fields = ['value']
+
+   
 class URLSubmissionForm(SubmissionFieldForm):
     class Meta:
         model = URLSubmission
@@ -129,7 +129,6 @@ class NumericSubmissionForm(SubmissionFieldForm):
     def __init__(self, *args, **kwargs):
         """ If there is an instance with choices, set up the choices. """
         super(NumericSubmissionForm, self).__init__(*args, **kwargs)
-        self._add_widget_options()
         
     def clean_value(self):
         """ If there is a range, use this to validate the number """
@@ -153,7 +152,6 @@ class TextSubmissionForm(SubmissionFieldForm):
     def __init__(self, *args, **kwargs):
         """ If there is an instance with choices, set up the choices. """
         super(TextSubmissionForm, self).__init__(*args, **kwargs)
-        self._add_widget_options()
         if self.instance:
             max = self.instance.documentation_field.max_range
             if max != None:
@@ -161,7 +159,6 @@ class TextSubmissionForm(SubmissionFieldForm):
     
     def clean_value(self):
         """ Compress multi-valued data and validate ranges (character or word counts) """
-#        value = self._compress(self.cleaned_data.get("value"))
         value = self.cleaned_data.get("value")
         if self.instance:
             max = self.instance.documentation_field.max_range

@@ -26,6 +26,7 @@ MEDIA_ROOT = '/Users/Joseph/Projects/AASHE/STARS/media/'
 
 SSO_SERVER_URI = WWW_SSO_SERVER_URI
 
+#AASHE_MYSQL_SERVER = "mysql.aashe.org"
 AASHE_MYSQL_SERVER = "67.192.170.227"
 
 # XML RPC

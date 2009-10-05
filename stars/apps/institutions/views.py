@@ -26,6 +26,5 @@ def institutions(request):
                 payments = institution.submission_set.payment_set.order_by('-date')
                 if payments:
                     institution.payment = payments[0]
-        print "Submission Set: %s, Payment: %s"%(institution.submission_set, institution.payment)
     template = "institutions/institution_list.html"
     return respond(request, template, {'institution_list':institutions})

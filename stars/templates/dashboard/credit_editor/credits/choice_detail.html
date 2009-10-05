@@ -1,0 +1,17 @@
+{% extends "dashboard/credit_editor/credits/fields.html" %}
+
+{% block header %}{{ credit.get_identifier }}: Edit Documentation Field Choice{% endblock %}
+
+{% block tab_content %}
+   <table border='0' width='98%'>
+        <tr>
+            <td align='left'>
+                <a href='{{ field.get_edit_url }}?expand_choices=True'>&lt; back to documentation field</a>
+            </td>
+        </tr>
+    </table>
+
+     <form action='.' method='POST'>
+        {% include 'dashboard/credit_editor/standard_form_with_delete.html' %}
+    </form>
+{% endblock %}

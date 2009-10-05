@@ -29,6 +29,5 @@ def show_submit_crumbs(object):
 @register.inclusion_tag('dashboard/submissions/tags/progress_icon.html')
 def show_progress_icon(percent_complete, size_class=''):
     """ Displays a progress bar showing the percent complete """
-    print "creating progress bar for %s%%, size: %s"%(percent_complete, size_class)
     return {'in_progress': percent_complete>0, 'complete' : percent_complete==100,
             'size_class': size_class, 'percent_complete': percent_complete}

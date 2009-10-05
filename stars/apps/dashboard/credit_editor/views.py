@@ -293,7 +293,7 @@ def credit_fields(request, creditset_id, category_id, subcategory_id, credit_id)
     # Build and process the form for adding a new field
     new_field_form = DocumentationFieldForm(prefix='new_field')
     
-    # Build and process the form for ordering subcategories
+    # Build and process the form for ordering fields
     (object_ordering, reordered) = form_helpers.object_ordering(request, credit.documentationfield_set.all(), DocumentationFieldOrderingForm)
     
     template = 'dashboard/credit_editor/credits/fields.html'
@@ -322,7 +322,7 @@ def add_field(request, creditset_id, category_id, subcategory_id, credit_id):
 @user_is_staff
 def field_detail(request, creditset_id, category_id, subcategory_id, credit_id, field_id):
     """
-        Provides a form to edit a Documentation Field
+        Provides a set of forms to edit a Documentation Field
     """
     context = _get_doc_field_context(creditset_id, category_id, subcategory_id, credit_id, field_id)
     field = context['field']
@@ -332,8 +332,18 @@ def field_detail(request, creditset_id, category_id, subcategory_id, credit_id, 
     ignore_choice_post = False
     (object_form, saved) = form_helpers.basic_save_form(request, field, 'field_%d' % field.id, DocumentationFieldForm)
     
+    # Build the form for ordering choices - this form is processed by a custom view to avoid interfering with custom validation on the object_form above.
+    (object_ordering, reordered) = form_helpers.object_ordering(request, field.choice_set.filter(is_bonafide=True), ChoiceOrderingForm, ignore_post=True)
+    # Build the form for adding a new choice - also processed by a custom view.
+    new_choice_form = ChoiceForm(prefix='new_choice')
+    
     template = 'dashboard/credit_editor/credits/field_detail.html'
-    context.update({'object_form': object_form})
+    context.update({'object_form': object_form,
+                    'object_ordering':object_ordering, 
+                    'new_choice_form':new_choice_form,
+                    'show_choices':field.is_choice(),
+                    'expand_choices':request.GET.get('expand_choices')
+                   })
     return respond(request, template, context)
     
 @user_is_staff
@@ -349,6 +359,69 @@ def delete_field(request, creditset_id, category_id, subcategory_id, credit_id, 
     
     template = 'dashboard/credit_editor/credits/delete_field.html'
     context.update({'object_class':'Documentation Field', 'object':context['field'],'confirm_delete_form': form,})
+    return respond(request, template, context)
+
+############### DOCUMENTATION FIELD CHOICES ######################    
+@user_is_staff
+def add_choice(request, creditset_id, category_id, subcategory_id, credit_id, field_id):
+    """
+        Provides and processes a form for adding a new choice to a documentation field
+    """
+    context = _get_doc_field_context(creditset_id, category_id, subcategory_id, credit_id, field_id)
+    field = context['field']
+    new_choice = Choice(documentation_field=field)
+    
+    (object_form, saved) = form_helpers.basic_save_new_form(request, new_choice, 'new_choice', ChoiceForm)
+
+    return HttpResponseRedirect("%s?expand_choices=True"%field.get_edit_url())    
+
+@user_is_staff
+def edit_choice(request, creditset_id, category_id, subcategory_id, credit_id, field_id, choice_id):
+    """
+        Edit a choice - allows the choice wording to change without affecting submissions using this choice.
+    """
+    context = _get_doc_field_context(creditset_id, category_id, subcategory_id, credit_id, field_id)
+    field = context['field']
+
+    choice = get_object_or_404(Choice, id=choice_id, documentation_field = field)
+    (object_form, saved) = form_helpers.basic_save_form(request, choice, 'choice', ChoiceForm)
+    if saved:
+        return HttpResponseRedirect("%s?expand_choices=True"%field.get_edit_url())    
+    
+    template = 'dashboard/credit_editor/credits/choice_detail.html'
+    context.update({'choice':choice, 'object_form': object_form})
+    return respond(request, template, context)
+
+@user_is_staff
+def reorder_choices(request, creditset_id, category_id, subcategory_id, credit_id, field_id):
+    """
+        Handles a re-order post for Documentation Field - which has custom validation - messed up by the order-form post
+    """
+    context = _get_doc_field_context(creditset_id, category_id, subcategory_id, credit_id, field_id)
+    field = context['field']
+                
+    # Build and process the form for ordering choices
+    (object_ordering, reordered) = form_helpers.object_ordering(request, field.choice_set.filter(is_bonafide=True), ChoiceOrderingForm)
+
+    return HttpResponseRedirect("%s?expand_choices=True"%field.get_edit_url())    
+    
+@user_is_staff
+def delete_choice(request, creditset_id, category_id, subcategory_id, credit_id, field_id, choice_id):
+    """
+        Provides and processes a form for deleting a choice from a documentation field
+    """
+    context = _get_doc_field_context(creditset_id, category_id, subcategory_id, credit_id, field_id)
+    field = context['field']
+
+    # confirm that the choice exists, and confirm that it should really be deleted, along with any submissions refering to it!
+    choice = get_object_or_404(Choice, id=choice_id, documentation_field = field)
+    (form, deleted) = form_helpers.confirm_delete_form(request, choice)
+    if deleted:
+        return HttpResponseRedirect("%s?expand_choices=True"%field.get_edit_url())    
+    
+    #@todo: rename the delete form to make it more generic - and override Choice.delete() to manage the submission objects.
+    template = 'dashboard/credit_editor/credits/applicability_delete.html'
+    context.update({'object_class':'Choice', 'object':choice,'confirm_delete_form': form,})
     return respond(request, template, context)
 
 ############### CREDIT APPLICABILITY REASONS ######################    

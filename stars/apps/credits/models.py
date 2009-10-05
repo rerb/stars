@@ -450,7 +450,6 @@ class DocumentationField(models.Model):
     min_range = models.IntegerField(help_text='Numeric: miniumum integer value, Date: earliest year.', blank=True, null=True)
     max_range = models.IntegerField(help_text='Text: max character count, LongText: max word count, Numeric: max integer value, Date: latest year.', blank=True, null=True)
     selection_type = models.CharField(max_length=16, choices=SELECTION_TYPE_CHOICES, default='any', help_text='Does the user type a response, or do they select from choices? \'Choose One\' valid for numeric and text fields only. All other choice types valid for text fields only.')
-    choices = models.TextField(null=True, blank=True)
     units = models.ForeignKey(Unit, null=True, blank=True)
     inline_help_text = models.TextField(null=True, blank=True)
     tooltip_help_text = models.TextField(null=True, blank=True)
@@ -488,28 +487,65 @@ class DocumentationField(models.Model):
         """ Returns the URL of the page to confirm deletion of this object """
         return "%sdelete/" % self.get_edit_url()
     
+    def is_single_choice(self):
+        """ Return true if this field is a single choice """
+        return self.selection_type.startswith('choose_one')
+    
+    def is_multi_choice(self):
+        """ Return true if this field is a multi-choice """
+        return self.selection_type.startswith('choose_many')
+    
+    def is_choice(self):
+        """ Return true if this field is a choice """
+        return self.selection_type.startswith('choose')
+    
     def has_other_choice(self):
         """ Return True iff this field specifies a choice with other type selection """
-        return self.selection_type in ('choose_one_other', 'choose_many_other')
+        return self.selection_type.endswith('other')
                
-    def has_multiple_values(self):
-        """ Return True iff this field has an instance that specifies a multi-valued widget """
-        return self.has_other_choice() or self.selection_type in ('choose_many', )
-
-    def includes_units(self):
-        """ Return True if the field's units are rendered with the field itself, False if they need to be rendered separately."""
-        return self.units and self.has_multiple_values()
-               
-    def get_choices(self):
-        """ Returns the choices field as a list of tuples """
-        list = re.split('\n+', self.choices.rstrip())
-        if self.includes_units():
-            list = ["%s %s"%(c,self.units) for c in list]
-        if self.has_other_choice():
-            list.append('Other - please specify:')
-        return zip(range(len(list)), list)
-    
     def num_submissions(self):
         """ Return the number of credit submissions where this ApplicabilityReason was cited """
         from stars.apps.submissions.models import get_active_field_submissions
         return get_active_field_submissions(self).count()
+
+
+class Choice(models.Model):
+    """
+        A choice for a documentation field
+        Stores both 'official' (bonafide) choices defined by STARS and user-defined choices. 
+    """
+    documentation_field = models.ForeignKey(DocumentationField)
+    choice = models.CharField("Choice", max_length=255)
+    ordinal = models.SmallIntegerField(default=-1)
+    is_bonafide = models.BooleanField(default=True)  # 'bonafide' choices are defined by STARS staff, other choices are user=defined
+    
+    class Meta:
+        ordering = ('ordinal',)
+
+    def __unicode__(self):
+        return self.choice
+    
+    def get_absolute_url(self):
+        return "%schoice/" % self.documentation_field.get_edit_url()
+
+    def get_edit_url(self):
+        return "%s%d/" % (self.get_absolute_url(), self.id)
+        
+    def get_delete_url(self):
+        """ Returns the URL of the page to confirm deletion of this object """
+        return "%sdelete/" % self.get_edit_url()
+    
+    def get_parent(self):
+        """ Returns the parent element for crumbs """
+        return self.documentation_field
+    
+    def save(self, *args, **kwargs):
+        if self.ordinal == -1 :
+            self.ordinal = _get_next_ordinal(self.documentation_field.choice_set.all())
+        super(Choice, self).save(*args, **kwargs)
+
+    def num_submissions(self):
+        """ Return the number of credit submissions where this Choice was cited """
+        from stars.apps.submissions.models import get_active_field_submissions
+        return get_active_field_submissions(choice=self).count()
+ 

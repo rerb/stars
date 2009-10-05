@@ -26,44 +26,38 @@
         </table>
     </div>
     <h2>Properties</h2>
+  <div style="position:relative;">
     <form action='.' method='POST'>
         {% include 'dashboard/credit_editor/standard_form_with_delete.html' %}
-        {% comment %}
-        {% ifnotequal field.selection_type 'user_defined' %}
-            <!-- Choices are now in the form -->
-            <h3>Choices</h3>
-            <table class='list' id='dndtable'>
-                {% for row in object_ordering %}
-                <tr>
-                    <td>Value:</td>
-                    <td>
-                        {{ row.form.value.errors.as_ul }}
-                        {{ row.form.value }}
-                    </td>
-                    <td>{{ row.form.ordinal }}</td>
-                    <td>
-                        <img src='/media/static/images/drag_vertical.png' alt='drag this row' title='drag this row' />
-                        <a href='{{ row.obj.get_delete_url }}'>
-                            <img src='/media/static/images/delete.png' alt='delete this choice' title='delete this choice'     />
-                        </a>
-                    </td>
-                </tr>
-                {% endfor %}
-                <tr class='new' nodrop="true" nodrag="true">
-                    <td>
-                        Add New Value:
-                    </td>
-                    <td>
-                        {{ new_choice_form.value }}
-                    </td>
-                    <td></td>
-                    <td></td>
-                </tr>
-                <tr nodrop="true" nodrag="true"><td colspan='4' class='buttonRow'>
-                    <input type='submit' value='Save' id='save_ordering'/>
-                </td></tr>
-            </table>
-        {% endifnotequal %}
-    {% endcomment %}
     </form>
+
+    <div id='field_choices' class={% if show_choices %}'visible'{% else %}'hidden'{% endif %}>
+        <span class='title' style='cursor: pointer' onclick='expand_new_form(this)' title='Choices'>
+            <img src='/media/static/images/expand.png' title='Edit Choices' alt='+' />
+            Choices
+        </span>
+        <div class='form' id='new_form' style='display:none'>
+            {% if object_ordering %}
+              <form action='{{ field.get_edit_url }}reorder-choices/' method='POST'>
+                <table class='list' id='dndtable'>
+                    {% include 'dashboard/credit_editor/ordering_form_table.html' %}
+                </table>
+              </form>
+            {% endif %}
+           <form action='{{ field.get_edit_url }}add-choice/' method='POST' style='margin: 0px;'>
+              <table style="border:1px solid #222222;"><tr><td>
+                {% if new_choice_form.choice.errors %}{{ new_choice_form.errors.choice }}<br/>{% endif %}
+                <label>Add Choice:</label>
+                {{ new_choice_form.choice }}
+                <input type='submit' value='Add' />
+              </td></tr></table>
+           </form>
+        </div>
+        {% if expand_choices %}
+          <script>
+            expand_new_form(document.getElementById('field_choices'));
+          </script>
+        {% endif %}
+    </div>
+  </div>
 {% endblock %}

@@ -138,7 +138,7 @@ def get_active_submissions(category=None, subcategory=None, credit=None):
 
 def get_active_field_submissions(field):
     """ Return a queryset for ALL active (non-empty) submissions for the given documentations field. """
-    FieldClass = DocumentationFieldSubmission.get_field_class(field.type)
+    FieldClass = DocumentationFieldSubmission.get_field_class(field)
     submissions = FieldClass.objects.filter(documentation_field=field).exclude(value=None)
     if FieldClass is TextSubmission or FieldClass is LongTextSubmission:
         submissions = submissions.exclude(value='')
@@ -375,7 +375,7 @@ class CreditSubmission(models.Model):
         
         submission_field_list = []
         for field in documentation_field_list:
-            SubmissionFieldModelClass = DocumentationFieldSubmission.get_field_class(field.type)
+            SubmissionFieldModelClass = DocumentationFieldSubmission.get_field_class(field)
             if SubmissionFieldModelClass:
                 try:
                     submission_field = SubmissionFieldModelClass.objects.get(documentation_field=field, credit_submission=self)
@@ -397,7 +397,7 @@ class CreditSubmission(models.Model):
         fields = self.get_submission_fields()
         values = []
         for field in fields:
-            values.append(field.value)
+            values.append(field.get_value())
         return values
 
     def get_submission_field_key(self):
@@ -405,7 +405,7 @@ class CreditSubmission(models.Model):
         fields = self.get_submission_fields()
         key = {}
         for field in fields:
-            key[field.documentation_field.identifier] = field.value
+            key[field.documentation_field.identifier] = field.get_value()
         return key
         
     def print_submission_fields(self):
@@ -612,24 +612,39 @@ class DocumentationFieldSubmission(models.Model):
         """ Used for building crumbs """
         return self.credit_submission
 
+    def persists(self):
+        """Does this Submission object persist in the DB?"""
+        return (not self.pk == None)
+        
 #    @staticmethod
-    def get_field_class(field_type):
+    def get_field_class(field):
         """
-            Returns the related model class for a particular documentation field submission type
+            Returns the related DocumentationFieldSubmission model class for a particular documentation field
         """
+        # Choice fields are determined by the selection type rather than the field type - they always store a foreign key to a Choice
+        if field.is_single_choice():
+            if field.has_other_choice():
+                return ChoiceWithOtherSubmission
+            else:
+                return ChoiceSubmission
+        if field.is_multi_choice():
+            if field.has_other_choice():
+                return MultiChoiceWithOtherSubmission
+            else:
+                return MultiChoiceSubmission
+        
         # @todo: form class name from constant, ala: FieldClass = getattr(SubmissionsForms, "%sSubmission" % SubClassName[field_type] , None)
-
-        if field_type == 'url':
+        if field.type == 'url':
             return URLSubmission
-        if field_type == 'date':
+        if field.type == 'date':
             return DateSubmission
-        if field_type == 'numeric':
+        if field.type == 'numeric':
             return NumericSubmission
-        if field_type == 'text':
+        if field.type == 'text':
             return TextSubmission
-        if field_type == 'long_text':
+        if field.type == 'long_text':
             return LongTextSubmission
-        if field_type == 'boolean':
+        if field.type == 'boolean':
             return BooleanSubmission
             
         return None
@@ -645,26 +660,132 @@ class DocumentationFieldSubmission(models.Model):
         """ Should this field be marked as required? """
         return self.documentation_field.is_required and self.value == None
                 
-    def __str__(self):
-        return "Doc Field Sub"
+    def get_value(self):
+        """ Use this accessor to get this submission's value - rather than accessing .value directly """
+        return self.value
     
+    def get_units(self):
+        """ Return the units associated with the choices in this submission """
+        return self.documentation_field.units
+    
+    def __str__(self):
+        return "<Doc Field Sub. value = %s>" %self.get_value()
+
+class AbstractChoiceSubmission(DocumentationFieldSubmission):
+    class Meta:  
+        abstract = True
+
+    def get_choice_queryset(self):
+        """ Return the queryset used to define the choices for this submission """
+        return Choice.objects.filter(documentation_field=self.documentation_field).filter(is_bonafide=True)
+
+    def get_last_choice(self):
+        """ Return the last Choice object in the list of choices for this submission """
+        choices = self.get_choice_queryset()
+        if len(choices) > 0:
+            return choices[len(choices)-1]  # no negative indexing on QuerySets
+        else:
+            return None
+    
+class ChoiceSubmission(AbstractChoiceSubmission):
+    """
+        The submitted value for a Single Choice Documentation Field
+    """
+    value = models.ForeignKey(Choice, blank=True, null=True)
+    
+    def get_value(self):
+        """ Value is a Choice object, or None """
+        return self.value
+    
+class ChoiceWithOtherSubmission(ChoiceSubmission):
+    """ A proxy model (does not create a new table) for a Choice Submission with an 'other' choice """
+    class Meta:
+        proxy = True
+
+    def decompress(self, value):
+        """ 
+            Given a single value (the pk for a Choice object), 
+            return a list of the form: [choiceId, otherValue], where
+             - choiceId is the id of the selection choice and otherValue is the the text value of 
+               the choice, if it is a non-bonafide (other) choice.
+            This is really the decompress logic for a ChoiceWithOtherSelectWidget (MutliWidget), 
+              but needs to do "model"-type stuff, so it is passed to the widget via the form.
+        """
+        if not value:
+            return [None, None]
+        # The choice must be in the DB - this algorithm is not foolproof - could use a little more thought.
+        try:
+            choice = Choice.objects.get(id=value)
+        except:
+            print "Attempt to decompress non-existing ChoiceWithOther (id=%s)"%value
+            watchdog.log("Submissions", "Attempt to decompress non-existing ChoiceWithOther (id=%s)"%value, watchdog.ERROR)
+            return [None, None]
+        if choice.is_bonafide:  # A bonafide choice is one of the actual choices
+            return [value, None]
+        else:                   # whereas non-bonafide choices represent an 'other' choice.
+            # value is not one of the bonafide choices - try to find it in the DB.
+            # The selection is the last choice, and the Choice text is the 'other' field.
+            return [self.get_last_choice().pk, choice.choice ]
+        
+    def compress(self, choice, other_value):
+        """
+            Given a compressed the choice / other value pair into a single Choice value
+            Return a single Choice representing the selection, or None.
+            Assumes choice is a Choice and other_value has been properly sanatized!
+            See decompress() above, except compress is peformed during clean() in ModelChoiceWithOtherField
+            queryset is the QuerySet governing which bonafide choices are handled by the field.
+        """
+        if not choice:
+            return None
+        if choice == self.get_last_choice() and other_value:  #The value is an 'other' - create the Choice object
+            # search for the 'other' choice value first - try to re-use an existing choice.
+            find = Choice.objects.filter(choice=other_value)  #@todo: can this be case insensitive?
+            if len(find) > 0:
+                choice = find[0]
+            else:
+                choice = Choice(documentation_field=self.documentation_field, choice=other_value, is_bonafide = False)
+            choice.save()
+
+        return choice
+            
+class MultiChoiceSubmission(AbstractChoiceSubmission):
+    """
+        The submitted value for a Multi-Choice Documentation Field
+    """
+    # should be called values, really, since it potentially represents multiple values
+    value = models.ManyToManyField(Choice, blank=True, null=True)
+    
+    def get_value(self):
+        """ Value is a list of Choice objects, or None """
+        # got to be careful here - many-to-many is only valid after submission has been saved.
+        return self.value.all() if self.persists() else None 
+
+class MultiChoiceWithOtherSubmission(MultiChoiceSubmission):
+    """ A proxy model (does not create a new table) for a MultiChoice Submission with an 'other' choice """
+    class Meta:
+        proxy = True
+        
+    #@todo: Write the compress and decompress logic...
+    def decompress(self, value):
+        if not value:
+            return [None, None]
+        return [value, None]  
+ 
+    def compress(self, choice, other_value):
+        return choice
+          
+        
 class URLSubmission(DocumentationFieldSubmission):
     """
         The submitted value for a URL Documentation Field
     """
     value = models.URLField(blank=True, null=True)
-    
-    def __str__(self):
-        return "<%s value = %s>" % (super(DocumentationFieldSubmission, self).__str__(), self.value)
-    
+        
 class DateSubmission(DocumentationFieldSubmission):
     """
         The submitted value for a Date Documentation Field
     """
     value = models.DateField(blank=True, null=True)
-
-    def __str__(self):
-        return "<%s value = %s>" % (super(DocumentationFieldSubmission, self).__str__(), self.value)
     
 class NumericSubmission(DocumentationFieldSubmission):
     """
@@ -672,27 +793,18 @@ class NumericSubmission(DocumentationFieldSubmission):
     """
     value = models.FloatField(blank=True, null=True)
 
-    def __str__(self):
-        return "<%s value = %s>" % (super(DocumentationFieldSubmission, self).__str__(), self.value)
-    
 class TextSubmission(DocumentationFieldSubmission):
     """
         The submitted value for a Text Documentation Field
     """
     value = models.CharField(max_length=255, blank=True, null=True)
 
-    def __str__(self):
-        return "<%s value = %s>" % (super(DocumentationFieldSubmission, self).__str__(), self.value)
-    
 class LongTextSubmission(DocumentationFieldSubmission):
     """
         The submitted value for Long Text Documentation Field
     """
     value = models.TextField(blank=True, null=True)
 
-    def __str__(self):
-        return "<%s value = %s>" % (super(DocumentationFieldSubmission, self).__str__(), self.value)
-    
 class UploadSubmission(DocumentationFieldSubmission):
     """
         The submitted value for a File Upload Documentation Field
@@ -705,9 +817,6 @@ class BooleanSubmission(DocumentationFieldSubmission):
     """
     value = models.NullBooleanField(blank=True, null=True)
 
-    def __str__(self):
-        return "<%s value = %s>" % (super(DocumentationFieldSubmission, self).__str__(), self.value)
-    
 class InstitutionState(models.Model):
     """
         Used to track the current state of an institution such as the current submission set

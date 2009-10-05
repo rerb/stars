@@ -621,6 +621,28 @@ div#reason_choices {
     background-color: #ffe;
 }
 
+div#field_choices {
+    padding: 5px;
+    border: 1px dotted #222;
+    background-color: #EBF9C8;
+    position: absolute;
+    top: 50px;
+    left: 290px;
+    width:290px;
+    opacity: 0.9;
+    overflow: visible;
+}
+
+div#field_choices span.title{
+    color: #072A60;
+    text-align: left;
+    font-size: 1.2em;
+}
+	
+div#field_choices div#new_form table{
+	background-color:#fff;
+}
+
 div.new_form {
     margin: 10px;
     padding: 5px 20px 5px 20px;
