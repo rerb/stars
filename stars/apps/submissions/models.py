@@ -447,6 +447,8 @@ class CreditUserSubmission(CreditSubmission):
     review_status = models.CharField(max_length=8)
     applicability_reason = models.ForeignKey(ApplicabilityReason, blank=True, null=True)
     user = models.ForeignKey(User, blank=True, null=True)
+    internal_notes = models.TextField(help_text='This field is useful if you want to store notes for other people in your organization regarding this credit. They will not be published.')
+    submission_notes = models.TextField(help_text='Use this space to add any additional information you may have about this credit. This will be published along with your submission.')
 
     class Meta:
         # @todo: the unique clause needs to be added at the DB level now :-(
