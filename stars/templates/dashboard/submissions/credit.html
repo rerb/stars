@@ -48,20 +48,11 @@
         {% include "dashboard/submissions/submission_fields_form.html" %}
         <br/>
         {% comment %}
-        <!-- @todo: I added these fields manually, but in the long-run
+        <!-- @todo: I added the note fields manually, but in the long-run
         we may want to rework the documentation_field_form.html template to take more than
         just documentationField objects... -->
         {% endcomment %}
-        {% load help %}
-        <label>Internal Notes:</label>
-        {% show_help_text submission_form.internal_notes.help_text 1 %}
-        {% if submission_form.internal_notes.errors %}{{ submission_form.errors.internal_notes }}{% endif %}
-    	<div class='field-form'>
-    	   {{ submission_form.internal_notes }}
-    	</div>
-        <br/>
-        <label>Submission Notes:</label>
-        {% show_help_text submission_form.submission_notes.help_text 1 %}
+        <label>Notes about the submission (public):</label>
         {% if submission_form.submission_notes.errors %}{{ submission_form.errors.submission_notes }}{% endif %}
     	<div class='field-form'>
     	   {{ submission_form.submission_notes }}
@@ -89,6 +80,13 @@
             </tr>
             {% endif %}
         </table>
+        <div class='internal_notes'>
+            <label>Internal comments (this field will not be made public upon submission):</label>
+            {% if submission_form.internal_notes.errors %}{{ submission_form.errors.internal_notes }}{% endif %}
+        	<div class='field-form'>
+        	   {{ submission_form.internal_notes }}
+        	</div>
+        </div>
         <div class='button_row'>
             <input type='submit' value='Submit' />
         </div>

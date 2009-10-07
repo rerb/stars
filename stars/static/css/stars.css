@@ -16,7 +16,7 @@ body {
 #column_container {
 	background-color:#fff;
 	float:left;
-	width:100%;	
+	width:100%;
 	border-left:250px solid #fff; /*  #cf9 The width and color of the left rail */
 	border-right:200px solid #fff; /* The width and color of the right rail */
 	margin-left:-250px;
@@ -659,6 +659,10 @@ div.form_div table {
     margin: 10px auto;
 }
 
+textarea {
+    padding: 5px;
+}
+
 div.form_div table th, div.form_div table td {
     padding: 5px;
 }
@@ -667,6 +671,17 @@ div.button_row {
     text-align: center;
     padding: 0px 10px 10px 10px;
     margin: 0px;
+}
+
+div.internal_notes {
+    border: 1px dotted #a88;
+    padding: 10px;
+    margin: 10px 0px;
+    background-color: #ddd;
+}
+
+div.internal_notes textarea {
+/*    border: 1px dashed #aaa;*/
 }
 
 div.field-form ul {
