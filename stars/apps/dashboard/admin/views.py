@@ -19,8 +19,9 @@ def institutions(request):
 @user_is_staff
 def find_institution_gateway(request, snippet):
     """
-        Searches aashedata01.institutions for any school that includes
+        Searches stars_member_list.members for any school that includes
         the snippet in its name
+        @Todo: sync with ISS DB when it comes online
     """
     institution_list = Institution.find_institutions(snippet)
     return render_to_response('dashboard/admin/institutions/search.html', {'institution_list': institution_list})
@@ -28,7 +29,7 @@ def find_institution_gateway(request, snippet):
 @user_is_staff
 def select_institution(request, institution_id):
     """
-        The admin tool for selecting a particular institution from aashedata01.institutions
+        The admin tool for selecting a particular institution from stars_member_list.members
     """
     institution = Institution.load_institution(institution_id)
     if not institution:

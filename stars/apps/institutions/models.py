@@ -47,10 +47,10 @@ class Institution(models.Model):
     @staticmethod
     def find_institutions(snippet):
         """
-            Searches aashedata01.institutionnames for any school that includes the snippet in its name
+            Searches stars_member_list for any school that includes the snippet in its name
             returns a list of institutions, maybe empty.
         """
-        return _query_institutionnames("""aashename like '%%%s%%'"""%snippet)
+        return _query_member_list("""name like '%%%s%%'"""%snippet)
         
     def is_member_institution(self):
         """
@@ -64,12 +64,12 @@ class Institution(models.Model):
     @staticmethod
     def load_institution(aashe_id):
         """
-            Connects to aashedata01.institutionnames to update/create a local
+            Connects to stars_member_list to update/create a local
             mirror of the requested institution
             Returns the institutions or None
         """
         # Get institution data from aashedata01
-        result = _query_institutionnames("id = %s"%aashe_id)
+        result = _query_member_list("organization_id = %s"%aashe_id)
         
         institution = None
         if len(result): # If the institution is an active member...
@@ -87,48 +87,6 @@ class Institution(models.Model):
             except Institution.DoesNotExist:  # how did we get here?
                 pass
         return institution
-
-""" CAUTION: There are 2 tables in aashedata01 that contain information about institutions:
-            - institutionnames:  has the master list of institution names
-            - institutions: links institutions to domains
-            Of course, these are not consistent, use different keys (id's), and even different institution names!  Yikes!
-"""
-def _query_institutionnames(where_clause):
-    """
-        PRIVATE: Searches aashedata01.institutionnames table for schools that match to given where_clause
-        Returns a list of institution dictionaries (id name), maybe empty.
-    """
-    from stars.apps.auth.utils import connect_aashedata
-    db = connect_aashedata()
-    cursor = db.cursor()
-    query = """
-        SELECT * FROM `institutionnames`
-        WHERE %s
-        ORDER BY aashename ASC""" % (where_clause)
-    cursor.execute(query)
-    institution_list = [{'id': row[0], 'name': row[4]} for row in cursor.fetchall()]
-
-    db.close()
-    return institution_list
-
-def _query_institutions(where_clause):
-    """
-        PRIVATE: Searches aashedata01.institutions table for schools that match to given where_clause
-        Returns a list of institution dictionaries (id name), maybe empty.
-    """
-    from stars.apps.auth.utils import connect_aashedata
-    db = connect_aashedata()
-    cursor = db.cursor()
-    query = """
-        SELECT * FROM `institutions`
-        WHERE %s
-        and StartDate <= NOW()
-        and EndDate >= NOW()""" % (where_clause)
-    cursor.execute(query)
-    institution_list = [{'id': row[0], 'name': row[4]} for row in cursor.fetchall()]
-
-    db.close()
-    return institution_list
     
 def _query_member_list(where_clause):
     """
@@ -139,14 +97,14 @@ def _query_member_list(where_clause):
     db = connect_member_list()
     cursor = db.cursor()
     query = """
-        SELECT * FROM `members`
-        WHERE %s""" % (where_clause)
+        SELECT organization_id as id, name, city, state FROM `members`
+        WHERE %s
+        ORDER BY name""" % (where_clause)
     cursor.execute(query)
-    institution_list = [{'id': row[0], 'name': row[1]} for row in cursor.fetchall()]
+    institution_list = [{'id': row[0], 'name': row[1], 'city': row[2], 'state': row[3]} for row in cursor.fetchall()]
 
     db.close()
     return institution_list
-
 
 STARS_USERLEVEL_CHOICES = [(x, x) for x in settings.STARS_PERMISSIONS]
 

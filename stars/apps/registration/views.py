@@ -10,9 +10,9 @@ from datetime import datetime, date
 import urllib2, re
 from xml.etree.ElementTree import fromstring
 
-from stars.apps.institutions.models import *
+from stars.apps.institutions.models import Institution, _query_member_list
 from stars.apps.registration.forms import *
-from stars.apps.auth.utils import respond, connect_member_list, connect_aashedata
+from stars.apps.auth.utils import respond, connect_member_list
 from stars.apps.helpers import watchdog, flashMessage
 from stars.apps.dashboard.admin.watchdog.models import ERROR
 from stars.apps.auth import xml_rpc
@@ -38,25 +38,21 @@ def reg_select_institution(request):
     
     # Get the user's institution from AASHE ID
     institution_id = None    # @TODO get this from Drupal when salesforce comes online
-    
-    # Get the list of schools as choices
-    db = connect_member_list()
-    cursor = db.cursor()
-    institution_query = """
-        SELECT organization_id, name, city, state
-        FROM `members`
-        WHERE (sector = 'Campus' OR organization_type = "System Office")
-        and city IS NOT NULL
-        and state IS NOT NULL
-        ORDER BY name
-    """
-    cursor.execute(institution_query)
     institution_list = []
     institution_list_lookup = {}
-    for row in cursor.fetchall():
-        institution_list.append((row[0], "%s, %s, %s" % (row[1], row[2], row[3])))
-        institution_list_lookup[row[0]] = row[1]
-    db.close()
+    
+    # Get the list of schools as choices
+    result = _query_member_list("(sector = \"Campus\" OR organization_type = \"System Office\")")
+    for row in result:
+        s_id = row['id']
+        name = row['name']
+        long_name = name
+        if row['city']:
+            long_name += ", %s" % row['city']
+        if row['state']:
+            long_name += ", %s" % row['state']
+        institution_list.append((s_id, long_name))
+        institution_list_lookup[s_id] = name
     
     # Generate the school choice form
     form = RegistrationSchoolChoiceForm()

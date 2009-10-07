@@ -142,6 +142,8 @@ STAGE_SSO_SERVER_URI = "http://%s@%s/%s" % (SSO_AUTHENTICATION, STAGE_IRC_DOMAIN
 SSO_SERVER_URI = WWW_SSO_SERVER_URI
 
 AASHE_MYSQL_SERVER = "localhost"
+AASHE_MYSQL_LOGIN = "starsapp"
+AASHE_MYSQL_PASS = "J3z4#$szFET--6"
 
 # Permissions or user levels for STARS users
 STARS_PERMISSIONS = ('admin', 'submit', 'review')
