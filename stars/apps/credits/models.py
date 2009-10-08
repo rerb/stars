@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
+from django.utils.encoding import smart_unicode
 
 import re
 from stars.apps.helpers import watchdog
@@ -39,7 +40,7 @@ class CreditSet(models.Model):
         ordering = ('release_date',)
     
     def __unicode__(self):
-        return "v%s" % self.version
+        return smart_unicode("v%s" % self.version, encoding='utf-8', strings_only=False, errors='strict')
         
     def get_edit_url(self):
         return "/dashboard/credit-editor/%d/" % self.id
@@ -73,7 +74,7 @@ class Category(models.Model):
         verbose_name_plural = "Categories"
     
     def __unicode__(self):
-        return self.title
+        return smart_unicode(self.title, encoding='utf-8', strings_only=False, errors='strict')
         
     def __cmp__(self, other):
         """ Used for ordering by ordinal """
@@ -144,7 +145,7 @@ class Subcategory(models.Model):
         verbose_name_plural = "Subcategories"
     
     def __unicode__(self):
-        return self.title
+        return smart_unicode(self.title, encoding='utf-8', strings_only=False, errors='strict')
         
     def __cmp__(self, other):
         """ Used for ordering by ordinal """
@@ -219,7 +220,7 @@ class Credit(models.Model):
         ordering = ('ordinal',)
     
     def __unicode__(self):
-        return "%s" % self.title
+        return smart_unicode(self.title, encoding='utf-8', strings_only=False, errors='strict')
 
     def __str__(self):  # For DEBUG -  comment out __unicode__ method
         return "#%d: %s (%d)" % (self.number, self.title, self.ordinal)
@@ -441,7 +442,7 @@ class Unit(models.Model):
         ordering = ('name',)
         
     def __unicode__(self):
-        return self.name
+        return smart_unicode(self.name, encoding='utf-8', strings_only=False, errors='strict')
 
 class DocumentationField(models.Model):
     credit = models.ForeignKey(Credit)
@@ -470,7 +471,7 @@ class DocumentationField(models.Model):
         super(DocumentationField, self).save(*args, **kwargs)
          
     def __unicode__(self):
-        return self.title
+        return smart_unicode(self.title, encoding='utf-8', strings_only=False, errors='strict')
         
     def __cmp__(self, other):
         """ Used for ordering by ordinal """
