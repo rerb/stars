@@ -2,7 +2,8 @@ from datetime import datetime
 from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User
-from django.utils.safestring import mark_safe 
+from django.utils.safestring import mark_safe
+from django.contrib.localflavor.us.models import PhoneNumberField
 
 from stars.apps.credits.models import *
 from stars.apps.institutions.models import *
@@ -160,6 +161,9 @@ class CategorySubmission(models.Model):
     class Meta:
         unique_together = ("submissionset", "category")
         ordering = ("category__ordinal",)
+        
+    def get_institution(self):
+        return self.submissionset.institution
     
     def __unicode__(self):
         return unicode(self.category)
@@ -239,6 +243,9 @@ class SubcategorySubmission(models.Model):
     
     def __unicode__(self):
         return unicode(self.subcategory)
+        
+    def get_institution(self):
+        return self.category_submission.get_institution()
         
     def get_parent(self):
         """ Used for building crumbs """
@@ -333,6 +340,24 @@ def _get_status_icon_tag(status):
     icon_file, alt, title = CREDIT_SUBMISSION_STATUS_ICONS[status] 
     src = "%s%s%s/"%(settings.MEDIA_URL,"static/images/", icon_file)
     return mark_safe( "<img src='%s' alt='%s' title='%s'> "%(src, alt, title) ), title
+    
+class ResponsibleParty(models.Model):
+    """
+        Stores responsible parties for institutions
+    """
+    institution = models.ForeignKey(Institution)
+    first_name = models.CharField(max_length=32)
+    last_name = models.CharField(max_length=32)
+    title = models.CharField(max_length=128)
+    department = models.CharField(max_length=128)
+    email = models.EmailField()
+    phone = PhoneNumberField()
+    
+    class Meta:
+        ordering = ('last_name', 'first_name')
+        
+    def __unicode__(self):
+        return "%s, %s" % (self.last_name, self.first_name)
         
 class CreditSubmission(models.Model):
     """
@@ -357,6 +382,9 @@ class CreditSubmission(models.Model):
         
     def __unicode__(self):
         return unicode(self.credit)
+        
+    def get_institution(self):
+        return self.subcategory_submission.get_institution()
         
     def get_submission_fields(self):
         """ 
@@ -449,6 +477,8 @@ class CreditUserSubmission(CreditSubmission):
     user = models.ForeignKey(User, blank=True, null=True)
     internal_notes = models.TextField(help_text='This field is useful if you want to store notes for other people in your organization regarding this credit. They will not be published.', blank=True, null=True)
     submission_notes = models.TextField(help_text='Use this space to add any additional information you may have about this credit. This will be published along with your submission.', blank=True, null=True)
+    responsible_party_confirm = models.BooleanField()
+    responsible_party = models.ForeignKey(ResponsibleParty)
 
     class Meta:
         # @todo: the unique clause needs to be added at the DB level now :-(
@@ -522,7 +552,6 @@ class CreditUserSubmission(CreditSubmission):
                 flashMessage.send(message, flashMessage.ERROR)  
             flashMessage.send("Unable to compute points for this credit - please contact AASHE if problem persists", flashMessage.NOTICE)
         return assessed_points
-    
     
 class CreditTestSubmission(CreditSubmission):
     """

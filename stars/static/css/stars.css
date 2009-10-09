@@ -383,7 +383,6 @@ table.form {
 }
 
 table.form th {
-    text-align: left;
     font-size: 1.0em;
     font-weight: normal;
     border-width: 0px 0px;
@@ -590,7 +589,7 @@ form.submit_form {
     border: 1px solid #888;
     background-color: #eee;
     padding: 10px 10px 0px 10px;
-    margin: 0px 20px;
+    margin: 0px 10px;
 }
 
 form.submit_form label {

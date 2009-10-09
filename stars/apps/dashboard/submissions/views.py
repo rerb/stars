@@ -4,8 +4,8 @@ from stars.apps.auth.utils import respond
 from stars.apps.auth.decorators import user_can_submit
 from stars.apps.submissions.models import *
 from stars.apps.credits.models import *
-from stars.apps.helpers.forms.form_helpers import basic_save_form
-from stars.apps.dashboard.submissions.forms import CreditUserSubmissionForm
+from stars.apps.helpers.forms.form_helpers import basic_save_form, basic_save_new_form
+from stars.apps.dashboard.submissions.forms import CreditUserSubmissionForm, ResponsiblePartyForm
 
 def _get_active_submission(request):
     current_inst = request.user.current_inst
@@ -156,9 +156,31 @@ def credit_detail(request, category_id, subcategory_id, credit_id):
     # CAUTION: onload handler in the template assumes this form has no prefix!!
     (submission_form, saved) = basic_save_form(request, credit_submission, '', CreditUserSubmissionForm)
     
-    context.update({'submission_form': submission_form})
+    context.update({'submission_form': submission_form,})
 
     return respond(request, "dashboard/submissions/credit.html", context)
+    
+@user_can_submit
+def add_responsible_party(request):
+    """
+        Provides a pop-up form for adding a new ResponsibleParty to an institution
+        and updates the dropdown on the credit submission page
+    """
+    current_inst = request.user.current_inst
+    if not current_inst:
+        return HttpResponse("No Institution Selected")
+        
+    responsible_party = ResponsibleParty(institution=current_inst)
+    
+    (responsible_party_form, saved) = basic_save_new_form(request, responsible_party, 'new_rp', ResponsiblePartyForm) 
+    
+    if saved:
+        context = {'id': responsible_party.id, 'name': responsible_party,}
+        return respond(request, "dashboard/submissions/responsible_party_redirect.html", context)
+    
+    context = {'responsible_party_form': responsible_party_form,}
+
+    return respond(request, "dashboard/submissions/responsible_party.html", context)
     
 def init_credit_submissions(submissionset):
     """ 

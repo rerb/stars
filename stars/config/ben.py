@@ -7,8 +7,13 @@ DEBUG = True
 ADMINS = ()
 MANAGERS = ADMINS
 
-DATABASE_ENGINE = 'sqlite3'
-DATABASE_NAME = '/Users/jamstooks/sqlite/stars.db'
+# DATABASE_ENGINE = 'sqlite3'
+# DATABASE_NAME = '/Users/jamstooks/sqlite/stars.db'
+DATABASE_ENGINE = 'mysql'
+DATABASE_NAME = 'stars_dev'
+DATABASE_USER = 'root'
+DATABASE_PASSWORD = ''
+DATABASE_HOST = 'localhost'
 
 # Stand alone mode indicates that the server will be running using
 # the django dev server so we will need to serve the static files (see urls.py)

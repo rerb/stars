@@ -301,6 +301,14 @@ class CreditSubmissionForm(ModelForm):
         # use short-cut evaluation here so Form is not validated if fields don't validate.
         return is_valid and super(CreditSubmissionForm, self).is_valid()
     
+class ResponsiblePartyForm(ModelForm):
+    """
+        When adding a new Responsible Party
+    """
+    
+    class Meta:
+        model = ResponsibleParty
+        exclude = ['institution',]
 
 class CreditUserSubmissionForm(CreditSubmissionForm):
     """
@@ -311,7 +319,7 @@ class CreditUserSubmissionForm(CreditSubmissionForm):
 
     class Meta:
         model = CreditUserSubmission
-        fields = ['internal_notes', 'submission_notes', 'submission_status', 'applicability_reason']
+        fields = ['internal_notes', 'submission_notes', 'responsible_party_confirm', 'responsible_party', 'submission_status', 'applicability_reason']
 
     def __init__(self, *args, **kwargs):
         super(CreditUserSubmissionForm, self).__init__(*args, **kwargs)
@@ -319,6 +327,11 @@ class CreditUserSubmissionForm(CreditSubmissionForm):
         if self.instance.credit.applicabilityreason_set.all():
             self.fields['applicability_reason'].queryset=self.instance.credit.applicabilityreason_set.all()
             self.fields['submission_status'].widget = forms.RadioSelect(choices=CREDIT_SUBMISSION_STATUS_CHOICES_W_NA, attrs={'onchange': 'toggle_applicability_reasons(this)'})
+        # Populate the responsible_party with those tied to this institution
+        # choices = [(rp.id, rp) for rp in ResponsibleParty.objects.filter(institution=self.instance.get_institution())]
+        # choices.insert(0, ("", "Select Responsible Party"))
+        # self.fields['responsible_party'].widget = widgets.Select(choices=choices, attrs={'onchange': 'toggle_responsible_party(this)',})
+        #self.fields['responsible_party'].widget = widgets.Select(choices=[("", "--"),("1", "one")])
 
     def clean(self):
         """
@@ -349,7 +362,21 @@ class CreditUserSubmissionForm(CreditSubmissionForm):
                 msg = u"This field is required to mark this credit complete."
                 field['form']._errors["value"] = ErrorList([msg])
                 error = True
+            
+        # responsible party and responsible party confirm are required if marked complete
+        if marked_complete:
+            rp = cleaned_data.get("responsible_party")
+            if rp == None or rp == "":
+                msg = u"This field is required to mark this credit complete."
+                self._errors["responsible_party"] = ErrorList([msg])
+                error = True
+            rpc = cleaned_data.get("responsible_party_confirm")
+            if not rpc:
+                msg = u"This field is required to mark this credit complete."
+                self._errors["responsible_party_confirm"] = ErrorList([msg])
+                error = True
+                
         if (error):
             raise forms.ValidationError("This credit cannot be submitted as complete.")
-            
+    
         return cleaned_data

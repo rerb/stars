@@ -1,12 +1,16 @@
 {% extends 'dashboard/submissions/columned_layout.html' %}
 
+{% block body_attribute %} onload='toggle_applicability_reasons(get_selected_button(document.forms.submission_form.submission_status));'{% endblock %}
+
+{% block extra_head %}
+    <script type="text/javascript" src="/media/admin/js/admin/RelatedObjectLookups.js"></script>
+{% endblock %}
+
 {% block crumbs %} 
     {{ block.super }}
     {% load submit_tags  %}
     {% show_submit_crumbs credit %}
 {% endblock %}
-
-{% block body_attribute %} onload='toggle_applicability_reasons(get_selected_button(document.forms.submission_form.submission_status));'{% endblock %}
 
 {% block header %}{{ credit.get_identifier }}:<br/>{{ credit }}{% endblock %}
 
@@ -58,6 +62,19 @@
     	   {{ submission_form.submission_notes }}
     	</div>
         <br/>
+        <h3>Responsible Party</h3>
+        {% if submission_form.responsible_party.errors %}
+            {{ submission_form.errors.responsible_party }}
+        {% endif %}
+        {{ submission_form.responsible_party }}
+        <a href="/dashboard/submissions/add-responsible-party/" class="add-another" id="add_id_responsible_party" onclick="return showAddAnotherPopup(this);" title='Add New Responsible Party'><img src='/media/static/images/add.png' alt='Add New Responsible Party' /></a>
+        <br/>
+        {% if submission_form.responsible_party_confirm.errors %}
+            {{ submission_form.errors.responsible_party_confirm }}
+        {% endif %}
+        {{ submission_form.responsible_party_confirm }}
+        <label>By checking this box, I affirm that the information included in the submission for this credit is accurate to the best of my knowledge.</label>
+        <br/><br/>
         <table>
             <tr>
                 <td>Submit with status:</td>
