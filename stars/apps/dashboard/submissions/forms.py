@@ -2,11 +2,10 @@ import sys
 import string
 from django.forms import ModelForm
 from django import forms
-from django.forms import widgets
 from django.forms.extras.widgets import SelectDateWidget
 from django.forms.util import ErrorList
 
-from stars.apps.helpers.forms import widgets as custom_widgets
+from stars.apps.helpers.forms import fields as custom_fields
 from stars.apps.helpers.decorators import render_with_units
 from stars.apps.helpers import watchdog 
 from stars.apps.submissions.models import *
@@ -61,14 +60,17 @@ class AbstractChoiceSubmissionForm(SubmissionFieldForm):
         super(AbstractChoiceSubmissionForm, self).__init__(*args, **kwargs)
         if self.instance:
             self.fields['value'].queryset = self.instance.get_choice_queryset()
-            # For "Multi-widget" choice fields, Link the model compress / decompress logic to the Choice field.
-            if self.field_has_other_choice():
-                self.fields['value'].set_compress_methods(self.instance.compress, self.instance.decompress)
-        
-    def field_has_other_choice(self):
-        """ Returns true if the form field contains an 'other' choice, false otherwise """
-        return self.__class__ in (ChoiceWithOtherSubmissionForm, MultiChoiceWithOtherSubmissionForm)
 
+class AbstractMultiFieldSubmissionForm(AbstractChoiceSubmissionForm):
+    """ An abstract base class for choice-with-other-type and other multi-field submissionforms. """
+    class Meta:
+        abstract = True
+
+    def __init__(self, *args, **kwargs):
+        """  Hook up the compress / decompress logic for the multi-field """
+        super(AbstractMultiFieldSubmissionForm, self).__init__(*args, **kwargs)
+        if self.instance:
+            self.fields['value'].set_compress_methods(self.instance.compress, self.instance.decompress)
         
 class ChoiceSubmissionForm(AbstractChoiceSubmissionForm):
     # Uses the defaut ChoiceField and widget.
@@ -77,29 +79,30 @@ class ChoiceSubmissionForm(AbstractChoiceSubmissionForm):
         fields = ['value']
 
  
-class ChoiceWithOtherSubmissionForm(AbstractChoiceSubmissionForm):
-    value = custom_widgets.ModelChoiceWithOtherField(ChoiceWithOtherSubmission, required=False)
+class ChoiceWithOtherSubmissionForm(AbstractMultiFieldSubmissionForm):
+    value = custom_fields.ModelChoiceWithOtherField(required=False)
     
     class Meta:
         model = ChoiceSubmission
         fields = ['value']
 
+
 class MultiChoiceSubmissionForm(AbstractChoiceSubmissionForm):    
-    value = custom_widgets.ModelMultipleChoiceCheckboxField(MultiChoiceSubmission, required=False)
+    value = custom_fields.ModelMultipleChoiceCheckboxField(required=False)
 
     class Meta:
         model = MultiChoiceSubmission
         fields = ['value']
 
 
-class MultiChoiceWithOtherSubmissionForm(AbstractChoiceSubmissionForm):
-    value = custom_widgets.ModelMultipleChoiceWithOtherField(MultiChoiceWithOtherSubmission, required=False)
+class MultiChoiceWithOtherSubmissionForm(AbstractMultiFieldSubmissionForm):
+    value = custom_fields.ModelMultipleChoiceWithOtherField(required=False)
     
     class Meta:
         model = MultiChoiceSubmission
         fields = ['value']
 
-   
+  
 class URLSubmissionForm(SubmissionFieldForm):
     class Meta:
         model = URLSubmission
@@ -173,7 +176,7 @@ class TextSubmissionForm(SubmissionFieldForm):
         return value
     
 class LongTextSubmissionForm(SubmissionFieldForm):
-    value = forms.CharField(widget=widgets.Textarea(attrs={'class': 'noMCE'}), required=False)  # don't use MCE for submissions!
+    value = forms.CharField(widget=forms.Textarea(attrs={'class': 'noMCE'}), required=False)  # don't use MCE for submissions!
 
     class Meta:
         model = LongTextSubmission

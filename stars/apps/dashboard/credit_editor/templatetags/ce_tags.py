@@ -9,11 +9,6 @@ import re
 
 register = template.Library()
 
-"""
-('choose_one', 'choose one'),
-('choose_one_other', 'choose one w/ other'),
-('choose_many', 'choose many'),
-"""
 @register.inclusion_tag('dashboard/submissions/tags/documentation_field_form.html')
 def show_field_form(doc_field):
     """ Displays the submission form for a documentation field """

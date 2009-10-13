@@ -1,6 +1,6 @@
 import re
 
-from django.forms import ModelForm
+from django.forms import Form, ModelForm
 from django import forms
 from django.forms import widgets
 from django.forms.extras import widgets as extra_widgets 
@@ -10,7 +10,6 @@ from django.utils.safestring import mark_safe
 from stars.apps.credits.models import *
 from stars.apps.submissions.models import CreditTestSubmission
 from stars.apps.dashboard.submissions.forms import CreditSubmissionForm
-from stars.apps.helpers.forms import widgets as custom_widgets
 
 class CreditSetForm(ModelForm):
     # version = forms.CharField(widget=widgets.TextInput(attrs={'size': 5})) # redundant?
@@ -161,7 +160,7 @@ class DocumentationFieldForm(ModelForm):
     class Meta:
         model = DocumentationField
         exclude = ('credit', 'ordinal', 'identifier')
-        
+
 #    @staticmethod
     def form_name():
         return u"Documentation Field Form" 
@@ -169,30 +168,11 @@ class DocumentationFieldForm(ModelForm):
 
     def clean(self):
         cleaned_data = self.cleaned_data
-        sel_type = cleaned_data.get("selection_type")
         type = cleaned_data.get("type")
-        choices = cleaned_data.get('choices')
-        
-        if sel_type != 'user_defined':
-            
-            msg = ""
-            if type != 'numeric' and type != 'text':
-                msg = u"Choice options are only available for numeric and text fields."
-            if type == 'numeric' and sel_type != 'choose_one':
-                msg = u"\'Choose with Other\' and \'Choose Many\' selectors are only available for text fields."
-            if msg:
-                self._errors["selection_type"] = ErrorList([msg])
-                del cleaned_data["selection_type"]
-                
-#            if choices:
-#                msg = None
-                # remove any funky newlines
-#                if choices.count('\r\n'): # MS DOS
-#                    choices = choices.replace('\r\n', '\n')
-#                elif choices.count('\r'): # Mac
-#                    choices = choices.replace('\r', '\n')
-#                choices = choices.rstrip()
-                
+
+        #@todo: validate that choice-type fields actually specify choices
+
+# Code for cleaning numberic choices, if we ever implement those again...        
 #                if type == 'numeric':
 #                    choice_list = re.split('\n+', choices)
 #                    for choice in choice_list:
@@ -207,6 +187,10 @@ class DocumentationFieldForm(ModelForm):
 #                self._errors["choices"] = ErrorList([msg])
 
         return cleaned_data
+
+class NewDocumentationFieldForm(DocumentationFieldForm):
+    class Meta(DocumentationFieldForm.Meta):
+        exclude = ('credit', 'ordinal', 'identifier','last_choice_is_other','min_range','max_range')
         
 class DocumentationFieldOrderingForm(ModelForm):
     ordinal = forms.IntegerField(widget=widgets.HiddenInput(attrs={'size': '3', 'class': 'ordinal',}))
@@ -236,13 +220,12 @@ class ChoiceOrderingForm(ModelForm):
     
     class Meta:
         model = Choice
-        fields = ('ordinal',)
+        fields = ('ordinal','choice')
         
 #    @staticmethod
     def form_name():
         return u"Choices Ordering Form" 
     form_name = staticmethod(form_name)
-
 
 class ApplicabilityReasonForm(ModelForm):
     
@@ -254,6 +237,3 @@ class ApplicabilityReasonForm(ModelForm):
     def form_name():
         return u"Applicability Reason Form" 
     form_name = staticmethod(form_name)
-
-class ConfirmDelete(forms.Form):
-    confirm = forms.BooleanField()

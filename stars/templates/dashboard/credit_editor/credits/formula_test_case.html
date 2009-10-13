@@ -43,8 +43,8 @@
 
     <table border='0' width='100%'>
         <tr>
-            <td align='left'>
-                <h4> Formula: </h4>
+            <td align='left' width='90px'>
+                <h3> Formula: </h3>
             </td>
             <td  align='left'>
 			    <div id='dfAppearance'>
@@ -57,11 +57,19 @@
     <hr>
     
     {% block test_case %}
-    <h3>Test Case:</h3>
-    <div id='dfAppearance'>
-        {{ test_case }}
-    </div>
-    {% endblock %}
+    <table border='0' width='100%'>
+        <tr>
+            <td align='left' width='90px'>
+                <h3> Test Case: </h3>
+            </td>
+            <td  align='left'>
+                <div id='dfAppearance'>
+                  <pre>{{ test_case }}</pre>
+                </div>    
+            </td>
+        </tr>
+    </table>
+     {% endblock %}
     <form action='.' method='POST'>
         {% include "dashboard/submissions/submission_fields_form.html" %}
         {{ submission_form.as_p }}

@@ -417,22 +417,16 @@ class ApplicabilityReason(models.Model):
         
 
 DOCUMENTATION_FIELD_TYPES = (
-    ('url', 'url'),
-    ('date', 'date'),
-    ('numeric', 'numeric'),
     ('text', 'text'),
     ('long_text', 'long text'),
+    ('numeric', 'numeric'),
+    ('boolean', 'yes/no'),
+    ('choice', 'choose one'),
+    ('multichoice', 'choose many'),
+    ('url', 'url'),
+    ('date', 'date'),
     ('upload', 'upload'),
     ('multiple_upload', 'multiple upload'),
-    ('boolean', 'yes/no'),
-)
-
-SELECTION_TYPE_CHOICES = (
-    ('user_defined', 'user defined'),
-    ('choose_one', 'choose one'),
-    ('choose_one_other', 'choose one w/ other'),
-    ('choose_many', 'choose many'),
-    ('choose_many_other', 'choose many w/ other'),
 )
 
 class Unit(models.Model):
@@ -448,16 +442,17 @@ class DocumentationField(models.Model):
     credit = models.ForeignKey(Credit)
     title = models.CharField("Promt/Question", max_length=255)
     type = models.CharField(max_length=16, choices=DOCUMENTATION_FIELD_TYPES)
+    last_choice_is_other = models.BooleanField(default=False, help_text='If selected, the last choice provides a box to enter a user-defined choice')
     min_range = models.IntegerField(help_text='Numeric: miniumum integer value, Date: earliest year.', blank=True, null=True)
     max_range = models.IntegerField(help_text='Text: max character count, LongText: max word count, Numeric: max integer value, Date: latest year.', blank=True, null=True)
-    selection_type = models.CharField(max_length=16, choices=SELECTION_TYPE_CHOICES, default='any', help_text='Does the user type a response, or do they select from choices? \'Choose One\' valid for numeric and text fields only. All other choice types valid for text fields only.')
+#    selection_type = models.CharField(max_length=16, choices=SELECTION_TYPE_CHOICES, default='any', help_text='Does the user type a response, or do they select from choices? \'Choose One\' valid for numeric and text fields only. All other choice types valid for text fields only.')
     units = models.ForeignKey(Unit, null=True, blank=True)
     inline_help_text = models.TextField(null=True, blank=True)
     tooltip_help_text = models.TextField(null=True, blank=True)
     ordinal = models.SmallIntegerField(default=-1)
     is_required = models.BooleanField(default=True)
     is_confidential = models.BooleanField()
-    identifier = models.CharField(max_length=2) # editable=False)
+    identifier = models.CharField(max_length=2) # editable=False) # Field identifier for the Formula editor - auto-generated.
     
     class Meta:
         ordering = ('ordinal',)
@@ -490,19 +485,31 @@ class DocumentationField(models.Model):
     
     def is_single_choice(self):
         """ Return true if this field is a single choice """
-        return self.selection_type.startswith('choose_one')
+        return self.type == 'choice'
     
     def is_multi_choice(self):
         """ Return true if this field is a multi-choice """
-        return self.selection_type.startswith('choose_many')
+        return self.type == 'multichoice'
     
     def is_choice(self):
         """ Return true if this field is a choice """
-        return self.selection_type.startswith('choose')
+        return self.type.endswith('choice')
     
     def has_other_choice(self):
         """ Return True iff this field specifies a choice with other type selection """
-        return self.selection_type.endswith('other')
+        return self.last_choice_is_other
+               
+    def can_have_min_max(self):
+        """ Return True iff the min / max options apply to this field. """
+        return self.type in ('text', 'long_text', 'numeric', 'date') and not self.is_choice()
+
+    def can_have_units(self):
+        """ Return True iff the units option apply to this field. """
+        return self.type in ('text', 'long_text', 'numeric') or self.is_choice()
+
+    def get_units(self):
+        """ Return the units associated with this field or None """
+        return self.units if self.can_have_units() else None
                
     def num_submissions(self):
         """ Return the number of credit submissions where this ApplicabilityReason was cited """
@@ -525,6 +532,10 @@ class Choice(models.Model):
 
     def __unicode__(self):
         return self.choice
+
+    def __cmp__(self, other):
+        """ Used for ordering by ordinal """
+        return cmp(self.ordinal, other.ordinal)
     
     def get_absolute_url(self):
         return "%schoice/" % self.documentation_field.get_edit_url()
@@ -541,7 +552,7 @@ class Choice(models.Model):
         return self.documentation_field
     
     def save(self, *args, **kwargs):
-        if self.ordinal == -1 :
+        if self.ordinal is None or self.ordinal == -1 :
             self.ordinal = _get_next_ordinal(self.documentation_field.choice_set.all())
         super(Choice, self).save(*args, **kwargs)
 

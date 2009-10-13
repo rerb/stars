@@ -1,7 +1,7 @@
 {% extends "dashboard/credit_editor/base_edit_list.html" %}
 
 {% block display_object %}
-        <td>{{ obj.field_values }}</td>
+        <td>{{ obj.parameter_list }}</td>
         <td>{{ obj.expected_value }}</td>
         <td>{{ obj.computed_value }} 
         <td>{% if obj.result %}

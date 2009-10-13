@@ -3,17 +3,17 @@ from django.utils.html import conditional_escape
 from django.utils.encoding import StrAndUnicode, smart_unicode, force_unicode
 from django.utils.safestring import mark_safe
 
-from stars.apps.dashboard.credit_editor.forms import ConfirmDelete
+from stars.apps.helpers.forms.forms import ConfirmDelete, HiddenCounterForm
 from stars.apps.helpers import flashMessage
 
-def object_ordering(request, object_list, form_class, ignore_errors=True, ignore_post=False, ignore_object=False):
+def object_ordering(request, object_list, form_class, ignore_errors=True, ignore_post=False, ignore_objects=[]):
     """
         This is a helper function that reduces duplicate code for processing reordering submissions
         It returns a list of (object, ordering form) sets
         the model form should have a __cmp__ function for ordering
         If you are editing more than just the ordering data set ignore_errors to False
         If you want to ignore the post and just get the list use ignore_post
-        ignore_object means this object may not have been included in the post, such as a new object
+        ignore_objects are object that may not have been included in the post, such as a new objects
     """
     errors = False
     reordered = False
@@ -27,13 +27,14 @@ def object_ordering(request, object_list, form_class, ignore_errors=True, ignore
             form = form_class(request.POST, instance=obj, prefix="ordering_%d" % obj.id)
             object_ordering.append({'obj': obj, 'form': form})
             
-            if obj != ignore_object:
+            if obj not in ignore_objects:
                 if form.is_valid():
-                    new_ordinal = int(form.cleaned_data['ordinal'])
-                    if new_ordinal != obj.ordinal:
+                    if form.has_changed():
+                        old_ordinal = obj.ordinal
                         obj = form.save()
-                        parents.add(obj.get_parent())  # probably the same parent for all objects in the list
-                        reordered = True
+                        if obj.ordinal != old_ordinal:
+                            parents.add(obj.get_parent())  # probably the same parent for all objects in the list
+                            reordered = True
                 else:
                     errors = True
                     # we can safely ignore these errors if ignore_errors, because there is no user input
@@ -42,7 +43,7 @@ def object_ordering(request, object_list, form_class, ignore_errors=True, ignore
     else:
         sorted_list = object_list
 
-    if errors:
+    if errors and not ignore_errors:
         flashMessage.send("Unable to update order - Please correct the errors below", flashMessage.ERROR)
     elif reordered:
         flashMessage.send("Order was updated successfully.", flashMessage.SUCCESS)            
@@ -65,21 +66,26 @@ def object_ordering(request, object_list, form_class, ignore_errors=True, ignore
     
     return [object_ordering, reordered]
 
-def _get_class_label(klass, method):
+def _get_class_label(klass, method, plural=False):
     """ Helper: Get a user-friendly label for the given class using the given method name"""
-    return getattr(klass, method)() if hasattr(klass, method) else klass.__name__
-
-def _get_form_label(klass):    
+    if plural:
+        label = "%ss"%getattr(klass, method)() if hasattr(klass, method) else unicode(klass._meta.verbose_name_plural)
+    else:
+        label = getattr(klass, method)() if hasattr(klass, method) else unicode(klass._meta.verbose_name)
+    return label.capitalize()
+ 
+def _get_form_label(klass, plural=False):    
     """ Helper: Get a user-friendly label for the given form class """
-    return _get_class_label(klass, "form_name")
+    return _get_class_label(klass, "form_name", plural)
 
-def _get_model_label(klass):    
+def _get_model_label(klass, plural=False):    
     """ Helper: Get a user-friendly label for the given model class """
-    return _get_class_label(klass, "model_name")
+    return _get_class_label(klass, "model_name", plural)
 
-def _perform_save_form(request, instance, prefix, form_class, save_msg="Changes saved successfully", commit=True):
+def _perform_save_form(request, instance, prefix, form_class, save_msg="Changes saved successfully", commit=True, flash_message=True):
     """
         Helper: for internal use only
+        if flash_message is True, the save msg or an error message will be sent to the user.
         Returns the object form and a saved flag, which is true if the form data was saved to the instance
     """
     saved = False
@@ -89,8 +95,10 @@ def _perform_save_form(request, instance, prefix, form_class, save_msg="Changes 
             instance = object_form.save(commit=commit)
             if commit:
                 saved = True
-            flashMessage.send("%s %s: %s"%(_get_model_label(instance.__class__), instance, save_msg), flashMessage.SUCCESS)
-        else:
+        #@todo: only send message if form.has_change()
+        if saved and flash_message:
+            flashMessage.send("%s '%s': %s"%(_get_model_label(instance.__class__), instance, save_msg), flashMessage.SUCCESS)
+        elif flash_message:
             flashMessage.send("%s: Please correct the errors below"%_get_form_label(form_class), flashMessage.ERROR)            
     else: 
         object_form = form_class(instance=instance, prefix=prefix)
@@ -117,6 +125,45 @@ def basic_save_new_form(request, instance, prefix, form_class, commit=True):
         except:  # if parent didn't have an update_ordering method, no worries!
             pass
     return [object_form, saved]
+
+def save_new_form_rows(request, prefix, form_class, instance_class, **instance_constructor_args):
+    """
+        Provides form handling for saving a list of new models.
+        Intended to work with the clone_form_row.js script, which relies on a the HiddenCounterForm to count new forms.
+        Assumes that all instances have the same parent, usually specified by the instance_constructor_args
+          prefix for instance forms in request
+          form_class - the form class for saving an instance
+          instance_class - duh
+          instance_constructor_args - passed as:  instance_class( instance_constructor_args)
+        Returns a list of new instances, and an error flag, which is true if any errors were encountered saving the forms.
+    """
+    errors = []
+    instances = []
+    if request.method == 'POST':
+        count_form = HiddenCounterForm(request.POST)
+        if count_form.is_valid():
+            count = int(count_form.cleaned_data['counter'])                
+            for i in xrange(count):
+                new_instance = instance_class(**instance_constructor_args)    
+                (object_form, new_instance, saved) = _perform_save_form(request, new_instance, '%s_new%s'%(prefix, str(i)), form_class, flash_message=False)
+                if saved:
+                    instances.append(new_instance)
+                else:
+                    errors.append(object_form.errors)
+            if errors:  # this error message will not be pretty!
+                flashMessage.send("%s: %s"%(_get_form_label(form_class), errors), flashMessage.ERROR)            
+            elif count > 0:
+                flashMessage.send("%s new %s were created successfully."%(count, _get_model_label(instance_class, plural=True)), flashMessage.SUCCESS)
+        else:
+            flashMessage.send("%s: %s"%(_get_form_label(form_class), count_form.errors['counter']), flashMessage.ERROR)            
+        
+    if len(instances) > 0:
+        try:  # Notify the parent object that new children objects were just added - assumes they all have the same parent.
+            instances[0].get_parent().update_ordering()
+        except:  # if parent didn't have an update_ordering method, no worries!
+            pass
+    return [instances, len(errors)>0]
+
 
 def confirm_delete_form(request, instance, delete_method=None):
     """

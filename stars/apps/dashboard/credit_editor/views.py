@@ -7,6 +7,7 @@ from stars.apps.auth.decorators import user_is_staff
 from stars.apps.credits.models import *
 from stars.apps.submissions.models import CreditTestSubmission
 from stars.apps.helpers.forms import form_helpers
+from stars.apps.helpers.forms.forms import HiddenCounterForm
 from stars.apps.helpers import flashMessage
 from stars.apps.dashboard.credit_editor.forms import *
 
@@ -291,7 +292,7 @@ def credit_fields(request, creditset_id, category_id, subcategory_id, credit_id)
     credit = context['credit']
     
     # Build and process the form for adding a new field
-    new_field_form = DocumentationFieldForm(prefix='new_field')
+    new_field_form = NewDocumentationFieldForm(prefix='new_field')
     
     # Build and process the form for ordering fields
     (object_ordering, reordered) = form_helpers.object_ordering(request, credit.documentationfield_set.all(), DocumentationFieldOrderingForm)
@@ -328,24 +329,32 @@ def field_detail(request, creditset_id, category_id, subcategory_id, credit_id, 
     field = context['field']
             
     # Build and process the form for the field
-    f_type = field.selection_type  ### ?????
-    ignore_choice_post = False
-    (object_form, saved) = form_helpers.basic_save_form(request, field, 'field_%d' % field.id, DocumentationFieldForm)
+    (field_form, saved) = form_helpers.basic_save_form(request, field, 'field_%d' % field.id, DocumentationFieldForm)
     
-    # Build the form for ordering choices - this form is processed by a custom view to avoid interfering with custom validation on the object_form above.
-    (object_ordering, reordered) = form_helpers.object_ordering(request, field.choice_set.filter(is_bonafide=True), ChoiceOrderingForm, ignore_post=True)
-    # Build the form for adding a new choice - also processed by a custom view.
-    new_choice_form = ChoiceForm(prefix='new_choice')
+    # @todo: If the type field changed, check if there are any submissions affected and redirect to a warning view if so.
+    #        The warning view should list the affected submissions, modify them (remove choice and reset status), and then re-direct here
+    #        But how to keep track of the original POST data in the mean time???
+
+    # An arbitrary number of new choices may have been added to the choice ordering form - save the choices.
+    (new_choices, new_choice_errors) = \
+          form_helpers.save_new_form_rows(request, 'ordering', ChoiceForm, Choice, documentation_field=field)
+    # Set-up an empty choice form for adding another choice...
+    new_choice_form = ChoiceForm(instance=Choice(documentation_field = field), prefix='ordering_new0')
     
+    # Build the form for editing and ordering choices - this form is processed by a custom view to avoid interfering with custom validation on the object_form above.
+    choices = field.choice_set.filter(is_bonafide=True)
+    (object_ordering, reordered) = form_helpers.object_ordering(request, choices, ChoiceOrderingForm, ignore_errors=not field.is_choice() or new_choice_errors, ignore_objects=new_choices)
+        
     template = 'dashboard/credit_editor/credits/field_detail.html'
-    context.update({'object_form': object_form,
-                    'object_ordering':object_ordering, 
-                    'new_choice_form':new_choice_form,
-                    'show_choices':field.is_choice(),
-                    'expand_choices':request.GET.get('expand_choices')
+    context.update({'field_form': field_form,
+                    'object_ordering': object_ordering,
+                    'new_choice_form': new_choice_form,
+                    'hidden_counter_form': HiddenCounterForm(),  # always start with an unbound counter form.
+                    'choice_state':'expanded' if field.is_choice() else 'hidden',
+                    'field_help_state':'collapsed' if field.inline_help_text or field.tooltip_help_text else 'expanded',
                    })
     return respond(request, template, context)
-    
+
 @user_is_staff
 def delete_field(request, creditset_id, category_id, subcategory_id, credit_id, field_id):
     """

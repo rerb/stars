@@ -1,5 +1,10 @@
 {% extends "dashboard/credit_editor/credits/fields.html" %}
 
+{% block extra_head %}
+  {{ block.super }}
+  <script src='/media/static/js/clone_form_row.js' type='text/javascript'></script>
+{% endblock %}
+
 {% block crumbs %}
     {% load ce_tags %}
     {% show_editor_crumbs field %}
@@ -26,38 +31,52 @@
         </table>
     </div>
     <h2>Properties</h2>
-  <div style="position:relative;">
-    <form action='.' method='POST'>
-        {% include 'dashboard/credit_editor/standard_form_with_delete.html' %}
-    </form>
+    <form id='documentationfield_form' name='documentationfield_form' action='.' method='POST'>
+        {{ hidden_counter_form }} 
+        {% load fieldsets %}
+		<table class='form'>
+		    <tr><td>
+		       {% fieldset 'Field Definition' with title,type as fields from field_form 'non_collapsing' %}
+			       {% include 'dashboard/credit_editor/form_fields.html' %}
+			   {% endfieldset %}
 
-    <div id='field_choices' class={% if show_choices %}'visible'{% else %}'hidden'{% endif %}>
-        <span class='title' style='cursor: pointer' onclick='expand_new_form(this)' title='Choices'>
-            <img src='/media/static/images/expand.png' title='Edit Choices' alt='+' />
-            Choices
-        </span>
-        <div class='form' id='new_form' style='display:none'>
-            {% if object_ordering %}
-              <form action='{{ field.get_edit_url }}reorder-choices/' method='POST'>
-                <table class='list' id='dndtable'>
-                    {% include 'dashboard/credit_editor/ordering_form_table.html' %}
-                </table>
-              </form>
-            {% endif %}
-           <form action='{{ field.get_edit_url }}add-choice/' method='POST' style='margin: 0px;'>
-              <table style="border:1px solid #222222;"><tr><td>
-                {% if new_choice_form.choice.errors %}{{ new_choice_form.errors.choice }}<br/>{% endif %}
-                <label>Add Choice:</label>
-                {{ new_choice_form.choice }}
-                <input type='submit' value='Add' />
-              </td></tr></table>
-           </form>
-        </div>
-        {% if expand_choices %}
-          <script>
-            expand_new_form(document.getElementById('field_choices'));
-          </script>
-        {% endif %}
-    </div>
-  </div>
+			   {% fieldset 'Field Choices' with last_choice_is_other as fields from field_form choice_state %}			        
+			        <div class='form' id='choice_ordering_form'>
+			            {% include 'dashboard/credit_editor/credits/choice_ordering_form.html' %}
+			            {% include 'dashboard/credit_editor/form_fields.html' %}            
+			        </div>
+               {% endfieldset %}
+	          
+                {% fieldset 'Field Options' %}
+                      <div id='units' class={% if field.can_have_units %}'visible'{% else %}'hidden'{% endif %}>
+                        {% get_fieldset units as fields from field_form %}
+                        {% include 'dashboard/credit_editor/form_fields.html' %}
+                      </div>
+					  <div id='range' class={% if field.can_have_min_max %}'visible'{% else %}'hidden'{% endif %}>
+					    {% get_fieldset min_range,max_range as fields from field_form %}
+					    {% include 'dashboard/credit_editor/form_fields.html' %}
+					  </div>
+                      {% get_fieldset is_required,is_confidential as fields from field_form %}
+                      {% include 'dashboard/credit_editor/form_fields.html' %}
+                    </div>
+               {% endfieldset %}
+
+               {% fieldset 'Field Help' with inline_help_text,tooltip_help_text as fields from field_form field_help_state %}
+                      {% include 'dashboard/credit_editor/form_fields.html' %}
+               {% endfieldset %}
+		    </td></tr>
+		    <tr><td class='buttonRow'>
+		        <button type='submit'>save</button>
+                <button type='button' onclick='document.location="{{ object_form.instance.get_delete_url }}";'>delete</button>
+		    </td></tr>
+		</table>
+    </form>
+    
+	{% comment %} Submit the form when the type selector changes.  @todo: verfiy whether any submissions will be affected by the change during the round-trip {% endcomment %}
+	<script>
+	    form = document.getElementById('documentationfield_form');
+	    var submitform = function () { form.submit(); }
+        form.getElementsByTagName('select')[0].onchange = submitform;
+	</script>
+        
 {% endblock %}

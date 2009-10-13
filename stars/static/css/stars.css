@@ -467,6 +467,7 @@ td.buttonRow {
 
 td.buttonColumn {
     white-space: nowrap;
+    color: #aaa;
 }
 
 table.properties {
@@ -620,25 +621,41 @@ div#reason_choices {
     background-color: #ffe;
 }
 
-div#field_choices {
-    padding: 5px;
-    border: 1px dotted #222;
-    background-color: #EBF9C8;
-    position: absolute;
-    top: 50px;
-    left: 290px;
-    width:290px;
-    opacity: 0.9;
-    overflow: visible;
+fieldset {
+    border: 1px solid #aaa;
 }
 
-div#field_choices span.title{
-    color: #072A60;
-    text-align: left;
-    font-size: 1.2em;
+fieldset.expanded div {
+  visibility: visible;
+}
+
+fieldset.collapsed {
+	border-top-color: #0000BB;
+	border-bottom-style: none;
+	border-left-style: none;
+	border-right-style: none;
+}
+
+fieldset legend {
+    color:#072A60;
+}
+
+fieldset.non_collapsing legend {
+	color: #aaa;
+}
+
+fieldset.collapsed div {
+  visibility: hidden;
+  display:none;
+}
+
+fieldset#field_choices {
+    padding: 5px;
+    background-color: #EBF9C8;
+    overflow: visible;
 }
 	
-div#field_choices div#new_form table{
+fieldset#field_choices div#choice_ordering_form table{
 	background-color:#fff;
 }
 
@@ -830,12 +847,13 @@ div#flash_message ul li.success {
 ul.no_bullets {
   list-style-type: none;
 }
-div.visible {
+.visible {
   visibility: visible;
 }
 
-div.hidden {
+.hidden {
   visibility: hidden;
+  display:none;
 }
 
 div#flash_message img.close,

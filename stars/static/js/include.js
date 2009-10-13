@@ -19,6 +19,21 @@ function collapse_expand(dom_obj) {
 	//dom_obj.innerHTML = (dom_obj.innerHTML == "+") ? '-' : '+';
 }
 
+function expand_collapse_fieldset(legend_obj) {
+    img_obj = legend_obj.getElementsByTagName('img')[0];
+    fieldset = legend_obj.parentNode;
+    if( fieldset.className == 'collapsed' ) {
+        img_obj.src = '/media/static/images/collapse.png';
+        img_obj.alt = '-';
+        fieldset.className = 'expanded';
+    }
+    else {
+        img_obj.src = '/media/static/images/expand.png';
+        img_obj.alt = '+';
+        fieldset.className = 'collapsed';
+    }
+}
+
 function collapse_table(a_obj) {
 	var th = a_obj.parentNode;
     var tr = th.parentNode;

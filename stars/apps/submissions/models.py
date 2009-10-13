@@ -422,11 +422,7 @@ class CreditSubmission(models.Model):
     
     def get_submission_field_values(self):
         """ Returns the list of documentation field values for this submission """
-        fields = self.get_submission_fields()
-        values = []
-        for field in fields:
-            values.append(field.get_value())
-        return values
+        return [field.get_value() for field in self.get_submission_fields()]    
 
     def get_submission_field_key(self):
         """ Returns a dictionary with identifier:value for each submission field """
@@ -603,25 +599,28 @@ class CreditTestSubmission(CreditSubmission):
         """ Returns the URL of the page to confirm deletion of this object """
         return "%sadd-test/" % (self.credit.get_formula_url(),)
 
-    def field_values(self):
-        return ','.join([str(field) for field in self.get_submission_field_values()])
+    def parameter_list(self):
+        """ Returns a string with this submission's field values formatted as a parameter list """
+        return ','.join([field.__str__() for field in self.get_submission_fields()])
 
     def __unicode__(self):
-        return "f( %s ) = %s" % (self.field_values(), self.expected_value)
+        return "f( %s ) = %s" % (self.parameter_list(), self.expected_value)
 
     def __str__(self):
         return "<CreditTestSubmission: expected=%s  %s>"%(self.expected_value, super(CreditTestSubmission,self).__str__() )
 
 """        
 DOCUMENTATION_FIELD_TYPES = (
-    ('url', 'url'),
-    ('date', 'date'),
-    ('numeric', 'numeric'),
     ('text', 'text'),
     ('long_text', 'long text'),
+    ('numeric', 'numeric'),
+    ('boolean', 'yes/no'),
+    ('choice', 'choose one'),
+    ('multichoice', 'choose many'),
+    ('url', 'url'),
+    ('date', 'date'),
     ('upload', 'upload'),
     ('multiple_upload', 'multiple upload'),
-    ('boolean', 'yes/no'),
 )
 """
 
@@ -637,7 +636,12 @@ class DocumentationFieldSubmission(models.Model):
         unique_together = ("documentation_field", "credit_submission")
         
     def __unicode__(self):
+        """ return the title of this submission field """
         return self.documentation_field.title
+
+    def __str__(self):
+        """ return a string representation of the submission' value """
+        return str(self.get_value())
     
     def get_parent(self):
         """ Used for building crumbs """
@@ -652,32 +656,23 @@ class DocumentationFieldSubmission(models.Model):
         """
             Returns the related DocumentationFieldSubmission model class for a particular documentation field
         """
-        # Choice fields are determined by the selection type rather than the field type - they always store a foreign key to a Choice
-        if field.is_single_choice():
-            if field.has_other_choice():
-                return ChoiceWithOtherSubmission
-            else:
-                return ChoiceSubmission
-        if field.is_multi_choice():
-            if field.has_other_choice():
-                return MultiChoiceWithOtherSubmission
-            else:
-                return MultiChoiceSubmission
-        
-        # @todo: form class name from constant, ala: FieldClass = getattr(SubmissionsForms, "%sSubmission" % SubClassName[field_type] , None)
-        if field.type == 'url':
-            return URLSubmission
-        if field.type == 'date':
-            return DateSubmission
-        if field.type == 'numeric':
-            return NumericSubmission
         if field.type == 'text':
             return TextSubmission
         if field.type == 'long_text':
             return LongTextSubmission
+        if field.type == 'numeric':
+            return NumericSubmission
+        if field.type == 'choice':
+            return ChoiceWithOtherSubmission if field.has_other_choice() else ChoiceSubmission
+        if field.type == 'multichoice':
+            return MultiChoiceWithOtherSubmission if field.has_other_choice() else MultiChoiceSubmission
         if field.type == 'boolean':
             return BooleanSubmission
-            
+        if field.type == 'url':
+            return URLSubmission
+        if field.type == 'date':
+            return DateSubmission
+       
         return None
     get_field_class = staticmethod(get_field_class)
 
@@ -690,22 +685,29 @@ class DocumentationFieldSubmission(models.Model):
     def mark_required(self):
         """ Should this field be marked as required? """
         return self.documentation_field.is_required and self.value == None
-                
+                    
     def get_value(self):
         """ Use this accessor to get this submission's value - rather than accessing .value directly """
         return self.value
-    
+
     def get_units(self):
-        """ Return the units associated with the choices in this submission """
-        return self.documentation_field.units
+        """ Return the units associated with the field for this submission """
+        return self.documentation_field.get_units()
     
-    def __str__(self):
-        return "<Doc Field Sub. value = %s>" %self.get_value()
 
 class AbstractChoiceSubmission(DocumentationFieldSubmission):
     class Meta:  
         abstract = True
 
+    def __str__(self):
+        """ return a string representation of the submission' value """
+        choice = self.get_value()
+        return self._get_str(choice)
+
+    @staticmethod
+    def _get_str(choice):
+        return '<%d:%s>'%(choice.ordinal, choice.choice) if choice else '<None>'
+        
     def get_choice_queryset(self):
         """ Return the queryset used to define the choices for this submission """
         return Choice.objects.filter(documentation_field=self.documentation_field).filter(is_bonafide=True)
@@ -727,8 +729,31 @@ class ChoiceSubmission(AbstractChoiceSubmission):
     def get_value(self):
         """ Value is a Choice object, or None """
         return self.value
+
+class AbstractChoiceWithOther(object):
+    """ A base class for sharing the compress / decompress logig needed for Choice-with-other type submisssions """
+    def compress(self, choice, other_value):
+        """
+            Given a decompressed choice / other value pair into a single Choice value
+            Return a single Choice representing the selection, or None.
+            Assumes choice is a Choice and other_value has been properly sanatized!
+            See decompress() above, except compress is peformed during clean() in ModelChoiceWithOtherField
+        """
+        if not choice:
+            return None
+        if choice == self.get_last_choice() and other_value:  #The value is an 'other' - create the Choice object
+            # search for the 'other' choice value first - try to re-use an existing choice.
+            find = Choice.objects.filter(documentation_field=self.documentation_field).filter(choice=other_value)  #@todo: can this be case insensitive?
+            if len(find) > 0:
+                choice = find[0]
+            else:
+                choice = Choice(documentation_field=self.documentation_field, choice=other_value, is_bonafide = False)
+                choice.save()
+
+        return choice
+
     
-class ChoiceWithOtherSubmission(ChoiceSubmission):
+class ChoiceWithOtherSubmission(ChoiceSubmission, AbstractChoiceWithOther):
     """ A proxy model (does not create a new table) for a Choice Submission with an 'other' choice """
     class Meta:
         proxy = True
@@ -748,8 +773,7 @@ class ChoiceWithOtherSubmission(ChoiceSubmission):
         try:
             choice = Choice.objects.get(id=value)
         except:
-            print "Attempt to decompress non-existing ChoiceWithOther (id=%s)"%value
-            watchdog.log("Submissions", "Attempt to decompress non-existing ChoiceWithOther (id=%s)"%value, watchdog.ERROR)
+            watchdog.log("Submissions", "Attempt to decompress non-existing Choice (id=%s)"%value, watchdog.ERROR)
             return [None, None]
         if choice.is_bonafide:  # A bonafide choice is one of the actual choices
             return [value, None]
@@ -757,27 +781,20 @@ class ChoiceWithOtherSubmission(ChoiceSubmission):
             # value is not one of the bonafide choices - try to find it in the DB.
             # The selection is the last choice, and the Choice text is the 'other' field.
             return [self.get_last_choice().pk, choice.choice ]
-        
+
     def compress(self, choice, other_value):
         """
-            Given a compressed the choice / other value pair into a single Choice value
+            Given a decompressed choice / other value pair into a single Choice value
             Return a single Choice representing the selection, or None.
             Assumes choice is a Choice and other_value has been properly sanatized!
             See decompress() above, except compress is peformed during clean() in ModelChoiceWithOtherField
-            queryset is the QuerySet governing which bonafide choices are handled by the field.
         """
-        if not choice:
-            return None
-        if choice == self.get_last_choice() and other_value:  #The value is an 'other' - create the Choice object
-            # search for the 'other' choice value first - try to re-use an existing choice.
-            find = Choice.objects.filter(choice=other_value)  #@todo: can this be case insensitive?
-            if len(find) > 0:
-                choice = find[0]
-            else:
-                choice = Choice(documentation_field=self.documentation_field, choice=other_value, is_bonafide = False)
-            choice.save()
+        # Warn the user about potentially lost data
+        last_choice = self.get_last_choice()
+        if other_value and choice != last_choice:
+            flashMessage.send("Warning: '%s' will not be saved because '%s' was not selected."%(other_value, last_choice.choice), flashMessage.NOTICE)
+        return super(ChoiceWithOtherSubmission, self).compress(choice, other_value)
 
-        return choice
             
 class MultiChoiceSubmission(AbstractChoiceSubmission):
     """
@@ -791,21 +808,68 @@ class MultiChoiceSubmission(AbstractChoiceSubmission):
         # got to be careful here - many-to-many is only valid after submission has been saved.
         return self.value.all() if self.persists() else None 
 
-class MultiChoiceWithOtherSubmission(MultiChoiceSubmission):
+    def __str__(self):
+        """ return a string representation of the submission' value """
+        choices = self.get_value()
+        if not choices:
+            return "[ ]"
+        return '[%s]' %','.join([self._get_str(choice) for choice in choices])
+    
+
+class MultiChoiceWithOtherSubmission(MultiChoiceSubmission, AbstractChoiceWithOther):
     """ A proxy model (does not create a new table) for a MultiChoice Submission with an 'other' choice """
     class Meta:
         proxy = True
         
-    #@todo: Write the compress and decompress logic...
     def decompress(self, value):
+        """ 
+            Given a list of values (list of pk for  Choice objects), 
+            return a list of the form: [[choiceId1, choiceId2], otherValue], where
+             - choiceId's are the id's of the selected choices and otherValue is the the text value of 
+               the choice, if it is a non-bonafide (other) choice.
+            This is really the decompress logic for a SelectMultipleWithOtherWidget (MutliWidget), 
+              but needs to do "model"-type stuff, so it is passed to the widget via the form.
+        """
         if not value:
-            return [None, None]
-        return [value, None]  
- 
-    def compress(self, choice, other_value):
-        return choice
-          
+            return [[], None]
+        # The choice must be in the DB - this algorithm is not foolproof - could use a little more thought.
+        choice_list=[]
+        other = None
+        for choice_id in value:
+            try:
+                choice = Choice.objects.get(id=choice_id)
+            except:
+                watchdog.log("Submissions", "Attempt to decompress non-existing Choice (id=%s)"%choice_id, watchdog.ERROR)
+                return [[], None]
+            if not choice.is_bonafide:  # An 'other'  choice replace the choice with the last choice.
+                if other:
+                    watchdog.log("Submissions", "Found multiple 'other' choices (%s and %s) associated with single MultiChoiceWithOtherSubmission (id=%s)"%other, choice.choice, self_id, watchdog.ERROR)
+                else:
+                    choice_id = self.get_last_choice().pk
+                    other = choice.choice
+            choice_list.append(choice_id)
         
+        return [choice_list, other]
+    
+    def compress(self, choices, other_value):
+        """
+            Given a decompressed choice list / other value pair into a single Choice list
+            Return a list of Choices representing the selections, or None.
+            Assumes choices is a list of Choices and other_value has been properly sanatized!
+            See decompress() above, except compress is peformed during clean() in ModelMultipleChoiceWithOtherField
+        """
+        choice_list = []
+        for choice in choices:
+            choice_list.append( super(MultiChoiceWithOtherSubmission, self).compress(choice, other_value) )
+             
+        # Warn the user about potentially lost data
+        last_choice = self.get_last_choice()
+        if other_value and not last_choice in choices:
+            flashMessage.send("Warning: '%s' will not be saved because '%s' was not selected."%(other_value, last_choice.choice), flashMessage.NOTICE)
+
+        return choice_list
+
+
 class URLSubmission(DocumentationFieldSubmission):
     """
         The submitted value for a URL Documentation Field
@@ -885,4 +949,3 @@ class Payment(models.Model):
     
     def __unicode__(self):
         return "%s $%.2f" % (self.date, self.amount)
-    
