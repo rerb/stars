@@ -425,8 +425,8 @@ DOCUMENTATION_FIELD_TYPES = (
     ('multichoice', 'choose many'),
     ('url', 'url'),
     ('date', 'date'),
-    ('upload', 'upload'),
-    ('multiple_upload', 'multiple upload'),
+#    ('upload', 'upload'),
+#    ('multiple_upload', 'multiple upload'),
 )
 
 class Unit(models.Model):
@@ -445,7 +445,6 @@ class DocumentationField(models.Model):
     last_choice_is_other = models.BooleanField(default=False, help_text='If selected, the last choice provides a box to enter a user-defined choice')
     min_range = models.IntegerField(help_text='Numeric: miniumum integer value, Date: earliest year.', blank=True, null=True)
     max_range = models.IntegerField(help_text='Text: max character count, LongText: max word count, Numeric: max integer value, Date: latest year.', blank=True, null=True)
-#    selection_type = models.CharField(max_length=16, choices=SELECTION_TYPE_CHOICES, default='any', help_text='Does the user type a response, or do they select from choices? \'Choose One\' valid for numeric and text fields only. All other choice types valid for text fields only.')
     units = models.ForeignKey(Unit, null=True, blank=True)
     inline_help_text = models.TextField(null=True, blank=True)
     tooltip_help_text = models.TextField(null=True, blank=True)
