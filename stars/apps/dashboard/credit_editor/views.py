@@ -168,7 +168,10 @@ def subcategory_detail(request, creditset_id, category_id, subcategory_id):
         subcategory = get_object_or_404(Subcategory, id=subcategory_id)
 
     # Check for a changed Category
-    if subcategory.category != context['category']:        
+    if subcategory.category != context['category']:
+        # update the numbers
+        subcategory.category.update_ordering()
+        context['category'].update_ordering()
         return HttpResponseRedirect(subcategory.get_edit_url())
     
     template = "dashboard/credit_editor/subcategory.html"
@@ -235,6 +238,8 @@ def credit_detail(request, creditset_id, category_id, subcategory_id, credit_id)
     
     # Check for a changed subcategory
     if credit.subcategory != context['subcategory']:
+        credit.subcategory.category.update_ordering()
+        context['subcategory'].category.update_ordering()
         return HttpResponseRedirect(credit.get_edit_url())
     
     template = 'dashboard/credit_editor/credits/detail.html'
