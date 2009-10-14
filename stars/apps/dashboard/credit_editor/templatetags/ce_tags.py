@@ -16,7 +16,7 @@ def show_field_form(doc_field):
     submission_field = SubmissionFieldModelClass(documentation_field=doc_field) if SubmissionFieldModelClass else None
                     
     SubmissionFieldFormClass = SubmissionFieldForm.get_form_class(submission_field)
-    form = SubmissionFieldFormClass(None, instance=submission_field) if SubmissionFieldFormClass else None
+    form = SubmissionFieldFormClass(None, instance=submission_field)
     form.fields['value'].widget.attrs={'class': 'noMCE', 'disabled':'disabled'} # BUG!  If you take noMCE out here, things get weird!
     return{"documentation_field":doc_field, "field_form":form }
     

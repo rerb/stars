@@ -6,7 +6,7 @@ from django.utils.safestring import mark_safe
 from django.contrib.localflavor.us.models import PhoneNumberField
 
 from stars.apps.credits.models import *
-from stars.apps.institutions.models import *
+from stars.apps.institutions.models import Institution
 from stars.apps.helpers import watchdog
 from stars.apps.helpers import flashMessage
 from stars.apps.helpers import managers
@@ -45,6 +45,9 @@ class SubmissionSet(models.Model):
     rating = models.ForeignKey(Rating, blank=True, null=True)
     status = models.CharField(max_length=8, choices=SUBMISSION_STATUS_CHOICES)
     
+    class Meta:
+        unique_together = ("institution", "creditset")  # an institution can only register once for a given creditset.
+
     def __unicode__(self):
         return unicode(self.creditset)
         
@@ -914,17 +917,6 @@ class BooleanSubmission(DocumentationFieldSubmission):
         The submitted value for a Boolean Documentation Field
     """
     value = models.NullBooleanField(blank=True, null=True)
-
-class InstitutionState(models.Model):
-    """
-        Used to track the current state of an institution such as the current submission set
-    """
-    institution = models.OneToOneField(Institution, related_name='state')
-    active_submission_set = models.ForeignKey(SubmissionSet)
-
-    def __unicode__(self):
-        return unicode(self.institution)
-    
         
 PAYMENT_REASON_CHOICES = (
     ('reg', 'registration'),

@@ -130,7 +130,6 @@ class CheckboxSelectMultipleWithOtherWidget(AbstractChoiceMultiWidget):
            # This hack assumes CheckboxSelectMultiple widget is rendered as a list;
            # We are trying to insert the 'other' field just before the last </li> tag, containing the 'other' choice.
            # If there are units with that last choice, then insert just before the units.
-        #print "formatting: %s"%rendered_widgets[0]
         pre, tag, post = rendered_widgets[0].rpartition('</li>')
         pre, span, units = pre.rpartition("<span class='units'>")
         if span:

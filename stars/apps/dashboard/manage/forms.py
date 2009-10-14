@@ -36,7 +36,7 @@ class AdminSubmissionSetForm(ModelForm):
     """
         This form allows for editing of a SubmissionSet
     """
-    
+    #@todo: queryset for CreditSet choices should exclude CreditSets the insitution already has a SubmissionSet for.
     date_registered = forms.DateField(widget=SelectDateWidget(required=False))
     date_submitted = forms.DateField(widget=SelectDateWidget(required=False), required=False)
     date_reviewed = forms.DateField(widget=SelectDateWidget(required=False), required=False)

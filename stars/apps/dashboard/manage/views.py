@@ -5,8 +5,8 @@ from django.http import HttpResponseRedirect
 from stars.apps.auth.utils import respond
 from stars.apps.auth.decorators import user_is_inst_admin, user_is_staff
 from stars.apps.auth import xml_rpc
-from stars.apps.institutions.models import Institution, StarsAccount
-from stars.apps.submissions.models import SubmissionSet, InstitutionState, Payment
+from stars.apps.institutions.models import Institution, InstitutionState, StarsAccount
+from stars.apps.submissions.models import SubmissionSet, Payment
 from stars.apps.helpers.forms import form_helpers
 from stars.apps.helpers import watchdog
 from stars.apps.helpers import flashMessage
@@ -116,16 +116,7 @@ def submissionsets(request):
     
     return respond(request, 'dashboard/manage/submissionset_list.html', {'active_set': active_set})
     
-def set_active_submissionset(institution, submission_set):
-    """ A helper function to update an institution with an active submission_set """
-    try:
-        state = InstitutionState.objects.get(institution=institution)
-        if state.active_submission_set != submission_set:
-            state.active_submission_set = submission_set
-    except InstitutionState.DoesNotExist:
-        state = InstitutionState(institution=institution, active_submission_set=submission_set)
-    state.save()
-    
+        
 @user_is_inst_admin
 def add_submissionset(request):
     """
@@ -144,12 +135,8 @@ def add_submissionset(request):
     (object_form, saved) = form_helpers.basic_save_new_form(request, new_set, 'new_set', ObjectForm)
     if saved:
         # if this was the first one created then it should be active
-        try:
-            state = current_inst.state
-            if not state.active_submission_set:
-                set_active_submissionset(current_inst, new_set)
-        except InstitutionState.DoesNotExist:
-            set_active_submissionset(current_inst, new_set)
+        if current_inst.get_active_submission() is None:
+            current_inst.set_active_submission(new_set)
         return HttpResponseRedirect(settings.MANAGE_SUBMISSION_SETS_URL)
     
     template = 'dashboard/manage/add_submissionset.html'
@@ -173,6 +160,9 @@ def edit_submissionset(request, set_id):
         ObjectForm = AdminSubmissionSetForm
     
     object_form, saved = form_helpers.basic_save_form(request, submission_set, set_id, ObjectForm)
+
+    #print "date for %s is %s"%(current_inst, current_inst.state.active_submission_set.date_registered)
+    #print "   saved: %s"%submission_set.date_registered
     
     template = 'dashboard/manage/edit_submissionset.html'
     context = {
@@ -190,6 +180,6 @@ def activate_submissionset(request, set_id):
     
     submission_set = get_object_or_404(SubmissionSet, id=set_id)
     
-    set_active_submissionset(current_inst, submission_set)
+    current_inst.set_active_submission(submission_set)
     
     return HttpResponseRedirect(settings.MANAGE_SUBMISSION_SETS_URL)

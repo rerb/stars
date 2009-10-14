@@ -37,12 +37,38 @@ class Institution(models.Model):
         """ Returns the URL for institution admins to edit this institution """
         return "/dashboard/manage/"
         
-    def get_active_submission(self):
-        """ Returns the current SubmissionSet """
-        try:
-            return self.state.active_submission_set
-        except:
+    def get_state(self):
+        """ Returns the InstitutionState object associated with this institution, or None
+            - clients should generally access the more specific methods, like get_active_submission
+        """
+        try: 
+            #@todo:  this patched only - see ticket #252
+            state = InstitutionState.objects.get(institution = self)
+#            print "Retrieved state %s vs. %s"%(state.id, self.state.id)
+#            print "                %s vs. %s"%(state, self.state)
+#            print "Active Sub.: %s vs %s"%(state.active_submission_set.id, self.state.active_submission_set.id)
+#            print "     dates : %s vs %s"%(state.active_submission_set.date_registered, self.state.active_submission_set.date_registered)
+            return state
+#            return self.state   ## test case above shows that related field can get out-of-sync with DB
+                                 ## I think this is because the related field is cached with current_inst in the session, but that's a guess. 
+        except InstitutionState.DoesNotExist:
             return None
+        
+    def get_active_submission(self):
+        """ Returns the current SubmissionSet for this institution """
+        try:
+            return self.get_state().active_submission_set
+        except Exception,e:
+            return None
+        
+    def set_active_submission(self, submission_set):
+        """ Set this institution's active SubmissionSet """
+        state = self.get_state()
+        if state is None:
+            state = InstitutionState(institution=self, active_submission_set=submission_set)
+        elif state.active_submission_set != submission_set:
+            state.active_submission_set = submission_set
+        state.save()
 
     @staticmethod
     def find_institutions(snippet):
@@ -105,6 +131,20 @@ def _query_member_list(where_clause):
 
     db.close()
     return institution_list
+
+
+class InstitutionState(models.Model):
+    """
+        Tracks the current state of an institution such as the current submission set
+    """
+    from stars.apps.submissions.models import SubmissionSet
+
+    institution = models.OneToOneField(Institution, related_name='state')
+    active_submission_set = models.ForeignKey(SubmissionSet)
+
+    def __unicode__(self):
+        return unicode(self.institution)
+    
 
 STARS_USERLEVEL_CHOICES = [(x, x) for x in settings.STARS_PERMISSIONS]
 

@@ -15,10 +15,6 @@ class PaymentAdmin(admin.ModelAdmin):
     pass
 admin.site.register(Payment, PaymentAdmin)
 
-class InstitutionStateAdmin(admin.ModelAdmin):
-    pass
-admin.site.register(InstitutionState, InstitutionStateAdmin)
-
 class CategorySubmissionAdmin(admin.ModelAdmin):
     pass
 admin.site.register(CategorySubmission, CategorySubmissionAdmin)
