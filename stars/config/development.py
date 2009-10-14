@@ -13,7 +13,7 @@ DATABASE_USER = 'starsapp'
 DATABASE_PASSWORD = 'J3z4#$szFET--6'
 DATABASE_HOST = 'localhost'
 
-MEDIA_ROOT = '/var/www/vhosts/dev.aashe.org/subdomains/stars/httpdocs/media/'
+MEDIA_ROOT = '/var/www/stars.dev.aashe.org/media'
 
 SSO_SERVER_URI = WWW_SSO_SERVER_URI
 STARS_DOMAIN = DEV_STARS_DOMAIN
