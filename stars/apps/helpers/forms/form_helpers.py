@@ -90,7 +90,7 @@ def _perform_save_form(request, instance, prefix, form_class, save_msg="Changes 
     """
     saved = False
     if request.method == 'POST':
-        object_form = form_class(request.POST, instance=instance, prefix=prefix)
+        object_form = form_class(request.POST, request.FILES, instance=instance, prefix=prefix)
         if object_form.is_valid():
             instance = object_form.save(commit=commit)
             if commit:

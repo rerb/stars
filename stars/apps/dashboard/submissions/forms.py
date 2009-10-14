@@ -4,6 +4,7 @@ from django.forms import ModelForm
 from django import forms
 from django.forms.extras.widgets import SelectDateWidget
 from django.forms.util import ErrorList
+from django.contrib.admin.widgets import AdminFileWidget
 
 from stars.apps.helpers.forms import fields as custom_fields
 from stars.apps.helpers.decorators import render_with_units
@@ -201,13 +202,19 @@ class UploadSubmissionForm(ModelForm):
     """
         The submitted value for a File Upload Documentation Field
     """
-    #value = models.FileField()  @TODO file handling
+    class Meta:
+        model = UploadSubmission
+        fields = ['value']
+        
+    def __init__(self, *args, **kwargs):
+        """ Change the widget """
+        super(UploadSubmissionForm, self).__init__(*args, **kwargs)
+        self.fields['value'].widget = AdminFileWidget()
     
 class BooleanSubmissionForm(SubmissionFieldForm):
     class Meta:
         model = BooleanSubmission
         fields = ['value']
-
 
 class CreditSubmissionForm(ModelForm):
     """
@@ -264,7 +271,7 @@ class CreditSubmissionForm(ModelForm):
             SubmissionFieldFormClass = SubmissionFieldForm.get_form_class(field)
             if SubmissionFieldFormClass:
                 # bind the field form to the data (if there was any)
-                form = SubmissionFieldFormClass(data, instance=field, prefix="%s_%s"%(field.__class__.__name__,prefix) )
+                form = SubmissionFieldFormClass(data, self.files, instance=field, prefix="%s_%s"%(field.__class__.__name__,prefix) )
                 self._form_fields.append({'field': field, 'form': form})
                 
         return self._form_fields
@@ -330,11 +337,6 @@ class CreditUserSubmissionForm(CreditSubmissionForm):
         if self.instance.credit.applicabilityreason_set.all():
             self.fields['applicability_reason'].queryset=self.instance.credit.applicabilityreason_set.all()
             self.fields['submission_status'].widget = forms.RadioSelect(choices=CREDIT_SUBMISSION_STATUS_CHOICES_W_NA, attrs={'onchange': 'toggle_applicability_reasons(this)'})
-        # Populate the responsible_party with those tied to this institution
-        # choices = [(rp.id, rp) for rp in ResponsibleParty.objects.filter(institution=self.instance.get_institution())]
-        # choices.insert(0, ("", "Select Responsible Party"))
-        # self.fields['responsible_party'].widget = widgets.Select(choices=choices, attrs={'onchange': 'toggle_responsible_party(this)',})
-        #self.fields['responsible_party'].widget = widgets.Select(choices=[("", "--"),("1", "one")])
 
     def clean(self):
         """

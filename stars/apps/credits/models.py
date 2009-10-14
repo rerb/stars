@@ -425,7 +425,7 @@ DOCUMENTATION_FIELD_TYPES = (
     ('multichoice', 'choose many'),
     ('url', 'url'),
     ('date', 'date'),
-#    ('upload', 'upload'),
+    ('upload', 'upload'),
 #    ('multiple_upload', 'multiple upload'),
 )
 

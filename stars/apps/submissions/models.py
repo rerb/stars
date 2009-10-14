@@ -474,7 +474,7 @@ class CreditUserSubmission(CreditSubmission):
     internal_notes = models.TextField(help_text='This field is useful if you want to store notes for other people in your organization regarding this credit. They will not be published.', blank=True, null=True)
     submission_notes = models.TextField(help_text='Use this space to add any additional information you may have about this credit. This will be published along with your submission.', blank=True, null=True)
     responsible_party_confirm = models.BooleanField()
-    responsible_party = models.ForeignKey(ResponsibleParty)
+    responsible_party = models.ForeignKey(ResponsibleParty, blank=True, null=True)
 
     class Meta:
         # @todo: the unique clause needs to be added at the DB level now :-(
@@ -672,6 +672,8 @@ class DocumentationFieldSubmission(models.Model):
             return URLSubmission
         if field.type == 'date':
             return DateSubmission
+        if field.type == 'upload':
+            return UploadSubmission
        
         return None
     get_field_class = staticmethod(get_field_class)
@@ -903,8 +905,9 @@ class LongTextSubmission(DocumentationFieldSubmission):
 class UploadSubmission(DocumentationFieldSubmission):
     """
         The submitted value for a File Upload Documentation Field
+        @todo: custom storage engine to rename files
     """
-    #value = models.FileField()  @TODO file handling
+    value = models.FileField(upload_to='uploads', blank=True, null=True)
     
 class BooleanSubmission(DocumentationFieldSubmission):
     """
