@@ -261,9 +261,11 @@ class CreditSubmissionForm(ModelForm):
         #          we need to be careful that the forms receive data=None instead of data={}, otherwise the Form binds the field to the empty dict rather than the instance!!!
         if self.is_bound:
             data = self.data
+            files = self.files
         else:
             data = None
-
+            files = None
+            
         # build the form fields based on the data and instance bound to this form.
         prefix = 0  # Ideally, form prefix would be submission field id, but this may not be set yet, and each must be unique.
         for field in self.instance.get_submission_fields():
@@ -271,7 +273,7 @@ class CreditSubmissionForm(ModelForm):
             SubmissionFieldFormClass = SubmissionFieldForm.get_form_class(field)
             if SubmissionFieldFormClass:
                 # bind the field form to the data (if there was any)
-                form = SubmissionFieldFormClass(data, self.files, instance=field, prefix="%s_%s"%(field.__class__.__name__,prefix) )
+                form = SubmissionFieldFormClass(data, files, instance=field, prefix="%s_%s"%(field.__class__.__name__,prefix) )
                 self._form_fields.append({'field': field, 'form': form})
                 
         return self._form_fields
