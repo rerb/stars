@@ -522,7 +522,7 @@ class DocumentationField(models.Model):
         """ Returns the URL of the page to confirm deletion of this object """
         return "%sdelete/" % self.get_edit_url()
     
-    def is_required(self):
+    def get_is_required(self):
         """ Return true if this field is required to complete a submission """
         return self.required == 'req'
     

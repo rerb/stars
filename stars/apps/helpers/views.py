@@ -32,6 +32,7 @@ def migrate_doc_field_required(request):
     """ Migrate data from the is_required  boolean field to the required choice field 
         Run this script when upgrading from rev. 526 or earlier to rev. 528 or later
          - be sure both is_required and required fields are defined in DocumentationField model
+         - be sure the is_required() method in DocumentationField model is NOT defined (comment it out)
          - in DB:  alter table credits_documentationfield add required varchar(8) def 'req' not null;
          - visit http://your.stars.site/migrate_required
          - in DB: alter table credits_documentationfield drop is_required
@@ -52,7 +53,7 @@ def migrate_doc_field_required(request):
         field.save()
         count +=1
         
-    flashMessage.send("Data successfully migrated % fields from is_required to required field - drop is_required from DB."%count, flashMessage.SUCCESS)
+    flashMessage.send("Data successfully migrated %s fields from is_required to required field - drop is_required from DB."%count, flashMessage.SUCCESS)
     return HttpResponseRedirect(settings.DASHBOARD_URL)
 
 def test(request):
