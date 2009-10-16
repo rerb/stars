@@ -203,17 +203,6 @@ class StarsAccount(models.Model):
         """
         return _has_perm(self, perm)
 
-    def is_locked(self):
-        """
-            Accounts that are part of the submission set cannot be removed - they are locked.
-        """
-        for submission in self.institution.submissionset_set.all():
-            if submission.registering_user == self.user or \
-               submission.submitting_user == self.user:
-                return True
-        # assert:  account is not for a user registered as part of the submission.
-        return False
-        
 def _has_perm(account, perm):
     """ Helper so that StarsAccount and DuckAccount can share logic """
         # admin users can submit, otherwise permissions and roles are synonymous

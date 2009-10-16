@@ -2,11 +2,6 @@
 
 {% block institution_content %}
     <h2>Delete User Account: {{account.user}}</h2>
-    {% if account.is_locked %}
-        <div class='warning'>
-            This account is part of an {{account.institution}}'s submission - it should not be deleted!
-        </div>
-    {% endif %}
     {% ifequal account.user user %}
         <div class='warning'>
             You are about to delete your own account!

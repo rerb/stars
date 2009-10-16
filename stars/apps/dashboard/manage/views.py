@@ -91,11 +91,6 @@ def delete_account(request, account_id):
     # Just give a 404 if the account_id doesn't belong to the user's institution
     account = get_object_or_404(StarsAccount, id=account_id, institution=request.user.current_inst)
     
-    # Only staff can delete accounts for users who are part of the submission object
-    if account.is_locked() and not request.user.is_staff:
-        flashMessage.send("%s cannot be deleted - this account is registered with the %s's submission."%(account.user, account.institution), flashMessage.ERROR)
-        return HttpResponseRedirect(settings.MANAGE_USERS_URL)
-        
     (form, deleted) = form_helpers.confirm_delete_form(request, account)       
     if deleted:
         watchdog.log('Inst. Admin', "Account: %s deleted.", watchdog.NOTICE)
