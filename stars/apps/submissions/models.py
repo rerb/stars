@@ -446,7 +446,7 @@ class CreditSubmission(models.Model):
         if not self.persists(): # New submissions are incomplete - don't try to access fields yet!
             return False
         for field in self.get_submission_fields():
-            if field.documentation_field.get_is_required() and not field.value:
+            if field.documentation_field.is_required() and not field.value:
                 return False
         # assert: all required fields contain a value.
         return True

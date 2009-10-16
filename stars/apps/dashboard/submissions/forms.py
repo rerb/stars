@@ -327,7 +327,7 @@ class CreditSubmissionForm(ModelForm):
         for field in self.get_submission_fields_and_forms():
             form_value = field['form'].cleaned_data.get("value")
             doc_field = field['field'].documentation_field
-            if doc_field.get_is_required() and form_value in (None, "", []):
+            if doc_field.is_required() and form_value in (None, "", []):
                 field['form'].append_error( u"This field is required to mark this credit complete.")
         
     def _has_errors(self):
