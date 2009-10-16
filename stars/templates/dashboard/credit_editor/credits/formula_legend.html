@@ -1,11 +1,12 @@
 <h3>Credit Formula: Documentation Field Identifiers</h3>
 <table id='credit_forumla_legend' width="95%" align="center">
-    <tr><th>Field Identifier</th><th>Question</th><th>Type</th></tr>
+    <tr><th>Field Identifier</th><th>Question</th><th colspan=2>Type</th></tr>
     {% for field in documentation_fields %}
     <tr>
-        <td width="30%">{{ field.identifier }}</td>
+        <td width="20%">{{ field.identifier }}</td>
         <td width="50%">{{ field.title }}</td>
-        <td width="20%">{{ field.type }}</td>
+        <td width="15%">{{ field.type }}</td>
+        <td width="15%">{% if field.is_required %} required {% else %} optional {% endif %}</td>
     </tr>
     {% endfor %}
     <tr><td colspan=3>

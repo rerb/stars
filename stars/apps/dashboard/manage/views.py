@@ -163,6 +163,8 @@ def edit_submissionset(request, set_id):
 
     #print "date for %s is %s"%(current_inst, current_inst.state.active_submission_set.date_registered)
     #print "   saved: %s"%submission_set.date_registered
+    ## test case above shows that related field can get out-of-sync with DB
+    ## I think this is because the related field is cached with current_inst in the session, but that's a guess. 
     
     template = 'dashboard/manage/edit_submissionset.html'
     context = {

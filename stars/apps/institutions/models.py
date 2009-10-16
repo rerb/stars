@@ -42,15 +42,10 @@ class Institution(models.Model):
             - clients should generally access the more specific methods, like get_active_submission
         """
         try: 
-            #@todo:  this patched only - see ticket #252
+            #@todo:  this patched only - see ticket #252  & test case in edit_submissionset view, line 164
             state = InstitutionState.objects.get(institution = self)
-#            print "Retrieved state %s vs. %s"%(state.id, self.state.id)
-#            print "                %s vs. %s"%(state, self.state)
-#            print "Active Sub.: %s vs %s"%(state.active_submission_set.id, self.state.active_submission_set.id)
-#            print "     dates : %s vs %s"%(state.active_submission_set.date_registered, self.state.active_submission_set.date_registered)
             return state
-#            return self.state   ## test case above shows that related field can get out-of-sync with DB
-                                 ## I think this is because the related field is cached with current_inst in the session, but that's a guess. 
+#            return self.state   ## related field can get out-of-sync with DB??? see ticket #252
         except InstitutionState.DoesNotExist:
             return None
         

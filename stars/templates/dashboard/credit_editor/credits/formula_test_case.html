@@ -72,7 +72,10 @@
      {% endblock %}
     <form action='.' method='POST'>
         {% include "dashboard/submissions/submission_fields_form.html" %}
-        {{ submission_form.as_p }}
+        <hr>
+        {% with submission_form.expected_value as field %}
+          {% include "dashboard/form_field.html" %}
+        {% endwith %}
         <input type='submit' value='submit' />
         <button type='button' onclick="confirm_action('Are you sure?', '{{  test_case.get_delete_url  }}')">delete</button>
     </form>

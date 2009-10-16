@@ -317,7 +317,7 @@ def add_field(request, creditset_id, category_id, subcategory_id, credit_id):
             
     new_field = DocumentationField(credit=context['credit'])
     
-    (object_form, saved) = form_helpers.basic_save_new_form(request, new_field, 'new_field', DocumentationFieldForm)
+    (object_form, saved) = form_helpers.basic_save_new_form(request, new_field, 'new_field', NewDocumentationFieldForm)
     if saved:
         return HttpResponseRedirect(new_field.get_edit_url())
     
@@ -494,7 +494,7 @@ def delete_applicability(request, creditset_id, category_id, subcategory_id, cre
     return respond(request, template, context)
     
 
-############### CREDIT FORMULA and TEST CASES ######################
+############### CREDIT FORMULA (with custom VALIDATION) and TEST CASES ######################
 def _get_credit_formula_context(creditset_id, category_id, subcategory_id, credit_id):
     context = _get_credit_context(creditset_id, category_id, subcategory_id, credit_id)
     # Retrieve the list of documentation fields for this credit
@@ -505,7 +505,7 @@ def _get_credit_formula_context(creditset_id, category_id, subcategory_id, credi
 @user_is_staff
 def credit_formula(request, creditset_id, category_id, subcategory_id, credit_id):
     """
-        Edit the formula along with test data for a particular credit
+        Edit the formula and validation rules along with test data for a particular credit
     """
     context = _get_credit_formula_context(creditset_id, category_id, subcategory_id, credit_id)
     credit = context['credit']
@@ -522,10 +522,10 @@ def credit_formula(request, creditset_id, category_id, subcategory_id, credit_id
     test_case_list = [] 
     new_test_form = None
     if credit.formula and (request.method == 'GET' or formula_form.is_valid()):  # don't do this if the formula was not valid, otherwise message applies to credit's old formula rather than current formula on form
-        (success, message) = credit.compile_formula()
-        if not success or request.method == 'POST' :
-            flashMessage.send( message, flashMessage.NOTICE if success else flashMessage.ERROR )
-        if success:
+        (compiled, message) = credit.compile_formula()
+        if not compiled or request.method == 'POST' :
+            flashMessage.send( message, flashMessage.NOTICE if compiled else flashMessage.ERROR )
+        if compiled:
             # Retrieve any existing test cases for this credit, only if the formula compiles
             test_case_list = CreditTestSubmission.objects.filter(credit = credit)
             for test_case in test_case_list:
@@ -534,6 +534,12 @@ def credit_formula(request, creditset_id, category_id, subcategory_id, credit_id
             # Build the form for adding a new test case
             new_test_case = CreditTestSubmission(credit=credit)
             new_test_form = CreditTestSubmissionForm(instance=new_test_case, prefix='test_case')
+
+    # compile the validation rules
+    if credit.validation_rules and (request.method == 'GET' or formula_form.is_valid()):
+        (success, message) = credit.compile_validation_rules()
+        if not success or request.method == 'POST' :
+            flashMessage.send( message, flashMessage.NOTICE if success else flashMessage.ERROR )
 
     template = 'dashboard/credit_editor/credits/formula.html'
     context.update({'object_form': formula_form,
@@ -555,11 +561,13 @@ def formula_test_case(request, creditset_id, category_id, subcategory_id, credit
     # Build and process the form for the test case
     (test_case_form, saved) = form_helpers.basic_save_form(request, test_case, 'test_case', CreditTestSubmissionForm)
      
-    # probably shouldn't run test if the form had errors... hmmmmm.   
-    (had_error, message) = test_case.run_test()
-    if (had_error):
-        flashMessage.send(message, flashMessage.ERROR)
-        
+    # don't run test if the form had errors...  
+    test_case.reset_test()
+    if request.method == 'GET' or test_case_form.is_valid():
+        (had_error, message) = test_case.run_test()
+        if (had_error):
+            flashMessage.send(message, flashMessage.ERROR)
+           
     template = 'dashboard/credit_editor/credits/formula_test_case.html'
     context.update({'test_case': test_case,
                     'submission_form': test_case_form,

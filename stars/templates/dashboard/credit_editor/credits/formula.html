@@ -5,9 +5,32 @@
 {% block tab_content %}
 {% include "dashboard/credit_editor/credits/formula_legend.html" %}
 
+{% load fieldsets %}
 <form class='form' method='POST' action='.'>
-    {% include 'dashboard/credit_editor/standard_form.html' %}
+	<table>
+	    <tr>
+	      <td>
+	        {% fieldset 'Formula' with formula as fields from object_form 'expanded' %}
+	            {{ fields.formula.errors }}
+	            {{ fields.formula|safe }}
+	        {% endfieldset %}
+	      </td>
+	    </tr>
+	    <tr>
+          <td>
+            {% fieldset 'Validation' with validation_rules as fields from object_form 'collapsed' %}
+                {{ fields.validation_rules.errors }}
+                {{ fields.validation_rules|safe }}
+            {% endfieldset %}
+          </td>
+	    </tr>
+	    <tr><td class='buttonRow'>
+	        <button type='submit'>save</button>
+	        {% block buttons %}{% endblock %}
+	    </td></tr>
+	</table>
 </form>
+
 {% if submission_form %}
    <hr>
    <h3>Formula Test Suite</h3>

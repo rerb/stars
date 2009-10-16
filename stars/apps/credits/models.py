@@ -209,6 +209,7 @@ class Credit(models.Model):
     number = models.SmallIntegerField(help_text='The number of this credit within the main category. EX: "ER Credit 1"',default=-1)
     point_value = models.FloatField(help_text='The maximum points awarded for this credit.')
     formula = models.TextField('Points Calculation Formula', blank=True, null=True, default="points = 0", help_text='Formula to compute credit points from values of the documentation fields')
+    validation_rules = models.TextField('Custom Validation', blank=True, null=True, help_text='A Python script that provides custom validation for this credit.')
     type = models.CharField(max_length=2, choices=CREDIT_TYPE_CHOICES)
     criteria = models.TextField()
     applicability = models.TextField(blank=True, null=True)
@@ -316,14 +317,46 @@ class Credit(models.Model):
             return(False, "%s"%e, e, points)
         except Exception, e:
             watchdog.log("Credit", "Formula Exception: %s"%e, watchdog.ERROR)
-            return(False, "An internal error occurred while calculating points", e, points)  # don't 
+            return(False, "There was an error processing this credit. AASHE has noted the error and will work to resolve the issue.", e, points)
         return (True, "Formula executed successfully", None, points)
         
+    def execute_validation_rules(self, submission_form):
+        """ 
+            Execute the validation rules for this credit for the given submission data
+            @param submission_form: a CreditSubmissionForm for this credit containing data values to validate
+            @return:
+                - errors: a dictionary of errors, using the field's identifier as the key for each error 
+                    - may contain an 'top' key for credit-wide errors; 
+                    - will be empty if validation passed without error
+        """
+        # get the key that relates field identifiers to their values
+        field_key = submission_form.get_submission_field_key()
+        errors={}
+        try:
+            if (self.validation_rules):
+                # exec the validation in restricted namespace
+                globals = {}  # __builtins__ gets added automatically
+                locals = {"errors":errors,}
+                locals.update(field_key)
+                exec self.validation_rules in globals, locals
+                errors = locals['errors']
+        except AssertionError, e:  # Assertions may be used in validation to ensure conditions for validation are met - assume any assertion text is intended for user
+            if str(e):
+                errors['top'] ="%s"%e
+        except Exception, e:
+            watchdog.log("Credit", "Validation Exception: %s"%e, watchdog.ERROR)
+            errors['top'] = "There was an error processing this credit. AASHE has noted the error and will work to resolve the issue." 
+        return errors
+
     def compile_formula(self):
         """ See global compile_formula function... """
         return compile_formula(self.formula)
 
-def compile_formula(formula):
+    def compile_validation_rules(self):
+        """ See global compile_formula function... """
+        return compile_formula(self.validation_rules, "Validation Rules")
+
+def compile_formula(formula, label='Formula'):
     """ 
         Global function provided so that field validation has access to wrapped compile functionality
         Attempt to compile a formula.
@@ -341,12 +374,12 @@ def compile_formula(formula):
     """  
     if (formula) :
         try:
-            compile(formula, 'formula', 'exec')
-            return (True, "Formula compiled - code is valid.")
+            compile(formula, label, 'exec')
+            return (True, "%s compiled - code is valid."%label)
         except Exception, e:
-            return (False, "Formula did not compile: %s" % e)          
+            return (False, "%s did not compile: %s" %(label, e))          
     else:
-        return (True, "No Formula specified")
+        return (True, "No %s specified"%label)
 
 def _next_identifier(identifier):
     """ 

@@ -22,7 +22,7 @@ body {
 	margin-left:-250px;
 	margin-right:-200px;
 	display:inline; /* So IE plays nice */
-	min-width: 500px;
+	min-width: 530px;
 	padding: 0px 0px 20px 0px;
 	clear: both;
 }

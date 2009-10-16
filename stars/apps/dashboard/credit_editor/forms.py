@@ -99,11 +99,12 @@ class CreditForm(ModelForm):
     form_name = staticmethod(form_name)
 
 class CreditFormulaForm(ModelForm):
-    formula = forms.CharField(widget=widgets.Textarea(attrs={'class': 'noMCE','rows': '16'}), required=True)
+    formula = forms.CharField(widget=widgets.Textarea(attrs={'class': 'noMCE','cols':'70', 'rows': '16'}), required=True)
+    validation_rules = forms.CharField(widget=widgets.Textarea(attrs={'class': 'noMCE', 'cols':'70', 'rows': '16'}), required=False)
 
     class Meta:
         model = Credit
-        fields = ('formula',)
+        fields = ('formula', 'validation_rules',)
 
 #    @staticmethod
     def form_name():
@@ -111,14 +112,20 @@ class CreditFormulaForm(ModelForm):
     form_name = staticmethod(form_name)
 
     def clean_formula(self):
-        formula = self.cleaned_data['formula']
+        return self._clean_code_field('formula')
+
+    def clean_validation_rules(self):
+        return self._clean_code_field('validation_rules')
+
+    def _clean_code_field(self, key):
+        code = self.cleaned_data[key]
         # remove any funky (Mac and MS) newlines and replace tabs with spaces
-        formula = formula.replace("\r\n", "\n")
-        formula = formula.replace("\t", "    ")
-        (success, message) = compile_formula(formula)
+        code = code.replace("\r\n", "\n")
+        code = code.replace("\t", "    ")
+        (success, message) = compile_formula(code, key)
         if not success:
             raise forms.ValidationError(message)
-        return formula
+        return code
         
 class CreditTestSubmissionForm(CreditSubmissionForm):
       

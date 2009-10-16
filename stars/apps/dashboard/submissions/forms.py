@@ -27,10 +27,18 @@ class SubmissionFieldForm(ModelForm):
         """ Returns true if the form field contains its own units, false otherwise """
         return self.__class__ in (ChoiceWithOtherSubmissionForm, MultiChoiceSubmissionForm, MultiChoiceWithOtherSubmissionForm)
 
+    def append_error(self, msg):
+        """ Helper to append or add new error message to this form's value field error list """
+        if "values" in self._errors:
+            self._errors["values"].append(msg)
+        else:
+            self._errors["value"] = ErrorList([msg])
+
 #    def clean_value(self):
 #        """ Ensures that value is set if the submission is marked as complete """
 #        value = self.cleaned_data.get("value")
-#        if self.instance.credit_submission.is_complete() and not value:
+#        if self.instance.credit_submission.is_complete() and \  # won't work - complete flag is not saved yet from the wider form :-(
+#           self.instance.documentation_field.is_reqired and value in (None, "", []):
 #            raise forms.ValidationError("This field is required to mark this credit complete.")
 #        return value
 
@@ -312,6 +320,64 @@ class CreditSubmissionForm(ModelForm):
         
         # use short-cut evaluation here so Form is not validated if fields don't validate.
         return is_valid and super(CreditSubmissionForm, self).is_valid()
+
+    def _validate_required_fields(self):
+        """ Helper to do required field validation.   Should only be called when submission is complete! """
+        cleaned_data = self.cleaned_data
+        for field in self.get_submission_fields_and_forms():
+            form_value = field['form'].cleaned_data.get("value")
+            doc_field = field['field'].documentation_field
+            if doc_field.is_required and form_value in (None, "", []):
+                field['form'].append_error( u"This field is required to mark this credit complete.")
+        
+    def _has_errors(self):
+        """ Helper method to determine if any error were discovered during basic validatation of each field """
+        for field in self.get_submission_fields_and_forms():
+            if "value" in field['form']._errors:
+                return True
+        # assert:  none of the fields had errors defined.
+        return len(self.non_field_errors()) > 0
+    
+    def clean(self):
+        """
+            Assumes that a complete submission is being vaidated and cleaned.
+        """
+        cleaned_data = self.cleaned_data
+        error_message = "This credit cannot be submitted as complete."
+
+        self._validate_required_fields()
+        has_error = self._has_errors()
+        
+        # only peform custom validation if the form had no basic validatation errors.
+        # this is important because custom validation_rules assume data is clean and complete.
+        if not has_error:  
+            validation_errors = self.instance.credit.execute_validation_rules(self)
+
+            for field in self.get_submission_fields_and_forms():
+                doc_field = field['field'].documentation_field
+                if doc_field.identifier in validation_errors:
+                    field['form'].append_error(validation_errors[doc_field.identifier])
+                    has_error = True
+    
+            if 'top' in validation_errors:
+                error_message = validation_errors['top']
+                has_error = True
+                                
+        if has_error:
+            raise forms.ValidationError(error_message)
+    
+        return cleaned_data
+
+    def get_submission_field_key(self):
+        """ 
+            Returns a dictionary with identifier:value for each submission field on this form
+            Should be analogous to CreditSubmission.get_submission_field_key
+        """
+        key = {}
+        for field in self.get_submission_fields_and_forms():
+            key[field['field'].documentation_field.identifier] = field['form'].cleaned_data.get("value")
+        return key
+            
     
 class ResponsiblePartyForm(ModelForm):
     """
@@ -349,27 +415,19 @@ class CreditUserSubmissionForm(CreditSubmissionForm):
         cleaned_data = self.cleaned_data
         status = cleaned_data.get("submission_status")
         reason = cleaned_data.get("applicability_reason")
-
+        marked_complete = (status=='c')
+        error = False
+ 
         if not status :
             msg = u"Please tick the appropriate status for this submission."
             self._errors["submission_status"] = ErrorList([msg])
         if status == 'na' and not reason:
             msg = u"Please select a reason why this does not apply."
             self._errors["applicability_reason"] = ErrorList([msg])
+            error = marked_complete # this is only an error if the submission is marked complete.
         if not status == 'na':
-            cleaned_data["applicability_reason"] = None
-        
-        # Check that status was not marked complete when required fields are missing
-        marked_complete = (status=='c')
-        error = False
-        for field in self.get_submission_fields_and_forms():
-            value = field['form'].cleaned_data.get("value")
-            if field['field'].documentation_field.is_required and \
-               marked_complete and value in (None, "", []):
-                msg = u"This field is required to mark this credit complete."
-                field['form']._errors["value"] = ErrorList([msg])
-                error = True
-            
+            cleaned_data["applicability_reason"] = None       
+           
         # responsible party and responsible party confirm are required if marked complete
         if marked_complete:
             rp = cleaned_data.get("responsible_party")
@@ -383,7 +441,8 @@ class CreditUserSubmissionForm(CreditSubmissionForm):
                 self._errors["responsible_party_confirm"] = ErrorList([msg])
                 error = True
                 
-        if (error):
-            raise forms.ValidationError("This credit cannot be submitted as complete.")
-    
+        # Only perform the overall form validation if the submission is marked complete
+        if marked_complete:
+            cleaned_data = super(CreditUserSubmissionForm, self).clean()
+            
         return cleaned_data
