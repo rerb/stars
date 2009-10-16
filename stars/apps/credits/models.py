@@ -488,7 +488,7 @@ class DocumentationField(models.Model):
     inline_help_text = models.TextField(null=True, blank=True)
     tooltip_help_text = models.TextField(null=True, blank=True)
     ordinal = models.SmallIntegerField(default=-1)
-#    is_required = models.BooleanField(default=True)
+    is_required = models.BooleanField(default=True)
     required = models.CharField(max_length=8, choices=REQUIRED_TYPES, default='req')
     is_confidential = models.BooleanField()
     identifier = models.CharField(max_length=2) # editable=False) # Field identifier for the Formula editor - auto-generated.
