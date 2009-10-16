@@ -4,7 +4,7 @@ urlpatterns = patterns(
     'stars.apps.dashboard.admin.views',
     
     (r'^$', 'institutions'),
-    (r'^gateway/find-institution/(?P<snippet>[\d\w-]+)$', 'find_institution_gateway'),
+    (r'^gateway/find-institution/(?P<snippet>[\d\w\- ]+)$', 'find_institution_gateway'),
     (r'^institution/(?P<institution_id>\d+)/$', 'select_institution'),
     (r'^watchdog/',  include('stars.apps.dashboard.admin.watchdog.urls')),
     (r'^pages/$', 'articles'),
