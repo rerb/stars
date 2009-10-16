@@ -446,7 +446,7 @@ class CreditSubmission(models.Model):
         if not self.persists(): # New submissions are incomplete - don't try to access fields yet!
             return False
         for field in self.get_submission_fields():
-            if field.documentation_field.is_required and not field.value:
+            if field.documentation_field.is_required() and not field.value:
                 return False
         # assert: all required fields contain a value.
         return True
@@ -708,10 +708,6 @@ class DocumentationFieldSubmission(models.Model):
         if self.credit_submission.persists():
             super(DocumentationFieldSubmission, self).save()
 
-    def mark_required(self):
-        """ Should this field be marked as required? """
-        return self.documentation_field.is_required and self.value == None
-                    
     def get_value(self):
         """ Use this accessor to get this submission's value - rather than accessing .value directly """
         return self.value

@@ -3,6 +3,9 @@
     {% if documentation_field.is_required %}
         <span class='required_note' title="This field is required to complete credit">*</span>
     {% endif %}
+    {% if documentation_field.is_conditionally_required %}
+        <span class='conditionally_required_note' title="In some cases, this field will be required to complete credit">*</span>
+    {% endif %}
 	<label{% if documentation_field.is_required %} class='required' title='Required'{% endif %}>
 	{{ documentation_field.title }}</label>
     {% show_help_text documentation_field.tooltip_help_text 1 %}

@@ -6,7 +6,7 @@
         <td width="20%">{{ field.identifier }}</td>
         <td width="50%">{{ field.title }}</td>
         <td width="15%">{{ field.type }}</td>
-        <td width="15%">{% if field.is_required %} required {% else %} optional {% endif %}</td>
+        <td width="15%">{{ field.required }}</td>
     </tr>
     {% endfor %}
     <tr><td colspan=3>

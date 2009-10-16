@@ -50,7 +50,7 @@ class UnitAdmin(admin.ModelAdmin):
 admin.site.register(Unit, UnitAdmin)
 
 class DocumentationFieldAdmin(admin.ModelAdmin):
-    list_display = ('title', 'type', 'credit','is_required')
+    list_display = ('title', 'type', 'credit','required')
     list_filter = ('credit',)
 admin.site.register(DocumentationField, DocumentationFieldAdmin)
 

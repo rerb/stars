@@ -577,13 +577,20 @@ form label.required {
     color: #000;
 }
 
-form span.required_note {
+form span.required_note,
+form span.conditionally_required_note {
     font-style: italic;
-    color: #990000;
     padding: 0px 0px;
     cursor: help;
 /*    font-weight: bold;*/
     font-size: 1.3em;
+}
+
+form span.required_note {
+    color: #990000;
+}
+form span.conditionally_required_note {
+    color: #000099;
 }
 
 form.submit_form {

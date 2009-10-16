@@ -462,6 +462,12 @@ DOCUMENTATION_FIELD_TYPES = (
 #    ('multiple_upload', 'multiple upload'),
 )
 
+REQUIRED_TYPES = (
+    ('opt', "optional"),
+    ('cond', "conditionally required"),
+    ('req', 'required'),
+    )
+
 class Unit(models.Model):
     name = models.CharField(max_length=32)
     
@@ -483,6 +489,7 @@ class DocumentationField(models.Model):
     tooltip_help_text = models.TextField(null=True, blank=True)
     ordinal = models.SmallIntegerField(default=-1)
     is_required = models.BooleanField(default=True)
+    required = models.CharField(max_length=8, choices=REQUIRED_TYPES, default='req')
     is_confidential = models.BooleanField()
     identifier = models.CharField(max_length=2) # editable=False) # Field identifier for the Formula editor - auto-generated.
     
@@ -515,6 +522,14 @@ class DocumentationField(models.Model):
         """ Returns the URL of the page to confirm deletion of this object """
         return "%sdelete/" % self.get_edit_url()
     
+    def is_required(self):
+        """ Return true if this field is required to complete a submission """
+        return self.required == 'req'
+    
+    def is_conditionally_required(self):
+        """ Return true if this field is conditionally required """
+        return self.required == 'cond'
+
     def is_single_choice(self):
         """ Return true if this field is a single choice """
         return self.type == 'choice'

@@ -56,7 +56,7 @@
 					    {% get_fieldset min_range,max_range as fields from field_form %}
 					    {% include 'dashboard/credit_editor/form_fields.html' %}
 					  </div>
-                      {% get_fieldset is_required,is_confidential as fields from field_form %}
+                      {% get_fieldset required,is_confidential as fields from field_form %}
                       {% include 'dashboard/credit_editor/form_fields.html' %}
                     </div>
                {% endfieldset %}
