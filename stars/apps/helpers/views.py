@@ -43,10 +43,16 @@ def migrate_doc_field_required(request):
     from stars.apps.helpers import flashMessage
     
     fields = DocumentationField.objects.all()
+    count = 0
     for field in fields:
-        field.required = 'req' if field.is_required else 'opt'
+        if field.is_required:
+            field.required = 'req'
+        else:
+            field.required = 'opt'
         field.save()
-    flashMessage.send("Data successfully migrated from is_required to required field - drop is_required from DB.", flashMessage.SUCCESS)
+        count +=1
+        
+    flashMessage.send("Data successfully migrated % fields from is_required to required field - drop is_required from DB."%count, flashMessage.SUCCESS)
     return HttpResponseRedirect(settings.DASHBOARD_URL)
 
 def test(request):
