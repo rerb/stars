@@ -341,8 +341,8 @@ def _get_status_icon_tag(status):
     
     ### THIS IS HIDEOUS - how can I pass the icon, title, & alt to a template for rendering?
     icon_file, alt, title = CREDIT_SUBMISSION_STATUS_ICONS[status] 
-    src = "%s%s%s/"%(settings.MEDIA_URL,"static/images/", icon_file)
-    return mark_safe( "<img src='%s' alt='%s' title='%s'> "%(src, alt, title) ), title
+    src = "%sstatic/images/%s"%(settings.MEDIA_URL, icon_file)
+    return mark_safe( "<img src='%s' title='%s'> "%(src, title) ), title
     
 class ResponsibleParty(models.Model):
     """

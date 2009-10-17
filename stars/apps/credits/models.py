@@ -505,8 +505,15 @@ class DocumentationField(models.Model):
         super(DocumentationField, self).save(*args, **kwargs)
          
     def __unicode__(self):
-        return smart_unicode(self.title, encoding='utf-8', strings_only=False, errors='strict')
-        
+        """ Limit the length of the text representation to 50 characters """
+        label = smart_unicode(self.title, encoding='utf-8', strings_only=False, errors='strict')
+        if len(label) > 50:
+            l, b, r = label[0:50].rpartition(' ')
+            if not l:
+                l = label[0:50]
+            label = "%s ..."%l 
+        return label
+    
     def __cmp__(self, other):
         """ Used for ordering by ordinal """
         return cmp(self.ordinal, other.ordinal)
