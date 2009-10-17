@@ -24,7 +24,7 @@
                 {% if user.is_staff %}
                     <a href='{{ set.get_manage_url }}'>{{ set }}</a>
                 {% else %}
-                    {{ set }}
+                    <a href='{{ set.get_submit_url }}'>{{ set }}</a>
                 {% endif %}
             </td>
             <td>{{ set.date_registered }}</td>
