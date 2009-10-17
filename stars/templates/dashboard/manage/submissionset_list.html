@@ -46,7 +46,9 @@
                 {% if not user.current_inst.starsaccount_set.all %}
                     <p>You must <a href='/dashboard/manage/users/'>add</a> at least one user to this institution before you can create a submission set.</p>
                 {% else %}
-                    <a href='/dashboard/manage/submissionsets/add/'>Add</a>
+                   {% if user.is_staff %} 
+                        <a href='/dashboard/manage/submissionsets/add/'>Add</a>
+                   {% endif %}
                 {% endif %}
             </td>
         </tr>

@@ -208,7 +208,7 @@ class Credit(models.Model):
     ordinal = models.SmallIntegerField(help_text='The order of this credit within sub-category.', default=-1)
     number = models.SmallIntegerField(help_text='The number of this credit within the main category. EX: "ER Credit 1"',default=-1)
     point_value = models.FloatField(help_text='The maximum points awarded for this credit.')
-    formula = models.TextField('Points Calculation Formula', blank=True, null=True, default="points = 0", help_text='Formula to compute credit points from values of the documentation fields')
+    formula = models.TextField('Points Calculation Formula', blank=True, null=True, default="points = 0", help_text='Formula to compute credit points from values of the reporting fields')
     validation_rules = models.TextField('Custom Validation', blank=True, null=True, help_text='A Python script that provides custom validation for this credit.')
     type = models.CharField(max_length=2, choices=CREDIT_TYPE_CHOICES)
     criteria = models.TextField()
@@ -251,7 +251,7 @@ class Credit(models.Model):
     def get_dependents(self):
         """ Returns a list of dictionaries (name, queryset) for each set of objects directly dependent on this Subcategory """
         from stars.apps.submissions.models import CreditTestSubmission
-        return [ {'name':'Documentation Fields', 'queryset':self.documentationfield_set.all()},
+        return [ {'name':'Reporting Fields', 'queryset':self.documentationfield_set.all()},
                  {'name':'Applicability Reasons', 'queryset':self.applicabilityreason_set.all()},
                  {'name':'Formula Test Cases', 'queryset':CreditTestSubmission.objects.filter(credit=self)},
                ]

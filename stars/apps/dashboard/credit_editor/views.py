@@ -372,7 +372,7 @@ def delete_field(request, creditset_id, category_id, subcategory_id, credit_id, 
         return HttpResponseRedirect("%sfields/" % context['credit'].get_edit_url())
     
     template = 'dashboard/credit_editor/credits/delete_field.html'
-    context.update({'object_class':'Documentation Field', 'object':context['field'],'confirm_delete_form': form,})
+    context.update({'object_class':'Reporting Field', 'object':context['field'],'confirm_delete_form': form,})
     return respond(request, template, context)
 
 ############### DOCUMENTATION FIELD CHOICES ######################    

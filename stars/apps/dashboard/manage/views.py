@@ -112,7 +112,7 @@ def submissionsets(request):
     return respond(request, 'dashboard/manage/submissionset_list.html', {'active_set': active_set})
     
         
-@user_is_inst_admin
+@user_is_staff
 def add_submissionset(request):
     """
         Provides a form for adding a new submission set
@@ -124,8 +124,10 @@ def add_submissionset(request):
     new_set = SubmissionSet(institution=current_inst)
     
     ObjectForm = AdminSubmissionSetForm
-    if request.user.is_staff:
-        ObjectForm = AdminSubmissionSetForm
+    # if request.user.is_staff:
+    #    ObjectForm = AdminSubmissionSetForm
+    # else:
+    #    Eventuatlly, this should lead user through a submission set purchase process (ticket #264)
     
     (object_form, saved) = form_helpers.basic_save_new_form(request, new_set, 'new_set', ObjectForm)
     if saved:

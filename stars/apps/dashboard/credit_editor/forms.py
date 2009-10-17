@@ -170,7 +170,7 @@ class DocumentationFieldForm(ModelForm):
 
 #    @staticmethod
     def form_name():
-        return u"Documentation Field Form" 
+        return u"Reporting Field Form" 
     form_name = staticmethod(form_name)
 
     def clean(self):
@@ -190,7 +190,7 @@ class DocumentationFieldForm(ModelForm):
 #                if not msg:
 #                    cleaned_data['choices'] = choices
 #            else:
-#                msg = u"Please provide choices or set this documentation field to 'user-defined'."
+#                msg = u"Please provide choices or set this reporting field to 'user-defined'."
 #                self._errors["choices"] = ErrorList([msg])
 
         return cleaned_data
@@ -208,7 +208,7 @@ class DocumentationFieldOrderingForm(ModelForm):
         
 #    @staticmethod
     def form_name():
-        return u"Documentation Field Ordering Form" 
+        return u"Reporting Field Ordering Form" 
     form_name = staticmethod(form_name)
 
 
