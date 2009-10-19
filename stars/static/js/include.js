@@ -83,8 +83,17 @@ function setTable(dndtable) {
                 }*/
             }
         }
-        var save_button = document.getElementById('save_ordering');
-        save_button.disabled = false;
+        var rel = 'save_ordering';
+        var buttons = table.getElementsByTagName("button");
+        for (i = 0; i < buttons.length; i++) {
+            if (buttons[i].hasAttribute("rel") && buttons[i].rel == rel) {
+                buttons[i].disabled = false
+            }
+        }
+        
+        
+        //var save_button = document.getElementById('save_ordering');
+        //save_button.disabled = false;
     }
 }
 

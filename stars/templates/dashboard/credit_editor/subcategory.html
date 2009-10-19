@@ -12,28 +12,29 @@
 {% block center %}
     <form method='post' action='.'>
         {% include 'dashboard/credit_editor/standard_form_with_delete.html' %}
-        {% if object_ordering %}
+        {% if t1_ordering %}
         <table class='list' id='dndtable'>
             <tr nodrop="true" nodrag="true">
-                <th colspan='2'>Credits</th>
+                <th colspan='2'>Tier 1 Credits</th>
             </tr>
+            {% with t1_ordering as object_ordering %}
             {% include 'dashboard/credit_editor/credit_ordering_form_table.html' %}
+            {% endwith %}
+        </table>
+        {% endif %}
+        {% if t2_ordering %}
+        <table class='list' id='dndtable2'>
+            <tr nodrop="true" nodrag="true">
+                <th colspan='2'>Tier 2 Credits</th>
+            </tr>
+            {% with t2_ordering as object_ordering %}
+            {% include 'dashboard/credit_editor/credit_ordering_form_table.html' %}
+            {% endwith %}
         </table>
         {% endif %}
     </form>
-
-    <div class='new_form'>
-        <span style='cursor: pointer' onclick='expand_new_form(this)' title='Add Credit'>
-            <img src='/media/static/images/expand.png' title='Add Credit' alt='+' />
-            Add Credit
-        </span>
-        <form action='{{ subcategory.get_edit_url }}add-credit/' method='POST' style='margin: 0px;'>
-            <div class='form' id='new_form' style='display:none'>
-                {{ new_credit_form.as_p }}
-                <p class='buttonRow'>
-                <input type='submit' value='submit' />
-                </p>
-            </div>
-        </form>
-    </div>
+    {% if not subcategory.credit_set.all %}
+        <button type='button' onclick="document.location='add-credit/';">Add Credit</button>
+        <button type='button' onclick="document.location='add-t2-credit/';">Add Tier 2 Credit</button>
+    {% endif %}
 {% endblock %}

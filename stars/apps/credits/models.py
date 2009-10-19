@@ -35,6 +35,7 @@ def _get_next_ordinal(objects):
 class CreditSet(models.Model):
     version = models.CharField(max_length=5, unique=True)
     release_date = models.DateField()
+    tier_2_points = models.FloatField()
     
     class Meta:
         ordering = ('release_date',)
@@ -117,12 +118,19 @@ class Category(models.Model):
         order_changed = False
         count = 1
         for sub in self.subcategory_set.all():
-            for credit in sub.credit_set.all().order_by('ordinal'):
+            for credit in sub.credit_set.all().order_by('ordinal').filter(type='t1'):
                 if credit.number != count:
                     credit.number = count
                     credit.save()
                     order_changed = True
                 count += 1
+            t2_count = 1
+            for credit in sub.credit_set.all().order_by('ordinal').filter(type='t2'):
+                if credit.number != t2_count:
+                    credit.number = t2_count
+                    credit.save()
+                    order_changed = True
+                t2_count += 1
         return order_changed
             
     def save(self, *args, **kwargs):
@@ -161,6 +169,12 @@ class Subcategory(models.Model):
     def get_parent(self):
         """ Returns the parent element for crumbs """
         return self.category
+        
+    def get_tier1_credits(self):
+        return self.credit_set.filter(type='t1')
+        
+    def get_tier2_credits(self):
+        return self.credit_set.filter(type='t2')
 
     def has_dependents(self):
         """ Return true if this Subcategory has dependent objects lower in the credit hierarchy """
@@ -239,7 +253,9 @@ class Credit(models.Model):
         
     def get_identifier(self):
         """ Returns the indentifying string for the credit ex: 'ER Credit 10' """
-        return "%s Credit %s" % (self.subcategory.category.abbreviation, self.number)
+        if self.type == 't2':
+            return "Tier2-%d" % self.number
+        return "%s-%s" % (self.subcategory.category.abbreviation, self.number)
         
     def get_parent(self):
         """ Returns the parent element for crumbs """
@@ -271,6 +287,15 @@ class Credit(models.Model):
     def save(self, *args, **kwargs):
         if self.ordinal == -1 :
             self.ordinal = _get_next_ordinal(self.subcategory.credit_set.all())
+        # Set the defaults for t2 credits
+        if self.type == 't2':
+            t2_points = self.subcategory.category.creditset.tier_2_points
+            self.point_value = t2_points
+            self.scoring = u"%.2f points available." % t2_points
+            self.formula = u"""if A == True:
+    points = %.2f
+else:
+    points = 0""" % t2_points
         super(Credit, self).save(*args, **kwargs)
 
     def get_delete_url(self):
@@ -615,4 +640,3 @@ class Choice(models.Model):
         """ Return the number of credit submissions where this Choice was cited """
         from stars.apps.submissions.models import get_active_field_submissions
         return get_active_field_submissions(choice=self).count()
- 

@@ -162,7 +162,10 @@ def subcategory_detail(request, creditset_id, category_id, subcategory_id):
     (object_form, saved) = form_helpers.basic_save_form(request, subcategory, 'subcat_%d' % subcategory.id, SubcategoryForm)
         
     # Build and process the form for ordering credits
-    (object_ordering, reordered) = form_helpers.object_ordering(request, subcategory.credit_set.all(), CreditOrderForm)
+    # Tier 1
+    (t1_ordering, reordered) = form_helpers.object_ordering(request, subcategory.get_tier1_credits(), CreditOrderForm)
+    # Tier 2
+    (t2_ordering, reordered) = form_helpers.object_ordering(request, subcategory.get_tier2_credits(), CreditOrderForm)
     # if the credits were re-ordered, then our queryset is out of date - get a new one.
     if reordered:
         subcategory = get_object_or_404(Subcategory, id=subcategory_id)
@@ -176,8 +179,9 @@ def subcategory_detail(request, creditset_id, category_id, subcategory_id):
     
     template = "dashboard/credit_editor/subcategory.html"
     context.update({'subcategory': subcategory,  # overwrite subcategory in case it was re-ordered.
-                    'object_form': object_form, 
-                    'object_ordering': object_ordering,
+                    'object_form': object_form,
+                    't1_ordering': t1_ordering,
+                    't2_ordering': t2_ordering,
                     'new_credit_form': new_credit_form, 
     })
     return respond(request, template, context)
@@ -232,11 +236,16 @@ def credit_detail(request, creditset_id, category_id, subcategory_id, credit_id)
     """
     context = _get_credit_context(creditset_id, category_id, subcategory_id, credit_id)
     credit = context['credit']
+    pre_type = credit.type
     
     # Build and process the form for the credit
     (object_form, saved) = form_helpers.basic_save_form(request, credit, 'credit_%d' % credit.id, CreditForm)
     
-    # Check for a changed subcategory
+    # Update the numbers if the type has changed
+    if credit.type != pre_type:
+        credit.subcategory.category.update_ordering()
+    
+    # Update the numbers and redirect if the subcategory has changed
     if credit.subcategory != context['subcategory']:
         credit.subcategory.category.update_ordering()
         context['subcategory'].category.update_ordering()
@@ -269,7 +278,7 @@ def add_credit(request, creditset_id, category_id, subcategory_id):
     context = _get_subcategory_context(creditset_id, category_id, subcategory_id)
 
     # Build and process the form for adding a new category
-    new_credit = Credit(subcategory=context['subcategory'])
+    new_credit = Credit(subcategory=context['subcategory'], type='t1')
 
     (object_form, saved) = form_helpers.basic_save_new_form(request, new_credit, 'new_credit', NewCreditForm)
     if saved:
@@ -278,6 +287,25 @@ def add_credit(request, creditset_id, category_id, subcategory_id):
     template = 'dashboard/credit_editor/new_credit.html'
     context.update({"object_form": object_form})
     return respond(request, template, context)
+    
+@user_is_staff
+def add_t2_credit(request, creditset_id, category_id, subcategory_id):
+    """
+        The view where staff can create a Tier 2 Credit
+    """
+    context = _get_subcategory_context(creditset_id, category_id, subcategory_id)
+    
+    # Build and process the form for adding a new category
+    new_credit = Credit(subcategory=context['subcategory'], type='t2')
+    
+    (object_form, saved) = form_helpers.basic_save_new_form(request, new_credit, 'new_credit', NewT2CreditForm)
+    if saved:
+        return HttpResponseRedirect(new_credit.get_edit_url())
+
+    template = 'dashboard/credit_editor/new_t2_credit.html'
+    context.update({"object_form": object_form})
+    return respond(request, template, context)
+
     
 ############### CREDIT DOCUMENTATION FIELDS ######################
 def _get_doc_field_context(creditset_id, category_id, subcategory_id, credit_id, field_id):

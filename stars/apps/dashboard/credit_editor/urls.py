@@ -13,6 +13,7 @@ urlpatterns = patterns(
     (r'^(?P<creditset_id>\d+)/(?P<category_id>\d+)/(?P<subcategory_id>\d+)/$', 'subcategory_detail'),
     (r'^(?P<creditset_id>\d+)/(?P<category_id>\d+)/(?P<subcategory_id>\d+)/delete/$', 'delete_subcategory'),
     (r'^(?P<creditset_id>\d+)/(?P<category_id>\d+)/(?P<subcategory_id>\d+)/add-credit/$', 'add_credit'),
+    (r'^(?P<creditset_id>\d+)/(?P<category_id>\d+)/(?P<subcategory_id>\d+)/add-t2-credit/$', 'add_t2_credit'),
     (r'^(?P<creditset_id>\d+)/(?P<category_id>\d+)/(?P<subcategory_id>\d+)/(?P<credit_id>\d+)/$', 'credit_detail'),
     (r'^(?P<creditset_id>\d+)/(?P<category_id>\d+)/(?P<subcategory_id>\d+)/(?P<credit_id>\d+)/delete/$', 'delete_credit'),
     (r'^(?P<creditset_id>\d+)/(?P<category_id>\d+)/(?P<subcategory_id>\d+)/(?P<credit_id>\d+)/formula/$', 'credit_formula'),

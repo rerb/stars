@@ -20,8 +20,10 @@
         </td>
     </tr>
     {% endfor %}
+    {% block button_row %}
     <tr nodrop="true" nodrag="true"><td colspan='4' class='buttonRow'>
-    <button type='submit' disabled='disabled' id='save_ordering'>save ordering</button>
+    <button type='submit' rel='save_ordering'>Save</button>
     {% block extra_buttons %}{% endblock %}
     </td></tr>
+    {% endblock %}
 {% endif %}

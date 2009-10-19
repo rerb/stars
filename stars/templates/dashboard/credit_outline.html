@@ -11,11 +11,24 @@
                     <a href='{% if edit %}{{ sub.get_edit_url }}{% else %}{{ sub.get_submit_url }}{% endif %}'>{{ sub }}</a>
                     {% if sub.credit_set %}
                     <ul>
-                        {% for c in sub.credit_set.all %}
-                            <li{% if credit %}{% ifequal credit c %} class='current'{% endifequal %}{% endif %}>
+                        {% for c in sub.get_tier1_credits %}
+                            <li class="{% if credit %}{% ifequal credit c %}current{% endifequal %}{% endif %}">
                                 <a href='{% if edit %}{{ c.get_edit_url }}{% else %}{{ c.get_submit_url }}{% endif %}'>{{ c.get_identifier }}: {{ c }}</a>
                             </li>
                         {% endfor %}
+                        {% if sub.get_tier2_credits %}
+                            <li>
+                                <img src='/media/static/images/collapse.png' class='collapse' title='collapse' alt='-' onclick='collapse_expand(this);' />
+                                <i><b>Tier 2 Credits</b></i>
+                                <ul>
+                            {% for c in sub.get_tier2_credits %}
+                                <li class="{% if credit %}{% ifequal credit c %}current{% endifequal %}{% endif %}">
+                                    <a href='{% if edit %}{{ c.get_edit_url }}{% else %}{{ c.get_submit_url }}{% endif %}'>{{ c.get_identifier }}: {{ c }}</a>
+                                </li>
+                            {% endfor %}
+                                </ul>
+                            </li>
+                        {% endif %}
                     </ul>
                     {% endif %}
                 </li>

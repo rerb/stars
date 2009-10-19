@@ -87,16 +87,29 @@ class SubcategoryOrderForm(ModelForm):
 
 class CreditForm(ModelForm):
     title = forms.CharField(widget=widgets.TextInput(attrs={'size':'32'}))
-    point_value = forms.CharField(widget=widgets.TextInput(attrs={'size':'3'}))
     
     class Meta:
         model = Credit
-        exclude = ('ordinal', 'formula', 'validation_rules','number')
+        exclude = ('ordinal', 'formula', 'validation_rules', 'number')
 
 #    @staticmethod
     def form_name():
         return u"Credit Form" 
     form_name = staticmethod(form_name)
+    
+    def __init__(self, *args, **kwargs):
+        """ Update widgets """
+        super(CreditForm, self).__init__(*args, **kwargs)
+        if self.fields.has_key('point_value'):
+            self.fields['point_value'] = forms.CharField(widget=widgets.TextInput(attrs={'size':'3'}))
+        if self.fields.has_key('type'):
+            self.fields['type'].widget.attrs={'disabled': 'disabled'}
+        if self.instance:
+            if self.instance.type == 't2':
+                if self.fields.has_key('scoring'):
+                    self.fields['scoring'].widget.attrs={'disabled': 'disabled','class': 'noMCE'}
+                if self.fields.has_key('point_value'):
+                    self.fields['point_value'].widget.attrs={'disabled': 'disabled',}
 
 class CreditFormulaForm(ModelForm):
     formula = forms.CharField(widget=widgets.Textarea(attrs={'class': 'noMCE','cols':'70', 'rows': '16'}), required=True)
@@ -141,12 +154,17 @@ class CreditTestSubmissionForm(CreditSubmissionForm):
 class NewCreditForm(CreditForm):
     
     class Meta(CreditForm.Meta):
-        exclude = ('subcategory', 'ordinal', 'formula', 'number')
+        exclude = ('subcategory', 'ordinal', 'formula', 'number', 'validation_rules', 'type')
 
 #    @staticmethod
     def form_name():
-        return u"New Credit Form" 
+        return u"New Credit Form"
     form_name = staticmethod(form_name)
+    
+class NewT2CreditForm(NewCreditForm):
+    
+    class Meta(NewCreditForm.Meta):
+        exclude = ('subcategory', 'ordinal', 'formula', 'number', 'validation_rules', 'scoring', 'point_value', 'type')
 
 class CreditOrderForm(ModelForm):
     ordinal = forms.IntegerField(widget=widgets.HiddenInput(attrs={'class': 'ordinal',}))

@@ -1,7 +1,12 @@
 {% extends "dashboard/credit_editor/base_ordering.html" %}
 
-        {% block display_row %} 
-        <td>
-            <a href='{{ row.obj.get_edit_url }}'>{{ row.obj.get_identifier }}: {{ row.obj }}</a>
-        </td>
-        {% endblock %}
+{% block display_row %} 
+<td>
+    <a href='{{ row.obj.get_edit_url }}'>{{ row.obj.get_identifier }}: {{ row.obj }}</a>
+</td>
+{% endblock %}
+
+{% block extra_buttons %}
+    <button type='button' onclick="document.location='add-credit/';">Add Credit</button>
+    <button type='button' onclick="document.location='add-t2-credit/';">Add Tier 2 Credit</button>
+{% endblock %}
