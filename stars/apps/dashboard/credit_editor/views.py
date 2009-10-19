@@ -238,12 +238,12 @@ def credit_detail(request, creditset_id, category_id, subcategory_id, credit_id)
     credit = context['credit']
     pre_type = credit.type
     
-    # Build and process the form for the credit
-    (object_form, saved) = form_helpers.basic_save_form(request, credit, 'credit_%d' % credit.id, CreditForm)
+    form_class = CreditForm
+    if credit.type == 't2':
+        form_class = T2CreditForm
     
-    # Update the numbers if the type has changed
-    if credit.type != pre_type:
-        credit.subcategory.category.update_ordering()
+    # Build and process the form for the credit
+    (object_form, saved) = form_helpers.basic_save_form(request, credit, 'credit_%d' % credit.id, form_class)
     
     # Update the numbers and redirect if the subcategory has changed
     if credit.subcategory != context['subcategory']:

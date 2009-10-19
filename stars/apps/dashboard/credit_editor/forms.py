@@ -90,26 +90,18 @@ class CreditForm(ModelForm):
     
     class Meta:
         model = Credit
-        exclude = ('ordinal', 'formula', 'validation_rules', 'number')
+        exclude = ('ordinal', 'formula', 'validation_rules', 'number', 'type')
 
 #    @staticmethod
     def form_name():
         return u"Credit Form" 
     form_name = staticmethod(form_name)
+                    
+class T2CreditForm(ModelForm):
     
-    def __init__(self, *args, **kwargs):
-        """ Update widgets """
-        super(CreditForm, self).__init__(*args, **kwargs)
-        if self.fields.has_key('point_value'):
-            self.fields['point_value'] = forms.CharField(widget=widgets.TextInput(attrs={'size':'3'}))
-        if self.fields.has_key('type'):
-            self.fields['type'].widget.attrs={'disabled': 'disabled'}
-        if self.instance:
-            if self.instance.type == 't2':
-                if self.fields.has_key('scoring'):
-                    self.fields['scoring'].widget.attrs={'disabled': 'disabled','class': 'noMCE'}
-                if self.fields.has_key('point_value'):
-                    self.fields['point_value'].widget.attrs={'disabled': 'disabled',}
+    class Meta:
+        model = Credit
+        exclude = ('ordinal', 'formula', 'validation_rules', 'number', 'type', 'point_value', 'scoring')
 
 class CreditFormulaForm(ModelForm):
     formula = forms.CharField(widget=widgets.Textarea(attrs={'class': 'noMCE','cols':'70', 'rows': '16'}), required=True)
