@@ -18,23 +18,19 @@ from stars.apps.dashboard.admin.watchdog.models import ERROR
 from stars.apps.auth import xml_rpc
 from stars.apps.registration.globals import *
 from stars.apps.submissions.models import *
-from stars.apps.credits.models import CreditSet, _get_latest_creditset
+from stars.apps.credits.models import CreditSet
 
+#@todo:  perhaps these prices should be stored with the creditset??
 MEMBER_PRICE = 650
 NON_MEMBER_PRICE = 1150
         
 def reg_select_institution(request):
     """
         STEP 1: User selects an institution from the pull-down menu
-        If the institution is registered already they get forwarded to the account page
-        If the institution is new then it is created and stored in the Session (not the DB)
+         - store the selected institution in the Session (not the DB), and move on to the next step
     """
-    
-    # Confirm that the user is logged in with their AASHE ID
-    if not request.user.is_authenticated():
-        template = "registration/login_required.html"
-        context = {}
-        return respond(request, template, context)
+    response = _confirm_login(request)
+    if response: return response
     
     # Get the user's institution from AASHE ID
     institution_id = None    # @TODO get this from Drupal when salesforce comes online
@@ -84,29 +80,12 @@ def reg_select_institution(request):
 def reg_contact_info(request):
     """
         STEP 2: Displays the contact forms for an institution's registration process
+         - If the institution is registered already they get forwarded to the account page
+         - otherwise, store the contact info with the selected_institution in the session (NOT the DB)
     """
-    
-    # Confirm that the user is logged in with their AASHE ID
-    if not request.user.is_authenticated():
-        template = "registration/login_required.html"
-        context = {}
-        return respond(request, template, context)
-    
-    # Confirm that there is an institution in their session
-    institution = request.session.get('selected_institution')
-    if not institution:
-        flashMessage.send("No Institution Selected")
-        return HttpResponseRedirect('/register/step1/')
+    (institution, response) = _get_selected_institution(request)
+    if response: return response
         
-    # if the institution exists, take them to the account page
-    try:
-        inst = Institution.objects.get(aashe_id=institution.aashe_id)
-    except Institution.DoesNotExist:
-        inst = None
-    if inst:
-        request.session['selected_institution'] = inst
-        return HttpResponseRedirect("/register/account/")
-    
     # Provide the Contact Information Form
     reg_form = RegistrationForm(instance=institution)
 
@@ -127,27 +106,11 @@ def reg_contact_info(request):
 def reg_payment(request):
     """
         STEP 3: Determine the payment price and process payment for this institution's registration
-    """
-    
-    # Confirm that the user is logged in with their AASHE ID
-    if not request.user.is_authenticated():
-        template = "registration/login_required.html"
-        context = {}
-        return respond(request, template, context)
-        
-    # Confirm that there is an institution in their session
-    institution = request.session.get('selected_institution')
-    if not institution:
-        flashMessage.send("No Institution Selected")
-        return HttpResponseRedirect('/register/step1/')
-        
-    # if the institution exists, take them to the account page
-    try:
-        inst = Institution.objects.get(aashe_id=institution.aashe_id)
-    except Institution.DoesNotExist:
-        inst = None
-    if inst:
-        return HttpResponseRedirect("/register/account/")
+         - if the institution is registered already they get forwarded to the account page
+         - otherwise, collect payment info and store the selected_institution into the DB
+   """
+    (institution, response) = _get_selected_institution(request)
+    if response: return response        
         
     price = NON_MEMBER_PRICE
     # Determine Membership Status
@@ -179,7 +142,7 @@ def reg_payment(request):
                     result = process_payment(payment_dict, [product_dict], ref_code=datetime.now().isoformat())
                     if result.has_key('cleared') and result.has_key('msg'):
                         if result['cleared']:
-                            institution = init_institution(request.user, institution, "credit", price, payment_dict)
+                            institution = register_institution(request.user, institution, "credit", price, payment_dict)
                             request.session['selected_institution'] = institution
                             return HttpResponseRedirect("/register/account/")
                         else:
@@ -188,7 +151,7 @@ def reg_payment(request):
                     flashMessage.send("Please correct the errors below", flashMessage.ERROR)
                     
             else:
-                institution = init_institution(request.user, institution, "later", price, None)
+                institution = register_institution(request.user, institution, "later", price, None)
                 request.session['selected_institution'] = institution
                 return HttpResponseRedirect("/register/account/")
     
@@ -197,10 +160,11 @@ def reg_payment(request):
     return respond(request, template, context)
 
 
-def init_institution(user, institution, payment_type, price, payment_dict):
+def register_institution(user, institution, payment_type, price, payment_dict):
     """
-        Initializes a new institution and creates all the necessary registration information
-        Send confirmation emails
+        Register an institution for the current credit set:
+         - create and store all the necessary registration information
+         - send confirmation emails
     """
     
     # Save Institution
@@ -213,8 +177,8 @@ def init_institution(user, institution, payment_type, price, payment_dict):
     
     # Create SubmissionSet
     # Get the current CreditSet
-    creditset = _get_latest_creditset()
-    deadline = date(year=2011, day=31, month=1)
+    creditset = CreditSet.get_latest_creditset()
+    deadline = date(year=2011, day=31, month=1)   # @todo: hmmmm - the default deadline should be stored with the creditset, no?
     submissionset = SubmissionSet(creditset=creditset, institution=institution, date_registered=datetime.today(), submission_deadline=deadline, registering_user=user, status='ps')
     submissionset.save()
     
@@ -263,22 +227,19 @@ def reg_account(request):
         Displays the user's account page.
         If a user is associated with multiple institutions provide a selection option
     """
+    response = _confirm_login(request)
+    if response: return response
     
-    # Confirm that the user is logged in with their AASHE ID
-    if not request.user.is_authenticated():
-        template = "registration/login_required.html"
-        context = {}
-        return respond(request, template, context)
-    
-    # Get the selected account
-    account = StarsAccount.get_selected_account(request.user)
-    
+    # Get the user's current account information. First try the registration selected_institution from the session...
     institution = request.session.get('selected_institution', None)
-    if not institution:
-        if account: 
+    
+    if not institution:  # If that's not there, we'll try to get it from the user's accounts (from DB)
+        account = StarsAccount.get_selected_account(request.user)
+        if account and account.institution.is_registered(): 
             institution = account.institution
             request.session['selected_institution'] = institution
-        else:
+        else:            # can't find any registered institution for this user...
+            flashMessage.send("No Registered Institution Selected")
             return HttpResponseRedirect("/register/step1/")
             
     # Determine the amount due
@@ -389,3 +350,43 @@ def process_payment(payment_dict, product_list, test_mode=False, ref_code=None, 
         return({'cleared': True, 'reason_code': reason_code, 'msg': response_text})
     else:
         return({'cleared': False, 'reason_code': reason_code, 'msg': response_text})
+
+def _confirm_login(request):
+    """
+        Confirm that request.user is logged in.  
+        If not, return an appropriate response, if so, return None
+    """
+     # Confirm that the user is logged in with their AASHE ID
+    if not request.user.is_authenticated():
+        template = "registration/login_required.html"
+        context = {}
+        return respond(request, template, context)
+    
+    return None
+
+def _get_selected_institution(request):
+    """
+        Confirm that requesting user is logged in and get their selected institution from the session, if possible:
+         - If there are any issues (no institution selected, or selected institution already registered), return an appropriate response.
+         - If the user is logged in and has a selected institution, return the institution
+        returns (institution, response), one of which is None.
+    """
+    response = _confirm_login(request)
+    if response:
+        return None, response
+    
+    # Confirm that there is an institution in their session
+    institution = request.session.get('selected_institution')
+    if not institution:
+        flashMessage.send("No Institution Selected")
+        return None, HttpResponseRedirect('/register/step1/')
+        
+    # if the institution is registered already, take them to the account page
+    try:
+        inst = Institution.objects.get(aashe_id=institution.aashe_id)
+        if inst.is_registered():   # check for registration in the most recent credit set
+            return None, HttpResponseRedirect("/register/account/")
+    except Institution.DoesNotExist:
+        pass  # no problem - this is the usual case, institution is not registered, proceed with registration.
+   
+    return institution, None

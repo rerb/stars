@@ -51,15 +51,16 @@ class CreditSet(models.Model):
     def get_parent(self):
         """ Returns the parent element for crumbs """
         return None
-        
-def _get_latest_creditset():
-    """
-        Helper: retrieves the latest creditset for registration
-    """
-    try:
-        return CreditSet.objects.order_by('-release_date')[0]
-    except:
-        return None
+    
+    @classmethod
+    def get_latest_creditset(cls):
+        """
+            Returns the latest creditset (usually the one currently open for registration)
+        """
+        try:
+            return CreditSet.objects.order_by('-release_date')[0]
+        except:
+            return None
     
 class Category(models.Model):
     creditset = models.ForeignKey(CreditSet)

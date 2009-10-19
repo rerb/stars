@@ -65,6 +65,21 @@ class Institution(models.Model):
             state.active_submission_set = submission_set
         state.save()
 
+    def is_registered(self, creditset=None):
+        """ 
+            Return True iff this institution is registered for the given credit set 
+            creditset - if None, the latest creditset will be checked.
+        """
+        if not creditset:
+            from stars.apps.credits.models import CreditSet
+            creditset = CreditSet.get_latest_creditset()
+            
+        for submission in self.submissionset_set.all():
+            if submission.creditset == creditset:
+                return True
+        # assert: no submission has been registered for the given credit set for this institution
+        return False
+    
     @staticmethod
     def find_institutions(snippet):
         """
