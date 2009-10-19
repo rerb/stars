@@ -91,7 +91,7 @@ class CreditForm(ModelForm):
     
     class Meta:
         model = Credit
-        exclude = ('ordinal', 'formula', 'number')
+        exclude = ('ordinal', 'formula', 'validation_rules','number')
 
 #    @staticmethod
     def form_name():
