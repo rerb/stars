@@ -1,0 +1,33 @@
+{% extends 'dashboard/submissions/credit_base.html' %}
+
+{% block tabclass %}class='tab1'{% endblock %}
+
+{% block tab_content %}
+    <h2>Criteria</h2>
+    <div class='documentation'>
+	    {% autoescape off %}
+	        {{ credit.criteria }}
+	    {% endautoescape %}
+    </div>
+    
+    <h2>Applicability</h2>
+    <div class='documentation'>
+	    {% autoescape off %}
+	        {{ credit.applicability }}
+	    {% endautoescape %}
+    </div>
+    
+    <h2>Scoring</h2>
+    <div class='documentation'>
+	    {% autoescape off %}
+	        {{ credit.scoring }}
+	    {% endautoescape %}
+    </div>
+    
+    <h2>Measurment</h2>
+    <div class='documentation'>
+	    {% autoescape off %}
+	        {{ credit.measurement }}
+	    {% endautoescape %}
+    </div>
+{% endblock %}

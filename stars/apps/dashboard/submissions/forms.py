@@ -446,3 +446,13 @@ class CreditUserSubmissionForm(CreditSubmissionForm):
             cleaned_data = super(CreditUserSubmissionForm, self).clean()
             
         return cleaned_data
+
+class CreditUserSubmissionNotesForm(ModelForm):
+    """
+        A Form for storing internal notes about a Credit Submission
+    """
+    internal_notes = forms.CharField(widget=forms.Textarea(attrs={'class': 'noMCE','cols':'60', 'rows': '25'}), required=False)
+
+    class Meta:
+        model = CreditUserSubmission
+        fields = ['internal_notes', ]

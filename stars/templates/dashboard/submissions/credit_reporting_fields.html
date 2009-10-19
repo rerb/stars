@@ -1,0 +1,77 @@
+{% extends 'dashboard/submissions/credit_base.html' %}
+
+{% block body_attribute %} onload='toggle_applicability_reasons(get_selected_button(document.forms.submission_form.submission_status));'{% endblock %}
+
+{% block extra_head %}
+    <script type="text/javascript" src="/media/admin/js/admin/RelatedObjectLookups.js"></script>
+{% endblock %}
+
+{% block tabclass %}class='tab2'{% endblock %}
+
+{% block tab_content %}
+  {% load fieldsets %}
+  <form method='post' action='.' class='submit_form' name='submission_form' enctype="multipart/form-data">
+	  <p style='text-align: center; font-size: .9em;'>
+	      <span class="required_note" title="This field is required to complete credit">*</span>
+	      required fields
+	      <span class='conditionally_required_note' title="In some cases, this field will be required to complete credit">*</span>
+	      conditionally required fields
+	  </p>
+      {% fieldset 'Reporting Fields' 'expanded' %}
+        {% include "dashboard/submissions/submission_fields_form.html" %}
+      {% endfieldset %}
+      <br/>
+      {% fieldset 'Notes (public)' 'collapsed' %}
+        {% comment %}
+        <!-- @todo: I added the note fields manually, but in the long-run
+        we may want to rework the documentation_field_form.html template to take more than
+        just documentationField objects... -->
+        {% endcomment %}
+        <label>Notes about the submission (public):</label>
+        {% if submission_form.submission_notes.errors %}{{ submission_form.errors.submission_notes }}{% endif %}
+    	<div class='field-form'>
+    	   {{ submission_form.submission_notes }}
+    	</div>
+      {% endfieldset %}
+      <br/>
+      {% fieldset 'Responsible Party' 'collapsed' %}
+        {% if submission_form.responsible_party.errors %}
+            {{ submission_form.errors.responsible_party }}
+        {% endif %}
+        {{ submission_form.responsible_party }}
+        <a href="/dashboard/submissions/add-responsible-party/" class="add-another" id="add_id_responsible_party" onclick="return showAddAnotherPopup(this);" title='Add New Responsible Party'><img src='/media/static/images/add.png' alt='Add New Responsible Party' /></a>
+        <br/>
+        {% if submission_form.responsible_party_confirm.errors %}
+            {{ submission_form.errors.responsible_party_confirm }}
+        {% endif %}
+        {{ submission_form.responsible_party_confirm }}
+        <label>By checking this box, I affirm that the information included in the submission for this credit is accurate to the best of my knowledge.</label>
+      {% endfieldset %}
+      <br/>
+        <table>
+            <tr>
+                <td>Submit with status:</td>
+            </tr>
+            <tr>
+                <td class='submission_status'>
+                    {% if submission_form.submission_status.errors %}
+                        {{ submission_form.errors.submission_status }}
+                    {% endif %}
+                    {{ submission_form.submission_status }}
+                </td>
+            </tr>    
+            {% if credit.applicabilityreason_set.all %}
+            <tr>
+                <td><div id='reason_choices'>
+                    Reason this credit does not apply:<br/>
+                        {% if submission_form.applicability_reason.errors %}{{ submission_form.errors.applicability_reason }}{% endif %}
+                        {{ submission_form.applicability_reason }}
+                </div></td>
+            </tr>
+            {% endif %}
+        </table>
+        <div class='button_row'>
+            <input type='submit' value='Submit' />
+        </div>
+    </form>
+{% endblock %}

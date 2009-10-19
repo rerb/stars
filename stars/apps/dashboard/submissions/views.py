@@ -5,7 +5,7 @@ from stars.apps.auth.decorators import user_can_submit
 from stars.apps.submissions.models import *
 from stars.apps.credits.models import *
 from stars.apps.helpers.forms.form_helpers import basic_save_form, basic_save_new_form
-from stars.apps.dashboard.submissions.forms import CreditUserSubmissionForm, ResponsiblePartyForm
+from stars.apps.dashboard.submissions.forms import CreditUserSubmissionForm, CreditUserSubmissionNotesForm, ResponsiblePartyForm
 
 def _get_active_submission(request):
     current_inst = request.user.current_inst
@@ -158,7 +158,30 @@ def credit_detail(request, category_id, subcategory_id, credit_id):
     
     context.update({'submission_form': submission_form,})
 
-    return respond(request, "dashboard/submissions/credit.html", context)
+    return respond(request, "dashboard/submissions/credit_reporting_fields.html", context)
+
+@user_can_submit
+def credit_documentation(request, category_id, subcategory_id, credit_id):
+    """
+        Credit documentation 
+    """
+    context = _get_credit_submission_context(request, category_id, subcategory_id, credit_id)
+    
+    return respond(request, "dashboard/submissions/credit_documentation.html", context)
+
+@user_can_submit
+def credit_notes(request, category_id, subcategory_id, credit_id):
+    """
+        Internal notes for the credit submission
+    """
+    context = _get_credit_submission_context(request, category_id, subcategory_id, credit_id)
+    credit_submission = context.get('credit_submission')
+    # Build and process the Credit Submission Notes form
+    (notes_form, saved) = basic_save_form(request, credit_submission, '', CreditUserSubmissionNotesForm)
+    
+    context.update({'notes_form': notes_form,})
+
+    return respond(request, "dashboard/submissions/credit_notes.html", context)
     
 @user_can_submit
 def add_responsible_party(request):

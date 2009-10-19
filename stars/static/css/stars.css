@@ -565,6 +565,12 @@ div.note {
     text-align: center;
 }
 
+div.documentation {
+    border: 1px solid #ccc;
+    margin: -10px 0px 20px;
+    padding: 0px 20px;
+}
+
 form {
     margin: 10px;
 }
@@ -645,6 +651,7 @@ fieldset.collapsed {
 
 fieldset legend {
     color:#072A60;
+    font-size:1.1em;
 }
 
 fieldset.non_collapsing legend {
@@ -715,7 +722,7 @@ div.field-form {  /* HACK: force browser to re-size select widgets.  See ticket 
 	width:500px;  /* Totally depends on width of column_container - bad bad bad, but won't work with % width! */
 }
 form.submit_form div.field-form {
-	width:550px;
+	width:500px;
 }
 form div.field-form select {
 	max-width: 100%;   /* assumes select is contained in a fixed-width div - otherwise long selections can otherwise break layout. See ticket #196 */
