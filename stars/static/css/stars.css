@@ -331,6 +331,10 @@ span.help_text {
     font-style: italic;
 }
 
+span.help_text p {
+    margin: 5px 1em;
+}
+
 table.list {
     width: 99%;
     border-collapse: collapse;

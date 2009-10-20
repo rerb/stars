@@ -38,14 +38,16 @@
         {% if submission_form.responsible_party.errors %}
             {{ submission_form.errors.responsible_party }}
         {% endif %}
+        <span class="required_note" title="This field is required to complete credit">*</span>
         {{ submission_form.responsible_party }}
         <a href="/dashboard/submissions/add-responsible-party/" class="add-another" id="add_id_responsible_party" onclick="return showAddAnotherPopup(this);" title='Add New Responsible Party'><img src='/media/static/images/add.png' alt='Add New Responsible Party' /></a>
         <br/>
         {% if submission_form.responsible_party_confirm.errors %}
             {{ submission_form.errors.responsible_party_confirm }}
         {% endif %}
+        <span class="required_note" title="This field is required to complete credit">*</span>
         {{ submission_form.responsible_party_confirm }}
-        <label>By checking this box, I affirm that the information included in the submission for this credit is accurate to the best of my knowledge.</label>
+        <label class="required">By checking this box, I affirm that the information included in the submission for this credit is accurate to the best of my knowledge.</label>
       {% endfieldset %}
       <br/>
         <table>
