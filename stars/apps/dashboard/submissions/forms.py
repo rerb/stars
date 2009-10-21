@@ -127,7 +127,7 @@ class DateSubmissionForm(SubmissionFieldForm):
             min = self.instance.documentation_field.min_range
             max = self.instance.documentation_field.max_range
             if min != None and max != None:
-                self.fields['value'].widget = SelectDateWidget(required=False, years=range(min, max))
+                self.fields['value'].widget = SelectDateWidget(required=False, years=range(min, max+1))
     
     class Meta:
         model = DateSubmission
