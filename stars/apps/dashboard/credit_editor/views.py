@@ -10,6 +10,7 @@ from stars.apps.helpers.forms import form_helpers
 from stars.apps.helpers.forms.forms import HiddenCounterForm
 from stars.apps.helpers import flashMessage
 from stars.apps.dashboard.credit_editor.forms import *
+from stars.apps.dashboard.credit_editor.decorators import *
 
 @user_is_staff
 def home(request):
@@ -38,9 +39,15 @@ def credit_set_detail(request, creditset_id):
     context = _get_creditset_context(creditset_id)
     creditset = context['creditset']
         
+    was_locked = creditset.is_locked
+    
     # Build and process the form for the creditset
     (object_form, saved) = form_helpers.basic_save_form(request, creditset, 'cs_%d' % creditset.id, CreditSetForm)
-        
+    
+    # If the credit set was just unlocked, we may need to run a special confirmation
+    if was_locked and creditset.unlock_requires_confirmation():
+        return HttpResponseRedirect(creditset.get_unlock_url())
+            
     # Build the form for adding a new category
     new_category_form = CategoryForm(prefix='new_cat')
         
@@ -72,6 +79,32 @@ def add_credit_set(request):
         'available_sets': CreditSet.objects.all(),
     }
     return respond(request, template, context)
+
+@user_is_staff
+def credit_set_confirm_unlock(request, creditset_id):
+    """
+        Get confirmation to unlock a CreditSet
+    """
+    context = _get_creditset_context(creditset_id)
+    creditset = context['creditset']
+                    
+    # Build and process the confirmation form
+    (form, unlocked) = form_helpers.confirm_unlock_form(request, creditset)       
+    if not creditset.is_locked:
+        return HttpResponseRedirect(creditset.get_edit_url())
+                
+    template = "dashboard/credit_editor/confirm_unlock.html"
+    context.update({'confirm_unlock_form': form})
+    return respond(request, template, context)
+
+@user_is_staff
+def credit_set_locked(request, creditset_id):
+    """
+        Remind unser that CreditSet is locked for editing
+    """
+    context = _get_creditset_context(creditset_id)
+    return respond(request, "dashboard/credit_editor/set_locked.html", context)
+    
     
 ############### CATEGORY CRUD ######################
 def _get_category_context(creditset_id, category_id):
@@ -106,6 +139,7 @@ def category_detail(request, creditset_id, category_id):
     return respond(request, template, context)
     
 @user_is_staff
+@creditset_is_unlocked
 def delete_category(request, creditset_id, category_id):
     """
         Shows a confirmation form to remove a category
@@ -122,6 +156,7 @@ def delete_category(request, creditset_id, category_id):
     return respond(request, template, context)
     
 @user_is_staff
+@creditset_is_unlocked
 def add_category(request, creditset_id):
     """
         This view provides and processes a form to edit a new category
@@ -187,6 +222,7 @@ def subcategory_detail(request, creditset_id, category_id, subcategory_id):
     return respond(request, template, context)
     
 @user_is_staff
+@creditset_is_unlocked
 def delete_subcategory(request, creditset_id, category_id, subcategory_id):
     """
         Shows a confirmation form to remove a subcategory
@@ -204,6 +240,7 @@ def delete_subcategory(request, creditset_id, category_id, subcategory_id):
     return respond(request, template, context)
     
 @user_is_staff
+@creditset_is_unlocked
 def add_subcategory(request, creditset_id, category_id):
     """
         This view provides and processes a form to edit a new subcategory
@@ -256,6 +293,7 @@ def credit_detail(request, creditset_id, category_id, subcategory_id, credit_id)
     return respond(request, template, context)
 
 @user_is_staff
+@creditset_is_unlocked
 def delete_credit(request, creditset_id, category_id, subcategory_id, credit_id):
     """
         Shows a confirmation form to remove a credit
@@ -271,6 +309,7 @@ def delete_credit(request, creditset_id, category_id, subcategory_id, credit_id)
     return respond(request, template, context)
     
 @user_is_staff
+@creditset_is_unlocked
 def add_credit(request, creditset_id, category_id, subcategory_id):
     """
         The view where users can create a credit
@@ -289,6 +328,7 @@ def add_credit(request, creditset_id, category_id, subcategory_id):
     return respond(request, template, context)
     
 @user_is_staff
+@creditset_is_unlocked
 def add_t2_credit(request, creditset_id, category_id, subcategory_id):
     """
         The view where staff can create a Tier 2 Credit
@@ -337,6 +377,7 @@ def credit_fields(request, creditset_id, category_id, subcategory_id, credit_id)
     return respond(request, template, context)
 
 @user_is_staff
+@creditset_is_unlocked
 def add_field(request, creditset_id, category_id, subcategory_id, credit_id):
     """
         Provides and processes a form for adding a new documentation field
@@ -389,6 +430,7 @@ def field_detail(request, creditset_id, category_id, subcategory_id, credit_id, 
     return respond(request, template, context)
 
 @user_is_staff
+@creditset_is_unlocked
 def delete_field(request, creditset_id, category_id, subcategory_id, credit_id, field_id):
     """
         Deletes a selected Documentation Field
@@ -405,6 +447,7 @@ def delete_field(request, creditset_id, category_id, subcategory_id, credit_id, 
 
 ############### DOCUMENTATION FIELD CHOICES ######################    
 @user_is_staff
+@creditset_is_unlocked
 def add_choice(request, creditset_id, category_id, subcategory_id, credit_id, field_id):
     """
         Provides and processes a form for adding a new choice to a documentation field
@@ -435,6 +478,7 @@ def edit_choice(request, creditset_id, category_id, subcategory_id, credit_id, f
     return respond(request, template, context)
 
 @user_is_staff
+@creditset_is_unlocked
 def reorder_choices(request, creditset_id, category_id, subcategory_id, credit_id, field_id):
     """
         Handles a re-order post for Documentation Field - which has custom validation - messed up by the order-form post
@@ -448,6 +492,7 @@ def reorder_choices(request, creditset_id, category_id, subcategory_id, credit_i
     return HttpResponseRedirect("%s?expand_choices=True"%field.get_edit_url())    
     
 @user_is_staff
+@creditset_is_unlocked
 def delete_choice(request, creditset_id, category_id, subcategory_id, credit_id, field_id, choice_id):
     """
         Provides and processes a form for deleting a choice from a documentation field
@@ -488,6 +533,7 @@ def credit_applicability(request, creditset_id, category_id, subcategory_id, cre
     return respond(request, template, context)
 
 @user_is_staff
+@creditset_is_unlocked
 def edit_applicability(request, creditset_id, category_id, subcategory_id, credit_id, reason_id):
     """
         Edit an applicability reason
@@ -505,6 +551,7 @@ def edit_applicability(request, creditset_id, category_id, subcategory_id, credi
     return respond(request, template, context)
     
 @user_is_staff
+@creditset_is_unlocked
 def delete_applicability(request, creditset_id, category_id, subcategory_id, credit_id, reason_id):
     """
         Delete an applicability reason

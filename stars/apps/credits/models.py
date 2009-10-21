@@ -36,6 +36,7 @@ class CreditSet(models.Model):
     version = models.CharField(max_length=5, unique=True)
     release_date = models.DateField()
     tier_2_points = models.FloatField()
+    is_locked = models.BooleanField(default=False, verbose_name="Lock Credits", help_text="When a credit set is locked, most credit editor functions will be disabled.")
     
     class Meta:
         ordering = ('release_date',)
@@ -49,10 +50,37 @@ class CreditSet(models.Model):
     def get_submit_url(self):
         return "/dashboard/submissions/"
         
+    def get_unlock_url(self):
+        return "%sconfirm-unlock/"%self.get_edit_url()
+
+    def get_locked_url(self):
+        return "%slocked/"%self.get_edit_url()
+
     def get_parent(self):
         """ Returns the parent element for crumbs """
         return None
     
+    def num_submissions(self):
+        """ Return the number of credit submissions started for this category """
+        from stars.apps.submissions.models import get_active_submissions
+        return get_active_submissions(creditset=self).count()
+    
+    def unlock(self):
+        self.is_locked = False
+        self.save()
+        
+    def unlock_requires_confirmation(self):
+        """ 
+            Returns True if a confirmation is required to unlock this creditset, False if it can be unlocked without 
+            Side-effect:  locks the creditset if a confirmation IS required, otherwise leaves it as is.
+        """
+        if not self.is_locked and self.num_submissions() > 0:  # only need confirmation on unlocked sets with submissions.
+            self.is_locked = True
+            self.save()
+            return True
+        else:
+            return False
+        
     @classmethod
     def get_latest_creditset(cls):
         """

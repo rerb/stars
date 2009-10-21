@@ -3,7 +3,6 @@ from django.utils.html import conditional_escape
 from django.utils.encoding import StrAndUnicode, smart_unicode, force_unicode
 from django.utils.safestring import mark_safe
 
-from stars.apps.helpers.forms.forms import ConfirmDelete, HiddenCounterForm
 from stars.apps.helpers import flashMessage
 
 def object_ordering(request, object_list, form_class, ignore_errors=True, ignore_post=False, ignore_objects=[]):
@@ -137,6 +136,7 @@ def save_new_form_rows(request, prefix, form_class, instance_class, **instance_c
           instance_constructor_args - passed as:  instance_class( instance_constructor_args)
         Returns a list of new instances, and an error flag, which is true if any errors were encountered saving the forms.
     """
+    from stars.apps.helpers.forms.forms import HiddenCounterForm
     errors = []
     instances = []
     if request.method == 'POST':
@@ -165,12 +165,34 @@ def save_new_form_rows(request, prefix, form_class, instance_class, **instance_c
     return [instances, len(errors)>0]
 
 
+def confirm_unlock_form(request, instance):
+    """
+        Provides basic form handling for confirming unlock for a Credit Set (perhaps this will be generalized in future.
+        Uses instance.unlock() to perform the unlock
+        Returns (form, unlocked), where form is the confirmation form and unlocked is True if the form was POST'ed and the unlock performed successfully.
+    """
+    from stars.apps.helpers.forms.forms import ConfirmUnlock
+    unlocked = False
+    if request.method == "POST":
+        form = ConfirmUnlock(request.POST)
+        if form.is_valid():
+            if form.cleaned_data['confirm']:
+                msg_parms = (_get_model_label(instance.__class__), unicode(instance))
+                instance.unlock()
+                flashMessage.send("%s %s was unlocked."%msg_parms, flashMessage.SUCCESS)
+                unlocked = True
+    else:
+        form = ConfirmUnlock()
+    form.instance = instance
+    return (form, unlocked)
+
 def confirm_delete_form(request, instance, delete_method=None):
     """
         Provides basic form handling for confirming and deleting an existing model
         Uses instance.delete() to perform the deletion if no delete_method is supplied
         Returns (form, deleted), where form is the delete confirmation form and deleted is True if the form was POST'ed and the deletion performed successfully.
     """
+    from stars.apps.helpers.forms.forms import ConfirmDelete
     deleted = False
     if not delete_method:
         delete_method = instance.delete

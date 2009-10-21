@@ -119,7 +119,7 @@ class SubmissionSet(models.Model):
         return "Complete" if self.get_percent_complete() == 100 else "Progress"
 
 
-def get_active_submissions(category=None, subcategory=None, credit=None):
+def get_active_submissions(creditset=None, category=None, subcategory=None, credit=None):
     """ Return a queryset for ALL active (started / finished) credit submissions that meet the given criteria.
         Only ZERO or ONE criteria should be specified - more is redundant and this code does not check for consistency.
     """
@@ -128,15 +128,19 @@ def get_active_submissions(category=None, subcategory=None, credit=None):
     if credit:
         submissions = submissions.filter(credit=credit)
     else:
-        # This code results in a nested query. May not be optimized in MySQL - see Performance Considerations at: http://docs.djangoproject.com/en/dev/ref/models/querysets/#in
-        subcategory_submission_set = None
+        # This code may result in a nested query. May not be optimized in MySQL - see Performance Considerations at: http://docs.djangoproject.com/en/dev/ref/models/querysets/#in
+        credits = []
         if subcategory:
-            subcategory_submission_set = SubcategorySubmission.objects.filter(subcategory=subcategory)
+            credits = subcategory.credit_set.all()
         elif category:
-            category_submissions = CategorySubmission.objects.filter(category=category)
-            subcategory_submission_set = SubcategorySubmission.objects.filter(category_submission__in=category_submissions)
-        if subcategory_submission_set:
-            submissions = submissions.filter(subcategory_submission__in=subcategory_submission_set)
+            subcategories = Subcategory.objects.filter(category=category)
+            credits = Credit.objects.filter(subcategory__in=subcategories)
+        elif creditset:
+            categories = Category.objects.filter(creditset=creditset)
+            subcategories = Subcategory.objects.filter(category__in=categories)
+            credits = Credit.objects.filter(subcategory__in=subcategories)
+
+        submissions = submissions.filter(credit__in=credits)
 
     return submissions.exclude(submission_status='ns')        
 

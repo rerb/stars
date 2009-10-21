@@ -1,0 +1,29 @@
+{% extends "dashboard/credit_editor/base.html" %}
+
+{% block crumbs %}
+    {% load ce_tags %}
+    {% show_editor_crumbs creditset %}
+{% endblock %}
+
+{% block header %}Unlock Credit Set {{ creditset }}{% endblock %}
+
+{% block center %}
+    {% block submissions_warning %}
+        {% if creditset.num_submissions %}
+            <div class='warning'>
+                There are {{ creditset.num_submissions }} submissions for this Credit Set.<br>
+                Unlocking this Credit Set allows staff to make modifications with a potential to affect this submission data! 
+            </div>
+        {% endif %}  
+    {% endblock %}
+    <h3>Are you sure you want to unlock Credit Set {{ creditset }}?</h3>
+    <form method='POST' action='.'>
+		<table class='form'>
+		    {{ confirm_unlock_form }}
+		    <tr><td colspan='2' class='buttonRow'>
+		        <button type='submit'>unlock it</button>
+		        <button type='button' onclick='document.location="{{ creditset.get_edit_url }}";'>cancel</button>
+		    </td></tr>
+		</table>
+    </form>
+{% endblock %}

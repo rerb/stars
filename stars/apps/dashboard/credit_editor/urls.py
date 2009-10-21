@@ -7,6 +7,8 @@ urlpatterns = patterns(
     (r'^add-creditset/$', 'add_credit_set'),
     (r'^(?P<creditset_id>\d+)/$', 'credit_set_detail'),
     (r'^(?P<creditset_id>\d+)/add-category/$', 'add_category'),
+    (r'^(?P<creditset_id>\d+)/confirm-unlock/$', 'credit_set_confirm_unlock'),
+    (r'^(?P<creditset_id>\d+)/locked/$', 'credit_set_locked'),
     (r'^(?P<creditset_id>\d+)/(?P<category_id>\d+)/$', 'category_detail'),
     (r'^(?P<creditset_id>\d+)/(?P<category_id>\d+)/delete/$', 'delete_category'),
     (r'^(?P<creditset_id>\d+)/(?P<category_id>\d+)/add-subcategory/$', 'add_subcategory'),

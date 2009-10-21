@@ -6,8 +6,9 @@
      - submission template tags
 
 @todo: turn this into a unit test:     
-from stars.apps.credits.models import Category, Subcategory, Credit, DocumentationField, ApplicabilityReason
+from stars.apps.credits.models import CreditSet, Category, Subcategory, Credit, DocumentationField, ApplicabilityReason
 from stars.apps.submissions.models import get_active_submissions, get_active_field_submissions, get_na_submissions
+cs = CreditSet.objects.get(pk=1)
 cat = Category.objects.get(pk=2)
 subcat = Subcategory.objects.get(pk=5)
 credit = Credit.objects.get(pk=1)
@@ -15,6 +16,9 @@ reason = ApplicabilityReason.objects.get(pk=1)
 textfield = DocumentationField.objects.get(pk=1)
 datefield = DocumentationField.objects.get(pk=2)
 numfield = DocumentationField.objects.get(pk=3)
+cssubs = get_active_submissions(creditset=cs)
+print cssubs
+print cs.num_submissions()
 catsubs = get_active_submissions(category=cat)
 print catsubs
 print cat.num_submissions()

@@ -10,3 +10,7 @@ class HiddenCounterForm(Form):
 class ConfirmDelete(Form):
     """ Confirm a deletion """
     confirm = BooleanField()
+
+class ConfirmUnlock(Form):
+    """ Confirm an unlock operation """
+    confirm = BooleanField()
