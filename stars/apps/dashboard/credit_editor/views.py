@@ -18,7 +18,7 @@ def home(request):
         Forwards the user to the latest version.
     """
     # simply forward the visitor to the latest version
-    latest_version = CreditSet.objects.all()[0]
+    latest_version = CreditSet.get_latest_creditset()
     return HttpResponseRedirect(latest_version.get_edit_url())
     
 ############### CREDIT-SET CRUD ######################
