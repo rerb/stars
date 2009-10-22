@@ -18,7 +18,7 @@
 	    </tr>
 	    <tr>
           <td>
-            {% fieldset 'Validation' with validation_rules as fields from object_form 'collapsed' %}
+            {% fieldset 'Validation' with validation_rules as fields from object_form 'expanded' %}
                 {{ fields.validation_rules.errors }}
                 {{ fields.validation_rules|safe }}
             {% endfieldset %}
