@@ -1,5 +1,5 @@
 [
-{"pk": 1, "model": "credits.creditset", "fields": {"release_date": "2008-09-01", "version": "0.5"}}, 
+{"pk": 1, "model": "credits.creditset", "fields": {"release_date": "2008-09-01", "version": "0.5", "tier_2_points":"0.25"}}, 
 {"pk": 1, "model": "credits.category", "fields": {"ordinal": 0, "description": "<p>Education &amp; Research</p>", "title": "Education & Research", "creditset": 1, "abbreviation": "ER", "max_point_value": 0}}, 
 {"pk": 2, "model": "credits.category", "fields": {"ordinal": 1, "description": "<p>Operations</p>", "title": "Operations", "creditset": 1, "abbreviation": "OP", "max_point_value": 0}}, 
 {"pk": 3, "model": "credits.category", "fields": {"ordinal": 2, "description": "<p>Administration and Finance</p>", "title": "Administration & Finance", "creditset": 1, "abbreviation": "AF", "max_point_value": 0}}, 

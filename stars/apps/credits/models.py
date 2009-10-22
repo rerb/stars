@@ -381,7 +381,7 @@ else:
             Helper: return the next identifier for a new documentation field for this credit 
             @return a unique two-character identifier, of form "AB"
         """
-        fields = self.documentationfield_set.all().order_by('-identifier')[:1]
+        fields = self.documentationfield_set.all().order_by('-id')[:1]
         lastIdent = ''
         if (fields):
             lastIdent = fields[0].identifier
@@ -590,6 +590,7 @@ class DocumentationField(models.Model):
     
     class Meta:
         ordering = ('ordinal',)
+        unique_together = ("credit", "identifier")
 
     def save(self, *args, **kwargs):
         """ Override model.Model save() method to assign identifier and ordinal """
