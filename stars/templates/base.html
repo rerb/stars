@@ -15,7 +15,7 @@
 	<body{% block body_attribute %}{% endblock %}>
 	<script type="text/javascript" src="/media/static/js/wz_tooltip.js"></script>
 		<div id='header'>
-            {% if messages or site_status.broadcast_message %}
+            {% if messages or site_status.broadcast_message or extra_messages %}
             {% load helpers %}
             <div id="flash_message" class="visible">
                 <a href='#'  onclick="document.getElementById('flash_message').className = 'hidden';"><img src="/media/static/images/cross.png" class="close" title="close"></a>
@@ -23,6 +23,7 @@
                 {% if site_status.broadcast_message %}
                     <li class='notice'>{{ site_status.broadcast_message }}</li>
                 {% endif %}
+                {% block extra_messages %}{% endblock %}
                 {% for message in messages %}
                     <li class={{ message|split:0 }}>{{ message|split:1 }}</li>
                 {% endfor %}

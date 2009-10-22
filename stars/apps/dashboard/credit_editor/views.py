@@ -26,6 +26,7 @@ def _get_creditset_context(creditset_id):
     # confirm that the credit set exists
     creditset = get_object_or_404(CreditSet, id=creditset_id)
     context = {
+        'extra_messages': creditset.is_released() and not creditset.is_locked,   # fairly benign hack to get base templates to display warning message if needed.  Creates a bit of coupling.
         'creditset': creditset,
         'available_sets': CreditSet.objects.all(),
     }
@@ -38,16 +39,14 @@ def credit_set_detail(request, creditset_id):
     """
     context = _get_creditset_context(creditset_id)
     creditset = context['creditset']
-        
-    was_locked = creditset.is_locked
-    
+            
+    # If the credit set is locked, confirm unlock before allowing any post data
+    if request.method=='POST' and creditset.is_locked:
+        return HttpResponseRedirect(creditset.get_unlock_url())
+
     # Build and process the form for the creditset
     (object_form, saved) = form_helpers.basic_save_form(request, creditset, 'cs_%d' % creditset.id, CreditSetForm)
-    
-    # If the credit set was just unlocked, we may need to run a special confirmation
-    if was_locked and creditset.unlock_requires_confirmation():
-        return HttpResponseRedirect(creditset.get_unlock_url())
-            
+                
     # Build the form for adding a new category
     new_category_form = CategoryForm(prefix='new_cat')
         
@@ -100,7 +99,7 @@ def credit_set_confirm_unlock(request, creditset_id):
 @user_is_staff
 def credit_set_locked(request, creditset_id):
     """
-        Remind unser that CreditSet is locked for editing
+        Remind user that CreditSet is locked for editing
     """
     context = _get_creditset_context(creditset_id)
     return respond(request, "dashboard/credit_editor/set_locked.html", context)
@@ -115,6 +114,7 @@ def _get_category_context(creditset_id, category_id):
     return context
 
 @user_is_staff
+@creditset_allows_post
 def category_detail(request, creditset_id, category_id):
     """
         Shows the details for a particular category
@@ -183,6 +183,7 @@ def _get_subcategory_context(creditset_id, category_id, subcategory_id):
     return context
 
 @user_is_staff
+@creditset_allows_post
 def subcategory_detail(request, creditset_id, category_id, subcategory_id):
     """
         Shows the details for a particular subcategory
@@ -267,6 +268,7 @@ def _get_credit_context(creditset_id, category_id, subcategory_id, credit_id):
     return context
 
 @user_is_staff
+@creditset_allows_post
 def credit_detail(request, creditset_id, category_id, subcategory_id, credit_id):
     """
         Show the details for a particular credit and provides editing forms
@@ -357,6 +359,7 @@ def _get_doc_field_context(creditset_id, category_id, subcategory_id, credit_id,
     return context
 
 @user_is_staff
+@creditset_allows_post
 def credit_fields(request, creditset_id, category_id, subcategory_id, credit_id):
     """
         Show the documentation fields for a particular credit and provides editing forms
@@ -395,6 +398,7 @@ def add_field(request, creditset_id, category_id, subcategory_id, credit_id):
     return respond(request, template, context)
     
 @user_is_staff
+@creditset_allows_post
 def field_detail(request, creditset_id, category_id, subcategory_id, credit_id, field_id):
     """
         Provides a set of forms to edit a Documentation Field
@@ -461,6 +465,7 @@ def add_choice(request, creditset_id, category_id, subcategory_id, credit_id, fi
     return HttpResponseRedirect("%s?expand_choices=True"%field.get_edit_url())    
 
 @user_is_staff
+@creditset_allows_post
 def edit_choice(request, creditset_id, category_id, subcategory_id, credit_id, field_id, choice_id):
     """
         Edit a choice - allows the choice wording to change without affecting submissions using this choice.
@@ -513,6 +518,7 @@ def delete_choice(request, creditset_id, category_id, subcategory_id, credit_id,
 
 ############### CREDIT APPLICABILITY REASONS ######################    
 @user_is_staff
+@creditset_allows_post
 def credit_applicability(request, creditset_id, category_id, subcategory_id, credit_id):
     """
         Show the applicability reasons for a particular credit
@@ -578,6 +584,7 @@ def _get_credit_formula_context(creditset_id, category_id, subcategory_id, credi
     return context
 
 @user_is_staff
+@creditset_allows_post
 def credit_formula(request, creditset_id, category_id, subcategory_id, credit_id):
     """
         Edit the formula and validation rules along with test data for a particular credit

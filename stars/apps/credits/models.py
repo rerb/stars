@@ -41,6 +41,11 @@ class CreditSet(models.Model):
     class Meta:
         ordering = ('release_date',)
     
+    def __init__(self, *args, **kwargs):
+        super(CreditSet, self).__init__(*args, **kwargs)
+        self._unlock_confirmed = False
+        self._confirm_unlock_attempt = False  # not required until an attempt to unlock is actually made
+        
     def __unicode__(self):
         return smart_unicode("v%s" % self.version, encoding='utf-8', strings_only=False, errors='strict')
         
@@ -70,21 +75,42 @@ class CreditSet(models.Model):
         return get_active_submissions(creditset=self).count()
     
     def unlock(self):
+        """ Clients must use this method to perform a confirmed unlock. """
         self.is_locked = False
+        self._unlock_confirmed = True
         self.save()
         
-    def unlock_requires_confirmation(self):
+    def unlock_attempt_requires_confirmation(self):
         """ 
-            Returns True if a confirmation is required to unlock this creditset, False if it can be unlocked without 
-            Side-effect:  locks the creditset if a confirmation IS required, otherwise leaves it as is.
+            Returns True if a failed attempt was made to unlock this creditset without using unlock(), False otherwise
         """
-        if not self.is_locked and self.num_submissions() > 0:  # only need confirmation on unlocked sets with submissions.
-            self.is_locked = True
-            self.save()
-            return True
+        return self.is_locked and self._confirm_unlock_attempt
+            
+    def save(self, *args, **kwargs):
+        """ Enforce unlock protocol and Log changes to the credit set lock status """
+        pre_save = CreditSet.objects.get(pk=self.pk)
+        lock_changed = pre_save.is_locked != self.is_locked
+
+        # Unconfirmed lock attempt:  determine if confirmation is required and reset lock if so.
+        if lock_changed and not self.is_locked and not self._unlock_confirmed:
+            self._confirm_unlock_attempt = self.is_released() and self.num_submissions() > 0
+            if self._confirm_unlock_attempt:
+                self.is_locked = pre_save.is_locked
+                lock_changed = False
         else:
-            return False
-        
+            self._confirm_unlock_attempt = False
+            
+        # Log any significant changes to the lock
+        if lock_changed and self.is_released() :
+            lock_status = 'LOCKED' if self.is_locked else 'UN-LOCKED'
+            watchdog.log('Credit Editor', "Released Credit Set %s was %s"%(self, lock_status), watchdog.NOTICE)
+        super(CreditSet, self).save(*args, **kwargs)
+
+    def is_released(self):
+        """ Returns True if the current date is past the credit set release date """
+        from datetime import date
+        return self.release_date and (self.release_date <= date.today())
+     
     @classmethod
     def get_latest_creditset(cls):
         """
