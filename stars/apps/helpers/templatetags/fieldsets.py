@@ -64,7 +64,7 @@ def do_collapsing_fieldset(parser, token):
                        - may be any css class (e.g., 'hidden')
                        - special class 'non_collapsing' will render the fieldset 'expanded' and without any collapsing logic.
       Requires:
-        - Javascript:  expand_collapse_fieldset()  is included on page
+        - Javascript:  expand_collapse_parent()  is included on page
         - Images: /media/static/images/collapse.png and /media/static/images/expand.png
         - CSS: definitions for at least:  fieldset.collapsed and fieldset.expanded
     """
@@ -117,8 +117,8 @@ class CollapsingFieldSetNode(template.Node):
         is_collapsing = fieldset_css_class != 'non_collapsing'
         
         fieldset_attributes = "id='%s' class='%s%s'"%(fieldset_id, fieldset_css_class, '' if is_collapsing else ' expanded')
-        legend_title = legend
-        legend_attributes = "style='cursor: pointer' onclick='expand_collapse_fieldset(this)'" if is_collapsing else ""
+        legend_title = 'Expand / Collapse'
+        legend_attributes = "style='cursor: pointer' onclick='expand_collapse_parent(this)'" if is_collapsing else ""
         image, alt = ('/media/static/images/collapse.png','-') if fieldset_css_class=='expanded' else ('/media/static/images/expand.png', '+')
         legend_content = "<img src=%s title='Expand/Collapse' alt='%s' /> %s"%(image, alt, legend) if is_collapsing else legend
 

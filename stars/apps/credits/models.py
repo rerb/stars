@@ -60,6 +60,10 @@ class CreditSet(models.Model):
         """ Returns the parent element for crumbs """
         return None
     
+    def get_children(self):
+        """ Returns a queryset with child credit model objects - for hierarchy """
+        return self.category_set.all()
+
     def num_submissions(self):
         """ Return the number of credit submissions started for this category """
         from stars.apps.submissions.models import get_active_submissions
@@ -119,6 +123,10 @@ class Category(models.Model):
     def get_parent(self):
         """ Returns the parent element for crumbs """
         return self.creditset
+
+    def get_children(self):
+        """ Returns a queryset with child credit model objects - for hierarchy """
+        return self.subcategory_set.all()
 
     def has_dependents(self):
         """ Return true if this Category has dependent objects lower in the credit hierarchy """
@@ -198,6 +206,10 @@ class Subcategory(models.Model):
         """ Returns the parent element for crumbs """
         return self.category
         
+    def get_children(self):
+        """ Returns a queryset with child credit model objects - for hierarchy """
+        return self.credit_set.all()
+
     def get_tier1_credits(self):
         return self.credit_set.filter(type='t1')
         
@@ -264,7 +276,7 @@ class Credit(models.Model):
         ordering = ('ordinal',)
     
     def __unicode__(self):
-        return smart_unicode(self.title, encoding='utf-8', strings_only=False, errors='strict')
+        return smart_unicode("%s: %s"%(self.get_identifier(), self.title), encoding='utf-8', strings_only=False, errors='strict')
 
     def __str__(self):  # For DEBUG -  comment out __unicode__ method
         return "#%d: %s (%d)" % (self.number, self.title, self.ordinal)
@@ -289,6 +301,10 @@ class Credit(models.Model):
         """ Returns the parent element for crumbs """
         return self.subcategory
         
+    def get_children(self):
+        """ Returns a queryset with child credit model objects - for hierarchy """
+        return None  # Credits are leaf nodes in the menu hierarchy (although not in the model hierarchy)
+
     def has_dependents(self):
         """ Return true if this Subcategory has dependent objects lower in the credit hierarchy """
         return self.documentationfield_set.all().count() > 0 or self.applicabilityreason_set.all().count() > 0

@@ -1,11 +1,11 @@
 from django import template
-from django import forms
-from django.forms import widgets
-from django.utils.html import strip_spaces_between_tags, escape
+#from django import forms
+#from django.forms import widgets
+#from django.utils.html import strip_spaces_between_tags, escape
 
 from stars.apps.submissions.models import DocumentationFieldSubmission
 from stars.apps.dashboard.submissions.forms import SubmissionFieldForm
-import re
+#import re
 
 register = template.Library()
 

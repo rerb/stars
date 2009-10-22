@@ -8,13 +8,13 @@
             {% include "dashboard/credit_editor/credits/field_ordering.html" %}
         </table>
     </form>
-    <div class='new_form'>
-        <span style='cursor: pointer' onclick='expand_new_form(this)' title='Add Reporting Field'>
+    <div class='new_form collapsed'>
+        <span style='cursor: pointer' onclick='expand_collapse_parent(this);' title='Add Reporting Field'>
             <img src='/media/static/images/expand.png' title='Add Reporting Field' alt='+' />
             Add Reporting Field
         </span>
         <form action='{{ credit.get_edit_url }}add-field/' method='POST' style='margin: 0px;'>
-            <div class='form' id='new_form' style='display:none'>
+            <div class='form'>
                 {% include 'dashboard/credit_editor/standard_form.html' %}
             </div>
         </form>

@@ -1,3 +1,4 @@
+/*** DELETE ME - all replaced by expand_collapse function below...
 function collapse_expand(dom_obj) {
 	var li = dom_obj.parentNode;
 
@@ -20,8 +21,12 @@ function collapse_expand(dom_obj) {
 }
 
 function expand_collapse_fieldset(legend_obj) {
-    img_obj = legend_obj.getElementsByTagName('img')[0];
-    fieldset = legend_obj.parentNode;
+    // Expand or Collapse a fieldset given it's legend object.  
+    //   The legend must include an image tag, showing the expanded / collapsed state of the fieldset.
+    //   Really just sets the fieldset class = 'expanded' or 'collapsed' - CSS does the rest.
+    
+    var img_obj = legend_obj.getElementsByTagName('img')[0];
+    var fieldset = legend_obj.parentNode;
     if( fieldset.className == 'collapsed' ) {
         img_obj.src = '/media/static/images/collapse.png';
         img_obj.alt = '-';
@@ -34,17 +39,70 @@ function expand_collapse_fieldset(legend_obj) {
     }
 }
 
+function expand_new_form(span_obj) {
+    img_obj = span_obj.getElementsByTagName('img')[0];
+    table = document.getElementById('new_form');
+    if( img_obj.alt == '+' ) {
+        img_obj.src = '/media/static/images/collapse.png';
+        img_obj.alt = '-';
+        table.style.display = '';
+    }
+    else {
+        img_obj.src = '/media/static/images/expand.png';
+        img_obj.alt = '+';
+        table.style.display = 'none';
+    }
+}
+
+// NOT USED
 function collapse_table(a_obj) {
-	var th = a_obj.parentNode;
+    var th = a_obj.parentNode;
     var tr = th.parentNode;
     var table = tr.parentNode;
-	var children = table.getElementsByTagName('tr');
-	for( var i = 1; i < children.length; i++ ) {
-		children[i].style.display = ( children[i].style.display == 'none' ) ? '' : 'none';
-	}
+    var children = table.getElementsByTagName('tr');
+    for( var i = 1; i < children.length; i++ ) {
+        children[i].style.display = ( children[i].style.display == 'none' ) ? '' : 'none';
+    }
     
     a_obj.innerHTML = (a_obj.innerHTML == 'collapse') ? "show details" : "collapse";
 }
+
+***/
+
+function expand_collapse_parent(child_obj) {
+    expand_collapse(child_obj.parentNode);
+}
+
+function expand_collapse(dom_obj) {
+    /* Expand or Collapse any DOM object - usually a list or a div
+       The object must contain an image tag, showing the expanded / collapsed state of the object.
+       Typically triggered by onclick="expand_collapse_parent(this);" event handler on the image tag.
+       Really just sets the object's class = 'expanded' or 'collapsed' - CSS does the rest.
+     */
+    var img_obj = dom_obj.getElementsByTagName('img')[0];
+    var css_class = dom_obj.className;
+
+    if (css_class.search(/collapsed/g) > -1) {
+        img_obj.src = "/media/static/images/collapse.png";
+        img_obj.title = "collapse";
+        img_obj.className = "collapse";
+        img_obj.alt = '-';
+        dom_obj.className = css_class.replace(/collapsed/g, 'expanded');
+    }
+    else {
+        img_obj.src = "/media/static/images/expand.png";
+        img_obj.title = "expand";
+        img_obj.className = "expand";
+        img_obj.alt = '+';
+        if (css_class.search(/expanded/g) > -1) {
+            dom_obj.className = css_class.replace(/expanded/g, 'collapsed');
+        }
+        else {
+            dom_obj.className = css_class + ' collapsed';        
+        }
+    }
+}
+
 
 function setTable(dndtable) {
     /***
@@ -106,21 +164,6 @@ function show_tool_tip(tooltip) {
         body = "<img onclick=\'UnTip();\' title=\'close\' class=\'close\' src=\'/media/static/images/cross.png\'/>"
                + tooltip;
         Tip(body, WIDTH, -350, STICKY, true);
-    }
-}
-
-function expand_new_form(span_obj) {
-    img_obj = span_obj.getElementsByTagName('img')[0];
-    table = document.getElementById('new_form');
-    if( img_obj.alt == '+' ) {
-        img_obj.src = '/media/static/images/collapse.png';
-        img_obj.alt = '-';
-        table.style.display = '';
-    }
-    else {
-        img_obj.src = '/media/static/images/expand.png';
-        img_obj.alt = '+';
-        table.style.display = 'none';
     }
 }
 

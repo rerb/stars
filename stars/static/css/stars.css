@@ -364,13 +364,6 @@ table.list tr.new {
     background-color: #ff9;
 }
 
-img.collapse, img.expand {
-    cursor: pointer;
-    vertical-align: middle;
-    margin: 0px;
-    padding: 3px;
-}
-
 div#summary {
     text-align: center;
     padding: 5px 10px;
@@ -638,12 +631,20 @@ div#reason_choices {
     background-color: #ffe;
 }
 
-fieldset {
-    border: 1px solid #aaa;
+img.collapse, img.expand {
+    cursor: pointer;
+    vertical-align: middle;
+    margin: 0px;
+    padding: 3px;
 }
 
-fieldset.expanded div {
-  visibility: visible;
+.collapsed ul,
+.collapsed div {
+  display:none;
+}
+
+fieldset {
+    border: 1px solid #aaa;
 }
 
 fieldset.collapsed {
@@ -660,11 +661,6 @@ fieldset legend {
 
 fieldset.non_collapsing legend {
 	color: #aaa;
-}
-
-fieldset.collapsed div {
-  visibility: hidden;
-  display:none;
 }
 
 fieldset#field_choices {

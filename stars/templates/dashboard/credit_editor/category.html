@@ -22,13 +22,13 @@
         {% endif %}
     </form>
 
-    <div class='new_form'>
-        <span style='cursor: pointer' onclick='expand_new_form(this)' title='Add Subategory'>
+    <div class='new_form collapsed'>
+        <span style='cursor: pointer' onclick='expand_collapse_parent(this);' title='Add Subategory'>
             <img src='/media/static/images/expand.png' title='Add Subcategory' alt='+' />
             Add Subcategory
         </span>
         <form action='{{ category.get_edit_url }}add-subcategory/' method='POST' style='margin: 0px;'>
-            <div class='form' id='new_form' style='display:none'>
+            <div class='form'>
                 {{ new_subcategory_form.as_p }}
                 <p class='buttonRow'>
                 <input type='submit' value='submit' />

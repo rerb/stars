@@ -1,40 +1,6 @@
 <ul>
-{% for cat in creditset.category_set.all %}
-    <li{% if not subcategory %}{% if category %}{% ifequal category cat %} class='current'{% endifequal %}{% endif %}{% endif %}>
-        <img src='/media/static/images/collapse.png' class='collapse' title='collapse' alt='-' onclick='collapse_expand(this);' />
-        <a href='{% if edit %}{{ cat.get_edit_url }}{% else %}{{ cat.get_submit_url }}{% endif %}'>{{ cat }}</a>
-        {% if cat.subcategory_set %}
-        <ul>
-            {% for sub in cat.subcategory_set.all %}
-                <li{% if not credit %}{% if subcategory %}{% ifequal subcategory sub %} class='current'{% endifequal %}{% endif %}{% endif %}>
-                    <img src='/media/static/images/collapse.png' class='collapse' title='collapse' alt='-' onclick='collapse_expand(this);' />
-                    <a href='{% if edit %}{{ sub.get_edit_url }}{% else %}{{ sub.get_submit_url }}{% endif %}'>{{ sub }}</a>
-                    {% if sub.credit_set %}
-                    <ul>
-                        {% for c in sub.get_tier1_credits %}
-                            <li class="{% if credit %}{% ifequal credit c %}current{% endifequal %}{% endif %}">
-                                <a href='{% if edit %}{{ c.get_edit_url }}{% else %}{{ c.get_submit_url }}{% endif %}'>{{ c.get_identifier }}: {{ c }}</a>
-                            </li>
-                        {% endfor %}
-                        {% if sub.get_tier2_credits %}
-                            <li>
-                                <img src='/media/static/images/collapse.png' class='collapse' title='collapse' alt='-' onclick='collapse_expand(this);' />
-                                <i><b>Tier 2 Credits</b></i>
-                                <ul>
-                            {% for c in sub.get_tier2_credits %}
-                                <li class="{% if credit %}{% ifequal credit c %}current{% endifequal %}{% endif %}">
-                                    <a href='{% if edit %}{{ c.get_edit_url }}{% else %}{{ c.get_submit_url }}{% endif %}'>{{ c.get_identifier }}: {{ c }}</a>
-                                </li>
-                            {% endfor %}
-                                </ul>
-                            </li>
-                        {% endif %}
-                    </ul>
-                    {% endif %}
-                </li>
-            {% endfor %}
-        </ul>
-        {% endif %}
-    </li>
-{% endfor %}
+  {% load credit_outline %}
+  {% for cat in creditset.get_children %}
+     {% show_credit_outline_object cat %}
+  {% endfor %}
 </ul>
