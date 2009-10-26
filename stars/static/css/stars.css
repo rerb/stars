@@ -309,16 +309,25 @@ div#message {
     color: #F6BD3E;
 }
 
-ul.errorlist {
+ul.errorlist, ul.warninglist {
    font-size: .9em;
    font-weight: normal;
    list-style: none;
    margin: 2px;
    padding: 2px;
+   text-align: center;
+}
+	
+ul.errorlist {
    background-color: #FFF8D0;
    border: 1px dotted #ff2266;
    color: #DD0033;
-   text-align: center;
+}
+
+ul.warninglist {
+   background-color: #D0F8FF;
+   border: 1px dotted #6622ff;
+   color: #3300DD;
 }
 
 #left-col {

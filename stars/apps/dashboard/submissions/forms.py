@@ -7,6 +7,7 @@ from django.forms.util import ErrorList
 from django.contrib.admin.widgets import AdminFileWidget
 
 from stars.apps.helpers.forms import fields as custom_fields
+from stars.apps.helpers.forms.util import WarningList
 from stars.apps.helpers.decorators import render_with_units
 from stars.apps.helpers import watchdog 
 from stars.apps.submissions.models import *
@@ -16,6 +17,7 @@ class SubmissionFieldForm(ModelForm):
     def __init__(self, *args, **kwargs):
         """ Add any specified options to the form's value field """
         super(SubmissionFieldForm, self).__init__(*args, **kwargs)
+        self.warnings = None
         if self.instance and self.instance.get_units():
             if self.field_includes_units():
                 self.fields['value'].set_units(self.instance.get_units())
@@ -29,18 +31,17 @@ class SubmissionFieldForm(ModelForm):
 
     def append_error(self, msg):
         """ Helper to append or add new error message to this form's value field error list """
-        if "values" in self._errors:
-            self._errors["values"].append(msg)
+        if "value" in self._errors:
+            self._errors["value"].append(msg)
         else:
             self._errors["value"] = ErrorList([msg])
 
-#    def clean_value(self):
-#        """ Ensures that value is set if the submission is marked as complete """
-#        value = self.cleaned_data.get("value")
-#        if self.instance.credit_submission.is_complete() and \  # won't work - complete flag is not saved yet from the wider form :-(
-#           self.instance.documentation_field.is_reqired and value in (None, "", []):
-#            raise forms.ValidationError("This field is required to mark this credit complete.")
-#        return value
+    def append_warning(self, msg):
+        """ Helper to append or add new warning message to this form's value field warning list """
+        if self.warnings:
+            self.warnings.append(msg)
+        else:
+            self.warnings = WarningList([msg])
 
 #    @staticmethod
     def form_name():
@@ -206,7 +207,7 @@ class LongTextSubmissionForm(SubmissionFieldForm):
             watchdog.log("LongTextSubmission", "No Instance", watchdog.NOTICE)
         return value
     
-class UploadSubmissionForm(ModelForm):
+class UploadSubmissionForm(SubmissionFieldForm):
     """
         The submitted value for a File Upload Documentation Field
     """
@@ -224,6 +225,7 @@ class BooleanSubmissionForm(SubmissionFieldForm):
         model = BooleanSubmission
         fields = ['value']
 
+
 class CreditSubmissionForm(ModelForm):
     """
         A collection of SubmissionFieldForms along with methods to process them.
@@ -236,21 +238,22 @@ class CreditSubmissionForm(ModelForm):
         model = CreditSubmission
         fields = [] # This is an abstract base class - not to be used directly!
 
-#    @staticmethod
-    def form_name():
-        return u"Credit Submission Form" 
-    form_name = staticmethod(form_name)
-
     def __init__(self, *args, **kwargs): #data=None, instance=None, prefix='credit-submission'):
         """
             Construct a form to edit a CreditSubmission instance
             @param instance: CreditSubmission (or sub-class) object is REQUIRED
         """
         if not kwargs.has_key('instance') or not kwargs['instance']:
-            raise Exception('CreditSubmission object is required for CreditSubmissionform')
+            raise Exception('CreditSubmission object is required for CreditSubmissionForm')
         super(CreditSubmissionForm, self).__init__(*args, **kwargs)
 
+        self.warnings = None            # Top-level warnings for this form (filled by custom validation)
         self._form_fields = None        # lazy init - don't access directly, call get_from_fields()
+
+#    @staticmethod
+    def form_name():
+        return u"Credit Submission Form" 
+    form_name = staticmethod(form_name)
 
     def get_submission_fields_and_forms(self):
         """ 
@@ -321,6 +324,18 @@ class CreditSubmissionForm(ModelForm):
         # use short-cut evaluation here so Form is not validated if fields don't validate.
         return is_valid and super(CreditSubmissionForm, self).is_valid()
 
+    def has_warnings(self):
+        """ Returns True if this submission generated any warning messages during clean """
+        for field in self.get_submission_fields_and_forms():
+            if field['form'].warnings:
+                return True
+        # assert:  none of the fields had warnings defined.
+        return self.warnings
+    
+    def non_field_warnings(self):
+        """ Returns formatted 'top-level' warnings (not associated with any field) for this form """
+        return self.warnings.as_ul() if self.warnings else u''
+    
     def _validate_required_fields(self):
         """ Helper to do required field validation.   Should only be called when submission is complete! """
         cleaned_data = self.cleaned_data
@@ -331,16 +346,54 @@ class CreditSubmissionForm(ModelForm):
                 field['form'].append_error( u"This field is required to mark this credit complete.")
         
     def _has_errors(self):
-        """ Helper method to determine if any error were discovered during basic validatation of each field """
+        """ Helper method to determine if any error were discovered during basic validation of each field """
         for field in self.get_submission_fields_and_forms():
             if "value" in field['form']._errors:
                 return True
         # assert:  none of the fields had errors defined.
         return len(self.non_field_errors()) > 0
     
+    def load_warnings(self):
+        """ 
+            Run custom validation to load any warnings onto the form
+            - this is a bit sketchy b/c custom validation should only run once on a 'complete' instance,
+              with no other basic validation errors.  CAREFUL!
+            - call ONLY on GET (warnings are loaded by form validation on POST) for Complete instances!
+            Loads warnings onto form and returns TRUE iff any warnings are loaded.
+        """
+        validation_errors, validation_warnings = self.instance.credit.execute_validation_rules(self.instance)         
+        return self._load_warnings(validation_warnings)
+    
+    def _load_warnings(self, validation_warnings):
+        """ Helper to eliminate duplicate code - warnings are loaded on both GET and POST """
+        has_warnings = False
+        for field in self.get_submission_fields_and_forms():
+            doc_field = field['field'].documentation_field
+            if doc_field.identifier in validation_warnings:
+                field['form'].append_warning(validation_warnings[doc_field.identifier])
+                has_warnings = True
+                
+        if 'top' in validation_warnings:
+            self.warnings = WarningList([ validation_warnings['top'] ])
+            has_warnings = True
+        return has_warnings
+    
+    def _load_errors(self, validation_errors):
+        """ Helper to load custom validation errors onto form """
+        has_errors = False
+        for field in self.get_submission_fields_and_forms():
+            doc_field = field['field'].documentation_field
+            if doc_field.identifier in validation_errors:
+                field['form'].append_error(validation_errors[doc_field.identifier])
+                has_errors = True
+
+        if 'top' in validation_errors:
+            has_errors = True
+        return has_errors
+    
     def clean(self):
         """
-            Assumes that a complete submission is being vaidated and cleaned.
+            Assumes that a complete submission is being validated and cleaned.
         """
         cleaned_data = self.cleaned_data
         error_message = "This credit cannot be submitted as complete."
@@ -348,21 +401,15 @@ class CreditSubmissionForm(ModelForm):
         self._validate_required_fields()
         has_error = self._has_errors()
         
-        # only peform custom validation if the form had no basic validatation errors.
+        # only perform custom validation if the form had no basic validation errors.
         # this is important because custom validation_rules assume data is clean and complete.
         if not has_error:  
-            validation_errors = self.instance.credit.execute_validation_rules(self)
-
-            for field in self.get_submission_fields_and_forms():
-                doc_field = field['field'].documentation_field
-                if doc_field.identifier in validation_errors:
-                    field['form'].append_error(validation_errors[doc_field.identifier])
-                    has_error = True
-    
+            validation_errors, validation_warnings = self.instance.credit.execute_validation_rules(self)         
+            has_error = self._load_errors(validation_errors)
+            has_warning = self._load_warnings(validation_warnings)
             if 'top' in validation_errors:
                 error_message = validation_errors['top']
-                has_error = True
-                                
+            
         if has_error:
             raise forms.ValidationError(error_message)
     

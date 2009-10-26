@@ -416,33 +416,34 @@ else:
             return(False, "There was an error processing this credit. AASHE has noted the error and will work to resolve the issue.", e, points)
         return (True, "Formula executed successfully", None, points)
         
-    def execute_validation_rules(self, submission_form):
+    def execute_validation_rules(self, submission):
         """ 
             Execute the validation rules for this credit for the given submission data
-            @param submission_form: a CreditSubmissionForm for this credit containing data values to validate
-            @return:
+            @param submission: a CreditSubmission or CreditSubmissionForm for this credit containing data values to validate
+            @return: errors, warnings
                 - errors: a dictionary of errors, using the field's identifier as the key for each error 
                     - may contain an 'top' key for credit-wide errors; 
                     - will be empty if validation passed without error
+                - warnings: ditto but for warnings rather than errors.
         """
         # get the key that relates field identifiers to their values
-        field_key = submission_form.get_submission_field_key()
-        errors={}
+        field_key = submission.get_submission_field_key()
+        errors={}; warnings={}
         try:
             if (self.validation_rules):
                 # exec the validation in restricted namespace
                 globals = {}  # __builtins__ gets added automatically
-                locals = {"errors":errors,}
+                locals = {"errors":errors,"warnings":warnings}
                 locals.update(field_key)
                 exec self.validation_rules in globals, locals
-                errors = locals['errors']
+                errors,warnings = locals['errors'], locals['warnings']
         except AssertionError, e:  # Assertions may be used in validation to ensure conditions for validation are met - assume any assertion text is intended for user
             if str(e):
                 errors['top'] ="%s"%e
         except Exception, e:
             watchdog.log("Credit", "Validation Exception: %s"%e, watchdog.ERROR)
             errors['top'] = "There was an error processing this credit. AASHE has noted the error and will work to resolve the issue." 
-        return errors
+        return errors,warnings
 
     def compile_formula(self):
         """ See global compile_formula function... """

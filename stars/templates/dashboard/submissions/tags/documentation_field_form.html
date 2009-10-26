@@ -11,6 +11,7 @@
     {% show_help_text documentation_field.tooltip_help_text 1 %}
 	<br/>
 	{% if field_form.value.errors %}{{ field_form.errors.value }}{% endif %}
+    {% if field_form.warnings %}{{ field_form.warnings }}{% endif %}
 	<div class='field-form'>
 	   {{ field_form.value }}
 	</div>
