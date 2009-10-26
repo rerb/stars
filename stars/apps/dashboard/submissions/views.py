@@ -162,7 +162,12 @@ def credit_detail(request, category_id, subcategory_id, credit_id):
     if submission_form.has_warnings():  # Duplicate code: this warning message is duplicated in test case submission view
         flashMessage.send("Some data values do not fully meet STARS criteria - see notes below.", flashMessage.NOTICE)
 
-    context.update({'submission_form': submission_form,})
+    # Expand the Responsible Party fieldset for complete credits or credits in error
+    expand_rp = credit_submission.is_complete() or submission_form.has_responsible_party_error()
+
+    context.update({'submission_form': submission_form, 
+                    'expand_responsible_party':'expanded' if expand_rp else 'collapsed',
+                   })
 
     return respond(request, "dashboard/submissions/credit_reporting_fields.html", context)
 

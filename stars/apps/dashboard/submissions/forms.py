@@ -494,6 +494,12 @@ class CreditUserSubmissionForm(CreditSubmissionForm):
             
         return cleaned_data
 
+    def has_responsible_party_error(self):
+        """ Return True iff there is an error with the responsible party fields on this form """
+        return self._errors and \
+               ("responsible_party" in self._errors or \
+                "responsible_party_confirm" in self._errors)
+    
 class CreditUserSubmissionNotesForm(ModelForm):
     """
         A Form for storing internal notes about a Credit Submission

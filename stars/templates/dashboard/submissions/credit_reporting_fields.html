@@ -34,7 +34,7 @@
     	</div>
       {% endfieldset %}
       <br/>
-      {% fieldset 'Responsible Party' 'collapsed' %}
+      {% fieldset 'Responsible Party' expand_responsible_party %}
         {% if submission_form.responsible_party.errors %}
             {{ submission_form.errors.responsible_party }}
         {% endif %}
