@@ -157,8 +157,26 @@ class Rating(models.Model):
     
     def __unicode__(self):
         return self.name
-    
-    
+
+    def __cmp__(self, other):
+        """ Used for ordering by descending minimal_score """
+        return cmp(other.minimal_score, self.minimal_score)
+
+    def get_edit_url(self):
+        return "%sratings/" % (self.creditset.get_edit_url(), )
+
+    def get_delete_url(self):
+        return "%s%d/delete/" % (self.get_edit_url(), self.id)
+
+    def get_parent(self):
+        """ Returns the parent element for crumbs """
+        return self.creditset
+
+    def get_children(self):
+        """ Returns a queryset with child credit model objects - for hierarchy """
+        return None
+
+
 class Category(models.Model):
     creditset = models.ForeignKey(CreditSet)
     title = models.CharField(max_length=64)

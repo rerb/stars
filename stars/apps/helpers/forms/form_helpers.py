@@ -5,6 +5,52 @@ from django.utils.safestring import mark_safe
 
 from stars.apps.helpers import flashMessage
 
+def object_editing_list(request, object_list, form_class, ignore_errors=False, ignore_post=False, ignore_objects=[]):
+    """
+        This is a helper function that reduces duplicate code for processing multi-row editing forms
+        It returns a list of (object, editing form) sets
+        the model form should have a __cmp__ function for displaying forms in correct sort order
+        If you want to ignore the post and just get the list of forms, use ignore_post
+        ignore_objects are object that may not have been included in the post, such as a new objects
+    """
+    errors = False
+    saved = False
+    object_editing_list = []
+    sorted_list = []
+    
+    # save any forms that were editted
+    if request.method == 'POST' and not ignore_post:
+        for obj in object_list:
+            form = form_class(request.POST, instance=obj, prefix="editing_%d" % obj.id)
+            object_editing_list.append({'obj': obj, 'form': form})
+            if obj not in ignore_objects:
+                if form.is_valid():
+                    if form.has_changed():
+                        obj = form.save()
+                        saved = True
+                else:
+                    print "Form is not valid: %s %s %s"%(form.errors, form['name'].errors, form['minimal_score'].errors)
+                    errors = True
+            sorted_list.append(obj)
+        if saved:
+            sorted_list.sort()
+    else:
+        sorted_list = object_list
+
+    if errors and not ignore_errors:
+        flashMessage.send("%s: Please correct the errors below"%_get_form_label(form_class, True), flashMessage.ERROR)
+    elif saved:
+        flashMessage.send("%s : Changes were saved successfully."%_get_form_label(form_class, True), flashMessage.SUCCESS)
+            
+    # create the forms for editing the objects  (forms are re-created here to potentially update order)
+    if not errors or ignore_errors:
+        object_editing_list = []
+        for obj in sorted_list:
+            form = form_class(instance=obj, prefix="editing_%d" % obj.id)
+            object_editing_list.append({'obj': obj, 'form': form})
+
+    return [object_editing_list, saved]
+
 def object_ordering(request, object_list, form_class, ignore_errors=True, ignore_post=False, ignore_objects=[]):
     """
         This is a helper function that reduces duplicate code for processing reordering submissions

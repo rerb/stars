@@ -103,8 +103,56 @@ def credit_set_locked(request, creditset_id):
     """
     context = _get_creditset_context(creditset_id)
     return respond(request, "dashboard/credit_editor/set_locked.html", context)
+ 
+
+############### CREDIT-SET RATING CRUD ######################    
+@user_is_staff
+@creditset_allows_post
+def credit_set_ratings(request, creditset_id):
+    """
+        Shows the ratings for a specific CreditSet
+    """
+    context = _get_creditset_context(creditset_id)
+    creditset = context['creditset']
+
+    # An arbitrary number of new ratings may have been added to the rating list form - save the ratings.
+    (new_ratings, new_rating_errors) = \
+          form_helpers.save_new_form_rows(request, 'ratings', CreditSetRatingForm, Rating, creditset=creditset)
+
+    # Set-up an empty rating form for adding another rating...
+    new_rating_form = CreditSetRatingForm(instance=Rating(creditset = creditset), prefix='ratings_new0')
     
+    # Build the form for editing ratings - this form is processed by a custom view to avoid interfering with custom validation on the object_form above.
+    ratings = creditset.rating_set.all()
+    (object_editing_list, saved) = form_helpers.object_editing_list(request, ratings, CreditSetRatingForm, ignore_objects=new_ratings)
+                                
+    template = "dashboard/credit_editor/set_ratings.html"
+    context.update({'object_editing_list': object_editing_list,
+                    'new_object_form': new_rating_form,
+                    'hidden_counter_form': HiddenCounterForm(),  # always start with an unbound counter form.
+                   })
+    return respond(request, template, context)
+
+@user_is_staff
+@creditset_is_unlocked
+def delete_rating(request, creditset_id, rating_id):
+    """
+        Provides and processes a form for deleting a rating from a credit set
+    """
+    context = _get_creditset_context(creditset_id)
+    creditset = context['creditset']
+
+    # confirm that the rating exists, and confirm that it should really be deleted!
+    rating = get_object_or_404(Rating, id=rating_id, creditset = creditset)
+    (form, deleted) = form_helpers.confirm_delete_form(request, rating)
+    if deleted:
+        return HttpResponseRedirect("%sratings/"%creditset.get_edit_url())    
     
+    #@todo: rename the delete form to make it more generic - and override Choice.delete() to manage the submission objects.
+    template = 'dashboard/credit_editor/credits/applicability_delete.html'
+    context.update({'object_class':'Rating', 'object':rating,'confirm_delete_form': form,})
+    return respond(request, template, context)
+     
 ############### CATEGORY CRUD ######################
 def _get_category_context(creditset_id, category_id):
     context = _get_creditset_context(creditset_id)
@@ -419,7 +467,7 @@ def field_detail(request, creditset_id, category_id, subcategory_id, credit_id, 
     # Set-up an empty choice form for adding another choice...
     new_choice_form = ChoiceForm(instance=Choice(documentation_field = field), prefix='ordering_new0')
     
-    # Build the form for editing and ordering choices - this form is processed by a custom view to avoid interfering with custom validation on the object_form above.
+    # Build the form for editing and ordering choices.
     choices = field.choice_set.filter(is_bonafide=True)
     (object_ordering, reordered) = form_helpers.object_ordering(request, choices, ChoiceOrderingForm, ignore_errors=not field.is_choice() or new_choice_errors, ignore_objects=new_choices)
         
@@ -450,52 +498,7 @@ def delete_field(request, creditset_id, category_id, subcategory_id, credit_id, 
     return respond(request, template, context)
 
 ############### DOCUMENTATION FIELD CHOICES ######################    
-@user_is_staff
-@creditset_is_unlocked
-def add_choice(request, creditset_id, category_id, subcategory_id, credit_id, field_id):
-    """
-        Provides and processes a form for adding a new choice to a documentation field
-    """
-    context = _get_doc_field_context(creditset_id, category_id, subcategory_id, credit_id, field_id)
-    field = context['field']
-    new_choice = Choice(documentation_field=field)
-    
-    (object_form, saved) = form_helpers.basic_save_new_form(request, new_choice, 'new_choice', ChoiceForm)
-
-    return HttpResponseRedirect("%s?expand_choices=True"%field.get_edit_url())    
-
-@user_is_staff
-@creditset_allows_post
-def edit_choice(request, creditset_id, category_id, subcategory_id, credit_id, field_id, choice_id):
-    """
-        Edit a choice - allows the choice wording to change without affecting submissions using this choice.
-    """
-    context = _get_doc_field_context(creditset_id, category_id, subcategory_id, credit_id, field_id)
-    field = context['field']
-
-    choice = get_object_or_404(Choice, id=choice_id, documentation_field = field)
-    (object_form, saved) = form_helpers.basic_save_form(request, choice, 'choice', ChoiceForm)
-    if saved:
-        return HttpResponseRedirect("%s?expand_choices=True"%field.get_edit_url())    
-    
-    template = 'dashboard/credit_editor/credits/choice_detail.html'
-    context.update({'choice':choice, 'object_form': object_form})
-    return respond(request, template, context)
-
-@user_is_staff
-@creditset_is_unlocked
-def reorder_choices(request, creditset_id, category_id, subcategory_id, credit_id, field_id):
-    """
-        Handles a re-order post for Documentation Field - which has custom validation - messed up by the order-form post
-    """
-    context = _get_doc_field_context(creditset_id, category_id, subcategory_id, credit_id, field_id)
-    field = context['field']
-                
-    # Build and process the form for ordering choices
-    (object_ordering, reordered) = form_helpers.object_ordering(request, field.choice_set.filter(is_bonafide=True), ChoiceOrderingForm)
-
-    return HttpResponseRedirect("%s?expand_choices=True"%field.get_edit_url())    
-    
+# Most of the Choice CRUD (Add, Re-order, Edit) is handled in-line by the field_detail view! 
 @user_is_staff
 @creditset_is_unlocked
 def delete_choice(request, creditset_id, category_id, subcategory_id, credit_id, field_id, choice_id):

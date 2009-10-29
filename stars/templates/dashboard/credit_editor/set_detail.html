@@ -1,13 +1,6 @@
-{% extends "dashboard/credit_editor/base.html" %}
+{% extends "dashboard/credit_editor/set_base.html" %}
 
-{% block crumbs %}
-    {% load ce_tags %}
-    {% show_editor_crumbs creditset %}
-{% endblock %}
-
-{% block header %}STARS: {{ creditset }}{% endblock %}
-
-{% block center %}
+{{% block tab_content %}
     <form class='orderform' method='POST' action='.'>
         
         {% include 'dashboard/credit_editor/standard_form.html' %}

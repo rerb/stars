@@ -30,6 +30,12 @@ function addRow(counter_form, object_edit_table) {
     tbo.appendChild(clone);
 }
 
+function addObjectRow() {
+    form = document.getElementById('object_editing_form');
+    table = document.getElementById('object_editing_table');
+    addRow(form, table)
+}
+
 function addChoice() {
     form = document.forms.documentationfield_form;
     table = document.getElementById('choice_ordering_form');
