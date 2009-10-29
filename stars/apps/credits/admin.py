@@ -5,7 +5,7 @@ from models import *
 class RatingAdmin(admin.ModelAdmin):
     list_display = ('name', 'minimal_score', 'creditset')
     list_filter = ('creditset',)
-    ordering = ('creditset', '-minimal_score',)
+    ordering = ('minimal_score', 'creditset', )
     
 admin.site.register(Rating, RatingAdmin)
 
