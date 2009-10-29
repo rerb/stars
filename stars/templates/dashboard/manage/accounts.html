@@ -4,6 +4,11 @@
 
 {% block tabclass %}class='tab2'{% endblock %}
 
+{% block help_content %}
+	{% load help %}
+	{% show_help_context 'add_account' 0 %}
+{% endblock %}
+
 {% block institution_content %}
     <form method='post' action='/dashboard/manage/users/add/'>
         <table class='headed_list'>

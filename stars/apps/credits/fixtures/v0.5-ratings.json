@@ -1,0 +1,7 @@
+[
+{"pk": 1, "model": "credits.rating", "fields": {"minimal_score": 0, "name": "Reporter", "creditset":1}}, 
+{"pk": 2, "model": "credits.rating", "fields": {"minimal_score": 25, "name": "Bronze", "creditset":1}}, 
+{"pk": 3, "model": "credits.rating", "fields": {"minimal_score": 45, "name": "Silver", "creditset":1}},
+{"pk": 4, "model": "credits.rating", "fields": {"minimal_score": 65, "name": "Gold", "creditset":1}},
+{"pk": 5, "model": "credits.rating", "fields": {"minimal_score": 85, "name": "Platinum", "creditset":1}}
+]

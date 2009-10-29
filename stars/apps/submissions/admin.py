@@ -2,10 +2,6 @@ from django.contrib import admin
 
 from models import *
 
-class RatingAdmin(admin.ModelAdmin):
-    pass
-admin.site.register(Rating, RatingAdmin)
-
 class SubmissionSetAdmin(admin.ModelAdmin):
     list_display = ('creditset', 'institution', 'date_registered', 'date_submitted', 'date_reviewed', 'rating')
     list_filter = ('institution',)

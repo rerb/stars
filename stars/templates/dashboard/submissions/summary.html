@@ -18,6 +18,14 @@
                 <td>{{ active_submission.get_status }}</td>
             </tr>
             <tr>
+                <th>{% if not active_submission.is_rated %}Provisional{% endif %} Score</th>
+                <td>{{ active_submission.get_STARS_score|floatformat:0 }} STARS</td>
+            </tr>
+            <tr>
+                <th>{% if not active_submission.is_rated %}Provisional{% endif %} Rating</th>
+                <td>{{ active_submission.get_STARS_rating }}</td>
+            </tr>
+            <tr>
                 <th>Registered Date</th>
                 <td>{{ active_submission.date_registered }}</td>
             </tr>
@@ -58,6 +66,15 @@
                 {% endfor %}
                 <th>
                     {{ active_submission.get_claimed_score }} / {% format_available_points active_submission %}
+                </th>
+            </tr>
+            <tr>
+                <th>{% if not active_submission.is_rated %}Provisional{% endif %} Category Score</th>
+                {% for cat in category_submission_list %}
+                    <td>{{ cat.get_STARS_score|floatformat:0 }} STARS</td>
+                {% endfor %}
+                <th>
+                    {{ active_submission.get_STARS_score|floatformat:0 }} STARS
                 </th>
             </tr>
         </table>

@@ -445,7 +445,7 @@ table.headed_list th {
 
 table.headed_list td {
     padding: 5px;
-    text-align: left;
+    text-align: center;
     margin: 1px;
     background-color: #fff;
 }

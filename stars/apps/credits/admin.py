@@ -2,6 +2,10 @@ from django.contrib import admin
 
 from models import *
 
+class RatingAdmin(admin.ModelAdmin):
+    pass
+admin.site.register(Rating, RatingAdmin)
+
 class CreditSetAdmin(admin.ModelAdmin):
     list_display = ('version', 'release_date')
 admin.site.register(CreditSet, CreditSetAdmin)

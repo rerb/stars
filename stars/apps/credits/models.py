@@ -69,6 +69,28 @@ class CreditSet(models.Model):
         """ Returns a queryset with child credit model objects - for hierarchy """
         return self.category_set.all()
 
+    def get_rating(self, score):
+        """ Returns a rating for this creditset for the given total score """
+        for rating in self.rating_set.all():  # sorted in descending value by score
+            if score >= rating.minimal_score:
+                return rating
+        # oh-oh - we didn't find any suitable rating.
+        watchdog.log("Credits", "No valid rating could be found for score %s in creditset %s"%(score, self), watchdog.ERROR)
+        return Rating(name="Rating Unavailable", minimal_score=0, creditset=self)
+    
+    def get_version_identifier(self):
+        """ Returns this credit set version name as a legal Python identifier """
+        import re
+        name = self.version
+        if not name[0].isalpha():         # ensure first character is alpha
+            name = "v%s"%name
+        name = re.sub(r'[\-\'\.,?/;:"~!@#$%^&*()+]', '_', name)  # replace punctuation with underscores
+        return name
+    
+    def num_normal_categories(self):
+        """ Returns the number of non-innovation categories in this set """
+        return self.category_set.exclude(abbreviation='IN').count()
+    
     def num_submissions(self):
         """ Return the number of credit submissions started for this category """
         from stars.apps.submissions.models import get_active_submissions
@@ -120,6 +142,22 @@ class CreditSet(models.Model):
             return CreditSet.objects.order_by('-release_date')[0]
         except:
             return None
+
+
+class Rating(models.Model):
+    """
+        The official stars ratings, such as Gold, Silver, Bronze
+    """
+    name = models.CharField(max_length='16')
+    minimal_score = models.SmallIntegerField(help_text="The minimal STARS score required to achieve this rating")
+    creditset = models.ForeignKey(CreditSet)
+    
+    class Meta:
+        ordering = ('-minimal_score',)
+    
+    def __unicode__(self):
+        return self.name
+    
     
 class Category(models.Model):
     creditset = models.ForeignKey(CreditSet)
@@ -146,6 +184,10 @@ class Category(models.Model):
     def get_submit_url(self):
         return "/dashboard/submissions/%d/" % (self.id)
         
+    def get_delete_url(self):
+        """ Returns the URL of the page to confirm deletion of this object """
+        return "%sdelete/" % self.get_edit_url()
+
     def get_parent(self):
         """ Returns the parent element for crumbs """
         return self.creditset
@@ -161,6 +203,10 @@ class Category(models.Model):
     def get_dependents(self):
         """ Returns a list of dictionaries (name, queryset) for each set of objects directly dependent on this Category """
         return [ {'name':'Subcategories', 'queryset':self.subcategory_set.all()} ]
+    
+    def is_innovation(self):
+        """ Return True if this is an innovation category (which are scored differently) """
+        return self.abbreviation == 'IN'
     
     def num_submissions(self):
         """ Return the number of credit submissions started for this category """
@@ -200,9 +246,6 @@ class Category(models.Model):
             self.ordinal = _get_next_ordinal(self.creditset.category_set.all())
         super(Category, self).save(*args, **kwargs)
     
-    def get_delete_url(self):
-        """ Returns the URL of the page to confirm deletion of this object """
-        return "%sdelete/" % self.get_edit_url()
 
 class Subcategory(models.Model):    
     category = models.ForeignKey(Category)
