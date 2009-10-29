@@ -3,7 +3,10 @@ from django.contrib import admin
 from models import *
 
 class RatingAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('name', 'minimal_score', 'creditset')
+    list_filter = ('creditset',)
+    ordering = ('creditset', '-minimal_score',)
+    
 admin.site.register(Rating, RatingAdmin)
 
 class CreditSetAdmin(admin.ModelAdmin):
