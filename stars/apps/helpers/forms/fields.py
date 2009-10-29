@@ -5,7 +5,10 @@
     Plus several variations on the theme:
       - Model Select with Other
       - Model Multi-Select with Other
+    Plus... override for URLField with improved error handling / messaging.
 """
+import urlparse
+
 from django import forms
 from django.utils.encoding import force_unicode
 from django.utils.safestring import mark_safe
@@ -179,3 +182,53 @@ class ModelMultipleChoiceCheckboxField(forms.ModelMultipleChoiceField):
             return mark_safe("%s <span class='units'>%s</span>"%(label, self.units))
         else:
             return label
+        
+class URLField(forms.URLField):
+    """ 
+        Unfortunately, the Django URL field doesn't provide very robust error handling / messaging.
+        Ideally, the overrides below would replace those in Django URLField and we could get rid of this.
+    """
+    from django.utils.translation import ugettext_lazy as _
+
+    default_error_messages = {
+        'invalid': _(u'Enter a valid URL.'),
+        '401': _(u'This URL appears to require a password.'),
+        '403': _(u'Access to this URL appears to be forbidden.'),
+        '404': _(u'This URL does not exist ("Page Not Found").'),
+        '500': _(u'The  server for this URL is reporting an error.'),
+        '503': _(u'The  server for this URL reports the service is unavailable.'),
+        'invalid_link': _(u'This URL could not be accessed - this could indicate a broken link or a problem with the server.'),
+    }
+
+    def clean(self, value):
+        # If no URL scheme given, assume http://
+        if value and '://' not in value:
+            value = u'http://%s' % value
+        # If no URL path given, assume /
+        if value and not urlparse.urlsplit(value)[2]:
+            value += '/'
+        value = super(forms.URLField, self).clean(value)
+        if value == u'':
+            return value
+        if self.verify_exists:
+            import urllib2
+            headers = {
+                "Accept": "text/xml,application/xml,application/xhtml+xml,text/html;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5",
+                "Accept-Language": "en-us,en;q=0.5",
+                "Accept-Charset": "ISO-8859-1,utf-8;q=0.7,*;q=0.7",
+                "Connection": "close",
+                "User-Agent": self.user_agent,
+            }
+            try:
+                req = urllib2.Request(value, None, headers)
+                u = urllib2.urlopen(req)
+            except ValueError:
+                raise forms.ValidationError(self.error_messages['invalid'])
+            except urllib2.HTTPError, e:
+                msg_key = str(e.code)
+                if not msg_key in self.error_messages:
+                    msg_key = 'invalid_link'
+                raise forms.ValidationError(self.error_messages[msg_key])
+            except: # urllib2.URLError, httplib.InvalidURL, etc.
+                raise forms.ValidationError(self.error_messages['invalid_link'])
+        return value

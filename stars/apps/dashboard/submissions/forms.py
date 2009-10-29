@@ -114,6 +114,8 @@ class MultiChoiceWithOtherSubmissionForm(AbstractMultiFieldSubmissionForm):
 
   
 class URLSubmissionForm(SubmissionFieldForm):
+    value = custom_fields.URLField(required=False, verify_exists=True)
+
     class Meta:
         model = URLSubmission
         fields = ['value']
@@ -146,14 +148,14 @@ class NumericSubmissionForm(SubmissionFieldForm):
     def clean_value(self):
         """ If there is a range, use this to validate the number """
         value = self.cleaned_data.get("value")
-        if self.instance:
+        if self.instance and not (value is None):
             min = self.instance.documentation_field.min_range
             max = self.instance.documentation_field.max_range
             
             if min != None and max != None:
                 if value < min or value > max:
-                    raise forms.ValidationError("Valid Range: %d - %d" % (min, max))
-        else:
+                    raise forms.ValidationError("The value is outside of the accepted range for this field (range: %d - %d)." % (min, max))
+        elif not self.instance:
             watchdog.log("NumericSubmission", "No Instance", watchdog.NOTICE) 
         return value
     
@@ -171,17 +173,17 @@ class TextSubmissionForm(SubmissionFieldForm):
                 self['value'].field.widget.attrs['maxlength'] = max
     
     def clean_value(self):
-        """ Compress multi-valued data and validate ranges (character or word counts) """
+        """ Validate the character count """
         value = self.cleaned_data.get("value")
-        if self.instance:
+        if self.instance and value:
             max = self.instance.documentation_field.max_range
 
             chars = len(value)
             
             if max != None:
                 if chars > max:
-                    raise forms.ValidationError("Too long. Limit: %d characters"% max)
-        else:
+                    raise forms.ValidationError("The text is too long for this field. Limit: %d characters"% max)
+        elif not self.instance:
             watchdog.log("TextSubmission", "No Instance", watchdog.NOTICE)
         return value
     
@@ -193,17 +195,17 @@ class LongTextSubmissionForm(SubmissionFieldForm):
         fields = ['value']
         
     def clean_value(self):
-        """ If there is a range, use this to validate the character count """
+        """ Validate the word count """
         value = self.cleaned_data.get("value")
-        if self.instance:
+        if self.instance and value:
             max = self.instance.documentation_field.max_range
 
             words = len(string.split(value))
             
             if max != None:
                 if words > max:
-                    raise forms.ValidationError("Too many words. Limit: %d" % max)
-        else:
+                    raise forms.ValidationError("The text is too long for this field. Limit: %d words" % max)
+        elif not self.instance:
             watchdog.log("LongTextSubmission", "No Instance", watchdog.NOTICE)
         return value
     
