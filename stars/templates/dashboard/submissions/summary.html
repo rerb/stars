@@ -65,12 +65,14 @@
                 </th>
             </tr>
             <tr>
-                <th>{% if not active_submission.is_rated %}Provisional{% endif %} Category Score</th>
+                <th>{% if not active_submission.is_rated %}Provisional{% endif %} Score</th>
                 {% for cat in category_submission_list %}
-                    <td>{{ cat.get_STARS_score|floatformat:0 }} STARS</td>
+                    <td>{{ cat.get_STARS_score|floatformat:0 }}
+                        {% if not cat.category.is_innovation %} %  {% endif %}
+                    </td>
                 {% endfor %}
                 <th>
-                    {{ active_submission.get_STARS_score|floatformat:0 }} STARS
+                    {{ active_submission.get_STARS_score|floatformat:0 }}%
                 </th>
             </tr>
         </table>

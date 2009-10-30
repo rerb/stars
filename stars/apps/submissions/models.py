@@ -97,9 +97,19 @@ class SubmissionSet(models.Model):
 
     def get_STARS_BETA_score(self):
         score = 0
+        non_inno_cats = 0
+        innovation_score = 0
         for cat in self.categorysubmission_set.all():
-            score += cat.get_STARS_BETA_score()
-                    
+            if cat.category.is_innovation(): 
+                innovation_score = cat.get_STARS_BETA_score()
+            else:
+                score += cat.get_STARS_BETA_score()
+                non_inno_cats += 1
+
+        score = (score / non_inno_cats) if non_inno_cats>0 else 0   # average score
+
+        score += innovation_score  # plus any innovation points
+        
         return score if score <= 100 else 100
         
     def get_claimed_score(self):
@@ -234,11 +244,9 @@ class CategorySubmission(models.Model):
         score = self.get_claimed_score()              # raw score - number of points earned in category
         avail = self.get_adjusted_available_points()  # available / applicable points in category        
         #  score for innovation credits is just the raw score
-        #  for all others, it is the proportion of points earned, scaled by the number of categories.
+        #  for all others, it is the proportion of points earned.
         if not self.category.is_innovation(): 
             score = ((100.0 * score) / avail) if avail>0 else 0   # percentage of points earned, 0 - 100
-            categories = self.submissionset.creditset.num_normal_categories()
-            score = (score / categories) if categories>0 else 0   # scaled by number of categories
         return score
 
     def get_claimed_score(self):
