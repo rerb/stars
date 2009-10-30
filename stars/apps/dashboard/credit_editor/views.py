@@ -326,7 +326,7 @@ def credit_detail(request, creditset_id, category_id, subcategory_id, credit_id)
     pre_type = credit.type
     
     form_class = CreditForm
-    if credit.type == 't2':
+    if credit.is_tier2():
         form_class = T2CreditForm
     
     # Build and process the form for the credit

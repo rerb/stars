@@ -112,7 +112,22 @@ class T2CreditForm(ModelForm):
     
     class Meta:
         model = Credit
-        exclude = ('ordinal', 'formula', 'validation_rules', 'number', 'type', 'point_value', 'scoring')
+        exclude = ('ordinal', 'formula', 'validation_rules', 'number', 'type', 'point_value', 'scoring', 'measurement')
+
+class NewCreditForm(CreditForm):
+    
+    class Meta(CreditForm.Meta):
+        exclude = ('subcategory', 'ordinal', 'formula', 'number', 'validation_rules', 'type')
+
+#    @staticmethod
+    def form_name():
+        return u"New Credit Form"
+    form_name = staticmethod(form_name)
+    
+class NewT2CreditForm(NewCreditForm):
+    
+    class Meta(NewCreditForm.Meta):
+        exclude = ('subcategory', 'ordinal', 'formula', 'validation_rules', 'number', 'type', 'point_value', 'scoring', 'measurement')
 
 class CreditFormulaForm(ModelForm):
     formula = forms.CharField(widget=widgets.Textarea(attrs={'class': 'noMCE','cols':'70', 'rows': '16'}), required=True)
@@ -153,21 +168,6 @@ class CreditTestSubmissionForm(CreditSubmissionForm):
     def form_name():
         return u"Formula Test Case Form" 
     form_name = staticmethod(form_name)
-
-class NewCreditForm(CreditForm):
-    
-    class Meta(CreditForm.Meta):
-        exclude = ('subcategory', 'ordinal', 'formula', 'number', 'validation_rules', 'type')
-
-#    @staticmethod
-    def form_name():
-        return u"New Credit Form"
-    form_name = staticmethod(form_name)
-    
-class NewT2CreditForm(NewCreditForm):
-    
-    class Meta(NewCreditForm.Meta):
-        exclude = ('subcategory', 'ordinal', 'formula', 'number', 'validation_rules', 'scoring', 'point_value', 'type')
 
 class CreditOrderForm(ModelForm):
     ordinal = forms.IntegerField(widget=widgets.HiddenInput(attrs={'class': 'ordinal',}))

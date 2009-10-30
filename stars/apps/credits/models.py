@@ -377,10 +377,14 @@ class Credit(models.Model):
         
     def get_submit_url(self):
         return "%s%d/" % (self.subcategory.get_submit_url(), self.id)
-        
+      
+    def is_tier2(self):
+        """ Returns True iff this credit is a Tier 2 credit """
+        return self.type == 't2'
+    
     def get_identifier(self):
         """ Returns the indentifying string for the credit ex: 'ER Credit 10' """
-        if self.type == 't2':
+        if self.is_tier2():
             return "Tier2-%d" % self.number
         return "%s-%s" % (self.subcategory.category.abbreviation, self.number)
         
@@ -419,7 +423,7 @@ class Credit(models.Model):
         if self.ordinal == -1 :
             self.ordinal = _get_next_ordinal(self.subcategory.credit_set.all())
         # Set the defaults for t2 credits
-        if self.type == 't2':
+        if self.is_tier2():
             t2_points = self.subcategory.category.creditset.tier_2_points
             self.point_value = t2_points
             self.scoring = u"%.2f points available." % t2_points
