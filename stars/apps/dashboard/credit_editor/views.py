@@ -655,9 +655,9 @@ def formula_test_case(request, creditset_id, category_id, subcategory_id, credit
     # don't run test if the form had errors...  
     test_case.reset_test()
     if request.method == 'GET' or test_case_form.is_valid():
-        (had_error, message) = test_case.run_test()
-        if (had_error):
-            flashMessage.send(message, flashMessage.ERROR)
+        (had_error, messages) = test_case.run_test()
+        for msg in messages:
+            flashMessage.send(msg, flashMessage.ERROR)
            
     template = 'dashboard/credit_editor/credits/formula_test_case.html'
     context.update({'test_case': test_case,

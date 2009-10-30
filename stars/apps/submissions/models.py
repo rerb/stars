@@ -531,6 +531,28 @@ class CreditSubmission(models.Model):
                 watchdog.log("Submission", "Error converting formula result (%s) to numeric type : %s"%(points.__str__(),e), watchdog.ERROR)
             return (0, "Non-numeric result calculated for points: %s"%points)
         
+    def validate_points(self, points, log_error=True):
+        """ 
+             Helper: Validate the points calculated for this submission 
+             Returns (points, messages), where points are the validated points 
+               - message is a list of error messages associated with any validation errors,
+                  which is empty if the the points validated.
+        """
+        messages = []
+                
+        points, numeric_error = self.round_points(points, log_error)      # is it numeric
+        if numeric_error:
+            messages.append(numeric_error)
+                
+        if points<0 or points>self.credit.point_value:  # is it in range?
+            range_error = ( "Points (%s) are out of range (0 - %s)."%(points.__str__(), self.credit.point_value) )
+            if log_error:
+                watchdog.log("Submission", range_error, watchdog.ERROR)
+            messages.append(range_error)
+            points = 0
+            
+        return points, messages
+        
     def __str__(self):  #  For DEBUG - comment out __unicode__ method above
         if self.persists(): persists="persists"
         else: persists="not saved"
@@ -602,18 +624,16 @@ class CreditUserSubmission(CreditSubmission):
         if not self.is_complete(): # no points for incomplete submission
             return 0
         assessed_points = 0  # default is zero - now re-calculate points...
+        validtation_error = False
         
         (ran, message, exception, points) = self.credit.execute_formula(self)
 
         if ran:  #perform validation on points...
-            points, message = self.round_points(points)      # is it numeric
+            (points, messages) = self.validate_points(points)
+            validation_error = len(messages) > 0
             
-            if points<0 or points>self.credit.point_value :  # is it in range?
-                message = "Points (%s) are out of range (0 - %s)."%(points.__str__(), self.credit.point_value)
-                watchdog.log("Submission", message, watchdog.ERROR)
-
-        if message:  # presence of a message indicates an error in the forumla or validating points...
-            flashMessage.send(message, flashMessage.ERROR)  
+        if not ran or validation_error:  #. Provide a generic message for user...
+            flashMessage.send("There was an error processing this credit. AASHE has noted the error and will work to resolve the issue.", flashMessage.ERROR)  
         else:
             assessed_points = points
             
@@ -637,28 +657,34 @@ class CreditTestSubmission(CreditSubmission):
         """ 
         Run this test case on the given test data
         @param fields  array of field data for the test case.
-        @return: (had_error, message), where had_error is true if there was an error executing the test, and message is the error message
+        @return: (had_error, messages), where 
+                   - had_error is true if there was an error executing the test;
+                   - messages is a list of error messages
                  Also sets computed_value and test fields in this object.
         """
         self.result = False
         self.computed_value = None
-        (ran, message, exception, points) = self.credit.execute_formula(self)
+        messages = []
+        had_error = False
+        (ran, msg, exception, points) = self.credit.execute_formula(self)
         if ran:
             try:
                 self.expected_value = float(self.expected_value)   # are we expecting a numeric result?
-                self.computed_value, message = self.round_points(points)
+                (self.computed_value, messages) = self.validate_points(points) 
                 self.result = (abs(self.computed_value - self.expected_value) < 0.00001)  # Floating point equality to 5rd decimal place
             except (TypeError, ValueError):  # we're not expecting result to be numeric...
                 self.computed_value = points
                 self.result = self.computed_value == self.expected_value
-                
-        # Since this is test, substitute user-friendly message for real error message.
-        if isinstance(exception,AssertionError): 
-            message = 'Assertion Failed: %s'%exception  
-        elif exception:
-            message = 'Formula Error: %s'%exception  
-        
-        return (not ran, message)   
+        else:
+            # Since this is test, substitute user-friendly message for real error message.
+            if isinstance(exception,AssertionError): 
+                messages.append('Assertion Failed: %s'%exception)
+            elif exception:
+                messages.append('Formula Error: %s'%exception)  
+            else:
+                messages.append(msg)            
+
+        return (len(messages)>0, messages)   
     
     def reset_test(self):
         """ reset this test such that the computed_value is None """ 
