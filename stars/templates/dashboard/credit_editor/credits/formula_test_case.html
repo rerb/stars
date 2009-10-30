@@ -70,7 +70,7 @@
         </tr>
     </table>
      {% endblock %}
-    <form action='.' method='POST'>
+    <form action='.' method='POST' enctype="multipart/form-data">
         {% include "dashboard/submissions/submission_fields_form.html" %}
         <hr>
         {% with submission_form.expected_value as field %}

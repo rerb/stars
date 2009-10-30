@@ -344,6 +344,8 @@ class CreditSubmissionForm(ModelForm):
         for field in self.get_submission_fields_and_forms():
             form_value = field['form'].cleaned_data.get("value")
             doc_field = field['field'].documentation_field
+            if doc_field.is_upload():  # require upload fields can be blank so long as a file has been previously uploaded
+                form_value = form_value or field['field'].get_value()
             if doc_field.is_required() and form_value in (None, "", []):
                 field['form'].append_error( u"This field is required to mark this credit complete.")
         
@@ -424,7 +426,10 @@ class CreditSubmissionForm(ModelForm):
         """
         key = {}
         for field in self.get_submission_fields_and_forms():
-            key[field['field'].documentation_field.identifier] = field['form'].cleaned_data.get("value")
+            doc_field = field['field'].documentation_field
+            key[doc_field.identifier] = field['form'].cleaned_data.get("value")
+            if doc_field.is_upload():  #  upload fields may be blank but still have a file that's been previously uploaded
+                key[doc_field.identifier] = key[doc_field.identifier] or field['field'].get_value()
         return key
             
     

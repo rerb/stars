@@ -695,6 +695,10 @@ class DocumentationField(models.Model):
         """ Return true if this field is conditionally required """
         return self.required == 'cond'
 
+    def is_upload(self):
+        """ Return true if this field is a file upload """
+        return self.type == 'upload'
+    
     def is_single_choice(self):
         """ Return true if this field is a single choice """
         return self.type == 'choice'
