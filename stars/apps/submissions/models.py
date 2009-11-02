@@ -91,16 +91,16 @@ class SubmissionSet(models.Model):
         else:
             watchdog.log("Submissions", "No method (%s) defined to score submission %s"%(scoring_method, self.creditset.version), watchdog.ERROR)
             return 0
-    
+
     def get_STARS_v1_0_score(self):
         score = 0
         non_inno_cats = 0
         innovation_score = 0
         for cat in self.categorysubmission_set.all():
             if cat.category.is_innovation(): 
-                innovation_score = cat.get_STARS_BETA_score()
+                innovation_score = cat.get_STARS_v1_0_score()
             else:
-                score += cat.get_STARS_BETA_score()
+                score += cat.get_STARS_v1_0_score()
                 non_inno_cats += 1
 
         score = (score / non_inno_cats) if non_inno_cats>0 else 0   # average score
@@ -226,7 +226,7 @@ class CategorySubmission(models.Model):
             Relies on the scoring method defined for each credit set version:
              - define a version-specific method for each credit set below.
         """
-        scoring_method = "get_STARS_%s_score"%self.submissionset.creditset.get_version_identifier()
+        scoring_method = self.submissionset.creditset.scoring_method
         if hasattr(self, scoring_method):
             score = getattr(self, scoring_method)
             return score()
@@ -234,10 +234,7 @@ class CategorySubmission(models.Model):
             watchdog.log("Submissions", "No method (%s) defined to score category submission %s"%(scoring_method, self.submissionset.creditset.version), watchdog.ERROR)
             return 0
 
-    def get_STARS_v0_5_score(self):
-        return self.get_STARS_BETA_score()
-    
-    def get_STARS_BETA_score(self):
+    def get_STARS_v1_0_score(self):
         score = self.get_claimed_score()              # raw score - number of points earned in category
         avail = self.get_adjusted_available_points()  # available / applicable points in category        
         #  score for innovation credits is just the raw score
