@@ -32,11 +32,18 @@ def _get_next_ordinal(objects):
         ordinal = last.ordinal + 1
     return ordinal
 
+# These choices are the names of scoring methods in the SubmissionSet model used to score a credit set.
+# Method names stored in the DB have a maximum length of 25 characters
+SCORING_METHOD_CHOICES = (
+    ('get_STARS_v1_0_score', 'STARS 1.0 Scoring'),
+)
+
 class CreditSet(models.Model):
     version = models.CharField(max_length=5, unique=True)
     release_date = models.DateField()
     tier_2_points = models.FloatField()
     is_locked = models.BooleanField(default=False, verbose_name="Lock Credits", help_text="When a credit set is locked, most credit editor functions will be disabled.")
+    scoring_method = models.CharField(max_length=25, choices=SCORING_METHOD_CHOICES)
     
     class Meta:
         ordering = ('release_date',)
@@ -110,22 +117,26 @@ class CreditSet(models.Model):
             
     def save(self, *args, **kwargs):
         """ Enforce unlock protocol and Log changes to the credit set lock status """
-        pre_save = CreditSet.objects.get(pk=self.pk)
-        lock_changed = pre_save.is_locked != self.is_locked
-
-        # Unconfirmed lock attempt:  determine if confirmation is required and reset lock if so.
-        if lock_changed and not self.is_locked and not self._unlock_confirmed:
-            self._confirm_unlock_attempt = self.is_released() and self.num_submissions() > 0
-            if self._confirm_unlock_attempt:
-                self.is_locked = pre_save.is_locked
-                lock_changed = False
-        else:
-            self._confirm_unlock_attempt = False
-            
-        # Log any significant changes to the lock
-        if lock_changed and self.is_released() :
-            lock_status = 'LOCKED' if self.is_locked else 'UN-LOCKED'
-            watchdog.log('Credit Editor', "Released Credit Set %s was %s"%(self, lock_status), watchdog.NOTICE)
+        try :
+            pre_save = CreditSet.objects.get(pk=self.pk)
+            lock_changed = pre_save.is_locked != self.is_locked
+    
+            # Unconfirmed lock attempt:  determine if confirmation is required and reset lock if so.
+            if lock_changed and not self.is_locked and not self._unlock_confirmed:
+                self._confirm_unlock_attempt = self.is_released() and self.num_submissions() > 0
+                if self._confirm_unlock_attempt:
+                    self.is_locked = pre_save.is_locked
+                    lock_changed = False
+            else:
+                self._confirm_unlock_attempt = False
+                
+            # Log any significant changes to the lock
+            if lock_changed and self.is_released() :
+                lock_status = 'LOCKED' if self.is_locked else 'UN-LOCKED'
+                watchdog.log('Credit Editor', "Released Credit Set %s was %s"%(self, lock_status), watchdog.NOTICE)
+        except ObjectDoesNotExist:
+            pass    #  saving a new credit set - locks don't apply - carry on.
+        
         super(CreditSet, self).save(*args, **kwargs)
 
     def is_released(self):

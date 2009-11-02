@@ -17,12 +17,28 @@ class CreditSetForm(ModelForm):
         
     class Meta:
         model = CreditSet
+        exclude = ('scoring_method', 'tier_2_points',)
         
 #    @staticmethod
     def form_name():
         return u"Credit Set Form" 
     form_name = staticmethod(form_name)
 
+class NewCreditSetForm(CreditSetForm):
+    class Meta:
+        model = CreditSet
+
+class CreditSetScoringForm(ModelForm):        
+    class Meta:
+        model = CreditSet
+        fields = ('scoring_method', 'tier_2_points',)  # exactly the fields excluded on CreditSetForm
+        
+#    @staticmethod
+    def form_name():
+        return u"Credit Set Scoring Form" 
+    
+    form_name = staticmethod(form_name)
+    
 class CreditSetRatingForm(ModelForm):
     minimal_score = forms.IntegerField(min_value=0, max_value=100)
     class Meta:

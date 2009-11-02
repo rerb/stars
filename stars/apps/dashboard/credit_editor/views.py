@@ -68,7 +68,7 @@ def add_credit_set(request):
     # Build and process the form for adding a new category
     new_creditset = CreditSet()
     
-    (object_form, saved) = form_helpers.basic_save_new_form(request, new_creditset, 'new_cs', CreditSetForm)
+    (object_form, saved) = form_helpers.basic_save_new_form(request, new_creditset, 'new_cs', NewCreditSetForm)
     if saved:
         return HttpResponseRedirect(new_creditset.get_edit_url())
 
@@ -115,6 +115,9 @@ def credit_set_ratings(request, creditset_id):
     context = _get_creditset_context(creditset_id)
     creditset = context['creditset']
 
+    # Build and process the form for the scoring method
+    (scoring_method_form, saved) = form_helpers.basic_save_form(request, creditset, 'cs_%d' % creditset.id, CreditSetScoringForm)
+                
     # An arbitrary number of new ratings may have been added to the rating list form - save the ratings.
     (new_ratings, new_rating_errors) = \
           form_helpers.save_new_form_rows(request, 'ratings', CreditSetRatingForm, Rating, creditset=creditset)
@@ -124,10 +127,11 @@ def credit_set_ratings(request, creditset_id):
     
     # Build the form for editing ratings - this form is processed by a custom view to avoid interfering with custom validation on the object_form above.
     ratings = creditset.rating_set.all()
-    (object_editing_list, saved) = form_helpers.object_editing_list(request, ratings, CreditSetRatingForm, ignore_objects=new_ratings)
+    (ratings_editing_list, saved) = form_helpers.object_editing_list(request, ratings, CreditSetRatingForm, ignore_objects=new_ratings)
                                 
     template = "dashboard/credit_editor/set_ratings.html"
-    context.update({'object_editing_list': object_editing_list,
+    context.update({'object_form': scoring_method_form, 
+                    'object_editing_list': ratings_editing_list,
                     'new_object_form': new_rating_form,
                     'hidden_counter_form': HiddenCounterForm(),  # always start with an unbound counter form.
                    })

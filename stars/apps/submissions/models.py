@@ -81,10 +81,10 @@ class SubmissionSet(models.Model):
     def get_STARS_score(self):
         """
             Return the total STARS score for this submission
-            Relies on the scoring method defined for each credit set version:
-             - define a version-specific method for each credit set below.
+            Relies on the scoring method defined by the CreditSet model.
+             - define version-specific scoring methods below, and add to SCORING_METHOD_CHOICES in CreditSet model.
         """
-        scoring_method = "get_STARS_%s_score"%self.creditset.get_version_identifier()
+        scoring_method = self.creditset.scoring_method
         if hasattr(self, scoring_method):
             score = getattr(self, scoring_method)
             return score()
@@ -92,10 +92,7 @@ class SubmissionSet(models.Model):
             watchdog.log("Submissions", "No method (%s) defined to score submission %s"%(scoring_method, self.creditset.version), watchdog.ERROR)
             return 0
     
-    def get_STARS_v0_5_score(self):
-        return self.get_STARS_BETA_score()
-
-    def get_STARS_BETA_score(self):
+    def get_STARS_v1_0_score(self):
         score = 0
         non_inno_cats = 0
         innovation_score = 0

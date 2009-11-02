@@ -9,6 +9,11 @@
 
 {% block tab_content %}
     <form id='object_editing_form' name='rating_editing_form' action='.' method='POST'>
+
+        {% with object_form as fields %}
+          {% include 'dashboard/credit_editor/form_fields.html' %}
+        {% endwith %}
+
         {{ hidden_counter_form }} 
         <div class='form'>
           {% include 'dashboard/credit_editor/rating_editing_list.html' %}
