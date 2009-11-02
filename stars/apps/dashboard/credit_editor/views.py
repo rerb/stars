@@ -650,7 +650,7 @@ def formula_test_case(request, creditset_id, category_id, subcategory_id, credit
     if request.method == 'GET':  # warnings are loaded during validation for POST's
         test_case_form.load_warnings()
     if test_case_form.has_warnings():  # Duplicate code: this warning message is duplicated in credit submission view
-        flashMessage.send("Some data values do not fully meet STARS criteria - see notes below.", flashMessage.NOTICE)
+        flashMessage.send("Some data values are not within the expected range - see notes below.", flashMessage.NOTICE)
         
     # don't run test if the form had errors...  
     test_case.reset_test()

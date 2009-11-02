@@ -14,6 +14,7 @@ def run_rpc(service_name, args):
         return
             the data returned by the service or None if it didn't exist
     """
+    RPC_ERROR_USER_MSG = "Due to technical difficulties, this resource is currently unavailable."
     # Attempt to get the rpc service...
     server = get_server()
     if (not (isinstance(server, xmlrpclib.ServerProxy) and hasattr(server, service_name)) ):
@@ -35,12 +36,11 @@ def run_rpc(service_name, args):
             watchdog.log("XML-RPC", fault.faultString, watchdog.ERROR)
             return None
         else:
-            raise RpcException(fault.faultString, "Resource is currently unavailable." )
+            raise RpcException(fault.faultString, RPC_ERROR_USER_MSG)  # server error on irc
     except xmlrpclib.ProtocolError, err:
-        raise RpcException("%s"%err, "Internal Server Error")
+        raise RpcException("%s"%err, RPC_ERROR_USER_MSG)  # Communication protocol error b/w stars & irc
     except Exception, e:
-        watchdog.log("XML-RPC", "%s"%e, watchdog.ERROR)
-        raise RpcException("%s"%e, "Resource is currently unavailable." )
+        raise RpcException("%s"%e, RPC_ERROR_USER_MSG)   # If this ever happens, lets make a more specific except block for it
 
     return None
 

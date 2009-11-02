@@ -160,7 +160,7 @@ def credit_detail(request, category_id, subcategory_id, credit_id):
     if request.method == 'GET' and credit_submission.is_complete():  # warnings are loaded during validation for POST's
         submission_form.load_warnings()
     if submission_form.has_warnings():  # Duplicate code: this warning message is duplicated in test case submission view
-        flashMessage.send("Some data values do not fully meet STARS criteria - see notes below.", flashMessage.NOTICE)
+        flashMessage.send("Some data values are not within the expected range - see notes below.", flashMessage.NOTICE)
 
     # Expand the Responsible Party fieldset for complete credits or credits in error
     expand_rp = credit_submission.is_complete() or submission_form.has_responsible_party_error()
