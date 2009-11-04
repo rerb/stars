@@ -332,6 +332,10 @@ class SubcategorySubmission(models.Model):
     def get_not_started_credit_count(self):
         return self.creditusersubmission_set.filter(submission_status='ns').count()
         
+    def get_finished_credit_count(self):
+        """ Get the number of credits that have been marked complete, not pursuing, or not applicable """
+        return self.creditusersubmission_set.exclude(submission_status='ns').exclude(submission_status='p').count()
+    
     def get_claimed_score(self):
         score = 0
         for credit in self.creditusersubmission_set.filter(submission_status='c'):
@@ -351,14 +355,6 @@ class SubcategorySubmission(models.Model):
                 score += credit_submission.get_adjusted_available_points()
         return score
         
-    def get_finished_credit_count(self):
-        """ Get the number of credits that have been marked complete, not pursuing, or not applicable """
-        count = 0
-        for credit in self.creditusersubmission_set.all():
-            if credit.is_finished():
-                count += 1
-        return count
-    
     def get_percent_complete(self):
         """ Return the percentage of credits completed in this subcategory: 0 - 100 """
         total_credits = self.subcategory.credit_set.count()

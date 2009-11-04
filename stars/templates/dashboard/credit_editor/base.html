@@ -44,9 +44,9 @@
             <h2>
                 <a href='{{ creditset.get_edit_url }}'>{{ creditset }}</a>
                 {% if creditset.is_locked %}
-                    <img src='/media/static/images/locked.png' title='Locked - Limited Editing'/>
+                    <img src='/media/static/images/lock_green.png' title='Locked - Limited Editing'/>
                 {% else %}
-                    <img src='/media/static/images/unlocked.png' title='Unlocked - Editing Allowed'/>
+                    <img src='/media/static/images/lock_open_red.png' title='Unlocked - Editing Allowed'/>
                 {% endif %}
             </h2>
             {% with 'true' as edit %}

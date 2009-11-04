@@ -13,12 +13,7 @@
     </tr>
     <tr>
         <th colspan=2>Subcategory</th>
-        <th>Total Credits</th>
-        <th>Completed</th>
-        <th>In Progress</th>
-        <th>Not Pursuing</th>
-        <th>Not Applicable</th>
-        <th>Not Started</th>
+        <th>Credits Completed</th>
         <th>Claimed Score</th>
     </tr>
     {% load submit_tags %}
@@ -28,12 +23,7 @@
             <td class='subcategory_summary'>
                 <a href='{{ sub.subcategory.get_submit_url }}'>{{ sub }}</a>
             </td>
-            <td>{{ sub.subcategory.credit_set.count }}</td>
-            <td>{{ sub.get_complete_credit_count }}</td>
-            <td>{{ sub.get_pending_credit_count }}</td>
-            <td>{{ sub.get_not_pursuing_credit_count }}</td>
-            <td>{{ sub.get_not_applicable_credit_count }}</td>
-            <td>{{ sub.get_not_started_credit_count }}</td>
+            <td>{{ sub.get_finished_credit_count }} / {{ sub.subcategory.credit_set.count }}</td>
             <td>{{ sub.get_claimed_score }} / {% format_available_points sub %}</td>
         </tr>
     {% endfor %}

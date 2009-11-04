@@ -18,6 +18,10 @@
                 <td>{{ active_submission.get_status }}</td>
             </tr>
             <tr>
+                <th>{% if not active_submission.is_rated %}Provisional{% endif %} Score</th>
+                <td>{{ active_submission.get_STARS_score|floatformat:2 }}</td>
+            </tr>
+            <tr>
                 <th>{% if not active_submission.is_rated %}Provisional{% endif %} Rating</th>
                 <td>{{ active_submission.get_STARS_rating }}</td>
             </tr>
@@ -62,17 +66,6 @@
                 {% endfor %}
                 <th>
                     {{ active_submission.get_claimed_score }} / {% format_available_points active_submission %}
-                </th>
-            </tr>
-            <tr>
-                <th>{% if not active_submission.is_rated %}Provisional{% endif %} Score</th>
-                {% for cat in category_submission_list %}
-                    <td>{{ cat.get_STARS_score|floatformat:0 }}
-                        {% if not cat.category.is_innovation %} %  {% endif %}
-                    </td>
-                {% endfor %}
-                <th>
-                    {{ active_submission.get_STARS_score|floatformat:0 }}%
                 </th>
             </tr>
         </table>

@@ -14,7 +14,9 @@
         <h1>{{ user.current_inst }}</h1>
         
         <ul id="tabnav" {% block tabclass %}class='tab1'{% endblock %}>
-      	    <li class="tab1"><a href="/dashboard/manage/submissionsets/">Submission Sets</a></li>
+            {% if user.is_staff %}  {% comment %} Removed for BETA testers - should be available in future {% endcomment %}
+      	      <li class="tab1"><a href="/dashboard/manage/submissionsets/">Submission Sets</a></li>
+      	    {% endif %}
     		<li class="tab2"><a href="/dashboard/manage/users/">Users</a></li>
     		<li class="tab3"><a href="/dashboard/manage/">Contact</a></li>
             <li class="tab4"><a href="/dashboard/manage/payments">Payment History</a></li>
