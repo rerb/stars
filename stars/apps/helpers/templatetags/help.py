@@ -27,8 +27,9 @@ def show_help_text(help_text, as_tooltip=True):
 
 def _clean(text, as_tooltip):
     """ Helper to prepare the help text """
-    js_encoded = escape(strip_spaces_between_tags(text.strip()))
+    js_encoded = strip_spaces_between_tags(text.strip())
     if as_tooltip:
+        js_encoded = escape(js_encoded)
         js_encoded = re.sub(r'\r\n|\r|\n', '', js_encoded)
         js_encoded = js_encoded.replace('&quot;', '\&quot;').replace("&amp;", '\&amp;').replace("&#39;", '\&#39;')
     return mark_safe(js_encoded)
