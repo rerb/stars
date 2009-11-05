@@ -10,28 +10,25 @@ html, body {
 
 body {
     margin:0 20px;
-	padding:5px 200px 20px 250px;
+	padding:5px 0px 20px 250px;
 }
 
 #column_container {
-	background-color:#fff;
+	background-color: #fff;
 	float:left;
-	width:100%;
 	border-left:250px solid #fff; /*  #cf9 The width and color of the left rail */
-	border-right:200px solid #fff; /* The width and color of the right rail */
 	margin-left:-250px;
-	margin-right:-200px;
 	display:inline; /* So IE plays nice */
-	min-width: 530px;
+	width: 700px;
 	padding: 0px 0px 20px 0px;
 	clear: both;
 }
 
 #content {
-    background-color:#fff;
-    margin: 0 -200px 0 -250px;
-    min-width: 950px;
+    background-color: #fff;
+    margin: 0 0 0 -250px;
     overflow: hidden;
+    width: 950px;
 }
 
 #leftRail{
@@ -47,21 +44,22 @@ body {
 }
 #center{
 	float:left;
-	width:100%;
-	margin-right:-100%;
+	width: 700px;
+	margin-right:-700px;
 }
 #rightRail{
 	float:right;
-	width:200px;
-	margin-right:-200px;
+	width:0px;
+	margin-right:-0px;
 	position:relative;
+	background-color: yellow;
 }
 #header, #footer{
 	background-color:#fff;
 	margin-left:-250px;
-	margin-right:-200px;
+	margin-right:-0px;
 	clear:both;
-	min-width: 950px;
+	width: 950px;
 	overflow: hidden;
 }
 
@@ -72,6 +70,7 @@ body {
     border-style: solid;
     margin: 0px;
     padding: 10px 10px 0px 10px;
+    font-size: 1.4em;
 }
 
 #leftRail ul {
@@ -155,6 +154,7 @@ div.inner {
 	padding: 0px 0px 0px 20px;
 	margin: 5px 0px 0px 0px;
 	float: right;
+	white-space: nowrap;
 	border-bottom: 1px solid #072A60;
 }
 
@@ -654,6 +654,7 @@ img.collapse, img.expand {
 
 fieldset {
     border: 1px solid #aaa;
+    padding: 10px;
 }
 
 fieldset.collapsed {

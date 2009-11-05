@@ -188,7 +188,7 @@ class TextSubmissionForm(SubmissionFieldForm):
         return value
     
 class LongTextSubmissionForm(SubmissionFieldForm):
-    value = forms.CharField(widget=forms.Textarea(attrs={'class': 'noMCE'}), required=False)  # don't use MCE for submissions!
+    value = forms.CharField(widget=forms.Textarea(attrs={'class': 'noMCE', 'cols': '60', 'rows': '8',}), required=False)  # don't use MCE for submissions!
 
     class Meta:
         model = LongTextSubmission
