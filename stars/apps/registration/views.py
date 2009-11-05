@@ -171,7 +171,8 @@ def register_institution(user, institution, payment_type, price, payment_dict):
     institution.save()
     
     # Create Admin User
-    account = StarsAccount(user=user, institution=institution, user_level=settings.STARS_PERMISSIONS[0], is_selected=False)
+    ADMIN = settings.STARS_PERMISSIONS[0][0]  # Assumes that first permission is admin.
+    account = StarsAccount(user=user, institution=institution, user_level=ADMIN, is_selected=False)
     account.save()
     account.select()
     

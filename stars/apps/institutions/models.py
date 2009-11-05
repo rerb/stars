@@ -156,7 +156,7 @@ class InstitutionState(models.Model):
         return unicode(self.institution)
     
 
-STARS_USERLEVEL_CHOICES = [(x, x) for x in settings.STARS_PERMISSIONS]
+STARS_USERLEVEL_CHOICES = settings.STARS_PERMISSIONS
 
 class StarsAccount(models.Model):
     """

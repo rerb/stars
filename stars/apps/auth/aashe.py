@@ -58,14 +58,16 @@ class AASHEAuthBackend:
         if not user.account:
             return False    # only users with an account selected have permissions
         
+        PERMS = [x for (x,y) in settings.STARS_PERMISSIONS]
+        
         if perm == 'dashboard':  # every role has access to a dashboard...
-            for perm in settings.STARS_PERMISSIONS:
+            for perm in PERMS:
                 if user.account.has_perm(perm):
                     return True
             # assert: user has no role assigned to their current account
             return False
         
-        if not perm in settings.STARS_PERMISSIONS:
+        if not perm in PERMS:
             watchdog.log('Auth', 'Internal Error: Attempt to check non-exisitent permission %s'%perm, watchdog.ERROR)
             return False    #  can't give permission for something we don't recognize!
         

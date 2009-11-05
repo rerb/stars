@@ -17,13 +17,13 @@
             </tr>
             <tr>
                 <th>Username</th>
-                <th>Userlevel</th>
+                <th>Role</th>
                 <th></th>
             </tr>
             {% for account in user.current_inst.starsaccount_set.all %}
             <tr>
                 <td>{{ account.user.email }}</td>
-                <td>{{ account.user_level }}</td>
+                <td>{{ account.get_user_level_display }}</td>
                 <td class='buttonColumn'>
                     {% ifnotequal account.user user %}
                         <a href='{{ account.get_delete_url }}'>

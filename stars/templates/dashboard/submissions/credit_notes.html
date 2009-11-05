@@ -3,17 +3,17 @@
 {% block tabclass %}class='tab3'{% endblock %}
 
 {% block tab_content %}
-    <h2>Internal Comments</h2>
+    <h2>Internal Notes</h2>
     <form method='post' action='.' class='submit_form' name='submission_notes_form' enctype="multipart/form-data">
         <div class='internal_notes'>
-            <label>(this field will <em>not</em> be made public upon submission)</label>
+            <label>This field will <em>not</em> be made public upon submission.</label>
             {% if notes_form.internal_notes.errors %}{{ notes_form.errors.internal_notes }}{% endif %}
         	<div class='field-form'>
         	   {{ notes_form.internal_notes }}
         	</div>
         </div>
         <div class='button_row'>
-            <input type='submit' value='Submit' />
+            <input type='submit' value='Save' />
         </div>
     </form>
 {% endblock %}

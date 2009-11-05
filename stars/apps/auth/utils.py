@@ -87,7 +87,8 @@ def _update_account_context(request, account=None, current_inst=None):
     
     # Add bound methods to user for each permission they have for their current account
     # e.g, user.can_admin, user.can_submit, etc.
-    for perm in settings.STARS_PERMISSIONS:
+    # These allow template code to check for permissions (since templates can't pass parameters)
+    for (perm, name) in settings.STARS_PERMISSIONS:
         user.__setattr__("can_%s"%perm,  user.has_perm(perm))
 
 
