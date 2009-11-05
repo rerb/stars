@@ -459,6 +459,9 @@ class CreditUserSubmissionForm(CreditSubmissionForm):
         if self.instance.credit.applicabilityreason_set.all():
             self.fields['applicability_reason'].queryset=self.instance.credit.applicabilityreason_set.all()
             self.fields['submission_status'].widget = forms.RadioSelect(choices=CREDIT_SUBMISSION_STATUS_CHOICES_W_NA, attrs={'onchange': 'toggle_applicability_reasons(this)'})
+            
+        # Select only the responsible parties associated with that institution
+        self.fields['responsible_party'].queryset = self.instance.subcategory_submission.category_submission.submissionset.institution.responsibleparty_set.all()
 
     def clean(self):
         """

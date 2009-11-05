@@ -26,3 +26,7 @@ admin.site.register(CreditUserSubmission, CreditUserSubmissionAdmin)
 class UploadSubmissionAdmin(admin.ModelAdmin):
     pass
 admin.site.register(UploadSubmission, UploadSubmissionAdmin)
+
+class ResponsiblePartyAdmin(admin.ModelAdmin):
+    pass
+admin.site.register(ResponsibleParty, ResponsiblePartyAdmin)
