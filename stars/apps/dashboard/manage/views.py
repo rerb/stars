@@ -64,8 +64,8 @@ def add_account(request):
             # Get the AASHE account info for this email
             user_list = xml_rpc.get_user_by_email(account_form.cleaned_data['email'])
             if not user_list:
-                flashMessage.send("AASHE has no users with e-mail: %s."%account_form.cleaned_data['email'], flashMessage.ERROR)
-                account_form._errors['email'] = ErrorList(["No AASHE account found"])
+                flashMessage.send("There are no AASHE users with e-mail: %s." % account_form.cleaned_data['email'], flashMessage.ERROR)
+                account_form._errors['email'] = ErrorList(["Please verify the address or, if this person does not have an AASHE Account, encourage them to create one (see above)."])
             else:
                 user = xml_rpc.get_user_from_user_dict(user_list[0], None)
                 try:

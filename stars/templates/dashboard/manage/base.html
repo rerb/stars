@@ -23,12 +23,10 @@
     	</ul>
     	
     	<div id='tabcontent'>
+    	    <div class='help_note'>
+    	        {% block help_content %}{% endblock %}
+    	    </div>
             {% block institution_content %}{% endblock %}
-
-    	    {% load fieldsets %}
-    	    {% fieldset 'help' 'collapsed' %}
-    	      {% block help_content %} Oh-oh - No help - please report this bug. {% endblock %}
-    	    {% endfieldset %}
     	</div>
     </div></div>
 {% endblock %}

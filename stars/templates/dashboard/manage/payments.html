@@ -29,3 +29,8 @@
        {% endfor %}
   </table>
 {% endblock %}
+
+{% block help_content %}
+    {% load help %}
+    {% show_help_context 'manage_payments' 0 %}
+{% endblock %}

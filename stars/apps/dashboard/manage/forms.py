@@ -92,7 +92,7 @@ class AccountForm(forms.Form):
     """
     
     email = forms.EmailField()
-    userlevel = forms.CharField(widget=widgets.Select(choices=STARS_USERLEVEL_CHOICES))
+    userlevel = forms.CharField(label="Role", widget=widgets.Select(choices=STARS_USERLEVEL_CHOICES))
     
 #    @staticmethod
     def form_name():

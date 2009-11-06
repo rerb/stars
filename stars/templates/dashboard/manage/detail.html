@@ -5,11 +5,23 @@
 {% block tabclass %}class='tab3'{% endblock %}
 
 {% block institution_content %}
-    <div class='form_div'>
-        <form method='post' action='.'>
+    <form method='post' action='.'>
+        <table class='headed_list'>
+            <tr>
+                <td class='header' colspan='2'>Contact Information</td>
+            </tr>
+
             {% with institution_form as object_form %}
                 {% include 'helpers/standard_form.html' %}
             {% endwith %}
-        </form>
-    </div>
+        </table>
+        <div class='button_row'>
+            <input type='submit' value='save' />
+        </div>
+    </form>
+{% endblock %}
+
+{% block help_content %}
+    {% load help %}
+    {% show_help_context 'manage_contact_tab' 0 %}
 {% endblock %}

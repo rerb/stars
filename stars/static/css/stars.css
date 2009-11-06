@@ -334,6 +334,17 @@ ul.warninglist {
    float: left;
 }
 
+div.help_note {
+}
+
+div.help_note .help_text {
+    background-color: #eee;
+    padding: 15px;
+    display: block;
+    margin: 10px auto;
+    border: 1px solid #ddd;
+}
+
 span.help_text {
     font-size: .9em;
     color: #666;
@@ -441,6 +452,10 @@ table.headed_list th {
     background-color: #ebf9c8;
     padding: 5px 5px;
     margin: 1px;
+}
+
+table.headed_list th.left {
+    text-align: right;
 }
 
 table.headed_list td {

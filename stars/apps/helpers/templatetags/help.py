@@ -8,15 +8,18 @@ from stars.apps.helpers.models import HelpContext
 
 register = template.Library()
 
-#@register.simple_tag
+def get_help_context(context_name):
+    """ Pulls the help text from the DB if it's available """
+    try:
+        c = HelpContext.objects.get(name=context_name)
+        return c.help_text
+    except:
+        return ""
+
 @register.inclusion_tag('helpers/tags/help_text.html')
 def show_help_context(context_name, as_tooltip=True):
     """ Displays a tool-tip for the help text for the given context. """
-    try:
-        c = HelpContext.objects.get(name=context_name)
-        help_text = c.help_text
-    except:
-        help_text = ""
+    help_text = get_help_context(context_name)
     
     return {'help_text': _clean(help_text, as_tooltip), "tooltip": as_tooltip}
 
@@ -27,6 +30,8 @@ def show_help_text(help_text, as_tooltip=True):
 
 def _clean(text, as_tooltip):
     """ Helper to prepare the help text """
+    if not text:
+        return None
     js_encoded = strip_spaces_between_tags(text.strip())
     if as_tooltip:
         js_encoded = escape(js_encoded)

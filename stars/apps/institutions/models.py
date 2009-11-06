@@ -12,13 +12,13 @@ class Institution(models.Model):
     name = models.CharField(max_length='255')
     aashe_id = models.IntegerField()
     enabled = models.BooleanField(help_text="This is a staff-only flag for disabling an institution. An institution will NOT appear on the STARS Institutions list until it is enabled. ")
-    contact_first_name = models.CharField(max_length=32)
-    contact_middle_name = models.CharField(max_length=32, blank=True, null=True)
-    contact_last_name = models.CharField(max_length=32)
-    contact_title = models.CharField(max_length=64)
-    contact_department = models.CharField(max_length=64)
-    contact_phone = PhoneNumberField()
-    contact_email = models.EmailField()
+    contact_first_name = models.CharField("Liaison First Name", max_length=32)
+    contact_middle_name = models.CharField("Liaison Middle Name", max_length=32, blank=True, null=True)
+    contact_last_name = models.CharField("Liaison Last Name", max_length=32)
+    contact_title = models.CharField("Liaison Title", max_length=64)
+    contact_department = models.CharField("Liaison Department", max_length=64)
+    contact_phone = PhoneNumberField("Liaison Phone")
+    contact_email = models.EmailField("Liaison Email")
     executive_contact_first_name = models.CharField(max_length=32)
     executive_contact_middle_name = models.CharField(max_length=32, blank=True, null=True)
     executive_contact_last_name = models.CharField(max_length=32)
@@ -171,7 +171,7 @@ class StarsAccount(models.Model):
     user = models.ForeignKey(User)
     institution = models.ForeignKey(Institution)
     # user_level is a role
-    user_level = models.CharField(max_length='6', choices=STARS_USERLEVEL_CHOICES)
+    user_level = models.CharField("Role", max_length='6', choices=STARS_USERLEVEL_CHOICES)
     is_selected = models.BooleanField(default=False)  # True if the user has this account selected - we need this so we can persist the user's account on logout. 
     
     def __unicode__(self):
