@@ -590,7 +590,7 @@ class ApplicabilityReason(models.Model):
     reason = models.CharField(max_length=128)
     
     def __unicode__(self):
-        return self.reason
+        return smart_unicode(self.reason, encoding='utf-8', strings_only=False, errors='strict')
     
     def get_absolute_url(self):
         return "%sapplicability/" % self.credit.get_edit_url()
