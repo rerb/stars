@@ -1,7 +1,7 @@
-EXEC_EMAIL_TEXT = """Dear {{ institution.executive_contact_title }} {{ institution.executive_contact_last_name }},
+EXEC_EMAIL_TEXT = """{% autoescape off %}Dear {{ institution.executive_contact_title }} {{ institution.executive_contact_last_name }},
 Congratulations!  {{ institution }} has successfully registered to participate in the Sustainability Tracking, Assessment & Rating System (STARS).  STARS is a tool to help guide colleges and universities toward sustainability.  
 
-The STARS Liaison for {{ institution }}, listed below, provided your contact information to notify you about your institution's participation in STARS.  Since, many individuals and departments on campus will be involved in the STARS process, executive-level support will help make your institution's participation successful. 
+The STARS Liaison for {{ institution }}, listed below, provided your contact information to notify you about your institution's participation in STARS.  Since, many individuals and departments on campus will be involved in the STARS process, executive-level support will help make your institution's participation successful & < > ;. 
 
 To learn more about the STARS Program, visit www.aashe.org/stars or email stars@aashe.org with any questions. 
 
@@ -16,9 +16,10 @@ stars@aashe.org
 {{ institution.contact_first_name }} {{ institution.contact_last_name }}
 {{ institution.contact_title }}, {{ institution.contact_department }}
 {{ institution.contact_email }}
+{% endautoescape %}
 """
 
-RECEIPT_EMAIL_TEXT = """Thank you for registering as a STARS Charter Participant! 
+RECEIPT_EMAIL_TEXT = """{% autoescape off %}Thank you for registering as a STARS Charter Participant! 
 
 Your registration has been received and is being processed by AASHE.  Your receipt is below.  
 
@@ -45,9 +46,10 @@ Total Fee ${{ payment.amount }}
 
 Credit Card: [************{{ payment_dict.last_four }}]
 Paid to AASHE
+{% endautoescape %}
 """
 
-PAY_LATER_EMAIL_TEXT="""Thank you for registering as a STARS Charter Participant! 
+PAY_LATER_EMAIL_TEXT="""{% autoescape off %}Thank you for registering as a STARS Charter Participant! 
 
 Your registration has been received and is being processed by AASHE.  Your receipt is below.  
 
@@ -69,6 +71,7 @@ You have selected to pay for your STARS registration by check. Please mail a che
 AASHE
 213 1/2 N. Limestone Street
 Lexington, Kentucky 40507
+{% endautoescape %}
 """
 
 CYBERSOURCE_RESPONSE_DICT = {
