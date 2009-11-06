@@ -5,6 +5,7 @@ from django.utils.safestring import mark_safe
 import re
 
 from stars.apps.helpers.models import HelpContext
+from stars.apps.helpers import watchdog
 
 register = template.Library()
 
@@ -14,6 +15,7 @@ def get_help_context(context_name):
         c = HelpContext.objects.get(name=context_name)
         return c.help_text
     except:
+        watchdog.log("get_help_context", "HelpContext, '%s', not found." % context_name)
         return ""
 
 @register.inclusion_tag('helpers/tags/help_text.html')
