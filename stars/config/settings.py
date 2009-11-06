@@ -49,7 +49,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.doc.XViewMiddleware',
     'stars.apps.auth.middleware.AuthenticationMiddleware',  # must come after django.contrib.auth.middleware
     'stars.apps.dashboard.admin.watchdog.middleware.WatchdogMiddleware',  # must come before flatpage so it doesn't log flatpages as 404's
-    # 'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
+    'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
     'stars.apps.helpers.flashMessage.FlashMessageMiddleware',
 )
 

@@ -8,7 +8,7 @@ handler500 = 'stars.apps.helpers.views.server_error'
 
 urlpatterns = patterns('',
     # dashboard:
-    (r'^$', 'stars.apps.dashboard.views.stars_home_page'),
+    #(r'^$', 'stars.apps.dashboard.views.stars_home_page'),
     (r'^dashboard/$', 'stars.apps.dashboard.views.dashboard'),
     (r'^dashboard/credit-editor/', include('stars.apps.dashboard.credit_editor.urls')),
     (r'^dashboard/admin/', include('stars.apps.dashboard.admin.urls')),
