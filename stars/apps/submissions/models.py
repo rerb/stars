@@ -147,7 +147,7 @@ class SubmissionSet(models.Model):
 
     def get_progress_title(self):
         """ Returns a title for progress on the entire submission set """
-        return "Complete" if self.get_percent_complete() == 100 else "Progress"
+        return "Complete" if self.get_percent_complete() == 100 else "Submission Status"
 
 
 def get_active_submissions(creditset=None, category=None, subcategory=None, credit=None):

@@ -9,7 +9,7 @@
 {% block header %}{{ category }}{% endblock %}
 
 {% block center %}
-    {% with 'Progress' as title %}
+    {% with 'Submission Status' as title %}
         {% include 'dashboard/submissions/category_progress.html' %}
     {% endwith %}
     {% for sub in subcategory_submission_list %}
