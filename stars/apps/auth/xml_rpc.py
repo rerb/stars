@@ -1,6 +1,8 @@
 from django.conf import settings
 from django.contrib.auth.models import User
 
+import re
+
 from stars.apps.helpers.xml_rpc import run_rpc
     
 def login(username, password):
@@ -25,8 +27,14 @@ def get_user(uid):
     return run_rpc('aasheuser.get', args)
 
 def email_to_username(email):
-    """ Converts an email address to a valid django username """
-    return email.replace('@', "_at_").replace('.', "_dot_").replace('-', '___')
+    """
+        Converts an email address to a valid django username
+        Keep in mind that they still need to be unique
+    """
+    username = email.replace('@', "__").replace('.', "_").replace('-', '_')
+    if len(username) > 30:
+        username = username[0:30]
+    return username
     
 def get_user_from_user_dict(user_dict, session, create=True):
     """
