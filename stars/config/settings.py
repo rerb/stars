@@ -30,7 +30,7 @@ SITE_ID = 1
 
 USE_I18N = False
 
-MEDIA_URL = '/media/'
+MEDIA_URL = '/auth/my_uploads/'
 
 ADMIN_MEDIA_PREFIX = '/media/admin/'
 

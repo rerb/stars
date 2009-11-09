@@ -4,13 +4,14 @@ from django.forms import ModelForm
 from django import forms
 from django.forms.extras.widgets import SelectDateWidget
 from django.forms.util import ErrorList
-from django.contrib.admin.widgets import AdminFileWidget
+# from django.contrib.admin.widgets import AdminFileWidget
 
 from stars.apps.helpers.forms import fields as custom_fields
 from stars.apps.helpers.forms.util import WarningList
 from stars.apps.helpers.decorators import render_with_units
 from stars.apps.helpers import watchdog 
 from stars.apps.submissions.models import *
+from stars.apps.dashboard.submissions.widgets import UploadFileWidget
 
 class SubmissionFieldForm(ModelForm):
     """ Parent class for all submission fields to provide access to clean_value """
@@ -220,7 +221,7 @@ class UploadSubmissionForm(SubmissionFieldForm):
     def __init__(self, *args, **kwargs):
         """ Change the widget """
         super(UploadSubmissionForm, self).__init__(*args, **kwargs)
-        self.fields['value'].widget = AdminFileWidget()
+        self.fields['value'].widget = UploadFileWidget()
     
 class BooleanSubmissionForm(SubmissionFieldForm):
     class Meta:

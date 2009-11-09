@@ -202,6 +202,9 @@ class CategorySubmission(models.Model):
         
     def get_institution(self):
         return self.submissionset.institution
+        
+    def get_creditset(self):
+        return self.submissionset.creditset
     
     def __unicode__(self):
         return unicode(self.category)
@@ -312,6 +315,9 @@ class SubcategorySubmission(models.Model):
     def get_parent(self):
         """ Used for building crumbs """
         return self.category_submission
+        
+    def get_creditset(self):
+        return self.category_submission.get_creditset()
         
     def get_submit_url(self):
         return self.subcategory.get_submit_url()
@@ -583,6 +589,9 @@ class CreditUserSubmission(CreditSubmission):
     def get_parent(self):
         """ Used for building crumbs """
         return self.subcategory_submission
+        
+    def get_creditset(self):
+        return self.subcategory_submission.get_creditset()
 
     def is_finished(self):
         """ Indicate if this credit has been marked anything other than pending or not started """
@@ -751,6 +760,12 @@ class DocumentationFieldSubmission(models.Model):
     def get_parent(self):
         """ Used for building crumbs """
         return self.credit_submission
+        
+    def get_institution(self):
+        return self.credit_submission.get_institution()
+        
+    def get_creditset(self):
+        return self.credit_submission.get_creditset()
 
     def persists(self):
         """Does this Submission object persist in the DB?"""
@@ -1002,13 +1017,35 @@ class LongTextSubmission(DocumentationFieldSubmission):
         The submitted value for Long Text Documentation Field
     """
     value = models.TextField(blank=True, null=True)
+    
+    
+def upload_path_callback(instance, filename):
+    """
+        Dynamically alters the upload path based on the instance
+        secure/<org_id>/<creditset_id>/<credit_id>/<field_id>/<file_name>.<ext>
+    """
+    
+    if instance.credit_submission.__class__.__name__ == "CreditUserSubmission":
+        field = instance.documentation_field
+        credit = field.credit
+        creditset = field.credit.subcategory.category.creditset
+        institution = instance.get_institution()
+        path = "secure/%d/%d/%d/%d/%s" % (institution.id, creditset.id, credit.id, field.id, filename)
+        return path
+    else:
+        # if this is a test submission use a different URL
+        return "uploads/test_cases/%s" % filename
 
 class UploadSubmission(DocumentationFieldSubmission):
     """
         The submitted value for a File Upload Documentation Field
         @todo: custom storage engine to rename files
     """
-    value = models.FileField(upload_to='uploads', blank=True, null=True)
+    value = models.FileField(upload_to=upload_path_callback, blank=True, null=True)
+    
+    def get_access_url(self):
+        "my_uploads/<creditset_id>/<credit_id>/<file_name>.<ext>"
+        return "my_uploads/%d/%d/%s" % (self.get_credit_set().id, self.credit.id, self.value.filename)
     
 class BooleanSubmission(DocumentationFieldSubmission):
     """

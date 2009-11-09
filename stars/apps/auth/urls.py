@@ -11,4 +11,7 @@ urlpatterns = patterns(
     (r'^logout/$', 'django.contrib.auth.views.logout_then_login'),
     
     (r'^select-school/(?P<institution_id>\d+)/$', 'stars.apps.auth.views.select_school'),
+    
+    # uploaded file access
+    (r'^my_uploads/secure/(?P<inst_id>\d+)/(?P<creditset_id>\d+)/(?P<credit_id>\d+)/(?P<field_id>\d+)/(?P<filename>[^/]+)/$', 'stars.apps.auth.views.serve_uploaded_file'),
 )
