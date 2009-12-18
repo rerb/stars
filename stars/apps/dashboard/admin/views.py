@@ -6,7 +6,10 @@ from stars.apps.auth.utils import respond
 from stars.apps.auth import utils as auth_utils
 from stars.apps.auth.decorators import user_is_staff
 from stars.apps.helpers import flashMessage
+from stars.apps.helpers.forms.form_helpers import basic_save_form
 from stars.apps.institutions.models import Institution
+from stars.apps.submissions.models import Payment
+from stars.apps.dashboard.admin.forms import PaymentForm
 from stars.apps.cms.models import ArticleCategory, articleCategories_sync, articleCategories_perform_consistency_check
 
 @user_is_staff
@@ -71,4 +74,35 @@ def article_category_sync(request):
     context = {"category_table" : category_table, "is_consistent" : is_consistent, "error_list" : errors}
     template = "dashboard/admin/cms/article_category_sync.html"
     return respond(request, template, context)
+
+@user_is_staff
+def payments(request):
+    """
+        A list of institution payments
+    """
+    institutions = Institution.objects.all()
+
+    # Add the latest submission set and payment to each institution...
+    for institution in institutions:
+        institution.submission_set = None
+        institution.payment = None
+        submissions = institution.submissionset_set.order_by('-date_registered')
+        if submissions:
+            institution.submission_set = submissions[0]
+            payments = institution.submission_set.payment_set.order_by('-date')
+            if payments:
+                institution.payment = payments[0]
+        print "Submission Set: %s, Payment: %s"%(institution.submission_set, institution.payment)
+    template = "dashboard/admin/payments/list.html"
+    return respond(request, template, {'institution_list':institutions})
     
+@user_is_staff
+def edit_payment(request, payment_id):
+    """
+        Edit a particular payment
+    """
+    payment = get_object_or_404(Payment, pk=payment_id)
+    object_form, status = basic_save_form(request, payment, "payment", PaymentForm)
+    
+    template = "dashboard/admin/payments/edit.html"
+    return respond(request, template, {'payement': payment, 'object_form': object_form})

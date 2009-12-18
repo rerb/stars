@@ -1,0 +1,15 @@
+{% extends 'dashboard/admin/base.html' %}
+
+{% block title %} {{ block.super }} | Payments{% endblock %}
+
+{% block crumbs %} {{ block.super }} &gt; <a href='/dashboard/admin/payments/'>Payments</a>{% endblock %}
+
+{% block tabclass %}class='tab5'{% endblock %}
+
+{% block admin_content %}
+    <h1>Edit Payment</h1>
+    <a href='/dashboard/admin/payments/'>&lt;&lt; back to list</a>
+    <form method='post' action='.'>
+        {% include 'helpers/standard_form.html' %}
+    </form>
+{% endblock %}

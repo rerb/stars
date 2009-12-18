@@ -19,10 +19,6 @@ from stars.apps.auth import xml_rpc
 from stars.apps.registration.globals import *
 from stars.apps.submissions.models import *
 from stars.apps.credits.models import CreditSet
-
-#@todo:  perhaps these prices should be stored with the creditset??
-MEMBER_PRICE = 650
-NON_MEMBER_PRICE = 1150
         
 def reg_select_institution(request):
     """
@@ -112,13 +108,11 @@ def reg_payment(request):
     (institution, response) = _get_selected_institution(request)
     if response: return response        
         
-    price = NON_MEMBER_PRICE
     # Determine Membership Status
     is_member = institution.is_member_institution()
-    if is_member:
-        price = MEMBER_PRICE
-        
-    #price = 1
+    
+    # get price
+    price = _get_registration_price(is_member)
     
     pay_form = PaymentForm()
     pay_later_form = PayLaterForm()
@@ -189,13 +183,15 @@ def register_institution(user, institution, payment_type, price, payment_dict):
     
     # Send Confirmation Emails
     
-    cc_list = ['stars@aashe.org']
+    cc_list = ['stars@aashe.org', 'allison@aashe.org']
     if user.email != institution.contact_email:
         cc_list.append(user.email)
     
     # Primary Contact
     subject = "STARS Registration Success: %s" % institution
-    email_to = institution.contact_email
+    email_to = [institution.contact_email]
+    
+    # Confirmation Email
     if payment.type == 'later':
         t = Template(PAY_LATER_EMAIL_TEXT)
     else:
@@ -205,9 +201,21 @@ def register_institution(user, institution, payment_type, price, payment_dict):
     send_mail(  subject,
                 message,
                 settings.EMAIL_HOST_USER,
-                [email_to,] + cc_list,
+                email_to + cc_list,
                 fail_silently=False
                 )
+                
+    # Payment Reminder Email
+    if payment.type == 'later':
+        t = Template(PAY_LATER_REMINDER_TEXT)
+        c = Context({'payment': payment,})
+        message = t.render(c)
+        send_mail(  "STARS Registration",
+                    message,
+                    settings.EMAIL_HOST_USER,
+                    email_to + cc_list,
+                    fail_silently=False
+                    )
                 
     # Executive Contact
     email_to = institution.executive_contact_email
@@ -391,3 +399,22 @@ def _get_selected_institution(request):
         pass  # no problem - this is the usual case, institution is not registered, proceed with registration.
    
     return institution, None
+
+def _get_registration_price(is_member):
+    """
+        Calculates the registration price based on the 
+    """
+    deadline = datetime(2010, 1, 1, 3, 0, 0) # January 1st at 3am
+    early = {'member': 650, 'non': 1150}
+    regular = {'member': 900, 'non': 1400}
+    
+    if datetime.now() < deadline:   # Early Registration
+        price = early
+    else:                           # Normal Registration
+        price = regular
+        
+    if is_member:
+        return price['member']
+    else:
+        return price['non']
+

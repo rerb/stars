@@ -12,10 +12,15 @@
       <h1>STARS Institutions</h1>
       The following institutions are currently registered to participate in STARS:
       {% if user.is_staff %}
-	      <table id="institution-list" style='padding:10px;'>
-	        <tr><th></th><th>Institution</th><th colspan=2>Registered</th><th colspan=2>Payment</th></tr>
+	      <table id="institutionList" cellspacing='0'>
+	        <tr>
+	            <th></th>
+	            <th>Institution</th>
+	            <th colspan='2'>Registered</th>
+	            <th colspan='3'>Payment</th>
+	        </tr>
 		    {% for institution in institution_list %}
-		      <tr>
+		      <tr{% cycle ' class="odd"' ''%}>
 		        <td>
 		            {{ forloop.counter }}
 		        </td>
@@ -29,10 +34,13 @@
                     <td style='padding-left:20px'> {{ institution.submission_set.date_registered }} </td>
                     <td> ({{ institution.submission_set }}) </td>
                 {% else %}
-                  <td colspan=2 align='center'> - </td>
+                  <td colspan='2' align='center'> - </td>
                 {% endif %}
                 {% if institution.payment %}
-                    <td style='padding-left:20px'> {{ institution.payment.date.date}} <strong>${{ institution.payment.amount|floatformat:2 }}</strong> </td>
+                    <td style='padding-left:20px'> {{ institution.payment.date.date}}</td>
+                    <td>
+                        <strong>${{ institution.payment.amount|floatformat:2 }}</strong>
+                    </td>
                     <td>
                         {% ifequal institution.payment.type 'later' %}
                             <img src='/media/static/images/cross.png' title='Awaiting payment from this Institution'>
@@ -45,7 +53,7 @@
                         {% endifequal %}
                     </td>
                 {% else %}
-                  <td colspan=2 align='center'> - </td>
+                  <td colspan='3' align='center'>---</td>
                 {% endif %}
               </tr>
 		    {% endfor %}
