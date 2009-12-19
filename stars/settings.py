@@ -16,6 +16,7 @@ configs = {
     '/var/django/projects/stars/dev/stars.*': 'development',
     '/var/django/projects/stars/stage/stars.*': 'stage',
     '/var/django/projects/stars/production/stars.*': 'production',
+    '/var/django/projects/stars/beta/stars.*': 'beta',
 }
 
 # find the first key that matches the ROOT_PATH

@@ -48,7 +48,7 @@ def show_main_menu(user=None, menu_category=None):
     if user and user.is_staff:  # currently, restrict this item to staff only, although it is designed to be public.
         menuItems.insert(1, menuItem(menu_category=="institutions", "/institutions/", "STARS Institutions"))
 
-    if user and user.has_perm('dashboard'):
-        menuItems.append(menuItem(menu_category=="dashboard", "/dashboard/", "My Dashboard"))
+    if user and user.has_perm('tool'):
+        menuItems.append(menuItem(menu_category=="tool", "/tool/", "Reporting Tool"))
     
     return {'menu_items': menuItems} 

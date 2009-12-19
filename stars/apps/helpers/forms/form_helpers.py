@@ -4,6 +4,7 @@ from django.utils.encoding import StrAndUnicode, smart_unicode, force_unicode
 from django.utils.safestring import mark_safe
 
 from stars.apps.helpers import flashMessage
+from stars.apps.helpers.forms.forms import Confirm
 
 def object_editing_list(request, object_list, form_class, ignore_errors=False, ignore_post=False, ignore_objects=[]):
     """
@@ -114,14 +115,20 @@ def object_ordering(request, object_list, form_class, ignore_errors=True, ignore
 def _get_class_label(klass, method, plural=False):
     """ Helper: Get a user-friendly label for the given class using the given method name"""
     if plural:
-        label = "%ss"%getattr(klass, method)() if hasattr(klass, method) else unicode(klass._meta.verbose_name_plural)
+        label = "%ss"%getattr(klass, method)() if hasattr(klass, method) \
+                                               else unicode(klass._meta.verbose_name_plural) if hasattr(klass._meta, 'verbose_name_plural') \
+                                               else ''
     else:
-        label = getattr(klass, method)() if hasattr(klass, method) else unicode(klass._meta.verbose_name)
+        label = getattr(klass, method)() if hasattr(klass, method) \
+                                         else unicode(klass._meta.verbose_name) if hasattr(klass._meta, 'verbose_name') \
+                                         else ''
+
     return label.capitalize()
  
 def _get_form_label(klass, plural=False):    
     """ Helper: Get a user-friendly label for the given form class """
-    return _get_class_label(klass, "form_name", plural)
+    label = _get_class_label(klass, "form_name", plural)
+    return '%s: '%label if label else ''
 
 def _get_model_label(klass, plural=False):    
     """ Helper: Get a user-friendly label for the given model class """
@@ -144,18 +151,18 @@ def _perform_save_form(request, instance, prefix, form_class, save_msg="Changes 
         if saved and flash_message:
             flashMessage.send("%s '%s': %s"%(_get_model_label(instance.__class__), instance, save_msg), flashMessage.SUCCESS)
         elif flash_message:
-            flashMessage.send("%s: Please correct the errors below"%_get_form_label(form_class), flashMessage.ERROR)            
+            flashMessage.send("%sPlease correct the errors below"%_get_form_label(form_class), flashMessage.ERROR)            
     else: 
         object_form = form_class(instance=instance, prefix=prefix)
     return [object_form, instance, saved]
  
 #    @todo: get a nice name from the form_class
-def basic_save_form(request, instance, prefix, form_class, commit=True):
+def basic_save_form(request, instance, prefix, form_class, commit=True, flash_message=True):
     """
         Provides basic form handling for saving an existing model
         Returns the object form and a saved flag, which is true if the form data was saved to the instance
     """
-    (object_form, instance, saved) = _perform_save_form(request, instance, prefix, form_class, commit=commit)
+    (object_form, instance, saved) = _perform_save_form(request, instance, prefix, form_class, commit=commit, flash_message=flash_message)
     return [object_form, saved]
 
 def basic_save_new_form(request, instance, prefix, form_class, commit=True):
@@ -210,6 +217,27 @@ def save_new_form_rows(request, prefix, form_class, instance_class, **instance_c
             pass
     return [instances, len(errors)>0]
 
+def confirm_form(request, instance):
+    """
+        Provides basic form handling for confirming an action or change.
+        Returns (form, confirmed), where 
+         - form is the confirmation form and 
+         - confirmed is True if the form was POST'ed and the user submitted a confirmation,
+                        False if the form was POST'ed and the user did not confirm (not really possible),
+                        None if the form was not POST'ed
+    """
+    confirmed = None
+    if request.method == "POST":
+        form = Confirm(request.POST)
+        if form.is_valid():
+            if form.cleaned_data['confirm']:
+                confirmed = True
+            else:
+                confirmed = False
+    else:
+        form = Confirm()
+    form.instance = instance
+    return (form, confirmed)
 
 def confirm_unlock_form(request, instance):
     """
@@ -217,19 +245,12 @@ def confirm_unlock_form(request, instance):
         Uses instance.unlock() to perform the unlock
         Returns (form, unlocked), where form is the confirmation form and unlocked is True if the form was POST'ed and the unlock performed successfully.
     """
-    from stars.apps.helpers.forms.forms import ConfirmUnlock
-    unlocked = False
-    if request.method == "POST":
-        form = ConfirmUnlock(request.POST)
-        if form.is_valid():
-            if form.cleaned_data['confirm']:
-                msg_parms = (_get_model_label(instance.__class__), unicode(instance))
-                instance.unlock()
-                flashMessage.send("%s %s was unlocked."%msg_parms, flashMessage.SUCCESS)
-                unlocked = True
-    else:
-        form = ConfirmUnlock()
-    form.instance = instance
+    (form, unlocked) = confirm_form(request, instance)
+    if unlocked:
+        msg_parms = (_get_model_label(instance.__class__), unicode(instance))
+        instance.unlock()
+        flashMessage.send("%s %s was unlocked."%msg_parms, flashMessage.SUCCESS)
+        
     return (form, unlocked)
 
 def confirm_delete_form(request, instance, delete_method=None):
@@ -238,24 +259,17 @@ def confirm_delete_form(request, instance, delete_method=None):
         Uses instance.delete() to perform the deletion if no delete_method is supplied
         Returns (form, deleted), where form is the delete confirmation form and deleted is True if the form was POST'ed and the deletion performed successfully.
     """
-    from stars.apps.helpers.forms.forms import ConfirmDelete
-    deleted = False
-    if not delete_method:
-        delete_method = instance.delete
-    if request.method == "POST":
-        form = ConfirmDelete(request.POST)
-        if form.is_valid():
-            if form.cleaned_data['confirm']:
-                msg_parms = (_get_model_label(instance.__class__), unicode(instance))
-                delete_method()
-                flashMessage.send("%s %s was deleted."%msg_parms, flashMessage.SUCCESS)
-                deleted = True
-    else:
-        form = ConfirmDelete()
-    form.instance = instance
+    (form, deleted) = confirm_form(request, instance)
+    if deleted:
+        msg_parms = (_get_model_label(instance.__class__), unicode(instance))
+        if not delete_method:
+            delete_method = instance.delete
+        delete_method()
+        flashMessage.send("%s %s was deleted."%msg_parms, flashMessage.SUCCESS)
+
     return (form, deleted)
 
-def confirm_delete_and_update_form(request, instance, delete_method=None):
+def confirm_delete_and_update_form(request, instance):
     """
         Exactly as above, but calls instance.delete_and_update() to perform the deletion.
     """

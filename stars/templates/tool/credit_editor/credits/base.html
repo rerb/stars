@@ -1,0 +1,26 @@
+{% extends "tool/credit_editor/base.html" %}
+
+{% block title %} {{ block.super}} | {{ category }} | {{ subcategory }} | {{ credit }}{% endblock %}
+
+{% block crumbs %}
+    {% load ce_tags %}
+    {% show_editor_crumbs credit %}
+{% endblock %}
+
+{% block header %}{{ credit }}{% endblock %}
+
+{% block center %}
+    <ul id="tabnav" {% block tabclass %}class='tab1'{% endblock %}>
+		<li class="tab1"><a href="{{ credit.get_edit_url }}">Credit Summary</a></li>
+		<li class="tab2"><a href="{{ credit.get_edit_url }}fields/">Reporting Fields</a></li>
+		<li class="tab4"><a href="{{ credit.get_edit_url }}applicability/">Applicability</a></li>
+        <li class="tab3"><a href="{{ credit.get_edit_url }}formula/">Formula &amp; Validation</a></li>
+	</ul>
+	<div id='tabcontent'>
+        {% block tab_content %}
+        <form class='form' method='POST' action='.'>
+            {% include 'tool/credit_editor/standard_form.html' %}
+        </form>
+        {% endblock %}
+    </div>
+{% endblock %}

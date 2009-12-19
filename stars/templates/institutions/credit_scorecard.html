@@ -1,0 +1,109 @@
+{% extends 'institutions/columned_layout.html' %}
+
+{% block crumbs %} 
+    {{ block.super }}
+    {% load report_tags  %}
+    {% show_report_crumbs credit_submission %}
+{% endblock %}
+
+{% block header %}{{ credit_submission }}{% endblock %}
+
+{% block report_content %}
+    <table class='headed_list wide'>
+        <tr>
+            <td class='header' colspan='4'>Summary</td>
+        </tr>
+        <tr>
+            <th>Status</th>
+            {% if not submissionset.is_rated %}
+               <th>Last Updated</th>
+            {% endif %}
+            <th>Possible Points</th>
+            <th>Points Claimed</th>
+        </tr>
+        <tr>
+            <td>
+               {{ credit_submission.get_status_display }}
+               {% if credit_submission.is_na %}
+                  <div class='applicability_reason'>{{ credit_submission.applicability_reason }}</div>
+               {% endif %}
+            </td>
+            {% if not submissionset.is_rated %}
+              <td>{{ credit_submission.last_updated|date:"m/d/y fA" }}</td>
+            {% endif %}
+            <td>
+                {% load submit_tags %}
+                {% format_available_points credit_submission %}
+            </td>
+            <td>
+                {% ifnotequal credit_submission.assessed_points None %}
+                    {{ credit_submission.assessed_points }}
+                {% endifnotequal %}
+            </td>
+        </tr>
+    </table>
+
+    <div class='description'>
+        {% autoescape off %}{{ credit_submission.credit.criteria }}{% endautoescape %}
+    </div>
+
+   {% if credit_submission.submission_notes %}
+     <div id='submission_notes' class='headed_list expanded'>
+       <span class='header'>
+	       <img src='/media/static/images/collapse.png'  title='collapse' alt='[-]' 
+	            onclick='expand_collapse(document.getElementById("submission_notes"));' />
+	            Notes about this submission
+       </span>
+       <div class='submission_notes'>
+          {{ credit_submission.submission_notes }}
+       </div>
+     </div>
+   {% endif %}
+   
+   {% if credit_submission.is_pursued %}
+     {% load report_tags %}
+     <div id='reporting_fields' class='headed_list expanded'>
+       <span class='header'>
+          <img src='/media/static/images/collapse.png' title='collapse' alt='[-]' 
+               onclick='expand_collapse(document.getElementById("reporting_fields"));' />
+               Reporting Fields
+       </span>
+       <table class='headed_list'>
+         {% for field in credit_submission.get_submission_fields %}
+           <tr>
+             <th>{{ field }}</th>
+             <td>
+                 {% show_field_value field %}
+             </td>
+           </tr>
+         {% endfor %}
+       </table>
+     </div>
+   {% endif %}
+      
+   {% if credit_submission.responsible_party %}
+    <div id='responsible_party' class='headed_list collapsed'>
+     <span class='header'>
+          <img src='/media/static/images/expand.png' title='expand' alt='[+]' 
+               onclick='expand_collapse(document.getElementById("responsible_party"));' />
+               Party Responsible for this Submisision:
+             {{credit_submission.responsible_party.first_name}} {{credit_submission.responsible_party.last_name}}
+     </span>
+     <table class='headed_list' >
+       <tr>
+         <th>Title</th><td>{{credit_submission.responsible_party.title}}</td>
+       </tr>
+       <tr>
+         <th>Department</th><td>{{credit_submission.responsible_party.department}}</td>
+       </tr>
+       <tr>
+         <th>Phone</th><td>{{credit_submission.responsible_party.phone}}</td>
+       </tr>
+       <tr>
+         <th>E-mail</th><td><a href='mailto:{{credit_submission.responsible_party.email}}'>{{credit_submission.responsible_party.email}}</a></td>
+       </tr>
+     </table>
+    </div>
+   {% endif %}      
+
+{% endblock %}

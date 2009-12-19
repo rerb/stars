@@ -4,21 +4,23 @@
   <ul>
    <li>
     {% comment %} <!-- Top level category has articles AND sub-categories... hmmmm  handle like a sub-category for now...
-     <img src='/media/static/images/collapse.png' class='collapse' title='collapse' alt='-' onclick='collapse_expand(this);' /> 
-     <a href='{{ mm_category.get_absolute_url }}'>{{ mm_category.label }}</a>
+     <img src='/media/static/images/collapse.png' class='collapse' title='collapse' alt='-' onclick='expand_collapse_parent(this);' /> 
+     <a href='{{ root_category.get_absolute_url }}'>{{ root_category.label }}</a>
       -->
      {% endcomment %}
      <ul> 
       {% for subcat in article_menu.subcategories %}
-      <li {% ifequal subcat sub_category %} class= 'current' {% endifequal %}'> 
-       <img src='/media/static/images/collapse.png' class='collapse' title='collapse' alt='-' onclick='collapse_expand(this);' /> 
-       <span {% ifequal subcat mm_category %} class='top-level-category' {% endifequal %}>
-         <a href="{{ subcat.get_absolute_url }}">{{ subcat.label }}</a>
+      <li class='expanded{% ifequal subcat sub_category %}, current{% endifequal %}'> 
+       <img src='/media/static/images/collapse.png' class='collapse' title='collapse' alt='-' onclick='expand_collapse_parent(this);' /> 
+       <span {% ifequal subcat root_category %} class='top-level-category' {% endifequal %}>
+         <a href="{{ subcat.get_absolute_url }}{% ifnotequal subcat root_category %}?root_category={{root_category.slug}}{%endifnotequal%}">
+           {{ subcat.label }}
+         </a>
        </span>
        <ul>
          {% for article in subcat.articles %}
          <li {% ifequal article.nid current_article.nid %} class='current'{% endifequal %}>
-           <a href="{{ article.get_absolute_url }}">{{ article.title }}</a>
+           <a href="{{ article.get_absolute_url }}?root_category={{root_category.slug}}">{{ article.title }}</a>
         </li>
          {% endfor %}
        </ul>

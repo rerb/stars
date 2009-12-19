@@ -1,0 +1,33 @@
+{% extends 'tool/submissions/base.html' %}
+
+{% block content %}
+<div id='column_container'>
+    <div id='center'><div class='inner'>
+        <h1>{% block header %}{% endblock %}</h1>
+        {% block center %}{% endblock %}
+    </div></div>
+    <div id='leftRail'>
+        <div id='summary'>
+            <label for='version'>Version:</label>
+            <a href='/tool/submissions/'>{{ creditset }}</a>
+        </div>    
+            <table class='submission_properties'>
+                <tr>
+                    <th>Status</th>
+                    <td>{{ active_submission.get_status_display }}</td>
+                </tr>
+                <tr>
+                    <th>Registered Date</th>
+                    <td>{{ active_submission.date_registered }}</td>
+                </tr>
+                <tr>
+                    <th>Submission Deadline</th>
+                    <td>{{ active_submission.submission_deadline }}</td>
+                </tr>
+            </table>
+        {% with 'submit' as op %}
+          {% include 'tool/credit_outline.html' %}
+        {% endwith %}
+    </div>
+</div>
+{% endblock %}

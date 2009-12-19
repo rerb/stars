@@ -14,7 +14,7 @@ from stars.apps.institutions.models import Institution, _query_member_list
 from stars.apps.registration.forms import *
 from stars.apps.auth.utils import respond, connect_member_list
 from stars.apps.helpers import watchdog, flashMessage
-from stars.apps.dashboard.admin.watchdog.models import ERROR
+from stars.apps.tool.admin.watchdog.models import ERROR
 from stars.apps.auth import xml_rpc
 from stars.apps.registration.globals import *
 from stars.apps.submissions.models import *
@@ -38,6 +38,7 @@ def reg_select_institution(request):
     institution_list_lookup = {}
     
     # Get the list of schools as choices
+    # @todo - this method is private to Insitution - factor this code out to a static method in Institution model.
     result = _query_member_list("(sector = \"Campus\" OR organization_type = \"System Office\")")
     for row in result:
         s_id = row['id']

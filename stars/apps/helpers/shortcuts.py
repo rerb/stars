@@ -2,7 +2,7 @@
 Helper functions and classes that provide convient helpers
 modelled on Django's shortcuts module
 """
-from django.template import loader
+from django.template import loader, Context
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse, Http404
 from stars.apps.helpers import watchdog
@@ -36,3 +36,11 @@ def get_cmsobject_or_404(klass, *args, **kwargs):
         raise Http404(e)
 
     return object
+
+
+def render_help_text(help_text, as_tooltip=True):
+    """ Use the template tag normally used to render help text in templates to render and return formatted help text """
+    from stars.apps.helpers.templatetags.help import show_help_text
+    
+    help_template = loader.get_template('helpers/tags/help_text.html')
+    return help_template.render(Context(show_help_text(help_text, as_tooltip)))

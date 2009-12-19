@@ -1,0 +1,15 @@
+{% extends 'empty_base.html' %}
+
+{% block title %} Guidance and Documentation | {{ credit }}{% endblock %}
+{% block extra_head %}
+    <link href='/media/static/css/general.css' rel='stylesheet' type='text/css' />
+    <link href='/media/static/css/stars.css' rel='stylesheet' type='text/css' />
+{% endblock %}
+
+{% block body %}
+    <div id='content' class='popup'><div class='inner'>
+        <h1>{{ credit }}</h1>
+        <hr />
+        {% include 'tool/submissions/credit_documentation.html' %}
+    </div></div>
+{% endblock %}

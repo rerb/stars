@@ -1,0 +1,9 @@
+        <div>
+          {% with 'subcategory' as category_type %}
+          {% with subcategory_class as category_class %}
+          {% with 'institutions/subcategory_credits.html' as child_summary_template %}
+            {% for submission_object in submission_object.subcategorysubmission_set.all %}
+               {% include 'institutions/category_summary.html' %}
+            {% endfor %}
+          {% endwith %}{% endwith %}{% endwith %}
+        </div>

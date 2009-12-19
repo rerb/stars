@@ -1,9 +1,9 @@
 from django.http import HttpResponseServerError
 
-from stars.apps.dashboard.admin.watchdog.models import WatchdogEntry
-from stars.apps.dashboard.admin.watchdog.models import NOTICE
-from stars.apps.dashboard.admin.watchdog.models import WARNING
-from stars.apps.dashboard.admin.watchdog.models import ERROR
+from stars.apps.tool.admin.watchdog.models import WatchdogEntry
+from stars.apps.tool.admin.watchdog.models import NOTICE
+from stars.apps.tool.admin.watchdog.models import WARNING
+from stars.apps.tool.admin.watchdog.models import ERROR
 from stars.apps.helpers.exceptions import *
 
 """

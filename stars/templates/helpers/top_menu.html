@@ -28,10 +28,10 @@
          {% else %}
              <div id='selected_inst'>
                 {% if user.current_inst %}
-                  ( {{ user.current_inst }} {% if user.is_staff %}<a href='/dashboard/admin/'>change</a>{% endif %} )
+                  ( {{ user.current_inst }} {% if user.is_staff %}<a href='/tool/admin/'>change</a>{% endif %} )
                 {% else %}
                   {% if user.is_staff %}
-                    <a href='/dashboard/admin/'>Select Institution</a>
+                    <a href='/tool/admin/'>Select Institution</a>
                   {% endif %}
                 {% endif %}
              </div>

@@ -1,0 +1,63 @@
+{% extends "tool/credit_editor/credits/base.html" %}
+
+{% block tabclass %}class='tab3'{% endblock %}
+
+{% block tab_content %}
+{% include "tool/credit_editor/credits/formula_legend.html" %}
+
+{% load fieldsets %}
+<form class='form' method='POST' action='.'>
+	<table>
+	    <tr>
+	      <td>
+	        {% fieldset 'Formula' with formula as fields from object_form 'expanded' %}
+	            {{ fields.formula.errors }}
+	            {{ fields.formula|safe }}
+	        {% endfieldset %}
+	      </td>
+	    </tr>
+	    <tr>
+          <td>
+            {% fieldset 'Validation' with validation_rules as fields from object_form 'expanded' %}
+                {{ fields.validation_rules.errors }}
+                {{ fields.validation_rules|safe }}
+            {% endfieldset %}
+          </td>
+	    </tr>
+	    <tr><td class='buttonRow'>
+	        <button type='submit'>save</button>
+	        {% block buttons %}{% endblock %}
+	    </td></tr>
+	</table>
+</form>
+
+{% if submission_form %}
+   <hr>
+   <h3>Formula Test Suite</h3>
+   <p>Test cases verify the formula works as you expect.
+      Each test case provides a submission data set for the credit
+      along with the "excpected value" for the points calculated from these data values. 
+      (The "expected value" is the value you expect the formula to compute for the given inputs, if it is correct.) 
+   </p>
+   {% ifnotequal object_edit_list|length 0 %}
+        <table id='formula_test_case_table'>
+            <tr><th>Test Inputs</th><th>Expected Value</th><th>Computed Value</th><th>Test Result</th><th>Editing Options</tr>
+            {% include "tool/credit_editor/credits/test_case_edit_list.html" %}
+        </table>
+   {% endifnotequal %}
+
+   <div class='new_form collapsed'>
+        <span style='cursor: pointer' onclick='expand_collapse_parent(this);' title='Add Test Case'>
+            <img src='/media/static/images/expand.png' title='Add Test Case' alt='+' />
+            Add Test Case
+        </span>
+        <form action='./add-test/' method='POST' style='margin: 0px;'>
+            <div class='form'>
+                {% include 'tool/submissions/submission_fields_form.html' %}
+                {{ submission_form.as_p }}
+                <input type='submit' value='submit' />
+            </div>
+        </form>
+   </div>
+{% endif %}
+{% endblock %}

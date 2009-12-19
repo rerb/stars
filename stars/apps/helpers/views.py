@@ -3,7 +3,7 @@ from django.http import HttpResponseServerError, HttpResponseForbidden
 
 from stars.apps.helpers.shortcuts import render_to_any_response
 from stars.apps.helpers import exceptions
-from stars.apps.dashboard.admin.watchdog.models import WatchdogEntry
+from stars.apps.tool.admin.watchdog.models import WatchdogEntry
 
 def server_error(request):
     context = {}
@@ -58,7 +58,7 @@ def migrate_doc_field_required(request):
 
 def test(request):
     from stars.apps.auth.utils import respond
-    from stars.apps.dashboard.credit_editor.forms import NewDocumentationFieldForm
+    from stars.apps.tool.credit_editor.forms import NewDocumentationFieldForm
     context = { "form": NewDocumentationFieldForm(),
                 "legend": "Context Legend",
                 "initial_state": 'collapsed',

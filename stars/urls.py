@@ -7,13 +7,13 @@ admin.autodiscover()
 handler500 = 'stars.apps.helpers.views.server_error'
 
 urlpatterns = patterns('',
-    # dashboard:
-    #(r'^$', 'stars.apps.dashboard.views.stars_home_page'),
-    (r'^dashboard/$', 'stars.apps.dashboard.views.dashboard'),
-    (r'^dashboard/credit-editor/', include('stars.apps.dashboard.credit_editor.urls')),
-    (r'^dashboard/admin/', include('stars.apps.dashboard.admin.urls')),
-    (r'^dashboard/submissions/', include('stars.apps.dashboard.submissions.urls')),
-    (r'^dashboard/manage/', include('stars.apps.dashboard.manage.urls')),
+    # tool:
+    #(r'^$', 'stars.apps.tool.views.stars_home_page'),
+    (r'^tool/$', 'stars.apps.tool.views.tool'),
+    (r'^tool/credit-editor/', include('stars.apps.tool.credit_editor.urls')),
+    (r'^tool/admin/', include('stars.apps.tool.admin.urls')),
+    (r'^tool/submissions/', include('stars.apps.tool.submissions.urls')),
+    (r'^tool/manage/', include('stars.apps.tool.manage.urls')),
     # articles (cms):
     (r'^'+settings.ARTICLE_PATH_ROOT+'/', include('stars.apps.cms.urls')),
 
@@ -24,7 +24,7 @@ urlpatterns = patterns('',
     (r'^admin/(.*)', admin.site.root),
     
     # institutions
-    (r'^institutions/$', 'stars.apps.institutions.views.institutions'),    
+    (r'^institutions/', include('stars.apps.institutions.urls')),
 
     # registration
     (r'^register/', include('stars.apps.registration.urls')),

@@ -64,7 +64,7 @@ def get_user_from_user_dict(user_dict, session, create=True):
     #       In this case, save() will cause an integrity check error.  See http://code.aashedev.org/stars/ticket/129
 
     # apply the appropriate permissions
-    # @TODO: take a look at this...
+    # @TODO: take a look at this...  We could use the role name, 'stars_admin' instead?
     if user_dict['roles'].has_key('9'):
         # if they have the stars_admin role grant them staff access
         if not user.is_staff:

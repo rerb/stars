@@ -6,11 +6,6 @@ class HiddenCounterForm(Form):
     """ Used to put a hidden counter on a form """
     counter = IntegerField(initial=0, min_value=0, max_value=20, widget=widgets.HiddenInput())
 
-
-class ConfirmDelete(Form):
-    """ Confirm a deletion """
-    confirm = BooleanField()
-
-class ConfirmUnlock(Form):
-    """ Confirm an unlock operation """
+class Confirm(Form):
+    """ Confirm an  operation """
     confirm = BooleanField()

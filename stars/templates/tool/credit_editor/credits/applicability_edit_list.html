@@ -1,0 +1,10 @@
+{% extends "tool/credit_editor/base_edit_list.html" %}
+
+{% load help %}
+
+{% block display_object %}
+        <td>
+          {{ obj }}
+          {% show_help_text obj.help_text %}
+        </td>
+{% endblock %}

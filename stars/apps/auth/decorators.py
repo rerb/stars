@@ -21,18 +21,18 @@ def user_is_staff(f):
             return _redirect_to_login(request)
     return wrap
 
-def user_has_dashboard(f):
+def user_has_tool(f):
     """
-        This decorator tests to see if the User should have access to a dashboard.
+        This decorator tests to see if the User should have access to a tool.
     """
     @wraps(f)
     def wrap(request, *args, **kwargs):
-        if request.user.has_perm('dashboard'):
+        if request.user.has_perm('tool'):
             return f(request, *args, **kwargs)            
         elif not request.user.is_authenticated():
             return _redirect_to_login(request)
         else:
-            raise PermissionDenied("Access to the dashboard is restricted.")
+            raise PermissionDenied("Access to the tool is restricted.")
     return wrap
 
 def user_is_inst_admin(f):
@@ -82,7 +82,7 @@ def _get_account_problem_response(request):
 
     if not current_inst:
         if request.user.account_list: # user has accounts, just none selected (this shouldn't happen, but just in case...)
-            return _redirect_to_dashboard(request, "You need to select an institution before proceeding")
+            return _redirect_to_tool(request, "You need to select an institution before proceeding")
         else: # user has no accounts (also shouldn't really happen...
             raise PermissionDenied("Your account is not associated with an institution.")
     
@@ -119,8 +119,8 @@ def _redirect_to_login(request):
     path = urlquote(request.get_full_path())
     return HttpResponseRedirect('%s?next=%s' %(settings.LOGIN_URL, path))
 
-def _redirect_to_dashboard(request, message):
-    """ Returns a Redirect Response to the STARS dashboard, showing the given message """
+def _redirect_to_tool(request, message):
+    """ Returns a Redirect Response to the STARS tool, showing the given message """
     flashMessage.send(message, flashMessage.NOTICE)
     return HttpResponseRedirect(settings.DASHBOARD_URL)
 

@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %} {{ block.super }} | Scorecard | {{ submissionset.institution }}{% endblock %}
+
+{% block main_menu %} 
+    {% load main_menu %}
+    {% show_main_menu user "institutions" %} 
+{% endblock %}
+
+{% block crumbs %}
+    <a href='/institutions/'>STARS Institutions</a>
+{% endblock %}
+
+{% block content %}
+    <div id='content'><div class='inner'>
+        <h1>{% block header %}STARS{% endblock %} Scorecard : {{ submissionset.institution }}</h1>
+        {% block report_content %}{% endblock %}
+    </div></div>
+{% endblock %}

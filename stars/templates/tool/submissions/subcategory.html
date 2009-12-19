@@ -1,0 +1,20 @@
+v{% extends 'tool/submissions/columned_layout.html' %}
+
+{% block crumbs %} 
+    {{ block.super }}
+    {% load submit_tags  %}
+    {% show_submit_crumbs subcategory %}
+{% endblock %}
+
+{% block header %}{{ subcategory }}{% endblock %}
+
+{% block center %}
+    <div class='description'>
+        {% autoescape off %}{{ subcategory.description }}{% endautoescape %}
+    </div>
+    {% with subcategory_submission.get_progress_title as title %}
+    {% with subcategory_submission as sub %}
+        {% include 'tool/submissions/subcategory_row.html' %}
+    {% endwith %}
+    {% endwith %}
+{% endblock %}

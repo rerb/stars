@@ -36,17 +36,23 @@ class SubmissionSet(models.Model):
         unique_together = ("institution", "creditset")  # an institution can only register once for a given creditset.
 
     def __unicode__(self):
-        return unicode(self.creditset)
+        return unicode('%s (%s)'%(self.get_submission_date(), self.creditset) )
         
+    def get_crumb_label(self):
+        return str(self.institution)
+    
     def get_admin_url(self):
         return "%ssubmissionsets/%d/" % (self.institution.get_admin_url(), self.id)
         
     def get_manage_url(self):
-        return "/dashboard/manage/submissionsets/%d/" % (self.id)
+        return "/tool/manage/submissionsets/%d/" % (self.id)
         
     def get_submit_url(self):
         return self.creditset.get_submit_url()
         
+    def get_report_url(self):
+        return '/institutions/%s/scorecard/%s/'% (self.institution.id, self.id)
+
     def get_parent(self):
         """ Used for building crumbs """
         return None
@@ -57,6 +63,16 @@ class SubmissionSet(models.Model):
             return unicode(self.rating)
         return self.get_status_display()
 
+    def get_submission_date(self):
+        """ Returns a reasonable submission date for this submission based on its current status """
+        return self.date_reviewed if self.is_rated() else \
+               self.date_submitted if self.is_pending_review() else \
+               self.submission_deadline
+
+    def is_pending_review(self):
+        """ Return True iff this submission set has been rated """
+        return self.status == 'pr'
+    
     def is_rated(self):
         """ Return True iff this submission set has been rated """
         return self.status == 'r'
@@ -147,7 +163,7 @@ class SubmissionSet(models.Model):
 
     def get_progress_title(self):
         """ Returns a title for progress on the entire submission set """
-        return "Complete" if self.get_percent_complete() == 100 else "Submission Status"
+        return "Complete" if self.get_percent_complete() == 100 else "Reporting Status"
 
 
 def get_active_submissions(creditset=None, category=None, subcategory=None, credit=None):
@@ -175,6 +191,11 @@ def get_active_submissions(creditset=None, category=None, subcategory=None, cred
 
     return submissions.exclude(submission_status='ns')        
 
+def get_complete_submissions(creditset=None, category=None, subcategory=None, credit=None):
+    """ See get_active_submission above - except only returns those marked as complete """
+    submissions = get_active_submissions(creditset, category, subcategory, credit)
+    return submissions.filter(submission_status='c')
+    
 def get_active_field_submissions(field):
     """ Return a queryset for ALL active (non-empty) submissions for the given documentations field. """
     FieldClass = DocumentationFieldSubmission.get_field_class(field)
@@ -188,7 +209,10 @@ def get_na_submissions(applicability_reason):
     """ Return a queryset for all n/a submissions that cite the given applicability_reason """
     return CreditUserSubmission.objects.filter(applicability_reason=applicability_reason).filter(submission_status='na')         
 
-        
+def get_id(object):
+    """ Return a valid identifier for the given sumbssion set object """
+    return str(object).strip().lower().replace(" & ", "-").replace(" ", "-")
+    
 class CategorySubmission(models.Model):
     """
         A Category from a credit set that is being submitted
@@ -200,15 +224,22 @@ class CategorySubmission(models.Model):
         unique_together = ("submissionset", "category")
         ordering = ("category__ordinal",)
         
+    def __unicode__(self):
+        return unicode(self.category)
+   
+    def get_crumb_label(self):
+        return str(self)
+    
     def get_institution(self):
         return self.submissionset.institution
         
     def get_creditset(self):
         return self.submissionset.creditset
     
-    def __unicode__(self):
-        return unicode(self.category)
-        
+    def get_id(self):
+        """ Return a valid identifier representing this category """
+        return get_id(self)
+     
     def get_total_credits(self):
         total = 0
         for sub in self.category.subcategory_set.all():
@@ -222,6 +253,9 @@ class CategorySubmission(models.Model):
     def get_submit_url(self):
         return self.category.get_submit_url()
         
+    def get_report_url(self):
+        return self.category.get_report_url(self.submissionset)
+
     def get_STARS_score(self):
         """
             Return the STARS score for this category 
@@ -294,7 +328,9 @@ class CategorySubmission(models.Model):
         """ Returns a title for a progress summary on this category """
         return "Complete" if self.get_percent_complete() == 100 else "Progress"
         
-        
+    def is_innovation(self):
+        return self.category.is_innovation()
+       
 class SubcategorySubmission(models.Model):
     """
         A Category from a credit set that is being submitted
@@ -309,6 +345,13 @@ class SubcategorySubmission(models.Model):
     def __unicode__(self):
         return unicode(self.subcategory)
         
+    def get_crumb_label(self):
+        return str(self)
+    
+    def get_id(self):
+        """ Return a valid identifier representing this subcategory """
+        return get_id(self)
+     
     def get_institution(self):
         return self.category_submission.get_institution()
         
@@ -322,6 +365,9 @@ class SubcategorySubmission(models.Model):
     def get_submit_url(self):
         return self.subcategory.get_submit_url()
         
+    def get_report_url(self):
+        return '%s%d/'%(self.category_submission.get_report_url(),self.subcategory.id)
+
     def get_complete_credit_count(self):
         """ Find all CreditSubmissions in this subcategory that are complete """
         return self.creditusersubmission_set.filter(submission_status='c').count()
@@ -376,6 +422,8 @@ class SubcategorySubmission(models.Model):
         """ Returns a title for a progress summary on this subcatogory """
         return "Complete" if self.get_percent_complete() == 100 else "Progress"
        
+    def is_innovation(self):
+        return self.category_submission.is_innovation()
 
 CREDIT_SUBMISSION_STATUS_CHOICES_LIMITED = [
     ('c', 'Complete'),
@@ -402,8 +450,8 @@ def _get_status_icon_tag(status):
     
     ### THIS IS HIDEOUS - how can I pass the icon, title, & alt to a template for rendering?
     icon_file, alt, title = CREDIT_SUBMISSION_STATUS_ICONS[status] 
-    src = "%sstatic/images/%s"%(settings.MEDIA_URL, icon_file)
-    return mark_safe( "<img src='%s' title='%s'> "%(src, title) ), title
+    src = "/media/static/images/%s" % icon_file
+    return mark_safe( "<img src='%s' alt='%s'> "%(src, title) ), title
     
 class ResponsibleParty(models.Model):
     """
@@ -433,8 +481,11 @@ class CreditSubmission(models.Model):
     credit = models.ForeignKey(Credit)
 
     class Meta:
-        ordering = ("credit__ordinal",)
-    
+        ordering = ("credit__type", "credit__ordinal",)
+
+    def __unicode__(self):
+        return unicode(self.credit)
+       
 #    @staticmethod
     def model_name():
         return u"Credit Submission" 
@@ -447,6 +498,9 @@ class CreditSubmission(models.Model):
     def __unicode__(self):
         return unicode(self.credit)
         
+    def get_crumb_label(self):
+        return str(self)
+    
     def get_institution(self):
         return self.subcategory_submission.get_institution()
         
@@ -502,6 +556,8 @@ class CreditSubmission(models.Model):
         for field in fields:
             print field
 
+    # @todo: rename or remove this - potential confusion b/c name conflict with CreditUserSubmission!!
+    #        I don't think this one is actually called anywhere.
     def is_complete(self):
         """ Return True if the Credit Submission is complete."""
         if not self.persists(): # New submissions are incomplete - don't try to access fields yet!
@@ -557,10 +613,10 @@ class CreditSubmission(models.Model):
             
         return points, messages
         
-    def __str__(self):  #  For DEBUG - comment out __unicode__ method above
-        if self.persists(): persists="persists"
-        else: persists="not saved"
-        return "<CreditSubmission %s credit_id=%s  %s>"%(self.id, self.credit.id, persists)
+#    def __str__(self):  #  For DEBUG - comment out __unicode__ method above
+#        if self.persists(): persists="persists"
+#        else: persists="not saved"
+#        return "<CreditSubmission %s credit_id=%s  %s>"%(self.id, self.credit.id, persists)
 
 class CreditUserSubmission(CreditSubmission):
     """
@@ -586,6 +642,9 @@ class CreditUserSubmission(CreditSubmission):
     def get_submit_url(self):
         return self.credit.get_submit_url()
         
+    def get_report_url(self):
+        return '%s%d/'%(self.subcategory_submission.get_report_url(),self.credit.id)
+
     def get_parent(self):
         """ Used for building crumbs """
         return self.subcategory_submission
@@ -607,11 +666,18 @@ class CreditUserSubmission(CreditSubmission):
     def is_complete(self):
         return self.submission_status == 'c'
     
+    def is_na(self):
+        return self.submission_status == 'na'
+
+    def is_pursued(self):
+        """ Returns False if this credit is marked 'na' or 'np'  """
+        return self.submission_status != 'na' and self.submission_status != 'np'
+    
     def mark_as_in_progress(self):
         self.submission_status = 'p'
 
-    def __str__(self):  # For DEBUG - comment out __unicode__ method above
-        return "<CreditUserSubmission:  %s>"%super(CreditUserSubmission,self).__str__()
+#    def __str__(self):  # For DEBUG - comment out __unicode__ method above
+#        return "<CreditUserSubmission:  %s>"%super(CreditUserSubmission,self).__str__()
             
     def get_status_display(self):
         """ Replaces get_submission_status_display, added by Django, to include an icon """
@@ -715,7 +781,7 @@ class CreditTestSubmission(CreditSubmission):
 
     def parameter_list(self):
         """ Returns a string with this submission's field values formatted as a parameter list """
-        return ','.join([field.__str__() for field in self.get_submission_fields()])
+        return ', '.join([field.__str__() for field in self.get_submission_fields()])
 
     def __unicode__(self):
         return "f( %s ) = %s" % (self.parameter_list(), self.expected_value)
@@ -1043,10 +1109,6 @@ class UploadSubmission(DocumentationFieldSubmission):
     """
     value = models.FileField(upload_to=upload_path_callback, blank=True, null=True)
     
-    def get_access_url(self):
-        "my_uploads/<creditset_id>/<credit_id>/<file_name>.<ext>"
-        return "my_uploads/%d/%d/%s" % (self.get_credit_set().id, self.credit.id, self.value.filename)
-    
 class BooleanSubmission(DocumentationFieldSubmission):
     """
         The submitted value for a Boolean Documentation Field
@@ -1075,7 +1137,25 @@ class Payment(models.Model):
     user = models.ForeignKey(User)
     reason = models.CharField(max_length='8', choices=PAYMENT_REASON_CHOICES)
     type = models.CharField(max_length='8', choices=PAYMENT_TYPE_CHOICES)
-    confirmation = models.CharField(max_length='16')
+    confirmation = models.CharField(max_length='16', blank=True, null=True)
     
     def __unicode__(self):
         return "%s $%.2f" % (self.date, self.amount)
+
+    @classmethod
+    def get_manage_url(cls):
+        return "%spayments/"%settings.MANAGE_INSTITUTION_URL
+        
+    @classmethod
+    def get_add_url(cls):
+        return "%sadd/" % cls.get_manage_url()
+
+    def get_edit_url(self):
+        return "%s%d/" % (self.get_manage_url(), self.id)
+     
+    def get_delete_url(self):
+        """ Returns the URL of the page to confirm deletion of this object """
+        return "%sdelete/" % self.get_edit_url()
+
+     
+

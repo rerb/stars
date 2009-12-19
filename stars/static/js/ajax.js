@@ -5,8 +5,11 @@ function search_institution(input) {
     if(input.value.length >= MIN_LETTERS_SEARCH) {
         // Only run the search if there are at least three characters already
     
-        url = "/dashboard/admin/gateway/find-institution/";
-        url += input.value;
+        // Filter out non-alpha-numeric, excpet allow blanks and dashes (-)
+        // Ideally, this filter is the opposite of the URL pattern for the gateway - see ticket #220
+        value = input.value.replace(/[^\d\w\-\. ]+/g, '')
+        url = "/tool/admin/gateway/find-institution/";
+        url += value;
         search(url);
     }
     
@@ -16,6 +19,13 @@ function search(url) {
     target = document.getElementById('search_target');
     target.innerHTML = "<p align='center'>Loading<br/><img src='/media/static/images/loading_long_bar.gif' alt='...'/></p>";
     ajaxQuery(url, target);
+}
+
+function delete_file(elementId, filename, url) {
+    if( confirm("Are you sure you want to delete " + filename) ) {
+        target = document.getElementById(elementId);
+        ajaxQuery(url, target)
+    }
 }
 
 function ajaxQuery(url, target)
@@ -38,8 +48,10 @@ function ajaxQuery(url, target)
         {
             if(xhr.status  == 200) 
                 target.innerHTML = xhr.responseText; 
-            else 
-                target.innerHTML = "Connection failed. Please try again later. <!--Error code: " + xhr.status + "-->";
+            else if(xhr.status == 403)
+                target.innerHTML = "Permission Denied."
+            else
+                target.innerHTML = "Connection failed. Please try again later. <!-- Error code: " + xhr.status + "-->";
         }
     }; 
 

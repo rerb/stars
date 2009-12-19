@@ -3,9 +3,12 @@
     Apache bypasses settings.py and calls this file explicitly for setup.
 """
 
+# MAINTENANCE_MODE = True
+# BROADCAST_MESSAGE = "The site is down for some temporary maintenance. We hope to be back up by 8pm."
+
 from settings import *
 
-DEBUG = True
+DEBUG = False
 
 DATABASE_ENGINE = 'mysql'
 DATABASE_NAME = 'stars_beta'
@@ -22,3 +25,5 @@ SSO_API_KEY = DEV_SSO_API_KEY
 XMLRPC_VERBOSE = False
 
 CYBERSOURCE_URL = CYBERSOURCE_TEST_URL
+
+ANALYTICS_ID = "UA-1056760-8"

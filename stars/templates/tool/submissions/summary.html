@@ -1,0 +1,102 @@
+{% extends "tool/submissions/base.html" %}
+
+{% block header %}Submission : {{user.current_inst}}{% endblock %}
+
+{% block crumbs %} 
+    {{ block.super }}
+    {% load submit_tags  %}
+    {% show_submit_crumbs active_submission.creditset %}
+{% endblock %}
+
+{% block submission_content %}
+
+    {% load submit_tags %}
+    {% if active_submission %}
+    <div class='properties'>
+      <div>    
+        <table class='properties'>
+            <tr>
+                <th>Status</th>
+                <td>{{ active_submission.get_status }}</td>
+            </tr>
+            <tr>
+                <th>{% if not active_submission.is_rated %}Provisional{% endif %} Rating</th>
+                <td>{{ active_submission.get_STARS_rating }}</td>
+            </tr>
+            <tr>
+                <th>STARS Version</th>
+                <td>{{ active_submission.creditset }}</td>
+            </tr>
+        </table>
+      </div>
+      <div>
+        <table class='properties'>
+          <tr>
+                <th>Registered Date</th>
+                <td>{{ active_submission.date_registered }}</td>
+            </tr>
+            <tr>
+                <th>Submission Deadline</th>
+                <td>{{ active_submission.submission_deadline }}</td>
+            </tr>
+        </table>
+      </div>
+    </div>
+    <div style="clear:both"></div>
+        <h2>Summary</h2>
+        <table class='headed_list wide'>
+            <tr>
+                <td class='header' colspan='10'>{{ active_submission.get_progress_title }}</td>
+            </tr>
+            <tr>
+                <th>Category</th>
+                {% for cat in category_submission_list %}
+                    <th>
+                        <a href='{{ cat.category.get_submit_url }}'>{{ cat }}</a>
+                    </th>
+                {% endfor %}
+                <th>Total</th>
+            </tr>
+                <tr>
+                    <th>Credits Completed</th>
+                    {% for cat in category_submission_list %}
+                        <td>{% show_progress_icon cat.get_percent_complete %}
+                            {{ cat.get_finished_credit_count }} / {{ cat.get_total_credits }}
+                        </td>
+                    {% endfor %}
+                    <th>{% show_progress_icon active_submission.get_percent_complete %}
+                        {{ active_submission.get_finished_credit_count }} / {{ active_submission.get_total_credits }}
+                    </th>
+                </tr>
+            <tr>
+                <th>{% if not active_submission.is_rated %}Provisional{% endif %} Score</th>
+                {% for cat in category_submission_list %}
+                    <td>{{ cat.get_STARS_score|floatformat:2 }}
+                        {% if not cat.category.is_innovation %} %  {% endif %}
+                    </td>
+                {% endfor %}
+                <th>
+                    {{ active_submission.get_STARS_score|floatformat:0 }}%
+                </th>
+            </tr>
+        </table>
+        <h3>Detailed Summary</h3>
+        {% for cat in category_submission_list %}
+            {% with cat.subcategorysubmission_set.all as subcategory_submission_list %}
+            {% with cat as title %}
+                {% include 'tool/submissions/category_progress.html' %}
+            {% endwith %}
+            {% for sub in subcategory_submission_list %}
+                {% with sub as title %}
+                    {% include 'tool/submissions/subcategory_row.html' %}
+                {% endwith %}
+            {% endfor %}
+            {% endwith %}
+        {% endfor %}
+    {% else %}
+        <p>{{user.current_inst}} has no active submissions.</p>
+        {% if user.can_admin %}
+            <p>Use the <a href='/tool/manage/submissionsets/'>Manage Institution</a> link to start the submission process.</p>
+        {% endif %}
+    {% endif %}
+{% endblock %}

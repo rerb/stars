@@ -58,11 +58,22 @@ class AASHEAuthBackend:
         if not user.account:
             return False    # only users with an account selected have permissions
         
+        # Permission can optionally have a specific institution associated, as in:
+        #   perm:##     where ## is the institution's id to check permissions on.
+        perm, sep, inst_id = perm.partition(':')
+        if inst_id:  # Does user have any permissions with the institution?
+            try:
+                account = StarsAccount.objects.get(user=user, institution__id=inst_id)
+            except:  # user has no accounts, so no permissions with this institution.
+                return False
+        else:  # if no explicit institution id given, use users current account.
+            account = user.account
+            
         PERMS = [x for (x,y) in settings.STARS_PERMISSIONS]
         
-        if perm == 'dashboard':  # every role has access to a dashboard...
+        if perm == 'any' or perm == 'tool':  # every role has access to the reporting tool...
             for perm in PERMS:
-                if user.account.has_perm(perm):
+                if account.has_perm(perm):
                     return True
             # assert: user has no role assigned to their current account
             return False
@@ -71,5 +82,5 @@ class AASHEAuthBackend:
             watchdog.log('Auth', 'Internal Error: Attempt to check non-exisitent permission %s'%perm, watchdog.ERROR)
             return False    #  can't give permission for something we don't recognize!
         
-        return user.account.has_perm(perm)
+        return account.has_perm(perm)
     

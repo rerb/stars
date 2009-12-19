@@ -1,0 +1,9 @@
+{% for object in object_set %}
+    &gt;
+    {% if forloop.revcounter0 %}
+        <a href='{{ object.get_report_url }}'>{{ object.get_crumb_label }}</a>
+    {% else %}
+        {{ object.get_crumb_label }}
+    {% endif %}
+{% endfor %}
+    Scorecard

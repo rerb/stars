@@ -1,78 +1,11 @@
-/*** DELETE ME - all replaced by expand_collapse function below...
-function collapse_expand(dom_obj) {
-	var li = dom_obj.parentNode;
 
-	var children = li.getElementsByTagName('ul');
-	if( children.length > 0 ) {
-		children[0].style.display = ( children[0].style.display == 'none' ) ? 'block' : 'none';
-	}
-	if (dom_obj.title == 'collapse') {
-	    dom_obj.src = "/media/static/images/expand.png";
-	    dom_obj.title = "expand";
-	    dom_obj.alt = '+';
-	}
-	else {
-	    dom_obj.src = "/media/static/images/collapse.png";
-	    dom_obj.title = "collapse";
-	    dom_obj.alt = '-';
-    }
-	//dom_obj.src = (dom_obj.src == "/media/static/images/collapse.png") ? "/media/static/images/expand.png" : "/media/static/images/collapse.png";
-	//dom_obj.innerHTML = (dom_obj.innerHTML == "+") ? '-' : '+';
+function expand_collapse_parent_parent(child_obj) {
+    expand_collapse(child_obj.parentNode.parentNode);
 }
-
-function expand_collapse_fieldset(legend_obj) {
-    // Expand or Collapse a fieldset given it's legend object.  
-    //   The legend must include an image tag, showing the expanded / collapsed state of the fieldset.
-    //   Really just sets the fieldset class = 'expanded' or 'collapsed' - CSS does the rest.
-    
-    var img_obj = legend_obj.getElementsByTagName('img')[0];
-    var fieldset = legend_obj.parentNode;
-    if( fieldset.className == 'collapsed' ) {
-        img_obj.src = '/media/static/images/collapse.png';
-        img_obj.alt = '-';
-        fieldset.className = 'expanded';
-    }
-    else {
-        img_obj.src = '/media/static/images/expand.png';
-        img_obj.alt = '+';
-        fieldset.className = 'collapsed';
-    }
-}
-
-function expand_new_form(span_obj) {
-    img_obj = span_obj.getElementsByTagName('img')[0];
-    table = document.getElementById('new_form');
-    if( img_obj.alt == '+' ) {
-        img_obj.src = '/media/static/images/collapse.png';
-        img_obj.alt = '-';
-        table.style.display = '';
-    }
-    else {
-        img_obj.src = '/media/static/images/expand.png';
-        img_obj.alt = '+';
-        table.style.display = 'none';
-    }
-}
-
-// NOT USED
-function collapse_table(a_obj) {
-    var th = a_obj.parentNode;
-    var tr = th.parentNode;
-    var table = tr.parentNode;
-    var children = table.getElementsByTagName('tr');
-    for( var i = 1; i < children.length; i++ ) {
-        children[i].style.display = ( children[i].style.display == 'none' ) ? '' : 'none';
-    }
-    
-    a_obj.innerHTML = (a_obj.innerHTML == 'collapse') ? "show details" : "collapse";
-}
-
-***/
 
 function expand_collapse_parent(child_obj) {
     expand_collapse(child_obj.parentNode);
 }
-
 function expand_collapse(dom_obj) {
     /* Expand or Collapse any DOM object - usually a list or a div
        The object must contain an image tag, showing the expanded / collapsed state of the object.
@@ -207,4 +140,36 @@ function get_selected_button(nodeList) {
           }
     }
     return null;
+}
+
+function open_popup(url, name) {
+    win = window.open(url, name, 'height=500,width=670,resizable=yes,scrollbars=yes');
+    win.focus();
+    return false;
+}
+
+/**
+ * These scripts address tickets #344 and #385
+ * They are used to disable / enable the submit button and
+ *  warn the user if they navigate away from a form that has been modified.
+ * They assume: (1) there is only one form (2) the submit button has id='submit_button'
+ *              (3) each form element has an onchange='field_changed(this);' handler
+ * To use:
+ *        - onload handler should call enable_submit(false)
+ *        - onunload handler should call save_form()
+**/         
+function save_form()
+{
+    if (!document.getElementById('submit_button').disabled)
+        if (confirm('You have modified data on this page.\n\n Do you want to Save those changes?\n\n  OK to Save,  Cancel to continue without saving.'))
+            document.forms[0].submit();
+}
+
+function enable_submit(enable) {
+    document.getElementById('submit_button').disabled = !enable
+}
+
+/* We may find other uses for this in future, so I abstracted it */
+function field_changed(el) {
+    enable_submit(true);
 }

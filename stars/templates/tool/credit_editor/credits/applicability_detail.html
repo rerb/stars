@@ -1,0 +1,17 @@
+{% extends "tool/credit_editor/credits/applicability.html" %}
+
+{% block header %}{{ credit.get_identifier }}: Edit Applicability Reason{% endblock %}
+
+{% block tab_content %}
+   <table border='0' width='98%'>
+        <tr>
+            <td align='left'>
+                <a href='{{ reason.get_absolute_url }}'>&lt; back to applicability reasons list</a>
+            </td>
+        </tr>
+    </table>
+
+     <form action='.' method='POST'>
+        {% include 'tool/credit_editor/standard_form_with_delete.html' %}
+    </form>
+{% endblock %}

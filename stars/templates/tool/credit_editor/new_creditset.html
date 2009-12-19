@@ -1,0 +1,11 @@
+{% extends "tool/credit_editor/base.html" %}
+
+{% block title %} {{ block.super }} | New Version{% endblock %}
+
+{% block header %}Add New Version{% endblock %}
+
+{% block center %}    
+    <form class='orderform' method='POST' action='.'>
+        {% include 'tool/credit_editor/standard_form.html' %}
+    </form>
+{% endblock %}

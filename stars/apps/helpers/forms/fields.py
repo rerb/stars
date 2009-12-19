@@ -1,5 +1,5 @@
 """
-    Django Choice with Other fields
+    Django custom Choice fields:  with Help, with Other, etc.
     Original ChoiceWithOther downloaded from: http://www.djangosnippets.org/snippets/863/
     ... with a few modifications...
     Plus several variations on the theme:
@@ -182,7 +182,28 @@ class ModelMultipleChoiceCheckboxField(forms.ModelMultipleChoiceField):
             return mark_safe("%s <span class='units'>%s</span>"%(label, self.units))
         else:
             return label
+
+
+class ModelChoiceWithHelpField(forms.ModelChoiceField):
+    """
+    ModelChoiceField that uses a ChoiceWithHelp widget, to display optional help with each choice.
+    Model instances in the field's queryset MUST have a help_text property defining the help for each choice.
+    
+    @todo: Add doc test
+    """
+    def __init__(self, *args, **kwargs):
+        super(ModelChoiceWithHelpField, self).__init__(widget=widgets.ChoiceWithHelpWidget, *args, **kwargs)
         
+    def _set_queryset(self, queryset):
+        """ override the set property method so we can grab help text from the queryset objects """
+        super(ModelChoiceWithHelpField, self)._set_queryset(queryset)
+        
+        if queryset:
+            self.widget.set_help([x.help_text for x in queryset])
+
+    queryset = property(forms.ModelChoiceField._get_queryset, _set_queryset)
+ 
+ 
 class URLField(forms.URLField):
     """ 
         Unfortunately, the Django URL field doesn't provide very robust error handling / messaging.

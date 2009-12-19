@@ -1,0 +1,15 @@
+{% autoescape off %}Dear {{account.user}}, 
+{% block content %}{% endblock %}{% if account.is_pending %}
+To access the STARS Reporting Tool, you will need to create an AASHE Account at http://www.aashe.org/user/register.  
+
+After creating an account, you will be able to log in to the STARS Reporting Tool (http://stars.beta.aashe.org/) using the same username and password.  
+{% else %}
+To access the STARS Reporting Tool, you will use the same username and password that you use to log in to the AASHE Resource Center (aashe.org).  To request a new password, visit http://www.aashe.org/user/password.   
+{% endif %}
+Instructions on using the Reporting Tool are available at http://stars.beta.aashe.org/pages/help/3900/.    
+
+Happy Reporting! 
+
+The STARS Team
+stars@aashe.org  
+{% endautoescape %}

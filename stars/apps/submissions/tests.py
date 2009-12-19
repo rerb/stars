@@ -45,7 +45,7 @@ print numfield.num_submissions()
 from django.test import TestCase
 from stars.apps.submissions.models import *
 
-from apps.dashboard.submissions.templatetags import submit_tags
+from apps.tool.submissions.templatetags import submit_tags
 class Submit_tags_Test(TestCase):
     fixtures = ['v0.5-categories.json', 'v0.5-credits.json', 'v0.5-submission_set.json', 'v0.5-submission-credits.json']
     

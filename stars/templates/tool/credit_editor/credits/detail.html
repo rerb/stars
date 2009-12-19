@@ -1,0 +1,9 @@
+{% extends "tool/credit_editor/credits/base.html" %}
+
+{% block tabclass %}class='tab1'{% endblock %}
+
+{% block tab_content %}
+<form class='form' method='POST' action='.'>
+    {% include 'tool/credit_editor/standard_form_with_delete.html' %}
+</form>
+{% endblock %}

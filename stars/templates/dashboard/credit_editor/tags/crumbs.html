@@ -1,8 +1,0 @@
-{% for object in object_set %}
-    {% if forloop.revcounter0 %}
-        <a href='{{ object.get_edit_url }}'>{{ object|safe }}</a>
-        &gt;
-    {% else %}
-        {{ object }}
-    {% endif %}
-{% endfor %}

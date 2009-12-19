@@ -1,10 +1,14 @@
+"""
+    Personal config file for development in Ben's local environment.
+"""
+
 from settings import *
 
 HIDE_REPORTING_TOOL = False
 DEBUG = True
 
 # no emails during local dev
-ADMINS = ()
+ADMINS = ('ben@aashe.org',)
 MANAGERS = ADMINS
 
 # DATABASE_ENGINE = 'sqlite3'

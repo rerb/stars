@@ -1,0 +1,32 @@
+{% extends 'institutions/columned_layout.html' %}
+
+{% block crumbs %} 
+    {{ block.super }}
+    {% load report_tags  %}
+    {% show_report_crumbs category_submission %}
+{% endblock %}
+
+{% block header %}{{ category_submission }}{% endblock %}
+
+{% block report_content %}
+    <div class='description'>
+        {% autoescape off %}{{ category_submission.category.description }}{% endautoescape %}
+    </div>
+    <table style='margin-bottom:-10px;'><tr>
+      <th class='label'>Scorecard</td>
+      <th class='status'>
+        {% if not submissionset.is_rated %}Status{% endif %}
+      </th>
+      <th class='points'>Points Earned</th>
+      <th class='score'>{% if not submissionset.is_rated %}Provisional {% endif %}Score</th>
+    </tr>
+    </table>
+    
+    {% with 'category' as category_type %}
+    {% with 'expanded' as subcategory_class %}
+    {% with 'institutions/category_subcategories.html' as child_summary_template %}
+      {% with category_submission as submission_object %}
+         {% include 'institutions/category_summary.html' %}
+      {% endwith %}
+    {% endwith %}{% endwith %}{% endwith %}
+{% endblock %}

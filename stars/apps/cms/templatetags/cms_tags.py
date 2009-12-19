@@ -10,16 +10,13 @@ register = template.Library()
 @register.inclusion_tag('cms/tags/article_menu.html', takes_context=True)
 def show_article_menu(context):
     """ Displays a list of article links in a hierarchy of sub-categories """
-    article = None
-    sub_category = None
-    if ( context.has_key('article') ):
-        article = context['article']
-    if ( context.has_key('category') ) :
-        sub_category = context['category']
-
+    article = context['article'] if context.has_key('article') else None
+    sub_category = context['category'] if context.has_key('category') else None
+    root_category = context['root_category'] if context.has_key('root_category') else None
+    
     try:
-        menu = ArticleMenu(sub_category)
-        return {'mm_category':  menu.mm_category, 
+        menu = ArticleMenu(sub_category, root_category)
+        return {'root_category':  menu.mm_category, 
                 'sub_category': sub_category,
                 'article_menu': menu,
                 'current_article' : article }

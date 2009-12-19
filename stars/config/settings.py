@@ -30,7 +30,7 @@ SITE_ID = 1
 
 USE_I18N = False
 
-MEDIA_URL = '/auth/my_uploads/'
+MEDIA_URL = '/tool/submissions/my_uploads/'
 
 ADMIN_MEDIA_PREFIX = '/media/admin/'
 
@@ -48,7 +48,7 @@ MIDDLEWARE_CLASSES = (
     'stars.apps.auth.maintenancemode.middleware.MaintenanceModeMiddleware',
     'django.middleware.doc.XViewMiddleware',
     'stars.apps.auth.middleware.AuthenticationMiddleware',  # must come after django.contrib.auth.middleware
-    'stars.apps.dashboard.admin.watchdog.middleware.WatchdogMiddleware',  # must come before flatpage so it doesn't log flatpages as 404's
+    'stars.apps.tool.admin.watchdog.middleware.WatchdogMiddleware',  # must come before flatpage so it doesn't log flatpages as 404's
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
     'stars.apps.helpers.flashMessage.FlashMessageMiddleware',
 )
@@ -61,12 +61,12 @@ AUTHENTICATION_BACKENDS = ('stars.apps.auth.aashe.AASHEAuthBackend',)
 # Add the default auth backend so that automated test suite on django.contrib.auth runs correctly.
 if TESTING:
     AUTHENTICATION_BACKENDS = AUTHENTICATION_BACKENDS + ('django.contrib.auth.backends.ModelBackend',)
-DASHBOARD_URL = "/dashboard/"
+DASHBOARD_URL = "/tool/"
 LOGIN_URL = "/auth/login/"
 LOGOUT_URL = "/auth/logout/"
 LOGIN_REDIRECT_URL = "/"
-ADMIN_URL = "/dashboard/admin/"
-MANAGE_INSTITUTION_URL = "/dashboard/manage/"
+ADMIN_URL = "/tool/admin/"
+MANAGE_INSTITUTION_URL = "/tool/manage/"
 MANAGE_USERS_URL = MANAGE_INSTITUTION_URL + "users/"
 MANAGE_SUBMISSION_SETS_URL = MANAGE_INSTITUTION_URL + "submissionsets/"
 
@@ -78,6 +78,7 @@ TEMPLATE_DIRS = [os.path.join(os.path.dirname(__file__), "..", "templates")]
 # to the templates
 TEMPLATE_CONTEXT_PROCESSORS = (
     "stars.apps.auth.utils.account_context",
+    'stars.apps.auth.utils.tracking_context',
     "django.core.context_processors.auth")
 
 INSTALLED_APPS = (
@@ -88,10 +89,10 @@ INSTALLED_APPS = (
 	'django.contrib.admin',
     'django.contrib.flatpages',
 	'stars.apps.credits',
-	'stars.apps.dashboard.credit_editor',
-	'stars.apps.dashboard.submissions',
-	'stars.apps.dashboard.admin',
-    'stars.apps.dashboard.admin.watchdog',
+	'stars.apps.tool.credit_editor',
+	'stars.apps.tool.submissions',
+	'stars.apps.tool.admin',
+    'stars.apps.tool.admin.watchdog',
 	'stars.apps.institutions',
 	'stars.apps.submissions',
 	'stars.apps.auth',
@@ -159,3 +160,5 @@ CYBERSOURCE_SOAP_KEY = "uIRLgThsKxvp1Fy+/o4xz+Dep/Kur3hvXAHz1mEWyfxZFtSyZG+qMmMG
 CYBERSOURCE_TEST_URL = "https://ics2wstest.ic3.com/commerce/1.x/transactionProcessor/CyberSourceTransaction_1.26.wsdl"
 CYBERSOURCE_PRODUCTION_URL = "https://ics2ws.ic3.com/commerce/1.x/transactionProcessor/CyberSourceTransaction_1.26.wsdl"
 CYBERSOURCE_MERCHANT_ID = "v2710894"
+
+ANALYTICS_ID = None

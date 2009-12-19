@@ -8,8 +8,9 @@
         {% if site_status.maintenance_mode %} 
             <h1> Login is presently restricted to AASHE Staff only.</h1>
         {% else %}
-            <h1>Login with your AASHE ID</h1>
+            <h1>Login with your AASHE Account</h1>
         {% endif %}
+        
         <div class='form_div'>
             <form action='.' method='post'>
                 <table>
@@ -18,6 +19,18 @@
                 </table>
                 <div class='button_row'><input type='submit' value='log in' /></div>
             </form>
+        </div>
+        
+        <div class='help_note'>
+            <span class='help_text'>
+                <p>
+                    <b>Having trouble logging in?</b><br/>
+                    To access the STARS Reporting Tool you need to have an <a href='http://www.aashe.org/accounts/help'>AASHE Account</a>. If you do not have an AASHE Account, please <a href='http://www.aashe.org/user/register'>create one</a>.
+                </p>
+                <p style='text-align: center'><br/>
+                    <a href='http://www.aashe.org/user/password'>Forgot your password?</a>
+                </p>
+            </span>
         </div>
     </div></div>
     

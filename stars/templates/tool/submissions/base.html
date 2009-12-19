@@ -1,0 +1,12 @@
+{% extends "tool/base.html" %}
+
+{% block title %} {{ block.super }} | Submission | {{ user.current_inst }}{% endblock %}
+
+{% block submenu_class %}class='sm_sub'{% endblock %}
+
+{% block content %}
+    <div id='content'><div class='inner'>
+        <h1>{% block header %}My Submission{% endblock %}</h1>
+        {% block submission_content %}{% endblock %}
+    </div></div>
+{% endblock %}

@@ -41,7 +41,7 @@ class CMS_tags_Test(TestCase):
 
     def test_show_article_menu_no_category(self):
         """ This tests an invalid call - no valid category given - should fail silently and log the error. """
-        from stars.apps.dashboard.admin.watchdog.models import WatchdogEntry
+        from stars.apps.tool.admin.watchdog.models import WatchdogEntry
         pre_watchdog_entries = WatchdogEntry.objects.count()
         self.assertEqual( cms_tags.show_article_menu({}), {} )
         self.assertEqual(pre_watchdog_entries+1, WatchdogEntry.objects.count())

@@ -4,7 +4,7 @@
 
 {% block main_menu %} 
     {% load main_menu %}
-    {% show_main_menu user category.get_root_category %} 
+    {% show_main_menu user root_category %} 
 {% endblock %}
 
 {% block submenu_class %}class='sm_ce'{% endblock %}

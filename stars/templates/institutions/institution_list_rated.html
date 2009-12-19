@@ -1,0 +1,34 @@
+{% extends 'institutions/institution_list_base.html' %}
+
+{% block crumbs %} {{ block.super }} &gt; Rated {% endblock %}
+
+{% block tabclass %}class='tab1'{% endblock %}
+
+{% block institution_content %}
+      <table id="institution_list" class='headed_list'>
+        <tr>
+          {% for col in sort_columns %}
+            <th><a href='?sort={{ col.sort_key }}' title='sort'>{{ col.label }}</a> {% if col.img %}<img src='/media/static/images/{{ col.img }}'/>{% endif %}</th>
+          {% endfor %}
+        </tr>
+        {% for institution in institution_list %}
+          <tr>
+            <td>
+              <a href='/institutions/{{ institution.institution.id }}/scorecard/{{institution.latest_rated_submission_set.id}}'>{{ institution }}</a>              
+            </td>
+            <td>
+              {{ institution.latest_rated_submission_set.rating }}
+            </td>
+            <td>
+              {{ institution.latest_rated_submission_set.creditset }}
+            </td>
+            <td>
+              {{ institution.latest_rated_submission_set.date_reviewed }}
+            </td>
+            <td align='right'>
+              {{ institution.latest_rated_submission_set.get_STARS_score|floatformat:2 }}%
+            </td>
+          </tr>            
+        {% endfor %}
+      </table>
+{% endblock %}

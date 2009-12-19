@@ -1,0 +1,18 @@
+{% extends 'tool/manage/payments.html' %}
+
+{% block crumbs %} {{ block.super }} &gt; Edit Payment {% endblock %}
+
+{% block institution_content %}
+     <h2>Edit Payment Details</h2>
+    <form method='post' action='.'>
+      <table class='form'>
+        {{ object_form }}
+        <tr>
+            <td class='buttonRow'>
+                <button type='submit'>Submit</button>
+                <button type='button' onclick='document.location="{{ object_form.instance.get_delete_url }}";'>Delete</button>
+            </td>
+        </tr>
+      </table>
+    </form>
+{% endblock %}

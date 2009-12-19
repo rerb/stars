@@ -57,10 +57,17 @@ class CreditSet(models.Model):
         return smart_unicode("v%s" % self.version, encoding='utf-8', strings_only=False, errors='strict')
         
     def get_edit_url(self):
-        return "/dashboard/credit-editor/%d/" % self.id
+        return "/tool/credit-editor/%d/" % self.id
         
     def get_submit_url(self):
-        return "/dashboard/submissions/"
+        return "/tool/submissions/"
+
+    def get_report_url(self, submissionset):
+        """ This is a bit convoluted - really we want the report URL for the submission objects,
+            but when building the credit_outline menu, we only have the credit objects.
+            My 'hack' was to have the credit object build out the url, but have the submissionset provide the base url.
+        """
+        return submissionset.get_report_url()
         
     def get_unlock_url(self):
         return "%sconfirm-unlock/"%self.get_edit_url()
@@ -211,8 +218,11 @@ class Category(models.Model):
         return "%s%d/" % (self.creditset.get_edit_url(), self.id)
 
     def get_submit_url(self):
-        return "/dashboard/submissions/%d/" % (self.id)
+        return "%s%d/" % (self.creditset.get_submit_url(), self.id)
         
+    def get_report_url(self, submissionset):
+        return '%s%d/' % (self.creditset.get_report_url(submissionset), self.id)
+
     def get_delete_url(self):
         """ Returns the URL of the page to confirm deletion of this object """
         return "%sdelete/" % self.get_edit_url()
@@ -299,6 +309,9 @@ class Subcategory(models.Model):
     
     def get_submit_url(self):
         return "%s%d/" % (self.category.get_submit_url(), self.id)
+
+    def get_report_url(self, submissionset):
+        return '%s%d/' % (self.category.get_report_url(submissionset), self.id)
         
     def get_parent(self):
         """ Returns the parent element for crumbs """
@@ -388,6 +401,9 @@ class Credit(models.Model):
         
     def get_submit_url(self):
         return "%s%d/" % (self.subcategory.get_submit_url(), self.id)
+    
+    def get_report_url(self, submissionset):
+        return '%s%d/' % (self.subcategory.get_report_url(submissionset),self.id)
       
     def is_tier2(self):
         """ Returns True iff this credit is a Tier 2 credit """
@@ -420,10 +436,19 @@ class Credit(models.Model):
                ]
 
     def num_submissions(self):
-        """ Return the number of credit submissions started for this category """
+        """ Return the number of active submissions for this credit """
+        return self.get_active_submissions().count()
+
+    def get_active_submissions(self):
+        """ Return a queryset with the active submissions for this credit """
         from stars.apps.submissions.models import get_active_submissions
-        return get_active_submissions(credit=self).count()
-        
+        return get_active_submissions(credit=self)
+    
+    def get_complete_submissions(self):    
+        """ Return a queryset with the completed submissions for this credit """
+        from stars.apps.submissions.models import get_complete_submissions
+        return get_complete_submissions(credit=self)
+    
     def delete_and_update(self):
         """ Delete this credit and ensure sub-category gets notified. """
         subcategory = self.subcategory
@@ -449,7 +474,7 @@ else:
         return "%sdelete/" % self.get_edit_url()
 
     def get_formula_url(self):
-        """ Returns the URL of the page to confirm deletion of this object """
+        """ Returns the URL of the page to edit the forumula for this credit """
         return "%sformula/" % self.get_edit_url()
 
     def get_next_field_identifier(self):
@@ -588,6 +613,7 @@ class ApplicabilityReason(models.Model):
     """
     credit = models.ForeignKey(Credit)
     reason = models.CharField(max_length=128)
+    help_text = models.TextField(null=True, blank=True)
     
     def __unicode__(self):
         return smart_unicode(self.reason, encoding='utf-8', strings_only=False, errors='strict')
@@ -743,10 +769,13 @@ class DocumentationField(models.Model):
         return self.units if self.can_have_units() else None
                
     def num_submissions(self):
-        """ Return the number of credit submissions where this ApplicabilityReason was cited """
-        from stars.apps.submissions.models import get_active_field_submissions
-        return get_active_field_submissions(self).count()
+        """ Return the number of credit submissions where this DocumentationField is in use """
+        return self.get_active_submissions().count()
 
+    def get_active_submissions(self):
+        """ Return queryset with the FieldSubmissions where this DocumentationField is in use """
+        from stars.apps.submissions.models import get_active_field_submissions
+        return get_active_field_submissions(self)
 
 class Choice(models.Model):
     """

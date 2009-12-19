@@ -5,8 +5,9 @@ from django.core.exceptions import PermissionDenied
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 
-from stars.apps.institutions.models import StarsAccount, Institution
+from stars.apps.institutions.models import StarsAccount, PendingAccount, Institution
 from stars.apps.helpers import watchdog, flashMessage
+from django.conf import settings
 
 def respond(request, template, context):
     """
@@ -31,6 +32,15 @@ def account_context(request):
 
     context = {'user': request.user, 'site_status':site_status}
     return context
+
+def tracking_context(request):
+    """
+        This custom template-context processor adds settings.ANALYTICS_ID
+    """
+    if settings.ANALYTICS_ID:
+        return {'analytics_id': settings.ANALYTICS_ID,}
+
+    return {'analytics_id': None,}
 
 def connect_member_list():
     """
@@ -83,7 +93,8 @@ def _update_account_context(request, account=None, current_inst=None):
         account.select() 
         user.current_inst = account.institution
 
-    request.session['current_inst'] = user.current_inst
+    inst_pk = user.current_inst.pk if user.current_inst else None
+    request.session['current_inst_pk'] = inst_pk  # store only the Institution id - see ticket #252
     
     # Add bound methods to user for each permission they have for their current account
     # e.g, user.can_admin, user.can_submit, etc.
@@ -104,8 +115,16 @@ def _get_account_from_session(request):
     if not request.user or not request.user.is_authenticated():
         return (None, None)
     
-    current_inst = request.session.get('current_inst', None)
-
+    # attempt to load Institution from DB based on ID found in session - see ticket #252
+    current_inst = None
+    inst_pk = request.session.get('current_inst_pk', None)
+    if inst_pk:
+        try:
+            current_inst = Institution.objects.get(pk=inst_pk)
+            # @todo - in future, we may want to check here if the institution has been disabled, for non-staff.
+        except Institution.DoesNotExist:  # oops - the session's institution doesn't exist any longer!.
+            pass
+    
     if request.user.is_staff: # staff don't have or need accounts to manage institutions
         if not current_inst:  # so, see if the staff member has a cookie with a current institution from a previous session
             if request.COOKIES.has_key('current_inst'): 
@@ -123,7 +142,7 @@ def _get_account_from_session(request):
             account = StarsAccount.objects.get(user=request.user, institution=current_inst)
         except StarsAccount.DoesNotExist:  # oops - the session institution is no longer valid.
             current_inst = None
-    # assert: current_inst is None  or  account.institution == request.session.get('current_inst')
+    # assert: current_inst is None  or  account.institution.pk == request.session.get('current_inst_pk')
     
     if not account:  # couldn't get an account from the session - try to find a suitable one in the DB...
         account_list = StarsAccount.objects.filter(user=request.user)    
@@ -131,6 +150,8 @@ def _get_account_from_session(request):
             account = account_list[0]
         elif account_list.count() > 1: # see if there is an account stored from the user's last session
             account = StarsAccount.get_selected_account(request.user)
-        
+        else:  # user has no accounts - see if there are any any pending accounts...
+            account = PendingAccount.convert_accounts(request.user)
+            
     return (account, current_inst)
     

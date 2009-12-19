@@ -1,0 +1,52 @@
+{% extends 'institutions/base.html' %}
+
+{% block content %}
+<div id='column_container'>
+    <div id='center'><div class='inner'>
+        <h1>{% block header %}STARS{% endblock %} Scorecard :<br>{{ submissionset.institution }}</h1>
+        {% block report_content %}{% endblock %}
+     </div></div>
+    <div id='leftRail'>
+        <div id='summary'>
+            <label for='scorecard'>Back to </label>
+            <a href='{{ submissionset.get_report_url }}'>Summary Scorecard</a>
+        </div>    
+            <table class='submission_properties'>
+
+	            {% if not submissionset.is_rated %}
+	            <tr>
+	                <th>Status</th>
+	                <td>{{ submissionset.get_status }}</td>
+	            </tr>
+	            {% endif %}
+	            <tr>
+	                <th>{% if not submissionset.is_rated %}Provisional{% else %}STARS{% endif %} Rating</th>
+	                <td>{{ submissionset.get_STARS_rating }}</td>
+	            </tr>
+		        <tr>
+		            <th>{% if not submissionset.is_rated %}Provisional{% else %}Overall{% endif %} Score</th>
+		            <td>{{ submissionset.get_STARS_score|floatformat:0 }}%</td>
+		        </tr>
+	            <tr>
+	                {% if submissionset.is_rated %}
+	                  <th>Approval Date</th>
+	                  <td>{{ submissionset.date_reviewed }}</td>
+	                {% else %}{% if submissionset.is_pending_review %}
+	                  <th>Submission Date</th>
+	                  <td>{{ submissionset.date_submitted }}</td>
+	                {% else %}
+	                  <th>Submission Deadline</th>
+	                  <td>{{ submissionset.submission_deadline }}</td>
+	                {% endif %}{% endif %}
+	            </tr>
+	            <tr>
+	                <th>STARS Version</th>
+	                <td>{{ submissionset.creditset }}</td>
+	            </tr>
+            </table>
+        {% with 'report' as op %}
+          {% include 'tool/credit_outline.html' %}
+        {% endwith %}
+    </div>
+</div>
+{% endblock %}

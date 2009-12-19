@@ -32,8 +32,11 @@ def run_rpc(service_name, args):
         return result
     except xmlrpclib.Fault, fault:
         # Attempting to distinguish b/w 404 and 500 here... not sure...
-        if (fault.faultCode == 1):
-            watchdog.log("XML-RPC", fault.faultString, watchdog.ERROR)
+        if (fault.faultCode == 1):   # code 1 indicates a 'resource not found' - could be a node, or a user, or ...
+            if 'login' in service_name:
+                args=list(args)
+                args[1] = '*******'   # Hack: don't log the user's password!!
+            watchdog.log("XML-RPC", "%s %s"%(fault.faultString, args), watchdog.NOTICE)
             return None
         else:
             raise RpcException(fault.faultString, RPC_ERROR_USER_MSG)  # server error on irc

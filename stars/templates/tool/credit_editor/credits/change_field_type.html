@@ -1,0 +1,36 @@
+{% extends "tool/credit_editor/base.html" %}
+
+{% block title %} {{ block.super }} | {{ field }}{% endblock %}
+
+{% block crumbs %}
+    {% load ce_tags %}
+    {% show_editor_crumbs field %}
+{% endblock %}
+
+{% block header %}Change Reporting Field Type{% endblock %}
+
+{% block center %}
+    <br>
+    <div id='dfAppearance'>
+        <table class='form'>
+            <tr>
+                <td> {% load ce_tags %} {% show_field_form field %} </td>
+            </tr>
+        </table>
+    </div>
+    <h3>Are you sure you want to change the field type from {{ field.type }} to {{ new_field_type }}?</h3>
+    {% block submissions_warning %}
+	    {% if field.num_submissions %}
+	        <div class='warning'>
+	            There are {{ field.num_submissions }} active submissions using this Reporting Field.<br>
+	            Changing the Reporting Field type will delete ALL submitted data for this Reporting Field!
+	            {% if field.is_required %}
+    	            <br/>Since this is a require field, any affected submissions will be reset to be 'In Progress' if they had been marked 'Complete'.
+    	        {% endif %}
+	        </div>
+	    {% endif %}  
+	{% endblock %}
+    <form method='POST' action='./?new_field_type={{new_field_type}}'>
+        {% include 'helpers/confirm_form.html' %}
+    </form>
+{% endblock %}

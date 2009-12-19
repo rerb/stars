@@ -8,7 +8,7 @@
 from django.test import TestCase
 from stars.apps.credits.models import *
 
-from apps.dashboard.credit_editor.templatetags import ce_tags
+from apps.tool.credit_editor.templatetags import ce_tags
 class Credit_tags_Test(TestCase):
     fixtures = ['v0.5-categories.json', 'v0.5-credits.json']
     
@@ -20,7 +20,7 @@ class Credit_tags_Test(TestCase):
 
         tag_context = ce_tags.show_field_form(field)
         self.assertEqual(tag_context['documentation_field'].title, 'Website URL where the green building policy is posted')
-        from stars.apps.dashboard.submissions.forms import URLSubmissionForm
+        from stars.apps.tool.submissions.forms import URLSubmissionForm
         self.assertEqual(tag_context['field_form'].__class__, URLSubmissionForm)
 
 

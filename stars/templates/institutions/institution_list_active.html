@@ -1,0 +1,54 @@
+{% extends 'institutions/institution_list_base.html' %}
+
+{% block crumbs %} {{ block.super }} &gt; In Progress {% endblock %}
+
+{% block tabclass %}class='tab2'{% endblock %}
+
+{% block institution_content %}
+      <table id="institution_list" class='headed_list'>
+        <tr>
+          {% for col in sort_columns %}
+            <th><a href='?sort={{ col.sort_key }}' title='sort'>{{ col.label }}</a> {% if col.img %}<img src='/media/static/images/{{ col.img }}'/>{% endif %}</th>
+          {% endfor %}
+        </tr>
+        {% for institution in institution_list %}
+          <tr>
+            <td>
+               <a href='/institutions/{{ institution.institution.id }}/scorecard'>{{ institution }}</a>              
+              {% comment %}  This is what we want - above is for demo / testing only 
+              {{ institution }}
+              {% endcomment %}
+            </td>
+            <td>
+              {% if institution.active_submission_set %}
+                {{ institution.active_submission_set.creditset }}
+              {% else %}
+                 -
+              {% endif %}
+            </td>
+            <td>
+              {% if institution.active_submission_set %}          
+                 {{ institution.active_submission_set.date_registered }}
+               {% else %}
+                 - 
+               {% endif %}
+            </td>
+            <td>
+              {% if institution.active_submission_set %}          
+                 {{ institution.active_submission_set.submission_deadline }}
+               {% else %}
+                 - 
+               {% endif %}
+            </td>
+            <td>
+              {% if institution.active_submission_set.get_percent_complete %} 
+                 {% load submit_tags %}
+                 {% show_progress_icon institution.active_submission_set.get_percent_complete %}
+              {% else %}
+                -
+              {% endif %}
+            </td>
+          </tr>            
+        {% endfor %}
+      </table>
+{% endblock %}

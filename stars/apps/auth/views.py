@@ -12,7 +12,6 @@ from stars.apps.institutions.models import Institution
 from stars.apps.auth.utils import change_institution
 from stars.apps.helpers import watchdog
 from stars.apps.auth.forms import LoginForm
-from stars.apps.auth.decorators import user_can_submit
 
 @never_cache
 def login(request, redirect_field_name=REDIRECT_FIELD_NAME):
@@ -66,18 +65,3 @@ def select_school(request, institution_id):
             raise PermissionDenied("Your request could not be completed.")
     else:
         return HttpResponseRedirect(settings.LOGIN_URL)
-
-@user_can_submit
-def serve_uploaded_file(request, inst_id, creditset_id, credit_id, field_id, filename):
-    """
-        Serves files after authentication
-    """
-    current_inst = request.user.current_inst
-    if not current_inst or current_inst.id != int(inst_id):
-        raise PermissionDenied("File not found")
-        
-    stored_path = "secure/%s/%s/%s/%s/%s" % (inst_id, creditset_id, credit_id, field_id, filename) 
-    
-    from django.views.static import serve
-    return serve(request, stored_path, document_root=settings.MEDIA_ROOT)
-    

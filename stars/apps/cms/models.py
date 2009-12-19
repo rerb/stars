@@ -16,7 +16,7 @@ class ArticleCategory(models.Model):
         The tree root for the hierarchical taxonomy is ARTICLE_BASE_TERM_ID
         Caching is used to store them locally.
     """
-    label = models.CharField(blank=False, max_length=25)  # name of associated term in IRC
+    label = models.CharField(blank=False, max_length=30)  # name of associated term in IRC
     slug = models.SlugField()
     ordinal = models.IntegerField(default=0)     # weight of associated term in IRC
     term_id = models.IntegerField(unique=True, primary_key=True)   # tid for associated term in IRC
@@ -65,7 +65,7 @@ class ArticleCategory(models.Model):
         return "/%s/%s/" % (settings.ARTICLE_PATH_ROOT, self.slug)
         
     def set_default_slug(self):
-        self.slug = self.label.strip().lower().replace(" & ", "-").replace(" ", "-")
+        self.slug = self.label.strip().lower().replace(" & ", "-").replace(" ", "-").replace("&", "-")
 
 def articleCategories_sync():
     """ 
@@ -264,14 +264,16 @@ class ArticleMenu(object):
         returned by Drupal and hide its representation.
     """
 
-    def __init__(self, category):
+    def __init__(self, category, root_category=None):
         """
             ArticleMenu is constructed with :
             category
                 the ArticleCategory to create a menu for
+            root_category
+                optional root for menu (uses category root if None) - to maintain context for multi-parent categories.
             Fails silently - logs error, but returns an empty menu object
         """
-        self.mm_category = category.get_root_category()
+        self.mm_category = root_category if root_category else category.get_root_category()
         directory = xml_rpc.get_article_directory(self.mm_category)
         if (directory == None or len(directory) == 0) :
             watchdog.log("CMS", "Attempt to get ArticleMenu for category %s failed" %  category.label, watchdog.ERROR)

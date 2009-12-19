@@ -28,14 +28,14 @@ class Help_tags_Test(TestCase):
         menu_items = context['menu_items']
         self.assertEqual(len(menu_items), 2)
         self.assertEqual(menu_items[1].label, "My Dashboard")
-        self.assertEqual(menu_items[1].href, "/dashboard/")
+        self.assertEqual(menu_items[1].href, "/tool/")
         self.assertEqual(menu_items[1].css_class, "")
 
     def test_show_main_menu_with_current(self):
         context = main_menu.show_main_menu(True, "institutions")
         self.assertEqual(context['menu_items'][0].css_class, "current")
         self.assertEqual(context['menu_items'][1].css_class, "")
-        context = main_menu.show_main_menu(True, "dashboard")
+        context = main_menu.show_main_menu(True, "tool")
         self.assertEqual(context['menu_items'][0].css_class, "")
         self.assertEqual(context['menu_items'][1].css_class, "current")
 

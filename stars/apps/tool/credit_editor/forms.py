@@ -1,0 +1,311 @@
+import re
+
+from django.forms import Form, ModelForm
+from django import forms
+from django.forms import widgets
+from django.forms.extras import widgets as extra_widgets 
+from django.forms.util import ErrorList
+from django.utils.safestring import mark_safe
+
+from stars.apps.credits.models import *
+from stars.apps.submissions.models import CreditTestSubmission
+from stars.apps.tool.submissions.forms import CreditSubmissionForm
+
+class CreditSetForm(ModelForm):
+    # version = forms.CharField(widget=widgets.TextInput(attrs={'size': 5})) # redundant?
+    release_date = forms.DateField(widget=extra_widgets.SelectDateWidget())
+        
+    class Meta:
+        model = CreditSet
+        exclude = ('scoring_method', 'tier_2_points',)
+        
+#    @staticmethod
+    def form_name():
+        return u"Credit Set Form" 
+    form_name = staticmethod(form_name)
+
+class NewCreditSetForm(CreditSetForm):
+    class Meta:
+        model = CreditSet
+
+class CreditSetScoringForm(ModelForm):        
+    class Meta:
+        model = CreditSet
+        fields = ('scoring_method', 'tier_2_points',)  # exactly the fields excluded on CreditSetForm
+        
+#    @staticmethod
+    def form_name():
+        return u"Credit Set Scoring Form" 
+    
+    form_name = staticmethod(form_name)
+    
+class CreditSetRatingForm(ModelForm):
+    minimal_score = forms.IntegerField(min_value=0, max_value=100)
+    class Meta:
+        model = Rating
+        exclude = ('creditset')
+        
+#    @staticmethod
+    def form_name():
+        return u"Credit Set Rating Form" 
+    form_name = staticmethod(form_name)
+
+class CategoryForm(ModelForm):
+    
+    class Meta:
+        model = Category
+        exclude = ('creditset', 'ordinal', 'max_point_value')
+        
+#    @staticmethod
+    def form_name():
+        return u"Category Form" 
+    form_name = staticmethod(form_name)
+    
+    def __init__(self, *args, **kwargs):
+        super(CategoryForm, self).__init__(*args, **kwargs)
+        self.fields['title'].widget.attrs.update({'size': 50})
+
+class CategoryOrderForm(ModelForm):
+    ordinal = forms.IntegerField(widget=widgets.HiddenInput(attrs={'class': 'ordinal',}))
+    
+    class Meta:
+        model = Category
+        fields = ('ordinal',)
+
+#    @staticmethod
+    def form_name():
+        return u"Category Order Form" 
+    form_name = staticmethod(form_name)
+        
+class SubcategoryForm(ModelForm):
+    
+    class Meta:
+        model = Subcategory
+        exclude = ('ordinal', 'max_point_value')
+        
+    def __init__(self, *args, **kwargs):
+        """ Only allow categories from the same creditset """
+        super(SubcategoryForm, self).__init__(*args, **kwargs)
+        self.fields['category'].choices = [(cat.id, cat.title) for cat in self.instance.category.creditset.category_set.all()]
+        self.fields['title'].widget.attrs.update({'size': 50})
+
+#    @staticmethod
+    def form_name():
+        return u"Subcategory Form" 
+    form_name = staticmethod(form_name)
+
+class NewSubcategoryForm(ModelForm):
+    
+    class Meta:
+        model = Subcategory
+        exclude = ('ordinal', 'max_point_value', 'category')
+        
+#    @staticmethod
+    def form_name():
+        return u"New Subcategory Form" 
+    form_name = staticmethod(form_name)
+
+class SubcategoryOrderForm(ModelForm):
+    ordinal = forms.IntegerField(widget=widgets.HiddenInput(attrs={'class': 'ordinal',}))
+    
+    class Meta:
+        model = Subcategory
+        fields = ('ordinal',)
+        
+#    @staticmethod
+    def form_name():
+        return u"Subcategory Order Form" 
+    form_name = staticmethod(form_name)
+
+class CreditForm(ModelForm):
+    title = forms.CharField(widget=widgets.TextInput(attrs={'size':'32'}))
+    
+    class Meta:
+        model = Credit
+        exclude = ('ordinal', 'formula', 'validation_rules', 'number', 'type')
+
+#    @staticmethod
+    def form_name():
+        return u"Credit Form" 
+    form_name = staticmethod(form_name)
+    
+    def __init__(self, *args, **kwargs):
+        super(CreditForm, self).__init__(*args, **kwargs)
+        self.fields['title'].widget.attrs.update({'size': 50})
+                    
+class T2CreditForm(ModelForm):
+    
+    class Meta:
+        model = Credit
+        exclude = ('ordinal', 'formula', 'validation_rules', 'number', 'type', 'point_value', 'scoring', 'measurement')
+        
+    def __init__(self, *args, **kwargs):
+        super(T2CreditForm, self).__init__(*args, **kwargs)
+        self.fields['title'].widget.attrs.update({'size': 50})
+
+class NewCreditForm(CreditForm):
+    
+    class Meta(CreditForm.Meta):
+        exclude = ('subcategory', 'ordinal', 'formula', 'number', 'validation_rules', 'type')
+
+#    @staticmethod
+    def form_name():
+        return u"New Credit Form"
+    form_name = staticmethod(form_name)
+    
+class NewT2CreditForm(NewCreditForm):
+    
+    class Meta(NewCreditForm.Meta):
+        exclude = ('subcategory', 'ordinal', 'formula', 'validation_rules', 'number', 'type', 'point_value', 'scoring', 'measurement')
+
+class CreditFormulaForm(ModelForm):
+    formula = forms.CharField(widget=widgets.Textarea(attrs={'class': 'noMCE','cols':'70', 'rows': '16'}), required=True)
+    validation_rules = forms.CharField(widget=widgets.Textarea(attrs={'class': 'noMCE', 'cols':'70', 'rows': '16'}), required=False)
+
+    class Meta:
+        model = Credit
+        fields = ('formula', 'validation_rules',)
+
+#    @staticmethod
+    def form_name():
+        return u"Credit Formula Form" 
+    form_name = staticmethod(form_name)
+
+    def clean_formula(self):
+        return self._clean_code_field('formula')
+
+    def clean_validation_rules(self):
+        return self._clean_code_field('validation_rules')
+
+    def _clean_code_field(self, key):
+        code = self.cleaned_data[key]
+        # remove any funky (Mac and MS) newlines and replace tabs with spaces
+        code = code.replace("\r\n", "\n")
+        code = code.replace("\t", "    ")
+        (success, message) = compile_formula(code, key)
+        if not success:
+            raise forms.ValidationError(message)
+        return code
+        
+class CreditTestSubmissionForm(CreditSubmissionForm):
+      
+    class Meta:
+        model = CreditTestSubmission
+        fields = ['expected_value']
+ 
+#    @staticmethod
+    def form_name():
+        return u"Formula Test Case Form" 
+    form_name = staticmethod(form_name)
+
+class CreditOrderForm(ModelForm):
+    ordinal = forms.IntegerField(widget=widgets.HiddenInput(attrs={'class': 'ordinal',}))
+    
+    class Meta:
+        model = Credit
+        fields = ('ordinal',)
+        
+#    @staticmethod
+    def form_name():
+        return u"Credit Order Form" 
+    form_name = staticmethod(form_name)
+
+class DocumentationFieldForm(ModelForm):
+    tooltip_help_text = forms.CharField(widget=widgets.Textarea(attrs={'rows': '2'}), required=False)
+    inline_help_text = forms.CharField(widget=widgets.Textarea(attrs={'rows': '4'}), required=False)
+    
+    class Meta:
+        model = DocumentationField
+        exclude = ('credit', 'ordinal', 'identifier')
+
+#    @staticmethod
+    def form_name():
+        return u"Reporting Field Form" 
+    form_name = staticmethod(form_name)
+
+    def clean(self):
+        cleaned_data = self.cleaned_data
+        type = cleaned_data.get("type")
+
+        #@todo: validate that choice-type fields actually specify choices
+
+# Code for cleaning numberic choices, if we ever implement those again...        
+#                if type == 'numeric':
+#                    choice_list = re.split('\n+', choices)
+#                    for choice in choice_list:
+#                        m = re.match('\d+\.?\d*', choice)
+#                        if not m:
+#                            msg = u"Please use valid numeric values"
+#                            self._errors["choices"] = ErrorList([msg])
+#                if not msg:
+#                    cleaned_data['choices'] = choices
+#            else:
+#                msg = u"Please provide choices or set this reporting field to 'user-defined'."
+#                self._errors["choices"] = ErrorList([msg])
+
+        return cleaned_data
+
+class NewDocumentationFieldForm(DocumentationFieldForm):
+    class Meta(DocumentationFieldForm.Meta):
+        exclude = ('credit', 'ordinal', 'identifier','last_choice_is_other','min_range','max_range')
+        
+class DocumentationFieldOrderingForm(ModelForm):
+    ordinal = forms.IntegerField(widget=widgets.HiddenInput(attrs={'size': '3', 'class': 'ordinal',}))
+    
+    class Meta:
+        model = DocumentationField
+        fields = ('ordinal',)
+        
+#    @staticmethod
+    def form_name():
+        return u"Reporting Field Ordering Form" 
+    form_name = staticmethod(form_name)
+
+
+class ChoiceForm(ModelForm):        
+    class Meta:
+        model = Choice
+        fields = ('choice',)
+        
+#    @staticmethod
+    def form_name():
+        return u"Choice Form" 
+    form_name = staticmethod(form_name)
+
+class ChoiceOrderingForm(ModelForm):
+    ordinal = forms.IntegerField(widget=widgets.HiddenInput(attrs={'size': '3', 'class': 'ordinal',}))
+    
+    class Meta:
+        model = Choice
+        fields = ('ordinal','choice')
+        
+#    @staticmethod
+    def form_name():
+        return u"Choices Ordering Form" 
+    form_name = staticmethod(form_name)
+
+class ApplicabilityReasonForm(ModelForm):
+    
+    class Meta:
+        model = ApplicabilityReason
+        exclude = ('credit')
+        
+#    @staticmethod
+    def form_name():
+        return u"Applicability Reason Form" 
+    form_name = staticmethod(form_name)
+    
+    def __init__(self, *args, **kwargs):
+        super(ApplicabilityReasonForm, self).__init__(*args, **kwargs)
+        self.fields['reason'].widget.attrs.update({'size': 50})
+
+class UnitForm(ModelForm):
+    """
+        When adding a new Credit Field Unit
+    """
+    class Meta:
+        model = Unit
+
+    def form_name():
+        return u"Unit Form" 
+    form_name = staticmethod(form_name)

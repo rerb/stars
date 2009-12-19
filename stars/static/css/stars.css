@@ -31,6 +31,10 @@ body {
     width: 950px;
 }
 
+#content.popup {
+    width: 620px;
+}
+
 #leftRail{
 	float:left;
 	width:250px;
@@ -260,6 +264,34 @@ div#selected_inst {
     font-style: italic;
 }
 
+#subsubmenu {
+    color: #072A60;
+    font-size: 1em;
+    margin: 10px 10px 0px 10px;
+    padding: 0px;
+    border-bottom: 1px solid #072A60;
+}
+
+#subsubmenu li {
+    display: inline;
+    margin: 0px 5px 0px 5px;
+    padding: 0px;
+    overflow: hidden;
+}
+
+#subsubmenu a {
+    font-style: italic;
+	padding: 0px 4px;
+}
+
+/* Change the currently selected item */
+#subsubmenu li.active a {
+    color: #000;
+    font-style: normal;
+    font-size: 1.4em;
+    text-decoration: none;
+}
+
 #article-menu span.top-level-category {
     font-size: 1.3em;
 }
@@ -337,11 +369,11 @@ ul.warninglist {
 div.help_note {
 }
 
-div.help_note .help_text {
+div.help_note span.help_text {
     background-color: #eee;
     padding: 15px;
     display: block;
-    margin: 10px auto;
+    margin: 10px 50px;
     border: 1px solid #ddd;
 }
 
@@ -393,6 +425,106 @@ div#summary {
 div#summary a:hover {
     color: white;
 }
+
+	
+/** duplicates of table headed lists below */
+div.headed_list {
+    /*float: left;*/
+    margin: 10px;
+    border: 1px solid #669900;
+    background-color: #efe;
+}
+
+div.headed_list span.header{
+    background-color: #669900;
+    color: #fff;
+    text-align: left;
+    font-size: 1.4em;
+    padding: 2px 5px;
+}
+
+div.headed_list span.header a {
+    color: white;
+    text-decoration: none;
+}
+
+div.headed_list span.header a:hover {
+    color: #ebf9c8;
+    text-decoration: underline;
+}
+
+/** Overrides - should come after standard headed_list definitions **/
+div.headed_list span.header {
+   display:block;
+}
+div.headed_list span.header td.status,
+div.headed_list span.header td.points,
+div.headed_list span.header td.score 
+{
+    font-size: 80%;
+}
+
+div.subcategory_summary {
+    margin-left: 20px;
+    background-color: #f1fff1;
+}
+div.subcategory_summary span.header{
+    background-color: #ebf9c8;
+    font-size: 1.2em;
+}
+div.subcategory_summary span.header,
+div.subcategory_summary span.header a {
+    color: #669900;
+}
+
+div.subcategory_summary span.header a:hover {
+    color: #072A60;
+}
+
+table.subcategory_credits_summary {
+	margin-left: 20px;
+}
+
+tr th.label {
+	text-align:left;
+	font-size: 1.2em;
+    width: 315px;
+}
+tr th.label.wide {
+    width: 465px;
+}
+
+tr.category_summary td.label {
+    width: 315px;
+}
+tr.category_summary td.label.wide {
+    width: 455px;
+}
+
+tr.subcategory_summary td.label {
+    width: 325px;
+}
+tr.subcategory_summary td.label.wide {
+    width: 435px;
+}
+
+tr.credit_summary td.label {
+    width: 250px;
+}
+tr.credit_summary td.label.wide {
+    width: 400px;
+}
+tr .status {
+    width: 100px;
+}
+
+tr .points,
+tr .score {
+    width: 100px;
+    text-align:center;
+}
+
+
 
 table.form {
     margin: 5px 0px;
@@ -469,6 +601,15 @@ table.headed_list td.credit_summary, table.headed_list td.subcategory_summary {
     text-align: left;
 }
 
+table#institution_list {
+    width:95%;
+    padding:10px;
+}
+
+table#institution_list th {
+	font-weight: bold;
+}
+
 table.wide {
     width: 98%;
     margin-left: auto;
@@ -489,6 +630,11 @@ td.buttonRow {
 td.buttonColumn {
     white-space: nowrap;
     color: #aaa;
+}
+
+div.properties div {
+	float:left;
+	margin-left:75px;
 }
 
 table.properties {
@@ -544,6 +690,7 @@ table#formula_test_case_table td{
     padding: 5px;
     border: 1px solid gray;
     text-align: center;
+    max-width:300px;
 }
 
 table#formula_test_case_table th{
@@ -592,6 +739,34 @@ div.documentation {
     padding: 0px 20px;
 }
 
+div.submission_notes {
+    margin: 5px;
+    padding: 10px;
+}
+
+div.applicability_reason {
+    font-style: italic;
+    font-size: 0.9em;
+    color: #772222;    	
+}
+	
+span.explanation {
+	cursor: help;
+}
+
+span.pending_note {
+    font-style: italic;
+    padding: 0px 0px;
+    cursor: help;
+    font-size: 1.2em;
+    color: #772222;
+}
+
+tr.pending td {
+    background-color: #eee;	
+    cursor: help;
+}
+
 form {
     margin: 10px;
 }
@@ -637,6 +812,10 @@ form.submit_form td.submission_status ul, div#reason_choices ul {
     padding: 0px;
 }
 
+form.submit_form td.submission_status ul {
+	display: inline;
+}
+
 form.submit_form td.submission_status ul li {
     display: inline;
 }
@@ -663,8 +842,13 @@ img.collapse, img.expand {
 }
 
 .collapsed ul,
-.collapsed div {
+.collapsed div, 
+.collapsed table {
   display:none;
+}
+
+.collapsed span.header table { /* show elements inside a collapsed header span */
+	display:block;
 }
 
 fieldset {
@@ -728,6 +912,13 @@ div.button_row {
     margin: 0px;
 }
 
+div.description {
+    margin: 10px 50px;
+    border-left: 10px solid #aaa;
+    background-color: #eee;
+    padding: 10px 20px;
+}
+
 div.internal_notes {
     border: 1px dotted #a88;
     padding: 10px;
@@ -737,6 +928,10 @@ div.internal_notes {
 
 div.internal_notes textarea {
 /*    border: 1px dashed #aaa;*/
+}
+
+div.documentationField {
+	margin: 10px 0px;	
 }
 
 div.field-form ul {
@@ -791,6 +986,10 @@ color: #666; /* set unselected tab link color as desired */
 margin-right: 0px; /* set additional spacing between tabs as desired */
 text-decoration: none;
 border-bottom: none;
+margin:-3px;
+}
+ul#tabnav li { /* no margin between links on same tab - margin between tabs  (see credit submission)  */
+margin:3px;
 }
 
 ul#tabnav a:hover { /* settings for hover effect */
@@ -846,8 +1045,8 @@ div#searchbox h2 {
 div#flash_message {
   position: absolute;
   z-index: 1;
-  top: 47px;
-  left: 300px;
+  top: 130px;
+  left: 280px;
   width: 600px;
   background-color: #FFF8D0;
   padding: 0px;

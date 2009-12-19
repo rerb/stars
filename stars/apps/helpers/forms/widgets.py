@@ -1,5 +1,5 @@
 """
-    Django Choice with Other widgets
+    Django Specialized Choice widgets - with Help, with Other, etc.
     Original ChoiceWithOther downloaded from: http://www.djangosnippets.org/snippets/863/
     ... with a few modifications...
     Plus several variations on the theme:
@@ -138,3 +138,40 @@ class CheckboxSelectMultipleWithOtherWidget(AbstractChoiceMultiWidget):
             pre = units # had to use an rpartition above to get last choice, but that puts content in units if no units are specified - comfusing, eh?
         multi_widget = "%s </label> %s <label>%s%s"%(pre, rendered_widgets[1], tag, post)
         return multi_widget 
+
+
+class ChoiceWithHelpRenderer(forms.RadioSelect.renderer):
+    """RadioFieldRenderer that renders some help text with each choice."""
+    def __init__(self, *args, **kwargs):
+        super(ChoiceWithHelpRenderer, self).__init__(*args, **kwargs)
+        self.help_texts = None  # may be set to a list of help texts - one for each choice.
+
+    def __iter__(self):
+        from stars.apps.helpers.shortcuts import render_help_text
+        help_text_index = 0    
+        for input in super(ChoiceWithHelpRenderer, self).__iter__():
+            if self.help_texts and  help_text_index < len(self.help_texts):
+                help = self.help_texts[help_text_index]
+                help_text_index += 1
+            else:
+                help = None
+            if help:
+                yield "%s %s"%(input, render_help_text(help, as_tooltip=True))
+            else:
+                yield input
+                
+class ChoiceWithHelpWidget(forms.RadioSelect):
+    """Basic RadioSelect Widget that can render help text with each choice."""
+    def __init__(self, *args, **kwargs):
+        super(ChoiceWithHelpWidget, self).__init__(renderer=ChoiceWithHelpRenderer, *args, **kwargs)
+        self.help_texts = None
+        
+    def set_help(self, help_texts):
+        """ help_texts is a list of help texts of the same length as the widget's choices, or [] or None """
+        self.help_texts = help_texts
+
+    def get_renderer(self, *args, **kwargs):
+        """Returns an instance of the renderer."""
+        renderer = super(ChoiceWithHelpWidget, self).get_renderer(*args, **kwargs)
+        renderer.help_texts = self.help_texts
+        return renderer
