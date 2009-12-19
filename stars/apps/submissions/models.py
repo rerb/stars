@@ -1075,10 +1075,7 @@ class Payment(models.Model):
     user = models.ForeignKey(User)
     reason = models.CharField(max_length='8', choices=PAYMENT_REASON_CHOICES)
     type = models.CharField(max_length='8', choices=PAYMENT_TYPE_CHOICES)
-    confirmation = models.CharField(max_length='16', help_text='The CC confirmation code or check number')
+    confirmation = models.CharField(max_length='16')
     
     def __unicode__(self):
         return "%s $%.2f" % (self.date, self.amount)
-        
-    def get_edit_url(self):
-        return "/dashboard/admin/payments/%d/" % self.id

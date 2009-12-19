@@ -73,10 +73,10 @@ class PaymentForm(forms.Form):
         Credit Card Payment form
     """
     name_on_card = forms.CharField(max_length=64)
-    card_number = forms.CharField(max_length=17, widget=forms.TextInput(attrs={'autocomplete': 'off',}))
+    card_number = forms.CharField(max_length=17)
     exp_month = forms.CharField(max_length=2, initial='mm')
     exp_year = forms.CharField(max_length=4, initial='yyyy')
-    cv_code = forms.CharField(max_length=3, label='CV Code', help_text='This is the 3-digit code on the back of your card', widget=forms.TextInput(attrs={'autocomplete': 'off',}))
+    cv_code = forms.CharField(max_length=3, label='CV Code', help_text='This is the 3-digit code on the back of your card')
     billing_address = forms.CharField(max_length=128)
     billing_address_line_2 = forms.CharField(max_length=128, required=False)
     billing_city = forms.CharField(max_length=32)
