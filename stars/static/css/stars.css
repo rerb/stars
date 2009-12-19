@@ -709,12 +709,28 @@ table#watchdog_table.detail{
     border-bottom: solid;
 }
 
-table#watchdog_table.detail tr.row1{
+table#watchdog_table.detail tr.row1 {
     border-bottom: solid;
 }
 
-table#watchdog_table.detail th{
-	text-align: right;
+table#watchdog_table.detail th {
+    text-align: right;
+}
+
+table#institutionList {
+    padding: 10px;
+    font-size: 1em;
+    line-height: 2.4;
+    margin: 0px;
+}
+
+table#institutionList td, table#institutionList th {
+    margin: 0px;
+    padding: 0px 5px;
+}
+
+.odd {
+    background-color: #eee;
 }
 
 div.secure {
@@ -964,12 +980,12 @@ ul#tabnav li { /* do not change */
 display: inline;
 }
 
-ul#tabnav.tab1 li.tab1, ul#tabnav.tab2 li.tab2, ul#tabnav.tab3 li.tab3, ul#tabnav.tab4 li.tab4 { /* settings for selected tab */
+ul#tabnav.tab1 li.tab1, ul#tabnav.tab2 li.tab2, ul#tabnav.tab3 li.tab3, ul#tabnav.tab4 li.tab4, ul#tabnav.tab5 li.tab5 { /* settings for selected tab */
 border-bottom: 5px solid #fff; /* set border color to page background color */
 background-color: #fff; /* set background color to match above border color */
 }
 
-ul#tabnav.tab1 li.tab1 a, ul#tabnav.tab2 li.tab2 a, ul#tabnav.tab3 li.tab3 a, ul#tabnav.tab4 li.tab4 a { /* settings for selected tab link */
+ul#tabnav.tab1 li.tab1 a, ul#tabnav.tab2 li.tab2 a, ul#tabnav.tab3 li.tab3 a, ul#tabnav.tab4 li.tab4 a, ul#tabnav.tab5 li.tab5 a { /* settings for selected tab link */
 background-color: #fff; /* set selected tab background color as desired */
 color: #000; /* set selected tab link color as desired */
 position: relative;

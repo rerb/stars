@@ -1,7 +1,7 @@
 EXEC_EMAIL_TEXT = """{% autoescape off %}Dear {{ institution.executive_contact_title }} {{ institution.executive_contact_last_name }},
 Congratulations!  {{ institution }} has successfully registered to participate in the Sustainability Tracking, Assessment & Rating System (STARS).  STARS is a tool to help guide colleges and universities toward sustainability.  
 
-The STARS Liaison for {{ institution }}, listed below, provided your contact information to notify you about your institution's participation in STARS.  Since many individuals and departments on campus will be involved in the STARS process, executive-level support will help make your institution's participation successful & < > ;. 
+The STARS Liaison for {{ institution }}, listed below, provided your contact information to notify you about your institution's participation in STARS.  Since many individuals and departments on campus will be involved in the STARS process, executive-level support will help make your institution's participation successful.
 
 To learn more about the STARS Program, visit www.aashe.org/stars or email stars@aashe.org with any questions. 
 
@@ -73,6 +73,31 @@ AASHE
 Lexington, Kentucky 40507
 {% endautoescape %}
 """
+
+PAY_LATER_REMINDER_TEXT ="""{% autoescape off %}This is a friendly reminder that your STARS registration fee is ${{ payment.amount }} .
+
+During the registration process you indicated that you would "pay later".
+
+If you would like to pay by check, please submit payment to AASHE at:
+
+AASHE
+213 1/2 N Limestone St
+Lexington, KY 40507
+
+If you would like to pay by Credit Card, please call our main office at:
+
+(859) 258-2551
+
+Please note that payment is due by January 31st to qualify for the early registration discount.
+
+Thank you!
+
+The STARS Team
+stars@aashe.org
+www.aashe.org/stars
+{% endautoescape %}
+"""
+
 
 CYBERSOURCE_RESPONSE_DICT = {
     '100' : 'Successful transaction.',

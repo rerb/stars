@@ -1137,7 +1137,7 @@ class Payment(models.Model):
     user = models.ForeignKey(User)
     reason = models.CharField(max_length='8', choices=PAYMENT_REASON_CHOICES)
     type = models.CharField(max_length='8', choices=PAYMENT_TYPE_CHOICES)
-    confirmation = models.CharField(max_length='16', blank=True, null=True)
+    confirmation = models.CharField(max_length='16', blank=True, null=True, help_text='The CC confirmation code or check number')
     
     def __unicode__(self):
         return "%s $%.2f" % (self.date, self.amount)
@@ -1156,6 +1156,4 @@ class Payment(models.Model):
     def get_delete_url(self):
         """ Returns the URL of the page to confirm deletion of this object """
         return "%sdelete/" % self.get_edit_url()
-
-     
 
