@@ -5,9 +5,6 @@ urlpatterns = patterns(
     
     (r'^$', 'institution_detail'),
     (r'^payments/$', 'institution_payments'),
-    (r'^payments/add/$', 'payment_detail', {'payment_id': None}),
-    (r'^payments/(?P<payment_id>\d+)/$', 'payment_detail'),
-    (r'^payments/(?P<payment_id>\d+)/delete/$', 'delete_payment'),
     (r'^users/$', 'accounts'),
     (r'^users/add/$', 'add_account'),
     (r'^users/edit/(?P<account_id>\d+)/$', 'accounts'),

@@ -31,13 +31,21 @@ class Institution(models.Model):
         return self.name
         
     def get_admin_url(self):
-        """ Returns the URL for AASHE Staff to edit this institution """
-        return "/tool/admin/institution/%d/" % self.aashe_id
+        """ Returns the base URL for AASHE Staff to administer aspects of this institution """
+        return "%sinstitution/%d/" % (settings.ADMIN_URL, self.id)
         
+    def get_masquerade_url(self):
+        """ Returns the URL for AASHE Staff to masquerade this institution """
+        return "%sinstitution/masquerade/%d/" % (settings.ADMIN_URL, self.aashe_id)
+
     def get_manage_url(self):
         """ Returns the URL for institution admins to edit this institution """
-        return "/tool/manage/"
+        return settings.MANAGE_INSTITUTION_URL
             
+    def get_admin_payments_url(self):
+        """ Returns the URL for administering this institution's payments """
+        return "%spayments/" % self.get_admin_url()
+
     def has_multiple_submissions(self):
         """ Return True if this institution has more than one submission set """
         return self.submissionset_set.count() > 1

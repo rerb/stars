@@ -5,8 +5,7 @@
 {% block submenu_class %}class='sm_inst'{% endblock %}
 
 {% block crumbs %}
-    <a href='/tool/admin/'>Manage</a> &gt;
-    <a href='{{ user.current_inst.get_admin_url }}'>{{ user.current_inst }}</a>
+    <a href='/tool/manage/'>{{ user.current_inst }}</a> &gt; Manage
 {% endblock %}
 
 {% block content %}

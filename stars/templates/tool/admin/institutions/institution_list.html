@@ -11,14 +11,14 @@
       <p>Lists most recently registered Submission for ALL institutions currently participating in STARS.</p>
       <ul>
         <li>Click institution name to <strong>Masquerade</strong>, and edit / view the insititutions STARS data.</li>
-        <li>Click on a payment to view / edit / manage payment details for this institution.</li>
+        <li>Click <img src='/media/static/images/creditcards.png'> for payment processing for this institution.</li>
         <li>Enable or Disable institutions - be sure to 'Save' your changes.</li>
       </ul>
     </span></div>
     {% load help %}
     <form method='POST' action='.'>
       <table id="institution-list" style='padding:10px;'>
-        <tr><th colspan=3>Institution</th><th colspan=3>Latest Submission</th><th colspan=2 rowspan=2>Latest Payment</th>
+        <tr><th colspan=3>Institution</th><th colspan=3>Latest Submission</th><th rowspan=2>Admin<br>Tools</th>
         <tr><th colspan=3 style="text-align:left">Enabled {% show_help_text enable_help_text%}</th> <th>Version</th><th>Registered</th><th>Due</th></tr>
 	    {% for institution in institution_list %}
 	      <tr>
@@ -31,7 +31,7 @@
               {% endfor %}
             </td>
             <td>
-              <a href='{{ institution.get_admin_url }}'>{{ institution }}</a>
+              <a href='{{ institution.get_masquerade_url }}'>{{ institution }}</a>
                  {% if not institution.enabled %}
                    <span title="This institution is not enabled!"><font color='red'>*</font></span>
                  {% endif %}
@@ -43,25 +43,11 @@
             {% else %}
               <td colspan=3 align='center'> - </td>
             {% endif %}
-            {% if institution.payment %}
-                <td style='padding-left:20px'> 
-                  <a href='{{ institution.get_admin_url }}?redirect={{institution.payment.get_manage_url}}'> {{ institution.payment.date.date}}
-                  <strong>${{ institution.payment.amount|floatformat:2 }}</strong>  </a>
-                </td>
-                <td>
-                    {% ifequal institution.payment.type 'later' %}
-                        <img src='/media/static/images/cross.png' title='Awaiting payment from this Institution'>
-                    {% endifequal %}
-                    {% ifequal institution.payment.type 'credit' %}
-                        <img src='/media/static/images/creditcards.png' title='Institution paid by {{ institution.payment.type }}'>
-                    {% endifequal %}
-                    {% ifequal institution.payment.type 'check' %}
-                        <img src='/media/static/images/check.png' title='Institution paid by {{ institution.payment.type }}'>
-                    {% endifequal %}
-                </td>
-            {% else %}
-              <td colspan=2 align='center'> - </td>
-            {% endif %}
+            <td align='center'>
+              <a href='{{ institution.get_admin_payments_url }}' title='Manage payments for this institution'>
+                <img src='/media/static/images/creditcards.png' >
+              </a>
+            </td>
           </tr>
 	    {% endfor %}
       </table>

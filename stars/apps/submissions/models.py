@@ -44,6 +44,9 @@ class SubmissionSet(models.Model):
     def get_admin_url(self):
         return "%ssubmissionsets/%d/" % (self.institution.get_admin_url(), self.id)
         
+    def get_add_payment_url(self):
+        return "%sadd-payment/" % self.get_admin_url()
+
     def get_manage_url(self):
         return "/tool/manage/submissionsets/%d/" % (self.id)
         
@@ -1147,13 +1150,16 @@ class Payment(models.Model):
         return "%spayments/"%settings.MANAGE_INSTITUTION_URL
         
     @classmethod
-    def get_add_url(cls):
-        return "%sadd/" % cls.get_manage_url()
+    def get_admin_url(cls):
+        return "%spayments/"%settings.ADMIN_URL
+        
+    def get_admin_institution_url(self):
+        return self.submissionset.institution.get_admin_payments_url()
 
     def get_edit_url(self):
-        return "%s%d/" % (self.get_manage_url(), self.id)
+        return "%s%d/edit/" % (self.get_admin_url(), self.id)
      
     def get_delete_url(self):
         """ Returns the URL of the page to confirm deletion of this object """
-        return "%sdelete/" % self.get_edit_url()
+        return "%s%d/delete/" % (self.get_admin_url(), self.id)
 

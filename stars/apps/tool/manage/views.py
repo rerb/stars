@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect
@@ -40,64 +38,13 @@ def institution_payments(request):
     current_inst = request.user.current_inst
     active_submission = current_inst.get_active_submission()
     
-    payment_list = Payment.objects.filter(submissionset__institution=current_inst)
+    payment_list = Payment.objects.filter(submissionset__institution=current_inst).order_by('-date')
 
-    # Build the form for adding a new payment for staff, if there is active submission
-    if active_submission and request.user.is_staff:
-        new_payment = Payment(submissionset=active_submission, user=request.user, date=datetime.today())
-        new_payment_form = AdminPaymentForm(instance=new_payment, prefix='payment')
-        new_payment_form.add_user(request.user)
-    else:
-        new_payment_form = None
-        
     context = {'payment_list': payment_list, 
-               'new_payment_url':Payment.get_add_url(),
-               'new_payment_form':new_payment_form,
+               'active_submission':active_submission,
               }
     return respond(request, 'tool/manage/payments.html', context)
     
-@user_is_staff
-def payment_detail(request, payment_id):
-    """
-        Display a form for adding or editing payment details
-    """
-    current_inst = request.user.current_inst
-    
-    if payment_id is not None:
-        payment = get_object_or_404(Payment, id=payment_id, submissionset__institution=current_inst)
-    else:
-        active_submission = current_inst.get_active_submission()
-        if not active_submission:
-            raise PermissionDenied("A Submission Set must be added before you can add a payment.")
-        payment = Payment(submissionset=active_submission, user=request.user, date=datetime.today())
-        
-    # Build and process the form for adding or modifying the payment...
-    (payment_form,saved) = form_helpers.basic_save_form(request, payment, 'payment', AdminPaymentForm)
-    if saved:
-        return HttpResponseRedirect(Payment.get_manage_url())
-
-    payment_form.add_user(request.user)
-
-    context = {'payment': payment, 'object_form':payment_form}
-    return respond(request, 'tool/manage/payment_detail.html', context)
-
-@user_is_staff
-def delete_payment(request, payment_id):
-    """
-        Confirmation for deleting a Payment
-    """
-    current_inst = request.user.current_inst
-    # The payment must be a payment current user is allowed to manage!
-    # Just give a 404 if the payment_id doesn't belong to the user's institution
-    payment = get_object_or_404(Payment, id=payment_id, submissionset__institution=current_inst)
-    
-    (form, deleted) = form_helpers.confirm_delete_form(request, payment)       
-    if deleted:
-        watchdog.log('Inst. Admin', "Payment: %s deleted."%payment, watchdog.NOTICE)
-        return HttpResponseRedirect(Payment.get_manage_url())
-    
-    return respond(request, 'tool/manage/delete_payment.html', {'payment':payment, 'confirm_form': form})
-
 
 @user_is_inst_admin
 def accounts(request, account_id=None):
