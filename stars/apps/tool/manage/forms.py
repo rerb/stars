@@ -136,7 +136,7 @@ class DisabledAccountForm(AccountForm):
     """
     def __init__(self, *args, **kwargs):
         super(DisabledAccountForm, self).__init__(*args, **kwargs)
-        self.fields['email'].widget.attrs={"disabled":"disabled"}
+        self.fields['email'].widget.attrs.update({"disabled":"disabled"})
         self.fields['userlevel'].widget.attrs={"disabled":"disabled"}
        
     

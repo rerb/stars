@@ -16,7 +16,12 @@
 {% block submenu %}
     <ul id='submenu' {% block submenu_class %}{% endblock %}>
         <!-- <li id='sm_account'><a href='#'>My Account</a></li>-->
-        <li id='sm_sub'><a href='/tool/submissions/'>My Submission</a></li>
+        {% if user.can_submit %}
+            <li id='sm_sub'><a href='/tool/submissions/'>My Submission</a></li>
+        {% endif %}
+        {% if user.can_view %}
+            <li id='sm_sc'><a href='/institutions/{{ user.current_inst.id }}/scorecard/'>My Scorecard</a></li>
+        {% endif %}
         {% if user.can_admin %}
             <li id='sm_inst'><a href='/tool/manage/'>Manage Institution</a></li>
         {% endif %}

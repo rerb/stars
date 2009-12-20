@@ -147,7 +147,7 @@ AASHE_MYSQL_LOGIN = "starsapp"
 AASHE_MYSQL_PASS = "J3z4#$szFET--6"
 
 # Permissions or user levels for STARS users
-STARS_PERMISSIONS = (('admin', 'Administrator'), ('submit', 'Data Entry'),) # ('review', 'Audit/Review'))
+STARS_PERMISSIONS = (('admin', 'Administrator'), ('submit', 'Data Entry'), ('view', 'Observer')) # ('review', 'Audit/Review'))
 
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'

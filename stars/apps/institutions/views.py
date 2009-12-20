@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 from django.core.exceptions import PermissionDenied
 
 from stars.apps.auth.utils import respond
-from stars.apps.auth.decorators import user_is_staff
+from stars.apps.auth.decorators import user_is_staff, user_can_view
 from stars.apps.credits.models import CreditSet
 from stars.apps.submissions.models import *
 from stars.apps.institutions.models import Institution, InstitutionState
@@ -88,11 +88,14 @@ def _get_submissionset_context(request, institution_id, submissionset_id):
     institution = get_object_or_404(Institution, id=institution_id)
     # if no credit set was specified, get the most recent one the user has permission to view.
     if  submissionset_id:
-        submissionset = get_object_or_404(SubmissionSet, id=submissionset_id, institution=institution)  
+        submissionset = get_object_or_404(SubmissionSet, id=submissionset_id, institution=institution)
+        if not (submissionset.is_rated() or request.user.has_perm('view:%s'%institution_id)):
+            submissionset = None
     else: # get the latest creditset user has access to
         submissionset = institution.get_latest_submission(request.user.has_perm('view:%s'%institution_id))
-        if not submissionset:
-            raise PermissionDenied('You do not have access to this submission set report for %s'%institution)
+
+    if not submissionset:
+        raise PermissionDenied('You do not have access to this submission set report for %s'%institution)
 
     submission_list = institution.get_submissions(request.user.has_perm('view:%s'%institution_id))
         
@@ -102,7 +105,7 @@ def _get_submissionset_context(request, institution_id, submissionset_id):
              'submission_list':submission_list}
     return context
 
-@user_is_staff
+@user_can_view
 def scorecard(request, institution_id, submissionset_id):
     """
         The overall summary report for an institution
@@ -122,7 +125,7 @@ def _get_category_submission_context(request, institution_id, submissionset_id, 
     })
     return context
         
-@user_is_staff
+@user_can_view
 def category_scorecard(request, institution_id, submissionset_id, category_id):
     """
         The category summary report
@@ -144,7 +147,7 @@ def _get_subcategory_submission_context(request, institution_id, submissionset_i
     })
     return context
 
-@user_is_staff
+@user_can_view
 def subcategory_scorecard(request, institution_id, submissionset_id, category_id, subcategory_id):
     """
         The sub-category summary report
@@ -168,7 +171,7 @@ def _get_credit_submission_context(request, institution_id, submissionset_id, ca
     })
     return context
 
-@user_is_staff    
+@user_can_view
 def scorecard_credit_detail(request, institution_id, submissionset_id, category_id, subcategory_id, credit_id):
     """
         Detailed report on a single credit.

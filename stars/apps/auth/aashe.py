@@ -3,6 +3,7 @@ from django.contrib.auth.models import User, check_password
 
 from stars.apps.auth import xml_rpc
 from stars.apps.helpers import watchdog
+from stars.apps.institutions.models import StarsAccount
 
 import xmlrpclib, md5, random, hashlib, hmac
 from time import time
@@ -64,7 +65,7 @@ class AASHEAuthBackend:
         if inst_id:  # Does user have any permissions with the institution?
             try:
                 account = StarsAccount.objects.get(user=user, institution__id=inst_id)
-            except:  # user has no accounts, so no permissions with this institution.
+            except StarsAccount.DoesNotExist:  # user has no accounts, so no permissions with this institution.
                 return False
         else:  # if no explicit institution id given, use users current account.
             account = user.account

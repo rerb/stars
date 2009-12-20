@@ -54,7 +54,7 @@ def user_is_inst_admin(f):
 
 def user_can_submit(f):
     """
-        This decorator tests to see if the User is administrator of the currently selected institution 
+        This decorator tests to see if the User can submit data for the currently selected institution 
     """
     @wraps(f)
     def wrap(request, *args, **kwargs):
@@ -66,6 +66,22 @@ def user_can_submit(f):
             return f(request, *args, **kwargs)
         else:
             raise PermissionDenied("Privilege to submit data for %s required."%request.user.current_inst)
+    return wrap
+
+def user_can_view(f):
+    """
+        This decorator tests to see if the User can view un-rated submission data for the currently selected institution 
+    """
+    @wraps(f)
+    def wrap(request, *args, **kwargs):
+        problem_with_submission = _get_active_submission_problem_response(request)
+        if problem_with_submission:
+            return problem_with_submission
+
+        if request.user.has_perm('view'):
+            return f(request, *args, **kwargs)
+        else:
+            raise PermissionDenied("Privilege to view data for %s required."%request.user.current_inst)
     return wrap
 
 def _get_account_problem_response(request):
