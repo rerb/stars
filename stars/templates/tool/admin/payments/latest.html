@@ -24,41 +24,34 @@
                 <span title="This institution is not enabled!"><font color='red'>*</font></span>
               {% endif %}
             </td>
-            {% if payment.submissionset %}
-                <td style='font-size:0.8em'>({{ payment.submissionset.creditset }})</td>
-                <td style='font-size:0.8em'>{{ payment.submissionset.date_registered }}</td>
-                <td style='font-size:0.8em'>({{ payment.submissionset.submission_deadline }})</td>
-            {% else %}
-              <td colspan='3' align='center'>-</td>
-            {% endif %}
-            {% if payment %}
-                <td style='text-align:right'> {{ payment.reason }} : </td>
-                <td style='font-size:0.8em'>({{ payment.date }})</td>
-                <td>
-                    <strong>${{ payment.amount|floatformat:2 }}</strong>
-                </td>
-                <td>
-                    {% ifequal payment.type 'later' %}
-                        <img src='/media/static/images/cross.png' title='Awaiting payment from this Institution'>
-                    {% endifequal %}
-                    {% ifequal payment.type 'credit' %}
-                        <img src='/media/static/images/creditcards.png' title='Institution paid by credit'>
-                    {% endifequal %}
-                    {% ifequal payment.type 'check' %}
-                        <img src='/media/static/images/check.png' title='Institution paid by check'>
-                    {% endifequal %}
-                </td>
-			    <td class='buttonColumn'>
-			      <a href='{{ payment.get_edit_url }}'>
-			          <img src='/media/static/images/page_edit.png' alt='edit' title='edit latest payment' />
-			      </a>
-                  <a href='{{ payment.submissionset.get_add_payment_url }}'>
-                      <img src='/media/static/images/add.png' alt='add' title='add new payment' />
-                  </a>
-			    </td>
-            {% else %}
-              <td colspan='5' align='center'>---</td>
-            {% endif %}
+             <td style='font-size:0.8em'>({{ payment.submissionset.creditset }})</td>
+             <td style='font-size:0.8em'>{{ payment.submissionset.date_registered }}</td>
+             <td style='font-size:0.8em'>({{ payment.submissionset.submission_deadline }})</td>
+
+             <td style='text-align:right'> {{ payment.reason }} : </td>
+             <td>
+                 <strong>${{ payment.amount|floatformat:2 }}</strong>
+             </td>
+             <td>
+                 {% ifequal payment.type 'later' %}
+                     <img src='/media/static/images/cross.png' title='Awaiting payment from this Institution'>
+                 {% endifequal %}
+                 {% ifequal payment.type 'credit' %}
+                     <img src='/media/static/images/creditcards.png' title='Institution paid by credit'>
+                 {% endifequal %}
+                 {% ifequal payment.type 'check' %}
+                     <img src='/media/static/images/check.png' title='Institution paid by check'>
+                 {% endifequal %}
+             </td>
+             <td style='font-size:0.8em'>({{ payment.date }})</td>
+		     <td class='buttonColumn'>
+		       <a href='{{ payment.get_edit_url }}'>
+		          <img src='/media/static/images/page_edit.png' alt='edit' title='edit latest payment' />
+		       </a>
+               <a href='{{ payment.submissionset.get_add_payment_url }}'>
+                   <img src='/media/static/images/add.png' alt='add' title='add new payment' />
+               </a>
+			 </td>
           </tr>
           {% endwith %}
 	    {% endfor %}
