@@ -1,5 +1,5 @@
 {% comment %} Payment list is factored out so it can be shared b/w manage and admin payments {% endcomment %}
-
+     {% load submit_tags %}
      <table class='headed_list'>
        <tr>
            <td class='header' colspan='8'>Payment History</td>
@@ -17,12 +17,12 @@
        {% comment %} This should use base_edit_list, currently defined in credit_editor {% endcomment %}
        {% for payment in payment_list %}
        <tr>
-           <td>{{ payment.submissionset }}</td>
+           <td style='font-size:0.8em'>{{ payment.submissionset }}</td>
            <td>{{ payment.get_reason_display }}</td>
-           <td>${{ payment.amount|floatformat:2 }}</td>
+           <td><strong>${{ payment.amount|floatformat:2 }}</strong></td>
            <td>{{ payment.user }}</td>
-           <td>({{ payment.get_type_display }})</td>
-           <td>{{ payment.date }}</td>
+           <td>{% show_payment_type_icon payment %}</td>
+           <td style='font-size:0.8em'>{{ payment.date }}</td>
            <td>{{ payment.confirmation }}</td>
            {% if show_admin_tools %}
              <td class='buttonColumn'>

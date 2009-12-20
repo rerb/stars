@@ -31,3 +31,29 @@ def show_progress_icon(percent_complete, size_class=''):
     """ Displays a progress bar showing the percent complete """
     return {'in_progress': percent_complete>0, 'complete' : percent_complete==100,
             'size_class': size_class, 'percent_complete': percent_complete}
+
+
+class Icon(object):
+    __slots__ = ('title', 'file', 'alt', 'size_class')
+    
+@register.inclusion_tag('tool/submissions/tags/status_icon.html')
+def show_status_icon(credit, size_class=''):
+    """ Displays an icon representing credit status """
+    from stars.apps.submissions.models import CREDIT_SUBMISSION_STATUS_ICONS
+    icon = Icon()
+    icon.size_class = size_class
+    icon.title = credit.get_submission_status_display
+    icon.file, icon.alt = CREDIT_SUBMISSION_STATUS_ICONS.get(credit.submission_status, (None, None))
+    return {'icon': icon}
+
+@register.inclusion_tag('tool/submissions/tags/payment_icon.html')
+def show_payment_type_icon(payment, size_class=''):
+    """ Displays an icon representing the payment type """
+    from stars.apps.submissions.models import PAYMENT_TYPE_ICONS
+    icon = Icon()
+    icon.size_class = size_class
+    icon.alt = payment.get_type_display
+    icon.file, icon.title = PAYMENT_TYPE_ICONS.get(payment.type, (None, None))
+    return {'icon': icon}
+
+

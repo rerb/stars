@@ -2,9 +2,10 @@
 
 {% block title %} {{ block.super}} | {{ credit }}{% endblock %}
 
+{% load submit_tags  %}
+
 {% block crumbs %} 
     {{ block.super }}
-    {% load submit_tags  %}
     {% show_submit_crumbs credit %}
 {% endblock %}
 
@@ -22,10 +23,9 @@
             <th>Points Claimed</th>
         </tr>
         <tr>
-            <td>{{ credit_submission.get_status_display }}</td>
+            <td>{% show_status_icon credit_submission %}</td>
             <td>{{ credit_submission.last_updated|date:"m/d/y fA" }}</td>
             <td>
-                {% load submit_tags %}
                 {% format_available_points credit_submission %}
             </td>
             <td>

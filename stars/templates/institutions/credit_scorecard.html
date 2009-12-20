@@ -9,6 +9,7 @@
 {% block header %}{{ credit_submission }}{% endblock %}
 
 {% block report_content %}
+    {% load submit_tags %}
     <table class='headed_list wide'>
         <tr>
             <td class='header' colspan='4'>Summary</td>
@@ -23,7 +24,7 @@
         </tr>
         <tr>
             <td>
-               {{ credit_submission.get_status_display }}
+               {% show_status_icon credit_submission %}
                {% if credit_submission.is_na %}
                   <div class='applicability_reason'>{{ credit_submission.applicability_reason }}</div>
                {% endif %}
@@ -32,7 +33,6 @@
               <td>{{ credit_submission.last_updated|date:"m/d/y fA" }}</td>
             {% endif %}
             <td>
-                {% load submit_tags %}
                 {% format_available_points credit_submission %}
             </td>
             <td>

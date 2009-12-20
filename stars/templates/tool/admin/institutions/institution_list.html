@@ -21,7 +21,7 @@
         <tr><th colspan=3>Institution</th><th colspan=3>Latest Submission</th><th rowspan=2>Admin<br>Tools</th>
         <tr><th colspan=3 style="text-align:left">Enabled {% show_help_text enable_help_text%}</th> <th>Version</th><th>Registered</th><th>Due</th></tr>
 	    {% for institution in institution_list %}
-	      <tr>
+          <tr{% cycle ' class="odd"' ''%}>
 	        <td>
 	            {{ forloop.counter }}
 	        </td>

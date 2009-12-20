@@ -428,34 +428,6 @@ class SubcategorySubmission(models.Model):
     def is_innovation(self):
         return self.category_submission.is_innovation()
 
-CREDIT_SUBMISSION_STATUS_CHOICES_LIMITED = [
-    ('c', 'Complete'),
-    ('p', 'In Progress'),
-    ('np', 'Not Pursuing'),
-]
-
-# The 'ns' option isn't accessible in forms and 'na' only sometimes, so we 3 different lists.
-CREDIT_SUBMISSION_STATUS_CHOICES_W_NA = list(CREDIT_SUBMISSION_STATUS_CHOICES_LIMITED)
-CREDIT_SUBMISSION_STATUS_CHOICES_W_NA.append(('na', 'Not Applicable'))
-CREDIT_SUBMISSION_STATUS_CHOICES = list(CREDIT_SUBMISSION_STATUS_CHOICES_W_NA)
-CREDIT_SUBMISSION_STATUS_CHOICES.append(('ns', 'Not Started'))
-
-CREDIT_SUBMISSION_STATUS_ICONS = {
-    'c'  : ('complete.png', 'c', 'Complete'),
-    'p'  : ('in_progress.gif', '...', 'In Progress'),
-    'np' : ('na.png', '-', 'Not Pursuing'),
-    'na' : ('na.png', '-', 'Not Applicable')
-}
-def _get_status_icon_tag(status):
-    """ Returns an image tag, marked safe, and text for displaying a submission status """
-    if (status == 'ns'):
-        return '', ''  # no image, no text for Not Started status
-    
-    ### THIS IS HIDEOUS - how can I pass the icon, title, & alt to a template for rendering?
-    icon_file, alt, title = CREDIT_SUBMISSION_STATUS_ICONS[status] 
-    src = "/media/static/images/%s" % icon_file
-    return mark_safe( "<img src='%s' alt='%s'> "%(src, title) ), title
-    
 class ResponsibleParty(models.Model):
     """
         Stores responsible parties for institutions
@@ -621,6 +593,26 @@ class CreditSubmission(models.Model):
 #        else: persists="not saved"
 #        return "<CreditSubmission %s credit_id=%s  %s>"%(self.id, self.credit.id, persists)
 
+
+CREDIT_SUBMISSION_STATUS_CHOICES_LIMITED = [
+    ('c', 'Complete'),
+    ('p', 'In Progress'),
+    ('np', 'Not Pursuing'),
+]
+
+# The 'ns' option isn't accessible in forms and 'na' only sometimes, so we 3 different lists.
+CREDIT_SUBMISSION_STATUS_CHOICES_W_NA = list(CREDIT_SUBMISSION_STATUS_CHOICES_LIMITED)
+CREDIT_SUBMISSION_STATUS_CHOICES_W_NA.append(('na', 'Not Applicable'))
+CREDIT_SUBMISSION_STATUS_CHOICES = list(CREDIT_SUBMISSION_STATUS_CHOICES_W_NA)
+CREDIT_SUBMISSION_STATUS_CHOICES.append(('ns', 'Not Started'))
+
+CREDIT_SUBMISSION_STATUS_ICONS = {   # used by template tag to create iconic representation of status
+    'c'  : ('complete.png', 'c'),
+    'p'  : ('in_progress.gif', '...'),
+    'np' : ('na.png', '-'),
+    'na' : ('na.png', '-')
+}
+
 class CreditUserSubmission(CreditSubmission):
     """
         An individual submitted credit for an institutions STARS submission set
@@ -682,11 +674,6 @@ class CreditUserSubmission(CreditSubmission):
 #    def __str__(self):  # For DEBUG - comment out __unicode__ method above
 #        return "<CreditUserSubmission:  %s>"%super(CreditUserSubmission,self).__str__()
             
-    def get_status_display(self):
-        """ Replaces get_submission_status_display, added by Django, to include an icon """
-        icon, text = _get_status_icon_tag(self.submission_status)
-        return mark_safe("%s%s"%(icon, text))
-
     def get_adjusted_available_points(self):
         """ Gets only the points for credits that have not been labelled as Not Applicable """
         if self.submission_status == "na":
@@ -1129,6 +1116,12 @@ PAYMENT_TYPE_CHOICES = (
     ('check', 'check'),
     ('later', 'pay later'),
 )
+
+PAYMENT_TYPE_ICONS = {   # used by template tag to create iconic representation of paymnet
+    'credit'  : ('creditcards.png', 'Paid by credit'),
+    'check'  : ('check.png', 'Paid by check'),
+    'later' : ('flag_red.png', 'Awaiting payment'),
+}
 
 class Payment(models.Model):
     """

@@ -1,6 +1,5 @@
-
+        {% load submit_tags %}
         <table class='subcategory_credits_summary'><tbody>
-	       {% load submit_tags %}
 	       {% for c in submission_object.creditusersubmission_set.all %}
 	           <tr class='credit_summary'>
 	             <td>
@@ -10,12 +9,12 @@
 	                <a href='{{ c.get_report_url }}'>{{ c }}</a>
 	             </td>
                  {% if not submissionset.is_rated %}
-	                 <td class='status'>{{ c.get_status_display }}</td>
+	                 <td class='status'>{% show_status_icon c %}</td>
 	             {% endif %}
 	             <td class='points'>
 	             {% if c.is_na %}
 	               <span class='explanation' title='{{c.applicability_reason}}'>
-	                  {{ c.get_status_display }}
+	                  {% show_status_icon c %}
 	               </span>
 	             {% else %}
 	               {{ c.assessed_points|floatformat:2 }} / {% format_available_points c %}
