@@ -11,6 +11,7 @@
             <th><a href='?sort={{ col.sort_key }}' title='sort'>{{ col.label }}</a> {% if col.img %}<img src='/media/static/images/{{ col.img }}'/>{% endif %}</th>
           {% endfor %}
         </tr>
+        {% comment %}The 'institution' here is actually an InstitutionState object{% endcomment %}
         {% for institution in institution_list %}
           <tr>
             <td>
@@ -26,7 +27,7 @@
               {{ institution.latest_rated_submission_set.date_reviewed }}
             </td>
             <td align='right'>
-              {{ institution.latest_rated_submission_set.get_STARS_score|floatformat:2 }}%
+              {{ institution.latest_rated_submission_set.get_STARS_score|floatformat:2 }}
             </td>
           </tr>            
         {% endfor %}

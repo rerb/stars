@@ -25,7 +25,7 @@
 	            </tr>
 		        <tr>
 		            <th>{% if not submissionset.is_rated %}Provisional{% else %}Overall{% endif %} Score</th>
-		            <td>{{ submissionset.get_STARS_score|floatformat:0 }}%</td>
+		            <td>{{ submissionset.get_STARS_score|floatformat:0 }}</td>
 		        </tr>
 	            <tr>
 	                {% if submissionset.is_rated %}

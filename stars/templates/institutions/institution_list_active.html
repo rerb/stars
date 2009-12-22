@@ -11,6 +11,7 @@
             <th><a href='?sort={{ col.sort_key }}' title='sort'>{{ col.label }}</a> {% if col.img %}<img src='/media/static/images/{{ col.img }}'/>{% endif %}</th>
           {% endfor %}
         </tr>
+        {% comment %}The 'institution' here is actually an InstitutionState object{% endcomment %}
         {% for institution in institution_list %}
           <tr>
             <td>
@@ -39,14 +40,6 @@
                {% else %}
                  - 
                {% endif %}
-            </td>
-            <td>
-              {% if institution.active_submission_set.get_percent_complete %} 
-                 {% load submit_tags %}
-                 {% show_progress_icon institution.active_submission_set.get_percent_complete %}
-              {% else %}
-                -
-              {% endif %}
             </td>
           </tr>            
         {% endfor %}

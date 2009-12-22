@@ -51,8 +51,6 @@ def institutions_active(request):
                {'sort_key':'version', 'sort_field':'active_submission_set__creditset__version', 'label':'STARS Version', 'img':None},
                {'sort_key':'date_registered', 'sort_field':'active_submission_set__date_registered', 'label':'Date Registered', 'img':None},
                {'sort_key':'submission_deadline', 'sort_field':'active_submission_set__submission_deadline', 'label':'Submission Deadline', 'img':None},
-# @todo: we're not storing the progress - hmmmm
-               {'sort_key':'progress', 'sort_field':'id', 'label':'Progress', 'img':None},
               ]
     institutions, sort_columns = _get_sort_order(columns, request.GET.get('sort', None), institutions)
                         
