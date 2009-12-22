@@ -61,7 +61,6 @@
    {% endif %}
    
    {% if credit_submission.is_pursued %}
-     {% load help %}
      {% load report_tags %}
      <div id='reporting_fields' class='headed_list expanded'>
        <span class='header'>
@@ -71,15 +70,7 @@
        </span>
        <table class='headed_list'>
          {% for field in credit_submission.get_submission_fields %}
-           <tr>
-             <th>
-                {{ field }}
-                {% show_help_text field.documentation_field.tooltip_help_text 1 %}
-             </th>
-             <td>
-                 {% show_field_value field %}
-             </td>
-           </tr>
+            {% show_reporting_field field submissionset.is_rated %}
          {% endfor %}
        </table>
      </div>
