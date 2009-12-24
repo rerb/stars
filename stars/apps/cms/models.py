@@ -81,9 +81,21 @@ def articleCategories_sync():
                                            description=term["description"],
                                            parent_term=term["parents"][0])
         except IntegrityError:
+            # This is not really an error, but a notice may be useful to catch unanticipated edge cases.
             errors.append("Note: Article sub-category %s has multiple parent categories" % (term["name"]))
         except Exception, e:
             errors.append("%s error saving article category %s : %s" % (e.__class__.__name__, term["name"], e))
+
+    # Check for duplicate category names - permitted by IRC, but not by STARS, which uses them as unique path descriptors
+    cached_categories = ArticleCategory.objects.all()
+    for cat in cached_categories:
+        duplicates = ArticleCategory.objects.filter(label=cat.label)
+        if duplicates.count() > 1:
+            errors.append("Duplicate category name found on IRC: %s" % [(c.label, c.term_id) for c in list(duplicates)])
+            errors.append(" - cateogry names must be unique, use multi-parent hierachy to show sub-category under multiple categories.")
+            errors.append(" - deleting duplicate(s): %s" %  [(c.label, c.term_id) for c in list(duplicates[1:])])
+            for dup in duplicates[1:]:
+                dup.delete()
     return errors
 
 def articleCategories_perform_consistency_check():
@@ -105,7 +117,7 @@ def articleCategories_perform_consistency_check():
     for term in IRC_term_dict :
         try:
             cat = cached_categories.get(term_id=term['tid'])
-        except ObjectDoesNotExist:  # missing category from cache
+        except: # probably ObjectDoesNotExist:  # missing category from cache
             category_table.append({'term':term, 'cat':None, 'consistent':False})
             is_consistent = False
         else:  # all is well - terms match
