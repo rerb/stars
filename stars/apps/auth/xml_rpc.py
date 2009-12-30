@@ -51,6 +51,8 @@ def get_user_from_user_dict(user_dict, session, create=True):
             user.email = user_dict['mail']
             user.username = email_to_username(user_dict['mail'])
         user.password = password
+        user.first_name = user_dict['profile_fname']
+        user.last_name = user_dict['profile_lname']
     except User.DoesNotExist:
         if not create:
             return None

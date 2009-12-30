@@ -1,4 +1,4 @@
-{% autoescape off %}Dear {{account.user}}, 
+{% autoescape off %}Dear {{ account.user.get_full_name }}, 
 {% block content %}{% endblock %}{% if account.is_pending %}
 To access the STARS Reporting Tool, you will need to create an AASHE Account at http://www.aashe.org/user/register.  
 

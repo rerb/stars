@@ -436,6 +436,9 @@ class DuckUser(object):
         
     def __str__(self):
         return "%s" % self.email
+    
+    def get_full_name(self):
+        return self.__str__()
        
     
 class DuckAccount(object):
