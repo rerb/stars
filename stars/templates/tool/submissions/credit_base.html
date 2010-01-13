@@ -9,33 +9,32 @@
     {% show_submit_crumbs credit %}
 {% endblock %}
 
-{% block header %}{{ credit }}{% endblock %}
+{% block extra_head %}
+{{ block.super }}
+<script type='text/javascript'>expandTo = 1;</script>
+{% endblock %}
 
-{% block center %}
-    <table class='headed_list wide'>
-        <tr>
-            <td class='header' colspan='4'>Summary</td>
-        </tr>
-        <tr>
-            <th>Status</th>
-            <th>Last Updated</th>
-            <th>Possible Points</th>
-            <th>Points Claimed</th>
-        </tr>
-        <tr>
-            <td>{% show_status_icon credit_submission %}</td>
-            <td>{{ credit_submission.last_updated|date:"m/d/y fA" }}</td>
-            <td>
-                {% format_available_points credit_submission %}
-            </td>
-            <td>
-                {% ifnotequal credit_submission.assessed_points None %}
+{% block tool_content %}
+	<h1>{{ credit }}</h1>
+	
+	<table class='statusTable' cellspacing='0'>
+	    <tr>
+	        <th>Status</th>
+	        <th>Last Updated</th>
+	        <th>Possible Points</th>
+	        <th>Points Claimed</th>
+	    </tr><tr>
+	        <td>{% show_status_icon credit_submission %}</td>
+	        <td>{{ credit_submission.last_updated|date:"m/d/y fA" }}</td>
+	        <td>{% format_available_points credit_submission %}</td>
+	        <td>
+	        	{% ifnotequal credit_submission.assessed_points None %}
                     {{ credit_submission.assessed_points }}
                 {% endifnotequal %}
-            </td>
-        </tr>
-    </table>
-
+         	</td>
+	    </tr>
+	</table>
+	<hr class='blue'/>
     <ul id="tabnav" {% block tabclass %}class='tab1'{% endblock %}>
 		<li class="tab1">
 		    <a href="{{ credit_submission.get_submit_url }}documentation/">Credit Info</a>
@@ -46,7 +45,7 @@
 		<li class="tab2"><a href="{{ credit_submission.get_submit_url }}">Reporting Fields</a></li>
         <li class="tab3"><a href="{{ credit_submission.get_submit_url }}notes/">Internal Notes</a></li>
 	</ul>
-	<div id='tabcontent'>
+	<div class='tabContent'>
         {% block tab_content %}
         {% endblock %}
     </div>

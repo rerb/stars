@@ -6,16 +6,14 @@
 
 {% block submenu_class %}class='sm_admin'{% endblock %}
 
-{% block content %}
-    <div id='content'><div class='inner'>
+{% block tool_content %}
         <ul id="tabnav" {% block tabclass %}class='tab1'{% endblock %}>
             <li class="tab1"><a href="/tool/admin/">Institutions</a></li>
             <li class="tab2"><a href="/tool/admin/payments/">Payments</a></li>
             <li class="tab3"><a href="/tool/admin/pages/">Articles</a></li>
             <li class="tab4"><a href="/tool/admin/watchdog/">Watchdog</a></li>
         </ul>
-        <div id='tabcontent'>
+        <div class='tabContent'>
             {% block admin_content %}{% endblock %}
-        </div>    
-    </div></div>
+        </div>
 {% endblock %}

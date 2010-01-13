@@ -5,7 +5,7 @@
 {% block tabclass %}class='tab2'{% endblock %}
 
 {% block institution_content %}
-      <table id="institution_list" class='headed_list'>
+      <table id="institution_list" class='greyTable'>
         <tr>
           {% for col in sort_columns %}
             <th><a href='?sort={{ col.sort_key }}' title='sort'>{{ col.label }}</a> {% if col.img %}<img src='/media/static/images/{{ col.img }}'/>{% endif %}</th>
@@ -15,7 +15,7 @@
         {% for institution in institution_list %}
           <tr>
             <td>
-               <a href='/institutions/{{ institution.institution.id }}/scorecard'>{{ institution }}</a>              
+               {{ institution }}       
               {% comment %}  This is what we want - above is for demo / testing only 
               {{ institution }}
               {% endcomment %}

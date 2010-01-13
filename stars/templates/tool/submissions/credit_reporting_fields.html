@@ -1,8 +1,10 @@
 {% extends 'tool/submissions/credit_base.html' %}
 
-{% block body_attribute %} onload='load_handler()' onunload='unload_handler()'{% endblock %}
+{% block body_onload %}{{ block.super }}load_handler();{% endblock %}
+{% block body_unload %}unload_handler();{% endblock %}
 
 {% block extra_head %}
+	{{ block.super }}
     <script type="text/javascript" src="/media/admin/js/admin/RelatedObjectLookups.js"></script>
     <script type="text/javascript" src="/media/static/js/ajax.js"></script>
     <script type="text/javascript">
@@ -11,7 +13,7 @@
         toggle_applicability_reasons(get_selected_button(document.forms.submission_form.submission_status));
     }
     function unload_handler() {
-        save_form();
+        confirm_leave();
     }
     </script>
 {% endblock %}
@@ -21,19 +23,22 @@
 {% block tab_content %}
   {% load fieldsets %}
   <form method='post' action='.' class='submit_form' name='submission_form' enctype="multipart/form-data" onsubmit='enable_submit(false);'>
-	  <p style='text-align: center; font-size: .9em;'>
-	      <span class="required_note" title="This field is required to complete credit">*</span>
-	      required fields
-	      <span class='conditionally_required_note' title="In some cases, this field will be required to complete credit">*</span>
-	      conditionally required fields
-	  </p>
+	  
 	  {% if credit.applicabilityreason_set.all %}
-	      <p style='text-align: right;font-size: .8em;font-style: italic;color: #555;'>Credit doesn't appy to you? <a href='#status'>Click here</a>.</p>
+	      <div style='float: right;font-size: .9em;padding:10px;'>Credit doesn't appy to you? <a href='#status'>Click here</a>.</div>
 	  {% endif %}
-      {% fieldset 'Reporting Fields' 'expanded' %}
+	  <div style='font-size: .9em;padding:10px;'>
+	      <span class="required_note" title="This field is required to complete credit">*</span>
+	      Required Fields
+	      <span class='conditionally_required_note' title="In some cases, this field will be required to complete credit">*</span>
+	      Conditionally Required Fields
+	  </div>
+	  
+  <div class='creditContent'>
+	{% fieldset 'Reporting Fields' 'expanded' %}
         {% include "tool/submissions/submission_fields_form.html" %}
       {% endfieldset %}
-      <br/>
+      <hr/>
       {% fieldset 'Notes (public)' 'collapsed' %}
         {% comment %}
         <!-- @todo: I added the note fields manually, but in the long-run
@@ -46,7 +51,7 @@
     	   {{ submission_form.submission_notes }}
     	</div>
       {% endfieldset %}
-      <br/>
+      <hr/>
       {% fieldset 'Responsible Party' 'expanded' %}
         {% if submission_form.responsible_party.errors %}
             {{ submission_form.errors.responsible_party }}
@@ -64,7 +69,7 @@
         {{ submission_form.responsible_party_confirm }}
         <label class="required">By checking this box, I affirm that the information included in the submission for this credit is accurate to the best of my knowledge.</label>
       {% endfieldset %}
-      <br/>
+      <hr/>
       <a name='status'></a>
         <table>
             <tr>
@@ -92,8 +97,10 @@
             </tr>
             {% endif %}
         </table>
-        <div class='button_row'>
-            <input type='submit' value='Save' id='submit_button' />
-        </div>
+        
+    </div>
+    <div class='button_row'>
+        <button type='submit' id='submit_button'>Save</button>
+    </div>
     </form>
 {% endblock %}

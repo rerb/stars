@@ -9,26 +9,28 @@
     {% if user.current_inst %}
         <a href='/tool/'>{{ user.current_inst }}</a>
     {% else %}
-        <a href='/tool/'>Dashboard</a>
+        <a href='/tool/'>Submission Tool</a>
     {% endif %}
 {% endblock %}
 
-{% block submenu %}
-    <ul id='submenu' {% block submenu_class %}{% endblock %}>
-        <!-- <li id='sm_account'><a href='#'>My Account</a></li>-->
-        {% if user.can_submit %}
-            <li id='sm_sub'><a href='/tool/submissions/'>My Submission</a></li>
-        {% endif %}
-        {% if user.can_view %}
-            <li id='sm_sc'><a href='/institutions/{{ user.current_inst.id }}/scorecard/'>My Scorecard</a></li>
-        {% endif %}
-        {% if user.can_admin %}
-            <li id='sm_inst'><a href='/tool/manage/'>Manage Institution</a></li>
-        {% endif %}
-        <!-- <li id='sm_submissions'><a href='#'>Process Submissions</a></li> -->
-        {% if user.is_staff %}
-            <li id='sm_admin'><a href='/tool/admin/'>Administer Site</a></li>
-            <li id='sm_ce'><a href='/tool/credit-editor/'>Credit Editor</a></li>
-        {% endif %}
-    </ul>
+{% block content %}
+	<div id="content"><div class='inner20'>
+		{% block tool_content %}{% endblock %}
+	</div></div>
+	
+	<div id='rail'>
+		<div id='leftMenu'>
+			{% if user.is_staff %}
+	            <h4><a href='/tool/admin/'>Administer Site</a></h4>
+	            <h4><a href='/tool/credit-editor/'>Credit Editor</a></h4>
+	        {% endif %}
+			{% if user.can_admin %}
+		    	<h4><a href='/tool/manage/'>Manage Institution</a></h4>
+		    {% endif %}
+			{% if user.can_submit %}
+	            <h4><a href='/tool/submissions/'>My Submission</a></h4>
+	            {% block submission_outline %}{% endblock %}
+	        {% endif %}
+		</div>
+	</div>
 {% endblock %}

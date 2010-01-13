@@ -37,7 +37,6 @@ def institutions_rated(request):
                                        'creditset':CreditSet.get_latest_creditset()})
 
 # Currently, this is a staff-only tool, but it is designed to serve the general public
-@user_is_staff
 def institutions_active(request):
     """
         A list of institutions currently participating in STARS (with an active, unrated submissionset)

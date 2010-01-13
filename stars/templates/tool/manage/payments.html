@@ -8,7 +8,7 @@
     {% include 'tool/manage/payment_list.html' %}
     
     {% if user.is_staff %}
-        <h3><a href='{{ user.current_inst.get_admin_payments_url }}'>Administer Payments for this Institution</a></h3>
+        <p><a href='{{ user.current_inst.get_admin_payments_url }}'>Administer Payments for this Institution</a></p>
         {% if not active_submission %}
            <ul>
              <li>You must <a href='/tool/manage/submissionsets/'>add</a> a submission set for this institution before you can create a payment.</li>

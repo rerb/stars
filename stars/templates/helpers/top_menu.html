@@ -1,39 +1,35 @@
-    {% if user %}
-        <ul id='top_menu'>
-            {% if user.is_staff and site_status.maintenance_mode %}
-                <div class='notice'>STARS site is Offline</div>
-            {% else %}
-                {% if user.is_staff and site_status.hide_reporting_tool %}
-                    <div class='notice'>Reporting Tool is Hidden</div>
-                {% endif %}
+	{% if user %}
+        {% if user.is_staff and site_status.maintenance_mode %}
+            <div class='notice'>STARS site is Offline</div>
+        {% else %}
+            {% if user.is_staff and site_status.hide_reporting_tool %}
+                <div class='notice'>Reporting Tool is Hidden</div>
             {% endif %}
-            {% if user.is_authenticated %}
-                <!-- <li><a href='/inbox/'>Inbox</a></li> -->
-                <li><a href='/auth/logout/'>Log Out, {{ user.email }}</a></li>
-            {% else %}
-                <li><a href='/register/'>Register</a></li>
-                <li><a href='/auth/login/'>Log In</a></li>
-            {% endif %}
-         </ul>
-    
-         {% if user.account_list %}
-             <div id='selected_inst'>
-                <select onchange="selectSchool(this);">
-                  <option value='0'>Select your institution</option>
-                  {% for a in user.account_list %}
-                    <option value='{{ a.institution.id }}' {% ifequal a user.account %}selected='selected'{% endifequal %}>{{ a.institution}}</option>
-                  {% endfor %}
-                </select>
-             </div>
-         {% else %}
-             <div id='selected_inst'>
-                {% if user.current_inst %}
-                  ( {{ user.current_inst }} {% if user.is_staff %}<a href='/tool/admin/'>change</a>{% endif %} )
-                {% else %}
-                  {% if user.is_staff %}
-                    <a href='/tool/admin/'>Select Institution</a>
-                  {% endif %}
-                {% endif %}
-             </div>
-          {% endif %}
+        {% endif %}
+        {% if user.is_authenticated %}
+        	{{ user.email }} |
+            
+			{% if user.account_list %}
+	    		<select onchange="selectSchool(this);">
+			  		<option value='0'>Select your institution</option>
+			  		{% for a in user.account_list %}
+			    		<option value='{{ a.institution.id }}' {% ifequal a user.account %}selected='selected'{% endifequal %}>{{ a.institution}}</option>
+			  		{% endfor %}
+				</select> |
+			{% else %}
+		        {% if user.current_inst %}
+					{{ user.current_inst }} {% if user.is_staff %}(<a href='/tool/admin/'>change</a>){% endif %} |
+				{% else %}
+			  		{% if user.is_staff %}
+			    		<a href='/tool/admin/'>Select Institution</a> |
+					{% endif %}
+		    	{% endif %}
+			{% endif %}
+			<a href='/pages/help/'>Help</a> |
+			<a href='/auth/logout/'>Log Out</a>
+        {% else %}
+            <a href='/register/'>Register</a> |
+            <a href='/pages/help/'>Help</a> |
+            <a href='/auth/login/'>Log In</a>
+        {% endif %}
     {% endif %}    

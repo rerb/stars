@@ -5,18 +5,15 @@
 {% block tabclass %}class='tab3'{% endblock %}
 
 {% block institution_content %}
-    <form method='post' action='.'>
-        <table class='headed_list'>
-            <tr>
-                <td class='header' colspan='2'>Contact Information</td>
-            </tr>
+    <form method='post' action='.' class='generalForm'>
+        <table>
 
             {% with institution_form as object_form %}
                 {% include 'helpers/standard_form.html' %}
             {% endwith %}
         </table>
         <div class='button_row'>
-            <input type='submit' value='save' />
+            <button type='submit'>Save</button>
         </div>
     </form>
 {% endblock %}

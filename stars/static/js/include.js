@@ -158,15 +158,22 @@ function open_popup(url, name) {
  *        - onload handler should call enable_submit(false)
  *        - onunload handler should call save_form()
 **/         
-function save_form()
+function confirm_leave()
 {
     if (!document.getElementById('submit_button').disabled)
-        if (confirm('You have modified data on this page.\n\n Do you want to Save those changes?\n\n  OK to Save,  Cancel to continue without saving.'))
+        if (!confirm('You have modified data on this page.\n\n Do you want to Save those changes?\n\n OK to leave this page, Cancel to save your changes before leaving.'))
             document.forms[0].submit();
 }
 
 function enable_submit(enable) {
-    document.getElementById('submit_button').disabled = !enable
+	button = document.getElementById('submit_button');
+    button.disabled = !enable;
+    if(enable) {
+    	button.className = "enabled";
+    }
+    else {
+    	button.className = "disabled";
+    }
 }
 
 /* We may find other uses for this in future, so I abstracted it */

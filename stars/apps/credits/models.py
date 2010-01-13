@@ -218,7 +218,7 @@ class Category(models.Model):
         return "%s%d/" % (self.creditset.get_edit_url(), self.id)
 
     def get_submit_url(self):
-        return "%s%d/" % (self.creditset.get_submit_url(), self.id)
+        return "%s#ec_%d" % (self.creditset.get_submit_url(), self.id)
         
     def get_report_url(self, submissionset):
         return '%s%d/' % (self.creditset.get_report_url(submissionset), self.id)
@@ -308,7 +308,7 @@ class Subcategory(models.Model):
         return "%s%d/" % (self.category.get_edit_url(), self.id)
     
     def get_submit_url(self):
-        return "%s%d/" % (self.category.get_submit_url(), self.id)
+        return "%s_%d" % (self.category.get_submit_url(), self.id)
 
     def get_report_url(self, submissionset):
         return '%s%d/' % (self.category.get_report_url(submissionset), self.id)
@@ -400,7 +400,7 @@ class Credit(models.Model):
         return "%s%d/" % (self.subcategory.get_edit_url(), self.id)
         
     def get_submit_url(self):
-        return "%s%d/" % (self.subcategory.get_submit_url(), self.id)
+        return "/tool/submissions/%d/%d/%d/" % (self.subcategory.category.id, self.subcategory.id, self.id)
     
     def get_report_url(self, submissionset):
         return '%s%d/' % (self.subcategory.get_report_url(submissionset),self.id)

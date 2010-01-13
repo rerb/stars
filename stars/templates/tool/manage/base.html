@@ -8,8 +8,7 @@
     <a href='/tool/manage/'>{{ user.current_inst }}</a> &gt; Manage
 {% endblock %}
 
-{% block content %}
-    <div id='content'><div class='inner'>
+{% block tool_content %}
         <h1>{{ user.current_inst }}</h1>
         
         <ul id="tabnav" {% block tabclass %}class='tab1'{% endblock %}>
@@ -21,11 +20,10 @@
             <li class="tab4"><a href="/tool/manage/payments">Payment History</a></li>
     	</ul>
     	
-    	<div id='tabcontent'>
+    	<div class='tabContent'>
     	    <div class='help_note'>
     	        {% block help_content %}{% endblock %}
     	    </div>
             {% block institution_content %}{% endblock %}
     	</div>
-    </div></div>
 {% endblock %}

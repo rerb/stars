@@ -1,13 +1,8 @@
-{% if complete %}
-    <div>
-      <img src='/media/static/images/complete.png' alt='C' title='Complete'>
+<span class='progressTitle'>
+    <div class="{{ bar_class }}" title="{{ title }}">
+        <div class="{{ measure_class }}" style="width: {{ percentage }}%">
+            &nbsp;{{ content }}&nbsp;
+        </div>
     </div>
-{% else %}
-	{% if in_progress %}   
-	    <div class="progressbar {{ size_class }}" title='{{percent_complete}}% Complete'>
-	        <div class="progressbar-completed" style="width:{{percent_complete}}%;">
-	            <div>&nbsp;</div>
-	        </div>
-	    </div>
-	{% endif %}
-{% endif %}
+    <span class='progressBarCaption'>{{ caption }}</span>
+</span>

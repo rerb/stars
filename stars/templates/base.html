@@ -5,9 +5,9 @@
 		<title>
 			AASHE STARS{% block title %}{% endblock %}
 		</title>
-		<link href='/media/static/css/general.css' rel='stylesheet' type='text/css' />
-		<link href='/media/static/css/stars.css' rel='stylesheet' type='text/css' />
+		<link href='/media/static/css/style.css' rel='stylesheet' type='text/css' />
 		<link rel="shortcut icon" href="http://www.aashe.org/sites/default/files/aashe_favicon.ico" type="image/x-icon" />
+		<script src='/media/static/js/new_include.js' type='text/javascript'></script>
 		<script src='/media/static/js/include.js' type='text/javascript'></script>
 		{% block extra_head %}{% endblock %}
 		{% block extra_style %}{% endblock %}
@@ -27,13 +27,29 @@
 		</script>
 		{% endif %}
 	</head>
-	<body{% block body_attribute %}{% endblock %}>
+	<body onload='{% block body_onload %}{% endblock %}' onunload='{% block body_unload %}{% endblock %}'>
 	<script type="text/javascript" src="/media/static/js/wz_tooltip.js"></script>
-		<div id='header'>
+		<div id='container'>
+            <div id='header'>
+                <div id='topMenu'>
+                    {% block top_menu %}
+                		{% include 'helpers/top_menu.html' %}
+            		{% endblock %}
+                </div> 
+                {% block main_menu %}
+	                {% load main_menu %}
+	                {% show_main_menu user %}
+	            {% endblock %}
+    			<div id='crumbs'>
+	    			{% block crumbs %}
+	    			    <a href='/'>Home</a>
+	    			{% endblock %}
+	    		</div>
+                <a href='/'><img src='/media/static/images/stars_logo.png' alt='STARS' width='221' height='90' /></a>
+            </div>
             {% if messages or site_status.broadcast_message or extra_messages %}
             {% load helpers %}
             <div id="flash_message" class="visible">
-                <a href='#'  onclick="document.getElementById('flash_message').className = 'hidden';"><img src="/media/static/images/cross.png" class="close" title="close"></a>
                 <ul >
                 {% if site_status.broadcast_message %}
                     <li class='notice'>{{ site_status.broadcast_message }}</li>
@@ -43,30 +59,25 @@
                     <li class={{ message|split:0 }}>{{ message|split:1 }}</li>
                 {% endfor %}
                 </ul>
+                <a href='#'  onclick="document.getElementById('flash_message').style.display = 'none';">[x]</a>
             </div>
             {% endif %}
-			<a href='/'><img src='/media/static/images/header_logo.png' alt='STARS' /></a>
-
-            {% block top_menu %}
-                {% include 'helpers/top_menu.html' %}
-            {% endblock %}
-
-            {% block main_menu %}
-                {% load main_menu %}
-                {% show_main_menu user %}
-            {% endblock %}
             
-			{% block submenu %}{% endblock %}
-			<div id='crumbs'>
-    			{% block crumbs %}
-    			    <a href='/'>Home</a>
-    			{% endblock %} 
-    		</div>
+			{% block content %}{% endblock %}
 		</div>
-		{% block content %}{% endblock %}
 		<div id='footer'>
-		    powered by: <a href='http://www.aashe.org'>Association for the Advancement of Sustainability in Higher Education</a><br/>
-		    213 ½ N. Limestone, Lexington, KY 40507 - t: (859) 258-2551 - f: (859) 258-2264 
+			<div class='footerBlock'>
+				<a href='http://www.aashe.org'><img src='/media/static/images/aashe_footer_logo.gif' alt='AASHE' /></a>
+			</div>
+			<div class='footerBlock' style='border: 0px;'>
+		    	&copy; <a href='http://www.aashe.org'>Association for the Advancement of Sustainability in Higher Education</a><br/>
+		    	213 ½ N. Limestone, Lexington, KY 40507 - t: (859) 258-2551 - f: (859) 258-2264
+		    </div>
+		    <div class='footerBlock' style='border: 0px; float: right'>
+		    	<a href='/pages/help/'>Help</a> |
+		    	<a href='mailto:stars@aashe.org'>Contact Us</a> |
+		    	<a href='http://www.aashe.org/'>AASHE Home</a>
+		   	</div>
 		</div>
 		{% block extra_footer %}{% endblock %}
 		<script type="text/javascript">

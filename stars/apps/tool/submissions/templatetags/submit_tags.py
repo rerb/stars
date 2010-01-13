@@ -27,11 +27,53 @@ def show_submit_crumbs(object):
     return {'object_set': object_set}
 
 @register.inclusion_tag('tool/submissions/tags/progress_icon.html')
-def show_progress_icon(percent_complete, size_class=''):
+def show_progress_icon(category, size_class=''):
     """ Displays a progress bar showing the percent complete """
-    return {'in_progress': percent_complete>0, 'complete' : percent_complete==100,
-            'size_class': size_class, 'percent_complete': percent_complete}
-
+    
+    z = category.__class__.__name__
+    
+    measure_class = "progressBarMeasure"
+    
+    if z == 'int':
+        # if the int is a percent
+        numerator = ''
+        denominator = ''
+        bar_class = "progressBarSmall"
+        content = ''
+        caption = title = "%d%%" % category
+        percentage = category
+    else:
+        numerator = category.get_finished_credit_count()
+        denominator = category.get_total_credits()
+        if numerator > 0:
+            percentage = float(numerator)/float(denominator) * 100;
+        else:
+            percentage = 1.0 # Fix for css issues
+        title = "%.0f / %.0f" % (numerator, denominator)
+        
+        if z == "CategorySubmission":
+            bar_class = "progressBarLarge"
+            if percentage < 50:
+                measure_class = "progressBarMeasureRight"
+                bar_class = "progressBarLargeRight"
+                percentage = 100 - percentage
+            content = "%.0f / %.0f" % (numerator, denominator)
+            caption = "Credits Completed"
+        elif z == "SubcategorySubmission":
+            bar_class = "progressBarSmall"
+            content = ""
+            caption = "%.0f / %.0f Credits Completed" % (numerator, denominator)
+    return {
+        'percentage': percentage, 
+        'numerator': numerator,
+        'denominator': denominator,
+        'size_class': size_class,
+        'measure_class': measure_class,
+        'bar_class': bar_class,
+        'content': content,
+        'caption': caption,
+        'title': title,
+    }
 
 class Icon(object):
     __slots__ = ('title', 'file', 'alt', 'size_class')

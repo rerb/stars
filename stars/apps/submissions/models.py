@@ -245,8 +245,8 @@ class CategorySubmission(models.Model):
      
     def get_total_credits(self):
         total = 0
-        for sub in self.category.subcategory_set.all():
-            total = total + sub.credit_set.count()
+        for sub in self.subcategorysubmission_set.all():
+            total = total + sub.get_total_credits()
         return total
 
     def get_parent(self):
@@ -364,6 +364,9 @@ class SubcategorySubmission(models.Model):
         
     def get_creditset(self):
         return self.category_submission.get_creditset()
+    
+    def get_total_credits(self):
+        return self.subcategory.credit_set.count()
         
     def get_submit_url(self):
         return self.subcategory.get_submit_url()
@@ -610,7 +613,7 @@ CREDIT_SUBMISSION_STATUS_ICONS = {   # used by template tag to create iconic rep
     'c'  : ('complete.png', 'c'),
     'p'  : ('in_progress.gif', '...'),
     'np' : ('na.png', '-'),
-    'na' : ('na.png', '-')
+    'na' : ('na.png', '-'),
 }
 
 class CreditUserSubmission(CreditSubmission):

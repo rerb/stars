@@ -1,10 +1,7 @@
 {% extends 'tool/manage/submissionset_base.html' %}
 
 {% block institution_content %}
-    <table class='headed_list'>
-        <tr>
-            <td class='header' colspan='5'>Submission Sets</td>
-        </tr>
+    <table class='greyTable'>
         <tr>
             <th>Credit Set</th>
             <th>Registered</th>
@@ -17,7 +14,7 @@
             </th>
         </tr>
         {% for set in user.current_inst.submissionset_set.all %}
-        <tr>
+        <tr class='{% cycle 'odd' 'even' %}'>
             <td>
                 {% if user.is_staff %}
                     <a href='{{ set.get_manage_url }}'>{{ set }}</a>

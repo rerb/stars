@@ -11,10 +11,7 @@
 
 {% block institution_content %}
     <form method='post' action='/tool/manage/users/add/'>
-        <table class='headed_list'>
-          <tr>
-            <td class='header' colspan='5'>Users</td>
-          </tr>
+        <table class='greyTable'>
           <tr>
             <th>User's e-mail</th>
             <th>Role</th>
@@ -37,7 +34,7 @@
               </tr>
             {% else %} 
               {% with row.account as account %}
-              <tr {% if account.is_pending %}class='pending'  title="Account pending - user must register at www.aashe.org."{% endif %}>
+              <tr class='{% cycle 'even' 'odd' %}{% if account.is_pending %} pending{% endif %}'  {% if account.is_pending %}title="Account pending - user must register at www.aashe.org."{% endif %}>
                 <td>
                   {{ account.user.email }}
                   {% if account.is_pending %}

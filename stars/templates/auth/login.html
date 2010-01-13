@@ -4,22 +4,20 @@
     {% if site_status.maintenance_mode %} {% comment %} because login is available for staff while site is in maintenance mode {% endcomment %}
         {% include 'helpers/temporary_unavailable.html' %}
     {% endif %}
-    <div id='content'><div class='inner'>
+    <div><div class='inner20'>
         {% if site_status.maintenance_mode %} 
             <h1> Login is presently restricted to AASHE Staff only.</h1>
         {% else %}
             <h1>Login with your AASHE Account</h1>
         {% endif %}
         
-        <div class='form_div'>
-            <form action='.' method='post'>
-                <table>
-                    {{ form }}
-                    <input type='hidden' name='next' value='{{ next }}' />
-                </table>
-                <div class='button_row'><input type='submit' value='log in' /></div>
-            </form>
-        </div>
+        <form action='.' method='post' class='generalForm'>
+            <table>
+                {{ form }}
+                <input type='hidden' name='next' value='{{ next }}' />
+            </table>
+            <div class='button_row'><button type='submit'>Log in</button></div>
+        </form>
         
         <div class='help_note'>
             <span class='help_text'>
