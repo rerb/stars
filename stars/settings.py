@@ -14,6 +14,7 @@ configs = {
     '/Users/Joseph/Projects/AASHE/STARS/.*/stars': 'joseph',
     # This will be used by apache since the vhost.conf file calls it directly
     '/var/django/projects/stars/dev/stars.*': 'development',
+    '/var/django/projects/stars/dev/trunk': 'development', # dev may run off trunk
     '/var/django/projects/stars/stage/stars.*': 'stage',
     '/var/django/projects/stars/production/stars.*': 'production',
     '/var/django/projects/stars/beta/stars.*': 'beta',
