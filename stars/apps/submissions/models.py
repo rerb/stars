@@ -810,7 +810,7 @@ class DocumentationFieldSubmission(models.Model):
         
     def __unicode__(self):
         """ return the title of this submission field """
-        return self.documentation_field.title
+        return self.documentation_field.__unicode__()
 
     def __str__(self):
         """ return a string representation of the submission' value """

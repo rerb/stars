@@ -37,7 +37,7 @@ def reg_select_institution(request):
     db = connect_member_list()
     cursor = db.cursor()
     institution_query = """
-        SELECT organization_id, name, city, state
+        SELECT account_num, name, city, state
         FROM `members`
         WHERE (sector = 'Campus' OR organization_type = "System Office")
         and city IS NOT NULL

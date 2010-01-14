@@ -5,10 +5,10 @@
 {% endblock %}
 
 {% block content %}
-    <div id='content'><div class='inner'>
+    <div class='inner20'>
         <h1>Participant Registration: <i>{{ institution }}</i></h1>
         <p>Please review your contact information below.</p>
-        <table style='margin: 10px auto' class='headed_list' width='400'>
+        <table style='margin: 10px auto' class='greyTable' width='400'>
             <tr>
                 <th>STARS Liaison</th>
                 <th>Executive Contact</th>
@@ -40,29 +40,21 @@
                 <br/><br/>
                 <i>If you feel this is an error please contact us at <a href='mailto:stars@aashe.org'>stars@aashe.org</a>.</i>
             {% endif %}
-        </div>
-        <form method='post' action='.'>
-            <table class='payment_table'>
+            <table class='greyTable'>
                 <tr>
                     <th>Member Fee</th>
                     <th>Non-Member Fee</th>
                 </tr>
                 <tr>
                     <td>$900</td>
-                    <td>$1400</td>
-                </tr>
-                <tr>
-                    <th>Early Discounted Member Fee</th>
-                    <th>Early Discounted Fee</th>
-                </tr>
                     <td>
-                        $650
-                    </td>
-                    <td>
-                        $1150 <a href='http://www.aashe.org/membership/description.php'>Become a member</a>
+                    	$1400<br/>
+                    	<a href='http://www.aashe.org/membership/description.php'>Become a member</a>
                     </td>
                 </tr>
             </table>
+        </div>
+        <form method='post' action='.' class='generalForm'>
             <div class='secure'>
                 <table class='form'>
                     {{ pay_later_form }}
@@ -80,5 +72,5 @@
                 </div>
             </div>
         </form>
-    </div></div>
+    </div>
 {% endblock %}

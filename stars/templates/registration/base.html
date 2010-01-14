@@ -4,22 +4,6 @@
     AASHE: STARS | Participant Registration
 {% endblock %}
 
-{% block main_menu %}{% endblock %}
-
-{% block crumbs %}{% endblock %}
-
-{% block top_menu %}
-{% if user %}
-    <ul id='top_menu'>
-        {% if user.is_authenticated %}
-            <!-- <li><a href='/inbox/'>Inbox</a></li> -->
-            <li><a href='/auth/logout/'>Log Out, {{ user.email }}</a></li>
-        {% else %}
-            <li><a href='/register/'>Register</a></li>
-            <li><a href='/auth/login/'>Log In</a></li>
-        {% endif %}
-     </ul>
-{% endif %}
-{% endblock %}
+{% block crumbs %}Registration{% endblock %}
 
 {% block content %}{% endblock %}
