@@ -3,8 +3,8 @@
 {% endcomment %}
 {% for field in object_form %}
   <tr>
-    <th class='left'>
-        {{ field.label_tag }}:
+    <th>
+        {{ field.label_tag }} {% if field.field.required %}<span class='required_note' title='required'>*</span>{% endif %}:
     </th>
     <td>
         {{ field.errors }}

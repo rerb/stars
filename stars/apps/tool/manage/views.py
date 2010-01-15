@@ -160,7 +160,9 @@ def submissionsets(request):
     
     active_set = current_inst.get_active_submission()
     
-    return respond(request, 'tool/manage/submissionset_list.html', {'active_set': active_set})
+    is_admin = request.user.has_perm('admin')
+    
+    return respond(request, 'tool/manage/submissionset_list.html', {'active_set': active_set, 'is_admin': is_admin})
     
         
 @user_is_staff

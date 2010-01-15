@@ -1,8 +1,12 @@
 from django.shortcuts import get_object_or_404, render_to_response
+from django.http import HttpResponseRedirect
+
+from datetime import datetime
 
 from stars.apps.auth.utils import respond
-from stars.apps.auth.decorators import user_can_submit
+from stars.apps.auth.decorators import user_can_submit, user_is_inst_admin
 from stars.apps.submissions.models import *
+from stars.apps.tool.submissions.forms import SubmitSubmissionSetForm
 from stars.apps.credits.models import *
 from stars.apps.helpers.forms.form_helpers import basic_save_form, basic_save_new_form
 from stars.apps.tool.submissions.forms import CreditUserSubmissionForm, CreditUserSubmissionNotesForm, ResponsiblePartyForm
@@ -26,14 +30,42 @@ def summary(request):
     category_submission_list = []
     if active_submission:
         category_submission_list = active_submission.categorysubmission_set.all()
+        
+    is_admin = request.user.has_perm('admin')
     
     context={
         'active_submission': active_submission,
-        'category_submission_list': category_submission_list
+        'category_submission_list': category_submission_list,
+        'is_admin': is_admin,
     }
     
     return respond(request, "tool/submissions/summary.html", context)
 
+@user_is_inst_admin
+def submit_for_rating(request):
+    """
+        Provides a form for users to submit their submissionset
+    """
+    submission = _get_active_submission(request)
+    if not submission:
+        return HttpResponseRedirect("/tool/manage/submissionsets/")
+    
+    form = SubmitSubmissionSetForm(instance=submission)
+    if request.method == 'POST':
+        form = SubmitSubmissionSetForm(request.POST, request.FILES, instance=submission)
+        if form.is_valid():
+            submission = form.save(commit=False)
+            submission.date_submitted = datetime.now()
+            submission.status = 'pr'
+            submission.save()
+            submission.institution.state.delete() # remove this submissionset as the active submissionset
+            return respond(request, 'tool/submissions/submit_success.html', {})
+    context = {
+        'active_submission': submission,
+        'object_form': form,
+    }
+    template = "tool/submissions/submit.html"
+    return respond(request, template, context)
 
 def _get_category_submission_context(request, category_id):
     active_submission = _get_active_submission(request)

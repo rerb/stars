@@ -4,6 +4,7 @@ urlpatterns = patterns(
     'stars.apps.tool.submissions.views',
     
     (r'^$', 'summary'),
+    (r'^submit/$', 'submit_for_rating'),
     (r'^add-responsible-party/$', 'add_responsible_party'),
     (r'^(?P<category_id>\d+)/$', 'category_detail'),
     (r'^(?P<category_id>\d+)/(?P<subcategory_id>\d+)/$', 'subcategory_detail'),

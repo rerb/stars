@@ -553,3 +553,15 @@ class CreditUserSubmissionNotesForm(ModelForm):
     class Meta:
         model = CreditUserSubmission
         fields = ['internal_notes', ]
+        
+class SubmitSubmissionSetForm(ModelForm):
+    """
+        A Form to collect data for submitting a credit set for a rating
+    """
+    class Meta:
+        model = SubmissionSet
+        fields = ['reporter_status', 'submission_note', 'presidents_letter']
+        
+    def __init__(self, *args, **kwargs):
+        super(SubmitSubmissionSetForm, self).__init__(*args, **kwargs)
+        self.fields['presidents_letter'].required = True

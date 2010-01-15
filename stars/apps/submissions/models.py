@@ -17,6 +17,15 @@ SUBMISSION_STATUS_CHOICES = (
     ('r', 'Rated'),
 )
 
+def president_letter_callback(instance, filename):
+    """
+        Dynamically alters the upload path based on the instance
+        secure/<org_id>/letter/<file_name>.<ext>
+    """
+    institution = instance.institution
+    path = "secure/%d/letter/%s" % (institution.id, filename)
+    return path
+
 class SubmissionSet(models.Model):
     """
         A creditset (ex: 1.0) that is being submitted
@@ -31,12 +40,19 @@ class SubmissionSet(models.Model):
     submitting_user = models.ForeignKey(User, related_name='submitted_submissions', blank=True, null=True)
     rating = models.ForeignKey(Rating, blank=True, null=True)
     status = models.CharField(max_length=8, choices=SUBMISSION_STATUS_CHOICES)
+    submission_note = models.TextField(blank=True, null=True, help_text='Any notes you want AASHE to consider when validating your rating.')
+    presidents_letter = models.FileField("President's Letter", upload_to=president_letter_callback, blank=True, null=True, help_text="AASHE requires that every submission be vouched for by that institution's president. Please upload a PDF or scan of a letter from your president.")
+    reporter_status = models.BooleanField(help_text="Check this box if you would like to be given reporter status and not receive a STARS rating from AASHE.")
     
     class Meta:
         unique_together = ("institution", "creditset")  # an institution can only register once for a given creditset.
 
     def __unicode__(self):
-        return unicode('%s (%s)'%(self.get_submission_date(), self.creditset) )
+        return unicode('%s'%(self.creditset) )
+    
+    def was_submitted(self):
+        " Indicates if this set has been submitted for a rating "
+        return self.date_submitted != None
         
     def get_crumb_label(self):
         return str(self.institution)
@@ -51,7 +67,7 @@ class SubmissionSet(models.Model):
         return "/tool/manage/submissionsets/%d/" % (self.id)
         
     def get_submit_url(self):
-        return self.creditset.get_submit_url()
+        return "/tool/submissions/submit/"
         
     def get_report_url(self):
         return '/institutions/%s/scorecard/%s/'% (self.institution.id, self.id)
@@ -610,10 +626,10 @@ CREDIT_SUBMISSION_STATUS_CHOICES = list(CREDIT_SUBMISSION_STATUS_CHOICES_W_NA)
 CREDIT_SUBMISSION_STATUS_CHOICES.append(('ns', 'Not Started'))
 
 CREDIT_SUBMISSION_STATUS_ICONS = {   # used by template tag to create iconic representation of status
-    'c'  : ('complete.png', 'c'),
-    'p'  : ('in_progress.gif', '...'),
-    'np' : ('na.png', '-'),
-    'na' : ('na.png', '-'),
+    'c'  : ('tick.png', 'c'),
+    'p'  : ('pencil.png', '...'),
+    'np' : ('grey_cross.png', '-'),
+    'na' : ('tag_yellow.png', '-'),
 }
 
 class CreditUserSubmission(CreditSubmission):

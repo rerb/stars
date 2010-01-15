@@ -604,6 +604,8 @@ form.generalForm {
 form.generalForm table th {
 	text-align: right;
 	font-weight: normal;
+	vertical-align: top;
+	padding-right: 15px;
 }
 
 form span.required_note,

@@ -1,0 +1,19 @@
+{% extends "tool/base.html" %}
+
+{% block crumbs %} 
+    {{ block.super }} >
+    <a href='/tool/submissions/'>{{ active_submission }}</a> >
+    Submit
+{% endblock %}
+
+{% block tool_content %}
+	<h1>Submit for a STARS Rating</h1>
+	<form class='generalForm' method='post' action='.' enctype="multipart/form-data">
+		<table>
+			{% include "helpers/standard_form.html" %}
+		</table>
+		<div class='button_row'>
+			<button type='submit'>Submit</button>
+		</div>
+	</form>
+{% endblock %}
