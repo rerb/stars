@@ -73,10 +73,12 @@ class Institution(models.Model):
  
     def set_active_submission(self, submission_set):
         """ Set this institution's active SubmissionSet """
-        if self.state is None:
+        try:
+            if self.state.active_submission_set != submission_set:
+                self.state.active_submission_set = submission_set
+        except InstitutionState.DoesNotExist:
             self.state = InstitutionState(institution=self, active_submission_set=submission_set)
-        elif self.state.active_submission_set != submission_set:
-            self.state.active_submission_set = submission_set
+        
         self.state.save()
 
     def get_latest_rated_submission(self):
