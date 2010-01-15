@@ -15,5 +15,4 @@ class AuthenticationMiddleware(object):
         """ Add the user's account context to the user object in the request """
         # since the user object is stored in the session, this information may already be in the request.
         # however, load it again in case the user's accounts have changed since their last request.
-        _update_account_context(request, *_get_account_from_session(request))
-        return None
+        return _update_account_context(request, *_get_account_from_session(request))

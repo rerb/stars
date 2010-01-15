@@ -245,8 +245,7 @@ def add_responsible_party(request):
 
     return respond(request, "tool/submissions/responsible_party.html", context)
     
-@user_can_submit
-def serve_uploaded_file(request, inst_id, creditset_id, credit_id, field_id, filename):
+def serve_uploaded_file(request, inst_id, path):
     """
         Serves file submissions.
     """
@@ -257,7 +256,7 @@ def serve_uploaded_file(request, inst_id, creditset_id, credit_id, field_id, fil
         
     # @todo: this should get the upload submission object and use its path property to server the file
     #        thus eliminating the implicit coupling here with the upload_path_callback in the model.
-    stored_path = "secure/%s/%s/%s/%s/%s" % (inst_id, creditset_id, credit_id, field_id, filename) 
+    stored_path = "secure/%s/%s" % (inst_id, path)
     
     from django.views.static import serve
     return serve(request, stored_path, document_root=settings.MEDIA_ROOT)

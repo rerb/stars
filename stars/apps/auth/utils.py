@@ -1,4 +1,5 @@
 import MySQLdb
+import re
 
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
@@ -8,6 +9,7 @@ from django.template import RequestContext
 from stars.apps.institutions.models import StarsAccount, PendingAccount, Institution
 from stars.apps.helpers import watchdog, flashMessage
 from django.conf import settings
+from django.http import HttpResponseRedirect
 
 def respond(request, template, context):
     """
@@ -92,6 +94,27 @@ def _update_account_context(request, account=None, current_inst=None):
     if account and account.user == user:
         account.select() 
         user.current_inst = account.institution
+        
+        # Confirm that this user has agreed to the Terms of Service even if for another institution
+        tos = False
+        other_accounts = []
+        if account_list:
+            for a in account_list:
+                if a.terms_of_service:
+                    tos = True
+                else:
+                    other_accounts.append(a)
+            if tos: # If they've agreed once, approve them on all StarsAccounts
+                for a in other_accounts:
+                    a.terms_of_service = True
+                    a.save()
+        else:
+            if user.account.terms_of_service:
+                tos = True
+        
+        tos_path = "/auth/tos/"
+        if not tos and request.path != tos_path and request.path != "/auth/logout/" and not re.match("/media/.*", request.path):
+            return HttpResponseRedirect("%s?next=%s" % (tos_path, request.path))
 
     inst_pk = user.current_inst.pk if user.current_inst else None
     request.session['current_inst_pk'] = inst_pk  # store only the Institution id - see ticket #252
@@ -101,6 +124,8 @@ def _update_account_context(request, account=None, current_inst=None):
     # These allow template code to check for permissions (since templates can't pass parameters)
     for (perm, name) in settings.STARS_PERMISSIONS:
         user.__setattr__("can_%s"%perm,  user.has_perm(perm))
+        
+    return None
 
 
 def _get_account_from_session(request):

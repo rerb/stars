@@ -225,6 +225,7 @@ class AbstractAccount(BaseAccount):
         2) so that unique_together constraints can be handled by Django
     """
     institution = models.ForeignKey(Institution)
+    terms_of_service = models.BooleanField()
     # user_level is a role
     user_level = models.CharField("Role", max_length='6', choices=STARS_USERLEVEL_CHOICES)
 
