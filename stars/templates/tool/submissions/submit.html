@@ -8,9 +8,10 @@
 
 {% block tool_content %}
 	<h1>Submit for a STARS Rating</h1>
+	{% include 'tool/submissions/submission_summary_table.html' %}
 	<form class='generalForm' method='post' action='.' enctype="multipart/form-data">
 		<table>
-			{% include "helpers/standard_form.html" %}
+			{% include "helpers/label_above_input_form.html" %}
 		</table>
 		<div class='button_row'>
 			<button type='submit'>Submit</button>

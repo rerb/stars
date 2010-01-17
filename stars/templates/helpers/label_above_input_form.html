@@ -1,0 +1,14 @@
+{% comment %}
+    Lays out a model form with the name object_form as a table with help text formatted as a tooltip.
+{% endcomment %}
+{% for field in object_form %}
+   	{% if field.field.required %}<span class='required_note' title='required'>*</span>{% endif %}
+    {{ field.label_tag }}&nbsp;
+    {% load help %}
+    {% show_help_text field.help_text %}
+    <br/>
+        {{ field.errors }}
+        {{ field|safe }}
+    <br/><br/>
+{% endfor %}
+ 

@@ -1,0 +1,23 @@
+<table class='statusTable' cellspacing='0'>
+    <tr>
+        <th>Status</th>
+        <th>
+        	Provisional Rating
+        	{% load help %}
+        	{% show_help_context 'provisional_rating' %}
+        </th>
+        <th>Registered Date</th>
+        <th>Submission Deadline</th>
+    </tr><tr>
+        <td>{{ active_submission.get_status }}</td>
+        <td>{{ active_submission.get_STARS_rating }}</td>
+        <td>{{ active_submission.date_registered }}</td>
+        <td>
+        	{{ active_submission.submission_deadline }}
+        	{% if is_admin %}
+        		<br/>
+        		<a href='{{ active_submission.get_submit_url }}'>Submit for Rating</a>
+        	{% endif %}
+    	</td>
+    </tr>
+</table>
