@@ -43,7 +43,6 @@ def institutions_active(request):
     """
     # Can change this to load Institutions once this ticket is resolved: http://code.djangoproject.com/ticket/7270
     institutions = InstitutionState.objects.select_related('institution', 'active_submission_set')\
-                                           .filter(institution__enabled=True)\
                                            .exclude(active_submission_set__status='r')
     
     columns = [{'sort_key':'name', 'sort_field':'institution__name', 'label':'Institution', 'img':None},
@@ -51,7 +50,7 @@ def institutions_active(request):
                {'sort_key':'date_registered', 'sort_field':'active_submission_set__date_registered', 'label':'Date Registered', 'img':None},
                {'sort_key':'submission_deadline', 'sort_field':'active_submission_set__submission_deadline', 'label':'Submission Deadline', 'img':None},
               ]
-    institutions, sort_columns = _get_sort_order(columns, request.GET.get('sort', None), institutions)
+    institutions, sort_columns = _get_sort_order(columns, request.GET.get('sort', 'name'), institutions)
                         
     template = "institutions/institution_list_active.html"
     return respond(request, template, {'institution_list':institutions, 
