@@ -7,6 +7,9 @@
 
 {% block center %}
       <h1>{{ category.label }}</h1>
+      {% if category.description %}
+         <p>{{ category.description|safe }}</p>
+      {% endif %}
       <ul id="article-list">
       {% for article in article_list %}
         <h3><table><tr>
