@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+
+{% block extra_head %}
+<style type="text/css">
+#leftContent{
+	background-color: #fff;
+	width: 670px;
+	border-right:270px solid #fff; /* The width and color of the rail */
+	margin-right:-270px; /* Hat tip to Ryan Brill */
+	float:left;
+}
+#rightRail{
+	background-color: #fff;
+	width:270px;
+	float:left;
+}
+div.homeFeature {
+	font-family: Garamond, serif;
+	color: #1b617f;
+	font-size: 1.8em;
+	margin: 0px 0px;
+	padding: 0px 0px;
+	font-weight: bold;
+}
+div.smallFeature {
+	border: 1px solid #848e2b;
+	background-color: #f6f6f0;
+	color: #404040;
+	float: left;
+	margin: 10px;
+	width: 205px;
+}
+div.smallFeature h3 {
+	color: #848e2b;
+	font-family: Garamond, serif;
+	font-size: 1.8em;
+	font-weight: bold;
+	border: 0px;
+	padding: 0px;
+	margin: 10px 15px;
+	text-transform: none;
+}
+div.smallFeature p {
+	margin: 10px;
+}
+div.smallFeature img {
+	padding: 0px 10px 10px 0px;
+}
+
+#rightRail h2 {
+	font-size: 1.6em;
+	font-family: Garamond, serif;
+	font-weight: bold;
+	border-width: 0px 0px 1px 0px;
+	border-color: #999999;
+	border-style: solid;
+	padding: 0px;
+	margin: 10px 0px;
+	color: #404040;
+}
+
+div.banner {
+	width: 650px;
+	height: 300px;
+	background-image: url('/media/static/images/home/cobblestone.jpg');
+	padding: 0px 0px;
+}
+
+div.bannerInner {
+	background-color: black;
+	color: white;
+	position: relative;
+	top: 30px;
+	margin: 0px 200px 0px 0px;
+	padding: 20px;
+	filter:alpha(opacity=70);
+	-moz-opacity:0.70;
+	-khtml-opacity: 0.70;
+	opacity: 0.70;
+}
+
+div.bannerInner h1 {
+	border: 0px;
+	color: white;
+	font-size: 1.8em;
+	margin: 0px;
+}
+
+div.bannerInner hr {
+	color: white;
+	background-color: white;
+	margin: 10px 0px;
+	height: 2px;
+}
+
+div.bannerInner a {
+	color: white;
+}
+
+</style> 
+{% endblock %}
+
+{% block content %}
+	<div id="leftContent"><div class='inner10'>
+		<div class='banner'>
+			<div class='bannerInner'>
+				<h1>Register for STARS!</h1>
+				<hr/>
+				Earn recognition for sustainability leadership by registering as a STARS Charter Participant today.
+				<hr/>
+				<table border='0' width='99%'>
+					<tr>
+						<td><a href='/register/'>Register for STARS</a></td>
+						<td align='right'><a href='/tool/'>Already Registered? Start Reporting!</a></td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		<hr class='blue'>
+		<div class='homeFeature'>
+			Welcome to STARS - a voluntary, self-reporting framework for guauging relative progress toward sustainability for colleges and universities, brought to you by AASHE.
+		</div>
+		<hr class='blue'>
+		<!--
+		<div class='smallFeature'>
+			<h3>About Stars</h3>
+			<p>
+			<img src='/media/static/images/home/star.png' align='left'/>
+				Some quick feature text. This is simply a test. Does it work?
+			</p>
+		</div>
+		<div class='smallFeature'>
+			<h3>About Stars</h3>
+			<p>
+			<img src='/media/static/images/home/star.png' align='left'/>
+				Some quick feature text. This is simply a test. Does it work?
+			</p>
+		</div>
+		<div class='smallFeature'>
+			<h3>About Stars</h3>
+			<p>
+			<img src='/media/static/images/home/star.png' align='left'/>
+				Some quick feature text. This is simply a test. Does it work?
+			</p>
+		</div>
+		-->
+	</div></div>
+	<div id="rightRail">
+		<h2>Latest Registrants</h2>
+		<span style='font-size: .9em;'>
+		De Anza College<br/>
+		State University of New York at Fredonia<br/>
+		Western Kentucky University<br/>
+		University of Northern Iowa<br/>
+		Western Illinois University<br/>
+		</span>
+		<br/>
+		<a href='/institutions/'>View All Participants</a>
+		<hr/>
+		<h2>The STARS Update</h2>
+		<a href='http://www.aashe.org/user/newsletters'><img src='/media/static/images/home/update_icon.png' align='right' style='margin: 5px;' /></a>The STARS Update is  a free, monthy e-news-letter. Your subscription  to the STARS Update will keep you up to speed on the latest STARS news, resources, announcements, participant highlights, events, and more.
+		<br/>
+		<button class='blue' type='button' onclick="document.location='http://www.aashe.org/user/newsletters';">Subscribe Today!</button>
+		<br/><i>Please note, to subscribe you need to have an <a href='http://www.aashe.org/user/register'>AASHE Account</a>.</i>
+		<hr/>
+	</div>
+{% endblock %}

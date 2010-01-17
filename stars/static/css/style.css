@@ -662,6 +662,15 @@ div.button_row button.disabled {
 	cursor: default;
 }
 
+button.blue {
+	background-color: #1b617f;
+	color: white;
+	border-width: 1px;
+	margin: 10px;
+	padding: 5px;
+	cursor: pointer;
+}
+
 form.submit_form label {
     font-weight: normal;
 }
@@ -693,7 +702,7 @@ div#flash_message {
 	top: 0px;
 	left: 225px;
 	background-color: #FFccaa;
-	border: 1px solid #1b617f;
+	border: 1px solid #404040;
 	border-top-width: 0px;
 	padding: 10px;
 	margin: 0px auto;

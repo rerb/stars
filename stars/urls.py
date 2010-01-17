@@ -9,6 +9,7 @@ handler500 = 'stars.apps.helpers.views.server_error'
 urlpatterns = patterns('',
     # tool:
     #(r'^$', 'stars.apps.tool.views.stars_home_page'),
+    (r'^$', 'django.views.generic.simple.direct_to_template', {'template': 'home.html'}),
     (r'^tool/$', 'stars.apps.tool.views.tool'),
     (r'^tool/credit-editor/', include('stars.apps.tool.credit_editor.urls')),
     (r'^tool/admin/', include('stars.apps.tool.admin.urls')),
