@@ -130,7 +130,7 @@ class Institution(models.Model):
             Searches stars_member_list.members for the institution
             returns True if this institution exists
         """        
-        if _query_member_list("organization_id = '%s' AND is_member = TRUE"%self.aashe_id):
+        if _query_member_list("account_num = '%s' AND is_member = 1"%self.aashe_id):
             return True
         return False
     
