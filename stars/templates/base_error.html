@@ -2,9 +2,7 @@
 
 {% block title %} | Error {% endblock %}
 
-{% block content_top %}
-  <div id='column_container'>
-    <div id='center'>
+{% block content %}
       {% block error_message %}
         <div class="error">
           <h2>Sorry!  An error occurred while processing your request.</h2>
@@ -20,7 +18,5 @@
          <a href="mailto:webmaster@aashe.org?subject=STARS Tracking Tool">AASHE STARS Team</a> 
             with a detailed description of the problem you encountered.
       </p>
-    </div>
-  </div>
 
 {% endblock %}
