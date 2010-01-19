@@ -5,7 +5,7 @@
 
 from settings import *
 
-HIDE_REPORTING_TOOL = True
+HIDE_REPORTING_TOOL = False
 
 DATABASE_ENGINE = 'mysql'
 DATABASE_NAME = 'stars_production'
