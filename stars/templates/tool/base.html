@@ -6,6 +6,7 @@
 {% endblock %}
 
 {% block crumbs %}
+	<a href='/'>Home</a> &gt;
     {% if user.current_inst %}
         <a href='/tool/'>{{ user.current_inst }}</a>
     {% else %}
