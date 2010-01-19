@@ -565,4 +565,5 @@ class SubmitSubmissionSetForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(SubmitSubmissionSetForm, self).__init__(*args, **kwargs)
         self.fields['presidents_letter'].required = True
+        self.fields['submission_boundary'].required = True
         self.fields['submission_boundary'].label = "Please describe the boundaries of the institution's STARS submission.  If any institution-owned, leased, or operated buildings or other holdings are omitted, briefly explain why."

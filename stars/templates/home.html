@@ -14,6 +14,7 @@
 	width:270px;
 	float:left;
 }
+
 div.homeFeature {
 	font-family: Garamond, serif;
 	color: #1b617f;
@@ -27,13 +28,14 @@ div.smallFeature {
 	background-color: #f6f6f0;
 	color: #404040;
 	float: left;
-	margin: 10px;
-	width: 205px;
+	margin: 5px;
+	width: 204px;
+	font-size: .9em;
 }
 div.smallFeature h3 {
 	color: #848e2b;
 	font-family: Garamond, serif;
-	font-size: 1.8em;
+	font-size: 1.7em;
 	font-weight: bold;
 	border: 0px;
 	padding: 0px;
@@ -44,7 +46,7 @@ div.smallFeature p {
 	margin: 10px;
 }
 div.smallFeature img {
-	padding: 0px 10px 10px 0px;
+	padding: 0px 5px 4px 0px;
 }
 
 #rightRail h2 {
@@ -85,6 +87,10 @@ div.bannerInner h1 {
 	color: white;
 	font-size: 1.8em;
 	margin: 0px;
+	filter:alpha(opacity=100);
+	-moz-opacity: 1.0;
+	-khtml-opacity: 1.0;
+	opacity: 1.0;
 }
 
 div.bannerInner hr {
@@ -119,32 +125,30 @@ div.bannerInner a {
 		</div>
 		<hr class='blue'>
 		<div class='homeFeature'>
-			Welcome to STARS - a voluntary, self-reporting framework for guauging relative progress toward sustainability for colleges and universities, brought to you by AASHE.
+			Welcome to STARS - a transparent, self-reporting framework for colleges and universities to gauge relative progress toward sustainability.  STARS was developed by AASHE with broad participation from the higher education community. 
 		</div>
 		<hr class='blue'>
-		<!--
 		<div class='smallFeature'>
 			<h3>About Stars</h3>
 			<p>
 			<img src='/media/static/images/home/star.png' align='left'/>
-				Some quick feature text. This is simply a test. Does it work?
+				<a href='/pages/about'>Learn more</a> about STARS, including program goals and history, participation guidelines, FAQs, and more. 
 			</p>
 		</div>
 		<div class='smallFeature'>
-			<h3>About Stars</h3>
+			<h3>Founding Partners</h3>
 			<p>
-			<img src='/media/static/images/home/star.png' align='left'/>
-				Some quick feature text. This is simply a test. Does it work?
+			<img src='/media/static/images/home/founding_partners.png' align='left'/>
+				AASHE thanks the STARS <a href='/pages/governance/3978/'>Founding Partner Organizations</a> for their contributions to the development and promotion of the rating system. 
 			</p>
 		</div>
 		<div class='smallFeature'>
-			<h3>About Stars</h3>
+			<h3>Credit Details</h3>
 			<p>
-			<img src='/media/static/images/home/star.png' align='left'/>
-				Some quick feature text. This is simply a test. Does it work?
+			<img src='/media/static/images/home/credits.png' align='left'/>
+			To view the STARS 1.0 credits, download the <a href='/pages/about/3993/'>Credit Checklist or Technical Manual</a> (Jan. 2010).
 			</p>
 		</div>
-		-->
 	</div></div>
 	<div id="rightRail">
 		<h2>Latest Registrants</h2>
@@ -160,10 +164,17 @@ div.bannerInner a {
 		<hr/>
 		<h2>The STARS Update</h2>
 		<a href='http://www.aashe.org/user/newsletters'><img src='/media/static/images/home/update_icon.png' align='right' style='margin: 5px;' /></a>
-		The STARS Update is  a free, monthy e-newsletter. Your subscription  to the STARS Update will keep you up to speed on the latest STARS news, resources, announcements, participant highlights, events, and more.
+		STARS Update is a free, monthly e-newsletter. Your subscription will keep you up to speed on the latest STARS news, resources, participant highlights, events, and more.
 		<br/>
 		<button class='blue' type='button' onclick="document.location='http://www.aashe.org/user/newsletters';">Subscribe Today!</button>
-		<br/><i>Please note, to subscribe you need to have an <a href='http://www.aashe.org/user/register'>AASHE Account</a>.</i>
+		<br/><i>Please note: to subscribe you must have an <a href='http://www.aashe.org/user/register'>AASHE Account</a>.</i>
+		<hr/>
+		<h2>Highlights</h2>
+		<a href='/webinar/'>January webinar</a><br/>
+		Measuring Campus Sustainability: Reaching for the STARS (1.19.10)<br/><br/>
+		<a href='/pages/news-events/'>February webinar</a><br/>
+		Reporting Tool 101 (2.17.10)<br/><br/>
+		<a href='http://www.aashe.org/highlights/jobs/stars-technical-coordinator'>AASHE is hiring a STARS Technical Development Coordinator</a><br/>
 		<hr/>
 	</div>
 {% endblock %}

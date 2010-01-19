@@ -80,6 +80,10 @@ hr.blue {
 	height: 4px;
 }
 
+dt {
+	font-weight: bold;
+}
+
 /* CSS Columns, thanks to A List Apart: http://www.alistapart.com/articles/multicolumnlayouts/ */
 
 #container, #footer {
