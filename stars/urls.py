@@ -22,7 +22,7 @@ urlpatterns = patterns('',
     (r'^auth/', include('stars.apps.auth.urls')),
 
     # admin
-    (r'^admin/(.*)', admin.site.root),
+    (r'^_ad/(.*)', admin.site.root),
     
     # institutions
     (r'^institutions/', include('stars.apps.institutions.urls')),
