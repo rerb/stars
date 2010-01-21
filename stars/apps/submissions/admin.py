@@ -8,7 +8,8 @@ class SubmissionSetAdmin(admin.ModelAdmin):
 admin.site.register(SubmissionSet, SubmissionSetAdmin)
 
 class PaymentAdmin(admin.ModelAdmin):
-    pass
+    list_filter = ("type",)
+    list_display = ("institution", "amount", "date", "user", "type",)
 admin.site.register(Payment, PaymentAdmin)
 
 class CategorySubmissionAdmin(admin.ModelAdmin):
