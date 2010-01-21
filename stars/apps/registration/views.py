@@ -182,6 +182,10 @@ def register_institution(user, institution, payment_type, price, payment_dict):
     submissionset = SubmissionSet(creditset=creditset, institution=institution, date_registered=datetime.today(), submission_deadline=deadline, registering_user=user, status='ps')
     submissionset.save()
     
+    # Add the institution state so it has an active submission.
+    iss = InstitutionState(institution=institution, active_submission_set=submissionset)
+    iss.save()
+    
     # Save Payment
     payment = Payment(submissionset=submissionset, date=datetime.today(), amount=price, user=user, reason='reg', type=payment_type, confirmation="none")
     payment.save()
