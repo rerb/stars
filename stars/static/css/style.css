@@ -801,3 +801,21 @@ div.tos {
 	padding:10px;
 	border: 1px solid #404040;
 }
+
+div.documentationField {
+	margin: 0px 0px 10px 0px;
+	padding: 10px;
+/*	border: 1px solid #e5e5e5;
+	background-color: #f0f0f0; */
+}
+
+span.help_text {
+	display: block;
+	font-style: italic;
+	font-size: .9em;
+	padding-left: 20px;
+}
+
+fieldset {
+	border: 1px solid #aaaaaa;
+}
