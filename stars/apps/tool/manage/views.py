@@ -38,7 +38,7 @@ def institution_payments(request):
     current_inst = request.user.current_inst
     active_submission = current_inst.get_active_submission()
     
-    payment_list = Payment.objects.filter(submissionset__institution=current_inst).order_by('-date')
+    payment_list = Payment.objects.filter(submissionset__institution=current_inst).exclude(type='later').order_by('-date')
 
     context = {'payment_list': payment_list, 
                'active_submission':active_submission,
