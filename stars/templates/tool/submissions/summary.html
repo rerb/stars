@@ -16,8 +16,13 @@
 			<a name='ec_{{ cat.category.id }}'></a>
 			<h2>
 			    <span class='provScore'>
-			        <div class='provScorePercent'>{{ cat.get_STARS_score|floatformat:2 }}%</div>
-			        <span class='provScoreCaption'>Provisional Score</span>
+			   		{% ifnotequal cat.category.title 'Innovation' %}
+			        	<div class='provScorePercent'>{{ cat.get_STARS_score|floatformat:2 }}%</div>
+			        	<span class='provScoreCaption'>Provisional Score</span>
+			        {% else %}
+			        	<div class='provScorePercent'>{{ cat.get_claimed_score|floatformat:2 }}</div>
+			            <span class='provScoreCaption'>Points Claimed</span>
+			        {% endifnotequal %}
 			    </span>
 			    {% show_progress_icon cat %}
 			    <img src='/media/static/images/collapse_big.gif' alt='+' onclick='expandCollapse(this,false);' id='ec_{{ cat.category.id }}' class='collapseExpand'/>
