@@ -168,6 +168,7 @@ def register_institution(user, institution, payment_type, price, payment_dict):
     """
     
     # Save Institution
+    institution.enabled = True
     institution.save()
     
     # Create Admin User

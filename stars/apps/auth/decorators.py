@@ -27,6 +27,9 @@ def user_has_tool(f):
     """
     @wraps(f)
     def wrap(request, *args, **kwargs):
+        problem_with_account = _get_account_problem_response(request)
+        if problem_with_account:
+            return problem_with_account
         if request.user.has_perm('tool'):
             return f(request, *args, **kwargs)            
         elif not request.user.is_authenticated():
@@ -101,7 +104,10 @@ def _get_account_problem_response(request):
             return _redirect_to_tool(request, "You need to select an institution before proceeding")
         else: # user has no accounts (also shouldn't really happen...
             raise PermissionDenied("Your account is not associated with an institution.")
-    
+    else:
+        if not current_inst.enabled:
+            raise PermissionDenied("This institution is not enabled.")
+            
     # assert user has a valid account with their current institution
     return None
 
@@ -124,6 +130,10 @@ def _get_active_submission_problem_response(request):
             return HttpResponseRedirect(settings.MANAGE_SUBMISSION_SETS_URL)
         else:
             raise PermissionDenied("%s has no active submissions."%current_inst)
+    else:
+        if not active_submission.is_enabled():
+            raise PermissionDenied("This submission hasn't been enabled. It will be available once AASHE receives payment.")
+    
  
     assert active_submission
     return None

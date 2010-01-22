@@ -63,6 +63,14 @@ class Institution(models.Model):
             return self.get_submissions(include_unrated)[0]
         except:
             return None
+        
+    def get_payments(self):
+        """ Return the latest payment for this institution """
+        payments = []
+        for ss in self.submissionset_set.all():
+            for p in ss.payment_set.all():
+                payments.append(p)
+        return payments
                     
     def get_active_submission(self):
         """ Returns the current SubmissionSet for this institution """

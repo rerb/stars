@@ -53,7 +53,9 @@
             {% endif %}
             <td align='center'>
               <a href='{{ institution.get_admin_payments_url }}' title='Manage payments for this institution'>
-                <img src='/media/static/images/money.png' >
+              	{% for payment in institution.get_payments %}
+                	{% show_payment_type_icon payment %}
+                {% endfor %}
               </a>
             </td>
           </tr>

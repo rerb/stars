@@ -6,6 +6,7 @@ from settings import *
 
 HIDE_REPORTING_TOOL = False
 DEBUG = True
+TEMPLATE_DEBUG = DEBUG
 
 # no emails during local dev
 ADMINS = ('ben@aashe.org',)
