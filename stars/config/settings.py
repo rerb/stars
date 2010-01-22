@@ -46,6 +46,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'stars.apps.auth.maintenancemode.middleware.MaintenanceModeMiddleware',
+    'django.contrib.redirects.middleware.RedirectFallbackMiddleware',
     'django.middleware.doc.XViewMiddleware',
     'stars.apps.auth.middleware.AuthenticationMiddleware',  # must come after django.contrib.auth.middleware
     'stars.apps.tool.admin.watchdog.middleware.WatchdogMiddleware',  # must come before flatpage so it doesn't log flatpages as 404's
@@ -87,6 +88,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
 	'django.contrib.admin',
+    'django.contrib.redirects',
     'django.contrib.flatpages',
 	'stars.apps.credits',
 	'stars.apps.tool.credit_editor',
