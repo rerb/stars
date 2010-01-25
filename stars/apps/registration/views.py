@@ -192,9 +192,10 @@ def register_institution(user, institution, payment_type, price, payment_dict):
     
     # Send Confirmation Emails
     
-    cc_list = ['stars@aashe.org', 'allison@aashe.org']
+    cc_list = ['stars@aashe.org',]
     if user.email != institution.contact_email:
         cc_list.append(user.email)
+    allison = ['allison@aashe.org',]
     
     # Primary Contact
     subject = "STARS Registration Success: %s" % institution
@@ -210,7 +211,7 @@ def register_institution(user, institution, payment_type, price, payment_dict):
     send_mail(  subject,
                 message,
                 settings.EMAIL_HOST_USER,
-                email_to + cc_list,
+                email_to + cc_list + allison,
                 fail_silently=False
                 )
                 
