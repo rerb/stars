@@ -150,7 +150,7 @@ class Institution(models.Model):
             Returns the institutions or None
         """
         # Get institution data from aashedata01
-        result = _query_member_list("organization_id = '%s'"%aashe_id)
+        result = _query_member_list("account_num = '%s'"%aashe_id)
         
         institution = None
         if len(result): # If the institution is an active member...
@@ -159,11 +159,12 @@ class Institution(models.Model):
                 institution = Institution.objects.get(aashe_id=aashe_id)
             except Institution.DoesNotExist:  # ... if not, create it
                 institution = Institution(aashe_id=result_institution['id'], name=result_institution['name'], enabled=False)
+                # These institutions are disabled because they won't have been created through registration...
                 institution.save()
-        else: # institution is not an aashe member...
+        else: # institution is not in our ISS DB
             try: # disable non-member institution if it's saved locally
                 institution = Institution.objects.get(aashe_id=aashe_id)
-                institution.enabled = False
+                # institution.enabled = False
                 institution.save()
             except Institution.DoesNotExist:  # how did we get here?
                 pass
