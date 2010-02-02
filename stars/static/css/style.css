@@ -809,7 +809,7 @@ div.documentationField {
 	background-color: #f0f0f0; */
 }
 
-span.help_text {
+span.help_text, div.help_text {
 	display: block;
 	font-style: italic;
 	font-size: .9em;
