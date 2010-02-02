@@ -7,7 +7,7 @@
         <div class="error">
           <h2>Sorry!  An error occurred while processing your request.</h2>
           {% if user_message %}
-              <p> {{ user_message }} </p>
+              <p> {% autoescape off %}{{ user_message }}{% endautoescape %} </p>
           {% endif %}
         </div>
       {% endblock %}
