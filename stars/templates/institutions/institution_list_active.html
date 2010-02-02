@@ -8,7 +8,7 @@
       <table id="institution_list" class='greyTable'>
         <tr>
           {% for col in sort_columns %}
-            <th><a href='?sort={{ col.sort_key }}' title='sort'>{{ col.label }}</a> {% if col.img %}<img src='/media/static/images/{{ col.img }}'/>{% endif %}</th>
+            <th><a href='?sort={{ col.sort_key }}' title='sort'>{{ col.label }}</a> {% if col.img %}<img src='/media/static/images/{{ col.img }}' alt='^'/>{% endif %}</th>
           {% endfor %}
         </tr>
         {% comment %}The 'institution' here is actually an InstitutionState object{% endcomment %}
