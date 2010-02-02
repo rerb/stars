@@ -5,11 +5,12 @@
 {% block content %}
       {% block error_message %}
         <h2>{% block message_title %}Sorry!  An error occurred while processing your request.{% endblock %}</h2>
-        <div class="error">
+        
           {% if user_message %}
-             {% autoescape off %}{% block message_content %}<p>{{ user_message }}</p>{% endblock %}{% endautoescape %}
+          	<div class="error">
+             	{% autoescape off %}{% block message_content %}<p>{{ user_message }}</p>{% endblock %}{% endautoescape %}
+        	</div>
           {% endif %}
-        </div>
       {% endblock %}
     
       <p>Please use the menu system on this page to navigate to the page you were looking for.</p>
