@@ -2,11 +2,4 @@
 
 {% block title %} | Page Not Found {% endblock %}
 
-{% block error_message %}
-  <div class="error">
-        <h2>The requested page was not found.</h2>
-      {% if user_message %}
-          <p> {{ user_message }} </p>
-      {% endif %}
-  </div>
-{% endblock %}
+{% block message_title %}The requested page was not found.{% endblock %}

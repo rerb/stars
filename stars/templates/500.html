@@ -2,14 +2,12 @@
 
 {% block title %} | Internal Server Error {% endblock %}
 
-{% block error_message %}
-  <div class="error">
-      <h2>Sorry!  Your request could not be completed...</h2>
-      {% if user_message %}
-          <p> {{ user_message }} </p>
-      {% endif %}
-  </div>
-   {% if db_error %}
+{% block message_title %}Sorry!  Your request could not be completed...{% endblock %}
+{% block message_content %}
+	{% if user_message %}
+    	<p> {{ user_message }} </p>
+    {% endif %}
+   	{% if db_error %}
         <b>The error occurred while connecting to the STARS Database.</b> 
         <p>This service may be temporarily unavailable.  Please try back later.</p> 
     {% endif %}

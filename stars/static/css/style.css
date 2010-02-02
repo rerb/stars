@@ -564,7 +564,7 @@ div.tabContent {
     -webkit-border-radius: 10px;
 }
 
-div.creditContent, div.greyBox {
+div.creditContent, div.greyBox, div.error {
     border: 1px solid #999999;
     background-color: #eeeeee;
     padding: 20px;

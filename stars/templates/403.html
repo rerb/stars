@@ -2,12 +2,10 @@
 
 {% block title %} | Permission Denied {% endblock %}
 
-{% block error_message %}
-  <div class="error">
-      <h2>You do not have permission to access this page...</h2>
-      {% if user_message %}
-          <p><b> {{ user_message }} </b></p>
-      {% endif %}
-  </div>
-  <p>Contact your STARS administrator to ensure you have the right permissions for this institution.</p>
+{% block message_title %}You do not have permission to access this page...{% endblock %}
+{% block message_content %}
+	{% if user_message %}
+    	<p>{{ user_message }}</p>
+	{% endif %}
+  	<p>Contact your STARS administrator to ensure you have the right permissions for this institution.</p>
 {% endblock %}
