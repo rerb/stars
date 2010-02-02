@@ -103,7 +103,10 @@ def _get_account_problem_response(request):
         if request.user.account_list: # user has accounts, just none selected (this shouldn't happen, but just in case...)
             return _redirect_to_tool(request, "You need to select an institution before proceeding")
         else: # user has no accounts (also shouldn't really happen...
-            raise PermissionDenied("Your account is not associated with an institution.")
+            error_msg = """Your AASHE Account is not verified to access the STARS Reporting Tool.  Only institutions that are registered as STARS Charter Participants are able to access the Reporting Tool.  You may be receiving this message because you have not been listed as a user by the account's administrator.  The administrator is likely to be the person who first registered for STARS or your institution's STARS Liaison.  Please contact this person so they may list you as a user in the Reporting Tool and you may gain access.  
+<br/><br/>
+To add users, once the administrator is logged into the Reporting Tool, simply choose the "Manage Institution" link and click on the "Users" tab."""
+            raise PermissionDenied(error_msg)
     else:
         if not current_inst.enabled:
             raise PermissionDenied("This institution is not enabled.")
