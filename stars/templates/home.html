@@ -153,11 +153,8 @@ div.bannerInner a {
 	<div id="rightRail">
 		<h2>Latest Registrants</h2>
 		<span style='font-size: .9em;'>
-		De Anza College<br/>
-		State University of New York at Fredonia<br/>
-		Western Kentucky University<br/>
-		University of Northern Iowa<br/>
-		Western Illinois University<br/>
+			{% load institution_lists %}
+			{% show_latest_registrants %}
 		</span>
 		<br/>
 		<a href='/institutions/'>View All Participants</a>
