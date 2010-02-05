@@ -51,7 +51,7 @@
 			            <tr>
 			                <th>Credit</th>
 			                <th>Status</th>
-			                <th>Points Claimed</th>
+			                <th>Points</th>
 			            </tr>
 			            {% for c in sub.creditusersubmission_set.all %}
 				            <tr class='{% cycle 'even' 'odd' %}' {% ifchanged c.credit.type %}style="border-top-width: 1px;"{% endifchanged %}>
