@@ -13,4 +13,5 @@ urlpatterns = patterns(
     (r'^submissionsets/add/$', 'add_submissionset'),
     (r'^submissionsets/(?P<set_id>\d+)/$', 'edit_submissionset'),
     (r'^submissionsets/(?P<set_id>\d+)/activate/$', 'activate_submissionset'),
+    (r'^submissionsets/(?P<set_id>\d+)/boundary/$', 'boundary'),
 )

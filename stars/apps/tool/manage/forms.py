@@ -59,7 +59,7 @@ class AdminSubmissionSetForm(ModelForm):
     
     class Meta:
         model = SubmissionSet
-        exclude = ['institution']
+        exclude = ['institution', 'submission_boundary', 'presidents_letter','reporter_status']
         
 #    @staticmethod
     def form_name():
@@ -139,4 +139,10 @@ class DisabledAccountForm(AccountForm):
         self.fields['email'].widget.attrs.update({"disabled":"disabled"})
         self.fields['userlevel'].widget.attrs={"disabled":"disabled"}
        
-    
+class BoundaryForm(ModelForm):
+    """
+        This is a form for the Institutional Boundary
+    """    
+    class Meta:
+        model = SubmissionSet
+        fields = ['submission_boundary']

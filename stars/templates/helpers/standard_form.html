@@ -4,7 +4,7 @@
 {% for field in object_form %}
   <tr>
     <th>
-        {{ field.label_tag }} {% if field.field.required %}<span class='required_note' title='required'>*</span>{% endif %}:
+        {{ field.label_tag }}{% if field.field.required %} <span class='required_note' title='required'>*</span>{% endif %}:
     </th>
     <td>
         {{ field.errors }}

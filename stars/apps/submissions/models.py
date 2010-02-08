@@ -48,7 +48,7 @@ class SubmissionSet(models.Model):
         unique_together = ("institution", "creditset")  # an institution can only register once for a given creditset.
 
     def __unicode__(self):
-        return unicode('%s (%s)'%(self.institution, self.creditset) )
+        return unicode('%s'%self.creditset )
     
     def is_enabled(self):
         for payment in self.payment_set.all():

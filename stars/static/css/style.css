@@ -645,7 +645,7 @@ div.button_row {
 	text-align: center;	
 }
 
-div.button_row button {
+div.button_row button, a.button {
 	background-color: #848e2b;
 	color: white;
 	border: 0px;
@@ -655,6 +655,7 @@ div.button_row button {
 	cursor: pointer;
     -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
+    text-align: center;
 }
 
 div.button_row button.enabled {
@@ -664,6 +665,18 @@ div.button_row button.enabled {
 div.button_row button.disabled {
 	background-color: #dddddd;
 	cursor: default;
+}
+
+a.button {
+	font-size: 1em;
+	padding: 3px 5px;
+	text-decoration: none;
+	margin: 4px;
+	display: block;
+}
+
+a.button:hover {
+	background-color: #1b617f;	
 }
 
 button.blue {

@@ -12,6 +12,7 @@
                 {% load help %}
                 {% show_help_context 'active_set' %}
             </th>
+            <th>Actions</th>
         </tr>
         {% for set in user.current_inst.submissionset_set.all %}
         <tr class='{% cycle 'odd' 'even' %}'>
@@ -20,11 +21,6 @@
                     <a href='{{ set.get_manage_url }}'>{{ set }}</a>
                 {% else %}
                     {{ set }}
-                {% endif %}
-                {% if is_admin %}
-                	{% ifequal set active_set %}{% if not set.was_submitted %}
-                		<a href='{{ set.get_submit_url }}'>Submit for Rating</a>
-                	{% endif %}{% endifequal %}
                 {% endif %}
             </td>
             <td>{{ set.date_registered }}</td>
@@ -39,10 +35,18 @@
                     {% endif %}{% endifequal %}
                 {% endifequal %}
             </td>
+            <td style='text-align: left'>
+                {% if is_admin %}
+                	{% ifequal set active_set %}{% if not set.was_submitted %}
+                		<a href='{{ set.get_submit_url }}' class='button'>Submit for Rating</a>
+                	{% endif %}{% endifequal %}
+                {% endif %}
+                <a href='{{ set.get_manage_url }}boundary/' class='button'>Edit Boundary</a>
+            </td>
         </tr>
         {% endfor %}
         <tr>
-            <td colspan='5' style='text-align: center'>
+            <td colspan='10' style='text-align: center;border-top: 1px solid #aaa;'>
                 {% if not user.current_inst.starsaccount_set.all %}
                     <p>You must <a href='/tool/manage/users/'>add</a> at least one user to this institution before you can create a submission set.</p>
                 {% else %}

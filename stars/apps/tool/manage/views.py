@@ -232,3 +232,20 @@ def activate_submissionset(request, set_id):
     current_inst.set_active_submission(submission_set)
     
     return HttpResponseRedirect(settings.MANAGE_SUBMISSION_SETS_URL)
+
+@user_is_inst_admin
+def boundary(request, set_id):
+    """ Displays the Institution Boundary edit form """
+    
+    current_inst = request.user.current_inst
+    submission_set = get_object_or_404(SubmissionSet, id=set_id)
+
+    ObjectForm = BoundaryForm
+    
+    object_form, saved = form_helpers.basic_save_form(request, submission_set, submission_set.id, ObjectForm)
+
+    template = 'tool/manage/boundary.html'
+    context = {
+        "object_form": object_form,
+    }
+    return respond(request, template, context)
