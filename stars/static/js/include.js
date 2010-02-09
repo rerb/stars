@@ -94,8 +94,8 @@ function show_tool_tip(tooltip) {
         UnTip();
     }
     else {
-        body = "<img onclick=\'UnTip();\' title=\'close\' class=\'close\' src=\'/media/static/images/cross.png\'/>"
-               + tooltip;
+        body = "<span class='unTipIcon'><img onclick=\'UnTip();\' title=\'close\' class=\'close\' src=\'/media/static/images/grey_cross.png\'/></span><div class='innerTip'>"
+               + tooltip + "</div>";
         Tip(body, WIDTH, -350, STICKY, true);
     }
 }

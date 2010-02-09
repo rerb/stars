@@ -832,3 +832,27 @@ span.help_text, div.help_text {
 fieldset {
 	border: 1px solid #aaaaaa;
 }
+
+div.innerTip {
+	padding: 5px 10px 10px 10px;
+}
+
+span.unTipIcon {
+	display: block;
+	text-align: right;
+	padding: 2px 2px 0px 0px;
+	margin: 0px;
+}
+
+span.unTipIcon img {
+	border: 1px solid #bbbbbb;
+	cursor: pointer;
+}
+
+span.unTipIcon img:hover {
+	border: 1px solid #888888;
+}
+
+img.tip {
+	cursor: pointer;
+}

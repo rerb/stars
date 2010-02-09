@@ -1,6 +1,6 @@
     {% if help_text %}
         {% if tooltip %}
-            <img src='/media/static/images/help.png' onclick="show_tool_tip('{{ help_text }}');" />
+            <img src='/media/static/images/help.png' onclick="show_tool_tip('{{ help_text }}');" class='tip' />
         {% else %}
             <span class='help_text'> {{ help_text }} </span>
         {% endif %}

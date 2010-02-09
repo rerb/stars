@@ -56,9 +56,9 @@ var TagsToTip	= true		// false or true - if true, HTML elements to be converted 
 // Example: onmouseover="Tip('Tooltip text', LEFT, true, BGCOLOR, '#FF9900', FADEIN, 400)"
 
 config. Above			= false		// false or true - tooltip above mousepointer
-config. BgColor			= '#E2E7FF'	// Background colour (HTML colour value, in quotes)
+config. BgColor			= '#d5e2f1'	// Background colour (HTML colour value, in quotes)
 config. BgImg			= ''		// Path to background image, none if empty string ''
-config. BorderColor		= '#003099'
+config. BorderColor		= '#aaaaaa'
 config. BorderStyle		= 'solid'	// Any permitted CSS value, but I recommend 'solid', 'dotted' or 'dashed'
 config. BorderWidth		= 1
 config. CenterMouse		= false		// false or true - center the tip horizontally below (or above) the mousepointer
@@ -66,7 +66,7 @@ config. ClickClose		= false		// false or true - close tooltip if the user clicks
 config. ClickSticky		= true		// false or true - make tooltip sticky if user left-clicks on the hovered element while the tooltip is active
 config. CloseBtn		= false		// false or true - closebutton in titlebar
 config. CloseBtnColors	= ['','','','']// ['#990000', '#FFFFFF', '#DD3333', '#FFFFFF']	// [Background, text, hovered background, hovered text] - use empty strings '' to inherit title colours
-config. CloseBtnText	= '<img src="/media/static/images/cross.png" title="close">'	// Close button text (may also be an image tag)
+config. CloseBtnText	= '<img src="/media/static/images/cross.png" title="close"><br/>'	// Close button text (may also be an image tag)
 config. CopyContent		= true		// When converting a HTML element to a tooltip, copy only the element's content, rather than converting the element by its own
 config. Delay			= 400		// Time span in ms until tooltip shows up
 config. Duration		= 0			// Time span in ms after which the tooltip disappears; 0 for infinite duration, < 0 for delay in ms _after_ the onmouseout until the tooltip disappears

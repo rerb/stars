@@ -32,7 +32,7 @@
                     				<ul>
                     					{% for c in sub.get_tier2_credits %}
                     						<li><a {% ifequal c credit %}id='currentSelection'{% endifequal %}
-                    							href='{{ c.get_submit_url }}'>{{ c.title }}</a></li>
+                    							href='{{ c.get_submit_url }}'>{{ c }}</a></li>
                     					{% endfor %}
                     				</ul>
                     			</li>
