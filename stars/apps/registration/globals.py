@@ -23,9 +23,9 @@ RECEIPT_EMAIL_TEXT = """{% autoescape off %}Thank you for registering as a STARS
 
 Your registration has been received and is being processed by AASHE.  Your receipt is below.  
 
-At this point, we encourage you to review the STARS 1.0 Early Release Technical Manual http://www.aashe.org/stars/early-release. Please note that minor updates will be made to this document before the January release, such as providing additional examples and support text.  However, no changes will be made to the credits, so you can immediately begin collecting the required information.  
+You may now access the STARS Reporting Tool.  For instructions on getting started with the Reporting Tool, visit: http://stars.aashe.org/pages/help/3900/
 
-Access to the STARS Reporting Tool will be available in January and you may begin submitting your collected data at that time.  To view a list of the reporting fields associated with each credit, please consult the Technical Manual.  
+To view details about each credit, including the reporting fields associated with each credit, please consult the STARS 1.0 Technical Manual (http://stars.aashe.org/pages/about/3993/).
  
 Please check the STARS website (www.aashe.org/stars) for updates and resources.  Feel free to email stars@aashe.org with any questions.
 
@@ -53,9 +53,9 @@ PAY_LATER_EMAIL_TEXT="""{% autoescape off %}Thank you for registering as a STARS
 
 Your registration has been received and is being processed by AASHE.  Your receipt is below.  
 
-At this point, we encourage you to review the STARS 1.0 Early Release Technical Manual (http://www.aashe.org/stars/early-release). Please note that minor updates, such as providing additional examples and support text, will be made to this document before the January release.  However, no changes will be made to the credits, so you can immediately begin collecting the required information.  
+Access to the STARS Reporting Tool will be available when we receive your registration payment.
 
-Access to the STARS Reporting Tool will be available in January and you may begin submitting your collected data at that time.  To view a list of the reporting fields associated with each credit, please consult the Technical Manual.  
+For details about each credit, including a list of the reporting fields associated with each credit, please consult the STARS 1.0 Technical Manual (http://stars.aashe.org/pages/about/3993/).
 
 Please check the STARS website (www.aashe.org/stars) for updates and resources and email stars@aashe.org with any questions.
  
@@ -88,7 +88,6 @@ If you would like to pay by Credit Card, please call our main office at:
 
 (859) 258-2551
 
-Please note that payment is due by January 31st to qualify for the early registration discount.
 
 Thank you!
 
