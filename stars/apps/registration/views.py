@@ -195,7 +195,7 @@ def register_institution(user, institution, payment_type, price, payment_dict):
     cc_list = ['stars@aashe.org',]
     if user.email != institution.contact_email:
         cc_list.append(user.email)
-    allison = ['allison@aashe.org',]
+    allison = ['allison@aashe.org','margueritte.williams@aashe.org']
     
     # Primary Contact
     subject = "STARS Registration Success: %s" % institution
