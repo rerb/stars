@@ -612,7 +612,7 @@ form.generalForm table th {
 	padding-right: 15px;
 }
 
-form span.required_note,
+span.required_note,
 form span.conditionally_required_note {
     font-style: italic;
     padding: 0px 0px;
@@ -621,7 +621,12 @@ form span.conditionally_required_note {
     font-size: 1.0em;
 }
 
-form span.required_note {
+div.required {
+    font-size: .9em;
+    padding: 10px;
+}
+
+span.required_note {
     color: #990000;
 }
 form span.conditionally_required_note {
@@ -650,6 +655,7 @@ div.button_row button, a.button {
 	color: white;
 	border: 0px;
 	padding: 5px 20px;
+	margin: 0px 10px;
 	font-family: Garamond, serif;
 	font-size: 1.5em;
 	cursor: pointer;

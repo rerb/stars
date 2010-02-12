@@ -6,7 +6,7 @@ from datetime import datetime
 from stars.apps.auth.utils import respond
 from stars.apps.auth.decorators import user_can_submit, user_is_inst_admin
 from stars.apps.submissions.models import *
-from stars.apps.tool.submissions.forms import SubmitSubmissionSetForm
+from stars.apps.tool.submissions.forms import *
 from stars.apps.credits.models import *
 from stars.apps.helpers.forms.form_helpers import basic_save_form, basic_save_new_form
 from stars.apps.tool.submissions.forms import CreditUserSubmissionForm, CreditUserSubmissionNotesForm, ResponsiblePartyForm
@@ -42,17 +42,58 @@ def summary(request):
     return respond(request, "tool/submissions/summary.html", context)
 
 @user_is_inst_admin
-def submit_for_rating(request):
+def submit_confirm(request):
     """
         Provides a form for users to submit their submissionset
     """
     submission = _get_active_submission(request)
     if not submission:
+        flashMessage.send("No active submission found to submit.", flashMessage.NOTICE)
         return HttpResponseRedirect("/tool/manage/submissionsets/")
+        
+    # Find all Credits listed as "In Progress"
+    credit_list = [] 
+    for cat in submission.categorysubmission_set.all():
+            for sub in cat.subcategorysubmission_set.all():
+                for c in sub.creditusersubmission_set.all():
+                    if c.submission_status == 'p' or c.submission_status == 'ns':
+                        credit_list.append(c)
     
-    form = SubmitSubmissionSetForm(instance=submission)
+    form = BoundaryForm(instance=submission)
     if request.method == 'POST':
-        form = SubmitSubmissionSetForm(request.POST, request.FILES, instance=submission)
+        form = BoundaryForm(request.POST, request.FILES, instance=submission)
+        if form.is_valid():
+            submission = form.save()
+            return HttpResponseRedirect("/tool/submissions/submit/finalize/")
+        else:
+            flashMessage.send("Please correct the errors below.", flashMessage.ERROR)
+            
+    context = {
+        'active_submission': submission,
+        'credit_list': credit_list,
+        'object_form': form,
+    }
+    template = "tool/submissions/submit_confirm.html"
+    return respond(request, template, context)
+
+@user_is_inst_admin
+def submit_finalize(request):
+    """
+        Finalizes a submission
+    """
+    submission = _get_active_submission(request)
+    if not submission:
+        flashMessage.send("No active submission found to submit.", flashMessage.NOTICE)
+        return HttpResponseRedirect("/tool/manage/submissionsets/")
+        
+    if submission.get_STARS_rating().name == 'Reporter':
+        formClass = FinalizeForm
+    else:
+        formClass = FinalizeStatusForm
+    
+    form = formClass(instance=submission)
+    if request.method == 'POST':
+        form = formClass(request.POST, request.FILES, instance=submission)
         if form.is_valid():
             submission = form.save(commit=False)
             submission.date_submitted = datetime.now()
@@ -60,11 +101,13 @@ def submit_for_rating(request):
             submission.save()
             submission.institution.state.delete() # remove this submissionset as the active submissionset
             return respond(request, 'tool/submissions/submit_success.html', {})
+        else:
+            flashMessage.send("Please correct the errors below.", flashMessage.ERROR)
     context = {
         'active_submission': submission,
         'object_form': form,
     }
-    template = "tool/submissions/submit.html"
+    template = "tool/submissions/submit_finalize.html"
     return respond(request, template, context)
 
 def _get_category_submission_context(request, category_id):

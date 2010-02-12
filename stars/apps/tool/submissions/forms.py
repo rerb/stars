@@ -1,7 +1,7 @@
 import sys
 import string
 from django.forms import ModelForm
-from django.forms.widgets import TextInput
+from django.forms.widgets import TextInput, HiddenInput
 from django import forms
 from django.forms.extras.widgets import SelectDateWidget
 from django.forms.util import ErrorList
@@ -567,3 +567,45 @@ class SubmitSubmissionSetForm(ModelForm):
         self.fields['presidents_letter'].required = True
         self.fields['submission_boundary'].required = True
         self.fields['submission_boundary'].label = "Please describe the boundaries of the institution's STARS submission.  If any institution-owned, leased, or operated buildings or other holdings are omitted, briefly explain why."
+        
+class BoundaryForm(ModelForm):
+    """
+        A Form to update the boundary data for a submission
+    """
+    class Meta:
+        model = SubmissionSet
+        fields = ['submission_boundary',]
+
+    def __init__(self, *args, **kwargs):
+        super(BoundaryForm, self).__init__(*args, **kwargs)
+        self.fields['submission_boundary'].required = True
+        self.fields['submission_boundary'].label = "Please describe the boundaries of the institution's STARS submission.  If any institution-owned, leased, or operated buildings or other holdings are omitted, briefly explain why."
+        self.fields['submission_boundary'].widget.attrs = {'cols': 60, 'rows': 4,}
+        
+class StatusForm(ModelForm):
+    """
+        A Form to allow institutions to choose the Reporter status if they choose
+    """
+    class Meta:
+        model = SubmissionSet
+        fields = ['reporter_status',]
+        
+class FinalizeForm(ModelForm):
+    """
+        A Form to finalize submission and accept the president's letter
+    """
+    class Meta:
+        model = SubmissionSet
+        fields = ['presidents_letter',]
+
+    def __init__(self, *args, **kwargs):
+        super(FinalizeForm, self).__init__(*args, **kwargs)
+        self.fields['presidents_letter'].required = True
+        
+class FinalizeStatusForm(FinalizeForm):
+    """
+        A Form to finalize submission and accept the president's letter and 
+    """
+    class Meta:
+        model = SubmissionSet
+        fields = ['presidents_letter','reporter_status',]

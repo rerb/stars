@@ -39,9 +39,9 @@
                 {% if is_admin %}
                 	{% ifequal set active_set %}{% if not set.was_submitted %}
                 		<a href='{{ set.get_submit_url }}' class='button'>Submit for Rating</a>
+                        <a href='{{ set.get_manage_url }}boundary/' class='button'>Edit Boundary</a>
                 	{% endif %}{% endifequal %}
                 {% endif %}
-                <a href='{{ set.get_manage_url }}boundary/' class='button'>Edit Boundary</a>
             </td>
         </tr>
         {% endfor %}
