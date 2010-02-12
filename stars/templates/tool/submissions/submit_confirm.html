@@ -7,22 +7,18 @@
 {% endblock %}
 
 {% block tool_content %}
-    <h1>Submit for a STARS Rating: Step 1 of 2</h1>
+    <h1>Submit for a STARS Rating: Step 1 of 3</h1>
+    {% load help %}
+    {% show_help_context 'submit_for_rating_confirm' 0 %}
     {% include 'tool/submissions/submission_summary_table.html' %}
-    <p>
-        Please review your data to make sure everything is complete and there are no errors.<br/>
-        All Credits that are marked as "In Progress" will be marked "Not Pursuing".
-    </p>
     <div class='required'>
         <span class="required_note" title="This field is required to complete credit">*</span>
         Required Fields<br/>
     </div>
     <form class='generalForm' method='post' action='.'>
-        <table>
-            {% include "helpers/label_above_input_form.html" %}
-        </table>
+        {% include "helpers/label_above_input_form.html" %}
         {% if credit_list %}
-        The following credits are marked as "In Progress" and will be updated to "Not Pursuing":
+        {% get_help_context 'submit_for_rating_credits' %}
         <div style='width: 600px;height: 200px;overflow: auto;border: 1px solid #aaa;padding: 1px;'>
             <table style='border-collapse: collapse;width: 98%;'>
                 {% for credit in credit_list %}

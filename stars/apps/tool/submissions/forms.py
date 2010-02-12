@@ -590,21 +590,21 @@ class StatusForm(ModelForm):
         model = SubmissionSet
         fields = ['reporter_status',]
         
-class FinalizeForm(ModelForm):
+class LetterForm(ModelForm):
     """
-        A Form to finalize submission and accept the president's letter
+        A Form to accept the president's letter
     """
     class Meta:
         model = SubmissionSet
         fields = ['presidents_letter',]
 
     def __init__(self, *args, **kwargs):
-        super(FinalizeForm, self).__init__(*args, **kwargs)
+        super(LetterForm, self).__init__(*args, **kwargs)
         self.fields['presidents_letter'].required = True
         
-class FinalizeStatusForm(FinalizeForm):
+class LetterStatusForm(LetterForm):
     """
-        A Form to finalize submission and accept the president's letter and 
+        A Form to accept the president's letter and optional reporter status
     """
     class Meta:
         model = SubmissionSet

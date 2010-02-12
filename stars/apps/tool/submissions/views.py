@@ -9,6 +9,7 @@ from stars.apps.submissions.models import *
 from stars.apps.tool.submissions.forms import *
 from stars.apps.credits.models import *
 from stars.apps.helpers.forms.form_helpers import basic_save_form, basic_save_new_form
+from stars.apps.helpers.forms.forms import Confirm
 from stars.apps.tool.submissions.forms import CreditUserSubmissionForm, CreditUserSubmissionNotesForm, ResponsiblePartyForm
 
 def _get_active_submission(request):
@@ -61,10 +62,10 @@ def submit_confirm(request):
     
     form = BoundaryForm(instance=submission)
     if request.method == 'POST':
-        form = BoundaryForm(request.POST, request.FILES, instance=submission)
+        form = BoundaryForm(request.POST, instance=submission)
         if form.is_valid():
             submission = form.save()
-            return HttpResponseRedirect("/tool/submissions/submit/finalize/")
+            return HttpResponseRedirect("/tool/submissions/submit/letter/")
         else:
             flashMessage.send("Please correct the errors below.", flashMessage.ERROR)
             
@@ -77,9 +78,9 @@ def submit_confirm(request):
     return respond(request, template, context)
 
 @user_is_inst_admin
-def submit_finalize(request):
+def submit_letter(request):
     """
-        Finalizes a submission
+        President's Letter and "Reporter" status option
     """
     submission = _get_active_submission(request)
     if not submission:
@@ -87,15 +88,39 @@ def submit_finalize(request):
         return HttpResponseRedirect("/tool/manage/submissionsets/")
         
     if submission.get_STARS_rating().name == 'Reporter':
-        formClass = FinalizeForm
+        formClass = LetterForm
     else:
-        formClass = FinalizeStatusForm
+        formClass = LetterStatusForm
     
     form = formClass(instance=submission)
     if request.method == 'POST':
         form = formClass(request.POST, request.FILES, instance=submission)
         if form.is_valid():
-            submission = form.save(commit=False)
+            submission = form.save()
+            return HttpResponseRedirect("/tool/submissions/submit/finalize/")
+        else:
+            flashMessage.send("Please correct the errors below.", flashMessage.ERROR)
+    context = {
+        'active_submission': submission,
+        'object_form': form,
+    }
+    template = "tool/submissions/submit_letter.html"
+    return respond(request, template, context)
+    
+@user_is_inst_admin
+def submit_finalize(request):
+    """
+        Finalize and confirm a submission
+    """
+    submission = _get_active_submission(request)
+    if not submission:
+        flashMessage.send("No active submission found to submit.", flashMessage.NOTICE)
+        return HttpResponseRedirect("/tool/manage/submissionsets/")
+
+    form = Confirm()
+    if request.method == 'POST':
+        form = Confirm(request.POST)
+        if form.is_valid():
             submission.date_submitted = datetime.now()
             submission.status = 'pr'
             submission.save()

@@ -17,6 +17,7 @@ urlpatterns = patterns(
     #(r'^submit/$', 'submit_for_rating'),
     (r'^submit/$', 'submit_confirm'),
     # (r'^submit/status/', 'submit_status'),
+    (r'^submit/letter/$', 'submit_letter'),
     (r'^submit/finalize/$', 'submit_finalize'),
     (r'^gateway/media/secure/(?P<inst_id>\d+)/(?P<creditset_id>\d+)/(?P<credit_id>\d+)/(?P<field_id>\d+)/(?P<filename>[^/]+)/delete/$', 'delete_uploaded_file_gateway'),
 )

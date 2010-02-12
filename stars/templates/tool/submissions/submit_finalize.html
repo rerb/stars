@@ -7,22 +7,19 @@
 {% endblock %}
 
 {% block tool_content %}
-    <h1>Submit for a STARS Rating: Step 2 of 2</h1>
+    <h1>Submit for a STARS Rating: Step 3 of 3</h1>
     {% include 'tool/submissions/submission_summary_table.html' %}
     <div class='required'>
         <span class="required_note" title="This field is required to complete credit">*</span>
         Required Fields<br/>
     </div>
-    <form class='generalForm' method='post' action='.' enctype="multipart/form-data">
-        <table>
-            {% include "helpers/label_above_input_form.html" %}
-        </table>
-        <p style='font-style: italic;'>
-            Once you choose to submit, your submission will be made public and you will not be able to modify it.
-        </p>
+    <form class='generalForm' method='post' action='.'>
+        {% load help %}
+        {% get_help_context 'submit_for_rating_warning' %}
+        {% include "helpers/standard_form.html" %}
         <div class='button_row'>
-            <button type='button' onclick='document.location="/tool/submissions/submit/";'>&lt;&lt; Back</button>
-            <button type='submit'>Complete Submission &gt;&gt;</button>
+            <button type='button' onclick='document.location="/tool/submissions/";'>&lt;&lt; Back</button>
+            <button type='submit'>Submit &gt;&gt;</button>
         </div>
     </form>
 {% endblock %}

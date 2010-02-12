@@ -9,7 +9,7 @@ from stars.apps.helpers import watchdog
 
 register = template.Library()
 
-def get_help_context(context_name):
+def lookup_help_context(context_name):
     """ Pulls the help text from the DB if it's available """
     try:
         c = HelpContext.objects.get(name=context_name)
@@ -21,9 +21,16 @@ def get_help_context(context_name):
 @register.inclusion_tag('helpers/tags/help_text.html')
 def show_help_context(context_name, as_tooltip=True):
     """ Displays a tool-tip for the help text for the given context. """
-    help_text = get_help_context(context_name)
+    help_text = lookup_help_context(context_name)
     
     return {'help_text': _clean(help_text, as_tooltip), "tooltip": as_tooltip}
+
+@register.simple_tag
+def get_help_context(context_name):
+    """ Simply returns the helptext, unstyled. """
+    help_text = lookup_help_context(context_name)
+
+    return help_text
 
 @register.inclusion_tag('helpers/tags/help_text.html')
 def show_help_text(help_text, as_tooltip=True):

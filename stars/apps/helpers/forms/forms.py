@@ -8,4 +8,4 @@ class HiddenCounterForm(Form):
 
 class Confirm(Form):
     """ Confirm an  operation """
-    confirm = BooleanField()
+    confirm = BooleanField(required=True)
