@@ -16,3 +16,11 @@ def split(value, token):
         return list[token]
     else:
         return ''
+
+@register.filter
+def truncchar(value, arg):
+    # truncate after a certain number of characters (arg)
+    if len(value) < arg:
+        return value
+    else:
+        return value[:arg] + '...'

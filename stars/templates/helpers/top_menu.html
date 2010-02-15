@@ -18,7 +18,9 @@
 				</select> |
 			{% else %}
 		        {% if user.current_inst %}
-					{{ user.current_inst }} {% if user.is_staff %}(<a href='/tool/admin/'>change</a>){% endif %} |
+		            {% load helpers %}
+					<span title='{{ user.current_inst }}'>{{ user.current_inst.name|truncchar:45  }}</span>
+					{% if user.is_staff %}(<a href='/tool/admin/'>change</a>){% endif %} |
 				{% else %}
 			  		{% if user.is_staff %}
 			    		<a href='/tool/admin/'>Select Institution</a> |
