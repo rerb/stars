@@ -1,0 +1,17 @@
+{% extends "tool/base.html" %}
+
+{% block title %} {{ block.super }} | My Resources{% endblock %}
+
+{% block header %}My Resources{% endblock %}
+
+{% block tool_content %}
+    {% autoescape off %}
+        <h1>
+            {{ node.title }}
+            {% if user.is_staff %}
+                <a href="http://www.aashe.org/node/4554/edit" target="_blank"><img src='/media/static/images/page_edit.png' alt='edit' /></a>
+            {% endif %}
+        </h1>
+        {{ node.body }}
+    {% endautoescape %}
+{% endblock %}

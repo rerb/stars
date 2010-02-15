@@ -6,6 +6,7 @@ from datetime import datetime
 from stars.apps.auth.utils import respond
 from stars.apps.auth.decorators import user_can_submit, user_is_inst_admin
 from stars.apps.submissions.models import *
+from stars.apps.cms.xml_rpc import get_article
 from stars.apps.tool.submissions.forms import *
 from stars.apps.credits.models import *
 from stars.apps.helpers.forms.form_helpers import basic_save_form, basic_save_new_form

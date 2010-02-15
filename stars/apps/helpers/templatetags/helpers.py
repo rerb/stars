@@ -19,7 +19,10 @@ def split(value, token):
 
 @register.filter
 def truncchar(value, arg):
-    # truncate after a certain number of characters (arg)
+    """ 
+        truncate string after a certain number of characters (arg)
+        Example usage: {{ string|truncchar:20 }}
+    """
     if len(value) < arg:
         return value
     else:

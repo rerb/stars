@@ -15,6 +15,7 @@ urlpatterns = patterns('',
     (r'^tool/credit-editor/', include('stars.apps.tool.credit_editor.urls')),
     (r'^tool/admin/', include('stars.apps.tool.admin.urls')),
     (r'^tool/submissions/', include('stars.apps.tool.submissions.urls')),
+    (r'^tool/my-resources/', include('stars.apps.tool.my_resources.urls')),
     (r'^tool/manage/', include('stars.apps.tool.manage.urls')),
     # articles (cms):
     (r'^'+settings.ARTICLE_PATH_ROOT+'/', include('stars.apps.cms.urls')),
