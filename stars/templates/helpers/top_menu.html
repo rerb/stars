@@ -7,9 +7,9 @@
             {% endif %}
         {% endif %}
         {% if user.is_authenticated %}
-        	{{ user.email|truncchar:25 }} |
-            
+        
             {% load helpers %}
+        	{{ user.email|truncchar:25 }} |
 			{% if user.account_list %}
 	    		<select onchange="selectSchool(this);">
 			  		<option value='0'>Select your institution</option>
