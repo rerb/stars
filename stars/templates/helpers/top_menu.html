@@ -7,7 +7,7 @@
             {% endif %}
         {% endif %}
         {% if user.is_authenticated %}
-        	{{ user.email }} |
+        	{{ user.email|truncchar:25 }} |
             
             {% load helpers %}
 			{% if user.account_list %}
