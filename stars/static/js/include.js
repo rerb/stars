@@ -161,7 +161,7 @@ function open_popup(url, name) {
 function confirm_leave()
 {
     if (!document.getElementById('submit_button').disabled)
-        if (!confirm('You have modified data on this page.\n\n Do you want to Save those changes?\n\n OK to leave this page, Cancel to save your changes before leaving.'))
+        if (!confirm('This page contains unsaved data. Click OK to leave without saving or Cancel to save changes before leaving.'))
             document.forms[0].submit();
 }
 
