@@ -28,8 +28,8 @@ Options:
 PROJECT = "stars"
 
 # The URL of the svn repository
-#REPOSITORY = "svn://aashe.org/stars/"
-REPOSITORY = "file:///usr/local/repos/stars/"
+# REPOSITORY = "file:///usr/local/repos/stars/"
+REPOSITORY = "http://code.aashedev.org/svn/stars/"
 
 # The path to the branch or release that should be
 # released by default
