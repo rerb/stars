@@ -5,8 +5,6 @@
 
 from settings import *
 
-HIDE_REPORTING_TOOL = False
-
 DATABASE_ENGINE = 'mysql'
 DATABASE_NAME = 'stars_production'
 DATABASE_USER = 'starsapp'
@@ -18,7 +16,5 @@ MEDIA_ROOT = '/var/www/stars.aashe.org/media'
 SSO_SERVER_URI = WWW_SSO_SERVER_URI
 STARS_DOMAIN = WWW_STARS_DOMAIN
 SSO_API_KEY = WWW_SSO_API_KEY
-
-XMLRPC_VERBOSE = False
 
 CYBERSOURCE_URL = CYBERSOURCE_PRODUCTION_URL
