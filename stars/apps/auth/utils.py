@@ -124,7 +124,8 @@ def _update_account_context(request, account=None, current_inst=None):
     # These allow template code to check for permissions (since templates can't pass parameters)
     for (perm, name) in settings.STARS_PERMISSIONS:
         user.__setattr__("can_%s"%perm,  user.has_perm(perm))
-        
+    user.__setattr__('has_tool', user.has_perm('tool'))
+    
     return None
 
 

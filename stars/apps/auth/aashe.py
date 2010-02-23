@@ -5,7 +5,7 @@ from stars.apps.auth import xml_rpc
 from stars.apps.helpers import watchdog
 from stars.apps.institutions.models import StarsAccount
 
-import xmlrpclib, md5, random, hashlib, hmac
+import xmlrpclib, random, hashlib, hmac
 from time import time
 
 # Django Docs:
