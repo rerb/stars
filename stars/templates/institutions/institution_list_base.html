@@ -10,6 +10,10 @@
 {% block content %}
     <div class='inner20'>
       <h1>STARS Institutions</h1>
+      {% block page_description %}
+        {% load help %}
+        {% show_help_context 'institutions_page' 0 %}
+      {% endblock %}
       {% comment %}
         <ul id="tabnav" {% block tabclass %}class='tab1'{% endblock %}>
             <!-- <li class="tab1"><a href="/institutions/rated/">Rated Institutions</a></li>-->
