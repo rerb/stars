@@ -6,7 +6,7 @@ from django.conf import settings
 from django.template import Context, loader, Template
 from django.core.mail import send_mail
 
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 import urllib2, re
 from xml.etree.ElementTree import fromstring
 
@@ -19,7 +19,9 @@ from stars.apps.auth import xml_rpc
 from stars.apps.registration.globals import *
 from stars.apps.submissions.models import *
 from stars.apps.credits.models import CreditSet
-        
+
+
+
 def reg_select_institution(request):
     """
         STEP 1: User selects an institution from the pull-down menu
@@ -159,6 +161,18 @@ def reg_payment(request):
     context = {'pay_form': pay_form, 'pay_later_form': pay_later_form, 'institution': institution, 'is_member': is_member, 'price': price}
     return respond(request, template, context)
 
+def init_submissionset(institution, user, today):
+    """
+        Initializes a submissionset for an institution and user
+        adding the today argument makes this easier to test explicitly
+    """
+    # Get the current CreditSet
+    creditset = CreditSet.get_latest_creditset()
+    # Submission is due in one year
+    deadline = today + timedelta(days=365) # Gives them an extra day on leap years :)
+    submissionset = SubmissionSet(creditset=creditset, institution=institution, date_registered=today, submission_deadline=deadline, registering_user=user, status='ps')
+    submissionset.save()
+    return submissionset
 
 def register_institution(user, institution, payment_type, price, payment_dict):
     """
@@ -176,12 +190,8 @@ def register_institution(user, institution, payment_type, price, payment_dict):
     account.save()
     account.select()
     
-    # Create SubmissionSet
-    # Get the current CreditSet
-    creditset = CreditSet.get_latest_creditset()
-    deadline = date(year=2011, day=31, month=1)   # @todo: hmmmm - the default deadline should be stored with the creditset, no?
-    submissionset = SubmissionSet(creditset=creditset, institution=institution, date_registered=datetime.today(), submission_deadline=deadline, registering_user=user, status='ps')
-    submissionset.save()
+    # Set up the SubmissionSet
+    submissionset = init_submissionset(institution, user, datetime.today())
     
     # Add the institution state so it has an active submission.
     institution.set_active_submission(submissionset)

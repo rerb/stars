@@ -96,6 +96,7 @@ INSTALLED_APPS = (
 	'stars.apps.tool.admin',
     'stars.apps.tool.admin.watchdog',
 	'stars.apps.institutions',
+	'stars.apps.registration',
 	'stars.apps.submissions',
 	'stars.apps.auth',
 	'stars.apps.helpers',
