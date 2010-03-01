@@ -13,6 +13,8 @@ from stars.apps.auth import xml_rpc as auth_rpc
 from stars.apps.cms import xml_rpc as cms_rpc
 from stars.apps.cms.models import ArticleCategory
 
+print "URI: %s" % settings.SSO_SERVER_URI
+
 print xml_rpc.get_server()
 
 print "---------------LIST METHODS -------------------------"

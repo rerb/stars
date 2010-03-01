@@ -102,6 +102,7 @@ INSTALLED_APPS = (
 	'stars.apps.helpers',
     'stars.apps.cms',
 	'stars.tests',
+    'south',
 )
 
 # Is this running on the django dev server?
