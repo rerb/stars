@@ -202,7 +202,7 @@ def register_institution(user, institution, payment_type, price, payment_dict):
     
     # Send Confirmation Emails
     
-    cc_list = ['stars@aashe.org',]
+    cc_list = ['stars_staff@aashe.org',]
     if user.email != institution.contact_email:
         cc_list.append(user.email)
     allison = ['allison@aashe.org','margueritte.williams@aashe.org']
