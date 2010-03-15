@@ -101,6 +101,7 @@ INSTALLED_APPS = (
 	'stars.apps.auth',
 	'stars.apps.helpers',
     'stars.apps.cms',
+    'stars.apps.etl_export',
 	'stars.tests',
     'south',
 )
