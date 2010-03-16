@@ -10,7 +10,11 @@ $ python bootstrap.py
 You should now run buildout to install the necessary dependencies:
 $ ./bin/buildout
 
-That's it! Your environment will be set up with a local copy of Django 1.1.1 and South 0.6.2.
+That's it! Your environment will be set up with local copies of:
+ - Django 1.1.1
+ - South 0.6.2
+ - Fabric 0.9.0
+ - TinyMCE 3.3 (javascript library)
 
 When you want to run any of the standard Django commands, use bin/django instead of manage.py:
 $ ./bin/django runserver
@@ -38,8 +42,8 @@ The MEDIA_ROOT folder should have the following structure:
   admin/  # a symbolic link to /django/contrib/admin/media in your Django install.
   tp/
      js/  # a directory for third-party scripts
-          # you can download these scripts from /var/www/vhosts/dev.aashe.org/subdomains/stars/httpdocs/media/tp/ on aashe server.
+          # tinyMCE is pulled down with buildout
+          
+=== Server ===
 
-In a mod_python environment the 'vhost.conf' file will explicitly define the settings file to use and will bypass `settings.py` altogether. Here is an example from our development server:
-
-SetEnv DJANGO_SETTINGS_MODULE stars.config.development
+See README_SERVER for more details

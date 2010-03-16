@@ -25,6 +25,7 @@ auth = AASHEAuthBackend()
 
 print "---------------TESTING LOGIN -------------------------"
 print auth.authenticate("it@aashe.org", "ba7que")
+print auth.authenticate("bens@aashe.org", "Marsupia1")
 
 print "---------------TESTING GETBYEMAIL -------------------------"
 print auth_rpc.get_user_by_email('it@aashe.org')

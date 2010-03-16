@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+# This tool has been replaced by the Fabric script !!!!!
+
 import os, sys, commands, time, re, shutil
 from datetime import datetime
 
@@ -33,7 +35,7 @@ REPOSITORY = "http://code.aashedev.org/svn/stars/"
 
 # The path to the branch or release that should be
 # released by default
-DEFAULT_RELEASE = "branches/branch-1.0/stars"
+DEFAULT_RELEASE = "trunk/stars"
 
 # This is not implemented, but it could be possible to
 # leave a certain # of releases in the directory
