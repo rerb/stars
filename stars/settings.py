@@ -10,14 +10,12 @@ ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
 # key the configurations off of project path (can have regular expression)
 # (in this case it's path, but you could use computer name or something else)
 configs = {
+    '/var/django/projects/stars/production/.*': 'production',
+    '/var/django/projects/stars/dev/.*': 'development',
+    '/var/django/projects/stars/stage/.*': 'stage',
+    '/var/django/projects/stars/beta/stars.*': 'beta',
     '/Users/jamstooks/aashe/STARS/src/.*/stars': 'ben',
     '/Users/Joseph/Projects/AASHE/STARS/.*/stars': 'joseph',
-    # This will be used by apache since the vhost.conf file calls it directly
-    '/var/django/projects/stars/dev/stars.*': 'development',
-    '/var/django/projects/stars/dev/trunk': 'development', # dev may run off trunk
-    '/var/django/projects/stars/stage/stars.*': 'stage',
-    '/var/django/projects/stars/production/stars.*': 'production',
-    '/var/django/projects/stars/beta/stars.*': 'beta',
 }
 
 # find the first key that matches the ROOT_PATH
