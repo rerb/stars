@@ -16,5 +16,5 @@ def display_block_content(key):
         c = BlockContent.objects.get(key=key)
         return c.content
     except:
-        watchdog.log("lookup_block_content", "BlockContent, '%s', not found." % context_name)
+        watchdog.log("lookup_block_content", "BlockContent, '%s', not found." % key)
         return ""
