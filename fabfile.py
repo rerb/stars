@@ -82,20 +82,19 @@ def deploy():
     if not exists(env.project_path):
     
         sudo(env.checkout_cmd)
-    
-        with cd(env.project_path):
-            run('pwd')
-    
-            print "Bootstrapping"
-            bootstrap_cmd = "python bootstrap.py"
-            sudo(bootstrap_cmd)
-    
-            print "Running Buildout"
-            buildout_cmd = "bin/buildout"
-            sudo(buildout_cmd)
-    
+
     else:
-        print "This source has already been deployed. Just updating symlinks."
+        print "This source has already been deployed. Just updating buildout and symlinks."
+    
+    with cd(env.project_path):
+
+        print "Bootstrapping"
+        bootstrap_cmd = "python bootstrap.py"
+        sudo(bootstrap_cmd)
+
+        print "Running Buildout"
+        buildout_cmd = "bin/buildout"
+        sudo(buildout_cmd)
         
     # @Todo: run tests
         
