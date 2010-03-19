@@ -96,6 +96,9 @@ def deploy():
         buildout_cmd = "bin/buildout"
         sudo(buildout_cmd)
         
+        print "Syncing DB"
+        syncdb_cmd = "bin/django syncdb"
+        sudo(syncdb_cmd)
     # @Todo: run tests
         
     with cd(env.path):
