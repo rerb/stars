@@ -13,21 +13,20 @@ configs = {
     '/var/django/projects/stars/production/.*': 'production',
     '/var/django/projects/stars/dev/.*': 'development',
     '/var/django/projects/stars/stage/.*': 'stage',
-    '/var/django/projects/stars/beta/stars.*': 'beta',
     '/Users/jamstooks/aashe/STARS/src/.*/stars': 'ben',
     '/Users/Joseph/Projects/AASHE/STARS/.*/stars': 'joseph',
 }
 
 # find the first key that matches the ROOT_PATH
-index = None
+config = 'default'
 for k in configs.keys():
     m = re.match("(%s)" % k, ROOT_PATH)
     if m:
-        index = k
+        config = configs[k]
         break
 
 # Import the configuration settings file
-config_module = __import__('config.%s' % configs[index], globals(), locals(), 'stars')
+config_module = __import__('config.%s' % config, globals(), locals(), 'stars')
 
 # Load the config settings properties into the local scope.
 for setting in dir(config_module):

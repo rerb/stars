@@ -1,5 +1,7 @@
 = STARS Web Application README =
 
+This document assumes you have checked out the latest source code to get this file...
+
 == Installation ==
 
 To develop on the STARS application locally, the only requirement is that you have Python 2.4+ installed. 2.6 is recommended, because this is what's running on the server.
@@ -28,22 +30,35 @@ More information: http://south.aeracode.org/
 
 == Settings ==
 
-STARS can be deployed in a variety of environments. `settings.py` is used in test environments that don't use mod_python. To add another test environment add another item to the dictionary. The dictionary accepts regular expressions.
+The default configuration file should work right out of the box:
+
+stars/config/default.py
+
+This configuration will use (and create) a sqlite3 db and media directory in your home directory.
+
+=== Personal Settings ===
+
+STARS can be deployed in a variety of environments. You may want to create your own personal configuration file according to your needs. You can do this easily by copying the default config file and adding another test environment item to the dictionary in stars/settings.py. The dictionary accepts regular expressions, for example:
 
 configs = {
     '/Users/jamstooks/aashe/STARS/src/.*/stars': 'ben',
 }
 
-=== Local ===
+=== TinyMCE (WYSIWYG Editor) ===
 
-STARS matches the dictionary key with the directory `settings.py` is being executed from and uses the value to load the configuration file. In this case it loads `config/ben.py` to get the settings for my environment. You should create your own custom settings file in the `config/` directory if you want to do any testing.
-You will need to set up a MEDIA_ROOT directory locally, and set the path in your personal config.  
-The MEDIA_ROOT folder should have the following structure:
-  admin/  # a symbolic link to /django/contrib/admin/media in your Django install.
-  tp/
-     js/  # a directory for third-party scripts
-          # tinyMCE is pulled down with buildout
+If you want to use the TinyMCE editor in your development, you will need to create a symlink in your media directory:
+
+~/stars_media/tp/js/tiny_mce -> PATH_TO_SRC/stars/parts/tinyMCE/tinymce/jscripts/tiny_mce
+
+TinyMCE is automatically pulled down by buildout.
+
+== Quick STARS (I mean START) ==
+
+...from the package directory
+
+$> bin/django syncdb    # This initializes the DB
+$> bin/django runserver # Runs the server on http://localhost:8000/
           
-=== Server ===
+=== Deployment ===
 
 See README_SERVER for more details
