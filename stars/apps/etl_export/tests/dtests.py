@@ -95,10 +95,10 @@
     '800-555-1212'
     >>> etl_a.liaison_email
     'test@example.com'
-    >>> etl_a.latest_rating
-    <Rating: gold>
-    >>> etl_a.participant_status
-    u'ps'
+    >>> print etl_a.current_rating
+    gold
+    >>> print etl_a.participant_status
+    Pending Submission
     
     >>> etl_b = populate_etl_entry(i)
     >>> etl_a == etl_b
@@ -110,9 +110,9 @@
     >>> ss2.save()
     >>> etl_c = populate_etl_entry(i)
     >>> print etl_c.participant_status
-    pr
+    Pending Review
     >>> print etl_a.participant_status
-    ps
+    Pending Submission
     >>> etl_a == etl_c
     False
     

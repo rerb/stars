@@ -11,8 +11,8 @@ class ETL(models.Model):
     """
     aashe_id = models.IntegerField()
     change_date = models.DateTimeField(auto_now=True)
-    participant_status = models.CharField(max_length=8, choices=SUBMISSION_STATUS_CHOICES, blank=True, null=True)
-    latest_rating = models.ForeignKey(Rating, blank=True, null=True)
+    participant_status = models.CharField(max_length=32, choices=SUBMISSION_STATUS_CHOICES, blank=True, null=True)
+    current_rating = models.CharField(max_length=16, null=True, blank=True)
     rating_valid_until = models.DateField(blank=True, null=True)
     last_submission_date = models.DateField(blank=True, null=True)
     submission_due_date = models.DateField(blank=True, null=True)

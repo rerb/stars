@@ -96,10 +96,15 @@ def deploy():
         buildout_cmd = "bin/buildout"
         sudo(buildout_cmd)
         
-        print "Syncing DB"
+        # @Todo: run tests
+        
+        print "Sync DB"
         syncdb_cmd = "bin/django syncdb"
         sudo(syncdb_cmd)
-    # @Todo: run tests
+        
+        print "Migrate DB"
+        migrate_cmd = "bin/django migrate"
+        sudo(migrate_cmd)
         
     with cd(env.path):
         print "Updating Symlink"
