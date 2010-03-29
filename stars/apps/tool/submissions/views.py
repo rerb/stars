@@ -336,7 +336,7 @@ def delete_uploaded_file_gateway(request, inst_id, creditset_id, credit_id, fiel
         Handles secure AJAX delete of uploaded files.
         We don't actually use the filename - rather we load the submission object and get the path from it.
     """
-    print "In gateway..."
+    # print "In gateway..."
     current_inst = request.user.current_inst
     if not current_inst or current_inst.id != int(inst_id):
         raise PermissionDenied("File not found")
@@ -345,7 +345,7 @@ def delete_uploaded_file_gateway(request, inst_id, creditset_id, credit_id, fiel
                                                                 subcategory_submission__category_submission__submissionset__institution = current_inst)
     upload_submission = get_object_or_404(UploadSubmission, documentation_field__id=field_id, \
                                                             credit_submission = credit_submission)
-    print "About to delete..."
+    # print "About to delete..."
     # Finally, perform the delete.  Let any exceptions simply cascade up - they'll get logged.
     upload_submission.delete()
    

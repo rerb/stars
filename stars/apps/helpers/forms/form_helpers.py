@@ -30,7 +30,7 @@ def object_editing_list(request, object_list, form_class, ignore_errors=False, i
                         obj = form.save()
                         saved = True
                 else:
-                    print "Form is not valid: %s %s %s"%(form.errors, form['name'].errors, form['minimal_score'].errors)
+                    # DEBUG: print "Form is not valid: %s %s %s"%(form.errors, form['name'].errors, form['minimal_score'].errors)
                     errors = True
             sorted_list.append(obj)
         if saved:

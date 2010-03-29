@@ -64,7 +64,7 @@ def _get_url_context(field):
     
 def _get_upload_context(field):
     filepath = field.get_value()
-    print filepath
+    # print filepath
     if filepath:
         filename = basename(str(filepath))
         url = filepath.url if filepath.url else ''

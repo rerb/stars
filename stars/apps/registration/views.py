@@ -340,13 +340,13 @@ def process_payment(payment_dict, product_list, test_mode=False, ref_code=None, 
         "product_list": product_list,
     })
     request = t.render(c)
-    if debug:
-        print request
-        print """
-        **
-        CONNECTING
-        **
-        """
+    # if debug:
+    #     print request
+    #     print """
+    #     **
+    #     CONNECTING
+    #     **
+    #     """
 
     connection_url = settings.CYBERSOURCE_URL
     if test_mode:
@@ -358,9 +358,9 @@ def process_payment(payment_dict, product_list, test_mode=False, ref_code=None, 
     except urllib2.HTTPError, e:
         # we probably didn't authenticate properly
         # make sure the 'v' in your account number is lowercase
-        if debug:
-            print e.code
-            print e.read()
+        # if debug:
+        #     print e.code
+        #     print e.read()
         return({'cleared': False, 'reason_code': '999', 'msg': 'Problem parsing results'})
 
     all_results = f.read()
