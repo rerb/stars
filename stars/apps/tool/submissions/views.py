@@ -318,7 +318,7 @@ def serve_uploaded_file(request, inst_id, path):
     """
         Serves file submissions.
     """
-    print "Serving File..."
+    # print "Serving File..."
     current_inst = request.user.current_inst
     if not current_inst or current_inst.id != int(inst_id):
         raise PermissionDenied("File not found")
