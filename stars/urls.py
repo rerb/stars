@@ -31,6 +31,9 @@ urlpatterns = patterns('',
 
     # registration
     (r'^register/', include('stars.apps.registration.urls')),
+    
+    # custom forms
+    (r'^cfm/', include('stars.apps.custom_forms.urls')),
 
     # testing / debug / data migration scripts - these urls should normally be commented out!
     #(r'^migrate_required/$', 'stars.apps.helpers.views.migrate_doc_field_required'),
