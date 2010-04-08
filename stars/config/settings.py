@@ -3,7 +3,7 @@
 import os, sys
 sys.path.append('../')
 
-ADMINS = (('Benjamin Stookey', 'ben@aashe.org'),('Joseph Fall', 'joseph@aashe.org'))
+ADMINS = (('Benjamin Stookey', 'ben@aashe.org'),("Ben's Cell", "8602131672@txt.att.net"),)
 MANAGERS = ADMINS
 
 DEFAULT_CHARSET = 'utf-8'
@@ -100,8 +100,10 @@ INSTALLED_APPS = (
 	'stars.apps.submissions',
 	'stars.apps.auth',
 	'stars.apps.helpers',
+	'stars.apps.helpers.forms', # included here for testing
     'stars.apps.cms',
     'stars.apps.etl_export',
+    'stars.apps.custom_forms',
 	'stars.tests',
     'south',
 )
