@@ -23,4 +23,4 @@ class TAAppView(FormActionView):
         r = direct_to_template(request, "custom_forms/form_success.html", extra_context=self.context_dict)
         return r
 
-ta_application = TAAppView("custom_forms/form.html", TAApplicationForm, has_upload=True, form_name='object_form', init_context={'form_title': "Technical Advisor Application",})
+ta_application = TAAppView("custom_forms/ta_app.html", TAApplicationForm, has_upload=True, form_name='object_form', init_context={'form_title': "Technical Advisor Application",})
