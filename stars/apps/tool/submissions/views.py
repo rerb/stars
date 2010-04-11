@@ -56,9 +56,10 @@ class SubmissionClassView(SubmissionMixin, PermMixin, FormActionView):
     def get_instance(self, request):
         """ Get's the active submission from the request """
         self.instance = _get_active_submission(request)
-        if not self.instance:
-            flashMessage.send("No active submission found to submit.", flashMessage.NOTICE)
-            raise RedirectException(url="/tool/manage/submissionsets/")
+        # SubmissionMixin takes care of the following
+        # if not self.instance:
+        #             flashMessage.send("No active submission found to submit.", flashMessage.NOTICE)
+        #             raise RedirectException(url="/tool/manage/submissionsets/")
 
 class ConfirmClassView(SubmissionClassView):
     """
@@ -76,8 +77,8 @@ class ConfirmClassView(SubmissionClassView):
                             credit_list.append(c)
         return {'credit_list': credit_list,}
         
-    def get_success_response(self):
-        raise RedirectException("/tool/submissions/submit/letter/")
+    def get_success_response(self, request):
+        return HttpResponseRedirect("/tool/submissions/submit/letter/")
 
 # The first submission view
 submit_confirm = ConfirmClassView("tool/submissions/submit_confirm.html", BoundaryForm,  form_name='object_form', instance_name='active_submission')
@@ -91,11 +92,11 @@ class LetterClassView(SubmissionClassView):
         """ This form gives institutions the option to choose Reporter status """
         if self.instance.get_STARS_rating().name != 'Reporter':
             return LetterStatusForm
-        return SubmissionClassView.get_form_class(self, *args, **kwargs)
-        # return super(LetterClassView, self).get_form_class(*args, **kwargs)
+        #return SubmissionClassView.get_form_class(self, *args, **kwargs)
+        return super(LetterClassView, self).get_form_class(*args, **kwargs)
         
-    def get_success_response(self):
-        raise RedirectException("/tool/submissions/submit/finalize/")
+    def get_success_response(self, request):
+        return HttpResponseRedirect("/tool/submissions/submit/finalize/")
 
 # The second view of the submission process
 submit_letter = LetterClassView("tool/submissions/submit_letter.html", LetterForm,  form_name='object_form', instance_name='active_submission', has_upload=True)
@@ -105,7 +106,7 @@ class FinalizeClassView(SubmissionClassView):
         Extends the Form class-based view from apps.helpers
     """
     
-    def save_form(self, form):
+    def save_form(self, form, request):
         """ Finalizes the submission object """
         self.instance.date_submitted = datetime.now()
         self.instance.status = 'pr'
@@ -119,8 +120,9 @@ class FinalizeClassView(SubmissionClassView):
         if kwargs.has_key('instance'):
             del kwargs['instance']
             # kwargs['instance'] = None
+        return kwargs
     
-    def get_success_response(self):
+    def get_success_response(self, request):
         return respond(request, 'tool/submissions/submit_success.html', {})
         
 # The final step of the submission process

@@ -97,12 +97,12 @@ class FormActionView(object):
         """ Returns a response or raises a redirect exception """
         
         _formClass = self.get_form_class()
-        
-        form = _formClass(**self.get_form_kwargs(request))
+        kwargs = self.get_form_kwargs(request)
+        form = _formClass(**kwargs)
         
         if request.method == 'POST':
             if form.is_valid():
-                self.save_form(form)
+                self.save_form(form, request)
                 self.context_dict[self.form_name] = form
                 r = self.get_success_response(request)
                 if r:
@@ -113,7 +113,7 @@ class FormActionView(object):
         self.context_dict[self.form_name] = form
         return None
         
-    def save_form(self, form):
+    def save_form(self, form, request):
         """ Saves the form to a instance if available """
         if self.instance:
             self.instance = form.save()
@@ -136,7 +136,6 @@ class FormActionView(object):
         
     def get_form_kwargs(self, request):
         """ Get the parameters for the form class """
-        import sys
         kwargs = {}
         if request.method == 'POST':
             kwargs['data'] = request.POST
