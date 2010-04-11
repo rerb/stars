@@ -144,15 +144,16 @@ class WatchdogEntry(models.Model):
         We need to be a bit careful here since the Watchdog gets called when things go wrong!
         The DB might be out - if we can't save the record, try printing it.
         """
+        import sys
         try:
             super(WatchdogEntry, self).save()
             if settings.DEBUG and not settings.TESTING:
-                print self
+                print >> sys.stderr, self
         except Exception, e: # oh well - not much we can do if we can't even log an error!
             if settings.DEBUG and not settings.TESTING:
                 # @todo: consider using warning.warn here...
-                print "Unable to save WatchdogEntry : %s"%e
-                print self
+                print >> sys.stderr, "Unable to save WatchdogEntry : %s"%e
+                print >> sys.stderr, self
    
 class WatchdogContact(models.Model):
     """
