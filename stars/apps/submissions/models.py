@@ -551,10 +551,11 @@ class CreditSubmission(models.Model):
         return key
         
     def print_submission_fields(self):
-        print "Fields for CreditSubmission: %s"%self.__str__()
-        fields =self.get_submission_fields()
+        import sys
+        print >> sys.stderr, "Fields for CreditSubmission: %s"%self.__str__()
+        fields = self.get_submission_fields()
         for field in fields:
-            print field
+            print >> sys.stderr, field
 
     # @todo: rename or remove this - potential confusion b/c name conflict with CreditUserSubmission!!
     #        I don't think this one is actually called anywhere.
