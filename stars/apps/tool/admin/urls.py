@@ -17,6 +17,7 @@ urlpatterns = patterns(
     (r'^institution/(?P<institution_id>\d+)/submissionsets/(?P<submissionset_id>\d+)/add-payment/$', 'add_payment'),
     (r'^payments/$', 'latest_payments'),
     (r'^payments/(?P<payment_id>\d+)/edit/$', 'edit_payment'),
+    # (r'^payments/(?P<payment_id>\d+)/receipt/$', 'send_receipt'),
     (r'^payments/(?P<payment_id>\d+)/delete/$', 'delete_payment'),
 
     # Admin utilities

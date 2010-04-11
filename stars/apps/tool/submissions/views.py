@@ -3,14 +3,17 @@ from django.http import HttpResponseRedirect
 
 from datetime import datetime
 
+from stars.apps.helpers.forms.views import *
 from stars.apps.auth.utils import respond
 from stars.apps.auth.decorators import user_can_submit, user_is_inst_admin
+from stars.apps.auth.mixins import PermMixin, SubmissionMixin
 from stars.apps.submissions.models import *
 from stars.apps.cms.xml_rpc import get_article
 from stars.apps.tool.submissions.forms import *
 from stars.apps.credits.models import *
 from stars.apps.helpers.forms.form_helpers import basic_save_form, basic_save_new_form
 from stars.apps.helpers.forms.forms import Confirm
+from stars.apps.helpers import flashMessage
 from stars.apps.tool.submissions.forms import CreditUserSubmissionForm, CreditUserSubmissionNotesForm, ResponsiblePartyForm
 
 def _get_active_submission(request):
@@ -43,98 +46,88 @@ def summary(request):
     
     return respond(request, "tool/submissions/summary.html", context)
 
-@user_is_inst_admin
-def submit_confirm(request):
+class SubmissionClassView(SubmissionMixin, PermMixin, FormActionView):
     """
-        Provides a form for users to submit their submissionset
+        Extends ``FormActionView`` to provide the class with the model instance
     """
-    submission = _get_active_submission(request)
-    if not submission:
-        flashMessage.send("No active submission found to submit.", flashMessage.NOTICE)
-        return HttpResponseRedirect("/tool/manage/submissionsets/")
-        
-    # Find all Credits listed as "In Progress"
-    credit_list = [] 
-    for cat in submission.categorysubmission_set.all():
-            for sub in cat.subcategorysubmission_set.all():
-                for c in sub.creditusersubmission_set.all():
-                    if c.submission_status == 'p' or c.submission_status == 'ns':
-                        credit_list.append(c)
+    perm_list = ['admin',]
+    perm_message = "Sorry, only administrators can submit for a rating."
     
-    form = BoundaryForm(instance=submission)
-    if request.method == 'POST':
-        form = BoundaryForm(request.POST, instance=submission)
-        if form.is_valid():
-            submission = form.save()
-            return HttpResponseRedirect("/tool/submissions/submit/letter/")
-        else:
-            flashMessage.send("Please correct the errors below.", flashMessage.ERROR)
-            
-    context = {
-        'active_submission': submission,
-        'credit_list': credit_list,
-        'object_form': form,
-    }
-    template = "tool/submissions/submit_confirm.html"
-    return respond(request, template, context)
+    def get_instance(self, request):
+        """ Get's the active submission from the request """
+        self.instance = _get_active_submission(request)
+        if not self.instance:
+            flashMessage.send("No active submission found to submit.", flashMessage.NOTICE)
+            raise RedirectException(url="/tool/manage/submissionsets/")
 
-@user_is_inst_admin
-def submit_letter(request):
+class ConfirmClassView(SubmissionClassView):
     """
-        President's Letter and "Reporter" status option
+        The first step in the final submission process
     """
-    submission = _get_active_submission(request)
-    if not submission:
-        flashMessage.send("No active submission found to submit.", flashMessage.NOTICE)
-        return HttpResponseRedirect("/tool/manage/submissionsets/")
+    
+    def get_extra_context(self, request):
+        """ Extend this method to add any additional items to the context """
+        # Find all Credits listed as "In Progress"
+        credit_list = [] 
+        for cat in self.instance.categorysubmission_set.all():
+                for sub in cat.subcategorysubmission_set.all():
+                    for c in sub.creditusersubmission_set.all():
+                        if c.submission_status == 'p' or c.submission_status == 'ns':
+                            credit_list.append(c)
+        return {'credit_list': credit_list,}
         
-    if submission.get_STARS_rating().name == 'Reporter':
-        formClass = LetterForm
-    else:
-        formClass = LetterStatusForm
-    
-    form = formClass(instance=submission)
-    if request.method == 'POST':
-        form = formClass(request.POST, request.FILES, instance=submission)
-        if form.is_valid():
-            submission = form.save()
-            return HttpResponseRedirect("/tool/submissions/submit/finalize/")
-        else:
-            flashMessage.send("Please correct the errors below.", flashMessage.ERROR)
-    context = {
-        'active_submission': submission,
-        'object_form': form,
-    }
-    template = "tool/submissions/submit_letter.html"
-    return respond(request, template, context)
-    
-@user_is_inst_admin
-def submit_finalize(request):
-    """
-        Finalize and confirm a submission
-    """
-    submission = _get_active_submission(request)
-    if not submission:
-        flashMessage.send("No active submission found to submit.", flashMessage.NOTICE)
-        return HttpResponseRedirect("/tool/manage/submissionsets/")
+    def get_success_response(self):
+        raise RedirectException("/tool/submissions/submit/letter/")
 
-    form = Confirm()
-    if request.method == 'POST':
-        form = Confirm(request.POST)
-        if form.is_valid():
-            submission.date_submitted = datetime.now()
-            submission.status = 'pr'
-            submission.save()
-            submission.institution.state.delete() # remove this submissionset as the active submissionset
-            return respond(request, 'tool/submissions/submit_success.html', {})
-        else:
-            flashMessage.send("Please correct the errors below.", flashMessage.ERROR)
-    context = {
-        'active_submission': submission,
-        'object_form': form,
-    }
-    template = "tool/submissions/submit_finalize.html"
-    return respond(request, template, context)
+# The first submission view
+submit_confirm = ConfirmClassView("tool/submissions/submit_confirm.html", BoundaryForm,  form_name='object_form', instance_name='active_submission')
+
+class LetterClassView(SubmissionClassView):
+    """
+        Extends the Form class-based view from apps.helpers
+    """
+    
+    def get_form_class(self, *args, **kwargs):
+        """ This form gives institutions the option to choose Reporter status """
+        if self.instance.get_STARS_rating().name != 'Reporter':
+            return LetterStatusForm
+        return SubmissionClassView.get_form_class(self, *args, **kwargs)
+        # return super(LetterClassView, self).get_form_class(*args, **kwargs)
+        
+    def get_success_response(self):
+        raise RedirectException("/tool/submissions/submit/finalize/")
+
+# The second view of the submission process
+submit_letter = LetterClassView("tool/submissions/submit_letter.html", LetterForm,  form_name='object_form', instance_name='active_submission', has_upload=True)
+
+class FinalizeClassView(SubmissionClassView):
+    """
+        Extends the Form class-based view from apps.helpers
+    """
+    
+    def save_form(self, form):
+        """ Finalizes the submission object """
+        self.instance.date_submitted = datetime.now()
+        self.instance.status = 'pr'
+        self.instance.submitting_user = request.user
+        self.instance.save()
+        self.instance.institution.state.delete() # remove this submissionset as the active submissionset
+        
+    def get_form_kwargs(self, request):
+        """ Remove 'instance' from ``kwargs`` """
+        kwargs = SubmissionClassView.get_form_kwargs(self, request)
+        if kwargs.has_key('instance'):
+            del kwargs['instance']
+            # kwargs['instance'] = None
+    
+    def get_success_response(self):
+        return respond(request, 'tool/submissions/submit_success.html', {})
+        
+# The final step of the submission process
+submit_finalize = FinalizeClassView("tool/submissions/submit_finalize.html",
+                                    Confirm,
+                                    instance_name='active_submission',
+                                    form_name='object_form')
 
 def _get_category_submission_context(request, category_id):
     active_submission = _get_active_submission(request)
@@ -318,7 +311,6 @@ def serve_uploaded_file(request, inst_id, path):
     """
         Serves file submissions.
     """
-    # print "Serving File..."
     current_inst = request.user.current_inst
     if not current_inst or current_inst.id != int(inst_id):
         raise PermissionDenied("File not found")
@@ -336,7 +328,7 @@ def delete_uploaded_file_gateway(request, inst_id, creditset_id, credit_id, fiel
         Handles secure AJAX delete of uploaded files.
         We don't actually use the filename - rather we load the submission object and get the path from it.
     """
-    # print "In gateway..."
+
     current_inst = request.user.current_inst
     if not current_inst or current_inst.id != int(inst_id):
         raise PermissionDenied("File not found")
@@ -345,7 +337,7 @@ def delete_uploaded_file_gateway(request, inst_id, creditset_id, credit_id, fiel
                                                                 subcategory_submission__category_submission__submissionset__institution = current_inst)
     upload_submission = get_object_or_404(UploadSubmission, documentation_field__id=field_id, \
                                                             credit_submission = credit_submission)
-    # print "About to delete..."
+
     # Finally, perform the delete.  Let any exceptions simply cascade up - they'll get logged.
     upload_submission.delete()
    

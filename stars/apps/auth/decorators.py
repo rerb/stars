@@ -7,6 +7,45 @@ from django.conf import settings
 
 from stars.apps.helpers import flashMessage
 
+# Class decorators
+# Deprecated by Mixins
+
+def staff_decorator(cls):
+    class _DecoratedClass(cls):
+        def __call__(self, request, *args, **kwargs):
+            if request.user.is_staff:
+                return super(_DecoratedClass, self).__call__(request, *args, **kwargs)
+            elif request.user.is_authenticated():
+                raise PermissionDenied("Permission Denied")
+            else:
+                return _redirect_to_login(request)
+    return _DecoratedClass
+    
+def perm_decorator(perm, error_message=None):
+    def decorate(cls):
+        class _DecoratedClass(cls):
+            def __call__(self, request, *args, **kwargs):
+                if request.user.has_perm(perm):
+                    return super(_DecoratedClass, self).__call__(request, *args, **kwargs)
+                elif request.user.is_authenticated():
+                    raise PermissionDenied(error_message if error_message else "Permission Denied")
+                else:
+                    return _redirect_to_login(request)
+        # _DecoratedClass.__bases__=cls.__bases__
+        return _DecoratedClass
+    return decorate
+    
+def valid_submission(cls):
+    class _DecoratedClass(cls):
+        def __call__(self, request, *args, **kwargs):
+            problem_with_submission = _get_active_submission_problem_response(request)
+            if problem_with_submission:
+                return problem_with_submission
+            return super(_DecoratedClass, self).__call__(request, *args, **kwargs)
+    return _DecoratedClass
+    
+# Function decorators
+
 def user_is_staff(f):
     """
         This decorator tests to see if the User has staff privileges
@@ -103,7 +142,7 @@ def _get_account_problem_response(request):
         if request.user.account_list: # user has accounts, just none selected (this shouldn't happen, but just in case...)
             return _redirect_to_tool(request, "You need to select an institution before proceeding")
         else: # user has no accounts (also shouldn't really happen...
-            error_msg = """Your AASHE Account is not verified to access the STARS Reporting Tool.  Only institutions that are registered as STARS Charter Participants are able to access the Reporting Tool.  You may be receiving this message because you have not been listed as a user by the account's administrator.  The administrator is likely to be the person who first registered for STARS or your institution's STARS Liaison.  Please contact this person so they may list you as a user in the Reporting Tool and you may gain access.  
+            error_msg = """Your AASHE Account is not verified to access the STARS Reporting Tool.  Only institutions that are registered as STARS Participants are able to access the Reporting Tool.  You may be receiving this message because you have not been listed as a user by the account's administrator.  The administrator is likely to be the person who first registered for STARS or your institution's STARS Liaison.  Please contact this person so they may list you as a user in the Reporting Tool and you may gain access.  
 <br/><br/>
 To add users, once the administrator is logged into the Reporting Tool, simply choose the "Manage Institution" link and click on the "Users" tab."""
             raise PermissionDenied(error_msg)
@@ -115,7 +154,12 @@ To add users, once the administrator is logged into the Reporting Tool, simply c
     return None
 
 def _get_active_submission_problem_response(request):
-    """ Returns an error response if there are any problems with the user's active submission, None otherwise """
+    """ 
+        Returns an error response if there are any problems with the user's active submission, None otherwise
+        
+        NOTE: this is gradually being replaced by the mixin in `stars.apps.auth.mixins`.
+        Any changes made here, should be duplicated there.
+    """
     problem_with_account = _get_account_problem_response(request)
     if problem_with_account:
        return problem_with_account 

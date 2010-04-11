@@ -25,25 +25,25 @@ auth = AASHEAuthBackend()
 
 print "---------------TESTING LOGIN -------------------------"
 print auth.authenticate("it@aashe.org", "ba7que")
-print auth.authenticate("bens@aashe.org", "Marsupia1")
+# print auth.authenticate("bens@aashe.org", "Marsupia1")
 
 print "---------------TESTING GETBYEMAIL -------------------------"
 print auth_rpc.get_user_by_email('it@aashe.org')
 
 # @todo: convert these to doctests once data is stable on IRC
 print "---------------TESTING GETNODE ----------------------------"
-print xml_rpc.method_help("aashenode.get")
-print cms_rpc.get_article(3339)
+# print xml_rpc.method_help("node.get")
+print cms_rpc.get_article(3971)
 
-print "---------------TESTING GETCHILDTERMS ----------------------------"
-print xml_rpc.method_help("aashetaxonomy.get_childTerms")
+# print "---------------TESTING GETCHILDTERMS ----------------------------"
+# print xml_rpc.method_help("aashetaxonomy.get_childTerms")
 terms = cms_rpc.get_childTerms(settings.ARTICLE_BASE_TERM_ID) 
 for term in terms:
     print "Term: %s (%s) \t Weight: %s" % (term["name"], term["tid"], term["weight"])   
     print "      %s" % term['description']      
-    
+
 print "---------------TESTING GETTREE ----------------------------"
-print xml_rpc.method_help("aashetaxonomy.get_tree")
+# print xml_rpc.method_help("aashetaxonomy.get_tree")
 term_tree = cms_rpc.get_tree(settings.ARTICLE_BASE_TERM_ID) 
 for term in term_tree :
     print "Term: %s (%s) \t Weight: %s \t Depth : %s \t Parent: %s" % (term["name"], term["tid"], term["weight"], term["depth"], term["parents"][0])   
@@ -51,7 +51,7 @@ for term in term_tree :
 
 print "---------------TESTING GETARTICLEDIRECTORY----------------------------"
 category = ArticleCategory.objects.get(slug="about")
-print xml_rpc.method_help("aashearticles.get_directory")
+# print xml_rpc.method_help("aashearticles.get_directory")
 term_tree = cms_rpc.get_article_directory(category) 
 for term in term_tree :
     print "Term: %s (%s) \t Weight: %s " % (term["name"], term["tid"], term["weight"])   
@@ -59,7 +59,7 @@ for term in term_tree :
     print term['articles']
     
 print "---------------TESTING GETARTICLES ----------------------------"
-print xml_rpc.method_help("aashearticles.get")
+# print xml_rpc.method_help("aashearticles.get")
 for article in cms_rpc.get_article_list(category) :
     print article
 

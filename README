@@ -4,13 +4,13 @@ This document assumes you have checked out the latest source code to get this fi
 
 == Installation ==
 
-To develop on the STARS application locally, the only requirement is that you have Python 2.4+ installed. 2.6 is recommended, because this is what's running on the server.
+To develop on the STARS application locally, the only requirement is that you have Python 2.6+ installed.
 
 To get your buildout environment set up run the bootstrap.py file:
-$ python bootstrap.py
+>$ python bootstrap.py
 
 You should now run buildout to install the necessary dependencies:
-$ ./bin/buildout
+>$ ./bin/buildout
 
 That's it! Your environment will be set up with local copies of:
  - Django 1.1.1
@@ -19,12 +19,12 @@ That's it! Your environment will be set up with local copies of:
  - TinyMCE 3.3 (javascript library)
 
 When you want to run any of the standard Django commands, use bin/django instead of manage.py:
-$ ./bin/django runserver
+>$ ./bin/django runserver
 
 === Note about South ===
 
 If you have an existing version of the db already, you'll need to run sycndb to get integrate south:
-$ ./bin/django sycndb
+>$ ./bin/django sycndb
 
 More information: http://south.aeracode.org/
 
@@ -56,8 +56,8 @@ TinyMCE is automatically pulled down by buildout.
 
 ...from the package directory
 
-$> bin/django syncdb    # This initializes the DB
-$> bin/django runserver # Runs the server on http://localhost:8000/
+>$ bin/django syncdb    # This initializes the DB
+>$ bin/django runserver # Runs the server on http://localhost:8000/
           
 === Deployment ===
 

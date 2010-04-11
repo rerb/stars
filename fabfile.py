@@ -33,14 +33,38 @@ def prepare_dev():
         sets env.project_path and env.checkout_cmd
     """
     
-    rev = prompt("Revision (blank for latest): ")
+    part = prompt("Revision, Branch or Tag ([r]/b/t): ")
     
-    if not rev:
-        rev = get_latest_revision_number()
+    if part == 'r' or part == "":
+        rev = prompt("Revision # (blank for latest): ")
     
-    env.project_path = "%sr%s" % (env.path, rev)
+        if not rev:
+            rev = get_latest_revision_number()
     
-    env.checkout_cmd = 'svn --no-auth-cache --non-interactive --username %s --password %s -r %s export %strunk %s' % (env.svn_user, env.svn_pass, rev, env.repo, env.project_path)
+        env.project_path = "%sr%s" % (env.path, rev)
+        checkout_attrs = "-r %s" % rev
+        checkout_path = "%strunk" % env.repo
+    
+    elif part == 'b':
+        
+        branch_name = prompt("Branch Name: ")
+        env.project_path = "%sbranch_%s" % (env.path, branch_name)
+        checkout_attrs = None
+        checkout_path = "%sbranches/%s" % (env.repo, branch_name)
+        
+    elif part == 't':
+        
+        tag_name = prompt("Tag Name: ")
+        env.project_path = "%stag_%s" % (env.path, tag_name)
+        checkout_attrs = None
+        checkout_path = "%stags/%s" % (env.repo, tag_name)
+    else:
+        print "Invalid option."
+        abort(0)
+    
+    env.checkout_cmd = 'svn --no-auth-cache --non-interactive --username %s --password %s %s export %s %s' % (env.svn_user, env.svn_pass, checkout_attrs, checkout_path, env.project_path)
+    
+    
     
     # @Todo: I could copy over the live DB to work with...
     
