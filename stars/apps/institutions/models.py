@@ -291,9 +291,10 @@ class AbstractAccount(BaseAccount):
             send_mail('STARS Account notification for: %s'%self.user, \
                       self.get_formatted_message(action, admin, institution),  \
                       settings.EMAIL_HOST_USER, [self.user.email], fail_silently=True )
-        # else:
-        #     print "Account Notification: E-mail would have been sent to %s:"%self.user.email
-        #     print self.get_formatted_message(action, admin, institution)
+        else:
+            import sys
+            print >> sys.stderr, "Account Notification: E-mail would have been sent to %s:"%self.user.email
+            print >> sys.stderr, self.get_formatted_message(action, admin, institution)
             
     @classmethod
     def update_account(cls, admin, notify_user, institution, user_level, **user_params):
