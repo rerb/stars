@@ -478,7 +478,7 @@ class CreditUserSubmissionForm(CreditSubmissionForm):
 
     class Meta:
         model = CreditUserSubmission
-        fields = ['internal_notes', 'submission_notes', 'responsible_party_confirm', 'responsible_party', 'submission_status', 'applicability_reason']
+        fields = ['submission_notes', 'responsible_party_confirm', 'responsible_party', 'submission_status', 'applicability_reason']
 
     def __init__(self, *args, **kwargs):
         super(CreditUserSubmissionForm, self).__init__(*args, **kwargs)
