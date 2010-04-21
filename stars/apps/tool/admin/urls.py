@@ -7,9 +7,6 @@ urlpatterns = patterns(
     (r'^$', 'institutions_list'),
     (r'^search/$', 'institutions_search'),
     (r'^list$', 'institutions_list'),
-    # The snippet for the gateway URL is filtered by the JS search_institution() ajax - see ticket #220
-    # Ideally, these two regular expressions should match opposite patterns.
-    (r'^gateway/find-institution/(?P<snippet>[\d\w\-\. ]+)$', 'find_institution_gateway'),
     (r'^institution/masquerade/(?P<aashe_id>\d+)/$', 'select_institution'),
 
     # Payment processing

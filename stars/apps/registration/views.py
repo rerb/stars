@@ -10,7 +10,7 @@ from datetime import datetime, date, timedelta
 import urllib2, re
 from xml.etree.ElementTree import fromstring
 
-from stars.apps.institutions.models import Institution, _query_member_list
+from stars.apps.institutions.models import Institution, _query_iss_orgs
 from stars.apps.registration.forms import *
 from stars.apps.auth.utils import respond, connect_iss
 from stars.apps.helpers import watchdog, flashMessage
@@ -35,33 +35,13 @@ def reg_select_institution(request):
     institution_list_lookup = {}
     
     # Get the list of schools as choices
-    db = connect_iss()
-    cursor = db.cursor()
-    institution_query = """
-        SELECT account_num, org_name as name, city, state
-        FROM `organizations`
-        WHERE (
-            org_type = "I" OR
-            org_type = "Four Year Institution" OR
-            org_type = "Two Year Institution" OR
-            org_type = "Graduate Institution" OR
-            org_type = "System Office"
-        )
-        and city IS NOT NULL
-        and state IS NOT NULL
-        ORDER BY name
-    """
-    cursor.execute(institution_query)
+    
     institution_list = []
     institution_list_lookup = {}
-    for row in cursor.fetchall():
-        try:
-            name = row[1].decode('cp1252')
-            institution_list.append((row[0], "%s, %s, %s" % (name, row[2], row[3])))
-            institution_list_lookup[row[0]] = name
-        except Exception, e:
-            watchdog.log("Registration", "Encoding issue with ISS: %s" % e, watchdog.ERROR)
-    db.close()
+    for inst in _query_iss_orgs():
+        if inst['city'] and inst['state']:
+            institution_list.append((inst['id'], "%s, %s, %s" % (inst['name'], inst['city'], inst['state'])))
+            institution_list_lookup[inst['id']] = inst['name']
     
     # Generate the school choice form
     form = RegistrationSchoolChoiceForm()

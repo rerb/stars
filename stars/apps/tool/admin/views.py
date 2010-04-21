@@ -45,21 +45,11 @@ def institutions_list(request):
     return respond(request, template, {'institution_list':institutions, 'enable_help_text':enable_help_text})
     
 @user_is_staff
-def find_institution_gateway(request, snippet):
-    """
-        Searches stars_member_list.members for any school that includes
-        the snippet in its name
-        @Todo: sync with ISS DB when it comes online
-    """
-    institution_list = Institution.find_institutions(snippet)
-    return render_to_response('tool/admin/institutions/search_results.html', {'institution_list': institution_list})
-    
-@user_is_staff
 def select_institution(request, aashe_id):
     """
-        The admin tool for selecting a particular institution from stars_member_list.members
+        The admin tool for selecting a particular institution
     """
-    institution = Institution.load_institution(aashe_id)
+    institution = Institution.objects.get(aashe_id=aashe_id)
     if not institution:
         raise Http404("No such institution.")
     

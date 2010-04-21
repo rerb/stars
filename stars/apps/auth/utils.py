@@ -49,6 +49,12 @@ def connect_member_list():
         Returns a connection to stars_member_list
     """
     return MySQLdb.connect(user=settings.AASHE_MYSQL_LOGIN, db='stars_member_list', passwd=settings.AASHE_MYSQL_PASS, host=settings.AASHE_MYSQL_SERVER)
+    
+def connect_iss():
+    """
+        Returns a connection to stars_member_list
+    """
+    return MySQLdb.connect(user=settings.AASHE_MYSQL_LOGIN, db='iss', passwd=settings.AASHE_MYSQL_PASS, host=settings.AASHE_MYSQL_SERVER)
 
 
 def change_institution(request, institution):
@@ -149,17 +155,18 @@ def _get_account_from_session(request):
             current_inst = Institution.objects.get(pk=inst_pk)
             # @todo - in future, we may want to check here if the institution has been disabled, for non-staff.
         except Institution.DoesNotExist:  # oops - the session's institution doesn't exist any longer!.
-            pass
+            watchdog.log("Current institution not found in database.", watchdog.ERROR)
     
     if request.user.is_staff: # staff don't have or need accounts to manage institutions
         if not current_inst:  # so, see if the staff member has a cookie with a current institution from a previous session
             if request.COOKIES.has_key('current_inst'): 
                 aashe_id = request.COOKIES['current_inst']
                 try:
-                    current_inst = Institution.load_institution(aashe_id)
-                except MySQLdb.Error,e:  # this hack/catch allows staff to continue working when institutions DB is down.
-                    flashMessage.send('Unable to connect to institutions DB: %s'%e, flashMessage.ERROR)
-                    watchdog.log('DB', e.__str__(), watchdog.ERROR)
+                    current_inst = Institution.objects.get(aashe_id=aashe_id)
+                    # @todo I should really delete the cookie here, but I can't w/out a Response object
+                except Institution.DoesNotExist:
+                    flashMessage.send('Current institution not found in db.', flashMessage.ERROR)
+                    watchdog.log("Current institution not found in database.", watchdog.ERROR)
         return (None, current_inst)
 
     account = None

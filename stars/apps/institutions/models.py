@@ -1,8 +1,9 @@
 from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User
-
 from django.contrib.localflavor.us.models import PhoneNumberField
+
+from stars.apps.helpers import watchdog
 
 class Institution(models.Model):
     """
@@ -28,7 +29,7 @@ class Institution(models.Model):
     charter_participant = models.BooleanField()
     
     def __unicode__(self):
-        return self.name
+        return self.name.decode('utf8')
         
     def get_admin_url(self):
         """ Returns the base URL for AASHE Staff to administer aspects of this institution """
@@ -124,67 +125,55 @@ class Institution(models.Model):
                 return True
         # assert: no submission has been registered for the given credit set for this institution
         return False
-    
-    @staticmethod
-    def find_institutions(snippet):
-        """
-            Searches stars_member_list for any school that includes the snippet in its name
-            returns a list of institutions, maybe empty.
-        """
-        return _query_member_list("""name like '%%%s%%'"""%snippet)
         
     def is_member_institution(self):
         """
             Searches stars_member_list.members for the institution
             returns True if this institution exists
         """        
-        if _query_member_list("account_num = '%s' AND is_member = 1"%self.aashe_id):
+        if _query_iss_orgs("account_num = '%s' AND is_member = 1"%self.aashe_id):
             return True
         return False
     
-    @staticmethod
-    def load_institution(aashe_id):
-        """
-            Connects to stars_member_list to update/create a local
-            mirror of the requested institution
-            Returns the institutions or None
-        """
-        # Get institution data from aashedata01
-        result = _query_member_list("account_num = '%s'"%aashe_id)
-        
-        institution = None
-        if len(result): # If the institution is an active member...
-            result_institution = result[0]
-            try:       # check if the institution exists locally...
-                institution = Institution.objects.get(aashe_id=aashe_id)
-            except Institution.DoesNotExist:  # ... if not, create it
-                institution = Institution(aashe_id=result_institution['id'], name=result_institution['name'], enabled=False)
-                # These institutions are disabled because they won't have been created through registration...
-                institution.save()
-        else: # institution is not in our ISS DB
-            try: # disable non-member institution if it's saved locally
-                institution = Institution.objects.get(aashe_id=aashe_id)
-                # institution.enabled = False
-                institution.save()
-            except Institution.DoesNotExist:  # how did we get here?
-                pass
-        return institution
-    
-def _query_member_list(where_clause):
+def _query_iss_orgs(where_clause=None):
     """
         PRIVATE: Searches stars_member_list.members table for schools that match to given where_clause
         !!!!Assumes that where_clause has been properly sanitized and quoted!!!!
         Returns a list of institution dictionaries (id name), maybe empty.
     """
-    from stars.apps.auth.utils import connect_member_list
-    db = connect_member_list()
+    from stars.apps.auth.utils import connect_iss
+    db = connect_iss()
     cursor = db.cursor()
+    
+    # Provide a default where clause
+    if not where_clause:
+        wc = """
+        (
+            org_type = "I" OR
+            org_type = "Four Year Institution" OR
+            org_type = "Two Year Institution" OR
+            org_type = "Graduate Institution" OR
+            org_type = "System Office"
+        )"""
+    else:
+        wc = where_clause
+        
     query = """
-        SELECT organization_id as id, name, city, state FROM `org_export`
+        SELECT account_num, org_name, city, state
+        FROM `organizations`
         WHERE %s
-        ORDER BY name""" % (where_clause)
+        ORDER BY org_name""" % (wc)
     cursor.execute(query)
-    institution_list = [{'id': row[0], 'name': row[1], 'city': row[2], 'state': row[3]} for row in cursor.fetchall()]
+    
+    institution_list = []
+    for row in cursor.fetchall():
+    
+        # Try to decode the name field
+        try:
+            name = row[1].decode('cp1252')
+            institution_list.append({'id': row[0], 'name': name, 'city': row[2], 'state': row[3]})
+        except Exception, e:
+            watchdog.log("Registration", "Encoding issue with ISS: %s" % e, watchdog.ERROR)
 
     db.close()
     return institution_list

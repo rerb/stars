@@ -8,8 +8,10 @@
     >>> 
     >>> bob = User(username="bob", password="x")
     >>> bob.save()
-    >>> uv = Institution.load_institution(aashe_id=3961)
-    >>> aashe = Institution.load_institution(aashe_id=4335)
+    >>> uv = Institution(aashe_id='-1', name='UV')
+    >>> uv.save()
+    >>> aashe = Institution(aashe_id='-2', name='AASHE')
+    >>> aashe.save()
     >>> a = StarsAccount(user=bob, institution=uv)
     >>> a.save()
     >>> b = StarsAccount(user=bob, institution=aashe)
