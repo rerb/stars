@@ -13,7 +13,7 @@ configs = {
     '/var/django/projects/stars/production/.*': 'production',
     '/var/django/projects/stars/dev/.*': 'development',
     '/var/django/projects/stars/stage/.*': 'stage',
-    '/Users/jamstooks/aashe/STARS/src/.*/stars': 'ben',
+    '/Users/jamstooks/.*': 'ben',
     '/Users/Joseph/Projects/AASHE/STARS/.*/stars': 'joseph',
 }
 

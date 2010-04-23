@@ -257,8 +257,8 @@ def reg_account(request):
     institution = request.session.get('selected_institution', None)
     
     if not institution:  # If that's not there, we'll try to get it from the user's accounts (from DB)
-        account = StarsAccount.get_selected_account(request.user)
-        if account and account.institution.is_registered(): 
+        account = request.user.account
+        if account and account.institution.is_registered():
             institution = account.institution
             request.session['selected_institution'] = institution
         else:            # can't find any registered institution for this user...
@@ -268,8 +268,10 @@ def reg_account(request):
     # Determine the amount due
     amount_due = 0
     try:
-        payment = Payment.objects.filter(submissionset__institution=institution, type='later')[0]
-        amount_due = payment.amount
+        payments = Payment.objects.filter(submissionset__institution=institution)
+        for payment in payments:
+            if payment.type == 'later':
+                amount_due = payment.amount
     except:
         watchdog.log("Registration Account", "No payment found for institution.", watchdog.ERROR)
     
