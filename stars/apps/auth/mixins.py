@@ -46,7 +46,7 @@ class AuthenticatedMixin(StarsMixin):
                 context = getattr(self, 'auth_mixin_context', {})
                 return respond(request, self.auth_mixin_template, context)
             else:
-                return self.redirect_to_login()
+                return self.redirect_to_login(request)
         
         return super(AuthenticatedMixin, self).__call__(request, *args, **kwargs)
 
