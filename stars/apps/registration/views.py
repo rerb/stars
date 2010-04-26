@@ -247,10 +247,18 @@ class RegistrationSurveyView(AuthenticatedMixin, FormActionView):
         A survey step after users complete the registration process
     """
     
+    def render(self, request, *args, **kwargs):
+        
+        if not self.get_institution(request):
+            flashMessage.send("No Registered Institution Selected")
+            return HttpResponseRedirect("/register/step1/")
+        
+        return super(RegistrationSurveyView, self).render(request, *args, **kwargs)
+    
     def save_form(self, form, request):
         """ Updates the resonse with the user and institution before saving """
         rr = form.save(commit=False)
-        rr.institution = _get_active_submission(request).institution
+        rr.institution = self.get_institution(request)
         rr.user = request.user
         rr.save()
         # Because I use `commit=False` above, I have to save the m2m separately:
@@ -262,6 +270,19 @@ class RegistrationSurveyView(AuthenticatedMixin, FormActionView):
             On successful submission of the form, redirect to the registration account page
         """
         return HttpResponseRedirect('/register/account/')
+    
+    def get_institution(self, request):
+
+        # Get the user's current account information. First try the registration selected_institution from the session...
+        institution = request.session.get('selected_institution', None)
+
+        if not institution:  # If that's not there, we'll try to get it from the user's accounts (from DB)
+            account = request.user.account
+            if account and account.institution.is_registered():
+                institution = account.institution
+                request.session['selected_institution'] = institution
+        
+        return institution
         
 survey = RegistrationSurveyView("registration/survey.html", RegistrationSurveyForm,  form_name='object_form', instance_name='institution')
     
