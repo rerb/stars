@@ -48,8 +48,11 @@
                 <tr>
                     <td>$900</td>
                     <td>
-                    	$1400<br/>
-                    	<a href='http://www.aashe.org/membership/description.php'>Become a member</a>
+                    	$1400
+                    	{% if not is_member %}
+                    	    <br/>
+                        	<a href='http://www.aashe.org/membership/description.php'>Become a member</a>
+                        {% endif %}
                     </td>
                 </tr>
             </table>

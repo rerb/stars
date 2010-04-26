@@ -134,6 +134,29 @@ class Institution(models.Model):
         if _query_iss_orgs("account_num = '%s' AND is_member = 1"%self.aashe_id):
             return True
         return False
+
+class RegistrationReason(models.Model):
+    """
+        Possible reasons to register for STARS
+    """ 
+    title = models.CharField(max_length=255)
+    
+    def __unicode__(self):
+        return self.title
+        
+class RegistrationSurvey(models.Model):
+    """
+        An optional survey for new registrants
+    """
+    institution = models.ForeignKey('Institution')
+    user = models.ForeignKey(User)
+    source = models.TextField("How did you hear about STARS?")
+    reasons = models.ManyToManyField('RegistrationReason')
+    primary_reason = models.ForeignKey('RegistrationReason', related_name='primary_surveys')
+    enhancements = models.TextField("Is there anything AASHE can do or provide to improve your experience using STARS (resources, trainings, etc.)?", blank=True, null=True)
+    
+    def __unicode__(self):
+        return self.institution.__unicode__()
     
 def _query_iss_orgs(where_clause=None):
     """

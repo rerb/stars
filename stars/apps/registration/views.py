@@ -15,10 +15,13 @@ from stars.apps.registration.forms import *
 from stars.apps.auth.utils import respond, connect_iss
 from stars.apps.helpers import watchdog, flashMessage
 from stars.apps.tool.admin.watchdog.models import ERROR
+from stars.apps.tool.submissions.views import _get_active_submission
 from stars.apps.auth import xml_rpc
 from stars.apps.registration.globals import *
 from stars.apps.submissions.models import *
 from stars.apps.credits.models import CreditSet
+from stars.apps.helpers.forms.views import FormActionView
+from stars.apps.auth.mixins import AuthenticatedMixin
 
 
 def reg_select_institution(request):
@@ -29,13 +32,7 @@ def reg_select_institution(request):
     response = _confirm_login(request)
     if response: return response
     
-    # Get the user's institution from AASHE ID
-    institution_id = None    # @TODO get this from Drupal when salesforce comes online
-    institution_list = []
-    institution_list_lookup = {}
-    
     # Get the list of schools as choices
-    
     institution_list = []
     institution_list_lookup = {}
     for inst in _query_iss_orgs():
@@ -135,7 +132,7 @@ def reg_payment(request):
                         if result['cleared']:
                             institution = register_institution(request.user, institution, "credit", price, payment_dict)
                             request.session['selected_institution'] = institution
-                            return HttpResponseRedirect("/register/account/")
+                            return HttpResponseRedirect("/register/survey/")
                         else:
                             flashMessage.send("Processing Error: %s" % result['msg'], flashMessage.ERROR)
                 else:
@@ -144,7 +141,7 @@ def reg_payment(request):
             else:
                 institution = register_institution(request.user, institution, "later", price, None)
                 request.session['selected_institution'] = institution
-                return HttpResponseRedirect("/register/account/")
+                return HttpResponseRedirect("/register/survey/")
     
     template = "registration/payment.html"
     context = {'pay_form': pay_form, 'pay_later_form': pay_later_form, 'institution': institution, 'is_member': is_member, 'price': price}
@@ -244,6 +241,29 @@ def register_institution(user, institution, payment_type, price, payment_dict):
                 )
         
     return institution
+    
+class RegistrationSurveyView(AuthenticatedMixin, FormActionView):
+    """
+        A survey step after users complete the registration process
+    """
+    
+    def save_form(self, form, request):
+        """ Updates the resonse with the user and institution before saving """
+        rr = form.save(commit=False)
+        rr.institution = _get_active_submission(request).institution
+        rr.user = request.user
+        rr.save()
+        # Because I use `commit=False` above, I have to save the m2m separately:
+        # # http://docs.djangoproject.com/en/dev/topics/forms/modelforms/#the-save-method
+        form.save_m2m()
+        
+    def get_success_response(self, request):
+        """
+            On successful submission of the form, redirect to the registration account page
+        """
+        return HttpResponseRedirect('/register/account/')
+        
+survey = RegistrationSurveyView("registration/survey.html", RegistrationSurveyForm,  form_name='object_form', instance_name='institution')
     
 def reg_account(request):
     """

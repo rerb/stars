@@ -21,6 +21,35 @@ class StarsMixin(object):
         flashMessage.send(message, flashMessage.NOTICE)
         return HttpResponseRedirect(settings.DASHBOARD_URL)
 
+class AuthenticatedMixin(StarsMixin):
+    """
+        This class should be used as a Class-based view mixin to ensure that a user is logged in
+    """
+    def __call__(self, request, *args, **kwargs):
+        """
+            Makes sure the current user is authenticated before executing `__call__`
+            
+            Subclasses can define any of the following:
+                
+                `auth_mixin_redirect`: if this is defined unauthenticated users will be forwarded to this url
+                
+                or
+                
+                `auth_mixin_template`: if this is defined (and `auth_redirect` is not) `__call__` will
+                    render to the template with `auth_mixin_context` if it's defined
+                `auth_mixin_context`: a dictionary of context variables for `auth_mixin_template`
+        """
+        if not request.user.is_authenticated():
+            if hasattr(self, 'auth_mixin_redirect'):
+                return HttpResponseRedirect(self.auth_redirect)
+            elif hasattr(self, 'auth_mixin_template'):
+                context = getattr(self, 'auth_mixin_context', {})
+                return respond(request, self.auth_mixin_template, context)
+            else:
+                return self.redirect_to_login()
+        
+        return super(AuthenticatedMixin, self).__call__(request, *args, **kwargs)
+
 class AccountMixin(StarsMixin):
     """
         This class should be used as a mixin to provide the subclass with `STARSAccount` verification.

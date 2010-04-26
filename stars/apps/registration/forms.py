@@ -121,3 +121,16 @@ class PaymentForm(forms.Form):
             return False
         return True
     
+class RegistrationSurveyForm(ModelForm):
+    
+    # reasons = forms.CheckboxSelectMultiple()
+    # reasons = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple(choices=[(r.id, r.title) for r in RegistrationReason.objects.all()]))
+    
+    class Meta:
+        model = RegistrationSurvey
+        fields = ['source', 'reasons', 'primary_reason', 'enhancements']
+        
+    def __init__(self, *args, **kwargs):
+        from stars.apps.institutions.models import RegistrationReason
+        super(RegistrationSurveyForm, self).__init__(*args, **kwargs)
+        self.fields['reasons'].widget = forms.CheckboxSelectMultiple(choices=[(r.id, r.title) for r in RegistrationReason.objects.all()])

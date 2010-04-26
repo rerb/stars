@@ -6,16 +6,12 @@
 
 {% block content %}
     <div class='inner20'>
-        <h1>STARS Participant Home Page</h1>
-        <h2>{{ institution }} has registered for STARS 1.0!</h2>
+        <h1>{{ institution }} has registered for STARS 1.0!</h1>
 
-        <p style='margin: 10px 50px;'>
-
-            To help get started with data collection before the STARS Reporting Tool launches in January, check out the <a href='http://www.aashe.org/files/documents/STARS/STARS_1.0_Early_Release_Technical_Manual.pdf'>STARS 1.0 Early Release Technical Manual</a> (pdf).
-
-            If you have questions about STARS, please visit the <a href='http://www.aashe.org/stars/'>STARS website</a> or contact the AASHE STARS Team (stars@aashe.org).
-
-        </p>
+        <div style='margin: 10px 50px;'>
+            {% load content %}
+            {% display_block_content 'reg_success' %}
+        </div>
 
         {% ifnotequal institution.contact_email user.email %}
         <p style='margin: 10px 50px;'>

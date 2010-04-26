@@ -605,6 +605,11 @@ form.generalForm {
     background-color: #f5f5f5;
 }
 
+form.generalForm ul {
+    list-style: none;
+    line-height: 1.8;
+}
+
 form.generalForm table th {
 	text-align: right;
 	font-weight: normal;
