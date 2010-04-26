@@ -58,7 +58,7 @@ def reg_select_institution(request):
             return HttpResponseRedirect('/register/step2/')
         else:
             e = form.errors
-            # This SHOULDN'T happen!
+            # Since this is a pull-down menu, there is really no way for this to happen.
             watchdog.log("Registration", "The institution select form didn't validate.", watchdog.ERROR)
             
     form.fields['aashe_id'].widget = widgets.Select(choices=institution_list)
@@ -356,13 +356,6 @@ def process_payment(payment_dict, product_list, test_mode=False, ref_code=None, 
         "product_list": product_list,
     })
     request = t.render(c)
-    # if debug:
-    #     print request
-    #     print """
-    #     **
-    #     CONNECTING
-    #     **
-    #     """
 
     connection_url = settings.CYBERSOURCE_URL
     if test_mode:
@@ -430,6 +423,7 @@ def _get_selected_institution(request):
     try:
         inst = Institution.objects.get(aashe_id=institution.aashe_id)
         if inst.is_registered():   # check for registration in the most recent credit set
+            request.session['selected_institution'] = inst
             return None, HttpResponseRedirect("/register/account/")
     except Institution.DoesNotExist:
         pass  # no problem - this is the usual case, institution is not registered, proceed with registration.
