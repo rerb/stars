@@ -134,3 +134,4 @@ class RegistrationSurveyForm(ModelForm):
         from stars.apps.institutions.models import RegistrationReason
         super(RegistrationSurveyForm, self).__init__(*args, **kwargs)
         self.fields['reasons'].widget = forms.CheckboxSelectMultiple(choices=[(r.id, r.title) for r in RegistrationReason.objects.all()])
+        self.fields['reasons'].help_text = "Select all that apply"
