@@ -38,7 +38,9 @@ def reg_select_institution(request):
     for inst in _query_iss_orgs():
         if inst['city'] and inst['state']:
             institution_list.append((inst['id'], "%s, %s, %s" % (inst['name'], inst['city'], inst['state'])))
-            institution_list_lookup[inst['id']] = inst['name']
+        else:
+            institution_list.append((inst['id'], inst['name']))
+        institution_list_lookup[inst['id']] = inst['name']
     
     # Generate the school choice form
     form = RegistrationSchoolChoiceForm()
