@@ -24,7 +24,7 @@ DATABASE_HOST = 'localhost'
 # the django dev server so we will need to serve the static files (see urls.py)
 STANDALONE_MODE = True
 
-MEDIA_ROOT = '/Users/jamstooks/aashe/STARS/src/media/stars/'
+MEDIA_ROOT = '/Users/jamstooks/aashe/projects/STARS/src/media/stars/'
 
 IRC_DOMAIN = WWW_IRC_DOMAIN
 
