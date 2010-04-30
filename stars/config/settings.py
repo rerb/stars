@@ -3,7 +3,7 @@
 import os, sys
 sys.path.append('../')
 
-ADMINS = (('Benjamin Stookey', 'ben@aashe.org'),("Ben's Cell", "8602131672@txt.att.net"),)
+ADMINS = (('Benjamin Stookey', 'ben@aashe.org'),)
 MANAGERS = ADMINS
 
 DEFAULT_CHARSET = 'utf-8'
