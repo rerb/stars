@@ -6,7 +6,7 @@
 	<script src='/media/static/js/listexpander.js' type='text/javascript'></script>
 {% endblock %}
 
-{% block body_onload %}listexpander();collapseSummary();{% endblock %}
+{% block body_onload %}{{ block.super }}listexpander();collapseSummary();{% endblock %}
 
 {% block submission_outline %}
         <ul class="listexpander">

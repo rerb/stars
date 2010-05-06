@@ -88,5 +88,23 @@
         {
             "title": "Share sustainability performance data with other organizations conducting sustainability surveys"
         }
+    },
+
+    {
+        "pk": 11,
+         "model": "institutions.registrationreason",
+         "fields": 
+        {
+            "title": "Other"
+        }
+    },
+    
+    {
+        "pk": 12,
+         "model": "institutions.registrationreason",
+         "fields": 
+        {
+            "title": "No reason was primary"
+        }
     }
 ]

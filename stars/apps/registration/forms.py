@@ -123,15 +123,18 @@ class PaymentForm(forms.Form):
     
 class RegistrationSurveyForm(ModelForm):
     
-    # reasons = forms.CheckboxSelectMultiple()
-    # reasons = forms.MultipleChoiceField(widget=forms.CheckboxSelectMultiple(choices=[(r.id, r.title) for r in RegistrationReason.objects.all()]))
-    
     class Meta:
         model = RegistrationSurvey
-        fields = ['source', 'reasons', 'primary_reason', 'enhancements']
+        fields = ['source', 'reasons', 'other', 'primary_reason', 'enhancements']
         
     def __init__(self, *args, **kwargs):
         from stars.apps.institutions.models import RegistrationReason
         super(RegistrationSurveyForm, self).__init__(*args, **kwargs)
-        self.fields['reasons'].widget = forms.CheckboxSelectMultiple(choices=[(r.id, r.title) for r in RegistrationReason.objects.all()])
+        choices = []
+        for r in RegistrationReason.objects.all():
+            if r.title != "Other" and r.title != "No reason was primary":
+                choices.append((r.id, r.title))
+        self.fields['reasons'].widget = forms.CheckboxSelectMultiple(choices=choices)
         self.fields['reasons'].help_text = "Select all that apply"
+        self.fields['reasons'].label = "The reason(s) your institution registered for STARS were to:"
+        self.fields['primary_reason'].label = "Which of the above reasons, if any, was the primary reason your institution registered for STARS?"

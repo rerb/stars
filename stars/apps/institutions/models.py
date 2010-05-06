@@ -150,9 +150,10 @@ class RegistrationSurvey(models.Model):
     """
     institution = models.ForeignKey('Institution')
     user = models.ForeignKey(User)
-    source = models.TextField("How did you hear about STARS?")
-    reasons = models.ManyToManyField('RegistrationReason')
-    primary_reason = models.ForeignKey('RegistrationReason', related_name='primary_surveys')
+    source = models.TextField("How did you hear about STARS?", blank=True, null=True)
+    reasons = models.ManyToManyField('RegistrationReason', blank=True, null=True)
+    other = models.CharField(max_length=64, blank=True, null=True)
+    primary_reason = models.ForeignKey('RegistrationReason', related_name='primary_surveys', blank=True, null=True)
     enhancements = models.TextField("Is there anything AASHE can do or provide to improve your experience using STARS (resources, trainings, etc.)?", blank=True, null=True)
     
     def __unicode__(self):

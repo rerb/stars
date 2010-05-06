@@ -19,5 +19,5 @@ urlpatterns = patterns(
     # (r'^submit/status/', 'submit_status'),
     (r'^submit/letter/$', 'submit_letter'),
     (r'^submit/finalize/$', 'submit_finalize'),
-    (r'^gateway/media/secure/(?P<inst_id>\d+)/(?P<creditset_id>\d+)/(?P<credit_id>\d+)/(?P<field_id>\d+)/(?P<filename>[^/]+)/delete/$', 'delete_uploaded_file_gateway'),
+    # (r'^gateway/media/secure/(?P<inst_id>\d+)/(?P<creditset_id>\d+)/(?P<credit_id>\d+)/(?P<field_id>\d+)/(?P<filename>[^/]+)/delete/$', 'delete_uploaded_file_gateway'),
 )
