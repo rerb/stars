@@ -57,7 +57,7 @@ def prepare_dev():
         
         tag_name = prompt("Tag Name: ")
         env.project_path = "%stag_%s" % (env.path, tag_name)
-        checkout_attrs = None
+        checkout_attrs = ""
         checkout_path = "%stags/%s" % (env.repo, tag_name)
     else:
         print "Invalid option."
