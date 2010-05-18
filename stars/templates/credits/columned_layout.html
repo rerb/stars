@@ -1,0 +1,15 @@
+<div id="content"><div class='inner20'>
+    {% block center_column %}{% endblock %}
+</div></div>
+
+<div id='rail'>
+    {% block railAboveMenu %}{% endblock %}
+    <div id='leftMenu'>
+        {% block navHeader %}
+            <h4>
+                Credits
+            </h4>
+        {% endblock %}
+        {% block left_column %}{% include 'credits/outline_nav.html' %}{% endblock %}
+    </div>
+</div>

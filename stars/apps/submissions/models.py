@@ -1,4 +1,5 @@
 from datetime import datetime
+import os
 from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User
@@ -44,8 +45,8 @@ class SubmissionSet(models.Model):
     presidents_letter = models.FileField("President's Letter", upload_to=president_letter_callback, blank=True, null=True, help_text="AASHE requires that every submission be vouched for by that institution's president. Please upload a PDF or scan of a letter from your president.")
     reporter_status = models.BooleanField(help_text="Check this box if you would like to be given reporter status and not receive a STARS rating from AASHE.")
     
-    class Meta:
-        unique_together = ("institution", "creditset")  # an institution can only register once for a given creditset.
+    # class Meta:
+    #     unique_together = ("institution", "creditset")  # an institution can only register once for a given creditset.
 
     def __unicode__(self):
         return unicode('%s'%self.creditset )
@@ -75,7 +76,7 @@ class SubmissionSet(models.Model):
     def get_submit_url(self):
         return "/tool/submissions/submit/"
         
-    def get_report_url(self):
+    def get_scorecard_url(self):
         return '/institutions/%s/scorecard/%s/'% (self.institution.id, self.id)
 
     def get_parent(self):
@@ -189,6 +190,10 @@ class SubmissionSet(models.Model):
     def get_progress_title(self):
         """ Returns a title for progress on the entire submission set """
         return "Complete" if self.get_percent_complete() == 100 else "Reporting Status"
+        
+    def get_scorecard_url(self):
+        
+        return "/institutions/%d/scorecard/%d/" % (self.institution.id, self.id)
 
 
 def get_active_submissions(creditset=None, category=None, subcategory=None, credit=None):
@@ -278,8 +283,8 @@ class CategorySubmission(models.Model):
     def get_submit_url(self):
         return self.category.get_submit_url()
         
-    def get_report_url(self):
-        return self.category.get_report_url(self.submissionset)
+    def get_scorecard_url(self):
+        return '%s%s' % (self.submissionset.get_scorecard_url(), self.category.get_browse_url())
 
     def get_STARS_score(self):
         """
@@ -393,8 +398,8 @@ class SubcategorySubmission(models.Model):
     def get_submit_url(self):
         return self.subcategory.get_submit_url()
         
-    def get_report_url(self):
-        return '%s%d/'%(self.category_submission.get_report_url(),self.subcategory.id)
+    def get_scorecard_url(self):
+        return '%s%s'%(self.category_submission.submissionset.get_scorecard_url(),self.subcategory.get_browse_url())
 
     def get_complete_credit_count(self):
         """ Find all CreditSubmissions in this subcategory that are complete """
@@ -495,11 +500,11 @@ class CreditSubmission(models.Model):
         super(CreditSubmission, self).__init__(*args, **kwargs)
         self.submission_fields = None  # lazy init
         
-    def __unicode__(self):
-        return unicode(self.credit)
-        
     def get_crumb_label(self):
         return str(self)
+        
+    def get_scorecard_url(self):
+        return self.subcategory.get_scorecard_url(self.category_submission.submissionset)
     
     def get_institution(self):
         return self.subcategory_submission.get_institution()
@@ -621,7 +626,7 @@ class CreditSubmission(models.Model):
 
 
 CREDIT_SUBMISSION_STATUS_CHOICES_LIMITED = [
-    ('c', 'Complete'),
+    ('c', 'Pursuing'),
     ('p', 'In Progress'),
     ('np', 'Not Pursuing'),
 ]
@@ -663,8 +668,8 @@ class CreditUserSubmission(CreditSubmission):
     def get_submit_url(self):
         return self.credit.get_submit_url()
         
-    def get_report_url(self):
-        return '%s%d/'%(self.subcategory_submission.get_report_url(),self.credit.id)
+    def get_scorecard_url(self):
+        return self.credit.get_scorecard_url(self.subcategory_submission.category_submission.submissionset)
 
     def get_parent(self):
         """ Used for building crumbs """
@@ -1125,11 +1130,23 @@ class UploadSubmission(DocumentationFieldSubmission):
     """
     value = models.FileField(upload_to=upload_path_callback, blank=True, null=True)
     
+    def get_filename(self):
+        """ Returns the name of the file w/out the full path. """
+        return os.path.basename(self.value.name)
+    
 class BooleanSubmission(DocumentationFieldSubmission):
     """
         The submitted value for a Boolean Documentation Field
     """
     value = models.NullBooleanField(blank=True, null=True)
+    
+    def __unicode__(self):
+        if self.value == True:
+            return "Yes"
+        elif self.value == False:
+            return "No"
+        else:
+            return "---"
         
 PAYMENT_REASON_CHOICES = (
     ('reg', 'registration'),

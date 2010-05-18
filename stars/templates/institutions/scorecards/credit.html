@@ -1,0 +1,12 @@
+{% extends 'institutions/scorecards/base.html' %}
+
+{% block title %}{{ credit_submission.credit }} | {{ block.super }}{% endblock %}
+
+{% block crumbs %}
+    {{ block.super }} &gt;
+    <a href='{{ credit_submission.get_scorecard_url }}'>{{ credit_submission.credit }}</a>
+{% endblock %}
+
+{% block content %}
+    {% include 'institutions/scorecards/credit_include.html' %}
+{% endblock %}

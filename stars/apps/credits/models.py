@@ -164,11 +164,12 @@ class CreditSet(models.Model):
 
 class Rating(models.Model):
     """
-        The official stars ratings, such as Gold, Silver, Bronze
+        The official stars ratings: Platinum, Gold, Silver, Bronze, Reporter
     """
     name = models.CharField(max_length='16')
     minimal_score = models.SmallIntegerField(help_text="The minimal STARS score required to achieve this rating")
     creditset = models.ForeignKey(CreditSet)
+    image = models.ImageField(upload_to='seals', blank=True, null=True)
     
     class Meta:
         ordering = ('-minimal_score',)
@@ -220,8 +221,11 @@ class Category(models.Model):
     def get_submit_url(self):
         return "%s#ec_%d" % (self.creditset.get_submit_url(), self.id)
         
-    def get_report_url(self, submissionset):
-        return '%s%d/' % (self.creditset.get_report_url(submissionset), self.id)
+    def get_scorecard_url(self, submissionset):
+        return '%s%s' % (submissionset.get_scorecard_url(), self.get_browse_url())
+        
+    def get_browse_url(self):
+        return "#ec_%d" % self.id
 
     def get_delete_url(self):
         """ Returns the URL of the page to confirm deletion of this object """
@@ -310,8 +314,11 @@ class Subcategory(models.Model):
     def get_submit_url(self):
         return "%s_%d" % (self.category.get_submit_url(), self.id)
 
-    def get_report_url(self, submissionset):
-        return '%s%d/' % (self.category.get_report_url(submissionset), self.id)
+    def get_scorecard_url(self, submissionset):
+        return '%s%d' % (submissionset.get_scorecard_url(), self.get_browse_url())
+        
+    def get_browse_url(self):
+        return "#ec_%d_%d" % (self.category.id, self.id)
         
     def get_parent(self):
         """ Returns the parent element for crumbs """
@@ -402,8 +409,11 @@ class Credit(models.Model):
     def get_submit_url(self):
         return "/tool/submissions/%d/%d/%d/" % (self.subcategory.category.id, self.subcategory.id, self.id)
     
-    def get_report_url(self, submissionset):
-        return '%s%d/' % (self.subcategory.get_report_url(submissionset),self.id)
+    def get_scorecard_url(self, submissionset):
+        return '%s%s' % (submissionset.get_scorecard_url(), self.get_browse_url())
+        
+    def get_browse_url(self):
+        return "%d/%d/%d/" % (self.subcategory.category.id, self.subcategory.id, self.id)
       
     def is_tier2(self):
         """ Returns True iff this credit is a Tier 2 credit """

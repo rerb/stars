@@ -49,8 +49,9 @@ def prepare_dev():
         
         branch_name = prompt("Branch Name: ")
         env.project_path = "%sbranch_%s" % (env.path, branch_name)
-        checkout_attrs = None
+        checkout_attrs = ""
         checkout_path = "%sbranches/%s" % (env.repo, branch_name)
+        
         
     elif part == 't':
         
@@ -62,15 +63,13 @@ def prepare_dev():
         print "Invalid option."
         abort(0)
     
-    env.checkout_cmd = 'svn --no-auth-cache --non-interactive --username %s --password %s %s export %s %s' % (env.svn_user, env.svn_pass, checkout_attrs, checkout_path, env.project_path)
-    
-    
+    env.checkout_cmd = 'svn --force --no-auth-cache --non-interactive --username %s --password %s %s export %s %s' % (env.svn_user, env.svn_pass, checkout_attrs, checkout_path, env.project_path)
     
     # @Todo: I could copy over the live DB to work with...
     
 def prepare_production():
     """
-        Prepares a release for the dev server
+        Prepares a release for the production server
         Adds a tag to the repository if necessary
         sets env.project_path and env.checkout_cmd
     """
@@ -103,13 +102,19 @@ def deploy():
     
     require('hosts', provided_by = [dev,production])
     
-    if not exists(env.project_path):
-    
-        sudo(env.checkout_cmd)
-
+    if exists(env.project_path):
+        overwrite = None
+        while overwrite not in ['y', 'n', 'q']:
+            overwrite = prompt("The code has already been exported from subversion. Overwite? (y/n/q):")
+            if overwrite == 'y':
+                sudo(env.checkout_cmd)
+            elif overwrite == 'q':
+                abort('User terminated session.')
+            elif overwrite == 'n':
+                pass
     else:
-        print "This source has already been deployed. Just updating buildout and symlinks."
-    
+        sudo(env.checkout_cmd)
+        
     with cd(env.project_path):
 
         print "Bootstrapping"
@@ -130,6 +135,10 @@ def deploy():
         migrate_cmd = "bin/django migrate"
         sudo(migrate_cmd)
         
+        print "Touching WSGI File"
+        touch_cmd = "touch bin/django.wsgi"
+        sudo(touch_cmd)
+        
     with cd(env.path):
         print "Updating Symlink"
         symlink_cmd1 = "rm current"
@@ -137,8 +146,8 @@ def deploy():
         if exists("current"):
             sudo(symlink_cmd1)
         sudo(symlink_cmd2)
+        
 
-    # @Todo: perform south migrations
     # @Todo: run cleanup
 
 # def test():

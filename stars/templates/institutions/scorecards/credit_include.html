@@ -1,0 +1,71 @@
+{% extends 'credits/columned_layout.html' %}
+
+{% block navHeader %}
+    <h4>
+        <a href='{{ submissionset.get_scorecard_url }}'>STARS {{ submissionset.creditset }}</a>
+    </h4>
+{% endblock %}
+
+{% block railAboveMenu %}
+    <div style='text-align: center;'>
+    <a href='{{ submissionset.get_scorecard_url }}'>
+        <img src='{{ submissionset.rating.image.url }}' alt='{{ submissionset.rating }}' class='seal' /></a>
+    </div>
+    {% include 'institutions/scorecards/vertical_status_table.html' %}
+{% endblock %}
+
+{% block center_column %}
+    {% load submit_tags %}
+    <h1><a href='{{ submissionset.get_scorecard_url }}'>{{ institution }}</a><br/>{{ credit_submission.credit }}</h1>
+    
+    <table class='statusTable' cellspacing='0'>
+        <tr>
+            <th>
+                Status
+            </th>
+            <th>Score</th>
+            <th>Responsible Party</th>
+        </tr><tr>
+            <td>{{ credit_submission.get_submission_status_display }}</td>
+            <td>
+                {% ifnotequal submissionset.rating.name "Reporter" %}
+                    {{ credit_submission.assessed_points|floatformat:2 }} /
+                    {% format_available_points credit_submission %}
+                {% else %}
+                    Reporter
+                {% endifnotequal %}
+            </td>
+            <td style='text-align: right;'>
+                {% if credit_submission.responsible_party %}
+                    <b>{{ credit_submission.responsible_party }}</b><br/>
+                    {{ credit_submission.responsible_party.title }}<br/>
+                    {{ credit_submission.responsible_party.department }}
+                {% endif %}
+            </td>
+        </tr>
+    </table>
+    
+    <ul id="tabnav" {% block tabclass %}class='tab1'{% endblock %}>
+        <li class="tab1">
+            <a href="{{ credit_submission.get_scorecard_url }}">Reporting Fields</a>
+        </li>
+        <li class="tab2">
+            <a href="{{ credit_submission.get_scorecard_url }}documentation/">Credit Info</a>
+        </li>
+    </ul>
+    <div class='tabContent'>
+        {% block tab_content %}
+            {% if credit_submission.submission_notes %}
+                <h2>Notes about this submission</h2>
+                <i>{{ credit_submission.submission_notes|urlizetrunc:85|linebreaks|fix_ampersands }}</i>
+                <h2>Reporting Fields</h2>
+            {% endif %}
+    
+            <br/>
+            {% for field in credit_submission.get_submission_fields %}
+                {% include 'institutions/scorecards/field_formatting.html' %}
+            {% endfor %}
+        {% endblock %}
+    </div>
+    
+{% endblock %}

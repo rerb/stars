@@ -1,0 +1,42 @@
+{% comment %}
+    Any template that includes this code, should probably add: "listexpander();collapseSummary();"
+    to the body `onload` decorator if they want to access the expand/collapse functionality.
+{% endcomment %}
+
+<ul class="listexpander">
+{% for cat in outline %}
+    <li>
+        <a href='{{ cat.url }}' {% if cat.selected %}id='currentSelection'{% endif %}>
+            {{ cat.title }}
+        </a>
+        <ul>
+            {% for sub in cat.subcategories %}
+            <li>
+                <a href='{{ sub.url }}' onclick='jumpToSubcat("{{ cat.id }}", "{{ sub.id }}");' {% if sub.selected %}id='currentSelection'{% endif %}>
+                    {{ sub.title }}
+                </a>
+                <ul>
+                    {% for c in sub.credits %}
+                        <li>
+                            <a {% if c.selected %}id='currentSelection'{% endif %}
+                                href='{{ c.url }}'>{{ c.title }}</a>
+                        </li>
+                    {% endfor %}
+                    {% if sub.tier2 %}
+                        <li>
+                            Tier 2 Credits
+                            <ul>
+                                {% for c in sub.tier2 %}
+                                    <li><a {% if c.selected %}id='currentSelection'{% endif %}
+                                        href='{{ c.url }}'>{{ c.title }}</a></li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                    {% endif %}
+                </ul>
+            </li>
+            {% endfor %}
+        </ul>
+    </li>  
+{% endfor %}
+</ul>

@@ -1,16 +1,18 @@
 from os.path import basename
+import sys
 from django import template
 register = template.Library()
 
 from stars.apps.credits.models import Choice
 
 @register.inclusion_tag('institutions/tags/crumbs.html')
-def show_report_crumbs(object):
+def show_scorecard_crumbs(object):
     """ Displays the crumb navigation for a particular object in the Reports Tool """
     # @todo: This is a duplicate of the submissions crumbs tag / template = only the link method differs
     object_set = []
     parent = object
     while parent:
+        print >> sys.stderr, parent.__class__.__name__
         object_set.insert(0, parent)
         parent = parent.get_parent()
         

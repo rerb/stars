@@ -1,45 +1,55 @@
-{% extends 'institutions/institution_list_base.html' %}
-
-{% block crumbs %} {{ block.super }} &gt; In Progress {% endblock %}
+{% extends 'institutions/base.html' %}
 
 {% block tabclass %}class='tab2'{% endblock %}
 
-{% block institution_content %}
+{% block content %}
+<div class='inner20'>
+  <h1>STARS Institutions</h1>
+  {% block page_description %}
+    {% load help %}
+    {% show_help_context 'institutions_page' 0 %}
+  {% endblock %}
       <table id="institution_list" class='greyTable'>
         <tr>
           {% for col in sort_columns %}
-            <th><a href='?sort={{ col.sort_key }}' title='sort'>{{ col.label }}</a> {% if col.img %}<img src='/media/static/images/{{ col.img }}' alt='^'/>{% endif %}</th>
+            <th>
+                {% ifequal col.key sort_key %}
+                    <a href='?sort={{ rev }}{{ col.key }}' title='sort'>{{ col.title }}</a>
+                    <img src='/media/static/images/{% ifequal rev '-' %}sort_desc.png{% else %}sort_asc.png{% endifequal %}' alt='^'/>
+                {% else %}
+                    <a href='?sort={{ col.key }}' title='sort'>{{ col.title }}</a>
+                {% endifequal %}
+            </th>
           {% endfor %}
         </tr>
-        {% comment %}The 'institution' here is actually an InstitutionState object{% endcomment %}
-        {% for institution in institution_list %}
-          <tr>
+        {% for submissionset in object_list %}
+          <tr class="{% cycle 'even' 'odd' %}">
             <td style='text-align: left'>
-               {{ institution }}       
-              {% comment %}  This is what we want - above is for demo / testing only 
-              {{ institution }}
-              {% endcomment %}
+                {% ifequal submissionset.status 'r' %}
+                    <a href='{{ submissionset.get_scorecard_url }}'>{{ submissionset.institution }}</a>
+                {% else %}
+                    {{ submissionset.institution }}
+                {% endifequal %}
             </td>
             <td>
-              {% if institution.active_submission_set %}
-                {{ institution.active_submission_set.creditset }}
-              {% else %}
-                 -
-              {% endif %}
+                {% ifequal submissionset.status 'r' %}
+                    Complete
+                {% endifequal %}
             </td>
             <td>
-              {% if institution.active_submission_set %}          
-                 {{ institution.active_submission_set.date_registered }}
-               {% else %}
-                 - 
-               {% endif %}
+                {% ifequal submissionset.status 'r' %}
+                    {% if submissionset.rating %}
+                        {{ submissionset.rating }}
+                    {% else %}
+                        ---
+                    {% endif %}
+                {% endifequal %}
             </td>
             <td>
-              {% if institution.active_submission_set %}          
-                 {{ institution.active_submission_set.submission_deadline }}
-               {% else %}
-                 - 
-               {% endif %}
+              {{ submissionset.date_registered }}
+            </td>
+            <td>
+              {{ submissionset.submission_deadline }}
             </td>
           </tr>            
         {% endfor %}

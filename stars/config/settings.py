@@ -90,6 +90,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.redirects',
     'django.contrib.flatpages',
+    'django.contrib.humanize',
     'stars.apps.credits',
     'stars.apps.tool.credit_editor',
     'stars.apps.tool.submissions',

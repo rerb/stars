@@ -8,33 +8,29 @@ from stars.apps.helpers import flashMessage
 
 import sys
 
-# class RedirectException(Exception):
-#        def __init__(self, url):
-#            self.url = url
-#        def __str__(self):
-#            return repr("Redirect: " % self.url)
-
 class TemplateView(object):
     """
         A generic class view that all other views can extend
     """
-    def __init__(self, template, context={}):
+    def __init__(self, template):
         self.template = template
-        self.context = context
 
     def __call__(self, request, *args, **kwargs):
         """ Simply calls render """
+        
         return self.render(request, *args, **kwargs)
 
     def render(self, request, *args, **kwargs):
         """ Renders the response """
-        return render_to_response(self.template, self.get_context(request))
         
-    def get_context(self, request, context={}):
+        return render_to_response(self.template,
+                                  self.get_context(request, *args, **kwargs),
+                                  context_instance=RequestContext(request))
+        
+    def get_context(self, request, *args, **kwargs):
         """ Add/update any context variables """
         _context = {}
-        self.context.update(_context)
-        return self.context
+        return _context
     
 class FormActionView(object):
     """

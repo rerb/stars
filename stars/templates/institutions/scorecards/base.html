@@ -1,0 +1,22 @@
+{% extends 'institutions/base.html' %}
+
+{% block title %}Scorecard | {{ block.super }}{% endblock %}
+
+{% block extra_head %}
+    {{ block.super }}
+    <link href='/media/static/css/listexpander.css' rel='stylesheet' type='text/css' />
+    <script src='/media/static/js/listexpander.js' type='text/javascript'></script>
+{% endblock %}
+
+{% block body_onload %}{{ block.super }}listexpander();collapseSummary();{% endblock %}
+
+{% block main_menu %} 
+    {% load main_menu %}
+    {% show_main_menu user "institutions" %} 
+{% endblock %}
+
+{% block crumbs %}
+    <a href='/institutions/'>STARS Institutions</a> &gt;
+    <a href='{{ submissionset.get_scorecard_url }}'>{{ submissionset.institution }}</a> &gt;
+    <a href='{{ submissionset.get_scorecard_url }}'>{{ submissionset.creditset }}</a>
+{% endblock %}

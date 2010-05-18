@@ -5,29 +5,32 @@
 {% block tabclass %}class='tab1'{% endblock %}
 
 {% block institution_content %}
-      <table id="institution_list" class='headed_list'>
+      <table id="institution_list" class='greyTable'>
         <tr>
           {% for col in sort_columns %}
-            <th><a href='?sort={{ col.sort_key }}' title='sort'>{{ col.label }}</a> {% if col.img %}<img src='/media/static/images/{{ col.img }}'/>{% endif %}</th>
+            <th>
+                {% ifequal col.key sort_key %}
+                    <a href='?sort={{ rev }}{{ col.key }}' title='sort'>{{ col.title }}</a>
+                    <img src='/media/static/images/{% ifequal rev '-' %}sort_desc.png{% else %}sort_asc.png{% endifequal %}'/>
+                {% else %}
+                    <a href='?sort={{ col.key }}' title='sort'>{{ col.title }}</a>
+                {% endifequal %}
+            </th>
           {% endfor %}
         </tr>
-        {% comment %}The 'institution' here is actually an InstitutionState object{% endcomment %}
-        {% for institution in institution_list %}
-          <tr>
-            <td>
-              <a href='/institutions/{{ institution.institution.id }}/scorecard/{{institution.latest_rated_submission_set.id}}'>{{ institution }}</a>              
+        {% for submissionset in object_list %}
+          <tr class="{% cycle 'even' 'odd' %}">
+            <td style='text-align: left;'>
+                <a href='{{ submissionset.get_scorecard_url }}'>{{ submissionset.institution }}</a>
             </td>
             <td>
-              {{ institution.latest_rated_submission_set.rating }}
+              {{ submissionset.rating }}
             </td>
             <td>
-              {{ institution.latest_rated_submission_set.creditset }}
+              {{ submissionset.creditset }}
             </td>
             <td>
-              {{ institution.latest_rated_submission_set.date_reviewed }}
-            </td>
-            <td align='right'>
-              {{ institution.latest_rated_submission_set.get_STARS_score|floatformat:2 }}
+              {{ submissionset.date_reviewed }}
             </td>
           </tr>            
         {% endfor %}

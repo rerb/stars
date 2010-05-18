@@ -1,0 +1,21 @@
+<table class='statusTable' cellspacing='0'>
+    <tr>
+        <th>
+            Rating
+        </th>
+        <th>Score</th>
+        <th>Submission Date</th>
+        <th>President's Letter</th>
+    </tr><tr>
+        <td>{{ submissionset.get_STARS_rating }}</td>
+        <td>
+            {% ifnotequal submissionset.rating.name "Reporter" %}
+                {{ submissionset.get_STARS_score|floatformat:2 }}
+            {% else %}
+                ---
+            {% endifnotequal %}
+        </td>
+        <td>{{ submissionset.date_submitted }}</td>
+        <td><a href='{{ submissionset.presidents_letter.url }}'>Download</a></td>
+    </tr>
+</table>

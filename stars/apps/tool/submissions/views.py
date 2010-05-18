@@ -110,7 +110,7 @@ class FinalizeClassView(SubmissionClassView):
         """ Finalizes the submission object """
         self.instance.date_submitted = datetime.now()
         self.instance.status = 'pr'
-        self.instance.rating = self.instance.get_STARS_rating()
+        # self.instance.rating = self.instance.get_STARS_rating()
         self.instance.submitting_user = request.user
         self.instance.save()
         self.instance.institution.state.delete() # remove this submissionset as the active submissionset
