@@ -151,19 +151,18 @@ div.bannerInner a {
 		</div>
 	</div></div>
 	<div id="rightRail">
-		<!--<h2>A Program of AASHE</h2>-->
-<!--		<span style='font-size: .9em;'>
-		<a href='http://www.aashe.org/about/about.php' style='display: block;text-align: center;margin: 10px 0px 5px 0px;'>
-		<img src='/media/static/images/home/aashe_small.png' alt='AASHE'/></a>
-		STARS is a program of the Association for the Advancement of Sustainability in Higher Education (AASHE)
-		a member-driven, non-profit organization.<br/><a href='http://www.aashe.org/about/about.php'>Learn more about AASHE</a>.</span>
-		<hr/>-->
+		<span style='font-size: 2.5em;display: block;font-family: Garamond, serif;margin: 0px; padding: 0px;'>
+		    {% load countdown %}
+		    {% charter_countdown %}
+		    days remaining
+		</span>
+		to <a href='/pages/get-involved/4269/'>register as a Charter Participant</a>
+		<hr/>
 		<h2>Latest Registrants</h2>
-		<span style='font-size: .9em;'>
+		<span style='font-size: .9em;margin-bottom: 5px;display: block;'>
 			{% load institution_lists %}
 			{% show_latest_registrants %}
 		</span>
-		<br/>
 		<a href='/institutions/'>View All Participants</a>
 		<hr/>
 		<h2>STARS Update</h2>
