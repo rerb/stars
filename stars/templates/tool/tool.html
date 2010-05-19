@@ -1,6 +1,6 @@
 {% extends 'tool/base.html' %}
 
-{% block title %} | Dashboard {% endblock %}
+{% block title %}Dashboard | {{ block.super }}{% endblock %}
 
 {% block extra_head %}
 	{{ block.super }}

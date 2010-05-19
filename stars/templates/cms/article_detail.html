@@ -1,6 +1,6 @@
 {% extends 'cms/base.html' %}
 
-{% block title %} {{ block.super }} | {{ article.title }}{% endblock %}
+{% block title %}{{ article.title }} | {{ block.super }}{% endblock %}
 
 {% block crumbs %}
     {% load cms_tags %}

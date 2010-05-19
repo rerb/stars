@@ -1,6 +1,6 @@
 {% extends 'tool/base.html' %}
 
-{% block title %} | Manage | {{ user.current_inst }}{% endblock %}
+{% block title %}{{ block.super }} | Manage | {{ user.current_inst }}{% endblock %}
 
 {% block submenu_class %}class='sm_inst'{% endblock %}
 

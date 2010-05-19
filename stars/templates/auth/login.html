@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 
+{% block title %}Log In | {{ block.super }}{% endblock %}
+
 {% block content %}
     {% if site_status.maintenance_mode %} {% comment %} because login is available for staff while site is in maintenance mode {% endcomment %}
         {% include 'helpers/temporary_unavailable.html' %}

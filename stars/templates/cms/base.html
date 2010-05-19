@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %} | {{ category.label }} {% endblock %}
+{% block title %}{{ category.label }} | {{ block.super }}{% endblock %}
 
 {% block extra_head %}
 	{{ block.super }}
