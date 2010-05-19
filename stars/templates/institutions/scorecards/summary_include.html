@@ -32,7 +32,7 @@
             <div class='provScorePercent'>{{ cat.get_STARS_score|floatformat:2 }}%</div>
             <span class='provScoreCaption'>Score</span>
         {% else %}
-            <div class='provScorePercent'>{{ cat.get_claimed_score|floatformat:2 }}</div>
+            <div class='provScorePercent'>{{ cat.get_STARS_score|floatformat:2 }}</div>
             <span class='provScoreCaption'>Innovation Points</span>
         {% endifnotequal %}
     {% endifnotequal %}
@@ -43,8 +43,8 @@
 {% block subcategory_summary_points %}
     {% ifnotequal submissionset.rating.name "Reporter" %}
         <div class='provScorePercent'>
-            {{ sub.get_claimed_score|floatformat:2 }} /
-            {{ sub.get_available_points|floatformat:2 }}
+            {{ sub.get_claimed_points|floatformat:2 }} /
+            {{ sub.get_adjusted_available_points|floatformat:2 }}
         </div>
         <span class='provScoreCaption'>Points Claimed</span>
     {% endifnotequal %}
@@ -64,7 +64,15 @@
 {% block credit_summary_row %}
     <td class='credit'><a href='{{ c.get_scorecard_url }}'>{{ c }}</a></td>
     {% ifnotequal submissionset.rating.name "Reporter" %}
-        <td>{{ c.get_submission_status_display }}</td>
+        <td style='color: #888'>
+            {% if c.submission_status == 'c' %}
+                <img src='/media/static/images/tick.png' alt='{{ c.get_submission_status_display }}' title='{{ c.get_submission_status_display }}' />
+            {% else %}{% if c.submission_status == 'p' or c.submission_status = 'np' or c.submission_status = 'ns' %}
+                <span title='Not Pursuing'>--</span>
+            {% else %}{% if c.submission_status == "na" %}
+                <apsn title='Not Applicable'>n/a</span>
+            {% endif %}{% endif %}{% endif %}
+        </td>
         <td>{{ c.assessed_points|floatformat:2 }} / {% format_available_points c %}</td>
     {% endifnotequal %}
 {% endblock %}

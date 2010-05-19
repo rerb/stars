@@ -24,7 +24,7 @@
                 <a href='{{ sub.subcategory.get_submit_url }}'>{{ sub }}</a>
             </td>
             <td>{{ sub.get_finished_credit_count }} / {{ sub.subcategory.credit_set.count }}</td>
-            <td>{{ sub.get_claimed_score }} / {% format_available_points sub %}</td>
+            <td>{{ sub.get_claimed_points }} / {% format_available_points sub %}</td>
         </tr>
     {% endfor %}
 </table>

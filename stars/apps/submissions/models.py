@@ -151,14 +151,14 @@ class SubmissionSet(models.Model):
         
         return score if score <= 100 else 100
         
-    def get_claimed_score(self):
+    def get_claimed_points(self):
         """
             @TODO: Consider changing this to a stored value in the model
             if we do that we'll probably need transactions
         """
         score = 0
         for cat in self.categorysubmission_set.all():
-            score += cat.get_claimed_score()
+            score += cat.get_claimed_points()
         return score
         
     def get_available_points(self):
@@ -302,7 +302,7 @@ class CategorySubmission(models.Model):
             return 0
 
     def get_STARS_v1_0_score(self):
-        score = self.get_claimed_score()              # raw score - number of points earned in category
+        score = self.get_claimed_points()              # raw score - number of points earned in category
         avail = self.get_adjusted_available_points()  # available / applicable points in category        
         #  score for innovation credits is just the raw score
         #  for all others, it is the proportion of points earned.
@@ -310,10 +310,10 @@ class CategorySubmission(models.Model):
             score = ((100.0 * score) / avail) if avail>0 else 0   # percentage of points earned, 0 - 100
         return score
 
-    def get_claimed_score(self):
+    def get_claimed_points(self):
         score = 0
         for sub in self.subcategorysubmission_set.all():
-            score += sub.get_claimed_score()
+            score += sub.get_claimed_points()
         return score
         
     def get_available_points(self):
@@ -421,7 +421,7 @@ class SubcategorySubmission(models.Model):
         """ Get the number of credits that have been marked complete, not pursuing, or not applicable """
         return self.creditusersubmission_set.exclude(submission_status='ns').exclude(submission_status='p').count()
     
-    def get_claimed_score(self):
+    def get_claimed_points(self):
         score = 0
         for credit in self.creditusersubmission_set.filter(submission_status='c'):
             score += credit.assessed_points
@@ -718,7 +718,7 @@ class CreditUserSubmission(CreditSubmission):
         if not self.is_complete(): # no points for incomplete submission
             return 0
         assessed_points = 0  # default is zero - now re-calculate points...
-        validtation_error = False
+        validation_error = False
         
         (ran, message, exception, points) = self.credit.execute_formula(self)
 

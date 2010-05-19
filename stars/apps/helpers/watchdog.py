@@ -1,5 +1,7 @@
 from django.http import HttpResponseServerError
 
+import sys
+
 from stars.apps.tool.admin.watchdog.models import WatchdogEntry
 from stars.apps.tool.admin.watchdog.models import NOTICE
 from stars.apps.tool.admin.watchdog.models import WARNING
@@ -22,11 +24,12 @@ def log(who, message, severity = NOTICE) :
     # Because the watchdog is often called when an exception has occurred, 
     # we need to be careful not to generate another exception here, so if we can't do the insert, so be it -
     # that's better than an infinite loop
+    print >> sys.stderr, "Watchdog: %s|%s|%s" % (who, message, severity)
     try :
         WatchdogEntry.log(who, message, severity)
-    except Exception, e :
-        # DEBUG:  print "Exception: %s"%e
-        pass   # just go quietly - there's not much we can do if the DB is down.
+    except Exception, e :    
+        # there's not much we can do if the DB is down.
+        print >> sys.stderr, "Exception: %s"%e
 
 def log_exception(exception):
     """

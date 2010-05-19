@@ -13,7 +13,7 @@
                         <div class='provScorePercent'>{{ cat.get_STARS_score|floatformat:2 }}%</div>
                         <span class='provScoreCaption'>Provisional Score</span>
                     {% else %}
-                        <div class='provScorePercent'>{{ cat.get_claimed_score|floatformat:2 }}</div>
+                        <div class='provScorePercent'>{{ cat.get_claimed_points|floatformat:2 }}</div>
                         <span class='provScoreCaption'>Points Claimed</span>
                     {% endifnotequal %}
                 {% endblock %}
@@ -29,7 +29,7 @@
                 <span class='provScore'>
                     {% block subcategory_summary_points %}
                         <div class='provScorePercent'>
-                            {{ sub.get_claimed_score|floatformat:2 }} /
+                            {{ sub.get_claimed_points|floatformat:2 }} /
                             {{ sub.get_available_points|floatformat:2 }}
                         </div>
                         <span class='provScoreCaption'>Points Claimed</span>
