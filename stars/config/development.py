@@ -7,11 +7,15 @@ from settings import *
 
 DEBUG = True
 
-DATABASE_ENGINE = 'mysql'
-DATABASE_NAME = 'stars_dev'
-DATABASE_USER = 'starsapp'
-DATABASE_PASSWORD = 'J3z4#$szFET--6'
-DATABASE_HOST = 'localhost'
+DATABASES = {
+    'default': {
+        'NAME': 'stars_dev',
+        'ENGINE': 'django.db.backends.mysql',
+        'USER': 'starsapp',
+        'PASSWORD': 'J3z4#$szFET--6',
+        'HOST': 'localhost',
+    }
+}
 
 MEDIA_ROOT = '/var/www/stars.dev.aashe.org/media'
 

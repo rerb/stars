@@ -12,13 +12,15 @@ TEMPLATE_DEBUG = DEBUG
 ADMINS = ('ben@aashe.org',)
 MANAGERS = ADMINS
 
-# DATABASE_ENGINE = 'sqlite3'
-# DATABASE_NAME = '/Users/jamstooks/sqlite/stars_tests.db'
-DATABASE_ENGINE = 'mysql'
-DATABASE_NAME = 'stars_production'
-DATABASE_USER = 'root'
-DATABASE_PASSWORD = ''
-DATABASE_HOST = 'localhost'
+DATABASES = {
+    'default': {
+        'NAME': 'stars_ben',
+        'ENGINE': 'django.db.backends.mysql',
+        'USER': 'root',
+        'PASSWORD': '',
+        'HOST': 'localhost',
+    }
+}
 
 # Stand alone mode indicates that the server will be running using
 # the django dev server so we will need to serve the static files (see urls.py)
@@ -44,5 +46,5 @@ CYBERSOURCE_URL = CYBERSOURCE_TEST_URL
 
 #if manage.py test was called, use test settings
 if 'test' in sys.argv:
-    DATABASE_ENGINE = 'sqlite3'
-    DATABASE_NAME = '/Users/jamstooks/sqlite/stars_tests.db'
+    DATABASE['default']['ENGINE'] = 'sqlite3'
+    DATABASE['default']['NAME'] = '/Users/jamstooks/sqlite/stars_tests.db'
