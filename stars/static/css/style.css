@@ -918,3 +918,9 @@ span.unTipIcon img:hover {
 img.tip {
 	cursor: pointer;
 }
+
+.units {
+    font-size: .9em;
+    font-style: italic;
+    color: #555;
+}

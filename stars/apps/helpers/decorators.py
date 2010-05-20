@@ -9,7 +9,7 @@ def render_with_units(render, units):
         Usage:  widget.render = render_with_units(widget.render, units)
     """
     def wrap(*args, **kwargs):
-        return mark_safe("%s <label>%s</label>"%(render(*args, **kwargs), units)) if units else render(*args, **kwargs)
+        return mark_safe("%s <label class='units'>%s</label>"%(render(*args, **kwargs), units)) if units else render(*args, **kwargs)
     wrap.__doc__=render.__doc__
     wrap.__name__=render.__name__
     return wrap
