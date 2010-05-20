@@ -17,10 +17,14 @@
         {% for set in user.current_inst.submissionset_set.all %}
         <tr class='{% cycle 'odd' 'even' %}'>
             <td>
-                {% if user.is_staff %}
-                    <a href='{{ set.get_manage_url }}'>{{ set }}</a>
+                {% if set.is_rated %}
+                    <a href='{{ set.get_scorecard_url }}'>{{ set }}</a>
                 {% else %}
-                    {{ set }}
+                    {% if user.is_staff %}
+                        <a href='{{ set.get_manage_url }}'>{{ set }}</a>
+                    {% else %}
+                        {{ set }}
+                    {% endif %}
                 {% endif %}
             </td>
             <td>{{ set.date_registered }}</td>

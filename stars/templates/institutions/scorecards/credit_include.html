@@ -26,7 +26,11 @@
             <th>Score</th>
             <th>Responsible Party</th>
         </tr><tr>
-            <td>{{ credit_submission.get_submission_status_display }}</td>
+            <td>
+                {% with credit_submission as c %}
+                    {% include 'credits/credit_status_icon.html' %}
+                {% endwith %}
+            </td>
             <td>
                 {% ifnotequal submissionset.rating.name "Reporter" %}
                     {{ credit_submission.assessed_points|floatformat:2 }} /
