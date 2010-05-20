@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %} | Temporarily Unavailable {% endblock %}
+{% block title %}Temporarily Unavailable | {{ block.super }}{% endblock %}
 
 {% block content_top %}
     {% include 'helpers/temporary_unavailable.html' %}

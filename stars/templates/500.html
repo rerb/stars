@@ -1,6 +1,6 @@
 {% extends 'base_error.html' %}
 
-{% block title %} | Internal Server Error {% endblock %}
+{% block title %}Internal Server Error | {{ block.super }}{% endblock %}
 
 {% block message_title %}Sorry!  Your request could not be completed...{% endblock %}
 {% block message_content %}
