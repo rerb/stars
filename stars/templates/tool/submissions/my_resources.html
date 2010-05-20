@@ -12,9 +12,10 @@
                 <a href="http://www.aashe.org/node/4554/edit" target="_blank"><img src='/media/static/images/page_edit.png' alt='edit' /></a>
             {% endif %}
         </h1>
+        <div style='color: #555;font-style: italic'>Please click on a logo to see a larger version.</div>
         <div style='text-align: center;padding: 10px;'>
             {% if last_submission and last_submission.is_rated %}
-                <a href='{{ last_submission.get_scorecard_url }}'><img src='{{ last_submission.rating.image.url }}' alt='{{ last_submission.rating }}' style='margin: 10px;border: 0px;' /></a>
+                <a href='{{ last_submission.rating.image_large.url }}'><img src='{{ last_submission.rating.image_200.url }}' alt='{{ last_submission.rating }}' style='margin: 10px;border: 0px;' /></a>
             {% endif %}
             {% if institution.charter_participant %}
                 <a href='http://www.aashe.org/files/documents/STARS/STARS_CharterParticipant.jpg'><img src='/media/static/images/STARS-CharterParticipant-200x200.png' alt='STARS Charter Particpant' style='margin: 10px;border: 0px;' /></a>

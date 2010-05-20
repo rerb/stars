@@ -169,7 +169,8 @@ class Rating(models.Model):
     name = models.CharField(max_length='16')
     minimal_score = models.SmallIntegerField(help_text="The minimal STARS score required to achieve this rating")
     creditset = models.ForeignKey(CreditSet)
-    image = models.ImageField(upload_to='seals', blank=True, null=True)
+    image_200 = models.ImageField(upload_to='seals', blank=True, null=True, help_text='A version of the image that fits w/in a 200x200 pixel rectangle')
+    image_large = models.ImageField(upload_to='seals', blank=True, null=True, help_text='A large version of the image that fits w/in a 1200x1200 pixel rectangle')
     
     class Meta:
         ordering = ('-minimal_score',)
