@@ -9,7 +9,7 @@
 {% block railAboveMenu %}
     <div style='text-align: center;'>
     <a href='{{ submissionset.get_scorecard_url }}'>
-        <img src='{{ submissionset.rating.image.url }}' alt='{{ submissionset.rating }}' class='seal' /></a>
+        <img src='{{ submissionset.rating.image_200.url }}' alt='{{ submissionset.rating }}' class='seal' /></a>
     </div>
     {% include 'institutions/scorecards/vertical_status_table.html' %}
 {% endblock %}
