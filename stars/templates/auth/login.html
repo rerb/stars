@@ -9,22 +9,26 @@
     <div><div class='inner20'>
         {% if site_status.maintenance_mode %} 
             <h1> Login is presently restricted to AASHE Staff only.</h1>
+        {% else %}{% if user.is_authenticated %}
+            <h1>You are already logged in</h1>
+            <div class='help_text'><p>Please use the menu to navigate the site.</p></div>
         {% else %}
             <h1>Login with your AASHE Account</h1>
-        {% endif %}
         
-        <form action='.' method='post' class='generalForm'>
-            <table>
-                {{ form }}
-            </table>
-            <input type='hidden' name='next' value='{{ next }}' />
-            <div class='button_row'><button type='submit'>Log in</button></div>
-        </form>
+            <form action='.' method='post' class='generalForm'>
+                <table>
+                    {{ form }}
+                </table>
+                <input type='hidden' name='next' value='{{ next }}' />
+                <div class='button_row'><button type='submit'>Log in</button></div>
+            </form>
         
-        <div class='help_text'>
-            {% load help %}
-            {% show_help_context 'login_help' 0 %}
-        </div>
+            <div class='help_text'>
+                {% load help %}
+                {% show_help_context 'login_help' 0 %}
+            </div>
+
+        {% endif %}{% endif %}
     </div></div>
     
 {% endblock %}

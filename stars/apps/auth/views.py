@@ -23,6 +23,8 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME):
     """
     template_name = 'auth/login.html'
     redirect_to = request.REQUEST.get(redirect_field_name, '')
+    if request.user.is_authenticated() and redirect_to != '':
+        return HttpResponseRedirect(redirect_to)
     if request.method == "POST":
         form = LoginForm(data=request.POST)
         if form.is_valid():
