@@ -14,6 +14,9 @@ def my_resources(request):
     """
         Shows an article from the resource center
     """
+    current_inst = request.user.current_inst
+    last_rated_submission = current_inst.get_latest_submission()
+    
     try:
         node = get_article(4554)
     except Exception, e:
@@ -25,6 +28,8 @@ def my_resources(request):
     
     context={
         'node': node,
+        'last_submission': last_rated_submission,
+        'institution': current_inst,
     }
 
     return respond(request, "tool/submissions/my_resources.html", context)

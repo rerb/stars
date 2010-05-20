@@ -3,7 +3,7 @@ from django.contrib import admin
 from models import *
 
 class InstitutionAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('name', 'enabled', 'charter_participant')
 admin.site.register(Institution, InstitutionAdmin)
 
 class InstitutionStateAdmin(admin.ModelAdmin):
