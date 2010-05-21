@@ -23,6 +23,12 @@
                 <a href='http://www.aashe.org/files/documents/STARS/STARS-Participant.jpg'><img src='/media/static/images/STARS-Participant-200x200.png' alt='STARS Particpant' style='margin: 10px;border: 0px;' /></a>
             {% endif %}
         </div>
+        {% if institution.get_latest_rated_submission %}
+            <h2>
+                Scorecard
+            </h2>
+            <p>Your <a href='{{ institution.get_latest_rated_submission.get_scorecard_url }}'>scorecard</a> is now publicly available.</p>
+        {% endif %}
         {{ node.body }}
     {% endautoescape %}
 {% endblock %}

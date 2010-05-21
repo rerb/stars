@@ -92,10 +92,9 @@ class Institution(models.Model):
 
     def get_latest_rated_submission(self):
         """ Returns the most recent rated SubmissionSet for this institution """
-        try:
-            return self.state.latest_rated_submission_set
-        except Exception,e:
-            return None
+        
+        if self.submissionset_set.filter(status='r').count() > 0:
+            return self.submissionset_set.filter(status='r').order_by('date_submitted')[0]
  
     def set_latest_rated_submission(self):
         """ Update this institution's most recent rated SubmissionSet """
