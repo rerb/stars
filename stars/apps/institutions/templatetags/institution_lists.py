@@ -9,7 +9,7 @@ def show_latest_registrants(count='5'):
     """ Display the (count) most recently registered institutions """
     
     inst_list = []
-    for s in SubmissionSet.objects.all().filter(institution__enabled=True).order_by('-date_registered')[0:count]:
+    for s in SubmissionSet.objects.all().filter(institution__enabled=True).filter(payment__isnull=False).exclude(payment__type='later').order_by('-date_registered')[0:count]:
         inst_list.append(s.institution)
         
     return {'inst_list': inst_list}

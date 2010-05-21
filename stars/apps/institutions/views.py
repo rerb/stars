@@ -108,7 +108,7 @@ class ActiveInstitutions(SortableTableView):
               ]
               
     def get_queryset(self):
-      return SubmissionSet.objects.filter(institution__enabled=True)
+      return SubmissionSet.objects.filter(institution__enabled=True).filter(payment__isnull=False).exclude(payment__type='later')
 
 """
     INSTITUTIONAL REPORTS
