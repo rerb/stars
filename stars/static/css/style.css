@@ -924,3 +924,23 @@ img.tip {
     font-style: italic;
     color: #555;
 }
+
+.rteindent1 {
+    padding-left: 40px;
+}
+
+.rteindent2 {
+    padding-left: 80px;
+}
+
+.rteindent3 {
+    padding-left: 120px;
+}
+
+.rteindent4 {
+    padding-left: 160px;
+}
+
+.rteindent5 {
+    padding-left: 200px;
+}
