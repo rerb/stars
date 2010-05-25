@@ -135,10 +135,6 @@ def deploy():
         migrate_cmd = "bin/django migrate"
         sudo(migrate_cmd)
         
-        print "Touching WSGI File"
-        touch_cmd = "touch bin/django.wsgi"
-        sudo(touch_cmd)
-        
     with cd(env.path):
         print "Updating Symlink"
         symlink_cmd1 = "rm current"
@@ -146,6 +142,10 @@ def deploy():
         if exists("current"):
             sudo(symlink_cmd1)
         sudo(symlink_cmd2)
+        
+    print "Restarting Apache"
+    restart_cmd = "apache2ctl graceful"
+    sudo(restart_cmd)
         
 
     # @Todo: run cleanup

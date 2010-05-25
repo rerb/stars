@@ -13,9 +13,10 @@ You should now run buildout to install the necessary dependencies:
 >$ ./bin/buildout
 
 That's it! Your environment will be set up with local copies of:
- - Django 1.1.1
- - South 0.6.2
+ - Django 1.2.1
+ - South 0.7
  - Fabric 0.9.0
+ - PIL 1.1.7
  - TinyMCE 3.3 (javascript library)
 
 When you want to run any of the standard Django commands, use bin/django instead of manage.py:
