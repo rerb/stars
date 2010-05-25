@@ -116,7 +116,7 @@ class MultiChoiceWithOtherSubmissionForm(AbstractMultiFieldSubmissionForm):
 
   
 class URLSubmissionForm(SubmissionFieldForm):
-    value = custom_fields.URLField(required=False, verify_exists=True, widget=TextInput(attrs={'size': 60,}))
+    value = forms.URLField(required=False, verify_exists=True, widget=TextInput(attrs={'size': 60,}))
 
     class Meta:
         model = URLSubmission
