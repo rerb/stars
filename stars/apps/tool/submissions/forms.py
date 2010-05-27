@@ -597,7 +597,13 @@ class LetterForm(ModelForm):
     class Meta:
         model = SubmissionSet
         fields = ['presidents_letter',]
-
+        
+    def clean_presidents_letter(self):
+        data = self.cleaned_data['presidents_letter']
+        if self.files.has_key('presidents_letter') and self.files['presidents_letter'].content_type != 'application/pdf':
+            raise forms.ValidationError("This doesn't seem to be a PDF file")
+        return data
+        
     def __init__(self, *args, **kwargs):
         super(LetterForm, self).__init__(*args, **kwargs)
         self.fields['presidents_letter'].required = True
