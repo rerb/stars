@@ -780,6 +780,7 @@ div#flash_message {
 	left: 225px;
 	background-color: #FFF8D0;
     border: 1px dashed #ff2266;
+    border-color: #aaa;
 	border-top-width: 0px;
 	padding: 10px;
 	margin: 0px auto;
@@ -815,6 +816,7 @@ div#flash_message ul {
     padding: 10px 10px 10px 30px;
     margin: 0px;
     border: 1px solid #ff2266;
+    border-color: #aaa;
     background-color: #FFFFFF;
     font-size: 1em;
     font-style: italic;
