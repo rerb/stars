@@ -8,7 +8,7 @@
     <div class='inner20'>
         <h1>Participant Registration: <i>{{ institution }}</i></h1>
         <p>Please review your contact information below.</p>
-        <table style='margin: 10px auto' class='greyTable' width='400'>
+        <table style='margin: 10px auto; width: 700px;' class='greyTable'>
             <tr>
                 <th>STARS Liaison</th>
                 <th>Executive Contact</th>
@@ -40,7 +40,7 @@
                 <br/><br/>
                 <i>If you feel this is an error please contact us at <a href='mailto:stars@aashe.org'>stars@aashe.org</a>.</i>
             {% endif %}
-            <table class='greyTable'>
+            <table style='margin: 10px auto; width: 400px;' class='greyTable'>
                 <tr>
                     <th>Member Fee</th>
                     <th>Non-Member Fee</th>
@@ -75,5 +75,9 @@
                 </div>
             </div>
         </form>
+        <div style='font-size: .9em;color:#555;margin: 0px 50px;'>
+            {% load content %}
+            {% display_block_content 'refund' %}
+        </div>
     </div>
 {% endblock %}
