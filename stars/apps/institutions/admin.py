@@ -19,5 +19,5 @@ class RegistrationReasonAdmin(admin.ModelAdmin):
 admin.site.register(RegistrationReason, RegistrationReasonAdmin)
 
 class RegistrationSurveyAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('institution', 'primary_reason')
 admin.site.register(RegistrationSurvey, RegistrationSurveyAdmin)

@@ -1,5 +1,7 @@
 from os.path import basename
+from datetime import date
 from django import template
+
 register = template.Library()
 
 from stars.apps.submissions.models import SubmissionSet
@@ -8,8 +10,10 @@ from stars.apps.submissions.models import SubmissionSet
 def show_latest_registrants(count='5'):
     """ Display the (count) most recently registered institutions """
     
+    query_set = SubmissionSet.objects.published()
+    
     inst_list = []
-    for s in SubmissionSet.objects.all().filter(institution__enabled=True).filter(payment__isnull=False).exclude(payment__type='later').order_by('-date_registered')[0:count]:
+    for s in query_set[0:count]:
         inst_list.append(s.institution)
         
     return {'inst_list': inst_list}

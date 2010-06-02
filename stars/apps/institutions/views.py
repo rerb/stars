@@ -2,6 +2,7 @@ from django.shortcuts import get_object_or_404
 from django.core.exceptions import PermissionDenied
 
 import sys
+from datetime import date
 
 from stars.apps.auth.utils import respond
 from stars.apps.auth.decorators import user_is_staff, user_can_view
@@ -108,7 +109,7 @@ class ActiveInstitutions(SortableTableView):
               ]
               
     def get_queryset(self):
-      return SubmissionSet.objects.filter(institution__enabled=True).filter(payment__isnull=False).exclude(payment__type='later')
+        return SubmissionSet.objects.published()
 
 """
     INSTITUTIONAL REPORTS

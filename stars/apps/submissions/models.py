@@ -1,10 +1,11 @@
-from datetime import datetime
+from datetime import datetime, date
 import os
 from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.safestring import mark_safe
 from django.contrib.localflavor.us.models import PhoneNumberField
+from django.db.models import Q
 
 from stars.apps.credits.models import *
 from stars.apps.institutions.models import Institution
@@ -18,6 +19,8 @@ SUBMISSION_STATUS_CHOICES = (
     ('r', 'Rated'),
 )
 
+REGISTRATION_PUBLISH_DEADLINE = date(2010, 5, 29)
+
 def president_letter_callback(instance, filename):
     """
         Dynamically alters the upload path based on the instance
@@ -27,10 +30,25 @@ def president_letter_callback(instance, filename):
     path = "secure/%d/letter/%s" % (institution.id, filename)
     return path
 
+class SubmissionManager(models.Manager):
+    """
+        Adds some custom query functionality to the SubmissionSet object
+    """
+    
+    def published(self):
+        """ Submissionsets that have been paid in full or unpaid before May 28th """
+        
+        deadline = REGISTRATION_PUBLISH_DEADLINE
+        qs1 = SubmissionSet.objects.filter(institution__enabled=True).filter(payment__isnull=False)
+        qs2 = qs1.filter(
+                (Q(payment__type='later') & Q(date_registered__lte=deadline)) | ~Q(payment__type='later'))
+        return qs2
+
 class SubmissionSet(models.Model):
     """
         A creditset (ex: 1.0) that is being submitted
     """
+    objects = SubmissionManager()
     creditset = models.ForeignKey(CreditSet)
     institution = models.ForeignKey(Institution)
     date_registered = models.DateField()
@@ -49,7 +67,7 @@ class SubmissionSet(models.Model):
     #     unique_together = ("institution", "creditset")  # an institution can only register once for a given creditset.
 
     def __unicode__(self):
-        return unicode('%s'%self.creditset )
+        return unicode('%s (%s)' % (self.institution, self.creditset) )
     
     def is_enabled(self):
         for payment in self.payment_set.all():
