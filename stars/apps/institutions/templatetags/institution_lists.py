@@ -10,7 +10,7 @@ from stars.apps.submissions.models import SubmissionSet
 def show_latest_registrants(count='5'):
     """ Display the (count) most recently registered institutions """
     
-    query_set = SubmissionSet.objects.published()
+    query_set = SubmissionSet.objects.published().order_by('-date_registered')
     
     inst_list = []
     for s in query_set[0:count]:
