@@ -30,5 +30,6 @@ class UploadSubmissionAdmin(admin.ModelAdmin):
 admin.site.register(UploadSubmission, UploadSubmissionAdmin)
 
 class ResponsiblePartyAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('first_name', 'last_name', 'institution', 'email')
+    list_filter = ('institution',)
 admin.site.register(ResponsibleParty, ResponsiblePartyAdmin)

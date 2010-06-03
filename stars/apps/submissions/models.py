@@ -490,6 +490,7 @@ class ResponsibleParty(models.Model):
     
     class Meta:
         ordering = ('last_name', 'first_name')
+        verbose_name_plural = "Responsible Parties"
         
     def __unicode__(self):
         return "%s, %s" % (self.last_name, self.first_name)
