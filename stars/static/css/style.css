@@ -142,7 +142,7 @@ dt {
     padding: 10px 0px 20px 0px;
     color: white;
     clear: both;
-    font-size: .9em;
+    font-size: .8em;
 }
 
 #footer a {
@@ -156,7 +156,7 @@ dt {
 
 #footer div.footerBlock {
 	float: left;
-	padding: 0px 15px;
+	padding: 0px 10px;
 	border-right: 1px solid white;
 	height: 40px;	
 }
