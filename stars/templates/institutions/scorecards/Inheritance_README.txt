@@ -22,3 +22,7 @@ Two methods of sharing template data: EXTENDING and INHERITING
 Designed to be included below the header
 
 @Todo: define title policy Lower | Higher | STARS
+
+== Duplication Notes: ==
+
+It's hard to remove duplication entirely, but this is as close as I could get. Duplication lies in the left column with the STARS Seal and the "Institution Profile" link.

@@ -4,6 +4,7 @@ from django.utils.http import urlquote
 from django.conf import settings
 
 from stars.apps.helpers import flashMessage
+from stars.apps.institutions.models import StarsAccount
 
 class StarsMixin(object):
     """
@@ -212,3 +213,39 @@ class PermMixin(StarsMixin):
             return super(PermMixin, self).__call__(request, *args, **kwargs)
         else:
             raise PermissionDenied(self.perm_message if hasattr(self, 'perm_message') else "Permission Denied")
+            
+class InstitutionAccessMixin(StarsMixin):
+    """
+        This mixin determines if the current user has access to a selected institution.
+        
+        Requires:
+            - `institution_id` to be passed to `__call__`
+            - `access_level` property variable
+            - `fail_response` property variable
+            
+        Example:
+            class MyClass(InstitutionAccessMixin, BaseClass):
+               access_level = 'observer'
+               fail_response = HttpResponseRedirect('/')
+               
+        If the access level is not reached it will return the `fail_response` object.
+    """
+    
+    def __call__(self, request, *args, **kwargs):
+        
+        assert kwargs.has_key('institution_id'), "This mixin requires an `institution_id` parameter."
+        assert hasattr(self, 'access_level'), "This mixin requires an `access_level` property."
+        assert hasattr(self, 'fail_response'), "This mixin requires an `fail_response` property."
+        
+        if not request.user.is_authenticated():
+            return fail_response
+        
+        if not request.user.has_perm('admin'):
+            try:
+                account = StarsAccount.objects.get(institution__id=kwargs['institution_id'], user=request.user)
+                if not account.has_access_level(self.access_level):
+                    return fail_response
+            except StarsAccount.DoesNotExist:
+                return fail_response
+        
+        return super(InstitutionAccessMixin, self).__call__(request, *args, **kwargs)

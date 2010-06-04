@@ -5,11 +5,13 @@
 <div id='rail'>
     {% block railAboveMenu %}{% endblock %}
     <div id='leftMenu'>
+        {% block navAbove %}{% endblock %}
         {% block navHeader %}
             <h4>
                 Credits
             </h4>
         {% endblock %}
         {% block left_column %}{% include 'credits/outline_nav.html' %}{% endblock %}
+        {% block navBelow %}{% endblock %}
     </div>
 </div>

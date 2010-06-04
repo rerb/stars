@@ -1,14 +1,16 @@
 from django.shortcuts import get_object_or_404
+from django.http import Http404
 from django.core.exceptions import PermissionDenied
 
 import sys
 from datetime import date
 
 from stars.apps.auth.utils import respond
-from stars.apps.auth.decorators import user_is_staff, user_can_view
+from stars.apps.auth.mixins import InstitutionAccessMixin
+# from stars.apps.auth.decorators import user_is_staff, user_can_view
 from stars.apps.credits.models import CreditSet
 from stars.apps.submissions.models import *
-from stars.apps.institutions.models import Institution, InstitutionState
+from stars.apps.institutions.models import Institution, InstitutionState, StarsAccount
 from stars.apps.helpers.forms.views import TemplateView
 
 class SortableTableView(TemplateView):
@@ -114,6 +116,35 @@ class ActiveInstitutions(SortableTableView):
 """
     INSTITUTIONAL REPORTS
 """
+
+class InstitutionScorecards(TemplateView):
+    """
+        Provides a list of available reports for an institution
+        
+        Unrated SubmissionSets will be displayed to particpating users only.
+    """
+    def get_context(self, request, *args, **kwargs):
+        
+        institution = get_object_or_404(Institution, id=kwargs['institution_id'])
+        
+        submission_sets = []
+        for ss in institution.submissionset_set.all():
+            if ss.status == 'r':
+                submission_sets.append(ss)
+            elif request.user.has_perm('admin'):
+                submission_sets.append(ss)
+            else:
+                try:
+                    account = StarsAccount.objects.get(institution=institution, user=request.user)
+                    if account.has_access_level('observer'):
+                        submission_sets.append(ss)
+                except:
+                    pass
+                    
+        if len(submission_sets) < 1:
+            raise Http404
+                
+        return {'submission_sets': submission_sets, 'institution': institution}
 
 class CreditBrowsingView(TemplateView):
     """
@@ -268,9 +299,27 @@ class ScorecardView(CreditBrowsingView):
             institution = get_object_or_404(Institution, id=kwargs['institution_id'])
             context['institution'] = institution
             
+            # Check that the user has a StarsAccount for this institution, or is an admin
+            if request.user.is_authenticated():
+                try:
+                    account = StarsAccount.objects.get(institution=institution, user=request.user)
+                except StarsAccount.DoesNotExist:
+                    account = None
+                    
+                if account or request.user.has_perm('admin'):
+                    context['user_tied_to_institution'] = True
+                
+            
             # Get the SubmissionSet
             if kwargs.has_key('submissionset_id'):
                 submissionset = get_object_or_404(SubmissionSet, id=kwargs['submissionset_id'], institution=institution)
+                # if the submissionset isn't rated raise a 404 exception unless the user has preview access
+                if submissionset.status != 'r':
+                    if context.has_key('user_tied_to_institution'):
+                        context['preview'] = True
+                    else:
+                        raise Http404
+                    
                 context['submissionset'] = submissionset
                 
         category, subcategory, credit = self.get_creditset_selection(request, **kwargs)
@@ -292,3 +341,14 @@ class ScorecardView(CreditBrowsingView):
 
         return context
 
+class ScorecardInternalNotesView(InstitutionAccessMixin, ScorecardView):
+    """
+        An extension of the scorecard view that requires permission on the selected institution.
+    """
+    
+    # Mixin required properties
+    access_level = 'observer'
+    def raise_redirect(self):
+        raise Http404
+    fail_response = raise_redirect
+    

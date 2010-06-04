@@ -1,14 +1,21 @@
 {% extends 'credits/summary.html' %}
 
+{% block h1 %}{% if preview %}<i>Preview</i>: {% endif %}{{ institution }}{% endblock %}
+
 {% block navHeader %}
     <h4>
-        <a href='{{ submissionset.get_scorecard_url }}'>STARS {{ submissionset.creditset }}</a>
+        <a href='{{ submissionset.get_scorecard_url }}'>STARS {{ submissionset.creditset }}{% if preview %} (Preview){% endif %}</a>
     </h4>
 {% endblock %}
 
 {% block railAboveMenu %}
     <div style='text-align: center;'>
-    <img src='{{ submissionset.rating.image_200.url }}' alt='{{ submissionset.rating }}' class='seal' /></div>
+    {% if preview %}
+        <img src='http://localhost:8000/media/static/images/STARS-Participant-200x200.png' alt='Preview' class='seal' />
+    {% else %}
+        <img src='{{ submissionset.rating.image_200.url }}' alt='{{ submissionset.rating }}' class='seal' />
+    {% endif %}
+    </div>
 {% endblock %}
 
 {% block summaryTable %}

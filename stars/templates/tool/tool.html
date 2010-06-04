@@ -10,18 +10,6 @@
 
 {% block tool_content %}
     <h1> Dashboard </h1>
-    {% if user.can_submit %}
-	  <h2><a href='/tool/submissions/'>My Submission</a></h2>
-	  <p>Enter and save STARS credit data for {{ user.current_inst }}.</p>
-	{% endif %}
-    <!-- {% if user.can_view %}
-      <h2><a href='/institutions/{{ user.current_inst.id }}/scorecard/'>My Scorecard</a></h2>
-      <p>Review {{ user.current_inst }} STARS scorecard for active submission.</p>
-    {% endif %} -->
-	{% if user.can_admin %}
-	  <h2><a href='/tool/manage/'>Manage Institution</a></h2>
-	  <p>Specify the boundary for the institution's submission, add user accounts, update contact information, and view payment history.</p>
-	{% endif %}
 	{% if user.is_staff %}
 		<h2><a href='/tool/admin/'>Administer Site</a></h2>
 		<p>Staff tools for managing the STARS Web Site.</p>
@@ -30,8 +18,20 @@
 		<h2><a href='/tool/credit-editor/'>Credit Editor</a></h2>
 		<p>Staff tools for building Credit Sets.</p>    
     {% endif %}
+	{% if user.can_admin %}
+	  <h2><a href='/tool/manage/'>Manage Institution</a></h2>
+	  <p>Specify the boundary for the institution's submission, add user accounts, update contact information, and view payment history.</p>
+	{% endif %}
+    {% if user.can_submit %}
+	  <h2><a href='/tool/submissions/'>My Submission</a></h2>
+	  <p>Enter and save STARS credit data for {{ user.current_inst }}.</p>
+	{% endif %}
     {% if user.has_tool %}
         <h2><a href='/tool/my-resources/'>My Resources</a></h2>
         <p>Access resources available only to STARS Participants.</p>
+    {% endif %}
+    {% if user.can_view %}
+      <h2><a href='/institutions/{{ user.current_inst.id }}/report/'>My Reports(s)</a></h2>
+      <p>Review {{ user.current_inst }} STARS Reports(s).</p>
     {% endif %}
 {% endblock %}

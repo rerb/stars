@@ -95,7 +95,7 @@ class SubmissionSet(models.Model):
         return "/tool/submissions/submit/"
         
     def get_scorecard_url(self):
-        return '/institutions/%s/scorecard/%s/'% (self.institution.id, self.id)
+        return '/institutions/%s/report/%s/'% (self.institution.id, self.id)
 
     def get_parent(self):
         """ Used for building crumbs """
@@ -208,10 +208,6 @@ class SubmissionSet(models.Model):
     def get_progress_title(self):
         """ Returns a title for progress on the entire submission set """
         return "Complete" if self.get_percent_complete() == 100 else "Reporting Status"
-        
-    def get_scorecard_url(self):
-        
-        return "/institutions/%d/scorecard/%d/" % (self.institution.id, self.id)
 
 
 def get_active_submissions(creditset=None, category=None, subcategory=None, credit=None):

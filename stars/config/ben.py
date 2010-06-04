@@ -14,6 +14,8 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
+        # 'NAME': '/Users/jamstooks/sqlite/stars_test.db',
+        # 'ENGINE': 'sqlite3',
         'NAME': 'stars_ben',
         'ENGINE': 'django.db.backends.mysql',
         'USER': 'root',
@@ -46,5 +48,5 @@ CYBERSOURCE_URL = CYBERSOURCE_TEST_URL
 
 #if manage.py test was called, use test settings
 if 'test' in sys.argv:
-    DATABASE['default']['ENGINE'] = 'sqlite3'
-    DATABASE['default']['NAME'] = '/Users/jamstooks/sqlite/stars_tests.db'
+    DATABASES['default']['ENGINE'] = 'sqlite3'
+    DATABASES['default']['NAME'] = '/Users/jamstooks/sqlite/stars_tests.db'

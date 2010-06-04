@@ -165,6 +165,7 @@ def _query_iss_orgs(where_clause=None):
         Returns a list of institution dictionaries (id name), maybe empty.
     """
     from stars.apps.auth.utils import connect_iss
+    from django.utils.encoding import smart_unicode
     db = connect_iss()
     cursor = db.cursor()
     
@@ -265,6 +266,27 @@ class AbstractAccount(BaseAccount):
 
     def is_pending(self):
         return False
+        
+    def has_access_level(self, access_level):
+        """
+            Allows for access comparison on an institution that may not be their `current_institution`
+            
+            `settings.STARS_PERMISSIONS` is a tuple with the highest level coming first
+        """
+        
+        # see if the user level matches
+        if access_level == self.user_level:
+            return True
+        # see if the user has a higher level
+        else:
+            for perm in STARS_USERLEVEL_CHOICES:
+                if perm[0] == access_level:
+                    break
+                if perm[0] == self.user_level:
+                    return True
+                
+        return False
+            
 
     def last_access(self):
         """

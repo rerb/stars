@@ -3,7 +3,13 @@
         <th>
             Overall Rating
         </th>
-        <td>{{ submissionset.get_STARS_rating }}</td>
+        <td>
+            {% if preview %}
+                <i style='color: red;'>Preview</i>
+            {% else %}
+                {{ submissionset.get_STARS_rating }}
+            {% endif %}
+        </td>
     </tr><tr>
         <th>Overall Score</th>
         <td>
@@ -13,11 +19,14 @@
                 ---
             {% endifnotequal %}
         </td>
-    </tr><tr>
-        <th>Submission Date</th>
-        <td>{{ submissionset.date_submitted }}</td>
-    </tr><tr>
-        <th>President's Letter</th>
-        <td><a href='{{ submissionset.presidents_letter.url }}'>Download</a></td>
     </tr>
+    {% if not preview %}
+        <tr>
+            <th>Submission Date</th>
+            <td>{{ submissionset.date_submitted }}</td>
+        </tr><tr>
+            <th>President's Letter</th>
+            <td><a href='{{ submissionset.presidents_letter.url }}'>Download</a></td>
+        </tr>
+    {% endif %}
 </table>
