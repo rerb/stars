@@ -11,7 +11,7 @@
 {% block railAboveMenu %}
     <div style='text-align: center;'>
     {% if preview %}
-        <img src='http://localhost:8000/media/static/images/STARS-Participant-200x200.png' alt='Preview' class='seal' />
+        <img src='/media/static/images/STARS-Participant-200x200.png' alt='Preview' class='seal' />
     {% else %}
         <img src='{{ submissionset.rating.image_200.url }}' alt='{{ submissionset.rating }}' class='seal' />
     {% endif %}
