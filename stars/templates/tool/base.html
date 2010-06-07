@@ -35,6 +35,9 @@
 	            {% block submission_outline %}{% endblock %}
 	        {% endif %}
 	        <h4><a href='/tool/my-resources/'>My Resources</a></h4>
+	        {% if user.can_view %}
+              <h4><a href='/institutions/{{ user.current_inst.id }}/report/'>My Report(s)</a></h4>
+            {% endif %}
 		</div>
 		<br/>
 		<a href='/pages/help/'><img src='/media/static/images/tool_help.png' alt='Submission Tool Help' /></a>
