@@ -12,6 +12,7 @@ from xml.etree.ElementTree import fromstring
 
 from stars.apps.institutions.models import Institution, _query_iss_orgs
 from stars.apps.registration.forms import *
+from stars.apps.registration.utils import is_canadian_zipcode, is_usa_zipcode
 from stars.apps.auth.utils import respond, connect_iss
 from stars.apps.helpers import watchdog, flashMessage
 from stars.apps.tool.admin.watchdog.models import ERROR
@@ -94,7 +95,7 @@ def reg_contact_info(request):
     template = "registration/contact.html"
     context = {'reg_form': reg_form, 'institution': institution}
     return respond(request, template, context)
-    
+
 def reg_payment(request):
     """
         STEP 3: Determine the payment price and process payment for this institution's registration
@@ -349,6 +350,10 @@ def get_payment_dict(pay_form, institution):
         'billing_email': institution.contact_email,
         'last_four': last_four
     }
+    
+    if is_canadian_zipcode(pay_form.cleaned_data['billing_zipcode']):
+        payment_dict['country'] = "Canada"
+        
     return payment_dict
 
 def process_payment(payment_dict, product_list, test_mode=False, ref_code=None, debug=False):

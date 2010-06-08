@@ -7,6 +7,7 @@ from django.forms.util import ErrorList
 import re
 
 from stars.apps.institutions.models import *
+from stars.apps.registration.utils import is_canadian_zipcode, is_usa_zipcode
 
 class RegistrationSchoolChoiceForm(ModelForm):
     """
@@ -103,20 +104,20 @@ class PaymentForm(forms.Form):
             raise forms.ValidationError(error_text)
 
         return data
-
+        
     def clean_billing_zipcode(self):
         data = self.cleaned_data['billing_zipcode']
-        error_text = "Please enter a valid zip code"
-
-        if not self.is_numeric(data):
+        error_text = "Please enter a valid US or Canadian zip code"
+    
+        if not is_usa_zipcode(data) and not is_canadian_zipcode(data):
             raise forms.ValidationError(error_text)
-
+    
         return data
         
     def is_numeric(self, data):
         """ Helper function to indicate if data is numeric. """
         try:
-            month = int(data)
+            number = int(data)
         except:
             return False
         return True
