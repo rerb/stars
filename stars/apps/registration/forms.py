@@ -80,8 +80,8 @@ class PaymentForm(forms.Form):
     billing_address = forms.CharField(max_length=128)
     billing_address_line_2 = forms.CharField(max_length=128, required=False)
     billing_city = forms.CharField(max_length=32)
-    billing_state = USStateField()
-    billing_zipcode = forms.CharField(max_length=6, label='Billing ZIP code')
+    billing_state = forms.CharField(max_length=2)
+    billing_zipcode = forms.CharField(max_length=7, label='Billing ZIP code')
     
     def clean_exp_month(self):
         data = self.cleaned_data['exp_month']

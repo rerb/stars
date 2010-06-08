@@ -32,6 +32,6 @@
     {% endif %}
     {% if user.can_view %}
       <h2><a href='/institutions/{{ user.current_inst.id }}/report/'>My Report(s)</a></h2>
-      <p>Review {{ user.current_inst }} STARS Report(s).</p>
+      <p>Preview current and review past STARS Report(s) for {{ user.current_inst }}.</p>
     {% endif %}
 {% endblock %}
