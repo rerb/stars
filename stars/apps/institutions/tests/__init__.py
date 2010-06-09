@@ -1,5 +1,6 @@
-import stars_account, permissions
+import stars_account, permissions, pending_accounts
 __test__ = {
     'permissions': permissions,
-    'stars_accoutn': stars_account,
+    'stars_account': stars_account,
+    'pending_accounts': pending_accounts,
 }

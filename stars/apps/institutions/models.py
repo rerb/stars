@@ -457,7 +457,7 @@ class PendingAccount(AbstractAccount):
             If any accounts are converted, one is selected and returned,
             otherwise, if the user has no pending accounts, returns None.
         """
-        pending_accounts = PendingAccount.objects.filter(user_email=user.email)
+        pending_accounts = PendingAccount.objects.filter(user_email__iexact=user.email)
         account = None
         for pending in pending_accounts:  # seems unlikely there will be more than 1, but it could happen...
             account = StarsAccount(user=user, institution=pending.institution, user_level=pending.user_level)
@@ -467,7 +467,6 @@ class PendingAccount(AbstractAccount):
         if account:  # selected account will be the last account converted
             account.select()
         return account
-
 
 class DuckUser(object):
     """
