@@ -178,7 +178,13 @@ def _query_iss_orgs(where_clause=None):
             org_type = "Two Year Institution" OR
             org_type = "Graduate Institution" OR
             org_type = "System Office"
-        )"""
+        )
+        AND
+        (
+            country = "Canada" OR
+            country = "United States of America"
+        )
+        """
     else:
         wc = where_clause
         
