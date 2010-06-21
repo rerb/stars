@@ -3,7 +3,7 @@ Congratulations!  {{ institution }} has successfully registered to participate i
 
 The STARS Liaison for {{ institution }}, listed below, provided your contact information to notify you about your institution's participation in STARS.  Since many individuals and departments on campus will be involved in the STARS process, executive-level support will help make your institution's participation successful.
 
-To learn more about the STARS Program, visit www.aashe.org/stars or email stars@aashe.org with any questions. 
+To learn more about the STARS Program, visit http://stars.aashe.org/ or email stars@aashe.org with any questions. 
 
 We're glad to have {{ institution }} as a STARS Charter Participant!
 
@@ -27,7 +27,7 @@ You may now access the STARS Reporting Tool.  For instructions on getting starte
 
 To view details about each credit, including the reporting fields associated with each credit, please consult the STARS 1.0 Technical Manual (http://stars.aashe.org/pages/about/3993/).
  
-Please check the STARS website (www.aashe.org/stars) for updates and resources.  Feel free to email stars@aashe.org with any questions.
+Please check the STARS website (http://stars.aashe.org/) for updates and resources.  Feel free to email stars@aashe.org with any questions.
 
 STARS REGISTRATION RECEIPT
 
@@ -57,7 +57,7 @@ Access to the STARS Reporting Tool will be available when we receive your regist
 
 For details about each credit, including a list of the reporting fields associated with each credit, please consult the STARS 1.0 Technical Manual (http://stars.aashe.org/pages/about/3993/).
 
-Please check the STARS website (www.aashe.org/stars) for updates and resources and email stars@aashe.org with any questions.
+Please check the STARS website (http://stars.aashe.org) for updates and resources and email stars@aashe.org with any questions.
  
 STARS REGISTRATION PAYMENT
 
@@ -93,7 +93,7 @@ Thank you!
 
 The STARS Team
 stars@aashe.org
-www.aashe.org/stars
+http://stars.aashe.org
 {% endautoescape %}
 """
 
