@@ -89,7 +89,7 @@ class ActiveInstitutions(SortableTableView):
                         'title': 'Institution',
                     },
                     {
-                        'key': 'rated',
+                        'key': 'status',
                         'sort_field': 'status',
                         'title': 'Rated',
                     },
