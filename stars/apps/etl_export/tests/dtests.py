@@ -99,6 +99,8 @@
     gold
     >>> print etl_a.participant_status
     Pending Submission
+    >>> print etl_a.registration_date
+    2010-02-02
     
     >>> etl_b = populate_etl_entry(i)
     >>> etl_a == etl_b
@@ -113,6 +115,8 @@
     Pending Review
     >>> print etl_a.participant_status
     Pending Submission
+    >>> print etl_b.registration_date
+    2010-02-02
     >>> etl_a == etl_c
     False
     

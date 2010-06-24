@@ -14,6 +14,7 @@ class ETL(models.Model):
     participant_status = models.CharField(max_length=32, choices=SUBMISSION_STATUS_CHOICES, blank=True, null=True)
     current_rating = models.CharField(max_length=16, null=True, blank=True)
     rating_valid_until = models.DateField(blank=True, null=True)
+    registration_date = models.DateField(blank=True, null=True)
     last_submission_date = models.DateField(blank=True, null=True)
     submission_due_date = models.DateField(blank=True, null=True)
     current_stars_version = models.CharField(max_length=5)

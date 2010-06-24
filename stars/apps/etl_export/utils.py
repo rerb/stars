@@ -22,6 +22,7 @@ def populate_etl_entry(institution):
     if last_submission:
         etl.participant_status = last_submission.get_status_display()
         etl.submission_due_date = last_submission.submission_deadline
+        etl.registration_date = last_submission.date_registered
     if last_rated_submission:
         etl.current_rating = last_rated_submission.rating.name
         etl.rating_valid_until = last_rated_submission.date_reviewed + timedelta(days=365*3)
