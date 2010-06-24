@@ -79,7 +79,7 @@ class ActiveInstitutions(SortableTableView):
         Extending SortableTableView to show a sortable list of all active submissionsets
     """
 
-    default_key = 'rated'
+    default_key = 'status'
     default_rev = ''
     secondary_order_field = 'institution__name'
     columns = [
@@ -91,7 +91,7 @@ class ActiveInstitutions(SortableTableView):
                     {
                         'key': 'status',
                         'sort_field': 'status',
-                        'title': 'Rated',
+                        'title': 'Status',
                     },
                     {
                         'key': 'rating',
