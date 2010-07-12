@@ -5,12 +5,13 @@ from django.views.generic.simple import direct_to_template
 from django.core.mail import send_mail
 from django.template.loader import get_template
 from django.conf import settings
+from django.template import Context, Template
 
 class TAAppView(FormActionView):
     def get_success_response(self, request):
         
         t = get_template("custom_forms/ta_app_email.txt")
-        message = t.render(self.context_dict)
+        message = t.render(Context(self.context_dict))
         p = request.POST
         email_to = [request.POST['email'],]
         send_mail(  "STARS Technical Advisor Application Received",
