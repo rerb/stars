@@ -208,6 +208,14 @@ class SubmissionSet(models.Model):
     def get_progress_title(self):
         """ Returns a title for progress on the entire submission set """
         return "Complete" if self.get_percent_complete() == 100 else "Reporting Status"
+        
+    def get_amount_due(self):
+        """ Returns the amount of the total # of "later" payments tied to this submission """
+        total = 0.0
+        for p in self.payment_set.filter(type='later'):
+            total += p.amount
+            
+        return total
 
 
 def get_active_submissions(creditset=None, category=None, subcategory=None, credit=None):

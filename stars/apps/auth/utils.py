@@ -162,6 +162,9 @@ def _get_account_from_session(request):
                     watchdog.log("Current institution not found in database.", watchdog.ERROR)
         return (None, current_inst)
 
+    # Convert any pending accounts
+    PendingAccount.convert_accounts(request.user)
+
     account = None
     if current_inst:  # user had an institution selected for this session - ensure its still valid
         try:
@@ -176,8 +179,6 @@ def _get_account_from_session(request):
             account = account_list[0]
         elif account_list.count() > 1: # see if there is an account stored from the user's last session
             account = StarsAccount.get_selected_account(request.user)
-        else:  # user has no accounts - see if there are any any pending accounts...
-            account = PendingAccount.convert_accounts(request.user)
             
     return (account, current_inst)
     

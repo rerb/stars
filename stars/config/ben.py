@@ -16,7 +16,7 @@ DATABASES = {
     'default': {
         # 'NAME': '/Users/jamstooks/sqlite/stars_test.db',
         # 'ENGINE': 'sqlite3',
-        'NAME': 'stars_ben',
+        'NAME': 'stars_production',
         'ENGINE': 'django.db.backends.mysql',
         'USER': 'root',
         'PASSWORD': '',
@@ -36,7 +36,6 @@ SSO_SERVER_URI = WWW_SSO_SERVER_URI
 STARS_DOMAIN = WWW_STARS_DOMAIN
 SSO_API_KEY = WWW_SSO_API_KEY
 
-#AASHE_MYSQL_SERVER = "67.192.170.227"#"mysql.aashe.net" #"174.143.240.117"
 AASHE_MYSQL_SERVER = "localhost"
 AASHE_MYSQL_LOGIN = "root"
 AASHE_MYSQL_PASS = ""
