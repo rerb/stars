@@ -1,22 +1,26 @@
 <table class='statusTable statusTableVertical' cellspacing='0'>
+    {% if preview %}
+        <tr>
+            <td colspan='2'>
+                <i style='color: red;font-size: 1.2em;'>Preview</i>
+            </td>
+        </tr>
+    {% endif %}
     <tr>
         <th>
             Overall Rating
         </th>
         <td>
-            {% if preview %}
-                <i style='color: red;'>Preview</i>
-            {% else %}
-                {{ submissionset.get_STARS_rating }}
-            {% endif %}
+            {{ rating }}
         </td>
     </tr><tr>
         <th>Overall Score</th>
         <td>
-            {% ifnotequal submissionset.rating.name "Reporter" %}
-                {{ submissionset.get_STARS_score|floatformat:2 }}
+            {% ifnotequal rating.name "Reporter" %}
+                {{ score|floatformat:2 }}
             {% else %}
-                ---
+                {% load help %}
+                {% show_help_context "reporter_status" %}
             {% endifnotequal %}
         </td>
     </tr>

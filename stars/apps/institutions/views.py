@@ -280,6 +280,9 @@ class ScorecardView(CreditBrowsingView):
             
         context['outline'] = self.get_creditset_navigation(context['submissionset'].creditset, url_prefix, context['current'])
         
+        context['score'] = context['submissionset'].get_STARS_score()
+        context['rating'] = context['submissionset'].get_STARS_rating()
+        
         return context
         
     def get_submissionset_context(self, request, **kwargs):

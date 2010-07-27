@@ -8,22 +8,28 @@
         <th>President's Letter</th>
     </tr>
     <tr>
-        {% if preview %}
-            <td colspan='4' style='color: red;font-style: italic;'>PREVIEW - Not Yet Submitted</td>
-        {% else %}
-            <td>
-                {{ submissionset.get_STARS_rating }}
-            </td>
-            <td>
-                {% ifnotequal submissionset.rating.name "Reporter" %}
-                    {{ submissionset.get_STARS_score|floatformat:2 }}
-                {% else %}
-                    {% load help %}
-                    {% show_help_context "reporter_status" %}
-                {% endifnotequal %}
-            </td>
-            <td>{{ submissionset.date_submitted }}</td>
-            <td><a href='{{ submissionset.presidents_letter.url }}'>Download</a></td>
-        {% endif %}
+        <td>
+            {{ rating }}
+        </td>
+        <td>
+            {% ifnotequal rating.name "Reporter" %}
+                {{ score|floatformat:2 }}
+            {% else %}
+                {% load help %}
+                {% show_help_context "reporter_status" %}
+            {% endifnotequal %}
+        </td>
+        <td>
+            {% if preview %}
+                <span style='color: red;font-style: italic;'>PREVIEW</i>
+            {% else %}
+                {{ submissionset.date_submitted }}
+            {% endif %}
+        </td>
+        <td>
+            {% if not preview %}
+                <a href='{{ submissionset.presidents_letter.url }}'>Download</a>
+            {% endif %}
+        </td>
     </tr>
 </table>

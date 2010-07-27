@@ -34,9 +34,9 @@
 {% endblock %}
 
 {% block category_summary_points %}
-    {% ifnotequal submissionset.rating.name "Reporter" %}
+    {% ifnotequal rating.name "Reporter" %}
         {% ifnotequal cat.category.title 'Innovation' %}
-            <div class='provScorePercent'>{{ cat.get_STARS_score|floatformat:2 }}%</div>
+            <div class='provScorePercent'>{{ cat.get_STARS_score|floatformat:2 }} %</div>
             <span class='provScoreCaption'>Score</span>
         {% else %}
             <div class='provScorePercent'>{{ cat.get_STARS_score|floatformat:2 }}</div>
@@ -48,7 +48,7 @@
 {% block category_summary_progress %}{% endblock %}
 
 {% block subcategory_summary_points %}
-    {% ifnotequal submissionset.rating.name "Reporter" %}
+    {% ifnotequal rating.name "Reporter" %}
         <div class='provScorePercent'>
             {{ sub.get_claimed_points|floatformat:2 }} /
             {{ sub.get_adjusted_available_points|floatformat:2 }}
@@ -61,7 +61,7 @@
 
 {% block credit_summary_header %}
     <th>Credit</th>
-    {% ifnotequal submissionset.rating.name "Reporter" %}
+    {% ifnotequal rating.name "Reporter" %}
         <th>Status</th>
         <th>Points</th>
     {% endifnotequal %}
@@ -77,7 +77,7 @@
         {% endif %}
     </td>
             
-    {% ifnotequal submissionset.rating.name "Reporter" %}
+    {% ifnotequal rating.name "Reporter" %}
         <td style='color: #888'>
             {% include 'credits/credit_status_icon.html' %}
         </td>

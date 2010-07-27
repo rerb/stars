@@ -41,7 +41,7 @@
                 {% endwith %}
             </td>
             <td>
-                {% ifnotequal submissionset.rating.name "Reporter" %}
+                {% ifnotequal rating.name "Reporter" %}
                     {{ credit_submission.assessed_points|floatformat:2 }} /
                     {% format_available_points credit_submission %}
                 {% else %}
