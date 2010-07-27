@@ -50,7 +50,9 @@
             </td>
             <td style='text-align: right;'>
                 {% if credit_submission.responsible_party %}
-                    <b>{{ credit_submission.responsible_party }}</b><br/>
+                    <b>
+                        {{ credit_submission.responsible_party.first_name }}
+                        {{ credit_submission.responsible_party.last_name }}</b><br/>
                     {{ credit_submission.responsible_party.title }}<br/>
                     {{ credit_submission.responsible_party.department }}
                 {% endif %}
