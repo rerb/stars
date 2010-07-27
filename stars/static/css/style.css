@@ -614,7 +614,7 @@ div.creditContent, div.greyBox, div.error, div.greyBoxSmall {
 }
 
 div.greyBoxSmall {
-    padding: 5px 20px;
+    padding: 2px 20px;
 /*    background-color: #f5f5f5;
     border-color: #ddd;
     color: #ccc;*/
@@ -925,6 +925,14 @@ img.tip {
     font-size: .9em;
     font-style: italic;
     color: #555;
+}
+
+.green {
+    color: #848e2b;
+}
+
+.bold {
+    font-weight: bold;
 }
 
 .rteindent1 {
