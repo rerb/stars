@@ -69,7 +69,14 @@
 {% endblock %}
 
 {% block credit_summary_row %}
-    <td class='credit'><a href='{{ c.get_scorecard_url }}'>{{ c }}</a></td>
+    <td class='credit'>
+        {% if c.submission_status == 'ns' or c.submission_status == 'np' %}
+            {{ c }}
+        {% else %}
+            <a href='{{ c.get_scorecard_url }}'>{{ c }}</a>
+        {% endif %}
+    </td>
+            
     {% ifnotequal submissionset.rating.name "Reporter" %}
         <td style='color: #888'>
             {% include 'credits/credit_status_icon.html' %}
