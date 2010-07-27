@@ -46,6 +46,8 @@
                     {% format_available_points credit_submission %}
                 {% else %}
                     Reporter
+                    {% load help %}
+                    {% show_help_context "reporter_status" %}
                 {% endifnotequal %}
             </td>
             <td style='text-align: right;'>

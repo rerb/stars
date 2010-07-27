@@ -18,7 +18,8 @@
                 {% ifnotequal submissionset.rating.name "Reporter" %}
                     {{ submissionset.get_STARS_score|floatformat:2 }}
                 {% else %}
-                    ---
+                    {% load help %}
+                    {% show_help_context "reporter_status" %}
                 {% endifnotequal %}
             </td>
             <td>{{ submissionset.date_submitted }}</td>
