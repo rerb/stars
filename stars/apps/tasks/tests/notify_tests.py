@@ -94,6 +94,6 @@ class NotificationTest(TestCase):
         """
         
         for i in range(0, 3):
-            send_notification("test", "test_1", ["ben@aashe.org"], "message", "subject", count=2)
+            send_notification("tst", "test_1", ["ben@aashe.org"], "message", "subject", count=2)
         
         self.assertTrue(len(mail.outbox) == 2 )
