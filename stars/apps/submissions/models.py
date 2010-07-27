@@ -1,5 +1,5 @@
 from datetime import datetime, date
-import os
+import os, re
 from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User
@@ -921,6 +921,14 @@ class DocumentationFieldSubmission(models.Model):
     def get_units(self):
         """ Return the units associated with the field for this submission """
         return self.documentation_field.get_units()
+        
+    def is_empty(self):
+        if self.value == None or self.value == "":
+            return True
+        # if it's nothing but whitespace
+        if re.match("\s+", self.value) != None:
+            return True
+        return False
     
 
 class AbstractChoiceSubmission(DocumentationFieldSubmission):

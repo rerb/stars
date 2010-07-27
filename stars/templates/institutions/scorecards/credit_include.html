@@ -72,6 +72,10 @@
         {% endif %}
     </ul>
     <div class='tabContent'>
+        <div style="text-align: right;font-size: .9em;padding:10px;">
+            "<span class='green bold'>---</span>"
+            <i>indicates that no data was submitted for this field</i>
+        </div>
         {% block tab_content %}
             <br/>
             {% for field in credit_submission.get_submission_fields %}

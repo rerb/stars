@@ -1,12 +1,17 @@
-<span style='font-size: 1.4em;font-family: Garamond;'>{{ field.documentation_field.title }}:</span>
+<span style='font-size: 1.4em;font-family: Garamond;'>
+    {{ field.documentation_field.title }}:
+    {{ field.id }}
+</span>
 
 {% load humanize %}
 
-{% ifnotequal field.value None %}
-    <div class='greyBox'>
+{% if not field.is_empty %}
+    <div class='greyBox'
         {% ifequal field.documentation_field.type 'long_text' %}
+        style='padding: 10px 20px'>
             {{ field.value|urlizetrunc:85|linebreaks|fix_ampersands }}
         {% else %}
+        >
             {% ifequal field.documentation_field.type 'url' %}
                 <a href='{{ field.value }}' target="_blank">{{ field.value|slice:":85" }}</a>
             {% else %}
@@ -33,7 +38,7 @@
     </div>
 {% else %}
     <div class='greyBoxSmall'>
-        ---
+        <span class='green'>---</span>
     </div>
-{% endifnotequal %}
+{% endif %}
 <br/>
