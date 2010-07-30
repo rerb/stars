@@ -78,7 +78,7 @@ def send_six_month_notifications(current_time):
         send_notification(
                             n_type='6mn',
                             identifier="six-%d" % ss.id,
-                            mail_to=ss.institution.contact_email,
+                            mail_to=[ss.institution.contact_email,],
                             message=message,
                             subject="Reminder:  STARS Submission Due in 6 Months!",
                         )

@@ -43,9 +43,8 @@ class NotificationTest(TestCase):
             http://docs.djangoproject.com/en/dev/topics/testing/#e-mail-services
             Tests:
                 - Show that only unpaid institutions are notified
-                
-        75 or 120
         """
+        mail.outbox = []
         
         current_date = date(year=2010, month=5, day=25)
         send_overdue_notifications(current_date)
@@ -86,12 +85,33 @@ class NotificationTest(TestCase):
         ss_list = get_six_month_sets(today)
         self.assertTrue(len(ss_list) == 0)
         
+    def test_6month_notify(self):
+        """
+            Tests:
+                - Show that only unpaid institutions are notified
+        """
+        mail.outbox = []
+
+        current_date = date(year=2010, month=1, day=30)
+        send_six_month_notifications(current_date)
+        self.assertTrue(len(mail.outbox) == 0)
+
+        current_date = date(year=2010, month=10, day=30)
+        send_six_month_notifications(current_date)
+        self.assertTrue(len(mail.outbox) == 1)
+
+        current_date = date(year=2010, month=11, day=1)
+        send_six_month_notifications(current_date)
+        # Only one more should be sent, because of the count limit on notifications
+        self.assertTrue(len(mail.outbox) == 2)
+        
     def test_send_notification(self):
         """
             Tests:
                 - notifications only get sent `count` times (EmailNotification objects created)
                 - email shows up in outbox
         """
+        mail.outbox = []
         
         for i in range(0, 3):
             send_notification("tst", "test_1", ["ben@aashe.org"], "message", "subject", count=2)
