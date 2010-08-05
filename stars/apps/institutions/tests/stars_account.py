@@ -3,15 +3,15 @@
     
    # Basic doctest for selecting StarsAccounts...
 
+    >>> from django.core import management
     >>> from stars.apps.institutions.models import StarsAccount, Institution
     >>> from django.contrib.auth.models import User
-    >>> 
-    >>> bob = User(username="bob", password="x")
-    >>> bob.save()
-    >>> uv = Institution(aashe_id='-1', name='UV')
-    >>> uv.save()
-    >>> aashe = Institution(aashe_id='-2', name='AASHE')
-    >>> aashe.save()
+    >>> management.call_command("flush", verbosity=0, interactive=False)
+    >>> management.call_command("loaddata", "institutions_testdata.json", verbosity=0)
+    
+    >>> bob = User.objects.get(pk=1)
+    >>> uv = Institution.objects.get(pk=1)
+    >>> aashe = Institution.objects.get(pk=2)
     >>> a = StarsAccount(user=bob, institution=uv)
     >>> a.save()
     >>> b = StarsAccount(user=bob, institution=aashe)

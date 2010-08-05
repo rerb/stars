@@ -3,14 +3,15 @@
 
     Test Premises:
      - `has_access_level` applies permissions correctly
-    
+
+    >>> from django.core import management
     >>> from stars.apps.institutions.models import StarsAccount, Institution
     >>> from django.contrib.auth.models import User
-     
-    >>> bob = User(username="bob", password="x")
-    >>> bob.save()
-    >>> uv = Institution(aashe_id='-1', name='UV')
-    >>> uv.save()
+    >>> management.call_command("flush", verbosity=0, interactive=False)
+    >>> management.call_command("loaddata", "institutions_testdata.json", verbosity=0)
+
+    >>> bob = User.objects.get(pk=1)
+    >>> uv = Institution.objects.get(pk=1)
     >>> a = StarsAccount(user=bob, institution=uv, user_level='view', terms_of_service=True)
     >>> a.save()
 

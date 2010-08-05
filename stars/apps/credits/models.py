@@ -11,19 +11,21 @@ def _get_next_ordinal(objects):
         Helper: Retrieve the next ordinal in sequence for the given queryset identifying an ordered set of objects.
         This could be subject to a concurrency issue if two objects are saved simultaneously!
         Ideally, Django would allow us to simply use an auto-incrementing field for this... :-P
-
+        
         # doctest
-            >>> cs = CreditSet.objects.create(release_date="2010-01-01")
-            >>> cat = Category.objects.create(creditset=cs, title="Cat 1", abbreviation='Test', max_point_value=1, description="this is a test")
-            >>> Category.objects.get(pk=1).ordinal
-            0
-            >>> cat = Category.objects.create(creditset=cs, title="Cat 2", abbreviation='Test', max_point_value=1, description="this is a test")
-            >>> Category.objects.get(pk=2).ordinal
-            1
-            >>> _get_next_ordinal(cat.creditset.category_set.all())
-            2
-            >>> _get_next_ordinal(cat.subcategory_set.all())
-            0
+        >>> from django.core import management
+        >>> management.call_command("flush", verbosity=0, interactive=False)
+        >>> cs = CreditSet.objects.create(release_date="2010-01-01", tier_2_points=0.25)
+        >>> cat = Category.objects.create(creditset=cs, title="Cat 1", abbreviation='Test', max_point_value=1, description="this is a test")
+        >>> Category.objects.get(pk=1).ordinal
+        0
+        >>> cat = Category.objects.create(creditset=cs, title="Cat 2", abbreviation='Test', max_point_value=1, description="this is a test")
+        >>> Category.objects.get(pk=2).ordinal
+        1
+        >>> _get_next_ordinal(cat.creditset.category_set.all())
+        2
+        >>> _get_next_ordinal(cat.subcategory_set.all())
+        0
     """
     ordinal = 0
     list = objects.order_by('-ordinal')
@@ -574,12 +576,12 @@ def compile_formula(formula, label='Formula'):
             - If the formula fails to compile, return false
 
         #doctest:
-            >>> compile_formula("")
-            (True, 'No Formula specified')
-            >>> compile_formula("A=3\\n points = 2 if A>3 else 1")
-            (False, 'Formula did not compile: unexpected indent (formula, line 2)')
-            >>> compile_formula("A=3\\npoints = 2 if A>3 else 1")
-            (True, 'Formula compiled - code is valid.')
+        >>> compile_formula("")
+        (True, 'No Formula specified')
+        >>> compile_formula("A=3\\n points = 2 if A>3 else 1")
+        (False, 'Formula did not compile: unexpected indent (Formula, line 2)')
+        >>> compile_formula("A=3\\npoints = 2 if A>3 else 1")
+        (True, 'Formula compiled - code is valid.')
     """  
     if (formula) :
         try:

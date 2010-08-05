@@ -1,6 +1,7 @@
 from __future__ import with_statement
 from fabric.api import *
 from fabric.contrib.console import confirm
+from fabric.decorators import runs_once
 from fabric.utils import abort
 from fabric.contrib.files import exists
 
@@ -27,12 +28,18 @@ def production():
     env.run_test = True
     env.prep = prepare_production
 
+@runs_once
+def test():
+    with settings(warn_only=True):
+        result = local('./bin/django test', capture=False)
+    if result.failed and not confirm("Tests failed. Continue anyway?"):
+        abort("Aborting at user request.")    
+
 def prepare_dev():
     """
         Prepares a release to the dev server
         sets env.project_path and env.checkout_cmd
     """
-    
     part = prompt("Revision, Branch or Tag ([r]/b/t): ")
     
     if part == 'r' or part == "":
@@ -73,7 +80,6 @@ def prepare_production():
         Adds a tag to the repository if necessary
         sets env.project_path and env.checkout_cmd
     """
-    
     # Get the tag from the user
     tag_name = None
     tag_name = prompt("Tag Name: ")
@@ -116,7 +122,6 @@ def deploy():
         sudo(env.checkout_cmd)
         
     with cd(env.project_path):
-
         print "Bootstrapping"
         bootstrap_cmd = "python bootstrap.py"
         sudo(bootstrap_cmd)
@@ -126,6 +131,11 @@ def deploy():
         sudo(buildout_cmd)
         
         # @Todo: run tests
+        print "Running Test Suite"
+        test_cmd = "bin/django test"
+        result = sudo(test_cmd)
+        if result.failed:
+            abort("Test suite FAILED. Aborting.")
         
         print "Sync DB"
         syncdb_cmd = "bin/django syncdb"
@@ -149,12 +159,6 @@ def deploy():
         
 
     # @Todo: run cleanup
-
-# def test():
-#     with settings(warn_only=True):
-#         result = local('./manage.py test my_app', capture=False)
-#     if result.failed and not confirm("Tests failed. Continue anyway?"):
-#         abort("Aborting at user request.")
 
 def get_latest_revision_number():
     """

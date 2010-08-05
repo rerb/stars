@@ -59,9 +59,10 @@ MIDDLEWARE_CLASSES = (
 #CACHE_BACKEND = "locmem://"
 
 AUTHENTICATION_BACKENDS = ('stars.apps.auth.aashe.AASHEAuthBackend',)
-# Add the default auth backend so that automated test suite on django.contrib.auth runs correctly.
-if TESTING:
-    AUTHENTICATION_BACKENDS = AUTHENTICATION_BACKENDS + ('django.contrib.auth.backends.ModelBackend',)
+if 'test' in sys.argv:
+    AUTHENTICATION_BACKENDS = ('stars.apps.auth.aashe.AASHEAuthBackend',
+                               'django.contrib.auth.backends.ModelBackend')
+    
 DASHBOARD_URL = "/tool/"
 LOGIN_URL = "/auth/login/"
 LOGOUT_URL = "/auth/logout/"
@@ -171,3 +172,5 @@ CYBERSOURCE_PRODUCTION_URL = "https://ics2ws.ic3.com/commerce/1.x/transactionPro
 CYBERSOURCE_MERCHANT_ID = "v2710894"
 
 ANALYTICS_ID = None
+
+SKIP_SOUTH_TESTS=True
