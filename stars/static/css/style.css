@@ -332,10 +332,11 @@ table.greyTable td {
 }
 
 div.submissionBoundary {
-    border: 1px solid #ddd;
+    border: 1px solid #848e2b;
     border-width: 1px 0px;
     padding: 5px 25px;
-    margin: 10px 40px;
+    margin: 10px 60px;
+    background-color: #f9f9f9;
 }
 
 img.seal {
@@ -909,4 +910,13 @@ img.tip {
 
 .rteindent5 {
     padding-left: 200px;
+}
+
+/* Browser specific (not valid) styles to make preformatted text wrap */
+pre {
+ white-space: pre-wrap;       /* css-3 */
+ white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+ white-space: -pre-wrap;      /* Opera 4-6 */
+ white-space: -o-pre-wrap;    /* Opera 7 */
+ word-wrap: break-word;       /* Internet Explorer 5.5+ */
 }

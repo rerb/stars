@@ -1,19 +1,24 @@
-from datetime import datetime
+from datetime import datetime, date
+import sys
 
 from django.conf import settings
 from django.shortcuts import render_to_response, get_object_or_404
 from django.http import HttpResponseRedirect, Http404
+from django.template import Context, loader, Template
+from django.core.mail import send_mail
 
 from stars.apps.auth.utils import respond
 from stars.apps.auth import utils as auth_utils
 from stars.apps.auth.decorators import user_is_staff
 from stars.apps.helpers import watchdog, flashMessage
 from stars.apps.helpers.forms import form_helpers
+from stars.apps.helpers.forms.forms import Confirm as ConfirmForm
 from stars.apps.institutions.models import Institution
 from stars.apps.tool.manage.forms import AdminEnableInstitutionForm
 from stars.apps.submissions.models import SubmissionSet, Payment
 from stars.apps.tool.admin.forms import PaymentForm
 from stars.apps.cms.models import ArticleCategory, articleCategories_sync, articleCategories_perform_consistency_check
+from stars.apps.helpers.forms.views import FormActionView
 
 @user_is_staff
 def institutions_search(request):
@@ -180,6 +185,40 @@ def edit_payment(request, payment_id):
 
     context = {'payment': payment, 'object_form':payment_form, 'title':'Edit Payment Details'}
     return respond(request, 'tool/admin/payments/edit.html', context)
+    
+@user_is_staff
+def send_receipt(request, payment_id):
+    """
+        Tool allowing staff to send receipts for payments to the STARS Liaison
+    """
+    payment = get_object_or_404(Payment, id=payment_id)
+    
+class PaymentReceiptView(FormActionView):
+    
+    def get_success_action(self, request, context, form):
+
+        send_mail(  context['subject'],
+                    context['message'],
+                    settings.EMAIL_HOST_USER,
+                    ['ben@aashe.org',], #[context['payement'].submissionset.institution.contact_email,],
+                    fail_silently=False
+                    )
+
+        return render_to_response("tool/admin/payments/receipt_confirm.html", context)
+    
+    def get_extra_context(self, request, *args, **kwargs):
+        """ Extend this method to add any additional items to the context """
+        
+        print >> sys.stderr, "my_kwargs: %s" % kwargs
+        
+        payment = get_object_or_404(Payment, id=kwargs['payment_id'])
+        t = loader.get_template('tool/admin/payments/receipt.txt')
+        message = t.render(Context({'payment': payment, 'today': date.today()}))
+        subject = "STARS Payment Receipt"
+        
+        return {'payment': payment, 'message': message, 'subject': subject}
+
+send_receipt = PaymentReceiptView("tool/admin/payments/receipt.html", ConfirmForm, has_upload=True, form_name='object_form',)
 
 @user_is_staff
 def delete_payment(request, payment_id):
