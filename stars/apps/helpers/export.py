@@ -9,7 +9,7 @@ def export_to_file(model, filepath, media_prefix=None):
         If used it will be prepended to file and image fields
     """
     
-    writer = csv.writer(open('ta_app.csv', 'w'))
+    writer = csv.writer(open(filepath, 'w'))
     # Write headers to CSV file
     headers = []
     # Get all the basic field names
