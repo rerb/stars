@@ -46,6 +46,6 @@ XMLRPC_USE_HASH = True
 CYBERSOURCE_URL = CYBERSOURCE_TEST_URL
 
 #if manage.py test was called, use test settings
-if 'test' in sys.argv:
-    DATABASES['default']['ENGINE'] = 'sqlite3'
-    DATABASES['default']['NAME'] = '/Users/jamstooks/sqlite/stars_tests.db'
+# if 'test' in sys.argv:
+#     DATABASES['default']['ENGINE'] = 'sqlite3'
+#     DATABASES['default']['NAME'] = '/Users/jamstooks/sqlite/stars_tests.db'

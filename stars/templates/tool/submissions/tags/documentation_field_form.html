@@ -13,6 +13,9 @@
 	{% if field_form.value.errors %}{{ field_form.errors.value }}{% endif %}
     {% if field_form.warnings %}{{ field_form.warnings }}{% endif %}
 	<div class='field-form'>
-	   {{ field_form.value }}
+        {{ field_form.value }}
+        {% if not field_form.field_includes_units and documentation_field.units %}
+            <label class='units'>{{ documentation_field.units }}</label>
+        {% endif %}
 	</div>
     {% show_help_text documentation_field.inline_help_text 0 %}

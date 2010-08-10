@@ -469,7 +469,7 @@ class Credit(models.Model):
         subcategory.update_ordering()
 
     def save(self, *args, **kwargs):
-        if self.ordinal == -1 :
+        if self.ordinal == -1:
             self.ordinal = _get_next_ordinal(self.subcategory.credit_set.all())
         # Set the defaults for t2 credits
         if self.is_tier2():
@@ -627,6 +627,10 @@ class ApplicabilityReason(models.Model):
     credit = models.ForeignKey(Credit)
     reason = models.CharField(max_length=128)
     help_text = models.TextField(null=True, blank=True)
+    ordinal = models.IntegerField()
+    
+    class Meta:
+        ordering = ('ordinal',)
     
     def __unicode__(self):
         return smart_unicode(self.reason, encoding='utf-8', strings_only=False, errors='strict')
@@ -659,7 +663,11 @@ class ApplicabilityReason(models.Model):
             submission.mark_as_in_progress()
             submission.save()
         super(ApplicabilityReason, self).delete()
-        
+    
+    def save(self, *args, **kwargs):
+       if self.ordinal == -1:
+           self.ordinal = _get_next_ordinal(self.credit.applicabilityreason_set.all())
+       super(ApplicabilityReason, self).save(*args, **kwargs)
 
 DOCUMENTATION_FIELD_TYPES = (
     ('text', 'text'),
@@ -679,6 +687,17 @@ REQUIRED_TYPES = (
     ('cond', "conditionally required"),
     ('req', 'required'),
     )
+
+from django import forms
+TYPE_TO_WIDGET = {
+    'text': forms.TextInput,
+    'long_text': forms.Textarea,
+    'numeric': forms.TextInput,
+    'boolean': forms.Select,
+    'url': forms.TextInput,
+    'date': forms.TextInput,
+    'upload': forms.FileInput,
+}
 
 class Unit(models.Model):
     name = models.CharField(max_length=32)
@@ -789,6 +808,10 @@ class DocumentationField(models.Model):
         """ Return queryset with the FieldSubmissions where this DocumentationField is in use """
         from stars.apps.submissions.models import get_active_field_submissions
         return get_active_field_submissions(self)
+        
+    def get_widget(self):
+        """ Returns the appropriate widget for this type of field """
+        return TYPE_TO_WIDGET[self.type]
 
 class Choice(models.Model):
     """

@@ -8,6 +8,7 @@ admin.autodiscover()
 handler500 = 'stars.apps.helpers.views.server_error'
 
 urlpatterns = patterns('',
+
     # tool:
     #(r'^$', 'stars.apps.tool.views.stars_home_page'),
     (r'^$', 'django.views.generic.simple.direct_to_template', {'template': 'home.html'}),
@@ -43,7 +44,10 @@ urlpatterns = patterns('',
 
 if settings.STANDALONE_MODE:
     urlpatterns += patterns('',
-    # media
+        # static_media
         (r'^media/static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': os.path.join(os.path.dirname(__file__), "static")}),
+        # tiny_mce
+        (r'^media/tp/js/tiny_mce/(?P<path>.*)$', 'django.views.static.serve', {'document_root': os.path.join(os.path.dirname(__file__), "../parts/tinyMCE/tinymce/jscripts/tiny_mce/")}),
+        # uploads and others
         (r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT}),
     )

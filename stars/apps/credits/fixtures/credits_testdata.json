@@ -3028,6 +3028,7 @@
   "pk": 2, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": null, 
    "credit": 3, 
    "reason": "Institution does not hold a new student orientation."
@@ -3037,6 +3038,7 @@
   "pk": 3, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": null, 
    "credit": 7, 
    "reason": "Institution does not have campus grounds.  "
@@ -3046,6 +3048,7 @@
   "pk": 4, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": null, 
    "credit": 8, 
    "reason": "Institution does not have residence halls."
@@ -3055,6 +3058,7 @@
   "pk": 5, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": null, 
    "credit": 9, 
    "reason": "Institution does not have on-campus housing."
@@ -3064,6 +3068,7 @@
   "pk": 6, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": null, 
    "credit": 13, 
    "reason": "Institution does not have themed semesters, years, or first-year experiences. "
@@ -3073,6 +3078,7 @@
   "pk": 7, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": null, 
    "credit": 17, 
    "reason": "Institution does not have academic departments or their equivalent. "
@@ -3082,6 +3088,7 @@
   "pk": 8, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": null, 
    "credit": 18, 
    "reason": "Institution does not have degree-granting programs. "
@@ -3091,6 +3098,7 @@
   "pk": 9, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": null, 
    "credit": 19, 
    "reason": "Institution does not have undergraduate majors, academic programs, or the equivalent."
@@ -3100,6 +3108,7 @@
   "pk": 10, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": null, 
    "credit": 20, 
    "reason": "Institutions offers fewer than 25 distinct graduate programs.   "
@@ -3109,6 +3118,7 @@
   "pk": 11, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": null, 
    "credit": 21, 
    "reason": "Institution does not offer immersive educational programs. "
@@ -3118,6 +3128,7 @@
   "pk": 12, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": null, 
    "credit": 24, 
    "reason": "Research is not considered during faculty tenure and promotion decisions."
@@ -3127,6 +3138,7 @@
   "pk": 13, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": null, 
    "credit": 25, 
    "reason": "Research is not considered during faculty tenure and promotion decisions."
@@ -3136,6 +3148,7 @@
   "pk": 14, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": null, 
    "credit": 26, 
    "reason": "Research is not considered during faculty tenure and promotion decisions."
@@ -3145,6 +3158,7 @@
   "pk": 15, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": null, 
    "credit": 27, 
    "reason": "Research is not considered during faculty tenure and promotion decisions."
@@ -3154,6 +3168,7 @@
   "pk": 16, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": null, 
    "credit": 28, 
    "reason": "Research is not considered during faculty tenure and promotion decisions."
@@ -3163,6 +3178,7 @@
   "pk": 17, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": null, 
    "credit": 26, 
    "reason": "Institution does not have academic departments or the equivalent."
@@ -3172,6 +3188,7 @@
   "pk": 19, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": "<p><strong>Eligible Building Space (Operations and Maintenance)</strong> includes all building space that meets the following criteria.&nbsp;</p>\r\n<p>Eligible Building Space must meet the following &ldquo;Minimum Program Requirements&rdquo; of LEED for Existing Buildings: O&amp;M.&nbsp; An eligible building must:</p>\r\n<ul>\r\n<li>&ldquo;[B]e designed for, constructed on, and operated on a permanent location on already existing <em>land</em>.&nbsp; No building or space that is designed to move at any point in its lifetime&rdquo; should be included.&nbsp; </li>\r\n<li>&ldquo;[I]nclude a minimum of 1,000 square feet (93 square meters) of gross floor area.&rdquo;</li>\r\n<li>&ldquo;[B]e in a state of <em>typical physical occupancy</em>, and all building systems must be operating at a capacity necessary to serve the current occupants, for [&hellip;] at least the 12 continuous months immediately preceding the first submission.&rdquo;</li>\r\n</ul>\r\n<p>Buildings that do not meet these requirements and are therefore ineligible for LEED for Existing Buildings: O&amp;M certification should be excluded from this credit.&nbsp;</p>\r\n<p>In addition, buildings that are not owned by the institution and in which the institution is one of multiple tenants may be excluded.&nbsp; If the institution chooses to include such buildings, it must include all multi-tenant buildings that are included in the institution&rsquo;s overall STARS boundary and in which the institution is a tenant; institutions cannot choose to include some leased spaces and omit others.&nbsp; If an institution chooses to include leased spaces, the institution should count only the square footage of building space it occupies and not the entire building.&nbsp;</p>\r\n<p>Buildings that the institution leases entirely (i.e., the institution is the only tenant) should be included.&nbsp;&nbsp;&nbsp;</p>\r\n<p>Buildings that have registered for LEED for Existing Buildings: O&amp;M but are not yet certified should not be counted as certified building space.&nbsp; Institutions may exclude such buildings from their calculations for up to one year following LEED registration.&nbsp;</p>\r\n<p>Buildings that have been certified under a LEED Rating System that focuses on design and construction (e.g., LEED for New Construction and Major Renovations, LEED for Core &amp; Shell, LEED for Commercial Interiors) may be excluded from the calculations for this credit for up to 5 years following the date of certification.</p>", 
    "credit": 32, 
    "reason": "Institution does not have \"Eligible Building Space (Operations and Maintenance),\" as defined in this credit."
@@ -3181,6 +3198,7 @@
   "pk": 20, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": null, 
    "credit": 37, 
    "reason": "Institution does not have residential dining halls"
@@ -3190,6 +3208,7 @@
   "pk": 21, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": null, 
    "credit": 40, 
    "reason": "Institution does not have cultivated grounds comprising one or more percent of the total area of the campus."
@@ -3199,6 +3218,7 @@
   "pk": 22, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": "<p>For this credit, eligible buildings are those for which construction was completed during the <em>previous three years</em>.&nbsp;</p>\r\n<p>Buildings that have registered for LEED certification but are not yet certified should not be counted as certified building space.&nbsp; Institutions may omit such buildings from the calculations for this credit for up to one year following the completion of construction.&nbsp;</p>\r\n<p><em><strong>New Construction and Major Renovations</strong></em></p>\r\n<p>New construction and major renovation projects must meet the following three &ldquo;Minimum Program Requirements&rdquo; of LEED for New Construction and Major Renovations.&nbsp; An eligible building must:</p>\r\n<ul>\r\n<li>&ldquo;[B]e designed for, constructed on, and operated on a permanent location on already existing <em>land</em>.&nbsp; No building or space that is designed to move at any point in its lifetime [should be included].&rdquo;&nbsp; </li>\r\n<li>&ldquo;[I]nclude a minimum of 1,000 square feet (93 square meters) of gross floor area.&rdquo;</li>\r\n</ul>\r\n<p>Furthermore, the institution, as the building&rsquo;s owner, &ldquo;must occupy more than 50% of the building&rsquo;s leasable square footage.&rdquo;</p>\r\n<p>Major renovations should be included if they meet the following definition from USGBC: &ldquo;involves major HVAC renovation, significant envelope modifications, and major interior rehabilitation&rdquo; that&nbsp;</p>\r\n<ul>\r\n<li>affects more than 50 percent of total building floor area;</li>\r\n<li>causes more than 50 percent of regular building occupants to relocate; or</li>\r\n<li>increases total building floor area by more than 50 percent</li>\r\n</ul>\r\n<p>Buildings that do not meet these requirements and are therefore ineligible for LEED for New Construction and Major Renovations certification should be excluded from this credit.&nbsp;</p>\r\n<p><em><strong>Commercial Interiors</strong></em></p>\r\n<p>Interior improvement projects must meet the following &ldquo;Minimum Program Requirements&rdquo; of LEED for Commercial Interiors:&nbsp;</p>\r\n<ul>\r\n<li>&ldquo;[B]e designed for, constructed on, and operated on a permanent location on already existing <em>land</em>.&nbsp; No building or space that is designed to move at any point in its lifetime [should be included].&rdquo; </li>\r\n<li>&ldquo;[P]roject scope must include a complete interior space distinct from other spaces within the same building with regards to at least one of the following characteristics: ownership, management, lease, or party wall separation.&rdquo;</li>\r\n<li>&ldquo;[I]nclude a minimum of 250 square feet (22 square meters) of gross floor area.&rdquo;</li>\r\n</ul>\r\n<p>&nbsp;</p>\r\n<p><em><strong>Core and Shell</strong></em></p>\r\n<p>Core and shell projects must meet the following &ldquo;Minimum Program Requirements&rdquo; of LEED for Core and Shell:</p>\r\n<ul>\r\n<li>&ldquo;[B]e designed for, constructed on, and operated on a permanent location on already existing <em>land</em>.&nbsp; No building or space that is designed to move at any point in its lifetime&rdquo; should be included.&nbsp; </li>\r\n<li>The project &ldquo;must include the new, ground-up design and construction, or major renovation, of at least one building in its entirety.&rdquo;</li>\r\n<li>&ldquo;[I]nclude a minimum of 1,000 square feet (93 square meters) of gross floor area&rdquo;</li>\r\n</ul>", 
    "credit": 33, 
    "reason": "Institution does not have \"Eligible Building Space (Design and Construction),\" as defined in this credit."
@@ -3208,6 +3228,7 @@
   "pk": 23, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": "", 
    "credit": 46, 
    "reason": "Institution's students do not attend the physical campus."
@@ -3217,6 +3238,7 @@
   "pk": 24, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": "", 
    "credit": 50, 
    "reason": "Institution has not conducted a major construction and/or demolition project in the past three years."
@@ -3226,6 +3248,7 @@
   "pk": 25, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": null, 
    "credit": 57, 
    "reason": "Institution does not have residential dining halls. "
@@ -3235,6 +3258,7 @@
   "pk": 26, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": null, 
    "credit": 58, 
    "reason": "Institution does not have residential dining halls. "
@@ -3244,6 +3268,7 @@
   "pk": 27, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": null, 
    "credit": 61, 
    "reason": "Institution does not have dining halls or on-site food service providers."
@@ -3253,6 +3278,7 @@
   "pk": 28, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": null, 
    "credit": 62, 
    "reason": "Institution does not have dining halls or on-site food service providers."
@@ -3262,6 +3288,7 @@
   "pk": 29, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": null, 
    "credit": 63, 
    "reason": "Institution does not have dining halls or on-site food service providers."
@@ -3271,6 +3298,7 @@
   "pk": 30, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": null, 
    "credit": 64, 
    "reason": "Institution does not have on-site dining service operations. "
@@ -3280,6 +3308,7 @@
   "pk": 31, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": null, 
    "credit": 65, 
    "reason": "Institution does not have to-go food service operations."
@@ -3289,6 +3318,7 @@
   "pk": 32, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": null, 
    "credit": 66, 
    "reason": "Institution does not have to-go food service operations."
@@ -3298,6 +3328,7 @@
   "pk": 33, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": null, 
    "credit": 70, 
    "reason": "Institution does not have vending machines on campus. "
@@ -3307,6 +3338,7 @@
   "pk": 34, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": null, 
    "credit": 72, 
    "reason": "Institution does not fully occupy at least one building.     "
@@ -3316,6 +3348,7 @@
   "pk": 35, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": null, 
    "credit": 73, 
    "reason": "Institution does not have maintained grounds."
@@ -3325,6 +3358,7 @@
   "pk": 36, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": null, 
    "credit": 74, 
    "reason": "Institution does not own land.   "
@@ -3334,6 +3368,7 @@
   "pk": 37, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": null, 
    "credit": 75, 
    "reason": "Institution does not have grounds."
@@ -3343,6 +3378,7 @@
   "pk": 38, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": null, 
    "credit": 76, 
    "reason": "Institution does not remove snow and ice as part of annual maintenance routines. "
@@ -3352,6 +3388,7 @@
   "pk": 39, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": null, 
    "credit": 77, 
    "reason": "Institution does not have maintained grounds that generate yard waste.   "
@@ -3361,6 +3398,7 @@
   "pk": 40, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": null, 
    "credit": 87, 
    "reason": "Institution does not have parking spaces."
@@ -3370,6 +3408,7 @@
   "pk": 41, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": null, 
    "credit": 88, 
    "reason": "Institution does not have parking spaces."
@@ -3379,6 +3418,7 @@
   "pk": 42, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": null, 
    "credit": 90, 
    "reason": "Institution is located in a community that has prohibited idling.  "
@@ -3388,6 +3428,7 @@
   "pk": 43, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": null, 
    "credit": 95, 
    "reason": "Institution does not have laboratories that use chemicals. "
@@ -3397,6 +3438,7 @@
   "pk": 44, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": null, 
    "credit": 96, 
    "reason": "Institution does not have residence halls."
@@ -3406,6 +3448,7 @@
   "pk": 45, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": null, 
    "credit": 97, 
    "reason": "Institution does not have residence halls."
@@ -3415,6 +3458,7 @@
   "pk": 46, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": null, 
    "credit": 99, 
    "reason": "Institution does not occupy at least one building entirely. "
@@ -3424,6 +3468,7 @@
   "pk": 47, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": null, 
    "credit": 101, 
    "reason": "Institution does not have maintained grounds."
@@ -3433,6 +3478,7 @@
   "pk": 48, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": null, 
    "credit": 102, 
    "reason": "Institution does not have irrigated grounds."
@@ -3442,6 +3488,7 @@
   "pk": 49, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": null, 
    "credit": 104, 
    "reason": "Institution does not have a strategic plan or equivalent guiding document."
@@ -3451,6 +3498,7 @@
   "pk": 50, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": null, 
    "credit": 105, 
    "reason": "Institution does not have a physical campus plan or plans."
@@ -3460,6 +3508,7 @@
   "pk": 66, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": "", 
    "credit": 120, 
    "reason": "Institution\u2019s endowment is worth US $1 million or less"
@@ -3469,6 +3518,7 @@
   "pk": 52, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": "", 
    "credit": 119, 
    "reason": "Institution\u2019s endowment is worth US $1 million or less"
@@ -3478,6 +3528,7 @@
   "pk": 54, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": null, 
    "credit": 123, 
    "reason": "Institution does not offer continuing education or community education programs."
@@ -3487,6 +3538,7 @@
   "pk": 55, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": "", 
    "credit": 127, 
    "reason": "Institution's logo does not appear on apparel. "
@@ -3496,6 +3548,7 @@
   "pk": 56, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": null, 
    "credit": 134, 
    "reason": "Institution does not offer business or economics coursework related to investment strategies."
@@ -3505,6 +3558,7 @@
   "pk": 57, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": null, 
    "credit": 135, 
    "reason": "Institution does not have an investment pool."
@@ -3514,6 +3568,7 @@
   "pk": 58, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": null, 
    "credit": 136, 
    "reason": "Institution does not have an investment pool. "
@@ -3523,6 +3578,7 @@
   "pk": 59, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": "", 
    "credit": 139, 
    "reason": "Institution is located in an area that is served by an existing farmers' market."
@@ -3532,6 +3588,7 @@
   "pk": 60, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": "", 
    "credit": 45, 
    "reason": "Institution does not have a motorized vehicle fleet."
@@ -3541,6 +3598,7 @@
   "pk": 61, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": "", 
    "credit": 60, 
    "reason": "Institution does not have food service franchisees operating on campus."
@@ -3550,6 +3608,7 @@
   "pk": 62, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": "", 
    "credit": 59, 
    "reason": "Institution does not have residential dining halls."
@@ -3559,6 +3618,7 @@
   "pk": 63, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": "", 
    "credit": 75, 
    "reason": "Institution is not located in the United States."
@@ -3568,6 +3628,7 @@
   "pk": 64, 
   "model": "credits.applicabilityreason", 
   "fields": {
+   "ordinal": 0,
    "help_text": "", 
    "credit": 118, 
    "reason": "Institution\u2019s endowment is worth US $1 million or less."

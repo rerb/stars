@@ -3,6 +3,7 @@
     to the body `onload` decorator if they want to access the expand/collapse functionality.
 {% endcomment %}
 
+{% if outline %}
 <ul class="listexpander">
 {% for cat in outline %}
     <li>
@@ -40,3 +41,4 @@
     </li>  
 {% endfor %}
 </ul>
+{% endif %}

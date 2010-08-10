@@ -9,7 +9,6 @@ from django.forms.util import ErrorList
 
 from stars.apps.helpers.forms import fields as custom_fields
 from stars.apps.helpers.forms.util import WarningList
-from stars.apps.helpers.decorators import render_with_units
 from stars.apps.helpers import watchdog 
 from stars.apps.submissions.models import *
 from stars.apps.tool.submissions.widgets import UploadFileWidget
@@ -20,12 +19,6 @@ class SubmissionFieldForm(ModelForm):
         """ Add any specified options to the form's value field """
         super(SubmissionFieldForm, self).__init__(*args, **kwargs)
         self.warnings = None
-        if self.instance and self.instance.get_units():
-            if self.field_includes_units():
-                self.fields['value'].set_units(self.instance.get_units())
-            else:  # for fields that don't include their units, render the units after the field
-                widget = self.fields['value'].widget
-                widget.render = render_with_units(widget.render, self.instance.get_units())
 
     def field_includes_units(self):
         """ Returns true if the form field contains its own units, false otherwise """

@@ -26,6 +26,7 @@
 			{% if user.is_staff %}
 	            <h4><a href='/tool/admin/'>Administer Site</a></h4>
 	            <h4><a href='/tool/credit-editor/'>Credit Editor</a></h4>
+	            {% block credit_editor_outline %}{% endblock %}
 	        {% endif %}
 			{% if user.can_admin %}
 		    	<h4><a href='/tool/manage/'>Manage Institution</a></h4>

@@ -189,7 +189,7 @@ class PermMixin(StarsMixin):
         Assumes `__call__` returns a response object and has the following declaration:
             def __call__(self, request, *args, **kwargs):
     """
-   
+    
     def __call__(self, request, *args, **kwargs):
         
         has_perms = True
@@ -249,3 +249,26 @@ class InstitutionAccessMixin(StarsMixin):
                 return fail_response
         
         return super(InstitutionAccessMixin, self).__call__(request, *args, **kwargs)
+        
+        
+class IsStaffMixin(StarsMixin):
+    """
+        This class should be used as a mixin to provide the subclass with staff-only access.
+
+        If the user is not authenticated `__call__` will return a permission denied response.
+
+        Assumes `__call__` returns a response object and has the following declaration:
+            def __call__(self, request, *args, **kwargs):
+    """
+    
+    def __call__(self, request, *args, **kwargs):
+        
+        # Unauthenticated users are redirected to Login
+        if not request.user.is_authenticated():
+            return self.redirect_to_login(request)
+        
+        # Unauthorized users get a PermissionDenied response
+        if not request.user.is_staff:
+            raise PermissionDenied("You do not have permission to access this page.")
+        
+        return super(IsStaffMixin, self).__call__(request, *args, **kwargs)

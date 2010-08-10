@@ -1,29 +1,28 @@
 {% if object_ordering %}
-    {% for row in object_ordering %}
+    {% for form in object_ordering.forms %}
     <tr>
-        {% block display_row %} 
         <td>
-            <a href='{{ row.obj.get_edit_url }}'>{{ row.obj }}</a>
+            {% if forloop.counter0 == 0 %}
+                {{ object_ordering.management_form }}
+            {% endif %}
+            {% block display_row %}
+                <a href='{{ form.instance.get_edit_url }}'>{{ form.instance }}</a>
+            {% endblock %}
         </td>
-        {% endblock %}
         <td class='buttonColumn'>
             {% block edit_buttons %} 
-            <a href='{{ row.obj.get_edit_url }}'>
+            <a href='{{ form.instance.get_edit_url }}'>
                 <img src='/media/static/images/page_edit.png' alt='edit' title='edit' />
             </a>
-            <a href='{{ row.obj.get_edit_url }}delete/'>
+            <a href='{{ form.instance.get_edit_url }}delete/'>
                 <img src='/media/static/images/delete.png' alt='delete' title='delete' />
             </a>
             {% endblock %}
             <img src='/media/static/images/drag_vertical.png' alt='drag this row' title='drag this row' />
-            {{ row.form.ordinal }}
+            {{ form.ordinal }}
+            {{ form.id }}
         </td>
     </tr>
     {% endfor %}
-    {% block button_row %}
-    <tr nodrop="true" nodrag="true"><td colspan='4' class='buttonRow'>
-    <button type='submit' rel='save_ordering'>Save</button>
-    {% block extra_buttons %}{% endblock %}
-    </td></tr>
-    {% endblock %}
 {% endif %}
+{% block button_row %}{% endblock %}
