@@ -2,8 +2,9 @@
     apps.helpers.forms Doctests
 
     Test Premises:
-    - this class can be instantiated to process a form w/out a model
-    - ... w/ a model
+    - this class can be instantiated to process a form
+        - with instance (passed via **kwargs)
+        - without instance
     
     >>> from stars.apps.helpers.forms.views import FormActionView
     >>> from stars.apps.helpers.forms.models import TestModel
@@ -16,10 +17,11 @@
     ...  class Meta:
     ...   model = TestModel
     
-    >>> test_model = TestModel(f=False)
+    >>> test_obj = TestModel(f=False, t=1)
     
     # Dummy Request Object
     >>> class Request(object):
+    ...     user = User(username='test')
     ...     def __init__(self, post=None):
     ...         self.set_post(post)
     ...     def set_post(self, post):
@@ -31,130 +33,88 @@
     
     
     # Test each method
+
+    >>> context_with_instance = {'my_instance': test_obj,}
+    >>> context_no_instance = {}
     
-    # ``init``
+    >>> instance_kwargs = {'instance': test_obj}
     
-    # w/ Model
-    >>> fav_model = FormActionView("template.html", TestForm, instance=test_model)
+    >>> fav = FormActionView("template.html", TestForm, instance_name='my_instance')
     
-    # w/out Model
-    >>> fav_no_model = FormActionView("template.html", TestForm)
+    #
+    # Test get_context and process_form with a POST request
+    #
+    >>> r_post = Request()
+    >>> r_post.set_post({'f': True, 't': 10})
     
+    # >>> context = fav.get_context(r_post, None, **instance_kwargs)
+    # >>> context['my_instance']
+    # <TestModel: Imma Model>
+    # 
+    # >>> response = fav.process_form(r_post, context)
+    # >>> context['form']
+    # <stars.apps.helpers.forms.tests.TestForm object at ...
+    # 
+    # #
+    # # Test get_context and process_form with an empty POST request
+    # #
+    # 
+    >>> r_no_post = Request()
+    >>> context = None
+    
+    # >>> context = fav.get_context(r_no_post, None, **instance_kwargs)
+    # >>> context['my_instance']
+    # <TestModel: Imma Model>
+    # 
+    # >>> response = fav.process_form(r_no_post, context)
+    # >>> context['form']
+    # <stars.apps.helpers.forms.tests.TestForm object at ...
+    
+    #
+    # Test get_context and process_form with a POST request with errors
+    #
+    
+    >>> r_errors = Request()
+    >>> r_errors.set_post({'f': True, 't': 'a'})
+    >>> context = None
+    
+    >>> context = fav.get_context(r_errors, None, **instance_kwargs)
+    >>> context['my_instance']
+    <TestModel: Imma Model>
+    
+    >>> response = fav.process_form(r_errors, context)
+    >>> context['form'].errors['t']
+    [u'Enter a whole number.']
+    
+    #
     # ``get_form_kwargs``
+    #
     
-    # w/ model
+    ## w/ instance and no post
     
-    # w/out post
-    >>> r = Request()
-    
-    >>> fav_model.get_form_kwargs(r)
+    >>> fav.get_form_kwargs(r_no_post, context_with_instance)
     {'instance': <TestModel: Imma Model>}
     
-    # w/ post
-    >>> r.set_post({'f': True, 't': 10})
-    >>> dict = fav_model.get_form_kwargs(r)
+    ## w/ instance and post
+    >>> dict = fav.get_form_kwargs(r_post, context_with_instance)
+    >>> dict['data']['f']
+    True
+    >>> dict['data']['t']
+    10
     >>> dict['instance']
     <TestModel: Imma Model>
+    
+    ## w/out instance and w/ post
+    >>> dict = fav.get_form_kwargs(r_post, context_no_instance)
     >>> dict['data']['f']
     True
     >>> dict['data']['t']
     10
+    >>> dict.has_key('instance')
+    False
     
-    # w/out model
-    
-    # w/out Post
-    >>> r.set_post(None)
-    >>> fav_no_model.get_form_kwargs(r)
+    ## w/out instance or post
+    >>> fav.get_form_kwargs(r_no_post, context_no_instance)
     {}
-    
-    # w/ post
-    >>> r.set_post({'f': True, 't': 10})
-    >>> dict = fav_no_model.get_form_kwargs(r)
-    >>> dict['data']['f']
-    True
-    >>> dict['data']['t']
-    10
-
-    # ``process_form``
-    
-    # w/ model
-    
-    # w/ post
-    # If it validates `process_form` will return a redirect
-    >>> r.set_post({'f': False, 't': 11})
-    >>> fav_model.context_dict.has_key('form')
-    False
-    >>> fav_model.process_form(r)
-    <django.http.HttpResponseRedirect object at ...
-    
-    # Make sure that `process_form` adds 'form' to the context
-    >>> fav_model.context_dict['form']
-    <stars.apps.helpers.forms.tests.TestForm object at ...
-    >>> fav_model.instance.f
-    False
-    >>> fav_model.instance.t
-    11
-    
-    # w/out post
-    
-    >>> r.set_post(None)
-    >>> fav_model.process_form(r)
-    >>> fav_model.context_dict['form']
-    <stars.apps.helpers.forms.tests.TestForm object at ...
-    >>> fav_model.instance.f
-    False
-    >>> fav_model.instance.t
-    11
-    
-    # w/out model
-    
-    # w/out post
-    >>> fav_no_model.process_form(r)
-    >>> fav_model.context_dict['form']
-    <stars.apps.helpers.forms.tests.TestForm object at ...
-    
-    # w/ post
-    >>> r.method = "POST"
-    >>> r.set_post({'f': True, 't': 12})
-    
-    # No model = no redirect
-    >>> fav_no_model.process_form(r)
-    
-    # w/out ``IntegerField``
-    >>> r.set_post({'f': True})
-    >>> fav_model.process_form(r)
-    <django.http.HttpResponseRedirect object at ...
-    >>> fav_model.context_dict['form'].errors
-    {}
-    
-    # w/ error for ``t`` value
-    >>> r.set_post({'f': True, 't': 'a'})
-    
-    # No response from process_form since there are errors
-    >>> fav_model.process_form(r)
-    >>> fav_model.context_dict['form'].errors
-    {'t': [u'Enter a whole number.']}
-    
-    # Confirm ``process_form`` raises a RedirectException
-    # when ``get_success_redirect`` returns a value
-    # @ Todo
-
-    # ``get_context``
-    
-    # w/ model
-    
-    >>> r.user = User()
-    >>> fav_model = FormActionView("template.html", TestForm, instance=test_model)
-    >>> request_context = fav_model.get_context(r)
-    >>> fav_model.context_dict['testmodel']
-    <TestModel: Imma Model>
-    
-    # w/out Model
-    >>> del(fav_no_model)
-    >>> fav_no_model = FormActionView("template.html", TestForm)
-    >>> request_context = fav_no_model.get_context(r)
-    >>> fav_no_model.instance
-    >>> fav_no_model.context_dict.has_key('testmodel')
-    False
     
 """

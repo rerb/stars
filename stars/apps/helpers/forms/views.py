@@ -37,112 +37,115 @@ class FormActionView(object):
         This callable class can be extended to handle any form submission
     """
 
-    def __init__(self, template, formClass, instance=None, has_upload=False, form_name='form', instance_name=None, init_context=None):
+    def __init__(self, template, formClass, has_upload=False, form_name='form', instance_name=None, init_context=None):
         """ Initializes the class with a formclass and template """
         self.formClass = formClass
         self.template = template
-        self.instance = instance
         self.has_upload = has_upload
         self.form_name = form_name
-        self.instance_name = instance_name
+        self.instance_name = 'instance'
+        if instance_name:
+            self.instance_name = instance_name
         if not init_context:
             self.context_dict = {}
         else:
             self.context_dict = init_context
 
-    def __call__(self, request, instance=None):
+    def __call__(self, request, *args, **kwargs):
         """ Call the class as if it were a function """
 
-        if not instance:
-            self.get_instance(request)
-        else:
-            self.instance = instance
-
-        return self.render(request)
+        return self.render(request, *args, **kwargs)
 
     def render(self, request, *args, **kwargs):
         """ Where all the work is done """
 
-        response = self.process_form(request)
+        context = self.get_context(request, *args, **kwargs)
+        response = self.process_form(request, context)
+
         if response:
             return response
 
-        return render_to_response(self.template, self.get_context(request))
+        return render_to_response(self.template, context)
 
-    def get_instance(self, request):
+    def get_instance(self, request, context, *args, **kwargs):
         """ Provides a way for the class to get the model instance from the request object """
-        return self.instance
+        if context.has_key(self.instance_name):
+            return context[self.instance_name]
+        elif kwargs.has_key('instance'):
+            context[self.instance_name] = kwargs['instance']
+        return None
 
-    def get_context(self, request):
+    def get_context(self, request, *args, **kwargs):
         """ Adding any additional context items to the context. Uses ``RequestContext`` """
 
-        self.context_dict.update(self.get_extra_context(request))
+        _context = {}
+        _context.update(self.context_dict)
+        _context.update(self.get_extra_context(request, *args, **kwargs))
 
-        if self.instance:
+        instance = self.get_instance(request, _context, *args, **kwargs)
+
+        if instance:
             if self.instance_name:
-                self.context_dict[self.instance_name] = self.instance
+                _context[self.instance_name] = instance
             else:
-                self.context_dict[self.instance.__class__.__name__.lower()] = self.instance
-        return RequestContext(request, self.context_dict)
+                _context['instance'] = instance
 
-    def get_extra_context(self, request):
+        return RequestContext(request, _context)
+
+    def get_extra_context(self, request, *args, **kwargs):
         """ Extend this method to add any additional items to the context """
         return {}
 
-    def process_form(self, request):
+    def process_form(self, request, context):
         """ Returns a response or raises a redirect exception """
 
         _formClass = self.get_form_class()
-        kwargs = self.get_form_kwargs(request)
+        kwargs = self.get_form_kwargs(request, context)
         form = _formClass(**kwargs)
 
         if request.method == 'POST':
             if form.is_valid():
-                self.save_form(form, request)
-                self.context_dict[self.form_name] = form
-                r = self.get_success_response(request)
+                r = self.get_success_action(request, context, form)
                 if r:
                     return r
             else:
                 flashMessage.send("Please correct the errors below.", flashMessage.ERROR)
 
-        self.context_dict[self.form_name] = form
+        context[self.form_name] = form
         return None
 
-    def save_form(self, form, request):
+    def save_form(self, form, request, context):
         """ Saves the form to a instance if available """
-        if self.instance:
-            self.instance = form.save()
-        else:
-            form.save()
+        if context[self.instance_name]:
+            context[self.instance_name] = form.save()
 
     def get_form_class(self, *args, **kwargs):
         """ Here you can perform any changes to the form class """
         return self.formClass
 
-    def get_success_response(self, request):
+    def get_success_action(self, request, context, form):
         """
             On successful submission of the form, redirect to the returned URL
             Returns None if redirect not necessary
         """
-        if self.instance:
-            return HttpResponseRedirect(self.instance.get_absolute_url())
+
+        self.save_form(form, request, context)
+
+        if context[self.instance_name] and hasattr(context[self.instance_name], 'get_absolute_url'):
+            return HttpResponseRedirect(context[self.instance_name].get_absolute_url())
         else:
             return None
 
-    def get_form_kwargs(self, request):
+    def get_form_kwargs(self, request, context):
         """ Get the parameters for the form class """
         kwargs = {}
         if request.method == 'POST':
             kwargs['data'] = request.POST
             if self.has_upload and request.FILES:
                 kwargs['files'] = request.FILES
-        if self.instance:
-            kwargs['instance'] = self.instance
+        if context.has_key(self.instance_name):
+            kwargs['instance'] = context[self.instance_name]
         return kwargs
-
-    def __str__(self):
-        return "FormActionView"
         
 class MultiFormView(object):
     """

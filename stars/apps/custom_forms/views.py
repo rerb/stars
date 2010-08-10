@@ -8,7 +8,8 @@ from django.conf import settings
 from django.template import Context, Template
 
 class TAAppView(FormActionView):
-    def get_success_response(self, request):
+    
+    def get_success_action(self, request, context, form):
         
         t = get_template("custom_forms/ta_app_email.txt")
         message = t.render(Context(self.context_dict))

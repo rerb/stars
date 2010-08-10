@@ -32,6 +32,7 @@ class TAApplication(models.Model):
     related_associations = models.TextField()
     resume = models.FileField(upload_to='ta_apps')
     credit_weakness = models.TextField(null=True, blank=True)
+    date_registered = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
         return "%s %s" % (self.first_name, self.last_name)

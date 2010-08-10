@@ -8,6 +8,3 @@ class TestModel(models.Model):
     
     def __str__(self):
         return "Imma Model"
-        
-    def get_absolute_url(self):
-        return "/path/to/model/"
