@@ -98,7 +98,7 @@ def prepare_production():
         local("svn --username %s --password %s --non-interactive copy %strunk %s -m '%s'" % (env.svn_user, env.svn_pass, env.repo, tag_path, msg))
         
     env.project_path = "%stag_%s" % (env.path, tag_name)
-    env.checkout_cmd = 'svn --no-auth-cache --non-interactive --username %s --password %s export %s %s' % (env.svn_user, env.svn_pass, tag_path, env.project_path)
+    env.checkout_cmd = 'svn  --force --no-auth-cache --non-interactive --username %s --password %s export %s %s' % (env.svn_user, env.svn_pass, tag_path, env.project_path)
 
 def deploy():
     """
