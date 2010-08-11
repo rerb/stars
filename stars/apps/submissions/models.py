@@ -1229,6 +1229,10 @@ class Payment(models.Model):
     def get_delete_url(self):
         """ Returns the URL of the page to confirm deletion of this object """
         return "%s%d/delete/" % (self.get_admin_url(), self.id)
+        
+    def get_receipt_url(self):
+        """ Returns a URL for the page where staff can send a receipt """
+        return "%s%d/receipt/" % (self.get_admin_url(), self.id)
     
     def get_institution(self):
         return self.submissionset.institution
