@@ -116,8 +116,7 @@ class FormActionView(object):
 
     def save_form(self, form, request, context):
         """ Saves the form to a instance if available """
-        if context[self.instance_name]:
-            context[self.instance_name] = form.save()
+        context[self.instance_name] = form.save()
 
     def get_form_class(self, *args, **kwargs):
         """ Here you can perform any changes to the form class """
