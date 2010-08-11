@@ -29,6 +29,10 @@
                <a href='{{ payment.get_delete_url }}'>
                    <img src='/media/static/images/delete.png' alt='delete' title='delete' />
                </a>
+               {% if user.is_staff and payment.type != 'later' %}
+                    <a href='{{ payment.get_receipt_url }}'>
+                        <img src='/media/static/images/email_go.png' alt='send receipt' title='send receipt'></a>
+               {% endif %}
              </td>
            {% endif %}
        </tr>
