@@ -135,7 +135,7 @@ def reg_payment(request):
                         if result['cleared']:
                             institution = register_institution(request.user, institution, "credit", price, payment_dict)
                             request.session['selected_institution'] = institution
-                            return HttpResponseRedirect("/register/survey/")
+                            return HttpResponseRedirect("/register/account/")
                         else:
                             flashMessage.send("Processing Error: %s" % result['msg'], flashMessage.ERROR)
                 else:
@@ -144,7 +144,7 @@ def reg_payment(request):
             else:
                 institution = register_institution(request.user, institution, "later", price, None)
                 request.session['selected_institution'] = institution
-                return HttpResponseRedirect("/register/survey/")
+                return HttpResponseRedirect("/register/account/")
     
     template = "registration/payment.html"
     context = {'pay_form': pay_form, 'pay_later_form': pay_later_form, 'institution': institution, 'is_member': is_member, 'price': price}
