@@ -200,7 +200,7 @@ class PaymentReceiptView(FormActionView):
         send_mail(  context['subject'],
                     context['message'],
                     settings.EMAIL_HOST_USER,
-                    ['ben@aashe.org',], #[context['payement'].submissionset.institution.contact_email,],
+                    [context['payment'].submissionset.institution.contact_email,],
                     fail_silently=False
                     )
 
