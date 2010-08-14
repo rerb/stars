@@ -99,7 +99,7 @@ class FormActionView(object):
     def process_form(self, request, context):
         """ Returns a response or raises a redirect exception """
 
-        _formClass = self.get_form_class()
+        _formClass = self.get_form_class(context)
         kwargs = self.get_form_kwargs(request, context)
         form = _formClass(**kwargs)
 
@@ -118,7 +118,7 @@ class FormActionView(object):
         """ Saves the form to a instance if available """
         context[self.instance_name] = form.save()
 
-    def get_form_class(self, *args, **kwargs):
+    def get_form_class(self, context, *args, **kwargs):
         """ Here you can perform any changes to the form class """
         return self.formClass
 

@@ -60,8 +60,10 @@ MIDDLEWARE_CLASSES = (
 
 AUTHENTICATION_BACKENDS = ('stars.apps.auth.aashe.AASHEAuthBackend',)
 if 'test' in sys.argv:
-    AUTHENTICATION_BACKENDS = ('stars.apps.auth.aashe.AASHEAuthBackend',
-                               'django.contrib.auth.backends.ModelBackend')
+    AUTHENTICATION_BACKENDS = (
+                               'django.contrib.auth.backends.ModelBackend',
+                               'stars.apps.auth.aashe.AASHEAuthBackend',
+                               )
     
 DASHBOARD_URL = "/tool/"
 LOGIN_URL = "/auth/login/"

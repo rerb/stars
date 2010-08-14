@@ -10,8 +10,7 @@ from django.core import mail
 
 from stars.apps.tasks.notifications import *
 
-from datetime import date
-import sys
+import sys, os
 
 class NotificationTest(TestCase):
     fixtures = ['notification_test.json',]

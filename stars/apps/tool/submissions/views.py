@@ -1,5 +1,7 @@
 from django.shortcuts import get_object_or_404, render_to_response
 from django.http import HttpResponseRedirect
+from django.template import Context, loader, Template
+from django.core.mail import send_mail
 
 from datetime import datetime
 
@@ -53,31 +55,37 @@ class SubmissionClassView(SubmissionMixin, PermMixin, FormActionView):
     perm_list = ['admin',]
     perm_message = "Sorry, only administrators can submit for a rating."
     
-    def get_instance(self, request):
+    def get_extra_context(self, request, *args, **kwargs):
+        """ Extend this method to add any additional items to the context """
+        return {self.instance_name: _get_active_submission(request),}
+    
+    def get_instance(self, request, context, *args, **kwargs):
         """ Get's the active submission from the request """
-        self.instance = _get_active_submission(request)
-        # SubmissionMixin takes care of the following
-        # if not self.instance:
-        #             flashMessage.send("No active submission found to submit.", flashMessage.NOTICE)
-        #             raise RedirectException(url="/tool/manage/submissionsets/")
+        if context.has_key(self.instance_name):
+            return context[self.instance_name]
+        return None
 
 class ConfirmClassView(SubmissionClassView):
     """
         The first step in the final submission process
     """
     
-    def get_extra_context(self, request):
+    def get_extra_context(self, request, *args, **kwargs):
         """ Extend this method to add any additional items to the context """
+        
+        _context = super(ConfirmClassView, self).get_extra_context(request, *args, **kwargs)
         # Find all Credits listed as "In Progress"
         credit_list = [] 
-        for cat in self.instance.categorysubmission_set.all():
+        for cat in _context[self.instance_name].categorysubmission_set.all():
                 for sub in cat.subcategorysubmission_set.all():
                     for c in sub.creditusersubmission_set.all():
                         if c.submission_status == 'p' or c.submission_status == 'ns':
                             credit_list.append(c)
-        return {'credit_list': credit_list,}
+        _context.update({'credit_list': credit_list,})
+        return _context
         
-    def get_success_response(self, request):
+    def get_success_action(self, request, context, form):
+        self.save_form(form, request, context)
         return HttpResponseRedirect("/tool/submissions/submit/letter/")
 
 # The first submission view
@@ -88,14 +96,15 @@ class LetterClassView(SubmissionClassView):
         Extends the Form class-based view from apps.helpers
     """
     
-    def get_form_class(self, *args, **kwargs):
+    def get_form_class(self, context, *args, **kwargs):
         """ This form gives institutions the option to choose Reporter status """
-        if self.instance.get_STARS_rating().name != 'Reporter':
+        if context[self.instance_name].get_STARS_rating().name != 'Reporter':
             return LetterStatusForm
         #return SubmissionClassView.get_form_class(self, *args, **kwargs)
         return super(LetterClassView, self).get_form_class(*args, **kwargs)
         
-    def get_success_response(self, request):
+    def get_success_action(self, request, context, form):
+        self.save_form(form, request, context)
         return HttpResponseRedirect("/tool/submissions/submit/finalize/")
 
 # The second view of the submission process
@@ -106,24 +115,47 @@ class FinalizeClassView(SubmissionClassView):
         Extends the Form class-based view from apps.helpers
     """
     
-    def save_form(self, form, request):
+    def save_form(self, form, request, context):
         """ Finalizes the submission object """
-        self.instance.date_submitted = datetime.now()
-        self.instance.status = 'pr'
-        # self.instance.rating = self.instance.get_STARS_rating()
-        self.instance.submitting_user = request.user
-        self.instance.save()
-        self.instance.institution.state.delete() # remove this submissionset as the active submissionset
+        instance = context[self.instance_name]
+        instance.date_submitted = datetime.now()
+        instance.status = 'pr'
+        # instance.rating = self.instance.get_STARS_rating()
+        instance.submitting_user = request.user
+        instance.save()
+        instance.institution.state.delete() # remove this submissionset as the active submissionset
         
-    def get_form_kwargs(self, request):
+    def get_form_kwargs(self, request, context):
         """ Remove 'instance' from ``kwargs`` """
-        kwargs = SubmissionClassView.get_form_kwargs(self, request)
+        kwargs = SubmissionClassView.get_form_kwargs(self, request, context)
         if kwargs.has_key('instance'):
             del kwargs['instance']
             # kwargs['instance'] = None
         return kwargs
     
-    def get_success_response(self, request):
+    def get_success_action(self, request, context, form):
+        
+        self.save_form(form, request, context)
+        
+        t = loader.get_template('tool/submissions/submit_email.txt')
+        _context = context
+        _context.update({'submissionset': context[self.instance_name],})
+        c = Context(_context)
+        message = t.render(c)
+        send_mail(  "Your STARS Submission",
+                    message,
+                    settings.EMAIL_HOST_USER,
+                    [context[self.instance_name].institution.contact_email,],
+                    fail_silently=False
+                    )
+        
+        send_mail(  "STARS Submission!! (%s)" % context[self.instance_name].institution,
+                    "%s has submitted for a rating! Time to review!" % context[self.instance_name],
+                    settings.EMAIL_HOST_USER,
+                    ['stars_staff@aashe.org',],
+                    fail_silently=False
+                    )
+        
         return respond(request, 'tool/submissions/submit_success.html', {})
         
 # The final step of the submission process

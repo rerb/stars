@@ -135,7 +135,7 @@ def reg_payment(request):
                         if result['cleared']:
                             institution = register_institution(request.user, institution, "credit", price, payment_dict)
                             request.session['selected_institution'] = institution
-                            return HttpResponseRedirect("/register/account/")
+                            return HttpResponseRedirect("/register/survey/")
                         else:
                             flashMessage.send("Processing Error: %s" % result['msg'], flashMessage.ERROR)
                 else:
@@ -144,7 +144,7 @@ def reg_payment(request):
             else:
                 institution = register_institution(request.user, institution, "later", price, None)
                 request.session['selected_institution'] = institution
-                return HttpResponseRedirect("/register/account/")
+                return HttpResponseRedirect("/register/survey/")
     
     template = "registration/payment.html"
     context = {'pay_form': pay_form, 'pay_later_form': pay_later_form, 'institution': institution, 'is_member': is_member, 'price': price}
@@ -258,7 +258,7 @@ class RegistrationSurveyView(AuthenticatedMixin, FormActionView):
         
         return super(RegistrationSurveyView, self).render(request, *args, **kwargs)
     
-    def save_form(self, form, request):
+    def save_form(self, form, request, context):
         """ Updates the resonse with the user and institution before saving """
         rr = form.save(commit=False)
         rr.institution = self.get_institution(request)
@@ -268,10 +268,12 @@ class RegistrationSurveyView(AuthenticatedMixin, FormActionView):
         # # http://docs.djangoproject.com/en/dev/topics/forms/modelforms/#the-save-method
         form.save_m2m()
         
-    def get_success_response(self, request):
+    def get_success_action(self, request, context, form):
         """
             On successful submission of the form, redirect to the registration account page
         """
+        self.save_form(form, request, context)
+
         return HttpResponseRedirect('/register/account/')
     
     def get_institution(self, request):
