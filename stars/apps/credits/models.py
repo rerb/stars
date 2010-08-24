@@ -697,6 +697,7 @@ TYPE_TO_WIDGET = {
     'url': forms.TextInput,
     'date': forms.TextInput,
     'upload': forms.FileInput,
+    'choice': forms.Select,
 }
 
 class Unit(models.Model):

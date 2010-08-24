@@ -157,27 +157,28 @@ class DocumentationFieldForm(ModelForm):
         model = DocumentationField
         exclude = ('credit', 'ordinal', 'identifier', 'type', 'last_choice_is_other')
 
-    # def clean(self):
-    #     cleaned_data = self.cleaned_data
-    #     type = cleaned_data.get("type")
-    # 
-    #     #@todo: validate that choice-type fields actually specify choices
-    # 
-    #     # Code for cleaning numberic choices, if we ever implement those again...        
-    #     #                if type == 'numeric':
-    #     #                    choice_list = re.split('\n+', choices)
-    #     #                    for choice in choice_list:
-    #     #                        m = re.match('\d+\.?\d*', choice)
-    #     #                        if not m:
-    #     #                            msg = u"Please use valid numeric values"
-    #     #                            self._errors["choices"] = ErrorList([msg])
-    #     #                if not msg:
-    #     #                    cleaned_data['choices'] = choices
-    #     #            else:
-    #     #                msg = u"Please provide choices or set this reporting field to 'user-defined'."
-    #     #                self._errors["choices"] = ErrorList([msg])
-    # 
-    #     return cleaned_data
+    def clean(self):
+        cleaned_data = self.cleaned_data
+        type = cleaned_data.get("type")
+    
+        #@todo: validate that choice-type fields actually specify choices
+    
+        # Code for cleaning numberic choices, if we ever implement those again...        
+        #                if type == 'numeric':
+        #                    choice_list = re.split('\n+', choices)
+        #                    for choice in choice_list:
+        #                        m = re.match('\d+\.?\d*', choice)
+        #                        if not m:
+        #                            msg = u"Please use valid numeric values"
+        #                            self._errors["choices"] = ErrorList([msg])
+        #                if not msg:
+        #                    cleaned_data['choices'] = choices
+        #            else:
+        #                msg = u"Please provide choices or set this reporting field to 'user-defined'."
+        #                self._errors["choices"] = ErrorList([msg])
+    
+        return cleaned_data
+
 
 class NewDocumentationFieldForm(DocumentationFieldForm):
     class Meta(DocumentationFieldForm.Meta):
@@ -197,6 +198,9 @@ class DocumentationFieldOrderingForm(ModelForm):
         wKlass = self.instance.get_widget()
         self.fields['value'].widget = wKlass(attrs={'disabled': 'disabled', 'class': 'noMCE'})
         self.fields['value'].required = False
+        if self.instance.type == 'choice':
+            print >> sys.stderr, "CHOICES!!!"
+            self.fields['value'].widget.choices = ((r.id, r.choice) for r in self.instance.choice_set.all())
 
 class ChoiceForm(ModelForm):        
     class Meta:
