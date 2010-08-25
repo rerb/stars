@@ -5,7 +5,7 @@ The STARS Liaison for {{ institution }}, listed below, provided your contact inf
 
 To learn more about the STARS Program, visit http://stars.aashe.org/ or email stars@aashe.org with any questions. 
 
-We're glad to have {{ institution }} as a STARS Charter Participant!
+We're glad to have {{ institution }} as a STARS Participant!
 
 All the best, 
 
@@ -19,7 +19,7 @@ stars@aashe.org
 {% endautoescape %}
 """
 
-RECEIPT_EMAIL_TEXT = """{% autoescape off %}Thank you for registering as a STARS Charter Participant! 
+RECEIPT_EMAIL_TEXT = """{% autoescape off %}Thank you for registering as a STARS Participant! 
 
 Your registration has been received and is being processed by AASHE.  Your receipt is below.  
 
@@ -49,7 +49,7 @@ Paid to AASHE
 {% endautoescape %}
 """
 
-PAY_LATER_EMAIL_TEXT="""{% autoescape off %}Thank you for registering as a STARS Charter Participant! 
+PAY_LATER_EMAIL_TEXT="""{% autoescape off %}Thank you for registering as a STARS Participant! 
 
 Your registration has been received and is being processed by AASHE.  Your receipt is below.  
 
