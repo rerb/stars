@@ -66,11 +66,18 @@ ${{ payment.amount }}
 
 BILLING INFORMATION
 
-You have selected to pay for your STARS registration by check. Please mail a check payable to AASHE in the amount of ${{ payment.amount }} to:
+You selected the "pay later" option for your STARS registration. Payment is due w/in the next 4 weeks.
+
+Please mail a check payable to AASHE in the amount of ${{ payment.amount }} to:
  
 AASHE
 213 1/2 N. Limestone Street
 Lexington, Kentucky 40507
+
+Or, to pay by Credit Card, please call our main office at:
+
+(859) 258-2551
+
 {% endautoescape %}
 """
 
