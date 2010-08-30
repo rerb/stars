@@ -124,7 +124,7 @@ class FinalizeClassView(SubmissionClassView):
         # instance.rating = self.instance.get_STARS_rating()
         instance.submitting_user = request.user
         instance.save()
-        instance.institution.state.delete() # remove this submissionset as the active submissionset
+        # instance.institution.state.delete() # remove this submissionset as the active submissionset
         
     def get_form_kwargs(self, request, context):
         """ Remove 'instance' from ``kwargs`` """

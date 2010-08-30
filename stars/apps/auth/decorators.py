@@ -177,6 +177,8 @@ def _get_active_submission_problem_response(request):
             return HttpResponseRedirect(settings.MANAGE_SUBMISSION_SETS_URL)
         else:
             raise PermissionDenied("%s has no active submissions."%current_inst)
+    elif active_submission.status != 'ps' and not request.user.is_staff:
+        raise PermissionDenied("This submission has been submitted and is no longer available for editing.")
     else:
         if not active_submission.is_enabled():
             raise PermissionDenied("This submission hasn't been enabled. It will be available once AASHE receives payment.")
