@@ -211,8 +211,6 @@ def edit_submissionset(request, set_id):
     
     object_form, saved = form_helpers.basic_save_form(request, submission_set, set_id, ObjectForm)
 
-    current_inst.set_latest_rated_submission()
-
     template = 'tool/manage/edit_submissionset.html'
     context = {
         "object_form": object_form,
