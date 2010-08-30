@@ -16,7 +16,7 @@ from stars.apps.registration.utils import is_canadian_zipcode, is_usa_zipcode
 from stars.apps.auth.utils import respond, connect_iss
 from stars.apps.helpers import watchdog, flashMessage
 from stars.apps.tool.admin.watchdog.models import ERROR
-from stars.apps.tool.submissions.views import _get_active_submission
+from stars.apps.tool.my_submission.views import _get_active_submission
 from stars.apps.auth import xml_rpc
 from stars.apps.registration.globals import *
 from stars.apps.submissions.models import *

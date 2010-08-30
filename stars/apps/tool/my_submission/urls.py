@@ -1,7 +1,7 @@
 from django.conf.urls.defaults import *
 
 urlpatterns = patterns(
-    'stars.apps.tool.submissions.views',
+    'stars.apps.tool.my_submission.views',
     
     (r'^$', 'summary'),
     (r'^add-responsible-party/$', 'add_responsible_party'),

@@ -30,6 +30,9 @@ class RatingTest(TestCase):
                 - Handles a basic HTTP request w/out 500
                 - Processes the form and returns a redirect to step 2
         """
+
+        print >> sys.stderr, "TESTING: Confirm Submission"
+        
         c = Client()
         c.login(username='test_user', password='test')
         post_dict = {}
@@ -46,6 +49,8 @@ class RatingTest(TestCase):
                 - Handles a basic HTTP request w/out 500
                 - Processes the form and redirects to step 3
         """
+        
+        print >> sys.stderr, "TESTING: Letter"
         
         c = Client()
         c.login(username='test_user', password='test')
@@ -66,6 +71,8 @@ class RatingTest(TestCase):
                 - Processes the form and saves the SubmissionSet object
                 - Sends emails to liason, user and stars staff
         """
+
+        print >> sys.stderr, "TESTING: Finalize"
         
         c = Client()
         c.login(username='test_user', password='test')

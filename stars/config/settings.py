@@ -96,7 +96,7 @@ INSTALLED_APPS = (
     'django.contrib.humanize',
     'stars.apps.credits',
     'stars.apps.tool.credit_editor',
-    'stars.apps.tool.submissions',
+    'stars.apps.tool.my_submission',
     'stars.apps.tool.admin',
     'stars.apps.tool.admin.watchdog',
     'stars.apps.institutions',

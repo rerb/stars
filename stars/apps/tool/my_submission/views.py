@@ -11,12 +11,12 @@ from stars.apps.auth.decorators import user_can_submit, user_is_inst_admin
 from stars.apps.auth.mixins import PermMixin, SubmissionMixin
 from stars.apps.submissions.models import *
 from stars.apps.cms.xml_rpc import get_article
-from stars.apps.tool.submissions.forms import *
+from stars.apps.tool.my_submission.forms import *
 from stars.apps.credits.models import *
 from stars.apps.helpers.forms.form_helpers import basic_save_form, basic_save_new_form
 from stars.apps.helpers.forms.forms import Confirm
 from stars.apps.helpers import flashMessage
-from stars.apps.tool.submissions.forms import CreditUserSubmissionForm, CreditUserSubmissionNotesForm, ResponsiblePartyForm
+from stars.apps.tool.my_submission.forms import CreditUserSubmissionForm, CreditUserSubmissionNotesForm, ResponsiblePartyForm
 
 def _get_active_submission(request):
     current_inst = request.user.current_inst
@@ -100,8 +100,9 @@ class LetterClassView(SubmissionClassView):
         """ This form gives institutions the option to choose Reporter status """
         if context[self.instance_name].get_STARS_rating().name != 'Reporter':
             return LetterStatusForm
+        print >> sys.stderr, "HERE!"
         #return SubmissionClassView.get_form_class(self, *args, **kwargs)
-        return super(LetterClassView, self).get_form_class(*args, **kwargs)
+        return super(LetterClassView, self).get_form_class(context, *args, **kwargs)
         
     def get_success_action(self, request, context, form):
         self.save_form(form, request, context)

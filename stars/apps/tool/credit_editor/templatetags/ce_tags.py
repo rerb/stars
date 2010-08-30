@@ -4,7 +4,7 @@ from django import template
 #from django.utils.html import strip_spaces_between_tags, escape
 
 from stars.apps.submissions.models import DocumentationFieldSubmission
-from stars.apps.tool.submissions.forms import SubmissionFieldForm
+from stars.apps.tool.my_submission.forms import SubmissionFieldForm
 #import re
 
 register = template.Library()

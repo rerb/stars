@@ -9,7 +9,7 @@ from django.utils.safestring import mark_safe
 
 from stars.apps.credits.models import *
 from stars.apps.submissions.models import CreditTestSubmission
-from stars.apps.tool.submissions.forms import CreditSubmissionForm
+from stars.apps.tool.my_submission.forms import CreditSubmissionForm
 
 class CreditSetForm(ModelForm):
     # version = forms.CharField(widget=widgets.TextInput(attrs={'size': 5})) # redundant?

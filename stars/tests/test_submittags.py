@@ -1,4 +1,4 @@
-from apps.tool.submissions.templatetags.submit_tags import format_available_points
+from apps.tool.my_submission.templatetags.submit_tags import format_available_points
 
 from apps.submissions.models import *
 """

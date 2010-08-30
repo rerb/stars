@@ -11,7 +11,7 @@ from stars.apps.helpers.forms import fields as custom_fields
 from stars.apps.helpers.forms.util import WarningList
 from stars.apps.helpers import watchdog 
 from stars.apps.submissions.models import *
-from stars.apps.tool.submissions.widgets import UploadFileWidget
+from stars.apps.tool.my_submission.widgets import UploadFileWidget
 
 class SubmissionFieldForm(ModelForm):
     """ Parent class for all submission fields to provide access to clean_value """

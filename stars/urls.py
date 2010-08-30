@@ -15,7 +15,7 @@ urlpatterns = patterns('',
     (r'^tool/$', 'stars.apps.tool.views.tool'),
     (r'^tool/credit-editor/', include('stars.apps.tool.credit_editor.urls')),
     (r'^tool/admin/', include('stars.apps.tool.admin.urls')),
-    (r'^tool/submissions/', include('stars.apps.tool.submissions.urls')),
+    (r'^tool/submissions/', include('stars.apps.tool.my_submission.urls')),
     (r'^tool/my-resources/', include('stars.apps.tool.my_resources.urls')),
     (r'^tool/manage/', include('stars.apps.tool.manage.urls')),
     # articles (cms):

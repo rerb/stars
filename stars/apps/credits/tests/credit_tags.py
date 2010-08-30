@@ -20,7 +20,7 @@ class Credit_tags_Test(TestCase):
 
         tag_context = ce_tags.show_field_form(field)
         self.assertEqual(tag_context['documentation_field'].title, 'Total number of degree-seeking students enrolled at the institution')
-        from stars.apps.tool.submissions.forms import NumericSubmissionForm
+        from stars.apps.tool.my_submission.forms import NumericSubmissionForm
         self.assertEqual(tag_context['field_form'].__class__, NumericSubmissionForm)
 
 
