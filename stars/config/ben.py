@@ -8,6 +8,9 @@ HIDE_REPORTING_TOOL = False
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_FILE_PATH = '~/tmp/stars-email-messages' # change this to a proper location
+
 # no emails during local dev
 ADMINS = ('ben@aashe.org',)
 MANAGERS = ADMINS
@@ -46,6 +49,6 @@ XMLRPC_USE_HASH = True
 CYBERSOURCE_URL = CYBERSOURCE_TEST_URL
 
 #if manage.py test was called, use test settings
-if 'test' in sys.argv:
-    DATABASES['default']['ENGINE'] = 'sqlite3'
-    DATABASES['default']['NAME'] = '/Users/jamstooks/sqlite/stars_tests.db'
+# if 'test' in sys.argv:
+#     DATABASES['default']['ENGINE'] = 'sqlite3'
+#     DATABASES['default']['NAME'] = '/Users/jamstooks/sqlite/stars_tests.db'

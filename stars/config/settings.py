@@ -8,6 +8,9 @@ MANAGERS = ADMINS
 
 DEFAULT_CHARSET = 'utf-8'
 
+# Use a dummy Email Backend for anything but production
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
 # if True, prevents access by non-staff to any part of the site that is not public.
 HIDE_REPORTING_TOOL = False  
 # if True, log-out and re-direct all non-staff requests to standard 503 (Temporarily Unavailable) view.

@@ -15,6 +15,8 @@ DATABASES = {
     }
 }
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
 MEDIA_ROOT = '/var/www/stars.aashe.org/media'
 
 SSO_SERVER_URI = WWW_SSO_SERVER_URI
