@@ -2,6 +2,7 @@ from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.localflavor.us.models import PhoneNumberField
+from django.template.defaultfilters import slugify
 
 from stars.apps.helpers import watchdog
 
@@ -10,7 +11,8 @@ class Institution(models.Model):
         This model represents a STARS institution. The institution name
         is a mirror of Drupal and will require regular updating
     """
-    name = models.CharField(max_length='255')
+    name = models.CharField(max_length=255)
+    slug = models.SlugField(null=True, blank=True, max_length=255)
     aashe_id = models.IntegerField()
     enabled = models.BooleanField(help_text="This is a staff-only flag for disabling an institution. An institution will NOT appear on the STARS Institutions list until it is enabled.", default=False)
     contact_first_name = models.CharField("Liaison First Name", max_length=32)
@@ -133,6 +135,18 @@ class Institution(models.Model):
         if _query_iss_orgs("account_num = '%s' AND is_member = 1"%self.aashe_id):
             return True
         return False
+    
+    def set_slug_from_iss_institution(self, iss_institution_id):
+        """
+            Sets the slug field based on an institution row from the ISS
+        """
+        i_list = _query_iss_orgs("account_num=%d" % iss_institution_id)
+        if len(i_list) == 1:
+            iss_institution = i_list[0]
+            self.slug = "%s-%s" % (slugify(iss_institution['name']), iss_institution['state'].lower())
+        else:
+            watchdog.log("Registration", "ISS Institution lookup failure: %s" % e, watchdog.ERROR)
+            self.slug = iss_institution_id
 
 class RegistrationReason(models.Model):
     """

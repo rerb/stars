@@ -51,6 +51,7 @@ def reg_select_institution(request):
             aashe_id = form.cleaned_data['aashe_id']
             name = institution_list_lookup[aashe_id]
             institution = Institution(aashe_id=aashe_id, name=name)
+            institution.set_slug_from_iss_institution(form.cleaned_data['aashe_id'])
             # If they've already got this institution in their session don't overwrite it
             # it might have contact info
             selected_institution = request.session.get('selected_institution')
