@@ -84,3 +84,7 @@
         <td>{{ c.assessed_points|floatformat:2 }} / {% format_available_points c %}</td>
     {% endifnotequal %}
 {% endblock %}
+
+{% block center_column_footer %}
+    {% include 'institutions/scorecards/footer.html' %}
+{% endblock %}
