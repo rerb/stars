@@ -15,7 +15,7 @@ This project uses fabric to deploy code to dev, stage, and production environmen
 === Example Deploy ===
 
 >$ bin/fab dev deploy
-You will be prompted to offer a specific revision/tag/branch, otherwise the latest trunk will be deployed
+You will be prompted to offer a specific branch/tag, otherwise the latest default branch will be deployed
 
 >$ bin/fab production deploy
-Again, you are prompted, but this time for a tag name.
+Again, you are prompted, but this time for a tag name, which must exist.
