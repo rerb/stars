@@ -15,7 +15,7 @@ from stars.apps.helpers import managers
             
 SUBMISSION_STATUS_CHOICES = (
     ('ps', 'Pending Submission'),
-    ('pr', 'Pending Review'),
+    ('pr', 'Processing Submission'), # was "Pending Review"
     ('r', 'Rated'),
 )
 
