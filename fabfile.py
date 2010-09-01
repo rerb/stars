@@ -43,15 +43,13 @@ def prepare_dev():
         Prepares a release to the dev server
         sets env.project_path and env.checkout_cmd
     """
-    env.extra_hg_commands = []
     
     branch_name = prompt("Branch or Tag Name (blank for HEAD): ")
         
     if not branch_name:
         branch_name = "default"
     env.project_path = "%s%s" % (env.path, branch_name)
-    env.extra_hg_commands.append("hg update %s" % branch_name)
-    
+    env.hg_update_commands = ["hg update %s" % branch_name]
     env.checkout_cmd = 'hg clone --noninteractive %s %s' % (env.repo, env.project_path)
         
     # @Todo: I could copy over the live DB to work with...
@@ -71,7 +69,7 @@ def prepare_production():
         abort('User terminated session.')
     
     env.project_path = "%stag_%s" % (env.path, tag_name)
-    env.extra_hg_commands = ["hg update %s" % tag_name,]
+    env.hg_update_commands = ["hg update --clean %s" % tag_name,]
     env.checkout_cmd = 'hg clone --noninteractive %s %s' % (env.repo, env.project_path)
         
     # Create a new tag from the current trunk if "tag" doesn't exist yet
@@ -95,10 +93,14 @@ def deploy():
     
     export = None
     if exists(env.project_path):
-        while export not in ['y', 'n', 'q']:
+        while export not in ['y', 'n', 'q', '']:
             export = prompt("The code has already been exported. Overwrite? ([y]/n/q):")
-            if export == 'y' or not export:
-                sudo(env.checkout_cmd)
+            
+            if export == 'y' or export == '':
+                with cd(env.project_path):
+                    sudo('hg pull %s' % env.repo)
+                    for cmd in env.hg_update_commands:
+                        sudo(cmd)
             elif export == 'q':
                 abort('User terminated session.')
             elif export == 'n':
@@ -107,11 +109,11 @@ def deploy():
         sudo(env.checkout_cmd)
     
         with cd(env.project_path):
-            for cmd in env.extra_hg_commands:
+            for cmd in env.hg_update_commands:
                 sudo(cmd)
         
     bootstrap = None
-    if export:
+    if export == 'n':
         bootstrap = prompt("Perform buildout, testing, and migration? ([y]/n):")
     
     if not bootstrap or bootstrap == 'y':
@@ -127,9 +129,10 @@ def deploy():
             # @Todo: run tests
             print "Running Test Suite"
             test_cmd = "bin/django test"
-            result = sudo(test_cmd)
-            if result.failed:
-                abort("Test suite FAILED. Aborting.")
+            with settings(warn_only=True):
+                result = sudo(test_cmd)
+                if result.failed:
+                    abort("Test suite FAILED. Aborting.")
             
             print "Sync DB"
             syncdb_cmd = "bin/django syncdb"
