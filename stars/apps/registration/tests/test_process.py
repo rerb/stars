@@ -42,7 +42,7 @@ class TestProcess(TestCase):
         response = c.post(url, post_dict, follow=False)
         self.assertTrue(response.status_code == 302)
         
-        self.assertTrue(c.session['selected_institution'].slug == 'university-of-colorado-boulder-co')
+        self.assertTrue(c.session['selected_institution'].slug == 'university-of-colorado-at-boulder-co')
         
         # Contact Information
         
