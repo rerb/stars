@@ -39,6 +39,10 @@
                 {% with credit_submission as c %}
                     {% include 'credits/credit_status_icon.html' %}
                 {% endwith %}
+                {% if credit_submission.submission_status == "na" %}
+                	{% load help %}
+                    {% show_help_text credit_submission.applicability_reason.reason %}
+                {% endif %}
             </td>
             <td>
                 {% ifnotequal rating.name "Reporter" %}
