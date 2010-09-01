@@ -112,7 +112,7 @@
     >>> ss2.save()
     >>> etl_c = populate_etl_entry(i)
     >>> print etl_c.participant_status
-    Pending Review
+    Processing Submission
     >>> print etl_a.participant_status
     Pending Submission
     >>> print etl_b.registration_date
