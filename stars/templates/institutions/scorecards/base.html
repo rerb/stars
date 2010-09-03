@@ -18,5 +18,11 @@
 {% block crumbs %}
     <a href='/institutions/'>STARS Institutions</a> &gt;
     <a href='{{ submissionset.get_scorecard_url }}'>{{ submissionset.institution }}</a> &gt;
-    <a href='{{ submissionset.get_scorecard_url }}'>{{ submissionset.creditset }}</a>
+    <a href='{{ submissionset.get_scorecard_url }}'>
+    	{% if submissionset.was_submitted %}
+    		{{ submissionset.date_submitted }}
+    	{% else %}
+    		{{ submissionset.creditset }}
+    	{% endif %}
+    </a>
 {% endblock %}
