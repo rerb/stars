@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 from django.http import Http404
 from django.core.exceptions import PermissionDenied
 
-import sys
+import sys, re
 from datetime import date
 
 from stars.apps.auth.utils import respond
@@ -125,7 +125,7 @@ class InstitutionScorecards(TemplateView):
     """
     def get_context(self, request, *args, **kwargs):
         
-        institution = get_object_or_404(Institution, id=kwargs['institution_id'])
+        institution = get_object_or_404(Institution, slug=kwargs['institution_slug'])
         
         submission_sets = []
         for ss in institution.submissionset_set.all():
@@ -171,16 +171,16 @@ class ScorecardView(CreditNavMixin, TemplateView):
             Gets all the available contexts associated with a submission from the kwargs
             
             Available keywords:
-                - institution_id
-                - submissionset_id
+                - institution_slug
+                - submissionset (id or date submitted)
                 - category_id
                 - subcategory_id
                 - credit_id
         """
         context = {}
         # Get the Institution
-        if kwargs.has_key('institution_id'):
-            institution = get_object_or_404(Institution, id=kwargs['institution_id'])
+        if kwargs.has_key('institution_slug'):
+            institution = get_object_or_404(Institution, slug=kwargs['institution_slug'])
             context['institution'] = institution
             
             # Check that the user has a StarsAccount for this institution, or is an admin
@@ -195,8 +195,15 @@ class ScorecardView(CreditNavMixin, TemplateView):
                 
             
             # Get the SubmissionSet
-            if kwargs.has_key('submissionset_id'):
-                submissionset = get_object_or_404(SubmissionSet, id=kwargs['submissionset_id'], institution=institution)
+            date_re = "^\d{4}-\d{2}-\d{2}$"
+            id_re = "^\d+$"
+            if kwargs.has_key('submissionset'):
+                if re.match(id_re, kwargs['submissionset']):
+                    submissionset = get_object_or_404(SubmissionSet, id=kwargs['submissionset'], institution=institution)
+                elif re.match(date_re, kwargs['submissionset']):
+                    submissionset = get_object_or_404(SubmissionSet, date_submitted=kwargs['submissionset'], institution=institution)
+                else:
+                    raise Http404
                 # if the submissionset isn't rated raise a 404 exception unless the user has preview access
                 if submissionset.status != 'r':
                     if context.has_key('user_tied_to_institution'):

@@ -95,7 +95,10 @@ class SubmissionSet(models.Model):
         return "/tool/submissions/submit/"
         
     def get_scorecard_url(self):
-        return '/institutions/%s/report/%s/'% (self.institution.id, self.id)
+        if self.date_submitted:
+            return '/institutions/%s/report/%s/'% (self.institution.slug, self.date_submitted)
+        else:
+            return '/institutions/%s/report/%s/'% (self.institution.slug, self.id)
 
     def get_parent(self):
         """ Used for building crumbs """
