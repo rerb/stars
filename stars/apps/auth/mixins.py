@@ -219,7 +219,7 @@ class InstitutionAccessMixin(StarsMixin):
         This mixin determines if the current user has access to a selected institution.
         
         Requires:
-            - `institution_id` to be passed to `__call__`
+            - `institution_id` or `institution_slug` to be passed to `__call__`
             - `access_level` property variable
             - `fail_response` property variable
             
@@ -233,7 +233,7 @@ class InstitutionAccessMixin(StarsMixin):
     
     def __call__(self, request, *args, **kwargs):
         
-        assert kwargs.has_key('institution_id'), "This mixin requires an `institution_id` parameter."
+        assert kwargs.has_key('institution_id') or kwargs.has_key('institution_slug'), "This mixin requires an institution parameter."
         assert hasattr(self, 'access_level'), "This mixin requires an `access_level` property."
         assert hasattr(self, 'fail_response'), "This mixin requires an `fail_response` property."
         
@@ -242,7 +242,10 @@ class InstitutionAccessMixin(StarsMixin):
         
         if not request.user.has_perm('admin'):
             try:
-                account = StarsAccount.objects.get(institution__id=kwargs['institution_id'], user=request.user)
+                if kwargs.has_key('institution_id'):
+                    account = StarsAccount.objects.get(institution__id=kwargs['institution_id'], user=request.user)
+                else:
+                    account = StarsAccount.objects.get(institution__slug=kwargs['institution_slug'], user=request.user)
                 if not account.has_access_level(self.access_level):
                     return fail_response
             except StarsAccount.DoesNotExist:
