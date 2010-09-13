@@ -20,7 +20,7 @@
                     {% endif %}
                 {% else %}
                     {% ifequal field.documentation_field.type 'numeric' %}
-                        {{ field.value|floatformat:"-2"|intcomma }}
+                        {{ field.value|floatformat:"-2" }}
                         {% if field.documentation_field.units %}
                             <i>{{ field.documentation_field.units }}</i>
                         {% endif %}
