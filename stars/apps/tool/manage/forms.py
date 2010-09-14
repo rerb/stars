@@ -35,7 +35,7 @@ class InstitutionContactForm(AdminInstitutionForm):
         A restricted version of the Institution Form, allowing institution admins to edit their Contact info.
     """
     class Meta(AdminInstitutionForm.Meta):
-        exclude = ['name', 'aashe_id', 'enabled','charter_participant']
+        exclude = ['name', 'aashe_id', 'enabled','charter_participant', 'slug']
 
 
 class AdminEnableInstitutionForm(ModelForm):
