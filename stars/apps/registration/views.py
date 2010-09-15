@@ -7,7 +7,7 @@ from django.template import Context, loader, Template
 from django.core.mail import send_mail
 
 from datetime import datetime, date, timedelta
-import urllib2, re
+import urllib2, re, sys
 from xml.etree.ElementTree import fromstring
 
 from stars.apps.institutions.models import Institution, _query_iss_orgs
@@ -51,14 +51,14 @@ def reg_select_institution(request):
             aashe_id = form.cleaned_data['aashe_id']
             name = institution_list_lookup[aashe_id]
             institution = Institution(aashe_id=aashe_id, name=name)
-            institution.set_slug_from_iss_institution(form.cleaned_data['aashe_id'])
             # If they've already got this institution in their session don't overwrite it
             # it might have contact info
             selected_institution = request.session.get('selected_institution')
-            if selected_institution and selected_institution.aashe_id == institution.aashe_id:
-                pass
-            else:
-                request.session['selected_institution'] = institution
+            if not selected_institution or selected_institution.aashe_id != institution.aashe_id:
+                selected_institution = institution
+                
+            selected_institution.set_slug_from_iss_institution(form.cleaned_data['aashe_id'])
+            request.session['selected_institution'] = selected_institution
             return HttpResponseRedirect('/register/step2/')
         else:
             e = form.errors
@@ -91,6 +91,7 @@ def reg_contact_info(request):
             request.session['selected_institution'] = institution
             return HttpResponseRedirect('/register/step3/')
         else:
+            print >> sys.stderr, reg_form.errors
             flashMessage.send("Please correct the errors below", flashMessage.ERROR)
             
     template = "registration/contact.html"

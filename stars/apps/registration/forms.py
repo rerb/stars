@@ -46,7 +46,7 @@ class RegistrationForm(ModelForm):
     
     class Meta:
         model = Institution
-        exclude = ['name', 'enabled', 'aashe_id']
+        exclude = ['name', 'enabled', 'aashe_id','slug']
         
     def clean(self):
         cleaned_data = self.cleaned_data
