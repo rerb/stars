@@ -1,0 +1,35 @@
+<table class='statusTable' cellspacing='0'>
+    <tr>
+        <th>
+            Rating
+        </th>
+        <th>Score</th>
+        <th>Submission Date</th>
+        <th>President's Letter</th>
+    </tr>
+    <tr>
+        <td>
+            {{ rating }}
+        </td>
+        <td>
+            {% ifnotequal rating.name "Reporter" %}
+                {{ score|floatformat:2 }}
+            {% else %}
+                {% load help %}
+                {% show_help_context "reporter_status" %}
+            {% endifnotequal %}
+        </td>
+        <td>
+            {% if preview %}
+                <span style='color: red;font-style: italic;'>PREVIEW</i>
+            {% else %}
+                {{ submissionset.date_submitted }}
+            {% endif %}
+        </td>
+        <td>
+            {% if not preview %}
+                <a href='{{ submissionset.presidents_letter.url }}'>Download</a>
+            {% endif %}
+        </td>
+    </tr>
+</table>

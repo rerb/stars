@@ -1,0 +1,13 @@
+
+syntax: regexp
+^bin$
+^develop-eggs$
+^downloads$
+^eggs$
+^parts$
+^\.installed\.cfg$
+^\.pydevproject\.bak$
+^\.settings$
+
+syntax: glob
+*.pyc
