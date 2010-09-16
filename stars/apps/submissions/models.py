@@ -929,7 +929,7 @@ class DocumentationFieldSubmission(models.Model):
         if self.value == None or self.value == "":
             return True
         # if it's nothing but whitespace
-        if re.match("\s+", self.value) != None:
+        if re.match("^\s+$", self.value) != None:
             return True
         return False
     
@@ -1240,3 +1240,4 @@ class Payment(models.Model):
     def get_institution(self):
         return self.submissionset.institution
 
+    
