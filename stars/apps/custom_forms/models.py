@@ -36,3 +36,21 @@ class TAApplication(models.Model):
     
     def __str__(self):
         return "%s %s" % (self.first_name, self.last_name)
+    
+class EligibilityQuery(models.Model):
+    name = models.CharField(max_length=64)
+    title = models.CharField(max_length=128)
+    email = models.EmailField()
+    institution = models.CharField(max_length=128)
+    requesting_institution = models.CharField(max_length=128, blank=True, null=True)
+    other_affiliates = models.BooleanField()
+    included_in_boundary = models.BooleanField()
+    separate_administration = models.BooleanField()
+    rationale = models.TextField()
+    
+    def __str__(self):
+        if self.requesting_institution:
+            return self.requesting_institution
+        else:
+            return self.institution
+    

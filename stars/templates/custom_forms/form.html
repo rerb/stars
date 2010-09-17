@@ -5,7 +5,7 @@
 {% block content %}
     <div class='inner20'>
         <h1>{{ form_title }}</h1>
-        {% block boilerplate %}{% endblock %}
+        {% block top_boilerplate %}{% endblock %}
         <div style="font-size: .9em;padding:10px;">
             <span class="required_note" title="This field is required to complete credit">*</span>
             Required Fields
@@ -16,5 +16,6 @@
             </table>
             <div class='button_row'><button type='submit'>Submit</button></div>
         </form>
+        {% block bottom_boilerplate %}{% endblock %}
     </div>
 {% endblock %}
