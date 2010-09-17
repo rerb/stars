@@ -11,9 +11,7 @@
             Required Fields
         </div>
         <form class='generalForm' method='post' action='.' enctype="multipart/form-data">
-            <table>
-                {% include 'helpers/label_above_input_form.html' %}
-            </table>
+          	{% include 'helpers/label_above_input_form.html' %}
             <div class='button_row'><button type='submit'>Submit</button></div>
         </form>
         {% block bottom_boilerplate %}{% endblock %}
