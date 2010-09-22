@@ -162,7 +162,39 @@ class CreditSet(models.Model):
             return CreditSet.objects.order_by('-release_date')[0]
         except:
             return None
-
+        
+    def get_pulldown_credit_choices(self, level=1, first='----'):
+        """
+            Provide the choices for a pulldown menu of all the credits in the creditset
+            using categories and subcategories for navigation
+            The level indicates how far up the links go. Level one will only include ids
+            for credits, but level 3 will include ids for credits, subcategories and categories.
+        """
+        choices = [('', first)]
+        
+        for category in self.category_set.all():
+            id = category.id
+            if level < 3:
+                id = '-1'
+            choices.append((id, category.title.upper()))
+            
+            for subcategory in category.subcategory_set.all():
+                id = subcategory.id
+                if level < 2:
+                    id = '-1'
+                choices.append(('-1', ' '))
+                choices.append((id, "%s" % subcategory.title))
+                choices.append(('-1', '=' * 14))
+                
+                for credit in subcategory.get_tier1_credits():
+                    choices.append((credit.id, "%s: %s" % (credit.get_identifier(), credit.title)))
+                t2 = subcategory.get_tier2_credits()
+                if t2:
+                    choices.append(('-1', '-' * 10))
+                    for credit in t2:
+                        choices.append((credit.id, "%s: %s" % (credit.get_identifier(), credit.title)))
+            choices.append(('-1', ' '))
+        return choices
 
 class Rating(models.Model):
     """

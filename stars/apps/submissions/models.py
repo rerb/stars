@@ -43,6 +43,10 @@ class SubmissionManager(models.Manager):
         qs2 = qs1.filter(
                 (Q(payment__type='later') & Q(date_registered__lte=deadline)) | ~Q(payment__type='later'))
         return qs2
+    
+    def get_rated(self):
+        """ All submissionsets that have been rated """
+        return SubmissionSet.objects.filter(status='r')
 
 class SubmissionSet(models.Model):
     """
@@ -219,7 +223,6 @@ class SubmissionSet(models.Model):
             total += p.amount
             
         return total
-
 
 def get_active_submissions(creditset=None, category=None, subcategory=None, credit=None):
     """ Return a queryset for ALL active (started / finished) credit submissions that meet the given criteria.
@@ -1240,4 +1243,33 @@ class Payment(models.Model):
     def get_institution(self):
         return self.submissionset.institution
 
+class SubmissionEnquiry(models.Model):
+    """
+        An enquiry by a member of the public about any inaccurate data in a public report
+    """
+    
+    submissionset = models.ForeignKey(SubmissionSet)
+    date = models.DateTimeField(auto_now_add=True)
+    name = models.CharField(max_length=128)
+    affiliation = models.CharField(max_length=128)
+    city = models.CharField(max_length=32)
+    state = models.CharField(max_length=2)
+    email_address = models.EmailField()
+    phone_number = PhoneNumberField()
+    addtional_comments = models.TextField(blank=True, null=True)
+    
+    def __unicode__(self):
+        return self.submissionset.institution.name
+    
+class CreditSubmissionEnquiry(models.Model):
+    """
+        An enquiry, tied to a SubmissionEnquiry about a particular credit. 
+    """
+    
+    submission_enquiry = models.ForeignKey(SubmissionEnquiry)
+    credit = models.ForeignKey(Credit)
+    explanation = models.TextField()
+    
+    def __unicode__(self):
+        return self.credit.title
     

@@ -6,10 +6,12 @@
     <div class='inner20'>
         <h1>{{ form_title }}</h1>
         {% block top_boilerplate %}{% endblock %}
+        {% block required %}
         <div style="font-size: .9em;padding:10px;">
             <span class="required_note" title="This field is required to complete credit">*</span>
             Required Fields
         </div>
+        {% endblock %}
         <form class='generalForm' method='post' action='.' enctype="multipart/form-data">
           	{% include 'helpers/label_above_input_form.html' %}
             <div class='button_row'><button type='submit'>Submit</button></div>

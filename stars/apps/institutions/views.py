@@ -1,6 +1,10 @@
 from django.shortcuts import get_object_or_404
-from django.http import Http404
+from django.http import Http404, HttpResponseRedirect
+from django.views.generic.simple import direct_to_template
 from django.core.exceptions import PermissionDenied
+from django.forms.models import modelformset_factory
+from django.utils.functional import curry
+from recaptcha.client import captcha
 
 import sys, re
 from datetime import date
@@ -10,7 +14,8 @@ from stars.apps.auth.mixins import InstitutionAccessMixin
 from stars.apps.credits.models import CreditSet
 from stars.apps.submissions.models import *
 from stars.apps.institutions.models import Institution, InstitutionState, StarsAccount
-from stars.apps.helpers.forms.views import TemplateView
+from stars.apps.institutions.forms import *
+from stars.apps.helpers.forms.views import TemplateView, FormActionView, MultiFormView
 from stars.apps.credits.views import CreditNavMixin
 
 class SortableTableView(TemplateView):
@@ -121,7 +126,7 @@ class InstitutionScorecards(TemplateView):
     """
         Provides a list of available reports for an institution
         
-        Unrated SubmissionSets will be displayed to particpating users only.
+        Unrated SubmissionSets will be displayed to participating users only.
     """
     def get_context(self, request, *args, **kwargs):
         
@@ -145,27 +150,9 @@ class InstitutionScorecards(TemplateView):
             raise Http404
                 
         return {'submission_sets': submission_sets, 'institution': institution}
-        
-        
-class ScorecardView(CreditNavMixin, TemplateView):
-    """
-        Browse credits according to submission in the credit browsing view
-    """
     
-    def get_context(self, request, *args, **kwargs):
-        """ Expects arguments for category_id/subcategory_id/credit_id """
-        
-        context = self.get_submissionset_context(request, **kwargs)
-        
-        url_prefix = context['submissionset'].get_scorecard_url()
-            
-        context['outline'] = self.get_creditset_navigation(context['submissionset'].creditset, url_prefix=url_prefix, current=context['current'])
-        
-        context['score'] = context['submissionset'].get_STARS_score()
-        context['rating'] = context['submissionset'].get_STARS_rating()
-        
-        return context
-        
+class ScorecardMixin(object):
+    
     def get_submissionset_context(self, request, **kwargs):
         """
             Gets all the available contexts associated with a submission from the kwargs
@@ -243,6 +230,27 @@ class ScorecardView(CreditNavMixin, TemplateView):
     def get_credit_url(self, credit, url_prefix):
         """ The default credit link. """
         return "%s%s" % (url_prefix, credit.get_browse_url())
+        
+class ScorecardView(ScorecardMixin, CreditNavMixin, TemplateView):
+    """
+        Browse credits according to submission in the credit browsing view
+    """
+    
+    def get_context(self, request, *args, **kwargs):
+        """ Expects arguments for category_id/subcategory_id/credit_id """
+        
+        context = self.get_submissionset_context(request, **kwargs)
+        
+        url_prefix = context['submissionset'].get_scorecard_url()
+            
+        context['outline'] = self.get_creditset_navigation(context['submissionset'].creditset, url_prefix=url_prefix, current=context['current'])
+        
+        context['score'] = context['submissionset'].get_STARS_score()
+        context['rating'] = context['submissionset'].get_STARS_rating()
+        
+        return context
+        
+    
 
 class ScorecardInternalNotesView(InstitutionAccessMixin, ScorecardView):
     """
@@ -255,3 +263,96 @@ class ScorecardInternalNotesView(InstitutionAccessMixin, ScorecardView):
         raise Http404
     fail_response = raise_redirect
     
+class SubmissionEnquirySelectView(FormActionView):
+    """
+        Provides a form for people to dispute the submission for a particular institution.
+    """
+    
+    def get_success_action(self, request, context, form):
+        
+        if form.is_valid():
+            ss = form.cleaned_data['institution']
+            return HttpResponseRedirect("%senquiry/" % ss.get_scorecard_url())
+        
+enquiry_select_institution = SubmissionEnquirySelectView(
+                                                            formClass=SubmissionSelectForm,
+                                                            template='institutions/enquiries/select_submission.html',
+                                                            init_context={'form_title': "Data Submission Inquiry",},
+                                                            form_name='object_form'
+                                                        )
+
+class SubmissionEnquiryView(CreditNavMixin, ScorecardMixin, MultiFormView):
+    """
+        Allows a visitor to submit disputes for several credits at once
+    """
+    
+    form_list = []
+    template = "institutions/enquiries/new.html"
+    
+    def get_context(self, request, *args, **kwargs):
+        """ Expects arguments for category_id/subcategory_id/credit_id """
+        
+        context = self.get_submissionset_context(request, **kwargs)
+        
+        # add the recaptcha key
+        context['recaptcha_public_key'] = settings.RECAPTCHA_PUBLIC_KEY
+        
+        return context
+        
+    def get_form_list(self, request, context):
+        
+        form_list, _context = super(SubmissionEnquiryView, self).get_form_list(request, context)
+        if not form_list:
+            form_list = {}
+        
+        new_enquiry = SubmissionEnquiry(submissionset=_context['submissionset'])
+        if request.method == 'POST':
+            form_list['enquirer_details'] = SubmissionEnquiryForm(request.POST, instance=new_enquiry)
+        else:
+            form_list['enquirer_details'] = SubmissionEnquiryForm(instance=new_enquiry)
+        _context['enquirer_details'] = form_list['enquirer_details']
+        
+        # Create formset for credit enquiries
+        formset = CreditSubmissionEnquiryFormSet
+        formset.form = staticmethod(curry(CreditSubmissionEnquiryForm, creditset=context['submissionset'].creditset))
+        if request.method == 'POST':
+            form_list['credit_enquiries'] = formset(request.POST, instance=new_enquiry)
+        else:
+            form_list['credit_enquiries'] = formset(instance=new_enquiry)
+        _context['credit_enquiries'] = form_list['credit_enquiries']
+        
+        return form_list, _context
+    
+    def process_forms(self, request, context):
+        
+        form_list, _context = self.get_form_list(request, context)
+        if request.method == 'POST':
+            captcha_validated = False
+            recaptcha_response = captcha.submit(
+                                        request.POST.get('recaptcha_challenge_field', None),
+                                        request.POST.get('recaptcha_response_field', None),
+                                        settings.RECAPTCHA_PRIVATE_KEY,
+                                        request.META['REMOTE_ADDR']
+                                        )
+            if not recaptcha_response.is_valid:
+                context['recaptcha_error'] = recaptcha_response.error_code
+                flashMessage.send("Captcha Message didn't validate.", flashMessage.ERROR)
+            else:
+                captcha_validated = True
+                if form_list['enquirer_details'].is_valid():
+                    submission_enquiry = form_list['enquirer_details'].save(commit=False)
+                    if form_list['credit_enquiries'].is_valid() and captcha_validated:
+                        submission_enquiry.save()
+                        form_list['credit_enquiries'].save()                
+                        return context, self.get_success_response(request, {'form_title': 'Successful Enquiry',})
+                    else:
+                        validated = False
+                else:
+                    validated = False
+                if not validated:
+                    flashMessage.send("Please correct the errors below.", flashMessage.ERROR)
+        return context, None
+        
+    def get_success_response(self, request, context):
+        r = direct_to_template(request, "custom_forms/form_success.html", context)
+        return r
