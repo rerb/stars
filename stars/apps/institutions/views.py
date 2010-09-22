@@ -2,12 +2,12 @@ from django.shortcuts import get_object_or_404
 from django.http import Http404, HttpResponseRedirect
 from django.views.generic.simple import direct_to_template
 from django.core.exceptions import PermissionDenied
-from django.forms.models import modelformset_factory
 from django.utils.functional import curry
-from recaptcha.client import captcha
+from django.forms.models import inlineformset_factory
 
 import sys, re
 from datetime import date
+from recaptcha.client import captcha
 
 from stars.apps.auth.utils import respond
 from stars.apps.auth.mixins import InstitutionAccessMixin
@@ -313,7 +313,10 @@ class SubmissionEnquiryView(CreditNavMixin, ScorecardMixin, MultiFormView):
         _context['enquirer_details'] = form_list['enquirer_details']
         
         # Create formset for credit enquiries
-        formset = CreditSubmissionEnquiryFormSet
+        formset = inlineformset_factory(    SubmissionEnquiry, 
+                                            CreditSubmissionEnquiry, 
+                                            can_delete=False,
+                                            extra=1)
         formset.form = staticmethod(curry(CreditSubmissionEnquiryForm, creditset=context['submissionset'].creditset))
         if request.method == 'POST':
             form_list['credit_enquiries'] = formset(request.POST, instance=new_enquiry)

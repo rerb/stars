@@ -1258,6 +1258,9 @@ class SubmissionEnquiry(models.Model):
     phone_number = PhoneNumberField()
     addtional_comments = models.TextField(blank=True, null=True)
     
+    class Meta:
+        verbose_name_plural = "Submission Enquiries"
+    
     def __unicode__(self):
         return self.submissionset.institution.name
     
@@ -1269,6 +1272,9 @@ class CreditSubmissionEnquiry(models.Model):
     submission_enquiry = models.ForeignKey(SubmissionEnquiry)
     credit = models.ForeignKey(Credit)
     explanation = models.TextField()
+    
+    class Meta:
+        verbose_name_plural = "Credit Submission Enquiries"
     
     def __unicode__(self):
         return self.credit.title

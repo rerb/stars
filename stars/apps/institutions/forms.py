@@ -1,6 +1,5 @@
 from django.forms import ModelForm, Form
 from django import forms
-from django.forms.models import inlineformset_factory
 
 from stars.apps.submissions.models import SubmissionEnquiry, SubmissionSet, CreditSubmissionEnquiry
 
@@ -27,7 +26,3 @@ class CreditSubmissionEnquiryForm(ModelForm):
         
         self.fields['credit'].choices = creditset.get_pulldown_credit_choices()
         
-CreditSubmissionEnquiryFormSet = inlineformset_factory(SubmissionEnquiry, 
-    CreditSubmissionEnquiry, 
-    can_delete=False,
-    extra=1)

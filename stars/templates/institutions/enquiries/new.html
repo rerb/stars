@@ -22,16 +22,17 @@
 
 {% block content %}
 	<br/>
-	<h1>Report Accuracy Enquiry</h1>
+	<h1>STARS Submission Accuracy Inquiry: {{ submissionset.institution }}</h1>
 	<form class='generalForm' method='post' action='.' enctype="multipart/form-data" style='margin: 10px 50px;'>
+		{% load content %}
+        {% display_block_content 'accuracy_header' %}
 		<h2>Your Contact Information</h2><br/>
 		<table>
 			{% with enquirer_details as object_form %}
 				{% include 'helpers/standard_form.html' %}
 			{% endwith %}
 		</table>
-	  	<h2>Specific Credits</h2>
-	  	{% load content %}
+	  	<h2>Specific Credit(s) In Question for {{ submissionset.institution }}</h2>
         {% display_block_content 'credit_dispute' %}
 	  	{{ credit_enquiries.management_form }}
 	  	{% for form in credit_enquiries.forms %}
