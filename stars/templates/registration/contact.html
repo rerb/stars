@@ -12,8 +12,9 @@
         <form method='post' action='.' class='generalForm'>
             {% load fieldsets %}
             <h3>STARS Liaison Contact Information</h3>
-            <p>The STARS Liaison is the person responsible for communication with the STARS team. This person will be able to grant others the ability to submit information using the online reporting tool once it becomes available (January 2010).</p>
-            <table class='form'>
+            {% load content %}
+        	{% display_block_content 'register_liaison' %}
+        	<table class='form'>
                 {% get_fieldset contact_first_name,contact_middle_name,contact_last_name,contact_title,contact_department,contact_phone,contact_email as contact_fields from reg_form %}
                 {{ contact_fields }}
             </table>
