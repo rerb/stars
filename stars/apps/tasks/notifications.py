@@ -48,7 +48,7 @@ def send_overdue_notifications(current_time):
         send_notification(
                             n_type='4wk',
                             identifier="4wk-%d" % ss.id,
-                            mail_to=[ss.institution.contact_email,'margueritte.williams@aashe.org'],
+                            mail_to=[ss.institution.contact_email,'margueritte.williams@aashe.org', 'allison@aashe.org'],
                             message=message,
                             subject="Reminder:  STARS Registration Fee Overdue",
                         )
