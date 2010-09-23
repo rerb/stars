@@ -6,6 +6,8 @@ from django.contrib.auth.models import User
 from django.utils.safestring import mark_safe
 from django.contrib.localflavor.us.models import PhoneNumberField
 from django.db.models import Q
+from django.contrib.contenttypes import generic
+from django.contrib.contenttypes.models import ContentType
 
 from stars.apps.credits.models import *
 from stars.apps.institutions.models import Institution
@@ -854,12 +856,25 @@ DOCUMENTATION_FIELD_TYPES = (
 )
 """
 
+class ReportingFieldDataCorrection(models.Model):
+    """
+        Represents a change to a particular field in Credit Submission after
+        an institution has received a rating.
+    """
+    previous_value = models.TextField()
+    change_date = models.DateField()
+    content_type = models.ForeignKey(ContentType)
+    object_id = models.PositiveIntegerField()
+    reporting_field = generic.GenericForeignKey('content_type', 'object_id')
+    explanation = models.TextField(blank=True, null=True)
+
 class DocumentationFieldSubmission(models.Model):
     """
         The submitted value for a documentation field (abstract).
     """
     documentation_field = models.ForeignKey(DocumentationField, related_name="%(class)s_set")
     credit_submission = models.ForeignKey(CreditSubmission)
+    corrections = generic.GenericRelation(ReportingFieldDataCorrection, content_type_field='content_type', object_id_field='object_id')
     
     class Meta:
         abstract = True
@@ -935,7 +950,6 @@ class DocumentationFieldSubmission(models.Model):
         if re.match("^\s+$", self.value) != None:
             return True
         return False
-    
 
 class AbstractChoiceSubmission(DocumentationFieldSubmission):
     class Meta:  
