@@ -357,7 +357,7 @@ class SubmissionInquiryView(CreditNavMixin, ScorecardMixin, MultiFormView):
                         message = t.render(email_context)
                         
                         email_to = [context['institution'].contact_email, submission_inquiry.email_address, 'stars@aashe.org',]
-                        send_mail(  "STARS Submission Inquiry",
+                        send_mail(  "STARS Submission Data Accuracy Inquiry",
                                     message,
                                     submission_inquiry.email_address,
                                     email_to,
