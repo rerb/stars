@@ -15,7 +15,7 @@
 
 {% block crumbs %}
 	{{ block.super }} >
-	Submission Accuracy Enquiry
+	STARS Submission Accuracy Inquiry
 {% endblock %}
 
 {% block body_onload %}disable_select_options();{% endblock %}
@@ -25,23 +25,23 @@
 	<h1>STARS Submission Accuracy Inquiry: {{ submissionset.institution }}</h1>
 	<form class='generalForm' method='post' action='.' enctype="multipart/form-data" style='margin: 10px 50px;'>
 		{% load content %}
-        {% display_block_content 'accuracy_header' %}
+        {% display_block_content 'accuracy_header' user %}
 		<h2>Your Contact Information</h2><br/>
 		<table>
-			{% with enquirer_details as object_form %}
+			{% with inquirer_details as object_form %}
 				{% include 'helpers/standard_form.html' %}
 			{% endwith %}
 		</table>
 	  	<h2>Specific Credit(s) In Question for {{ submissionset.institution }}</h2>
-        {% display_block_content 'credit_dispute' %}
-	  	{{ credit_enquiries.management_form }}
-	  	{% for form in credit_enquiries.forms %}
-	  		<table id='{{ credit_enquiries.prefix }}_table{{ forloop.counter0 }}'>
+        {% display_block_content 'credit_dispute' user %}
+	  	{{ credit_inquiries.management_form }}
+	  	{% for form in credit_inquiries.forms %}
+	  		<table id='{{ credit_inquiries.prefix }}_table{{ forloop.counter0 }}'>
 	  			{{ form }}
 	  		</table>
 	  	{% endfor %}
-			<img src='/media/static/images/add.png' alt='+' onclick="addFormToFormset('{{ credit_enquiries.prefix }}');"/>
-			<a href="javascript:addFormToFormset('{{ credit_enquiries.prefix }}');" class="add-row">
+			<img src='/media/static/images/add.png' alt='+' onclick="addFormToFormset('{{ credit_inquiries.prefix }}');"/>
+			<a href="javascript:addFormToFormset('{{ credit_inquiries.prefix }}');" class="add-row">
 				Add Another
 			</a>
 		<p style='font-style: italic'>Please verify that you are a living, breathing, human being.</p>

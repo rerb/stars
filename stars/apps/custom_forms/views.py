@@ -9,13 +9,6 @@ from django.template import Context, Template
 
 import sys
 
-#class SubmissionEnquiryView(MultiFormView):
-#    """ A form for institutions to submit a question about the validity of a submission. """
-#    
-#    form_list = [
-#            {'form_name': 'contact', 'form_class': FormClass, 'instance_name': 'instance', 'has_upload': False,}
-#        ]
-
 class EligibilityView(FormActionView):
     
     def get_success_action(self, request, context, form):

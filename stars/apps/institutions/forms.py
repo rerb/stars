@@ -1,28 +1,28 @@
 from django.forms import ModelForm, Form
 from django import forms
 
-from stars.apps.submissions.models import SubmissionEnquiry, SubmissionSet, CreditSubmissionEnquiry
+from stars.apps.submissions.models import SubmissionInquiry, SubmissionSet, CreditSubmissionInquiry
 
 class SubmissionSelectForm(Form):
     
     institution = forms.ModelChoiceField(queryset=SubmissionSet.objects.get_rated(), empty_label="Please Select an Institution's Submission")
 
-class SubmissionEnquiryForm(ModelForm):
+class SubmissionInquiryForm(ModelForm):
     
     class Meta:
-        model = SubmissionEnquiry
+        model = SubmissionInquiry
         exclude = ['submissionset', 'date']
         
-class CreditSubmissionEnquiryForm(ModelForm):
+class CreditSubmissionInquiryForm(ModelForm):
     
     class Meta:
-        model = CreditSubmissionEnquiry
-        exclude = ['submission_enquiry',]
+        model = CreditSubmissionInquiry
+        exclude = ['submission_inquiry',]
         
     def __init__(self, creditset=None, *args, **kwargs):
         """ Use a specific creditset to populate the choices """
         
-        super(CreditSubmissionEnquiryForm, self).__init__(*args, **kwargs)
+        super(CreditSubmissionInquiryForm, self).__init__(*args, **kwargs)
         
         self.fields['credit'].choices = creditset.get_pulldown_credit_choices()
         

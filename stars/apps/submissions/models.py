@@ -1257,9 +1257,9 @@ class Payment(models.Model):
     def get_institution(self):
         return self.submissionset.institution
 
-class SubmissionEnquiry(models.Model):
+class SubmissionInquiry(models.Model):
     """
-        An enquiry by a member of the public about any inaccurate data in a public report
+        An inquiry by a member of the public about any inaccurate data in a public report
     """
     
     submissionset = models.ForeignKey(SubmissionSet)
@@ -1273,22 +1273,22 @@ class SubmissionEnquiry(models.Model):
     addtional_comments = models.TextField(blank=True, null=True)
     
     class Meta:
-        verbose_name_plural = "Submission Enquiries"
+        verbose_name_plural = "Submission Inquiries"
     
     def __unicode__(self):
         return self.submissionset.institution.name
     
-class CreditSubmissionEnquiry(models.Model):
+class CreditSubmissionInquiry(models.Model):
     """
-        An enquiry, tied to a SubmissionEnquiry about a particular credit. 
+        An inquiry, tied to a SubmissionInquiry about a particular credit. 
     """
     
-    submission_enquiry = models.ForeignKey(SubmissionEnquiry)
+    submission_inquiry = models.ForeignKey(SubmissionInquiry)
     credit = models.ForeignKey(Credit)
     explanation = models.TextField()
     
     class Meta:
-        verbose_name_plural = "Credit Submission Enquiries"
+        verbose_name_plural = "Credit Submission Inquiries"
     
     def __unicode__(self):
         return self.credit.title

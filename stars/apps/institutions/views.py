@@ -4,6 +4,9 @@ from django.views.generic.simple import direct_to_template
 from django.core.exceptions import PermissionDenied
 from django.utils.functional import curry
 from django.forms.models import inlineformset_factory
+from django.template import Context, Template
+from django.core.mail import send_mail
+from django.template.loader import get_template
 
 import sys, re
 from datetime import date
@@ -263,7 +266,7 @@ class ScorecardInternalNotesView(InstitutionAccessMixin, ScorecardView):
         raise Http404
     fail_response = raise_redirect
     
-class SubmissionEnquirySelectView(FormActionView):
+class SubmissionInquirySelectView(FormActionView):
     """
         Provides a form for people to dispute the submission for a particular institution.
     """
@@ -272,22 +275,22 @@ class SubmissionEnquirySelectView(FormActionView):
         
         if form.is_valid():
             ss = form.cleaned_data['institution']
-            return HttpResponseRedirect("%senquiry/" % ss.get_scorecard_url())
+            return HttpResponseRedirect("%sinquiry/" % ss.get_scorecard_url())
         
-enquiry_select_institution = SubmissionEnquirySelectView(
+inquiry_select_institution = SubmissionInquirySelectView(
                                                             formClass=SubmissionSelectForm,
-                                                            template='institutions/enquiries/select_submission.html',
-                                                            init_context={'form_title': "Data Submission Inquiry",},
+                                                            template='institutions/inquiries/select_submission.html',
+                                                            init_context={'form_title': "STARS Submission Accuracy Inquiry",},
                                                             form_name='object_form'
                                                         )
 
-class SubmissionEnquiryView(CreditNavMixin, ScorecardMixin, MultiFormView):
+class SubmissionInquiryView(CreditNavMixin, ScorecardMixin, MultiFormView):
     """
         Allows a visitor to submit disputes for several credits at once
     """
     
     form_list = []
-    template = "institutions/enquiries/new.html"
+    template = "institutions/inquiries/new.html"
     
     def get_context(self, request, *args, **kwargs):
         """ Expects arguments for category_id/subcategory_id/credit_id """
@@ -301,28 +304,28 @@ class SubmissionEnquiryView(CreditNavMixin, ScorecardMixin, MultiFormView):
         
     def get_form_list(self, request, context):
         
-        form_list, _context = super(SubmissionEnquiryView, self).get_form_list(request, context)
+        form_list, _context = super(SubmissionInquiryView, self).get_form_list(request, context)
         if not form_list:
             form_list = {}
         
-        new_enquiry = SubmissionEnquiry(submissionset=_context['submissionset'])
+        new_inquiry = SubmissionInquiry(submissionset=_context['submissionset'])
         if request.method == 'POST':
-            form_list['enquirer_details'] = SubmissionEnquiryForm(request.POST, instance=new_enquiry)
+            form_list['inquirer_details'] = SubmissionInquiryForm(request.POST, instance=new_inquiry)
         else:
-            form_list['enquirer_details'] = SubmissionEnquiryForm(instance=new_enquiry)
-        _context['enquirer_details'] = form_list['enquirer_details']
+            form_list['inquirer_details'] = SubmissionInquiryForm(instance=new_inquiry)
+        _context['inquirer_details'] = form_list['inquirer_details']
         
-        # Create formset for credit enquiries
-        formset = inlineformset_factory(    SubmissionEnquiry, 
-                                            CreditSubmissionEnquiry, 
+        # Create formset for credit inquiries
+        formset = inlineformset_factory(    SubmissionInquiry, 
+                                            CreditSubmissionInquiry, 
                                             can_delete=False,
                                             extra=1)
-        formset.form = staticmethod(curry(CreditSubmissionEnquiryForm, creditset=context['submissionset'].creditset))
+        formset.form = staticmethod(curry(CreditSubmissionInquiryForm, creditset=context['submissionset'].creditset))
         if request.method == 'POST':
-            form_list['credit_enquiries'] = formset(request.POST, instance=new_enquiry)
+            form_list['credit_inquiries'] = formset(request.POST, instance=new_inquiry)
         else:
-            form_list['credit_enquiries'] = formset(instance=new_enquiry)
-        _context['credit_enquiries'] = form_list['credit_enquiries']
+            form_list['credit_inquiries'] = formset(instance=new_inquiry)
+        _context['credit_inquiries'] = form_list['credit_inquiries']
         
         return form_list, _context
     
@@ -342,12 +345,26 @@ class SubmissionEnquiryView(CreditNavMixin, ScorecardMixin, MultiFormView):
                 flashMessage.send("Captcha Message didn't validate.", flashMessage.ERROR)
             else:
                 captcha_validated = True
-                if form_list['enquirer_details'].is_valid():
-                    submission_enquiry = form_list['enquirer_details'].save(commit=False)
-                    if form_list['credit_enquiries'].is_valid() and captcha_validated:
-                        submission_enquiry.save()
-                        form_list['credit_enquiries'].save()                
-                        return context, self.get_success_response(request, {'form_title': 'Successful Enquiry',})
+                if form_list['inquirer_details'].is_valid():
+                    submission_inquiry = form_list['inquirer_details'].save(commit=False)
+                    if form_list['credit_inquiries'].is_valid() and captcha_validated:
+                        submission_inquiry.save()
+                        form_list['credit_inquiries'].save()
+                        
+                        # Send confirmation email
+                        email_context = Context({'inquiry': submission_inquiry,'institution': context['institution'],})
+                        t = get_template("institutions/inquiries/liaison_email.txt")
+                        message = t.render(email_context)
+                        
+                        email_to = [context['institution'].contact_email, submission_inquiry.email_address, 'stars@aashe.org',]
+                        send_mail(  "STARS Submission Inquiry",
+                                    message,
+                                    submission_inquiry.email_address,
+                                    email_to,
+                                    fail_silently=False
+                                    )
+                                    
+                        return context, self.get_success_response(request, {'form_title': 'Successful Inquiry',})
                     else:
                         validated = False
                 else:
