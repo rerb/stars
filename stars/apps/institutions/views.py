@@ -310,9 +310,9 @@ class SubmissionInquiryView(CreditNavMixin, ScorecardMixin, MultiFormView):
         
         new_inquiry = SubmissionInquiry(submissionset=_context['submissionset'])
         if request.method == 'POST':
-            form_list['inquirer_details'] = SubmissionInquiryForm(request.POST, instance=new_inquiry)
+            form_list['inquirer_details'] = SubmissionInquiryForm(request.POST, instance=new_inquiry, auto_id='id_for_%s')
         else:
-            form_list['inquirer_details'] = SubmissionInquiryForm(instance=new_inquiry)
+            form_list['inquirer_details'] = SubmissionInquiryForm(instance=new_inquiry, auto_id='id_for_%s')
         _context['inquirer_details'] = form_list['inquirer_details']
         
         # Create formset for credit inquiries
@@ -333,7 +333,7 @@ class SubmissionInquiryView(CreditNavMixin, ScorecardMixin, MultiFormView):
         
         form_list, _context = self.get_form_list(request, context)
         if request.method == 'POST':
-            captcha_validated = False
+            captcha_validated = True
             recaptcha_response = captcha.submit(
                                         request.POST.get('recaptcha_challenge_field', None),
                                         request.POST.get('recaptcha_response_field', None),
@@ -343,34 +343,30 @@ class SubmissionInquiryView(CreditNavMixin, ScorecardMixin, MultiFormView):
             if not recaptcha_response.is_valid:
                 context['recaptcha_error'] = recaptcha_response.error_code
                 flashMessage.send("Captcha Message didn't validate.", flashMessage.ERROR)
-            else:
-                captcha_validated = True
-                if form_list['inquirer_details'].is_valid():
-                    submission_inquiry = form_list['inquirer_details'].save(commit=False)
-                    if form_list['credit_inquiries'].is_valid() and captcha_validated:
-                        submission_inquiry.save()
-                        form_list['credit_inquiries'].save()
-                        
-                        # Send confirmation email
-                        email_context = Context({'inquiry': submission_inquiry,'institution': context['institution'],})
-                        t = get_template("institutions/inquiries/liaison_email.txt")
-                        message = t.render(email_context)
-                        
-                        email_to = [context['institution'].contact_email, submission_inquiry.email_address, 'stars@aashe.org',]
-                        send_mail(  "STARS Submission Data Accuracy Inquiry",
-                                    message,
-                                    submission_inquiry.email_address,
-                                    email_to,
-                                    fail_silently=False
-                                    )
-                                    
-                        return context, self.get_success_response(request, {'form_title': 'Successful Inquiry',})
-                    else:
-                        validated = False
-                else:
-                    validated = False
-                if not validated:
-                    flashMessage.send("Please correct the errors below.", flashMessage.ERROR)
+                captcha_validated = False
+            
+            if not form_list['inquirer_details'].is_valid() or not form_list['credit_inquiries'].is_valid():
+                flashMessage.send("Please correct the errors below.", flashMessage.ERROR)
+            elif captcha_validated:
+                submission_inquiry = form_list['inquirer_details'].save(commit=False)
+                submission_inquiry.save()
+                form_list['credit_inquiries'].save()
+                
+                # Send confirmation email
+                email_context = Context({'inquiry': submission_inquiry,'institution': context['institution'],})
+                t = get_template("institutions/inquiries/liaison_email.txt")
+                message = t.render(email_context)
+                
+                email_to = [context['institution'].contact_email, submission_inquiry.email_address, 'stars@aashe.org',]
+                send_mail(  "STARS Submission Data Accuracy Inquiry",
+                            message,
+                            submission_inquiry.email_address,
+                            email_to,
+                            fail_silently=False
+                            )
+                            
+                return context, self.get_success_response(request, {'form_title': 'Successful Inquiry',})
+                
         return context, None
         
     def get_success_response(self, request, context):

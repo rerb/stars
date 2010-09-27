@@ -13,7 +13,9 @@ The STARS Team
 
 ---------------------------------------------
 Details of STARS Submission Accuracy Inquiry
-Contact information for individual submitting the inquiry
+---------------------------------------------
+Contact information for individual submitting the inquiry:
+
 Name: {{ inquiry.name }}
 Affiliation: {{ inquiry.affiliation }}
 City, State: {{ inquiry.city }}, {{ inquiry.state }}

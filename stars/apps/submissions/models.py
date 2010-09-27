@@ -1270,7 +1270,7 @@ class SubmissionInquiry(models.Model):
     state = models.CharField(max_length=2)
     email_address = models.EmailField()
     phone_number = PhoneNumberField()
-    addtional_comments = models.TextField(blank=True, null=True)
+    additional_comments = models.TextField(blank=True, null=True)
     
     class Meta:
         verbose_name_plural = "Submission Inquiries"

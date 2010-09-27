@@ -27,11 +27,13 @@
 		{% load content %}
         {% display_block_content 'accuracy_header' user %}
 		<h2>Your Contact Information</h2><br/>
+		{% load fieldsets %}
 		<table>
-			{% with inquirer_details as object_form %}
-				{% include 'helpers/standard_form.html' %}
-			{% endwith %}
+			{% get_fieldset name,affiliation,city,state,email_address,phone_number as object_form from inquirer_details %}
+			{% include 'helpers/standard_form.html' %}
 		</table>
+			{% get_fieldset additional_comments as object_form from inquirer_details %}
+			{% include 'helpers/label_above_input_form.html' %}
 	  	<h2>Specific Credit(s) In Question for {{ submissionset.institution }}</h2>
         {% display_block_content 'credit_dispute' user %}
 	  	{{ credit_inquiries.management_form }}
