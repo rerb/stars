@@ -50,10 +50,14 @@
 		{% if recaptcha_error %}
 			<ul class='errorlist'><li>Captcha did not validate. Please try again.</li></ul>
 		{% endif %}
-		<div id='recaptcha'></div>
-		<script type='text/javascript'>
-			showRecaptcha('recaptcha');
-		</script>
+		<script type="text/javascript">
+		var RecaptchaOptions={theme:'clean',
+			custom_theme_widget:'null'};
+</script>
+
+		<div id='recaptcha'>
+			{{ recaptcha_html }}
+		</div>
 	    <div class='button_row'><button type='submit'>Submit</button></div>
 	</form>
 {% endblock %}

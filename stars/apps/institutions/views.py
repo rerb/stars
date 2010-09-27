@@ -327,6 +327,8 @@ class SubmissionInquiryView(CreditNavMixin, ScorecardMixin, MultiFormView):
             form_list['credit_inquiries'] = formset(instance=new_inquiry)
         _context['credit_inquiries'] = form_list['credit_inquiries']
         
+        _context['recaptcha_html'] = mark_safe(captcha.displayhtml(public_key=settings.RECAPTCHA_PUBLIC_KEY))
+        
         return form_list, _context
     
     def process_forms(self, request, context):
@@ -365,7 +367,7 @@ class SubmissionInquiryView(CreditNavMixin, ScorecardMixin, MultiFormView):
                             fail_silently=False
                             )
                             
-                return context, self.get_success_response(request, {'form_title': 'Successful Inquiry',})
+                return context, self.get_success_response(request, {'form_title': 'Successful Inquiry', 'message': "Thank you for your inquiry. You will receive an email confirmation shortly."})
                 
         return context, None
         
