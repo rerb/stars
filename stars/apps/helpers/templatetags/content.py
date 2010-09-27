@@ -16,5 +16,6 @@ def display_block_content(key, user=None):
         block = BlockContent.objects.get(key=key)
     except:
         watchdog.log("lookup_block_content", "BlockContent, '%s', not found." % key)
+        block = ""
         
     return {'block': block, 'user': user}
