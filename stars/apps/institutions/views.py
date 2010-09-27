@@ -367,10 +367,10 @@ class SubmissionInquiryView(CreditNavMixin, ScorecardMixin, MultiFormView):
                             fail_silently=False
                             )
                             
-                return context, self.get_success_response(request, {'form_title': 'Successful Inquiry', 'message': "Thank you for your inquiry. You will receive an email confirmation shortly."})
+                return context, self.get_success_response(request, context)
                 
         return context, None
         
     def get_success_response(self, request, context):
-        r = direct_to_template(request, "custom_forms/form_success.html", context)
+        r = direct_to_template(request, "institutions/inquiries/success.html", context)
         return r
