@@ -38,6 +38,6 @@ class CreditSubmissionInquiryInline(admin.TabularInline):
     model = CreditSubmissionInquiry
 
 class SubmissionInquiryAdmin(admin.ModelAdmin):
-    list_display = ('name', 'submissionset', 'date')
+    list_display = ('last_name', 'first_name', 'submissionset', 'date')
     inlines = [CreditSubmissionInquiryInline,]
 admin.site.register(SubmissionInquiry, SubmissionInquiryAdmin)

@@ -29,7 +29,7 @@
 		<h2>Your Contact Information</h2><br/>
 		{% load fieldsets %}
 		<table>
-			{% get_fieldset name,affiliation,city,state,email_address,phone_number as object_form from inquirer_details %}
+			{% get_fieldset first_name,last_name,affiliation,city,state,email_address,phone_number as object_form from inquirer_details %}
 			{% include 'helpers/standard_form.html' %}
 		</table>
 			{% get_fieldset additional_comments as object_form from inquirer_details %}

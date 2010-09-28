@@ -1264,7 +1264,8 @@ class SubmissionInquiry(models.Model):
     
     submissionset = models.ForeignKey(SubmissionSet)
     date = models.DateTimeField(auto_now_add=True)
-    name = models.CharField(max_length=128)
+    first_name = models.CharField(max_length=128, null=True)
+    last_name = models.CharField(max_length=128, null=True)
     affiliation = models.CharField(max_length=128)
     city = models.CharField(max_length=32)
     state = models.CharField(max_length=2)

@@ -16,7 +16,6 @@ class SubmissionInquiryForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(SubmissionInquiryForm, self).__init__(*args, **kwargs)
         
-        self.fields['name'].label = "Full Name"
         self.fields['additional_comments'].label = "The following text box may be used for other questions, comments, or suggestions for the STARS Team (not sent to the Institution's STARS Liaison):"
         
 class CreditSubmissionInquiryForm(ModelForm):
