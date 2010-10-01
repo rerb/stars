@@ -50,7 +50,7 @@ class EligibilityView(FormActionView):
         r = direct_to_template(request, "custom_forms/form_success.html", extra_context=self.context_dict)
         return r
     
-eligibility = EligibilityView("custom_forms/eligibility.html", EligibilityForm, has_upload=False, form_name='object_form', init_context={'form_title': "Eligibility Enquiry",})
+eligibility = EligibilityView("custom_forms/eligibility.html", EligibilityForm, has_upload=False, form_name='object_form', init_context={'form_title': "Eligibility Inquiry",})
 
 class TAAppView(FormActionView):
     

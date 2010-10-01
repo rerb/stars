@@ -4,5 +4,5 @@ urlpatterns = patterns(
     'stars.apps.custom_forms.views',
     
     (r'ta-app/$', 'ta_application'),
-    (r'eligibility-enquiry/$', 'eligibility')
+    (r'eligibility-inquiry/$', 'eligibility')
 )
