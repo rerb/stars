@@ -4,7 +4,7 @@
 
 {% load help %}
 {% for field in object_form %}
-   	{% if field.field.required %}<span class='required_note' title='required'>*</span>{% endif %}
+   	{% if field.field.required %}<span class="required_note" title="required">*</span>{% endif %}
     {{ field.label_tag }}&nbsp;
     {% if help_inline %}
         {% show_help_text field.help_text 0 %}

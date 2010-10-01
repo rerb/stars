@@ -153,7 +153,7 @@ class FinalizeClassView(SubmissionClassView):
         send_mail(  "STARS Submission!! (%s)" % context[self.instance_name].institution,
                     "%s has submitted for a rating! Time to review!" % context[self.instance_name],
                     settings.EMAIL_HOST_USER,
-                    ['stars_staff@aashe.org',],
+                    ['stars_staff@aashe.org','jesse@aashe.org'],
                     fail_silently=False
                     )
         

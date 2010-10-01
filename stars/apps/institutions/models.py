@@ -12,7 +12,7 @@ class Institution(models.Model):
         is a mirror of Drupal and will require regular updating
     """
     name = models.CharField(max_length=255)
-    slug = models.SlugField(null=True, blank=True, max_length=255)
+    slug = models.SlugField(max_length=255)
     aashe_id = models.IntegerField()
     enabled = models.BooleanField(help_text="This is a staff-only flag for disabling an institution. An institution will NOT appear on the STARS Institutions list until it is enabled.", default=False)
     contact_first_name = models.CharField("Liaison First Name", max_length=32)
@@ -143,7 +143,8 @@ class Institution(models.Model):
         i_list = _query_iss_orgs("account_num=%d" % iss_institution_id)
         if len(i_list) == 1:
             iss_institution = i_list[0]
-            self.slug = "%s-%s" % (slugify(iss_institution['name']), iss_institution['state'].lower())
+            slug_base = "%s-%s" % (iss_institution['name'], iss_institution['state'].lower())
+            self.slug = slugify(slug_base)
         else:
             watchdog.log("Registration", "ISS Institution lookup failure: %s" % e, watchdog.ERROR)
             self.slug = iss_institution_id

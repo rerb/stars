@@ -6,6 +6,8 @@ from django.contrib.auth.models import User
 from django.utils.safestring import mark_safe
 from django.contrib.localflavor.us.models import PhoneNumberField
 from django.db.models import Q
+from django.contrib.contenttypes import generic
+from django.contrib.contenttypes.models import ContentType
 
 from stars.apps.credits.models import *
 from stars.apps.institutions.models import Institution
@@ -43,6 +45,10 @@ class SubmissionManager(models.Manager):
         qs2 = qs1.filter(
                 (Q(payment__type='later') & Q(date_registered__lte=deadline)) | ~Q(payment__type='later'))
         return qs2
+    
+    def get_rated(self):
+        """ All submissionsets that have been rated """
+        return SubmissionSet.objects.filter(status='r')
 
 class SubmissionSet(models.Model):
     """
@@ -219,7 +225,6 @@ class SubmissionSet(models.Model):
             total += p.amount
             
         return total
-
 
 def get_active_submissions(creditset=None, category=None, subcategory=None, credit=None):
     """ Return a queryset for ALL active (started / finished) credit submissions that meet the given criteria.
@@ -851,12 +856,25 @@ DOCUMENTATION_FIELD_TYPES = (
 )
 """
 
+class ReportingFieldDataCorrection(models.Model):
+    """
+        Represents a change to a particular field in Credit Submission after
+        an institution has received a rating.
+    """
+    previous_value = models.TextField()
+    change_date = models.DateField()
+    content_type = models.ForeignKey(ContentType)
+    object_id = models.PositiveIntegerField()
+    reporting_field = generic.GenericForeignKey('content_type', 'object_id')
+    explanation = models.TextField(blank=True, null=True)
+
 class DocumentationFieldSubmission(models.Model):
     """
         The submitted value for a documentation field (abstract).
     """
     documentation_field = models.ForeignKey(DocumentationField, related_name="%(class)s_set")
     credit_submission = models.ForeignKey(CreditSubmission)
+    corrections = generic.GenericRelation(ReportingFieldDataCorrection, content_type_field='content_type', object_id_field='object_id')
     
     class Meta:
         abstract = True
@@ -929,10 +947,9 @@ class DocumentationFieldSubmission(models.Model):
         if self.value == None or self.value == "":
             return True
         # if it's nothing but whitespace
-        if re.match("\s+", self.value) != None:
+        if re.match("^\s+$", self.value) != None:
             return True
         return False
-    
 
 class AbstractChoiceSubmission(DocumentationFieldSubmission):
     class Meta:  
@@ -1240,3 +1257,40 @@ class Payment(models.Model):
     def get_institution(self):
         return self.submissionset.institution
 
+class SubmissionInquiry(models.Model):
+    """
+        An inquiry by a member of the public about any inaccurate data in a public report
+    """
+    
+    submissionset = models.ForeignKey(SubmissionSet)
+    date = models.DateTimeField(auto_now_add=True)
+    first_name = models.CharField(max_length=128, null=True)
+    last_name = models.CharField(max_length=128, null=True)
+    affiliation = models.CharField(max_length=128)
+    city = models.CharField(max_length=32)
+    state = models.CharField(max_length=2)
+    email_address = models.EmailField()
+    phone_number = PhoneNumberField()
+    additional_comments = models.TextField(blank=True, null=True)
+    
+    class Meta:
+        verbose_name_plural = "Submission Inquiries"
+    
+    def __unicode__(self):
+        return self.submissionset.institution.name
+    
+class CreditSubmissionInquiry(models.Model):
+    """
+        An inquiry, tied to a SubmissionInquiry about a particular credit. 
+    """
+    
+    submission_inquiry = models.ForeignKey(SubmissionInquiry)
+    credit = models.ForeignKey(Credit)
+    explanation = models.TextField()
+    
+    class Meta:
+        verbose_name_plural = "Credit Submission Inquiries"
+    
+    def __unicode__(self):
+        return self.credit.title
+    

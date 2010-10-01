@@ -7,7 +7,7 @@ from stars.apps.helpers.forms.views import TemplateView
 from stars.apps.credits.models import *
 
 
-class CreditNavMixin(TemplateView):
+class CreditNavMixin(object):
     """
         Class-based mix-in view that can
 

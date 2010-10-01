@@ -38,11 +38,11 @@ class TestProcess(TestCase):
         response = c.get(url, post_dict)
         self.assertTrue(response.status_code == 200)
         
-        post_dict = {'aashe_id': '18903',}
+        post_dict = {'aashe_id': '24394',}
         response = c.post(url, post_dict, follow=False)
         self.assertTrue(response.status_code == 302)
         
-        self.assertTrue(c.session['selected_institution'].slug == 'university-of-colorado-at-boulder-co')
+        self.assertTrue(c.session['selected_institution'].slug == 'okanagan-college-british-columbia')
         
         # Contact Information
         
@@ -75,6 +75,8 @@ class TestProcess(TestCase):
         post_dict['contact_email'] = 'test2@aashe.org'
         response = c.post(url, post_dict, follow=False)
         self.assertTrue(response.status_code == 302)
+        
+        self.assertTrue(c.session['selected_institution'].slug == 'okanagan-college-british-columbia')
         
         # Test Payment
         url = '/register/step3/'

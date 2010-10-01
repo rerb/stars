@@ -33,3 +33,11 @@ class ResponsiblePartyAdmin(admin.ModelAdmin):
     list_display = ('first_name', 'last_name', 'institution', 'email')
     list_filter = ('institution',)
 admin.site.register(ResponsibleParty, ResponsiblePartyAdmin)
+
+class CreditSubmissionInquiryInline(admin.TabularInline):
+    model = CreditSubmissionInquiry
+
+class SubmissionInquiryAdmin(admin.ModelAdmin):
+    list_display = ('last_name', 'first_name', 'submissionset', 'date')
+    inlines = [CreditSubmissionInquiryInline,]
+admin.site.register(SubmissionInquiry, SubmissionInquiryAdmin)
