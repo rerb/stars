@@ -1,0 +1,27 @@
+{% extends 'institutions/scorecards/base.html' %}
+
+{% block extra_head %}
+	{{ block.super }}
+	<script type="text/javascript" src="http://code.jquery.com/jquery-1.4.2.min.js"></script>
+	<script type="text/javascript" src="http://www.google.com/recaptcha/api/js/recaptcha_ajax.js"></script>
+	<script type="text/javascript">
+         function showRecaptcha(element) {
+           Recaptcha.create("{{ recaptcha_public_key }}", element, {
+             theme: "clean",
+             callback: Recaptcha.focus_response_field});
+         }
+      </script>
+{% endblock %}
+
+{% block crumbs %}
+	{{ block.super }} >
+	STARS Submission Accuracy Inquiry
+{% endblock %}
+
+{% block content %}
+	<div class='inner20'>
+        <h1>STARS Submission Accuracy Inquiry Complete</h1>
+        {% load content %}
+        {% display_block_content 'dispute_success' user %}
+    </div>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block main_menu %} 
+    {% load main_menu %}
+    {% show_main_menu user "institutions" %} 
+{% endblock %}
+
+{% block content %}
+    <div class='inner20'>
+      <h1>STARS Institutions</h1>
+      {% block page_description %}
+        {% load help %}
+        {% show_help_context 'institutions_page' 0 %}
+      {% endblock %}
+      {% comment %}
+        <ul id="tabnav" {% block tabclass %}class='tab1'{% endblock %}>
+            <li class="tab1"><a href="/institutions/">Rated Institutions</a></li>
+            <li class="tab2"><a href="/institutions/active/">In Progress</a></li>
+        </ul>
+    {% endcomment %}
+        <div class='tabContent'>
+            {% block institution_content %}{% endblock %}
+        </div>
+    </div>
+{% endblock %}

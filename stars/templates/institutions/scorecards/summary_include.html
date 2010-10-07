@@ -1,0 +1,90 @@
+{% extends 'credits/summary.html' %}
+
+{% block h1 %}{% if preview %}<i>Preview</i>: {% endif %}{{ institution }}{% endblock %}
+
+{% block navHeader %}
+    <h4>
+        <a href='{{ submissionset.get_scorecard_url }}'>STARS {{ submissionset.creditset }}{% if preview %} (Preview){% endif %}</a>
+    </h4>
+{% endblock %}
+
+{% block railAboveMenu %}
+    <div style='text-align: center;'>
+    {% if preview %}
+        <img src='/media/static/images/STARS-Participant-200x200.png' alt='Preview' class='seal' />
+    {% else %}
+        <img src='{{ submissionset.rating.image_200.url }}' alt='{{ submissionset.rating }}' class='seal' />
+    {% endif %}
+    </div>
+{% endblock %}
+
+{% block summaryTable %}
+    {% include 'institutions/scorecards/submission_summary_table.html' %}
+    <div class='submissionBoundary'>
+        <img
+            src='/media/static/images/collapse_big.gif' alt='+'
+            onclick='expandCollapse(this, false);'
+            style='vertical-align: middle;'
+            id='ec_boundary' class='collapseExpand' />
+        <i>Submission Boundary:</i><br/>
+        <div id='ec_boundary_target'>
+            {{ submissionset.submission_boundary|urlizetrunc:55|linebreaks|fix_ampersands }}
+        </div>
+    </div>
+{% endblock %}
+
+{% block category_summary_points %}
+    {% ifnotequal rating.name "Reporter" %}
+        {% ifnotequal cat.category.title 'Innovation' %}
+            <div class='provScorePercent'>{{ cat.get_STARS_score|floatformat:2 }} %</div>
+            <span class='provScoreCaption'>Score</span>
+        {% else %}
+            <div class='provScorePercent'>{{ cat.get_STARS_score|floatformat:2 }}</div>
+            <span class='provScoreCaption'>Innovation Points</span>
+        {% endifnotequal %}
+    {% endifnotequal %}
+{% endblock %}
+
+{% block category_summary_progress %}{% endblock %}
+
+{% block subcategory_summary_points %}
+    {% ifnotequal rating.name "Reporter" %}
+        <div class='provScorePercent'>
+            {{ sub.get_claimed_points|floatformat:2 }} /
+            {{ sub.get_adjusted_available_points|floatformat:2 }}
+        </div>
+        <span class='provScoreCaption'>Points Claimed</span>
+    {% endifnotequal %}
+{% endblock %}
+
+{% block subcategory_summary_progress %}{% endblock %}
+
+{% block credit_summary_header %}
+    <th>Credit</th>
+    {% ifnotequal rating.name "Reporter" %}
+        <th>Status</th>
+        <th>Points</th>
+    {% endifnotequal %}
+    {% load submit_tags %}
+{% endblock %}
+
+{% block credit_summary_row %}
+    <td class='credit'>
+        {% if c.submission_status == 'ns' or c.submission_status == 'np' %}
+            {{ c }}
+        {% else %}
+            <a href='{{ c.get_scorecard_url }}'>{{ c }}</a>
+        {% endif %}
+    </td>
+            
+    {% ifnotequal rating.name "Reporter" %}
+        <td style='color: #888'>
+            {% include 'credits/credit_status_icon.html' %}
+        </td>
+        <td>{{ c.assessed_points|floatformat:2 }} / {% format_available_points c %}</td>
+    {% endifnotequal %}
+{% endblock %}
+
+{% block center_column_footer %}
+    {% include 'institutions/scorecards/footer.html' %}
+{% endblock %}
