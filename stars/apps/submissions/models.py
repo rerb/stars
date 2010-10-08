@@ -866,6 +866,7 @@ class DataCorrectionRequest(models.Model):
     reporting_field = generic.GenericForeignKey('content_type', 'object_id')
     new_value = models.TextField()
     explanation = models.TextField()
+    user = models.ForeignKey(User, blank=True, null=True)
 
 class ReportingFieldDataCorrection(models.Model):
     """

@@ -295,6 +295,7 @@ class DataCorrectionView(CreditNavMixin, ScorecardMixin, FormActionView):
         
         correction = form.save(commit=False)
         correction.reporting_field = field
+        correction.user = request.user
         correction.save()
         
         
