@@ -17,6 +17,52 @@ class NotificationTest(TestCase):
 
     def setUp(self):
         pass
+        
+    def testWelcomeList(self):
+        """
+            - Ensure that `get_new_institutions` returns the correct institutions
+        """
+        
+        today = date(year=2010, month=5, day=28)
+        ss_list = get_new_institutions(today)
+        print >> sys.stderr, len(ss_list)
+        self.assertTrue(len(ss_list) == 0)
+        
+        today = date(year=2010, month=5, day=29)
+        ss_list = get_new_institutions(today)
+        print >> sys.stderr, len(ss_list)
+        self.assertTrue(len(ss_list) == 0)
+        
+        today = date(year=2010, month=6, day=5)
+        ss_list = get_new_institutions(today)
+        print >> sys.stderr, len(ss_list)
+        self.assertTrue(len(ss_list) == 1)
+        
+        today = date(year=2010, month=6, day=6)
+        ss_list = get_new_institutions(today)
+        print >> sys.stderr, len(ss_list)
+        self.assertTrue(len(ss_list) == 2)
+        
+    def testWelcomeNotify(self):
+        
+        mail.outbox = []
+        
+        current_date = date(year=2010, month=5, day=28)
+        send_welcome_email(current_date)
+        self.assertTrue(len(mail.outbox) == 0)
+        
+        current_date = date(year=2010, month=6, day=5)
+        send_welcome_email(current_date)
+        self.assertTrue(len(mail.outbox) == 1)
+        
+        current_date = date(year=2010, month=6, day=6)
+        send_welcome_email(current_date)
+        # Only one more should be sent, because of the count limit on notifications
+        self.assertTrue(len(mail.outbox) == 2)
+        
+        # no duplicates
+        send_welcome_email(current_date)
+        self.assertTrue(len(mail.outbox) == 2)
 
     def testOverdueList(self):
         """

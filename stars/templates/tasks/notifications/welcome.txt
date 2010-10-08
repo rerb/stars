@@ -1,0 +1,18 @@
+Hello {{ institution.contact_first_name }},
+
+On behalf of AASHE, I would like to welcome {{ institution }} to the STARS program. As the STARS Program Coordinator, I am the main contact for the STARS team regarding questions or feedback you may have about the system. Please contact me at any time either by emailing stars@aashe.org or by calling (209) STARS 09.
+
+Please note there are several valuable resources available to help you get started with STARS.
+
+ - Visit the "Help" page on the STARS website for a list of how-to-videos to help get you started with STARS. (http://stars.aashe.org/pages/help/)
+
+ - View the STARS webinar archives . Webinars cover various topics about the STARS program from data collection to working with students and highlight best practices from STARS participants. Participating in STARS webinars is a great way to in-depth details about best practices. (http://stars.aashe.org/pages/stars-webinars/)
+
+ - The "My Resources" link in the STARS Reporting Tool is continually updated with information that you may find helpful during the data submission process. Resources include a template press release, STARS logo for your institution, and various data collection tools. (http://stars.aashe.org/tool/my-resources/)
+
+ - Also, the STARS Update, our monthly e-newsletter, is the best way to stay up to speed with the most current information about the STARS program. If you haven’t done so already, I highly recommend you subscribe to this valuable resources through our website. (http://stars.aashe.org/)
+
+Good luck getting started!
+
+Best,
+Jillian

@@ -13,8 +13,41 @@ from django.core.mail import send_mail
 from django.conf import settings
 
 from stars.apps.institutions.models import * # required for execfile management func
-from stars.apps.submissions.models import SubmissionSet
+from stars.apps.submissions.models import SubmissionSet, Payment
 from stars.apps.tasks.models import EmailNotification
+
+def get_new_institutions(current_date):
+    """
+        Return a list of all institutions that paid more than a week ago.
+    """
+    one_week = timedelta(weeks=1)
+    date_limit = current_date - one_week
+    
+    i_list = []
+    for p in Payment.objects.filter(date__lte=date_limit).exclude(type='later'):
+        if not p.submissionset.institution.charter_participant:
+            i_list.append(p.submissionset.institution)
+    
+    return i_list
+
+def send_welcome_email(current_date):
+    """
+        This is separated from `get_new_institutions` for testing purposes
+    """
+    
+    for i in get_new_institutions(current_date):
+
+        t = loader.get_template('tasks/notifications/welcome.txt')
+        c = Context({'institution': i,})
+        message = t.render(c)
+    
+        send_notification(
+                            n_type='wel',
+                            identifier="wel-%d" % i.id,
+                            mail_to=[i.contact_email,],
+                            message=message,
+                            subject="Welcome to STARS",
+                        )
 
 def get_overdue_payments(current_date):
     """
@@ -36,8 +69,6 @@ def send_overdue_notifications(current_time):
     """
         This is separated from `get_overdue_contacts` for testing purposes
     """
-    
-    print >> sys.stderr, "Sending overdue notifications..."
     
     for ss in get_overdue_payments(current_time):
 
