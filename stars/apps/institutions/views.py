@@ -303,6 +303,8 @@ class DataCorrectionView(CreditNavMixin, ScorecardMixin, FormActionView):
         message = """
 From: %s
 
+Original Submission Date: %s
+
 Field: %s
 
 Old Value: %s
@@ -310,7 +312,13 @@ Old Value: %s
 New Value: %s
 
 Explanation: %s
-""" % (context['institution'], field.documentation_field, field.value, correction.new_value, correction.explanation)
+""" % (
+        context['institution'],
+        context['submissionset'].date_submitted,
+        field.documentation_field,
+        field.value,
+        correction.new_value,
+        correction.explanation )
         
         email_to = ['stars@aashe.org',]
         send_mail(  "Data Correction Request",
