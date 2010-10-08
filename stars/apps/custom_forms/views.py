@@ -59,7 +59,7 @@ class TAAppView(FormActionView):
         self.save_form(form, request, context)
         
         t = get_template("custom_forms/ta_app_email.txt")
-        message = t.render(context)
+        message = t.render(Context(context))
         p = request.POST
         email_to = [request.POST['email'], 'susan.gentile@aashe.org',]
         send_mail(  "STARS Technical Advisor Application Received",
