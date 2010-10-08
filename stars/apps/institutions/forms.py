@@ -37,4 +37,8 @@ class DataCorrectionRequestForm(ModelForm):
         model = DataCorrectionRequest
         exclude = ['reporting_field', 'object_id', 'content_type', 'user']
         
+    def __init__(self, creditset=None, *args, **kwargs):
         
+        super(DataCorrectionRequestForm, self).__init__(*args, **kwargs)
+        
+        self.fields['new_value'].label = "New Text:"
