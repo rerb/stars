@@ -1,7 +1,7 @@
 from django.forms import ModelForm, Form
 from django import forms
 
-from stars.apps.submissions.models import SubmissionInquiry, SubmissionSet, CreditSubmissionInquiry
+from stars.apps.submissions.models import SubmissionInquiry, SubmissionSet, CreditSubmissionInquiry, DataCorrectionRequest
 
 class SubmissionSelectForm(Form):
     
@@ -30,4 +30,11 @@ class CreditSubmissionInquiryForm(ModelForm):
         super(CreditSubmissionInquiryForm, self).__init__(*args, **kwargs)
         
         self.fields['credit'].choices = creditset.get_pulldown_credit_choices()
+        
+class DataCorrectionRequestForm(ModelForm):
+    
+    class Meta:
+        model = DataCorrectionRequest
+        exclude = ['reporting_field', 'object_id', 'content_type']
+        
         

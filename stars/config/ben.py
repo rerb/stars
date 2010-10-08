@@ -8,8 +8,8 @@ HIDE_REPORTING_TOOL = False
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
-EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
-EMAIL_FILE_PATH = '~/tmp/stars-email-messages' # change this to a proper location
+#EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+#EMAIL_FILE_PATH = '~/tmp/stars-email-messages' # change this to a proper location
 
 # no emails during local dev
 ADMINS = ('ben@aashe.org',)
@@ -24,7 +24,14 @@ DATABASES = {
         'USER': 'root',
         'PASSWORD': '',
         'HOST': 'localhost',
-    }
+    },
+#    'iss': {
+#        'NAME': 'iss',
+#        'ENGINE': 'django.db.backends.mysql',
+#        'USER': 'root',
+#        'PASSWORD': '',
+#        'HOST': 'localhost',
+#    }
 }
 
 # Stand alone mode indicates that the server will be running using

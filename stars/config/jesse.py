@@ -20,8 +20,17 @@ DATABASES = {
         'USER': 'root',
         'PASSWORD': '',
         'HOST': 'localhost',
-    }
+    },
+    'iss': {
+        'NAME': 'iss',
+        'ENGINE': 'django.db.backends.mysql',
+        'USER': 'jesse',
+        'PASSWORD': '',
+        'HOST': 'mysql.aashe.org',
+    }    
 }
+INSTALLED_APPS = INSTALLED_APPS + ('aashe.issdjango',)
+DATABASE_ROUTERS = ('aashe.issdjango.router.ISSRouter',)
 
 # Stand alone mode indicates that the server will be running using
 # the django dev server so we will need to serve the static files (see urls.py)

@@ -266,6 +266,62 @@ class ScorecardInternalNotesView(InstitutionAccessMixin, ScorecardView):
         raise Http404
     fail_response = raise_redirect
     
+class DataCorrectionView(CreditNavMixin, ScorecardMixin, FormActionView):
+    """
+        Provides a form for institutions to request a data correction
+    """
+    form_list = []
+    template = "institutions/new_data_correction.html"
+    
+    def get_extra_context(self, request, *args, **kwargs):
+        """ Expects arguments for category_id/subcategory_id/credit_id """
+        
+        _context = self.get_submissionset_context(request, **kwargs)
+        
+        #@todo: get submission field
+        field_type = ContentType.objects.get(id=kwargs['field_type'])
+        field = field_type.get_object_for_this_type(id=kwargs['field_id'])
+        _context['reporting_field'] = field
+        
+        return _context
+    
+    def get_success_action(self, request, context, form):
+        """
+            On successful submission of the form, redirect to the returned URL
+            Returns None if redirect not necessary
+        """
+
+        field = context['reporting_field']
+        
+        correction = form.save(commit=False)
+        correction.reporting_field = field
+        correction.save()
+        
+        
+        message = """
+From: %s
+
+Field: %s
+
+Old Value: %s
+
+New Value: %s
+
+Explanation: %s
+""" % (context['institution'], field.documentation_field, field.value, correction.new_value, correction.explanation)
+        
+        email_to = ['stars@aashe.org',]
+        send_mail(  "Data Correction Request",
+                    message,
+                    settings.EMAIL_HOST_USER,
+                    email_to,
+                    fail_silently=False
+                    )
+
+        return direct_to_template(request, "institutions/data_correction_request/success.html", context)
+    
+data_correction_view = DataCorrectionView("institutions/data_correction_request/new.html", DataCorrectionRequestForm)
+    
 class SubmissionInquirySelectView(FormActionView):
     """
         Provides a form for people to dispute the submission for a particular institution.

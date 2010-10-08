@@ -23,6 +23,7 @@
 {% block content %}
 	<br/>
 	<h1>STARS Submission Accuracy Inquiry: {{ submissionset.institution }}</h1>
+	{% include 'helpers/required_div.html' %}
 	<form class='generalForm' method='post' action='.' enctype="multipart/form-data" style='margin: 10px 50px;'>
 		{% load content %}
         {% display_block_content 'accuracy_header' user %}

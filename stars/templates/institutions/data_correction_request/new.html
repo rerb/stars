@@ -1,0 +1,42 @@
+{% extends 'institutions/scorecards/credit.html' %}
+
+{% block title %}Data Correction Request | {{ block.super }}{% endblock %}
+
+{% block crumbs %}
+    {{ block.super }} &gt;
+    Data Correction Request
+{% endblock %}
+
+{% block content %}
+	<br/>
+	<h1>Data Correction Request</h1><br/>
+	<form class='generalForm' method='post' action='.' style='margin: 0px 50px 10px 50px;'>
+		{% load content %}
+		{% display_block_content 'data_correction_top' user %}
+		
+		<h2>Correction</h2><br/>
+		{% include 'helpers/required_div.html' %}
+		<table class='greyTHTable'>
+			<tr>
+				<th>Credit</th>
+				<td><b>{{ credit_submission.credit }}</b></td>
+			</tr>
+			<tr>
+				<th>Reporting Field</th>
+				<td>{{ reporting_field.documentation_field.title }}</td>
+			</tr>
+			<tr>
+				<th>Previous Value</th>
+				<td>
+					{% with reporting_field as field %}
+						{% include 'institutions/scorecards/field_formatting.html' %}
+					{% endwith %}
+				</td>
+			</tr>
+		</table>
+		{% with form as object_form %}
+	    	{% include "helpers/label_above_input_form.html" %}
+	    {% endwith %}
+    	<div class='button_row'><button type='submit'>Submit</button></div>
+    </form>
+{% endblock %}

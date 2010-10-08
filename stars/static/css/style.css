@@ -920,3 +920,20 @@ pre {
  white-space: -o-pre-wrap;    /* Opera 7 */
  word-wrap: break-word;       /* Internet Explorer 5.5+ */
 }
+
+table.greyTHTable {
+	margin: 5px 50px 10px 50px;
+	border: 1px solid #aaa;	
+}
+
+table.greyTHTable th, table.greyTHTable td {
+	margin: 0px;
+	padding: 5px 3px;
+}
+
+table.greyTHTable th {
+	background-color: #ddd;
+	text-align: right;
+	whitespace: no-wrap;
+	font-weight: bold;
+}
