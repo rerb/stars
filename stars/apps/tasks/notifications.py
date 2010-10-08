@@ -110,7 +110,7 @@ def send_notification(n_type, identifier, mail_to, message, subject, count=1):
         If this notification has already been sent `count` times, ignore it.
     """
     
-    if EmailNotification.objects.filter(notification_type=n_type, identifier=identifier, sent_to=mail_to).count() < count:
+    if EmailNotification.objects.filter(identifier=identifier).count() < count:
         
         try:
             send_mail(  subject,
