@@ -182,7 +182,8 @@ class ScorecardMixin(object):
                     
                 if account or request.user.has_perm('admin'):
                     context['user_tied_to_institution'] = True
-                
+                    if (account and account.has_access_level('admin')) or request.user.has_perm('admin'):
+                        context['user_is_inst_admin'] = True
             
             # Get the SubmissionSet
             date_re = "^\d{4}-\d{2}-\d{2}$"

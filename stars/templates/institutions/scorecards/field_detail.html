@@ -1,7 +1,7 @@
 <span style='font-size: 1.4em;font-family: Garamond;'>
-    {{ field.documentation_field.title }} 
+    {{ field.documentation_field.title }}{% if not preview and user_is_inst_admin %}
     <a href='{{ field.get_correction_url }}' title='Data Correction Request'>
-    	<img src='/media/static/images/note_edit.png' alt='Correction' /></a>:
+    	<img src='/media/static/images/note_edit.png' alt='Correction' /></a>{% endif %}:
 </span>
 
 {% load humanize %}
