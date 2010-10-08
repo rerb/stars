@@ -856,6 +856,17 @@ DOCUMENTATION_FIELD_TYPES = (
 )
 """
 
+class DataCorrectionRequest(models.Model):
+    """
+        A request by an institution to make a change to their submission
+    """
+    date = models.DateTimeField(auto_now_add=True)
+    content_type = models.ForeignKey(ContentType)
+    object_id = models.PositiveIntegerField()
+    reporting_field = generic.GenericForeignKey('content_type', 'object_id')
+    new_value = models.TextField()
+    explanation = models.TextField()
+
 class ReportingFieldDataCorrection(models.Model):
     """
         Represents a change to a particular field in Credit Submission after
@@ -950,6 +961,11 @@ class DocumentationFieldSubmission(models.Model):
         if re.match("^\s+$", self.value) != None:
             return True
         return False
+    
+    def get_correction_url(self):
+        
+        ct = ContentType.objects.get_for_model(self)
+        return "%s%s/%d/" % (self.credit_submission.get_scorecard_url(), ct.id, self.id)
 
 class AbstractChoiceSubmission(DocumentationFieldSubmission):
     class Meta:  

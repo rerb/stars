@@ -113,6 +113,7 @@ INSTALLED_APPS = (
     'stars.apps.custom_forms',
     'stars.apps.tasks',
     'stars.tests',
+#    'aashe.issdjango',
     'south',
 )
 
@@ -182,3 +183,5 @@ SKIP_SOUTH_TESTS=True
 
 RECAPTCHA_PUBLIC_KEY = "6LeaEL0SAAAAAMiipP79s-PzlR0qHlH1-E_jYsyW"
 RECAPTCHA_PRIVATE_KEY = "6LeaEL0SAAAAACP5wb3qqxujJc3Cf_qHhVGUr4QV"
+
+#DATABASE_ROUTERS = ('aashe.issdjango.router.ISSRouter',)
