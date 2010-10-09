@@ -39,7 +39,7 @@ class EligibilityView(FormActionView):
         
         
         t = get_template("custom_forms/eligibility_query_response.txt")
-        message = t.render(context)
+        message = t.render(_context)
         send_mail( "Thank you for your enquiry",
                    message,
                    settings.EMAIL_HOST_USER,
