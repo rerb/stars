@@ -4,7 +4,7 @@ import sys
 from django.conf import settings
 from django.shortcuts import render_to_response, get_object_or_404
 from django.http import HttpResponseRedirect, Http404
-from django.template import Context, loader, Template
+from django.template import Context, loader, Template, RequestContext
 from django.core.mail import send_mail
 
 from stars.apps.auth.utils import respond
@@ -204,7 +204,7 @@ class PaymentReceiptView(FormActionView):
                     fail_silently=False
                     )
 
-        return render_to_response("tool/admin/payments/receipt_confirm.html", context)
+        return render_to_response("tool/admin/payments/receipt_confirm.html", RequestContext(request, context))
     
     def get_extra_context(self, request, *args, **kwargs):
         """ Extend this method to add any additional items to the context """
