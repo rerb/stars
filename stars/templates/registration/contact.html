@@ -20,9 +20,8 @@
             </table>
             <br/>
             <h3>Executive Contact Information</h3>
-            <p>Since STARS covers the activities of many campus departments and requires the involvement of many individuals, it's important that your institution's participation has high-level support.  Please provide the contact information for one executive (President, Chancellor, Vice President, Vice Chancellor, or Provost) for AASHE  to copy on the registration confirmation e-mail.  This executive will not be included in subsequent communication and his or her contact information will not be otherwise used.  You may wish to send a message to this person so they know to expect the e-mail from AASHE.   
-                </p><p>
-            Please note that after all data have been submitted, a letter from the President or Chancellor will be required to earn a STARS rating.</p>
+            {% display_block_content 'register_executive' user %}
+            
             <table class='form'>
                 {% get_fieldset executive_contact_first_name,executive_contact_middle_name,executive_contact_last_name,executive_contact_title,executive_contact_department,executive_contact_email as exec_fields from reg_form %}
                 {{ exec_fields }}
