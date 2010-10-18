@@ -66,7 +66,7 @@ ${{ payment.amount }}
 
 BILLING INFORMATION
 
-You selected the "pay later" option for your STARS registration. Payment is due w/in the next 4 weeks.
+You selected the "pay later" option for your STARS registration. Payment is due w/in the next 4 weeks. Please note, although your institution has successfully registered for the STARS program, the institution name will not be listed on the STARS website until payment is received.
 
 Please mail a check payable to AASHE in the amount of ${{ payment.amount }} to:
  
