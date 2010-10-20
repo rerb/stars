@@ -100,7 +100,6 @@ class LetterClassView(SubmissionClassView):
         """ This form gives institutions the option to choose Reporter status """
         if context[self.instance_name].get_STARS_rating().name != 'Reporter':
             return LetterStatusForm
-        print >> sys.stderr, "HERE!"
         #return SubmissionClassView.get_form_class(self, *args, **kwargs)
         return super(LetterClassView, self).get_form_class(context, *args, **kwargs)
         
