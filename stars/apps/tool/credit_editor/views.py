@@ -79,14 +79,14 @@ class CreditEditorFormView(IsStaffMixin, MultiFormView, CreditEditorNavMixin):
         else:
             return None
             
-    def generate_form_set(self, request, modelClass, modelFormClass, queryset):
+    def generate_form_set(self, request, modelClass, modelFormClass, queryset, prefix='object-ordering'):
         """
             Returns a formSet for ordering child items
         """
         
         if queryset.count() > 0:
             ObjectFormSet = modelformset_factory(modelClass, form=modelFormClass, extra=0)
-            kwargs = {'queryset': queryset, 'prefix': 'object-ordering'}
+            kwargs = {'queryset': queryset, 'prefix': prefix}
 
             if request.method == 'POST':
                 kwargs['data'] = request.POST
@@ -255,10 +255,10 @@ class SubcategoryDetail(CreditReorderMixin, CreditEditorFormView):
         # Create the forms to order the credits
         subcategory = context['subcategory']
         if subcategory.credit_set.filter(type='t1').count() > 0:
-            form_list['t1_ordering'] = self.generate_form_set(request, Credit, CreditOrderForm, subcategory.credit_set.filter(type='t1'))
+            form_list['t1_ordering'] = self.generate_form_set(request, Credit, CreditOrderForm, subcategory.credit_set.filter(type='t1'), prefix='t1_ordering')
             
         if subcategory.credit_set.filter(type='t2').count() > 0:
-            form_list['t2_ordering'] = self.generate_form_set(request, Credit, CreditOrderForm, subcategory.credit_set.filter(type='t2'))
+            form_list['t2_ordering'] = self.generate_form_set(request, Credit, CreditOrderForm, subcategory.credit_set.filter(type='t2'), prefix='t2_ordering')
 
         return form_list, _context
         
