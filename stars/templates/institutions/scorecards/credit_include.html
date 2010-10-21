@@ -41,7 +41,7 @@
                 {% endwith %}
                 {% if credit_submission.submission_status == "na" %}
                 	{% load help %}
-                    {% show_help_text credit_submission.applicability_reason.reason %}
+                    {% show_help_context "not_applicable" %}
                 {% endif %}
             </td>
             <td>
@@ -94,16 +94,27 @@
         {% endif %}
     </ul>
     <div class='tabContent'>
-        <div style="text-align: right;font-size: .9em;padding:10px;">
-            "<span class='green bold'>---</span>"
-            <i>indicates that no data was submitted for this field</i>
-        </div>
-        {% block tab_content %}
-            <br/>
-            {% for field in credit_submission.get_submission_fields %}
-                {% include 'institutions/scorecards/field_detail.html' %}
-            {% endfor %}
-        {% endblock %}
+    	{% if credit_submission.submission_status == 'na' %}
+    		<p class='hideReportingFields'>
+    			This credit was marked as <b>Not Applicable</b> for the following reason:<br/><br/>
+    			<i>{{ credit_submission.applicability_reason.reason }}</i>
+    		</p>
+    	{% else %}{% if credit_submission.submission_status == 'np' or credit_submission.submission_status == 'ns' %}
+    		<p class='hideReportingFields'>
+    			This credit was marked as <b>Not Pusuing</b> so Reporting Fields will not be displayed.
+    		</p> 
+    	{% else %}
+	        <div style="text-align: right;font-size: .9em;padding:10px;">
+	            "<span class='green bold'>---</span>"
+	            <i>indicates that no data was submitted for this field</i>
+	        </div>
+	        {% block tab_content %}
+	            <br/>
+	            {% for field in credit_submission.get_submission_fields %}
+	                {% include 'institutions/scorecards/field_detail.html' %}
+	            {% endfor %}
+	        {% endblock %}
+		{% endif %}{% endif %}
     </div>
     
 {% endblock %}

@@ -937,3 +937,9 @@ table.greyTHTable th {
 	whitespace: no-wrap;
 	font-weight: bold;
 }
+
+p.hideReportingFields {
+	color: #555;
+	text-align: center;
+	padding: 50px;
+}
