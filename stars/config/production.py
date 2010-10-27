@@ -15,6 +15,8 @@ DATABASES = {
     }
 }
 
+ANALYTICS_ID = "UA-1056760-7"
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 MEDIA_ROOT = '/var/www/stars.aashe.org/media'
