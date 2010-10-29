@@ -13,7 +13,7 @@ from stars.apps.cms.templatetags import cms_tags
 
 class CMS_tags_Test(TestCase):
 
-    ABOUT_FAQ_ARTICLE_ID = 3743
+    ABOUT_FAQ_ARTICLE_ID = 3993
 
     def setUp(self):
         articleCategories_sync()
