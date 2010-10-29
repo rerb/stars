@@ -158,7 +158,7 @@ STAGE_SSO_SERVER_URI = "http://%s@%s/%s" % (SSO_AUTHENTICATION, STAGE_IRC_DOMAIN
 
 SSO_SERVER_URI = WWW_SSO_SERVER_URI
 
-AASHE_MYSQL_SERVER = "localhost"
+AASHE_MYSQL_SERVER = "mysql.aashe.net"
 AASHE_MYSQL_LOGIN = "starsapp"
 AASHE_MYSQL_PASS = "J3z4#$szFET--6"
 
@@ -185,3 +185,4 @@ RECAPTCHA_PUBLIC_KEY = "6LeaEL0SAAAAAMiipP79s-PzlR0qHlH1-E_jYsyW"
 RECAPTCHA_PRIVATE_KEY = "6LeaEL0SAAAAACP5wb3qqxujJc3Cf_qHhVGUr4QV"
 
 #DATABASE_ROUTERS = ('aashe.issdjango.router.ISSRouter',)
+PROJECT_PATH = os.path.join(os.path.dirname(__file__), '..')
