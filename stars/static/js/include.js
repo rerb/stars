@@ -168,7 +168,7 @@ function confirm_leave()
 function confirm_exit() {
 	
 	if(!document.getElementById('submit_button').disabled) {
-		if (!confirm('This page contains unsaved data. Click OK to leave without saving or Cancel to continue editing your submission.')) {
+		if (!confirm('This page contains unsaved data. Click OK to leave without saving or Cancel to continue editing this credit.')) {
 			return false;
 		}
 	}
