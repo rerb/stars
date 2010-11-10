@@ -6,6 +6,74 @@ from django.core.exceptions import ObjectDoesNotExist
 from stars.apps.cms import xml_rpc
 from stars.apps.helpers import watchdog
 
+class AbstractContent(models.Model):
+    ordinal = models.SmallIntegerField(default=0)
+    content = models.TextField()
+    published = models.BooleanField(default=True)
+    
+    class Meta:
+        abstract = True
+        ordering = ('ordinal','title')
+        
+    def __str__(self):
+        return self.title
+    
+    def get_django_admin_url(self):
+        return "/_ad/%s/%s/%d" % (
+                                    self._meta.app_label,
+                                    self._meta.module_name,
+                                    self.id,
+                                )
+
+class Category(AbstractContent):
+    """
+        Django-hosted CMS top-level category
+    """
+    title = models.CharField(max_length=32)
+    slug = models.SlugField()
+    
+    class Meta:
+        verbose_name_plural = "Categories"
+        
+    def get_absolute_url(self):
+        return "/pages/%s/" % self.slug
+    
+class Subcategory(AbstractContent):
+    
+    title = models.CharField(max_length=32)
+    slug = models.SlugField()
+    parent = models.ForeignKey(Category)
+    
+    class Meta:
+        verbose_name_plural = "Subcategories"
+    
+    def get_absolute_url(self):
+        return "%s%s/" % (self.parent.get_absolute_url(), self.slug)
+    
+class NewArticle(AbstractContent):
+    """
+        Django-hosted CMS article
+    """
+    title = models.CharField(max_length=255)
+    slug = models.SlugField(max_length=255)
+    teaser = models.TextField(blank=True, null=True)
+    categories = models.ManyToManyField(Category, blank=True, null=True)
+    subcategories = models.ManyToManyField(Subcategory, blank=True, null=True)
+    created = models.DateTimeField()
+    changed = models.DateTimeField()
+    stamp = models.DateTimeField()
+    
+    class Meta:
+        ordering = ('title', 'changed',)
+    
+    def get_absolute_url(self):
+        if self.subcategories.count() > 0:
+            return "%s%s.html" % (self.subcategories.all()[0].get_absolute_url(), self.slug)
+        elif self.categories.count() > 0:
+            return "%s%s.html" % (self.categories.all()[0].get_absolute_url(), self.slug)
+        return "#"
+
+
 # Content Management System for STARS static pages
 # @todo: Use Django's object caching to cache all xml-rpc objects.
  

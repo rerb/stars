@@ -1,6 +1,11 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ category.label }} | {{ block.super }}{% endblock %}
+{% block title %}
+	{% if article %}{{ article }} |{% endif %}
+	{% if subcategory %}{{ subcategory }} |{% endif %}
+	{{ category }} |
+	{{ block.super }}
+{% endblock %}
 
 {% block extra_head %}
 	{{ block.super }}
@@ -12,7 +17,18 @@
 
 {% block main_menu %} 
     {% load main_menu %}
-    {% show_main_menu user root_category %} 
+    {% show_main_menu user category %} 
+{% endblock %}
+
+{% block crumbs %}
+	{{ block.super }}
+	&gt; <a href='{{ category.get_absolute_url }}'>{{ category }}</a>
+	{% if subcategory %}
+		&gt; <a href='{{ subcategory.get_absolute_url }}'>{{ subcategory }}</a>
+	{% endif %}
+	{% if article %}
+		&gt; <a href='{{ article.get_absolute_url }}'>{{ article }}</a>
+	{% endif %}
 {% endblock %}
 
 {% block content %}
@@ -22,8 +38,44 @@
 	
 	<div id='rail'>
 		<div id='leftMenu'>
-			{% load cms_tags %}
-            {% show_article_menu %}
+			<ul class="listexpander">
+			<li>
+				<a href='{{ category.get_absolute_url }}'
+					{% if not article and not subcategory %}id='currentSelection'{% endif %}>
+					{{ category }}
+				</a>
+				{% if category.newarticle_set.all %}
+					<ul>
+					{% for a in category.newarticle_set.all %}
+					    <li>
+					        <a href='{{ a.get_absolute_url }}' {% if article and a == article %}id='currentSelection'{% endif %}>
+					            {{ a.title }}
+					        </a>
+					    </li>
+					{% endfor %}
+					</ul>
+				{% endif %}
+			</li>
+			{% for sub in category.subcategory_set.all %}
+				{% if sub.newarticle_set.all %}
+				<li>
+					<a 	href='{{ sub.get_absolute_url }}'
+						{% if not article and subcategory and sub == subcategory %}id='currentSelection'{% endif %}>
+						{{ sub.title }}
+					</a>
+					<ul>
+						{% for a in sub.newarticle_set.all %}
+						<li>
+							<a href='{{ a.get_absolute_url }}' {% if article and a == article %}id='currentSelection'{% endif %}>
+				            	{{ a.title }}
+				        	</a>
+				        </li>
+						{% endfor %}
+					</ul>
+				</li>
+				{% endif %}
+			{% endfor %}
+			</ul>
 		</div>
 	</div>
 {% endblock %}
