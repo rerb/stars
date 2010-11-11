@@ -24,6 +24,10 @@ class AbstractContent(models.Model):
                                     self._meta.module_name,
                                     self.id,
                                 )
+        
+    def get_articles(self):
+        
+        return self.newarticle_set.filter(published=True)
 
 class Category(AbstractContent):
     """

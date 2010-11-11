@@ -46,7 +46,7 @@
 				</a>
 				{% if category.newarticle_set.all %}
 					<ul>
-					{% for a in category.newarticle_set.all %}
+					{% for a in category.get_articles %}
 					    <li>
 					        <a href='{{ a.get_absolute_url }}' {% if article and a == article %}id='currentSelection'{% endif %}>
 					            {{ a.title }}
@@ -64,7 +64,7 @@
 						{{ sub.title }}
 					</a>
 					<ul>
-						{% for a in sub.newarticle_set.all %}
+						{% for a in sub.get_articles %}
 						<li>
 							<a href='{{ a.get_absolute_url }}' {% if article and a == article %}id='currentSelection'{% endif %}>
 				            	{{ a.title }}
