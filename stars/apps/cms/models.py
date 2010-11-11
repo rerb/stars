@@ -69,7 +69,7 @@ class NewArticle(AbstractContent):
     irc_id = models.IntegerField(blank=True, null=True)
     
     class Meta:
-        ordering = ('title', 'changed',)
+        ordering = ('ordinal', 'title', 'changed',)
     
     def get_absolute_url(self):
         if self.subcategories.count() > 0:
