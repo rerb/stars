@@ -62,6 +62,7 @@ class NewArticle(AbstractContent):
     created = models.DateTimeField()
     changed = models.DateTimeField()
     stamp = models.DateTimeField()
+    irc_id = models.IntegerField(blank=True, null=True)
     
     class Meta:
         ordering = ('title', 'changed',)

@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
 from django.views.decorators.cache import cache_page
-from django.http import Http404
+from django.http import Http404, HttpResponseRedirect
 
 from stars.apps.auth.utils import respond
 from stars.apps.cms.models import *
@@ -33,10 +33,15 @@ class CMSView(TemplateView):
         return _context
     
 category_detail = CMSView(template='cms/category_detail.html')
-
 subcategory_detail = CMSView(template='cms/subcategory_detail.html')
-
 article_detail = CMSView(template='cms/article_detail.html')
+
+def old_path(request, category_slug, nid):
+    """
+        Forwards from the old link system.
+    """
+    article = get_object_or_404(NewArticle, irc_id=nid, published=True)
+    return HttpResponseRedirect(article.get_absolute_url())
 
 ## @cache_page(10 * 60)    # cache article details for 10 min.
 #def article_detail(request, category_slug, article_id):
