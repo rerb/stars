@@ -867,6 +867,21 @@ class DataCorrectionRequest(models.Model):
     new_value = models.TextField()
     explanation = models.TextField()
     user = models.ForeignKey(User, blank=True, null=True)
+    
+    def approve(self):
+        """
+            Approving a correction request creates a ReportingFieldDataCorrection
+            This may not work for numeric fields, test it.
+        """
+        rfdc = ReportingFieldDataCorrection(
+                                            previous_value=self.reporting_field.value,
+                                            change_date = datetime.today(),
+                                            reporting_field = self.reporting_field,
+                                            explanation = self.explanation
+                                            )
+        self.reporting_field.value = self.new_value
+        self.reporting_field.save()
+        rfdc.save()
 
 class ReportingFieldDataCorrection(models.Model):
     """
