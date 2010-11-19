@@ -23,8 +23,12 @@ class TemplateView(object):
     def render(self, request, *args, **kwargs):
         """ Renders the response """
         
+        context = self.get_context(request, *args, **kwargs)
+        if context.__class__.__name__ == "HttpResponseRedirect":
+            return context
+        
         return render_to_response(self.template,
-                                  self.get_context(request, *args, **kwargs),
+                                  context,
                                   context_instance=RequestContext(request))
         
     def get_context(self, request, *args, **kwargs):

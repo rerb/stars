@@ -17,7 +17,15 @@ class CMSView(TemplateView):
         _context = {}
         
         if kwargs.has_key('category_slug'):
-            category = get_object_or_404(Category, slug=kwargs['category_slug'], published=True)
+            try:
+                category = Category.objects.get(slug=kwargs['category_slug'], published=True)
+            except Category.DoesNotExist:
+                try:
+                    subcategory = Subcategory.objects.get(slug=kwargs['category_slug'], published=True)
+                    return HttpResponseRedirect(subcategory.get_absolute_url())
+                except Subcategory.DoesNotExist:
+                    raise Http404
+                
             _context['category'] = category
             
             if kwargs.has_key('subcategory_slug'):
