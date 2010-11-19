@@ -12,11 +12,11 @@
 		<script src='/media/static/js/include.js' type='text/javascript'></script>
 		{% block extra_head %}{% endblock %}
 		{% block extra_style %}{% endblock %}
-		{% if analytics_id %}
+		{% if settings_context.analytics_id %}
 		<script type="text/javascript">
 
 		  var _gaq = _gaq || [];
-		  _gaq.push(['_setAccount', '{{ analytics_id }}']);
+		  _gaq.push(['_setAccount', '{{ settings_context.analytics_id }}']);
 		  _gaq.push(['_trackPageview']);
 		
 		  (function() {
@@ -85,6 +85,18 @@
 		    	<a href='http://www.aashe.org/privacy-policy'>Privacy Policy</a> |
 		    	<a href='http://www.aashe.org/'>AASHE Home</a>
 		   	</div>
+		</div>
+		<div id='credits'>
+			Credits: 
+			<a href='http://www.djangoproject.com'>
+				Django
+				{% if settings_context.django_version %}{{ settings_context.django_version }}{% endif %}
+			</a> /
+			<a href='http://www.python.org/'>
+				Python
+				{% if settings_context.python_version %}{{ settings_context.python_version }}{% endif %}
+			</a> /
+			<a href='http://www.famfamfam.com/lab/icons/silk/'>Silk Icons</a>
 		</div>
 		{% block extra_footer %}{% endblock %}
 	</body>

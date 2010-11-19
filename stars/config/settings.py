@@ -1,6 +1,7 @@
 # Default Settings for STARS project
 # These can be extended by any .py file in the config folder
-import os, sys
+import os, sys, django, re
+
 sys.path.append('../')
 
 ADMINS = (('Benjamin Stookey', 'ben@aashe.org'),)
@@ -85,7 +86,7 @@ TEMPLATE_DIRS = [os.path.join(os.path.dirname(__file__), "..", "templates")]
 # to the templates
 TEMPLATE_CONTEXT_PROCESSORS = (
     "stars.apps.auth.utils.account_context",
-    'stars.apps.auth.utils.tracking_context',
+    'stars.apps.helpers.utils.settings_context',
     "django.core.context_processors.auth")
 
 INSTALLED_APPS = (
@@ -125,13 +126,15 @@ XMLRPC_VERBOSE = False
 XMLRPC_USE_HASH = True
 
 # STARS_DOMAIN is used as part of hash key for securing rpc request.
-WWW_STARS_DOMAIN = "stars.aashe.org"
+#WWW_STARS_DOMAIN = "stars.aashe.org"
+WWW_STARS_DOMAIN = "localhost"
 DEV_STARS_DOMAIN = "stars.dev.aashe.org"
 STAGE_STARS_DOMAIN = "stars.stage.aashe.org"
 STARS_DOMAIN = WWW_STARS_DOMAIN
 
 # SSO_API_KEY is used to authenticate RPC requests
-WWW_SSO_API_KEY = "8dca728d46c85b3fda4529692a7f7725"
+#WWW_SSO_API_KEY = "8dca728d46c85b3fda4529692a7f7725"
+WWW_SSO_API_KEY = "e4c8dcfbcb5120ad35b516b04cc35302" # new for localhost
 DEV_SSO_API_KEY = "ed9169978073421561d5e90f89f2050e"
 STAGE_SSO_API_KEY = "4e9e7e53c571bc48260759963a092522"
 SSO_API_KEY = WWW_SSO_API_KEY
@@ -186,3 +189,10 @@ RECAPTCHA_PRIVATE_KEY = "6LeaEL0SAAAAACP5wb3qqxujJc3Cf_qHhVGUr4QV"
 
 #DATABASE_ROUTERS = ('aashe.issdjango.router.ISSRouter',)
 PROJECT_PATH = os.path.join(os.path.dirname(__file__), '..')
+
+PYTHON_VERSION = None
+m = re.match('[\d\.]+', sys.version)
+if m:
+    PYTHON_VERSION = m.group(0)
+    
+DJANGO_VERSION = django.get_version()

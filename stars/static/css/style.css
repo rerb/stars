@@ -18,12 +18,12 @@
 
 html, body {
     background-color: #404040;
-    padding: 0px;
+    padding: 0px 0px 10px 0px;
 }
 
 /* CSS Columns, thanks to A List Apart: http://www.alistapart.com/articles/multicolumnlayouts/ */
 
-#container, #footer {
+#container, #footer, #credits {
     background-color: #ffffff;
     overflow: hidden;
     width: 940px;
@@ -60,13 +60,32 @@ html, body {
     border-bottom: 4px solid #848e2b;
 }
 
-#footer {
+#footer, #credits {
     background-color: #1b617f;
     border-color: #1b617f;
     padding: 10px 0px 20px 0px;
     color: white;
     clear: both;
     font-size: .8em;
+}
+
+#credits {
+	background-color: #404040;
+	border-color: #404040;
+	border-top-width: 0px;
+	text-align: right;
+	color: #aaa;
+    padding: 15px 0px 15px 0px;
+}
+
+#credits a, #credits a:visited {
+	color: #ccc;
+	text-decoration: none;
+	margin: 0px 10px;
+}
+
+#credits a:hover {
+	color: #fff;
 }
 
 #footer a {
@@ -942,4 +961,9 @@ p.hideReportingFields {
 	color: #555;
 	text-align: center;
 	padding: 50px;
+}
+
+span.scorecardFieldTitle {
+	font-size: 1.4em;
+	font-family: Garamond;	
 }

@@ -1,3 +1,6 @@
+{% if settings_context.debug %}
+	dev |
+{% endif %}
 	{% if user %}
         {% if user.is_staff and site_status.maintenance_mode %}
             <div class='notice'>STARS site is Offline</div>
