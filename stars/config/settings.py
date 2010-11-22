@@ -45,7 +45,7 @@ TEMPLATE_LOADERS = (
     'django.template.loaders.app_directories.load_template_source',
 )
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE_CLASSES = [ # a list so it can be editable during tests (see below)
     'stars.apps.helpers.utils.StripCookieMiddleware',
     'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -59,7 +59,7 @@ MIDDLEWARE_CLASSES = (
     'stars.apps.tool.admin.watchdog.middleware.WatchdogMiddleware',  # must come before flatpage so it doesn't log flatpages as 404's
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
     'stars.apps.helpers.flashMessage.FlashMessageMiddleware',
-)
+]
 
 CACHE_BACKEND = "locmem://"
 CACHE_MIDDLEWARE_SECONDS = 60*5
