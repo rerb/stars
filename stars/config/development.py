@@ -17,6 +17,8 @@ DATABASES = {
     }
 }
 
+CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
+
 MEDIA_ROOT = '/var/www/stars.dev.aashe.org/media'
 
 SSO_SERVER_URI = DEV_SSO_SERVER_URI

@@ -61,7 +61,7 @@ MIDDLEWARE_CLASSES = [ # a list so it can be editable during tests (see below)
     'stars.apps.helpers.flashMessage.FlashMessageMiddleware',
 ]
 
-CACHE_BACKEND = "locmem://"
+CACHE_BACKEND = "dummy://"
 CACHE_MIDDLEWARE_SECONDS = 60*5
 CACHE_MIDDLEWARE_KEY_PREFIX = "stars"
 CACHE_MIDDLEWARE_ANONYMOUS_ONLY = True
