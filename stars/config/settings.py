@@ -200,3 +200,8 @@ if m:
     PYTHON_VERSION = m.group(0)
     
 DJANGO_VERSION = django.get_version()
+
+if 'test' in sys.argv:
+    # until fix for http://code.djangoproject.com/ticket/14105
+    MIDDLEWARE_CLASSES.remove('django.middleware.cache.FetchFromCacheMiddleware')
+    MIDDLEWARE_CLASSES.remove('django.middleware.cache.UpdateCacheMiddleware')
