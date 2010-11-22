@@ -1,6 +1,6 @@
 from django.conf import settings
 
-import sys
+import sys, re
 
 def settings_context(request):
     """
@@ -17,3 +17,16 @@ def settings_context(request):
             context_dict[s.lower()] = getattr(settings, s)
 
     return {'settings_context': context_dict,}
+
+class StripCookieMiddleware(object):
+    """
+        Remove Analytics cookies from request before caching middleware gets them
+        http://djangosnippets.org/snippets/1772/
+        http://code.djangoproject.com/ticket/9249
+    """
+    strip_re = re.compile(r'(__utm.=.+?(?:; |$))')
+    def process_request(self, request):
+        try:
+            cookie = self.strip_re.sub('', request.META['HTTP_COOKIE'])
+            request.META['HTTP_COOKIE'] = cookie
+        except: pass

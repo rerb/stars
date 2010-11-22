@@ -5,6 +5,8 @@
 
 from settings import *
 
+MAINTENANCE_MODE = False
+
 DATABASES = {
     'default': {
         'NAME': 'stars_production',
@@ -14,6 +16,8 @@ DATABASES = {
         'HOST': 'mysql.aashe.net',
     }
 }
+
+CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
 
 ANALYTICS_ID = "UA-1056760-7"
 

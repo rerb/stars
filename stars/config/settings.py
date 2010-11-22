@@ -46,9 +46,12 @@ TEMPLATE_LOADERS = (
 )
 
 MIDDLEWARE_CLASSES = (
+    'stars.apps.helpers.utils.StripCookieMiddleware',
+    'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.middleware.cache.FetchFromCacheMiddleware',
     'stars.apps.auth.maintenancemode.middleware.MaintenanceModeMiddleware',
     'django.contrib.redirects.middleware.RedirectFallbackMiddleware',
     'django.middleware.doc.XViewMiddleware',
@@ -58,9 +61,10 @@ MIDDLEWARE_CLASSES = (
     'stars.apps.helpers.flashMessage.FlashMessageMiddleware',
 )
 
-# For in-memory caching, use 'locmem'; During development, use 'dummy' to switch off caching.
-#CACHE_BACKEND = "dummy://" 
-#CACHE_BACKEND = "locmem://"
+CACHE_BACKEND = "locmem://"
+CACHE_MIDDLEWARE_SECONDS = 60*5
+CACHE_MIDDLEWARE_KEY_PREFIX = "stars"
+CACHE_MIDDLEWARE_ANONYMOUS_ONLY = True
 
 AUTHENTICATION_BACKENDS = ('stars.apps.auth.aashe.AASHEAuthBackend',)
 if 'test' in sys.argv:
