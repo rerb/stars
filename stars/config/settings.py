@@ -200,6 +200,11 @@ if m:
     PYTHON_VERSION = m.group(0)
     
 DJANGO_VERSION = django.get_version()
+HG_REVISION = None
+
+if os.path.exists(os.path.join(os.path.dirname(__file__), 'hg_info.py')):
+    from hg_info import revision
+    HG_REVISION = revision
 
 if 'test' in sys.argv:
     # until fix for http://code.djangoproject.com/ticket/14105

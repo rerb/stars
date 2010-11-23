@@ -81,7 +81,6 @@ html, body {
 #credits a, #credits a:visited {
 	color: #ccc;
 	text-decoration: none;
-	margin: 0px 10px;
 }
 
 #credits a:hover {
@@ -966,4 +965,12 @@ p.hideReportingFields {
 span.scorecardFieldTitle {
 	font-size: 1.4em;
 	font-family: Garamond;	
+}
+
+div.correction {
+	background-color: #ffefe0;
+	border: 1px dashed #fa3;
+	margin: 0px 20px;
+	padding: 3px;
+	color: #555;
 }

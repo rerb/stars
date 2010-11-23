@@ -87,16 +87,22 @@
 		   	</div>
 		</div>
 		<div id='credits'>
-			Credits: 
+			Credits:&nbsp;&nbsp;
 			<a href='http://www.djangoproject.com'>
 				Django
 				{% if settings_context.django_version %}{{ settings_context.django_version }}{% endif %}
-			</a> /
+			</a>
+			&nbsp;&nbsp;/&nbsp;&nbsp;
 			<a href='http://www.python.org/'>
 				Python
 				{% if settings_context.python_version %}{{ settings_context.python_version }}{% endif %}
-			</a> /
+			</a>
+			&nbsp;&nbsp;/&nbsp;&nbsp;
 			<a href='http://www.famfamfam.com/lab/icons/silk/'>Silk Icons</a>
+			{% if settings_context.hg_revision %}
+				&nbsp;&nbsp;&nbsp;&nbsp;
+				{{ settings_context.hg_revision }}
+			{% endif %}
 		</div>
 		{% block extra_footer %}{% endblock %}
 	</body>

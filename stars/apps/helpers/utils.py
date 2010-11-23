@@ -9,7 +9,7 @@ def settings_context(request):
     
     context_dict = {}
     
-    settings_list = ['ANALYTICS_ID', 'DEBUG','PYTHON_VERSION', 'DJANGO_VERSION']
+    settings_list = ['ANALYTICS_ID', 'DEBUG','PYTHON_VERSION', 'DJANGO_VERSION', 'HG_REVISION']
 
     for s in settings_list:
         context_dict[s.lower()] = None
