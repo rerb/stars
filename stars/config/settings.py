@@ -62,7 +62,7 @@ MIDDLEWARE_CLASSES = [ # a list so it can be editable during tests (see below)
 ]
 
 CACHE_BACKEND = "dummy://"
-CACHE_MIDDLEWARE_SECONDS = 60*5
+CACHE_MIDDLEWARE_SECONDS = 60*60
 CACHE_MIDDLEWARE_KEY_PREFIX = "stars"
 CACHE_MIDDLEWARE_ANONYMOUS_ONLY = True
 
