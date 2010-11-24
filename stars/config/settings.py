@@ -51,11 +51,11 @@ MIDDLEWARE_CLASSES = [ # a list so it can be editable during tests (see below)
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'stars.apps.auth.middleware.AuthenticationMiddleware',  # must come after django.contrib.auth.middleware
     'django.middleware.cache.FetchFromCacheMiddleware',
     'stars.apps.auth.maintenancemode.middleware.MaintenanceModeMiddleware',
     'django.contrib.redirects.middleware.RedirectFallbackMiddleware',
     'django.middleware.doc.XViewMiddleware',
-    'stars.apps.auth.middleware.AuthenticationMiddleware',  # must come after django.contrib.auth.middleware
     'stars.apps.tool.admin.watchdog.middleware.WatchdogMiddleware',  # must come before flatpage so it doesn't log flatpages as 404's
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
     'stars.apps.helpers.flashMessage.FlashMessageMiddleware',
