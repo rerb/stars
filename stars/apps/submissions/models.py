@@ -75,6 +75,12 @@ class SubmissionSet(models.Model):
     def __unicode__(self):
         return unicode('%s (%s)' % (self.institution, self.creditset) )
     
+    def can_apply_for_extension(self):
+        MAX_EXTENSIONS = 1
+        if self.extensionrequest_set.count() >= MAX_EXTENSIONS or self.status == 'r' or self.status == 'pr':
+            return False
+        return True
+    
     def is_enabled(self):
         for payment in self.payment_set.all():
             if payment.type == 'credit' or payment.type == 'check':
@@ -1325,4 +1331,16 @@ class CreditSubmissionInquiry(models.Model):
     
     def __unicode__(self):
         return self.credit.title
+
+class ExtensionRequest(models.Model):
+    """
+        Schools can request a 6 month extension for their submission
+    """
     
+    submissionset = models.ForeignKey(SubmissionSet)
+    old_deadline = models.DateField()
+    date = models.DateField(auto_now_add=True)
+    user = models.ForeignKey(User)
+    
+    def __unicode__(self):
+        return str(self.date)

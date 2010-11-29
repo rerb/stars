@@ -217,7 +217,7 @@ def save_new_form_rows(request, prefix, form_class, instance_class, **instance_c
             pass
     return [instances, len(errors)>0]
 
-def confirm_form(request, instance):
+def confirm_form(request, instance=None):
     """
         Provides basic form handling for confirming an action or change.
         Returns (form, confirmed), where 
@@ -236,7 +236,8 @@ def confirm_form(request, instance):
                 confirmed = False
     else:
         form = Confirm()
-    form.instance = instance
+    if instance:
+        form.instance = instance
     return (form, confirmed)
 
 def confirm_unlock_form(request, instance):

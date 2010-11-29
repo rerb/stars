@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect
@@ -164,7 +166,6 @@ def submissionsets(request):
     
     return respond(request, 'tool/manage/submissionset_list.html', {'active_set': active_set, 'is_admin': is_admin})
     
-        
 @user_is_staff
 def add_submissionset(request):
     """
@@ -212,6 +213,32 @@ def edit_submissionset(request, set_id):
     object_form, saved = form_helpers.basic_save_form(request, submission_set, set_id, ObjectForm)
 
     template = 'tool/manage/edit_submissionset.html'
+    context = {
+        "object_form": object_form,
+    }
+    return respond(request, template, context)
+
+@user_is_inst_admin
+def extension_request(request, set_id):
+    
+    current_inst = request.user.current_inst
+    
+    ss = get_object_or_404(SubmissionSet, id=set_id, institution=current_inst)
+    
+    object_form, confirmed = form_helpers.confirm_form(request)
+    
+    if confirmed:
+        er = ExtensionRequest(submissionset=ss, user=request.user)
+        er.old_deadline = ss.submission_deadline
+        er.save()
+        
+        td = timedelta(days=366/2)
+        ss.submission_deadline += td
+        ss.save()
+
+        return HttpResponseRedirect('/tool/manage/submissionsets/')
+
+    template = 'tool/manage/extension_request.html'
     context = {
         "object_form": object_form,
     }
