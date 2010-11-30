@@ -177,6 +177,7 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'stars_notifier@aashe.org'
 EMAIL_HOST_PASSWORD = 'sustainaashe'
 EMAIL_PORT = 587
+DEFAULT_FROM_EMAIL = 'stars_notifier@aashe.org'
 
 # CyberSource
 CYBERSOURCE_SOAP_KEY = "uIRLgThsKxvp1Fy+/o4xz+Dep/Kur3hvXAHz1mEWyfxZFtSyZG+qMmMGixhXSM+Qltk4PID8H08QAbaqrJMi1yt3g9WWSXHDHMa3MzOChE7GqfdZ7tzGor7H6+5d1mw1ZZwWHTcp0LabEsXIyRVMwTSxCaujF1QU3fAm7hNq530NBmzD/K01DfmWrNj+jjHP4N6n8q6veG9cAfPWYRbJ/FkW1LJkb6oyYwaLGFdIz5CW2Tg8gPwfTxABtqqskyLXK3eD1ZZJccMcxrczM4KETsap91nu3Maivsfr7l3WbDVlnBYdNynQtpsSxcjJFUzBNLEJq6MXVBTd8CbuE2rnfQ=="

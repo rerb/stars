@@ -17,6 +17,45 @@ class NotificationTest(TestCase):
 
     def setUp(self):
         pass
+    
+    def test_send_notification_set(self):
+        """
+            send_notification_set
+        """
+        
+        set = [
+                {'mail_to': ['ben@aashe.org',], 'message': 'test', 'n_type': 'tst', 'identifier': 'tst_1', 'subject': 'test'},
+                {'mail_to': ['ben@aashe.org',], 'message': 'test', 'n_type': 'tst', 'identifier': 'tst_2', 'subject': 'test'},
+                {'mail_to': ['ben@aashe.org',], 'message': 'test', 'n_type': 'tst', 'identifier': 'tst_3', 'subject': 'test'},
+                {'mail_to': ['ben@aashe.org',], 'message': 'test', 'n_type': 'tst', 'identifier': 'tst_1', 'subject': 'test'},
+               ]
+        send_notification_set(set)
+        self.assertTrue(len(mail.outbox) == 3)
+    
+    def test_send_sixty_day_notifications(self):
+        """
+            send_sixty_day_notifications
+        """
+        
+        # deadlines
+        # 2011-01-31
+        # 2011-02-01
+        # 2011-02-02
+        # 2011-02-03
+        
+        # only institutions that can apply for extension
+        today = date(year=2010, month=11, day=30)
+        send_sixty_day_notifications(current_date=today)
+        self.assertTrue(len(mail.outbox) == 0)
+        
+        today = date(year=2010, month=12, day=2)
+        send_sixty_day_notifications(current_date=today)
+        self.assertTrue(len(mail.outbox) == 1)
+        
+        # don't send twice
+        send_sixty_day_notifications(current_date=today)
+        self.assertTrue(len(mail.outbox) == 1)
+        
         
     def testWelcomeList(self):
         """
@@ -25,22 +64,18 @@ class NotificationTest(TestCase):
         
         today = date(year=2010, month=5, day=28)
         ss_list = get_new_institutions(today)
-        print >> sys.stderr, len(ss_list)
         self.assertTrue(len(ss_list) == 0)
         
         today = date(year=2010, month=5, day=29)
         ss_list = get_new_institutions(today)
-        print >> sys.stderr, len(ss_list)
         self.assertTrue(len(ss_list) == 0)
         
         today = date(year=2010, month=6, day=5)
         ss_list = get_new_institutions(today)
-        print >> sys.stderr, len(ss_list)
         self.assertTrue(len(ss_list) == 1)
         
         today = date(year=2010, month=6, day=6)
         ss_list = get_new_institutions(today)
-        print >> sys.stderr, len(ss_list)
         self.assertTrue(len(ss_list) == 2)
         
     def testWelcomeNotify(self):

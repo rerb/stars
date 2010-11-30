@@ -168,6 +168,44 @@
     }
   },
   {
+    "pk": 5, 
+    "model": "submissions.submissionset", 
+    "fields": {
+      "status": "r", 
+      "rating": null, 
+      "submission_boundary": "", 
+      "submitting_user": null, 
+      "date_reviewed": null, 
+      "creditset": 1, 
+      "presidents_letter": "", 
+      "date_submitted": null, 
+      "date_registered": "2010-04-30", 
+      "submission_deadline": "2011-01-31", 
+      "reporter_status": false, 
+      "registering_user": 5214, 
+      "institution": 1
+    }
+  }, 
+  {
+    "pk": 6, 
+    "model": "submissions.submissionset", 
+    "fields": {
+      "status": "pr", 
+      "rating": null, 
+      "submission_boundary": "", 
+      "submitting_user": null, 
+      "date_reviewed": null, 
+      "creditset": 1, 
+      "presidents_letter": "", 
+      "date_submitted": null, 
+      "date_registered": "2010-04-30", 
+      "submission_deadline": "2011-01-31", 
+      "reporter_status": false, 
+      "registering_user": 5214, 
+      "institution": 1
+    }
+  }, 
+  {
     "pk": 1, 
     "model": "submissions.payment",
     "fields": {
@@ -190,6 +228,32 @@
       "user": 5214, 
       "date": "2010-05-29 00:03:00", 
       "submissionset": 3, 
+      "type": "credit"
+    }
+  },
+  {
+    "pk": 5, 
+    "model": "submissions.payment", 
+    "fields": {
+      "confirmation": "", 
+      "reason": "reg", 
+      "amount": 22.0, 
+      "user": 5214, 
+      "date": "2010-05-29 00:03:00", 
+      "submissionset": 5, 
+      "type": "credit"
+    }
+  },
+  {
+    "pk": 6, 
+    "model": "submissions.payment", 
+    "fields": {
+      "confirmation": "", 
+      "reason": "reg", 
+      "amount": 22.0, 
+      "user": 5214, 
+      "date": "2010-05-29 00:03:00", 
+      "submissionset": 6, 
       "type": "credit"
     }
   },

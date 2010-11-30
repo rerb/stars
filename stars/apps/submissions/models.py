@@ -1,5 +1,5 @@
-from datetime import datetime, date
-import os, re
+from datetime import datetime, date, timedelta
+import os, re, sys
 from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User
@@ -21,6 +21,13 @@ SUBMISSION_STATUS_CHOICES = (
     ('r', 'Rated'),
 )
 
+# Max # of extensions allowed per submission set
+MAX_EXTENSIONS = 1
+
+# Extension period
+EXTENSION_PERIOD = timedelta(days=366/2)
+
+# Institutions that registered before May 29th, but haven't paid are still published
 REGISTRATION_PUBLISH_DEADLINE = date(2010, 5, 29)
 
 def president_letter_callback(instance, filename):
@@ -75,10 +82,32 @@ class SubmissionSet(models.Model):
     def __unicode__(self):
         return unicode('%s (%s)' % (self.institution, self.creditset) )
     
-    def can_apply_for_extension(self):
-        MAX_EXTENSIONS = 1
-        if self.extensionrequest_set.count() >= MAX_EXTENSIONS or self.status == 'r' or self.status == 'pr':
+    def can_apply_for_extension(self, today=None):
+        """
+            Returns true if this submissionset can add an extension
+            today is used for testing
+        """
+        
+        # only w/in 60 days of their deadline
+        if not today:
+            today = date.today()
+        td = timedelta(days=61)
+#        print >> sys.stderr, (self.submission_deadline - today).days
+        if today <= (self.submission_deadline - td):
             return False
+        
+        # only those who registered before 2011
+        if self.date_registered.year > 2010:
+            return False
+        
+        # no available if they have already submitted
+        if self.status == 'r' or self.status == 'pr':
+            return False
+        
+        # a max of MAX_EXTENSIONS extension(s) is allowed
+        if self.extensionrequest_set.count() >= MAX_EXTENSIONS:
+            return False
+        
         return True
     
     def is_enabled(self):

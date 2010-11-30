@@ -43,20 +43,20 @@ MEDIA_ROOT = '/Users/jamstooks/aashe/projects/STARS/src/media/stars/'
 
 IRC_DOMAIN = STAGE_IRC_DOMAIN
 
-SSO_SERVER_URI = WWW_SSO_SERVER_URI
-STARS_DOMAIN = WWW_STARS_DOMAIN
-SSO_API_KEY = WWW_SSO_API_KEY
-
-AASHE_MYSQL_SERVER = "mysql.aashe.org"
-AASHE_MYSQL_LOGIN = "jamstooks"
-AASHE_MYSQL_PASS = "Bjamin12"
+SSO_SERVER_URI = DEV_SSO_SERVER_URI
+STARS_DOMAIN = DEV_STARS_DOMAIN
+SSO_API_KEY = DEV_SSO_API_KEY
 
 XMLRPC_VERBOSE = False
 XMLRPC_USE_HASH = True
 
 CYBERSOURCE_URL = CYBERSOURCE_TEST_URL
 
+CACHE_BACKEND = "file:///Users/jamstooks/tmp/stars-cache"
+
 #if manage.py test was called, use test settings
 if 'test' in sys.argv:
     DATABASES['default']['ENGINE'] = 'sqlite3'
     DATABASES['default']['NAME'] = '/Users/jamstooks/sqlite/stars_tests.db'
+
+SOUTH_TESTS_MIGRATE = False
