@@ -93,12 +93,6 @@ class SubmissionSet(models.Model):
             file = InMemoryUploadedFile(pdf_result, "pdf", name, None, pdf_result.tell(), None)
             self.pdf_report.save(name, file)
             return file
-#            outfile = "%s%s.pdf" % (self.get_upload_path(), self.institution.slug)
-#            f = open("%s%s" % (settings.MEDIA_ROOT, outfile), 'w')
-#            pdf_result = build_report_pdf(self)
-#            f.write(pdf_result.getvalue())
-#            self.pdf_report = outfile
-#            self.save()
             
         return pdf_result.getvalue()
     
