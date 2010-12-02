@@ -25,28 +25,22 @@ def render_to_pdf(template_src, context_dict):
     context = Context(context_dict)
     print >> sys.stderr, "Building PDF"
     print >> sys.stderr, "%s: Generating HTML" % datetime.now()
-    html  = template.render(context)
+    html = template.render(context)
     print >> sys.stderr, "%s: Finished HTML" % datetime.now()
     result = StringIO.StringIO()
     
     print >> sys.stderr, "%s: Generating PDF" % datetime.now()
     pdf = pisa.pisaDocument(html, result)
     print >> sys.stderr, "%s: Finished PDF" % datetime.now()
-    
 
     if not pdf.err:
         return result
     else:
         watchdog.log("PDF Tool", "PDF Generation Failed %s" % html, watchdog.ERROR)
         return None
-            
-    if not pdf.err:
-        return result
-        return HttpResponse(result.getvalue(), mimetype='application/pdf')
-    return HttpResponse('We had some errors<pre>%s</pre>' % escape(html))
 
 def link_path_callback(path):
-    return "%spath" % settings.MEDIA_ROOT
+    return os.path.join(settings.MEDIA_ROOT, path)
 
 def build_report_pdf(submission_set):
     """
@@ -68,31 +62,3 @@ def build_report_pdf(submission_set):
         context['preview'] = True
     
     return render_to_pdf('institutions/pdf/report.html', context)
-
-#def test_pdf_export():
-#    
-#    sets = {
-##        'reporter': 29,
-##        'preview': 82,
-#        'rated': 60,
-#        }
-#    
-#    #    ss = SubmissionSet.objects.get(pk=29) # reporter
-#    #    ss = SubmissionSet.objects.get(pk=82) # preview
-#    #    ss = SubmissionSet.objects.get(pk=60) # rated
-#
-#    for k,v in sets.items():
-#        ss = SubmissionSet.objects.get(pk=v)
-#        outfile = "stars_report_%s.pdf" % k
-#        
-#        pdf_result = build_report_pdf(ss)
-#        path = os.path.join(settings.PROJECT_PATH,) # the stars directory
-#        f = open(outfile, 'w')
-#        f.write(pdf_result.getvalue())
-##        pdf = pisa.CreatePDF(html, file(outfile, "wb"), path)
-#
-##    f = open('stars_report.html', 'w')
-##    f.write(smart_str(html))
-#
-#if __name__ == "__main__":
-#    test_pdf_export()
