@@ -238,7 +238,7 @@ def extension_request(request, set_id):
         er.old_deadline = ss.submission_deadline
         er.save()
         
-        td = timedelta(days=EXTENSION_PERIOD)
+        td = EXTENSION_PERIOD
         ss.submission_deadline += td
         ss.save()
         
