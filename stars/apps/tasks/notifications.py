@@ -166,7 +166,7 @@ def send_post_submission_survey(current_date=None):
                 'message': t.render(c),
                 'n_type': 'ps',
                 'identifier': 'ps-%d' % ss.id,
-                'subject': 'STARS Post Submission Survey',
+                'subject': 'STARS Post-Submission Survey',
              }
         message_list.append(m)
             
