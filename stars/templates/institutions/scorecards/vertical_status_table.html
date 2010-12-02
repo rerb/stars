@@ -33,4 +33,16 @@
             <td><a href='{{ submissionset.presidents_letter.url }}'>Download</a></td>
         </tr>
     {% endif %}
+    <tr>
+    	<th>Download</th>
+    	<td>
+    		<a href='{{ submissionset.get_scorecard_url }}pdf/'
+    		{% if submissionset.status != 'r' %}
+    		onclick="return confirm('This export could take a minute or two, please be patient.');"
+    		{% endif %}
+    		target='_blank'>
+    			PDF
+    		</a>
+    	</td>
+    </tr>
 </table>

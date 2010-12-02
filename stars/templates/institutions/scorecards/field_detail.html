@@ -1,4 +1,4 @@
-<span style='font-size: 1.4em;font-family: Garamond;'>
+<span class='scorecardFieldTitle'>
     {{ field.documentation_field.title }}{% if not preview and user_is_inst_admin %}
     <a href='{{ field.get_correction_url }}' title='Data Correction Request'>
     	<img src='/media/static/images/note_edit.png' alt='Correction' /></a>{% endif %}:
@@ -19,11 +19,12 @@
     {% if field.corrections.all %}
     	{% for c in field.corrections.all %}
     
-		    <div style='background-color: #ffefe0;border: 1px dashed #fa3;margin: 0px 20px; padding: 3px; color: #555;'>
+		    <div class='correction'>
 		    	<img src='/media/static/images/expand_big.gif' alt='+' onclick='expandCollapse(this,false);' id='correction_{{ c.id }}' class='collapseExpand' style='vertical-align: text-bottom;'/>
 		    	<span style="color: #000">Data Corrected: {{ c.change_date }}</span>
 		    	<br/>
-		    	<div style='display: none;font-size: .8em;margin: 10px 20px;' id='correction_{{ c.id }}_target'>
+		    	<div style='{% block correction_display %}display: none;{% endblock %}font-size: .8em;margin: 10px 20px;' id='correction_{{ c.id }}_target'>
+		    		<p>{{ institution }} requested that AASHE Staff correct a mistake in this reporting field for the reason specified below.</p>
 		    		<span style='color: #000; font-weight: bold;'>Previous Value:</span>
 		    		{{ c.previous_value }}
 		    		{% if c.explanation %}

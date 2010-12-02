@@ -2,6 +2,7 @@ from django.db import models
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.utils.encoding import smart_unicode
+from django.conf import settings
 
 import re
 from stars.apps.helpers import watchdog
@@ -229,6 +230,9 @@ class Rating(models.Model):
     def get_children(self):
         """ Returns a queryset with child credit model objects - for hierarchy """
         return None
+    
+    def get_large_image_path(self):
+        return "%s%s" % (settings.MEDIA_ROOT, self.image_large)
 
 
 class Category(models.Model):

@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404
-from django.http import Http404, HttpResponseRedirect
+from django.http import Http404, HttpResponseRedirect, HttpResponse, HttpResponseNotFound
 from django.views.generic.simple import direct_to_template
 from django.core.exceptions import PermissionDenied
 from django.utils.functional import curry
@@ -166,6 +166,8 @@ class ScorecardMixin(object):
                 - category_id
                 - subcategory_id
                 - credit_id
+            
+            Refuse access to non 'observer' or higher roles for unrated submissions
         """
         context = {}
         # Get the Institution
@@ -253,8 +255,37 @@ class ScorecardView(ScorecardMixin, CreditNavMixin, TemplateView):
         context['rating'] = context['submissionset'].get_STARS_rating()
         
         return context
-        
+
+class PDFExportView(ScorecardMixin, CreditNavMixin, TemplateView):
+    """
+        Displays an exported PDF version of the selected report
+    """
     
+    # Mixin required properties
+    access_level = 'observer'
+    
+    def get_context(self, request, *args, **kwargs):
+        """ Expects arguments for category_id/subcategory_id/credit_id """
+        
+        return self.get_submissionset_context(request, **kwargs)
+        
+    def render(self, request, *args, **kwargs):
+        """ Renders the pdf as a response """
+        
+        _context = self.get_context(request, *args, **kwargs)
+        
+        save = False
+        ss = _context['submissionset']
+        if ss.status == 'r':
+            if ss.pdf_report:
+                return HttpResponseRedirect(ss.pdf_report.url)
+            else:
+                save = True
+                
+        pdf = ss.get_pdf(save=save)
+        response = HttpResponse(pdf, mimetype='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename=%s.pdf' % ss.institution.slug
+        return response 
 
 class ScorecardInternalNotesView(InstitutionAccessMixin, ScorecardView):
     """
@@ -263,9 +294,6 @@ class ScorecardInternalNotesView(InstitutionAccessMixin, ScorecardView):
     
     # Mixin required properties
     access_level = 'observer'
-    def raise_redirect(self):
-        raise Http404
-    fail_response = raise_redirect
     
 class DataCorrectionView(CreditNavMixin, ScorecardMixin, FormActionView):
     """

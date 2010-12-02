@@ -8,12 +8,14 @@ from django.contrib.localflavor.us.models import PhoneNumberField
 from django.db.models import Q
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
+from django.core.files.uploadedfile import InMemoryUploadedFile
 
 from stars.apps.credits.models import *
 from stars.apps.institutions.models import Institution
 from stars.apps.helpers import watchdog
 from stars.apps.helpers import flashMessage
 from stars.apps.helpers import managers
+from stars.apps.submissions.pdf.export import build_report_pdf
             
 SUBMISSION_STATUS_CHOICES = (
     ('ps', 'Pending Submission'),
@@ -30,13 +32,12 @@ EXTENSION_PERIOD = timedelta(days=366/2)
 # Institutions that registered before May 29th, but haven't paid are still published
 REGISTRATION_PUBLISH_DEADLINE = date(2010, 5, 29)
 
-def president_letter_callback(instance, filename):
+def upload_path_callback(instance, filename):
     """
         Dynamically alters the upload path based on the instance
-        secure/<org_id>/letter/<file_name>.<ext>
     """
-    institution = instance.institution
-    path = "secure/%d/letter/%s" % (institution.id, filename)
+    path = instance.get_upload_path()
+    path = "%s%s" % (path, filename)
     return path
 
 class SubmissionManager(models.Manager):
@@ -73,14 +74,33 @@ class SubmissionSet(models.Model):
     rating = models.ForeignKey(Rating, blank=True, null=True)
     status = models.CharField(max_length=8, choices=SUBMISSION_STATUS_CHOICES)
     submission_boundary = models.TextField(blank=True, null=True, help_text='Each institution is expected to include its entire main campus when collecting data.  Institutions may choose to include any other land holdings, facilities, farms, and satellite campuses, as long as the selected boundary is the same for each credit.  If an institution finds it necessary to exclude a particular unit from its entire submission or a particular credit, the reason for excluding it must be provided in the notes for that credit or in this description.')
-    presidents_letter = models.FileField("President's Letter", upload_to=president_letter_callback, blank=True, null=True, help_text="AASHE requires that every submission be vouched for by that institution's president. Please upload a PDF or scan of a letter from your president.")
+    presidents_letter = models.FileField("President's Letter", upload_to=upload_path_callback, blank=True, null=True, help_text="AASHE requires that every submission be vouched for by that institution's president. Please upload a PDF or scan of a letter from your president.")
     reporter_status = models.BooleanField(help_text="Check this box if you would like to be given reporter status and not receive a STARS rating from AASHE.")
-    
-    # class Meta:
-    #     unique_together = ("institution", "creditset")  # an institution can only register once for a given creditset.
+    pdf_report = models.FileField(upload_to=upload_path_callback, blank=True, null=True)
 
     def __unicode__(self):
         return unicode('%s (%s)' % (self.institution, self.creditset) )
+    
+    def get_upload_path(self):
+        return 'secure/%d/submission-%d/' % (self.institution.id, self.id)
+    
+    def get_pdf(self, save=False):
+        
+        pdf_result = build_report_pdf(self)
+        
+        if save:
+            name = '%s.pdf' % self.institution.slug
+            file = InMemoryUploadedFile(pdf_result, "pdf", name, None, pdf_result.tell(), None)
+            self.pdf_report.save(name, file)
+            return file
+#            outfile = "%s%s.pdf" % (self.get_upload_path(), self.institution.slug)
+#            f = open("%s%s" % (settings.MEDIA_ROOT, outfile), 'w')
+#            pdf_result = build_report_pdf(self)
+#            f.write(pdf_result.getvalue())
+#            self.pdf_report = outfile
+#            self.save()
+            
+        return pdf_result.getvalue()
     
     def can_apply_for_extension(self, today=None):
         """

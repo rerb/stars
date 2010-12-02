@@ -1,5 +1,5 @@
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponseForbidden, HttpResponseNotFound, Http404
 from django.utils.http import urlquote
 from django.conf import settings
 
@@ -221,12 +221,14 @@ class InstitutionAccessMixin(StarsMixin):
         Requires:
             - `institution_id` or `institution_slug` to be passed to `__call__`
             - `access_level` property variable
-            - `fail_response` property variable
+            - `fail_response` method
             
         Example:
             class MyClass(InstitutionAccessMixin, BaseClass):
                access_level = 'observer'
-               fail_response = HttpResponseRedirect('/')
+               
+               def fail_response(self)
+                   return HttpResponseRedirect('/')
                
         If the access level is not reached it will return the `fail_response` object.
     """
@@ -238,7 +240,7 @@ class InstitutionAccessMixin(StarsMixin):
         assert hasattr(self, 'fail_response'), "This mixin requires an `fail_response` property."
         
         if not request.user.is_authenticated():
-            return fail_response
+            return self.fail_response()
         
         if not request.user.has_perm('admin'):
             try:
@@ -247,12 +249,14 @@ class InstitutionAccessMixin(StarsMixin):
                 else:
                     account = StarsAccount.objects.get(institution__slug=kwargs['institution_slug'], user=request.user)
                 if not account.has_access_level(self.access_level):
-                    return fail_response
+                    return self.fail_response()
             except StarsAccount.DoesNotExist:
-                return fail_response
+                return self.fail_response()
         
         return super(InstitutionAccessMixin, self).__call__(request, *args, **kwargs)
         
+    def fail_response(self):
+        raise Http404
         
 class IsStaffMixin(StarsMixin):
     """
