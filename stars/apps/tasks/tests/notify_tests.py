@@ -11,6 +11,7 @@ from django.core import mail
 from stars.apps.tasks.notifications import *
 
 import sys, os
+from datetime import date
 
 class NotificationTest(TestCase):
     fixtures = ['notification_test.json',]
@@ -18,6 +19,31 @@ class NotificationTest(TestCase):
     def setUp(self):
         pass
     
+    def test_post_submission_survey(self):
+        """
+            send_post_submission_survey
+        """
+        
+        # 2011-01-01
+        # 2011-01-02
+        
+        today = date(year=2011, month=1, day=29)
+        send_post_submission_survey(today)
+        print >> sys.stderr, len(mail.outbox)
+        
+        today = date(year=2011, month=1, day=31)
+        send_post_submission_survey(today)
+        self.assertTrue(len(mail.outbox) == 1)
+        
+        today = date(year=2011, month=2, day=1)
+        send_post_submission_survey(today)
+        self.assertTrue(len(mail.outbox) == 2)
+        
+        today = date(year=2011, month=2, day=2)
+        send_post_submission_survey(today)
+        self.assertTrue(len(mail.outbox) == 2)
+        
+        
     def test_send_notification_set(self):
         """
             send_notification_set

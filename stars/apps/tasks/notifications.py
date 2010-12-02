@@ -143,6 +143,34 @@ def send_sixty_day_notifications(current_date=None):
             message_list.append(m)
             
     send_notification_set(message_list)
+    
+def send_post_submission_survey(current_date=None):
+    """
+        Gets the submission sets that were submitted 30 days or more ago
+        current_date is optional for debugging
+    """
+    
+    if not current_date:
+        current_date = date.today()
+        
+    t = loader.get_template('tasks/notifications/post_submission_survey.txt')
+    
+    d = current_date - timedelta(days=30)
+    message_list = []
+    
+    for ss in SubmissionSet.objects.filter(date_submitted__lte=d).filter(status='r'):
+        
+        c = Context({'ss': ss,})
+        m = {
+                'mail_to': [ss.institution.contact_email,],
+                'message': t.render(c),
+                'n_type': 'ps',
+                'identifier': 'ps-%d' % ss.id,
+                'subject': 'STARS Post Submission Survey',
+             }
+        message_list.append(m)
+            
+    send_notification_set(message_list)
 
 def send_notification_set(notification_set):
     """

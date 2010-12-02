@@ -16,3 +16,5 @@ Good luck getting started!
 
 Best,
 Jillian
+
+{% include 'tasks/notifications/footer.txt' %}

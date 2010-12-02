@@ -7,6 +7,4 @@ contact the STARS team with your inquiries.
 
 We look forward to your continued participation.
 
-The STARS Team
-stars@aashe.org
-(209) STARS 09
+{% include 'tasks/notifications/footer.txt' %}
