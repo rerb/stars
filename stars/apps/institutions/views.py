@@ -256,7 +256,7 @@ class ScorecardView(ScorecardMixin, CreditNavMixin, TemplateView):
         
         return context
 
-class PDFExportView(ScorecardMixin, CreditNavMixin, TemplateView):
+class PDFExportView(InstitutionAccessMixin, ScorecardMixin, CreditNavMixin, TemplateView):
     """
         Displays an exported PDF version of the selected report
     """

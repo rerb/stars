@@ -33,6 +33,7 @@
             <td><a href='{{ submissionset.presidents_letter.url }}'>Download</a></td>
         </tr>
     {% endif %}
+    {% if user_tied_to_institution %}
     <tr>
     	<th>Download</th>
     	<td>
@@ -45,4 +46,5 @@
     		</a>
     	</td>
     </tr>
+    {% endif %}
 </table>
