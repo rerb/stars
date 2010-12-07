@@ -171,6 +171,7 @@ class ScorecardMixin(object):
         """
         context = {}
         # Get the Institution
+        context['user_tied_to_institution'] = False
         if kwargs.has_key('institution_slug'):
             institution = get_object_or_404(Institution, slug=kwargs['institution_slug'])
             context['institution'] = institution
@@ -182,10 +183,8 @@ class ScorecardMixin(object):
                 except StarsAccount.DoesNotExist:
                     account = None
                     
-                if account or request.user.has_perm('admin'):
+                if account or request.user.is_staff:
                     context['user_tied_to_institution'] = True
-                    if (account and account.has_access_level('admin')) or request.user.has_perm('admin'):
-                        context['user_is_inst_admin'] = True
             
             # Get the SubmissionSet
             date_re = "^\d{4}-\d{2}-\d{2}$"
