@@ -77,7 +77,10 @@ def prepare_production():
         abort('User terminated session.')
     
     env.project_path = "%stag_%s" % (env.path, tag_name)
-    env.hg_update_commands = ["hg update --clean %s" % tag_name,]
+    env.hg_update_commands = [
+                              "hg update --clean %s" % tag_name,
+                              "echo \"revision = '%s'\" > stars/config/hg_info.py" % tag_name,
+                              ]
     env.checkout_cmd = 'hg clone --noninteractive %s %s' % (env.repo, env.project_path)
         
     # Create a new tag from the current trunk if "tag" doesn't exist yet
