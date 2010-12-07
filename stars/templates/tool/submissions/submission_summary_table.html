@@ -18,6 +18,9 @@
         	{% if is_admin %}
         		<br/>
         		<a href='{{ active_submission.get_submit_url }}' class='button'>Submit for Rating</a>
+        		{% if active_submission.can_apply_for_extension %}
+                    <a href='{{ active_submission.get_manage_url }}extension/' class='button'>Extend Deadline</a>
+                {% endif %}
         	{% endif %}
     	</td>
     	<td>
