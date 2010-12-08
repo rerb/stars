@@ -481,7 +481,13 @@ class PendingAccount(AbstractAccount):
         pending_accounts = PendingAccount.objects.filter(user_email__iexact=user.email)
         account = None
         for pending in pending_accounts:  # seems unlikely there will be more than 1, but it could happen...
-            account = StarsAccount(user=user, institution=pending.institution, user_level=pending.user_level)
+            # Confirm the account doesn't already exist
+            try:
+                account = StarsAccount.objects.get(user__email=pending.user_email, institution=pending.institution)
+                account.user_level = pending.user_level
+            except StarsAccount.DoesNotExist:
+                account = StarsAccount(user=user, institution=pending.institution, user_level=pending.user_level)
+            
             account.save()
             pending.delete()
                         
