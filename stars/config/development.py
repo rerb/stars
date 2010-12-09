@@ -17,7 +17,8 @@ DATABASES = {
     }
 }
 
-CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
+#CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
+CACHE_BACKEND = "db://temp_cache_table"
 
 MEDIA_ROOT = '/var/www/stars.dev.aashe.org/media/'
 

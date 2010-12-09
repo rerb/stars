@@ -14,7 +14,9 @@ class CMSView(TemplateView):
     def get_context(self, request, *args, **kwargs):
         """ Add/update any context variables """
         
-        _context = {}
+        # Creating inital values for each of these so that
+        # I can use them as cache keys in the template
+        _context = {'category': None, 'subcategory': None, 'article': None}
         
         if kwargs.has_key('category_slug'):
             try:
@@ -33,7 +35,7 @@ class CMSView(TemplateView):
                 _context['subcategory'] = subcategory
             
             if kwargs.has_key('article_slug'):
-                article = get_object_or_404(NewArticle, slug=kwargs['article_slug'], published=True)
+                article = get_object_or_404(Article, slug=kwargs['article_slug'], published=True)
                 if category not in article.categories.all() and subcategory not in article.subcategories.all():
                     raise Http404
                 _context['article'] = article
@@ -48,34 +50,6 @@ def old_path(request, category_slug, nid):
     """
         Forwards from the old link system.
     """
-    article = get_object_or_404(NewArticle, irc_id=nid, published=True)
+    article = get_object_or_404(Article, irc_id=nid, published=True)
     return HttpResponseRedirect(article.get_absolute_url())
-
-## @cache_page(10 * 60)    # cache article details for 10 min.
-#def article_detail(request, category_slug, article_id):
-#    """Given a request for a given article in a given category, display the page"""
-#    category = get_object_or_404(ArticleCategory, slug=category_slug)
-#    article = get_cmsobject_or_404(Article, node_id=article_id, category=category)
-#    root_category = _get_root_category(request, category)
-#    context = locals()
-#    template = "cms/article_detail.html"
-#    return respond(request, template, context)
-#    
-## @cache_page(10 * 60)    # cache article lists for 10 min.
-#def article_list(request, category_slug): 
-#    """Given an article category, display a list of all articles"""
-#    category = get_object_or_404(ArticleCategory, slug=category_slug)
-#    article_list = get_cmsobject_or_404(ArticleList, category=category)
-#    root_category = _get_root_category(request, category)
-#    context = locals()
-#    template = "cms/article_list.html"
-#    return respond(request, template, context)
-#
-#def _get_root_category(request, category):
-#    """ Helper to get the root category for the request - used to manage multi-parent categories """
-#    root_slug = request.GET.get('root_category', None)
-#    if root_slug:
-#        return get_object_or_404(ArticleCategory, slug=root_slug)
-#    else:
-#        return category.get_root_category()
     

@@ -52,7 +52,9 @@ XMLRPC_USE_HASH = True
 
 CYBERSOURCE_URL = CYBERSOURCE_TEST_URL
 
-CACHE_BACKEND = "file:///Users/jamstooks/tmp/stars-cache"
+#CACHE_BACKEND = "file:///Users/jamstooks/tmp/stars-cache"
+#CACHE_BACKEND = "dummy://"
+CACHE_BACKEND = "db://temp_cache_table"
 
 #if manage.py test was called, use test settings
 if 'test' in sys.argv:

@@ -1,6 +1,8 @@
 {% extends 'cms/base.html' %}
 
 {% block center %}
+	{% load cache %}
+	{% cache 86400 cms_article article article.timestamp user.is_staff %}
     {% block innertabcontent %}
       <div class='inner'>
         <h1>
@@ -12,4 +14,5 @@
         {{ article.content|safe }}
       </div>
     {% endblock %}
+    {% endcache %}
 {% endblock %}

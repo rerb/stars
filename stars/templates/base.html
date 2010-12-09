@@ -41,13 +41,18 @@
                             <img src='/media/static/images/home/aashe_small.png' alt='AASHE' style='vertical-align: middle' /></a>
                     </div>
                     {% block top_menu %}
-                		{% include 'helpers/top_menu.html' %}
+                		{% load cache %}
+                    	{% cache 500 top_menu user %}
+                			{% include 'helpers/top_menu.html' %}
+                		{% endcache %}
             		{% endblock %}
-                </div> 
+                </div>
                 {% block main_menu %}
-	                {% load main_menu %}
-	                {% show_main_menu user %}
-	            {% endblock %}
+					{% cache 86400 main_menu user.is_staff %}
+	                	{% load main_menu %}
+	                	{% show_main_menu user %}
+		            {% endcache %}
+		        {% endblock %}
     			<div id='crumbs'>
 	    			{% block crumbs %}
 	    			    <a href='/'>Home</a>

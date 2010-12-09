@@ -1,5 +1,4 @@
 from django.conf.urls.defaults import *
-from stars.apps.cms.models import Article
 
 urlpatterns = patterns('stars.apps.cms.views',
     

@@ -16,8 +16,11 @@
 {% block body_onload %}listexpander();{% endblock %}
 
 {% block main_menu %} 
-    {% load main_menu %}
-    {% show_main_menu user category %} 
+	{% load cache %}
+	{% cache 86400 main_menu user.is_staff category %}
+	    {% load main_menu %}
+	    {% show_main_menu user category %} 
+   	{% endcache %}
 {% endblock %}
 
 {% block crumbs %}
@@ -35,47 +38,19 @@
 	<div id="content"><div class='inner20'>
 		{% block center %}{% endblock %}
 	</div></div>
-	
 	<div id='rail'>
-		<div id='leftMenu'>
-			<ul class="listexpander">
-			<li>
-				<a href='{{ category.get_absolute_url }}'
-					{% if not article and not subcategory %}id='currentSelection'{% endif %}>
-					{{ category }}
+		{% if user.is_staff %}
+			<p style='text-align: center' />
+				<a href='/_ad/cms/' target='_blank'>
+					<img src='/media/static/images/add.png' alt='+' />
+					Add Content
 				</a>
-				{% if category.newarticle_set.all %}
-					<ul>
-					{% for a in category.get_articles %}
-					    <li>
-					        <a href='{{ a.get_absolute_url }}' {% if article and a == article %}id='currentSelection'{% endif %}>
-					            {{ a.title }}
-					        </a>
-					    </li>
-					{% endfor %}
-					</ul>
-				{% endif %}
-			</li>
-			{% for sub in category.subcategory_set.all %}
-				{% if sub.newarticle_set.all %}
-				<li>
-					<a 	href='{{ sub.get_absolute_url }}'
-						{% if not article and subcategory and sub == subcategory %}id='currentSelection'{% endif %}>
-						{{ sub.title }}
-					</a>
-					<ul>
-						{% for a in sub.get_articles %}
-						<li>
-							<a href='{{ a.get_absolute_url }}' {% if article and a == article %}id='currentSelection'{% endif %}>
-				            	{{ a.title }}
-				        	</a>
-				        </li>
-						{% endfor %}
-					</ul>
-				</li>
-				{% endif %}
-			{% endfor %}
-			</ul>
-		</div>
+			</p>
+		{% endif %}
+		{% load cache %}
+		{% cache 86400 cms_left_menu article subcategory category category.timestamp %}
+			{% include 'cms/left_menu.html' %}
+		{% endcache %}
 	</div>
+	
 {% endblock %}

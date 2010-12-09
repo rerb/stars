@@ -9,6 +9,8 @@
     {% load help %}
     {% show_help_context 'institutions_page' 0 %}
   {% endblock %}
+  {% load cache %}
+  {% cache 86400 institution_list sort_key rev %}
       <table id="institution_list" class='greyTable'>
         <tr>
           {% for col in sort_columns %}
@@ -54,5 +56,6 @@
           </tr>            
         {% endfor %}
       </table>
+	{% endcache %}
 </div>
 {% endblock %}
