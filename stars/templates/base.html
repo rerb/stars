@@ -41,10 +41,7 @@
                             <img src='/media/static/images/home/aashe_small.png' alt='AASHE' style='vertical-align: middle' /></a>
                     </div>
                     {% block top_menu %}
-                		{% load cache %}
-                    	{% cache 500 top_menu user %}
-                			{% include 'helpers/top_menu.html' %}
-                		{% endcache %}
+               			{% include 'helpers/top_menu.html' %}
             		{% endblock %}
                 </div>
                 {% block main_menu %}
