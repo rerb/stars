@@ -2,6 +2,7 @@ import time
 from django.db import models, IntegrityError
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models.signals import post_save
 
 from stars.apps.cms import xml_rpc
 from stars.apps.helpers import watchdog
@@ -26,7 +27,8 @@ class AbstractContent(models.Model):
                                     self._meta.module_name,
                                     self.id,
                                 )
-        
+class CategoryMixin(object):
+
     def get_articles(self):
         return self.article_set.filter(published=True)
 
@@ -80,13 +82,17 @@ class Article(AbstractContent):
         elif self.categories.count() > 0:
             return "%s%s.html" % (self.categories.all()[0].get_absolute_url(), self.slug)
         return "#"
-    
-    def save(self, *args, **kwargs):
+        
+    def update_parent_timestamps(self):
         """
             Update the timestamps for caching purposes
+            done in the admin
         """
         for sub in self.subcategories.all():
             sub.save()
         for cat in self.categories.all():
             cat.save()
-        super(Article, self).save(*args, **kwargs)
+            
+def post_save_rec(sender, instance, **kwargs):
+    instance.update_parent_timestamps()
+post_save.connect(post_save_rec, sender=Article)
