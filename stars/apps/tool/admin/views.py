@@ -17,7 +17,6 @@ from stars.apps.institutions.models import Institution
 from stars.apps.tool.manage.forms import AdminEnableInstitutionForm
 from stars.apps.submissions.models import SubmissionSet, Payment
 from stars.apps.tool.admin.forms import PaymentForm
-from stars.apps.cms.models import ArticleCategory, articleCategories_sync, articleCategories_perform_consistency_check
 from stars.apps.helpers.forms.views import FormActionView
 
 @user_is_staff
@@ -70,33 +69,6 @@ def select_institution(request, aashe_id):
     else:
         flashMessage.send("Unable to change institution to %s - check the log?"%institution, flashMessage.ERROR)
         return HttpResponseRedirect(settings.ADMIN_URL)
-    
-@user_is_staff
-def articles(request):
-    """
-        Provides utilities and links for managing CMS articles and categories
-    """
-    category_table, is_consistent = articleCategories_perform_consistency_check()
-    context = {"category_table" : category_table, "is_consistent" : is_consistent}
-    template = "tool/admin/cms/articles.html"
-    return respond(request, template, context)
-    
-
-# @todo: use Django's built-in caching to do this 
-@user_is_staff
-def article_category_sync(request):
-    """ Synchronize the article categories with the IRC (cache refresh)"""
-    # clear the cms_articlecategory table
-    for cat in ArticleCategory.objects.all() :
-            cat.delete()    
-            
-    errors = articleCategories_sync()
-    category_table, is_consistent = articleCategories_perform_consistency_check()
-    
-    context = {"category_table" : category_table, "is_consistent" : is_consistent, "error_list" : errors}
-    template = "tool/admin/cms/article_category_sync.html"
-    return respond(request, template, context)
-
 
 @user_is_staff
 def latest_payments(request):
