@@ -19,13 +19,13 @@ class SubcategoryAdmin(admin.ModelAdmin):
               '/media/static/js/textarea_admin.js',)
 admin.site.register(Subcategory, SubcategoryAdmin)
 
-class ArticleAdmin(admin.ModelAdmin):
+class NewArticleAdmin(admin.ModelAdmin):
     list_display = ('title', 'published', 'timestamp',)
     prepopulated_fields = {'slug': ('title',)}
     list_filter = ('categories','subcategories')
     class Media:
         js = ('/media/tp/js/tiny_mce/tiny_mce.js',
               '/media/static/js/textarea_admin.js',)
-admin.site.register(Article, ArticleAdmin)
+admin.site.register(NewArticle, NewArticleAdmin)
 
 

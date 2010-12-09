@@ -35,7 +35,7 @@ class CMSView(TemplateView):
                 _context['subcategory'] = subcategory
             
             if kwargs.has_key('article_slug'):
-                article = get_object_or_404(Article, slug=kwargs['article_slug'], published=True)
+                article = get_object_or_404(NewArticle, slug=kwargs['article_slug'], published=True)
                 if category not in article.categories.all() and subcategory not in article.subcategories.all():
                     raise Http404
                 _context['article'] = article
@@ -50,6 +50,6 @@ def old_path(request, category_slug, nid):
     """
         Forwards from the old link system.
     """
-    article = get_object_or_404(Article, irc_id=nid, published=True)
+    article = get_object_or_404(NewArticle, irc_id=nid, published=True)
     return HttpResponseRedirect(article.get_absolute_url())
     

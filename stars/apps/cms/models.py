@@ -10,7 +10,6 @@ from stars.apps.helpers.utils import invalidate_template_cache
 
 class AbstractContent(models.Model):
     ordinal = models.SmallIntegerField(default=0)
-    content = models.TextField()
     published = models.BooleanField(default=True)
     timestamp = models.DateTimeField(auto_now=True)
     
@@ -27,12 +26,16 @@ class AbstractContent(models.Model):
                                     self._meta.module_name,
                                     self.id,
                                 )
-class CategoryMixin(object):
+class CategoryMixin(models.Model):
+    content = models.TextField(blank=True, null=True)
+    
+    class Meta:
+        abstract=True
 
     def get_articles(self):
-        return self.article_set.filter(published=True)
+        return self.newarticle_set.filter(published=True)
 
-class Category(AbstractContent):
+class Category(CategoryMixin, AbstractContent):
     """
         Django-hosted CMS top-level category
     """
@@ -45,7 +48,7 @@ class Category(AbstractContent):
     def get_absolute_url(self):
         return "/pages/%s/" % self.slug
     
-class Subcategory(AbstractContent):
+class Subcategory(CategoryMixin, AbstractContent):
     
     title = models.CharField(max_length=32)
     slug = models.SlugField()
@@ -61,12 +64,13 @@ class Subcategory(AbstractContent):
         super(Subcategory, self).save(*args, **kwargs)
         self.parent.save() # Update timestamp for caching
     
-class Article(AbstractContent):
+class NewArticle(AbstractContent):
     """
         Django-hosted CMS article
     """
     title = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255)
+    content = models.TextField()
     teaser = models.TextField(blank=True, null=True)
     categories = models.ManyToManyField(Category, blank=True, null=True)
     subcategories = models.ManyToManyField(Subcategory, blank=True, null=True)
@@ -75,6 +79,8 @@ class Article(AbstractContent):
     
     class Meta:
         ordering = ('ordinal', 'title', 'timestamp',)
+        verbose_name = "Article"
+        verbose_name_plural = "Articles"
     
     def get_absolute_url(self):
         if self.subcategories.count() > 0:
@@ -95,4 +101,4 @@ class Article(AbstractContent):
             
 def post_save_rec(sender, instance, **kwargs):
     instance.update_parent_timestamps()
-post_save.connect(post_save_rec, sender=Article)
+post_save.connect(post_save_rec, sender=NewArticle)
