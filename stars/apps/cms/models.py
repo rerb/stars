@@ -96,6 +96,7 @@ class NewArticle(AbstractContent):
         """
         for sub in self.subcategories.all():
             sub.save()
+            sub.parent.save()
         for cat in self.categories.all():
             cat.save()
             
