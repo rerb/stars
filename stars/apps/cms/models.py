@@ -64,6 +64,16 @@ class Subcategory(CategoryMixin, AbstractContent):
         super(Subcategory, self).save(*args, **kwargs)
         self.parent.save() # Update timestamp for caching
     
+    def update_timestamps(self):
+        """
+            All categories get new timestamps because I can't tell
+            which category this article used to belong to.
+            Of course, I could if I wrote a custom form for the admin,
+            but that's not the only place these could be saved
+        """
+        for cat in Category.objects.all():
+            cat.save()
+    
 class NewArticle(AbstractContent):
     """
         Django-hosted CMS article
@@ -88,18 +98,24 @@ class NewArticle(AbstractContent):
         elif self.categories.count() > 0:
             return "%s%s.html" % (self.categories.all()[0].get_absolute_url(), self.slug)
         return "#"
-        
-    def update_parent_timestamps(self):
+
+    def update_timestamps(self):
         """
-            Update the timestamps for caching purposes
-            done in the admin
+            All categories and subcategories get new timestamps
+            because I can't tell which category this article
+            used to belong to.
+            Of course, I could if I wrote a custom form for the admin,
+            but that's not the only place these could be saved
         """
-        for sub in self.subcategories.all():
+        for sub in Subcategory.objects.all():
             sub.save()
-            sub.parent.save()
-        for cat in self.categories.all():
+        for cat in Category.objects.all():
             cat.save()
             
-def post_save_rec(sender, instance, **kwargs):
-    instance.update_parent_timestamps()
-post_save.connect(post_save_rec, sender=NewArticle)
+def post_save_article_rec(sender, instance, **kwargs):
+    instance.update_timestamps()
+post_save.connect(post_save_article_rec, sender=NewArticle)
+
+def post_save_sub_rec(sender, instance, **kwargs):
+    instance.update_timestamps()
+post_save.connect(post_save_sub_rec, sender=Subcategory)
