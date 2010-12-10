@@ -55,7 +55,12 @@ function collapseSummary() {
     }
     images = document.getElementsByTagName('IMG');
     for(var i = 0; i < images.length; i++) {
-        if( images[i].id.match("ec_.*") && images[i].id != "ec_" + cat && images[i].id != "ec_" + cat + "_" + sub ) {
+    	css_class = images[i].className
+        if(	images[i].id.match("ec_.*") &&
+        	images[i].id != "ec_" + cat &&
+        	images[i].id != "ec_" + cat + "_" + sub &&
+        	css_class.search(/initial_expand/g) == -1
+        ) {
             expandCollapse(images[i], false);
         }
     }
