@@ -33,6 +33,8 @@ class CMSView(TemplateView):
             if kwargs.has_key('subcategory_slug'):
                 subcategory = get_object_or_404(Subcategory, slug=kwargs['subcategory_slug'], parent=category, published=True)
                 _context['subcategory'] = subcategory
+            else:
+                subcategory = None
             
             if kwargs.has_key('article_slug'):
                 article = get_object_or_404(NewArticle, slug=kwargs['article_slug'], published=True)
