@@ -1,0 +1,78 @@
+{% extends 'credits/columned_layout.html' %}
+
+{% block center_column %}
+    {% load submit_tags %}
+    <h1>{% block h1 %}{{ institution }}{% endblock %}</h1>
+    {% block summaryTable %}{% endblock %}
+    {% for cat in submissionset.categorysubmission_set.all %}
+        <a name='ec_{{ cat.category.id }}'></a>
+        <h2>
+            <span class='provScore'>
+                {% block category_summary_points %}
+                    {% ifnotequal cat.category.title 'Innovation' %}
+                        <div class='provScorePercent'>{{ cat.get_STARS_score|floatformat:2 }}%</div>
+                        <span class='provScoreCaption'>Provisional Score</span>
+                    {% else %}
+                        <div class='provScorePercent'>{{ cat.get_claimed_points|floatformat:2 }}</div>
+                        <span class='provScoreCaption'>Points Claimed</span>
+                    {% endifnotequal %}
+                {% endblock %}
+            </span>
+            {% block category_summary_progress %}{% endblock %}
+            <a href='#ec_{{ cat.category.id }}'>
+                <img src='/media/static/images/collapse_big.gif' alt='+' onclick='expandCollapse(this,false);' id='ec_{{ cat.category.id }}' class='collapseExpand'/>
+            </a>
+            {{ cat }}
+        </h2>
+        <div id='ec_{{ cat.category.id }}_target' class='progressSubcat'>
+        {% for sub in cat.subcategorysubmission_set.all %}
+            <a name='ec_{{ cat.category.id }}_{{ sub.subcategory.id }}'></a>
+            <h3>
+                <span class='provScore'>
+                    {% block subcategory_summary_points %}
+                        <div class='provScorePercent'>
+                            {{ sub.get_claimed_points|floatformat:2 }} /
+                            {{ sub.get_available_points|floatformat:2 }}
+                        </div>
+                        <span class='provScoreCaption'>Points Claimed</span>
+                    {% endblock %}
+                </span>
+                {% block subcategory_summary_progress %}{% endblock %}
+                <a href='#ec_{{ cat.category.id }}_{{ sub.subcategory.id }}'>
+                    <img
+                        src='/media/static/images/collapse_big.gif' alt='+'
+                        onclick='expandCollapse(this, false);'
+                        id='ec_{{ cat.category.id }}_{{ sub.subcategory.id }}'
+                        class='collapseExpand'
+                    />
+                </a>
+                {{ sub }}
+            </h3>
+            <div id='ec_{{ cat.category.id }}_{{ sub.subcategory.id }}_target'>
+                <br/>
+                <table class='greyTable'>
+                    <tr>
+                        {% block credit_summary_header %}
+                            <th>Credit</th>
+                            <th>Status</th>
+                            <th>Points</th>
+                        {% endblock %}
+                    </tr>
+                    {% for c in sub.creditusersubmission_set.all %}
+                        <tr class='{% cycle 'even' 'odd' %}' {% ifchanged c.credit.type %}style="border-top-width: 1px;"{% endifchanged %}>
+                            {% block credit_summary_row %}
+                                <td class='credit'><a href='{{ c.credit.get_submit_url }}'>{{ c }}</a></td>
+                                <td>{% show_status_icon c %}</td>
+                                <td>{{ c.assessed_points|floatformat:2 }} / {% format_available_points c %}</td>
+                            {% endblock %}
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+            {% if not forloop.last %}
+                <hr/>
+            {% endif %}
+        {%endfor %}
+        </div>
+    {% endfor %}
+{% endblock %}

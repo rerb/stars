@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Reporting Tool | {{ block.super }}{% endblock %}
+
+{% block main_menu %} 
+    {% load main_menu %}
+    {% show_main_menu user "tool" %} 
+{% endblock %}
+
+{% block crumbs %}
+	<a href='/'>Home</a> &gt;
+    {% if user.current_inst %}
+        <a href='/tool/'>{{ user.current_inst }}</a>
+    {% else %}
+        <a href='/tool/'>Submission Tool</a>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+	<div id="content"><div class='inner20'>
+		{% block tool_content %}{% endblock %}
+	</div></div>
+	
+	<div id='rail'>
+		<div id='leftMenu'>
+			{% if user.is_staff %}
+	            <h4><a href='/tool/admin/'>Administer Site</a></h4>
+	            <h4><a href='/tool/credit-editor/'>Credit Editor</a></h4>
+	            {% block credit_editor_outline %}{% endblock %}
+	        {% endif %}
+			{% if user.can_admin %}
+		    	<h4><a href='/tool/manage/'>Manage Institution</a></h4>
+		    {% endif %}
+			{% if user.can_submit %}
+	            <h4><a href='/tool/submissions/'>My Submission</a></h4>
+	            {% block submission_outline %}{% endblock %}
+	        {% endif %}
+	        <h4><a href='/tool/my-resources/'>My Resources</a></h4>
+	        {% if user.can_view %}
+              <h4><a href='/institutions/{{ user.current_inst.slug }}/report/'>My Report(s)</a></h4>
+            {% endif %}
+		</div>
+		<br/>
+		<a href='/pages/help/'><img src='/media/static/images/tool_help.png' alt='Submission Tool Help' /></a>
+	</div>
+{% endblock %}

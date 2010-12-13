@@ -1,0 +1,10 @@
+Dear {{ ss.institution.contact_first_name }} {{ ss.institution.contact_last_name }},
+
+This is a friendly reminder to notify you that your STARS data submission is due in 6 months. If you haven’t already done so, we highly recommend that you log into the STARS Reporting Tool and begin your data documentation.
+
+If you have any questions about getting started please view these helpful instructional videos or
+contact the STARS team with your inquiries.
+
+We look forward to your continued participation.
+
+{% include 'tasks/notifications/footer.txt' %}

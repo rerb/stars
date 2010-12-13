@@ -1,0 +1,27 @@
+{% extends 'tool/base.html' %}
+
+{% block title %}{{ block.super }} | Manage | {{ user.current_inst }}{% endblock %}
+
+{% block submenu_class %}class='sm_inst'{% endblock %}
+
+{% block crumbs %}
+	{{ block.super }} &gt; <a href='/tool/manage/'>Manage</a>
+{% endblock %}
+
+{% block tool_content %}
+        <h1>{{ user.current_inst }}</h1>
+        
+        <ul id="tabnav" {% block tabclass %}class='tab1'{% endblock %}>
+      	    <li class="tab1"><a href="/tool/manage/submissionsets/">Submission Sets</a></li>
+    		<li class="tab2"><a href="/tool/manage/users/">Users</a></li>
+    		<li class="tab3"><a href="/tool/manage/">Contact</a></li>
+            <li class="tab4"><a href="/tool/manage/payments/">Payment History</a></li>
+    	</ul>
+    	
+    	<div class='tabContent'>
+    	    <div class='help_note'>
+    	        {% block help_content %}{% endblock %}
+    	    </div>
+            {% block institution_content %}{% endblock %}
+    	</div>
+{% endblock %}
