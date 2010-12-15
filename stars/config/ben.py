@@ -62,3 +62,5 @@ if 'test' in sys.argv:
     DATABASES['default']['NAME'] = '/Users/jamstooks/sqlite/stars_tests.db'
 
 SOUTH_TESTS_MIGRATE = False
+
+GOOGLE_MAPS_API_KEY = None

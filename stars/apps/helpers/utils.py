@@ -14,11 +14,14 @@ def invalidate_template_cache(fragment_name, *variables):
 def settings_context(request):
     """
         This custom template-context processor adds some basic settings
+        access these variables in the templates with:
+        
+        {{ settings_context.analytics_id }}
     """
     
     context_dict = {}
     
-    settings_list = ['ANALYTICS_ID', 'DEBUG','PYTHON_VERSION', 'DJANGO_VERSION', 'HG_REVISION']
+    settings_list = ['ANALYTICS_ID', 'DEBUG','PYTHON_VERSION', 'DJANGO_VERSION', 'HG_REVISION', "GOOGLE_MAPS_API_KEY"]
 
     for s in settings_list:
         context_dict[s.lower()] = None
