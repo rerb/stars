@@ -30,7 +30,7 @@
 		</script>
 		{% endif %}
 	</head>
-	<body onload='{% block body_onload %}{% endblock %}' onunload='{% block body_unload %}{% endblock %}'>
+	<body onload='{% block body_onload %}{% endblock %}' onunload='{% block body_unload %}{% endblock %}'{% block body_properties %}{% endblock %}>
 	<script type="text/javascript" src="/media/static/js/wz_tooltip.js"></script>
 		<div id='container'>
             <div id='header'>
