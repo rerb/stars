@@ -1,0 +1,70 @@
+{% extends 'institutions/base.html' %}
+
+{% block content %}
+	<div class='inner20'>
+		<h1>Filter and Compare Data</h1>
+		<div class='greyBox'>
+			Filter institutions:<br/>
+			<table class='filterList'>
+				<tr>
+					<th></th>
+					<th>Filter on</th>
+					<th>Value</th>
+				</tr>
+				<tr>
+					<td>(3 found)</td>
+					<td>Carnegie Classification</td>
+					<td>Research</td>
+				</tr>
+				<tr>
+					<td><button>Add</button></td>
+					<td>
+						<select>
+							<option>Sports Division</option>
+							<option>Region</option>
+							<option selected='selected'>STARS Rating</option>
+							<option>Enrollment</option>
+						</select>
+					</td>
+					<td>
+						<select>
+							<option>Bronze</option>
+							<option>Silver</option>
+							<option>Gold</option>
+							<option>Platinum</option>
+						</select>
+					</td>
+				</tr>
+			</table>
+		</div><div class='greyBox'>
+			Select Reporting Field:<br/>
+			<div style='text-align: center;'>
+			<select><option>ER2</option></select>
+			<select><option>The website URL for the campaign</option></select>
+			<button>Go</button>
+			</div>
+		</div>
+		<table id="institution_list" class='greyTable'>
+        	<tr>
+        		<th>
+        			Institution
+        		</th>
+        		<th>
+        			The website URL for the campaign
+        		</th>
+        	</tr>
+        	<tr>
+        		<td><a href='#'>University of Colorado</a></td>
+        		<td><a href='#'>http://www.colorado.edu/er2.html</a></td>
+        	</tr>
+        	<tr class='odd'>
+        		<td><a href='#'>Pacific Lutheran</a></td>
+        		<td><a href='#'>http://www.plu.edu/er2.html</a></td>
+        	</tr>
+        	<tr>
+        		<td><a href='#'>Royal Roads University</a></td>
+        		<td><a href='#'>http://www.rru.edu/er2.html</a></td>
+        	</tr>
+        </table>
+	</div>
+{% endblock %}

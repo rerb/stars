@@ -1,0 +1,92 @@
+{% extends 'institutions/base.html' %}
+
+{% block content %}
+	<div class='inner20'>
+		<h1>Filter and Compare Scores</h1>
+		<div class='greyBox'>
+			Filter institutions:<br/>
+			<table class='filterList'>
+				<tr>
+					<th></th>
+					<th>Filter on</th>
+					<th>Value</th>
+				</tr>
+				<tr>
+					<td>(3 found)</td>
+					<td>Carnegie Classification</td>
+					<td>Research</td>
+				</tr>
+				<tr>
+					<td><button>Add</button></td>
+					<td>
+						<select>
+							<option>Sports Division</option>
+							<option>Region</option>
+							<option selected='selected'>STARS Rating</option>
+							<option>Enrollment</option>
+						</select>
+					</td>
+					<td>
+						<select>
+							<option>Bronze</option>
+							<option>Silver</option>
+							<option>Gold</option>
+							<option>Platinum</option>
+						</select>
+					</td>
+				</tr>
+			</table>
+		</div>
+		<div style='text-align: center'>
+			<img src='/media/static/images/arrow_down.png' />
+		</div>
+		<div class='greyBox'>
+			Select Credits:<br/>
+			<table class='filterList'>
+				<tr>
+					<th>Column #1</th>
+					<th>Column #2</th>
+					<th>Column #3</th>
+					<th>Column #4</th>
+				</tr>
+				<tr>
+					<td><select><option>ER1</option></select></td>
+					<td><select><option>ER2</option></select></td>
+					<td><select><option>Select One</option></select></td>
+					<td><select><option>Select One</option></select></td>
+				</tr>
+			</table>
+		</div>
+		<div style='text-align: center'>
+			<img src='/media/static/images/arrow_down.png' />
+		</div>
+		<table id="institution_list" class='greyTable'>
+        	<tr>
+        		<th>
+        			Institution
+        		</th>
+        		<th>
+        			Credit: ER1
+        		</th>
+        		<th>
+        			Credit: ER2
+        		</th>
+        	</tr>
+        	<tr>
+        		<td><a href='#'>University of Colorado</a></td>
+        		<td>3/4</td>
+        		<td>2/2</td>
+        	</tr>
+        	<tr class='odd'>
+        		<td><a href='#'>Pacific Lutheran</a></td>
+        		<td>3/4</td>
+        		<td>2/2</td>
+        	</tr>
+        	<tr>
+        		<td><a href='#'>Royal Roads University</a></td>
+        		<td>3/4</td>
+        		<td>2/2</td>
+        	</tr>
+        </table>
+	</div>
+{% endblock %}
