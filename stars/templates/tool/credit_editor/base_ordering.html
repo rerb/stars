@@ -1,0 +1,28 @@
+{% if object_ordering %}
+    {% for form in object_ordering.forms %}
+    <tr>
+        <td>
+            {% if forloop.counter0 == 0 %}
+                {{ object_ordering.management_form }}
+            {% endif %}
+            {% block display_row %}
+                <a href='{{ form.instance.get_edit_url }}'>{{ form.instance }}</a>
+            {% endblock %}
+        </td>
+        <td class='buttonColumn'>
+            {% block edit_buttons %} 
+            <a href='{{ form.instance.get_edit_url }}'>
+                <img src='/media/static/images/page_edit.png' alt='edit' title='edit' />
+            </a>
+            <a href='{{ form.instance.get_edit_url }}delete/'>
+                <img src='/media/static/images/delete.png' alt='delete' title='delete' />
+            </a>
+            {% endblock %}
+            <img src='/media/static/images/drag_vertical.png' alt='drag this row' title='drag this row' />
+            {{ form.ordinal }}
+            {{ form.id }}
+        </td>
+    </tr>
+    {% endfor %}
+{% endif %}
+{% block button_row %}{% endblock %}
