@@ -979,6 +979,7 @@ table.filterList {
 	width: 100%;
 	border: 1px solid #ccc;
 	border-collapse: collapse;
+	background-color: white;
 }
 
 table.filterList tr {
@@ -1000,4 +1001,5 @@ table.filterList td {
 
 table.vertical th {
 	text-align: right;	
+	padding-right: 10px;
 }

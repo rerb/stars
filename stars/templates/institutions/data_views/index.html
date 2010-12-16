@@ -1,21 +1,26 @@
 {% extends 'institutions/base.html' %}
 
+{% block crumbs %}
+	{{ block.super }} &gt;
+	<a href='/institutions/data-views/'>Data Views</a>
+{% endblock %}
+
 {% block content %}
 	<div class='inner20'>
 		<h1>View Examples</h1>
-		<ul>
-			<li>
-				<a href='/institutions/data-views/score/'>Scoring</a>
-			</li>
-			<li>
-				<a href='/institutions/data-views/content/'>Content</a>
-			</li>
-			<li>
-				<a href='/institutions/data-views/stats/'>Statistics</a>
-			</li>
+		<ol>
 			<li>
 				<a href='/institutions/data-views/dashboard/'>Dashboard</a>
 			</li>
-		</ul>
+			<li>
+				<a href='/institutions/data-views/stats/'>STARS Overall Scores</a>
+			</li>
+			<li>
+				<a href='/institutions/data-views/score/'>Score Filter</a>
+			</li>
+			<li>
+				<a href='/institutions/data-views/content/'>Content Filter</a>
+			</li>
+		</ol>
 	</div>
 {% endblock %}

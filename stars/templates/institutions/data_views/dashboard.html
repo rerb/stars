@@ -1,4 +1,6 @@
-{% extends 'institutions/base.html' %}
+{% extends 'institutions/data_views/index.html' %}
+
+{% block title %}Dashboard{% endblock %}
 
 {% block body_properties %}{{ block.super }} class="tundra"{% endblock %}
 
@@ -57,6 +59,7 @@
 			    scaleControl: true,
 			    navigationControl: true,
 			    mapTypeControl: true,
+			    scrollwheel: false,
 			    mapTypeControlOptions: {
 			      style: google.maps.MapTypeControlStyle.DROPDOWN_MENU
 			    },
@@ -100,13 +103,13 @@
 		<hr style='clear:both' />
 		<div style='margin: 0px 0px 10px 0px;padding: 2px; border: 1px solid #aaa;float: left;'>
 		<div id="rating_chart" style="width:400px;height:220px;margin: 0px;"></div>
-<script type='text/javascript'>
+<script type='text/javascript'><!--
     
     var pieData = [
     				{ "x": "Gold", "y": "1", text: "Gold", tooltip: 1, color: "#A39161"  },
     				{ "x":"Silver", "y":"2", text: "Silver", tooltip: 2, color: "#A8A9AD" },
     				{ "x": "Bronze", "y": "1", text: "Bronze", tooltip: 1, color: "#8C745A" },
-    				{ "x": "Reporter", "y": "1", text: "Reporter", tooltip: 0, color: "#858f38" }
+    				{ "x": "Reporter", "y": "0", text: "Reporter", tooltip: 0, color: "#858f38" }
     				];
 
     /* resources are ready... */
@@ -119,11 +122,11 @@
                         render();
                         
        	new dojox.charting.action2d.Magnify(rating_chart, "default", {scale: 1.2});
-       	new dojox.charting.action2d.Tooltip(rating_chart,'default');
+       	//new dojox.charting.action2d.Tooltip(rating_chart,'default');
         rating_chart.render();
 
     });
-</script>
+--></script>
 	</div></div>
 	<div style='margin: 0px 20px 0px 450px;'>
 	<h3>STARS Ratings</h3>
@@ -168,7 +171,7 @@
 				});
 				chart1.addAxis('x',
 								{majorTickStep: 1,
-								labels: [{value: 1, text: "Jan"}, {value: 2, text: "Feb"},
+								labels: [{value: 1, text: "Jan '10"}, {value: 2, text: "Feb"},
 							              {value: 3, text: "Mar"}, {value: 4, text: "Apr"},]
 								});
 				chart1.addAxis('y', {vertical:true, max:70, majorTickStep: 10, minortTickStep: 0});
@@ -202,35 +205,34 @@
 		
 		<div style='margin: 0px 0px 10px 20px;padding: 2px; border: 1px solid #aaa;float: left;'>
 <div id="BarChart" style="width:400px;height:200px;"></div>
-<script><!--
+<script>
 
     /* resources are ready... */
     dojo.ready(function() {
 
         var barData = [
-						{x: "1", y: "45"},
-						{x: "2", y: "30.3"},
-						{x: "3", y: "37.6"}
+						{x: 1, y: "45.0"},
+						{x: 2, y: "30.3"},
+						{x: 3, y: "36.6"}
 		];
 		
 		
 		var BarChart = new dojox.charting.Chart2D("BarChart");
 		BarChart.setTheme(dojox.charting.themes.PlotKit.green);
-		BarChart.addAxis("x", {	majorTickStep: 1,
-								labels: [{value: 1, text: "ER"}, {value: 2, text: "OP"},
+		BarChart.addAxis("x", {	labels: [{value: 1, text: "ER"}, {value: 2, text: "OP"},
 							              {value: 3, text: "PAE"},]
 								});
-		BarChart.addAxis('y', {vertical:true, majorTickStep: 5, minortTickStep: 1});
-		BarChart.addPlot("default", {type: "Columns", gap:5 });
+		BarChart.addAxis('y', {vertical:true,min: 0});
+		BarChart.addPlot("default", {type: "Columns", gap:20 });
 		BarChart.addSeries("Average Scores", barData, {});
 		
-		//var anim4a = new dojox.charting.action2d.Highlight(BarChart, "default", { highlight: "gold" });
+		var anim4a = new dojox.charting.action2d.Highlight(BarChart, "default", { highlight: "#858f38" });
 		var anim4b = new dojox.charting.action2d.Tooltip(BarChart, "default");
 		var anim4c = new dojox.charting.action2d.Shake(BarChart,"default");
 		BarChart.render();
 
     });
---></script>
+</script>
 	</div>
 	<div style='margin: 0px 20px 0px 450px;'>
 	<h3>Average Scores By Category</h3>
