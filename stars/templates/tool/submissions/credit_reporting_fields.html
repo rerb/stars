@@ -1,6 +1,8 @@
 {% extends 'tool/submissions/credit_base.html' %}
 
-{% block body_onload %}{{ block.super }}load_handler();update_confirm_links();{% endblock %}
+{% block body_onload %}{{ block.super }}load_handler();{% endblock %}
+
+{% block body_beforeunload %}{{ block.super }}return before_unload_credit();{% endblock %}
 
 {% block extra_head %}
 	{{ block.super }}
@@ -96,7 +98,7 @@
         
     </div>
     <div class='button_row'>
-        <button type='submit' id='submit_button'>Save</button>
+        <button type='submit' id='submit_button' class='errors'>Save</button>
     </div>
     </form>
 {% endblock %}

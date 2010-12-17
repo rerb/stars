@@ -143,21 +143,14 @@ function open_popup(url, name) {
     return false;
 }
 
-/**
- * These scripts address tickets #344 and #385
- * They are used to disable / enable the submit button and
- *  warn the user if they navigate away from a form that has been modified.
- * They assume: (1) there is only one form (2) the submit button has id='submit_button'
- *              (3) each form element has an onchange='field_changed(this);' handler
- * To use:
- *        - onload handler should call enable_submit(false)
- *        - onunload handler should call save_form()
-**/         
-function confirm_leave()
-{
-    if (!document.getElementById('submit_button').disabled)
-        if (!confirm('This page contains unsaved data. Click OK to leave without saving or Cancel to save changes before leaving.'))
-            document.forms[0].submit();
+function has_unsaved_data() {
+	return !document.getElementById('submit_button').disabled;
+}
+
+function before_unload_credit() {
+	if( has_unsaved_data() ) {
+		return "Changes to this credit have not been saved. Discard?";
+	}
 }
 
 /**
@@ -167,7 +160,7 @@ function confirm_leave()
  */
 function confirm_exit() {
 	
-	if(!document.getElementById('submit_button').disabled) {
+	if(has_unsaved_data()) {
 		if (!confirm('This page contains unsaved data. Click OK to leave without saving or Cancel to continue editing this credit.')) {
 			return false;
 		}
@@ -177,7 +170,6 @@ function confirm_exit() {
 
 function update_confirm_links() {
 	links = document.getElementsByTagName("a");
-//	links = [document.getElementById('clickhere')];
 	re = /.*noExit.*/;
 	for(var i = 0; i < links.length; i++) {
 		if( links[i].onclick == null && !re.test(links[i].className) ) {
@@ -189,6 +181,13 @@ function update_confirm_links() {
 
 function enable_submit(enable) {
 	button = document.getElementById('submit_button');
+	
+	re = /.*errors.*/;
+	if( !enable && re.test(button.ClassName)) {
+		// If there were errors, don't disable the button
+		return
+	}
+	
     button.disabled = !enable;
     if(enable) {
     	button.className = "enabled";
