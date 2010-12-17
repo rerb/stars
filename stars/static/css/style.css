@@ -988,7 +988,9 @@ table.filterList tr {
 
 table.filterList th {
 	text-align: left;
-	background-color: #ddd;	
+	background-color: #ddd;
+	line-height: 2.5;
+	color: #333;
 }
 
 table.filterList td {
