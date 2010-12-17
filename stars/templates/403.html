@@ -1,0 +1,11 @@
+{% extends 'base_error.html' %}
+
+{% block title %}Permission Denied | {{ block.super }}{% endblock %}
+
+{% block message_title %}You do not have permission to access this page...{% endblock %}
+{% block message_content %}
+	{% if user_message %}
+    	<p>{{ user_message }}</p>
+	{% endif %}
+  	<p>Contact your STARS administrator to ensure you have the right permissions for this institution.</p>
+{% endblock %}

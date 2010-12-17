@@ -1,0 +1,20 @@
+Dear {{ ss.institution.contact_first_name }} {{ ss.institution.contact_last_name }},
+
+This is a friendly reminder that your STARS registration fee, ${{ ss.get_amount_due|floatformat:2 }}, is overdue.  Please submit your registration fee promptly.  Once payment is received, you will be listed as a STARS participant on the website and gain access to the STARS Reporting Tool.
+
+If you would like to pay by check, please submit payment to AASHE at:
+AASHE
+213 1/2 N Limestone St
+Lexington, KY 40507
+
+We accept:  Visa, MasterCard, Discover and American Express credit cards
+If you would like to pay by Credit Card, please call our main office at:
+(859) 258-2551  
+
+If you have any further questions about your payment please contact me at 859-258-2551 Ext. 119 or by e-mail at:  margueritte.williams@aashe.org.
+
+If you have already made payment please disregard this notice.
+
+Thank you!
+Margueritte Williams
+AASHE Business Office Assistant

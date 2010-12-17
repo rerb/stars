@@ -1,0 +1,23 @@
+{% extends 'tool/manage/base.html' %}
+
+{% block crumbs %} {{ block.super }} &gt; Receipts {% endblock %}
+
+{% block tabclass %}class='tab4'{% endblock %}
+
+{% block institution_content %}
+    {% include 'tool/manage/payment_list.html' %}
+    
+    {% if user.is_staff %}
+        <p><a href='{{ user.current_inst.get_admin_payments_url }}'>Administer Payments for this Institution</a></p>
+        {% if not active_submission %}
+           <ul>
+             <li>You must <a href='/tool/manage/submissionsets/'>add</a> a submission set for this institution before you can create a payment.</li>
+           </ul>
+        {% endif %}
+    {% endif %}
+{% endblock %}
+
+{% block help_content %}
+    {% load help %}
+    {% show_help_context 'manage_payments' 0 %}
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends 'institutions/scorecards/base.html' %}
+
+{% block extra_head %}
+	{{ block.super }}
+	<script type="text/javascript" src="http://code.jquery.com/jquery-1.4.2.min.js"></script>
+	<script type="text/javascript" src="http://www.google.com/recaptcha/api/js/recaptcha_ajax.js"></script>
+	<script type="text/javascript">
+         function showRecaptcha(element) {
+           Recaptcha.create("{{ recaptcha_public_key }}", element, {
+             theme: "clean",
+             callback: Recaptcha.focus_response_field});
+         }
+      </script>
+{% endblock %}
+
+{% block crumbs %}
+	{{ block.super }} >
+	STARS Submission Accuracy Inquiry
+{% endblock %}
+
+{% block body_onload %}disable_select_options();{% endblock %}
+
+{% block content %}
+	<br/>
+	<h1>STARS Submission Accuracy Inquiry: {{ submissionset.institution }}</h1>
+	{% include 'helpers/required_div.html' %}
+	<form class='generalForm' method='post' action='.' enctype="multipart/form-data" style='margin: 10px 50px;'>
+		{% load content %}
+        {% display_block_content 'accuracy_header' user %}
+		<h2>Your Contact Information</h2><br/>
+		{% load fieldsets %}
+		<table>
+			{% get_fieldset first_name,last_name,affiliation,city,state,email_address,phone_number as object_form from inquirer_details %}
+			{% include 'helpers/standard_form.html' %}
+		</table>
+			{% get_fieldset additional_comments as object_form from inquirer_details %}
+			{% include 'helpers/label_above_input_form.html' %}
+	  	<h2>Specific Credit(s) In Question for {{ submissionset.institution }}</h2>
+        {% display_block_content 'credit_dispute' user %}
+	  	{{ credit_inquiries.management_form }}
+	  	{% for form in credit_inquiries.forms %}
+	  		<table id='{{ credit_inquiries.prefix }}_table{{ forloop.counter0 }}'>
+	  			{{ form }}
+	  		</table>
+	  	{% endfor %}
+			<img src='/media/static/images/add.png' alt='+' onclick="addFormToFormset('{{ credit_inquiries.prefix }}');"/>
+			<a href="javascript:addFormToFormset('{{ credit_inquiries.prefix }}');" class="add-row">
+				Add Another
+			</a>
+		<p style='font-style: italic'>Please verify that you are a living, breathing, human being.</p>
+		{% if recaptcha_error %}
+			<ul class='errorlist'><li>Captcha did not validate. Please try again.</li></ul>
+		{% endif %}
+		<script type="text/javascript">
+		var RecaptchaOptions={theme:'clean',
+			custom_theme_widget:'null'};
+</script>
+
+		<div id='recaptcha'>
+			{{ recaptcha_html }}
+		</div>
+	    <div class='button_row'><button type='submit'>Submit</button></div>
+	</form>
+{% endblock %}

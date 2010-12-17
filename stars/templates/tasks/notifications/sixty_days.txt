@@ -1,0 +1,17 @@
+Dear {{ ss.institution.contact_first_name }} {{ ss.institution.contact_last_name }},
+
+This is a friendly reminder that there are only 60 days remaining until your STARS submission deadline.  If you haven't already done so, we highly recommend that you log into the STARS Reporting Tool and begin your data documentation.
+
+If you will be unable to complete your STARS Report by the submission deadline, you may apply for a six-month extension prior to the deadline.  To apply for a six-month extension, please use the Submission Sets (https://stars.aashe.org/tool/manage/submissionsets/) tab under Manage Institution (https://stars.aashe.org/tool/manage/) in the Reporting Tool and click on the  "Extend Deadline" button.
+
+If you do not apply for a six-month extension prior to your STARS submission deadline, and the submission deadline passes without your STARS data being submitted for a STARS Rating, you will be contacted by the STARS team with the following options:
+
+   - You may submit the information currently documented in the STARS Reporting Tool and receive a STARS Rating (either the rating level you have achieved or as a STARS Reporter).   
+
+   - You may choose to not submit your institution's data for a STARS Rating, be removed from the list of STARS institutions without a refund, and no longer have access to edit your data.
+
+If you have any questions please contact stars@aashe.org.
+
+We look forward to your continued participation in STARS.
+
+{% include 'tasks/notifications/footer.txt' %}

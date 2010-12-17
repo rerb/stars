@@ -1,0 +1,8 @@
+Dear {{ submissionset.institution.contact_first_name }} {{ submissionset.institution.contact_last_name }},
+
+Thank you for submitting your data using the Sustainability Tracking, Assessment & Rating System (STARS).  Compiling this information is a huge achievement and one that we hope will help {{ submissionset.institution }} become more sustainable. Your STARS data and ranking will be publicly posted on our website shortly, once your submission has been fully processed. 
+ 
+Congratulations on a job well done,
+
+The STARS Team
+stars@aashe.org

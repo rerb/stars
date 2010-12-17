@@ -1,0 +1,39 @@
+{% extends "institutions/base.html" %}
+
+{% block title %}{{ institution }} | {{ block.super }}{% endblock %}
+
+{% block content %}
+    <div class='inner20'>
+        <h1>{{ institution }} Reports</h1>
+        <div class='inner20'>
+        <table class='greyTable'>
+            <tr>
+                <th>STARS Version</th>
+                <th>Submission Date</th>
+                <th>Rating</th>
+            </tr>
+            {% for ss in submission_sets %}
+                <tr>
+                    <td>
+                        <a href='{{ ss.get_scorecard_url }}'>{{ ss.creditset }}</a>
+                    </td>
+                    <td>
+                        {% if ss.date_submitted %}
+                            {{ ss.date_submitted }}
+                        {% else %}
+                            Pending Submission
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if ss.status == 'r' %}
+                            {{ ss.rating }}
+                        {% else %}
+                            Not Rated
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+    </div>
+{% endblock %}
