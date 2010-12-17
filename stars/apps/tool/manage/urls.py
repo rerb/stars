@@ -5,6 +5,9 @@ urlpatterns = patterns(
     
     (r'^$', 'institution_detail'),
     (r'^payments/$', 'institution_payments'),
+    (r'^responsible-parties/$', 'responsible_party_list'),
+    (r'^responsible-parties/add/$', 'add_responsible_party'),
+    (r'^responsible-parties/(?P<rp_id>\d+)/$', 'edit_responsible_party'),
     (r'^users/$', 'accounts'),
     (r'^users/add/$', 'add_account'),
     (r'^users/edit/(?P<account_id>\d+)/$', 'accounts'),

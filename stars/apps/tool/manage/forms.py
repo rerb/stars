@@ -45,7 +45,12 @@ class AdminEnableInstitutionForm(ModelForm):
     class Meta:
         model = Institution
         fields = ['enabled']
-        
+
+class ResponsiblePartyForm(ModelForm):
+    
+    class Meta:
+        model = ResponsibleParty
+        exclude = ['institution',]
 
 class AdminSubmissionSetForm(ModelForm):
     """

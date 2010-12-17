@@ -1,0 +1,19 @@
+{% extends 'tool/manage/responsible_party_list.html' %}
+
+{% block institution_content %}
+	<h2>{{ title }}</h2>
+	
+	<form method='post' action='.' class='generalForm'>
+		<table>
+			{% include "helpers/standard_form.html" %}
+		</table>
+		<div class='button_row'>
+        	<button type='submit' id='submit_button'>Save</button>
+    	</div>
+	</form>
+{% endblock %}
+
+{% block help_content %}
+    {% load help %}
+    {% show_help_context 'responsible_parties' 0 %}
+{% endblock %}
