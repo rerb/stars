@@ -60,6 +60,7 @@
             </div>
             {% if messages or site_status.broadcast_message or extra_messages %}
             {% load helpers %}
+            {% autoescape off %}
             <div id="flash_message" class="visible">
                 <ul >
                 {% if site_status.broadcast_message %}
@@ -72,8 +73,8 @@
                 </ul>
                 <a href='#'  onclick="document.getElementById('flash_message').style.display = 'none';">[x]</a>
             </div>
+            {% endautoescape %}
             {% endif %}
-            
 			{% block content %}{% endblock %}
 		</div>
 		<div id='footer'>
