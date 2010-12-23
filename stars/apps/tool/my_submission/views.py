@@ -3,7 +3,7 @@ from django.http import HttpResponseRedirect
 from django.template import Context, loader, Template
 from django.core.mail import send_mail
 
-from datetime import datetime
+from datetime import datetime, date
 
 from stars.apps.helpers.forms.views import *
 from stars.apps.auth.utils import respond
@@ -138,22 +138,29 @@ class FinalizeClassView(SubmissionClassView):
         
         self.save_form(form, request, context)
         
+        send_mail(  "STARS Submission!! (%s)" % context[self.instance_name].institution,
+                    "%s has submitted for a rating! Time to review!" % context[self.instance_name],
+                    settings.EMAIL_HOST_USER,
+                    ['stars_staff@aashe.org',],
+                    fail_silently=False
+                    )
+        
         t = loader.get_template('tool/submissions/submit_email.txt')
         _context = context
         _context.update({'submissionset': context[self.instance_name],})
+        
+        today = date(year=2011, month=1, day=3)
+        print today
+        if today >= date(year=2010, month=12, day=24) and today <= date(year=2011, month=1, day=2):
+            context['holiday'] = True
+        
         c = Context(_context)
         message = t.render(c)
+        print message
         send_mail(  "Your STARS Submission",
                     message,
                     settings.EMAIL_HOST_USER,
                     [context[self.instance_name].institution.contact_email,],
-                    fail_silently=False
-                    )
-        
-        send_mail(  "STARS Submission!! (%s)" % context[self.instance_name].institution,
-                    "%s has submitted for a rating! Time to review!" % context[self.instance_name],
-                    settings.EMAIL_HOST_USER,
-                    ['stars_staff@aashe.org','jesse@aashe.org'],
                     fail_silently=False
                     )
         

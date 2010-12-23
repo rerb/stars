@@ -1,7 +1,11 @@
 Dear {{ submissionset.institution.contact_first_name }} {{ submissionset.institution.contact_last_name }},
 
 Thank you for submitting your data using the Sustainability Tracking, Assessment & Rating System (STARS).  Compiling this information is a huge achievement and one that we hope will help {{ submissionset.institution }} become more sustainable. Your STARS data and ranking will be publicly posted on our website shortly, once your submission has been fully processed. 
- 
+
+{% if holiday %}
+Please note: the AASHE office will be closed for the holiday from Friday, December 24th through Friday, December 31.  Your submission will be processed in the new year.  Thank you for your patience and Happy Holidays!
+{% endif %}
+
 Congratulations on a job well done,
 
 The STARS Team
