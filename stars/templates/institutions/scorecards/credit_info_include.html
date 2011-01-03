@@ -1,0 +1,9 @@
+{% extends 'institutions/scorecards/credit_include.html' %}
+
+{% block tabclass %}class='tab2'{% endblock %}
+
+{% block tab_content %}
+    {% with credit_submission.credit as credit %}
+        {% include 'credits/credit_info.html' %}
+    {% endwith %}
+{% endblock %}

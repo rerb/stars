@@ -1,0 +1,95 @@
+{% extends 'tool/manage/base.html' %}
+
+{% block crumbs %} {{ block.super }} &gt; Users {% endblock %}
+
+{% block tabclass %}class='tab2'{% endblock %}
+
+{% block help_content %}
+	{% load help %}
+	{% show_help_context 'manage_accounts' 0 %}
+{% endblock %}
+
+{% block institution_content %}
+    <form method='post' action='/tool/manage/users/add/'>
+        <table class='greyTable'>
+          <tr>
+            <th>User's e-mail</th>
+            <th>Role</th>
+            <th></th>
+            <th>Last Login</th>
+          </tr>
+          {% for row in account_list %}
+            {% if row.edit_form %}
+              <tr>
+                <td>
+                     {{ row.account.user.email }}
+                     {{ row.edit_form.email }}
+                </td>
+                <td>{{ row.edit_form.userlevel }}</td>
+                <td class='buttonColumn'> <button type='submit'>Save</button> </td>
+                <td>
+                  {{ notify_form.notify_users }}
+                   <span class='help'>Notify user by e-mail of account changes.</span>
+                </td>
+              </tr>
+            {% else %} 
+              {% with row.account as account %}
+              <tr class='{% cycle 'even' 'odd' %}{% if account.is_pending %} pending{% endif %}'  {% if account.is_pending %}title="Account pending - user must register at www.aashe.org."{% endif %}>
+                <td>
+                  {{ account.user.email }}
+                  {% if account.is_pending %}
+                    <span class="pending_note">*</span>
+                  {% endif %}
+                </td>
+                <td>{{ account.get_user_level_display }}</td>
+                <td class='buttonColumn'>
+                    {% ifnotequal account.user user %}
+                        <a href='{{ account.get_edit_url }}'>
+                            <img src='/media/static/images/page_edit.png' alt='edit' title='edit' />
+                        </a>
+                        <a href='{{ account.get_delete_url }}'>
+                            <img src='/media/static/images/delete.png' alt='delete' title='delete' />
+                        </a>
+                    {% else %}
+                        {% if user.is_staff %}
+                          <a href='{{ account.get_delete_url }}'>
+                              <img src='/media/static/images/cross.png' alt='delete' title='This is your account - are you sure you want to delete it?' />
+                          </a>
+                        {% endif %}
+                    {% endifnotequal %}
+                </td>
+                <td>
+                  {% if account.last_access %}
+                    {{ account.last_access|date:"D d M Y" }}
+                  {% else %}
+                    <span class="pending_note" title="User has not yet logged in to STARS">-</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endwith %} 
+            {% endif %}
+          {% endfor %}
+          <tr>
+            <td>
+                {{ new_account_form.email }}
+            </td>
+            <td>{{ new_account_form.userlevel }}</td>
+            <td class='buttonColumn'>
+              {% if editing %}
+	            <a href='{{ account_list.0.account.get_manage_url }}'>
+	              <img src='/media/static/images/page_edit.png' alt='New' title='Edit New Account' />
+	            </a>
+              {% else %}
+                <button type='submit'>Add</button>
+              {% endif %}
+            </td>
+            <td>
+              {% if not editing %}
+                {{ notify_form.notify_users }}
+                 <span class='help'>Notify user by e-mail of new STARS account.</span>
+              {% endif %}
+            </td>
+           </tr>
+         </table>
+    </form>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends 'registration/base.html' %}
+
+{% block title %}
+    AASHE: STARS | Participant Registration | Account
+{% endblock %}
+
+{% block content %}
+    <div class='inner20'>
+        <h1>{{ institution }} has registered for STARS 1.0!</h1>
+
+        <div style='margin: 10px 50px;'>
+            {% load content %}
+            {% if amount_due %}
+                {% display_block_content 'reg_unpaid' %}
+            {% else %}    
+                {% display_block_content 'reg_paid' %}
+            {% endif %}
+        </div>
+
+        {% ifnotequal institution.contact_email user.email %}
+        <p style='margin: 10px 50px;'>
+            If you have questions about your institution's participation in STARS 1.0, please connect with your STARS Liaison:
+            <br/><br/>
+            <b>{{ institution.contact_first_name }} {{ institution.contact_last_name }}</b><br/>
+            {{ institution.contact_title }}, {{ institution.contact_department }}<br/>
+            <a href='mailto:{{ institution.contact_email }}'>{{ institution.contact_email }}</a>
+        </p>
+        {% if amount_due %}
+            <table style='margin: 10px auto' class='headed_list' width='400'>
+                <tr>
+                    <th>Payment Status</th>
+                </tr>
+                <tr>
+                    <td>
+                        Amount Due: <b>${{ amount_due|floatformat:2 }}</b><br/><br/>
+                        Please send a check to "AASHE":<br/>
+                        213 1/2 N. Limestone<br/>
+                        Lexington, KY 40507<br/>
+                        <br/>
+                        <i>If you have already sent payment we will update your account shortly.</i>
+                    </td>
+                </tr>
+            </table>
+        {% endif %}
+        {% endifnotequal %}
+        <div class='note'>
+            Want to register another institution? <a href='/register/step1/'>You can!</a>
+        </div>
+    </div>
+{% endblock %}

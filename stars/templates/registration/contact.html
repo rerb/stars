@@ -1,0 +1,35 @@
+{% extends 'registration/base.html' %}
+
+{% block title %}
+    AASHE: STARS | Participant Registration | Step 2
+{% endblock %}
+
+{% block content %}
+    <div class='inner20'>
+        <h1>Participant Registration: <i>{{ institution }}</i></h1>
+        <h2>Contact Information</h2>
+        <p>Please fill out the contact information for your institution below.</p>
+        <form method='post' action='.' class='generalForm'>
+            {% load fieldsets %}
+            <h3>STARS Liaison Contact Information</h3>
+            <p>The STARS Liaison is the person responsible for communication with the STARS team. This person will be able to grant others the ability to submit information using the online reporting tool once it becomes available (January 2010).</p>
+            <table class='form'>
+                {% get_fieldset contact_first_name,contact_middle_name,contact_last_name,contact_title,contact_department,contact_phone,contact_email as contact_fields from reg_form %}
+                {{ contact_fields }}
+            </table>
+            <br/>
+            <h3>Executive Contact Information</h3>
+            <p>Since STARS covers the activities of many campus departments and requires the involvement of many individuals, it's important that your institution's participation has high-level support.  Please provide the contact information for one executive (President, Chancellor, Vice President, Vice Chancellor, or Provost) for AASHE  to copy on the registration confirmation e-mail.  This executive will not be included in subsequent communication and his or her contact information will not be otherwise used.  You may wish to send a message to this person so they know to expect the e-mail from AASHE.   
+                </p><p>
+            Please note that after all data have been submitted, a letter from the President or Chancellor will be required to earn a STARS rating.</p>
+            <table class='form'>
+                {% get_fieldset executive_contact_first_name,executive_contact_middle_name,executive_contact_last_name,executive_contact_title,executive_contact_department,executive_contact_email as exec_fields from reg_form %}
+                {{ exec_fields }}
+            </table>
+            <div class='button_row'>
+                <button type='button' onclick='document.location="/register/step1/";'>&lt;&lt; Back</button>
+                <button type='submit'>Continue &gt;&gt;</button>
+            </div>    
+        </form>
+    </div>
+{% endblock %}
