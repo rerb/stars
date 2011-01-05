@@ -22,6 +22,6 @@ def show_latest_registrants(count='5'):
 def show_rated_registrants(count='5'):
     """ Display the (count) most recently registered institutions """
     
-    query_set = SubmissionSet.objects.get_rated().order_by('-date_reviewed')
+    query_set = SubmissionSet.objects.get_rated().order_by('-date_submitted')
     
     return {'ss_list': query_set[0:count],}
