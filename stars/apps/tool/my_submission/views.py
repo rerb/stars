@@ -149,11 +149,6 @@ class FinalizeClassView(SubmissionClassView):
         _context = context
         _context.update({'submissionset': context[self.instance_name],})
         
-        today = date(year=2011, month=1, day=3)
-        print today
-        if today >= date(year=2010, month=12, day=24) and today <= date(year=2011, month=1, day=2):
-            context['holiday'] = True
-        
         c = Context(_context)
         message = t.render(c)
         print message
