@@ -1,0 +1,50 @@
+{% extends 'tool/base.html' %}
+
+{% block title %}{{ creditset }} | Credit Editor | {{ block.super }}{% endblock %}
+
+{% block extra_head %}
+    {{ block.super }}
+    <script type="text/javascript" src="/media/tp/js/tiny_mce/tiny_mce.js"></script>
+    <script type="text/javascript" src="/media/static/js/textarea_credit_editor.js"></script>
+    <script type="text/javascript" src="/media/static/js/tablednd.js"></script>
+    <link href='/media/static/css/listexpander.css' rel='stylesheet' type='text/css' />
+    <script src='/media/static/js/listexpander.js' type='text/javascript'></script>
+{% endblock %}
+
+{% block body_onload %}{{ block.super }}listexpander();collapseSummary();{% endblock %}
+
+{% block main_menu %} 
+    {% load main_menu %}
+    {% show_main_menu user "institutions" %} 
+{% endblock %}
+
+{% block crumbs %}
+    <a href='/tool/'>Reporting Tool</a> &gt;
+    <a href='/tool/credit-editor/'>Credit Editor</a>
+{% endblock %}
+
+{% block credit_editor_outline %}
+    <div style='background-color: #dddddd; text-align: center; padding: 4px; margin: 4px 0px;border-width: 1px 0px; border-style: solid; border-color: #bbbbbb;'>
+        <label for='version'>Version:</label>
+        <select onchange='document.location=this.options[this.selectedIndex].value;'>
+            <option value='/tool/credit-editor/add-creditset/'>---</option>
+            {% for set in available_sets %}
+                <option value='{{ set.get_edit_url }}' {% ifequal set creditset %}selected='selected'{% endifequal %}>{{ set.version }}</option>
+            {% endfor %}
+        </select>
+        <button type='button' title='New Version' onclick='document.location="/tool/credit-editor/add-creditset/"'>New Version</button>
+    </div>
+    {% include 'credits/outline_nav.html' %}
+{% endblock %}
+
+{% block tool_content %}
+    <h1>{% block h1 %}Credit Editor{% endblock %}</h1>
+    {% block editor_content %}{% endblock %}
+{% endblock %}
+
+{% block extra_footer %}
+    <script type='text/javascript'>
+        var tableDnD = null;
+        setTable('dndtable');
+    </script>
+{% endblock %}

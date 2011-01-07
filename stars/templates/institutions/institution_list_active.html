@@ -1,0 +1,61 @@
+{% extends 'institutions/base.html' %}
+
+{% block tabclass %}class='tab2'{% endblock %}
+
+{% block content %}
+<div class='inner20'>
+  <h1>STARS Institutions</h1>
+  {% block page_description %}
+    {% load help %}
+    {% show_help_context 'institutions_page' 0 %}
+  {% endblock %}
+  {% load cache %}
+  {% cache 900 institution_list sort_key rev %}
+      <table id="institution_list" class='greyTable'>
+        <tr>
+          {% for col in sort_columns %}
+            <th>
+                {% ifequal col.key sort_key %}
+                    <a href='?sort={{ rev }}{{ col.key }}' title='sort'>{{ col.title }}</a>
+                    <img src='/media/static/images/{% ifequal rev '-' %}sort_desc.png{% else %}sort_asc.png{% endifequal %}' alt='^'/>
+                {% else %}
+                    <a href='?sort={{ col.key }}' title='sort'>{{ col.title }}</a>
+                {% endifequal %}
+            </th>
+          {% endfor %}
+        </tr>
+        {% for submissionset in object_list %}
+          <tr class="{% cycle 'even' 'odd' %}">
+            <td style='text-align: left'>
+                {% ifequal submissionset.status 'r' %}
+                    <a href='{{ submissionset.get_scorecard_url }}'>{{ submissionset.institution }}</a>
+                {% else %}
+                    {{ submissionset.institution }}
+                {% endifequal %}
+            </td>
+            <td>
+                {% ifequal submissionset.status 'r' %}
+                    Complete
+                {% endifequal %}
+            </td>
+            <td>
+                {% ifequal submissionset.status 'r' %}
+                    {% if submissionset.rating %}
+                        {{ submissionset.rating }}
+                    {% else %}
+                        ---
+                    {% endif %}
+                {% endifequal %}
+            </td>
+            <td>
+              {{ submissionset.date_registered }}
+            </td>
+            <td>
+              {{ submissionset.submission_deadline }}
+            </td>
+          </tr>            
+        {% endfor %}
+      </table>
+	{% endcache %}
+</div>
+{% endblock %}

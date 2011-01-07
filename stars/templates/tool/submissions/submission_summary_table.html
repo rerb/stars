@@ -1,0 +1,36 @@
+<table class='statusTable' cellspacing='0'>
+    <tr>
+        <th>Status</th>
+        <th>
+        	Provisional Rating
+        	{% load help %}
+        	{% show_help_context 'provisional_rating' %}
+        </th>
+        <th>Provisional Score</th>
+        <th>Submission Deadline</th>
+        <th>Export</th>
+    </tr><tr>
+        <td>{{ active_submission.get_status }}</td>
+        <td>{{ active_submission.get_STARS_rating }}</td>
+        <td>{{ active_submission.get_STARS_score|floatformat:2 }}</td>
+        <td>
+        	{{ active_submission.submission_deadline }}
+        	{% if is_admin %}
+        		<br/>
+        		<a href='{{ active_submission.get_submit_url }}' class='button'>Submit for Rating</a>
+        		{% if active_submission.can_apply_for_extension %}
+                    <a href='{{ active_submission.get_manage_url }}extension/' class='button'>Extend Deadline</a>
+                {% endif %}
+        	{% endif %}
+    	</td>
+    	<td>
+    		<a href='{{ active_submission.get_scorecard_url }}pdf/'
+    		{% if active_submission.status != 'r' or not active_submission.pdf_report %}
+    		onclick="return confirm('This export could take a minute or two, please be patient.');"
+    		{% endif %}
+    		target='_blank'>
+    			PDF
+    		</a>
+    	</td>
+    </tr>
+</table>
