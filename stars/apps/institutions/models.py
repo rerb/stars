@@ -5,6 +5,8 @@ from django.contrib.localflavor.us.models import PhoneNumberField
 from django.template.defaultfilters import slugify
 
 from stars.apps.helpers import watchdog
+from aashe.issdjango.models import Organizations 
+
 
 class Institution(models.Model):
     """
@@ -29,6 +31,7 @@ class Institution(models.Model):
     executive_contact_department = models.CharField(max_length=64)
     executive_contact_email = models.EmailField()
     charter_participant = models.BooleanField()
+    profile = models.ForeignKey(Organizations, null=True, blank=True)
     
     def __unicode__(self):
         return self.name.decode('utf8')
@@ -126,20 +129,51 @@ class Institution(models.Model):
                 return True
         # assert: no submission has been registered for the given credit set for this institution
         return False
-        
+
+    def set_profile_from_aashe_id(self):
+        '''
+        Set the Organizations `profile` relationship to the corresponding ISS Institution
+        by querying the `issdjango` app's Organizations model using our aashe_id.
+        '''
+        try:
+            self.profile = Organizations.objects.get(account_num=aashe_id)
+            self.save()
+        except Organizations.MultipleObjectsReturned as e:
+            watchdog.log("Institutions", "Multiple ISS Institutions for aashe_id %s: %s" % (self.account_num, e), watchdog.ERROR)
+        except Organizations.ObjectDoesNotExist as e:
+            watchdog.log("Institutions", "ISS Institution lookup failure, does not exist: %s" % e, watchdog.ERROR)
+
+    def set_profile_from_iss_institution(self, iss_institution_id):
+        '''
+        Set the `profile` relationship using a given iss_institution_id.
+        '''
+        try:
+            self.profile = Organizations.objects.get(account_num=iss_institution_id)
+            self.save()
+        except Organizations.MultipleObjectsReturned as e:
+            watchdog.log("Institutions", "Multiple ISS Institutions for aashe_id %s: %s" % (iss_institution_id, e), watchdog.ERROR)
+        except Organizations.ObjectDoesNotExist as e:
+            watchdog.log("Institutions", "ISS Institution lookup failure, does not exist: %s" % e, watchdog.ERROR)
+
     def is_member_institution(self):
         """
             Searches stars_member_list.members for the institution
             returns True if this institution exists
-        """        
-        if _query_iss_orgs("account_num = '%s' AND is_member = 1"%self.aashe_id):
-            return True
-        return False
+        """
+        try:
+            return self.profile.is_member == 1
+        except e:
+            watchdog.log("Institutions", "ISS Institution profile relationship error: %s" % e, watchdog.ERROR)
     
     def set_slug_from_iss_institution(self, iss_institution_id):
         """
             Sets the slug field based on an institution row from the ISS
         """
+        try:
+            self.slug = '%s-%s' % (slugify(self.profile.org_name), self.profile.state.lower())
+        except e:
+            watchdog.log("Registration", "ISS Institution profile relationship error: %s" % e, watchdog.ERROR)
+            self.slug = iss_institution_id
         i_list = _query_iss_orgs("account_num=%d" % iss_institution_id)
         if len(i_list) == 1:
             iss_institution = i_list[0]
