@@ -28,42 +28,7 @@
     </h1>
     
     <table class='statusTable' cellspacing='0'>
-        <tr>
-            <th>
-                Status
-            </th>
-            <th>Score</th>
-            <th>Responsible Party</th>
-        </tr><tr>
-            <td>
-                {% with credit_submission as c %}
-                    {% include 'credits/credit_status_icon.html' %}
-                {% endwith %}
-                {% if credit_submission.submission_status == "na" %}
-                	{% load help %}
-                    {% show_help_text credit_submission.applicability_reason.reason %}
-                {% endif %}
-            </td>
-            <td>
-                {% ifnotequal rating.name "Reporter" %}
-                    {{ credit_submission.assessed_points|floatformat:2 }} /
-                    {% format_available_points credit_submission %}
-                {% else %}
-                    Reporter
-                    {% load help %}
-                    {% show_help_context "reporter_status" %}
-                {% endifnotequal %}
-            </td>
-            <td style='text-align: right;'>
-                {% if credit_submission.responsible_party %}
-                    <b>
-                        {{ credit_submission.responsible_party.first_name }}
-                        {{ credit_submission.responsible_party.last_name }}</b><br/>
-                    {{ credit_submission.responsible_party.title }}<br/>
-                    {{ credit_submission.responsible_party.department }}
-                {% endif %}
-            </td>
-        </tr>
+        {% include 'institutions/scorecards/credit_status_table.html' %}
     </table>
     
     {% if credit_submission.submission_notes %}
@@ -94,16 +59,27 @@
         {% endif %}
     </ul>
     <div class='tabContent'>
-        <div style="text-align: right;font-size: .9em;padding:10px;">
-            "<span class='green bold'>---</span>"
-            <i>indicates that no data was submitted for this field</i>
-        </div>
-        {% block tab_content %}
-            <br/>
-            {% for field in credit_submission.get_submission_fields %}
-                {% include 'institutions/scorecards/field_formatting.html' %}
-            {% endfor %}
-        {% endblock %}
+    	{% block tab_content %}
+    	{% if credit_submission.submission_status == 'na' %}
+    		<p class='hideReportingFields'>
+    			This credit was marked as <b>Not Applicable</b> for the following reason:<br/><br/>
+    			<i>{{ credit_submission.applicability_reason.reason }}</i>
+    		</p>
+    	{% else %}{% if credit_submission.submission_status == 'np' or credit_submission.submission_status == 'ns' %}
+    		<p class='hideReportingFields'>
+    			This credit was marked as <b>Not Pursuing</b> so Reporting Fields will not be displayed.
+    		</p> 
+    	{% else %}
+		        <div style="text-align: right;font-size: .9em;padding:10px;">
+		            "<span class='green bold'>---</span>"
+		            <i>indicates that no data was submitted for this field</i>
+		        </div>
+	            <br/>
+	            {% for field in credit_submission.get_submission_fields %}
+	                {% include 'institutions/scorecards/field_detail.html' %}
+	            {% endfor %}
+		{% endif %}{% endif %}
+		{% endblock %}
     </div>
     
 {% endblock %}

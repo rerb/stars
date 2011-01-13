@@ -65,7 +65,7 @@ class FormActionView(object):
         if response:
             return response
 
-        return render_to_response(self.template, context)
+        return render_to_response(self.template, RequestContext(request, context))
 
     def get_instance(self, request, context, *args, **kwargs):
         """ Provides a way for the class to get the model instance from the request object """
@@ -90,7 +90,7 @@ class FormActionView(object):
             else:
                 _context['instance'] = instance
 
-        return RequestContext(request, _context)
+        return _context
 
     def get_extra_context(self, request, *args, **kwargs):
         """ Extend this method to add any additional items to the context """

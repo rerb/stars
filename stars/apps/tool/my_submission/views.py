@@ -44,6 +44,7 @@ def summary(request):
         'active_submission': active_submission,
         'category_submission_list': category_submission_list,
         'is_admin': is_admin,
+        'summary': True,
     }
     
     return respond(request, "tool/submissions/summary.html", context)
@@ -100,7 +101,6 @@ class LetterClassView(SubmissionClassView):
         """ This form gives institutions the option to choose Reporter status """
         if context[self.instance_name].get_STARS_rating().name != 'Reporter':
             return LetterStatusForm
-        print >> sys.stderr, "HERE!"
         #return SubmissionClassView.get_form_class(self, *args, **kwargs)
         return super(LetterClassView, self).get_form_class(context, *args, **kwargs)
         
@@ -153,7 +153,7 @@ class FinalizeClassView(SubmissionClassView):
         send_mail(  "STARS Submission!! (%s)" % context[self.instance_name].institution,
                     "%s has submitted for a rating! Time to review!" % context[self.instance_name],
                     settings.EMAIL_HOST_USER,
-                    ['stars_staff@aashe.org',],
+                    ['stars_staff@aashe.org','jesse@aashe.org'],
                     fail_silently=False
                     )
         
@@ -186,29 +186,29 @@ def _get_category_submission_context(request, category_id):
     }
     return context
         
-@user_can_submit
-def category_detail(request, category_id):
-    """
-        The category summary page for a submission
-    """    
-    context = _get_category_submission_context(request, category_id)
-    category = context.get('category')
-    category_submission = context.get('category_submission')
-    
-    subcategory_submission_list = []
-    for subcategory in category.subcategory_set.all():
-        try:
-            subcategory_submission = SubcategorySubmission.objects.get(subcategory=subcategory, category_submission=category_submission)
-        except SubcategorySubmission.DoesNotExist:
-            subcategory_submission = SubcategorySubmission(subcategory=subcategory, category_submission=category_submission)
-            subcategory_submission.save()
-        subcategory_submission_list.append(subcategory_submission)
-    
-    context.update({
-        'subcategory_submission_list': subcategory_submission_list,
-    })
-    
-    return respond(request, "tool/submissions/category.html", context)
+#@user_can_submit
+#def category_detail(request, category_id):
+#    """
+#        The category summary page for a submission
+#    """    
+#    context = _get_category_submission_context(request, category_id)
+#    category = context.get('category')
+#    category_submission = context.get('category_submission')
+#    
+#    subcategory_submission_list = []
+#    for subcategory in category.subcategory_set.all():
+#        try:
+#            subcategory_submission = SubcategorySubmission.objects.get(subcategory=subcategory, category_submission=category_submission)
+#        except SubcategorySubmission.DoesNotExist:
+#            subcategory_submission = SubcategorySubmission(subcategory=subcategory, category_submission=category_submission)
+#            subcategory_submission.save()
+#        subcategory_submission_list.append(subcategory_submission)
+#    
+#    context.update({
+#        'subcategory_submission_list': subcategory_submission_list,
+#    })
+#    
+#    return respond(request, "tool/submissions/category.html", context)
 
 
 def _get_subcategory_submission_context(request, category_id, subcategory_id):
@@ -229,30 +229,30 @@ def _get_subcategory_submission_context(request, category_id, subcategory_id):
         'subcategory_submission': subcategory_submission,
     })
     return context
-
-@user_can_submit
-def subcategory_detail(request, category_id, subcategory_id):
-    """
-        The sub-category summary page for a submission
-    """
-    context = _get_subcategory_submission_context(request, category_id, subcategory_id)
-    subcategory = context.get('subcategory')
-    subcategory_submission = context.get('subcategory_submission')
-    
-    # get the related CreditSubmissions
-    credit_submission_list = []
-    for credit in subcategory.credit_set.all():
-        try:
-            credit_submission = CreditUserSubmission.objects.get(credit=credit, subcategory_submission=subcategory_submission)
-        except CreditUserSubmission.DoesNotExist:
-            credit_submission = CreditUserSubmission(credit=credit, subcategory_submission=subcategory_submission)
-            credit_submission.submission_status = 'p'
-            credit_submission.save()
-        credit_submission_list.append(credit_submission)
-    
-    context.update({'credit_submission_list': credit_submission_list})
-    
-    return respond(request, "tool/submissions/subcategory.html", context)
+#
+#@user_can_submit
+#def subcategory_detail(request, category_id, subcategory_id):
+#    """
+#        The sub-category summary page for a submission
+#    """
+#    context = _get_subcategory_submission_context(request, category_id, subcategory_id)
+#    subcategory = context.get('subcategory')
+#    subcategory_submission = context.get('subcategory_submission')
+#    
+#    # get the related CreditSubmissions
+#    credit_submission_list = []
+#    for credit in subcategory.credit_set.all():
+#        try:
+#            credit_submission = CreditUserSubmission.objects.get(credit=credit, subcategory_submission=subcategory_submission)
+#        except CreditUserSubmission.DoesNotExist:
+#            credit_submission = CreditUserSubmission(credit=credit, subcategory_submission=subcategory_submission)
+#            credit_submission.submission_status = 'p'
+#            credit_submission.save()
+#        credit_submission_list.append(credit_submission)
+#    
+#    context.update({'credit_submission_list': credit_submission_list})
+#    
+#    return respond(request, "tool/submissions/subcategory.html", context)
 
 
 def _get_credit_submission_context(request, category_id, subcategory_id, credit_id):

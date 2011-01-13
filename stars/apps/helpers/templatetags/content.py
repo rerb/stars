@@ -9,12 +9,13 @@ from stars.apps.helpers import watchdog
 
 register = template.Library()
 
-@register.simple_tag
-def display_block_content(key):
+@register.inclusion_tag('helpers/tags/block_content.html')
+def display_block_content(key, user=None):
     """ Simply returns the helptext, unstyled. """
     try:
-        c = BlockContent.objects.get(key=key)
-        return c.content
+        block = BlockContent.objects.get(key=key)
     except:
         watchdog.log("lookup_block_content", "BlockContent, '%s', not found." % key)
-        return ""
+        block = ""
+        
+    return {'block': block, 'user': user}

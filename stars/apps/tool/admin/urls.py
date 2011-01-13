@@ -19,6 +19,4 @@ urlpatterns = patterns(
 
     # Admin utilities
     (r'^watchdog/',  include('stars.apps.tool.admin.watchdog.urls')),
-    (r'^pages/$', 'articles'),
-    url(r'pages/syncdb/$', 'article_category_sync', None, name="article-category-sync"),
 )

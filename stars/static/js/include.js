@@ -122,7 +122,7 @@ function toggle_applicability_reasons(status_obj) {
     reason_obj = document.getElementById('reason_choices')
     if( reason_obj != null ) {
         reason_obj.style.display = 'none';   // hide reasons...
-        if( status_obj.value == 'na' ) {     // unless not applicable is selected.
+        if( status_obj != null && status_obj.value == 'na' ) {     // unless not applicable is selected.
             reason_obj.style.display = '';
         }
     }
@@ -159,6 +159,33 @@ function confirm_leave()
         if (!confirm('This page contains unsaved data. Click OK to leave without saving or Cancel to save changes before leaving.'))
             document.forms[0].submit();
 }
+
+/**
+ * Set all the links on the page to have the "onclick" action be
+ * confirm_exit() unless they already have an "onclick" action
+ * or have the noExit className
+ */
+function confirm_exit() {
+	
+	if(!document.getElementById('submit_button').disabled) {
+		if (!confirm('This page contains unsaved data. Click OK to leave without saving or Cancel to continue editing this credit.')) {
+			return false;
+		}
+	}
+	return true;
+}
+
+function update_confirm_links() {
+	links = document.getElementsByTagName("a");
+//	links = [document.getElementById('clickhere')];
+	re = /.*noExit.*/;
+	for(var i = 0; i < links.length; i++) {
+		if( links[i].onclick == null && !re.test(links[i].className) ) {
+			links[i].onclick = confirm_exit;
+		}
+	}
+}
+
 
 function enable_submit(enable) {
 	button = document.getElementById('submit_button');

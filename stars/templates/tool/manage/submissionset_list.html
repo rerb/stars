@@ -27,7 +27,20 @@
                 {% endif %}
             </td>
             <td>{{ set.date_registered }}</td>
-            <td>{{ set.submission_deadline }}</td>
+            <td>
+            	{{ set.submission_deadline }}
+            	<span style='font-size: .8em;'>
+	            	{% if set.extensionrequest_set.all %}
+	            		<br/>
+	            		{% for e in set.extensionrequest_set.all %}
+	            			<br/>
+	            			extended on {{ e.date }}<br/>
+	            			from {{ e.old_deadline }}<br/>
+	            			by {{ e.user.email }}
+	            		{% endfor %}
+	            	{% endif %}
+            	</span>
+            </td>
             <td>{{ set.get_status }}</td>
             <td>
                 {% ifequal set active_set %}
@@ -43,6 +56,9 @@
                 	{% ifequal set active_set %}{% if not set.was_submitted %}
                 		<a href='{{ set.get_submit_url }}' class='button'>Submit for Rating</a>
                         <a href='{{ set.get_manage_url }}boundary/' class='button'>Edit Boundary</a>
+		                {% if set.can_apply_for_extension %}
+		                    <a href='{{ set.get_manage_url }}extension/' class='button'>Extend Deadline</a>
+		                {% endif %}
                 	{% endif %}{% endifequal %}
                 {% endif %}
             </td>

@@ -11,9 +11,9 @@
         <div style='margin: 10px 50px;'>
             {% load content %}
             {% if amount_due %}
-                {% display_block_content 'reg_unpaid' %}
+                {% display_block_content 'reg_unpaid' user %}
             {% else %}    
-                {% display_block_content 'reg_paid' %}
+                {% display_block_content 'reg_paid' user %}
             {% endif %}
         </div>
 

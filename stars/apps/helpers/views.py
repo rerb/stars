@@ -1,9 +1,40 @@
 from django.template import RequestContext
 from django.http import HttpResponseServerError, HttpResponseForbidden
+from django.shortcuts import render_to_response
 
 from stars.apps.helpers.shortcuts import render_to_any_response
 from stars.apps.helpers import exceptions
 from stars.apps.tool.admin.watchdog.models import WatchdogEntry
+
+import sys
+
+class TemplateView(object):
+    """
+        A generic class view that all other views can extend
+    """
+    def __init__(self, template):
+        self.template = template
+
+    def __call__(self, request, *args, **kwargs):
+        """ Simply calls render """
+        
+        return self.render(request, *args, **kwargs)
+
+    def render(self, request, *args, **kwargs):
+        """ Renders the response """
+        
+        context = self.get_context(request, *args, **kwargs)
+        if context.__class__.__name__ == "HttpResponseRedirect":
+            return context
+        
+        return render_to_response(self.template,
+                                  context,
+                                  context_instance=RequestContext(request))
+        
+    def get_context(self, request, *args, **kwargs):
+        """ Add/update any context variables """
+        _context = {}
+        return _context
 
 def server_error(request):
     context = {}

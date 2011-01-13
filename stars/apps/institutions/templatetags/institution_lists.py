@@ -17,3 +17,11 @@ def show_latest_registrants(count='5'):
         inst_list.append(s.institution)
         
     return {'inst_list': inst_list}
+
+@register.inclusion_tag('institutions/tags/rated_list.html')
+def show_rated_registrants(count='5'):
+    """ Display the (count) most recently registered institutions """
+    
+    query_set = SubmissionSet.objects.get_rated().order_by('-date_reviewed')
+    
+    return {'ss_list': query_set[0:count],}

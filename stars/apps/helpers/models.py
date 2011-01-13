@@ -14,7 +14,7 @@ class BlockContent(models.Model):
     """
         A tool to house content that can be edited on the site.
     """
-    key = models.CharField(max_length=16, unique=True)
+    key = models.SlugField(unique=True)
     content = models.TextField()
 
     def __str__(self):

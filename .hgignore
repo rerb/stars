@@ -8,6 +8,7 @@ syntax: regexp
 ^\.installed\.cfg$
 ^\.pydevproject\.bak$
 ^\.settings$
+^\.project
 
 syntax: glob
 *.pyc

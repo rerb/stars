@@ -1,6 +1,11 @@
 {% extends 'base.html' %}
 
-{% block title %}{{ category.label }} | {{ block.super }}{% endblock %}
+{% block title %}
+	{% if article %}{{ article }} |{% endif %}
+	{% if subcategory %}{{ subcategory }} |{% endif %}
+	{{ category }} |
+	{{ block.super }}
+{% endblock %}
 
 {% block extra_head %}
 	{{ block.super }}
@@ -11,19 +16,41 @@
 {% block body_onload %}listexpander();{% endblock %}
 
 {% block main_menu %} 
-    {% load main_menu %}
-    {% show_main_menu user root_category %} 
+	{% load cache %}
+	{% cache 86400 main_menu user.is_staff category %}
+	    {% load main_menu %}
+	    {% show_main_menu user category %} 
+   	{% endcache %}
+{% endblock %}
+
+{% block crumbs %}
+	{{ block.super }}
+	&gt; <a href='{{ category.get_absolute_url }}'>{{ category }}</a>
+	{% if subcategory %}
+		&gt; <a href='{{ subcategory.get_absolute_url }}'>{{ subcategory }}</a>
+	{% endif %}
+	{% if article %}
+		&gt; <a href='{{ article.get_absolute_url }}'>{{ article }}</a>
+	{% endif %}
 {% endblock %}
 
 {% block content %}
 	<div id="content"><div class='inner20'>
 		{% block center %}{% endblock %}
 	</div></div>
-	
 	<div id='rail'>
-		<div id='leftMenu'>
-			{% load cms_tags %}
-            {% show_article_menu %}
-		</div>
+		{% if user.is_staff %}
+			<p style='text-align: center' />
+				<a href='/_ad/cms/' target='_blank'>
+					<img src='/media/static/images/add.png' alt='+' />
+					Add Content
+				</a>
+			</p>
+		{% endif %}
+		{% load cache %}
+		{% cache 86400 cms_left_menu article subcategory category category.timestamp %}
+			{% include 'cms/left_menu.html' %}
+		{% endcache %}
 	</div>
+	
 {% endblock %}

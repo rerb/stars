@@ -16,6 +16,10 @@ class CategorySubmissionAdmin(admin.ModelAdmin):
     pass
 admin.site.register(CategorySubmission, CategorySubmissionAdmin)
 
+class DataCorrectionRequestAdmin(admin.ModelAdmin):
+    list_display = ('user', 'reporting_field', 'date',)
+admin.site.register(DataCorrectionRequest, DataCorrectionRequestAdmin)
+
 class SubcategorySubmissionAdmin(admin.ModelAdmin):
     pass
 admin.site.register(SubcategorySubmission, SubcategorySubmissionAdmin)
@@ -33,3 +37,11 @@ class ResponsiblePartyAdmin(admin.ModelAdmin):
     list_display = ('first_name', 'last_name', 'institution', 'email')
     list_filter = ('institution',)
 admin.site.register(ResponsibleParty, ResponsiblePartyAdmin)
+
+class CreditSubmissionInquiryInline(admin.TabularInline):
+    model = CreditSubmissionInquiry
+
+class SubmissionInquiryAdmin(admin.ModelAdmin):
+    list_display = ('last_name', 'first_name', 'submissionset', 'date')
+    inlines = [CreditSubmissionInquiryInline,]
+admin.site.register(SubmissionInquiry, SubmissionInquiryAdmin)

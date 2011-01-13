@@ -8,22 +8,22 @@
     75% Black, (R-64, G-64, B-64) #404040
 
     Type styles:
-    Headings Ð Garamond, bold, 28pt font, 33pt leading, 75% black
-    Sub-heads Ð Garamont, bold, 17pt font, 20.4 leading, 75% black
-    Green call-out text Ð Garamont, regular, 21pt font, 24pt leading, STARS Green (R-132, G-142, B-43)
-    Body copy Ð Verdana, regular, 12pt font, 18pt leading, 75% black
-    Links Ð use same font/weight as body copy, underlined, STARS Blue (R-27, G-97, B-127)
+    Headings ï¿½ Garamond, bold, 28pt font, 33pt leading, 75% black
+    Sub-heads ï¿½ Garamont, bold, 17pt font, 20.4 leading, 75% black
+    Green call-out text ï¿½ Garamont, regular, 21pt font, 24pt leading, STARS Green (R-132, G-142, B-43)
+    Body copy ï¿½ Verdana, regular, 12pt font, 18pt leading, 75% black
+    Links ï¿½ use same font/weight as body copy, underlined, STARS Blue (R-27, G-97, B-127)
     
 */
 
 html, body {
     background-color: #404040;
-    padding: 0px;
+    padding: 0px 0px 10px 0px;
 }
 
 /* CSS Columns, thanks to A List Apart: http://www.alistapart.com/articles/multicolumnlayouts/ */
 
-#container, #footer {
+#container, #footer, #credits {
     background-color: #ffffff;
     overflow: hidden;
     width: 940px;
@@ -60,13 +60,31 @@ html, body {
     border-bottom: 4px solid #848e2b;
 }
 
-#footer {
+#footer, #credits {
     background-color: #1b617f;
     border-color: #1b617f;
     padding: 10px 0px 20px 0px;
     color: white;
     clear: both;
     font-size: .8em;
+}
+
+#credits {
+	background-color: #404040;
+	border-color: #404040;
+	border-top-width: 0px;
+	text-align: right;
+	color: #aaa;
+    padding: 15px 0px 15px 0px;
+}
+
+#credits a, #credits a:visited {
+	color: #ccc;
+	text-decoration: none;
+}
+
+#credits a:hover {
+	color: #fff;
 }
 
 #footer a {
@@ -919,4 +937,71 @@ pre {
  white-space: -pre-wrap;      /* Opera 4-6 */
  white-space: -o-pre-wrap;    /* Opera 7 */
  word-wrap: break-word;       /* Internet Explorer 5.5+ */
+}
+
+table.greyTHTable {
+	margin: 5px 50px 10px 50px;
+	border: 1px solid #aaa;	
+}
+
+table.greyTHTable th, table.greyTHTable td {
+	margin: 0px;
+	padding: 5px 3px;
+}
+
+table.greyTHTable th {
+	background-color: #ddd;
+	text-align: right;
+	whitespace: no-wrap;
+	font-weight: bold;
+}
+
+p.hideReportingFields {
+	color: #555;
+	text-align: center;
+	padding: 50px;
+}
+
+span.scorecardFieldTitle {
+	font-size: 1.4em;
+	font-family: Garamond;	
+}
+
+div.correction {
+	background-color: #ffefe0;
+	border: 1px dashed #fa3;
+	margin: 0px 20px;
+	padding: 3px;
+	color: #555;
+}
+
+table.filterList {
+	width: 100%;
+	border: 1px solid #ccc;
+	border-collapse: collapse;
+	background-color: white;
+}
+
+table.filterList tr {
+	border-bottom: 1px solid #ccc;	
+}
+
+table.filterList th {
+	text-align: left;
+	background-color: #ddd;
+	line-height: 2.5;
+	color: #333;
+}
+
+table.filterList td {
+	padding: 5px;	
+}
+
+#institution_list {
+	margin-top: 10px;	
+}
+
+table.vertical th {
+	text-align: right;	
+	padding-right: 10px;
 }

@@ -5,22 +5,30 @@
 
 from settings import *
 
+MAINTENANCE_MODE = False
+
 DATABASES = {
     'default': {
         'NAME': 'stars_production',
         'ENGINE': 'django.db.backends.mysql',
         'USER': 'starsapp',
         'PASSWORD': 'J3z4#$szFET--6',
-        'HOST': 'localhost',
+        'HOST': 'mysql.aashe.net',
     }
 }
 
+CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
+
+ANALYTICS_ID = "UA-1056760-7"
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
-MEDIA_ROOT = '/var/www/stars.aashe.org/media'
+MEDIA_ROOT = '/var/www/stars.aashe.org/media/'
 
 SSO_SERVER_URI = WWW_SSO_SERVER_URI
 STARS_DOMAIN = WWW_STARS_DOMAIN
 SSO_API_KEY = WWW_SSO_API_KEY
 
 CYBERSOURCE_URL = CYBERSOURCE_PRODUCTION_URL
+
+GOOGLE_MAPS_API_KEY = "ABQIAAAA-bTvhmGT1R0ug4p1J_-l4hT1dK6xzdB3aWK9aIYt9VV2d12OYRQT9yzKSsquzcHMTZSRkLcRjdIWuA"

@@ -14,7 +14,7 @@ class Institution(models.Model):
         is a mirror of Drupal and will require regular updating
     """
     name = models.CharField(max_length=255)
-    slug = models.SlugField(null=True, blank=True, max_length=255)
+    slug = models.SlugField(max_length=255)
     aashe_id = models.IntegerField()
     enabled = models.BooleanField(help_text="This is a staff-only flag for disabling an institution. An institution will NOT appear on the STARS Institutions list until it is enabled.", default=False)
     contact_first_name = models.CharField("Liaison First Name", max_length=32)
@@ -23,15 +23,17 @@ class Institution(models.Model):
     contact_title = models.CharField("Liaison Title", max_length=64)
     contact_department = models.CharField("Liaison Department", max_length=64)
     contact_phone = PhoneNumberField("Liaison Phone")
+    contact_phone_ext = models.SmallIntegerField("Extension", blank=True, null=True)
     contact_email = models.EmailField("Liaison Email")
-    executive_contact_first_name = models.CharField(max_length=32)
-    executive_contact_middle_name = models.CharField(max_length=32, blank=True, null=True)
-    executive_contact_last_name = models.CharField(max_length=32)
-    executive_contact_title = models.CharField(max_length=64)
-    executive_contact_department = models.CharField(max_length=64)
-    executive_contact_email = models.EmailField()
+    executive_contact_first_name = models.CharField("Executive Contact First Name", max_length=32)
+    executive_contact_middle_name = models.CharField("Executive Contact Middle Name", max_length=32, blank=True, null=True)
+    executive_contact_last_name = models.CharField("Executive Contact Last Name", max_length=32)
+    executive_contact_title = models.CharField("Executive Contact Title", max_length=64)
+    executive_contact_department = models.CharField("Executive Contact Department", max_length=64)
+    executive_contact_email = models.EmailField("Executive Contact Email")
     charter_participant = models.BooleanField()
     profile = models.ForeignKey(Organizations, null=True, blank=True)
+    stars_staff_notes = models.TextField(blank=True, null=True)
     
     def __unicode__(self):
         return self.name.decode('utf8')
@@ -177,7 +179,8 @@ class Institution(models.Model):
         i_list = _query_iss_orgs("account_num=%d" % iss_institution_id)
         if len(i_list) == 1:
             iss_institution = i_list[0]
-            self.slug = "%s-%s" % (slugify(iss_institution['name']), iss_institution['state'].lower())
+            slug_base = "%s-%s" % (iss_institution['name'], iss_institution['state'].lower())
+            self.slug = slugify(slug_base)
         else:
             watchdog.log("Registration", "ISS Institution lookup failure: %s" % e, watchdog.ERROR)
             self.slug = iss_institution_id
@@ -514,7 +517,13 @@ class PendingAccount(AbstractAccount):
         pending_accounts = PendingAccount.objects.filter(user_email__iexact=user.email)
         account = None
         for pending in pending_accounts:  # seems unlikely there will be more than 1, but it could happen...
-            account = StarsAccount(user=user, institution=pending.institution, user_level=pending.user_level)
+            # Confirm the account doesn't already exist
+            try:
+                account = StarsAccount.objects.get(user__email=pending.user_email, institution=pending.institution)
+                account.user_level = pending.user_level
+            except StarsAccount.DoesNotExist:
+                account = StarsAccount(user=user, institution=pending.institution, user_level=pending.user_level)
+            
             account.save()
             pending.delete()
                         

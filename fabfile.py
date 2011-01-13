@@ -18,15 +18,23 @@ env.repo = "https://%s:%s@code.aashedev.org/hg/stars" % (env.hg_user, env.hg_pas
 def dev():
     " Initializes a release to dev "
     
-    env.hosts = ['stars.dev.aashe.org',]
+    env.hosts = ['aashedev',]
     env.path = "/var/django/projects/stars/dev/"
     env.run_test = False
+    env.prep = prepare_dev
+    
+def stage():
+    " Initializes a release to dev "
+    
+    env.hosts = ['aashedev',]
+    env.path = "/var/django/projects/stars/stage/"
+    env.run_test = True
     env.prep = prepare_dev
     
 def production():
     " Initializes a release to production "
     
-    env.hosts = ['stars.aashe.org',]
+    env.hosts = ['sustain',]
     env.path = "/var/django/projects/stars/production/"
     env.run_test = True
     env.prep = prepare_production
@@ -69,7 +77,10 @@ def prepare_production():
         abort('User terminated session.')
     
     env.project_path = "%stag_%s" % (env.path, tag_name)
-    env.hg_update_commands = ["hg update --clean %s" % tag_name,]
+    env.hg_update_commands = [
+                              "hg update --clean %s" % tag_name,
+                              "echo \"revision = '%s'\" > stars/config/hg_info.py" % tag_name,
+                              ]
     env.checkout_cmd = 'hg clone --noninteractive %s %s' % (env.repo, env.project_path)
         
     # Create a new tag from the current trunk if "tag" doesn't exist yet

@@ -16,7 +16,7 @@
                 <ul>
                 	{% for sub in cat.subcategory_set.all %}
                     <li>
-                    	<a href='/tool/submissions/#ec_{{ cat.id }}_{{ sub.id }}' onclick='jumpToSubcat("{{ cat.id }}", "{{ sub.id }}");'>
+                    	<a href='/tool/submissions/#ec_{{ cat.id }}_{{ sub.id }}' {% if summary %}onclick='jumpToSubcat("{{ cat.id }}", "{{ sub.id }}");'{% endif %}>
                     		{{ sub }}
                     	</a>
                     	<ul>

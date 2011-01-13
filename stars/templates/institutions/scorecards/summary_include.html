@@ -25,7 +25,7 @@
             src='/media/static/images/collapse_big.gif' alt='+'
             onclick='expandCollapse(this, false);'
             style='vertical-align: middle;'
-            id='ec_boundary' class='collapseExpand' />
+            id='ec_boundary' class='collapseExpand initial_expand' />
         <i>Submission Boundary:</i><br/>
         <div id='ec_boundary_target'>
             {{ submissionset.submission_boundary|urlizetrunc:55|linebreaks|fix_ampersands }}
@@ -70,11 +70,7 @@
 
 {% block credit_summary_row %}
     <td class='credit'>
-        {% if c.submission_status == 'ns' or c.submission_status == 'np' %}
-            {{ c }}
-        {% else %}
-            <a href='{{ c.get_scorecard_url }}'>{{ c }}</a>
-        {% endif %}
+        <a href='{{ c.get_scorecard_url }}'>{{ c }}</a>
     </td>
             
     {% ifnotequal rating.name "Reporter" %}

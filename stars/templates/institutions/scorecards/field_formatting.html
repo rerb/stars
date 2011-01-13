@@ -1,43 +1,30 @@
-<span style='font-size: 1.4em;font-family: Garamond;'>
-    {{ field.documentation_field.title }}:
-</span>
-
 {% load humanize %}
 
 {% if not field.is_empty %}
-    <div class='greyBox'
-        {% ifequal field.documentation_field.type 'long_text' %}
-        style='padding: 10px 20px'>
-            {{ field.value|urlizetrunc:85|linebreaks|fix_ampersands }}
-        {% else %}
-        >
-            {% ifequal field.documentation_field.type 'url' %}
-                <a href='{{ field.value }}' target="_blank">{{ field.value|slice:":85" }}</a>
-            {% else %}
-                {% ifequal field.documentation_field.type 'upload' %}
-                    {% if field.value %}
-                        <a href='{{ field.value.url }}'>{{ field.get_filename }}</a>
-                    {% endif %}
-                {% else %}
-                    {% ifequal field.documentation_field.type 'numeric' %}
-                        {{ field.value|floatformat:"-2" }}
-                        {% if field.documentation_field.units %}
-                            <i>{{ field.documentation_field.units }}</i>
-                        {% endif %}
-                    {% else %}
-                        {% ifequal field.documentation_field.type 'boolean' %}
-                            {{ field }}
-                        {% else %}
-                            {{ field.value }}
-                        {% endifequal %}
-                    {% endifequal %}
-                {% endifequal %}
-            {% endifequal %}
-        {% endifequal %}
-    </div>
-{% else %}
-    <div class='greyBoxSmall'>
-        <span class='green'>---</span>
-    </div>
+	{% ifequal field.documentation_field.type 'long_text' %}
+		{{ field.value|urlizetrunc:85|linebreaks|fix_ampersands }}
+	{% else %}
+	    {% ifequal field.documentation_field.type 'url' %}
+	        <a href='{{ field.value }}' target="_blank">{{ field.value|slice:":85" }}</a>
+	    {% else %}
+	        {% ifequal field.documentation_field.type 'upload' %}
+	            {% if field.value %}
+	                <a href='{% if host %}http://{{ host }}{% endif %}{{ field.value.url|urlencode }}'>{{ field.get_filename }}</a>
+	            {% endif %}
+	        {% else %}
+	            {% ifequal field.documentation_field.type 'numeric' %}
+	                {{ field.value|floatformat:"-2" }}
+	                {% if field.documentation_field.units %}
+	                    <i>{{ field.documentation_field.units }}</i>
+	                {% endif %}
+	            {% else %}
+	                {% ifequal field.documentation_field.type 'boolean' %}
+	                    {{ field }}
+	                {% else %}
+	                    {{ field.value }}
+	                {% endifequal %}
+	            {% endifequal %}
+	        {% endifequal %}
+	    {% endifequal %}
+	{% endifequal %}
 {% endif %}
-<br/>

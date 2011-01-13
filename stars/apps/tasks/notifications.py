@@ -11,10 +11,44 @@ import sys, calendar
 from django.template import Context, loader, Template
 from django.core.mail import send_mail
 from django.conf import settings
+from django.core.mail import EmailMessage
 
 from stars.apps.institutions.models import * # required for execfile management func
-from stars.apps.submissions.models import SubmissionSet
+from stars.apps.submissions.models import SubmissionSet, Payment
 from stars.apps.tasks.models import EmailNotification
+
+def get_new_institutions(current_date):
+    """
+        Return a list of all institutions that paid more than a week ago.
+    """
+    one_week = timedelta(weeks=1)
+    date_limit = current_date - one_week
+    
+    i_list = []
+    for p in Payment.objects.filter(date__lte=date_limit).exclude(type='later'):
+        if not p.submissionset.institution.charter_participant and p.submissionset.status == 'ps':
+            i_list.append(p.submissionset.institution)
+    
+    return i_list
+
+def send_welcome_email(current_date):
+    """
+        This is separated from `get_new_institutions` for testing purposes
+    """
+    
+    for i in get_new_institutions(current_date):
+
+        t = loader.get_template('tasks/notifications/welcome.txt')
+        c = Context({'institution': i,})
+        message = t.render(c)
+    
+        send_notification(
+                            n_type='wel',
+                            identifier="wel-%d" % i.id,
+                            mail_to=[i.contact_email,],
+                            message=message,
+                            subject="Welcome to STARS",
+                        )
 
 def get_overdue_payments(current_date):
     """
@@ -37,8 +71,6 @@ def send_overdue_notifications(current_time):
         This is separated from `get_overdue_contacts` for testing purposes
     """
     
-    print >> sys.stderr, "Sending overdue notifications..."
-    
     for ss in get_overdue_payments(current_time):
 
         t = loader.get_template('tasks/notifications/overdue.txt')
@@ -48,7 +80,7 @@ def send_overdue_notifications(current_time):
         send_notification(
                             n_type='4wk',
                             identifier="4wk-%d" % ss.id,
-                            mail_to=[ss.institution.contact_email,'margueritte.williams@aashe.org'],
+                            mail_to=[ss.institution.contact_email,'margueritte.williams@aashe.org', 'allison@aashe.org'],
                             message=message,
                             subject="Reminder:  STARS Registration Fee Overdue",
                         )
@@ -60,7 +92,7 @@ def get_six_month_sets(current_date):
     
     ss_list = []
     d = add_months(current_date, 6)
-    for ss in SubmissionSet.objects.filter(submission_deadline__lte=d):
+    for ss in SubmissionSet.objects.filter(submission_deadline__lte=d).filter(status='ps'):
         ss_list.append(ss)
     return ss_list
     
@@ -82,7 +114,82 @@ def send_six_month_notifications(current_time):
                             message=message,
                             subject="Reminder:  STARS Submission Due in 6 Months!",
                         )
+
+def send_sixty_day_notifications(current_date=None):
+    """
+        Gets the submission sets that are due in sixty days or less
+        current_date is optional for debugging
+    """
     
+    if not current_date:
+        current_date = date.today()
+        
+    t = loader.get_template('tasks/notifications/sixty_days.txt')
+    
+    d = current_date + timedelta(days=60)
+    message_list = []
+    
+    for ss in SubmissionSet.objects.filter(submission_deadline__lte=d):
+        if ss.can_apply_for_extension(current_date):
+            c = Context({'ss': ss,})
+            
+            m = {
+                    'mail_to': [ss.institution.contact_email,],
+                    'message': t.render(c),
+                    'n_type': '60d',
+                    'identifier': '60-%d' % ss.id,
+                    'subject': 'STARS Submission: Due in 60 Days',
+                 }
+            message_list.append(m)
+            
+    send_notification_set(message_list)
+    
+def send_post_submission_survey(current_date=None):
+    """
+        Gets the submission sets that were submitted 30 days or more ago
+        current_date is optional for debugging
+    """
+    
+    if not current_date:
+        current_date = date.today()
+        
+    t = loader.get_template('tasks/notifications/post_submission_survey.txt')
+    
+    d = current_date - timedelta(days=30)
+    message_list = []
+    
+    for ss in SubmissionSet.objects.filter(date_submitted__lte=d).filter(status='r'):
+        
+        c = Context({'ss': ss,})
+        m = {
+                'mail_to': [ss.institution.contact_email,],
+                'message': t.render(c),
+                'n_type': 'ps',
+                'identifier': 'ps-%d' % ss.id,
+                'subject': 'STARS Post-Submission Survey',
+             }
+        message_list.append(m)
+            
+    send_notification_set(message_list)
+
+def send_notification_set(notification_set):
+    """
+        Sends a set of notifications
+        set structure:
+        (
+            {'mail_to': [], 'message': '', 'n_type': '', 'identifier': '', 'subject': ''},
+            ...
+        )
+    """
+    
+    for n in notification_set:
+        send_notification(
+                            n_type=n['n_type'],
+                            identifier=n['identifier'],
+                            mail_to=n['mail_to'],
+                            message=n['message'],
+                            subject=n['subject'],
+                        )
 
 def add_months(d, months):
     """
@@ -110,15 +217,18 @@ def send_notification(n_type, identifier, mail_to, message, subject, count=1):
         If this notification has already been sent `count` times, ignore it.
     """
     
-    if EmailNotification.objects.filter(notification_type=n_type, identifier=identifier, sent_to=mail_to).count() < count:
+    if EmailNotification.objects.filter(identifier=identifier).count() < count:
         
         try:
-            send_mail(  subject,
-                        message,
-                        settings.EMAIL_HOST_USER,
-                        mail_to,
-                        fail_silently=False
+            m = EmailMessage(
+                            subject=subject,
+                            body=message,
+                            to=mail_to,
+                            bcc=['ben@aashe.org',],
+                            headers = {'Reply-To': 'stars@aashe.org'},
                         )
+            m.send()
+            
             en = EmailNotification(identifier=identifier, notification_type=n_type, sent_to=mail_to, subject=subject)
             en.save()
         except Exception, e:

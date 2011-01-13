@@ -168,6 +168,25 @@
     }
   }, 
   {
+    "pk": 5, 
+    "model": "submissions.submissionset", 
+    "fields": {
+      "status": "ps", 
+      "rating": null, 
+      "submission_boundary": "", 
+      "submitting_user": null, 
+      "date_reviewed": null, 
+      "creditset": 1, 
+      "presidents_letter": "", 
+      "date_submitted": null, 
+      "date_registered": "2011-05-1", 
+      "submission_deadline": "2012-05-1", 
+      "reporter_status": false, 
+      "registering_user": 5214, 
+      "institution": 1
+    }
+  }, 
+  {
     "pk": 1, 
     "model": "submissions.payment", 
     "fields": {

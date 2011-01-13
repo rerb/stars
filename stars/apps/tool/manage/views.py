@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect
@@ -7,7 +9,7 @@ from stars.apps.auth.utils import respond
 from stars.apps.auth.decorators import user_is_inst_admin, user_is_staff
 from stars.apps.auth import xml_rpc
 from stars.apps.institutions.models import Institution, InstitutionState, StarsAccount
-from stars.apps.submissions.models import SubmissionSet, Payment
+from stars.apps.submissions.models import SubmissionSet, Payment, EXTENSION_PERIOD, ExtensionRequest
 from stars.apps.helpers.forms import form_helpers
 from stars.apps.helpers import watchdog
 from stars.apps.helpers import flashMessage
@@ -164,7 +166,6 @@ def submissionsets(request):
     
     return respond(request, 'tool/manage/submissionset_list.html', {'active_set': active_set, 'is_admin': is_admin})
     
-        
 @user_is_staff
 def add_submissionset(request):
     """
@@ -212,6 +213,39 @@ def edit_submissionset(request, set_id):
     object_form, saved = form_helpers.basic_save_form(request, submission_set, set_id, ObjectForm)
 
     template = 'tool/manage/edit_submissionset.html'
+    context = {
+        "object_form": object_form,
+    }
+    return respond(request, template, context)
+
+@user_is_inst_admin
+def extension_request(request, set_id):
+    
+    current_inst = request.user.current_inst
+    
+    ss = get_object_or_404(SubmissionSet, id=set_id, institution=current_inst)
+    
+    if not ss.can_apply_for_extension():
+        # how did they get to this page?
+        flashMessage.send("Sorry, extension requests to this submission set are not allowed at this time.", flashMessage.NOTICE)
+        watchdog.log('Extension Application', "Extension request denied." % ss, watchdog.ERROR)
+        return HttpResponseRedirect('/tool/manage/submissionsets/')
+    
+    object_form, confirmed = form_helpers.confirm_form(request)
+    
+    if confirmed:
+        er = ExtensionRequest(submissionset=ss, user=request.user)
+        er.old_deadline = ss.submission_deadline
+        er.save()
+        
+        td = EXTENSION_PERIOD
+        ss.submission_deadline += td
+        ss.save()
+        
+        flashMessage.send("Your extension request has been applied to your submission.", flashMessage.NOTICE)
+        return HttpResponseRedirect('/tool/manage/submissionsets/')
+
+    template = 'tool/manage/extension_request.html'
     context = {
         "object_form": object_form,
     }

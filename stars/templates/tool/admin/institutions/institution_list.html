@@ -21,6 +21,8 @@
     </span></div>
     {% load help %}
     {% load submit_tags %}
+    {% load cache %}
+	{% cache 86400 admin_institution_list %}
     <form method='POST' action='.'>
       <table id="institution-list" style='padding:10px;'>
         <tr><th colspan=3>Institution</th><th colspan=4>Latest Submission</th><th rowspan=2>Admin<br>Tools</th>
@@ -67,4 +69,5 @@
       </table>
       <button type='submit'>Save</button>
     </form>
+    {% endcache %}
 {% endblock %}

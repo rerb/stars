@@ -1,17 +1,21 @@
-from datetime import datetime, date
-import os, re
+from datetime import datetime, date, timedelta
+import os, re, sys
 from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.safestring import mark_safe
 from django.contrib.localflavor.us.models import PhoneNumberField
 from django.db.models import Q
+from django.contrib.contenttypes import generic
+from django.contrib.contenttypes.models import ContentType
+from django.core.files.uploadedfile import InMemoryUploadedFile
 
 from stars.apps.credits.models import *
 from stars.apps.institutions.models import Institution
 from stars.apps.helpers import watchdog
 from stars.apps.helpers import flashMessage
 from stars.apps.helpers import managers
+from stars.apps.submissions.pdf.export import build_report_pdf
             
 SUBMISSION_STATUS_CHOICES = (
     ('ps', 'Pending Submission'),
@@ -19,15 +23,21 @@ SUBMISSION_STATUS_CHOICES = (
     ('r', 'Rated'),
 )
 
+# Max # of extensions allowed per submission set
+MAX_EXTENSIONS = 1
+
+# Extension period
+EXTENSION_PERIOD = timedelta(days=366/2)
+
+# Institutions that registered before May 29th, but haven't paid are still published
 REGISTRATION_PUBLISH_DEADLINE = date(2010, 5, 29)
 
-def president_letter_callback(instance, filename):
+def upload_path_callback(instance, filename):
     """
         Dynamically alters the upload path based on the instance
-        secure/<org_id>/letter/<file_name>.<ext>
     """
-    institution = instance.institution
-    path = "secure/%d/letter/%s" % (institution.id, filename)
+    path = instance.get_upload_path()
+    path = "%s%s" % (path, filename)
     return path
 
 class SubmissionManager(models.Manager):
@@ -43,6 +53,10 @@ class SubmissionManager(models.Manager):
         qs2 = qs1.filter(
                 (Q(payment__type='later') & Q(date_registered__lte=deadline)) | ~Q(payment__type='later'))
         return qs2
+    
+    def get_rated(self):
+        """ All submissionsets that have been rated """
+        return SubmissionSet.objects.filter(status='r')
 
 class SubmissionSet(models.Model):
     """
@@ -60,14 +74,55 @@ class SubmissionSet(models.Model):
     rating = models.ForeignKey(Rating, blank=True, null=True)
     status = models.CharField(max_length=8, choices=SUBMISSION_STATUS_CHOICES)
     submission_boundary = models.TextField(blank=True, null=True, help_text='Each institution is expected to include its entire main campus when collecting data.  Institutions may choose to include any other land holdings, facilities, farms, and satellite campuses, as long as the selected boundary is the same for each credit.  If an institution finds it necessary to exclude a particular unit from its entire submission or a particular credit, the reason for excluding it must be provided in the notes for that credit or in this description.')
-    presidents_letter = models.FileField("President's Letter", upload_to=president_letter_callback, blank=True, null=True, help_text="AASHE requires that every submission be vouched for by that institution's president. Please upload a PDF or scan of a letter from your president.")
+    presidents_letter = models.FileField("President's Letter", upload_to=upload_path_callback, blank=True, null=True, help_text="AASHE requires that every submission be vouched for by that institution's president. Please upload a PDF or scan of a letter from your president.")
     reporter_status = models.BooleanField(help_text="Check this box if you would like to be given reporter status and not receive a STARS rating from AASHE.")
-    
-    # class Meta:
-    #     unique_together = ("institution", "creditset")  # an institution can only register once for a given creditset.
+    pdf_report = models.FileField(upload_to=upload_path_callback, blank=True, null=True)
 
     def __unicode__(self):
         return unicode('%s (%s)' % (self.institution, self.creditset) )
+    
+    def get_upload_path(self):
+        return 'secure/%d/submission-%d/' % (self.institution.id, self.id)
+    
+    def get_pdf(self, save=False):
+        
+        pdf_result = build_report_pdf(self)
+        
+        if save:
+            name = '%s.pdf' % self.institution.slug
+            file = InMemoryUploadedFile(pdf_result, "pdf", name, None, pdf_result.tell(), None)
+            self.pdf_report.save(name, file)
+            return file
+            
+        return pdf_result.getvalue()
+    
+    def can_apply_for_extension(self, today=None):
+        """
+            Returns true if this submissionset can add an extension
+            today is used for testing
+        """
+        
+        # only w/in 60 days of their deadline
+        if not today:
+            today = date.today()
+        td = timedelta(days=61)
+#        print >> sys.stderr, (self.submission_deadline - today).days
+        if today <= (self.submission_deadline - td):
+            return False
+        
+        # only those who registered before 2011
+        if self.date_registered.year > 2010:
+            return False
+        
+        # no available if they have already submitted
+        if self.status == 'r' or self.status == 'pr':
+            return False
+        
+        # a max of MAX_EXTENSIONS extension(s) is allowed
+        if self.extensionrequest_set.count() >= MAX_EXTENSIONS:
+            return False
+        
+        return True
     
     def is_enabled(self):
         for payment in self.payment_set.all():
@@ -219,7 +274,6 @@ class SubmissionSet(models.Model):
             total += p.amount
             
         return total
-
 
 def get_active_submissions(creditset=None, category=None, subcategory=None, credit=None):
     """ Return a queryset for ALL active (started / finished) credit submissions that meet the given criteria.
@@ -851,12 +905,52 @@ DOCUMENTATION_FIELD_TYPES = (
 )
 """
 
+class DataCorrectionRequest(models.Model):
+    """
+        A request by an institution to make a change to their submission
+    """
+    date = models.DateTimeField(auto_now_add=True)
+    content_type = models.ForeignKey(ContentType)
+    object_id = models.PositiveIntegerField()
+    reporting_field = generic.GenericForeignKey('content_type', 'object_id')
+    new_value = models.TextField()
+    explanation = models.TextField()
+    user = models.ForeignKey(User, blank=True, null=True)
+    
+    def approve(self):
+        """
+            Approving a correction request creates a ReportingFieldDataCorrection
+            This may not work for numeric fields, test it.
+        """
+        rfdc = ReportingFieldDataCorrection(
+                                            previous_value=self.reporting_field.value,
+                                            change_date = datetime.today(),
+                                            reporting_field = self.reporting_field,
+                                            explanation = self.explanation
+                                            )
+        self.reporting_field.value = self.new_value
+        self.reporting_field.save()
+        rfdc.save()
+
+class ReportingFieldDataCorrection(models.Model):
+    """
+        Represents a change to a particular field in Credit Submission after
+        an institution has received a rating.
+    """
+    previous_value = models.TextField()
+    change_date = models.DateField()
+    content_type = models.ForeignKey(ContentType)
+    object_id = models.PositiveIntegerField()
+    reporting_field = generic.GenericForeignKey('content_type', 'object_id')
+    explanation = models.TextField(blank=True, null=True)
+
 class DocumentationFieldSubmission(models.Model):
     """
         The submitted value for a documentation field (abstract).
     """
     documentation_field = models.ForeignKey(DocumentationField, related_name="%(class)s_set")
     credit_submission = models.ForeignKey(CreditSubmission)
+    corrections = generic.GenericRelation(ReportingFieldDataCorrection, content_type_field='content_type', object_id_field='object_id')
     
     class Meta:
         abstract = True
@@ -929,10 +1023,14 @@ class DocumentationFieldSubmission(models.Model):
         if self.value == None or self.value == "":
             return True
         # if it's nothing but whitespace
-        if re.match("\s+", self.value) != None:
+        if re.match("^\s+$", self.value) != None:
             return True
         return False
     
+    def get_correction_url(self):
+        
+        ct = ContentType.objects.get_for_model(self)
+        return "%s%s/%d/" % (self.credit_submission.get_scorecard_url(), ct.id, self.id)
 
 class AbstractChoiceSubmission(DocumentationFieldSubmission):
     class Meta:  
@@ -1240,3 +1338,52 @@ class Payment(models.Model):
     def get_institution(self):
         return self.submissionset.institution
 
+class SubmissionInquiry(models.Model):
+    """
+        An inquiry by a member of the public about any inaccurate data in a public report
+    """
+    
+    submissionset = models.ForeignKey(SubmissionSet)
+    date = models.DateTimeField(auto_now_add=True)
+    first_name = models.CharField(max_length=128, null=True)
+    last_name = models.CharField(max_length=128, null=True)
+    affiliation = models.CharField(max_length=128)
+    city = models.CharField(max_length=32)
+    state = models.CharField(max_length=2)
+    email_address = models.EmailField()
+    phone_number = PhoneNumberField()
+    additional_comments = models.TextField(blank=True, null=True)
+    
+    class Meta:
+        verbose_name_plural = "Submission Inquiries"
+    
+    def __unicode__(self):
+        return self.submissionset.institution.name
+    
+class CreditSubmissionInquiry(models.Model):
+    """
+        An inquiry, tied to a SubmissionInquiry about a particular credit. 
+    """
+    
+    submission_inquiry = models.ForeignKey(SubmissionInquiry)
+    credit = models.ForeignKey(Credit)
+    explanation = models.TextField()
+    
+    class Meta:
+        verbose_name_plural = "Credit Submission Inquiries"
+    
+    def __unicode__(self):
+        return self.credit.title
+
+class ExtensionRequest(models.Model):
+    """
+        Schools can request a 6 month extension for their submission
+    """
+    
+    submissionset = models.ForeignKey(SubmissionSet)
+    old_deadline = models.DateField()
+    date = models.DateField(auto_now_add=True)
+    user = models.ForeignKey(User)
+    
+    def __unicode__(self):
+        return str(self.date)

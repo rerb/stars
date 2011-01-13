@@ -31,7 +31,7 @@
         <p>Access resources available only to STARS Participants.</p>
     {% endif %}
     {% if user.can_view %}
-      <h2><a href='/institutions/{{ user.current_inst.id }}/report/'>My Report(s)</a></h2>
+      <h2><a href='/institutions/{{ user.current_inst.slug }}/report/'>My Report(s)</a></h2>
       <p>Preview current and review past STARS Report(s) for {{ user.current_inst }}.</p>
     {% endif %}
 {% endblock %}

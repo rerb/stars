@@ -1,3 +1,6 @@
+{% if settings_context.debug %}
+	dev |
+{% endif %}
 	{% if user %}
         {% if user.is_staff and site_status.maintenance_mode %}
             <div class='notice'>STARS site is Offline</div>
@@ -27,11 +30,9 @@
 					{% endif %}
 		    	{% endif %}
 			{% endif %}
-            <!-- <a href='/pages/get-involved/4269/'>Register</a> | -->
 			<a href='/pages/help/'>Help</a> |
 			<a href='/auth/logout/'>Log Out</a>
         {% else %}
-            <!-- <a href='/pages/get-involved/4269/'>Register</a> | -->
             <a href='/pages/help/'>Help</a> |
             <a href='/auth/login/'>Log In</a><a href='/pages/help/3900/'>
                 <img src='/media/static/images/help.png' alt='[?]' style='vertical-align: top;' /></a>

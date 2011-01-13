@@ -151,11 +151,13 @@ div.bannerInner a {
 		</div>
 	</div></div>
 	<div id="rightRail">
-		<h2>First Rating</h2>
-		<p>Congratulations to <a href='/institutions/pacific-lutheran-university-wa/report/2010-09-13/'>Pacific Lutheran University</a>, the first institution to receive a STARS Rating!</p>
-		<h2>Latest Registrants</h2>
-		<span style='font-size: .9em;margin-bottom: 5px;display: block;'>
+		<h2>Recently Rated Institutions</h2>
+		<span style='font-size: .9em;margin-bottom: 5px;display: block;padding-left: 4px;'>
 			{% load institution_lists %}
+			{% show_rated_registrants %}
+		</span>
+		<h2>Latest Registrants</h2>
+		<span style='font-size: .9em;margin-bottom: 5px;display: block;padding-left: 4px;'>
 			{% show_latest_registrants %}
 		</span>
 		<a href='/institutions/'>View All Participants</a>
@@ -168,6 +170,6 @@ div.bannerInner a {
 		<br/><i>Please note: to subscribe you must have an <a href='http://www.aashe.org/user/register'>AASHE Account</a>.</i>
         <hr/>
         {% load content %}
-        {% display_block_content 'highlights' %}
+        {% display_block_content 'highlights' user %}
 	</div>
 {% endblock %}

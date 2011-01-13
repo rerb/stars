@@ -35,7 +35,7 @@ class InstitutionContactForm(AdminInstitutionForm):
         A restricted version of the Institution Form, allowing institution admins to edit their Contact info.
     """
     class Meta(AdminInstitutionForm.Meta):
-        exclude = ['name', 'aashe_id', 'enabled','charter_participant', 'slug']
+        exclude = ['name', 'aashe_id', 'enabled','charter_participant', 'slug', 'stars_staff_notes']
 
 
 class AdminEnableInstitutionForm(ModelForm):
@@ -51,15 +51,10 @@ class AdminSubmissionSetForm(ModelForm):
     """
         This form allows for editing of a SubmissionSet
     """
-    #@todo: queryset for CreditSet choices should exclude CreditSets the insitution already has a SubmissionSet for.
-    date_registered = forms.DateField(widget=SelectDateWidget(required=False))
-    date_submitted = forms.DateField(widget=SelectDateWidget(required=False), required=False)
-    date_reviewed = forms.DateField(widget=SelectDateWidget(required=False), required=False)
-    submission_deadline = forms.DateField(widget=SelectDateWidget(required=False))
     
     class Meta:
         model = SubmissionSet
-        exclude = ['institution', 'submission_boundary', 'presidents_letter','reporter_status']
+        exclude = ['institution', 'submission_boundary', 'presidents_letter','reporter_status','pdf_report']
         
 #    @staticmethod
     def form_name():
