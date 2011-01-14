@@ -18,6 +18,12 @@ class TestMigration(TestCase):
     def setUp(self):
         pass
     
+    def testGetLatest(self):
+        print >> sys.stderr, "Test Latest"
+        cs = CreditSet.objects.get_latest()
+        self.assertEqual(cs.id, 2)
+        
+    
     def testCopyCreditSet(self):
         print >> sys.stderr, "Test: copy creditset"
         cs = CreditSet.objects.get(pk=2)

@@ -5,6 +5,7 @@ from django.utils.encoding import smart_unicode
 from django.conf import settings
 
 import re, copy
+from datetime import date
 from stars.apps.helpers import watchdog
 
 class CreditSetManager(models.Manager):
@@ -14,8 +15,7 @@ class CreditSetManager(models.Manager):
             Returns the latest creditset (usually the one currently open for registration)
         """
         try:
-#            return CreditSet.objects.order_by('-release_date')[0]
-            return super(CreditSetManager, self).get_query_set().order_by('-release_date')[0]
+            return super(CreditSetManager, self).get_query_set().filter(release_date__lt=date.today()).order_by('-release_date')[0]
         except:
             return None
     
