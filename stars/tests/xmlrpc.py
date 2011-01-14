@@ -19,7 +19,7 @@ print xml_rpc.get_server()
 print "---------------LIST METHODS -------------------------"
 print xml_rpc.list_methods()
 
-## auth tests have been converented into doctests
+## auth tests have been converted into doctests
 auth = AASHEAuthBackend()
 
 print "---------------TESTING AUTH -------------------------"
