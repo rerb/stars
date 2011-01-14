@@ -80,7 +80,6 @@
         {
             "ordinal": 0,
              "max_range": null,
-             "is_confidential": false,
              "required": "req",
              "title": "DF 1",
              "tooltip_help_text": "",
