@@ -827,9 +827,6 @@ class CreditTestSubmission(CreditSubmission):
         return u"Formula Test Case" 
     model_name = staticmethod(model_name)
 
-    def __unicode__(self):
-        return "Formula Test Case for %s:="%unicode(self.credit)
-
     def run_test(self):
         """ 
         Run this test case on the given test data

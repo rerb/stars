@@ -158,7 +158,7 @@ def init_submissionset(institution, user, today):
         adding the today argument makes this easier to test explicitly
     """
     # Get the current CreditSet
-    creditset = CreditSet.get_latest_creditset()
+    creditset = CreditSet.objects.get_latest()
     # Submission is due in one year
     deadline = today + timedelta(days=365) # Gives them an extra day on leap years :)
     submissionset = SubmissionSet(creditset=creditset, institution=institution, date_registered=today, submission_deadline=deadline, registering_user=user, status='ps')

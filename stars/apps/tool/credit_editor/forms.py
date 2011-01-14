@@ -17,7 +17,7 @@ class CreditSetForm(ModelForm):
         
     class Meta:
         model = CreditSet
-        exclude = ('scoring_method', 'tier_2_points',)
+        exclude = ('scoring_method', 'tier_2_points', 'previous_version')
 
 class NewCreditSetForm(CreditSetForm):
     class Meta:
@@ -26,19 +26,19 @@ class NewCreditSetForm(CreditSetForm):
 class CreditSetScoringForm(ModelForm):        
     class Meta:
         model = CreditSet
-        fields = ('scoring_method', 'tier_2_points',)  # exactly the fields excluded on CreditSetForm
+        fields = ('scoring_method', 'tier_2_points')  # exactly the fields excluded on CreditSetForm
     
 class CreditSetRatingForm(ModelForm):
     minimal_score = forms.IntegerField(min_value=0, max_value=100)
     class Meta:
         model = Rating
-        exclude = ('creditset')
+        exclude = ('creditset', 'previous_version')
 
 class CategoryForm(ModelForm):
     
     class Meta:
         model = Category
-        exclude = ('creditset', 'ordinal', 'max_point_value')
+        exclude = ('creditset', 'ordinal', 'max_point_value', 'previous_version')
     
     def __init__(self, *args, **kwargs):
         super(CategoryForm, self).__init__(*args, **kwargs)
@@ -56,7 +56,7 @@ class SubcategoryForm(ModelForm):
     
     class Meta:
         model = Subcategory
-        exclude = ('ordinal', 'max_point_value')
+        exclude = ('ordinal', 'max_point_value', 'previous_version')
         
     def __init__(self, *args, **kwargs):
         """ Only allow categories from the same creditset """
@@ -69,7 +69,7 @@ class NewSubcategoryForm(ModelForm):
     
     class Meta:
         model = Subcategory
-        exclude = ('ordinal', 'max_point_value', 'category')
+        exclude = ('ordinal', 'max_point_value', 'category', 'previous_version')
 
 class SubcategoryOrderForm(ModelForm):
     ordinal = forms.IntegerField(widget=widgets.HiddenInput(attrs={'class': 'ordinal',}))
@@ -83,7 +83,7 @@ class CreditForm(ModelForm):
     
     class Meta:
         model = Credit
-        exclude = ('ordinal', 'formula', 'validation_rules', 'number', 'type')
+        exclude = ('ordinal', 'formula', 'validation_rules', 'number', 'type', 'previous_version')
     
     def __init__(self, *args, **kwargs):
         super(CreditForm, self).__init__(*args, **kwargs)
@@ -96,7 +96,7 @@ class T2CreditForm(ModelForm):
     
     class Meta:
         model = Credit
-        exclude = ('ordinal', 'formula', 'validation_rules', 'number', 'type', 'point_value', 'scoring', 'measurement')
+        exclude = ('ordinal', 'formula', 'validation_rules', 'number', 'type', 'point_value', 'scoring', 'measurement', 'previous_version')
         
     def __init__(self, *args, **kwargs):
         super(T2CreditForm, self).__init__(*args, **kwargs)
@@ -105,12 +105,12 @@ class T2CreditForm(ModelForm):
 class NewCreditForm(CreditForm):
     
     class Meta(CreditForm.Meta):
-        exclude = ('subcategory', 'ordinal', 'formula', 'number', 'validation_rules', 'type')
+        exclude = ('subcategory', 'ordinal', 'formula', 'number', 'validation_rules', 'type', 'previous_version')
     
 class NewT2CreditForm(NewCreditForm):
     
     class Meta(NewCreditForm.Meta):
-        exclude = ('subcategory', 'ordinal', 'formula', 'validation_rules', 'number', 'type', 'point_value', 'scoring', 'measurement')
+        exclude = ('subcategory', 'ordinal', 'formula', 'validation_rules', 'number', 'type', 'point_value', 'scoring', 'measurement', 'previous_version')
 
 class CreditFormulaForm(ModelForm):
     formula = forms.CharField(widget=widgets.Textarea(attrs={'class': 'noMCE','cols':'70', 'rows': '16'}), required=True)
@@ -155,7 +155,7 @@ class DocumentationFieldForm(ModelForm):
     
     class Meta:
         model = DocumentationField
-        exclude = ('credit', 'ordinal', 'identifier', 'type', 'last_choice_is_other')
+        exclude = ('credit', 'ordinal', 'identifier', 'type', 'last_choice_is_other', 'previous_version')
 
     def clean(self):
         cleaned_data = self.cleaned_data
@@ -182,7 +182,7 @@ class DocumentationFieldForm(ModelForm):
 
 class NewDocumentationFieldForm(DocumentationFieldForm):
     class Meta(DocumentationFieldForm.Meta):
-        exclude = ('credit', 'ordinal', 'identifier','last_choice_is_other','min_range','max_range')
+        exclude = ('credit', 'ordinal', 'identifier','last_choice_is_other','min_range','max_range', 'previous_version')
         
 class DocumentationFieldOrderingForm(ModelForm):
     ordinal = forms.IntegerField(widget=widgets.HiddenInput(attrs={'size': '3', 'class': 'ordinal',}))
@@ -218,7 +218,7 @@ class ApplicabilityReasonForm(ModelForm):
     
     class Meta:
         model = ApplicabilityReason
-        exclude = ('credit', 'ordinal')
+        exclude = ('credit', 'ordinal', 'previous_version')
     
     def __init__(self, *args, **kwargs):
         super(ApplicabilityReasonForm, self).__init__(*args, **kwargs)

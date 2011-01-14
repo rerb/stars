@@ -5,6 +5,7 @@ from django.contrib.localflavor.us.models import PhoneNumberField
 from django.template.defaultfilters import slugify
 
 from stars.apps.helpers import watchdog
+from stars.apps.credits.models import CreditSet
 
 class Institution(models.Model):
     """
@@ -120,8 +121,7 @@ class Institution(models.Model):
             creditset - if None, the latest creditset will be checked.
         """
         if not creditset:
-            from stars.apps.credits.models import CreditSet
-            creditset = CreditSet.get_latest_creditset()
+            creditset = CreditSet.objects.get_latest()
             
         for submission in self.submissionset_set.all():
             if submission.creditset == creditset:

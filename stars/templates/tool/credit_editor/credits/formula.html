@@ -32,22 +32,25 @@
             <th>Test Result</th>
             <th>Editing Options</th>
         </tr>
-        {% with credit.testcase_set.all as object_list %}
+        {% with test_case_list as object_edit_list %}
             {% include "tool/credit_editor/credits/test_case_edit_list.html" %}
         {% endwith %}
     </table>
     
     <div class='new_form collapsed'>
-        <form action='{{ credit.get_edit_url }}add-test-case/' method='POST' class='generalForm'>                
+        <form action='{{ credit.get_edit_url }}formula/add-test-case/' method='POST' class='generalForm'>                
             <span style='cursor: pointer' onclick='expand_collapse_parent_parent(this);' title='Add Test Case'>
                 <img src='/media/static/images/expand.png' title='Add Test Case' alt='+' />
                 Add Test Case
             </span>
             <div class='form'>
                 {% with new_test_case_form as submission_form %}
-                    <table class='form'>
-                        {% include "tool/submissions/submission_fields_form.html" %}
-                    </table>
+                   	{% with submission_form as object_form %}
+                   		<div class='documentationField'>
+                   		{% include "helpers/standard_form.html" %}
+                   		</div>
+                   	{% endwith %}
+                    {% include "tool/submissions/submission_fields_form.html" %}
                 {% endwith %}
                 <div class='button_row'>
                     <button type='submit' id='submit_button'>Add</button>

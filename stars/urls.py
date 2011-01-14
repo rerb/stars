@@ -25,7 +25,7 @@ urlpatterns = patterns('',
     (r'^auth/', include('stars.apps.auth.urls')),
 
     # admin
-    (r'^_ad/(.*)', admin.site.root),
+    (r'^_ad/', include(admin.site.urls)),
     
     # institutions
     (r'^institutions/', include('stars.apps.institutions.urls')),

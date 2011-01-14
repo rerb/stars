@@ -42,6 +42,9 @@ urlpatterns = patterns(
     (r'^%sadd-reason/$' % cr_prefix, AddApplicabilityReason()),
     
     (r'^%sformula/$' % cr_prefix, FormulaAndValidation()),
+    (r'^%sformula/add-test-case/$' % cr_prefix, AddTestCase()),
+    (r'^%sformula/(?P<test_id>\d+)/$' % cr_prefix, EditTestCase()),
+    (r'^%sformula/(?P<test_id>\d+)/delete/$' % cr_prefix, EditTestCase()),
     
   #     (r'^add-units/$', 'add_units'),
   #     

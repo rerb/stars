@@ -240,7 +240,7 @@ class MultiFormView(object):
                 for form_name, form in form_list.iteritems():
                     form.save()
                     
-                self.extra_success_action(request, context)
+                context = self.extra_success_action(request, context)
                 return context, self.get_success_response(request, context)
             else:
                 flashMessage.send("Please correct the errors below.", flashMessage.ERROR)
@@ -267,7 +267,7 @@ class MultiFormView(object):
         """
             An access point for performing an action after a successful form completion
         """
-        pass
+        return context
         
     def get_success_response(self, request, context):
         """
