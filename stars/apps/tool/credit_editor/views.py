@@ -472,7 +472,7 @@ class AddTestCase(AddObject):
         """
             Adds some init data to the form.
         """
-        form_list, _context = super(AddTestCaseReason, self).get_form_list(request, context)
+        form_list, _context = super(AddTestCase, self).get_form_list(request, context)
         form = self.add_form_from_request(CreditTestSubmissionForm, CreditTestSubmission(credit=_context['credit']), request)
 
         form_list['object_form'] = form
@@ -495,7 +495,7 @@ class EditTestCase(CreditEditorFormView):
     def get_extra_context(self, request, context, **kwargs):
         """ Expects arguments for /creditset_id/category_id/subcategory_id/credit_id """
         
-        _context = super(EditTestCaseReason, self).get_extra_context(request, context, **kwargs)
+        _context = super(EditTestCase, self).get_extra_context(request, context, **kwargs)
         
         _context['test_case'] = get_object_or_404(CreditTestSubmission, pk=kwargs['test_id'])
         
