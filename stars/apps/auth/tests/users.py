@@ -18,7 +18,7 @@
     >>> user['uid']
     '5214'
     >>> user['mail']
-    'it@aashe.org'
+    'ben@aashe.org'
     >>> auth.authenticate("STARS@AASHE.ORG", "m5&L0.3ld*Rf")
     <User: stars__aashe_org>
 """
