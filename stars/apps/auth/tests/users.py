@@ -14,11 +14,11 @@
     >>> # Valid access attempts.
     >>> auth.authenticate("stars@aashe.org", "m5&L0.3ld*Rf")
     <User: stars__aashe_org>
-    >>> user = auth_rpc.get_user_by_email('stars@aashe.org')[0]
+    >>> user = auth_rpc.get_user_by_email('ben@aashe.org')[0]
     >>> user['uid']
-    '10055'
+    '5214'
     >>> user['mail']
-    'stars@aashe.org'
+    'it@aashe.org'
     >>> auth.authenticate("STARS@AASHE.ORG", "m5&L0.3ld*Rf")
     <User: stars__aashe_org>
 """
