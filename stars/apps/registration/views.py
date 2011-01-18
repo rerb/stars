@@ -363,18 +363,26 @@ def get_payment_dict(pay_form, institution):
         
     return payment_dict
 
-def process_payment(payment_dict, product_list, invoice_num=None):
+def process_payment(payment_dict, product_list, invoice_num=None, server=None, login=None, key=None):
     """
         Connects to Cybersource and processes a payment based on the payment
         information in payment_dict and the product_dict
         payment_dict: {first_name, last_name, street, city, state, zip, country, email, cc_number, expiration_date}
         product_list: [{'name': '', 'price': #.#, 'quantity': #},]
+        server, login, and key: optional parameters for Auth.net connections (for testing)
 
         returns:
             {'cleared': cleared, 'reason_code': reason_code, 'msg': msg, 'conf': "" }
     """
     
-    cc = CcProcessor(server=settings.AUTHORIZENET_SERVER, login=settings.AUTHORIZENET_LOGIN, key=settings.AUTHORIZENET_KEY)
+    if not server:
+        server = settings.AUTHORIZENET_SERVER
+    if not login:
+        login = settings.AUTHORIZENET_LOGIN
+    if not key:
+        key = settings.AUTHORIZENET_KEY
+    
+    cc = CcProcessor(server=server, login=login, key=key)
     
     total = 0.0
     for product in product_list:
@@ -382,7 +390,8 @@ def process_payment(payment_dict, product_list, invoice_num=None):
     result = cc.authorize(amount=str(total), card_num=payment_dict['cc_number'], exp_date=payment_dict['exp_date'], invoice_num=invoice_num)
     
     if result.response == "approved":
-        return {'cleared': True, 'reason_code': None, 'msg': None, 'conf': result.approval_code, 'trans_id': result.trans_id}
+        capture_result = cc.captureAuthorized(trans_id=result.trans_id)
+        return {'cleared': True, 'reason_code': None, 'msg': None, 'conf': capture_result.approval_code, 'trans_id': capture_result.trans_id}
     else:
         return {'cleared': False, 'reason_code': None, 'msg': result.response_reason, 'conf': None, 'trans_id': None}
 

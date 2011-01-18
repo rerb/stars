@@ -11,6 +11,7 @@
 from django.test import TestCase
 from django.core import mail
 from django.test.client import Client
+from django.conf import settings
 
 from stars.apps.registration.views import process_payment
 
@@ -92,23 +93,52 @@ class TestProcess(TestCase):
         post_dict = {'confirm': u'on',}
         response = c.post(url, post_dict)
         self.assertTrue(response.status_code == 302)
+    
+    def testPayment(self):
+        
+        login = settings.TEST_AUTHORIZENET_LOGIN
+        key = settings.TEST_AUTHORIZENET_KEY
+        server = settings.TEST_AUTHORIZENET_SERVER
         
         # Test payment
         invoice = random.random()
         today = date.today()
         payment_dict = {'cc_number': '4007000000027', 'exp_date': "%d%d" % (today.month, (today.year+1)),}
         product_list = [{'name': 'test', 'price': 1, 'quantity': 1},]
-        response = process_payment(payment_dict, product_list, invoice_num=invoice)
+        response = process_payment(
+                                   payment_dict,
+                                   product_list,
+                                   invoice_num=invoice,
+                                   server=server,
+                                   login=login,
+                                   key=key
+                                   )
         print >> sys.stderr, response
         self.assertTrue(response['cleared'] == True)
         self.assertTrue(response['trans_id'] != None)
-        response = process_payment(payment_dict, product_list, invoice_num=invoice)
+        
+        # Test duplicate transactions
+        response = process_payment(
+                                   payment_dict,
+                                   product_list,
+                                   invoice_num=invoice,
+                                   server=server,
+                                   login=login,
+                                   key=key
+                                   )
         print >> sys.stderr, response
         self.assertTrue(response['cleared'] == False)
         self.assertTrue(response['msg'] == 'A duplicate transaction has been submitted.')
         
+        # multiple products
         product_list = [{'name': 'test', 'price': 1, 'quantity': 2},]
-        response = process_payment(payment_dict, product_list,)
+        response = process_payment(payment_dict,
+                                   product_list,
+                                   invoice_num=invoice,
+                                   server=server,
+                                   login=login,
+                                   key=key
+                                   )
         print >> sys.stderr, response
         self.assertTrue(response['cleared'] == True)
         self.assertTrue(response['trans_id'] != None)
