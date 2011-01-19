@@ -130,15 +130,15 @@ XMLRPC_VERBOSE = False
 XMLRPC_USE_HASH = True
 
 # STARS_DOMAIN is used as part of hash key for securing rpc request.
-#WWW_STARS_DOMAIN = "stars.aashe.org"
-WWW_STARS_DOMAIN = "localhost"
+WWW_STARS_DOMAIN = "stars.aashe.org"
+#WWW_STARS_DOMAIN = "localhost"
 DEV_STARS_DOMAIN = "stars.dev.aashe.org"
 STAGE_STARS_DOMAIN = "stars.stage.aashe.org"
 STARS_DOMAIN = WWW_STARS_DOMAIN
 
 # SSO_API_KEY is used to authenticate RPC requests
-#WWW_SSO_API_KEY = "8dca728d46c85b3fda4529692a7f7725"
-WWW_SSO_API_KEY = "e4c8dcfbcb5120ad35b516b04cc35302" # new for localhost
+WWW_SSO_API_KEY = "8dca728d46c85b3fda4529692a7f7725"
+#WWW_SSO_API_KEY = "e4c8dcfbcb5120ad35b516b04cc35302" # new for localhost
 DEV_SSO_API_KEY = "ed9169978073421561d5e90f89f2050e"
 STAGE_SSO_API_KEY = "4e9e7e53c571bc48260759963a092522"
 SSO_API_KEY = WWW_SSO_API_KEY

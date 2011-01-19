@@ -41,7 +41,7 @@ STANDALONE_MODE = True
 
 MEDIA_ROOT = '/Users/jamstooks/aashe/projects/STARS/src/media/stars/'
 
-IRC_DOMAIN = STAGE_IRC_DOMAIN
+IRC_DOMAIN = DEV_IRC_DOMAIN
 
 SSO_SERVER_URI = DEV_SSO_SERVER_URI
 STARS_DOMAIN = DEV_STARS_DOMAIN
@@ -53,8 +53,8 @@ XMLRPC_USE_HASH = True
 CYBERSOURCE_URL = CYBERSOURCE_TEST_URL
 
 #CACHE_BACKEND = "file:///Users/jamstooks/tmp/stars-cache"
-#CACHE_BACKEND = "dummy://"
-CACHE_BACKEND = "db://temp_cache_table"
+CACHE_BACKEND = "dummy://"
+#CACHE_BACKEND = "db://temp_cache_table"
 
 #if manage.py test was called, use test settings
 if 'test' in sys.argv:
