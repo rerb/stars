@@ -19,16 +19,12 @@ print xml_rpc.get_server()
 print "---------------LIST METHODS -------------------------"
 print xml_rpc.list_methods()
 
-## auth tests have been converented into doctests
+## auth tests have been converted into doctests
 auth = AASHEAuthBackend()
 
 print "---------------TESTING AUTH -------------------------"
 print "logging in: it@aashe.org"
 print auth.authenticate("it@aashe.org", "eNg7zC8b3skUcXs37qF66W")
-print "logging in: it@aashe.org"
-print auth.authenticate("it@aashe.org", "eNg7zC8b3skUcXs37qF66W")
-print "logging in: ben@aashe.org"
-print auth.authenticate("ben@aashe.org", "al3xpa5h")
 
 print "---------------TESTING GETBYEMAIL -------------------------"
 print auth_rpc.get_user_by_email('it@aashe.org')
