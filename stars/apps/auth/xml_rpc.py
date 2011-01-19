@@ -4,20 +4,33 @@ from django.contrib.auth.models import User
 import re
 
 from stars.apps.helpers.xml_rpc import run_rpc
+
+def connect():
     
+    return run_rpc('system.connect', ())
+
+def logout():
+    connect_response = connect()
+    args = ()
+    return run_rpc('aasheuser.logout', args, sessid=connect_response['sessid'])
+
 def login(username, password):
     """
         Log a user in and return the dictionary of values returned by Drupal or None
     """
+#    logout()
+    connect_response = connect()
     args = (username, password)
-    return run_rpc('aasheuser.login', args)
+    return run_rpc('aasheuser.login', args, sessid=connect_response['sessid'])
     
 def get_user_by_email(email):
     """
         Query drupal through XML-RPC getbyemail with an email address and return a user dict or None
     """
+    connect_response = connect()
     args = (email,)
-    return run_rpc('aasheuser.getbyemail', args)
+    
+    return run_rpc('aasheuser.getbyemail', args, sessid=connect_response['sessid'])
     
 def get_user(uid):
     """

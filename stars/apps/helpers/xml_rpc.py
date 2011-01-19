@@ -4,8 +4,9 @@ import xmlrpclib, random, hashlib, hmac
 from time import time
 from stars.apps.helpers.exceptions import RpcException
 from stars.apps.helpers import watchdog
+import sys
 
-def run_rpc(service_name, args):
+def run_rpc(service_name, args, sessid='????'):
     """
         Make an XML_RPC query to the given service on SSO_SERVER (AASHE IRC on Drupal)
         param
@@ -26,7 +27,8 @@ def run_rpc(service_name, args):
     try:
         hash_digest, domain, timestamp, nonce = get_params(service_name)
         if (settings.XMLRPC_USE_HASH):
-            result = service(hash_digest, domain, timestamp, nonce,"????", *args)
+            
+            result = service(hash_digest, domain, timestamp, nonce, sessid, *args)
         else:
             result = service(*args)
         return result
@@ -43,7 +45,8 @@ def run_rpc(service_name, args):
     except xmlrpclib.ProtocolError, err:
         raise RpcException("%s"%err, RPC_ERROR_USER_MSG)  # Communication protocol error b/w stars & irc
     except Exception, e:
-        raise RpcException("%s"%e, RPC_ERROR_USER_MSG)   # If this ever happens, lets make a more specific except block for it
+        print >> sys.stderr, "%s"%e, RPC_ERROR_USER_MSG
+#        raise RpcException("%s"%e, RPC_ERROR_USER_MSG)   # If this ever happens, lets make a more specific except block for it
 
     return None
 
