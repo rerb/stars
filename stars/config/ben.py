@@ -20,7 +20,7 @@ DATABASES = {
     'default': {
         # 'NAME': '/Users/jamstooks/sqlite/stars_test.db',
         # 'ENGINE': 'sqlite3',
-        'NAME': 'stars_migrate',
+        'NAME': 'stars_ben',
         'ENGINE': 'django.db.backends.mysql',
         'USER': 'root',
         'PASSWORD': '',
@@ -41,8 +41,6 @@ STANDALONE_MODE = True
 
 MEDIA_ROOT = '/Users/jamstooks/aashe/projects/STARS/src/media/stars/'
 
-IRC_DOMAIN = DEV_IRC_DOMAIN
-
 SSO_SERVER_URI = WWW_SSO_SERVER_URI
 STARS_DOMAIN = WWW_STARS_DOMAIN
 SSO_API_KEY = WWW_SSO_API_KEY
@@ -53,13 +51,13 @@ XMLRPC_USE_HASH = True
 CYBERSOURCE_URL = CYBERSOURCE_TEST_URL
 
 #CACHE_BACKEND = "file:///Users/jamstooks/tmp/stars-cache"
-CACHE_BACKEND = "dummy://"
-#CACHE_BACKEND = "db://temp_cache_table"
+#CACHE_BACKEND = "dummy://"
+CACHE_BACKEND = "db://temp_cache_table"
 
 #if manage.py test was called, use test settings
-if 'test' in sys.argv:
-    DATABASES['default']['ENGINE'] = 'sqlite3'
-    DATABASES['default']['NAME'] = '/Users/jamstooks/sqlite/stars_tests.db'
+#if 'test' in sys.argv:
+#    DATABASES['default']['ENGINE'] = 'sqlite3'
+#    DATABASES['default']['NAME'] = '/Users/jamstooks/sqlite/stars_tests.db'
 
 SOUTH_TESTS_MIGRATE = False
 
