@@ -28,6 +28,7 @@ print auth.authenticate("it@aashe.org", "eNg7zC8b3skUcXs37qF66W")
 
 print "---------------TESTING GETBYEMAIL -------------------------"
 print auth_rpc.get_user_by_email('it@aashe.org')
+print auth_rpc.get_user_by_email('not-a-use@dummy.com')
 #
 ## @todo: convert these to doctests once data is stable on IRC
 #print "---------------TESTING GETNODE ----------------------------"
