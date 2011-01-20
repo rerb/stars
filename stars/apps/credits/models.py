@@ -4,8 +4,22 @@ from django.db import transaction
 from django.utils.encoding import smart_unicode
 from django.conf import settings
 
-import re
+import re, copy
+from datetime import date
 from stars.apps.helpers import watchdog
+
+class CreditSetManager(models.Manager):
+    
+    def get_latest(self):
+        """
+            Returns the latest creditset (usually the one currently open for registration)
+        """
+        try:
+            return super(CreditSetManager, self).get_query_set().filter(release_date__lt=date.today()).order_by('-release_date')[0]
+        except:
+            return None
+    
+    
 
 def _get_next_ordinal(objects):
     """ 
@@ -47,6 +61,8 @@ class CreditSet(models.Model):
     tier_2_points = models.FloatField()
     is_locked = models.BooleanField(default=False, verbose_name="Lock Credits", help_text="When a credit set is locked, most credit editor functions will be disabled.")
     scoring_method = models.CharField(max_length=25, choices=SCORING_METHOD_CHOICES)
+    previous_version = models.OneToOneField('self', null=True, blank=True, related_name='next_version')
+    objects = CreditSetManager()
     
     class Meta:
         ordering = ('release_date',)
@@ -153,16 +169,6 @@ class CreditSet(models.Model):
         """ Returns True if the current date is past the credit set release date """
         from datetime import date
         return self.release_date and (self.release_date <= date.today())
-     
-    @classmethod
-    def get_latest_creditset(cls):
-        """
-            Returns the latest creditset (usually the one currently open for registration)
-        """
-        try:
-            return CreditSet.objects.order_by('-release_date')[0]
-        except:
-            return None
         
     def get_pulldown_credit_choices(self, level=1, first='----'):
         """
@@ -242,6 +248,7 @@ class Category(models.Model):
     ordinal = models.SmallIntegerField(default=-1)
     max_point_value = models.IntegerField(default=0)
     description = models.TextField()
+    previous_version = models.OneToOneField('self', null=True, blank=True, related_name='next_version')
     
     class Meta:
         ordering = ('ordinal',)
@@ -335,6 +342,7 @@ class Subcategory(models.Model):
     ordinal = models.SmallIntegerField(default=-1)
     max_point_value = models.IntegerField(default=0)
     description = models.TextField()
+    previous_version = models.OneToOneField('self', null=True, blank=True, related_name='next_version')
     
     class Meta:
         ordering = ('category', 'ordinal',)
@@ -428,6 +436,7 @@ class Credit(models.Model):
     scoring = models.TextField()
     measurement = models.TextField(blank=True, null=True)
     staff_notes = models.TextField('AASHE Staff Notes', blank=True, null=True)
+    previous_version = models.OneToOneField('self', null=True, blank=True, related_name='next_version')
     
     class Meta:
         ordering = ('ordinal',)
@@ -531,10 +540,10 @@ else:
             Helper: return the next identifier for a new documentation field for this credit 
             @return a unique two-character identifier, of form "AB"
         """
-        fields = self.documentationfield_set.all().order_by('-id')[:1]
+        fields = self.documentationfield_set.all().order_by('-identifier').values('identifier')[0:1]
         lastIdent = ''
         if (fields):
-            lastIdent = fields[0].identifier
+            lastIdent = fields[0]['identifier']
 
         return _next_identifier(lastIdent)
     
@@ -664,6 +673,7 @@ class ApplicabilityReason(models.Model):
     reason = models.CharField(max_length=128)
     help_text = models.TextField(null=True, blank=True)
     ordinal = models.IntegerField()
+    previous_version = models.OneToOneField('self', null=True, blank=True, related_name='next_version')
     
     class Meta:
         ordering = ('ordinal',)
@@ -750,15 +760,15 @@ class DocumentationField(models.Model):
     title = models.CharField("Promt/Question", max_length=255)
     type = models.CharField(max_length=16, choices=DOCUMENTATION_FIELD_TYPES)
     last_choice_is_other = models.BooleanField(default=False, help_text='If selected, the last choice provides a box to enter a user-defined choice')
-    min_range = models.IntegerField(help_text='Numeric: miniumum integer value, Date: earliest year.', blank=True, null=True)
+    min_range = models.IntegerField(help_text='Numeric: minimum integer value, Date: earliest year.', blank=True, null=True)
     max_range = models.IntegerField(help_text='Text: max character count, LongText: max word count, Numeric: max integer value, Date: latest year.', blank=True, null=True)
     units = models.ForeignKey(Unit, null=True, blank=True)
     inline_help_text = models.TextField(null=True, blank=True)
     tooltip_help_text = models.TextField(null=True, blank=True)
     ordinal = models.SmallIntegerField(default=-1)
     required = models.CharField(max_length=8, choices=REQUIRED_TYPES, default='req', help_text='If a field is conditionally required it is important to note that in the help-text and to define a custom validation rule.')
-    is_confidential = models.BooleanField()
     identifier = models.CharField(max_length=2) # editable=False) # Field identifier for the Formula editor - auto-generated.
+    previous_version = models.OneToOneField('self', null=True, blank=True, related_name='next_version')
     
     class Meta:
         ordering = ('ordinal',)
@@ -859,6 +869,7 @@ class Choice(models.Model):
     choice = models.CharField("Choice", max_length=255)
     ordinal = models.SmallIntegerField(default=-1)
     is_bonafide = models.BooleanField(default=True)  # 'bonafide' choices are defined by STARS staff, other choices are user=defined
+    previous_version = models.OneToOneField('self', null=True, blank=True, related_name='next_version')
     
     class Meta:
         ordering = ('ordinal',)

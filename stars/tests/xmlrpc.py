@@ -19,16 +19,16 @@ print xml_rpc.get_server()
 print "---------------LIST METHODS -------------------------"
 print xml_rpc.list_methods()
 
-## auth tests have been converented into doctests
+## auth tests have been converted into doctests
 auth = AASHEAuthBackend()
 
 print "---------------TESTING AUTH -------------------------"
-print auth.authenticate("it@aashe.org", "ba7que")
-#print auth.logout()
-print auth.authenticate("bens@aashe.org", "bjamin12")
+print "logging in: it@aashe.org"
+print auth.authenticate("it@aashe.org", "eNg7zC8b3skUcXs37qF66W")
 
-#print "---------------TESTING GETBYEMAIL -------------------------"
-#print auth_rpc.get_user_by_email('it@aashe.org')
+print "---------------TESTING GETBYEMAIL -------------------------"
+print auth_rpc.get_user_by_email('it@aashe.org')
+print auth_rpc.get_user_by_email('not-a-use@dummy.com')
 #
 ## @todo: convert these to doctests once data is stable on IRC
 #print "---------------TESTING GETNODE ----------------------------"

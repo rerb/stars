@@ -37,7 +37,7 @@
             src='/media/static/images/collapse_big.gif' alt='+'
             onclick='expandCollapse(this, false);'
             style='vertical-align: middle;'
-            id='ec_notes' class='collapseExpand' />
+            id='ec_notes' class='collapseExpand initial_expand' />
         <i>Credit Submission Notes:</i><br/>
         <div id='ec_notes_target'>
             {{ credit_submission.submission_notes|urlizetrunc:55|linebreaks|fix_ampersands }}

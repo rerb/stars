@@ -175,8 +175,7 @@
         "model": "credits.documentationfield", 
         "fields": {
             "ordinal": 0, 
-            "max_range": 500000, 
-            "is_confidential": false, 
+            "max_range": 500000,
             "required": "req", 
             "title": "Total number of degree-seeking students enrolled at the institution", 
             "tooltip_help_text": "", 
@@ -205,8 +204,7 @@
         "model": "credits.documentationfield", 
         "fields": {
             "ordinal": 1, 
-            "max_range": null, 
-            "is_confidential": false, 
+            "max_range": null,
             "required": "req", 
             "title": "Program name (1st program)", 
             "tooltip_help_text": "", 
@@ -235,8 +233,7 @@
         "model": "credits.documentationfield", 
         "fields": {
             "ordinal": 3, 
-            "max_range": null, 
-            "is_confidential": false, 
+            "max_range": null,
             "required": "req", 
             "title": "A brief description of how the student educators are selected (1st program)", 
             "tooltip_help_text": "", 
@@ -265,8 +262,7 @@
         "model": "credits.documentationfield", 
         "fields": {
             "ordinal": 2, 
-            "max_range": 500000, 
-            "is_confidential": false, 
+            "max_range": 500000,
             "required": "req", 
             "title": "Number of students served by the program (1st program)", 
             "tooltip_help_text": "", 
@@ -295,8 +291,7 @@
         "model": "credits.documentationfield", 
         "fields": {
             "ordinal": 4, 
-            "max_range": null, 
-            "is_confidential": false, 
+            "max_range": null,
             "required": "req", 
             "title": "A brief description of the formal training that the student educators receive (1st program)", 
             "tooltip_help_text": "", 
@@ -325,8 +320,7 @@
         "model": "credits.documentationfield", 
         "fields": {
             "ordinal": 5, 
-            "max_range": null, 
-            "is_confidential": false, 
+            "max_range": null,
             "required": "req", 
             "title": "A brief description of the staff and/or other financial support the institution provides to the program (1st program)", 
             "tooltip_help_text": "", 
@@ -355,8 +349,7 @@
         "model": "credits.documentationfield", 
         "fields": {
             "ordinal": 7, 
-            "max_range": null, 
-            "is_confidential": false, 
+            "max_range": null,
             "required": "cond", 
             "title": "Program name (2nd program)", 
             "tooltip_help_text": "", 
@@ -385,8 +378,7 @@
         "model": "credits.documentationfield", 
         "fields": {
             "ordinal": 8, 
-            "max_range": 500000, 
-            "is_confidential": false, 
+            "max_range": 500000,
             "required": "cond", 
             "title": "Number of students served by the program (2nd program)", 
             "tooltip_help_text": "", 
@@ -415,8 +407,7 @@
         "model": "credits.documentationfield", 
         "fields": {
             "ordinal": 9, 
-            "max_range": null, 
-            "is_confidential": false, 
+            "max_range": null,
             "required": "cond", 
             "title": "A brief description of how the student educators are selected (2nd program)", 
             "tooltip_help_text": "", 
@@ -445,8 +436,7 @@
         "model": "credits.documentationfield", 
         "fields": {
             "ordinal": 10, 
-            "max_range": null, 
-            "is_confidential": false, 
+            "max_range": null,
             "required": "cond", 
             "title": "A brief description of the formal training that the student educators receive (2nd program)", 
             "tooltip_help_text": "", 
@@ -475,8 +465,7 @@
         "model": "credits.documentationfield", 
         "fields": {
             "ordinal": 6, 
-            "max_range": null, 
-            "is_confidential": false, 
+            "max_range": null,
             "required": "opt", 
             "title": "The website URL for 1st  Program", 
             "tooltip_help_text": "", 
@@ -505,8 +494,7 @@
         "model": "credits.documentationfield", 
         "fields": {
             "ordinal": 11, 
-            "max_range": null, 
-            "is_confidential": false, 
+            "max_range": null,
             "required": "cond", 
             "title": "A brief description of the staff and/or other financial support the institution provides to the program (2nd program)", 
             "tooltip_help_text": "", 
@@ -535,8 +523,7 @@
         "model": "credits.documentationfield", 
         "fields": {
             "ordinal": 12, 
-            "max_range": null, 
-            "is_confidential": false, 
+            "max_range": null,
             "required": "opt", 
             "title": "The website URL for 2nd program", 
             "tooltip_help_text": "", 
@@ -565,8 +552,7 @@
         "model": "credits.documentationfield", 
         "fields": {
             "ordinal": 13, 
-            "max_range": null, 
-            "is_confidential": false, 
+            "max_range": null,
             "required": "cond", 
             "title": "Program name (3rd program)", 
             "tooltip_help_text": "", 
@@ -595,8 +581,7 @@
         "model": "credits.documentationfield", 
         "fields": {
             "ordinal": 14, 
-            "max_range": 500000, 
-            "is_confidential": false, 
+            "max_range": 500000,
             "required": "cond", 
             "title": "Number of students served by the program (3rd program)", 
             "tooltip_help_text": "", 
@@ -625,8 +610,7 @@
         "model": "credits.documentationfield", 
         "fields": {
             "ordinal": 15, 
-            "max_range": null, 
-            "is_confidential": false, 
+            "max_range": null,
             "required": "cond", 
             "title": "A brief description of how the student educators are selected (3rd program)", 
             "tooltip_help_text": "", 
@@ -655,8 +639,7 @@
         "model": "credits.documentationfield", 
         "fields": {
             "ordinal": 16, 
-            "max_range": null, 
-            "is_confidential": false, 
+            "max_range": null,
             "required": "cond", 
             "title": "A brief description of the formal training that the student educators receive (3rd program)", 
             "tooltip_help_text": "", 
@@ -685,8 +668,7 @@
         "model": "credits.documentationfield", 
         "fields": {
             "ordinal": 17, 
-            "max_range": null, 
-            "is_confidential": false, 
+            "max_range": null,
             "required": "cond", 
             "title": "A brief description of the staff and/or other financial support the institution provides to the program (3rd program)", 
             "tooltip_help_text": "", 
@@ -715,8 +697,7 @@
         "model": "credits.documentationfield", 
         "fields": {
             "ordinal": 18, 
-            "max_range": null, 
-            "is_confidential": false, 
+            "max_range": null,
             "required": "opt", 
             "title": "The website URL for 3rd program", 
             "tooltip_help_text": "", 
@@ -745,8 +726,7 @@
         "model": "credits.documentationfield", 
         "fields": {
             "ordinal": 19, 
-            "max_range": null, 
-            "is_confidential": false, 
+            "max_range": null,
             "required": "cond", 
             "title": "Program name (All other programs)", 
             "tooltip_help_text": "", 
@@ -775,8 +755,7 @@
         "model": "credits.documentationfield", 
         "fields": {
             "ordinal": 20, 
-            "max_range": 500000, 
-            "is_confidential": false, 
+            "max_range": 500000,
             "required": "cond", 
             "title": "Number of students served by the program (All other programs)", 
             "tooltip_help_text": "", 
@@ -805,8 +784,7 @@
         "model": "credits.documentationfield", 
         "fields": {
             "ordinal": 21, 
-            "max_range": null, 
-            "is_confidential": false, 
+            "max_range": null,
             "required": "cond", 
             "title": "A brief description of how the student educators are selected (All other programs)", 
             "tooltip_help_text": "", 
@@ -835,8 +813,7 @@
         "model": "credits.documentationfield", 
         "fields": {
             "ordinal": 22, 
-            "max_range": null, 
-            "is_confidential": false, 
+            "max_range": null,
             "required": "cond", 
             "title": "A brief description of the formal training that the student educators receive (All other programs)", 
             "tooltip_help_text": "", 
@@ -865,8 +842,7 @@
         "model": "credits.documentationfield", 
         "fields": {
             "ordinal": 23, 
-            "max_range": null, 
-            "is_confidential": false, 
+            "max_range": null,
             "required": "cond", 
             "title": "A brief description of the staff and/or other financial support the institution provides to the program (All other programs)", 
             "tooltip_help_text": "", 
@@ -895,8 +871,7 @@
         "model": "credits.documentationfield", 
         "fields": {
             "ordinal": 24, 
-            "max_range": null, 
-            "is_confidential": false, 
+            "max_range": null,
             "required": "opt", 
             "title": "The website URL for all other programs", 
             "tooltip_help_text": "", 
@@ -945,8 +920,7 @@
         "model": "credits.documentationfield", 
         "fields": {
             "ordinal": 0, 
-            "max_range": null, 
-            "is_confidential": false, 
+            "max_range": null,
             "required": "req", 
             "title": "Has the institution developed a definition of sustainability in the curriculum?", 
             "tooltip_help_text": "", 
@@ -975,8 +949,7 @@
         "model": "credits.documentationfield", 
         "fields": {
             "ordinal": 1, 
-            "max_range": null, 
-            "is_confidential": false, 
+            "max_range": null,
             "required": "cond", 
             "title": "A copy of the institution's definition of sustainability in the curriculum?", 
             "tooltip_help_text": "<p>In order to report on other STARS Curriculum credits, the definition of sustainability in the curriculum should distinguish between courses that focus or concentrate on the concept of sustainability throughout the course and courses that relate to an aspect of sustainability or include sustainability as part of the course. <span style=\"text-decoration: underline;\"></span></p>\r\n<p><strong>Sustainability-focused courses</strong> concentrate on the concept of sustainability, including its social, economic, and environmental dimensions, or examine an issue or topic using sustainability as a lens.&nbsp;</p>\r\n<p><strong>Sustainability-related courses</strong> incorporate sustainability as a distinct course component or module, or concentrate on a single sustainability principle or issue.</p>\r\n<ul>\r\n</ul>", 
@@ -1005,8 +978,7 @@
         "model": "credits.documentationfield", 
         "fields": {
             "ordinal": 2, 
-            "max_range": null, 
-            "is_confidential": false, 
+            "max_range": null,
             "required": "req", 
             "title": "Has the institution identified its sustainability-focused and sustainability-related course offerings?", 
             "tooltip_help_text": "", 
@@ -1035,8 +1007,7 @@
         "model": "credits.documentationfield", 
         "fields": {
             "ordinal": 3, 
-            "max_range": null, 
-            "is_confidential": false, 
+            "max_range": null,
             "required": "cond", 
             "title": "A brief description of the methodology the institution followed to complete the inventory", 
             "tooltip_help_text": "", 
@@ -1065,8 +1036,7 @@
         "model": "credits.documentationfield", 
         "fields": {
             "ordinal": 4, 
-            "max_range": null, 
-            "is_confidential": false, 
+            "max_range": null,
             "required": "req", 
             "title": "Does the institution make its sustainability course inventory publicly available online?", 
             "tooltip_help_text": "", 
@@ -1095,8 +1065,7 @@
         "model": "credits.documentationfield", 
         "fields": {
             "ordinal": 5, 
-            "max_range": null, 
-            "is_confidential": false, 
+            "max_range": null,
             "required": "cond", 
             "title": "The website URL where the sustainability course inventory is posted", 
             "tooltip_help_text": "", 
@@ -1145,8 +1114,7 @@
         "model": "credits.documentationfield", 
         "fields": {
             "ordinal": 0, 
-            "max_range": null, 
-            "is_confidential": false, 
+            "max_range": null,
             "required": "req", 
             "title": "Has the institution developed a definition of sustainability research?", 
             "tooltip_help_text": "", 
@@ -1175,8 +1143,7 @@
         "model": "credits.documentationfield", 
         "fields": {
             "ordinal": 1, 
-            "max_range": null, 
-            "is_confidential": false, 
+            "max_range": null,
             "required": "cond", 
             "title": "A copy of the institution's definition of sustainability research", 
             "tooltip_help_text": "", 
@@ -1205,8 +1172,7 @@
         "model": "credits.documentationfield", 
         "fields": {
             "ordinal": 2, 
-            "max_range": null, 
-            "is_confidential": false, 
+            "max_range": null,
             "required": "req", 
             "title": "Has the institution identified its sustainability research activities and initiatives?", 
             "tooltip_help_text": "", 
@@ -1235,8 +1201,7 @@
         "model": "credits.documentationfield", 
         "fields": {
             "ordinal": 3, 
-            "max_range": null, 
-            "is_confidential": false, 
+            "max_range": null,
             "required": "cond", 
             "title": "A brief description of the methodology the institution followed to complete the inventory", 
             "tooltip_help_text": "", 
@@ -1265,8 +1230,7 @@
         "model": "credits.documentationfield", 
         "fields": {
             "ordinal": 4, 
-            "max_range": null, 
-            "is_confidential": false, 
+            "max_range": null,
             "required": "req", 
             "title": "Does the institution make its sustainability research inventory publicly available online?", 
             "tooltip_help_text": "", 
@@ -1295,8 +1259,7 @@
         "model": "credits.documentationfield", 
         "fields": {
             "ordinal": 5, 
-            "max_range": null, 
-            "is_confidential": false, 
+            "max_range": null,
             "required": "cond", 
             "title": "The website URL where the sustainability research inventory is posted (required if claiming Part 2 of the credit)", 
             "tooltip_help_text": "", 

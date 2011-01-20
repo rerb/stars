@@ -15,7 +15,7 @@ def home(request):
         Forwards the user to the latest version.
     """
     # simply forward the visitor to the latest version
-    latest_version = CreditSet.get_latest_creditset()
+    latest_version = CreditSet.objects.get_latest()
     return HttpResponseRedirect(latest_version.get_edit_url())
 
 class CreditEditorNavMixin(CreditNavMixin):
@@ -117,7 +117,7 @@ class AddObject(CreditEditorFormView):
         if context.has_key('current'):
             return HttpResponseRedirect(context['current'].get_edit_url())
         else:
-            latest_version = CreditSet.get_latest_creditset()
+            latest_version = CreditSet.objects.get_latest()
             return HttpResponseRedirect(latest_version.get_edit_url())
     
     def add_form_from_request(self, formKlass, instance, request):
@@ -432,8 +432,21 @@ class FormulaAndValidation(CreditEditorFormView):
         
         _context = super(FormulaAndValidation, self).get_extra_context(request, context, **kwargs)
         _context['test_case_list'] = CreditTestSubmission.objects.filter(credit=_context['credit'])
+        for case in _context['test_case_list']:
+            case.run_test()
         return _context
         
+    def extra_success_action(self, request, context):
+        """
+            Re-run the test cases after the form is processed
+        """
+        
+        context['test_case_list'] = CreditTestSubmission.objects.filter(credit=context['credit'])
+        for case in context['test_case_list']:
+            case.run_test()
+            
+        return context
+    
     def get_form_list(self, request, context):
         """
             Adds some init data to the form.
@@ -447,3 +460,46 @@ class FormulaAndValidation(CreditEditorFormView):
 
     def get_success_response(self, request, context):
         return None # will return to self.
+    
+class AddTestCase(AddObject):
+    """
+        A view for adding a new Test Case
+    """
+    template = 'tool/credit_editor/credits/add_test_case.html'
+    form_class_list = []
+
+    def get_form_list(self, request, context):
+        """
+            Adds some init data to the form.
+        """
+        form_list, _context = super(AddTestCase, self).get_form_list(request, context)
+        form = self.add_form_from_request(CreditTestSubmissionForm, CreditTestSubmission(credit=_context['credit']), request)
+
+        form_list['object_form'] = form
+
+        return form_list, _context
+
+    def get_success_response(self, request, context):
+        return HttpResponseRedirect("%sformula/" % context['credit'].get_edit_url())
+    
+class EditTestCase(CreditEditorFormView):
+    """
+        A view for editing a specific reporting field
+    """
+
+    template = 'tool/credit_editor/credits/add_test_case.html'
+    form_class_list = [
+        {'form_name': 'object_form', 'form_class': CreditTestSubmissionForm, 'instance_name': 'test_case', 'has_upload': False,}
+    ]
+    
+    def get_extra_context(self, request, context, **kwargs):
+        """ Expects arguments for /creditset_id/category_id/subcategory_id/credit_id """
+        
+        _context = super(EditTestCase, self).get_extra_context(request, context, **kwargs)
+        
+        _context['test_case'] = get_object_or_404(CreditTestSubmission, pk=kwargs['test_id'])
+        
+        return _context
+    
+    def get_success_response(self, request, context):
+        return HttpResponseRedirect("%sformula/" % context['credit'].get_edit_url())

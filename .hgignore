@@ -12,3 +12,4 @@ syntax: regexp
 
 syntax: glob
 *.pyc
+.DS_Store

@@ -30,8 +30,15 @@
 		</script>
 		{% endif %}
 	</head>
-	<body onload='{% block body_onload %}{% endblock %}' onunload='{% block body_unload %}{% endblock %}'>
+	<body onload='{% block body_onload %}{% endblock %}' onbeforeunload='{% block body_beforeunload %}{% endblock %}'>
 	<script type="text/javascript" src="/media/static/js/wz_tooltip.js"></script>
+		<div id='topTabs'>
+			<ul>
+				<li><a href='http://www.aashe.org/'>AASHE</a></li>
+				<li class='active'><a href='/'>STARS</a></li>
+				<li><a href='http://conf2010.aashe.org/'>Annual Conference</a></li>
+			</ul>
+		</div>
 		<div id='container'>
             <div id='header'>
                 <div id='topMenu'>
@@ -60,6 +67,7 @@
             </div>
             {% if messages or site_status.broadcast_message or extra_messages %}
             {% load helpers %}
+            {% autoescape off %}
             <div id="flash_message" class="visible">
                 <ul >
                 {% if site_status.broadcast_message %}
@@ -72,8 +80,8 @@
                 </ul>
                 <a href='#'  onclick="document.getElementById('flash_message').style.display = 'none';">[x]</a>
             </div>
+            {% endautoescape %}
             {% endif %}
-            
 			{% block content %}{% endblock %}
 		</div>
 		<div id='footer'>

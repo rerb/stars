@@ -134,12 +134,15 @@ def _get_model_label(klass, plural=False):
     """ Helper: Get a user-friendly label for the given model class """
     return _get_class_label(klass, "model_name", plural)
 
-def _perform_save_form(request, instance, prefix, form_class, save_msg="Changes saved successfully", commit=True, flash_message=True):
+def _perform_save_form(request, instance, prefix, form_class, save_msg="Changes saved successfully", commit=True, flash_message=True, fail_msg=None):
     """
         Helper: for internal use only
         if flash_message is True, the save msg or an error message will be sent to the user.
         Returns the object form and a saved flag, which is true if the form data was saved to the instance
     """
+    if not fail_msg:
+        fail_msg = "Please correct the errors below."
+    
     saved = False
     if request.method == 'POST':
         object_form = form_class(request.POST, request.FILES, instance=instance, prefix=prefix)
@@ -151,26 +154,26 @@ def _perform_save_form(request, instance, prefix, form_class, save_msg="Changes 
         if saved and flash_message:
             flashMessage.send("%s '%s': %s"%(_get_model_label(instance.__class__), instance, save_msg), flashMessage.SUCCESS)
         elif flash_message:
-            flashMessage.send("%sPlease correct the errors below"%_get_form_label(form_class), flashMessage.ERROR)            
+            flashMessage.send("%s%s" % (_get_form_label(form_class), fail_msg), flashMessage.ERROR)            
     else: 
         object_form = form_class(instance=instance, prefix=prefix)
     return [object_form, instance, saved]
  
 #    @todo: get a nice name from the form_class
-def basic_save_form(request, instance, prefix, form_class, commit=True, flash_message=True):
+def basic_save_form(request, instance, prefix, form_class, commit=True, flash_message=True, fail_msg=None):
     """
         Provides basic form handling for saving an existing model
         Returns the object form and a saved flag, which is true if the form data was saved to the instance
     """
-    (object_form, instance, saved) = _perform_save_form(request, instance, prefix, form_class, commit=commit, flash_message=flash_message)
+    (object_form, instance, saved) = _perform_save_form(request, instance, prefix, form_class, commit=commit, flash_message=flash_message, fail_msg=fail_msg)
     return [object_form, saved]
 
-def basic_save_new_form(request, instance, prefix, form_class, commit=True):
+def basic_save_new_form(request, instance, prefix, form_class, commit=True, fail_msg=None):
     """
         Provides basic form handling for saving a new model
         Returns the object form and a saved flag, which is true if the form data was saved to the instance
     """
-    (object_form, instance, saved) = _perform_save_form(request, instance, prefix, form_class, save_msg="Created successfully", commit=commit)
+    (object_form, instance, saved) = _perform_save_form(request, instance, prefix, form_class, save_msg="Created successfully", commit=commit, fail_msg=fail_msg)
     if saved:
         try:  # Notify the parent object that a new child object was just added.
             instance.get_parent().update_ordering()

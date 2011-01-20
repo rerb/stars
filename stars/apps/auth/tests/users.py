@@ -10,15 +10,15 @@
     >>> print auth.authenticate("not-a-user@dummy.com", "pw")
     None
     >>> print auth_rpc.get_user_by_email('not-a-use@dummy.com')
-    []
+    None
     >>> # Valid access attempts.
-    >>> auth.authenticate("stars@aashe.org", "m5&L0.3ld*Rf")
-    <User: stars__aashe_org>
-    >>> user = auth_rpc.get_user_by_email('stars@aashe.org')[0]
+    >>> auth.authenticate("it@aashe.org", "eNg7zC8b3skUcXs37qF66W")
+    <User: it__aashe_org>
+    >>> auth.authenticate("IT@AASHE.ORG", "eNg7zC8b3skUcXs37qF66W")
+    <User: it__aashe_org>
+    >>> user = auth_rpc.get_user_by_email('ben@aashe.org')[0]
     >>> user['uid']
-    '10055'
+    '5214'
     >>> user['mail']
-    'stars@aashe.org'
-    >>> auth.authenticate("STARS@AASHE.ORG", "m5&L0.3ld*Rf")
-    <User: stars__aashe_org>
+    'ben@aashe.org'
 """

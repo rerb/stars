@@ -1,7 +1,11 @@
 Dear {{ submissionset.institution.contact_first_name }} {{ submissionset.institution.contact_last_name }},
 
-Thank you for submitting your data using the Sustainability Tracking, Assessment & Rating System (STARS).  Compiling this information is a huge achievement and one that we hope will help {{ submissionset.institution }} become more sustainable. Your STARS data and ranking will be publicly posted on our website shortly, once your submission has been fully processed. 
- 
+Congratulations on finalizing your Sustainability Tracking, Assessment & Rating System (STARS) Report and submitting your STARS data. This is a significant accomplishment! 
+
+Although STARS is a program of AASHE, we would like to remind you that, since STARS is a self-assessment. AASHE does not certify or award STARS Ratings to institutions.  Institutions achieve a STARS Rating by successfully completing a STARS submission and earning a Rating based on the number of points attained within the STARS credits. 
+
+Compiling this information is a huge achievement and one that we hope will help {{ submissionset.institution }} become more sustainable. Your STARS data and ranking will be publicly posted on our website shortly, once your submission has been fully processed.
+
 Congratulations on a job well done,
 
 The STARS Team

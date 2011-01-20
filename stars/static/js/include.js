@@ -143,52 +143,39 @@ function open_popup(url, name) {
     return false;
 }
 
-/**
- * These scripts address tickets #344 and #385
- * They are used to disable / enable the submit button and
- *  warn the user if they navigate away from a form that has been modified.
- * They assume: (1) there is only one form (2) the submit button has id='submit_button'
- *              (3) each form element has an onchange='field_changed(this);' handler
- * To use:
- *        - onload handler should call enable_submit(false)
- *        - onunload handler should call save_form()
-**/         
-function confirm_leave()
-{
-    if (!document.getElementById('submit_button').disabled)
-        if (!confirm('This page contains unsaved data. Click OK to leave without saving or Cancel to save changes before leaving.'))
-            document.forms[0].submit();
+function has_unsaved_data() {
+	return !document.getElementById('submit_button').disabled;
 }
 
-/**
- * Set all the links on the page to have the "onclick" action be
- * confirm_exit() unless they already have an "onclick" action
- * or have the noExit className
- */
-function confirm_exit() {
-	
-	if(!document.getElementById('submit_button').disabled) {
-		if (!confirm('This page contains unsaved data. Click OK to leave without saving or Cancel to continue editing this credit.')) {
-			return false;
-		}
-	}
-	return true;
-}
-
-function update_confirm_links() {
-	links = document.getElementsByTagName("a");
-//	links = [document.getElementById('clickhere')];
-	re = /.*noExit.*/;
-	for(var i = 0; i < links.length; i++) {
-		if( links[i].onclick == null && !re.test(links[i].className) ) {
-			links[i].onclick = confirm_exit;
-		}
+function before_unload_credit() {
+	if( has_unsaved_data() ) {
+		return "Changes to this credit have not been saved. Discard?";
 	}
 }
 
-
-function enable_submit(enable) {
+/**
+ * enable_submit() enables submission for the credit form
+ * the state of the submission button is an indicator of
+ * the state of the form. if the submisison button is disabled
+ * then the form doesn't have any changes to be saved
+ * 
+ * the before_unload_credit() method uses the status of the button
+ * to determine if the user should be alerted with a pop-up that
+ * there have been changes made to the system
+ * 
+ * ignore_errors is used when the form is processed to ensure that
+ * the form can be submitted without before_unload_credit() preventing
+ * the user from submitting
+ **/
+function enable_submit(enable, ignore_errors) {
 	button = document.getElementById('submit_button');
+	
+	re = /.*errors.*/;
+	if( !ignore_errors && re.test(button.className)) {
+		// If there were errors, don't disable the button
+		return
+	}
+	
     button.disabled = !enable;
     if(enable) {
     	button.className = "enabled";

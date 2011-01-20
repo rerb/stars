@@ -1,6 +1,8 @@
 {% extends 'tool/submissions/credit_base.html' %}
 
-{% block body_onload %}{{ block.super }}load_handler();update_confirm_links();{% endblock %}
+{% block body_onload %}{{ block.super }}load_handler();{% endblock %}
+
+{% block body_beforeunload %}{{ block.super }}return before_unload_credit();{% endblock %}
 
 {% block extra_head %}
 	{{ block.super }}
@@ -8,7 +10,7 @@
     <script type="text/javascript" src="/media/static/js/ajax.js"></script>
     <script type="text/javascript">
     function load_handler() {
-        enable_submit({% if submission_form.errors %}true{% else %}false{% endif %});
+        enable_submit({% if submission_form.errors %}true{% else %}false{% endif %}, false);
         toggle_applicability_reasons(get_selected_button(document.forms.submission_form.submission_status));
     }
     </script>
@@ -18,7 +20,7 @@
 
 {% block tab_content %}
   {% load fieldsets %}
-  <form method='post' action='.' class='submit_form' name='submission_form' enctype="multipart/form-data" onsubmit='enable_submit(false);'>
+  <form method='post' action='.' class='submit_form' name='submission_form' enctype="multipart/form-data" onsubmit='enable_submit(false, true);'>
 	  
 	  {% if credit.applicabilityreason_set.all %}
 	      <div style='float: right;font-size: .9em;padding:10px;'>Credit doesn't apply to you? <a href='#status' class='classOne noExit' id='clickhere'>Click here</a>.</div>
@@ -96,7 +98,7 @@
         
     </div>
     <div class='button_row'>
-        <button type='submit' id='submit_button'>Save</button>
+        <button type='submit' id='submit_button' {% if errors %}class='errors'{% endif %}>Save</button>
     </div>
     </form>
 {% endblock %}

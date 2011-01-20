@@ -183,8 +183,14 @@ class ScorecardMixin(object):
                 except StarsAccount.DoesNotExist:
                     account = None
                     
-                if account or request.user.is_staff:
+                if account:
                     context['user_tied_to_institution'] = True
+                    if account.user_level == 'admin':
+                        context['user_is_inst_admin'] = True
+                        
+                if request.user.is_staff:
+                    context['user_tied_to_institution'] = True
+                    context['user_is_inst_admin'] = True
             
             # Get the SubmissionSet
             date_re = "^\d{4}-\d{2}-\d{2}$"

@@ -46,7 +46,51 @@ def institution_payments(request):
                'active_submission':active_submission,
               }
     return respond(request, 'tool/manage/payments.html', context)
+
+@user_is_inst_admin
+def responsible_party_list(request):
+    """
+        Display a list of responsible parties for the institution
+    """
+    current_inst = request.user.current_inst
+
+    context = {'current_inst': current_inst,}
     
+    return respond(request, 'tool/manage/responsible_party_list.html', context)
+
+@user_is_inst_admin
+def edit_responsible_party(request, rp_id):
+    """
+        Edit an existing responsible party
+    """
+    current_inst = request.user.current_inst
+    rp = get_object_or_404(ResponsibleParty, institution=current_inst, id=rp_id)
+
+    (object_form, saved) = form_helpers.basic_save_form(request, rp, '', ResponsiblePartyForm)
+
+    if saved:
+        return HttpResponseRedirect("/tool/manage/responsible-parties/")
+    
+    credit_list = rp.creditusersubmission_set.order_by('credit__subcategory')
+    
+    context = {'responsible_party': rp, 'object_form': object_form, 'title': "Edit Responsible Party", 'credit_list': credit_list}
+    return respond(request, 'tool/manage/edit_responsible_party.html', context)
+
+@user_is_inst_admin
+def add_responsible_party(request):
+    """
+        Edit an existing responsible party
+    """
+    current_inst = request.user.current_inst
+    new_rp = ResponsibleParty(institution=current_inst)
+    
+    (object_form, saved) = form_helpers.basic_save_new_form(request, new_rp, 'new_rp', ResponsiblePartyForm)
+    
+    if saved:
+        return HttpResponseRedirect("/tool/manage/responsible-parties/")
+    
+    context = {'object_form': object_form, 'title': "Add Responsible Party"}
+    return respond(request, 'tool/manage/edit_responsible_party.html', context)
 
 @user_is_inst_admin
 def accounts(request, account_id=None):

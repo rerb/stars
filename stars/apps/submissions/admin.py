@@ -4,7 +4,7 @@ from models import *
 
 class SubmissionSetAdmin(admin.ModelAdmin):
     list_display = ('creditset', 'institution', 'date_registered', 'date_submitted', 'date_reviewed', 'rating')
-    list_filter = ('institution',)
+    list_filter = ('submission_deadline','date_registered')
 admin.site.register(SubmissionSet, SubmissionSetAdmin)
 
 class PaymentAdmin(admin.ModelAdmin):
@@ -45,3 +45,7 @@ class SubmissionInquiryAdmin(admin.ModelAdmin):
     list_display = ('last_name', 'first_name', 'submissionset', 'date')
     inlines = [CreditSubmissionInquiryInline,]
 admin.site.register(SubmissionInquiry, SubmissionInquiryAdmin)
+
+class ExtensionRequestAdmin(admin.ModelAdmin):
+    list_display = ('submissionset', 'date',)
+admin.site.register(ExtensionRequest, ExtensionRequestAdmin)

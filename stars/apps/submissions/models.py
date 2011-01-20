@@ -555,6 +555,9 @@ class ResponsibleParty(models.Model):
         
     def __unicode__(self):
         return "%s, %s" % (self.last_name, self.first_name)
+    
+    def get_manage_url(self):
+        return "/tool/manage/responsible-parties/%d/" % self.id
         
 class CreditSubmission(models.Model):
     """
@@ -823,9 +826,6 @@ class CreditTestSubmission(CreditSubmission):
     def model_name():
         return u"Formula Test Case" 
     model_name = staticmethod(model_name)
-
-    def __unicode__(self):
-        return "Formula Test Case for %s:="%unicode(self.credit)
 
     def run_test(self):
         """ 

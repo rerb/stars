@@ -17,17 +17,77 @@
 */
 
 html, body {
-    background-color: #404040;
-    padding: 0px 0px 10px 0px;
+    background-color: #716d5e;
+    padding: 10px 0px 10px 0px;
+    background-image: url('/media/static/images/bg.png');
+    background-position: left top;
+   	background-repeat: repeat-x;
 }
 
 /* CSS Columns, thanks to A List Apart: http://www.alistapart.com/articles/multicolumnlayouts/ */
 
+#topTabs ul {
+	border: none;
+	list-style: none;
+	text-align: left;	
+	margin: 0px;
+	padding:0px;
+}
+
+#topTabs ul li {
+	display: inline;
+	float: left;
+	font-size: 11px;
+	line-height: 29px;
+	list-style-image: none;
+	list-style-type: none;
+	margin: 0px 0px 0px 10px;
+	padding: 0px;
+}
+
+#topTabs ul li a {
+	text-decoration: none;
+	color: white;	
+	padding: 0px 10px;
+	border: 0px;
+	display: block;
+	border: 1px solid transparent;
+	border-top-left-radius: 5px 5px;
+	border-top-right-radius: 5px 5px;
+	-moz-border-radius-topleft: 5px;
+	-moz-border-radius-topright: 5px;
+	border-color: transparent;
+	border-bottom-width: 0px;
+}
+
+#topTabs ul li.active a, #topTabs ul li a:hover {
+	border: 1px solid #5C584C;
+	border-bottom: 0px;
+	background-color: #716D5E;
+}
+
+#topTabs ul li.active a {
+	 background-image: url('/media/static/images/icon-arrow-up.png');
+	 background-repeat: no-repeat;
+	 background-position: 50% 100%;
+}
+
+#container {
+	-moz-border-radius-topleft: 15px;
+	border-top-left-radius: 15px;
+	-moz-border-radius-topright: 15px;
+	border-top-right-radius: 15px;
+	padding-top: 10px;
+}
+#container, #footer, #credits, #topTabs {
+    width: 940px;
+    margin: 0px auto 0px auto;
+    clear: both;
+}
+
 #container, #footer, #credits {
     background-color: #ffffff;
     overflow: hidden;
-    width: 940px;
-    margin: 0px auto 0px auto;
     border-width: 10px 40px 0px 40px;
     border-color: #ffffff;
     border-style: solid;
@@ -76,6 +136,11 @@ html, body {
 	text-align: right;
 	color: #aaa;
     padding: 15px 0px 15px 0px;
+    
+	-moz-border-radius-bottomleft: 15px;
+	border-bottom-left-radius: 15px;
+	-moz-border-radius-bottomright: 15px;
+	border-bottom-right-radius: 15px;
 }
 
 #credits a, #credits a:visited {
@@ -499,12 +564,12 @@ ul#tabnav li { /* do not change */
 display: inline;
 }
 
-ul#tabnav.tab1 li.tab1, ul#tabnav.tab2 li.tab2, ul#tabnav.tab3 li.tab3, ul#tabnav.tab4 li.tab4 { /* settings for selected tab */
+ul#tabnav.tab1 li.tab1, ul#tabnav.tab2 li.tab2, ul#tabnav.tab3 li.tab3, ul#tabnav.tab4 li.tab4, ul#tabnav.tab5 li.tab5 { /* settings for selected tab */
 border-bottom: 5px solid #fff; /* set border color to page background color */
 background-color: #fff; /* set background color to match above border color */
 }
 
-ul#tabnav.tab1 li.tab1 a, ul#tabnav.tab2 li.tab2 a, ul#tabnav.tab3 li.tab3 a, ul#tabnav.tab4 li.tab4 a { /* settings for selected tab link */
+ul#tabnav.tab1 li.tab1 a, ul#tabnav.tab2 li.tab2 a, ul#tabnav.tab3 li.tab3 a, ul#tabnav.tab4 li.tab4 a, ul#tabnav.tab5 li.tab5 a { /* settings for selected tab link */
 background-color: #fff; /* set selected tab background color as desired */
 color: #848e2b; /* set selected tab link color as desired */
 position: relative;

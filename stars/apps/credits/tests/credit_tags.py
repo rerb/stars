@@ -7,8 +7,10 @@
 """
 from django.test import TestCase
 from stars.apps.credits.models import *
-
 from stars.apps.tool.credit_editor.templatetags import ce_tags
+
+import sys
+
 class Credit_tags_Test(TestCase):
     fixtures = ['credits_testdata.json']
     
@@ -16,6 +18,7 @@ class Credit_tags_Test(TestCase):
         #######   ce_tags.py Test Suite.  #######
     """
     def test_show_field_form(self):
+        print >> sys.stderr, "Field form test"
         set, cat, subcat, credit, field = self._get_test_credit_objects()
 
         tag_context = ce_tags.show_field_form(field)

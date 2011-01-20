@@ -1,3 +1,5 @@
-from stars.apps.credits.tests.credit_tags import *
+from migration import TestMigration
 
-__test__ = {}
+__test__ = {
+    'TestMigration': TestMigration,
+}

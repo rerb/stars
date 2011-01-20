@@ -35,7 +35,7 @@ class InstitutionContactForm(AdminInstitutionForm):
         A restricted version of the Institution Form, allowing institution admins to edit their Contact info.
     """
     class Meta(AdminInstitutionForm.Meta):
-        exclude = ['name', 'aashe_id', 'enabled','charter_participant', 'slug']
+        exclude = ['name', 'aashe_id', 'enabled','charter_participant', 'slug', 'stars_staff_notes']
 
 
 class AdminEnableInstitutionForm(ModelForm):
@@ -45,7 +45,12 @@ class AdminEnableInstitutionForm(ModelForm):
     class Meta:
         model = Institution
         fields = ['enabled']
-        
+
+class ResponsiblePartyForm(ModelForm):
+    
+    class Meta:
+        model = ResponsibleParty
+        exclude = ['institution',]
 
 class AdminSubmissionSetForm(ModelForm):
     """
@@ -63,8 +68,10 @@ class AdminSubmissionSetForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(AdminSubmissionSetForm, self).__init__(*args, **kwargs)
-        self.fields['registering_user'].choices = [('', '----------')] + [(account.user.id, account.user.username) for account in self.instance.institution.starsaccount_set.all()]
-        self.fields['submitting_user'].choices = [('', '----------')] + [(account.user.id, account.user.username) for account in self.instance.institution.starsaccount_set.all()]
+        user_choices = [('', '----------')] + [(account.user.id, account.user.username) for account in self.instance.institution.starsaccount_set.all()]
+        self.fields['registering_user'].choices = user_choices
+        self.fields['submitting_user'].choices = user_choices
+        self.fields['rating'].choices = [('', '----------')] + [(r.id, r.name) for r in self.instance.creditset.rating_set.all()]
 
     def clean(self):
         """ Validate date ordering: registered < submitted < reviewed and registered < deadline """    
