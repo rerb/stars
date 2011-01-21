@@ -65,7 +65,6 @@ class TestProcess(TestCase):
                      'contact_department': 'test',
                      'contact_phone': '123 555 1212',
                      'contact_email': 'test@aashe.org',
-                     
                      "executive_contact_first_name": 'test',
                      'executive_contact_last_name': 'test',
                      'executive_contact_title': 'test',
@@ -103,7 +102,20 @@ class TestProcess(TestCase):
         # Test payment
         invoice = random.random()
         today = date.today()
-        payment_dict = {'cc_number': '4007000000027', 'exp_date': "%d%d" % (today.month, (today.year+1)),}
+        payment_dict = {
+                            'cc_number': '4007000000027',
+                            'exp_date': "%d%d" % (today.month, (today.year+1)),
+                            'cv_number': '123',
+                            'billing_address': '123 Street Rd',
+                            'billing_address_line_2': '',
+                            'billing_city': 'City',
+                            'billing_state': 'ST',
+                            'billing_zipcode': '12345',
+                            'country': "USA",
+                            'billing_firstname': "first name",
+                            'billing_lastname': 'last name',
+                            'description': "%s STARS Registration" % "BOGUS INSTITUTION",
+                        }
         product_list = [{'name': 'test', 'price': 1, 'quantity': 1},]
         response = process_payment(
                                    payment_dict,

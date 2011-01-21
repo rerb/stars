@@ -135,7 +135,7 @@ def reg_payment(request):
                         'name': "STARS Participant Registration",
                     }
 
-                    result = process_payment(payment_dict, [product_dict], ref_code=datetime.now().isoformat())
+                    result = process_payment(payment_dict, [product_dict])
                     if result.has_key('cleared') and result.has_key('msg'):
                         if result['cleared']:
                             institution = register_institution(request.user, institution, "credit", price, payment_dict)
@@ -333,18 +333,10 @@ def reg_account(request):
 def get_payment_dict(pay_form, institution):
     """ Extracts the payment dictionary for process_payment from a given form and institution """
     
-    cc = pay_form.cleaned_data['card_number']
-    l = len(cc)
-    if l >= 4:
-        last_four = cc[l-4:l]
-    else:
-        last_four = None
-    
     payment_dict = {
         'name_on_card': pay_form.cleaned_data['name_on_card'],
         'cc_number': pay_form.cleaned_data['card_number'],
-        'exp_month': pay_form.cleaned_data['exp_month'],
-        'exp_year': pay_form.cleaned_data['exp_year'],
+        'exp_date': pay_form.cleaned_data['exp_month'] + pay_form.cleaned_data['exp_year'],
         'cv_number': pay_form.cleaned_data['cv_code'],
         'billing_address': pay_form.cleaned_data['billing_address'],
         'billing_address_line_2': pay_form.cleaned_data['billing_address_line_2'],
@@ -355,7 +347,8 @@ def get_payment_dict(pay_form, institution):
         'billing_firstname': institution.contact_first_name,
         'billing_lastname': institution.contact_last_name,
         'billing_email': institution.contact_email,
-        'last_four': last_four
+        'description': "%s STARS Registration (%s)" % (institution.name, datetime.now().isoformat()),
+        'company': institution.name,
     }
     
     if is_canadian_zipcode(pay_form.cleaned_data['billing_zipcode']):
@@ -387,7 +380,20 @@ def process_payment(payment_dict, product_list, invoice_num=None, server=None, l
     total = 0.0
     for product in product_list:
         total += product['price'] * product['quantity']
-    result = cc.authorize(amount=str(total), card_num=payment_dict['cc_number'], exp_date=payment_dict['exp_date'], invoice_num=invoice_num)
+    result = cc.authorize(
+                            amount=str(total),
+                            card_num=payment_dict['cc_number'],
+                            exp_date=payment_dict['exp_date'],
+                            invoice_num=invoice_num,
+                            address=payment_dict['billing_address'],
+                            city=payment_dict['billing_city'],
+                            state=payment_dict['billing_state'],
+                            zip=payment_dict['billing_zipcode'],
+                            first_name=payment_dict['billing_firstname'],
+                            last_name=payment_dict['billing_lastname'],
+                            card_code=payment_dict['cv_number'],
+                            country=payment_dict['country'],
+                            )
     
     if result.response == "approved":
         capture_result = cc.captureAuthorized(trans_id=result.trans_id)
