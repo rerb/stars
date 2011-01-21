@@ -89,8 +89,8 @@ class AdminSubmissionSetForm(ModelForm):
                 if submitted <= registered :
                     msg = u"Submission date must be later than registration date."
                     self._errors['date_submitted'] = ErrorList([msg])            
-                if reviewed and reviewed <= submitted :
-                    msg = u"Review date must be later than submission date."
+                if reviewed and reviewed < submitted :
+                    msg = u"Review can't be before submission date."
                     self._errors['date_reviewed'] = ErrorList([msg])
             elif reviewed : # and not submitted
                 msg = u"Cannot specify a Review date without a Submission date."
