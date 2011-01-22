@@ -6,10 +6,14 @@
 
 {% block help_content %}
 	{% load help %}
-	{% show_help_context 'manage_accounts' 0 %}
+	{# {% show_help_context 'manage_accounts' 0 %} #}
 {% endblock %}
 
 {% block institution_content %}
+    
+    <p align='center'>Sorry, user management is temporarily disabled until January 25th.</p>
+    
+    {% comment %}
     <form method='post' action='/tool/manage/users/add/'>
         <table class='greyTable'>
           <tr>
@@ -92,4 +96,5 @@
            </tr>
          </table>
     </form>
+    {% endcomment %}
 {% endblock %}
