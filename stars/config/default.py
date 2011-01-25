@@ -5,6 +5,8 @@
 from settings import *
 import os
 
+homedir = os.path.expanduser('~')
+
 HIDE_REPORTING_TOOL = False
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -15,9 +17,14 @@ MANAGERS = ADMINS
 
 # Default database config places a sqlite db at ~/stars_default.db
 # You can change the path of the sqlite db or use mysql or postgre...
-DATABASE_ENGINE = 'sqlite3'
-homedir = os.path.expanduser('~')
-DATABASE_NAME = os.path.join(homedir, 'stars_default.db')
+DATABASES = {
+    'default': {
+        # 'NAME': '/Users/jamstooks/sqlite/stars_test.db',
+        # 'ENGINE': 'sqlite3',
+        'NAME': os.path.join(homedir, 'stars_default.db'),
+        'ENGINE': 'django.db.backends.sqlite3',
+    },
+}
 
 # Stand alone mode indicates that the server will be running using
 # the django dev server so we will need to serve the static files (see urls.py)
@@ -36,8 +43,9 @@ SSO_SERVER_URI = DEV_SSO_SERVER_URI
 STARS_DOMAIN = DEV_STARS_DOMAIN
 SSO_API_KEY = DEV_SSO_API_KEY
 
-XMLRPC_VERBOSE = True
+XMLRPC_VERBOSE = False
 XMLRPC_USE_HASH = True
 
-# We don't perform real transactions by default
-CYBERSOURCE_URL = CYBERSOURCE_TEST_URL
+SOUTH_TESTS_MIGRATE = False
+
+CACHE_BACKEND = "file:///tmp/stars-cache"
