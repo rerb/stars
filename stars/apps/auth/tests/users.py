@@ -10,7 +10,7 @@
     >>> print auth.authenticate("not-a-user@dummy.com", "pw")
     None
     >>> print auth_rpc.get_user_by_email('not-a-use@dummy.com')
-    None
+    []
     >>> # Valid access attempts.
     >>> auth.authenticate("it@aashe.org", "eNg7zC8b3skUcXs37qF66W")
     <User: it__aashe_org>
