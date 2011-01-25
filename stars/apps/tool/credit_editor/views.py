@@ -104,6 +104,7 @@ class CreditReorderMixin(object):
     def extra_success_action(self, request, context):
         
         context['category'].update_ordering()
+        return context
         
 class AddObject(CreditEditorFormView):
     """
