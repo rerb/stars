@@ -16,14 +16,14 @@
         {% endif %}
     </td>
     <td>
-        {% ifnotequal rating.name "Reporter" %}
+        {% if rating.publish_score %}
             {{ credit_submission.assessed_points|floatformat:2 }} /
             {% format_available_points credit_submission %}
         {% else %}
             Reporter
             {% load help %}
             {% show_help_context "reporter_status" %}
-        {% endifnotequal %}
+        {% endif %}
     </td>
     <td style='text-align: right;'>
         {% if credit_submission.responsible_party %}

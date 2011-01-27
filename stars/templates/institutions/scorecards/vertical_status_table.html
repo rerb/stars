@@ -16,12 +16,12 @@
     </tr><tr>
         <th>Overall Score</th>
         <td>
-            {% ifnotequal rating.name "Reporter" %}
+            {% if rating.publish_score %}
                 {{ score|floatformat:2 }}
             {% else %}
                 {% load help %}
                 {% show_help_context "reporter_status" %}
-            {% endifnotequal %}
+            {% endif %}
         </td>
     </tr>
     {% if not preview %}

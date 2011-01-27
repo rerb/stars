@@ -192,7 +192,7 @@ class SubmissionSet(models.Model):
             @todo: this is inefficient - need to store or at least cache the STARS score.
         """
         if self.is_rated():
-            return unicode(self.rating)
+            return self.rating
         else:
             return self.creditset.get_rating(self.get_STARS_score())
     

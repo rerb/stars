@@ -34,7 +34,7 @@
 {% endblock %}
 
 {% block category_summary_points %}
-    {% ifnotequal rating.name "Reporter" %}
+    {% if rating.publish_score %}
         {% ifnotequal cat.category.title 'Innovation' %}
             <div class='provScorePercent'>{{ cat.get_STARS_score|floatformat:2 }} %</div>
             <span class='provScoreCaption'>Score</span>
@@ -42,29 +42,29 @@
             <div class='provScorePercent'>{{ cat.get_STARS_score|floatformat:2 }}</div>
             <span class='provScoreCaption'>Innovation Points</span>
         {% endifnotequal %}
-    {% endifnotequal %}
+    {% endif %}
 {% endblock %}
 
 {% block category_summary_progress %}{% endblock %}
 
 {% block subcategory_summary_points %}
-    {% ifnotequal rating.name "Reporter" %}
+    {% if rating.publish_score %}
         <div class='provScorePercent'>
             {{ sub.get_claimed_points|floatformat:2 }} /
             {{ sub.get_adjusted_available_points|floatformat:2 }}
         </div>
         <span class='provScoreCaption'>Points Claimed</span>
-    {% endifnotequal %}
+    {% endif %}
 {% endblock %}
 
 {% block subcategory_summary_progress %}{% endblock %}
 
 {% block credit_summary_header %}
     <th>Credit</th>
-    {% ifnotequal rating.name "Reporter" %}
+    {% if rating.publish_score %}
         <th>Status</th>
         <th>Points</th>
-    {% endifnotequal %}
+    {% endif %}
     {% load submit_tags %}
 {% endblock %}
 
@@ -73,12 +73,12 @@
         <a href='{{ c.get_scorecard_url }}'>{{ c }}</a>
     </td>
             
-    {% ifnotequal rating.name "Reporter" %}
+    {% if rating.publish_score %}
         <td style='color: #888'>
             {% include 'credits/credit_status_icon.html' %}
         </td>
         <td>{{ c.assessed_points|floatformat:2 }} / {% format_available_points c %}</td>
-    {% endifnotequal %}
+    {% endif %}
 {% endblock %}
 
 {% block center_column_footer %}
