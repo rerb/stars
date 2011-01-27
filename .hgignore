@@ -9,6 +9,7 @@ syntax: regexp
 ^\.pydevproject\.bak$
 ^\.settings$
 ^\.project
+emacs.desktop
 
 syntax: glob
 *.pyc

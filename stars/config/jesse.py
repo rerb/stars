@@ -25,7 +25,7 @@ DATABASES = {
         'NAME': 'iss',
         'ENGINE': 'django.db.backends.mysql',
         'USER': 'jesse',
-        'PASSWORD': '',
+        'PASSWORD': 'X]/)&1w',
         'HOST': 'mysql.aashe.org',
     }    
 }
