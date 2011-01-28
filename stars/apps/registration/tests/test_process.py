@@ -23,14 +23,13 @@ class TestProcess(TestCase):
 
     def setUp(self):
         pass
-        
-    def testViews(self):
+    
+    def regStep2(self, id, slug):
         """
-            Test the ConfirmClassView
-                - Handles a basic HTTP request w/out 500
-                - Processes the form and returns a redirect to step 2
+            Run test up to step two of the registration process for a given institution
+            
+            return the client object
         """
-        
         # Select Institution
         
         url = '/register/' 
@@ -41,11 +40,11 @@ class TestProcess(TestCase):
         response = c.get(url, post_dict)
         self.assertTrue(response.status_code == 200)
         
-        post_dict = {'aashe_id': '24394',}
+        post_dict = {'aashe_id': id,}
         response = c.post(url, post_dict, follow=False)
         self.assertTrue(response.status_code == 302)
         
-        self.assertTrue(c.session['selected_institution'].slug == 'okanagan-college-bc')
+        self.assertTrue(c.session['selected_institution'].slug == slug)
         
         # Contact Information
         
@@ -78,7 +77,18 @@ class TestProcess(TestCase):
         response = c.post(url, post_dict, follow=False)
         self.assertTrue(response.status_code == 302)
         
-        self.assertTrue(c.session['selected_institution'].slug == 'okanagan-college-bc')
+        self.assertTrue(c.session['selected_institution'].slug == slug)
+        
+        return c
+    
+    def testPayLater(self):
+        """
+            Test the ConfirmClassView
+                - Handles a basic HTTP request w/out 500
+                - Processes the form and returns a redirect to step 2
+        """
+        
+        c = self.regStep2(24394, 'okanagan-college-bc')
         
         # Test Payment
         url = '/register/step3/'
@@ -92,6 +102,39 @@ class TestProcess(TestCase):
         post_dict = {'confirm': u'on',}
         response = c.post(url, post_dict)
         self.assertTrue(response.status_code == 302)
+        self.assertTrue(len(mail.outbox) == 2)
+        
+    def testPayWithCard(self):
+        """
+            Test the ConfirmClassView
+                - Handles a basic HTTP request w/out 500
+                - Processes the form and returns a redirect to step 2
+        """
+        
+        c = self.regStep2(16384, 'florida-national-college-fl')
+        
+        # Test Payment
+        url = '/register/step3/'
+        
+        # Empty Query
+        post_dict = {}
+        response = c.get(url, post_dict)
+        self.assertTrue(response.status_code == 200)
+        
+        post_dict = {
+                        'name_on_card': 'Test Person',
+                        'card_number': '4007000000027',
+                        'exp_month': str(date.today().month),
+                        'exp_year': str(date.today().year + 1),
+                        'cv_code': '123',
+                        'billing_address': '123 Stree rd',
+                        'billing_city': "Providence",
+                        'billing_state': 'RI',
+                        'billing_zipcode': '01234',
+                     }
+        response = c.post(url, post_dict)
+        self.assertTrue(response.status_code == 302)
+        self.assertTrue(len(mail.outbox) == 2)
     
     def testPayment(self):
         

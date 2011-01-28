@@ -18,7 +18,6 @@ from stars.apps.helpers import watchdog, flashMessage
 from stars.apps.tool.admin.watchdog.models import ERROR
 from stars.apps.tool.my_submission.views import _get_active_submission
 from stars.apps.auth import xml_rpc
-from stars.apps.registration.globals import *
 from stars.apps.submissions.models import *
 from stars.apps.credits.models import CreditSet
 from stars.apps.helpers.forms.views import FormActionView
@@ -135,9 +134,9 @@ def reg_payment(request):
                         'name': "STARS Participant Registration",
                     }
 
-                    result = process_payment(payment_dict, [product_dict])
+                    result = process_payment(payment_dict, [product_dict], invoice_num=institution.aashe_id)
                     if result.has_key('cleared') and result.has_key('msg'):
-                        if result['cleared']:
+                        if result['cleared'] and result['trans_id']:
                             institution = register_institution(request.user, institution, "credit", price, payment_dict)
                             request.session['selected_institution'] = institution
                             return HttpResponseRedirect("/register/survey/")
@@ -195,13 +194,8 @@ def register_institution(user, institution, payment_type, price, payment_dict):
     payment.save()
     
     # Send Confirmation Emails
-    
-    if not settings.DEBUG:
-        cc_list = ['stars_staff@aashe.org',]
-        allison = ['allison@aashe.org','margueritte.williams@aashe.org']
-    else:
-        allison = []
-        cc_list = []
+    cc_list = ['stars_staff@aashe.org',]
+    allison = ['allison@aashe.org','margueritte.williams@aashe.org']
     
     if user.email != institution.contact_email:
         cc_list.append(user.email)
@@ -212,9 +206,9 @@ def register_institution(user, institution, payment_type, price, payment_dict):
     
     # Confirmation Email
     if payment.type == 'later':
-        t = Template(PAY_LATER_EMAIL_TEXT)
+        t = loader.get_template('tasks/notifications/welcome_unpaid.txt')
     else:
-        t = Template(RECEIPT_EMAIL_TEXT)
+        t = loader.get_template('tasks/notifications/welcome_liaison.txt')
     c = Context({"institution": institution, 'payment': payment, 'payment_dict': payment_dict})
     message = t.render(c)
     send_mail(  subject,
@@ -224,21 +218,9 @@ def register_institution(user, institution, payment_type, price, payment_dict):
                 fail_silently=False
                 )
                 
-    # Payment Reminder Email
-    if payment.type == 'later':
-        t = Template(PAY_LATER_REMINDER_TEXT)
-        c = Context({'payment': payment,})
-        message = t.render(c)
-        send_mail(  "STARS Registration",
-                    message,
-                    settings.EMAIL_HOST_USER,
-                    email_to + cc_list,
-                    fail_silently=False
-                    )
-                
     # Executive Contact
     email_to = institution.executive_contact_email
-    t = Template(EXEC_EMAIL_TEXT)
+    t = loader.get_template('tasks/notifications/welcome_exec.txt')
     c = Context({"institution": institution})
     message = t.render(c)
     send_mail(  subject,
@@ -333,6 +315,13 @@ def reg_account(request):
 def get_payment_dict(pay_form, institution):
     """ Extracts the payment dictionary for process_payment from a given form and institution """
     
+    cc = pay_form.cleaned_data['card_number']
+    l = len(cc)
+    if l >= 4:
+        last_four = cc[l-4:l]
+    else:
+        last_four = None
+    
     payment_dict = {
         'name_on_card': pay_form.cleaned_data['name_on_card'],
         'cc_number': pay_form.cleaned_data['card_number'],
@@ -349,6 +338,7 @@ def get_payment_dict(pay_form, institution):
         'billing_email': institution.contact_email,
         'description': "%s STARS Registration (%s)" % (institution.name, datetime.now().isoformat()),
         'company': institution.name,
+        'last_four': last_four,
     }
     
     if is_canadian_zipcode(pay_form.cleaned_data['billing_zipcode']):
@@ -358,7 +348,7 @@ def get_payment_dict(pay_form, institution):
 
 def process_payment(payment_dict, product_list, invoice_num=None, server=None, login=None, key=None):
     """
-        Connects to Cybersource and processes a payment based on the payment
+        Connects to Authorize.net and processes a payment based on the payment
         information in payment_dict and the product_dict
         payment_dict: {first_name, last_name, street, city, state, zip, country, email, cc_number, expiration_date}
         product_list: [{'name': '', 'price': #.#, 'quantity': #},]
@@ -399,6 +389,7 @@ def process_payment(payment_dict, product_list, invoice_num=None, server=None, l
         capture_result = cc.captureAuthorized(trans_id=result.trans_id)
         return {'cleared': True, 'reason_code': None, 'msg': None, 'conf': capture_result.approval_code, 'trans_id': capture_result.trans_id}
     else:
+        print >> sys.stderr, "Decline: %s" % result.response_reason
         return {'cleared': False, 'reason_code': None, 'msg': result.response_reason, 'conf': None, 'trans_id': None}
 
 def _confirm_login(request):
