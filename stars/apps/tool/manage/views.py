@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 from django.conf import settings
 from django.shortcuts import get_object_or_404
@@ -14,6 +14,8 @@ from stars.apps.helpers.forms import form_helpers
 from stars.apps.helpers import watchdog
 from stars.apps.helpers import flashMessage
 from stars.apps.tool.manage.forms import *
+from stars.apps.registration.forms import PaymentForm
+from stars.apps.registration.views import process_payment, get_payment_dict, _get_registration_price, init_submissionset
     
 @user_is_inst_admin
 def institution_detail(request):
@@ -209,7 +211,7 @@ def submissionsets(request):
     is_admin = request.user.has_perm('admin')
     
     return respond(request, 'tool/manage/submissionset_list.html', {'active_set': active_set, 'is_admin': is_admin})
-    
+
 @user_is_staff
 def add_submissionset(request):
     """
@@ -259,6 +261,127 @@ def edit_submissionset(request, set_id):
     template = 'tool/manage/edit_submissionset.html'
     context = {
         "object_form": object_form,
+    }
+    return respond(request, template, context)
+
+def _gets_discount(institution):
+    
+    # if this is a returning institution
+    if institution.submissionset_set.filter(status='r'):
+    
+        # if it is less than 90 days after 1/31/11
+        td = timedelta(days=90)
+        d = date(year=2011, month=1, day=11)
+        if date.today() <= d + td:
+            return True
+    
+        # or if last submission was less than 90 days ago
+        d = institution.submissionset_set.filter(status='r')[0].date_submitted
+        if date.today() - d <= td:
+            return True
+        
+    return False
+
+@user_is_inst_admin
+def pay_submissionset(request, set_id):
+    
+    current_inst = request.user.current_inst
+    ss = get_object_or_404(SubmissionSet, id=set_id, institution=current_inst)
+    is_member = current_inst.is_member_institution()
+    amount = _get_registration_price(is_member)
+    discount = _gets_discount(current_inst)
+    if discount:
+        amount = amount / 2
+    
+    pay_form = PaymentForm()
+    
+    if request.method == "POST":
+        pay_form = PaymentForm(request.POST)
+        if pay_form.is_valid():
+            payment_dict = get_payment_dict(pay_form, current_inst)
+            product_dict = {
+                'price': amount,
+                'quantity': 1,
+                'name': "STARS Participant Registration",
+            }
+    
+            result = process_payment(payment_dict, [product_dict], invoice_num=current_inst.aashe_id)
+            if result.has_key('cleared') and result.has_key('msg'):
+                if result['cleared'] and result['trans_id']:
+                    p = Payment(
+                                    submissionset=ss,
+                                    date=datetime.now(),
+                                    amount=amount,
+                                    user=request.user,
+                                    reason='reg',
+                                    type='credit',
+                                    confirmation=str(result['trans_id']),
+                                )
+                    p.save()
+                    return HttpResponseRedirect("/tool/manage/submissionsets/")
+                else:
+                    flashMessage.send("Processing Error: %s" % result['msg'], flashMessage.ERROR)
+        else:
+            flashMessage.send("Please correct the errors below", flashMessage.ERROR)
+                    
+    template = 'tool/manage/pay_submissionset.html'
+    context = {
+        "object_form": pay_form,
+        "amount": amount,
+        'is_member': is_member,
+        'discount': discount,
+    }
+    return respond(request, template, context)
+
+@user_is_inst_admin
+def purchase_submissionset(request):
+    
+    current_inst = request.user.current_inst
+    is_member = current_inst.is_member_institution()
+    amount = _get_registration_price(current_inst)
+    discount = _gets_discount(current_inst)
+    if discount:
+        amount = amount / 2
+    
+    pay_form = PaymentForm()
+    
+    if request.method == "POST":
+        pay_form = PaymentForm(request.POST)
+        if pay_form.is_valid():
+            payment_dict = get_payment_dict(pay_form, current_inst)
+            product_dict = {
+                'price': amount,
+                'quantity': 1,
+                'name': "STARS Participant Registration",
+            }
+    
+            result = process_payment(payment_dict, [product_dict], invoice_num=current_inst.aashe_id)
+            if result.has_key('cleared') and result.has_key('msg'):
+                if result['cleared'] and result['trans_id']:
+                    
+                    ss = init_submissionset(current_inst, request.user, datetime.now())
+                    p = Payment(
+                                    submissionset=ss,
+                                    date=datetime.now(),
+                                    amount=amount,
+                                    user=request.user,
+                                    reason='reg',
+                                    type='credit',
+                                    confirmation=str(result['trans_id']),
+                                )
+                    p.save()
+                    return HttpResponseRedirect("/tool/manage/submissionsets/")
+                else:
+                    flashMessage.send("Processing Error: %s" % result['msg'], flashMessage.ERROR)
+        else:
+            flashMessage.send("Please correct the errors below", flashMessage.ERROR)
+                    
+    template = 'tool/manage/purchase_submissionset.html'
+    context = {
+        "object_form": pay_form,
+        "amount": amount,
+        'is_member': is_member,
+        'discount': discount,
     }
     return respond(request, template, context)
 

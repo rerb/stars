@@ -119,8 +119,9 @@ class FinalizeClassView(SubmissionClassView):
     def save_form(self, form, request, context):
         """ Finalizes the submission object """
         instance = context[self.instance_name]
-        instance.date_submitted = datetime.now()
-        instance.status = 'pr'
+        instance.date_submitted = date.today()
+        instance.rating = instance.get_STARS_rating()
+        instance.status = 'r'
         # instance.rating = self.instance.get_STARS_rating()
         instance.submitting_user = request.user
         instance.save()
@@ -145,7 +146,7 @@ class FinalizeClassView(SubmissionClassView):
                     fail_silently=False
                     )
         
-        t = loader.get_template('tool/submissions/submit_email.txt')
+        t = loader.get_template('tasks/notifications/submit_email.txt')
         _context = context
         _context.update({'submissionset': context[self.instance_name],})
         

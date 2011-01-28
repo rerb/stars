@@ -78,6 +78,9 @@ class SubmissionSet(models.Model):
     reporter_status = models.BooleanField(help_text="Check this box if you would like to be given reporter status and not receive a STARS rating from AASHE.")
     pdf_report = models.FileField(upload_to=upload_path_callback, blank=True, null=True)
 
+    class Meta:
+        ordering = ("date_registered",)
+
     def __unicode__(self):
         return unicode('%s (%s)' % (self.institution, self.creditset) )
     

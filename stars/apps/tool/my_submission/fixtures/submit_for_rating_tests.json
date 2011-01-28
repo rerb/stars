@@ -21,7 +21,20 @@
              "image_200": "",
              "name": "Rating 1",
              "image_large": "",
-             "minimal_score": 2
+             "minimal_score": 0
+        }
+    },
+     
+    {
+        "pk": 2,
+         "model": "credits.rating",
+         "fields": 
+        {
+            "creditset": 1,
+             "image_200": "",
+             "name": "Rating 2",
+             "image_large": "",
+             "minimal_score": 1
         }
     },
      
@@ -100,6 +113,7 @@
         {
             "executive_contact_department": "edept",
              "name": "Test Institution",
+             "slug": "test-institution",
              "contact_last_name": "Last",
              "executive_contact_middle_name": "",
              "charter_participant": true,

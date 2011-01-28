@@ -84,6 +84,6 @@ class RatingTest(TestCase):
         response = c.post('/tool/submissions/submit/finalize/', post_dict, follow=False)
         self.assertTrue(response.status_code == 200)
         ss = SubmissionSet.objects.get(pk=1)
-        self.assertTrue(ss.status == 'pr')
+        self.assertTrue(ss.status == 'r')
         self.assertTrue(len(mail.outbox) == 2)
         

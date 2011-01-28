@@ -437,14 +437,8 @@ def _get_registration_price(is_member):
     """
         Calculates the registration price based on the 
     """
-    deadline = datetime(2010, 1, 1, 3, 0, 0) # January 1st at 3am
-    early = {'member': 650, 'non': 1150}
-    regular = {'member': 900, 'non': 1400}
     
-    if datetime.now() < deadline:   # Early Registration
-        price = early
-    else:                           # Normal Registration
-        price = regular
+    price = {'member': 900, 'non': 1400}
         
     if is_member:
         return price['member']
