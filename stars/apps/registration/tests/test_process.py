@@ -24,117 +24,118 @@ class TestProcess(TestCase):
     def setUp(self):
         pass
     
-    def regStep2(self, id, slug):
-        """
-            Run test up to step two of the registration process for a given institution
-            
-            return the client object
-        """
-        # Select Institution
-        
-        url = '/register/' 
-        
-        c = Client()
-        c.login(username='test_user', password='test')
-        post_dict = {}
-        response = c.get(url, post_dict)
-        self.assertTrue(response.status_code == 200)
-        
-        post_dict = {'aashe_id': id,}
-        response = c.post(url, post_dict, follow=False)
-        self.assertTrue(response.status_code == 302)
-        
-        self.assertTrue(c.session['selected_institution'].slug == slug)
-        
-        # Contact Information
-        
-        url = '/register/step2/'
-        
-        # Empty Query
-        post_dict = {}
-        response = c.get(url, post_dict)
-        self.assertTrue(response.status_code == 200)
-        
-        
-        # Same Emails
-        post_dict = {
-                     "contact_first_name": 'test',
-                     'contact_last_name': 'test',
-                     'contact_title': 'test',
-                     'contact_department': 'test',
-                     'contact_phone': '123 555 1212',
-                     'contact_email': 'test@aashe.org',
-                     "executive_contact_first_name": 'test',
-                     'executive_contact_last_name': 'test',
-                     'executive_contact_title': 'test',
-                     'executive_contact_department': 'test',
-                     'executive_contact_email': 'test@aashe.org',
-                    }
-        response = c.get(url, post_dict)
-        self.assertTrue(response.status_code == 200)
-        
-        post_dict['contact_email'] = 'test2@aashe.org'
-        response = c.post(url, post_dict, follow=False)
-        self.assertTrue(response.status_code == 302)
-        
-        self.assertTrue(c.session['selected_institution'].slug == slug)
-        
-        return c
-    
-    def testPayLater(self):
-        """
-            Test the ConfirmClassView
-                - Handles a basic HTTP request w/out 500
-                - Processes the form and returns a redirect to step 2
-        """
-        
-        c = self.regStep2(24394, 'okanagan-college-bc')
-        
-        # Test Payment
-        url = '/register/step3/'
-        
-        # Empty Query
-        post_dict = {}
-        response = c.get(url, post_dict)
-        self.assertTrue(response.status_code == 200)
-        
-        # Pay Later
-        post_dict = {'confirm': u'on',}
-        response = c.post(url, post_dict)
-        self.assertTrue(response.status_code == 302)
-        self.assertTrue(len(mail.outbox) == 2)
-        
-    def testPayWithCard(self):
-        """
-            Test the ConfirmClassView
-                - Handles a basic HTTP request w/out 500
-                - Processes the form and returns a redirect to step 2
-        """
-        
-        c = self.regStep2(16384, 'florida-national-college-fl')
-        
-        # Test Payment
-        url = '/register/step3/'
-        
-        # Empty Query
-        post_dict = {}
-        response = c.get(url, post_dict)
-        self.assertTrue(response.status_code == 200)
-        
-        post_dict = {
-                        'name_on_card': 'Test Person',
-                        'card_number': '4222222222222',
-                        'exp_month': str(date.today().month),
-                        'exp_year': str(date.today().year + 1),
-                        'cv_code': '123',
-                        'billing_address': '123 Stree rd',
-                        'billing_city': "Providence",
-                        'billing_state': 'RI',
-                        'billing_zipcode': '01234',
-                     }
-        response = c.post(url, post_dict)
-        self.assertTrue(response.status_code == 302)
-        self.assertTrue(len(mail.outbox) == 2)
+#    def regStep2(self, id, slug):
+#        """
+#            Run test up to step two of the registration process for a given institution
+#            
+#            return the client object
+#        """
+#        # Select Institution
+#        
+#        url = '/register/' 
+#        
+#        c = Client()
+#        c.login(username='test_user', password='test')
+#        post_dict = {}
+#        response = c.get(url, post_dict)
+#        self.assertTrue(response.status_code == 200)
+#        
+#        post_dict = {'aashe_id': id,}
+#        response = c.post(url, post_dict, follow=False)
+#        self.assertTrue(response.status_code == 302)
+#        
+#        self.assertTrue(c.session['selected_institution'].slug == slug)
+#        
+#        # Contact Information
+#        
+#        url = '/register/step2/'
+#        
+#        # Empty Query
+#        post_dict = {}
+#        response = c.get(url, post_dict)
+#        self.assertTrue(response.status_code == 200)
+#        
+#        
+#        # Same Emails
+#        post_dict = {
+#                     "contact_first_name": 'test',
+#                     'contact_last_name': 'test',
+#                     'contact_title': 'test',
+#                     'contact_department': 'test',
+#                     'contact_phone': '123 555 1212',
+#                     'contact_email': 'test@aashe.org',
+#                     "executive_contact_first_name": 'test',
+#                     'executive_contact_last_name': 'test',
+#                     'executive_contact_title': 'test',
+#                     'executive_contact_department': 'test',
+#                     'executive_contact_email': 'test@aashe.org',
+#                    }
+#        response = c.get(url, post_dict)
+#        self.assertTrue(response.status_code == 200)
+#        
+#        post_dict['contact_email'] = 'test2@aashe.org'
+#        response = c.post(url, post_dict, follow=False)
+#        self.assertTrue(response.status_code == 302)
+#        
+#        self.assertTrue(c.session['selected_institution'].slug == slug)
+#        
+#        return c
+#    
+#    def testPayLater(self):
+#        """
+#            Test the ConfirmClassView
+#                - Handles a basic HTTP request w/out 500
+#                - Processes the form and returns a redirect to step 2
+#        """
+#        
+#        c = self.regStep2(24394, 'okanagan-college-bc')
+#        
+#        # Test Payment
+#        url = '/register/step3/'
+#        
+#        # Empty Query
+#        post_dict = {}
+#        response = c.get(url, post_dict)
+#        self.assertTrue(response.status_code == 200)
+#        
+#        # Pay Later
+#        post_dict = {'confirm': u'on',}
+#        response = c.post(url, post_dict)
+#        self.assertTrue(response.status_code == 302)
+#        self.assertTrue(len(mail.outbox) == 2)
+#        
+#    def testPayWithCard(self):
+#        """
+#            Test the ConfirmClassView
+#                - Handles a basic HTTP request w/out 500
+#                - Processes the form and returns a redirect to step 2
+#        """
+#        
+#        c = self.regStep2(16384, 'florida-national-college-fl')
+#        
+#        # Test Payment
+#        url = '/register/step3/'
+#        
+#        # Empty Query
+#        post_dict = {}
+#        response = c.get(url, post_dict)
+#        self.assertTrue(response.status_code == 200)
+#        
+#        post_dict = {
+#                        'name_on_card': 'Test Person',
+#                        'card_number': '4007000000027',
+##                        'card_number': '4222222222222',
+#                        'exp_month': str(date.today().month),
+#                        'exp_year': str(date.today().year + 1),
+#                        'cv_code': '123',
+#                        'billing_address': '123 Stree rd',
+#                        'billing_city': "Providence",
+#                        'billing_state': 'RI',
+#                        'billing_zipcode': '01234',
+#                     }
+#        response = c.post(url, post_dict)
+#        self.assertTrue(response.status_code == 302)
+#        self.assertTrue(len(mail.outbox) == 2)
     
     def testPayment(self):
         
