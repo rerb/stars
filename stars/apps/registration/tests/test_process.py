@@ -123,7 +123,7 @@ class TestProcess(TestCase):
         
         post_dict = {
                         'name_on_card': 'Test Person',
-                        'card_number': '4007000000027',
+                        'card_number': '4222222222222',
                         'exp_month': str(date.today().month),
                         'exp_year': str(date.today().year + 1),
                         'cv_code': '123',
