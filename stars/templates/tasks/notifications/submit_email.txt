@@ -2,7 +2,7 @@ Dear {{ submissionset.institution.contact_first_name }} {{ submissionset.institu
 
 Congratulations on successfully completing your institution's STARS Report!  AASHE commends {{ submissionset.institution }} for demonstrating its sustainability commitment and leadership by participating in STARS.    
 
-The STARS Report for {{ submissionset.institution }}, which includes all of the data submitted during the reporting process, is now publicly posted on the STARS Website: {{ submissionset.get_scorecard_url }}.
+The STARS Report for {{ submissionset.institution }}, which includes all of the data submitted during the reporting process, is now publicly posted on the STARS Website: https://stars.aashe.org{{ submissionset.get_scorecard_url }}.
 
 Based on the information submitted, {{ submissionset.institution }} achieved {{ submissionset.rating }} status.  
 
