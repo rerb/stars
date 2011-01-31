@@ -25,7 +25,7 @@ def populate_etl_entry(institution):
         etl.registration_date = last_submission.date_registered
     if last_rated_submission:
         etl.current_rating = last_rated_submission.rating.name
-        etl.rating_valid_until = last_rated_submission.date_reviewed + timedelta(days=365*3)
+        etl.rating_valid_until = last_rated_submission.date_submitted + timedelta(days=365*3)
         etl.last_submission_date = last_rated_submission.date_submitted
     if active_submission:
         etl.current_stars_version = active_submission.creditset.version
@@ -76,3 +76,13 @@ def update_etl():
             etl = None
             
         etl = update_etl_for_institution(i, etl)
+        
+    # remove any extraneous institutions in ETL
+    for etl in ETL.objects.all():
+        try:
+            i = Institution.objects.get(aashe_id=etl.aashe_id)
+        except Institution.DoesNotExist:
+            etl.delete()
+        
+        
+        

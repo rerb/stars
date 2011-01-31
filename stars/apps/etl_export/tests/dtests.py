@@ -132,4 +132,14 @@
     >>> etl_3 = update_etl_for_institution(i, etl_2)
     Updated ETL: -1
     
+    >>> etl_to_del = populate_etl_entry(i)
+    >>> etl_to_del.aashe_id = -10
+    >>> etl_to_del.save()
+    
+    >>> ETL.objects.count()
+    2
+    >>> update_etl()
+    No Change: -1
+    >>> ETL.objects.count()
+    1
 """
