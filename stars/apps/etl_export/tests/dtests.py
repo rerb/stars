@@ -17,13 +17,13 @@
     >>> date2 = date(year=2010, month=2, day=2)
     
     >>> i = Institution(
-    ...  aashe_id = -1,
+    ...  aashe_id = 1,
     ...  name = "test institution",
     ...  contact_first_name = "first",
     ...  contact_last_name = "last",
     ...  contact_title = "title",
     ...  contact_department = "dept",
-    ...  contact_phone = "800-555-1212",
+    ...  contact_phone = "800-5551212",
     ...  contact_email = "test@example.com"
     ...  )
     >>> i.save()
@@ -92,7 +92,7 @@
     >>> etl_a.liaison_department
     'dept'
     >>> etl_a.liaison_phone
-    '800-555-1212'
+    '800-5551212'
     >>> etl_a.liaison_email
     'test@example.com'
     >>> print etl_a.current_rating
@@ -121,25 +121,25 @@
     False
     
     >>> etl_1 = update_etl_for_institution(i, None)
-    Added New ETL: -1
+    Added New ETL: 1
     
     >>> etl_2 = update_etl_for_institution(i, etl_1)
-    No Change: -1
+    No Change: 1
     
     >>> ss.status = 'pr'
     >>> ss.save()
     
     >>> etl_3 = update_etl_for_institution(i, etl_2)
-    Updated ETL: -1
+    Updated ETL: 1
     
     >>> etl_to_del = populate_etl_entry(i)
-    >>> etl_to_del.aashe_id = -10
+    >>> etl_to_del.aashe_id = 2
     >>> etl_to_del.save()
     
     >>> ETL.objects.count()
     2
     >>> update_etl()
-    No Change: -1
+    No Change: 1
     >>> ETL.objects.count()
     1
 """
