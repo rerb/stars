@@ -31,7 +31,7 @@ def get_new_institutions(current_date):
     
     return i_list
 
-def send_welcome_email(current_date):
+def send_welcome_email(current_date=datetime.today()):
     """
         This is separated from `get_new_institutions` for testing purposes
     """
@@ -50,7 +50,7 @@ def send_welcome_email(current_date):
                             subject="Welcome to STARS",
                         )
 
-def get_overdue_payments(current_date):
+def get_overdue_payments(current_date=datetime.today()):
     """
         Return a list of all submission sets that were registered
         more than 4 weeks before the current and still have not paid
@@ -66,7 +66,7 @@ def get_overdue_payments(current_date):
             
     return ss_list
 
-def send_overdue_notifications(current_time):
+def send_overdue_notifications(current_time=datetime.now()):
     """
         This is separated from `get_overdue_contacts` for testing purposes
     """
@@ -84,65 +84,84 @@ def send_overdue_notifications(current_time):
                             message=message,
                             subject="Reminder:  STARS Registration Fee Overdue",
                         )
-                        
-def get_six_month_sets(current_date):
-    """
-        Gets the submission sets that are due in six months or less
-    """
-    
-    ss_list = []
-    d = add_months(current_date, 6)
-    for ss in SubmissionSet.objects.filter(submission_deadline__lte=d).filter(status='ps'):
-        ss_list.append(ss)
-    return ss_list
-    
-def send_six_month_notifications(current_time):
-    """
-        Remind institutions that they have 6 months before their submission is due
-    """
-    
-    for ss in get_six_month_sets(current_time):
-
-        t = loader.get_template('tasks/notifications/six_months.txt')
-        c = Context({'ss': ss,})
-        message = t.render(c)
-    
-        send_notification(
-                            n_type='6mn',
-                            identifier="six-%d" % ss.id,
-                            mail_to=[ss.institution.contact_email,],
-                            message=message,
-                            subject="Reminder:  STARS Submission Due in 6 Months!",
-                        )
-
-def send_sixty_day_notifications(current_date=None):
-    """
-        Gets the submission sets that are due in sixty days or less
-        current_date is optional for debugging
-    """
+        
+def send_submission_deadline_reminder(td, n_type, identifier, template_name, subject, current_date):
     
     if not current_date:
         current_date = date.today()
-        
-    t = loader.get_template('tasks/notifications/sixty_days.txt')
+    d = current_date + td
     
-    d = current_date + timedelta(days=60)
     message_list = []
-    
-    for ss in SubmissionSet.objects.filter(submission_deadline__lte=d):
-        if ss.can_apply_for_extension(current_date):
+    for ss in SubmissionSet.objects.filter(status='ps').filter(submission_deadline__lte=d):
+        
+            t = loader.get_template(template_name)
             c = Context({'ss': ss,})
             
             m = {
                     'mail_to': [ss.institution.contact_email,],
                     'message': t.render(c),
-                    'n_type': '60d',
-                    'identifier': '60-%d' % ss.id,
-                    'subject': 'STARS Submission: Due in 60 Days',
+                    'n_type': n_type,
+                    'identifier': '%s-%d' % (identifier, ss.id),
+                    'subject': subject,
                  }
             message_list.append(m)
             
     send_notification_set(message_list)
+    
+def send_six_month_notifications(current_date=datetime.today()):
+    """
+        Remind institutions that they have 6 months before their submission is due
+    """
+    
+    d = add_months(current_date, 6)
+    td = d - current_date
+    n_type = '6mn'
+    identifier = 'six'
+    template_name = 'tasks/notifications/six_months.txt'
+    subject = "STARS Submission: Due in 6 months"
+    
+    send_submission_deadline_reminder(td, n_type, identifier, template_name, subject, current_date)
+    
+def send_three_month_notifications(current_date=datetime.today()):
+    """
+        Remind institutions that they have 3 months before their submission is due
+    """
+    
+    d = add_months(current_date, 3)
+    td = d - current_date
+    n_type = '3mn'
+    identifier = '3mn'
+    template_name = 'tasks/notifications/three_months.txt'
+    subject = "STARS Submission: Due in 3 months"
+    
+    send_submission_deadline_reminder(td, n_type, identifier, template_name, subject, current_date)
+
+def send_sixty_day_notifications(current_date=datetime.today()):
+    """
+        Gets the submission sets that are due in sixty days or less
+        current_date is optional for debugging
+    """
+    
+    td = timedelta(days=60)
+    n_type = '60d'
+    identifier = '60'
+    template_name = 'tasks/notifications/sixty_days.txt'
+    subject = "STARS Submission: Due in 60 Days"
+    
+    send_submission_deadline_reminder(td, n_type, identifier, template_name, subject, current_date)
+    
+def send_thirty_day_notifications(current_date=datetime.today()):
+    """
+        Remind institutions that they have 30 days before their submission is due
+    """
+    
+    td = timedelta(days=30)
+    n_type = '30d'
+    identifier = '30d'
+    template_name = 'tasks/notifications/thirty_days.txt'
+    subject = "STARS Submission: Due in 30 days"
+    
+    send_submission_deadline_reminder(td, n_type, identifier, template_name, subject, current_date)
     
 def send_post_submission_survey(current_date=None):
     """

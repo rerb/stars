@@ -1,6 +1,6 @@
 Dear {{ ss.institution.contact_first_name }} {{ ss.institution.contact_last_name }},
 
-This is a friendly reminder to notify you that your STARS data submission is due in 6 months. If you haven't already done so, we highly recommend that you log into the STARS Reporting Tool (http://stars.aashe.org/tool/) to get started.
+This is a friendly reminder to notify you that your STARS data submission is due in 3 months. If you haven't already done so, we highly recommend that you log into the STARS Reporting Tool (http://stars.aashe.org/tool/) to get started.
 
 If you have any questions about getting started please view these helpful instructional videos (https://stars.aashe.org/pages/help/how-to-videos.html) or contact the STARS team with your inquiries.
 
