@@ -92,8 +92,12 @@ def send_submission_deadline_reminder(td, n_type, identifier, template_name, sub
     d = current_date + td
     
     message_list = []
+    # send it if we are within the td - timedelta
     for ss in SubmissionSet.objects.filter(status='ps').filter(submission_deadline__lte=d):
-        
+            
+        # but don't send it if we're over by 10 days (this runs every day, so this shouldn't happen)
+        # plus, some of these notifications were created after their window
+        if not d - ss.submission_deadline > timedelta(days=10): 
             t = loader.get_template(template_name)
             c = Context({'ss': ss,})
             

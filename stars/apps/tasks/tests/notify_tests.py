@@ -11,7 +11,7 @@ from django.core import mail
 from stars.apps.tasks.notifications import *
 
 import sys, os
-from datetime import date
+from datetime import date, timedelta
 
 class NotificationTest(TestCase):
     fixtures = ['notification_test.json',]
@@ -81,6 +81,14 @@ class NotificationTest(TestCase):
         # don't send twice
         send_sixty_day_notifications(current_date=today)
         self.assertTrue(len(mail.outbox) == 1)
+        
+        # test the 10-day window
+        send_sixty_day_notifications(current_date=today+timedelta(20))
+        self.assertTrue(len(mail.outbox) == 1)
+        
+        send_sixty_day_notifications(current_date=today+timedelta(5))
+        self.assertTrue(len(mail.outbox) == 4)
+        
         
         
     def testWelcomeList(self):
