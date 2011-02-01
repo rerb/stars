@@ -7,9 +7,19 @@ from datetime import datetime
 
 from stars.apps.tasks.notifications import *
 
-send_six_month_notifications()
-send_overdue_notifications()
+# Welcome
 send_welcome_email()
-send_post_submission_survey()
+
+# Payment Reminders
+send_overdue_notifications()
+
+# Deadline Reminders
+send_six_month_notifications()
+send_three_month_notifications()
 send_sixty_day_notifications()
 send_thirty_day_notifications()
+
+# After Submission
+send_post_submission_survey()
+
+
