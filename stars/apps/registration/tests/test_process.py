@@ -1,5 +1,5 @@
 """
-    Doctests for the registration process
+    Unittests for the registration process
 
     Test premises:
         - the forms are processed correctly
