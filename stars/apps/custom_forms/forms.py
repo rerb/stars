@@ -1,7 +1,7 @@
 from django.forms import ModelForm
 
 from stars.apps.custom_forms.models import TAApplication, EligibilityQuery
-from stars.apps.credits.models import Subcategory
+from stars.apps.credits.models import Subcategory, CreditSet
 
 class TAApplicationForm(ModelForm):
     
@@ -20,7 +20,8 @@ class TAApplicationForm(ModelForm):
         self.fields['credit_weakness'].label = "Briefly describe a weakness of a STARS credit or subcategory, including how it could be improved"
         self.fields['subcategories'].label = "Select the STARS sub-categories for which you wish to serve as a Technical Advisor"
         
-        subset = Subcategory.objects.exclude(title='Demo').exclude(title='Innovation')
+        cs = CreditSet.objects.get_latest()
+        subset = Subcategory.objects.filter(category__creditset=cs).exclude(title='Demo').exclude(title='Innovation')
         self.fields['subcategories'].choices = [(s.id, s.title) for s in subset]
 
 class EligibilityForm(ModelForm):
