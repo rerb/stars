@@ -35,7 +35,7 @@ class DataCorrectionRequestForm(ModelForm):
     
     class Meta:
         model = DataCorrectionRequest
-        exclude = ['reporting_field', 'object_id', 'content_type', 'user']
+        exclude = ['reporting_field', 'object_id', 'content_type', 'user', 'approved']
         
     def __init__(self, creditset=None, *args, **kwargs):
         
