@@ -17,7 +17,8 @@ class CategorySubmissionAdmin(admin.ModelAdmin):
 admin.site.register(CategorySubmission, CategorySubmissionAdmin)
 
 class DataCorrectionRequestAdmin(admin.ModelAdmin):
-    list_display = ('user', 'reporting_field', 'date',)
+    list_display = ('user', 'reporting_field', 'date','approved')
+    list_filter = ('approved',)
 admin.site.register(DataCorrectionRequest, DataCorrectionRequestAdmin)
 
 class SubcategorySubmissionAdmin(admin.ModelAdmin):

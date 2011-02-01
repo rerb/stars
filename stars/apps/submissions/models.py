@@ -919,6 +919,20 @@ class DataCorrectionRequest(models.Model):
     new_value = models.TextField()
     explanation = models.TextField()
     user = models.ForeignKey(User, blank=True, null=True)
+    approved = models.BooleanField(default=False)
+    
+    def save(self):
+        """
+            Check the approved property to see if this was approved
+            If so, confirm that the correction has been applied
+        """
+        if self.approved:
+            try:
+                c = self.applied_correction
+            except ReportingFieldDataCorrection.DoesNotExist:
+                self.approve()
+            
+        return super(DataCorrectionRequest, self).save()
     
     def approve(self):
         """
@@ -929,17 +943,20 @@ class DataCorrectionRequest(models.Model):
                                             previous_value=self.reporting_field.value,
                                             change_date = datetime.today(),
                                             reporting_field = self.reporting_field,
-                                            explanation = self.explanation
+                                            explanation = self.explanation,
+                                            request = self,
                                             )
         self.reporting_field.value = self.new_value
         self.reporting_field.save()
         rfdc.save()
+        self.approved = True
 
 class ReportingFieldDataCorrection(models.Model):
     """
         Represents a change to a particular field in Credit Submission after
         an institution has received a rating.
     """
+    request = models.OneToOneField(DataCorrectionRequest, related_name='applied_correction', blank=True, null=True)
     previous_value = models.TextField()
     change_date = models.DateField()
     content_type = models.ForeignKey(ContentType)
