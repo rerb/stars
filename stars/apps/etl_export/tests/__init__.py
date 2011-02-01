@@ -1,4 +1,4 @@
-import dtests
+from dtests import TestETL
 __test__ = {
-    'Doctest': dtests
+    'TestETL': TestETL
 }

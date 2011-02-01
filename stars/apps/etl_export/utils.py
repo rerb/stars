@@ -45,7 +45,8 @@ def populate_etl_entry(institution):
 def update_etl_for_institution(i, etl):
     """
         This method populates the ETL list with updated status information
-        Doctests are in tests/
+        
+        return true if updated/created false if no change
     """
         
     new_etl = populate_etl_entry(i)
@@ -53,20 +54,21 @@ def update_etl_for_institution(i, etl):
     if not etl:
         new_etl.save()
         print "Added New ETL: %s" % new_etl
-        return new_etl
+        return True
     
     elif etl != new_etl:
         etl.delete()
         new_etl.save()
         print "Updated ETL: %s" % new_etl
-        return new_etl
+        return True
     
     else:
         print "No Change: %s" % etl
-        return etl
+        return False
         
 def update_etl():
 
+    updates = []
     for i in Institution.objects.all():
         
         # See if an ETL object exists for this institution
@@ -75,14 +77,18 @@ def update_etl():
         except ETL.DoesNotExist:
             etl = None
             
-        etl = update_etl_for_institution(i, etl)
-        
+        if update_etl_for_institution(i, etl):
+            updates.append(i.id)
+    
+    drops = []
     # remove any extraneous institutions in ETL
     for etl in ETL.objects.all():
         try:
             i = Institution.objects.get(aashe_id=etl.aashe_id)
         except Institution.DoesNotExist:
+            drops.append(etl.aashe_id)
             etl.delete()
-        
+    
+    return (updates, drops)
         
         
