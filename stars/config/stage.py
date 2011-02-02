@@ -5,8 +5,7 @@
 
 from settings import *
 
-DEBUG = True
-TEMPLATE_DEBUG = DEBUG
+MAINTENANCE_MODE = False
 
 DATABASES = {
     'default': {
@@ -14,16 +13,16 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'USER': 'starsapp',
         'PASSWORD': 'J3z4#$szFET--6',
-        'HOST': 'localhost',
+        'HOST': 'mysql.aashe.net',
     }
 }
 
-MEDIA_ROOT = '/var/www/stars.aashe.org/media'
+CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
 
-SSO_SERVER_URI = STAGE_SSO_SERVER_URI
-STARS_DOMAIN = STAGE_STARS_DOMAIN
-SSO_API_KEY = STAGE_SSO_API_KEY
+ANALYTICS_ID = "UA-1056760-7"
 
-XMLRPC_VERBOSE = True
+MEDIA_ROOT = '/var/www/stars.stage.aashe.org/media/'
 
-CYBERSOURCE_URL = CYBERSOURCE_TEST_URL
+SSO_SERVER_URI = WWW_SSO_SERVER_URI
+STARS_DOMAIN = WWW_STARS_DOMAIN
+SSO_API_KEY = WWW_SSO_API_KEY
