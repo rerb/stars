@@ -84,6 +84,9 @@ class SubmissionSet(models.Model):
     def __unicode__(self):
         return unicode('%s (%s)' % (self.institution, self.creditset) )
     
+    def missed_deadline(self):
+        return self.submission_deadline < date.today()
+    
     def get_upload_path(self):
         return 'secure/%d/submission-%d/' % (self.institution.id, self.id)
     

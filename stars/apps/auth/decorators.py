@@ -7,6 +7,8 @@ from django.conf import settings
 
 from stars.apps.helpers import flashMessage
 
+from datetime import date
+
 # Class decorators
 # Deprecated by Mixins
 
@@ -179,6 +181,8 @@ def _get_active_submission_problem_response(request):
             raise PermissionDenied("%s has no active submissions."%current_inst)
     elif active_submission.status != 'ps' and not request.user.is_staff:
         raise PermissionDenied("This submission has been submitted and is no longer available for editing. See it under 'My Report(s).'")
+    elif active_submission.missed_deadline():
+        raise PermissionDenied("The submission deadline for this submission has passed. It is no longer available to edit.")
     else:
         if not active_submission.is_enabled():
             raise PermissionDenied("This submission hasn't been enabled. It will be available once AASHE receives payment.")

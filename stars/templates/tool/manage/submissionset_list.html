@@ -42,12 +42,16 @@
             	</span>
             </td>
             <td>
-            	{% if set.is_enabled %}
-            		{{ set.get_status }}
-            	{% else %}
-            		<i>Pending Payment</i><br/>
-            		<a href='{{ set.get_manage_url }}pay/'>Pay Now</a>
-            	{% endif %}
+            	{% if not set.missed_deadline %}
+	            	{% if set.is_enabled %}
+	            		{{ set.get_status }}
+	            	{% else %}
+	            		<i>Pending Payment</i><br/>
+	            		<a href='{{ set.get_manage_url }}pay/'>Pay Now</a>
+	            	{% endif %}
+	            {% else %}
+	            	Deadline Expired
+	            {% endif %}
             </td>
             <td>
                 {% ifequal set active_set %}
