@@ -211,6 +211,8 @@ if m:
 DJANGO_VERSION = django.get_version()
 HG_REVISION = None
 
+SOUTH_TESTS_MIGRATE = False
+
 if os.path.exists(os.path.join(os.path.dirname(__file__), 'hg_info.py')):
     from hg_info import revision
     HG_REVISION = revision
