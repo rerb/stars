@@ -141,15 +141,15 @@ class NotificationTest(TestCase):
         """
         
         today = date(year=2010, month=5, day=29)
-        ss_list = get_overdue_payments(today)
+        ss_list = get_overdue_payments(4, today)
         self.assertTrue(len(ss_list) == 1)
         
         today = date(year=2010, month=5, day=31)
-        ss_list = get_overdue_payments(today)
+        ss_list = get_overdue_payments(4, today)
         self.assertTrue(len(ss_list) == 2)
         
         today = date(year=2010, month=5, day=25)
-        ss_list = get_overdue_payments(today)
+        ss_list = get_overdue_payments(4, today)
         self.assertTrue(len(ss_list) == 0)
         
     def test_overdue_notify(self):

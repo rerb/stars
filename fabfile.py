@@ -24,9 +24,9 @@ def dev():
     env.prep = prepare_dev
     
 def stage():
-    " Initializes a release to dev "
+    " Initializes a release to stage "
     
-    env.hosts = ['aashedev',]
+    env.hosts = ['aashestage',]
     env.path = "/var/django/projects/stars/stage/"
     env.run_test = True
     env.prep = prepare_dev

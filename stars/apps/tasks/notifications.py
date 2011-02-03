@@ -50,14 +50,14 @@ def send_welcome_email(current_date=datetime.today()):
                             subject="Welcome to STARS",
                         )
 
-def get_overdue_payments(current_date=datetime.today()):
+def get_overdue_payments(weeks, current_date=datetime.today()):
     """
         Return a list of all submission sets that were registered
-        more than 4 weeks before the current and still have not paid
+        more than `weeks` before the current and still have not paid
     """
     
-    four_weeks = timedelta(weeks=4)
-    date_limit = current_date - four_weeks
+    td = timedelta(weeks=weeks)
+    date_limit = current_date - td
     
     ss_list = []
     for ss in SubmissionSet.objects.filter(date_registered__lte=date_limit).order_by('institution__name'):
@@ -70,8 +70,8 @@ def send_overdue_notifications(current_time=datetime.now()):
     """
         This is separated from `get_overdue_contacts` for testing purposes
     """
-    
-    for ss in get_overdue_payments(current_time):
+
+    for ss in get_overdue_payments(4, current_time):
 
         t = loader.get_template('tasks/notifications/overdue.txt')
         c = Context({'ss': ss,})
@@ -80,6 +80,20 @@ def send_overdue_notifications(current_time=datetime.now()):
         send_notification(
                             n_type='4wk',
                             identifier="4wk-%d" % ss.id,
+                            mail_to=[ss.institution.contact_email,'margueritte.williams@aashe.org', 'allison@aashe.org'],
+                            message=message,
+                            subject="Reminder:  STARS Registration Fee Overdue",
+                        )
+
+    for ss in get_overdue_payments(8, current_time):
+
+        t = loader.get_template('tasks/notifications/overdue.txt')
+        c = Context({'ss': ss,})
+        message = t.render(c)
+    
+        send_notification(
+                            n_type='8wk',
+                            identifier="8wk-%d" % ss.id,
                             mail_to=[ss.institution.contact_email,'margueritte.williams@aashe.org', 'allison@aashe.org'],
                             message=message,
                             subject="Reminder:  STARS Registration Fee Overdue",
