@@ -19,9 +19,9 @@
                 {% endblock %}
             </span>
             {% block category_summary_progress %}{% endblock %}
-            <a href='#ec_{{ cat.category.id }}'>
+            <a href='#ec_{{ cat.category.id }}' class='noUnderline'>
                 <img src='/media/static/images/collapse_big.gif' alt='+' onclick='expandCollapse(this,false);' id='ec_{{ cat.category.id }}' class='collapseExpand'/>
-            </a>
+			</a>
             {{ cat }}
         </h2>
         <div id='ec_{{ cat.category.id }}_target' class='progressSubcat'>
@@ -38,7 +38,7 @@
                     {% endblock %}
                 </span>
                 {% block subcategory_summary_progress %}{% endblock %}
-                <a href='#ec_{{ cat.category.id }}_{{ sub.subcategory.id }}'>
+                <a href='#ec_{{ cat.category.id }}_{{ sub.subcategory.id }}' class='noUnderline'>
                     <img
                         src='/media/static/images/collapse_big.gif' alt='+'
                         onclick='expandCollapse(this, false);'
