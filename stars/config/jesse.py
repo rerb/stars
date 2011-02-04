@@ -24,11 +24,12 @@ DATABASES = {
     'iss': {
         'NAME': 'iss',
         'ENGINE': 'django.db.backends.mysql',
-        'USER': 'jesse',
-        'PASSWORD': 'X]/)&1w',
-        'HOST': 'mysql.aashe.org',
-    }    
+        'USER': 'root',
+        'PASSWORD': '',
+        'HOST': 'localhost',
+    }
 }
+
 INSTALLED_APPS = INSTALLED_APPS + ('aashe.issdjango',)
 DATABASE_ROUTERS = ('aashe.issdjango.router.ISSRouter',)
 
@@ -36,13 +37,13 @@ DATABASE_ROUTERS = ('aashe.issdjango.router.ISSRouter',)
 # the django dev server so we will need to serve the static files (see urls.py)
 STANDALONE_MODE = True
 
-MEDIA_ROOT = '/Users/src/jesse/stars-project/media/'
+MEDIA_ROOT = '/Users/jesse/src/stars/media/'
 
-IRC_DOMAIN = WWW_IRC_DOMAIN
+IRC_DOMAIN = STAGE_IRC_DOMAIN
 
-SSO_SERVER_URI = WWW_SSO_SERVER_URI
-STARS_DOMAIN = WWW_STARS_DOMAIN
-SSO_API_KEY = WWW_SSO_API_KEY
+SSO_SERVER_URI = DEV_SSO_SERVER_URI
+STARS_DOMAIN = DEV_STARS_DOMAIN
+SSO_API_KEY = DEV_SSO_API_KEY
 
 #AASHE_MYSQL_SERVER = "67.192.170.227"#"mysql.aashe.net" #"174.143.240.117"
 AASHE_MYSQL_SERVER = "localhost"
@@ -58,3 +59,5 @@ CYBERSOURCE_URL = CYBERSOURCE_TEST_URL
 # if 'test' in sys.argv:
 #     DATABASES['default']['ENGINE'] = 'sqlite3'
 #     DATABASES['default']['NAME'] = '/Users/jesse/src/stars_tests.db'
+
+SOUTH_TESTS_MIGRATE=False

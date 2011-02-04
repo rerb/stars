@@ -29,6 +29,8 @@ class TestProcess(TestCase):
         """
         
         # Select Institution
+        from django.core.management import call_command
+        call_command("loaddata", "iss_testdata.json", database="iss")
         
         url = '/register/' 
         
@@ -37,12 +39,12 @@ class TestProcess(TestCase):
         post_dict = {}
         response = c.get(url, post_dict)
         self.assertTrue(response.status_code == 200)
-        
+
         post_dict = {'aashe_id': '24394',}
         response = c.post(url, post_dict, follow=False)
         self.assertTrue(response.status_code == 302)
-        
-        self.assertTrue(c.session['selected_institution'].slug == 'okanagan-college-british-columbia')
+
+        self.assertTrue(c.session['selected_institution'].slug == 'okanagan-college-bc')
         
         # Contact Information
         
@@ -76,7 +78,7 @@ class TestProcess(TestCase):
         response = c.post(url, post_dict, follow=False)
         self.assertTrue(response.status_code == 302)
         
-        self.assertTrue(c.session['selected_institution'].slug == 'okanagan-college-british-columbia')
+        self.assertTrue(c.session['selected_institution'].slug == 'okanagan-college-bc')
         
         # Test Payment
         url = '/register/step3/'
