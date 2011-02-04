@@ -19,3 +19,6 @@
         {% endif %}
 	</div>
     {% show_help_text documentation_field.inline_help_text 0 %}
+    {% if documentation_field.type == "url"%}
+		{% show_help_text "Please note that additional URLs may be entered into the description fields or the public note section of STARS credits.  These additional URLs will be accessible in the live report." 0 %}
+    {% endif %}
