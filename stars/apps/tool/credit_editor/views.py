@@ -15,7 +15,7 @@ def home(request):
         Forwards the user to the latest version.
     """
     # simply forward the visitor to the latest version
-    latest_version = CreditSet.objects.get_latest()
+    latest_version = CreditSet.objects.order_by('-release_date')[0]
     return HttpResponseRedirect(latest_version.get_edit_url())
 
 class CreditEditorNavMixin(CreditNavMixin):
