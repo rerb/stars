@@ -105,12 +105,16 @@ class T2CreditForm(ModelForm):
 class NewCreditForm(CreditForm):
     
     class Meta(CreditForm.Meta):
-        exclude = ('subcategory', 'ordinal', 'formula', 'number', 'validation_rules', 'type', 'previous_version')
+        exclude = ('subcategory', 'ordinal', 'formula', 'number', 'validation_rules', 'type', 'previous_version', 'identifier')
+    
+    def __init__(self, *args, **kwargs):
+        super(CreditForm, self).__init__(*args, **kwargs)
+        self.fields['title'].widget.attrs.update({'size': 50})
     
 class NewT2CreditForm(NewCreditForm):
     
     class Meta(NewCreditForm.Meta):
-        exclude = ('subcategory', 'ordinal', 'formula', 'validation_rules', 'number', 'type', 'point_value', 'scoring', 'measurement', 'previous_version')
+        exclude = ('subcategory', 'ordinal', 'formula', 'validation_rules', 'number', 'type', 'point_value', 'scoring', 'measurement', 'previous_version', 'identifier')
 
 class CreditFormulaForm(ModelForm):
     formula = forms.CharField(widget=widgets.Textarea(attrs={'class': 'noMCE','cols':'70', 'rows': '16'}), required=True)

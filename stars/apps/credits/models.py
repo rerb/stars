@@ -55,12 +55,18 @@ SCORING_METHOD_CHOICES = (
     ('get_STARS_v1_0_score', 'STARS 1.0 Scoring'),
 )
 
+IDENTIFIER_CHOICES = (
+                        ('get_1_0_identifier', '1.0'),
+                        ('get_1_1_identifier', '1.1'),
+                     )
+
 class CreditSet(models.Model):
     version = models.CharField(max_length=5, unique=True)
     release_date = models.DateField()
     tier_2_points = models.FloatField()
     is_locked = models.BooleanField(default=False, verbose_name="Lock Credits", help_text="When a credit set is locked, most credit editor functions will be disabled.")
     scoring_method = models.CharField(max_length=25, choices=SCORING_METHOD_CHOICES)
+    credit_identifier = models.CharField(max_length=25, choices=IDENTIFIER_CHOICES, default='get_1_0_identifier')
     previous_version = models.OneToOneField('self', null=True, blank=True, related_name='next_version')
     objects = CreditSetManager()
     
@@ -319,6 +325,7 @@ class Category(models.Model):
             for credit in sub.credit_set.all().order_by('ordinal').filter(type='t1'):
                 if credit.number != count:
                     credit.number = count
+                    credit.identifier = credit.get_identifier()
                     credit.save()
                     order_changed = True
                 count += 1
@@ -326,6 +333,7 @@ class Category(models.Model):
             for credit in sub.credit_set.all().order_by('ordinal').filter(type='t2'):
                 if credit.number != t2_count:
                     credit.number = t2_count
+                    credit.identifier = credit.get_identifier()
                     credit.save()
                     order_changed = True
                 t2_count += 1
@@ -438,12 +446,14 @@ class Credit(models.Model):
     measurement = models.TextField(blank=True, null=True)
     staff_notes = models.TextField('AASHE Staff Notes', blank=True, null=True)
     previous_version = models.OneToOneField('self', null=True, blank=True, related_name='next_version')
+    identifier = models.CharField(max_length=16, default="ID?")
     
     class Meta:
         ordering = ('ordinal',)
     
     def __unicode__(self):
-        return smart_unicode("%s: %s"%(self.get_identifier(), self.title), encoding='utf-8', strings_only=False, errors='strict')
+#        return unicode(self.__str__())
+        return smart_unicode("%s: %s"%(self.identifier, self.title), encoding='utf-8', strings_only=False, errors='strict')
 
     def __str__(self):  # For DEBUG -  comment out __unicode__ method
         return "#%d: %s (%d)" % (self.number, self.title, self.ordinal)
@@ -470,8 +480,21 @@ class Credit(models.Model):
     
     def get_identifier(self):
         """ Returns the indentifying string for the credit ex: 'ER Credit 10' """
+        callback = self.subcategory.category.creditset.credit_identifier
+        if hasattr(self, callback):
+            return getattr(self, callback)()
+        
+        watchdog.log("Credits", "No identifier could be found for credit %s" % self.id, watchdog.ERROR)
+        return self.get_1_0_identifier()
+    
+    def get_1_0_identifier(self):
         if self.is_tier2():
             return "Tier2-%d" % self.number
+        return "%s-%s" % (self.subcategory.category.abbreviation, self.number)
+    
+    def get_1_1_identifier(self):
+        if self.is_tier2():
+            return "%s-T2-%d" % (self.subcategory.category.abbreviation, self.number)
         return "%s-%s" % (self.subcategory.category.abbreviation, self.number)
         
     def get_parent(self):
@@ -516,7 +539,7 @@ class Credit(models.Model):
 
     def save(self, *args, **kwargs):
         if self.ordinal == -1:
-            self.ordinal = _get_next_ordinal(self.subcategory.credit_set.all())
+            self.ordinal = _get_next_ordinal(self.subcategory.credit_set.filter(type=self.type))
         # Set the defaults for t2 credits
         if self.is_tier2():
             t2_points = self.subcategory.category.creditset.tier_2_points
