@@ -1,5 +1,7 @@
 {% extends "tool/base.html" %}
 
+{% load content %}
+
 {% block title %} {{ block.super }} | My Resources{% endblock %}
 
 {% block header %}My Resources{% endblock %}
@@ -28,6 +30,12 @@
                 Scorecard
             </h2>
             <p>Your <a href='{{ institution.get_latest_rated_submission.get_scorecard_url }}'>scorecard</a> is now publicly available.</p>
+        {% endif %}
+        <h2>Template Press Release</h2>
+        {% if institution.get_submissions %}
+        	{% display_block_content 'template_press_release_rated' user %}
+        {% else %}
+        	{% display_block_content 'template_press_release_unrated' user %}
         {% endif %}
         {{ node.body }}
     {% endautoescape %}
