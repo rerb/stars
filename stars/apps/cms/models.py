@@ -85,7 +85,7 @@ class NewArticle(AbstractContent):
     categories = models.ManyToManyField(Category, blank=True, null=True)
     subcategories = models.ManyToManyField(Subcategory, blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
-    irc_id = models.IntegerField(blank=True, null=True)
+    irc_id = models.IntegerField(blank=True, null=True, help_text='Only necessary for pages that used to exist in the IRC. New pages will not need this.')
     
     class Meta:
         ordering = ('ordinal', 'title', 'timestamp',)
