@@ -78,7 +78,7 @@
                     <li class={{ message|split:0 }}>{{ message|split:1 }}</li>
                 {% endfor %}
                 </ul>
-                <a href='#'  onclick="document.getElementById('flash_message').style.display = 'none';">[x]</a>
+                <span style='cursor: pointer;' onclick="document.getElementById('flash_message').style.display = 'none';">[x]</span>
             </div>
             {% endautoescape %}
             {% endif %}

@@ -815,7 +815,7 @@ div#reason_choices {
 }
 
 div#flash_message {
-	position: absolute;
+	position: fixed;
 	top: 0px;
 	left: 225px;
 	background-color: #FFF8D0;
