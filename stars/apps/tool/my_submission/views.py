@@ -248,7 +248,7 @@ def subcategory_detail(request, category_id, subcategory_id):
     errors = request.method == "POST" and not saved
     
     if saved:
-        return HttpResponseRedirect(subcategory.get_submit_url())
+        return HttpResponseRedirect(subcategory.category.get_submit_url())
     
     context.update({'subcategory': subcategory, 'submission_form': submission_form, 'errors': errors})
     
