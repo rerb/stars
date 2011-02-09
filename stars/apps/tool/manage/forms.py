@@ -64,7 +64,7 @@ class MigrateSubmissionSetForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(MigrateSubmissionSetForm, self).__init__(*args, **kwargs)
         
-        self.fields['is_locked'].label = "Are you sure you want to migrate?"
+        self.fields['is_locked'].label = "I am sure I want to migrate?"
 
 class AdminSubmissionSetForm(ModelForm):
     """
