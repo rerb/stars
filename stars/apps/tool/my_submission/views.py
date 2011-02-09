@@ -232,30 +232,27 @@ def _get_subcategory_submission_context(request, category_id, subcategory_id):
         'subcategory_submission': subcategory_submission,
     })
     return context
-#
-#@user_can_submit
-#def subcategory_detail(request, category_id, subcategory_id):
-#    """
-#        The sub-category summary page for a submission
-#    """
-#    context = _get_subcategory_submission_context(request, category_id, subcategory_id)
-#    subcategory = context.get('subcategory')
-#    subcategory_submission = context.get('subcategory_submission')
-#    
-#    # get the related CreditSubmissions
-#    credit_submission_list = []
-#    for credit in subcategory.credit_set.all():
-#        try:
-#            credit_submission = CreditUserSubmission.objects.get(credit=credit, subcategory_submission=subcategory_submission)
-#        except CreditUserSubmission.DoesNotExist:
-#            credit_submission = CreditUserSubmission(credit=credit, subcategory_submission=subcategory_submission)
-#            credit_submission.submission_status = 'p'
-#            credit_submission.save()
-#        credit_submission_list.append(credit_submission)
-#    
-#    context.update({'credit_submission_list': credit_submission_list})
-#    
-#    return respond(request, "tool/submissions/subcategory.html", context)
+
+@user_can_submit
+def subcategory_detail(request, category_id, subcategory_id):
+    """
+        The sub-category summary page for a submission
+    """
+    context = _get_subcategory_submission_context(request, category_id, subcategory_id)
+    subcategory = context.get('subcategory')
+    subcategory_submission = context.get('subcategory_submission')
+    
+    # process the description form
+    (submission_form, saved) = basic_save_form(request, subcategory_submission, '', SubcategorySubmissionForm, fail_msg="Description has <b>NOT BEEN SAVED</b>! Please correct the errors below.")
+    
+    errors = request.method == "POST" and not saved
+    
+    if saved:
+        return HttpResponseRedirect(subcategory.get_submit_url())
+    
+    context.update({'subcategory': subcategory, 'submission_form': submission_form, 'errors': errors})
+    
+    return respond(request, "tool/submissions/subcategory.html", context)
 
 
 def _get_credit_submission_context(request, category_id, subcategory_id, credit_id):

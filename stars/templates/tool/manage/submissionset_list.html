@@ -18,12 +18,16 @@
         <tr class='{% cycle 'odd' 'even' %}'>
             <td>
                 {{ set.creditset }}<br/>
-                {% if set.is_rated %}
-                    <a href='{{ set.get_scorecard_url }}'>Report</a>
-                    {% if user.is_staff %} | {% endif %}
+                {% if set == active_set and not set.is_rated and is_admin %}
+                	{% if set.creditset != latest_creditset and not active_set.is_locked %}
+                		<a href='{{ set.get_manage_url }}migrate/' style='text-decoration: none;'>
+                			<img src='/media/static/images/arrow_right.png' alt='' style='vertical-align: middle;'/>
+                			Move to {{ latest_creditset }}</a>
+                		<br/>
+                	{% endif %}
                 {% endif %}
                 {% if user.is_staff %}
-                    <a href='{{ set.get_manage_url }}'>Edit</a>
+                    <br/><a href='{{ set.get_manage_url }}'>Edit</a>
                 {% endif %}
             </td>
             <td>{{ set.date_registered }}</td>
@@ -42,15 +46,23 @@
             	</span>
             </td>
             <td>
-            	{% if not set.missed_deadline %}
-	            	{% if set.is_enabled %}
-	            		{{ set.get_status }}
-	            	{% else %}
-	            		<i>Pending Payment</i><br/>
-	            		<a href='{{ set.get_manage_url }}pay/'>Pay Now</a>
-	            	{% endif %}
-	            {% else %}
-	            	Deadline Expired
+            	{% if set.is_locked %}
+            		Locked
+            	{% else %}
+	            	{% if not set.missed_deadline %}
+		            	{% if set.is_enabled %}
+		            		{{ set.get_status }}
+		            	{% else %}
+		            		<i>Pending Payment</i><br/>
+		            		<a href='{{ set.get_manage_url }}pay/'>Pay Now</a>
+		            	{% endif %}
+		            {% else %}
+		            	Deadline Expired
+		            {% endif %}
+		            
+	                {% if set.is_rated %}
+	                    <br/><a href='{{ set.get_scorecard_url }}'>Report</a>
+	                {% endif %}
 	            {% endif %}
             </td>
             <td>

@@ -265,8 +265,12 @@
 						</tr>
 					</table>
 				{% endif %}
-				
 				<p>{{ sub.subcategory.description }}</p>
+				{% if sub.description %}
+					<hr/>
+					<h5>From the institution:</h5>
+					{{ sub.description|urlizetrunc:85|linebreaks|fix_ampersands }}
+				{% endif %}
 				<table class='creditList'>
 					<tr>
 						<th style='text-align: left;'>Credit</th>

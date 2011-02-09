@@ -13,6 +13,21 @@ from stars.apps.helpers import watchdog
 from stars.apps.submissions.models import *
 from stars.apps.tool.my_submission.widgets import UploadFileWidget
 
+class SubcategorySubmissionForm(ModelForm):
+    
+    class Meta:
+        model = SubcategorySubmission
+        fields = ('description',)
+        
+    def __init__(self, *args, **kwargs):
+        super(SubcategorySubmissionForm, self).__init__(*args, **kwargs)
+        
+        self.fields['description'].widget.attrs = {
+                                                    'onkeydown': 'field_changed(this);',
+                                                    'onchange': 'field_changed(this);',
+                                                    'style': 'width: 35em;height: 15em;'
+                                                    }
+
 class SubmissionFieldForm(ModelForm):
     """ Parent class for all submission fields to provide access to clean_value """
     def __init__(self, *args, **kwargs):

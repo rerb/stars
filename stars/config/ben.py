@@ -35,15 +35,20 @@ DATABASES = {
 #    }
 }
 
+#if manage.py test was called, use test settings
+if 'test' in sys.argv:
+    DATABASES['default']['ENGINE'] = 'sqlite3'
+    DATABASES['default']['NAME'] = '/Users/jamstooks/sqlite/stars_tests.db'
+
 # Stand alone mode indicates that the server will be running using
 # the django dev server so we will need to serve the static files (see urls.py)
 STANDALONE_MODE = True
 
 MEDIA_ROOT = '/Users/jamstooks/aashe/projects/STARS/src/media/stars/'
 
-SSO_SERVER_URI = WWW_SSO_SERVER_URI
-STARS_DOMAIN = WWW_STARS_DOMAIN
-SSO_API_KEY = WWW_SSO_API_KEY
+SSO_SERVER_URI = STAGE_SSO_SERVER_URI
+STARS_DOMAIN = STAGE_STARS_DOMAIN
+SSO_API_KEY = STAGE_SSO_API_KEY
 
 AASHE_MYSQL_SERVER = "localhost"
 AASHE_MYSQL_LOGIN = "root"
@@ -61,15 +66,11 @@ XMLRPC_USE_HASH = True
 #CACHE_BACKEND = "dummy://"
 CACHE_BACKEND = "db://temp_cache_table"
 
-#if manage.py test was called, use test settings
-#if 'test' in sys.argv:
-#    DATABASES['default']['ENGINE'] = 'sqlite3'
-#    DATABASES['default']['NAME'] = '/Users/jamstooks/sqlite/stars_tests.db'
-
-SOUTH_TESTS_MIGRATE = False
-
 AASHE_MYSQL_SERVER = "localhost"
 AASHE_MYSQL_LOGIN = "root"
 AASHE_MYSQL_PASS = ""
 
-URL_VALIDATOR_USER_AGENT = "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_6; en-US) AppleWebKit/534.10 (KHTML, like Gecko) Chrome/8.0.552.231 Safari/534.10"
+# Authorize.Net
+AUTHORIZENET_LOGIN = TEST_AUTHORIZENET_LOGIN
+AUTHORIZENET_KEY = TEST_AUTHORIZENET_KEY
+AUTHORIZENET_SERVER = TEST_AUTHORIZENET_SERVER

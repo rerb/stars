@@ -43,6 +43,26 @@
 			        	id='ec_{{ cat.category.id }}_{{ sub.subcategory.id }}' class='collapseExpand' />
 			        {{ sub }}
 			    </h3>
+   			    {% if not active_submission.creditset.has_submission_summary_feature %}
+   			    	<div style='padding: 0px 50px 0px 50px;' class='greyBox'>
+   			    		{% if sub.description %}
+   			    			{{ sub.description|urlizetrunc:85|linebreaks|fix_ampersands }}
+   			    			<p style='text-align: center;'>
+   			    				<a href='{{ sub.get_submit_edit_url }}' style='text-decoration: none;'>
+   			    					<img src='/media/static/images/page_white_edit.png' style='vertical-align: top;'/>
+   			    					Edit Subcategory Description
+   			    				</a>
+   			    			</p>
+   			    		{% else %}
+   			    			<p style='text-align: center;'>
+		   			    		<a href='{{ sub.get_submit_edit_url }}' style='text-decoration: none;'>
+		   			    			<img src='/media/static/images/add_blue.png' style='vertical-align: top;'/>
+		   			    			Add Subcategory Description
+		   			    		</a> (Optional)
+	   			    		</p>
+	   			    	{% endif %}
+   			    	</div>
+   			    {% endif %}
 			    <div id='ec_{{ cat.category.id }}_{{ sub.subcategory.id }}_target'>
     			    <br/>
 			        <table class='greyTable'>

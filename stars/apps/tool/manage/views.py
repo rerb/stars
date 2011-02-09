@@ -210,7 +210,42 @@ def submissionsets(request):
     
     is_admin = request.user.has_perm('admin')
     
-    return respond(request, 'tool/manage/submissionset_list.html', {'active_set': active_set, 'is_admin': is_admin})
+    latest_creditset = CreditSet.objects.get_latest()
+    
+    context = {'active_set': active_set, 'is_admin': is_admin, 'latest_creditset': latest_creditset}
+    return respond(request, 'tool/manage/submissionset_list.html', context)
+
+@user_is_inst_admin
+def migrate_submissionset(request, set_id):
+    """
+        Provides a tool to migrate a submission set
+    """
+    
+    current_inst = request.user.current_inst    
+    submission_set = get_object_or_404(SubmissionSet, id=set_id, institution=current_inst)
+    latest_creditset = CreditSet.objects.get_latest()
+    
+    if latest_creditset == submission_set.creditset:
+        flashMessage.send("%s is the latest version of STARS" % (submission_set.creditset), flashMessage.ERROR)
+        return HttpResponseRedirect("/tool/manage/submissionsets/")
+    
+    if submission_set.is_locked:
+        flashMessage.send("Already marked for migration.", flashMessage.ERROR)
+        return HttpResponseRedirect("/tool/manage/submissionsets/")
+    
+    ObjectForm = MigrateSubmissionSetForm
+    
+    object_form, saved = form_helpers.basic_save_form(request, submission_set, set_id, ObjectForm)
+    if saved:
+        return HttpResponseRedirect("/tool/manage/submissionsets/")
+
+    template = 'tool/manage/migrate_submissionset.html'
+    context = {
+        "object_form": object_form,
+        "submission_set": submission_set,
+        "latest_creditset": latest_creditset,
+    }
+    return respond(request, template, context)
 
 @user_is_staff
 def add_submissionset(request):

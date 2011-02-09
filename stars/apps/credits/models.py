@@ -8,6 +8,13 @@ import re, copy
 from datetime import date
 from stars.apps.helpers import watchdog
 
+class IncrementalFeature(models.Model):
+    key = models.SlugField(unique=True)
+    description = models.TextField()
+    
+    def __str__(self):
+        return self.key
+
 class CreditSetManager(models.Manager):
     
     def get_latest(self):
@@ -15,7 +22,7 @@ class CreditSetManager(models.Manager):
             Returns the latest creditset (usually the one currently open for registration)
         """
         try:
-            return super(CreditSetManager, self).get_query_set().filter(release_date__lt=date.today()).order_by('-release_date')[0]
+            return super(CreditSetManager, self).get_query_set().filter(release_date__lte=date.today()).order_by('-release_date')[0]
         except:
             return None
     
@@ -68,6 +75,7 @@ class CreditSet(models.Model):
     scoring_method = models.CharField(max_length=25, choices=SCORING_METHOD_CHOICES)
     credit_identifier = models.CharField(max_length=25, choices=IDENTIFIER_CHOICES, default='get_1_0_identifier')
     previous_version = models.OneToOneField('self', null=True, blank=True, related_name='next_version')
+    supported_features = models.ManyToManyField(IncrementalFeature)
     objects = CreditSetManager()
     
     class Meta:
@@ -80,7 +88,23 @@ class CreditSet(models.Model):
         
     def __unicode__(self):
         return smart_unicode("v%s" % self.version, encoding='utf-8', strings_only=False, errors='strict')
+    
+    def __getattr__(self, item):
+        """
+            overriding this to have a has_*_feature property that test supported features
+        """
+        pattern = "has_(.*)_feature"
+        m = re.match(pattern, item)
+        if m:
+            return self.has_feature(m.groups()[0])
         
+        return super(CreditSet, self).__getattribute__(item)
+        
+    def has_feature(self, feature_key):
+        if self.supported_features.filter(key=feature_key):
+            return True
+        return False
+    
     def get_edit_url(self):
         return "/tool/credit-editor/%d/" % self.id
         
@@ -369,6 +393,9 @@ class Subcategory(models.Model):
     
     def get_submit_url(self):
         return "%s_%d" % (self.category.get_submit_url(), self.id)
+    
+    def get_submit_edit_url(self):
+        return "%s%d/%d/" % (self.category.creditset.get_submit_url(), self.category.id, self.id)
 
     def get_scorecard_url(self, submissionset):
         return '%s%d' % (submissionset.get_scorecard_url(), self.get_browse_url())

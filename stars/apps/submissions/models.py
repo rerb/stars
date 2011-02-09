@@ -12,9 +12,7 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 
 from stars.apps.credits.models import *
 from stars.apps.institutions.models import Institution
-from stars.apps.helpers import watchdog
-from stars.apps.helpers import flashMessage
-from stars.apps.helpers import managers
+from stars.apps.helpers import watchdog, flashMessage, managers
 from stars.apps.submissions.pdf.export import build_report_pdf
             
 SUBMISSION_STATUS_CHOICES = (
@@ -77,6 +75,8 @@ class SubmissionSet(models.Model):
     presidents_letter = models.FileField("President's Letter", upload_to=upload_path_callback, blank=True, null=True, help_text="AASHE requires that every submission be vouched for by that institution's president. Please upload a PDF or scan of a letter from your president.")
     reporter_status = models.BooleanField(help_text="Check this box if you would like to be given reporter status and not receive a STARS rating from AASHE.")
     pdf_report = models.FileField(upload_to=upload_path_callback, blank=True, null=True)
+    is_locked = models.BooleanField(default=False)
+    is_visible = models.BooleanField(default=True, help_text='Is this submission visible to the institution? Often used with migrations.')
 
     class Meta:
         ordering = ("date_registered",)
@@ -455,6 +455,7 @@ class SubcategorySubmission(models.Model):
     """
     category_submission = models.ForeignKey(CategorySubmission)
     subcategory = models.ForeignKey(Subcategory)
+    description = models.TextField(blank=True, null=True)
 
     class Meta:
         unique_together = ("category_submission", "subcategory")
@@ -485,6 +486,9 @@ class SubcategorySubmission(models.Model):
         
     def get_submit_url(self):
         return self.subcategory.get_submit_url()
+    
+    def get_submit_edit_url(self):
+        return self.subcategory.get_submit_edit_url()
         
     def get_scorecard_url(self):
         return '%s%s'%(self.category_submission.submissionset.get_scorecard_url(),self.subcategory.get_browse_url())

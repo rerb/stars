@@ -52,6 +52,20 @@ class ResponsiblePartyForm(ModelForm):
         model = ResponsibleParty
         exclude = ['institution',]
 
+class MigrateSubmissionSetForm(ModelForm):
+    """
+        The form to trigger migration for a Submission
+        Use the locked field as a confirm checkbox...
+    """
+    class Meta:
+        model = SubmissionSet
+        fields = ['is_locked',]
+        
+    def __init__(self, *args, **kwargs):
+        super(MigrateSubmissionSetForm, self).__init__(*args, **kwargs)
+        
+        self.fields['is_locked'].label = "Are you sure you want to migrate?"
+
 class AdminSubmissionSetForm(ModelForm):
     """
         This form allows for editing of a SubmissionSet
