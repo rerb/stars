@@ -62,9 +62,22 @@
 {% block subcategory_description %}
 	{% if submissionset.creditset.has_submission_summary_feature %}
 		{% if sub.description %}
-			<div style='margin: 10px 50px 0px'>
-				{{ sub.description|urlizetrunc:85|linebreaks|fix_ampersands }}
-			</div>
+			{% if sub.description|wordcount < 35 %}
+				<div style='margin: 10px 50px 0px'>
+					{{ sub.description|urlizetrunc:30|linebreaks|fix_ampersands }}
+				</div>
+			{% else %}
+				<div style="margin: 10px 50px 0px" id='sdt{{ sub.id }}'>
+					{{ sub.description|urlizetrunc:85|fix_ampersands|truncatewords_html:35 }}
+					<a style='display: inline; margin: 0px;text-align: center;' href="javascript:swap_divs('sdt{{ sub.id }}', 'sde{{ sub.id }}')">
+						read more</a>
+				</div>
+				<div style="display: none;margin: 10px 50px 0px" id='sde{{ sub.id }}'>
+					{{ sub.description|urlizetrunc:85|linebreaks|fix_ampersands }}
+					<a style='display: block; margin: 0px;text-align: center;' href="javascript:swap_divs('sde{{ sub.id }}', 'sdt{{ sub.id }}')">
+						&lt;&lt; show less</a>
+				</div>
+			{% endif %}
 		{% endif %}
 	{% endif %}
 {% endblock %}

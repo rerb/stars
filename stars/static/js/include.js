@@ -1,3 +1,14 @@
+/*
+ * Makes this div invisible and that div visible
+ */
+function swap_divs(this_div_id, that_div_id) {
+	
+	this_div = document.getElementById(this_div_id);
+	that_div = document.getElementById(that_div_id);
+	
+	this_div.style.display = "none";
+	that_div.style.display = "block";
+}
 
 function expand_collapse_parent_parent(child_obj) {
     expand_collapse(child_obj.parentNode.parentNode);
