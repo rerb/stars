@@ -344,16 +344,19 @@ class Category(models.Model):
              Returns True if the ordering was changed, false otherwise.
         """
         order_changed = False
-        count = 1
+        t1_count = 1
+        t2_count = 1
         for sub in self.subcategory_set.all():
             for credit in sub.credit_set.all().order_by('ordinal').filter(type='t1'):
-                if credit.number != count:
-                    credit.number = count
+                if credit.number != t1_count:
+                    credit.number = t1_count
                     credit.identifier = credit.get_identifier()
                     credit.save()
                     order_changed = True
-                count += 1
-            t2_count = 1
+                t1_count += 1
+            # reset t1 count if version = 1.0
+            if not self.creditset.has_feature('continuous_t2_numbering'):
+                t2_count = 1
             for credit in sub.credit_set.all().order_by('ordinal').filter(type='t2'):
                 if credit.number != t2_count:
                     credit.number = t2_count
