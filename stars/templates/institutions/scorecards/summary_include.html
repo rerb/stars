@@ -60,7 +60,7 @@
 {% block subcategory_summary_progress %}{% endblock %}
 
 {% block subcategory_description %}
-	{% if not submissionset.creditset.has_submission_summary_feature %}
+	{% if submissionset.creditset.has_submission_summary_feature %}
 		{% if sub.description %}
 			<div style='margin: 10px 50px 0px'>
 				{{ sub.description|urlizetrunc:85|linebreaks|fix_ampersands }}

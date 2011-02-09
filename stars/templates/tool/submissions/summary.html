@@ -43,7 +43,7 @@
 			        	id='ec_{{ cat.category.id }}_{{ sub.subcategory.id }}' class='collapseExpand' />
 			        {{ sub }}
 			    </h3>
-   			    {% if not active_submission.creditset.has_submission_summary_feature %}
+   			    {% if active_submission.creditset.has_submission_summary_feature %}
    			    	<div style='padding: 0px 50px 0px 50px;' class='greyBox'>
    			    		{% if sub.description %}
    			    			{{ sub.description|urlizetrunc:85|linebreaks|fix_ampersands }}
