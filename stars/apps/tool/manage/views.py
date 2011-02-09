@@ -4,6 +4,7 @@ from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect
 from django.core.exceptions import PermissionDenied
+from django.core.mail import EmailMessage
 
 from stars.apps.auth.utils import respond
 from stars.apps.auth.decorators import user_is_inst_admin, user_is_staff
@@ -237,6 +238,12 @@ def migrate_submissionset(request, set_id):
     
     object_form, saved = form_helpers.basic_save_form(request, submission_set, set_id, ObjectForm)
     if saved:
+        m = EmailMessage(
+                        subject="Submission Migration: %s" % current_inst,
+                        body="Submission Migration request received for %s" % current_inst,
+                        to=['ben@aashe.org',],
+                    )
+        m.send()
         return HttpResponseRedirect("/tool/manage/submissionsets/")
 
     template = 'tool/manage/migrate_submissionset.html'
