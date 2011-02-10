@@ -21,4 +21,11 @@ AASHE
 213 1/2 N. Limestone Street
 Lexington, Kentucky 40507
 
-Or, to pay by Credit Card, please log into the STARS Reporting Tool and navigate to Reporting Tool > Manage Institution > Submission Sets (https://stars.aashe.org/tool/manage/submissionsets/) and click on the "pay now" link.
+Or, to pay by Credit Card, please log into the STARS Reporting Tool and navigate to:
+
+Reporting Tool > Manage Institution > Submission Sets
+(https://stars.aashe.org/tool/manage/submissionsets/)
+
+and click on the "pay now" link.
+
+{% include 'tasks/notifications/footer.txt' %}
