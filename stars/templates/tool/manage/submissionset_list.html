@@ -15,6 +15,7 @@
             <th>Actions</th>
         </tr>
         {% for set in user.current_inst.submissionset_set.all %}
+        {% if set.is_visible %}
         <tr class='{% cycle 'odd' 'even' %}'>
             <td>
                 {{ set.creditset }}<br/>
@@ -86,6 +87,7 @@
                 {% endif %}
             </td>
         </tr>
+        {% endif %}
         {% endfor %}
         {% if user.is_staff %}
         <tr>

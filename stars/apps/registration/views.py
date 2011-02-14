@@ -22,6 +22,7 @@ from stars.apps.submissions.models import *
 from stars.apps.credits.models import CreditSet
 from stars.apps.helpers.forms.views import FormActionView
 from stars.apps.auth.mixins import AuthenticatedMixin
+from stars.apps.tool.my_submission.views import init_credit_submissions
 
 from zc.authorizedotnet.processing import CcProcessor
 from zc.creditcard import (AMEX, DISCOVER, MASTERCARD, VISA, UNKNOWN_CARD_TYPE)
@@ -165,6 +166,7 @@ def init_submissionset(institution, user, today):
     deadline = today + timedelta(days=365) # Gives them an extra day on leap years :)
     submissionset = SubmissionSet(creditset=creditset, institution=institution, date_registered=today, submission_deadline=deadline, registering_user=user, status='ps')
     submissionset.save()
+    init_credit_submissions(submissionset)
     return submissionset
 
 def register_institution(user, institution, payment_type, price, payment_dict):

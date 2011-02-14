@@ -21,9 +21,9 @@ from stars.apps.tool.my_submission.forms import CreditUserSubmissionForm, Credit
 def _get_active_submission(request):
     current_inst = request.user.current_inst
     active_submission = current_inst.get_active_submission() if current_inst else None
-    if active_submission:
-        # We populate this now to prevent two queries in the template
-        # @todo - perhaps we should be doing this only when a credit set becomes active?
+    if active_submission.categorysubmission_set.count() == 0:
+        # This only gets run once. Assumes that the underlying creditset doesn't change
+        # @todo: remove after integrating into registration
         init_credit_submissions(active_submission)
      
     return active_submission
