@@ -60,8 +60,8 @@ def get_overdue_payments(weeks, current_date=datetime.today()):
     date_limit = current_date - td
     
     ss_list = []
-    for ss in SubmissionSet.objects.filter(date_registered__lte=date_limit).order_by('institution__name'):
-        if ss.payment_set.exclude(type='later').count() == 0 and ss.institution.aashe_id != 15889: # don't send to CSB
+    for ss in SubmissionSet.objects.filter(date_registered__lte=date_limit).filter(is_visible=True).order_by('institution__name'):
+        if ss.get_amount_due() > 0 and ss.institution.aashe_id != 15889: # don't send to CSB
             ss_list.append(ss)
             
     return ss_list
@@ -70,20 +70,8 @@ def send_overdue_notifications(current_time=datetime.now()):
     """
         This is separated from `get_overdue_contacts` for testing purposes
     """
-
-    for ss in get_overdue_payments(4, current_time):
-
-        t = loader.get_template('tasks/notifications/overdue.txt')
-        c = Context({'ss': ss,})
-        message = t.render(c)
     
-        send_notification(
-                            n_type='4wk',
-                            identifier="4wk-%d" % ss.id,
-                            mail_to=[ss.institution.contact_email,'margueritte.williams@aashe.org', 'allison@aashe.org'],
-                            message=message,
-                            subject="Reminder:  STARS Registration Fee Overdue",
-                        )
+    sent_list = []
 
     for ss in get_overdue_payments(8, current_time):
 
@@ -98,6 +86,23 @@ def send_overdue_notifications(current_time=datetime.now()):
                             message=message,
                             subject="Reminder:  STARS Registration Fee Overdue",
                         )
+        sent_list.append(ss)
+
+    for ss in get_overdue_payments(4, current_time):
+
+        if ss not in sent_list: # don't send twice.
+            
+            t = loader.get_template('tasks/notifications/overdue.txt')
+            c = Context({'ss': ss,})
+            message = t.render(c)
+        
+            send_notification(
+                                n_type='4wk',
+                                identifier="4wk-%d" % ss.id,
+                                mail_to=[ss.institution.contact_email,'margueritte.williams@aashe.org', 'allison@aashe.org'],
+                                message=message,
+                                subject="Reminder:  STARS Registration Fee Overdue",
+                            )
         
 def send_submission_deadline_reminder(td, n_type, identifier, template_name, subject, current_date):
     

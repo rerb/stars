@@ -29,7 +29,6 @@ class NotificationTest(TestCase):
         
         today = date(year=2011, month=1, day=29)
         send_post_submission_survey(today)
-        print >> sys.stderr, len(mail.outbox)
         
         today = date(year=2011, month=1, day=31)
         send_post_submission_survey(today)
