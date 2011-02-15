@@ -1,6 +1,5 @@
 from django.conf.urls.defaults import *
 from django.views.decorators.cache import never_cache
-from django.views.generic.simple import direct_to_template
 
 from stars.apps.institutions.views import *
 from stars.apps.credits.models import CreditSet
@@ -40,20 +39,6 @@ urlpatterns = patterns(
      
     # Internal Notes
     (r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/(?P<category_id>\d+)/(?P<subcategory_id>\d+)/(?P<credit_id>\d+)/internal-notes/$', ScorecardInternalNotesView(template='institutions/scorecards/internal_notes.html')),
-)
-
-urlpatterns += patterns(
-    'django.views.generic.simple',
-    # data views
-    (r'^data-views/$', "direct_to_template",{'template': 'institutions/data_views/index.html'}),
-    (r'^data-views/score/$', "direct_to_template",
-                                    {'template': 'institutions/data_views/score.html',
-                                     'extra_context': {'creditset': creditset}}),
-    (r'^data-views/content/$', "direct_to_template",
-                                    {'template': 'institutions/data_views/content.html',
-                                     'extra_context': {'creditset': creditset}}),
-    (r'^data-views/stats/$', "direct_to_template",
-                                    {'template': 'institutions/data_views/statistics.html',
-                                     'extra_context': {'creditset': creditset}}),
-    (r'^data-views/dashboard/$', "direct_to_template", {'template': 'institutions/data_views/dashboard.html'}),
+    
+    (r'^data-displays/', include('stars.apps.institutions.data_displays.urls')),
 )

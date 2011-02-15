@@ -26,14 +26,15 @@ DATABASES = {
         'PASSWORD': '',
         'HOST': 'localhost',
     },
-#    'iss': {
-#        'NAME': 'iss',
-#        'ENGINE': 'django.db.backends.mysql',
-#        'USER': 'root',
-#        'PASSWORD': '',
-#        'HOST': 'localhost',
-#    }
+    'iss': {
+        'NAME': 'iss',
+        'ENGINE': 'django.db.backends.mysql',
+        'USER': 'root',
+        'PASSWORD': '',
+        'HOST': 'localhost',
+    }
 }
+DATABASE_ROUTERS = ('aashe.issdjango.router.ISSRouter',)
 
 #if manage.py test was called, use test settings
 if 'test' in sys.argv:

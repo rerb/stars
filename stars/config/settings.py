@@ -118,8 +118,9 @@ INSTALLED_APPS = (
     'stars.apps.custom_forms',
     'stars.apps.tasks',
     'stars.tests',
-#    'aashe.issdjango',
+    'aashe.issdjango',
     'south',
+    'sorl.thumbnail',
 )
 
 # Is this running on the django dev server?
