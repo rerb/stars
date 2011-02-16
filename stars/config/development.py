@@ -14,11 +14,19 @@ DATABASES = {
         'USER': 'starsapp',
         'PASSWORD': 'J3z4#$szFET--6',
         'HOST': 'aashedb',
+    },
+    'iss': {
+        'NAME': 'iss',
+        'ENGINE': 'django.db.backends.mysql',
+        'USER': 'starsapp',
+        'PASSWORD': 'J3z4#$szFET--6',
+        'HOST': 'aashedb',
     }
 }
+DATABASE_ROUTERS = ('aashe.issdjango.router.ISSRouter',)
 
-#CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
-CACHE_BACKEND = "db://temp_cache_table"
+CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
+#CACHE_BACKEND = "db://temp_cache_table"
 
 MEDIA_ROOT = '/var/www/stars.dev.aashe.org/media/'
 
