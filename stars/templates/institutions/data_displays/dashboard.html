@@ -33,7 +33,12 @@
 									<span style='white-space: nowrap;'><i>Submission Date:</i><br/>&nbsp;{{ i.ss.date_submitted }}</span><br/>
 									<span style='display: block;margin: 5px 0px 0px 0px;padding: 0px;text-align: center'><a href='{{ i.ss.get_scorecard_url }}'>STARS Report</a></span>
 								{% endif %}
-								</p>"
+								</p>",
+								{% if i.rating %}
+							      	icon: "{{ i.rating.map_icon.url }}"
+						      	{% else %}
+							      	icon: "/media/static/images/map_icons/participant.png"
+						      	{% endif %}
 							}
 							{% if not forloop.last %},{% endif %}
 						{% endif %}
@@ -41,10 +46,10 @@
 					{% endfor %}
 			]
 		
-			var myLatlng = new google.maps.LatLng(0,0);
+			var centerPos = new google.maps.LatLng(49.496675,-108.632812);
 			  var myOptions = {
-			    zoom: 4,
-			    center: myLatlng,
+			    zoom: 3,
+			    center: centerPos,
 			    disableDefaultUI: true,
 			    scaleControl: true,
 			    navigationControl: true,
@@ -68,8 +73,8 @@
 			  	bounds.extend(point)
 			  	marker = new google.maps.Marker({
 			      position: point, 
-			      map: map, 
-			      icon: "/media/static/images/map_icons/participant.png",
+			      map: map,
+			      icon: school.icon,
 			      title: school['title']
 			  	});
 			    
@@ -86,16 +91,171 @@
 			  for ( i = 0; i < school_list.length; i++ ) {
 			  		createMarker(school_list[i]);
 			  }
-			  map.fitBounds(bounds);
+			  //map.fitBounds(bounds);
 	  }
   	</script>
+  	
+  	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+      google.load("visualization", "1", {packages:["corechart"]});
+      google.setOnLoadCallback(drawChart);
+      function drawChart() {
+        // Create and populate the data table.
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Task');
+        data.addColumn('number', 'Hours per Day');
+        data.addRows(5);
+        data.setValue(0, 0, 'Reporter');
+        data.setValue(0, 1, {{ ratings.Reporter }});
+        data.setValue(1, 0, 'Bronze');
+        data.setValue(1, 1, {{ ratings.Bronze }});
+        data.setValue(2, 0, 'Silver');
+        data.setValue(2, 1, {{ ratings.Silver }});
+        data.setValue(3, 0, 'Gold');
+        data.setValue(3, 1, {{ ratings.Gold }});
+        data.setValue(4, 0, 'Platinum');
+        data.setValue(4, 1, {{ ratings.Platinum }});
+      
+        // Create and draw the visualization.
+        new google.visualization.PieChart(document.getElementById('ratingChart')).
+          draw(data,
+               {
+                 width: 450,
+                 height: 220,
+                 is3D: true,
+                 legend: 'left',
+                 backgroundColor: "#efece3",
+                 colors: [
+                   '#858f38',
+                   "#8C745A",
+                   "#A8A9AD",
+                   '#A39161',
+                   "#908c89",
+                 ],
+                 pieResidueSliceColor: "#1b617f"
+               });
+      }
+    </script>
+    
+    <script type="text/javascript">
+      function drawAreaChart() {
+      
+      	var data = new google.visualization.DataTable();
+		data.addColumn('string', 'Month');
+		data.addColumn('number', 'Participants');
+		data.addColumn('number', 'Submissions');
+		
+		data.addRows([
+			{% for row in p2s %}
+				["{{ row.date|date:"M y" }}", {{ row.p_count }}, {{ row.s_count }}]{% if not forloop.last %},{% endif %}
+			{% endfor %}
+		]);
+        
+        // Create and draw the visualization.
+        var ac = new google.visualization.AreaChart(document.getElementById('areaChart'));
+        ac.draw(data, {
+          width: 450,
+          height: 220,
+          backgroundColor: "#efece3",
+          colors: ['#858f38', "#b6a780"],
+          legend: 'top',
+          pointSize: 2
+        });
+      }
+      
+
+      google.setOnLoadCallback(drawAreaChart);
+    </script>
+    
+    <script type="text/javascript">
+      function drawBarChart() {
+        // Create and populate the data table.
+        var data = new google.visualization.DataTable();
+                        
+        data.addColumn('string', 'Category');
+        data.addColumn('number', 'Score');
+        
+        data.addRows([
+        	{% for row in bar_chart|dictsort:"ord" %}
+        		['{{ row.short }}', {{ row.avg|floatformat:2 }}]{% if not forloop.last %},{% endif %}
+        	{% endfor %}
+        ]);
+        
+        // Create and draw the visualization.
+        new google.visualization.ColumnChart(document.getElementById('barChart')).
+            draw(data,
+                 {
+                  width:450, height:220,
+                  backgroundColor: "#efece3",
+                  colors: ["#b6a780", '#858f38'],
+                  legend: 'none'
+                 });
+      }
+      
+
+      google.setOnLoadCallback(drawBarChart);
+    </script>
 {% endblock %}
 
 {% block content %}
 	<div class='inner20'>
 		<h1>STARS Dashboard</h1>
-		<h2>Participants</h2>
-		<div id="map_canvas" style="width:98%; height:400px; border: 1px solid #aaa; margin-top: 5px; padding: 2px;"></div>
+		<div id="map_canvas" style="width:98%; height:370px; border: 1px solid #aaa; margin-top: 5px; padding: 2px;"></div>
 		<hr style='clear:both' />
+		<div style='margin: 0px 0px 10px 0px;padding: 2px; border: 1px solid #aaa;float: left;'>
+			<div id="ratingChart" style="width:450px;height:220px;margin: 0px;"></div>
+		</div>
+		<div style='margin: 0px 20px 0px 475px;'>
+		<h3>STARS Ratings</h3>
+		<table class='vertical' style='margin: 20px;'>
+			<tr>
+				<th>Platinum</th>
+				<td>{{ ratings.Platinum }}</td>
+			</tr><tr>
+				<th>Gold</th>
+				<td>{{ ratings.Gold }}</td>
+			</tr><tr>
+				<th>Silver</th>
+				<td>{{ ratings.Silver }}</td>
+			</tr><tr>
+				<th>Bronze</th>
+				<td>{{ ratings.Bronze }}</td>
+			</tr><tr>
+				<th>Reporter</th>
+				<td>{{ ratings.Reporter }}</td>
+			</tr>
+		</table>
+		</div>
+		<hr style='clear: both;' />
+		<div style='margin: 0px 0px 10px 0px;padding: 2px; border: 1px solid #aaa;float: left;'>
+			<div id="areaChart" style="width:450px;height:220px;margin: 0px;"></div>
+		</div>
+		<div style='margin: 0px 20px 0px 475px;'>
+		<h3>STARS Participants and Submissions</h3>
+		<table class='vertical' style='margin: 20px;'>
+			<tr>
+				<th>Participants</th>
+				<td>{{ current_participants }}</td>
+			</tr><tr>
+				<th>Submissions</th>
+				<td>{{ current_submissions }}</td>
+			</tr>
+		</table>
+		</div>
+		<hr style='clear: both;' />
+		<div style='margin: 0px 0px 10px 0px;padding: 2px; border: 1px solid #aaa;float: left;'>
+			<div id="barChart" style="width:450px;height:220px;margin: 0px;"></div>
+		</div>
+		<div style='margin: 0px 20px 0px 475px;'>
+		<h3>Average Category Scores</h3>
+		<table class='vertical' style='margin: 20px;'>
+			{% for cat in bar_chart|dictsort:"ord" %}
+				<tr>
+					<th>{{ cat.title }}</th>
+					<td>{{ cat.avg|floatformat:2 }}%</td>
+				</tr>
+			{% endfor %}
+		</table>
+		</div>
 	</div>
 {% endblock %}

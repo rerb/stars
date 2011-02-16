@@ -47,7 +47,7 @@ class SubmissionManager(models.Manager):
         """ Submissionsets that have been paid in full or unpaid before May 28th """
         
         deadline = REGISTRATION_PUBLISH_DEADLINE
-        qs1 = SubmissionSet.objects.filter(institution__enabled=True).filter(payment__isnull=False)
+        qs1 = SubmissionSet.objects.filter(institution__enabled=True).filter(payment__isnull=False).filter(is_visible=True).filter(is_locked=False)
         qs2 = qs1.filter(
                 (Q(payment__type='later') & Q(date_registered__lte=deadline)) | ~Q(payment__type='later'))
         return qs2

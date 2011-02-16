@@ -64,8 +64,8 @@ XMLRPC_USE_HASH = True
 #AUTHORIZENET_SERVER = REAL_AUTHORIZENET_SERVER
 
 #CACHE_BACKEND = "file:///Users/jamstooks/tmp/stars-cache"
-CACHE_BACKEND = "dummy://"
-#CACHE_BACKEND = "db://temp_cache_table"
+#CACHE_BACKEND = "dummy://"
+CACHE_BACKEND = "db://temp_cache_table"
 
 AASHE_MYSQL_SERVER = "localhost"
 AASHE_MYSQL_LOGIN = "root"
