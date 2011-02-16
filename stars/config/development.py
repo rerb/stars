@@ -26,6 +26,8 @@ DATABASES = {
 DATABASE_ROUTERS = ('aashe.issdjango.router.ISSRouter',)
 
 CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
+
+THUMBNAIL_ENGINE = "sorl.thumbnail.engines.pgmagick_engine.Engine"
 #CACHE_BACKEND = "db://temp_cache_table"
 
 MEDIA_ROOT = '/var/www/stars.dev.aashe.org/media/'
