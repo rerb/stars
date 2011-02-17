@@ -39,7 +39,7 @@
 			if( obj.selectedIndex ) {
 				key = obj.options[obj.selectedIndex].value
 				for(i=0; i < choices_lookup[key].length; i++) {
-					sel.add(new Option(choices_lookup[key][i], choices_lookup[key][i]));
+					sel.options[sel.options.length] = new Option(choices_lookup[key][i], choices_lookup[key][i]);
 				}
 			}
 		}
