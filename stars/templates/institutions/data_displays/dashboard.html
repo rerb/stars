@@ -1,8 +1,13 @@
-{% extends 'institutions/data_views/index.html' %}
+{% extends 'institutions/data_displays/base.html' %}
 
 {% load thumbnail %}
 
-{% block title %}Dashboard{% endblock %}
+{% block crumbs %}
+	{{ block.super }} &gt;
+	<a href='/institutions/data-displays/dashboard/'>Dashboard</a>
+{% endblock %}
+
+{% block title %}Dashboard | {{ block.super }}{% endblock %}
 
 {% block body_onload %}{{ block.super }}initialize();{% endblock %}
 
@@ -124,7 +129,7 @@
                  height: 220,
                  is3D: true,
                  legend: 'left',
-                 backgroundColor: "#efece3",
+                 backgroundColor: "#eff5e6",
                  colors: [
                    '#858f38',
                    "#8C745A",
@@ -156,7 +161,7 @@
         ac.draw(data, {
           width: 450,
           height: 220,
-          backgroundColor: "#efece3",
+          backgroundColor: "#eff5e6",
           colors: ['#858f38', "#b6a780"],
           legend: 'top',
           pointSize: 2
@@ -186,8 +191,8 @@
             draw(data,
                  {
                   width:450, height:220,
-                  backgroundColor: "#efece3",
-                  colors: ["#b6a780", '#858f38'],
+                  backgroundColor: "#eff5e6",
+                  colors: ["#858f38"],
                   legend: 'none'
                  });
       }

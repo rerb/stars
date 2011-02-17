@@ -77,6 +77,7 @@ class SubmissionSet(models.Model):
     pdf_report = models.FileField(upload_to=upload_path_callback, blank=True, null=True)
     is_locked = models.BooleanField(default=False)
     is_visible = models.BooleanField(default=True, help_text='Is this submission visible to the institution? Often used with migrations.')
+    score = models.FloatField(blank=True, null=True)
 
     class Meta:
         ordering = ("date_registered",)
@@ -211,9 +212,15 @@ class SubmissionSet(models.Model):
             Relies on the scoring method defined by the CreditSet model.
              - define version-specific scoring methods below, and add to SCORING_METHOD_CHOICES in CreditSet model.
         """
+        if self.status == 'r' and self.score:
+            return self.score
+        
         scoring_method = self.creditset.scoring_method
         if hasattr(self, scoring_method):
             score = getattr(self, scoring_method)
+            if self.status == 'r':
+                self.score = score()
+                self.save()
             return score()
         else:
             watchdog.log("Submissions", "No method (%s) defined to score submission %s"%(scoring_method, self.creditset.version), watchdog.ERROR)
@@ -337,6 +344,7 @@ class CategorySubmission(models.Model):
     """
     submissionset = models.ForeignKey(SubmissionSet)
     category = models.ForeignKey(Category)
+    score = models.FloatField(blank=True, null=True)
 
     class Meta:
         unique_together = ("submissionset", "category")
@@ -381,9 +389,16 @@ class CategorySubmission(models.Model):
             Relies on the scoring method defined for each credit set version:
              - define a version-specific method for each credit set below.
         """
+        if self.submissionset.status == "r" and self.score:
+            # cache the score in the model
+            return self.score
+        
         scoring_method = self.submissionset.creditset.scoring_method
         if hasattr(self, scoring_method):
             score = getattr(self, scoring_method)
+            if self.submissionset.status == 'r':
+                self.score = score()
+                self.save()
             return score()
         else:
             watchdog.log("Submissions", "No method (%s) defined to score category submission %s"%(scoring_method, self.submissionset.creditset.version), watchdog.ERROR)
@@ -456,6 +471,7 @@ class SubcategorySubmission(models.Model):
     category_submission = models.ForeignKey(CategorySubmission)
     subcategory = models.ForeignKey(Subcategory)
     description = models.TextField(blank=True, null=True)
+    points = models.FloatField(blank=True, null=True)
 
     class Meta:
         unique_together = ("category_submission", "subcategory")
@@ -514,9 +530,15 @@ class SubcategorySubmission(models.Model):
         return self.creditusersubmission_set.exclude(submission_status='ns').exclude(submission_status='p').count()
     
     def get_claimed_points(self):
+        if self.category_submission.submissionset.status == "r" and self.points:
+            return self.points
+        
         score = 0
         for credit in self.creditusersubmission_set.filter(submission_status='c'):
             score += credit.assessed_points
+            if self.category_submission.submissionset.status == "r":
+                self.points = score
+                self.save()
         return score
         
     def get_available_points(self):
