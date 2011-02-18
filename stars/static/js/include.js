@@ -1,4 +1,16 @@
 /*
+ * Shows/hides the payment form
+ */
+function togglePayment(obj) {
+	
+	f = document.getElementById('pay_form');
+	if( obj.checked )
+		f.style.display = "none";
+	else
+		f.style.display = "table";
+}
+
+/*
  * Makes this div invisible and that div visible
  */
 function swap_divs(this_div_id, that_div_id) {

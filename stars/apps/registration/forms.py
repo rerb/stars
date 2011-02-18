@@ -67,7 +67,7 @@ class RegistrationForm(ModelForm):
         
 class PayLaterForm(forms.Form):
     
-    confirm = forms.BooleanField(label="Please bill me and I will pay later.", required=False)
+    confirm = forms.BooleanField(label="Please bill me and I will pay later.", required=False, widget=forms.CheckboxInput(attrs={'onchange': 'togglePayment(this);',}))
         
 class PaymentForm(forms.Form):
     """
