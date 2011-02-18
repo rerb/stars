@@ -84,8 +84,8 @@ def latest_payments(request):
     # - First a query to get the id's for latest payment for each institution
     # - Then a query to get the actual objects - seems like there must be a direct way here....  
     from django.db.models import Max
-    payment_ids = Payment.objects.values('submissionset__institution').annotate(latest_payment=Max('date')).values('id')
-    payments = Payment.objects.filter(id__in=[x['id'] for x in payment_ids]).order_by('-date').select_related('submissionset', 'submissionset__institution')
+#    payment_ids = Payment.objects.values('submissionset__institution').annotate(latest_payment=Max('date')).values('id')
+    payments = Payment.objects.all().order_by('-date').select_related('submissionset', 'submissionset__institution')
 
     template = "tool/admin/payments/latest.html"
     return respond(request, template, {'payment_list':payments})
