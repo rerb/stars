@@ -1,0 +1,37 @@
+{% extends 'tool/base.html' %}
+
+{% block title %}Dashboard | {{ block.super }}{% endblock %}
+
+{% block extra_head %}
+	{{ block.super }}
+	<script src='/media/static/js/listexpander.js' type='text/javascript'></script>
+	<link href='/media/static/css/listexpander.css' rel='stylesheet' type='text/css' />
+{% endblock %}
+
+{% block tool_content %}
+    <h1> Dashboard </h1>
+	{% if user.is_staff %}
+		<h2><a href='/tool/admin/'>Administer Site</a></h2>
+		<p>Staff tools for managing the STARS Web Site.</p>
+		<!-- <h2><a href='/process/'>Process Submissions</a></h2>
+		<p>Staff tools for processing submissions.</p> -->
+		<h2><a href='/tool/credit-editor/'>Credit Editor</a></h2>
+		<p>Staff tools for building Credit Sets.</p>    
+    {% endif %}
+	{% if user.can_admin %}
+	  <h2><a href='/tool/manage/'>Manage Institution</a></h2>
+	  <p>Specify the boundary for the institution's submission, add user accounts, update contact information, and view payment history.</p>
+	{% endif %}
+    {% if user.can_submit %}
+	  <h2><a href='/tool/submissions/'>My Submission</a></h2>
+	  <p>Enter and save STARS credit data for {{ user.current_inst }}.</p>
+	{% endif %}
+    {% if user.has_tool %}
+        <h2><a href='/tool/my-resources/'>My Resources</a></h2>
+        <p>Access resources available only to STARS Participants.</p>
+    {% endif %}
+    {% if user.can_view %}
+      <h2><a href='/institutions/{{ user.current_inst.slug }}/report/'>My Report(s)</a></h2>
+      <p>Preview current and review past STARS Report(s) for {{ user.current_inst }}.</p>
+    {% endif %}
+{% endblock %}

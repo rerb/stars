@@ -1,0 +1,15 @@
+
+syntax: regexp
+^bin$
+^develop-eggs$
+^downloads$
+^eggs$
+^parts$
+^\.installed\.cfg$
+^\.pydevproject\.bak$
+^\.settings$
+^\.project
+
+syntax: glob
+*.pyc
+.DS_Store

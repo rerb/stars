@@ -1,0 +1,8 @@
+<?xml version="1.0" ?><?eclipse-pydev version="1.0"?><pydev_project>
+<pydev_property name="org.python.pydev.PYTHON_PROJECT_INTERPRETER">Default</pydev_property>
+<pydev_property name="org.python.pydev.PYTHON_PROJECT_VERSION">python 2.6</pydev_property>
+<pydev_variables_property name="org.python.pydev.PROJECT_VARIABLE_SUBSTITUTION">
+<key>DJANGO_MANAGE_LOCATION</key>
+<value>bin/django</value>
+</pydev_variables_property>
+<pydev_pathproperty name="org.python.pydev.PROJECT_EXTERNAL_SOURCE_PATH"><path>/Users/jamstooks/aashe/workspace/stars/eggs/South-0.7-py2.6.egg</path><path>/Users/jamstooks/aashe/workspace/stars/eggs/Fabric-0.9.0-py2.6.egg</path><path>/Users/jamstooks/aashe/workspace/stars/eggs/PIL-1.1.7-py2.6-macosx-10.6-universal.egg</path><path>/Users/jamstooks/aashe/workspace/stars/eggs/reportlab-2.4-py2.6-macosx-10.6-universal.egg</path><path>/Users/jamstooks/aashe/workspace/stars/eggs/recaptcha_client-1.0.5-py2.6.egg</path><path>/Users/jamstooks/aashe/workspace/stars/eggs/setuptools-0.6c12dev_r85381-py2.6.egg</path><path>/Users/jamstooks/aashe/workspace/stars/eggs/pisa-3.0.32-py2.6.egg</path><path>/Users/jamstooks/aashe/workspace/stars/eggs/html5lib-0.90-py2.6.egg</path><path>/Users/jamstooks/aashe/workspace/stars/eggs/pycrypto-2.3-py2.6-macosx-10.6-universal.egg</path></pydev_pathproperty></pydev_project>
