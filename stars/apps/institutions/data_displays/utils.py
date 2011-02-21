@@ -1,3 +1,18 @@
+from math import sqrt
+    
+def mean_and_stdv(x):
+    """
+    http://www.phys.uu.nl/~haque/computing/WPark_recipes_in_python.html
+    """
+    n, mean, std = len(x), 0, 0
+    for a in x:
+        mean = mean + a
+    mean = mean / float(n)
+    for a in x:
+        std = std + (a - mean)**2
+    std = sqrt(std / float(n-1))
+    return mean, std
+
 class FormListWrapper(object):
     """
         A wrapper to make multiple forms appear as a single form

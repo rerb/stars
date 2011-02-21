@@ -10,4 +10,6 @@ urlpatterns = patterns(
     (r'^$', "direct_to_template",{'template': 'institutions/data_views/index.html'}),
     (r'^dashboard/$', Dashboard.as_view()),
     (r'^categories/$', never_cache(AggregateFilter.as_view())),
+    (r'^scores/$', never_cache(ScoreFilter.as_view())),
+    (r'^content/$', never_cache(ContentFilter.as_view())),
 )

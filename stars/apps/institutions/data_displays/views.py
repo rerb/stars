@@ -6,10 +6,10 @@ from django.forms.formsets import formset_factory
 from django.http import HttpResponseRedirect
 from django.db.models import Q
 
-from stars.apps.submissions.models import SubmissionSet
+from stars.apps.submissions.models import *
 from stars.apps.institutions.models import Institution
-from stars.apps.credits.models import Rating
-from stars.apps.institutions.data_displays.utils import FormListWrapper
+from stars.apps.credits.models import Rating, Credit, Category, Subcategory, DocumentationField
+from stars.apps.institutions.data_displays.utils import FormListWrapper, mean_and_stdv
 from stars.apps.institutions.data_displays.forms import *
 from stars.apps.helpers import flashMessage
 
@@ -128,28 +128,82 @@ class FilteringMixin(object):
     """
         A mixin that will save filters (dictionaries) in the session
         
-        Children must define `session_key`
+        Children must define `filter_keys`
+        
+        filters are stored in dictionaries
+        
+            {'<filter_group_key>': [filter_list], }
     """
     
     def get_filters(self):
-        return self.request.session.get(self.session_key, [])
+        filters = {}
+        for key in self.filter_keys:
+            filters[key] = self.request.session.get(key, [])
+        return filters
     
-    def set_filters(self, filter_dict):
-        self.request.session[self.session_key] = filter_dict
+    def get_filter_group(self, filter_group_key):
+        return self.request.session.get(filter_group_key, [])
+    
+    def set_filters(self, filter_list, filter_group_key):
+        self.request.session[filter_group_key] = filter_list
         
-    def add_filter(self, new_filter):
-        filters = self.get_filters()
+    def add_filter(self, new_filter, filter_group_key):
+        filters = self.get_filter_group(filter_group_key)
         if new_filter not in filters:
             filters.append(new_filter)
-        self.set_filters(filters)
+        self.set_filters(filters, filter_group_key)
         
-    def drop_filter(self, filter):
-        filters = self.get_filters()
+    def drop_filter(self, filter, filter_group_key):
+        filters = self.get_filter_group(filter_group_key)
         try:
             filters.remove(filter)
-            self.set_filters(filters) 
+            self.set_filters(filters, filter_group_key) 
         except:
             pass
+        
+    def get_filter_form(self, filter_group_key, form_class):
+        """
+            Provides two forms:
+                1) formset for deletion of any existing filters
+                2) form for adding a new filter
+        """
+        
+        new_filter_form = form_class(**self.get_form_kwargs())
+        
+        delete_forms = {}
+        for f in self.get_filter_group(filter_group_key):
+            kwargs = self.get_form_kwargs()
+            kwargs['instance'] = f
+            kwargs['prefix'] = "filter_%d" % (len(delete_forms) + 1)
+            delete_forms[kwargs['prefix']] = DelCharacteristicFilterForm(**kwargs)
+        
+        form_dict = {
+                        'delete_forms': FormListWrapper(delete_forms),
+                        'new_filter_form': new_filter_form,
+                    }
+        
+        form = FormListWrapper(form_dict)
+        
+        return form
+        
+    def save_filters(self, form, filter_group_key):
+        
+        if self.request.POST['type'] and self.request.POST['item']:
+            filter = {'type': self.request.POST['type'], 'item': self.request.POST['item']}
+            
+            # add a key value for the column
+            for k,v in TYPE_CHOICES:
+                if k == filter['type']:
+                    filter['type'] = v
+                    filter['key'] = k
+                    self.add_filter(filter, filter_group_key)
+                    break
+        
+        # Delete requested filters
+        for k,v in form.forms['delete_forms'].forms.items():
+            key = '%s-delete' % k
+            if self.request.POST.has_key(key) and self.request.POST[key]:
+                self.drop_filter(v.instance, filter_group_key)
     
 class AggregateFilter(FilteringMixin, FormView):
     """
@@ -166,39 +220,19 @@ class AggregateFilter(FilteringMixin, FormView):
                     },
                 )
     """
-    form_class = AggregateFilterForm
-    template_name = "institutions/data_displays/score.html"
-    session_key = "aggregated_filter"
+    form_class = CharacteristicFilterForm
+    template_name = "institutions/data_displays/categories.html"
+    filter_keys = ("aggregated_filter",)
     success_url = "/institutions/data-displays/categories/"
     
     def get_form(self, form_class):
-        """
-            Provides two forms:
-                1) formset for deletion of any existing filters
-                2) form for adding a new filter
-        """
-        new_filter_form = form_class(**self.get_form_kwargs())
         
-        delete_forms = {}
-        for f in self.get_filters():
-            kwargs = self.get_form_kwargs()
-            kwargs['instance'] = f
-            kwargs['prefix'] = "filter_%d" % (len(delete_forms) + 1)
-            delete_forms[kwargs['prefix']] = DelAggregateFilterForm(**kwargs)
-        
-        form_dict = {
-                        'delete_forms': FormListWrapper(delete_forms),
-                        'new_filter_form': new_filter_form,
-                    }
-        
-        form = FormListWrapper(form_dict)
-        
-        return form
+        return self.get_filter_form('aggregated_filter', form_class)
     
     def get_context_data(self, **kwargs):
         
         _context = kwargs
-        filters = self.get_filters()
+        filters = self.get_filter_group('aggregated_filter')
         _context['filters'] = filters
         
 #        q = None
@@ -207,7 +241,7 @@ class AggregateFilter(FilteringMixin, FormView):
         for f in filters:
             
             ss_queryset = SubmissionSet.objects.filter(status='r').exclude(rating__publish_score=False)
-            d = {} # {'title': <filter type:item>, "<cat>": <cat_avg>, 'total': <total_submissions>}
+            d = {} # {'title': <filter type:item>, "<cat>": <cat_avg>, "<cat>_list": [], 'total': <total_submissions>}
             d['title'] = "%s: %s" % (f['type'], f['item'])
             d['item'] = f['item']
             
@@ -218,36 +252,30 @@ class AggregateFilter(FilteringMixin, FormView):
                 
                 ss_list = ss_queryset.filter(institution__aashe_id__in=list(org_list))
             
-            elif f['key'] == 'rating':
+            elif f['key'] == 'rating__name':
                 
                 ss_list = ss_queryset.filter(rating__name=f['item'])
             
             count = 0
             for ss in ss_list:
                 for cat in ss.categorysubmission_set.all():
-                    k_tot = "%s_tot" % cat.category.abbreviation
-                    k_agr = "%s_agr" % cat.category.abbreviation
-                    if d.has_key(k_tot):
-                        d[k_tot] += 1
-                    else:
-                        d[k_tot] = 1
-                    if d.has_key(k_agr):
-                        d[k_agr] += cat.get_STARS_score()
-                    else:
-                        d[k_agr] = cat.get_STARS_score()
+                    k_list = "%s_list" % cat.category.abbreviation
+                    if not d.has_key(k_list):
+                        d[k_list] = []
+                    d[k_list].append(cat.get_STARS_score())
                 count += 1
             d['total'] = count
             
             for k in d.keys():
-                m = re.match("(\w+)_tot", k)
+                m = re.match("(\w+)_list", k)
                 if m:
                     cat_abr = m.groups()[0]
-                    if d['%s_tot'% cat_abr] != 0: 
-                        d["%s_avg" % cat_abr] = d['%s_agr'% cat_abr] / d['%s_tot'% cat_abr]
+                    if len(d['%s_list'% cat_abr]) != 0: 
+                        d["%s_avg" % cat_abr], d["%s_std" % cat_abr] = mean_and_stdv(d['%s_list'% cat_abr])
                     else:
-                        d["%s_avg" % cat_abr] = None
+                        d["%s_avg" % cat_abr] = d["%s_std" % cat_abr] = None
             
-            object_list.append(d)
+            object_list.insert(0, d)
                     
                 
         _context['object_list'] = object_list
@@ -257,23 +285,7 @@ class AggregateFilter(FilteringMixin, FormView):
     def form_valid(self, form):
         
         # Save the new filter in the session
-        
-        if self.request.POST['type'] and self.request.POST['item']:
-            filter = {'type': self.request.POST['type'], 'item': self.request.POST['item']}
-            
-            # add a key value for the column
-            for k,v in TYPE_CHOICES:
-                if k == filter['type']:
-                    filter['type'] = v
-                    filter['key'] = k
-                    self.add_filter(filter)
-                    break
-        
-        # Delete requested filters
-        for k,v in form.forms['delete_forms'].forms.items():
-            key = '%s-delete' % k
-            if self.request.POST.has_key(key) and self.request.POST[key]:
-                self.drop_filter(v.instance)
+        self.save_filters(form, 'aggregated_filter')
         
         return HttpResponseRedirect(self.get_success_url())
     
@@ -281,3 +293,220 @@ class AggregateFilter(FilteringMixin, FormView):
         flashMessage.send("Please correct the errors below.", flashMessage.ERROR)
         return super(AggregateFilter, self).form_invalid(form)
     
+class ScoreFilter(FilteringMixin, FormView):
+    """
+        Provides a filtering tool which is stored in the session in the following way:
+    """
+    form_class = CharacteristicFilterForm
+    template_name = "institutions/data_displays/score.html"
+    filter_keys = ("score_filter",)
+    success_url = "/institutions/data-displays/scores/"
+    
+    def get_form(self, form_class):
+        
+        filter_form = self.get_filter_form('score_filter', form_class)
+        
+        kwargs = self.get_form_kwargs()
+        kwargs['initial'] = self.get_columns()
+        col_form = ScoreColumnForm(**kwargs)
+        
+        form_dict = {
+                        'filters': filter_form,
+                        'columns': col_form,
+                    }
+        
+        return FormListWrapper(form_dict)
+    
+    def get_context_data(self, **kwargs):
+        
+        _context = kwargs
+        filters = self.get_filter_group('score_filter')
+        _context['filters'] = filters
+        
+        org_q_list = []
+        ss_q_list = []
+
+        for f in filters:
+            
+            q_kwargs = {f['key']: f['item'],}
+            q = Q(**q_kwargs)
+            
+            if f['key'] == 'rating__name':
+                ss_q_list.append(q)
+                
+            else:
+                org_q_list.append(q)
+            
+        ss_list = SubmissionSet.objects.none()
+        org_ss_list = SubmissionSet.objects.none()
+        
+        if ss_q_list:
+            ss_list = SubmissionSet.objects.filter(status='r').exclude(rating__publish_score=False)
+            if ss_q_list:
+                ss_list = ss_list.filter(*ss_q_list)
+            
+        if org_q_list:
+            org_list = Organizations.objects.filter(stars_participant_status__isnull=False).filter(*org_q_list).values_list('account_num', flat=True)
+            
+            ss_queryset = SubmissionSet.objects.filter(status='r').exclude(rating__publish_score=False)
+            org_ss_list = ss_queryset.filter(institution__aashe_id__in=list(org_list))
+            
+        columns = self.get_columns()
+        
+        if not columns:
+            _context['object_list'] = None
+            _context['columns'] = None
+        else:
+            queryset = ss_list | org_ss_list
+            object_list = []
+            for ss in queryset.order_by('institution__name'):
+                row = {'ss': ss, 'cols': []}
+                count = 0
+                for k, col in columns.items():
+                    if col != None:
+                        score = "--"
+                        units = ""
+                        if isinstance(col, Category):
+                            obj = CategorySubmission.objects.get(submissionset=ss, category=col)
+                            score = obj.get_STARS_score()
+                            units = "%"
+                        elif isinstance(col, Subcategory):
+                            obj = SubcategorySubmission.objects.get(category_submission__submissionset=ss, subcategory=col)
+                            score = obj.get_claimed_points()
+                        elif isinstance(col, Credit):
+                            obj = CreditUserSubmission.objects.get(subcategory_submission__category_submission__submissionset=ss, credit=col)
+                            score = obj.assessed_points
+                            
+                        row['cols'].append({'score': score, 'units': units})
+                    
+                object_list.append(row)
+                    
+            _context['object_list'] = object_list
+            _context['columns'] = columns
+        
+        return _context
+    
+    def form_valid(self, form):
+        
+        # Save the new filter in the session
+        self.save_filters(form.forms['filters'], 'score_filter')
+        self.save_columns(form)
+        
+        return HttpResponseRedirect(self.get_success_url())
+    
+    def save_columns(self, form):
+        
+        columns = form.forms['columns'].cleaned_data
+        
+        self.request.session['columns'] = columns
+        
+    def get_columns(self):
+        
+        return self.request.session.get('columns', None)
+    
+    def form_invalid(self, form):
+        flashMessage.send("Please correct the errors below.", flashMessage.ERROR)
+        return super(ScoreFilter, self).form_invalid(form)
+
+class ContentFilter(FilteringMixin, FormView):
+    """
+        Provides a filtering tool which is stored in the session in the following way:
+    """
+    form_class = CharacteristicFilterForm
+    template_name = "institutions/data_displays/content.html"
+    filter_keys = ("content_filter",)
+    success_url = "/institutions/data-displays/content/"
+    
+    def get_form(self, form_class):
+        
+        filter_form = self.get_filter_form('content_filter', form_class)
+        
+        kwargs = self.get_form_kwargs()
+        kwargs['initial'] = self.get_reporting_field()
+        reporting_field_form = ReportingFieldSelectForm(**kwargs)
+        
+        form_dict = {
+                        'filters': filter_form,
+                        'reporting_field': reporting_field_form,
+                    }
+        
+        return FormListWrapper(form_dict)
+    
+    def get_context_data(self, **kwargs):
+        
+        _context = kwargs
+        filters = self.get_filter_group('content_filter')
+        _context['filters'] = filters
+        
+        org_q_list = []
+        ss_q_list = []
+
+        for f in filters:
+            
+            q_kwargs = {f['key']: f['item'],}
+            q = Q(**q_kwargs)
+            
+            if f['key'] == 'rating__name':
+                ss_q_list.append(q)
+                
+            else:
+                org_q_list.append(q)
+            
+        ss_list = SubmissionSet.objects.none()
+        org_ss_list = SubmissionSet.objects.none()
+        
+        if ss_q_list:
+            ss_list = SubmissionSet.objects.filter(status='r').exclude(rating__publish_score=False)
+            if ss_q_list:
+                ss_list = ss_list.filter(*ss_q_list)
+            
+        if org_q_list:
+            org_list = Organizations.objects.filter(stars_participant_status__isnull=False).filter(*org_q_list).values_list('account_num', flat=True)
+            
+            ss_queryset = SubmissionSet.objects.filter(status='r').exclude(rating__publish_score=False)
+            org_ss_list = ss_queryset.filter(institution__aashe_id__in=list(org_list))
+            
+        queryset = ss_list | org_ss_list
+        
+        rf = self.get_reporting_field()['reporting_field']
+        
+        if not rf:
+            _context['object_list'] = None
+            _context['reporting_field'] = None
+        else:
+            object_list = []
+            for ss in queryset:
+                
+                field_class = DocumentationFieldSubmission.get_field_class(rf)
+                cus_lookup = "subcategory_submission__category_submission__submissionset"
+                # I have to get creditusersubmissions so i can be sure these are actual user submissions and not tests
+                cus = CreditUserSubmission.objects.get(**{cus_lookup: ss, 'credit': rf.credit})
+                df = field_class.objects.get(credit_submission=cus, documentation_field=rf)
+                cred = CreditUserSubmission.objects.get(pk=df.credit_submission.id)
+                object_list.append({'value': df.value, 'score': cred.assessed_points, 'ss': ss})
+            _context['object_list'] = object_list
+            _context['reporting_field'] = rf
+        
+        return _context
+    
+    def form_valid(self, form):
+        
+        # Save the new filter in the session
+        self.save_filters(form.forms['filters'], 'content_filter')
+        self.save_reporting_field(form)
+        
+        return HttpResponseRedirect(self.get_success_url())
+    
+    def save_reporting_field(self, form):
+        
+        field = form.forms['reporting_field'].cleaned_data
+        
+        self.request.session['reporting_field'] = field
+        
+    def get_reporting_field(self):
+        
+        return self.request.session.get('reporting_field', None)
+    
+    def form_invalid(self, form):
+        flashMessage.send("Please correct the errors below.", flashMessage.ERROR)
+        return super(ContentFilter, self).form_invalid(form)

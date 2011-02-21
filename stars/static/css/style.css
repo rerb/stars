@@ -1066,6 +1066,11 @@ table.filterList td {
 	margin: 10px 0px;	
 }
 
+.standardDeviation {
+	font-size: .8em;
+	color: #888;	
+}
+
 table.vertical th {
 	text-align: right;	
 	padding-right: 10px;

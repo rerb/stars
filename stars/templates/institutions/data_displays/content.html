@@ -2,10 +2,10 @@
 
 {% block crumbs %}
 	{{ block.super }} &gt;
-	<a href='/institutions/data-displays/scores/'>Scores</a>
+	<a href='/institutions/data-displays/content/'>Content</a>
 {% endblock %}
 
-{% block title %}Scores | {{ block.super }}{% endblock %}
+{% block title %}Content | {{ block.super }}{% endblock %}
 
 {% block body_onload %}{{ block.super }}initLookup();{% endblock %}
 
@@ -47,9 +47,9 @@
 
 {% block content %}
 	<div class='inner20'>
-	<h1>STARS Report Scores</h1>
+	<h1>STARS Report Content</h1>
 	{% load content %}
-    {% display_block_content 'data_display_scores' user %}
+    {% display_block_content 'data_display_content' user %}
 	<form method='POST' action='.' id='filterForm'>
 		<div class='greyBox'>
 			Display results for institutions with the following characteristics:<br/><br/>
@@ -91,7 +91,7 @@
 		</div>
 		<div class='greyBox'>
 			<table style='margin: 0px auto;'>
-				{{ form.forms.columns }}
+				{{ form.forms.reporting_field }}
 			</table>
 			<div style='text-align: center'>
 				<button type='submit'>Apply</button>
@@ -106,11 +106,12 @@
        		<th style='text-align: left'>
        			Matching Institutions
        		</th>
-   			{% for k, col in columns.items %}
-   				{% if col %}
-   					<th>{{ col }}</th>
-   				{% endif %}
-   			{% endfor %}
+       		<th>
+       			Credit Score
+       		</th>
+			<th>
+				{{ reporting_field }}
+			</th>
        	</tr>
        	{% if object_list %}
 	       	{% for o in object_list %}
@@ -118,9 +119,12 @@
 	       			<td style='text-align: left;white-space: nowrap;'>
 	       				{{ o.ss }}
 	       			</td>
-	       			{% for col in o.cols %}
-	       				<td>{{ col.score|floatformat:2 }}{{ col.units }}</td>
-	       			{% endfor %}
+	       			<td>
+	       				{{ o.score }}
+	       			</td>
+	       			<td>
+	       				{{ o.value }}
+	       			</td>
 	       		</tr>
 	       	{% endfor %}
 	    {% else %}

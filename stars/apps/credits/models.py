@@ -334,6 +334,9 @@ class Category(models.Model):
         from stars.apps.submissions.models import get_active_submissions
         return get_active_submissions(category=self).count()
     
+    def get_short_name(self):
+        return self.abbreviation
+    
     @transaction.commit_on_success
     def update_ordering(self):
         """ 
