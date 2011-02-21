@@ -41,7 +41,7 @@ ADMIN_MEDIA_PREFIX = '/media/admin/'
 SECRET_KEY = 'omxxweql@m7!@yh5a-)=f^_xo*(m2+gaz#+8dje)e6wv@q$v%@'
 
 TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.load_template_source',
+    'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.load_template_source',
 )
 
@@ -91,7 +91,7 @@ TEMPLATE_DIRS = [os.path.join(os.path.dirname(__file__), "..", "templates")]
 TEMPLATE_CONTEXT_PROCESSORS = (
     "stars.apps.auth.utils.account_context",
     'stars.apps.helpers.utils.settings_context',
-    "django.core.context_processors.auth")
+    "django.contrib.auth.context_processors.auth")
 
 INSTALLED_APPS = (
     'django.contrib.auth',
