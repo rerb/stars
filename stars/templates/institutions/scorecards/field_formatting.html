@@ -9,7 +9,7 @@
 	    {% else %}
 	        {% ifequal field.documentation_field.type 'upload' %}
 	            {% if field.value %}
-	                <a href='{% if host %}http://{{ host }}{% endif %}{{ field.value.url|urlencode }}'>{{ field.get_filename }}</a>
+	                <a href='{% if host %}http://{{ host }}{% endif %}{{ field.value.url }}'>{{ field.get_filename }}</a>
 	            {% endif %}
 	        {% else %}
 	            {% ifequal field.documentation_field.type 'numeric' %}
