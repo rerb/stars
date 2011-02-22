@@ -1,6 +1,6 @@
 from math import sqrt
     
-def mean_and_stdv(x):
+def get_variance(x):
     """
     http://www.phys.uu.nl/~haque/computing/WPark_recipes_in_python.html
     """
@@ -11,7 +11,7 @@ def mean_and_stdv(x):
     for a in x:
         std = std + (a - mean)**2
     std = sqrt(std / float(n-1))
-    return mean, std
+    return mean, std, min(x), max(x)
 
 class FormListWrapper(object):
     """

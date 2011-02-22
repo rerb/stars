@@ -9,42 +9,6 @@
 
 {% block body_onload %}{{ block.super }}initLookup();{% endblock %}
 
-{% block extra_head %}
-	{{ block.super }}
-	<script type='text/javascript'>
-		choices_lookup = {
-			org_type: ['Two Year Institution', 'Four Year Institution', 'Graduate Institution', 'System Office'],
-			rating__name: ['Bronze', 'Silver', 'Gold', 'Platinum']
-		}
-		
-		function initLookup() {
-			sel = document.getElementById('id_type');
-			applyLookup(sel);
-		}
-		
-		function deleteFilter(prefix) {
-			document.getElementById("id_" + prefix + "-delete").value = "true";
-			document.getElementById("filterForm").submit();
-		}
-		
-		function applyLookup(obj) {
-		
-			sel = document.getElementById('id_item');
-			while( sel.length > 1 ) {
-				sel.remove(sel.length - 1)
-			}
-				
-			if( obj.selectedIndex ) {
-				key = obj.options[obj.selectedIndex].value
-				for(i=0; i < choices_lookup[key].length; i++) {
-					sel.options[sel.options.length] = new Option(choices_lookup[key][i], choices_lookup[key][i]);
-				}
-			}
-		}
-	</script>
-	
-{% endblock %}
-
 {% block content %}
 	<div class='inner20'>
 	<h1>STARS Report Scores</h1>
@@ -102,21 +66,22 @@
 		<img src='/media/static/images/arrow_down.png' />
 	</div>
 	<table id='institution_list' class='greyTable'>
-       	<tr>
-       		<th style='text-align: left'>
-       			Matching Institutions
-       		</th>
-   			{% for k, col in columns.items %}
-   				{% if col %}
-   					<th>{{ col }}</th>
-   				{% endif %}
-   			{% endfor %}
-       	</tr>
+		
        	{% if object_list %}
+       		<tr>
+	       		<th style='text-align: left'>
+	       			Matching Institutions
+	       		</th>
+	   			{% for k, col in columns %}
+	   				{% if col %}
+	   					<th>{{ col }}</th>
+	   				{% endif %}
+	   			{% endfor %}
+	       	</tr>
 	       	{% for o in object_list %}
 	       		<tr class="{% cycle 'even' 'odd' %}">
 	       			<td style='text-align: left;white-space: nowrap;'>
-	       				{{ o.ss }}
+	       				<a href='{{ o.ss.get_scorecard_url }}'>{{ o.ss }}</a>
 	       			</td>
 	       			{% for col in o.cols %}
 	       				<td>{{ col.score|floatformat:2 }}{{ col.units }}</td>

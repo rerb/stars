@@ -79,16 +79,17 @@ class ScoreColumnForm(forms.Form):
             initial = kwargs['initial']
             new_initial = {}
             count = 0
-            for k, col in initial.items():
-                if isinstance(col, Category):
-                    new_initial[k] = "cat_%d" % col.id
-                elif isinstance(col, Subcategory):
-                    new_initial[k] = "sub_%d" % col.id
-                elif isinstance(col, Credit):
-                    new_initial[k] = "cred_%d" % col.id
-                else:
-                    new_initial[k] = "select_one"
-                count += 1
+            if initial:
+                for k, col in initial.items():
+                    if isinstance(col, Category):
+                        new_initial[k] = "cat_%d" % col.id
+                    elif isinstance(col, Subcategory):
+                        new_initial[k] = "sub_%d" % col.id
+                    elif isinstance(col, Credit):
+                        new_initial[k] = "cred_%d" % col.id
+                    else:
+                        new_initial[k] = "select_one"
+                    count += 1
             
             kwargs['initial'] = new_initial
         
@@ -141,7 +142,15 @@ class ReportingFieldSelectForm(forms.Form):
     def __init__(self, *args, **kwargs):
         
         super(ReportingFieldSelectForm, self).__init__(*args, **kwargs)
-        
+               
         cs = CreditSet.objects.get(pk=2)
         cs_lookup = "credit__subcategory__category__creditset"
         self.fields['reporting_field'].queryset = DocumentationField.objects.filter(**{cs_lookup: cs}) 
+        
+#        self.fields['reporting_field'].widget.choices = (('', '--------'),)
+        
+    def clean(self):
+        
+        cleaned_data = self.cleaned_data
+        
+        return cleaned_data

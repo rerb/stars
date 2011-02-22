@@ -1079,3 +1079,8 @@ table.vertical th {
 a.noUnderline {
 	text-decoration: none;	
 }
+
+acronym, .variance {
+	border-bottom: 1px dotted #aaa;
+	cursor: help;	
+}

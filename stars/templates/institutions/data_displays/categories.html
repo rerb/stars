@@ -11,37 +11,6 @@
 
 {% block extra_head %}
 	{{ block.super }}
-	<script type='text/javascript'>
-		choices_lookup = {
-			org_type: ['Two Year Institution', 'Four Year Institution', 'Graduate Institution', 'System Office'],
-			rating: ['Bronze', 'Silver', 'Gold', 'Platinum']
-		}
-		
-		function initLookup() {
-			sel = document.getElementById('id_type');
-			applyLookup(sel);
-		}
-		
-		function deleteFilter(prefix) {
-			document.getElementById("id_" + prefix + "-delete").value = "true";
-			document.getElementById("filterForm").submit();
-		}
-		
-		function applyLookup(obj) {
-		
-			sel = document.getElementById('id_item');
-			while( sel.length > 1 ) {
-				sel.remove(sel.length - 1)
-			}
-				
-			if( obj.selectedIndex ) {
-				key = obj.options[obj.selectedIndex].value
-				for(i=0; i < choices_lookup[key].length; i++) {
-					sel.options[sel.options.length] = new Option(choices_lookup[key][i], choices_lookup[key][i]);
-				}
-			}
-		}
-	</script>
 	{% if object_list %}
 	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
     <script type="text/javascript">
@@ -53,7 +22,7 @@
 		  var raw_data = [
 		  					{% for o in object_list %}
 		  						[
-		  							"{{ o.item }}",
+		  							"{{ o.title }}",
 		  							{% if o.total %}{{ o.ER_avg|floatformat:2 }}{% else %}0{% endif %},
 		  							{% if o.total %}{{ o.OP_avg|floatformat:2 }}{% else %}0{% endif %},
 		  							{% if o.total %}{{ o.PAE_avg|floatformat:2 }}{% else %}0{% endif %}
@@ -90,7 +59,8 @@
 			                   '#404040',
 			                   '#9d9982',
 			                 ],
-                          hAxis: {title: 'Category',},
+                          hAxis: {title: 'Category'},
+                          vAxis: {title: "Average Score"},
                           legend: 'top'
                          });
       }
@@ -144,21 +114,22 @@
 		<img src='/media/static/images/arrow_down.png' />
 	</div>
 	<table id='institution_list' class='greyTable'>
-       	<tr>
-       		<th style='text-align: left' rowspan='2'>
-       			Selected Characteristic
-       		</th>
-       		<th colspan='4'>
-       			Average Scores by Category
-       		</th>
-       	</tr>
-       	<tr>
-       		<th>ER</th>
-       		<th>OP</th>
-       		<th>PAE</th>
-       		<th>IN</th>
-       	</tr>
+		
        	{% if object_list %}
+	       	<tr>
+	       		<th style='text-align: left' rowspan='2'>
+	       			Selected Characteristic
+	       		</th>
+	       		<th colspan='4'>
+	       			Average Scores by Category
+	       		</th>
+	       	</tr>
+	       	<tr>
+	       		<th><acronym title='Education & Research'>ER</acronym></th>
+	       		<th><acronym title='Operations'>OP</acronym></th>
+	       		<th><acronym title='Planning, Administration &amp; Engagement'>PAE</acronym></th>
+	       		<th><acronym title='Innovation'>IN</acronym></th>
+	       	</tr>
 	       	{% for o in object_list %}
 	       		<tr class="{% cycle 'even' 'odd' %}">
 	       			<td style='text-align: left'>
@@ -167,32 +138,36 @@
 	       			</td>
 	       			<td>
 	       				{% if o.total %}
-	       					{{ o.ER_avg|floatformat:2 }}%<br/>
-	       					<span class='standardDeviation' title='Standard Deviation'>({{ o.ER_std|floatformat:2 }})</span>
+	       					<span title="{{ o.ER_var }}" class='variance'>
+	       						{{ o.ER_avg|floatformat:2 }}%
+	       					</span>
 	       				{% else %}
 	       					--
 	       				{% endif %}
 	       			</td>
 	       			<td>
 	       				{% if o.total %}
-	       					{{ o.OP_avg|floatformat:2 }}%<br/>
-	       					<span class='standardDeviation' title='Standard Deviation'>({{ o.OP_std|floatformat:2 }})</span>
+	       					<span title="{{ o.OP_var }}" class='variance'>
+	       						{{ o.OP_avg|floatformat:2 }}%
+	       					</span>
 	       				{% else %}
 	       					--
 	       				{% endif %}
 	       			</td>
 	       			<td>
 	       				{% if o.total %}
-	       					{{ o.PAE_avg|floatformat:2 }}%<br/>
-	       					<span class='standardDeviation' title='Standard Deviation'>({{ o.PAE_std|floatformat:2 }})</span>
+	       					<span title="{{ o.PAE_var }}" class='variance'>
+	       						{{ o.PAE_avg|floatformat:2 }}%
+	       					</span>
 	       				{% else %}
 	       					--
 	       				{% endif %}
 	       			</td>
 	       			<td>
 	       				{% if o.total %}
-	       					{{ o.IN_avg|floatformat:2 }}<br/>
-	       					<span class='standardDeviation' title='Standard Deviation'>({{ o.IN_std|floatformat:2 }})</span>
+	       					<span title="{{ o.IN_var }}" class='variance'>
+	       						{{ o.IN_avg|floatformat:2 }}
+	       					</span>
 	       				{% else %}
 	       					--
 	       				{% endif %}

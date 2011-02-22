@@ -15,6 +15,9 @@ class AASHEAuthBackend:
     """
         Authenticate against the Drupal AASHE account system
     """
+    supports_anonymous_user = True
+    supports_object_permissions = False
+    
     def authenticate(self, username=None, password=None):
         
         # authenticate with drupal

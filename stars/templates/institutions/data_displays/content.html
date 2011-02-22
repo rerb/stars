@@ -7,42 +7,22 @@
 
 {% block title %}Content | {{ block.super }}{% endblock %}
 
-{% block body_onload %}{{ block.super }}initLookup();{% endblock %}
+{% block body_onload %}{{ block.super }}initLookup();initPullDowns();{% endblock %}
 
 {% block extra_head %}
-	{{ block.super }}
+	<script src='/media/static/js/ajax.js' type='text/javascript'></script>
 	<script type='text/javascript'>
-		choices_lookup = {
-			org_type: ['Two Year Institution', 'Four Year Institution', 'Graduate Institution', 'System Office'],
-			rating__name: ['Bronze', 'Silver', 'Gold', 'Platinum']
-		}
-		
-		function initLookup() {
-			sel = document.getElementById('id_type');
-			applyLookup(sel);
-		}
-		
-		function deleteFilter(prefix) {
-			document.getElementById("id_" + prefix + "-delete").value = "true";
-			document.getElementById("filterForm").submit();
-		}
-		
-		function applyLookup(obj) {
-		
-			sel = document.getElementById('id_item');
-			while( sel.length > 1 ) {
-				sel.remove(sel.length - 1)
-			}
-				
-			if( obj.selectedIndex ) {
-				key = obj.options[obj.selectedIndex].value
-				for(i=0; i < choices_lookup[key].length; i++) {
-					sel.options[sel.options.length] = new Option(choices_lookup[key][i], choices_lookup[key][i]);
-				}
-			}
+		function initPullDowns() {
+			{% if reporting_field %}
+				initCategory({{ reporting_field.credit.subcategory.category.id }});
+				initSubcategory({{ reporting_field.credit.subcategory.category.id }}, {{ reporting_field.credit.subcategory.id }});
+				initCredit({{ reporting_field.credit.subcategory.id }}, {{ reporting_field.credit.id }});
+				initField({{ reporting_field.credit.id }}, {{ reporting_field.id }});
+			{% else %}
+				initCategory(null);
+			{% endif %}
 		}
 	</script>
-	
 {% endblock %}
 
 {% block content %}
@@ -90,8 +70,45 @@
 			<img src='/media/static/images/arrow_down.png' />
 		</div>
 		<div class='greyBox'>
-			<table style='margin: 0px auto;'>
-				{{ form.forms.reporting_field }}
+			<table style='margin: 0px auto;' class='vertical'>
+				<tr>
+					<th>
+						Category:
+					</th>
+					<td>
+						<select id='category_select' onchange='selectCategory(this);'>
+							<option value=''>-------</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<th>
+						Subcategory:
+					</th>
+					<td>
+						<select id='subcategory_select' onchange='selectSubcategory(this);'>
+							<option value=''>-------</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<th>
+						Credit:
+					</th>
+					<td>
+						<select id='credit_select' onchange='selectCredit(this);'>
+							<option value=''>-------</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<th>
+						Reporting Field:
+					</th>
+					<td>
+						{{ form.forms.reporting_field.reporting_field }}
+					</td>
+				</tr>
 			</table>
 			<div style='text-align: center'>
 				<button type='submit'>Apply</button>
@@ -102,28 +119,34 @@
 		<img src='/media/static/images/arrow_down.png' />
 	</div>
 	<table id='institution_list' class='greyTable'>
-       	<tr>
-       		<th style='text-align: left'>
-       			Matching Institutions
-       		</th>
-       		<th>
-       			Credit Score
-       		</th>
-			<th>
-				{{ reporting_field }}
-			</th>
-       	</tr>
        	{% if object_list %}
+	       	<tr>
+	       		<th style='text-align: left'>
+	       			Matching Institutions
+	       		</th>
+	       		<th>
+	       			Credit Score
+	       		</th>
+				<th>
+					{{ reporting_field.title }}
+				</th>
+	       	</tr>
 	       	{% for o in object_list %}
 	       		<tr class="{% cycle 'even' 'odd' %}">
 	       			<td style='text-align: left;white-space: nowrap;'>
-	       				{{ o.ss }}
+	       				<a href='{{ o.ss.get_scorecard_url }}'>{{ o.ss }}</a>
 	       			</td>
 	       			<td>
-	       				{{ o.score }}
+	       				<a href='{{ o.credit.get_scorecard_url }}'>{{ o.score }}</a>
 	       			</td>
 	       			<td>
-	       				{{ o.value }}
+       					{% with field=o.field %}
+       						{% if not field.is_empty %}
+       							{% include 'institutions/scorecards/field_formatting.html' %}
+       						{% else %}
+       							--
+       						{% endif %}
+       					{% endwith %}
 	       			</td>
 	       		</tr>
 	       	{% endfor %}

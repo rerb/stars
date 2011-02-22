@@ -1,3 +1,107 @@
+function initCategory(current) {
+	url = "http://localhost:8000/institutions/data-displays/callback/cs/2/";
+	if( current != null ) {
+		get_params = "?current=" + current;
+	}
+	else {
+		get_params = "";
+	}
+	cat_select = document.getElementById("category_select");
+	ajaxGetQuery(url + get_params, cat_select);
+}
+
+function resetSelect(obj_id) {
+	
+	sel = document.getElementById(obj_id)
+	sel.options.length=0
+	sel.options[0] = new Option("-------", "")
+}
+
+function selectCategory(obj) {
+	id = obj.options[obj.selectedIndex].value;
+	if( id != "")
+		initSubcategory(id, null);
+	resetSelect('credit_select');
+	resetSelect('id_reporting_field');
+}
+
+function selectSubcategory(obj) {
+	id = obj.options[obj.selectedIndex].value;
+	if( id != "")
+		initCredit(id, null);
+		resetSelect('id_reporting_field');
+}
+
+function selectCredit(obj) {
+	id = obj.options[obj.selectedIndex].value;
+	if( id != "")
+		initField(id, null);
+}
+
+function initSubcategory(cat_id, current) {
+	sub_select = document.getElementById("subcategory_select");
+	url = "http://localhost:8000/institutions/data-displays/callback/cat/";
+	updateChildOptions(url, cat_id, sub_select, current)
+}
+
+function initCredit(sub_id, current) {
+	cred_select = document.getElementById("credit_select");
+	url = "http://localhost:8000/institutions/data-displays/callback/sub/";
+	updateChildOptions(url, sub_id, cred_select, current)
+}
+
+function initField(credit_id, current) {
+	field_select = document.getElementById("id_reporting_field");
+	url = "http://localhost:8000/institutions/data-displays/callback/credit/";
+	updateChildOptions(url, credit_id, field_select, current)
+}
+
+function updateChildOptions(url_prefix, parent_id, child_sel, current) {
+	if( parent_id != "" ) {
+		url = url_prefix + parent_id + "/";
+		if( current != null ) {
+			get_params = "?current=" + current;
+		}
+		else {
+			get_params = "";
+		}
+		
+		ajaxGetQuery(url + get_params, child_sel);
+		
+		console.log(url+get_params)
+	}
+}
+
+choices_lookup = {
+	org_type: ['Two Year Institution', 'Four Year Institution', 'Graduate Institution', 'System Office'],
+	rating__name: ['Bronze', 'Silver', 'Gold', 'Platinum']
+}
+
+function initLookup() {
+	sel = document.getElementById('id_type');
+	applyLookup(sel);
+}
+
+function deleteFilter(prefix) {
+	document.getElementById("id_" + prefix + "-delete").value = "true";
+	document.getElementById("filterForm").submit();
+}
+
+function applyLookup(obj) {
+
+	sel = document.getElementById('id_item');
+	while( sel.length > 1 ) {
+		sel.remove(sel.length - 1)
+	}
+		
+	if( obj.selectedIndex ) {
+		key = obj.options[obj.selectedIndex].value
+		for(i=0; i < choices_lookup[key].length; i++) {
+			sel.options[sel.options.length] = new Option(choices_lookup[key][i], choices_lookup[key][i]);
+		}
+	}
+}
+
 /*
  * Makes this div invisible and that div visible
  */

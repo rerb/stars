@@ -210,7 +210,7 @@
 		<div style='margin: 0px 0px 10px 0px;padding: 2px; border: 1px solid #aaa;float: left;'>
 			<div id="ratingChart" style="width:450px;height:220px;margin: 0px;"></div>
 		</div>
-		<div style='margin: 0px 20px 0px 475px;'>
+		<div style='margin: 0px 0px 0px 475px;'>
 		<h3>STARS Ratings</h3>
 		<table class='vertical' style='margin: 20px;'>
 			<tr>
@@ -235,7 +235,7 @@
 		<div style='margin: 0px 0px 10px 0px;padding: 2px; border: 1px solid #aaa;float: left;'>
 			<div id="areaChart" style="width:450px;height:220px;margin: 0px;"></div>
 		</div>
-		<div style='margin: 0px 20px 0px 475px;'>
+		<div style='margin: 0px 0px 0px 475px;'>
 		<h3>STARS Participants and Submissions</h3>
 		<table class='vertical' style='margin: 20px;'>
 			<tr>
@@ -251,13 +251,13 @@
 		<div style='margin: 0px 0px 10px 0px;padding: 2px; border: 1px solid #aaa;float: left;'>
 			<div id="barChart" style="width:450px;height:220px;margin: 0px;"></div>
 		</div>
-		<div style='margin: 0px 20px 0px 475px;'>
+		<div style='margin: 0px 0px 0px 475px;'>
 		<h3>Average Category Scores</h3>
 		<table class='vertical' style='margin: 20px;'>
 			{% for cat in bar_chart|dictsort:"ord" %}
 				<tr>
 					<th>{{ cat.title }}</th>
-					<td>{{ cat.avg|floatformat:2 }}%</td>
+					<td><span class='variance' title="{{ cat.var }}">{{ cat.avg|floatformat:2 }}%</span></td>
 				</tr>
 			{% endfor %}
 		</table>

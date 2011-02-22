@@ -12,4 +12,9 @@ urlpatterns = patterns(
     (r'^categories/$', never_cache(AggregateFilter.as_view())),
     (r'^scores/$', never_cache(ScoreFilter.as_view())),
     (r'^content/$', never_cache(ContentFilter.as_view())),
+    (r'^callback/cs/(?P<cs_id>\d+)/$', CategoryInCreditSetCallback.as_view()),
+    (r'^callback/cat/(?P<category_id>\d+)/$', SubcategoryInCategoryCallback.as_view()),
+    (r'^callback/sub/(?P<subcategory_id>\d+)/$', CreditInSubcategoryCallback.as_view()),
+    (r'^callback/credit/(?P<credit_id>\d+)/$', FieldInCreditCallback.as_view()),
+    
 )

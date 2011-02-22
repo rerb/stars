@@ -843,10 +843,11 @@ class DocumentationField(models.Model):
     def __unicode__(self):
         """ Limit the length of the text representation to 50 characters """
         label = smart_unicode(self.title, encoding='utf-8', strings_only=False, errors='strict')
-        if len(label) > 50:
-            l, b, r = label[0:50].rpartition(' ')
+        MAX = 100
+        if len(label) > MAX:
+            l, b, r = label[0:MAX].rpartition(' ')
             if not l:
-                l = label[0:50]
+                l = label[0:MAX]
             label = "%s ..."%l 
         return label
     

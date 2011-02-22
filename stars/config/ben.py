@@ -37,9 +37,9 @@ DATABASES = {
 DATABASE_ROUTERS = ('aashe.issdjango.router.ISSRouter',)
 
 #if manage.py test was called, use test settings
-if 'test' in sys.argv:
-    DATABASES['default']['ENGINE'] = 'sqlite3'
-    DATABASES['default']['NAME'] = '/Users/jamstooks/sqlite/stars_tests.db'
+#if 'test' in sys.argv:
+#    DATABASES['default']['ENGINE'] = 'sqlite3'
+#    DATABASES['default']['NAME'] = '/Users/jamstooks/sqlite/stars_tests.db'
 
 # Stand alone mode indicates that the server will be running using
 # the django dev server so we will need to serve the static files (see urls.py)
@@ -47,9 +47,9 @@ STANDALONE_MODE = True
 
 MEDIA_ROOT = '/Users/jamstooks/aashe/projects/STARS/src/media/stars/'
 
-SSO_SERVER_URI = STAGE_SSO_SERVER_URI
-STARS_DOMAIN = STAGE_STARS_DOMAIN
-SSO_API_KEY = STAGE_SSO_API_KEY
+SSO_SERVER_URI = DEV_SSO_SERVER_URI
+STARS_DOMAIN = DEV_STARS_DOMAIN
+SSO_API_KEY = DEV_SSO_API_KEY
 
 XMLRPC_VERBOSE = False
 XMLRPC_USE_HASH = True

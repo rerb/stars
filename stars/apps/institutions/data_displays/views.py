@@ -9,7 +9,7 @@ from django.db.models import Q
 from stars.apps.submissions.models import *
 from stars.apps.institutions.models import Institution
 from stars.apps.credits.models import Rating, Credit, Category, Subcategory, DocumentationField
-from stars.apps.institutions.data_displays.utils import FormListWrapper, mean_and_stdv
+from stars.apps.institutions.data_displays.utils import FormListWrapper, get_variance
 from stars.apps.institutions.data_displays.forms import *
 from stars.apps.helpers import flashMessage
 
@@ -44,7 +44,7 @@ class Dashboard(TemplateView):
             # bar chart vars
             bar_chart = {}
             """
-                '<cat_abbr>': {'title': '<cat_title>', 'ord': #, 'agr': #, 'tot': #, 'avg': #}
+                '<cat_abbr>': {'title': '<cat_title>', 'ord': #, 'list': [], 'avg': #}
             """
                     
             for ss in SubmissionSet.objects.published().all():
@@ -57,14 +57,12 @@ class Dashboard(TemplateView):
                         for cs in ss.categorysubmission_set.all():
                             if cs.category.abbreviation != "IN":
                                 if bar_chart.has_key(cs.category.abbreviation):
-                                    bar_chart[cs.category.abbreviation]['agr'] += cs.get_STARS_score()
-                                    bar_chart[cs.category.abbreviation]['tot'] += 1
+                                    bar_chart[cs.category.abbreviation]['list'].append(cs.get_STARS_score())
                                 else:
                                     bar_chart[cs.category.abbreviation] = {}
-                                    bar_chart[cs.category.abbreviation]['title'] = cs.category.title
+                                    bar_chart[cs.category.abbreviation]['title'] = "%s (%s)" % (cs.category.title, cs.category.abbreviation)
                                     bar_chart[cs.category.abbreviation]['ord'] = cs.category.ordinal
-                                    bar_chart[cs.category.abbreviation]['agr'] = cs.get_STARS_score()
-                                    bar_chart[cs.category.abbreviation]['tot'] = 1
+                                    bar_chart[cs.category.abbreviation]['list'] = [cs.get_STARS_score()]
                 else:
                     if ss.institution.charter_participant:
                         d['image_path'] = "/media/static/images/seals/STARS-Seal-CharterParticipant_70x70.png"
@@ -77,7 +75,9 @@ class Dashboard(TemplateView):
             
             bar_chart_rows = []
             for k,v in bar_chart.items():
-                bar_chart_rows.append({'short': k, 'avg': v['agr'] / v['tot'], 'ord': v['ord'], 'title': v['title']})
+                avg, std, min, max = get_variance(v['list'])
+                var = "Standard Deviation: %.2f | Min: %.2f | Max %.2f" % (std, min, max)
+                bar_chart_rows.append({'short': k, 'avg': avg, 'var': var, 'ord': v['ord'], 'title': v['title']})
                 
             _context['bar_chart'] = bar_chart_rows
             
@@ -204,6 +204,45 @@ class FilteringMixin(object):
             key = '%s-delete' % k
             if self.request.POST.has_key(key) and self.request.POST[key]:
                 self.drop_filter(v.instance, filter_group_key)
+                
+    def get_filtered_queryset(self, filters):
+        
+        org_q_list = []
+        rating_q_list = []
+
+        for f in filters:
+            
+            q_kwargs = {f['key']: f['item'],}
+            q = Q(**q_kwargs)
+            
+            if f['key'] == 'rating__name':
+                rating_q_list.append(q)
+                
+            else:
+                org_q_list.append(q)
+        
+        if rating_q_list:
+            rating_list = SubmissionSet.objects.filter(status='r')
+            if rating_q_list:
+                rating_list = rating_list.filter(*rating_q_list)
+            
+        if org_q_list:
+            org_list = Organizations.objects.filter(stars_participant_status__isnull=False).filter(*org_q_list).values_list('account_num', flat=True)
+            
+            ss_queryset = SubmissionSet.objects.filter(status='r')
+            org_ss_list = ss_queryset.filter(institution__aashe_id__in=list(org_list))
+        
+        # combine these two if they both exist
+        if rating_q_list and org_q_list:
+            queryset = rating_list.filter(id__in=org_ss_list)
+        elif rating_q_list and not org_q_list:
+            queryset = rating_list
+        elif org_q_list and not rating_q_list:
+            queryset = org_ss_list
+        else:
+            queryset = SubmissionSet.objects.none()
+            
+        return queryset
     
 class AggregateFilter(FilteringMixin, FormView):
     """
@@ -242,7 +281,10 @@ class AggregateFilter(FilteringMixin, FormView):
             
             ss_queryset = SubmissionSet.objects.filter(status='r').exclude(rating__publish_score=False)
             d = {} # {'title': <filter type:item>, "<cat>": <cat_avg>, "<cat>_list": [], 'total': <total_submissions>}
-            d['title'] = "%s: %s" % (f['type'], f['item'])
+            if f['key'] == "rating__name":
+                d['title'] = "%s Rated Institutions" % f['item']
+            else:
+                d['title'] = f['item']
             d['item'] = f['item']
             
             if f['key'] == "org_type":
@@ -271,13 +313,13 @@ class AggregateFilter(FilteringMixin, FormView):
                 if m:
                     cat_abr = m.groups()[0]
                     if len(d['%s_list'% cat_abr]) != 0: 
-                        d["%s_avg" % cat_abr], d["%s_std" % cat_abr] = mean_and_stdv(d['%s_list'% cat_abr])
+                        d["%s_avg" % cat_abr], std, min, max = get_variance(d['%s_list'% cat_abr])
                     else:
-                        d["%s_avg" % cat_abr] = d["%s_std" % cat_abr] = None
+                        d["%s_avg" % cat_abr] = std, min, max = None
+                    d['%s_var' % cat_abr] = "Standard Deviation: %.2f | Min: %.2f | Max %.2f" % (std, min, max)
             
             object_list.insert(0, d)
                     
-                
         _context['object_list'] = object_list
         
         return _context
@@ -323,53 +365,29 @@ class ScoreFilter(FilteringMixin, FormView):
         filters = self.get_filter_group('score_filter')
         _context['filters'] = filters
         
-        org_q_list = []
-        ss_q_list = []
-
-        for f in filters:
-            
-            q_kwargs = {f['key']: f['item'],}
-            q = Q(**q_kwargs)
-            
-            if f['key'] == 'rating__name':
-                ss_q_list.append(q)
-                
-            else:
-                org_q_list.append(q)
-            
-        ss_list = SubmissionSet.objects.none()
-        org_ss_list = SubmissionSet.objects.none()
-        
-        if ss_q_list:
-            ss_list = SubmissionSet.objects.filter(status='r').exclude(rating__publish_score=False)
-            if ss_q_list:
-                ss_list = ss_list.filter(*ss_q_list)
-            
-        if org_q_list:
-            org_list = Organizations.objects.filter(stars_participant_status__isnull=False).filter(*org_q_list).values_list('account_num', flat=True)
-            
-            ss_queryset = SubmissionSet.objects.filter(status='r').exclude(rating__publish_score=False)
-            org_ss_list = ss_queryset.filter(institution__aashe_id__in=list(org_list))
-            
-        columns = self.get_columns()
+        cols = self.get_columns()
+        columns = []
+        for k, col in cols.items():
+            columns.insert(0, (k, col))
         
         if not columns:
             _context['object_list'] = None
             _context['columns'] = None
         else:
-            queryset = ss_list | org_ss_list
+            queryset = self.get_filtered_queryset(filters)
             object_list = []
             for ss in queryset.order_by('institution__name'):
                 row = {'ss': ss, 'cols': []}
                 count = 0
-                for k, col in columns.items():
+                for k, col in columns:
                     if col != None:
                         score = "--"
                         units = ""
                         if isinstance(col, Category):
                             obj = CategorySubmission.objects.get(submissionset=ss, category=col)
                             score = obj.get_STARS_score()
-                            units = "%"
+                            if obj.category.abbreviation != "IN":
+                                units = "%"
                         elif isinstance(col, Subcategory):
                             obj = SubcategorySubmission.objects.get(category_submission__submissionset=ss, subcategory=col)
                             score = obj.get_claimed_points()
@@ -422,7 +440,7 @@ class ContentFilter(FilteringMixin, FormView):
         filter_form = self.get_filter_form('content_filter', form_class)
         
         kwargs = self.get_form_kwargs()
-        kwargs['initial'] = self.get_reporting_field()
+        kwargs['initial'] = {'reporting_field': self.get_reporting_field()}
         reporting_field_form = ReportingFieldSelectForm(**kwargs)
         
         form_dict = {
@@ -438,44 +456,16 @@ class ContentFilter(FilteringMixin, FormView):
         filters = self.get_filter_group('content_filter')
         _context['filters'] = filters
         
-        org_q_list = []
-        ss_q_list = []
-
-        for f in filters:
-            
-            q_kwargs = {f['key']: f['item'],}
-            q = Q(**q_kwargs)
-            
-            if f['key'] == 'rating__name':
-                ss_q_list.append(q)
-                
-            else:
-                org_q_list.append(q)
-            
-        ss_list = SubmissionSet.objects.none()
-        org_ss_list = SubmissionSet.objects.none()
         
-        if ss_q_list:
-            ss_list = SubmissionSet.objects.filter(status='r').exclude(rating__publish_score=False)
-            if ss_q_list:
-                ss_list = ss_list.filter(*ss_q_list)
+        rf = self.get_reporting_field()
             
-        if org_q_list:
-            org_list = Organizations.objects.filter(stars_participant_status__isnull=False).filter(*org_q_list).values_list('account_num', flat=True)
-            
-            ss_queryset = SubmissionSet.objects.filter(status='r').exclude(rating__publish_score=False)
-            org_ss_list = ss_queryset.filter(institution__aashe_id__in=list(org_list))
-            
-        queryset = ss_list | org_ss_list
-        
-        rf = self.get_reporting_field()['reporting_field']
-        
         if not rf:
             _context['object_list'] = None
             _context['reporting_field'] = None
         else:
+            queryset = self.get_filtered_queryset(filters)
             object_list = []
-            for ss in queryset:
+            for ss in queryset.order_by('institution__name'):
                 
                 field_class = DocumentationFieldSubmission.get_field_class(rf)
                 cus_lookup = "subcategory_submission__category_submission__submissionset"
@@ -483,7 +473,12 @@ class ContentFilter(FilteringMixin, FormView):
                 cus = CreditUserSubmission.objects.get(**{cus_lookup: ss, 'credit': rf.credit})
                 df = field_class.objects.get(credit_submission=cus, documentation_field=rf)
                 cred = CreditUserSubmission.objects.get(pk=df.credit_submission.id)
-                object_list.append({'value': df.value, 'score': cred.assessed_points, 'ss': ss})
+                row = {'field': df, 'ss': ss, 'credit': cred}
+                if ss.rating.publish_score:
+                    row['score'] = cred.assessed_points
+                else:
+                    row['score'] = "Reporter"
+                object_list.append(row)
             _context['object_list'] = object_list
             _context['reporting_field'] = rf
         
@@ -499,7 +494,7 @@ class ContentFilter(FilteringMixin, FormView):
     
     def save_reporting_field(self, form):
         
-        field = form.forms['reporting_field'].cleaned_data
+        field = form.forms['reporting_field'].cleaned_data['reporting_field']
         
         self.request.session['reporting_field'] = field
         
@@ -510,3 +505,61 @@ class ContentFilter(FilteringMixin, FormView):
     def form_invalid(self, form):
         flashMessage.send("Please correct the errors below.", flashMessage.ERROR)
         return super(ContentFilter, self).form_invalid(form)
+    
+class CallbackView(TemplateView):
+    """
+        Child classes must implement self.get_object_list()
+    """
+    
+    template_name = "institutions/data_displays/option_callback.html"
+    
+    def get_context_data(self, **kwargs):
+        
+        _context = super(CallbackView, self).get_context_data(**kwargs)
+        if self.request.GET.has_key('current'):
+            _context['current'] = int(self.request.GET['current'])
+        
+        _context['object_list'] = self.get_object_list(**kwargs)
+        
+        return _context
+    
+class CategoryInCreditSetCallback(CallbackView):
+    """
+        A callback method that accepts returns a list of
+        categories as <options> for a <select>
+    """
+    def get_object_list(self, **kwargs):
+        
+        cs = CreditSet.objects.get(pk=kwargs['cs_id'])
+        return cs.category_set.all()
+    
+
+class SubcategoryInCategoryCallback(CallbackView):
+    """
+        A callback method that accepts returns a list of
+        subcategories as <options> for a <select>
+    """
+    def get_object_list(self, **kwargs):
+        
+        cat = Category.objects.get(pk=kwargs['category_id'])
+        return cat.subcategory_set.all()
+
+class CreditInSubcategoryCallback(CallbackView):
+    """
+        A callback method that accepts returns a list of
+        credits as <options> for a <select>
+    """
+    def get_object_list(self, **kwargs):
+        
+        sub = Subcategory.objects.get(pk=kwargs['subcategory_id'])
+        return sub.credit_set.all()
+
+class FieldInCreditCallback(CallbackView):
+    """
+        A callback method that accepts returns a list of
+        documentation fields as <options> for a <select>
+    """
+    def get_object_list(self, **kwargs):
+        
+        credit = Credit.objects.get(pk=kwargs['credit_id'])
+        return credit.documentationfield_set.all()
