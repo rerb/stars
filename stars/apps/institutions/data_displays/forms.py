@@ -90,6 +90,9 @@ class ScoreColumnForm(forms.Form):
                     else:
                         new_initial[k] = "select_one"
                     count += 1
+            else:
+                for i in range(1,5):
+                    new_initial['column_%d' % i] = "select_one"
             
             kwargs['initial'] = new_initial
         
