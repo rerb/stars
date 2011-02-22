@@ -110,32 +110,32 @@
         data.addColumn('string', 'Task');
         data.addColumn('number', 'Hours per Day');
         data.addRows(5);
-        data.setValue(0, 0, 'Reporter');
-        data.setValue(0, 1, {{ ratings.Reporter }});
-        data.setValue(1, 0, 'Bronze');
-        data.setValue(1, 1, {{ ratings.Bronze }});
+        data.setValue(0, 0, 'Platinum');
+        data.setValue(0, 1, {{ ratings.Platinum }});
+        data.setValue(1, 0, 'Gold');
+        data.setValue(1, 1, {{ ratings.Gold }});
         data.setValue(2, 0, 'Silver');
         data.setValue(2, 1, {{ ratings.Silver }});
-        data.setValue(3, 0, 'Gold');
-        data.setValue(3, 1, {{ ratings.Gold }});
-        data.setValue(4, 0, 'Platinum');
-        data.setValue(4, 1, {{ ratings.Platinum }});
+        data.setValue(3, 0, 'Bronze');
+        data.setValue(3, 1, {{ ratings.Bronze }});
+        data.setValue(4, 0, 'Reporter');
+        data.setValue(4, 1, {{ ratings.Reporter }});
       
         // Create and draw the visualization.
         new google.visualization.PieChart(document.getElementById('ratingChart')).
           draw(data,
                {
                  width: 450,
-                 height: 220,
+                 height: 250,
                  is3D: true,
                  legend: 'left',
                  backgroundColor: "#eff5e6",
                  colors: [
-                   '#858f38',
-                   "#8C745A",
-                   "#A8A9AD",
-                   '#A39161',
                    "#908c89",
+                   '#A39161',
+                   "#A8A9AD",
+                   "#8C745A",
+                   '#858f38',
                  ],
                  pieResidueSliceColor: "#1b617f"
                });
@@ -160,10 +160,12 @@
         var ac = new google.visualization.AreaChart(document.getElementById('areaChart'));
         ac.draw(data, {
           width: 450,
-          height: 220,
+          height: 250,
           backgroundColor: "#eff5e6",
           colors: ['#858f38', "#b6a780"],
           legend: 'top',
+          hAxis: {title: 'Date'},
+          vAxis: {title: "Total"},
           pointSize: 2
         });
       }
@@ -190,13 +192,14 @@
         new google.visualization.ColumnChart(document.getElementById('barChart')).
             draw(data,
                  {
-                  width:450, height:220,
+                  width:450, height:250,
                   backgroundColor: "#eff5e6",
                   colors: ["#858f38"],
-                  legend: 'none'
+                  legend: 'none',
+                  hAxis: {title: 'Category'},
+                  vAxis: {title: "Average Score"},
                  });
       }
-      
 
       google.setOnLoadCallback(drawBarChart);
     </script>
@@ -208,7 +211,7 @@
 		<div id="map_canvas" style="width:98%; height:370px; border: 1px solid #aaa; margin-top: 5px; padding: 2px;"></div>
 		<hr style='clear:both' />
 		<div style='margin: 0px 0px 10px 0px;padding: 2px; border: 1px solid #aaa;float: left;'>
-			<div id="ratingChart" style="width:450px;height:220px;margin: 0px;"></div>
+			<div id="ratingChart" style="width:450px;height:250px;margin: 0px;"></div>
 		</div>
 		<div style='margin: 0px 0px 0px 475px;'>
 		<h3>STARS Ratings</h3>
@@ -233,7 +236,7 @@
 		</div>
 		<hr style='clear: both;' />
 		<div style='margin: 0px 0px 10px 0px;padding: 2px; border: 1px solid #aaa;float: left;'>
-			<div id="areaChart" style="width:450px;height:220px;margin: 0px;"></div>
+			<div id="areaChart" style="width:450px;height:250px;margin: 0px;"></div>
 		</div>
 		<div style='margin: 0px 0px 0px 475px;'>
 		<h3>STARS Participants and Submissions</h3>
@@ -249,7 +252,7 @@
 		</div>
 		<hr style='clear: both;' />
 		<div style='margin: 0px 0px 10px 0px;padding: 2px; border: 1px solid #aaa;float: left;'>
-			<div id="barChart" style="width:450px;height:220px;margin: 0px;"></div>
+			<div id="barChart" style="width:450px;height:250px;margin: 0px;"></div>
 		</div>
 		<div style='margin: 0px 0px 0px 475px;'>
 		<h3>Average Category Scores</h3>
