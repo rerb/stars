@@ -147,7 +147,7 @@ class ReportingFieldSelectForm(forms.Form):
         cs_lookup = "credit__subcategory__category__creditset"
         self.fields['reporting_field'].queryset = DocumentationField.objects.filter(**{cs_lookup: cs}) 
         
-#        self.fields['reporting_field'].widget.choices = (('', '--------'),)
+        self.fields['reporting_field'].widget.choices = (('', '--------'),)
         
     def clean(self):
         
