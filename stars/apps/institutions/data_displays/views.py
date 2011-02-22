@@ -366,14 +366,16 @@ class ScoreFilter(FilteringMixin, FormView):
         _context['filters'] = filters
         
         cols = self.get_columns()
-        columns = []
-        for k, col in cols.items():
-            columns.insert(0, (k, col))
         
-        if not columns:
+        if not cols:
             _context['object_list'] = None
             _context['columns'] = None
         else:
+            
+            columns = []
+            for k, col in cols.items():
+                columns.insert(0, (k, col))
+                
             queryset = self.get_filtered_queryset(filters)
             object_list = []
             for ss in queryset.order_by('institution__name'):
