@@ -1,5 +1,5 @@
 function initCategory(current) {
-	url = "http://localhost:8000/institutions/data-displays/callback/cs/2/";
+	url = "/institutions/data-displays/callback/cs/2/";
 	if( current != null ) {
 		get_params = "?current=" + current;
 	}
@@ -40,19 +40,19 @@ function selectCredit(obj) {
 
 function initSubcategory(cat_id, current) {
 	sub_select = document.getElementById("subcategory_select");
-	url = "http://localhost:8000/institutions/data-displays/callback/cat/";
+	url = "/institutions/data-displays/callback/cat/";
 	updateChildOptions(url, cat_id, sub_select, current)
 }
 
 function initCredit(sub_id, current) {
 	cred_select = document.getElementById("credit_select");
-	url = "http://localhost:8000/institutions/data-displays/callback/sub/";
+	url = "/institutions/data-displays/callback/sub/";
 	updateChildOptions(url, sub_id, cred_select, current)
 }
 
 function initField(credit_id, current) {
 	field_select = document.getElementById("id_reporting_field");
-	url = "http://localhost:8000/institutions/data-displays/callback/credit/";
+	url = "/institutions/data-displays/callback/credit/";
 	updateChildOptions(url, credit_id, field_select, current)
 }
 
