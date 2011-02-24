@@ -6,7 +6,7 @@
       - no active submission
       - active submission hasn't been enabled
          
-    >>> from stars.apps.auth.mixins import SubmissionMixin
+    >>> from stars.apps.accounts.mixins import SubmissionMixin
     >>> from stars.apps.institutions.models import StarsAccount, Institution, InstitutionState
     >>> from stars.apps.credits.models import CreditSet
     >>> from stars.apps.submissions.models import SubmissionSet, Payment

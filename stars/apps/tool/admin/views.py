@@ -7,9 +7,9 @@ from django.http import HttpResponseRedirect, Http404
 from django.template import Context, loader, Template, RequestContext
 from django.core.mail import send_mail
 
-from stars.apps.auth.utils import respond
-from stars.apps.auth import utils as auth_utils
-from stars.apps.auth.decorators import user_is_staff
+from stars.apps.accounts.utils import respond
+from stars.apps.accounts import utils as auth_utils
+from stars.apps.accounts.decorators import user_is_staff
 from stars.apps.helpers import watchdog, flashMessage
 from stars.apps.helpers.forms import form_helpers
 from stars.apps.helpers.forms.forms import Confirm as ConfirmForm

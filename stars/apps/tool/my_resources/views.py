@@ -3,8 +3,8 @@ from django.http import HttpResponseRedirect, Http404
 
 from datetime import datetime
 
-from stars.apps.auth.utils import respond
-from stars.apps.auth.decorators import user_has_tool
+from stars.apps.accounts.utils import respond
+from stars.apps.accounts.decorators import user_has_tool
 from stars.apps.submissions.models import *
 from stars.apps.cms.xml_rpc import get_article
 from stars.apps.helpers import watchdog

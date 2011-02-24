@@ -6,9 +6,9 @@ from django.http import HttpResponseRedirect
 from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMessage
 
-from stars.apps.auth.utils import respond
-from stars.apps.auth.decorators import user_is_inst_admin, user_is_staff
-from stars.apps.auth import xml_rpc
+from stars.apps.accounts.utils import respond
+from stars.apps.accounts.decorators import user_is_inst_admin, user_is_staff
+from stars.apps.accounts import xml_rpc
 from stars.apps.institutions.models import Institution, InstitutionState, StarsAccount
 from stars.apps.submissions.models import SubmissionSet, Payment, EXTENSION_PERIOD, ExtensionRequest
 from stars.apps.helpers.forms import form_helpers

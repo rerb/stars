@@ -1,8 +1,8 @@
 """
     # basic doctest test suite for auth.
 
-    >>> from stars.apps.auth.aashe import AASHEAuthBackend
-    >>> from stars.apps.auth import xml_rpc as auth_rpc
+    >>> from stars.apps.accounts.aashe import AASHEAuthBackend
+    >>> from stars.apps.accounts import xml_rpc as auth_rpc
     >>> auth = AASHEAuthBackend()
     >>> # Invalid access attempts.
     >>> print auth.authenticate("it@aashe.org", "wrongpw")

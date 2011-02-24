@@ -6,7 +6,7 @@
       - no current institution
       - current institution isn't enabled
          
-    >>> from stars.apps.auth.mixins import AccountMixin
+    >>> from stars.apps.accounts.mixins import AccountMixin
     >>> from stars.apps.institutions.models import StarsAccount, Institution
     >>> from django.contrib.auth.models import User, AnonymousUser
     >>> from dummy_request import DummyRequest

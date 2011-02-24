@@ -21,8 +21,8 @@ urlpatterns = patterns('',
     # articles (cms):
     (r'^'+settings.ARTICLE_PATH_ROOT+'/', include('stars.apps.cms.urls')),
 
-    # auth:
-    (r'^auth/', include('stars.apps.auth.urls')),
+    # accounts:
+    (r'^accounts/', include('stars.apps.accounts.urls')),
 
     # admin
     (r'^_ad/', include(admin.site.urls)),

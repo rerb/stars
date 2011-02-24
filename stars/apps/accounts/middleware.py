@@ -1,4 +1,4 @@
-from stars.apps.auth.utils import _get_account_from_session, _update_account_context
+from stars.apps.accounts.utils import _get_account_from_session, _update_account_context
 
 """
     AASHE Authentication Backend Middleware

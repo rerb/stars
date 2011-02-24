@@ -1,7 +1,7 @@
 from django.template import RequestContext
 
 from stars.apps.helpers.shortcuts import render_to_any_response
-from stars.apps.auth.maintenancemode.http import HttpResponseTemporaryUnavailable
+from stars.apps.accounts.maintenancemode.http import HttpResponseTemporaryUnavailable
 
 def temporary_unavailable(request):
     """ 

@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 
-from stars.apps.auth.utils import respond
+from stars.apps.accounts.utils import respond
 from stars.apps.tool.admin.watchdog.models import WatchdogEntry
 from stars.apps.tool.admin.watchdog.models import LOG_DURATION
 from stars.apps.helpers import flashMessage

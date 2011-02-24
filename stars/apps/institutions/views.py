@@ -12,8 +12,8 @@ import sys, re
 from datetime import date
 from recaptcha.client import captcha
 
-from stars.apps.auth.utils import respond
-from stars.apps.auth.mixins import InstitutionAccessMixin
+from stars.apps.accounts.utils import respond
+from stars.apps.accounts.mixins import InstitutionAccessMixin
 from stars.apps.credits.models import CreditSet
 from stars.apps.submissions.models import *
 from stars.apps.institutions.models import Institution, InstitutionState, StarsAccount

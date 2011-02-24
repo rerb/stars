@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.contrib.auth.models import User, check_password
 
-from stars.apps.auth import xml_rpc
+from stars.apps.accounts import xml_rpc
 from stars.apps.helpers import watchdog
 from stars.apps.institutions.models import StarsAccount
 

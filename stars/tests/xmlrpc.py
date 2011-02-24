@@ -7,9 +7,9 @@
     usage: python manage.py execfile tests/xmlrpc.py
 """
 from django.conf import settings
-from stars.apps.auth.aashe import AASHEAuthBackend
+from stars.apps.accounts.aashe import AASHEAuthBackend
 from stars.apps.helpers import xml_rpc
-from stars.apps.auth import xml_rpc as auth_rpc
+from stars.apps.accounts import xml_rpc as auth_rpc
 from stars.apps.cms import xml_rpc as cms_rpc
 
 print "URI: %s" % settings.SSO_SERVER_URI

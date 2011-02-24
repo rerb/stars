@@ -3,7 +3,7 @@ from django.shortcuts import render_to_response
 from django.http import HttpResponseRedirect
 from django.core.exceptions import PermissionDenied
 
-from stars.apps.auth.decorators import _redirect_to_login
+from stars.apps.accounts.decorators import _redirect_to_login
 from stars.apps.helpers import flashMessage
 
 import sys

@@ -51,9 +51,9 @@ MIDDLEWARE_CLASSES = [ # a list so it can be editable during tests (see below)
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'stars.apps.auth.middleware.AuthenticationMiddleware',  # must come after django.contrib.auth.middleware
+    'stars.apps.accounts.middleware.AuthenticationMiddleware',  # must come after django.contrib.auth.middleware
     'django.middleware.cache.FetchFromCacheMiddleware',
-    'stars.apps.auth.maintenancemode.middleware.MaintenanceModeMiddleware',
+    'stars.apps.accounts.maintenancemode.middleware.MaintenanceModeMiddleware',
     'django.contrib.redirects.middleware.RedirectFallbackMiddleware',
     'django.middleware.doc.XViewMiddleware',
     'stars.apps.tool.admin.watchdog.middleware.WatchdogMiddleware',  # must come before flatpage so it doesn't log flatpages as 404's
@@ -66,16 +66,16 @@ CACHE_MIDDLEWARE_SECONDS = 60*15
 CACHE_MIDDLEWARE_KEY_PREFIX = "stars"
 CACHE_MIDDLEWARE_ANONYMOUS_ONLY = True
 
-AUTHENTICATION_BACKENDS = ('stars.apps.auth.aashe.AASHEAuthBackend',)
+AUTHENTICATION_BACKENDS = ('stars.apps.accounts.aashe.AASHEAuthBackend',)
 if 'test' in sys.argv:
     AUTHENTICATION_BACKENDS = (
                                'django.contrib.auth.backends.ModelBackend',
-                               'stars.apps.auth.aashe.AASHEAuthBackend',
+                               'stars.apps.accounts.aashe.AASHEAuthBackend',
                                )
     
 DASHBOARD_URL = "/tool/"
-LOGIN_URL = "/auth/login/"
-LOGOUT_URL = "/auth/logout/"
+LOGIN_URL = "/accounts/login/"
+LOGOUT_URL = "/accounts/logout/"
 LOGIN_REDIRECT_URL = "/"
 ADMIN_URL = "/tool/admin/"
 MANAGE_INSTITUTION_URL = "/tool/manage/"
@@ -89,7 +89,7 @@ TEMPLATE_DIRS = [os.path.join(os.path.dirname(__file__), "..", "templates")]
 # Use a custom context processor to get all the account and user info
 # to the templates
 TEMPLATE_CONTEXT_PROCESSORS = (
-    "stars.apps.auth.utils.account_context",
+    "stars.apps.accounts.utils.account_context",
     'stars.apps.helpers.utils.settings_context',
     "django.contrib.auth.context_processors.auth")
 
@@ -110,7 +110,7 @@ INSTALLED_APPS = (
     'stars.apps.institutions',
     'stars.apps.registration',
     'stars.apps.submissions',
-    'stars.apps.auth',
+    'stars.apps.accounts',
     'stars.apps.helpers',
     'stars.apps.helpers.forms', # included here for testing
     'stars.apps.cms',

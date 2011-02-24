@@ -9,10 +9,10 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 
 from stars.apps.institutions.models import Institution
-from stars.apps.auth.utils import change_institution
+from stars.apps.accounts.utils import change_institution
 from stars.apps.helpers import watchdog
-from stars.apps.auth.forms import LoginForm, TOSForm
-from stars.apps.auth.utils import respond
+from stars.apps.accounts.forms import LoginForm, TOSForm
+from stars.apps.accounts.utils import respond
 
 @never_cache
 def login(request, redirect_field_name=REDIRECT_FIELD_NAME):

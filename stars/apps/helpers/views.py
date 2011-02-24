@@ -88,7 +88,7 @@ def migrate_doc_field_required(request):
     return HttpResponseRedirect(settings.DASHBOARD_URL)
 
 def test(request):
-    from stars.apps.auth.utils import respond
+    from stars.apps.accounts.utils import respond
     from stars.apps.tool.credit_editor.forms import NewDocumentationFieldForm
     context = { "form": NewDocumentationFieldForm(),
                 "legend": "Context Legend",

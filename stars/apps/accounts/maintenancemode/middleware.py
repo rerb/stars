@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.http import HttpResponseRedirect
 
-from stars.apps.auth.maintenancemode.views import temporary_unavailable
+from stars.apps.accounts.maintenancemode.views import temporary_unavailable
 
 class MaintenanceModeMiddleware(object):
     """

@@ -6,9 +6,9 @@ from django.core.mail import send_mail
 from datetime import datetime, date
 
 from stars.apps.helpers.forms.views import *
-from stars.apps.auth.utils import respond
-from stars.apps.auth.decorators import user_can_submit, user_is_inst_admin
-from stars.apps.auth.mixins import PermMixin, SubmissionMixin
+from stars.apps.accounts.utils import respond
+from stars.apps.accounts.decorators import user_can_submit, user_is_inst_admin
+from stars.apps.accounts.mixins import PermMixin, SubmissionMixin
 from stars.apps.submissions.models import *
 from stars.apps.cms.xml_rpc import get_article
 from stars.apps.tool.my_submission.forms import *

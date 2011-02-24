@@ -4,7 +4,7 @@
     Test Premises:
      - authenticates with permissions
          
-    >>> from stars.apps.auth.mixins import PermMixin
+    >>> from stars.apps.accounts.mixins import PermMixin
     >>> from stars.apps.institutions.models import StarsAccount, Institution
     >>> from django.contrib.auth.models import User, AnonymousUser
     >>> from dummy_request import DummyRequest

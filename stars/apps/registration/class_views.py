@@ -1,4 +1,4 @@
-from stars.apps.auth.utils import respond
+from stars.apps.accounts.utils import respond
 
 class RegistrationFormView(object):
 
