@@ -1,14 +1,11 @@
 {% extends 'institutions/base.html' %}
 
-{% block tabclass %}class='tab2'{% endblock %}
+{% block tabclass %}class='tab1'{% endblock %}
 
-{% block content %}
-<div class='inner20'>
-  <h1>STARS Institutions</h1>
-  {% block page_description %}
+{% block tab_content %}
+	
     {% load help %}
-    {% show_help_context 'institutions_page' 0 %}
-  {% endblock %}
+  {% show_help_context 'institutions_page' 0 %}
   {% load cache %}
   {% cache 900 institution_list sort_key rev %}
       <table id="institution_list" class='greyTable'>
@@ -57,5 +54,4 @@
         {% endfor %}
       </table>
 	{% endcache %}
-</div>
 {% endblock %}

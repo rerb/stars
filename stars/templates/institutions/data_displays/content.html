@@ -1,5 +1,7 @@
 {% extends 'institutions/data_displays/base.html' %}
 
+{% load content %}
+
 {% block crumbs %}
 	{{ block.super }} &gt;
 	<a href='/institutions/data-displays/content/'>Content</a>
@@ -9,9 +11,18 @@
 
 {% block body_onload %}{{ block.super }}initLookup();initPullDowns();{% endblock %}
 
+{% block tabclass %}class='tab5'{% endblock %}
+
 {% block extra_head %}
-	<script src='/media/static/js/ajax.js' type='text/javascript'></script>
+	<script type="text/javascript" src="https://www.google.com/jsapi?key={{ google_api_key }}"></script>
 	<script type='text/javascript'>
+	
+		google.load("jquery", "1.5.0");
+		
+		function ajaxFillTarget(url, target) {
+			$(target).load(url);
+		}
+	
 		function initPullDowns() {
 			{% if reporting_field %}
 				initCategory({{ reporting_field.credit.subcategory.category.id }});
@@ -23,55 +34,23 @@
 			{% endif %}
 		}
 	</script>
+	{% include "institutions/data_displays/filter_js.html" %}
 {% endblock %}
 
-{% block content %}
-	<div class='inner20'>
-	<h1>STARS Report Content</h1>
-	{% load content %}
+{% block h1 %}STARS Report Content{% endblock %}
+
+{% block tab_content %}
     {% display_block_content 'data_display_content' user %}
 	<form method='POST' action='.' id='filterForm'>
-		<div class='greyBox'>
-			Display results for institutions with the following characteristics:<br/><br/>
-			<table class='filterList'>
-				<tr>
-					<th></th>
-					<th>Type of Characteristic</th>
-					<th>Specific Characteristic</th>
-					<th></th>
-				</tr>
-				{% for k, f in form.forms.filters.forms.delete_forms.forms.items %}
-					<tr>
-						<td style="text-align: center;">
-							<img src='/media/static/images/delete_grey_x.png' alt='[x]' onclick="deleteFilter('{{ k }}');" style='cursor: pointer;' />
-							{{ f.delete }}
-							{{ f.errors }}
-						</td>
-						<td>{{ f.instance.type }}</td>
-						<td>{{ f.instance.item }}</td>
-						<td></td>
-					</tr>
-				{% endfor %}
-				<tr>
-					<td></td>
-					<td>
-						{{ form.forms.filters.forms.new_filter_form.type }}
-						{{ form.forms.filters.forms.new_filter_form.errors.type }}
-					</td>
-					<td>
-						{{ form.forms.filters.forms.new_filter_form.errors.item }}
-						{{ form.forms.filters.forms.new_filter_form.item }}
-					</td>
-					<td><button type='submit'>Run Report</button></td>
-				</tr>
-			</table>
-		</div>
+		{% with new_filter_form=form.forms.filters.forms.new_filter_form %}
+		{% with delete_forms=form.forms.filters.forms.delete_forms %}
+			{% include 'institutions/data_displays/top_level_filters.html' %}
+		{% endwith %}{% endwith %}
 		<div style='text-align: center'>
 			<img src='/media/static/images/arrow_down.png' />
 		</div>
 		<div class='greyBox'>
-			<p>Use the drop down menus, below, to find the reporting field of interest (note: you must begin each
-search by selecting a category, then a subcategory, and so on):</p>
+			{% display_block_content 'data_display_content_second_filter' user %}
 			<table style='margin: 0px auto;' class='vertical'>
 				<tr>
 					<th>
@@ -139,7 +118,9 @@ search by selecting a category, then a subcategory, and so on):</p>
 	       				<a href='{{ o.ss.get_scorecard_url }}'>{{ o.ss }}</a>
 	       			</td>
 	       			<td>
-	       				<a href='{{ o.credit.get_scorecard_url }}'>{{ o.score }}</a>
+	       				<a href='{{ o.credit.get_scorecard_url }}'>
+	       					{{ o.score }}
+	       				</a>
 	       			</td>
 	       			<td>
        					{% with field=o.field %}
@@ -160,5 +141,4 @@ search by selecting a category, then a subcategory, and so on):</p>
        		</td></tr>
        	{% endif %}
 	</table>
-	</div>
 {% endblock %}

@@ -62,6 +62,34 @@ def user_is_staff(f):
             return _redirect_to_login(request)
     return wrap
 
+def inst_is_member(f):
+    """
+        Tests against ISS for the institution's membership
+    """
+    @wraps(f)
+    def wrap(request, *args, **kwargs):
+        if request.user.get_profile().is_member:
+            return f(request, *args, **kwargs)
+        elif not request.user.is_authenticated():
+            return _redirect_to_login(request)
+        else:
+            raise PermissionDenied("Access is restricted to AASHE Members Only.")
+    return wrap
+
+def inst_is_participant(f):
+    """
+        Tests against ISS for the institution's participation in STARS
+    """
+    @wraps(f)
+    def wrap(request, *args, **kwargs):
+        if request.user.get_profile().is_participant():
+            return f(request, *args, **kwargs)            
+        if not request.user.is_authenticated():
+            return _redirect_to_login(request)
+        else:
+            raise PermissionDenied("Access is restricted to STARS Participants Only.")
+    return wrap
+
 def user_has_tool(f):
     """
         This decorator tests to see if the User should have access to a tool.

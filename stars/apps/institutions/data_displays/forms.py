@@ -16,7 +16,7 @@ EMPTY_CHOICES = (
 
 class CharacteristicFilterForm(forms.Form):
     
-    type = forms.CharField(required=False, widget=forms.widgets.Select(choices=TYPE_CHOICES, attrs={'onchange': 'applyLookup(this);',}))
+    type = forms.CharField(required=False, widget=forms.widgets.Select(choices=EMPTY_CHOICES))
     item = forms.CharField(required=False, widget=forms.widgets.Select(choices=EMPTY_CHOICES))
     
     def clean(self):
@@ -32,7 +32,16 @@ class CharacteristicFilterForm(forms.Form):
             del cleaned_data["item"]
 
         return cleaned_data
+    
+    def __init__(self, available_filters, **kwargs):
         
+        super(CharacteristicFilterForm, self).__init__(**kwargs)
+        
+        choices = [("", "-------")]
+        for f in available_filters:
+            choices.append((f.key, f.title))
+            
+        self.fields['type'].widget = forms.widgets.Select(choices=choices, attrs={'onchange': 'applyLookup(this);',})
     
 class DelCharacteristicFilterForm(forms.Form):
     

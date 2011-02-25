@@ -1,10 +1,12 @@
-from django.views.generic.base import TemplateView
+from django.views.generic.base import TemplateView, TemplateResponseMixin
 from django.views.generic.edit import FormView
 from django.conf import settings
 from django.core.cache import cache
 from django.forms.formsets import formset_factory
 from django.http import HttpResponseRedirect
 from django.db.models import Q
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 
 from stars.apps.submissions.models import *
 from stars.apps.institutions.models import Institution
@@ -17,7 +19,7 @@ from aashe.issdjango.models import Organizations
 
 from sorl.thumbnail import get_thumbnail
 
-from datetime import date
+from datetime import date, datetime
 import re
 
 class Dashboard(TemplateView):
@@ -29,6 +31,7 @@ class Dashboard(TemplateView):
     def get_context_data(self, **kwargs):
         
         _context = cache.get('stars_dashboard_context')
+        cache_time = cache.get('stars_dashboard_context_cache_time')
         
         if not _context:
             _context = {}
@@ -119,21 +122,70 @@ class Dashboard(TemplateView):
             _context['p2s'] = p2s
             _context['current_participants'] = current_participants
             _context['current_submissions'] = current_submissions
+            
+            cache_time = datetime.now()
             cache.set('stars_dashboard_context', _context, 60*120) # cache this for 2 hours
+            cache.set('stars_dashboard_context_cache_time', cache_time, 60*120)
         
+        _context['cache_time'] = cache_time
         _context.update(super(Dashboard, self).get_context_data(**kwargs))
         return _context
+    
+class Filter(object):
+    """
+        Filters need to be a managed more programatically
+        added and removed from the general list where avaialable
+    """
+    def __init__(self, key, title, item_list):
+        self.key = key
+        self.title = title
+        self.item_list = item_list
     
 class FilteringMixin(object):
     """
         A mixin that will save filters (dictionaries) in the session
         
-        Children must define `filter_keys`
-        
-        filters are stored in dictionaries
-        
-            {'<filter_group_key>': [filter_list], }
+        Children must define
+            `filter_keys` - a key for storing filters associated with this view
+            
+        Optionally `available_filters` can be overridden to set the default filters
     """
+    
+    def get_available_filters(self):
+        """
+            Used to poplulate the child select using JavaScript
+        """
+        available_filters = [
+                                Filter(
+                                        'org_type',
+                                        'Organization Type',
+                                        [
+                                            'All Institutions',
+                                            'Two Year Institution',
+                                            'Four Year Institution',
+                                            'Graduate Institution',
+                                            'System Office'
+                                        ]
+                                       ),
+                                Filter(
+                                        'rating__name',
+                                        'STARS Rating',
+                                        [
+                                            'Bronze',
+                                            'Silver',
+                                            'Gold',
+                                            'Platinum'
+                                        ]
+                                       )
+                              ]
+        return available_filters
+    
+    def get_context_data(self, **kwargs):
+        
+        _context = {}
+        _context['available_filters'] = self.get_available_filters()
+        _context.update(super(FilteringMixin, self).get_context_data(**kwargs))
+        return _context
     
     def get_filters(self):
         filters = {}
@@ -167,8 +219,10 @@ class FilteringMixin(object):
                 1) formset for deletion of any existing filters
                 2) form for adding a new filter
         """
-        
-        new_filter_form = form_class(**self.get_form_kwargs())
+        new_filter_form = None
+        available_filters = self.get_available_filters()
+        if available_filters:
+            new_filter_form = form_class(available_filters, **self.get_form_kwargs())
         
         delete_forms = {}
         for f in self.get_filter_group(filter_group_key):
@@ -188,14 +242,14 @@ class FilteringMixin(object):
         
     def save_filters(self, form, filter_group_key):
         
-        if self.request.POST['type'] and self.request.POST['item']:
+        if self.request.POST.has_key('type') and self.request.POST.has_key('item'):
             filter = {'type': self.request.POST['type'], 'item': self.request.POST['item']}
             
             # add a key value for the column
-            for k,v in TYPE_CHOICES:
-                if k == filter['type']:
-                    filter['type'] = v
-                    filter['key'] = k
+            for f in self.get_available_filters():
+                if f.key == filter['type']:
+                    filter['type'] = f.title
+                    filter['key'] = f.key
                     self.add_filter(filter, filter_group_key)
                     break
         
@@ -207,62 +261,110 @@ class FilteringMixin(object):
                 
     def get_filtered_queryset(self, filters):
         
-        org_q_list = []
-        rating_q_list = []
+        org_ss_list = []
+        rating_ss_list = []
 
         for f in filters:
             
-            q_kwargs = {f['key']: f['item'],}
-            q = Q(**q_kwargs)
-            
-            if f['key'] == 'rating__name':
-                rating_q_list.append(q)
-                
-            else:
-                org_q_list.append(q)
-        
-        if rating_q_list:
-            rating_list = SubmissionSet.objects.filter(status='r')
-            if rating_q_list:
-                rating_list = rating_list.filter(*rating_q_list)
-            
-        if org_q_list:
-            org_list = Organizations.objects.filter(stars_participant_status__isnull=False).filter(*org_q_list).values_list('account_num', flat=True)
+            filter_kwargs = {f['key']: f['item'],}
             
             ss_queryset = SubmissionSet.objects.filter(status='r')
-            org_ss_list = ss_queryset.filter(institution__aashe_id__in=list(org_list))
+            
+            if f['key'] == 'rating__name':
+                rating_ss_list = ss_queryset.filter(**filter_kwargs)
+                
+            else:
+                org_list = Organizations.objects.filter(stars_participant_status__isnull=False).values_list('account_num', flat=True)
+                if f['item'] != "All Institutions": # if the item is blank then don't use this filter
+                    org_list = org_list.filter(**filter_kwargs)
+                    
+                org_ss_list = ss_queryset.filter(institution__aashe_id__in=list(org_list))
         
         # combine these two if they both exist
-        if rating_q_list and org_q_list:
-            queryset = rating_list.filter(id__in=org_ss_list)
-        elif rating_q_list and not org_q_list:
-            queryset = rating_list
-        elif org_q_list and not rating_q_list:
+        if rating_ss_list and org_ss_list:
+            queryset = rating_ss_list.filter(id__in=org_ss_list)
+        elif rating_ss_list and not org_ss_list:
+            queryset = rating_ss_list
+        elif org_ss_list and not rating_ss_list:
             queryset = org_ss_list
         else:
             queryset = SubmissionSet.objects.none()
             
         return queryset
     
-class AggregateFilter(FilteringMixin, FormView):
+class NarrowFilteringMixin(FilteringMixin):
     """
-        Provides a filtering tool which is stored in the session in the following way:
+        Removes a filter once it's in use
+    """
+    def get_available_filters(self):
+        available_filters = super(NarrowFilteringMixin, self).get_available_filters()
+        for f in self.get_filter_group(self.filter_keys[0]):
+            for af in available_filters:
+                if af.key == f['key']:
+                    available_filters.remove(af)
+        return available_filters
+    
+class DisplayAccessMixin(object):
+    """
+        Objects must define two properties:
         
-        Session
-            key: "aggregated_filter"
-            value: (list of filters)
-                (
-                    {
-                        'type': <type>,
-                        'item': <item>,
-                        'key': <column>,
-                    },
-                )
+            denied_template_name = ""
+            access_list = ['', ''] valid strings are 'member' and 'participant'
+            
+        if either access level is fulfilled then they pass
+        if access_list is empty no access levels are required
+        
+        users must be authenticated
+    """
+    def deny_action(self, request):
+        """
+            @todo - I should turn this into some sort of (class?) decorator
+        """
+        
+        if self.access_list:
+            denied = True
+            if 'member' in self.access_list:
+                if request.user.get_profile().is_member:
+                    denied = False
+            if 'participant' in self.access_list:
+                if request.user.get_profile().is_participant():
+                    denied = False
+            if denied:
+                self.template_name = self.denied_template_name
+                return self.render_to_response({})
+        return None
+    
+    @method_decorator(login_required)
+    def get(self, request, *args, **kwargs):
+        
+        deny_action = self.deny_action(request)
+        if deny_action:
+            return deny_action
+        
+        return super(DisplayAccessMixin, self).get(request, *args, **kwargs)
+    
+    @method_decorator(login_required)
+    def post(self, request, *args, **kwargs):
+        
+        deny_action = self.deny_action(request)
+        if deny_action:
+            return deny_action
+        
+        return super(DisplayAccessMixin, self).post(request, *args, **kwargs)
+    
+    
+class AggregateFilter(DisplayAccessMixin, FilteringMixin, FormView):
+    """
+        Provides a filtering tool for average category scores
+        
+        Participants and Members Only
     """
     form_class = CharacteristicFilterForm
     template_name = "institutions/data_displays/categories.html"
     filter_keys = ("aggregated_filter",)
     success_url = "/institutions/data-displays/categories/"
+    denied_template_name = "institutions/data_displays/denied_categories.html"
+    access_list = ['member', 'participant']
     
     def get_form(self, form_class):
         
@@ -270,7 +372,7 @@ class AggregateFilter(FilteringMixin, FormView):
     
     def get_context_data(self, **kwargs):
         
-        _context = kwargs
+        _context = super(AggregateFilter, self).get_context_data(**kwargs)
         filters = self.get_filter_group('aggregated_filter')
         _context['filters'] = filters
         
@@ -288,9 +390,12 @@ class AggregateFilter(FilteringMixin, FormView):
             d['item'] = f['item']
             
             if f['key'] == "org_type":
-                kwargs = {f['key']: f['item'],}
                 
-                org_list = Organizations.objects.filter(stars_participant_status__isnull=False).filter(**kwargs).values_list('account_num', flat=True)
+                if f['item'] != "All Institutions":
+                    kwargs = {f['key']: f['item'],}
+                    org_list = Organizations.objects.filter(stars_participant_status__isnull=False).filter(**kwargs).values_list('account_num', flat=True)
+                else:
+                    org_list = Organizations.objects.filter(stars_participant_status__isnull=False).values_list('account_num', flat=True)
                 
                 ss_list = ss_queryset.filter(institution__aashe_id__in=list(org_list))
             
@@ -335,14 +440,18 @@ class AggregateFilter(FilteringMixin, FormView):
         flashMessage.send("Please correct the errors below.", flashMessage.ERROR)
         return super(AggregateFilter, self).form_invalid(form)
     
-class ScoreFilter(FilteringMixin, FormView):
+class ScoreFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
     """
-        Provides a filtering tool which is stored in the session in the following way:
+        Provides a filtering tool for scores
+        
+        Participants Only
     """
     form_class = CharacteristicFilterForm
     template_name = "institutions/data_displays/score.html"
     filter_keys = ("score_filter",)
     success_url = "/institutions/data-displays/scores/"
+    denied_template_name = "institutions/data_displays/denied_score.html"
+    access_list = ['participant']
     
     def get_form(self, form_class):
         
@@ -361,7 +470,7 @@ class ScoreFilter(FilteringMixin, FormView):
     
     def get_context_data(self, **kwargs):
         
-        _context = kwargs
+        _context = super(ScoreFilter, self).get_context_data(**kwargs)
         filters = self.get_filter_group('score_filter')
         _context['filters'] = filters
         
@@ -428,14 +537,18 @@ class ScoreFilter(FilteringMixin, FormView):
         flashMessage.send("Please correct the errors below.", flashMessage.ERROR)
         return super(ScoreFilter, self).form_invalid(form)
 
-class ContentFilter(FilteringMixin, FormView):
+class ContentFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
     """
-        Provides a filtering tool which is stored in the session in the following way:
+        Provides a filtering tool for scores
+        
+        Participants and Members Only
     """
     form_class = CharacteristicFilterForm
     template_name = "institutions/data_displays/content.html"
     filter_keys = ("content_filter",)
     success_url = "/institutions/data-displays/content/"
+    denied_template_name = "institutions/data_displays/denied_content.html"
+    access_list = ['member', 'participant']
     
     def get_form(self, form_class):
         
@@ -454,9 +567,10 @@ class ContentFilter(FilteringMixin, FormView):
     
     def get_context_data(self, **kwargs):
         
-        _context = kwargs
+        _context = super(ContentFilter, self).get_context_data(**kwargs)
         filters = self.get_filter_group('content_filter')
         _context['filters'] = filters
+        _context['google_api_key'] = settings.GOOGLE_API_KEY
         
         
         rf = self.get_reporting_field()
@@ -477,7 +591,12 @@ class ContentFilter(FilteringMixin, FormView):
                 cred = CreditUserSubmission.objects.get(pk=df.credit_submission.id)
                 row = {'field': df, 'ss': ss, 'credit': cred}
                 if ss.rating.publish_score:
-                    row['score'] = cred.assessed_points
+                    if cred.submission_status == "na":
+                        row['score'] = "Not Applicable"
+                    elif cred.submission_status == 'np' or cred.submission_status == 'ns':
+                        row['score'] = "Not Pursuing"
+                    else:
+                        row['score'] = cred.assessed_points
                 else:
                     row['score'] = "Reporter"
                 object_list.append(row)

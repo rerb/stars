@@ -9,6 +9,8 @@
 
 {% block title %}Dashboard | {{ block.super }}{% endblock %}
 
+{% block tabclass %}class='tab2'{% endblock %}
+
 {% block body_onload %}{{ block.super }}initialize();{% endblock %}
 
 {% block extra_head %}
@@ -205,10 +207,11 @@
     </script>
 {% endblock %}
 
-{% block content %}
-	<div class='inner20'>
-		<h1>STARS Dashboard</h1>
-		<div id="map_canvas" style="width:98%; height:370px; border: 1px solid #aaa; margin-top: 5px; padding: 2px;"></div>
+{% block h1 %}STARS Dashboard{% endblock %}
+
+{% block tab_content %}
+		<p style='font-size: .8em;'>Data Last Updated: {{ cache_time }}</p>
+		<div id="map_canvas" style="height:370px; border: 1px solid #aaa; margin-top: 5px; padding: 2px;"></div>
 		<hr style='clear:both' />
 		<div style='margin: 0px 0px 10px 0px;padding: 2px; border: 1px solid #aaa;float: left;'>
 			<div id="ratingChart" style="width:450px;height:250px;margin: 0px;"></div>
@@ -265,5 +268,4 @@
 			{% endfor %}
 		</table>
 		</div>
-	</div>
 {% endblock %}

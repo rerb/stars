@@ -7,7 +7,7 @@ function initCategory(current) {
 		get_params = "";
 	}
 	cat_select = document.getElementById("category_select");
-	ajaxGetQuery(url + get_params, cat_select);
+	ajaxFillTarget(url + get_params, cat_select);
 }
 
 function resetSelect(obj_id) {
@@ -66,16 +66,18 @@ function updateChildOptions(url_prefix, parent_id, child_sel, current) {
 			get_params = "";
 		}
 		
-		ajaxGetQuery(url + get_params, child_sel);
+		ajaxFillTarget(url + get_params, child_sel);
 		
-		console.log(url+get_params)
+		//console.log(url+get_params)
 	}
 }
 
+/*
 choices_lookup = {
 	org_type: ['Two Year Institution', 'Four Year Institution', 'Graduate Institution', 'System Office'],
 	rating__name: ['Bronze', 'Silver', 'Gold', 'Platinum']
 }
+*/
 
 function initLookup() {
 	sel = document.getElementById('id_type');
@@ -90,14 +92,16 @@ function deleteFilter(prefix) {
 function applyLookup(obj) {
 
 	sel = document.getElementById('id_item');
-	while( sel.length > 1 ) {
-		sel.remove(sel.length - 1)
-	}
-		
-	if( obj.selectedIndex ) {
-		key = obj.options[obj.selectedIndex].value
-		for(i=0; i < choices_lookup[key].length; i++) {
-			sel.options[sel.options.length] = new Option(choices_lookup[key][i], choices_lookup[key][i]);
+	if( sel ) {
+		while( sel.length > 1 ) {
+			sel.remove(sel.length - 1)
+		}
+			
+		if( obj.selectedIndex ) {
+			key = obj.options[obj.selectedIndex].value
+			for(i=0; i < choices_lookup[key].length; i++) {
+				sel.options[sel.options.length] = new Option(choices_lookup[key][i], choices_lookup[key][i]);
+			}
 		}
 	}
 }

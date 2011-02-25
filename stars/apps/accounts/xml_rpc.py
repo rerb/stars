@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 import re
 
 from stars.apps.helpers.xml_rpc import run_rpc
+from stars.apps.accounts.models import UserProfile
 
 def connect():
     
@@ -92,4 +93,25 @@ def get_user_from_user_dict(user_dict, session, create=True):
             user.is_staff = False
             user.is_superuser = False
             user.save()
+            
+    # apply the MEMBER role if necessary
+    try:
+        profile = user.get_profile()
+    except UserProfile.DoesNotExist:
+        profile = UserProfile(user=user, is_member=False)
+    
+    if user_dict['roles'].has_key('5'):
+        # if they have the stars_admin role grant them staff access
+        if not profile.is_member:
+            profile.is_member = True
+    else:
+        # remove member status if they no longer have the role
+        if profile.is_member:
+            profile.is_member = False
+    
+    # list of associated institutions
+    profile.profile_instlist = user_dict['profile_instlist']
+    
+    profile.save()
+    
     return user

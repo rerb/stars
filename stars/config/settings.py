@@ -66,6 +66,7 @@ CACHE_MIDDLEWARE_SECONDS = 60*15
 CACHE_MIDDLEWARE_KEY_PREFIX = "stars"
 CACHE_MIDDLEWARE_ANONYMOUS_ONLY = True
 
+AUTH_PROFILE_MODULE = 'accounts.UserProfile'
 AUTHENTICATION_BACKENDS = ('stars.apps.accounts.aashe.AASHEAuthBackend',)
 if 'test' in sys.argv:
     AUTHENTICATION_BACKENDS = (
@@ -200,6 +201,8 @@ SKIP_SOUTH_TESTS=True
 
 RECAPTCHA_PUBLIC_KEY = "6LeaEL0SAAAAAMiipP79s-PzlR0qHlH1-E_jYsyW"
 RECAPTCHA_PRIVATE_KEY = "6LeaEL0SAAAAACP5wb3qqxujJc3Cf_qHhVGUr4QV"
+
+GOOGLE_API_KEY = "ABQIAAAA-bTvhmGT1R0ug4p1J_-l4hQWDBNZ3_Sn8d2AByp8vi_J8JN7YxQq-tOQFxf4oNeYJyiW9fXWm-pwNg"
 
 #DATABASE_ROUTERS = ('aashe.issdjango.router.ISSRouter',)
 PROJECT_PATH = os.path.join(os.path.dirname(__file__), '..')

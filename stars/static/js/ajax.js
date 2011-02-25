@@ -75,5 +75,6 @@ function ajaxGetQuery(url, target) {
 	    }
 	}
 	xmlhttp.open("GET", url, true);
+    //xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 	xmlhttp.send();
 }

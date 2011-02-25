@@ -16,5 +16,4 @@ urlpatterns = patterns(
     (r'^callback/cat/(?P<category_id>\d+)/$', SubcategoryInCategoryCallback.as_view()),
     (r'^callback/sub/(?P<subcategory_id>\d+)/$', CreditInSubcategoryCallback.as_view()),
     (r'^callback/credit/(?P<credit_id>\d+)/$', FieldInCreditCallback.as_view()),
-    
 )

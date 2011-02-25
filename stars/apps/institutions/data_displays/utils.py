@@ -41,7 +41,7 @@ class FormListWrapper(object):
         """
         
         for k, form in self.forms.items():
-            if not form.is_valid():
+            if form and not form.is_valid():
                 return False
             
         return True
