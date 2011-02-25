@@ -20,6 +20,9 @@ class UserProfile(models.Model):
         if StarsAccount.objects.filter(user=self.user).count() > 0:
             return True
         
+        if self.user.is_staff:
+            return True
+        
         if self.profile_instlist != '0':
             inst_list = map(int, self.profile_instlist.split(','))
             if inst_list:
