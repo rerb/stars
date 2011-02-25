@@ -75,8 +75,10 @@
 {% block h1 %}Aggregated STARS Category Scores{% endblock %}
 
 {% block tab_content %}
+
 	{% load content %}
     {% display_block_content 'data_display_categories' user %}
+    
 	<form method='POST' action='.' id='filterForm'>
 		{% with new_filter_form=form.forms.new_filter_form %}
 		{% with delete_forms=form.forms.delete_forms %}

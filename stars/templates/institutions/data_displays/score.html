@@ -62,7 +62,11 @@
 	       				<a href='{{ o.ss.get_scorecard_url }}'>{{ o.ss }}</a>
 	       			</td>
 	       			{% for col in o.cols %}
-	       				<td>{{ col.score|floatformat:2 }}{{ col.units }}</td>
+	       				<td>
+	       					<a href='{{ col.url }}'>
+	       						{{ col.score }}{{ col.units }}
+	       					</a>
+	       				</td>
 	       			{% endfor %}
 	       		</tr>
 	       	{% endfor %}

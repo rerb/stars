@@ -496,17 +496,28 @@ class ScoreFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
                         units = ""
                         if isinstance(col, Category):
                             obj = CategorySubmission.objects.get(submissionset=ss, category=col)
-                            score = obj.get_STARS_score()
+                            score = "%.2f" % obj.get_STARS_score()
                             if obj.category.abbreviation != "IN":
                                 units = "%"
+                            url = obj.get_scorecard_url()
                         elif isinstance(col, Subcategory):
                             obj = SubcategorySubmission.objects.get(category_submission__submissionset=ss, subcategory=col)
-                            score = obj.get_claimed_points()
+                            score = "%.2f" % obj.get_claimed_points()
+                            url = obj.get_scorecard_url()
                         elif isinstance(col, Credit):
-                            obj = CreditUserSubmission.objects.get(subcategory_submission__category_submission__submissionset=ss, credit=col)
-                            score = obj.assessed_points
+                            cred = CreditUserSubmission.objects.get(subcategory_submission__category_submission__submissionset=ss, credit=col)
+                            url = cred.get_scorecard_url()
+                            if ss.rating.publish_score:
+                                if cred.submission_status == "na":
+                                    score = "Not Applicable"
+                                elif cred.submission_status == 'np' or cred.submission_status == 'ns':
+                                    score = "Not Pursuing"
+                                else:
+                                    score = "%.2f / %d" % (cred.assessed_points, cred.credit.point_value)
+                            else:
+                                score = "Reporter"
                             
-                        row['cols'].append({'score': score, 'units': units})
+                        row['cols'].append({'score': score, 'units': units, 'url': url})
                     
                 object_list.append(row)
                     
@@ -596,7 +607,7 @@ class ContentFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
                     elif cred.submission_status == 'np' or cred.submission_status == 'ns':
                         row['score'] = "Not Pursuing"
                     else:
-                        row['score'] = cred.assessed_points
+                        row['score'] = "%.2f / %d" % (cred.assessed_points, cred.credit.point_value)
                 else:
                     row['score'] = "Reporter"
                 object_list.append(row)
