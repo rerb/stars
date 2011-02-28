@@ -118,13 +118,17 @@
 	       				<a href='{{ o.ss.get_scorecard_url }}'>{{ o.ss }}</a>
 	       			</td>
 	       			<td>
-	       				<a href='{{ o.credit.get_scorecard_url }}'>
-	       					{{ o.score }}
-	       				</a>
+	       				{% if o.credit %}
+	       					<a href='{{ o.credit.get_scorecard_url }}'>
+		       					{{ o.score }}
+		       				</a>
+		       			{% else %}
+		       				--
+		       			{% endif %}
 	       			</td>
 	       			<td>
        					{% with field=o.field %}
-       						{% if not field.is_empty %}
+       						{% if field and not field.is_empty %}
        							{% include 'institutions/scorecards/field_formatting.html' %}
        						{% else %}
        							--

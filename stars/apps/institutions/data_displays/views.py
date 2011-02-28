@@ -598,18 +598,22 @@ class ContentFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
                 cus_lookup = "subcategory_submission__category_submission__submissionset"
                 # I have to get creditusersubmissions so i can be sure these are actual user submissions and not tests
                 cus = CreditUserSubmission.objects.get(**{cus_lookup: ss, 'credit': rf.credit})
-                df = field_class.objects.get(credit_submission=cus, documentation_field=rf)
-                cred = CreditUserSubmission.objects.get(pk=df.credit_submission.id)
-                row = {'field': df, 'ss': ss, 'credit': cred}
-                if ss.rating.publish_score:
-                    if cred.submission_status == "na":
-                        row['score'] = "Not Applicable"
-                    elif cred.submission_status == 'np' or cred.submission_status == 'ns':
-                        row['score'] = "Not Pursuing"
+                try:
+                    df = field_class.objects.get(credit_submission=cus, documentation_field=rf)
+                    cred = CreditUserSubmission.objects.get(pk=df.credit_submission.id)
+                    row = {'field': df, 'ss': ss, 'credit': cred}
+                    if ss.rating.publish_score:
+                        if cred.submission_status == "na":
+                            row['score'] = "Not Applicable"
+                        elif cred.submission_status == 'np' or cred.submission_status == 'ns':
+                            row['score'] = "Not Pursuing"
+                        else:
+                            row['score'] = "%.2f / %d" % (cred.assessed_points, cred.credit.point_value)
                     else:
-                        row['score'] = "%.2f / %d" % (cred.assessed_points, cred.credit.point_value)
-                else:
-                    row['score'] = "Reporter"
+                        row['score'] = "Reporter"
+                
+                except:
+                    row = {'field': None, 'ss': ss, 'credit': None, "score": None}
                 object_list.append(row)
             _context['object_list'] = object_list
             _context['reporting_field'] = rf
