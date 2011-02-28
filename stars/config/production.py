@@ -14,8 +14,19 @@ DATABASES = {
         'USER': 'starsapp',
         'PASSWORD': 'J3z4#$szFET--6',
         'HOST': 'mysql.aashe.net',
+    },
+    'iss': {
+        'NAME': 'iss',
+        'ENGINE': 'django.db.backends.mysql',
+        'USER': 'starsapp',
+        'PASSWORD': 'J3z4#$szFET--6',
+        'HOST': 'aashedb',
     }
 }
+DATABASE_ROUTERS = ('aashe.issdjango.router.ISSRouter',)
+
+THUMBNAIL_ENGINE = "sorl.thumbnail.engines.pgmagick_engine.Engine"
+# GraphicsMagick is installed on the produciton server
 
 CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
 
