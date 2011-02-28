@@ -42,19 +42,3 @@ urlpatterns = patterns(
     
     (r'^data-displays/', include('stars.apps.institutions.data_displays.urls')),
 )
-
-urlpatterns += patterns(
-    'django.views.generic.simple',
-    # data views
-    (r'^data-views/$', "direct_to_template",{'template': 'institutions/data_views/index.html'}),
-    (r'^data-views/score/$', "direct_to_template",
-                                    {'template': 'institutions/data_views/score.html',
-                                     'extra_context': {'creditset': creditset}}),
-    (r'^data-views/content/$', "direct_to_template",
-                                    {'template': 'institutions/data_views/content.html',
-                                     'extra_context': {'creditset': creditset}}),
-    (r'^data-views/stats/$', "direct_to_template",
-                                    {'template': 'institutions/data_views/statistics.html',
-                                     'extra_context': {'creditset': creditset}}),
-    (r'^data-views/dashboard/$', "direct_to_template", {'template': 'institutions/data_views/dashboard.html'}),
-)
