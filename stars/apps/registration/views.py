@@ -10,22 +10,23 @@ from datetime import datetime, date, timedelta
 import urllib2, re, sys
 from xml.etree.ElementTree import fromstring
 
-from stars.apps.institutions.models import Institution, _query_iss_orgs
+from stars.apps.institutions.models import Institution
 from stars.apps.registration.forms import *
 from stars.apps.registration.utils import is_canadian_zipcode, is_usa_zipcode
-from stars.apps.auth.utils import respond, connect_iss
+from stars.apps.accounts.utils import respond, connect_iss
 from stars.apps.helpers import watchdog, flashMessage
 from stars.apps.tool.admin.watchdog.models import ERROR
 from stars.apps.tool.my_submission.views import _get_active_submission
-from stars.apps.auth import xml_rpc
+from stars.apps.accounts import xml_rpc
 from stars.apps.submissions.models import *
 from stars.apps.credits.models import CreditSet
 from stars.apps.helpers.forms.views import FormActionView
-from stars.apps.auth.mixins import AuthenticatedMixin
+from stars.apps.accounts.mixins import AuthenticatedMixin
 from stars.apps.tool.my_submission.views import init_credit_submissions
 
 from zc.authorizedotnet.processing import CcProcessor
 from zc.creditcard import (AMEX, DISCOVER, MASTERCARD, VISA, UNKNOWN_CARD_TYPE)
+from aashe.issdjango.models import Organizations
 
 
 def reg_select_institution(request):
@@ -39,12 +40,19 @@ def reg_select_institution(request):
     # Get the list of schools as choices
     institution_list = []
     institution_list_lookup = {}
-    for inst in _query_iss_orgs():
-        if inst['city'] and inst['state']:
-            institution_list.append((inst['id'], "%s, %s, %s" % (inst['name'], inst['city'], inst['state'])))
+    org_types = ('I',
+                 'Four Year Institution',
+                 'Two Year Institution',
+                 'Graduate Institution',
+                 'System Office')
+    countries = ('Canada', 'United States of America')
+    for inst in Organizations.objects.filter(org_type__in=org_types,
+                                             country__in=countries):
+        if inst.city and inst.state:
+            institution_list.append((inst.account_num, "%s, %s, %s" % (inst.org_name, inst.city, inst.state)))
         else:
-            institution_list.append((inst['id'], inst['name']))
-        institution_list_lookup[inst['id']] = inst['name']
+            institution_list.append((inst.account_num, inst.org_name))
+        institution_list_lookup[inst.account_num] = inst.org_name
     
     # Generate the school choice form
     form = RegistrationSchoolChoiceForm()

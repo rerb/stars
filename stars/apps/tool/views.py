@@ -1,6 +1,6 @@
 
-from stars.apps.auth.utils import respond
-from stars.apps.auth.decorators import user_has_tool
+from stars.apps.accounts.utils import respond
+from stars.apps.accounts.decorators import user_has_tool
 
 def stars_home_page(request):
     """

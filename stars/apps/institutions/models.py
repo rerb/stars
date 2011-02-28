@@ -128,27 +128,41 @@ class Institution(models.Model):
                 return True
         # assert: no submission has been registered for the given credit set for this institution
         return False
-        
+
+    @property
+    def profile(self):
+        from aashe.issdjango.models import Organizations
+        try:
+            return Organizations.objects.get(account_num=self.aashe_id)
+        except Organizations.DoesNotExist as e:
+            return None
+        except Organizations.MultipleObjectsReturned as e:
+            watchdog.log("Institutions", "Multiple ISS Institutions for aashe_id %s: %s" % (self.account_num, e), watchdog.ERROR)
+            return None
+
     def is_member_institution(self):
         """
             Searches stars_member_list.members for the institution
             returns True if this institution exists
-        """        
-        if _query_iss_orgs("account_num = '%s' AND is_member = 1"%self.aashe_id):
-            return True
-        return False
+        """
+        try:
+            return self.profile.is_member == 1
+        except Exception, e:
+            watchdog.log("Institutions", "ISS Institution profile error: %s" % e, watchdog.ERROR)
+            return False
     
     def set_slug_from_iss_institution(self, iss_institution_id):
         """
             Sets the slug field based on an institution row from the ISS
         """
-        i_list = _query_iss_orgs("account_num=%d" % iss_institution_id)
-        if len(i_list) == 1:
-            iss_institution = i_list[0]
-            slug_base = "%s-%s" % (iss_institution['name'], iss_institution['state'].lower())
+        try:
+            if self.aashe_id == None:
+                self.aashe_id = iss_institution_id
+            slug_base = '%s-%s' % (self.profile.org_name, self.profile.state.lower())
             self.slug = slugify(slug_base)
-        else:
-            watchdog.log("Registration", "ISS Institution lookup failure: %s" % e, watchdog.ERROR)
+            self.save()
+        except Exception, e:
+            watchdog.log("Registration", "ISS Institution profile relationship error: %s" % e, watchdog.ERROR)
             self.slug = iss_institution_id
 
 class RegistrationReason(models.Model):
@@ -174,57 +188,6 @@ class RegistrationSurvey(models.Model):
     
     def __unicode__(self):
         return self.institution.__unicode__()
-    
-def _query_iss_orgs(where_clause=None):
-    """
-        PRIVATE: Searches stars_member_list.members table for schools that match to given where_clause
-        !!!!Assumes that where_clause has been properly sanitized and quoted!!!!
-        Returns a list of institution dictionaries (id name), maybe empty.
-    """
-    from stars.apps.auth.utils import connect_iss
-    from django.utils.encoding import smart_unicode
-    db = connect_iss()
-    cursor = db.cursor()
-    
-    # Provide a default where clause
-    if not where_clause:
-        wc = """
-        (
-            org_type = "I" OR
-            org_type = "Four Year Institution" OR
-            org_type = "Two Year Institution" OR
-            org_type = "Graduate Institution" OR
-            org_type = "System Office"
-        )
-        AND
-        (
-            country = "Canada" OR
-            country = "United States of America"
-        )
-        """
-    else:
-        wc = where_clause
-        
-    query = """
-        SELECT account_num, org_name, city, state
-        FROM `organizations`
-        WHERE %s
-        ORDER BY org_name""" % (wc)
-    cursor.execute(query)
-    
-    institution_list = []
-    for row in cursor.fetchall():
-    
-        # Try to decode the name field
-        try:
-            name = row[1].decode('cp1252')
-            institution_list.append({'id': row[0], 'name': name, 'city': row[2], 'state': row[3]})
-        except Exception, e:
-            watchdog.log("Registration", "Encoding issue with ISS: %s" % e, watchdog.ERROR)
-
-    db.close()
-    return institution_list
-
 
 class InstitutionState(models.Model):
     """

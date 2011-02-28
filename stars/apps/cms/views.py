@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 from django.views.decorators.cache import cache_page
 from django.http import Http404, HttpResponseRedirect
 
-from stars.apps.auth.utils import respond
+from stars.apps.accounts.utils import respond
 from stars.apps.cms.models import *
 from stars.apps.helpers.shortcuts import get_cmsobject_or_404
 from stars.apps.helpers.views import TemplateView

@@ -5,18 +5,18 @@ from south.v2 import DataMigration
 from django.db import models
 
 from django.template.defaultfilters import slugify
-from stars.apps.institutions.models import _query_iss_orgs
+
 
 class Migration(DataMigration):
     
     def forwards(self, orm):
         "Write your forwards methods here."
         for institution in orm.Institution.objects.all():
-            i_list = _query_iss_orgs("account_num=%d" % institution.aashe_id)
-            if len(i_list) == 1:
-                iss_institution = i_list[0]
-                institution.slug = "%s-%s" % (slugify(iss_institution['name']), iss_institution['state'].lower())
+            try:
+                institution.slug = "%s-%s" % (slugify(institution.profile.org_name), institution.profile.state.lower())
                 institution.save()
+            except Exception, e:
+                pass
     
     def backwards(self, orm):
         "Write your backwards methods here."

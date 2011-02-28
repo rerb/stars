@@ -41,7 +41,7 @@ ADMIN_MEDIA_PREFIX = '/media/admin/'
 SECRET_KEY = 'omxxweql@m7!@yh5a-)=f^_xo*(m2+gaz#+8dje)e6wv@q$v%@'
 
 TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.load_template_source',
+    'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.load_template_source',
 )
 
@@ -51,9 +51,9 @@ MIDDLEWARE_CLASSES = [ # a list so it can be editable during tests (see below)
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'stars.apps.auth.middleware.AuthenticationMiddleware',  # must come after django.contrib.auth.middleware
+    'stars.apps.accounts.middleware.AuthenticationMiddleware',  # must come after django.contrib.auth.middleware
     'django.middleware.cache.FetchFromCacheMiddleware',
-    'stars.apps.auth.maintenancemode.middleware.MaintenanceModeMiddleware',
+    'stars.apps.accounts.maintenancemode.middleware.MaintenanceModeMiddleware',
     'django.contrib.redirects.middleware.RedirectFallbackMiddleware',
     'django.middleware.doc.XViewMiddleware',
     'stars.apps.tool.admin.watchdog.middleware.WatchdogMiddleware',  # must come before flatpage so it doesn't log flatpages as 404's
@@ -66,16 +66,17 @@ CACHE_MIDDLEWARE_SECONDS = 60*15
 CACHE_MIDDLEWARE_KEY_PREFIX = "stars"
 CACHE_MIDDLEWARE_ANONYMOUS_ONLY = True
 
-AUTHENTICATION_BACKENDS = ('stars.apps.auth.aashe.AASHEAuthBackend',)
+AUTH_PROFILE_MODULE = 'accounts.UserProfile'
+AUTHENTICATION_BACKENDS = ('stars.apps.accounts.aashe.AASHEAuthBackend',)
 if 'test' in sys.argv:
     AUTHENTICATION_BACKENDS = (
                                'django.contrib.auth.backends.ModelBackend',
-                               'stars.apps.auth.aashe.AASHEAuthBackend',
+                               'stars.apps.accounts.aashe.AASHEAuthBackend',
                                )
     
 DASHBOARD_URL = "/tool/"
-LOGIN_URL = "/auth/login/"
-LOGOUT_URL = "/auth/logout/"
+LOGIN_URL = "/accounts/login/"
+LOGOUT_URL = "/accounts/logout/"
 LOGIN_REDIRECT_URL = "/"
 ADMIN_URL = "/tool/admin/"
 MANAGE_INSTITUTION_URL = "/tool/manage/"
@@ -89,9 +90,9 @@ TEMPLATE_DIRS = [os.path.join(os.path.dirname(__file__), "..", "templates")]
 # Use a custom context processor to get all the account and user info
 # to the templates
 TEMPLATE_CONTEXT_PROCESSORS = (
-    "stars.apps.auth.utils.account_context",
+    "stars.apps.accounts.utils.account_context",
     'stars.apps.helpers.utils.settings_context',
-    "django.core.context_processors.auth")
+    "django.contrib.auth.context_processors.auth")
 
 INSTALLED_APPS = (
     'django.contrib.auth',
@@ -110,7 +111,7 @@ INSTALLED_APPS = (
     'stars.apps.institutions',
     'stars.apps.registration',
     'stars.apps.submissions',
-    'stars.apps.auth',
+    'stars.apps.accounts',
     'stars.apps.helpers',
     'stars.apps.helpers.forms', # included here for testing
     'stars.apps.cms',
@@ -118,8 +119,9 @@ INSTALLED_APPS = (
     'stars.apps.custom_forms',
     'stars.apps.tasks',
     'stars.tests',
-#    'aashe.issdjango',
+    'aashe.issdjango',
     'south',
+    'sorl.thumbnail',
 )
 
 # Is this running on the django dev server?
@@ -199,6 +201,8 @@ SKIP_SOUTH_TESTS=True
 
 RECAPTCHA_PUBLIC_KEY = "6LeaEL0SAAAAAMiipP79s-PzlR0qHlH1-E_jYsyW"
 RECAPTCHA_PRIVATE_KEY = "6LeaEL0SAAAAACP5wb3qqxujJc3Cf_qHhVGUr4QV"
+
+GOOGLE_API_KEY = "ABQIAAAA-bTvhmGT1R0ug4p1J_-l4hQWDBNZ3_Sn8d2AByp8vi_J8JN7YxQq-tOQFxf4oNeYJyiW9fXWm-pwNg"
 
 #DATABASE_ROUTERS = ('aashe.issdjango.router.ISSRouter',)
 PROJECT_PATH = os.path.join(os.path.dirname(__file__), '..')

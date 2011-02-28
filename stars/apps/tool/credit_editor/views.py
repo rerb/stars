@@ -7,7 +7,7 @@ from django.http import HttpResponseRedirect
 from stars.apps.helpers.forms.views import MultiFormView
 from stars.apps.credits.views import CreditNavMixin
 from stars.apps.credits.models import CreditSet
-from stars.apps.auth.mixins import IsStaffMixin
+from stars.apps.accounts.mixins import IsStaffMixin
 from stars.apps.tool.credit_editor.forms import *
 
 def home(request):

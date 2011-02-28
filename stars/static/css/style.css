@@ -607,6 +607,7 @@ div.tabContent {
     padding: 10px;
     -moz-border-radius: 10px;
     -webkit-border-radius: 10px;
+    overflow: hidden;
 }
 
 div.creditContent, div.greyBox, div.error, div.greyBoxSmall {
@@ -1040,6 +1041,47 @@ div.correction {
 	color: #555;
 }
 
+table.filterList {
+	width: 100%;
+	border: 1px solid #ccc;
+	border-collapse: collapse;
+	background-color: white;
+}
+
+table.filterList tr {
+	border-bottom: 1px solid #ccc;	
+}
+
+table.filterList th {
+	text-align: left;
+	background-color: #ddd;
+	line-height: 2.5;
+	color: #333;
+}
+
+table.filterList td {
+	padding: 5px;	
+}
+
+#institution_list {
+	margin: 10px 0px;	
+}
+
+.standardDeviation {
+	font-size: .8em;
+	color: #888;	
+}
+
+table.vertical th {
+	text-align: right;	
+	padding-right: 10px;
+}
+
 a.noUnderline {
 	text-decoration: none;	
+}
+
+acronym, .variance {
+	border-bottom: 1px dotted #aaa;
+	cursor: help;	
 }

@@ -9,7 +9,7 @@ from django.forms.extras.widgets import SelectDateWidget
 from stars.apps.credits.models import *
 from stars.apps.institutions.models import *
 from stars.apps.submissions.models import *
-from stars.apps.auth.xml_rpc import get_user_by_email
+from stars.apps.accounts.xml_rpc import get_user_by_email
 
 class AdminInstitutionForm(ModelForm):
     """

@@ -242,6 +242,7 @@ class Rating(models.Model):
     creditset = models.ForeignKey(CreditSet)
     image_200 = models.ImageField(upload_to='seals', blank=True, null=True, help_text='A version of the image that fits w/in a 200x200 pixel rectangle')
     image_large = models.ImageField(upload_to='seals', blank=True, null=True, help_text='A large version of the image that fits w/in a 1200x1200 pixel rectangle')
+    map_icon = models.ImageField(upload_to='seals', blank=True, null=True)
     publish_score = models.BooleanField(default=True)
     
     class Meta:
@@ -332,6 +333,9 @@ class Category(models.Model):
         """ Return the number of credit submissions started for this category """
         from stars.apps.submissions.models import get_active_submissions
         return get_active_submissions(category=self).count()
+    
+    def get_short_name(self):
+        return self.abbreviation
     
     @transaction.commit_on_success
     def update_ordering(self):
@@ -839,10 +843,11 @@ class DocumentationField(models.Model):
     def __unicode__(self):
         """ Limit the length of the text representation to 50 characters """
         label = smart_unicode(self.title, encoding='utf-8', strings_only=False, errors='strict')
-        if len(label) > 50:
-            l, b, r = label[0:50].rpartition(' ')
+        MAX = 100
+        if len(label) > MAX:
+            l, b, r = label[0:MAX].rpartition(' ')
             if not l:
-                l = label[0:50]
+                l = label[0:MAX]
             label = "%s ..."%l 
         return label
     

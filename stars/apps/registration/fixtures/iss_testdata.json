@@ -1,0 +1,30 @@
+[
+    {
+        "pk": 2,
+         "model": "issdjango.organizations",
+         "fields": 
+        {
+            "account_num": 24394,
+            "org_name": "Okanagan College",
+            "city": "Kelowna",
+            "state": "BC",
+            "org_type": "Two Year Institution",
+            "country": "Canada"
+        }
+ 
+    },
+    {
+        "pk": 2,
+         "model": "issdjango.organizations",
+         "fields": 
+        {
+            "account_num": 16384,
+            "org_name": "Florida National College",
+            "city": "Hialeah",
+            "state": "FL",
+            "org_type": "Two Year Institution",
+            "country": "United States of America"
+        }
+ 
+    }
+]

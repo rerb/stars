@@ -9,7 +9,7 @@
 		</title>
 		<link href='/media/static/css/general.css' rel='stylesheet' type='text/css' />
 		<link href='/media/static/css/style.css' rel='stylesheet' type='text/css' />
-		<link rel="shortcut icon" href="/media/static/images/favicon.ico" type="image/x-icon" />
+		<link rel="shortcut icon" href="http://www.aashe.org/sites/default/files/aashe_favicon.ico" type="image/x-icon" />
 		<script src='/media/static/js/new_include.js' type='text/javascript'></script>
 		<script src='/media/static/js/include.js' type='text/javascript'></script>
 		{% block extra_head %}{% endblock %}
@@ -67,7 +67,6 @@
             </div>
             {% if messages or site_status.broadcast_message or extra_messages %}
             {% load helpers %}
-            {% autoescape off %}
             <div id="flash_message" class="visible">
                 <ul >
                 {% if site_status.broadcast_message %}
@@ -78,10 +77,10 @@
                     <li class={{ message|split:0 }}>{{ message|split:1 }}</li>
                 {% endfor %}
                 </ul>
-                <span style='cursor: pointer;' onclick="document.getElementById('flash_message').style.display = 'none';">[x]</span>
+                <a href='#'  onclick="document.getElementById('flash_message').style.display = 'none';">[x]</a>
             </div>
-            {% endautoescape %}
             {% endif %}
+            
 			{% block content %}{% endblock %}
 		</div>
 		<div id='footer'>
