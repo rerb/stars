@@ -47,7 +47,7 @@ def reg_select_institution(request):
                  'System Office')
     countries = ('Canada', 'United States of America')
     for inst in Organizations.objects.filter(org_type__in=org_types,
-                                             country__in=countries):
+                                             country__in=countries).order_by('org_name'):
         if inst.city and inst.state:
             institution_list.append((inst.account_num, "%s, %s, %s" % (inst.org_name, inst.city, inst.state)))
         else:
