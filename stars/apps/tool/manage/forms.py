@@ -73,7 +73,7 @@ class AdminSubmissionSetForm(ModelForm):
     
     class Meta:
         model = SubmissionSet
-        exclude = ['institution', 'submission_boundary', 'presidents_letter','reporter_status','pdf_report']
+        exclude = ['institution', 'submission_boundary', 'presidents_letter','reporter_status','pdf_report','score']
         
 #    @staticmethod
     def form_name():
