@@ -153,7 +153,7 @@ class FinalizeClassView(SubmissionClassView):
         c = Context(_context)
         message = t.render(c)
         print message
-        send_mail(  "Your STARS Submission",
+        send_mail(  "New Resources and Congratulations on your STARS Submission!",
                     message,
                     settings.EMAIL_HOST_USER,
                     [context[self.instance_name].institution.contact_email,],

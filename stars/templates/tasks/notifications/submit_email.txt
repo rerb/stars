@@ -2,15 +2,13 @@ Dear {{ submissionset.institution.contact_first_name }} {{ submissionset.institu
 
 Congratulations on successfully completing your institution's STARS Report!  AASHE commends {{ submissionset.institution }} for demonstrating its sustainability commitment and leadership by participating in STARS.    
 
-The STARS Report for {{ submissionset.institution }}, which includes all of the data submitted during the reporting process, is now publicly posted on the STARS Website: https://stars.aashe.org{{ submissionset.get_scorecard_url }}.
+The STARS Report for {{ submissionset.institution }}, which includes all of the data submitted during the reporting process, is now publicly posted on the STARS Website https//stars.aashe.org{{ submissionset.get_scorecard_url }}.
 
-Based on the information submitted, {{ submissionset.institution }} achieved {{ submissionset.rating }} status.  
+Based on the information submitted, {{ submissionset.institution }} achieved {{ submissionset.rating }}. AASHE will be sending your institution's President or Chancellor a letter and certificate recognizing this accomplishment.   
 
 To make the most of your participation in STARS, we encourage you to celebrate and publicize this impressive achievement. A {{ submissionset.rating }} seal and template press release have been added to the "My Resources" section of the STARS Reporting Tool.  Also, please see the STARS Brand Guidelines for details on the appropriate usage of the STARS seal and logo. You may log in and download these resources now.  
 
 Though your STARS Rating is valid for three years, AASHE encourages institutions to participate annually to keep your data up-to-date and to be included in publications like the STARS Annual Report. If your institution re-registers for STARS within 90 days of receiving its STARS Rating, you will receive a 50% discount on the registration price. In addition, STARS Participants will now have 12 months of continuous access to the STARS Reporting Tool regardless of when their submission is completed. Continual access to the STARS Reporting Tool will allow your institution to have uninterrupted access to report on sustainability metrics even after a STARS Rating is achieved. 
-
-Please don't hesitate to contact the STARS team with questions.  
 
 Congratulations again,
 
