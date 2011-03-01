@@ -22,7 +22,12 @@ def login(username, password):
 #    logout()
     connect_response = connect()
     args = (username, password)
-    return run_rpc('aasheuser.login', args, sessid=connect_response['sessid'])
+    sessid = connect_response['sessid']
+    ret_val1 = run_rpc('aasheuser.login', args, sessid)
+    args = (username,)
+    ret_val2 = run_rpc('aasheuser.getbyemail', args, sessid)
+    ret_val = {'sessid': sessid, 'user': ret_val2[0]}
+    return ret_val
     
 def get_user_by_email(email):
     """

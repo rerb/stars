@@ -230,7 +230,7 @@ function selectSchool(select_obj) {
     // Changes the selected school based on the pull-down select box.
     id = select_obj[select_obj.selectedIndex].value;
     if(id != 0) {
-        document.location = "/auth/select-school/" + id + "/";
+        document.location = "/accounts/select-school/" + id + "/";
     }
 }
 

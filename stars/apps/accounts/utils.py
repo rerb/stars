@@ -111,8 +111,8 @@ def _update_account_context(request, account=None, current_inst=None):
             if user.account.terms_of_service:
                 tos = True
         
-        tos_path = "/auth/tos/"
-        if not tos and request.path != tos_path and request.path != "/auth/logout/" and not re.match("/media/.*", request.path):
+        tos_path = "/accounts/tos/"
+        if not tos and request.path != tos_path and request.path != "/accounts/logout/" and not re.match("/media/.*", request.path):
             return HttpResponseRedirect("%s?next=%s" % (tos_path, request.path))
 
     inst_pk = user.current_inst.pk if user.current_inst else None
