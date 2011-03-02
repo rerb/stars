@@ -19,6 +19,11 @@
 {% endblock %}
 
 {% block summaryTable %}
+    {% if preview %}
+    	<p style='margin: 10px 40px;border: 2px dotted red; background-color: #eedddd; padding: 15px 30px; text-align: center;'>
+    		This is a preview of your report. To continue editing your final report please click on the <a href='/tool/submissions/'>My Submission</a> link.
+    	</p>
+    {% endif %}
     {% include 'institutions/scorecards/submission_summary_table.html' %}
     <div class='submissionBoundary'>
         <img
