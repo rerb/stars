@@ -9,14 +9,15 @@ import re
 from stars.apps.institutions.models import *
 from stars.apps.registration.utils import is_canadian_zipcode, is_usa_zipcode
 
-class RegistrationSchoolChoiceForm(ModelForm):
+class RegistrationSchoolChoiceForm(forms.Form):
     """
         A form for selecting an institution form institutionnames
     """
-     
-    class Meta:
-        model = Institution
-        fields = ['aashe_id']
+    aashe_id = forms.IntegerField() 
+    
+#    class Meta:
+#        model = Institution
+#        fields = ['aashe_id']
 
     def __init__(self, *args, **kwargs):
         super(RegistrationSchoolChoiceForm, self).__init__(*args, **kwargs)

@@ -23,6 +23,7 @@ from stars.apps.credits.models import CreditSet
 from stars.apps.helpers.forms.views import FormActionView
 from stars.apps.accounts.mixins import AuthenticatedMixin
 from stars.apps.tool.my_submission.views import init_credit_submissions
+from stars.apps.accounts import utils as auth_utils
 
 from zc.authorizedotnet.processing import CcProcessor
 from zc.creditcard import (AMEX, DISCOVER, MASTERCARD, VISA, UNKNOWN_CARD_TYPE)
@@ -61,16 +62,25 @@ def reg_select_institution(request):
         if form.is_valid():
             aashe_id = form.cleaned_data['aashe_id']
             name = institution_list_lookup[aashe_id]
-            institution = Institution(aashe_id=aashe_id, name=name)
-            # If they've already got this institution in their session don't overwrite it
-            # it might have contact info
-            selected_institution = request.session.get('selected_institution')
-            if not selected_institution or selected_institution.aashe_id != institution.aashe_id:
-                selected_institution = institution
-                
-            selected_institution.set_slug_from_iss_institution(form.cleaned_data['aashe_id'])
-            request.session['selected_institution'] = selected_institution
-            return HttpResponseRedirect('/register/step2/')
+            
+            # Redirect to "Purchase additional SS view
+            # if the institution already has an account
+            try:
+                institution = Institution.objects.get(aashe_id=aashe_id)
+                if institution != request.user.current_inst or request.user.is_staff:
+                    auth_utils.change_institution(request, institution)
+                return HttpResponseRedirect('/tool/manage/submissionsets/purchase/')
+            except Institution.DoesNotExist:
+                institution = Institution(aashe_id=aashe_id, name=name)
+                # If they've already got this institution in their session don't overwrite it
+                # it might have contact info
+                selected_institution = request.session.get('selected_institution')
+                if not selected_institution or selected_institution.aashe_id != institution.aashe_id:
+                    selected_institution = institution
+                    
+                selected_institution.set_slug_from_iss_institution(form.cleaned_data['aashe_id'])
+                request.session['selected_institution'] = selected_institution
+                return HttpResponseRedirect('/register/step2/')
         else:
             e = form.errors
             # Since this is a pull-down menu, there is really no way for this to happen.
