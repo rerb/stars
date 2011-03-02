@@ -22,7 +22,7 @@
     >>> class SubClass(SubmissionMixin, BaseClass):
     ...     pass
     
-    >>> i = Institution(name='Fake Institution', aashe_id='-1', enabled=True)
+    >>> i = Institution(name='Fake Institution', aashe_id='-11', enabled=True)
     >>> i.save()
     >>> cs = CreditSet(version='100', release_date=datetime.now(), tier_2_points='.25', is_locked=False)
     >>> cs.save()

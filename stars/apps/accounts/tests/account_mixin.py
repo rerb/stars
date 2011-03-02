@@ -21,7 +21,7 @@
     
     # No Institution
     
-    >>> i = Institution(name='Fake Institution', aashe_id='-1', enabled=False)
+    >>> i = Institution(name='Fake Institution', aashe_id='-111', enabled=False)
     >>> i.save()
     
     # non-staff should return "Permission Denied"

@@ -17,7 +17,7 @@
     # Dummy user and StarsAccount
     >>> anon = AnonymousUser()
     >>> u = User.objects.create_user('testuser', 'test@example.com', 'testpw')
-    >>> i = Institution(name='Fake Institution', aashe_id='-1')
+    >>> i = Institution(name='Fake Institution', aashe_id='-11111')
     >>> i.save()
     >>> account = StarsAccount(institution=i, terms_of_service=True, user_level='submit', user=u)
     >>> account.save()
