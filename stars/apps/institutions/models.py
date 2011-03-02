@@ -14,7 +14,7 @@ class Institution(models.Model):
     """
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255)
-    aashe_id = models.IntegerField()
+    aashe_id = models.IntegerField(unique=True)
     enabled = models.BooleanField(help_text="This is a staff-only flag for disabling an institution. An institution will NOT appear on the STARS Institutions list until it is enabled.", default=False)
     contact_first_name = models.CharField("Liaison First Name", max_length=32)
     contact_middle_name = models.CharField("Liaison Middle Name", max_length=32, blank=True, null=True)
