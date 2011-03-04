@@ -20,7 +20,7 @@ from aashe.issdjango.models import Organizations
 from sorl.thumbnail import get_thumbnail
 
 from datetime import date, datetime
-import re
+import re, sys
 
 class Dashboard(TemplateView):
     """
@@ -129,17 +129,21 @@ class Dashboard(TemplateView):
 #                PCC Signatories
 #                Pilot Participants
             
-#            member_numbers = {'members': 0, 'pcc': 0, 'pilot': 0, 'canadian': 0, 'us': 0, 'all': 0}
-#            for i in Institution.objects.all():
-#                org = i.profile
-#                if org.is_member:
-#                    member_numbers['members'] += 1
-#                if org.is_signatory:
-#                    member_numbers['pcc'] += 1
-#                if org.country == "Canada":
-#                    member_numbers['canadian'] += 1
-#                member_numbers['all']
-#            _context['member_numbers'] = member_numbers
+            member_numbers = {'members': 0, 'pcc': 0, 'pilot': 0, 'canadian': 0, 'us': 0, 'all': 0}
+            for i in Institution.objects.all():
+                org = i.profile
+                if org.is_member:
+                    member_numbers['members'] += 1
+                if org.is_signatory:
+                    member_numbers['pcc'] += 1
+                if org.country == "Canada":
+                    member_numbers['canadian'] += 1
+                elif org.country == "United States of America":
+                    member_numbers['us'] += 1
+                else:
+                    print >> sys.stderr, "No country found for %s" % org.org_name
+                member_numbers['all'] += 1
+            _context['member_numbers'] = member_numbers
             
             cache_time = datetime.now()
             cache.set('stars_dashboard_context', _context, 60*120) # cache this for 2 hours

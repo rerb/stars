@@ -1,17 +1,20 @@
-{% extends 'institutions/institution_list_base.html' %}
+{% extends 'institutions/base.html' %}
 
-{% block crumbs %} {{ block.super }} &gt; Rated {% endblock %}
+{% block tabclass %}class='tab6'{% endblock %}
 
-{% block tabclass %}class='tab1'{% endblock %}
-
-{% block institution_content %}
+{% block tab_content %}
+	
+    {% load help %}
+  {% show_help_context 'rated_institutions_page' 0 %}
+  {% load cache %}
+  {% cache 900 institution_list sort_key rev %}
       <table id="institution_list" class='greyTable'>
         <tr>
           {% for col in sort_columns %}
             <th>
                 {% ifequal col.key sort_key %}
                     <a href='?sort={{ rev }}{{ col.key }}' title='sort'>{{ col.title }}</a>
-                    <img src='/media/static/images/{% ifequal rev '-' %}sort_desc.png{% else %}sort_asc.png{% endifequal %}'/>
+                    <img src='/media/static/images/{% ifequal rev '-' %}sort_desc.png{% else %}sort_asc.png{% endifequal %}' alt='^'/>
                 {% else %}
                     <a href='?sort={{ col.key }}' title='sort'>{{ col.title }}</a>
                 {% endifequal %}
@@ -20,19 +23,32 @@
         </tr>
         {% for submissionset in object_list %}
           <tr class="{% cycle 'even' 'odd' %}">
-            <td style='text-align: left;'>
-                <a href='{{ submissionset.get_scorecard_url }}'>{{ submissionset.institution }}</a>
+            <td style='text-align: left'>
+                {% ifequal submissionset.status 'r' %}
+                    <a href='{{ submissionset.get_scorecard_url }}'>{{ submissionset.institution }}</a>
+                {% else %}
+                    {{ submissionset.institution }}
+                {% endifequal %}
             </td>
             <td>
-              {{ submissionset.rating }}
+                {% ifequal submissionset.status 'r' %}
+                    Complete
+                {% endifequal %}
             </td>
             <td>
-              {{ submissionset.creditset }}
+                {% ifequal submissionset.status 'r' %}
+                    {% if submissionset.rating %}
+                        {{ submissionset.rating }}
+                    {% else %}
+                        ---
+                    {% endif %}
+                {% endifequal %}
             </td>
             <td>
-              {{ submissionset.date_reviewed }}
+              {{ submissionset.date_submitted }}
             </td>
           </tr>            
         {% endfor %}
       </table>
+	{% endcache %}
 {% endblock %}

@@ -205,6 +205,41 @@
 
       google.setOnLoadCallback(drawBarChart);
     </script>
+    
+    <script type="text/javascript">
+      function drawMemberNumbersBarChart() {
+        // Create and populate the data table.
+        var data = new google.visualization.DataTable();
+                        
+        data.addColumn('string', 'Affiliation');
+        data.addColumn('number', 'Total');
+        
+        data.addRows([
+        	['STARS', {{ member_numbers.all }}],
+        	['AASHE', {{ member_numbers.members }}],
+        	['PCC', {{ member_numbers.pcc }}],
+        	['Canada', {{ member_numbers.canadian }}],
+        	['USA', {{ member_numbers.us }}]
+        ]);
+        
+        // Create and draw the visualization.
+        new google.visualization.BarChart(document.getElementById('memberNumbers')).
+            draw(data,
+                 {
+                  width:450, height:250,
+                  backgroundColor: "#eff5e6",
+                  colors: [
+	                   '#1b617f',
+                 	],
+                  legend: 'none',
+                  hAxis: {title: 'Total'}
+                  //vAxis: {title: "Affiliations"},
+                 });
+      }
+
+      google.setOnLoadCallback(drawMemberNumbersBarChart);
+    </script>
+    
 {% endblock %}
 
 {% block h1 %}STARS Dashboard{% endblock %}
@@ -266,6 +301,36 @@
 					<td><span class='variance' title="{{ cat.var }}">{{ cat.avg|floatformat:2 }}%</span></td>
 				</tr>
 			{% endfor %}
+		</table>
+		</div>
+		
+		<hr style='clear: both;' />
+		<div style='margin: 0px 0px 10px 0px;padding: 2px; border: 1px solid #aaa;float: left;'>
+			<div id="memberNumbers" style="width:450px;height:250px;margin: 0px;"></div>
+		</div>
+		<div style='margin: 0px 0px 0px 475px;'>
+		<h3>Institution Properties</h3>
+		<table class='vertical' style='margin: 20px;'>
+			<tr>
+				<th>STARS Participants</th>
+				<td>{{ member_numbers.all }}</td>
+			</tr>
+			<tr>
+				<th>AASHE Members</th>
+				<td>{{ member_numbers.members }}</td>
+			</tr>
+			<tr>
+				<th>PCC Signatories</th>
+				<td>{{ member_numbers.pcc }}</td>
+			</tr>
+			<tr>
+				<th>Canadian Institutions</th>
+				<td>{{ member_numbers.canadian }}</td>
+			</tr>
+			<tr>
+				<th>US Institutions</th>
+				<td>{{ member_numbers.us }}</td>
+			</tr>
 		</table>
 		</div>
 {% endblock %}

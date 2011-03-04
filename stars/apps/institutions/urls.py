@@ -12,6 +12,7 @@ urlpatterns = patterns(
     
     # Active Institutions
     (r'^$', ActiveInstitutions(template="institutions/institution_list_active.html")),
+    (r'^rated/$', RatedInstitutions(template="institutions/institution_list_rated.html")),
     
     # Submission Inquiry Form
     (r'^inquiry/$', 'inquiry_select_institution'),

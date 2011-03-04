@@ -87,8 +87,8 @@ class ActiveInstitutions(SortableTableView):
         Extending SortableTableView to show a sortable list of all active submissionsets
     """
 
-    default_key = 'status'
-    default_rev = ''
+    default_key = 'name'
+    default_rev = '-'
     secondary_order_field = 'institution__name'
     columns = [
                     {
@@ -107,19 +107,59 @@ class ActiveInstitutions(SortableTableView):
                         'title': 'Rating',
                     },
                     {
+                        'key': 'version',
+                        'sort_field': 'creditset__version',
+                        'title': 'Version',
+                    },
+                    {
                         'key': 'date_registered',
                         'sort_field': 'date_registered',
                         'title': 'Date Registered',
                     },
-                    {
-                        'key':'deadline',
-                        'sort_field':'submission_deadline',
-                        'title':'Submission Deadline',
-                    },
+#                    {
+#                        'key':'deadline',
+#                        'sort_field':'submission_deadline',
+#                        'title':'Submission Deadline',
+#                    },
               ]
               
     def get_queryset(self):
         return SubmissionSet.objects.published()
+    
+    
+class RatedInstitutions(SortableTableView):
+    """
+        Extending SortableTableView to show a sortable list of all active submissionsets
+    """
+
+    default_key = 'name'
+    default_rev = '-'
+    secondary_order_field = 'institution__name'
+    columns = [
+                    {
+                        'key': 'name',
+                        'sort_field': 'institution__name',
+                        'title': 'Institution',
+                    },
+                    {
+                        'key': 'status',
+                        'sort_field': 'status',
+                        'title': 'Status',
+                    },
+                    {
+                        'key': 'rating',
+                        'sort_field': 'rating',
+                        'title': 'Rating',
+                    },
+                    {
+                        'key':'date_submitted',
+                        'sort_field':'date_submitted',
+                        'title':'Submission Date',
+                    },
+              ]
+              
+    def get_queryset(self):
+        return SubmissionSet.objects.published().filter(status='r')
 
 """
     INSTITUTIONAL REPORTS

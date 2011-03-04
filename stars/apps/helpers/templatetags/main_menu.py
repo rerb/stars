@@ -43,7 +43,7 @@ def show_main_menu(user=None, menu_category=None):
             menuItems.insert(0, menuItem(category==menu_category, category.get_absolute_url(), category.title))
     
     # if user and user.is_staff:  # currently, restrict this item to staff only, although it is designed to be public.
-    menuItems.insert(1, menuItem(menu_category=="institutions", "/institutions/", "STARS Institutions"))
+    menuItems.insert(1, menuItem(menu_category=="institutions", "/institutions/data-displays/dashboard/", "STARS Institutions"))
 
     #if user and user.has_perm('tool'):
     menuItems.insert(0, menuItem(menu_category=="tool", "/tool/", "Reporting Tool"))

@@ -564,12 +564,12 @@ ul#tabnav li { /* do not change */
 display: inline;
 }
 
-ul#tabnav.tab1 li.tab1, ul#tabnav.tab2 li.tab2, ul#tabnav.tab3 li.tab3, ul#tabnav.tab4 li.tab4, ul#tabnav.tab5 li.tab5 { /* settings for selected tab */
+ul#tabnav.tab1 li.tab1, ul#tabnav.tab2 li.tab2, ul#tabnav.tab3 li.tab3, ul#tabnav.tab4 li.tab4, ul#tabnav.tab5 li.tab5, ul#tabnav.tab6 li.tab6 { /* settings for selected tab */
 border-bottom: 5px solid #fff; /* set border color to page background color */
 background-color: #fff; /* set background color to match above border color */
 }
 
-ul#tabnav.tab1 li.tab1 a, ul#tabnav.tab2 li.tab2 a, ul#tabnav.tab3 li.tab3 a, ul#tabnav.tab4 li.tab4 a, ul#tabnav.tab5 li.tab5 a { /* settings for selected tab link */
+ul#tabnav.tab1 li.tab1 a, ul#tabnav.tab2 li.tab2 a, ul#tabnav.tab3 li.tab3 a, ul#tabnav.tab4 li.tab4 a, ul#tabnav.tab5 li.tab5 a, ul#tabnav.tab6 li.tab6 a { /* settings for selected tab link */
 background-color: #fff; /* set selected tab background color as desired */
 color: #848e2b; /* set selected tab link color as desired */
 position: relative;
