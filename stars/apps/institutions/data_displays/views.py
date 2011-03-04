@@ -520,7 +520,7 @@ class ScoreFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
                             url = obj.get_scorecard_url()
                         elif isinstance(col, Subcategory):
                             obj = SubcategorySubmission.objects.get(category_submission__submissionset=ss, subcategory=col)
-                            score = "%.2f" % obj.get_claimed_points()
+                            score = "%.2f / %.2f" % (obj.get_claimed_points(), obj.get_adjusted_available_points())
                             url = obj.get_scorecard_url()
                         elif isinstance(col, Credit):
                             cred = CreditUserSubmission.objects.get(subcategory_submission__category_submission__submissionset=ss, credit=col)
@@ -531,7 +531,10 @@ class ScoreFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
                                 elif cred.submission_status == 'np' or cred.submission_status == 'ns':
                                     score = "Not Pursuing"
                                 else:
-                                    score = "%.2f / %d" % (cred.assessed_points, cred.credit.point_value)
+                                    if cred.credit.type == "t1":
+                                        score = "%.2f / %d" % (cred.assessed_points, cred.credit.point_value)
+                                    else:
+                                        score = "%.2f / %.2f" % (cred.assessed_points, ss.creditset.tier_2_points)
                             else:
                                 score = "Reporter"
                             
