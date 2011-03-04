@@ -218,8 +218,9 @@
         	['STARS', {{ member_numbers.all }}],
         	['AASHE', {{ member_numbers.members }}],
         	['PCC', {{ member_numbers.pcc }}],
-        	['Canada', {{ member_numbers.canadian }}],
-        	['USA', {{ member_numbers.us }}]
+        	['Charter', {{ member_numbers.charter }}],
+        	['USA', {{ member_numbers.us }}],
+        	['Canada', {{ member_numbers.canadian }}]
         ]);
         
         // Create and draw the visualization.
@@ -324,12 +325,16 @@
 				<td>{{ member_numbers.pcc }}</td>
 			</tr>
 			<tr>
-				<th>Canadian Institutions</th>
-				<td>{{ member_numbers.canadian }}</td>
+				<th>Charter STARS Participants</th>
+				<td>{{ member_numbers.charter }}</td>
 			</tr>
 			<tr>
 				<th>US Institutions</th>
 				<td>{{ member_numbers.us }}</td>
+			</tr>
+			<tr>
+				<th>Canadian Institutions</th>
+				<td>{{ member_numbers.canadian }}</td>
 			</tr>
 		</table>
 		</div>

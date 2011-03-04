@@ -130,7 +130,7 @@ class Dashboard(TemplateView):
 #                PCC Signatories
 #                Pilot Participants
             
-            member_numbers = {'members': 0, 'pcc': 0, 'pilot': 0, 'canadian': 0, 'us': 0, 'all': 0}
+            member_numbers = {'members': 0, 'pcc': 0, 'pilot': 0, 'canadian': 0, 'us': 0, 'all': 0, 'charter': 0}
             for i in Institution.objects.filter(enabled=True).exclude(pk=131).order_by('name'):
                 print >> sys.stderr, i
                 org = i.profile
@@ -138,6 +138,8 @@ class Dashboard(TemplateView):
                     member_numbers['members'] += 1
                 if org.is_signatory:
                     member_numbers['pcc'] += 1
+                if i.charter_participant:
+                    member_numbers['charter'] += 1
                 if org.country == "Canada":
                     member_numbers['canadian'] += 1
                 elif org.country == "United States of America":
