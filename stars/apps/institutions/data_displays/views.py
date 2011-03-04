@@ -123,6 +123,24 @@ class Dashboard(TemplateView):
             _context['current_participants'] = current_participants
             _context['current_submissions'] = current_submissions
             
+            # the bar chart for
+#                STARS Participants
+#                AASHE Members
+#                PCC Signatories
+#                Pilot Participants
+            
+#            member_numbers = {'members': 0, 'pcc': 0, 'pilot': 0, 'canadian': 0, 'us': 0, 'all': 0}
+#            for i in Institution.objects.all():
+#                org = i.profile
+#                if org.is_member:
+#                    member_numbers['members'] += 1
+#                if org.is_signatory:
+#                    member_numbers['pcc'] += 1
+#                if org.country == "Canada":
+#                    member_numbers['canadian'] += 1
+#                member_numbers['all']
+#            _context['member_numbers'] = member_numbers
+            
             cache_time = datetime.now()
             cache.set('stars_dashboard_context', _context, 60*120) # cache this for 2 hours
             cache.set('stars_dashboard_context_cache_time', cache_time, 60*120)
@@ -487,7 +505,7 @@ class ScoreFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
                 
             queryset = self.get_filtered_queryset(filters)
             object_list = []
-            for ss in queryset.order_by('institution__name'):
+            for ss in queryset.order_by('institution__name').exclude(rating__publish_score=False):
                 row = {'ss': ss, 'cols': []}
                 count = 0
                 for k, col in columns:
