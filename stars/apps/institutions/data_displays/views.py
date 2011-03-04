@@ -130,7 +130,7 @@ class Dashboard(TemplateView):
 #                Pilot Participants
             
             member_numbers = {'members': 0, 'pcc': 0, 'pilot': 0, 'canadian': 0, 'us': 0, 'all': 0}
-            for i in Institution.objects.exclue(pk=131):
+            for i in Institution.objects.exclude(pk=131):
                 org = i.profile
                 if org.is_member:
                     member_numbers['members'] += 1
