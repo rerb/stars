@@ -28,7 +28,7 @@ class Help_tags_Test(TestCase):
         menu_items = context['menu_items']
         self.assertEqual(len(menu_items), 2)
         self.assertEqual(menu_items[1].label, "STARS Institutions")
-        self.assertEqual(menu_items[1].href, "/institutions/")
+        self.assertEqual(menu_items[1].href, "/institutions/data-displays/dashboard/")
         self.assertEqual(menu_items[1].css_class, "")
 
     def test_show_main_menu_with_current(self):
