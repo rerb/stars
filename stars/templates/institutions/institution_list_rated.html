@@ -7,7 +7,7 @@
     {% load help %}
   {% show_help_context 'rated_institutions_page' 0 %}
   {% load cache %}
-  {% cache 900 institution_list sort_key rev %}
+  {% cache 900 institution_list_rated sort_key rev %}
       <table id="institution_list" class='greyTable'>
         <tr>
           {% for col in sort_columns %}
