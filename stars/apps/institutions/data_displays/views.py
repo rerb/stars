@@ -50,8 +50,9 @@ class Dashboard(TemplateView):
                 '<cat_abbr>': {'title': '<cat_title>', 'ord': #, 'list': [], 'avg': #}
             """
                     
-            for ss in SubmissionSet.objects.published().all():
+            for ss in SubmissionSet.objects.published().order_by("institution__name"):
                 d = {'institution': ss.institution.profile, 'rating': None, 'ss': ss}
+                
                 if ss.status == 'r':
                     d['rating'] = ss.rating
                     ratings[ss.rating.name] += 1
@@ -130,7 +131,8 @@ class Dashboard(TemplateView):
 #                Pilot Participants
             
             member_numbers = {'members': 0, 'pcc': 0, 'pilot': 0, 'canadian': 0, 'us': 0, 'all': 0}
-            for i in Institution.objects.exclude(pk=131):
+            for i in Institution.objects.filter(enabled=True).exclude(pk=131).order_by('name'):
+                print >> sys.stderr, i
                 org = i.profile
                 if org.is_member:
                     member_numbers['members'] += 1
