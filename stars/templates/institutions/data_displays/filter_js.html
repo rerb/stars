@@ -3,7 +3,7 @@
 	{% for f in available_filters %}
 		{{ f.key }}: [
 			{% for i in f.item_list %}
-				'{{ i }}'{% if not forloop.last %},{% endif %}
+				['{{ i.0 }}', '{{ i.1 }}']{% if not forloop.last %},{% endif %}
 			{% endfor %}
 		]{% if not forloop.last %},{% endif %}
 	{% endfor %}

@@ -89,18 +89,22 @@ function deleteFilter(prefix) {
 	document.getElementById("filterForm").submit();
 }
 
+/*
+ * Use the value of one pulldown to populate another child pulldown menu
+ */
 function applyLookup(obj) {
 
 	sel = document.getElementById('id_item');
 	if( sel ) {
+		// Empty the child pulldown
 		while( sel.length > 1 ) {
 			sel.remove(sel.length - 1)
 		}
-			
+		// Repopulate the child	
 		if( obj.selectedIndex ) {
 			key = obj.options[obj.selectedIndex].value
 			for(i=0; i < choices_lookup[key].length; i++) {
-				sel.options[sel.options.length] = new Option(choices_lookup[key][i], choices_lookup[key][i]);
+				sel.options[sel.options.length] = new Option(choices_lookup[key][i][0], choices_lookup[key][i][1]);
 			}
 		}
 	}

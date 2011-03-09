@@ -162,10 +162,11 @@ class Filter(object):
         Filters need to be a managed more programatically
         added and removed from the general list where avaialable
     """
-    def __init__(self, key, title, item_list):
+    def __init__(self, key, title, item_list, base_qs):
         self.key = key
         self.title = title
         self.item_list = item_list
+        self.base_qs = base_qs
     
 class FilteringMixin(object):
     """
@@ -183,25 +184,33 @@ class FilteringMixin(object):
         """
         available_filters = [
                                 Filter(
-                                        'org_type',
-                                        'Organization Type',
-                                        [
-                                            'All Institutions',
-                                            'Two Year Institution',
-                                            'Four Year Institution',
-                                            'Graduate Institution',
-                                            'System Office'
-                                        ]
+                                        key='org_type',
+                                        title='Organization Type',
+                                        item_list=[
+                                            ('All Institutions', 'DO_NOT_FILTER'), # value means "don't filter base_qs"
+                                            ('Two Year Institution', 'Two Year Institution'),
+                                            ('Four Year Institution', 'Four Year Institution'),
+                                            ('Four Year Institution', 'Graduate Institution'),
+                                            ('System Office', 'System Office'),
+                                        ],
+                                        base_qs=Organizations.objects.filter(stars_participant_status__isnull=False).values_list('account_num', flat=True),
                                        ),
+#                                Filter(
+#                                        'pilot_participant',
+#                                        'Pilot Participants',
+#                                        [],
+#                                        Organizations,
+#                                       ),
                                 Filter(
-                                        'rating__name',
-                                        'STARS Rating',
-                                        [
-                                            'Bronze',
-                                            'Silver',
-                                            'Gold',
-                                            'Platinum'
-                                        ]
+                                        key='rating__name',
+                                        title='STARS Rating',
+                                        item_list=[
+                                            ('Bronze', 'Bronze'),
+                                            ('Silver', 'Silver'),
+                                            ('Gold', 'Gold'),
+                                            ('Platinum', 'Platinum'),
+                                        ],
+                                        base_qs=SubmissionSet.objects.filter(status='r'),
                                        )
                               ]
         return available_filters
@@ -276,6 +285,12 @@ class FilteringMixin(object):
                 if f.key == filter['type']:
                     filter['type'] = f.title
                     filter['key'] = f.key
+                    filter['base_qs'] = f.base_qs
+                    filter['item_title'] = ''
+                    for item in f.item_list:
+                        if item[1] == filter['item']:
+                            filter['item_title'] = item[0]
+                            break;
                     self.add_filter(filter, filter_group_key)
                     break
         
@@ -294,17 +309,16 @@ class FilteringMixin(object):
             
             filter_kwargs = {f['key']: f['item'],}
             
-            ss_queryset = SubmissionSet.objects.filter(status='r')
+            filtered_list = f['base_qs']
             
-            if f['key'] == 'rating__name':
-                rating_ss_list = ss_queryset.filter(**filter_kwargs)
-                
-            else:
-                org_list = Organizations.objects.filter(stars_participant_status__isnull=False).values_list('account_num', flat=True)
-                if f['item'] != "All Institutions": # if the item is blank then don't use this filter
-                    org_list = org_list.filter(**filter_kwargs)
-                    
-                org_ss_list = ss_queryset.filter(institution__aashe_id__in=list(org_list))
+            # if it's blank we just use the base queryset
+            if f['item'] != 'DO_NOT_FILTER':
+                filtered_list = filtered_list.filter(**filter_kwargs)
+            
+            # in the case of org_type filters, we need to merge with the local db
+            if f['key'] == 'org_type':
+                ss_queryset = SubmissionSet.objects.filter(status='r')
+                filtered_list = ss_queryset.filter(institution__aashe_id__in=list(filtered_list))
         
         # combine these two if they both exist
         if rating_ss_list and org_ss_list:
