@@ -6,6 +6,8 @@
 from settings import *
 
 MAINTENANCE_MODE = False
+DEBUG = True
+TEMPLATE_DEBUG = DEBUG
 
 DATABASES = {
     'default': {
