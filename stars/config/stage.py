@@ -16,6 +16,13 @@ DATABASES = {
         'USER': 'starsapp',
         'PASSWORD': 'J3z4#$szFET--6',
         'HOST': 'aashedb',
+    },
+    'iss': {
+        'NAME': 'iss',
+        'ENGINE': 'django.db.backends.mysql',
+        'USER': 'starsapp',
+        'PASSWORD': 'J3z4#$szFET--6',
+        'HOST': 'aashedb',
     }
 }
 
