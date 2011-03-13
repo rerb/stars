@@ -25,6 +25,7 @@ DATABASES = {
         'HOST': 'aashedb',
     }
 }
+DATABASE_ROUTERS = ('aashe.issdjango.router.ISSRouter',)
 
 CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
 
