@@ -15,7 +15,12 @@ for ss in SubmissionSet.objects.filter(status='r'):
     row = ss.institution.name.replace(',', '')
     for cat in ss.categorysubmission_set.all():
         for sub in cat.subcategorysubmission_set.all():
-            row = "%s,%s" % (row, round(sub.get_claimed_points(), 2))
+            available = sub.get_adjusted_available_points()
+            if available != 0:
+                score = sub.get_claimed_points() / available
+            else:
+                score = 0
+            row = "%s,%.2f" % (row, score)
     print row
     
     

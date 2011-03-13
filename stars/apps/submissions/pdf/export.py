@@ -11,7 +11,6 @@ from django.http import HttpResponse
 from django.utils.encoding import smart_str, smart_unicode
 
 from stars.apps.institutions.models import * # required for execfile management func
-#from stars.apps.submissions.models import SubmissionSet
 from stars.apps.cms.models import Category
 from stars.apps.helpers import watchdog
 
@@ -28,6 +27,8 @@ def render_to_pdf(template_src, context_dict):
     html = template.render(context)
     print >> sys.stderr, "%s: Finished HTML" % datetime.now()
     result = StringIO.StringIO()
+    print >> sys.stderr, "RESULT"
+#    print >> sys.stderr, html
     
     print >> sys.stderr, "%s: Generating PDF" % datetime.now()
     pdf = pisa.pisaDocument(html, result)
@@ -36,7 +37,9 @@ def render_to_pdf(template_src, context_dict):
     if not pdf.err:
         return result
     else:
-        watchdog.log("PDF Tool", "PDF Generation Failed %s" % html, watchdog.ERROR)
+        msg = "PDF Generation Failed %s" % html
+        print >> sys.stderr, msg
+        watchdog.log("PDF Tool", msg, watchdog.ERROR)
         return None
 
 def link_path_callback(path):
@@ -62,3 +65,14 @@ def build_report_pdf(submission_set):
         context['preview'] = True
     
     return render_to_pdf('institutions/pdf/report.html', context)
+
+def build_certificate_pdfs(ss_list):
+    """
+        Build a PDF certificate for Institution Presidents
+    """
+    
+    context = {
+                'ss_list': ss_list,
+                'project_path': settings.PROJECT_PATH,
+                }
+    return render_to_pdf('institutions/pdf/certificate.html', context)
