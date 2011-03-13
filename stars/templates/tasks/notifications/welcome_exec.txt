@@ -1,0 +1,18 @@
+Dear {{ institution.executive_contact_title }} {{ institution.executive_contact_last_name }},
+Congratulations!  {{ institution }} has successfully registered to participate in the Sustainability Tracking, Assessment & Rating System (STARS).  STARS is a tool to help colleges and universities track and measure their sustainability performance.
+
+The STARS Liaison for {{ institution }}, listed below, provided your contact information to notify you about your institution's participation in this program. Since many individuals and departments on campus will be involved in the STARS process, executive-level support will help make your institution's participation successful.
+
+To learn more about the STARS Program, visit http://stars.aashe.org/ or email stars@aashe.org with any questions.
+
+We're glad to have {{ institution }} as a STARS Participant!
+
+All the best,
+
+The STARS Team
+stars@aashe.org
+
+{{ institution }} STARS Liaison:
+{{ institution.contact_first_name }} {{ institution.contact_last_name }}
+{{ institution.contact_title }}
+{{ institution.contact_email }}

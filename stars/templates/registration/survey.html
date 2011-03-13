@@ -1,0 +1,21 @@
+{% extends 'registration/base.html' %}
+
+{% block title %}
+    AASHE: STARS | Participant Registration | Option Survey
+{% endblock %}
+
+{% block content %}
+    <div class='inner20'>
+        <h1>Thank you for your registration!</h1>
+        <p>Please fill out the following <i>optional</i> survey to help us learn more about why institutions are registering for STARS.</p>
+        <form method='post' action='.' class='generalForm'>
+            {% with 'inline' as help_inline %}
+                {% include 'helpers/label_above_input_form.html' %}
+            {% endwith %}
+            <div class='button_row'>
+                <button type='submit'>Submit</button>
+                <button type='button' onclick='document.location="/register/account/";'>Skip &gt;&gt;</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}
