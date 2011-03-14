@@ -41,6 +41,8 @@ XMLRPC_VERBOSE = False
 
 #if manage.py test was called, use test settings
 if 'test' in sys.argv:
+    
+    CACHE_BACKEND = "file:///tmp/stars-cache"
     # Authorize.Net
     AUTHORIZENET_LOGIN = REAL_AUTHORIZENET_LOGIN
     AUTHORIZENET_KEY = REAL_AUTHORIZENET_KEY
