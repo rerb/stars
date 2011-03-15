@@ -363,15 +363,16 @@ class DisplayAccessMixin(object):
         
         if self.access_list:
             denied = True
+            profile = request.user.get_profile()
             if 'member' in self.access_list:
-                if request.user.get_profile().is_member:
+                if profile.is_member or profile.is_aashe_staff:
                     denied = False
             if 'participant' in self.access_list:
-                if request.user.get_profile().is_participant():
+                if profile.is_participant() or profile.is_aashe_staff:
                     denied = False
             if denied:
                 self.template_name = self.denied_template_name
-                return self.render_to_response({})
+                return self.render_to_response({'top_help_text': self.get_description_help_context_name(),})
         return None
     
     @method_decorator(login_required)
@@ -406,6 +407,9 @@ class AggregateFilter(DisplayAccessMixin, FilteringMixin, FormView):
     denied_template_name = "institutions/data_displays/denied_categories.html"
     access_list = ['member', 'participant']
     
+    def get_description_help_context_name(self):
+        return "data_display_categories"
+    
     def get_form(self, form_class):
         
         return self.get_filter_form('aggregated_filter', form_class)
@@ -415,6 +419,7 @@ class AggregateFilter(DisplayAccessMixin, FilteringMixin, FormView):
         _context = super(AggregateFilter, self).get_context_data(**kwargs)
         filters = self.get_filter_group('aggregated_filter')
         _context['filters'] = filters
+        _context['top_help_text'] = self.get_description_help_context_name()
         
 #        q = None
         object_list = []
@@ -493,6 +498,9 @@ class ScoreFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
     denied_template_name = "institutions/data_displays/denied_score.html"
     access_list = ['participant']
     
+    def get_description_help_context_name(self):
+        return "data_display_scores"
+    
     def get_form(self, form_class):
         
         filter_form = self.get_filter_form('score_filter', form_class)
@@ -513,6 +521,7 @@ class ScoreFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
         _context = super(ScoreFilter, self).get_context_data(**kwargs)
         filters = self.get_filter_group('score_filter')
         _context['filters'] = filters
+        _context['top_help_text'] = self.get_description_help_context_name()
         
         cols = self.get_columns()
         
@@ -604,6 +613,9 @@ class ContentFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
     denied_template_name = "institutions/data_displays/denied_content.html"
     access_list = ['member', 'participant']
     
+    def get_description_help_context_name(self):
+        return "data_display_content"
+    
     def get_form(self, form_class):
         
         filter_form = self.get_filter_form('content_filter', form_class)
@@ -625,6 +637,7 @@ class ContentFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
         filters = self.get_filter_group('content_filter')
         _context['filters'] = filters
         _context['google_api_key'] = settings.GOOGLE_API_KEY
+        _context['top_help_text'] = self.get_description_help_context_name()
         
         
         rf = self.get_reporting_field()

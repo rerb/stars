@@ -7,6 +7,7 @@ class UserProfile(models.Model):
     
     user = models.OneToOneField(User)
     is_member = models.BooleanField(default=False)
+    is_aashe_staff = models.BooleanField(default=False)
     # this comes directly from the drupal service get_user_by_email
     profile_instlist = models.CharField(max_length=128, blank=True, null=True) 
     

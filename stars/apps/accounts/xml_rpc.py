@@ -105,7 +105,7 @@ def get_user_from_user_dict(user_dict, session, create=True):
     try:
         profile = user.get_profile()
     except UserProfile.DoesNotExist:
-        profile = UserProfile(user=user, is_member=False)
+        profile = UserProfile(user=user)
     
     if user_dict['roles'].has_key('5'):
         # if they have the stars_admin role grant them staff access
@@ -115,6 +115,15 @@ def get_user_from_user_dict(user_dict, session, create=True):
         # remove member status if they no longer have the role
         if profile.is_member:
             profile.is_member = False
+    
+    if user_dict['roles'].has_key('3'):
+        # if they have the aashe_staff role
+        if not profile.is_aashe_staff:
+            profile.is_aashe_staff = True
+    else:
+        # remove member status if they no longer have the role
+        if profile.is_aashe_staff:
+            profile.is_aashe_staff = False
     
     # list of associated institutions
     profile.profile_instlist = user_dict['profile_instlist']

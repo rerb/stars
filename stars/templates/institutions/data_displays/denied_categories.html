@@ -5,5 +5,10 @@
 {% block extra_head %}{% endblock %}
 
 {% block tab_content %}
-	{% include 'institutions/data_displays/participant_member_only_include.html' %}
+	<div class='greyBox'>
+		{% include 'institutions/data_displays/participant_member_only_include.html' %}<br/>
+		<h3>Display Description</h3>
+		{% load content %}
+		{% display_block_content 'data_display_categories' user %}
+	</div>
 {% endblock %}
