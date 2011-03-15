@@ -190,7 +190,7 @@ class FilteringMixin(object):
                                             ('All Institutions', 'DO_NOT_FILTER'), # value means "don't filter base_qs"
                                             ('Two Year Institution', 'Two Year Institution'),
                                             ('Four Year Institution', 'Four Year Institution'),
-                                            ('Four Year Institution', 'Graduate Institution'),
+                                            ('Graduate Institution', 'Graduate Institution'),
                                             ('System Office', 'System Office'),
                                         ],
                                         base_qs=Organizations.objects.filter(stars_participant_status__isnull=False).values_list('account_num', flat=True),
@@ -302,8 +302,7 @@ class FilteringMixin(object):
                 
     def get_filtered_queryset(self, filters):
         
-        org_ss_list = []
-        rating_ss_list = []
+        queryset_list = []
 
         for f in filters:
             
@@ -319,18 +318,25 @@ class FilteringMixin(object):
             if f['key'] == 'org_type':
                 ss_queryset = SubmissionSet.objects.filter(status='r')
                 filtered_list = ss_queryset.filter(institution__aashe_id__in=list(filtered_list))
+            
+            queryset_list.append(filtered_list)
         
         # combine these two if they both exist
-        if rating_ss_list and org_ss_list:
-            queryset = rating_ss_list.filter(id__in=org_ss_list)
-        elif rating_ss_list and not org_ss_list:
-            queryset = rating_ss_list
-        elif org_ss_list and not rating_ss_list:
-            queryset = org_ss_list
+#        if rating_ss_list and org_ss_list:
+#            queryset = rating_ss_list.filter(id__in=org_ss_list)
+#        elif rating_ss_list and not org_ss_list:
+#            queryset = rating_ss_list
+#        elif org_ss_list and not rating_ss_list:
+#            queryset = org_ss_list
+        if queryset_list:
+            qs = queryset_list.pop()
+            while queryset_list:
+                next_qs = queryset_list.pop()
+                qs = qs.filter(id__in=next_qs.values('id'))
         else:
-            queryset = SubmissionSet.objects.none()
+            qs = SubmissionSet.objects.none()
             
-        return queryset
+        return qs
     
 class NarrowFilteringMixin(FilteringMixin):
     """
