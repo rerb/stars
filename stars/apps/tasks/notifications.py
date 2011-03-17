@@ -31,7 +31,7 @@ def get_new_institutions(current_date):
     
     return i_list
 
-def send_welcome_email(current_date=datetime.today()):
+def send_welcome_email(current_date=date.today()):
     """
         This is separated from `get_new_institutions` for testing purposes
     """
@@ -50,7 +50,7 @@ def send_welcome_email(current_date=datetime.today()):
                             subject="Welcome to STARS",
                         )
 
-def get_overdue_payments(weeks, current_date=datetime.today()):
+def get_overdue_payments(weeks, current_date=date.today()):
     """
         Return a list of all submission sets that were registered
         more than `weeks` before the current and still have not paid
@@ -131,7 +131,7 @@ def send_submission_deadline_reminder(td, n_type, identifier, template_name, sub
             
     send_notification_set(message_list)
     
-def send_six_month_notifications(current_date=datetime.today()):
+def send_six_month_notifications(current_date=date.today()):
     """
         Remind institutions that they have 6 months before their submission is due
     """
@@ -145,7 +145,7 @@ def send_six_month_notifications(current_date=datetime.today()):
     
     send_submission_deadline_reminder(td, n_type, identifier, template_name, subject, current_date)
     
-def send_three_month_notifications(current_date=datetime.today()):
+def send_three_month_notifications(current_date=date.today()):
     """
         Remind institutions that they have 3 months before their submission is due
     """
@@ -159,7 +159,7 @@ def send_three_month_notifications(current_date=datetime.today()):
     
     send_submission_deadline_reminder(td, n_type, identifier, template_name, subject, current_date)
 
-def send_sixty_day_notifications(current_date=datetime.today()):
+def send_sixty_day_notifications(current_date=date.today()):
     """
         Gets the submission sets that are due in sixty days or less
         current_date is optional for debugging
@@ -173,7 +173,7 @@ def send_sixty_day_notifications(current_date=datetime.today()):
     
     send_submission_deadline_reminder(td, n_type, identifier, template_name, subject, current_date)
     
-def send_thirty_day_notifications(current_date=datetime.today()):
+def send_thirty_day_notifications(current_date=date.today()):
     """
         Remind institutions that they have 30 days before their submission is due
     """
