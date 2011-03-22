@@ -52,11 +52,7 @@
             		{% endblock %}
                 </div>
                 {% block main_menu %}
-                	{% load cache %}
-					{% cache 86400 main_menu user.is_staff %}
-	                	{% load main_menu %}
-	                	{% show_main_menu user %}
-		            {% endcache %}
+                	{% include 'helpers/main_menu.html' %}
 		        {% endblock %}
     			<div id='crumbs'>
 	    			{% block crumbs %}

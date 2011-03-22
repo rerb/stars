@@ -26,8 +26,12 @@ class AbstractContent(models.Model):
                                     self._meta.module_name,
                                     self.id,
                                 )
+    
 class CategoryMixin(models.Model):
-    content = models.TextField(blank=True, null=True)
+    
+    title = models.CharField(max_length=32)
+    slug = models.SlugField(help_text='This is a URL-friendly version of the title. Do not change unless you want to change the link')
+    content = models.TextField(blank=True, null=True, help_text='If left blank, the page will be populated with the teaser text from all the articles.')
     
     class Meta:
         abstract=True
@@ -39,8 +43,6 @@ class Category(CategoryMixin, AbstractContent):
     """
         Django-hosted CMS top-level category
     """
-    title = models.CharField(max_length=32)
-    slug = models.SlugField()
     
     class Meta:
         verbose_name_plural = "Categories"
@@ -49,9 +51,6 @@ class Category(CategoryMixin, AbstractContent):
         return "/pages/%s/" % self.slug
     
 class Subcategory(CategoryMixin, AbstractContent):
-    
-    title = models.CharField(max_length=32)
-    slug = models.SlugField()
     parent = models.ForeignKey(Category)
     
     class Meta:

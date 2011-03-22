@@ -3,8 +3,9 @@
 {% block title %}Reporting Tool | {{ block.super }}{% endblock %}
 
 {% block main_menu %} 
-    {% load main_menu %}
-    {% show_main_menu user "tool" %} 
+	{% with selected="mm_tool" %}
+    	{% include 'helpers/main_menu.html' %}
+    {% endwith %}
 {% endblock %}
 
 {% block crumbs %}

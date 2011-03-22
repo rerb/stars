@@ -2,12 +2,10 @@
 
 {% block title %}Institutions | {{ block.super }}{% endblock %}
 
-{% block main_menu %} 	
-    {% load cache %}
-	{% cache 86400 main_menu user.is_staff "institutions" %}
-	    {% load main_menu %}
-	    {% show_main_menu user "institutions" %} 
-	{% endcache %}
+{% block main_menu %} 
+	{% with selected="mm_institutions" %}
+    	{% include 'helpers/main_menu.html' %}
+    {% endwith %}
 {% endblock %}
 
 {% block crumbs %}

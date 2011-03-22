@@ -490,7 +490,8 @@ class Credit(models.Model):
         return smart_unicode("%s: %s"%(self.identifier, self.title), encoding='utf-8', strings_only=False, errors='strict')
 
     def __str__(self):  # For DEBUG -  comment out __unicode__ method
-        return "#%d: %s (%d)" % (self.number, self.title, self.ordinal)
+        return "%s: %s" % (self.identifier, self.title)
+#        return self.__unicode__()
         
     def __cmp__(self, other):
         """ Used for ordering by ordinal """
