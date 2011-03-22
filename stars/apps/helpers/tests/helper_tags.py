@@ -9,7 +9,7 @@
 """
 from django.test import TestCase
 
-from stars.apps.helpers.templatetags import help, main_menu
+from stars.apps.helpers.templatetags import help
 class Help_tags_Test(TestCase):
         
     """
