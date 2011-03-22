@@ -13,11 +13,6 @@
 
 {% block body_onload %}{{ block.super }}listexpander();collapseSummary();{% endblock %}
 
-{% block main_menu %} 
-    {% load main_menu %}
-    {% show_main_menu user "institutions" %} 
-{% endblock %}
-
 {% block crumbs %}
     <a href='/tool/'>Reporting Tool</a> &gt;
     <a href='/tool/credit-editor/'>Credit Editor</a>
