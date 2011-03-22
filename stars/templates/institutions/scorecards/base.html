@@ -10,11 +10,6 @@
 
 {% block body_onload %}{{ block.super }}listexpander();collapseSummary();{% endblock %}
 
-{% block main_menu %} 
-    {% load main_menu %}
-    {% show_main_menu user "institutions" %} 
-{% endblock %}
-
 {% block crumbs %}
     <a href='/institutions/'>STARS Institutions</a> &gt;
     <a href='{{ submissionset.get_scorecard_url }}'>{{ submissionset.institution }}</a> &gt;
