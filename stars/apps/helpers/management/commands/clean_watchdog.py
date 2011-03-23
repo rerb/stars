@@ -16,4 +16,5 @@ class Command(BaseCommand):
         qs = WatchdogEntry.objects.filter(timestamp__lt=d)
         
         count = qs.count()
+        print >> self.stdout, "Total Entries Cleared: %d" % count
         qs.delete()
