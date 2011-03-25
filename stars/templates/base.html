@@ -70,7 +70,7 @@
                 {% endif %}
                 {% block extra_messages %}{% endblock %}
                 {% for message in messages %}
-                    <li class={{ message|split:0 }}>{{ message|split:1 }}</li>
+                    <li class={{ message|split:0 }}>{{ message|split:1|safe }}</li>
                 {% endfor %}
                 </ul>
                 <a href='#'  onclick="document.getElementById('flash_message').style.display = 'none';">[x]</a>
