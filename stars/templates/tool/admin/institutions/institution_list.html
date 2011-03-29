@@ -27,39 +27,37 @@
       <table id="institution-list" style='padding:10px;'>
         <tr><th colspan=3>Institution</th><th colspan=4>Latest Submission</th><th rowspan=2>Admin<br>Tools</th>
         <tr><th colspan=3 style="text-align:left">Enabled {% show_help_text enable_help_text%}</th> <th>Version</th><th>Registered</th><th>Due</th><th>Progress</th></tr>
-	    {% for institution in institution_list %}
+	    {% for f in form_list %}
           <tr{% cycle ' class="odd"' ''%}>
 	        <td>
 	            {{ forloop.counter }}
 	        </td>
             <td> 
-              {% for field in institution.enable_form %}
+              {% for field in f.enable_form %}
                 {{ field|safe }}
               {% endfor %}
             </td>
             <td>
-              <a href='{{ institution.get_masquerade_url }}'>{{ institution }}</a>
-                 {% if not institution.enabled %}
+              <a href='{{ f.ss.institution.get_masquerade_url }}'>{{ f.ss.institution }}</a>
+                 {% if not f.ss.institution.enabled %}
                    <span title="This institution is not enabled!"><font color='red'>*</font></span>
                  {% endif %}
             </td>
-            {% if institution.submission_set %}
-                <td> ({{ institution.submission_set.creditset }}) </td>
-                <td> {{ institution.submission_set.date_registered }} </td>
-                <td> ({{ institution.submission_set.submission_deadline }}) </td>
-	            <td>
-	              {% if institution.submission_set.get_percent_complete %} 
-	                 {% show_progress_icon institution.submission_set.get_percent_complete %}
-	              {% else %}
-	                -
-	              {% endif %}
-	            </td>
-            {% else %}
-                <td colspan=4 align='center'> - </td>
-            {% endif %}
+            <td> ({{ f.ss.creditset }}) </td>
+            <td> {{ f.ss.date_registered }} </td>
+            <td> ({{ f.ss.submission_deadline }}) </td>
+            <td>
+            {% with pc=f.ss.get_percent_complete %}
+				{% if pc %} 
+				   {% show_progress_icon pc %}
+				{% else %}
+				  -
+				{% endif %}
+            {% endwith %}
+            </td>
             <td align='center'>
-              <a href='{{ institution.get_admin_payments_url }}' title='Manage payments for this institution'>
-              	{% for payment in institution.get_payments %}
+              <a href='{{ f.ss.institution.get_admin_payments_url }}' title='Manage payments for this institution'>
+              	{% for payment in f.ss.payment_set.all %}
                 	{% show_payment_type_icon payment %}
                 {% endfor %}
               </a>
