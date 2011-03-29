@@ -36,7 +36,7 @@ def summary(request):
     active_submission = _get_active_submission(request)
     category_submission_list = []
     if active_submission:
-        category_submission_list = active_submission.categorysubmission_set.all()
+        category_submission_list = active_submission.categorysubmission_set.all().select_related()
         
     is_admin = request.user.has_perm('admin')
     
