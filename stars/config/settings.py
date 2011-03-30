@@ -122,6 +122,7 @@ INSTALLED_APPS = (
     'aashe.issdjango',
     'south',
     'sorl.thumbnail',
+    'django_extensions',
 )
 
 # Is this running on the django dev server?
