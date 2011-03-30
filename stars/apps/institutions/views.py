@@ -37,6 +37,10 @@ class SortableTableView(TemplateView):
         assert (self.columns and self.default_key), "Must `colums` and `default_key` when extending this class"
         return super(SortableTableView, self).__init__(*args, **kwargs)
     
+    @property
+    def __name__(self):
+        return self.__class__.__name__
+    
     def get_context(self, request, *args, **kwargs):
         """ Add/update any context variables """
         context = {'sort_columns': self.columns, 'default_key': self.default_key}
@@ -124,7 +128,7 @@ class ActiveInstitutions(SortableTableView):
               ]
               
     def get_queryset(self):
-        return SubmissionSet.objects.published()
+        return SubmissionSet.objects.published().select_related('institution')
     
     
 class RatedInstitutions(SortableTableView):
@@ -159,7 +163,8 @@ class RatedInstitutions(SortableTableView):
               ]
               
     def get_queryset(self):
-        return SubmissionSet.objects.published().filter(status='r')
+        n = self.__name__
+        return SubmissionSet.objects.published().filter(status='r').select_related('institution')
 
 """
     INSTITUTIONAL REPORTS
