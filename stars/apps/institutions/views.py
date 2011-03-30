@@ -163,7 +163,6 @@ class RatedInstitutions(SortableTableView):
               ]
               
     def get_queryset(self):
-        n = self.__name__
         return SubmissionSet.objects.published().filter(status='r').select_related('institution')
 
 """
