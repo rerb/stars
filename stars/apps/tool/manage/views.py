@@ -313,7 +313,7 @@ def _gets_discount(institution):
     
         # if it is less than 90 days after 1/31/11
         td = timedelta(days=90)
-        d = date(year=2011, month=1, day=11)
+        d = date(year=2011, month=1, day=31)
         if date.today() <= d + td:
             return True
     
