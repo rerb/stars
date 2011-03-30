@@ -437,12 +437,12 @@ class AggregateFilter(DisplayAccessMixin, FilteringMixin, FormView):
             if f['key'] == "rating__name":
                 d['title'] = "%s Rated Institutions" % f['item']
             else:
-                d['title'] = f['item']
+                d['title'] = f['item_title']
             d['item'] = f['item']
             
             if f['key'] == "org_type":
                 
-                if f['item'] != "All Institutions":
+                if f['item'] != "DO_NOT_FILTER":
                     kwargs = {f['key']: f['item'],}
                     org_list = Organizations.objects.filter(stars_participant_status__isnull=False).filter(**kwargs).values_list('account_num', flat=True)
                 else:
