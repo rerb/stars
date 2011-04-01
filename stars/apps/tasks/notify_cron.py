@@ -22,4 +22,7 @@ send_thirty_day_notifications()
 # After Submission
 send_post_submission_survey()
 
+# Renewal reminders
+send_renewal_reminder()
+
 

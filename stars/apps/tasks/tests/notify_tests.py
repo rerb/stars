@@ -172,32 +172,6 @@ class NotificationTest(TestCase):
         # Only one more should be sent, because of the count limit on notifications
         self.assertTrue(len(mail.outbox) == 2)
         
-#    def test6MonthList(self):
-#        """
-#            Tests:
-#                - Ensure that `get_six_month_sets` returns the correct SubmissionSets
-#        """
-#        
-#        today = date(year=2010, month=7, day=30)
-#        ss_list = get_six_month_sets(today)
-#        self.assertTrue(len(ss_list) == 0)
-#        
-#        today = date(year=2010, month=7, day=31)
-#        ss_list = get_six_month_sets(today)
-#        self.assertTrue(len(ss_list) == 1)
-#        
-#        today = date(year=2010, month=8, day=1)
-#        ss_list = get_six_month_sets(today)
-#        self.assertTrue(len(ss_list) == 2)
-#        
-#        today = date(year=2010, month=8, day=3)
-#        ss_list = get_six_month_sets(today)
-#        self.assertTrue(len(ss_list) == 4)
-#        
-#        today = date(year=2010, month=8, day=31)
-#        ss_list = get_six_month_sets(today)
-#        self.assertTrue(len(ss_list) == 4)
-        
     def test_6month_notify(self):
         """
             Tests:

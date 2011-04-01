@@ -186,6 +186,58 @@ def send_thirty_day_notifications(current_date=date.today()):
     
     send_submission_deadline_reminder(td, n_type, identifier, template_name, subject, current_date)
     
+def send_renewal_reminder(current_date=date.today()):
+    """
+        Remind institutions that they have 30 days to renew keep their registration discounts
+        
+        Institutions have 90 days to renew
+        
+        Limit institutions:
+        
+            - Submitted more than 60 days ago and less than 90 (expired)
+            OR
+            - Submitted before 1/31/11 after 4/1/11
+    """
+    
+    # submissions more than 60 days old and less than 90
+    jan_thirty_one = date(year=2011, month=1, day=31)
+    sixty_days_ago = current_date - timedelta(days=60)
+    ninety_days_ago = current_date - timedelta(days=90)
+    
+    ss_list = SubmissionSet.objects.filter(status='r')
+    ss_list = ss_list.filter(date_submitted__gte=jan_thirty_one) # exclude early submissions
+    ss_list = ss_list.filter(date_submitted__lte=sixty_days_ago)
+    ss_list = ss_list.filter(date_submitted__gte=ninety_days_ago)
+    
+    # submission before 1/31/11
+    # if it's after 4/1/11 and before 5/1/11
+    # (the end date isn't super significant, since it only gets sent once)
+    if current_date > date(year=2011, month=4, day=1) and current_date < date(year=2011, month=5, day=1):
+        ss_list = ss_list |  SubmissionSet.objects.filter(status='r').filter(date_submitted__lte=jan_thirty_one)
+    
+    n_type = '30renew'
+    identifier = '30renew'
+    template_name = 'tasks/notifications/renewal.txt'
+    subject = "STARS Reminder: 30 Days Until Discounted STARS Registration Fee Expires"
+    
+    t = loader.get_template(template_name)
+    
+    message_list = []
+    
+    for ss in ss_list:
+        
+        c = Context({'ss': ss,})
+        m = {
+                'mail_to': [ss.institution.contact_email,],
+                'message': t.render(c),
+                'n_type': 'ps',
+                'identifier': 'ps-%d' % ss.id,
+                'subject': subject,
+             }
+        message_list.append(m)
+            
+    send_notification_set(message_list)
+    
 def send_post_submission_survey(current_date=None):
     """
         Gets the submission sets that were submitted 30 days or more ago
