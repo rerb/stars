@@ -98,12 +98,12 @@
 			Credits:&nbsp;&nbsp;
 			<a href='http://www.djangoproject.com'>
 				Django
-				{% if settings_context.django_version %}{{ settings_context.django_version }}{% endif %}
+				{% comment %}{% if settings_context.django_version %}{{ settings_context.django_version }}{% endif %}{% endcomment %}
 			</a>
 			&nbsp;&nbsp;/&nbsp;&nbsp;
 			<a href='http://www.python.org/'>
 				Python
-				{% if settings_context.python_version %}{{ settings_context.python_version }}{% endif %}
+				{% comment %}{% if settings_context.python_version %}{{ settings_context.python_version }}{% endif %}{% endcomment %}
 			</a>
 			&nbsp;&nbsp;/&nbsp;&nbsp;
 			<a href='http://www.famfamfam.com/lab/icons/silk/'>Silk Icons</a>
