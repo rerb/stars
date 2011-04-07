@@ -32,6 +32,7 @@ class Institution(models.Model):
     executive_contact_email = models.EmailField("Executive Contact Email")
     charter_participant = models.BooleanField()
     stars_staff_notes = models.TextField(blank=True, null=True)
+    date_created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     
     def __unicode__(self):
         return self.name.decode('utf8')
