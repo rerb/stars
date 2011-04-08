@@ -3,5 +3,8 @@
 {% block body_onload %}expandTo = 0;{{ block.super }}{% endblock %}
 
 {% block content %}
-    {% include 'institutions/scorecards/summary_include.html' %}
+	{% load cache %}
+	{% cache 21600 submissionset %}
+    	{% include 'institutions/scorecards/summary_include.html' %}
+	{% endcache %}
 {% endblock %}
