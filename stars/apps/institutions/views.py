@@ -290,6 +290,9 @@ class ScorecardView(ScorecardMixin, CreditNavMixin, TemplateView):
     """
         Browse credits according to submission in the credit browsing view
     """
+    @property
+    def __name__(self):
+        return self.__class__.__name__
     
     def get_context(self, request, *args, **kwargs):
         """ Expects arguments for category_id/subcategory_id/credit_id """
