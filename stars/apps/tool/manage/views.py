@@ -390,7 +390,7 @@ def purchase_submissionset(request):
     
     if request.method == "POST":
         later_form = PayLaterForm(request.POST)
-        if later_form.is_valid() and later_form.cleaned_data.has_key('confirm'):
+        if later_form.is_valid() and later_form.cleaned_data['confirm']:
             ss = init_submissionset(current_inst, request.user, datetime.now())
             p = Payment(
                             submissionset=ss,
