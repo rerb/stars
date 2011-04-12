@@ -1,4 +1,5 @@
 from datetime import timedelta, datetime
+import sys
 
 from django.conf import settings
 from django.shortcuts import get_object_or_404
@@ -306,20 +307,32 @@ def edit_submissionset(request, set_id):
     }
     return respond(request, template, context)
 
-def _gets_discount(institution):
+def _gets_discount(institution, current_date=date.today()):
+    """
+        Get the latest submission prior to current_date
+        that was either submitted or due before today
+    """
     
-    # if this is a returning institution
-    if institution.submissionset_set.filter(status='r'):
+    last_submission_date = None
+    for ss in institution.submissionset_set.filter(Q(date_submitted__lte=current_date)|Q(submission_deadline__lte=current_date)):
+        if ss.status == 'r':
+            d = ss.date_submitted
+        else:
+            d = ss.submission_deadline
+        
+        if not last_submission_date or d > last_submission_date:
+            last_submission_date = d
     
-        # if it is less than 90 days after 1/31/11
+    if last_submission_date:
+        
+        # if current_date is less than 90 days after 1/31/11
         td = timedelta(days=90)
         d = date(year=2011, month=1, day=31)
-        if date.today() <= d + td:
+        if current_date <= d + td:
             return True
     
         # or if last submission was less than 90 days ago
-        d = institution.submissionset_set.filter(status='r')[0].date_submitted
-        if date.today() - d <= td:
+        if current_date - last_submission_date <= td:
             return True
         
     return False
