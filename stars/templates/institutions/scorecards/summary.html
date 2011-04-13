@@ -3,5 +3,9 @@
 {% block body_onload %}expandTo = 0;{{ block.super }}{% endblock %}
 
 {% block content %}
-    {% include 'institutions/scorecards/summary_include.html' %}
+	ID: {{ submissionset.id }}<br/>
+	{% load cache %}
+	{% cache 21600 submission_summary submissionset.id %}
+    	{% include 'institutions/scorecards/summary_include.html' %}
+	{% endcache %}
 {% endblock %}
