@@ -230,8 +230,8 @@ def send_renewal_reminder(current_date=date.today()):
         m = {
                 'mail_to': [ss.institution.contact_email,],
                 'message': t.render(c),
-                'n_type': 'ps',
-                'identifier': 'ps-%d' % ss.id,
+                'n_type': 'rn',
+                'identifier': 'rn-%d' % ss.id,
                 'subject': subject,
              }
         message_list.append(m)
