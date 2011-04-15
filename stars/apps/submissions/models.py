@@ -201,10 +201,13 @@ class SubmissionSet(models.Model):
             Return the STARS rating (potentially provisional) for this submission
             @todo: this is inefficient - need to store or at least cache the STARS score.
         """
+        if self.reporter_status:
+            return self.creditset.rating_set.get(name='Reporter')
+        
         if self.is_rated():
             return self.rating
-        else:
-            return self.creditset.get_rating(self.get_STARS_score())
+        
+        return self.creditset.get_rating(self.get_STARS_score())
     
     def get_STARS_score(self):
         """
@@ -230,7 +233,7 @@ class SubmissionSet(models.Model):
         score = 0
         non_inno_cats = 0
         innovation_score = 0
-        for cat in self.categorysubmission_set.all():
+        for cat in self.categorysubmission_set.all().select_related():
             if cat.category.is_innovation(): 
                 innovation_score = cat.get_STARS_v1_0_score()
             else:
@@ -405,8 +408,9 @@ class CategorySubmission(models.Model):
             return 0
 
     def get_STARS_v1_0_score(self):
-        score = self.get_claimed_points()              # raw score - number of points earned in category
-        avail = self.get_adjusted_available_points()  # available / applicable points in category        
+#        score = self.get_claimed_points()              # raw score - number of points earned in category
+#        avail = self.get_adjusted_available_points()  # available / applicable points in category
+        score, avail = self.get_score_ratio()
         #  score for innovation credits is just the raw score
         #  for all others, it is the proportion of points earned.
         if not self.category.is_innovation(): 
@@ -415,15 +419,26 @@ class CategorySubmission(models.Model):
 
     def get_claimed_points(self):
         score = 0
-        for sub in self.subcategorysubmission_set.all():
+        for sub in self.subcategorysubmission_set.all().select_related():
             score += sub.get_claimed_points()
         return score
         
     def get_available_points(self):
         score = 0
-        for sub in self.subcategorysubmission_set.all():
+        for sub in self.subcategorysubmission_set.all().select_related():
             score += sub.get_available_points()
         return score
+    
+    def get_score_ratio(self):
+        """
+            Returns the claimed and adjusted available points
+        """
+        claimed = 0
+        available = 0
+        for sub in self.subcategorysubmission_set.all().select_related():
+            claimed += sub.get_claimed_points()
+            available += sub.get_adjusted_available_points()
+        return claimed, available
     
     def get_adjusted_available_points(self):
         """ Gets only the points for credits that have not been labelled as Not Applicable """
