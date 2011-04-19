@@ -1,6 +1,7 @@
 {% extends 'institutions/data_displays/base.html' %}
 
 {% load thumbnail %}
+{% load content %}
 
 {% block crumbs %}
 	{{ block.super }} &gt;
@@ -149,7 +150,7 @@
       
       	var data = new google.visualization.DataTable();
 		data.addColumn('string', 'Month');
-		data.addColumn('number', 'Participants');
+		data.addColumn('number', 'Registrations');
 		data.addColumn('number', 'Submissions');
 		
 		data.addRows([
@@ -272,22 +273,24 @@
 				<td>{{ ratings.Reporter }}</td>
 			</tr>
 		</table>
+    	{% display_block_content 'dash_ratings' user %}
 		</div>
 		<hr style='clear: both;' />
 		<div style='margin: 0px 0px 10px 0px;padding: 2px; border: 1px solid #aaa;float: left;'>
 			<div id="areaChart" style="width:450px;height:250px;margin: 0px;"></div>
 		</div>
 		<div style='margin: 0px 0px 0px 475px;'>
-		<h3>STARS Participants and Submissions</h3>
+		<h3>STARS Registrations and Submissions</h3>
 		<table class='vertical' style='margin: 20px;'>
 			<tr>
-				<th>Participants</th>
+				<th>Registrations</th>
 				<td>{{ current_participants }}</td>
 			</tr><tr>
 				<th>Submissions</th>
 				<td>{{ current_submissions }}</td>
 			</tr>
 		</table>
+    	{% display_block_content 'dash_parts_and_subs' user %}
 		</div>
 		<hr style='clear: both;' />
 		<div style='margin: 0px 0px 10px 0px;padding: 2px; border: 1px solid #aaa;float: left;'>
@@ -303,6 +306,7 @@
 				</tr>
 			{% endfor %}
 		</table>
+    	{% display_block_content 'dash_avg_cat_scores' user %}
 		</div>
 		
 		<hr style='clear: both;' />
@@ -337,5 +341,6 @@
 				<td>{{ member_numbers.canadian }}</td>
 			</tr>
 		</table>
+    	{% display_block_content 'dash_inst_properties' user %}
 		</div>
 {% endblock %}
