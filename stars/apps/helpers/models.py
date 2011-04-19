@@ -1,4 +1,5 @@
 from django.db import models
+from django.core import urlresolvers
 
 class HelpContext(models.Model):
     """
@@ -9,6 +10,9 @@ class HelpContext(models.Model):
     
     def __unicode__(self):
         return self.name
+    
+    def get_admin_url(self):
+        return urlresolvers.reverse('admin:helpers_helpcontext_change', args=(self.id,))
         
 class BlockContent(models.Model):
     """
@@ -19,3 +23,6 @@ class BlockContent(models.Model):
 
     def __str__(self):
         return self.key
+    
+    def get_admin_url(self):
+        return urlresolvers.reverse('admin:helpers_blockcontent_change', args=(self.id,))
