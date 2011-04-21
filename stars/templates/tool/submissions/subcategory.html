@@ -1,0 +1,33 @@
+{% extends 'tool/submissions/columned_layout.html' %}
+
+{% block title %}{{ subcategory }} | {{ block.super}}{% endblock %}
+
+{% load submit_tags  %}
+
+{% block crumbs %} 
+    {{ block.super }}
+    {% show_submit_crumbs subcategory %}
+{% endblock %}
+
+{% block body_onload %}{{ block.super }}enable_submit({% if submission_form.errors %}true{% else %}false{% endif %}, false);{% endblock %}
+
+{% block body_beforeunload %}{{ block.super }}return before_unload_credit();{% endblock %}
+
+{% block tool_content %}
+	<h1>{{ subcategory }}</h1>
+	
+	{% load help %}
+	<p>
+		{% show_help_context 'subcategory_description' 0 %}
+	</p>
+	<form method='post' action='.' class='submit_form' name='submission_form' onsubmit='enable_submit(false, true);'>
+		<div class='creditContent'>
+			<table>
+				{{ submission_form }}
+			</table>
+			<div class='button_row'>
+		        <button type='submit' id='submit_button' {% if errors %}class='errors'{% endif %}>Save</button>
+		    </div>
+	    </div>
+	</form>
+{% endblock %}

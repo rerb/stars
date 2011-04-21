@@ -1,0 +1,148 @@
+{% extends 'institutions/data_displays/base.html' %}
+
+{% load content %}
+
+{% block crumbs %}
+	{{ block.super }} &gt;
+	<a href='/institutions/data-displays/content/'>Content</a>
+{% endblock %}
+
+{% block title %}Content | {{ block.super }}{% endblock %}
+
+{% block body_onload %}{{ block.super }}initLookup();initPullDowns();{% endblock %}
+
+{% block tabclass %}class='tab5'{% endblock %}
+
+{% block extra_head %}
+	<script type="text/javascript" src="https://www.google.com/jsapi?key={{ google_api_key }}"></script>
+	<script type='text/javascript'>
+	
+		google.load("jquery", "1.5.0");
+		
+		function ajaxFillTarget(url, target) {
+			$(target).load(url);
+		}
+	
+		function initPullDowns() {
+			{% if reporting_field %}
+				initCategory({{ reporting_field.credit.subcategory.category.id }});
+				initSubcategory({{ reporting_field.credit.subcategory.category.id }}, {{ reporting_field.credit.subcategory.id }});
+				initCredit({{ reporting_field.credit.subcategory.id }}, {{ reporting_field.credit.id }});
+				initField({{ reporting_field.credit.id }}, {{ reporting_field.id }});
+			{% else %}
+				initCategory(null);
+			{% endif %}
+		}
+	</script>
+	{% include "institutions/data_displays/filter_js.html" %}
+{% endblock %}
+
+{% block h1 %}STARS Report Content{% endblock %}
+
+{% block tab_content %}
+    {% display_block_content 'data_display_content' user %}
+	<form method='POST' action='.' id='filterForm'>
+		{% with new_filter_form=form.forms.filters.forms.new_filter_form %}
+		{% with delete_forms=form.forms.filters.forms.delete_forms %}
+			{% include 'institutions/data_displays/top_level_filters.html' %}
+		{% endwith %}{% endwith %}
+		<div style='text-align: center'>
+			<img src='/media/static/images/arrow_down.png' />
+		</div>
+		<div class='greyBox'>
+			{% display_block_content 'data_display_content_second_filter' user %}
+			<table style='margin: 0px auto;' class='vertical'>
+				<tr>
+					<th>
+						Category:
+					</th>
+					<td>
+						<select id='category_select' onchange='selectCategory(this);'>
+							<option value=''>-------</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<th>
+						Subcategory:
+					</th>
+					<td>
+						<select id='subcategory_select' onchange='selectSubcategory(this);'>
+							<option value=''>-------</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<th>
+						Credit:
+					</th>
+					<td>
+						<select id='credit_select' onchange='selectCredit(this);'>
+							<option value=''>-------</option>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<th>
+						Reporting Field:
+					</th>
+					<td>
+						{{ form.forms.reporting_field.reporting_field }}
+					</td>
+				</tr>
+			</table>
+			<div style='text-align: center'>
+				<button type='submit'>Apply</button>
+			</div>
+		</div>
+	</form>
+	<div style='text-align: center'>
+		<img src='/media/static/images/arrow_down.png' />
+	</div>
+	<table id='institution_list' class='greyTable'>
+       	{% if object_list %}
+	       	<tr>
+	       		<th style='text-align: left'>
+	       			Matching Institutions
+	       		</th>
+	       		<th>
+	       			Credit Score
+	       		</th>
+				<th>
+					{{ reporting_field.title }}
+				</th>
+	       	</tr>
+	       	{% for o in object_list %}
+	       		<tr class="{% cycle 'even' 'odd' %}">
+	       			<td style='text-align: left;white-space: nowrap;'>
+	       				<a href='{{ o.ss.get_scorecard_url }}'>{{ o.ss }}</a>
+	       			</td>
+	       			<td>
+	       				{% if o.credit %}
+	       					<a href='{{ o.credit.get_scorecard_url }}'>
+		       					{{ o.score }}
+		       				</a>
+		       			{% else %}
+		       				--
+		       			{% endif %}
+	       			</td>
+	       			<td>
+       					{% with field=o.field %}
+       						{% if field and not field.is_empty %}
+       							{% include 'institutions/scorecards/field_formatting.html' %}
+       						{% else %}
+       							--
+       						{% endif %}
+       					{% endwith %}
+	       			</td>
+	       		</tr>
+	       	{% endfor %}
+	    {% else %}
+       		<tr><td colspan="6">
+       			<p style='padding: 30px;'>
+       				No results yet. Please filter on a characteristic above.
+       			</p>
+       		</td></tr>
+       	{% endif %}
+	</table>
+{% endblock %}

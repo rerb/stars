@@ -1,0 +1,37 @@
+{% extends "tool/base.html" %}
+
+{% block crumbs %} 
+    {{ block.super }} >
+    <a href='/tool/submissions/'>{{ active_submission }}</a> >
+    Submit
+{% endblock %}
+
+{% block tool_content %}
+    <h1>Submit for a STARS Rating: Step 2 of 3</h1>
+    {% include 'tool/submissions/submission_summary_table.html' %}
+    <div class='required'>
+        <span class="required_note" title="This field is required to complete credit">*</span>
+        Required Fields<br/>
+    </div>
+    <form class='generalForm' method='post' action='.' enctype="multipart/form-data">
+        {% load help %}
+        {% get_help_context 'submit_for_rating_letter' %}
+        {{ object_form.presidents_letter.errors }}
+        <span class="required_note" title="This field is required to complete credit">*</span>
+        {% show_help_text object_form.presidents_letter.help_text %}
+        {{ object_form.presidents_letter|safe }}
+        <br/>
+        {% if object_form.reporter_status %}
+            <br/>
+                {{ object_form.reporter_status.errors }}
+                <b>Choose Reporter Status</b><br/>
+                Please check this box if you wish to submit as a STARS Reporter: {{ object_form.reporter_status|safe }}
+                {% show_help_context 'submit_for_rating_reporter' 1 %}
+            <br/><br/>
+        {% endif %}
+        <div class='button_row'>
+            <button type='button' onclick='document.location="/tool/submissions/submit/";'>&lt;&lt; Back</button>
+            <button type='submit'>Next &gt;&gt;</button>
+        </div>
+    </form>
+{% endblock %}

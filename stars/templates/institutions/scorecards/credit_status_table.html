@@ -1,0 +1,37 @@
+{% load submit_tags %}
+<tr>
+    <th>
+        Status
+    </th>
+    <th>Score</th>
+    <th>Responsible Party</th>
+</tr><tr>
+    <td>
+        {% with credit_submission as c %}
+            {% include 'credits/credit_status_icon.html' %}
+        {% endwith %}
+        {% if credit_submission.submission_status == "na" %}
+        	{% load help %}
+            {% show_help_context "not_applicable" %}
+        {% endif %}
+    </td>
+    <td>
+        {% if rating.publish_score %}
+            {{ credit_submission.assessed_points|floatformat:2 }} /
+            {% format_available_points credit_submission %}
+        {% else %}
+            Reporter
+            {% load help %}
+            {% show_help_context "reporter_status" %}
+        {% endif %}
+    </td>
+    <td style='text-align: right;'>
+        {% if credit_submission.responsible_party %}
+            <b>
+                {{ credit_submission.responsible_party.first_name }}
+                {{ credit_submission.responsible_party.last_name }}</b><br/>
+            {{ credit_submission.responsible_party.title }}<br/>
+            {{ credit_submission.responsible_party.department }}
+        {% endif %}
+    </td>
+</tr>
