@@ -13,7 +13,8 @@ class PaymentAdmin(admin.ModelAdmin):
 admin.site.register(Payment, PaymentAdmin)
 
 class CategorySubmissionAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('id', 'category', "submissionset")
+    list_filter = ('submissionset__institution',)
 admin.site.register(CategorySubmission, CategorySubmissionAdmin)
 
 class DataCorrectionRequestAdmin(admin.ModelAdmin):
