@@ -10,7 +10,11 @@ from stars.apps.helpers.views import TemplateView
 
 class CMSView(TemplateView):
     """ A base context for all CMS views """
-    
+
+    @property
+    def __name__(self):
+        return self.__class__.__name__
+
     def get_context(self, request, *args, **kwargs):
         """ Add/update any context variables """
         
