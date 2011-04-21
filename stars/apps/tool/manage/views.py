@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect
 from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMessage
+from django.template import Context, loader, Template
 
 from stars.apps.accounts.utils import respond
 from stars.apps.accounts.decorators import user_is_inst_admin, user_is_staff
@@ -325,13 +326,14 @@ def _gets_discount(institution, current_date=date.today()):
     
     if last_submission_date:
         
-        # if current_date is less than 90 days after 1/31/11
-        td = timedelta(days=90)
-        d = date(year=2011, month=1, day=31)
-        if current_date <= d + td:
-            return True
+        # if they submitted or were due before feb 15th
+        # then their deadline is May 15th
+        if last_submission_date < date(year=2011, month=2, day=16):
+            if current_date < date(year=2011, month=5, day=16):
+                return True
     
         # or if last submission was less than 90 days ago
+        td = timedelta(days=90)
         if current_date - last_submission_date <= td:
             return True
         
@@ -339,7 +341,9 @@ def _gets_discount(institution, current_date=date.today()):
 
 @user_is_inst_admin
 def pay_submissionset(request, set_id):
-    
+    """
+        Provides a payment form for those institutions that selected to pay later
+    """
     current_inst = request.user.current_inst
     ss = get_object_or_404(SubmissionSet, id=set_id, institution=current_inst)
     is_member = current_inst.is_member_institution()
@@ -388,9 +392,28 @@ def pay_submissionset(request, set_id):
     }
     return respond(request, template, context)
 
+def send_exec_renew_email(institution):
+            
+    t = loader.get_template('tool/manage/emails/renew_notify_exec.txt')
+    c = Context({'institution': institution,})
+    message = t.render(c)
+    mail_to = [institution.executive_contact_email,]
+    m = EmailMessage(
+                    subject="STARS Renewal",
+                    body=message,
+                    to=mail_to,
+                    bcc=['stars_staff@aashe.org',],
+                    headers = {'Reply-To': 'stars@aashe.org'},
+                )
+    m.send()
+    
+ACCOUNTING_CC = ['allison@aashe.org', "margueritte.williams@aashe.org"]
+
 @user_is_inst_admin
 def purchase_submissionset(request):
-    
+    """
+        Provides a view to allow institutions to purchase a new submission set
+    """
     current_inst = request.user.current_inst
     is_member = current_inst.is_member_institution()
     amount = _get_registration_price(current_inst)
@@ -415,6 +438,29 @@ def purchase_submissionset(request):
                             confirmation=None,
                         )
             p.save()
+            
+            
+            t = loader.get_template('tool/manage/emails/renew_unpaid.txt')
+            c = Context({'amount': p.amount,})
+            message = t.render(c)
+            
+            if request.user.email != ss.institution.contact_email:
+                mail_to = [request.user.email, ss.institution.contact_email]
+            else:
+                mail_to = [ss.institution.contact_email,]
+            mail_to += ACCOUNTING_CC
+            
+            m = EmailMessage(
+                            subject="STARS Renewal",
+                            body=message,
+                            to=mail_to,
+                            bcc=['stars_staff@aashe.org',],
+                            headers = {'Reply-To': 'stars@aashe.org'},
+                        )
+            m.send()
+            
+            send_exec_renew_email(ss.institution)
+            
             return HttpResponseRedirect("/tool/manage/submissionsets/")
         else:
             pay_form = PaymentForm(request.POST)
@@ -441,6 +487,28 @@ def purchase_submissionset(request):
                                         confirmation=str(result['trans_id']),
                                     )
                         p.save()
+                        
+                        t = loader.get_template('tool/manage/emails/renew_paid.txt')
+                        c = Context({'payment_dict': payment_dict,'institution': ss.institution})
+                        message = t.render(c)
+                        
+                        if request.user.email != ss.institution.contact_email:
+                            mail_to = [request.user.email, ss.institution.contact_email]
+                        else:
+                            mail_to = [ss.institution.contact_email,]
+                        mail_to += ACCOUNTING_CC
+                        
+                        m = EmailMessage(
+                                        subject="STARS Renewal",
+                                        body=message,
+                                        to=mail_to,
+                                        bcc=['stars_staff@aashe.org',],
+                                        headers = {'Reply-To': 'stars@aashe.org'},
+                                    )
+                        m.send()
+                        
+                        send_exec_renew_email(ss.institution)
+                        
                         return HttpResponseRedirect("/tool/manage/submissionsets/")
                     else:
                         flashMessage.send("Processing Error: %s" % result['msg'], flashMessage.ERROR)

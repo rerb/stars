@@ -29,7 +29,32 @@
 	     "model": "institutions.institution",
 	     "fields": {
 	         "name": "Institution",
-	         "aashe_id": "-1"
+	         "aashe_id": "-1",
+	         "enabled": true
 	     }
-	}
+	},
+    {
+        "pk": 1,
+        "model": "auth.user",
+        "fields": {
+            "username": "tester",
+            "password": "",
+            "email": "test@test.edu"
+        }
+    },
+    {
+    	"pk": 1,
+    	"model": "institutions.baseaccount",
+    	"fields": {}
+    },
+    {
+    	"pk": 1,
+    	"model": "institutions.starsaccount",
+    	"fields": {
+    		"user": 1,
+    		"institution": 1,
+    		"terms_of_service": true,
+    		"user_level": "admin"
+    	}	
+    }
 ]
