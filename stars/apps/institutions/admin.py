@@ -5,6 +5,7 @@ from models import *
 class InstitutionAdmin(admin.ModelAdmin):
     list_display = ('name', 'enabled', 'charter_participant')
     list_filter = ('charter_participant','enabled')
+    search_fields = ('name',)
 admin.site.register(Institution, InstitutionAdmin)
 
 class InstitutionStateAdmin(admin.ModelAdmin):
