@@ -14,3 +14,4 @@ emacs.desktop
 syntax: glob
 *.pyc
 .DS_Store
+.vagrant
