@@ -122,7 +122,9 @@ INSTALLED_APPS = (
     'aashe.issdjango',
     'south',
     'sorl.thumbnail',
-    'django_extensions'
+    'django_extensions',
+    'djcelery',
+    'memcache_status',
 )
 
 # Is this running on the django dev server?
@@ -181,6 +183,15 @@ EMAIL_HOST_USER = 'stars_notifier@aashe.org'
 EMAIL_HOST_PASSWORD = 'sustainaashe'
 EMAIL_PORT = 587
 DEFAULT_FROM_EMAIL = 'stars_notifier@aashe.org'
+
+# Celery
+import djcelery
+djcelery.setup_loader()
+BROKER_HOST = "localhost"
+BROKER_PORT = 5672
+BROKER_USER = "guest"
+BROKER_PASSWORD = "J3z4#$szFET--6"
+BROKER_VHOST = "/"
 
 # Authorize.Net
 REAL_AUTHORIZENET_LOGIN = "9xaJX497HjE"
