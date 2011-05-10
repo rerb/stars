@@ -47,11 +47,10 @@ h3 {
 		</style>
 	</head>
 	<body>
-		{% for ss in ss_list %}
 		<h1>{{ ss.institution.name }}</h1>
 		<img src='{{ ss.rating.get_large_image_path }}' alt='{{ ss.rating }}' height='10cm' />
 		<h2>
-			Is hereby recognized by the Association for the Advancement of Sustainability in Higher Education as a STARS Silver Institution based on its reported accomplishments in campus sustainability.
+			Is hereby recognized by the Association for the Advancement of Sustainability in Higher Education as a STARS {{ ss.rating }} Institution based on its reported accomplishments in campus sustainability.
 		</h2>
 		<h3>
 			Awarded on {{ ss.date_submitted }} and valid for three years.
@@ -69,8 +68,6 @@ h3 {
 				</td>
 			</tr>
 		</table>
-		<span style='page-break-before: always;'></span>
-		{% endfor %}
 	</body>
 </html>
 {% endautoescape %}

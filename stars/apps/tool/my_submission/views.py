@@ -138,27 +138,33 @@ class FinalizeClassView(SubmissionClassView):
     def get_success_action(self, request, context, form):
         
         self.save_form(form, request, context)
+        ss = context[self.instance_name]
         
-        send_mail(  "STARS Submission!! (%s)" % context[self.instance_name].institution,
-                    "%s has submitted for a rating! Time to review!" % context[self.instance_name],
+        # Send mail to STARS Staff
+        
+        send_mail(  "STARS Submission!! (%s)" % ss.institution,
+                    "%s has submitted for a rating! https://stars.aashe.org%s" % (ss, ss.get_scorecard_url()),
                     settings.EMAIL_HOST_USER,
                     ['stars_staff@aashe.org',],
                     fail_silently=False
                     )
+        # Send email to submitting institution
         
         t = loader.get_template('tasks/notifications/submit_email.txt')
         _context = context
-        _context.update({'submissionset': context[self.instance_name],})
+        _context.update({'submissionset': ss,})
         
         c = Context(_context)
         message = t.render(c)
-        print message
         send_mail(  "New Resources and Congratulations on your STARS Submission!",
                     message,
                     settings.EMAIL_HOST_USER,
-                    [context[self.instance_name].institution.contact_email,],
+                    [ss.institution.contact_email,],
                     fail_silently=False
                     )
+        
+        # Send certificate to Marnie
+        send_certificate_pdf.delay(ss)
         
         return respond(request, 'tool/submissions/submit_success.html', {})
         

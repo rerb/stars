@@ -22,17 +22,17 @@ def render_to_pdf(template_src, context_dict):
     
     template = get_template(template_src)
     context = Context(context_dict)
-    print >> sys.stderr, "Building PDF"
-    print >> sys.stderr, "%s: Generating HTML" % datetime.now()
+    # print >> sys.stdout, "Building PDF"
+    # print >> sys.stdout, "%s: Generating HTML" % datetime.now()
     html = template.render(context)
-    print >> sys.stderr, "%s: Finished HTML" % datetime.now()
+    # print >> sys.stdout, "%s: Finished HTML" % datetime.now()
     result = StringIO.StringIO()
-    print >> sys.stderr, "RESULT"
+    # print >> sys.stdout, "RESULT"
 #    print >> sys.stderr, html
     
-    print >> sys.stderr, "%s: Generating PDF" % datetime.now()
+    # print >> sys.stdout, "%s: Generating PDF" % datetime.now()
     pdf = pisa.pisaDocument(html, result)
-    print >> sys.stderr, "%s: Finished PDF" % datetime.now()
+    # print >> sys.stdout, "%s: Finished PDF" % datetime.now()
 
     if not pdf.err:
         return result
@@ -66,13 +66,13 @@ def build_report_pdf(submission_set):
     
     return render_to_pdf('institutions/pdf/report.html', context)
 
-def build_certificate_pdfs(ss_list):
+def build_certificate_pdf(ss):
     """
         Build a PDF certificate for Institution Presidents
     """
     
     context = {
-                'ss_list': ss_list,
+                'ss': ss,
                 'project_path': settings.PROJECT_PATH,
                 }
     return render_to_pdf('institutions/pdf/certificate.html', context)
