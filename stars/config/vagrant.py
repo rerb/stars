@@ -37,6 +37,11 @@ SSO_API_KEY = DEV_SSO_API_KEY
 
 XMLRPC_VERBOSE = False
 
+# Celery
+BROKER_USER = "starapp"
+BROKER_PASSWORD = "J3z4#$szFET--6"
+BROKER_VHOST = "starsapp"
+
 #if manage.py test was called, use test settings
 if 'test' in sys.argv:
     
