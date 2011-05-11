@@ -189,7 +189,7 @@ import djcelery
 djcelery.setup_loader()
 BROKER_HOST = "localhost"
 BROKER_PORT = 5672
-BROKER_USER = "starapp"
+BROKER_USER = "starsapp"
 BROKER_PASSWORD = "starsappP122a"
 BROKER_VHOST = "starsapp"
 
