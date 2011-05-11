@@ -124,7 +124,7 @@ INSTALLED_APPS = (
     'sorl.thumbnail',
     'django_extensions',
     'djcelery',
-    'memcache_status',
+    # 'memcache_status',
 )
 
 # Is this running on the django dev server?
@@ -189,9 +189,9 @@ import djcelery
 djcelery.setup_loader()
 BROKER_HOST = "localhost"
 BROKER_PORT = 5672
-BROKER_USER = "guest"
-BROKER_PASSWORD = "J3z4#$szFET--6"
-BROKER_VHOST = "/"
+BROKER_USER = "starapp"
+BROKER_PASSWORD = "starsappP122a"
+BROKER_VHOST = "starsapp"
 
 # Authorize.Net
 REAL_AUTHORIZENET_LOGIN = "9xaJX497HjE"
