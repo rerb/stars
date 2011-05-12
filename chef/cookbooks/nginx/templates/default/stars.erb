@@ -1,0 +1,34 @@
+server {
+    listen   80;
+    server_name stars.aashe.org web1;
+    rewrite ^(.*) https://stars.aashe.org$1 permanent;
+}
+
+server {
+    listen   443;
+    server_name stars.aashe.org web1;
+    ssl	on;
+    ssl_certificate	<%= @cert_path %>;
+    ssl_certificate_key	<%= @key_path %>;
+    keepalive_timeout	70;
+
+    access_log /var/www/stars/logs/nginx_access.log;
+    error_log /var/www/stars/logs/nginx_error.log;
+    error_page 500 502 503 504  /gateway_error.html;
+    location = /gateway_error.html {
+        root /var/www/stars/src/current/stars/templates/gateway_error.html;
+    }
+    location / {
+        proxy_pass  http://127.0.0.1:8080;
+        include     /etc/nginx/proxy.conf;
+    }
+    location  /media/ {
+        root /var/www/stars/;
+    }
+    location /robots.txt {
+    	alias /var/www/stars/src/current/stars/config/robots/production.txt;
+    }
+    location /favicon.ico {
+    	alias /var/www/stars/src/current/stars/static/images/favicon.ico;
+    }
+}

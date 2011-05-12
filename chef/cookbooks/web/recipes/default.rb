@@ -1,10 +1,12 @@
-execute "apt-get-update and upgrade" do
+# STARS Web Application Server
+
+execute "apt-get-update" do
   command "apt-get update"
-  command "apt-get dist-upgrade"
+  # command "apt-get dist-upgrade"
 end
 
-package "apache2"
-package "libapache2-mod-wsgi"
+# Base packages
+
 package "memcached"
 package "python-memcache"
 package "git-core"
@@ -13,14 +15,17 @@ package "python-setuptools"
 package "python-mysqldb"
 package "build-essential"
 package "subversion"
-package "mercurial"
 package "libgraphicsmagick++1-dev"
 package "libboost-python1.40-dev"
-# package "rabbitmq-server"
+package "mercurial"
 
-template "/etc/apache2/apache2.conf" do
-    source "apache2.conf"
-    owner "root"
-    group "root"
-    mode "644"
-end
+include_recipe "mysql::client"
+
+# Python Packages
+
+include_recipe "python"
+
+# Kept timing out :(
+# python_pip "mercurial" do
+#   action :install
+# end
