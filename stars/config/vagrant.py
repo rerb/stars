@@ -31,6 +31,8 @@ THUMBNAIL_ENGINE = "sorl.thumbnail.engines.pgmagick_engine.Engine"
 
 MEDIA_ROOT = '/var/www/stars/media/'
 
+INSTALLED_APPS = INSTALLED_APPS + ('memcache_status',)
+
 SSO_SERVER_URI = DEV_SSO_SERVER_URI
 STARS_DOMAIN = DEV_STARS_DOMAIN
 SSO_API_KEY = DEV_SSO_API_KEY
