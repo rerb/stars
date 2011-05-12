@@ -24,7 +24,7 @@ def vagrant():
     """
     env.hosts = ['web1']
     env.user = 'vagrant'
-    env.key_filename = '/Library/Ruby/Gems/1.8/gems/vagrant-0.7.2/keys/vagrant'
+    env.key_filename = '/Library/Ruby/Gems/1.8/gems/vagrant-0.7.3/keys/vagrant'
     env.config_file = "vagrant"
 
 @runs_once
@@ -41,13 +41,14 @@ def setup():
     """
     sudo("mkdir -p %s" % env.path)
     sudo('mkdir -p %smedia/' % env.project_root)
+    sudo('mkdir -p %slogs/' % env.project_root)
     sudo("ln -s %scurrent/stars/static %smedia/static" % (env.path, env.project_root))
 
 def deploy():
     """
         Deploy code to server, buildout environment and launch
     """
-    push()
+    pull()
     config()
     
     with cd(env.project_path):
@@ -56,11 +57,15 @@ def deploy():
         migrate()
     
     launch()
-    
+
 def push():
     """
-      Prepares a release to the dev server
-      sets env.project_path and env.checkout_cmd
+        Pushes existing working code from server
+    """
+
+def pull():
+    """
+      Pulls code from repo into new folder
     """
 
     branch_name = prompt("Branch or Tag Name (blank for HEAD): ")
@@ -103,7 +108,9 @@ def config():
     
     rm_cmd = "rm %s" % config_local_path
     ln_cmd = "ln -s %s %s" % (config_file_path, config_local_path)
-    sudo(rm_cmd)
+    
+    if exists(config_local_path):
+        sudo(rm_cmd)
     sudo(ln_cmd)
 
 def buildout():
@@ -138,14 +145,14 @@ def migrate():
     sudo(syncdb_cmd)
     
     print "Migrate DB"
-    migrate_cmd = "bin/django migrate"
+    migrate_cmd = "bin/django migrate --delete-ghost-migrations"
     sudo(migrate_cmd)
     
 def launch():
     "Finalize the deployment by creating a symlink"
     with cd(env.path):
         print "Updating Symlink"
-        symlink_cmd1 = "rm current"
+        symlink_cmd1 = "rm -rf current"
         symlink_cmd2 = "ln -s %s current" % env.project_path
         if exists("current"):
             sudo(symlink_cmd1)
