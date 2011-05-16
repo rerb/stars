@@ -10,6 +10,7 @@ from stars.apps.accounts.utils import respond
 from stars.apps.accounts.decorators import user_can_submit, user_is_inst_admin
 from stars.apps.accounts.mixins import PermMixin, SubmissionMixin
 from stars.apps.submissions.models import *
+from stars.apps.submissions.tasks import send_certificate_pdf
 from stars.apps.cms.xml_rpc import get_article
 from stars.apps.tool.my_submission.forms import *
 from stars.apps.credits.models import *
