@@ -25,7 +25,12 @@ DATABASES = {
 }
 DATABASE_ROUTERS = ('aashe.issdjango.router.ISSRouter',)
 
-CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': '127.0.0.1:11211',
+    }
+}
 
 THUMBNAIL_ENGINE = "sorl.thumbnail.engines.pgmagick_engine.Engine"
 
