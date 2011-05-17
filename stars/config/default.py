@@ -48,4 +48,9 @@ XMLRPC_USE_HASH = True
 
 SOUTH_TESTS_MIGRATE = False
 
-CACHE_BACKEND = "file:///tmp/stars-cache"
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': '/tmp/stars-cache',
+    }
+}

@@ -9,4 +9,4 @@ try:
 except:
     revision = None
 
-print >> sys.stderr, "REVISION: %s" % revision
+# print >> sys.stderr, "REVISION: %s" % revision

@@ -64,7 +64,12 @@ DEBUG_TOOLBAR_CONFIG = {
 
 #CACHE_BACKEND = "file:///Users/jamstooks/tmp/stars-cache"
 #CACHE_BACKEND = "dummy://"
-CACHE_BACKEND = "db://temp_cache_table"
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'temp_cache_table',
+    }
+}
 
 # Authorize.Net
 AUTHORIZENET_LOGIN = TEST_AUTHORIZENET_LOGIN
