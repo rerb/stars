@@ -4,7 +4,10 @@ import os, sys, django, re
 
 sys.path.append('../')
 
-ADMINS = (('Benjamin Stookey', 'ben@aashe.org'),)
+ADMINS = (
+            ('Benjamin Stookey', 'ben@aashe.org'),
+            ('My Cell', "8602131672@txt.att.net")
+        )
 MANAGERS = ADMINS
 
 DEFAULT_CHARSET = 'utf-8'
