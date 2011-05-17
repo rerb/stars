@@ -1,21 +1,56 @@
-= STARS Deployment README =
+Requirements
+============
 
-== Requirements ==
+Python 2.[67].*
 
-Python 2.6.*
-
-== Release Process ==
+Release Process
+===============
 
 http://code.aashedev.org/stars/wiki/ReleaseProcess
 
-== Fabric ==
+Fabric
+======
 
 This project uses fabric to deploy code to dev, stage, and production environments
 
-=== Example Deploy ===
+Example Deploy
+--------------
 
->$ bin/fab dev deploy
-You will be prompted to offer a specific branch/tag, otherwise the latest default branch will be deployed
+>$ bin/fab <name> deploy
+You will be prompted to offer a specific branch/tag, otherwise the latest default branch will be deployed...
 
->$ bin/fab production deploy
-Again, you are prompted, but this time for a tag name, which must exist.
+Current configuration are:
+
+* vagrant
+* starsapp01
+
+Vagrant
+=======
+
+Vagrant is a tool to generate a virtual machines on your local box. Right now it's configured to bring up one instance:
+
+* web1: 33.33.33.10
+
+>$ cd vagrant
+>$ vagrant up
+
+web1
+----
+
+Configured with the following:
+
+* stars application paths (/var/www/stars/)
+* apache w/ mod_wsgi
+* nginx
+* rabbitmq
+* django-celery
+* memcached
+* python
+
+Complete deploy
+---------------
+
+>$ cd ..
+>$ bin/fab vagrant deploy
+
+Site up at: http://33.33.33.10
