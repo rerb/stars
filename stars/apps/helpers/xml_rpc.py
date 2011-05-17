@@ -38,7 +38,7 @@ def run_rpc(service_name, args, sessid='????'):
             if 'login' in service_name:
                 args=list(args)
                 args[1] = '*******'   # Hack: don't log the user's password!!
-            watchdog.log("XML-RPC", "%s %s"%(fault.faultString, args), watchdog.NOTICE)
+            watchdog.log("XML-RPC", "%s %s"%(fault.faultString, args), watchdog.WARNING)
             return None
         else:
             raise RpcException(fault.faultString, RPC_ERROR_USER_MSG)  # server error on irc
