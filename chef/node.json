@@ -1,4 +1,0 @@
-{
-  "run_list": ["web::default"],
-  "django_settings_module": "stars.settings"
-}
