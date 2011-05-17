@@ -12,21 +12,15 @@ import sys
 
 @task()
 def send_certificate_pdf(ss):
-    # print >> sys.stdout, "Starting Cert PDF Email"
-    pdf = build_certificate_pdf(ss)
     
+    pdf = build_certificate_pdf(ss)
+
     m = EmailMessage(
                         subject="New Certificate: %s" % ss,
                         body="%s submitted" % ss.institution,
-                        to=['ben@aashe.org',],
-                        # bcc=['ben@aashe.org',],
+                        to=['marnie@aashe.org',],
+                        bcc=['ben@aashe.org',],
                         headers = {'Reply-To': 'stars@aashe.org'},
                         attachments = ((ss.institution.slug, pdf.getvalue(), 'application/pdf'),),
-                        # using the smtp email even for testing
-                        connection = get_connection('django.core.mail.backends.smtp.EmailBackend'),
                     )
     m.send()
-    
-    print >> sys.stdout, "Back: %s" % settings.EMAIL_BACKEND
-    
-    print >> sys.stdout, "Sent Cert PDF Email"

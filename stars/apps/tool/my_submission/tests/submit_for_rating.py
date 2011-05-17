@@ -12,6 +12,7 @@
 from django.test import TestCase
 from django.core import mail
 from django.test.client import Client
+from django.conf import settings
 
 from stars.apps.submissions.models import SubmissionSet
 
@@ -74,6 +75,8 @@ class RatingTest(TestCase):
 
         print >> sys.stderr, "TESTING: Finalize"
         
+        settings.CELERY_ALWAYS_EAGER = True
+        
         c = Client()
         c.login(username='test_user', password='test')
         post_dict = {}
@@ -85,5 +88,6 @@ class RatingTest(TestCase):
         self.assertTrue(response.status_code == 200)
         ss = SubmissionSet.objects.get(pk=1)
         self.assertTrue(ss.status == 'r')
-        self.assertTrue(len(mail.outbox) == 2)
+        # one email to institution
+        self.assertTrue(len(mail.outbox) == 3)
         
