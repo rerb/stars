@@ -40,6 +40,9 @@ def populate_etl_entry(institution):
     etl.liaison_phone = institution.contact_phone
     etl.liaison_email = institution.contact_email
     
+    etl.is_published = institution.is_published()
+    etl.institution = institution
+    
     return etl
 
 def update_etl_for_institution(i, etl):

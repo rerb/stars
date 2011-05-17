@@ -37,6 +37,10 @@ class CreditEditorFormView(IsStaffMixin, MultiFormView, CreditEditorNavMixin):
         The base class for all Credit Editor Views
         It inherits from MultiFormView, but mixes in IsStaffMixin and CreditNavMixin
     """
+
+    @property
+    def __name__(self):
+        return self.__class__.__name__
     
     def get_extra_context(self, request, context, **kwargs):
         """ Expects arguments for /creditset_id/category_id/subcategory_id/credit_id """

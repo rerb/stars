@@ -32,7 +32,7 @@ def institutions_list(request):
         A list of latest submissionsets for ALL registered institutions currently participating in STARS.
     """
     
-    ss_list = SubmissionSet.objects.order_by('institution__name').select_related('institution')
+    ss_list = SubmissionSet.objects.order_by('institution__name').select_related('institution').filter(is_visible=True)
     saved = False
     
     # Add the latest submission set and payment to each institution

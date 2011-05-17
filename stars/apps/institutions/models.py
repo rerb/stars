@@ -129,6 +129,22 @@ class Institution(models.Model):
                 return True
         # assert: no submission has been registered for the given credit set for this institution
         return False
+    
+    def is_published(self):
+        """
+            Returns true if the institution has a rating that's less than three years old
+            or
+            if the institution has a current paid submission
+        """
+        
+        if self.enabled:
+            for ss in self.submissionset_set.all():
+                if ss.status == "r":
+                    return True
+                elif ss.is_enabled():
+                    return True
+        
+        return False
 
     @property
     def profile(self):

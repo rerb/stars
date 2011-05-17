@@ -218,7 +218,7 @@
         data.addRows([
         	['STARS', {{ member_numbers.all }}],
         	['AASHE', {{ member_numbers.members }}],
-        	['PCC', {{ member_numbers.pcc }}],
+        	['ACUPCC', {{ member_numbers.pcc }}],
         	['Charter', {{ member_numbers.charter }}],
         	['USA', {{ member_numbers.us }}],
         	['Canada', {{ member_numbers.canadian }}]
@@ -314,7 +314,7 @@
 			<div id="memberNumbers" style="width:450px;height:250px;margin: 0px;"></div>
 		</div>
 		<div style='margin: 0px 0px 0px 475px;'>
-		<h3>Institution Properties</h3>
+		<h3>STARS Participant Properties</h3>
 		<table class='vertical' style='margin: 20px;'>
 			<tr>
 				<th>STARS Participants</th>
@@ -325,7 +325,7 @@
 				<td>{{ member_numbers.members }}</td>
 			</tr>
 			<tr>
-				<th>PCC Signatories</th>
+				<th>ACUPCC Signatories</th>
 				<td>{{ member_numbers.pcc }}</td>
 			</tr>
 			<tr>

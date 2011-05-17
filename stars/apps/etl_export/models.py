@@ -3,15 +3,15 @@ from django.contrib.localflavor.us.models import PhoneNumberField
 
 from stars.apps.institutions.models import Institution
 from stars.apps.credits.models import Rating
-from stars.apps.submissions.models import SUBMISSION_STATUS_CHOICES
 
 class ETL(models.Model):
     """
         This model houses all the required fields for the Salesforce Extract Transform and Load operation.
     """
+    institution = models.ForeignKey(Institution, blank=True, null=True)
     aashe_id = models.IntegerField()
     change_date = models.DateTimeField(auto_now=True)
-    participant_status = models.CharField(max_length=32, choices=SUBMISSION_STATUS_CHOICES, blank=True, null=True)
+    participant_status = models.CharField(max_length=32, blank=True, null=True)
     current_rating = models.CharField(max_length=16, null=True, blank=True)
     rating_valid_until = models.DateField(blank=True, null=True)
     registration_date = models.DateField(blank=True, null=True)
@@ -25,6 +25,7 @@ class ETL(models.Model):
     liaison_department = models.CharField(max_length=64)
     liaison_phone = PhoneNumberField()
     liaison_email = models.EmailField()
+    is_published = models.BooleanField()
     
     def __str__(self):
         return "%d" % self.aashe_id
