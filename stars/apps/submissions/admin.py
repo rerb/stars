@@ -5,6 +5,7 @@ from models import *
 class SubmissionSetAdmin(admin.ModelAdmin):
     list_display = ('creditset', 'institution', 'date_registered', 'date_submitted', 'date_reviewed', 'rating')
     list_filter = ('submission_deadline','date_registered')
+    search_fields = ('institution__name',)
 admin.site.register(SubmissionSet, SubmissionSetAdmin)
 
 class PaymentAdmin(admin.ModelAdmin):
