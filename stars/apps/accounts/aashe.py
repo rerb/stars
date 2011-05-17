@@ -29,11 +29,7 @@ class AASHEAuthBackend:
         
         if user_dict:
             user = xml_rpc.get_user_from_user_dict(user_dict['user'], user_dict['sessid'])
-            # don't allow non-staff to login during maintenance mode.
-            if settings.MAINTENANCE_MODE and not user.is_staff:
-                return None
-            else:
-                return user
+            return user
             
         return None
 
