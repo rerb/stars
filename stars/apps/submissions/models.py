@@ -135,9 +135,10 @@ class SubmissionSet(models.Model):
         return True
     
     def is_enabled(self):
-        for payment in self.payment_set.all():
-            if payment.type == 'credit' or payment.type == 'check':
-                return True
+        if self.is_visible:
+            for payment in self.payment_set.all():
+                if payment.type == 'credit' or payment.type == 'check':
+                    return True
         return False
     
     def was_submitted(self):
