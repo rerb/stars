@@ -20,19 +20,20 @@ env.repo = "https://%s:%s@code.aashedev.org/hg/stars" % (env.hg_user, env.hg_pas
 
 def vagrant():
     """
-        Initializes a release to any specified host
+        Initializes a release to the vagrant VM host
     """
-    env.hosts = ['web1']
+    env.hosts = ['ben-aashe-web1']
     env.user = 'vagrant'
     env.key_filename = '/Library/Ruby/Gems/1.8/gems/vagrant-0.7.3/keys/vagrant'
-    env.config_file = "vagrant"
-
-@runs_once
-def test():
-    with settings(warn_only=True):
-        result = local('./bin/django test', capture=False)
-    if result.failed and not confirm("Tests failed. Continue anyway?"):
-        abort("Aborting at user request.")  
+    env.config_file = "vagrant" 
+    
+def starsapp01():
+    """
+        Initializes a release to the production server
+    """
+    env.hosts = ['starsapp01']
+    env.user = 'jamstooks'
+    env.config_file = "starsapp01"
 
 def setup():
     """
@@ -53,15 +54,10 @@ def deploy():
     
     with cd(env.project_path):
         buildout()
-        # test()
+        test()
         migrate()
     
     launch()
-
-def push():
-    """
-        Pushes existing working code from server
-    """
 
 def pull():
     """
@@ -127,9 +123,13 @@ def buildout():
         buildout_cmd = "bin/buildout"
         sudo(buildout_cmd)
         
+@runs_once   
 def test():
     "Run tests"
-    if env.run_test:
+    
+    test = prompt("Run Tests? ([y]/n):")
+    
+    if not test or test == 'y':
         print "Running Test Suite"
         test_cmd = "bin/django test"
         with settings(warn_only=True):
@@ -168,4 +168,4 @@ def run_chef():
     """
     project.rsync_project(local_dir='chef', remote_dir='/tmp', delete=True)
     sudo('rsync -ar --delete /tmp/chef/ /etc/chef/')
-    sudo('chef-solo')
+    # sudo('chef-solo')
