@@ -24,7 +24,7 @@ def log(who, message, severity = NOTICE) :
     # Because the watchdog is often called when an exception has occurred, 
     # we need to be careful not to generate another exception here, so if we can't do the insert, so be it -
     # that's better than an infinite loop
-    if severity != NOTICE
+    if severity != NOTICE:
         print >> sys.stderr, "Watchdog: %s|%s|%s" % (who, message, severity)
     try :
         WatchdogEntry.log(who, message, severity)
