@@ -112,7 +112,6 @@ def reg_contact_info(request):
             request.session['selected_institution'] = institution
             return HttpResponseRedirect('/register/step3/')
         else:
-            print >> sys.stderr, reg_form.errors
             flashMessage.send("Please correct the errors below", flashMessage.ERROR)
             
     template = "registration/contact.html"
