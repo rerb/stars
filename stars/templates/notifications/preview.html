@@ -1,0 +1,15 @@
+{% autoescape off %}<html>
+    <head>
+        <title>{{ title }}</title>
+    </head>
+    
+    <body>
+        <h1>{{ title }}</h1>
+        <hr />
+        <pre>
+{{ message }}
+        </pre>
+        <hr />
+    </body>
+</html>
+{% endautoescape %}

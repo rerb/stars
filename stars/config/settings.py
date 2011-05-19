@@ -121,6 +121,7 @@ INSTALLED_APPS = (
     'stars.apps.etl_export',
     'stars.apps.custom_forms',
     'stars.apps.tasks',
+    'stars.apps.notifications',
     'stars.tests',
     'aashe.issdjango',
     'south',

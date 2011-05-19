@@ -26,6 +26,9 @@ urlpatterns = patterns('',
 
     # admin
     (r'^_ad/', include(admin.site.urls)),
+
+    # admin
+    (r'^notifications/', include('stars.apps.notifications.urls')),
     
     # institutions
     (r'^institutions/', include('stars.apps.institutions.urls')),
