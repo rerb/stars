@@ -9,11 +9,11 @@ from django.utils.safestring import mark_safe
 from utils import build_message
 
 class EmailTemplate(models.Model):
-    slug = models.SlugField(max_length=32)
-    title = models.CharField(max_length=128)
+    slug = models.SlugField(max_length=32, unique=True, help_text="Unique name. Please do not change.")
+    title = models.CharField(max_length=128, help_text='The subjuect line of the email.')
     description = models.TextField()
     content = models.TextField()
-    example_context = models.TextField()
+    example_context = models.TextField(help_text="Example context for the template. Do not change.")
     
     class Meta:
         ordering = ('slug',)
