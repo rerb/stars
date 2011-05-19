@@ -18,6 +18,10 @@ class TemplateView(object):
     def __call__(self, request, *args, **kwargs):
         """ Simply calls render """
         
+    @property
+    def __name__(self):
+        return self.__class__.__name__
+        
         return self.render(request, *args, **kwargs)
 
     def render(self, request, *args, **kwargs):
@@ -50,6 +54,10 @@ class FormActionView(object):
             self.context_dict = {}
         else:
             self.context_dict = init_context
+            
+    @property
+    def __name__(self):
+        return self.__class__.__name__
 
     def __call__(self, request, *args, **kwargs):
         """ Call the class as if it were a function """
