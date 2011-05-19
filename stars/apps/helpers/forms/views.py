@@ -17,12 +17,11 @@ class TemplateView(object):
 
     def __call__(self, request, *args, **kwargs):
         """ Simply calls render """
+        return self.render(request, *args, **kwargs)
         
     @property
     def __name__(self):
         return self.__class__.__name__
-        
-        return self.render(request, *args, **kwargs)
 
     def render(self, request, *args, **kwargs):
         """ Renders the response """
