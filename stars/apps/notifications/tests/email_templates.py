@@ -29,7 +29,7 @@ class TestNotifications(TestCase):
                             title='Test Title',
                             description='Testing this thing',
                             content="This is the <b>value</b> '{{ test_val }}'.",
-                            example_context={'test_val': 1,}
+                            example_context="{'test_val': 1,}"
                             )
         et.save()
         
