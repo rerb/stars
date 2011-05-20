@@ -2,10 +2,7 @@ from django.conf.urls.defaults import *
 from django.views.decorators.cache import never_cache
 
 from stars.apps.institutions.views import *
-from stars.apps.credits.models import CreditSet
 from stars.apps.helpers.forms.views import TemplateView
-
-creditset = CreditSet.objects.get(pk=2)
 
 urlpatterns = patterns(
     'stars.apps.institutions.views',
