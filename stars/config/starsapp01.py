@@ -25,6 +25,8 @@ DATABASES = {
 }
 DATABASE_ROUTERS = ('aashe.issdjango.router.ISSRouter',)
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
