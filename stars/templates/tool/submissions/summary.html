@@ -33,7 +33,7 @@
 				<a name='ec_{{ cat.category.id }}_{{ sub.subcategory.id }}'></a>
 			    <h3>
 			        <span class='provScore'>
-			            <div class='provScorePercent'>{{ sub.get_claimed_points|floatformat:2 }} / {{ sub.get_available_points|floatformat:2 }}</div>
+			            <div class='provScorePercent'>{{ sub.get_claimed_points|floatformat:2 }} / {{ sub.get_adjusted_available_points|floatformat:2 }}</div>
 			            <span class='provScoreCaption'>Points Claimed</span>
 			        </span>
 			        {% show_progress_icon sub %}
