@@ -2,7 +2,9 @@
 
 {% if not field.is_empty %}
 	{% ifequal field.documentation_field.type 'long_text' %}
-		{{ field.value|urlizetrunc:85|linebreaks|fix_ampersands }}
+	    <div style='text-align: left; margin: 0px;padding: 0px;'>
+		    {{ field.value|urlizetrunc:85|linebreaks|fix_ampersands }}
+		</div>
 	{% else %}
 	    {% ifequal field.documentation_field.type 'url' %}
 	        <a href='{{ field.value }}' target="_blank">{{ field.value|slice:":85" }}</a>
