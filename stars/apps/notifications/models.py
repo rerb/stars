@@ -45,3 +45,6 @@ class EmailTemplate(models.Model):
                         headers = {'Reply-To': 'stars@aashe.org'},
                     )
         m.send()
+        
+    def get_absolute_url(self):
+        return "/notifications/preview/%s/" % self.slug
