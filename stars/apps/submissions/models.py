@@ -71,7 +71,7 @@ class SubmissionSet(models.Model):
     submitting_user = models.ForeignKey(User, related_name='submitted_submissions', blank=True, null=True)
     rating = models.ForeignKey(Rating, blank=True, null=True)
     status = models.CharField(max_length=8, choices=SUBMISSION_STATUS_CHOICES)
-    submission_boundary = models.TextField(blank=True, null=True, help_text='Each institution is expected to include its entire main campus when collecting data.  Institutions may choose to include any other land holdings, facilities, farms, and satellite campuses, as long as the selected boundary is the same for each credit.  If an institution finds it necessary to exclude a particular unit from its entire submission or a particular credit, the reason for excluding it must be provided in the notes for that credit or in this description.')
+    submission_boundary = models.TextField(blank=True, null=True, help_text="The following is an example institutional boundary: This submission includes all of the the University's main campus as well as the downtown satellite campus. The University hospital and campus farm are excluded.")
     presidents_letter = models.FileField("President's Letter", upload_to=upload_path_callback, blank=True, null=True, help_text="AASHE requires that every submission be vouched for by that institution's president. Please upload a PDF or scan of a letter from your president.")
     reporter_status = models.BooleanField(help_text="Check this box if you would like to be given reporter status and not receive a STARS rating from AASHE.")
     pdf_report = models.FileField(upload_to=upload_path_callback, blank=True, null=True)
