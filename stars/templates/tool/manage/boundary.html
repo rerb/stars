@@ -7,13 +7,13 @@
 		<table>
 			{% include 'helpers/standard_form.html' %}
 		</table>
-	<div class='buttonRow'>
-		<button type='submit'>Save</button>
-	</div>
+    	<div class='buttonRow'>
+    		<button type='submit'>Save</button>
+    	</div>
 	</form>
 {% endblock %}
 
 {% block help_content %}
-    {% load help %}
-    {% show_help_context 'boundary' 0 %}
+    {% load content %}
+    {% display_block_content 'edit_submission_boundary' user %}
 {% endblock %}
