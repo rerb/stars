@@ -72,8 +72,10 @@ def get_user_from_user_dict(user_dict, session, create=True):
             user.email = user_dict['mail']
             user.username = email_to_username(user_dict['mail'])
         user.password = password
-        user.first_name = user_dict['profile_fname']
-        user.last_name = user_dict['profile_lname']
+        if user_dict.has_key('profile_fname'):
+            user.first_name = user_dict['profile_fname']
+        if user_dict.has_key('profile_lname'):
+            user.last_name = user_dict['profile_lname']
     except User.DoesNotExist:
         if not create:
             return None
@@ -126,7 +128,8 @@ def get_user_from_user_dict(user_dict, session, create=True):
             profile.is_aashe_staff = False
     
     # list of associated institutions
-    profile.profile_instlist = user_dict['profile_instlist']
+    if user_dict.has_key('profile_instlist'):
+        profile.profile_instlist = user_dict['profile_instlist']
     
     profile.save()
     
