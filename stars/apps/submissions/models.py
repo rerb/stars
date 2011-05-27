@@ -14,6 +14,7 @@ from stars.apps.credits.models import *
 from stars.apps.institutions.models import Institution
 from stars.apps.helpers import watchdog, flashMessage, managers
 from stars.apps.submissions.pdf.export import build_report_pdf
+from stars.apps.notifications.models import EmailTemplate
             
 SUBMISSION_STATUS_CHOICES = (
     ('ps', 'Pending Submission'),
@@ -964,7 +965,7 @@ class DataCorrectionRequest(models.Model):
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
     reporting_field = generic.GenericForeignKey('content_type', 'object_id')
-    new_value = models.TextField()
+    new_value = models.TextField(help_text='If this is a numeric field, then please to remove any units before approving.')
     explanation = models.TextField()
     user = models.ForeignKey(User, blank=True, null=True)
     approved = models.BooleanField(default=False)
@@ -985,19 +986,28 @@ class DataCorrectionRequest(models.Model):
     def approve(self):
         """
             Approving a correction request creates a ReportingFieldDataCorrection
-            This may not work for numeric fields, test it.
         """
         rfdc = ReportingFieldDataCorrection(
-                                            previous_value=self.reporting_field.value,
-                                            change_date = datetime.today(),
-                                            reporting_field = self.reporting_field,
-                                            explanation = self.explanation,
-                                            request = self,
-                                            )
-        self.reporting_field.value = self.new_value
-        self.reporting_field.save()
-        rfdc.save()
+                                                    previous_value=self.reporting_field.value,
+                                                    change_date = datetime.today(),
+                                                    reporting_field = self.reporting_field,
+                                                    explanation = self.explanation,
+                                                    request = self,
+                                                    )
+                self.reporting_field.value = self.new_value
+                self.reporting_field.save()
+                rfdc.save()
         self.approved = True
+        
+        # notify institution of approval
+        et = EmailTemplate.objects.get(slug='approved_data_correction')
+        cus = CreditUserSubmission.objects.get(pk=self.reporting_field.credit_submission.id)
+        ss = cus.subcategory_submission.category_submission.submissionset
+        mail_to = [ss.institution.contact_email,]
+        if ss.institution.contact_email != self.user.email:
+            mail_to.append(self.user.email)
+        email_context = {"submissionset": ss,}
+        et.send_email(mail_to, email_context)
 
 class ReportingFieldDataCorrection(models.Model):
     """
