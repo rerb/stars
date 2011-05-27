@@ -988,15 +988,15 @@ class DataCorrectionRequest(models.Model):
             Approving a correction request creates a ReportingFieldDataCorrection
         """
         rfdc = ReportingFieldDataCorrection(
-                                                    previous_value=self.reporting_field.value,
-                                                    change_date = datetime.today(),
-                                                    reporting_field = self.reporting_field,
-                                                    explanation = self.explanation,
-                                                    request = self,
-                                                    )
-                self.reporting_field.value = self.new_value
-                self.reporting_field.save()
-                rfdc.save()
+                                            previous_value=self.reporting_field.value,
+                                            change_date = datetime.today(),
+                                            reporting_field = self.reporting_field,
+                                            explanation = self.explanation,
+                                            request = self,
+                                            )
+        self.reporting_field.value = self.new_value
+        self.reporting_field.save()
+        rfdc.save()
         self.approved = True
         
         # notify institution of approval
