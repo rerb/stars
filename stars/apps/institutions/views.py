@@ -4,9 +4,6 @@ from django.views.generic.simple import direct_to_template
 from django.core.exceptions import PermissionDenied
 from django.utils.functional import curry
 from django.forms.models import inlineformset_factory
-from django.template import Context, Template
-from django.core.mail import send_mail
-from django.template.loader import get_template
 
 import sys, re
 from datetime import date
@@ -20,6 +17,7 @@ from stars.apps.institutions.models import Institution, InstitutionState, StarsA
 from stars.apps.institutions.forms import *
 from stars.apps.helpers.forms.views import TemplateView, FormActionView, MultiFormView
 from stars.apps.credits.views import CreditNavMixin
+from stars.apps.notifications.models import EmailTemplate
 
 class SortableTableView(TemplateView):
     """
@@ -379,34 +377,12 @@ class DataCorrectionView(CreditNavMixin, ScorecardMixin, FormActionView):
         correction.user = request.user
         correction.save()
         
-        
-        message = """
-From: %s
-
-Original Submission Date: %s
-
-Field: %s
-
-Old Value: %s
-
-New Value: %s
-
-Explanation: %s
-""" % (
-        context['institution'],
-        context['submissionset'].date_submitted,
-        field.documentation_field,
-        field.value,
-        correction.new_value,
-        correction.explanation )
-        
-        email_to = ['stars@aashe.org',]
-        send_mail(  "Data Correction Request",
-                    message,
-                    settings.EMAIL_HOST_USER,
-                    email_to,
-                    fail_silently=False
-                    )
+        et = EmailTemplate.objects.get(slug="data_correction_request")
+        context = {
+            "correction": correction,
+            "submissionset": context['submissionset']
+        }
+        et.send_email(["stars@aashe.org",], context)
 
         return direct_to_template(request, "institutions/data_correction_request/success.html", context)
     
@@ -501,17 +477,13 @@ class SubmissionInquiryView(CreditNavMixin, ScorecardMixin, MultiFormView):
                 form_list['credit_inquiries'].save()
                 
                 # Send confirmation email
-                email_context = Context({'inquiry': submission_inquiry,'institution': context['institution'],})
-                t = get_template("institutions/inquiries/liaison_email.txt")
-                message = t.render(email_context)
-                
-                email_to = [context['institution'].contact_email, submission_inquiry.email_address, 'stars@aashe.org',]
-                send_mail(  "STARS Submission Data Accuracy Inquiry",
-                            message,
-                            submission_inquiry.email_address,
-                            email_to,
-                            fail_silently=False
-                            )
+                email_to = [context['institution'].contact_email, submission_inquiry.email_address]
+                et = EmailTemplate.objects.get(slug="submission_accuracy_inquiry")
+                email_context = {
+                    "inquiry": submission_inquiry,
+                    "institution": submission_inquiry.submissionset.institution
+                }
+                et.send_email(email_to, email_context)
                             
                 return context, self.get_success_response(request, context)
                 
