@@ -187,6 +187,7 @@ EMAIL_HOST_USER = 'stars_notifier@aashe.org'
 EMAIL_HOST_PASSWORD = 'sustainaashe'
 EMAIL_PORT = 587
 DEFAULT_FROM_EMAIL = 'stars_notifier@aashe.org'
+EMAIL_REPLY_TO = "stars@aashe.org"
 
 # Celery
 import djcelery
