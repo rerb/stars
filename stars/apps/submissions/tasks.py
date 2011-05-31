@@ -14,6 +14,11 @@ from celery.decorators import task
 import sys
 
 @task()
+def hello_world():
+    " A simple test task so I can test celery "
+    print >> sys.stdout, "Hello World"
+
+@task()
 def send_certificate_pdf(ss):
     
     pdf = build_certificate_pdf(ss)
