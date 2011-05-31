@@ -111,38 +111,38 @@ class TestProcess(TestCase):
         self.assertTrue(response.status_code == 302)
         self.assertTrue(len(mail.outbox) == 2)
        
-    def testPayWithCard(self):
-        """
-           Test the ConfirmClassView
-               - Handles a basic HTTP request w/out 500
-               - Processes the form and returns a redirect to step 2
-        """
-
-        c = self.regStep2(16384, 'florida-national-college-fl')
-
-        # Test Payment
-        url = '/register/step3/'
-
-        # Empty Query
-        post_dict = {}
-        response = c.get(url, post_dict)
-        self.assertTrue(response.status_code == 200)
-
-        post_dict = {
-                       'name_on_card': 'Test Person',
-                       'card_number': '4007000000027',
-        #                        'card_number': '4222222222222',
-                       'exp_month': str(date.today().month),
-                       'exp_year': str(date.today().year + 1),
-                       'cv_code': '123',
-                       'billing_address': '123 Stree rd',
-                       'billing_city': "Providence",
-                       'billing_state': 'RI',
-                       'billing_zipcode': '01234',
-                    }
-        response = c.post(url, post_dict)
-        self.assertTrue(response.status_code == 302)
-        self.assertTrue(len(mail.outbox) == 2)
+    # def testPayWithCard(self):
+    #     """
+    #        Test the ConfirmClassView
+    #            - Handles a basic HTTP request w/out 500
+    #            - Processes the form and returns a redirect to step 2
+    #     """
+    # 
+    #     c = self.regStep2(16384, 'florida-national-college-fl')
+    # 
+    #     # Test Payment
+    #     url = '/register/step3/'
+    # 
+    #     # Empty Query
+    #     post_dict = {}
+    #     response = c.get(url, post_dict)
+    #     self.assertTrue(response.status_code == 200)
+    # 
+    #     post_dict = {
+    #                    'name_on_card': 'Test Person',
+    #                    'card_number': '4007000000027',
+    #     #                        'card_number': '4222222222222',
+    #                    'exp_month': str(date.today().month),
+    #                    'exp_year': str(date.today().year + 1),
+    #                    'cv_code': '123',
+    #                    'billing_address': '123 Stree rd',
+    #                    'billing_city': "Providence",
+    #                    'billing_state': 'RI',
+    #                    'billing_zipcode': '01234',
+    #                 }
+    #     response = c.post(url, post_dict)
+    #     self.assertTrue(response.status_code == 302)
+    #     self.assertTrue(len(mail.outbox) == 2)
     
   #   def testPayment(self):
   #         

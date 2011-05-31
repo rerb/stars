@@ -131,22 +131,22 @@ class RenewalTest(TestCase):
         
        # print >> sys.stdout, mail.outbox[1].message()
         
-        # Pay Now
-        post_dict = {
-                       'name_on_card': 'Test Person',
-                       'card_number': '4007000000027',
-                       # 'card_number': '4222222222222',
-                       'exp_month': str(date.today().month),
-                       'exp_year': str(date.today().year + 1),
-                       'cv_code': '123',
-                       'billing_address': '123 Street rd',
-                       'billing_city': "City",
-                       'billing_state': 'RI',
-                       'billing_zipcode': '01234',
-                    }
-        response = c.post(url, post_dict)
-        self.assertTrue(response.status_code == 302)
-
-        self.assertTrue(SubmissionSet.objects.count() == 3)
-        self.assertTrue(len(mail.outbox) == 4)
+        # # Pay Now
+        # post_dict = {
+        #                'name_on_card': 'Test Person',
+        #                'card_number': '4007000000027',
+        #                # 'card_number': '4222222222222',
+        #                'exp_month': str(date.today().month),
+        #                'exp_year': str(date.today().year + 1),
+        #                'cv_code': '123',
+        #                'billing_address': '123 Street rd',
+        #                'billing_city': "City",
+        #                'billing_state': 'RI',
+        #                'billing_zipcode': '01234',
+        #             }
+        # response = c.post(url, post_dict)
+        # self.assertTrue(response.status_code == 302)
+        # 
+        # self.assertTrue(SubmissionSet.objects.count() == 3)
+        # self.assertTrue(len(mail.outbox) == 4)
         
