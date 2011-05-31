@@ -14,7 +14,7 @@ from stars.apps.tool.manage.views import _gets_discount
 from stars.apps.submissions.models import SubmissionSet
 
 class RenewalTest(TestCase):
-    fixtures = ['renewal_test_data.json']
+    fixtures = ['renewal_test_data.json', 'notification_emailtemplate_tests.json']
 
     def setUp(self):
         pass
@@ -129,24 +129,24 @@ class RenewalTest(TestCase):
         self.assertTrue(SubmissionSet.objects.count() == 2)
         self.assertTrue(len(mail.outbox) == 2)
         
-#        print >> sys.stdout, mail.outbox[1].message()
+       # print >> sys.stdout, mail.outbox[1].message()
         
         # Pay Now
-#        post_dict = {
-#                        'name_on_card': 'Test Person',
-#                        'card_number': '4007000000027',
-##                        'card_number': '4222222222222',
-#                        'exp_month': str(date.today().month),
-#                        'exp_year': str(date.today().year + 1),
-#                        'cv_code': '123',
-#                        'billing_address': '123 Street rd',
-#                        'billing_city': "City",
-#                        'billing_state': 'RI',
-#                        'billing_zipcode': '01234',
-#                     }
-#        response = c.post(url, post_dict)
-#        self.assertTrue(response.status_code == 302)
-#        
-#        self.assertTrue(SubmissionSet.objects.count() == 3)
-#        self.assertTrue(len(mail.outbox) == 4)
+        post_dict = {
+                       'name_on_card': 'Test Person',
+                       'card_number': '4007000000027',
+                       # 'card_number': '4222222222222',
+                       'exp_month': str(date.today().month),
+                       'exp_year': str(date.today().year + 1),
+                       'cv_code': '123',
+                       'billing_address': '123 Street rd',
+                       'billing_city': "City",
+                       'billing_state': 'RI',
+                       'billing_zipcode': '01234',
+                    }
+        response = c.post(url, post_dict)
+        self.assertTrue(response.status_code == 302)
+
+        self.assertTrue(SubmissionSet.objects.count() == 3)
+        self.assertTrue(len(mail.outbox) == 4)
         

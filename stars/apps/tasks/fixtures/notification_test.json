@@ -5,7 +5,7 @@
     "fields": {
       "executive_contact_department": "", 
       "name": "Test Institution One", 
-      "contact_last_name": "", 
+      "contact_last_name": "TestLastName", 
       "executive_contact_middle_name": null, 
       "charter_participant": false, 
       "enabled": true, 
@@ -28,7 +28,7 @@
     "fields": {
       "executive_contact_department": "", 
       "name": "Test Institution Two", 
-      "contact_last_name": "", 
+      "contact_last_name": "TestLastName", 
       "executive_contact_middle_name": null, 
       "charter_participant": false, 
       "enabled": true, 
@@ -51,7 +51,7 @@
     "fields": {
       "executive_contact_department": "", 
       "name": "Test Institution Three", 
-      "contact_last_name": "", 
+      "contact_last_name": "TestLastName", 
       "executive_contact_middle_name": null, 
       "charter_participant": false, 
       "enabled": true, 
@@ -74,7 +74,7 @@
     "fields": {
       "executive_contact_department": "", 
       "name": "Test Institution Four", 
-      "contact_last_name": "", 
+      "contact_last_name": "TestLastName", 
       "executive_contact_middle_name": null, 
       "charter_participant": false, 
       "enabled": false, 

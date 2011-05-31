@@ -1,7 +1,5 @@
 from django.shortcuts import get_object_or_404, render_to_response
 from django.http import HttpResponseRedirect
-from django.template import Context, loader, Template
-from django.core.mail import send_mail
 
 from datetime import datetime, date
 
@@ -11,6 +9,7 @@ from stars.apps.accounts.decorators import user_can_submit, user_is_inst_admin
 from stars.apps.accounts.mixins import PermMixin, SubmissionMixin
 from stars.apps.submissions.models import *
 from stars.apps.submissions.tasks import send_certificate_pdf
+from stars.apps.submissions.utils import init_credit_submissions
 from stars.apps.cms.xml_rpc import get_article
 from stars.apps.tool.my_submission.forms import *
 from stars.apps.credits.models import *
@@ -18,6 +17,7 @@ from stars.apps.helpers.forms.form_helpers import basic_save_form, basic_save_ne
 from stars.apps.helpers.forms.forms import Confirm
 from stars.apps.helpers import flashMessage
 from stars.apps.tool.my_submission.forms import CreditUserSubmissionForm, CreditUserSubmissionNotesForm, ResponsiblePartyForm
+from stars.apps.notifications.models import EmailTemplate
 
 def _get_active_submission(request):
     current_inst = request.user.current_inst
@@ -141,28 +141,12 @@ class FinalizeClassView(SubmissionClassView):
         self.save_form(form, request, context)
         ss = context[self.instance_name]
         
-        # Send mail to STARS Staff
-        
-        send_mail(  "STARS Submission!! (%s)" % ss.institution,
-                    "%s has submitted for a rating! https://stars.aashe.org%s" % (ss, ss.get_scorecard_url()),
-                    settings.EMAIL_HOST_USER,
-                    ['stars_staff@aashe.org',],
-                    fail_silently=False
-                    )
         # Send email to submitting institution
-        
-        t = loader.get_template('tasks/notifications/submit_email.txt')
         _context = context
         _context.update({'submissionset': ss,})
         
-        c = Context(_context)
-        message = t.render(c)
-        send_mail(  "New Resources and Congratulations on your STARS Submission!",
-                    message,
-                    settings.EMAIL_HOST_USER,
-                    [ss.institution.contact_email,],
-                    fail_silently=False
-                    )
+        et = EmailTemplate.objects.get(slug="submission_for_rating")
+        et.send_email([ss.institution.contact_email,], {'submissionset': ss,})
         
         # Send certificate to Marnie
         send_certificate_pdf.delay(ss)
@@ -292,6 +276,7 @@ def credit_detail(request, category_id, subcategory_id, credit_id):
     # Build and process the Credit Submission form
     # CAUTION: onload handler in the template assumes this form has no prefix!!
     (submission_form, saved) = basic_save_form(request, credit_submission, '', CreditUserSubmissionForm, fail_msg="Credit data has <b>NOT BEEN SAVED</b>! Please correct the errors below.")
+    print >> sys.stderr, "credit_submission: %d" % credit_submission.id
     
     errors = request.method == "POST" and not saved
     
@@ -387,35 +372,3 @@ def delete_uploaded_file_gateway(request, inst_id, creditset_id, credit_id, fiel
     upload_submission.delete()
    
     return render_to_response('tool/submissions/delete_file.html', {'filename':filename})
-
-
-def init_credit_submissions(submissionset):
-    """ 
-        Initializes all CreditUserSubmissions in a SubmissionSet
-    """
-    # Build the category list if necessary
-    #if submissionset.creditset.category_set.count() > submissionset.categorysubmission_set.count():
-    for category in submissionset.creditset.category_set.all():
-        try:
-            categorysubmission = CategorySubmission.objects.get(category=category, submissionset=submissionset)
-        except:
-            categorysubmission = CategorySubmission(category=category, submissionset=submissionset)
-            categorysubmission.save()
-
-        # Create SubcategorySubmissions if necessary
-        #if category.subcategory_set.count() > categorysubmission.subcategorysubmission_set.count():
-        for subcategory in categorysubmission.category.subcategory_set.all():
-            try:
-                subcategorysubmission = SubcategorySubmission.objects.get(subcategory=subcategory, category_submission=categorysubmission)
-            except SubcategorySubmission.DoesNotExist:
-                subcategorysubmission = SubcategorySubmission(subcategory=subcategory, category_submission=categorysubmission)
-                subcategorysubmission.save()
-            
-            # Create CreditUserSubmissions if necessary
-            #if subcategory.credit_set.count() > subcategorysubmission.creditusersubmission_set.count():
-            for credit in subcategory.credit_set.all():
-                try:
-                    creditsubmission = CreditUserSubmission.objects.get(credit=credit, subcategory_submission=subcategorysubmission)
-                except CreditUserSubmission.DoesNotExist:
-                    creditsubmission = CreditUserSubmission(credit=credit, subcategory_submission=subcategorysubmission)
-                    creditsubmission.save()

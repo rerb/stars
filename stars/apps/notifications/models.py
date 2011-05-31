@@ -12,15 +12,21 @@ from jsonfield import JSONField
 
 from utils import build_message
 
+import sys
+
 class EmailTemplate(models.Model):
     slug = models.SlugField(max_length=32, unique=True, help_text="Unique name. Please do not change.")
     title = models.CharField(max_length=128, help_text='The subjuect line of the email.')
     description = models.TextField()
     content = models.TextField()
-    example_data = JSONField(help_text="Example context for the template. Do not change.")
+    example_data = JSONField(help_text="Example context for the template. Do not change.", blank=True, null=True)
+    active = models.BooleanField(help_text="Checked indicates that the code is using this email. For Ben's use only")
     
     class Meta:
         ordering = ('slug',)
+        
+    def __str__(self):
+        return self.title
         
     def get_message(self, content=None, context=None):
         """
@@ -61,6 +67,13 @@ class EmailTemplate(models.Model):
                         bcc=bcc_list,
                         headers = {'Reply-To': settings.EMAIL_REPLY_TO},
                     )
+        # print >> sys.stdout, "---------------------------------------------"
+        # print >> sys.stdout, m.subject
+        # print >> sys.stdout, m.to
+        # print >> sys.stdout, m.cc
+        # print >> sys.stdout, m.bcc
+        # print >> sys.stdout, m.body
+        # print >> sys.stdout, "---------------------------------------------"
         m.send()
         
     def get_absolute_url(self):
@@ -70,3 +83,9 @@ class CopyEmail(models.Model):
     template = models.ForeignKey(EmailTemplate)
     address = models.EmailField()
     bcc = models.BooleanField(help_text='Check to copy this user using BCC')
+    
+    def __str__(self):
+        if self.bcc:
+            return "BCC: %s" % self.address
+        else:
+            return "CC: %s" % self.address

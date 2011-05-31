@@ -1,9 +1,0 @@
-Dear {{ ss.institution.contact_first_name }} {{ ss.institution.contact_last_name }},
-
-Congratulations again on successfully completing your institution's STARS Report!  AASHE encourages your continual involvement in the STARS Program and would like to remind you of your opportunity to re-register for STARS at a 50% discount.  Don't miss this limited offer, which expires in 30 days.
-
-By re-registering for the STARS Program your institution will now have 12 months of continuous access to the STARS Reporting Tool regardless of when its submission is completed. Continual access to the STARS Reporting Tool will allow your institution to have uninterrupted access to report on sustainability metrics even after a STARS Rating is achieved. 
-
-We look forward to your continued participation.  Please don't hesitate to contact the STARS team with questions.  
-
-{% include 'tasks/notifications/footer.txt' %}

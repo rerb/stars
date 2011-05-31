@@ -14,7 +14,7 @@ from datetime import date
 import sys, os
 
 class RenewNotifyTest(TestCase):
-    fixtures = ['renew_notify_test.json',]
+    fixtures = ['renew_notify_test.json', 'notification_emailtemplate_tests.json']
 
     def setUp(self):
         pass

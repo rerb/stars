@@ -1,5 +1,35 @@
 from stars.apps.submissions.models import *
-from stars.apps.tool.my_submission.views import init_credit_submissions
+
+def init_credit_submissions(submissionset):
+    """ 
+        Initializes all CreditUserSubmissions in a SubmissionSet
+    """
+    # Build the category list if necessary
+    #if submissionset.creditset.category_set.count() > submissionset.categorysubmission_set.count():
+    for category in submissionset.creditset.category_set.all():
+        try:
+            categorysubmission = CategorySubmission.objects.get(category=category, submissionset=submissionset)
+        except:
+            categorysubmission = CategorySubmission(category=category, submissionset=submissionset)
+            categorysubmission.save()
+
+        # Create SubcategorySubmissions if necessary
+        #if category.subcategory_set.count() > categorysubmission.subcategorysubmission_set.count():
+        for subcategory in categorysubmission.category.subcategory_set.all():
+            try:
+                subcategorysubmission = SubcategorySubmission.objects.get(subcategory=subcategory, category_submission=categorysubmission)
+            except SubcategorySubmission.DoesNotExist:
+                subcategorysubmission = SubcategorySubmission(subcategory=subcategory, category_submission=categorysubmission)
+                subcategorysubmission.save()
+            
+            # Create CreditUserSubmissions if necessary
+            #if subcategory.credit_set.count() > subcategorysubmission.creditusersubmission_set.count():
+            for credit in subcategory.credit_set.all():
+                try:
+                    creditsubmission = CreditUserSubmission.objects.get(credit=credit, subcategory_submission=subcategorysubmission)
+                except CreditUserSubmission.DoesNotExist:
+                    creditsubmission = CreditUserSubmission(credit=credit, subcategory_submission=subcategorysubmission)
+                    creditsubmission.save()
 
 def migrate_submission(old_ss, new_cs):
     """
@@ -32,18 +62,18 @@ def migrate_submission(old_ss, new_cs):
                             is_locked=True,
                             is_visible=False)
     new_ss.save()
-    
+
     # move payments
     for p in old_ss.payment_set.all():
         p.submissionset = new_ss
         p.save()
     
     # for testing, copy the payments
-#    for p in old_ss.payment_set.all():
-#        new_p = copy.copy(p)
-#        new_p.id = None
-#        new_p.submissionset = new_ss
-#        new_p.save()
+    #    for p in old_ss.payment_set.all():
+    #        new_p = copy.copy(p)
+    #        new_p.id = None
+    #        new_p.submissionset = new_ss
+    #        new_p.save()
     
     # if the old SubmissionSet hasn't been initialized we don't have to do anything
     if old_ss.categorysubmission_set.count() == 0:
@@ -55,6 +85,7 @@ def migrate_submission(old_ss, new_cs):
     init_credit_submissions(new_ss)
     
     # Since there is currently no change necessary with the category we will ignore it
+    # I'm keeping this in here in case we add data to the CategorySubmission objects
     #    for cat in new_ss.categorysubmission_set.all():
     #        try:
     #            old_cat = ss.categorysubmission_set.get(category=cat.category.previous_version)
@@ -63,7 +94,7 @@ def migrate_submission(old_ss, new_cs):
         
     # Get all SubcategorySubmissions in this SubmissionSet regardless of Category
     
-    print new_ss
+    # print new_ss
     
     for sub in SubcategorySubmission.objects.filter(category_submission__submissionset=new_ss):
         # Try to find a parent
@@ -76,16 +107,17 @@ def migrate_submission(old_ss, new_cs):
                 sub.save()
             except SubcategorySubmission.DoesNotExist:
                 # This must be a new subcategory
-                print "no old subcategory submission: %s" % sub.subcategory
+                # print "no old subcategory submission: %s" % sub.subcategory
                 continue
         else:
-            print "new subcategory: %s" % sub.subcategory
+            # print "new subcategory: %s" % sub.subcategory
+            pass
         
     for c in CreditUserSubmission.objects.filter(subcategory_submission__category_submission__submissionset=new_ss):
         # find the parent credit
         prev_credit = c.credit.previous_version
         
-        print "%s - %s" % (c.credit, prev_credit)
+        # print "%s - %s" % (c.credit, prev_credit)
         
         if prev_credit:
             try:
@@ -102,7 +134,7 @@ def migrate_submission(old_ss, new_cs):
                 c.save()
                 
             except CreditUserSubmission.DoesNotExist:
-                print "no old credit submission: %s" % c.credit
+                # print "no old credit submission: %s" % c.credit
                 continue
             
             # get all the fields in this credit
@@ -116,16 +148,16 @@ def migrate_submission(old_ss, new_cs):
                         old_f = field_class.objects.get(documentation_field=prev_df, credit_submission=old_c)
                         f.value = old_f.value
                         f.save()
-                        print "moved: %s" % f.documentation_field
+                        # print "moved: %s" % f.documentation_field
                     except field_class.DoesNotExist:
-#                        print "no old documentation field: %s" % f.documentation_field
+                        # print "no old documentation field: %s" % f.documentation_field
                         continue
                     
                 else:
-                    print "No previous documentation field: %s" % f.documentation_field
+                    # print "No previous documentation field: %s" % f.documentation_field
                     continue
         else:
-            print "new credit: %s" % c.credit
+            # print "new credit: %s" % c.credit
             continue
             
     new_ss.is_locked = False
@@ -138,6 +170,4 @@ def migrate_submission(old_ss, new_cs):
     
     old_ss.is_visible = False
     old_ss.save()
-    
-    return new_ss
     

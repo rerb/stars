@@ -9,15 +9,17 @@ from django.test import TestCase
 from django.core import mail
 
 from stars.apps.tasks.notifications import *
+from stars.apps.notifications.models import EmailTemplate
 
 import sys, os
 from datetime import date, timedelta
 
 class NotificationTest(TestCase):
-    fixtures = ['notification_test.json',]
+    fixtures = ['notification_test.json', 'notification_emailtemplate_tests.json']
 
     def setUp(self):
-        pass
+        et = EmailTemplate(slug='test', description='test', content="testing: {{ val }}")
+        et.save()
     
     def test_post_submission_survey(self):
         """
@@ -49,10 +51,10 @@ class NotificationTest(TestCase):
         """
         
         set = [
-                {'mail_to': ['ben@aashe.org',], 'message': 'test', 'n_type': 'tst', 'identifier': 'tst_1', 'subject': 'test'},
-                {'mail_to': ['ben@aashe.org',], 'message': 'test', 'n_type': 'tst', 'identifier': 'tst_2', 'subject': 'test'},
-                {'mail_to': ['ben@aashe.org',], 'message': 'test', 'n_type': 'tst', 'identifier': 'tst_3', 'subject': 'test'},
-                {'mail_to': ['ben@aashe.org',], 'message': 'test', 'n_type': 'tst', 'identifier': 'tst_1', 'subject': 'test'},
+                {'mail_to': ['ben@aashe.org',], 'template_slug': 'test', 'n_type': 'tst', 'identifier': 'tst_1', 'email_context': {"val": "testval",}},
+                {'mail_to': ['ben@aashe.org',], 'template_slug': 'test', 'n_type': 'tst', 'identifier': 'tst_2', 'email_context': {"val": "testval",}},
+                {'mail_to': ['ben@aashe.org',], 'template_slug': 'test', 'n_type': 'tst', 'identifier': 'tst_3', 'email_context': {"val": "testval",}},
+                {'mail_to': ['ben@aashe.org',], 'template_slug': 'test', 'n_type': 'tst', 'identifier': 'tst_1', 'email_context': {"val": "testval",}},
                ]
         send_notification_set(set)
         self.assertTrue(len(mail.outbox) == 3)
@@ -208,6 +210,6 @@ class NotificationTest(TestCase):
         mail.outbox = []
         
         for i in range(0, 3):
-            send_notification("tst", "test_1", ["ben@aashe.org"], "message", "subject", count=2)
+            send_notification("tst", "test_1", ["ben@aashe.org"], 'test', {'val': "test val",}, count=2)
         
         self.assertTrue(len(mail.outbox) == 2 )

@@ -324,15 +324,11 @@ class AbstractAccount(BaseAccount):
             Notify account holder about an action taken on their account 
             action must be one of the action constants defined by this class above
         """
-        if not settings.DEBUG:
-            from django.core.mail import send_mail
-            send_mail('STARS Account notification for: %s'%self.user, \
-                      self.get_formatted_message(action, admin, institution),  \
+        et = EmailTemplate.objects.get(slug='invite_notification')
+        
+        send_mail('STARS Account notification for: %s'%self.user,
+                      self.get_formatted_message(action, admin, institution),
                       settings.EMAIL_HOST_USER, [self.user.email], fail_silently=True )
-        else:
-            import sys
-            print >> sys.stderr, "Account Notification: E-mail would have been sent to %s:"%self.user.email
-            print >> sys.stderr, self.get_formatted_message(action, admin, institution)
             
     @classmethod
     def update_account(cls, admin, notify_user, institution, user_level, **user_params):

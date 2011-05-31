@@ -79,5 +79,5 @@ AUTHORIZENET_SERVER = TEST_AUTHORIZENET_SERVER
 #if manage.py test was called, use test settings
 if 'test' in sys.argv:
     CACHE_BACKEND = "file:///tmp/stars-cache"
-#    DATABASES['default']['ENGINE'] = 'sqlite3'
-#    DATABASES['default']['NAME'] = '/Users/jamstooks/sqlite/stars_tests.db'
+    # DATABASES['default']['ENGINE'] = 'sqlite3'
+    # DATABASES['default']['NAME'] = '/Users/jamstooks/sqlite/stars_tests.db'

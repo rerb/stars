@@ -6,7 +6,7 @@ class EmailInline(admin.TabularInline):
     model = CopyEmail
     
 class EmailTemplateAdmin(admin.ModelAdmin):
-    list_display = ('slug', 'title',)
+    list_display = ('slug', 'title', 'active')
     search_fields = ('title','description')
     inlines = [
         EmailInline,

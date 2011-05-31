@@ -30,7 +30,15 @@
 	     "fields": {
 	         "name": "Institution",
 	         "aashe_id": "-1",
-	         "enabled": true
+	         "enabled": true,
+	         "contact_email": "liaison@test.edu",
+	         "contact_title": "ContactTitle",
+	         "contact_first_name": "FirstName",
+	         "contact_last_name": "LastName",
+	         "executive_contact_email": "exec@test.edu",
+	         "executive_contact_first_name": "FirstName",
+	         "executive_contact_last_name": "LastName",
+	         "executive_contact_title": "President"
 	     }
 	},
     {

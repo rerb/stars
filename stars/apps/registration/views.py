@@ -3,8 +3,6 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import user_passes_test, login_required
 from django.forms import widgets
 from django.conf import settings
-from django.template import Context, loader, Template
-from django.core.mail import send_mail
 
 from datetime import datetime, date, timedelta
 import urllib2, re, sys
@@ -22,8 +20,9 @@ from stars.apps.submissions.models import *
 from stars.apps.credits.models import CreditSet
 from stars.apps.helpers.forms.views import FormActionView
 from stars.apps.accounts.mixins import AuthenticatedMixin
-from stars.apps.tool.my_submission.views import init_credit_submissions
+from stars.apps.submissions.utils import init_credit_submissions
 from stars.apps.accounts import utils as auth_utils
+from stars.apps.notifications.models import EmailTemplate
 
 from zc.authorizedotnet.processing import CcProcessor
 from zc.creditcard import (AMEX, DISCOVER, MASTERCARD, VISA, UNKNOWN_CARD_TYPE)
@@ -46,7 +45,8 @@ def reg_select_institution(request):
                  'Two Year Institution',
                  'Graduate Institution',
                  'System Office')
-    countries = ('Canada', 'United States of America')
+    countries = ('Canada', 'United States of America')             
+    
     for inst in Organizations.objects.filter(org_type__in=org_types,
                                              country__in=countries).order_by('org_name'):
         if inst.city and inst.state:
@@ -61,6 +61,7 @@ def reg_select_institution(request):
         form = RegistrationSchoolChoiceForm(request.POST)
         if form.is_valid():
             aashe_id = form.cleaned_data['aashe_id']
+            # print >> sys.stderr, institution_list_lookup
             name = institution_list_lookup[aashe_id]
             
             # Redirect to "Purchase additional SS view
@@ -212,42 +213,28 @@ def register_institution(user, institution, payment_type, price, payment_dict):
     payment = Payment(submissionset=submissionset, date=datetime.today(), amount=price, user=user, reason='reg', type=payment_type, confirmation="none")
     payment.save()
     
-    # Send Confirmation Emails
-    cc_list = ['stars_staff@aashe.org',]
-    allison = ['allison@aashe.org','margueritte.williams@aashe.org']
-    
-    if user.email != institution.contact_email:
-        cc_list.append(user.email)
-    
     # Primary Contact
     subject = "STARS Registration Success: %s" % institution
     email_to = [institution.contact_email]
     
+    if user.email != institution.contact_email:
+        email_to.append(user.email)
+    
     # Confirmation Email
     if payment.type == 'later':
-        t = loader.get_template('tasks/notifications/welcome_unpaid.txt')
+        et = EmailTemplate.objects.get(slug='welcome_liaison_unpaid')
+        email_context = {'payment': payment,}
     else:
-        t = loader.get_template('tasks/notifications/welcome_liaison.txt')
-    c = Context({"institution": institution, 'payment': payment, 'payment_dict': payment_dict})
-    message = t.render(c)
-    send_mail(  subject,
-                message,
-                settings.EMAIL_HOST_USER,
-                email_to + cc_list + allison,
-                fail_silently=False
-                )
+        et = EmailTemplate.objects.get(slug='welcome_liaison_paid')
+        email_context = {"institution": institution, 'payment': payment, 'payment_dict': payment_dict}
+    
+    et.send_email(email_to, email_context)
                 
     # Executive Contact
-    email_to = institution.executive_contact_email
-    t = loader.get_template('tasks/notifications/welcome_exec.txt')
-    c = Context({"institution": institution})
-    message = t.render(c)
-    send_mail(  subject,
-                message,
-                settings.EMAIL_HOST_USER,
-                [email_to,] + cc_list,
-                fail_silently=False
-                )
+    email_to = [institution.executive_contact_email,]
+    et = EmailTemplate.objects.get(slug="welcome_exec")
+    email_context = {"institution": institution}
+    et.send_email(email_to, email_context)
         
     return institution
     

@@ -20,10 +20,11 @@ from datetime import date
 import sys, os
 
 class RatingTest(TestCase):
-    fixtures = ['submit_for_rating_tests.json',]
+    fixtures = ['submit_for_rating_tests.json','notification_emailtemplate_tests.json']
 
     def setUp(self):
-        pass
+        
+        settings.CELERY_ALWAYS_EAGER = True
         
     def testConfirmView(self):
         """
@@ -75,8 +76,6 @@ class RatingTest(TestCase):
 
         print >> sys.stderr, "TESTING: Finalize"
         
-        settings.CELERY_ALWAYS_EAGER = True
-        
         c = Client()
         c.login(username='test_user', password='test')
         post_dict = {}
@@ -89,5 +88,5 @@ class RatingTest(TestCase):
         ss = SubmissionSet.objects.get(pk=1)
         self.assertTrue(ss.status == 'r')
         # one email to institution
-        self.assertTrue(len(mail.outbox) == 3)
+        self.assertTrue(len(mail.outbox) == 2)
         
