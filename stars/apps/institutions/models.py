@@ -6,7 +6,8 @@ from django.template.defaultfilters import slugify
 
 from stars.apps.helpers import watchdog
 from stars.apps.credits.models import CreditSet
-from stars.apps.notifications.models import EmailTemplate
+# from stars.apps.notifications.models import EmailTemplate
+from django.core.mail import send_mail
 
 class Institution(models.Model):
     """
@@ -325,7 +326,7 @@ class AbstractAccount(BaseAccount):
             Notify account holder about an action taken on their account 
             action must be one of the action constants defined by this class above
         """
-        et = EmailTemplate.objects.get(slug='invite_notification')
+        # et = EmailTemplate.objects.get(slug='invite_notification')
         
         send_mail('STARS Account notification for: %s'%self.user,
                       self.get_formatted_message(action, admin, institution),
