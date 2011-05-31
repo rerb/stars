@@ -6,6 +6,7 @@ from django.template.defaultfilters import slugify
 
 from stars.apps.helpers import watchdog
 from stars.apps.credits.models import CreditSet
+from stars.apps.notifications.models import EmailTemplate
 
 class Institution(models.Model):
     """
