@@ -276,7 +276,7 @@ def credit_detail(request, category_id, subcategory_id, credit_id):
     # Build and process the Credit Submission form
     # CAUTION: onload handler in the template assumes this form has no prefix!!
     (submission_form, saved) = basic_save_form(request, credit_submission, '', CreditUserSubmissionForm, fail_msg="Credit data has <b>NOT BEEN SAVED</b>! Please correct the errors below.")
-    print >> sys.stderr, "credit_submission: %d" % credit_submission.id
+    # print >> sys.stderr, "credit_submission: %d" % credit_submission.id
     
     errors = request.method == "POST" and not saved
     
