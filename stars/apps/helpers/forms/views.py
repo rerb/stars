@@ -166,6 +166,10 @@ class MultiFormView(object):
     
     form_class_list = []
     
+    @property
+    def __name__(self):
+        return self.__class__.__name__
+    
     def __init__(self, template=None, form_class_list=None, extra_context=None):
         """
             Initializes the view with a template, list of forms and some initial context
