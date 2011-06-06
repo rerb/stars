@@ -550,17 +550,21 @@ class ScoreFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
                         score = "--"
                         units = ""
                         if isinstance(col, Category):
-                            obj = CategorySubmission.objects.get(submissionset=ss, category=col)
-                            score = "%.2f" % obj.get_STARS_score()
-                            if obj.category.abbreviation != "IN":
-                                units = "%"
-                            url = obj.get_scorecard_url()
+                            cat = col.get_for_creditset(ss.creditset)
+                            if cat:
+                                obj = CategorySubmission.objects.get(submissionset=ss, category=cat)
+                                score = "%.2f" % obj.get_STARS_score()
+                                if obj.category.abbreviation != "IN":
+                                    units = "%"
+                                url = obj.get_scorecard_url()
                         elif isinstance(col, Subcategory):
-                            obj = SubcategorySubmission.objects.get(category_submission__submissionset=ss, subcategory=col)
+                            sub = col.get_for_creditset(ss.creditset)
+                            obj = SubcategorySubmission.objects.get(category_submission__submissionset=ss, subcategory=sub)
                             score = "%.2f / %.2f" % (obj.get_claimed_points(), obj.get_adjusted_available_points())
                             url = obj.get_scorecard_url()
                         elif isinstance(col, Credit):
-                            cred = CreditUserSubmission.objects.get(subcategory_submission__category_submission__submissionset=ss, credit=col)
+                            credit = col.get_for_creditset(ss.creditset)
+                            cred = CreditUserSubmission.objects.get(subcategory_submission__category_submission__submissionset=ss, credit=credit)
                             url = cred.get_scorecard_url()
                             if ss.rating.publish_score:
                                 if cred.submission_status == "na":
@@ -659,9 +663,9 @@ class ContentFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
                 field_class = DocumentationFieldSubmission.get_field_class(rf)
                 cus_lookup = "subcategory_submission__category_submission__submissionset"
                 # I have to get creditusersubmissions so i can be sure these are actual user submissions and not tests
-                cus = CreditUserSubmission.objects.get(**{cus_lookup: ss, 'credit': rf.credit})
+                cus = CreditUserSubmission.objects.get(**{cus_lookup: ss, 'credit': rf.credit.get_for_creditset(ss.creditset)})
                 try:
-                    df = field_class.objects.get(credit_submission=cus, documentation_field=rf)
+                    df = field_class.objects.get(credit_submission=cus, documentation_field=rf.get_for_creditset(ss.creditset))
                     cred = CreditUserSubmission.objects.get(pk=df.credit_submission.id)
                     row = {'field': df, 'ss': ss, 'credit': cred}
                     if ss.rating.publish_score:

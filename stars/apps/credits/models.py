@@ -6,7 +6,9 @@ from django.conf import settings
 
 import re, copy
 from datetime import date
+
 from stars.apps.helpers import watchdog
+from mixins import VersionedModel
 
 class IncrementalFeature(models.Model):
     key = models.SlugField(unique=True)
@@ -25,8 +27,6 @@ class CreditSetManager(models.Manager):
             return super(CreditSetManager, self).get_query_set().filter(release_date__lte=date.today()).order_by('-release_date')[0]
         except:
             return None
-    
-    
 
 def _get_next_ordinal(objects):
     """ 
@@ -67,14 +67,13 @@ IDENTIFIER_CHOICES = (
                         ('get_1_1_identifier', '1.1'),
                      )
 
-class CreditSet(models.Model):
+class CreditSet(VersionedModel):
     version = models.CharField(max_length=5, unique=True)
     release_date = models.DateField()
     tier_2_points = models.FloatField()
     is_locked = models.BooleanField(default=False, verbose_name="Lock Credits", help_text="When a credit set is locked, most credit editor functions will be disabled.")
     scoring_method = models.CharField(max_length=25, choices=SCORING_METHOD_CHOICES)
     credit_identifier = models.CharField(max_length=25, choices=IDENTIFIER_CHOICES, default='get_1_0_identifier')
-    previous_version = models.OneToOneField('self', null=True, blank=True, related_name='next_version')
     supported_features = models.ManyToManyField(IncrementalFeature)
     objects = CreditSetManager()
     
@@ -273,14 +272,13 @@ class Rating(models.Model):
         return "%s%s" % (settings.MEDIA_ROOT, self.image_large)
 
 
-class Category(models.Model):
+class Category(VersionedModel):
     creditset = models.ForeignKey(CreditSet)
     title = models.CharField(max_length=64)
     abbreviation = models.CharField(max_length=6,help_text='Typically a 2 character code for the category. e.g., ER for Education & Research') # TODO validation
     ordinal = models.SmallIntegerField(default=-1)
     max_point_value = models.IntegerField(default=0)
     description = models.TextField()
-    previous_version = models.OneToOneField('self', null=True, blank=True, related_name='next_version')
     
     class Meta:
         ordering = ('ordinal',)
@@ -292,7 +290,10 @@ class Category(models.Model):
     def __cmp__(self, other):
         """ Used for ordering by ordinal """
         return cmp(self.ordinal, other.ordinal)
-        
+    
+    def get_creditset(self):
+        return self.creditset
+    
     def get_edit_url(self):
         return "%s%d/" % (self.creditset.get_edit_url(), self.id)
 
@@ -376,13 +377,12 @@ class Category(models.Model):
         super(Category, self).save(*args, **kwargs)
     
 
-class Subcategory(models.Model):    
+class Subcategory(VersionedModel):    
     category = models.ForeignKey(Category)
     title = models.CharField(max_length=64)
     ordinal = models.SmallIntegerField(default=-1)
     max_point_value = models.IntegerField(default=0)
     description = models.TextField()
-    previous_version = models.OneToOneField('self', null=True, blank=True, related_name='next_version')
     
     class Meta:
         ordering = ('category', 'ordinal',)
@@ -394,6 +394,9 @@ class Subcategory(models.Model):
     def __cmp__(self, other):
         """ Used for ordering by ordinal """
         return cmp(self.ordinal, other.ordinal)
+    
+    def get_creditset(self):
+        return self.category.get_creditset()
         
     def get_edit_url(self):
         return "%s%d/" % (self.category.get_edit_url(), self.id)
@@ -465,7 +468,7 @@ CREDIT_TYPE_CHOICES = (
     ('t2', "Tier 2"),
     )
     
-class Credit(models.Model):
+class Credit(VersionedModel):
     subcategory = models.ForeignKey(Subcategory)
     title = models.CharField(max_length=64)
     ordinal = models.SmallIntegerField(help_text='The order of this credit within sub-category.', default=-1)
@@ -479,7 +482,6 @@ class Credit(models.Model):
     scoring = models.TextField()
     measurement = models.TextField(blank=True, null=True)
     staff_notes = models.TextField('AASHE Staff Notes', blank=True, null=True)
-    previous_version = models.OneToOneField('self', null=True, blank=True, related_name='next_version')
     identifier = models.CharField(max_length=16, default="ID?")
     
     class Meta:
@@ -496,6 +498,9 @@ class Credit(models.Model):
     def __cmp__(self, other):
         """ Used for ordering by ordinal """
         return cmp(self.ordinal, other.ordinal)
+    
+    def get_creditset(self):
+        return self.subcategory.get_creditset()
         
     def get_edit_url(self):
         return "%s%d/" % (self.subcategory.get_edit_url(), self.id)
@@ -724,7 +729,7 @@ def _next_identifier(identifier):
         suffix = chr(ord(suffix)+1)
     return "%s%s"%(prefix,suffix)     
         
-class ApplicabilityReason(models.Model):
+class ApplicabilityReason(VersionedModel):
     """
         Models reasons why a particular credit might be allowed to be considered not-applicable
     """
@@ -732,7 +737,6 @@ class ApplicabilityReason(models.Model):
     reason = models.CharField(max_length=128)
     help_text = models.TextField(null=True, blank=True)
     ordinal = models.IntegerField()
-    previous_version = models.OneToOneField('self', null=True, blank=True, related_name='next_version')
     
     class Meta:
         ordering = ('ordinal',)
@@ -814,7 +818,7 @@ class Unit(models.Model):
     def __unicode__(self):
         return smart_unicode(self.name, encoding='utf-8', strings_only=False, errors='strict')
 
-class DocumentationField(models.Model):
+class DocumentationField(VersionedModel):
     credit = models.ForeignKey(Credit)
     title = models.CharField("Promt/Question", max_length=255)
     type = models.CharField(max_length=16, choices=DOCUMENTATION_FIELD_TYPES)
@@ -827,11 +831,13 @@ class DocumentationField(models.Model):
     ordinal = models.SmallIntegerField(default=-1)
     required = models.CharField(max_length=8, choices=REQUIRED_TYPES, default='req', help_text='If a field is conditionally required it is important to note that in the help-text and to define a custom validation rule.')
     identifier = models.CharField(max_length=2) # editable=False) # Field identifier for the Formula editor - auto-generated.
-    previous_version = models.OneToOneField('self', null=True, blank=True, related_name='next_version')
     
     class Meta:
         ordering = ('ordinal',)
         unique_together = ("credit", "identifier")
+        
+    def get_creditset(self):
+        return self.credit.get_creditset()
 
     def save(self, *args, **kwargs):
         """ Override model.Model save() method to assign identifier and ordinal """
@@ -920,7 +926,7 @@ class DocumentationField(models.Model):
         """ Returns the appropriate widget for this type of field """
         return TYPE_TO_WIDGET[self.type]
 
-class Choice(models.Model):
+class Choice(VersionedModel):
     """
         A choice for a documentation field
         Stores both 'official' (bonafide) choices defined by STARS and user-defined choices. 
@@ -929,7 +935,6 @@ class Choice(models.Model):
     choice = models.CharField("Choice", max_length=255)
     ordinal = models.SmallIntegerField(default=-1)
     is_bonafide = models.BooleanField(default=True)  # 'bonafide' choices are defined by STARS staff, other choices are user=defined
-    previous_version = models.OneToOneField('self', null=True, blank=True, related_name='next_version')
     
     class Meta:
         ordering = ('ordinal',)

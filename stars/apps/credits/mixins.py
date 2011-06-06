@@ -1,0 +1,51 @@
+from django.db import models
+
+import sys
+
+class VersionedModel(models.Model):
+    previous_version = models.OneToOneField('self', null=True, blank=True, related_name='_next_version')
+        
+    class Meta:
+        abstract = True
+    
+    @property
+    def next_version(self):
+        """
+            Using a property here because _next_version will throw
+            a DoesNotExist exception
+            
+            Waiting for: https://code.djangoproject.com/ticket/10227
+        """
+        try:
+            return self._next_version
+        except self.__class__.DoesNotExist: # presumably Object.DoesNotExist
+            return None
+            
+    def get_for_creditset(self, cs):
+        """
+            Returns the version of this object for the current creditset
+        """
+        
+        # Check the creditset version
+        if self.get_creditset() == cs:
+            return self
+        else:
+            related_obj = None
+            
+            # find a previous version
+            current_obj = self
+            while current_obj.previous_version != None and not related_obj:
+                current_obj = current_obj.previous_version
+                if current_obj.get_creditset() == cs:
+                    print >> sys.stdout, current_obj
+                    return current_obj
+                    
+            # find a next version
+            current_obj = self
+            while current_obj.next_version != None and not related_obj:
+                current_obj = current_obj.next_version
+                if current_obj.get_creditset() == cs:
+                    print >> sys.stdout, current_obj
+                    return current_obj
+        
+        return None
