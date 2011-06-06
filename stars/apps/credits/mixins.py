@@ -37,7 +37,6 @@ class VersionedModel(models.Model):
             while current_obj.previous_version != None and not related_obj:
                 current_obj = current_obj.previous_version
                 if current_obj.get_creditset() == cs:
-                    print >> sys.stdout, current_obj
                     return current_obj
                     
             # find a next version
@@ -45,7 +44,6 @@ class VersionedModel(models.Model):
             while current_obj.next_version != None and not related_obj:
                 current_obj = current_obj.next_version
                 if current_obj.get_creditset() == cs:
-                    print >> sys.stdout, current_obj
                     return current_obj
         
         return None

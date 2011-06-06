@@ -16,9 +16,6 @@
     >>> WatchdogEntry.objects.count() - old_entries
     3
     
-    # sorted in reverse chron. order!
-    # JDL: Are they? Results from all() return the first logged message at index 0
-    #      I modified the test to get it to pass; perhaps this changed recently?
     >>> error = WatchdogEntry.objects.all()[0]
     >>> error.message
     u'Test notice sent to Watchdog'

@@ -6,7 +6,6 @@ sys.path.append('../')
 
 ADMINS = (
             ('Benjamin Stookey', 'ben@aashe.org'),
-            ('My Cell', "8602131672@txt.att.net")
         )
 MANAGERS = ADMINS
 
