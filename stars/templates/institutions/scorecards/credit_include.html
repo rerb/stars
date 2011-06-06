@@ -1,0 +1,89 @@
+{% extends 'credits/columned_layout.html' %}
+
+{% block navHeader %}
+    <h4>
+        <a href='{{ submissionset.get_scorecard_url }}'>STARS {{ submissionset.creditset }}</a>
+    </h4>
+{% endblock %}
+
+{% block railAboveMenu %}
+    <div style='text-align: center;'>
+    <a href='{{ submissionset.get_scorecard_url }}'>
+        {% if preview %}
+            <img src='/media/static/images/STARS-Participant-200x200.png' alt='Preview' class='seal' />
+        {% else %}
+            <img src='{{ submissionset.rating.image_200.url }}' alt='{{ submissionset.rating }}' class='seal' />
+        {% endif %}
+    </a>
+    </div>
+    {% include 'institutions/scorecards/vertical_status_table.html' %}
+{% endblock %}
+
+{% block center_column %}
+    {% load submit_tags %}
+    <h1>
+        {% if preview %}<i>Preview:</i>{% endif %}
+        <a href='{{ submissionset.get_scorecard_url }}'>{{ institution }}</a><br/>
+        {{ credit_submission.credit }}
+    </h1>
+    
+    <table class='statusTable' cellspacing='0'>
+        {% include 'institutions/scorecards/credit_status_table.html' %}
+    </table>
+    
+    {% if credit_submission.submission_notes %}
+    <div class='submissionBoundary'>
+        <img
+            src='/media/static/images/collapse_big.gif' alt='+'
+            onclick='expandCollapse(this, false);'
+            style='vertical-align: middle;'
+            id='ec_notes' class='collapseExpand initial_expand' />
+        <i>Credit Submission Notes:</i><br/>
+        <div id='ec_notes_target'>
+            {{ credit_submission.submission_notes|urlizetrunc:55|linebreaks|fix_ampersands }}
+        </div>
+    </div>
+    {% endif %}
+    
+    <ul id="tabnav" {% block tabclass %}class='tab1'{% endblock %}>
+        <li class="tab1">
+            <a href="{{ credit_submission.get_scorecard_url }}">Reporting Fields</a>
+        </li>
+        <li class="tab2">
+            <a href="{{ credit_submission.get_scorecard_url }}documentation/">Credit Info</a>
+        </li>
+        {% if user_tied_to_institution and credit_submission.internal_notes %}
+            <li class='tab3'>
+                <a href='{{ credit_submission.get_scorecard_url }}internal-notes/'>Internal Notes</a>
+            </li>
+        {% endif %}
+    </ul>
+    <div class='tabContent'>
+    	{% block tab_content %}
+    	{% if credit_submission.submission_status == 'na' %}
+    		<p class='hideReportingFields'>
+    			This credit was marked as <b>Not Applicable</b> for the following reason:<br/><br/>
+    			<i>{{ credit_submission.applicability_reason.reason }}</i>
+    		</p>
+    	{% else %}{% if credit_submission.submission_status == 'np' or credit_submission.submission_status == 'ns' %}
+    		<p class='hideReportingFields'>
+    			This credit was marked as <b>Not Pursuing</b> so Reporting Fields will not be displayed.
+    		</p> 
+    	{% else %}
+		        <div style="text-align: right;font-size: .9em;padding:10px;">
+		            "<span class='green bold'>---</span>"
+		            <i>indicates that no data was submitted for this field</i>
+		        </div>
+	            <br/>
+	            {% for field in credit_submission.get_submission_fields %}
+	                {% include 'institutions/scorecards/field_detail.html' %}
+	            {% endfor %}
+		{% endif %}{% endif %}
+		{% endblock %}
+    </div>
+    
+{% endblock %}
+
+{% block center_column_footer %}
+    {% include 'institutions/scorecards/footer.html' %}
+{% endblock %}

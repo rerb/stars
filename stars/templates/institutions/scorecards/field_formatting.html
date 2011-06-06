@@ -1,0 +1,32 @@
+{% load humanize %}
+
+{% if not field.is_empty %}
+	{% ifequal field.documentation_field.type 'long_text' %}
+	    <div style='text-align: left; margin: 0px;padding: 0px;'>
+		    {{ field.value|urlizetrunc:85|linebreaks|fix_ampersands }}
+		</div>
+	{% else %}
+	    {% ifequal field.documentation_field.type 'url' %}
+	        <a href='{{ field.value }}' target="_blank">{{ field.value|slice:":85" }}</a>
+	    {% else %}
+	        {% ifequal field.documentation_field.type 'upload' %}
+	            {% if field.value %}
+	                <a href='{% if host %}http://{{ host }}{% endif %}{{ field.value.url }}'>{{ field.get_filename }}</a>
+	            {% endif %}
+	        {% else %}
+	            {% ifequal field.documentation_field.type 'numeric' %}
+	                {{ field.value|floatformat:"-2" }}
+	                {% if field.documentation_field.units %}
+	                    <i>{{ field.documentation_field.units }}</i>
+	                {% endif %}
+	            {% else %}
+	                {% ifequal field.documentation_field.type 'boolean' %}
+	                    {{ field }}
+	                {% else %}
+	                    {{ field.value }}
+	                {% endifequal %}
+	            {% endifequal %}
+	        {% endifequal %}
+	    {% endifequal %}
+	{% endifequal %}
+{% endif %}

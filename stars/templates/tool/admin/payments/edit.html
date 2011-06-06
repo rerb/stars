@@ -1,0 +1,18 @@
+{% extends 'tool/admin/payments/base.html' %}
+
+{% block crumbs %} {{ block.super }} &gt; <a href='{{ payment.submissionset.institution.get_admin_payments_url }}'>{{ payment.submissionset.institution }}</a> &gt; {{ title }} {% endblock %}
+
+{% block payment_content %}
+    <h2>{{ title }}: {{ payment.submissionset.institution }}</h2>
+    <form method='post' action='.'>
+      <table class='form'>
+        {% include 'helpers/standard_form.html' %}
+        <tr>
+            <td class='buttonRow'>
+                <button type='submit'>Submit</button>
+                <button type='button' onclick='document.location="{{ object_form.instance.get_delete_url }}";'>Delete</button>
+            </td>
+        </tr>
+      </table>
+    </form>
+{% endblock %}

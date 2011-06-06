@@ -1,0 +1,17 @@
+
+syntax: regexp
+^bin$
+^develop-eggs$
+^downloads$
+^eggs$
+^parts$
+^\.installed\.cfg$
+^\.pydevproject\.bak$
+^\.settings$
+^\.project
+emacs.desktop
+
+syntax: glob
+*.pyc
+.DS_Store
+.vagrant

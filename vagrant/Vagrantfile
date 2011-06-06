@@ -1,0 +1,70 @@
+# http://wiki.opscode.com/display/chef/Vagrant
+
+# Before running vagrant, export the shell variable for the organization on the platform and make sure
+# the validator certificate is in ~/.chef.
+#
+# export ORGNAME=your_platform_organization
+# 
+# Also be sure to export the shell variable for the vagrant box (linux flavor) you will be using
+#
+# export VAGRANT_BOX=ubuntu10.04-gems
+#
+# You can optionally export a shell variable for your Chef server username if it is different from your OS user
+# export OPSCODE_USER=bofh
+ 
+user = ENV['OPSCODE_USER'] || ENV['USER']
+org_name = "aashe"
+base_box = 'lucid32'
+ 
+Vagrant::Config.run do |config|
+
+  # Virtual Web Server
+  config.vm.define :web1 do |config|
+
+    config.vm.box = base_box
+    config.vm.host_name = "#{user}-web1"
+    config.vm.network('33.33.33.10')
+    config.vm.customize do |vm|
+      vm.memory_size = 256
+    end
+ 
+    config.vm.provision :chef_server do |chef|
+     
+      # Set up some organization specific values based on environment variable above.
+      chef.chef_server_url = "https://api.opscode.com/organizations/#{org_name}"
+      chef.validation_key_path = "#{ENV['HOME']}/.chef/#{org_name}-validator.pem"
+      chef.validation_client_name = "#{org_name}-validator"
+      chef.client_key_path = "#{ENV['HOME']}/.chef/#{user}.pem"
+ 
+      # Change the node/client name for the Chef Server
+      chef.node_name = "#{user}-web1"
+ 
+      # Put the client.rb in /etc/chef so chef-client can be run w/o specifying
+      chef.provisioning_path = "/etc/chef"
+ 
+      # logging
+      chef.log_level = :info
+ 
+      # adjust the run list to suit your testing needs
+      chef.run_list = [
+        "role[starsapp]"
+      ]
+    end
+  end
+  
+  # # Virtual DB Server
+  # config.vm.define :db1 do |config|
+  #   config.vm.box = "lucid32"
+  #   config.vm.host_name = "db1"
+  #   config.vm.network('33.33.33.20')
+  #   config.vm.customize do |vm|
+  #     vm.memory_size = 256
+  #   end
+  #   config.vm.provision :chef_solo do |chef|
+  #     chef.cookbooks_path = "../chef/cookbooks"
+  #     chef.roles_path = "../chef/roles"
+  #     chef.add_role("db")
+  #   end
+  # end
+    
+end
