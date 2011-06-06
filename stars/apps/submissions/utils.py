@@ -171,3 +171,4 @@ def migrate_submission(old_ss, new_cs):
     old_ss.is_visible = False
     old_ss.save()
     
+    return new_ss
