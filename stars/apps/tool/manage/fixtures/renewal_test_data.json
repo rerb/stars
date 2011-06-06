@@ -1,29 +1,24 @@
 [
     {
         "pk": 1,
-        "model": "submissions.submissionset",
+        "model": "auth.user",
         "fields": {
-            "creditset": 1,
-            "institution": 1,
-            "date_registered": "2010-01-01",
-            "submission_deadline": "2011-01-31",
-            "registering_user": 1,
-            "submitting_user": 1,
-            "status": "ps",
-            "reporter_status": false
+            "username": "tester",
+            "password": "",
+            "email": "test@test.edu"
         }
     },
-	{
-	    "pk": 1, 
-	    "model": "credits.creditset", 
-	    "fields": {
-	        "is_locked": false, 
-	        "release_date": "2010-11-02", 
-	        "version": "1.0", 
-	        "tier_2_points": 0.25, 
-	        "scoring_method": "get_STARS_v1_0_score"
-	    }
-	},
+    {
+        "pk": 1, 
+        "model": "credits.creditset", 
+        "fields": {
+            "is_locked": false, 
+            "release_date": "2010-11-02", 
+            "version": "1.0", 
+            "tier_2_points": 0.25, 
+            "scoring_method": "get_STARS_v1_0_score"
+        }
+    },
 	{
 	     "pk": 1,
 	     "model": "institutions.institution",
@@ -42,13 +37,18 @@
 	     }
 	},
     {
-        "pk": 1,
-        "model": "auth.user",
-        "fields": {
-            "username": "tester",
-            "password": "",
-            "email": "test@test.edu"
-        }
+     "pk": 1,
+     "model": "submissions.submissionset",
+     "fields": {
+         "creditset": 1,
+         "institution": 1,
+         "date_registered": "2010-01-01",
+         "submission_deadline": "2011-01-31",
+         "registering_user": 1,
+         "submitting_user": 1,
+         "status": "ps",
+         "reporter_status": false
+     }
     },
     {
     	"pk": 1,

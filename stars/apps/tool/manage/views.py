@@ -373,6 +373,7 @@ def pay_submissionset(request, set_id):
                                     confirmation=str(result['trans_id']),
                                 )
                     p.save()
+                    ss.institution.set_active_submission(ss)
                     return HttpResponseRedirect("/tool/manage/submissionsets/")
                 else:
                     flashMessage.send("Processing Error: %s" % result['msg'], flashMessage.ERROR)
@@ -471,6 +472,8 @@ def purchase_submissionset(request):
                         et.send_email(mail_to, email_context)
                         
                         send_exec_renew_email(ss.institution)
+                        
+                        ss.institution.set_active_submission(ss)
                         
                         return HttpResponseRedirect("/tool/manage/submissionsets/")
                     else:
