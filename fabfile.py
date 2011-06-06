@@ -12,11 +12,9 @@ from mercurial import ui, hg
 from mercurial import commands
 
 env.project_name = 'stars'
-env.hg_user = "releaser"
-env.hg_pass = "r3l3asm3!"
 env.project_root = "/var/www/%s/" % env.project_name
 env.path = "%ssrc/" % env.project_root
-env.repo = "https://%s:%s@code.aashedev.org/hg/stars" % (env.hg_user, env.hg_pass)
+env.repo = "ssh://hg@bitbucket.org/ben_aashe/stars"
 
 def vagrant():
     """
@@ -58,6 +56,7 @@ def deploy():
         migrate()
     
     launch()
+    restart_celery()
 
 def pull():
     """
@@ -161,6 +160,10 @@ def launch():
     print "Restarting Apache"
     restart_cmd = "apache2ctl graceful"
     sudo(restart_cmd)
+    
+def restart_celery():
+    " Restart the celery upstart service "
+    sudo('restart stars-celery')
 
 def run_chef():
     """
