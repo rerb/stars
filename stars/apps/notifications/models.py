@@ -71,13 +71,6 @@ class EmailTemplate(models.Model):
                         headers={'Reply-To': settings.EMAIL_REPLY_TO},
                         attachments=attachments
                     )
-        # print >> sys.stdout, "---------------------------------------------"
-        # print >> sys.stdout, m.subject
-        # print >> sys.stdout, m.to
-        # print >> sys.stdout, m.cc
-        # print >> sys.stdout, m.bcc
-        # print >> sys.stdout, m.body
-        # print >> sys.stdout, "---------------------------------------------"
         m.send()
         
     def get_absolute_url(self):
