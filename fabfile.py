@@ -167,7 +167,10 @@ def launch():
     
 def restart_celery():
     " Restart the celery upstart service "
-    sudo('restart stars-celery')
+    sudo('stop stars-celery')
+    import time
+    time.sleep(5)
+    sudo('start stars-celery')
 
 def run_chef():
     """
