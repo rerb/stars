@@ -23,15 +23,23 @@ def send_certificate_pdf(ss):
     
     pdf = build_certificate_pdf(ss)
 
-    m = EmailMessage(
-                        subject="New Certificate: %s" % ss,
-                        body="%s submitted" % ss.institution,
-                        to=['marnie@aashe.org',],
-                        bcc=['ben@aashe.org',],
-                        headers = {'Reply-To': 'stars@aashe.org'},
-                        attachments = ((ss.institution.slug, pdf.getvalue(), 'application/pdf'),),
-                    )
-    m.send()
+    et = EmailTemplate.objects.get(slug='certificate_to_marnie')
+    email_context = {"ss": ss}
+    et.send_email(
+                    mail_to=['marnie@aashe.org',],
+                    context=email_context,
+                    attachments=((ss.institution.slug, pdf.getvalue(), 'application/pdf'),),
+                    title="New Certificate: %s" % ss)
+
+    # m = EmailMessage(
+    #                     subject="New Certificate: %s" % ss,
+    #                     body="%s submitted" % ss.institution,
+    #                     to=['marnie@aashe.org',],
+    #                     bcc=['ben@aashe.org',],
+    #                     headers = {'Reply-To': 'stars@aashe.org'},
+    #                     attachments = ((ss.institution.slug, pdf.getvalue(), 'application/pdf'),),
+    #                 )
+    # m.send()
     
 @task()
 def perform_migration(old_ss, new_cs, user):
