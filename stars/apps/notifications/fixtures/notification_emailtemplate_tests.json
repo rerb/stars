@@ -22,6 +22,28 @@
         }
     }, 
     {
+        "pk": 20, 
+        "model": "notifications.emailtemplate", 
+        "fields": {
+            "description": "Email sent to Marnie with certificate attached after an institution submits.", 
+            "title": "New Certificate", 
+            "content": "Hey Marnie,\r\n\r\nHere's another certificate.\r\n\r\n{{ ss.institution.name }}\r\n\r\nLiaison:\r\n{{ ss.institution.contact_first_name }} {{ ss.institution.contact_last_name }}\r\n{{ ss.institution.contact_email }}\r\n{{ ss.institution.contact_phone }}\r\n\r\nThanks!\r\n-Ben", 
+            "active": true, 
+            "slug": "certificate_to_marnie", 
+            "example_data": {
+                "ss": {
+                    "institution": {
+                        "contact_email": "[example@example.edu]", 
+                        "contact_phone": "[123-456-7890]", 
+                        "name": "[Test Institution]", 
+                        "contact_last_name": "[Last]", 
+                        "contact_first_name": "[First]"
+                    }
+                }
+            }
+        }
+    }, 
+    {
         "pk": 18, 
         "model": "notifications.emailtemplate", 
         "fields": {
@@ -376,8 +398,13 @@
             "active": true, 
             "slug": "welcome_liaison_paid", 
             "example_data": {
-                "payment": {
-                    "amount": "[400]"
+                "payment_dict": {
+                    "name_on_card": "[Cardholder Name]", 
+                    "billing_address": "[Billing Address]", 
+                    "billing_city": "[City]", 
+                    "billing_zipcode": "[zip]", 
+                    "last_four": "1234", 
+                    "billing_state": "[ST]"
                 }, 
                 "institution": {
                     "name": "[Test institution]", 
@@ -388,13 +415,8 @@
                     "contact_title": "[Liaison Title]", 
                     "executive_contact_last_name": "[Last Name]"
                 }, 
-                "payment_dict": {
-                    "name_on_card": "[Cardholder Name]", 
-                    "billing_address": "[Billing Address]", 
-                    "billing_city": "[City]", 
-                    "billing_zipcode": "[zip]", 
-                    "last_four": "1234", 
-                    "billing_state": "[ST]"
+                "payment": {
+                    "amount": "[400]"
                 }
             }
         }
@@ -655,6 +677,69 @@
             "bcc": true, 
             "template": 19, 
             "address": "stars_staff@aashe.org"
+        }
+    }, 
+    {
+        "pk": 27, 
+        "model": "notifications.copyemail", 
+        "fields": {
+            "bcc": false, 
+            "template": 16, 
+            "address": "allison@aashe.org"
+        }
+    }, 
+    {
+        "pk": 28, 
+        "model": "notifications.copyemail", 
+        "fields": {
+            "bcc": false, 
+            "template": 16, 
+            "address": "margueritte.williams@aashe.org"
+        }
+    }, 
+    {
+        "pk": 29, 
+        "model": "notifications.copyemail", 
+        "fields": {
+            "bcc": false, 
+            "template": 15, 
+            "address": "margueritte.williams@aashe.org"
+        }
+    }, 
+    {
+        "pk": 30, 
+        "model": "notifications.copyemail", 
+        "fields": {
+            "bcc": false, 
+            "template": 15, 
+            "address": "allison@aashe.org"
+        }
+    }, 
+    {
+        "pk": 31, 
+        "model": "notifications.copyemail", 
+        "fields": {
+            "bcc": true, 
+            "template": 10, 
+            "address": "nikia.johnson@aashe.org"
+        }
+    }, 
+    {
+        "pk": 32, 
+        "model": "notifications.copyemail", 
+        "fields": {
+            "bcc": false, 
+            "template": 20, 
+            "address": "maureen.fischer-bahr@aashe.org"
+        }
+    }, 
+    {
+        "pk": 33, 
+        "model": "notifications.copyemail", 
+        "fields": {
+            "bcc": false, 
+            "template": 20, 
+            "address": "ben@aashe.org"
         }
     }
 ]
