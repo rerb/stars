@@ -23,7 +23,11 @@ def vagrant():
     env.hosts = ['ben-aashe-web1']
     env.user = 'vagrant'
     env.key_filename = '/Library/Ruby/Gems/1.8/gems/vagrant-0.7.3/keys/vagrant'
-    env.config_file = "vagrant" 
+    env.config_file = "vagrant"
+    env.repo = "https://%s:%s@bitbucket.org/ben_aashe/stars"
+    user = prompt("Bitbucket user name:")
+    passwd = prompt("Bitbucket password:")
+    env.repo = env.repo % (user, passwd)
     
 def starsapp01():
     """
