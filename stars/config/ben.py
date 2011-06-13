@@ -9,8 +9,9 @@ DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 MAINTENANCE_MODE = False
 
-#EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
-#EMAIL_FILE_PATH = '~/tmp/stars-email-messages' # change this to a proper location
+# EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+# EMAIL_FILE_PATH = '/Users/jamstooks/tmp/stars-email-messages'
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 # no emails during local dev
 ADMINS = ('ben@aashe.org',)
@@ -40,7 +41,7 @@ DATABASE_ROUTERS = ('aashe.issdjango.router.ISSRouter',)
 # the django dev server so we will need to serve the static files (see urls.py)
 STANDALONE_MODE = True
 
-MEDIA_ROOT = '/Users/jamstooks/aashe/projects/STARS/src/media/stars/'
+MEDIA_ROOT = '/Users/jamstooks/workspace/media/stars/'
 
 SSO_SERVER_URI = WWW_SSO_SERVER_URI
 STARS_DOMAIN = WWW_STARS_DOMAIN
@@ -80,4 +81,4 @@ AUTHORIZENET_SERVER = TEST_AUTHORIZENET_SERVER
 if 'test' in sys.argv:
     CACHE_BACKEND = "file:///tmp/stars-cache"
     # DATABASES['default']['ENGINE'] = 'sqlite3'
-    # DATABASES['default']['NAME'] = '/Users/jamstooks/sqlite/stars_tests.db'
+    #  DATABASES['default']['NAME'] = '/Users/jamstooks/sqlite/stars_tests.db'
