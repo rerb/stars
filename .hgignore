@@ -10,6 +10,7 @@ syntax: regexp
 ^\.settings$
 ^\.project
 emacs.desktop
+^docs/_build
 
 syntax: glob
 *.pyc
