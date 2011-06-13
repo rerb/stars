@@ -37,8 +37,8 @@ h3 {
 
 .signatureLine {
 	border-top 1px solid #000;
-	margin: 1.5cm 8cm 0;
-	padding: .2cm 0px 0px 0px;
+    margin: .4cm 0 0 0;
+	padding: .2cm 0 0 0;
 }
 
 .logoTable {
@@ -54,15 +54,18 @@ h3 {
 		</h2>
 		<h3>
 			Awarded on {{ ss.date_submitted }} and valid for three years.
-		</h3>
-		<div class='signatureLine'>
-			Paul Rowland, Executive Director
-		</div>
-		<table class='logoTable'>
-			<tr>
-				<td style='text-align: left;vertical-align: top;'>
+		</h3>		
+        <table class='logoTable'>
+		    <tr>
+		        <td style='text-align: left;vertical-align: top;'>
 					<img src='{{ project_path }}/static/images/pdf/Full_AASHE_Logo_large.jpg' height='3cm' />
 				</td>
+				<td>
+				    <br/>
+            		<div class='signatureLine'>
+            			Paul Rowland, Executive Director
+            		</div>
+            	</td>
 				<td style='text-align: right;vertical-align: top;'>
 					<img src='{{ project_path }}/static/images/pdf/STARS-Logo-FINAL.jpg' height='3cm' />
 				</td>
