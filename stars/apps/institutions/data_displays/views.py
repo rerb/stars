@@ -13,6 +13,7 @@ from stars.apps.institutions.models import Institution
 from stars.apps.credits.models import Rating, Credit, Category, Subcategory, DocumentationField
 from stars.apps.institutions.data_displays.utils import FormListWrapper, get_variance
 from stars.apps.institutions.data_displays.forms import *
+from stars.apps.institutions.data_displays.models import AuthorizedUser
 from stars.apps.helpers import flashMessage
 
 from aashe.issdjango.models import Organizations
@@ -367,14 +368,23 @@ class DisplayAccessMixin(object):
             @todo - I should turn this into some sort of (class?) decorator
         """
         
-        if self.access_list and request.user.email != "dan@endowmentethics.org":
+        try:
+            au = AuthorizedUser.objects.get(email=request.user.email)
+        except AuthorizedUser.DoesNotExist:
+            au = None
+        
+        if self.access_list:
             denied = True
             profile = request.user.get_profile()
             if 'member' in self.access_list:
                 if profile.is_member or profile.is_aashe_staff:
                     denied = False
+                elif au and au.member_level: # check the authorized users
+                    denied = False
             if 'participant' in self.access_list:
                 if profile.is_participant() or profile.is_aashe_staff:
+                    denied = False
+                elif au and au.participant_level: # check the authorized users
                     denied = False
             if denied:
                 self.template_name = self.denied_template_name
