@@ -369,7 +369,7 @@ class DisplayAccessMixin(object):
         """
         
         try:
-            au = AuthorizedUser.objects.get(email=request.user.email)
+            au = AuthorizedUser.objects.get(email=request.user.email, start_date__lte=datetime.now(), end_date__gte=datetime.now())
         except AuthorizedUser.DoesNotExist:
             au = None
         
