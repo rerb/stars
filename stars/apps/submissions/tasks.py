@@ -2,7 +2,7 @@
     Celery tasks
 """
 from stars.apps.submissions.pdf.export import build_certificate_pdf
-from stars.apps.submissions.utils import migrate_submission
+from stars.apps.submissions.utils import migrate_ss_version, migrate_submission
 from stars.apps.notifications.models import EmailTemplate
 from stars.apps.helpers import watchdog
 
@@ -39,7 +39,7 @@ def perform_migration(old_ss, new_cs, user):
         (if the emails are different)
     """
     
-    new_ss = migrate_submission(old_ss, new_cs)
+    new_ss = migrate_ss_version(old_ss, new_cs)
     
     email_to = [old_ss.institution.contact_email]
     if user.email not in email_to:
@@ -52,4 +52,19 @@ def perform_migration(old_ss, new_cs, user):
         
     except EmailTemplate.DoesNotExist:
         watchdog.log('perform_migration', 'Migration email template missing', watchdog.ERROR)
+
+@task()
+def migrate_purchased_submission(old_ss, new_ss):
+    """
+        Hide the submission, move the data from the old_ss
+        and then unhide it
+    """
+    new_ss.is_visible = False
+    new_ss.is_locked = True
+    new_ss.save()
     
+    migrate_submission(old_ss, new_ss)
+    
+    new_ss.is_visible = True
+    new_ss.is_locked = False
+    new_ss.save()

@@ -31,27 +31,23 @@ def init_credit_submissions(submissionset):
                     creditsubmission = CreditUserSubmission(credit=credit, subcategory_submission=subcategorysubmission)
                     creditsubmission.save()
 
-def migrate_submission(old_ss, new_cs):
+def migrate_ss_version(old_ss, new_cs):
     """
-        migrate a submissionset `old_ss` from it's current creditset to `new_cs`
+        Migrate a SubmissionSet from one CreditSet version to another
         
-            - old_ss is locked (if it isn't already)
-            - New submissionset, new_ss is created for new_cs
-            - Initialize the new_ss
-            - Iterate through items in new_ss and migrate data from old_ss
-            
-        returns new SubmissionSet
+        - Locks the old submission.
+        - Creates the new hidden one
+        - Migrates the data
+        - Hides the old one
+        - Unhides the new one and makes it active
+        - Moves payments over to new submission
+        - Returns the new submissionset
     """
-    
-    # double checks:
-        # status == 'ps'
-        # deadline < today
-        # ss.cs != new_cs
     
     if not old_ss.is_locked:
         old_ss.is_locked = True
         old_ss.save()
-    
+
     new_ss = SubmissionSet(
                             creditset=new_cs,
                             institution=old_ss.institution,
@@ -62,27 +58,40 @@ def migrate_submission(old_ss, new_cs):
                             is_locked=True,
                             is_visible=False)
     new_ss.save()
+    
+    init_credit_submissions(new_ss)
+    
+    new_ss = migrate_submission(old_ss, new_ss)
 
     # move payments
     for p in old_ss.payment_set.all():
         p.submissionset = new_ss
         p.save()
     
-    # for testing, copy the payments
-    #    for p in old_ss.payment_set.all():
-    #        new_p = copy.copy(p)
-    #        new_p.id = None
-    #        new_p.submissionset = new_ss
-    #        new_p.save()
+    new_ss.is_locked = False
+    new_ss.is_visible = True
+
+    new_ss.save()
+
+    # make active submission set
+    new_ss.institution.set_active_submission(new_ss)
+
+    old_ss.is_visible = False
+    old_ss.save()
+    
+    return new_ss
+
+def migrate_submission(old_ss, new_ss):
+    """
+        Migrate data from one SubmissionSet to another
+        
+        The returned SubmissionSet is locked and hidden
+    """
     
     # if the old SubmissionSet hasn't been initialized we don't have to do anything
     if old_ss.categorysubmission_set.count() == 0:
-        new_ss.is_locked=False
-        new_ss.is_visisble=True
         new_ss.save()
         return new_ss
-    
-    init_credit_submissions(new_ss)
     
     # Since there is currently no change necessary with the category we will ignore it
     # I'm keeping this in here in case we add data to the CategorySubmission objects
@@ -94,17 +103,19 @@ def migrate_submission(old_ss, new_cs):
         
     # Get all SubcategorySubmissions in this SubmissionSet regardless of Category
     
-    # print new_ss
-    
     for sub in SubcategorySubmission.objects.filter(category_submission__submissionset=new_ss):
-        # Try to find a parent
-        prev_sub = sub.subcategory.previous_version
+        
+        # get the related subcategory
+        prev_sub = sub.subcategory.get_for_creditset(old_ss.creditset)
+        # print "%s Previous Subcategory: %s" % (sub.subcategory, prev_sub)
+        
         # if it has a previous version
         if prev_sub:
             try:
                 old_sub = SubcategorySubmission.objects.get(category_submission__submissionset=old_ss, subcategory=prev_sub)
                 sub.description = old_sub.description
                 sub.save()
+                # print "saved: %s" % sub
             except SubcategorySubmission.DoesNotExist:
                 # This must be a new subcategory
                 # print "no old subcategory submission: %s" % sub.subcategory
@@ -113,11 +124,14 @@ def migrate_submission(old_ss, new_cs):
             # print "new subcategory: %s" % sub.subcategory
             pass
         
+    # print "Total CUS's: %d" % CreditUserSubmission.objects.count()
+    
     for c in CreditUserSubmission.objects.filter(subcategory_submission__category_submission__submissionset=new_ss):
-        # find the parent credit
-        prev_credit = c.credit.previous_version
         
-        # print "%s - %s" % (c.credit, prev_credit)
+       
+        # find the parent credit
+        prev_credit = c.credit.get_for_creditset(old_ss.creditset)
+        # print "Previous Credit: %s" % prev_credit
         
         if prev_credit:
             try:
@@ -140,7 +154,8 @@ def migrate_submission(old_ss, new_cs):
             # get all the fields in this credit
             for f in c.get_submission_fields():
                 
-                prev_df = f.documentation_field.previous_version
+                prev_df = f.documentation_field.get_for_creditset(old_ss.creditset)
+                # print prev_df
                 
                 if prev_df:
                     field_class = f.__class__
@@ -159,16 +174,5 @@ def migrate_submission(old_ss, new_cs):
         else:
             # print "new credit: %s" % c.credit
             continue
-            
-    new_ss.is_locked = False
-    new_ss.is_visible = True
-    
-    new_ss.save()
-    
-    # make active submission set
-    new_ss.institution.set_active_submission(new_ss)
-    
-    old_ss.is_visible = False
-    old_ss.save()
     
     return new_ss

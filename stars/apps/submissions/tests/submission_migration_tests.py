@@ -12,19 +12,21 @@ from django.core import mail
 from django.test.client import Client
 from django.conf import settings
 
-from stars.apps.submissions.utils import migrate_submission
+from stars.apps.submissions.utils import migrate_submission, init_credit_submissions
 from stars.apps.submissions.models import *
 
 import sys
 
-class MigrationTest(TestCase):
+from datetime import datetime
+
+class VersionMigrationTest(TestCase):
     fixtures = ['submission_migration_test.json','notification_emailtemplate_tests.json']
 
     def setUp(self):
         
         settings.CELERY_ALWAYS_EAGER = True
 
-    def testMigration(self):
+    def testVersionMigration(self):
         """
             migrate_submission()
         """
@@ -56,3 +58,37 @@ class MigrationTest(TestCase):
         
         # Check that an email was sent.
         self.assertEqual(len(mail.outbox), 1)
+        
+class MigrationTest(TestCase):
+    fixtures = ['submission_migration_test.json','notification_emailtemplate_tests.json']
+
+    def setUp(self):
+        pass
+
+    def testMigrate(self):
+        """
+            Test a migration of data betwen two submissions of the same
+            creditset version
+        """
+
+        cs = CreditSet.objects.get(pk=1)
+        old_ss = SubmissionSet.objects.get(pk=1)
+        new_ss = SubmissionSet(
+                            creditset=cs,
+                            institution=Institution.objects.get(pk=1),
+                            date_registered=datetime.now(),
+                            submission_deadline=datetime.now(),
+                            registering_user=User.objects.get(pk=1),
+                            status='ps',
+                            is_locked=False,
+                            is_visible=True)
+        new_ss.save()
+        init_credit_submissions(new_ss)
+        
+        migrate_submission(old_ss, new_ss)
+        
+        self.assertEqual(NumericSubmission.objects.count(), 2)
+        ns1 = NumericSubmission.objects.all()[0]
+        ns2 = NumericSubmission.objects.all()[1]
+        
+        self.assertEqual(ns1.value, ns2.value)
