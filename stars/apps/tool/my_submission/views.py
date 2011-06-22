@@ -162,7 +162,7 @@ submit_finalize = FinalizeClassView("tool/submissions/submit_finalize.html",
 def _get_category_submission_context(request, category_id):
     active_submission = _get_active_submission(request)
     # confirm that the category exists... 
-    category = get_object_or_404(Category, id=category_id)
+    category = get_object_or_404(Category, id=category_id, creditset=active_submission.creditset)
     
     # ... and get the related CategorySubmission
     # @TODO consider a transaction here
