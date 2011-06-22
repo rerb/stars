@@ -12,6 +12,7 @@ from stars.apps.accounts.decorators import user_is_inst_admin, user_is_staff
 from stars.apps.accounts import xml_rpc
 from stars.apps.institutions.models import Institution, InstitutionState, StarsAccount
 from stars.apps.submissions.models import SubmissionSet, Payment, EXTENSION_PERIOD, ExtensionRequest
+from stars.apps.submissions.tasks import migrate_purchased_submission
 from stars.apps.helpers.forms import form_helpers
 from stars.apps.helpers import watchdog
 from stars.apps.helpers import flashMessage
@@ -411,9 +412,18 @@ def purchase_submissionset(request):
     later_form = PayLaterForm()
     
     if request.method == "POST":
+        
+        migrate_message = "Your data is being migrated. It will appear shortly."
+        
         later_form = PayLaterForm(request.POST)
         if later_form.is_valid() and later_form.cleaned_data['confirm']:
+            
+            old_ss = current_inst.get_latest_submission(include_unrated=True)
             ss = init_submissionset(current_inst, request.user, datetime.now())
+            flashMessage.send(migrate_message, flashMessage.NOTICE)
+            # Queue the task to handle the migration
+            migrate_purchased_submission.delay(old_ss, ss)
+            
             p = Payment(
                             submissionset=ss,
                             date=datetime.now(),
@@ -450,7 +460,12 @@ def purchase_submissionset(request):
                 if result.has_key('cleared') and result.has_key('msg'):
                     if result['cleared'] and result['trans_id']:
                         
+                        old_ss = current_inst.get_latest_submission(include_unrated=True)
                         ss = init_submissionset(current_inst, request.user, datetime.now())
+                        flashMessage.send(migrate_message, flashMessage.NOTICE)
+                        # Queue the task to handle the migration
+                        migrate_purchased_submission.delay(old_ss, ss)
+                        
                         p = Payment(
                                         submissionset=ss,
                                         date=datetime.now(),

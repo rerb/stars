@@ -11,13 +11,13 @@ from datetime import date
 import sys, os, random
 
 from stars.apps.tool.manage.views import _gets_discount
-from stars.apps.submissions.models import SubmissionSet
+from stars.apps.submissions.models import SubmissionSet, NumericSubmission
 
 class RenewalTest(TestCase):
-    fixtures = ['renewal_test_data.json', 'notification_emailtemplate_tests.json']
+    fixtures = ['submission_migration_test.json', 'notification_emailtemplate_tests.json']
 
     def setUp(self):
-        pass
+        settings.CELERY_ALWAYS_EAGER = True
     
     def test_gets_discount(self):
         """
@@ -115,6 +115,9 @@ class RenewalTest(TestCase):
         login = c.login(username='tester', password='test')
         self.assertTrue(login)
         
+        # Total Submissions
+        self.assertEqual(SubmissionSet.objects.count(), 1)
+        
         url = "/tool/manage/submissionsets/purchase/"
         
         # Page Loads
@@ -126,8 +129,14 @@ class RenewalTest(TestCase):
         response = c.post(url, post_dict)
         self.assertTrue(response.status_code == 302)
         
-        self.assertTrue(SubmissionSet.objects.count() == 2)
+        self.assertEqual(SubmissionSet.objects.count(), 2)
         self.assertTrue(len(mail.outbox) == 2)
+        
+        # confirm the data migration
+        self.assertEqual(NumericSubmission.objects.count(), 2)
+        ns1 = NumericSubmission.objects.all()[0]
+        ns2 = NumericSubmission.objects.all()[1]
+        self.assertEqual(ns1.value, ns2.value)
         
        # print >> sys.stdout, mail.outbox[1].message()
         
