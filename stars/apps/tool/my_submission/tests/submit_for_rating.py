@@ -26,7 +26,17 @@ class RatingTest(TestCase):
         
         settings.CELERY_ALWAYS_EAGER = True
         
-    def testConfirmView(self):
+    def test_process(self):
+        
+        c = Client()
+        c.login(username='test_user', password='test')
+        
+        self.confirmView(c)
+        self.letterView(c)
+        self.finalizeView(c)
+        
+        
+    def confirmView(self, c):
         """
             Test the ConfirmClassView
                 - Handles a basic HTTP request w/out 500
@@ -35,8 +45,6 @@ class RatingTest(TestCase):
 
         print >> sys.stderr, "TESTING: Confirm Submission"
         
-        c = Client()
-        c.login(username='test_user', password='test')
         post_dict = {}
         response = c.get('/tool/submissions/submit/', post_dict)
         self.assertTrue(response.status_code == 200)
@@ -45,7 +53,7 @@ class RatingTest(TestCase):
         response = c.post('/tool/submissions/submit/', post_dict, follow=False)
         self.assertTrue(response.status_code == 302)
         
-    def testLetterView(self):
+    def letterView(self, c):
         """
             Tests the LetterClassView
                 - Handles a basic HTTP request w/out 500
@@ -54,19 +62,29 @@ class RatingTest(TestCase):
         
         print >> sys.stderr, "TESTING: Letter"
         
-        c = Client()
-        c.login(username='test_user', password='test')
         post_dict = {}
         response = c.get('/tool/submissions/submit/letter/', post_dict)
         self.assertTrue(response.status_code == 200)
         
         f = open(os.path.join(os.path.dirname(__file__), 'test.pdf'))
         
-        post_dict = {'presidents_letter': f,}
+        post_dict = {
+                        'letter_form-presidents_letter': f,
+                        'exec_contact_form-executive_contact_first_name': 'First',
+                        'exec_contact_form-executive_contact_last_name': 'Last',
+                        'exec_contact_form-executive_contact_title': 'Title',
+                        'exec_contact_form-executive_contact_department': 'Dept.',
+                        'exec_contact_form-executive_contact_email': 'test@test.edu',
+                        'exec_contact_form-executive_contact_address': 'Address',
+                        'exec_contact_form-executive_contact_city': 'City',
+                        'exec_contact_form-executive_contact_state': 'ST',
+                        'exec_contact_form-executive_contact_zip': '12345',
+                    }
         response = c.post('/tool/submissions/submit/letter/', post_dict, follow=False)
+        
         self.assertTrue(response.status_code == 302)
 
-    def testFinalizeView(self):
+    def finalizeView(self, c):
         """
             Tests the LetterClassView
                 - Handles a basic HTTP request w/out 500
@@ -76,8 +94,6 @@ class RatingTest(TestCase):
 
         print >> sys.stderr, "TESTING: Finalize"
         
-        c = Client()
-        c.login(username='test_user', password='test')
         post_dict = {}
         response = c.get('/tool/submissions/submit/finalize/', post_dict)
         self.assertTrue(response.status_code == 200)

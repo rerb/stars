@@ -71,7 +71,7 @@ class FormActionView(object):
 
         if response:
             return response
-
+            
         return render_to_response(self.template, RequestContext(request, context))
 
     def get_instance(self, request, context, *args, **kwargs):
@@ -106,9 +106,7 @@ class FormActionView(object):
     def process_form(self, request, context):
         """ Returns a response or raises a redirect exception """
 
-        _formClass = self.get_form_class(context)
-        kwargs = self.get_form_kwargs(request, context)
-        form = _formClass(**kwargs)
+        form = self.get_form(request, context)
 
         if request.method == 'POST':
             if form.is_valid():
@@ -120,6 +118,12 @@ class FormActionView(object):
 
         context[self.form_name] = form
         return None
+        
+    def get_form(self, request, context):
+        
+        _formClass = self.get_form_class(context)
+        kwargs = self.get_form_kwargs(request, context)
+        return _formClass(**kwargs)
 
     def save_form(self, form, request, context):
         """ Saves the form to a instance if available """
@@ -157,8 +161,8 @@ class MultiFormView(object):
     """
         A class based view used to process multiple forms on a page
         
-        Extending classes must define a form_list property
-        form_list = [
+        Extending classes must define a form_class_list property
+        form_class_list = [
             {'form_name': 'form_name', 'form_class': FormClass, 'instance_name': 'instance', 'has_upload': False,}
         ]
         ... and a template property (these can both be passed as keyword parameters if necessary

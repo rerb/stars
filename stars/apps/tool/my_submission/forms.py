@@ -626,3 +626,18 @@ class LetterStatusForm(LetterForm):
     class Meta:
         model = SubmissionSet
         fields = ['presidents_letter','reporter_status',]
+        
+class ExecContactForm(ModelForm):
+    """
+        The contact informartion for the institution's executive contact
+    """
+    class Meta:
+        model = Institution
+        fields = ['executive_contact_first_name', 'executive_contact_middle_name', 'executive_contact_last_name', 'executive_contact_title', 'executive_contact_department', 'executive_contact_email', 'executive_contact_address', 'executive_contact_city', 'executive_contact_state', 'executive_contact_zip']
+        
+    def __init__(self, *args, **kwargs):
+        super(ExecContactForm, self).__init__(*args, **kwargs)
+        self.fields['executive_contact_address'].required = True
+        self.fields['executive_contact_city'].required = True
+        self.fields['executive_contact_state'].required = True
+        self.fields['executive_contact_zip'].required = True

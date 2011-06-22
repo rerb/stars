@@ -16,19 +16,28 @@
     <form class='generalForm' method='post' action='.' enctype="multipart/form-data">
         {% load help %}
         {% get_help_context 'submit_for_rating_letter' %}
-        {{ object_form.presidents_letter.errors }}
+       
+        {{ letter_form.presidents_letter.errors }}
         <span class="required_note" title="This field is required to complete credit">*</span>
-        {% show_help_text object_form.presidents_letter.help_text %}
-        {{ object_form.presidents_letter|safe }}
+        {% show_help_text letter_form.fields.presidents_letter.help_text %}
+        {{ letter_form.presidents_letter|safe }}
         <br/>
-        {% if object_form.reporter_status %}
+        {% if letter_form.reporter_status %}
             <br/>
-                {{ object_form.reporter_status.errors }}
+                {{ letter_form.reporter_status.errors }}
                 <b>Choose Reporter Status</b><br/>
                 Please check this box if you wish to submit as a STARS Reporter: {{ object_form.reporter_status|safe }}
                 {% show_help_context 'submit_for_rating_reporter' 1 %}
             <br/><br/>
         {% endif %}
+        
+        {% get_help_context 'submit_exec_contact' %}
+        <table>
+        {% with object_form=exec_contact_form %}
+            {% include "helpers/standard_form.html" %}
+        {% endwith %}
+        </table>
+                
         <div class='button_row'>
             <button type='button' onclick='document.location="/tool/submissions/submit/";'>&lt;&lt; Back</button>
             <button type='submit'>Next &gt;&gt;</button>

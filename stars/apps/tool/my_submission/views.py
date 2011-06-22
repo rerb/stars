@@ -50,7 +50,7 @@ def summary(request):
     
     return respond(request, "tool/submissions/summary.html", context)
 
-class SubmissionClassView(SubmissionMixin, PermMixin, FormActionView):
+class SubmissionClassMixin(SubmissionMixin, PermMixin):
     """
         Extends ``FormActionView`` to provide the class with the model instance
     """
@@ -67,7 +67,7 @@ class SubmissionClassView(SubmissionMixin, PermMixin, FormActionView):
             return context[self.instance_name]
         return None
 
-class ConfirmClassView(SubmissionClassView):
+class ConfirmClassView(SubmissionClassMixin, FormActionView):
     """
         The first step in the final submission process
     """
@@ -93,26 +93,62 @@ class ConfirmClassView(SubmissionClassView):
 # The first submission view
 submit_confirm = ConfirmClassView("tool/submissions/submit_confirm.html", BoundaryForm,  form_name='object_form', instance_name='active_submission')
 
-class LetterClassView(SubmissionClassView):
+class LetterClassView(SubmissionClassMixin, MultiFormView):
     """
         Extends the Form class-based view from apps.helpers
+        
     """
     
-    def get_form_class(self, context, *args, **kwargs):
-        """ This form gives institutions the option to choose Reporter status """
+    form_class_list = [
+        {'form_name': 'exec_contact_form', 'form_class': ExecContactForm, 'instance_name': 'institution', 'has_upload': False,}
+    ]
+    instance_name = 'active_submission'
+    
+    def get_extra_context(self, request, context, **kwargs):
+        """ update the form class list """
+        context.update(super(LetterClassView, self).get_extra_context(request, context, **kwargs))
         if context[self.instance_name].get_STARS_rating().name != 'Reporter':
-            return LetterStatusForm
-        #return SubmissionClassView.get_form_class(self, *args, **kwargs)
-        return super(LetterClassView, self).get_form_class(context, *args, **kwargs)
+            letter_form_class = LetterStatusForm
+        else:
+            letter_form_class = LetterForm
+            
+        self.form_class_list.append({
+                                        'form_name': 'letter_form',
+                                        'form_class': letter_form_class,
+                                        'instance_name': 'active_submission',
+                                        'has_upload': True
+                                    })
         
-    def get_success_action(self, request, context, form):
-        self.save_form(form, request, context)
+        # add the institution to the context
+        return {'institution': context['active_submission'].institution,}
+    
+    # def get_form(self, request, context):
+    #     """
+    #         This form gives institutions the option to choose Reporter status
+    #         if they aren't already at Reporter
+    #         They are also prompted to update the Exec contact info
+    #     """
+    #     
+    #     form_list = {}
+    #     if context[self.instance_name].get_STARS_rating().name != 'Reporter':
+    #         letter_form_class = LetterStatusForm
+    #     else:
+    #         letter_form_class = super(LetterClassView, self).get_form_class(context)
+    #     
+    #     form_list['letter_form'] = letter_form_class(instance=context['active_submission'], prefix="letter")
+    #     
+    #     form_list['exec_contact_form'] = ExecContactForm(instance=context['active_submission'].institution, prefix="contact")
+    #     
+    #     return FormListWrapper(form_list)
+        
+    def get_success_response(self, request, context):
+        # self.save_form(form, request, context)
         return HttpResponseRedirect("/tool/submissions/submit/finalize/")
 
 # The second view of the submission process
-submit_letter = LetterClassView("tool/submissions/submit_letter.html", LetterForm,  form_name='object_form', instance_name='active_submission', has_upload=True)
+submit_letter = LetterClassView("tool/submissions/submit_letter.html")
 
-class FinalizeClassView(SubmissionClassView):
+class FinalizeClassView(SubmissionClassMixin, FormActionView):
     """
         Extends the Form class-based view from apps.helpers
     """
@@ -130,7 +166,7 @@ class FinalizeClassView(SubmissionClassView):
         
     def get_form_kwargs(self, request, context):
         """ Remove 'instance' from ``kwargs`` """
-        kwargs = SubmissionClassView.get_form_kwargs(self, request, context)
+        kwargs = super(FinalizeClassView, self).get_form_kwargs(request, context)
         if kwargs.has_key('instance'):
             del kwargs['instance']
             # kwargs['instance'] = None
