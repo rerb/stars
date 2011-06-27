@@ -76,7 +76,7 @@ def terms_of_service(request):
     """
     
     if not request.user.account:
-        watchdog.log('TOC', "User passed to TOS w/out StarsAccount: uid = %d"%request.user.id, watchdog.ERROR)
+        watchdog.log('TOC', "User passed to TOS w/out StarsAccount: uid", watchdog.ERROR)
         return HttpResponseRedirect("/")
     
     next = request.REQUEST.get('next', '/')
