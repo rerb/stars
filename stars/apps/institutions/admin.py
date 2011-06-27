@@ -15,6 +15,7 @@ admin.site.register(InstitutionState, InstitutionStateAdmin)
 class StarsAccountAdmin(admin.ModelAdmin):
     list_display = ('user', 'institution', 'user_level')
     list_filter = ('institution',)
+    search_fields = ('user__email',)
 admin.site.register(StarsAccount, StarsAccountAdmin)
 
 class PendingAccountAdmin(admin.ModelAdmin):
