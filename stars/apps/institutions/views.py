@@ -214,6 +214,7 @@ class ScorecardMixin(object):
         context = {}
         # Get the Institution
         context['user_tied_to_institution'] = False
+        context['preview'] = False
         if kwargs.has_key('institution_slug'):
             institution = get_object_or_404(Institution, slug=kwargs['institution_slug'])
             context['institution'] = institution
