@@ -1430,7 +1430,7 @@ class SubmissionInquiry(models.Model):
     state = models.CharField(max_length=2)
     email_address = models.EmailField()
     phone_number = PhoneNumberField()
-    additional_comments = models.TextField(blank=True, null=True)
+    additional_comments = models.TextField(blank=True, null=True, help_text="Include any other comments about the Submission, including the Submission Boundary and Subcategory Descriptions.")
     
     class Meta:
         verbose_name_plural = "Submission Inquiries"
