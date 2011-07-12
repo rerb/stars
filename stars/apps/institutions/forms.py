@@ -5,7 +5,7 @@ from stars.apps.submissions.models import SubmissionInquiry, SubmissionSet, Cred
 
 class SubmissionSelectForm(Form):
     
-    institution = forms.ModelChoiceField(queryset=SubmissionSet.objects.get_rated(), empty_label="Please Select an Institution's Submission")
+    institution = forms.ModelChoiceField(queryset=SubmissionSet.objects.get_rated().order_by('institution__name'), empty_label="Please Select an Institution's Submission")
 
 class SubmissionInquiryForm(ModelForm):
     
@@ -15,8 +15,6 @@ class SubmissionInquiryForm(ModelForm):
         
     def __init__(self, *args, **kwargs):
         super(SubmissionInquiryForm, self).__init__(*args, **kwargs)
-        
-        self.fields['additional_comments'].label = "The following text box may be used for other questions, comments, or suggestions for the STARS Team (not sent to the Institution's STARS Liaison):"
         
 class CreditSubmissionInquiryForm(ModelForm):
     
