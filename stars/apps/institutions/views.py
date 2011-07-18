@@ -144,9 +144,9 @@ class RatedInstitutions(SortableTableView):
                         'title': 'Institution',
                     },
                     {
-                        'key': 'status',
-                        'sort_field': 'status',
-                        'title': 'Status',
+                        'key': 'version',
+                        'sort_field': 'creditset__version',
+                        'title': 'Version',
                     },
                     {
                         'key': 'rating',

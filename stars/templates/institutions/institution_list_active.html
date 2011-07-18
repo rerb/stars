@@ -29,6 +29,9 @@
                 {% else %}
                     {{ submissionset.institution }}
                 {% endifequal %}
+                {% if submissionset.institution.profile.is_member %}
+                    <span style='color: #848e2b' title="AASHE Member">*</span>
+                {% endif %}
             </td>
             <td>
                 {% ifequal submissionset.status 'r' %}
@@ -53,5 +56,6 @@
           </tr>            
         {% endfor %}
       </table>
+        <span style='color: #848e2b; font-size: .8em;' title="AASHE Member">* AASHE Member</span>
 	{% endcache %}
 {% endblock %}

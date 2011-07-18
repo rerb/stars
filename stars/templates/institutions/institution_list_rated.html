@@ -24,16 +24,13 @@
         {% for submissionset in object_list %}
           <tr class="{% cycle 'even' 'odd' %}">
             <td style='text-align: left'>
-                {% ifequal submissionset.status 'r' %}
-                    <a href='{{ submissionset.get_scorecard_url }}'>{{ submissionset.institution }}</a>
-                {% else %}
-                    {{ submissionset.institution }}
-                {% endifequal %}
+                <a href='{{ submissionset.get_scorecard_url }}'>{{ submissionset.institution }}</a>
+                {% if submissionset.institution.profile.is_member %}
+                    <span style='color: #848e2b' title="AASHE Member">*</span>
+                {% endif %}
             </td>
             <td>
-                {% ifequal submissionset.status 'r' %}
-                    Complete
-                {% endifequal %}
+                {{ submissionset.creditset.version }}
             </td>
             <td>
                 {% ifequal submissionset.status 'r' %}
@@ -50,5 +47,6 @@
           </tr>            
         {% endfor %}
       </table>
+      <span style='color: #848e2b; font-size: .8em;' title="AASHE Member">* AASHE Member</span>
 	{% endcache %}
 {% endblock %}
