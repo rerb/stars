@@ -81,11 +81,15 @@ def migrate_ss_version(old_ss, new_cs):
     
     return new_ss
 
-def migrate_submission(old_ss, new_ss):
+def migrate_submission(old_ss, new_ss, keep_status=False):
     """
         Migrate data from one SubmissionSet to another
         
         The returned SubmissionSet is locked and hidden
+        
+        Keeping the status will keep the submission status the same
+        and transfer all the properties UNLESS the submissionsets
+        are of different versions.
     """
     
     # if the old SubmissionSet hasn't been initialized we don't have to do anything
@@ -143,8 +147,16 @@ def migrate_submission(old_ss, new_ss):
                 c.submission_notes = old_c.submission_notes
                 c.responsible_party = old_c.responsible_party
                 
-                if old_c.submission_status != 'ns':
-                    c.submission_status = 'p'
+                # can only keep status if the 
+                if keep_status and old_ss.creditset.version ==  new_ss.creditset.version:
+                    c.submission_status = old_c.submission_status
+                    c.responsible_party_confirm = old_c.responsible_party_confirm
+                    c.applicability_reason = old_c.applicability_reason
+                    c.assessed_points = old_c.assessed_points
+                else:
+                    c.submission_status = 'ns'
+                    if old_c.submission_status != 'ns':
+                        c.submission_status = 'p'
                 c.save()
                 
             except CreditUserSubmission.DoesNotExist:
