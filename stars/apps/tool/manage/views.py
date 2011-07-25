@@ -312,7 +312,8 @@ def _gets_discount(institution, current_date=date.today()):
     """
     
     last_submission_date = None
-    for ss in institution.submissionset_set.filter(Q(date_submitted__lte=current_date)|Q(submission_deadline__lte=current_date)):
+    for ss in institution.submissionset_set.all():
+        
         if ss.status == 'r':
             d = ss.date_submitted
         else:
