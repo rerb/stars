@@ -157,7 +157,6 @@ def migrate_submission(old_ss, new_ss, keep_status=False):
                     c.submission_status = 'ns'
                     if old_c.submission_status != 'ns':
                         c.submission_status = 'p'
-                c.save()
                 
             except CreditUserSubmission.DoesNotExist:
                 # print "no old credit submission: %s" % c.credit
@@ -183,6 +182,9 @@ def migrate_submission(old_ss, new_ss, keep_status=False):
                 else:
                     # print "No previous documentation field: %s" % f.documentation_field
                     continue
+                    
+            # don't save until all the fields are updated
+            c.save()
         else:
             # print "new credit: %s" % c.credit
             continue
