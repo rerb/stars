@@ -48,7 +48,7 @@ class RenewalTest(TestCase):
         # unsubmitted due after current_date
         ss.submission_deadline = date(year=2011, month=3, day=2)
         ss.save()
-        self.assertFalse(_gets_discount(i, current_date))
+        self.assertTrue(_gets_discount(i, current_date))
         # date submitted before current_date
         ss.status = 'r'
         ss.date_submitted = date(year=2011, month=2, day=1)
@@ -88,7 +88,7 @@ class RenewalTest(TestCase):
         # unsubmitted due after current date
         ss.submission_deadline = date(year=2012, month=6, day=1)
         ss.save()
-        self.assertFalse(_gets_discount(i, current_date))
+        self.assertTrue(_gets_discount(i, current_date))
         
     def test_purchase_submission(self):
         """
