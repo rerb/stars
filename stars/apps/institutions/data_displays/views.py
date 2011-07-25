@@ -16,7 +16,7 @@ from stars.apps.institutions.data_displays.forms import *
 from stars.apps.institutions.data_displays.models import AuthorizedUser
 from stars.apps.helpers import flashMessage
 
-from aashe.issdjango.models import Organizations
+from aashe.issdjango.models import Organizations, TechnicalAdvisor
 
 from sorl.thumbnail import get_thumbnail
 
@@ -373,16 +373,23 @@ class DisplayAccessMixin(object):
         except AuthorizedUser.DoesNotExist:
             au = None
         
+        ta_access = False
+        ta_qs = TechnicalAdvisor.objects.filter(email=request.user.email)
+        ta = next(iter(ta_qs), None)
+        if ta:
+            ta_access= True
+        
         if self.access_list:
             denied = True
             profile = request.user.get_profile()
-            if 'member' in self.access_list:
+            if 'member' in self.access_list or ta_access:
                 if profile.is_member or profile.is_aashe_staff:
                     denied = False
                 elif au and au.member_level: # check the authorized users
                     denied = False
+                
             if 'participant' in self.access_list:
-                if profile.is_participant() or profile.is_aashe_staff:
+                if profile.is_participant() or profile.is_aashe_staff or ta_access:
                     denied = False
                 elif au and au.participant_level: # check the authorized users
                     denied = False
@@ -681,8 +688,12 @@ class ContentFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
                     if ss.rating.publish_score:
                         if cred.submission_status == "na":
                             row['score'] = "Not Applicable"
+                            # set the field to None because they aren't reporting
+                            row['field'] = None
                         elif cred.submission_status == 'np' or cred.submission_status == 'ns':
                             row['score'] = "Not Pursuing"
+                            # set the field to None because they aren't reporting
+                            row['field'] = None
                         else:
                             row['score'] = "%.2f / %d" % (cred.assessed_points, cred.credit.point_value)
                     else:
