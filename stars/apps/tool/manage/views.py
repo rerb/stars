@@ -484,7 +484,7 @@ def purchase_submissionset(request):
                             mail_to = [ss.institution.contact_email,]
 
                         et = EmailTemplate.objects.get(slug="reg_renewed_paid")
-                        email_context = {'payment_dict': payment_dict,'institution': ss.institution, "payment": payment}
+                        email_context = {'payment_dict': payment_dict,'institution': ss.institution, "payment": p}
                         et.send_email(mail_to, email_context)
                         
                         send_exec_renew_email(ss.institution)
