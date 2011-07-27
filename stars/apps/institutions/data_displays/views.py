@@ -132,7 +132,7 @@ class Dashboard(TemplateView):
 #                Pilot Participants
             
             member_numbers = {'members': 0, 'pcc': 0, 'pilot': 0, 'canadian': 0, 'us': 0, 'all': 0, 'charter': 0}
-            for i in Institution.objects.filter(enabled=True).exclude(pk=131).order_by('name'):
+            for i in Institution.objects.filter(enabled=True).order_by('name'):
                 # print >> sys.stderr, i
                 org = i.profile
                 if org.is_member:
