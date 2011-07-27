@@ -1,9 +1,16 @@
 {% extends 'institutions/base.html' %}
 
+{% block title %}Rated {{ block.super }}{% endblock %}
+
+{% block h1 %}Rated STARS Institutions{% endblock %}
+
 {% block tabclass %}class='tab6'{% endblock %}
 
 {% block tab_content %}
 	
+    <span class="help_text"> <p>
+    The following <b>{{ inst_count }} institutions</b> have achieved a STARS Rating. Of these institutions <b>{{ member_count }} are AASHE members</b> <sup class='symbol'>(M)</sup>, <b>{{ charter_count }} are STARS Charter Participants</b> <sup class='symbol'>(C)</sup>, and <b>{{ pilot_count }} participated in the STARS pilot</b> <sup class='symbol'>(P)</sup>.
+    </p> </span>
     {% load help %}
   {% show_help_context 'rated_institutions_page' 0 %}
   {% load cache %}
@@ -25,9 +32,7 @@
           <tr class="{% cycle 'even' 'odd' %}">
             <td style='text-align: left'>
                 <a href='{{ submissionset.get_scorecard_url }}'>{{ submissionset.institution }}</a>
-                {% if submissionset.institution.profile.is_member %}
-                    <span style='color: #848e2b' title="AASHE Member">*</span>
-                {% endif %}
+                {% include "institutions/inst_property_icons.html" %}
             </td>
             <td>
                 {{ submissionset.creditset.version }}
@@ -47,6 +52,5 @@
           </tr>            
         {% endfor %}
       </table>
-      <span style='color: #848e2b; font-size: .8em;' title="AASHE Member">* AASHE Member</span>
 	{% endcache %}
 {% endblock %}

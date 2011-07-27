@@ -37,6 +37,7 @@ class SortableTableView(TemplateView):
     
     @property
     def __name__(self):
+        "Added to get DjDT to work"
         return self.__class__.__name__
     
     def get_context(self, request, *args, **kwargs):
@@ -83,8 +84,40 @@ class SortableTableView(TemplateView):
                 queryset = queryset.order_by("%s%s" % (asc, col['sort_field']), self.secondary_order_field)
         
         return (sort_key, rev, queryset)
+        
+class SortableTableViewWithInstProps(SortableTableView):
+    """ Extends SortableTableView to include institutional properties from the list"""
+    
+    def get_context(self, request, *args, **kwargs):
+        """ update the context with the # of members and charter participants """
+        
+        _context = super(SortableTableViewWithInstProps, self).get_context(request, *args, **kwargs)
 
-class ActiveInstitutions(SortableTableView):
+        inst_list = []
+        inst_count = 0
+        member_count = 0
+        charter_count = 0
+        pilot_count = 0
+        for ss in self.get_queryset():
+            if ss.institution.id not in inst_list:
+                inst_list.append(ss.institution.id)
+                inst_count += 1
+                if ss.institution.charter_participant:
+                    charter_count += 1
+                profile = ss.institution.profile
+                if profile.is_member:
+                    member_count += 1
+                if profile.pilot_participant:
+                    pilot_count += 1
+            
+        _context['inst_count'] = inst_count
+        _context['member_count'] = member_count
+        _context['charter_count'] = charter_count
+        _context['pilot_count'] = pilot_count
+        return _context
+    
+
+class ActiveInstitutions(SortableTableViewWithInstProps):
     """
         Extending SortableTableView to show a sortable list of all active submissionsets
     """
@@ -124,12 +157,12 @@ class ActiveInstitutions(SortableTableView):
 #                        'title':'Submission Deadline',
 #                    },
               ]
-              
+    
     def get_queryset(self):
         return SubmissionSet.objects.published().select_related('institution')
     
     
-class RatedInstitutions(SortableTableView):
+class RatedInstitutions(SortableTableViewWithInstProps):
     """
         Extending SortableTableView to show a sortable list of all active submissionsets
     """
