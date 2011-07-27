@@ -1085,3 +1085,8 @@ acronym, .variance {
 	border-bottom: 1px dotted #aaa;
 	cursor: help;	
 }
+
+sup.symbol {
+    font-size: xx-small;
+    color: #848e2b;
+}
