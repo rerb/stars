@@ -113,6 +113,12 @@ class SubmissionSet(models.Model):
             today is used for testing
         """
         
+        # if their total time is longer than a year and a half,
+        # then they've already had an extension
+        td = self.submission_deadline - self.date_registered
+        if td.days > 365 + (365/2):
+            return False
+        
         # only w/in 60 days of their deadline
         if not today:
             today = date.today()
