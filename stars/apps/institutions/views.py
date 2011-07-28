@@ -211,7 +211,7 @@ class InstitutionScorecards(TemplateView):
         institution = get_object_or_404(Institution, slug=kwargs['institution_slug'])
         
         submission_sets = []
-        for ss in institution.submissionset_set.all():
+        for ss in institution.submissionset_set.filter(is_visible=True, is_locked=False):
             if ss.status == 'r':
                 submission_sets.append(ss)
             elif request.user.has_perm('admin'):
