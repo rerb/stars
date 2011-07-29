@@ -71,7 +71,7 @@ def send_overdue_notifications(current_time=datetime.now()):
     for ss in get_overdue_payments(8, current_time):
 
         email_context = {
-                "amount_due": "%f.2" % ss.get_amount_due(),
+                "amount_due": ss.get_amount_due(),
                 "ss": ss
         }
     
@@ -89,7 +89,7 @@ def send_overdue_notifications(current_time=datetime.now()):
         if ss not in sent_list: # don't send twice.    
 
             email_context = {
-                    "amount_due": "%f.2" % ss.get_amount_due(),
+                    "amount_due": ss.get_amount_due(),
                     "ss": ss
             }
         
