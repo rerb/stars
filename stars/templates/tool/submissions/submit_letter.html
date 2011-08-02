@@ -26,7 +26,7 @@
             <br/>
                 {{ letter_form.reporter_status.errors }}
                 <b>Choose Reporter Status</b><br/>
-                Please check this box if you wish to submit as a STARS Reporter: {{ object_form.reporter_status|safe }}
+                Please check this box if you wish to submit as a STARS Reporter: {{ letter_form.reporter_status|safe }}
                 {% show_help_context 'submit_for_rating_reporter' 1 %}
             <br/><br/>
         {% endif %}
