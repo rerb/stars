@@ -34,15 +34,10 @@
             </td>
             <td>
                 {% ifequal submissionset.status 'r' %}
-                    Complete
-                {% endifequal %}
-            </td>
-            <td>
-                {% ifequal submissionset.status 'r' %}
-                    {% if submissionset.rating %}
-                        {{ submissionset.rating }}
-                    {% else %}
-                        ---
+                    {{ submissionset.rating }}
+                {% else %}
+                    {% if submissionset.missed_deadline %}
+                        <span title='Did not submit'>--</span>
                     {% endif %}
                 {% endifequal %}
             </td>
@@ -50,7 +45,7 @@
             	{{ submissionset.creditset.version }}
             </td>
             <td>
-              {{ submissionset.date_registered }}
+                {{ submissionset.submission_deadline }}
             </td>
           </tr>            
         {% endfor %}
