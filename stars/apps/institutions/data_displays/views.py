@@ -113,12 +113,12 @@ class Dashboard(TemplateView):
             current_submissions = s_count = s_qs.count()
             while p_count:
                 slice = {}
-                p_count = p_qs.filter(date_registered__lte=current_month).count()
+                p_count = p_qs.filter(date_registered__lt=current_month).count()
                 slice['p_count'] = p_count
-                s_count = s_qs.filter(date_submitted__lte=current_month).count()
+                s_count = s_qs.filter(date_submitted__lt=current_month).count()
                 slice['s_count'] = s_count
-                slice['date'] = current_month
                 current_month = change_month(current_month, -1)
+                slice['date'] = current_month
                 p2s.insert(0, slice)
     
             _context['p2s'] = p2s
