@@ -131,11 +131,11 @@ class ActiveInstitutions(SortableTableViewWithInstProps):
                         'sort_field': 'institution__name',
                         'title': 'Institution',
                     },
-                    {
-                        'key': 'status',
-                        'sort_field': 'status',
-                        'title': 'Status',
-                    },
+                    # {
+                    #     'key': 'status',
+                    #     'sort_field': 'status',
+                    #     'title': 'Status',
+                    # },
                     {
                         'key': 'rating',
                         'sort_field': 'rating',
@@ -146,19 +146,26 @@ class ActiveInstitutions(SortableTableViewWithInstProps):
                         'sort_field': 'creditset__version',
                         'title': 'Version',
                     },
+                    # {
+                    #     'key': 'date_registered',
+                    #     'sort_field': 'date_registered',
+                    #     'title': 'Date Registered',
+                    # },
                     {
-                        'key': 'date_registered',
-                        'sort_field': 'date_registered',
-                        'title': 'Date Registered',
+                       'key':'deadline',
+                       'sort_field':'submission_deadline',
+                       'title':'Submission Deadline',
                     },
-#                    {
-#                        'key':'deadline',
-#                        'sort_field':'submission_deadline',
-#                        'title':'Submission Deadline',
-#                    },
               ]
     
     def get_queryset(self):
+        """
+            Get the submission sets for all institutions
+            
+            Institutions shouldn't show up twice
+                - rated institutitons show their rating
+                - unrated institutions show their next due date
+        """
         return SubmissionSet.objects.published().select_related('institution')
     
     
