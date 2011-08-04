@@ -77,7 +77,7 @@ def edit_responsible_party(request, rp_id):
     if saved:
         return HttpResponseRedirect("/tool/manage/responsible-parties/")
     
-    credit_list = rp.creditusersubmission_set.order_by('credit__subcategory')
+    credit_list = rp.creditusersubmission_set.order_by('credit__subcategory').exclude(subcategory_submission__category_submission__submissionset__is_visible=False)
     
     context = {'responsible_party': rp, 'object_form': object_form, 'title': "Edit Responsible Party", 'credit_list': credit_list}
     return respond(request, 'tool/manage/edit_responsible_party.html', context)
