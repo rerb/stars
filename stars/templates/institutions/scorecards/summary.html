@@ -4,7 +4,7 @@
 
 {% block content %}
 	{% load cache %}
-	{% cache 21600 submission_summary submissionset.id preview %}
+	{% cache 21600 submission_summary submissionset.id preview user_tied_to_institution %}
     	{% include 'institutions/scorecards/summary_include.html' %}
 	{% endcache %}
 {% endblock %}
