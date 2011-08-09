@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404, render_to_response
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
 
 from datetime import datetime, date
 
@@ -64,6 +64,8 @@ class SubmissionClassMixin(SubmissionMixin, PermMixin):
     def get_instance(self, request, context, *args, **kwargs):
         """ Get's the active submission from the request """
         if context.has_key(self.instance_name):
+            if context[self.instance_name].missed_deadline():
+                raise Http404
             return context[self.instance_name]
         return None
 
