@@ -136,6 +136,7 @@ class SubmissionSet(models.Model, ETLCompareMixin):
             An ETL object has to be initialized with an object to populate from
         """
         
+        self.id = ss.id
         self.version = ss.creditset.version
         self.aashe_id = ss.institution.aashe_id
         self.date_registered = ss.date_registered
@@ -171,6 +172,7 @@ class Payment(models.Model, ETLCompareMixin):
         """
             An ETL object has to be initialized with an object to populate from
         """
+        self.id = payment.id
         self.submissionset = payment.submissionset.id
         self.date = payment.date
         self.amount = payment.amount
