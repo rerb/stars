@@ -16,7 +16,7 @@ from django.conf import settings
 
 from stars.apps.submissions.models import SubmissionSet
 
-from datetime import date
+from datetime import date, timedelta
 import sys, os
 
 class RatingTest(TestCase):
@@ -25,6 +25,12 @@ class RatingTest(TestCase):
     def setUp(self):
         
         settings.CELERY_ALWAYS_EAGER = True
+        
+        # Change the submission deadline to tomorrow
+        # to allow access
+        ss = SubmissionSet.objects.get(pk=1)
+        ss.submission_deadline = date.today() + timedelta(days=1)
+        ss.save()
         
     def test_process(self):
         
@@ -47,6 +53,7 @@ class RatingTest(TestCase):
         
         post_dict = {}
         response = c.get('/tool/submissions/submit/', post_dict)
+        print response.status_code
         self.assertTrue(response.status_code == 200)
         
         post_dict = {'submission_boundary': 'boundary text',}
