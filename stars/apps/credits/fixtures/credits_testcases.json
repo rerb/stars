@@ -1,1082 +1,5 @@
 [
-    {
-        "pk": 943, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 2.6299999999999999
-        }
-    }, 
-    {
-        "pk": 1126, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 1.0
-        }
-    }, 
-    {
-        "pk": 1134, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 8.0
-        }
-    }, 
-    {
-        "pk": 1166, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 1.0
-        }
-    }, 
-    {
-        "pk": 1564, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 3.0
-        }
-    }, 
-    {
-        "pk": 1722, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 2.0
-        }
-    }, 
-    {
-        "pk": 1880, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.0
-        }
-    }, 
-    {
-        "pk": 944, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.0
-        }
-    }, 
-    {
-        "pk": 1127, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 2.0
-        }
-    }, 
-    {
-        "pk": 1135, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.0
-        }
-    }, 
-    {
-        "pk": 1143, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 1.0
-        }
-    }, 
-    {
-        "pk": 1167, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.0
-        }
-    }, 
-    {
-        "pk": 1191, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.0
-        }
-    }, 
-    {
-        "pk": 1565, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.0
-        }
-    }, 
-    {
-        "pk": 1723, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 2.0
-        }
-    }, 
-    {
-        "pk": 1881, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 8.0
-        }
-    }, 
-    {
-        "pk": 1984, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 1.0
-        }
-    }, 
-    {
-        "pk": 945, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 3.5
-        }
-    }, 
-    {
-        "pk": 1128, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 1.25
-        }
-    }, 
-    {
-        "pk": 1136, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.0
-        }
-    }, 
-    {
-        "pk": 1144, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 2.0
-        }
-    }, 
-    {
-        "pk": 1152, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 1.5
-        }
-    }, 
-    {
-        "pk": 1176, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.0
-        }
-    }, 
-    {
-        "pk": 1192, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 7.0
-        }
-    }, 
-    {
-        "pk": 1566, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 3.0
-        }
-    }, 
-    {
-        "pk": 1724, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 2.0
-        }
-    }, 
-    {
-        "pk": 946, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 4.3799999999999999
-        }
-    }, 
-    {
-        "pk": 1129, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.0
-        }
-    }, 
-    {
-        "pk": 1137, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 8.0
-        }
-    }, 
-    {
-        "pk": 1145, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.0
-        }
-    }, 
-    {
-        "pk": 1153, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 1.0
-        }
-    }, 
-    {
-        "pk": 1177, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 5.0
-        }
-    }, 
-    {
-        "pk": 1193, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 2.2999999999999998
-        }
-    }, 
-    {
-        "pk": 947, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 5.25
-        }
-    }, 
-    {
-        "pk": 1130, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 6.0
-        }
-    }, 
-    {
-        "pk": 1138, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 3.27
-        }
-    }, 
-    {
-        "pk": 1146, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.5
-        }
-    }, 
-    {
-        "pk": 1154, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.0
-        }
-    }, 
-    {
-        "pk": 1178, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 1.22
-        }
-    }, 
-    {
-        "pk": 1963, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 2.0
-        }
-    }, 
-    {
-        "pk": 948, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 7.0
-        }
-    }, 
-    {
-        "pk": 1131, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 6.0
-        }
-    }, 
-    {
-        "pk": 1139, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 3.27
-        }
-    }, 
-    {
-        "pk": 1147, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 1.5
-        }
-    }, 
-    {
-        "pk": 1155, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.5
-        }
-    }, 
-    {
-        "pk": 949, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 3.5
-        }
-    }, 
-    {
-        "pk": 1124, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.25
-        }
-    }, 
-    {
-        "pk": 1132, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 3.0
-        }
-    }, 
-    {
-        "pk": 1148, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 1.5
-        }
-    }, 
-    {
-        "pk": 1156, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 2.0
-        }
-    }, 
-    {
-        "pk": 1720, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 2.0
-        }
-    }, 
-    {
-        "pk": 1886, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 2.0
-        }
-    }, 
-    {
-        "pk": 1125, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 1.0
-        }
-    }, 
-    {
-        "pk": 1133, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 6.0
-        }
-    }, 
-    {
-        "pk": 1165, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 2.0
-        }
-    }, 
-    {
-        "pk": 1721, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.0
-        }
-    }, 
-    {
-        "pk": 1879, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 4.0
-        }
-    }, 
-    {
-        "pk": 1887, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.0
-        }
-    }, 
-    {
-        "pk": 1142, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 7.0
-        }
-    }, 
-    {
-        "pk": 1158, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 1.5
-        }
-    }, 
-    {
-        "pk": 1159, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 1.25
-        }
-    }, 
-    {
-        "pk": 1731, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 2.0
-        }
-    }, 
-    {
-        "pk": 1092, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.0
-        }
-    }, 
-    {
-        "pk": 1160, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.0
-        }
-    }, 
-    {
-        "pk": 1168, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 2.0
-        }
-    }, 
-    {
-        "pk": 1732, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.0
-        }
-    }, 
-    {
-        "pk": 1093, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 2.6899999999999999
-        }
-    }, 
-    {
-        "pk": 1161, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.5
-        }
-    }, 
-    {
-        "pk": 1169, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 3.0
-        }
-    }, 
-    {
-        "pk": 1567, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 6.0
-        }
-    }, 
-    {
-        "pk": 1725, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 2.0
-        }
-    }, 
-    {
-        "pk": 1094, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 1.5
-        }
-    }, 
-    {
-        "pk": 1170, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 4.0
-        }
-    }, 
-    {
-        "pk": 1194, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 2.0
-        }
-    }, 
-    {
-        "pk": 1568, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.0
-        }
-    }, 
-    {
-        "pk": 1726, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.0
-        }
-    }, 
-    {
-        "pk": 1122, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 14.0
-        }
-    }, 
-    {
-        "pk": 1171, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.0
-        }
-    }, 
-    {
-        "pk": 1179, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.0
-        }
-    }, 
-    {
-        "pk": 1195, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.0
-        }
-    }, 
-    {
-        "pk": 1569, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 2.0
-        }
-    }, 
-    {
-        "pk": 1964, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 2.0
-        }
-    }, 
-    {
-        "pk": 1140, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 7.0
-        }
-    }, 
-    {
-        "pk": 1180, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 3.0
-        }
-    }, 
-    {
-        "pk": 1196, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 1.0
-        }
-    }, 
-    {
-        "pk": 1570, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 2.0
-        }
-    }, 
-    {
-        "pk": 1965, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.0
-        }
-    }, 
-    {
-        "pk": 1141, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 3.5
-        }
-    }, 
-    {
-        "pk": 1157, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 2.0
-        }
-    }, 
-    {
-        "pk": 1181, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 1.5
-        }
-    }, 
-    {
-        "pk": 1197, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 1.0
-        }
-    }, 
-    {
-        "pk": 1571, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 2.0
-        }
-    }, 
-    {
-        "pk": 1090, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.0
-        }
-    }, 
-    {
-        "pk": 1174, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.0
-        }
-    }, 
-    {
-        "pk": 1182, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.0
-        }
-    }, 
-    {
-        "pk": 1572, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 4.0
-        }
-    }, 
-    {
-        "pk": 1888, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 3.0
-        }
-    }, 
-    {
-        "pk": 1967, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 7.0
-        }
-    }, 
-    {
-        "pk": 1091, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 2.0
-        }
-    }, 
-    {
-        "pk": 1175, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.0
-        }
-    }, 
-    {
-        "pk": 1183, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 1.0
-        }
-    }, 
-    {
-        "pk": 1573, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.0
-        }
-    }, 
-    {
-        "pk": 1889, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 9.0
-        }
-    }, 
-    {
-        "pk": 1968, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 7.0
-        }
-    }, 
-    {
-        "pk": 1184, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.5
-        }
-    }, 
-    {
-        "pk": 1890, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 9.0
-        }
-    }, 
-    {
-        "pk": 1969, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 3.0
-        }
-    }, 
-    {
-        "pk": 1733, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 2.0
-        }
-    }, 
-    {
-        "pk": 1891, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.0
-        }
-    }, 
-    {
-        "pk": 1162, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.80000000000000004
-        }
-    }, 
-    {
-        "pk": 1734, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.0
-        }
-    }, 
-    {
-        "pk": 1163, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 2.0
-        }
-    }, 
-    {
-        "pk": 1727, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 2.0
-        }
-    }, 
-    {
-        "pk": 1164, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.0
-        }
-    }, 
-    {
-        "pk": 1172, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 1.5
-        }
-    }, 
-    {
-        "pk": 1728, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.0
-        }
-    }, 
-    {
-        "pk": 1089, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 1.0
-        }
-    }, 
-    {
-        "pk": 1173, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 3.0
-        }
-    }, 
-    {
-        "pk": 1966, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.0
-        }
-    }, 
-    {
-        "pk": 1150, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.0
-        }
-    }, 
-    {
-        "pk": 1730, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.0
-        }
-    }, 
-    {
-        "pk": 1151, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 1.0
-        }
-    }, 
-    {
-        "pk": 1574, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 3.0
-        }
-    }, 
-    {
-        "pk": 1185, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 1.0
-        }
-    }, 
-    {
-        "pk": 1575, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.0
-        }
-    }, 
-    {
-        "pk": 1970, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 3.0
-        }
-    }, 
-    {
-        "pk": 1186, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.0
-        }
-    }, 
-    {
-        "pk": 1971, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.0
-        }
-    }, 
-    {
-        "pk": 1187, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.5
-        }
-    }, 
-    {
-        "pk": 1735, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 2.0
-        }
-    }, 
-    {
-        "pk": 1972, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 6.0
-        }
-    }, 
-    {
-        "pk": 1188, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.5
-        }
-    }, 
-    {
-        "pk": 1736, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.0
-        }
-    }, 
-    {
-        "pk": 1149, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 1.0
-        }
-    }, 
-    {
-        "pk": 1729, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 4.0
-        }
-    }, 
-    {
-        "pk": 1190, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.0
-        }
-    }, 
-    {
-        "pk": 1975, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 3.0
-        }
-    }, 
-    {
-        "pk": 1976, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 6.0
-        }
-    }, 
-    {
-        "pk": 1882, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 5.0
-        }
-    }, 
-    {
-        "pk": 1977, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.0
-        }
-    }, 
-    {
-        "pk": 1883, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 5.0
-        }
-    }, 
-    {
-        "pk": 1576, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.0
-        }
-    }, 
-    {
-        "pk": 1884, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 5.0
-        }
-    }, 
-    {
-        "pk": 1577, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 2.0
-        }
-    }, 
-    {
-        "pk": 1885, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.0
-        }
-    }, 
-    {
-        "pk": 1973, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 1.8
-        }
-    }, 
-    {
-        "pk": 1189, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 1.0
-        }
-    }, 
-    {
-        "pk": 1974, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 6.0
-        }
-    }, 
-    {
-        "pk": 1978, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 4.0
-        }
-    }, 
-    {
-        "pk": 1979, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.0
-        }
-    }, 
-    {
-        "pk": 1983, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 0.0
-        }
-    }, 
-    {
-        "pk": 1980, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 4.0
-        }
-    }, 
-    {
-        "pk": 1981, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 2.0
-        }
-    }, 
-    {
-        "pk": 1982, 
-        "model": "submissions.credittestsubmission", 
-        "fields": {
-            "expected_value": 2.0
-        }
-    }, 
+    
     {
         "pk": 943, 
         "model": "submissions.creditsubmission", 
@@ -2154,7 +1077,1085 @@
         "fields": {
             "credit": 127
         }
+    },
+    {
+        "pk": 943, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 2.6299999999999999
+        }
     }, 
+    {
+        "pk": 1126, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 1.0
+        }
+    }, 
+    {
+        "pk": 1134, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 8.0
+        }
+    }, 
+    {
+        "pk": 1166, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 1.0
+        }
+    }, 
+    {
+        "pk": 1564, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 3.0
+        }
+    }, 
+    {
+        "pk": 1722, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 2.0
+        }
+    }, 
+    {
+        "pk": 1880, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.0
+        }
+    }, 
+    {
+        "pk": 944, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.0
+        }
+    }, 
+    {
+        "pk": 1127, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 2.0
+        }
+    }, 
+    {
+        "pk": 1135, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.0
+        }
+    }, 
+    {
+        "pk": 1143, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 1.0
+        }
+    }, 
+    {
+        "pk": 1167, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.0
+        }
+    }, 
+    {
+        "pk": 1191, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.0
+        }
+    }, 
+    {
+        "pk": 1565, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.0
+        }
+    }, 
+    {
+        "pk": 1723, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 2.0
+        }
+    }, 
+    {
+        "pk": 1881, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 8.0
+        }
+    }, 
+    {
+        "pk": 1984, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 1.0
+        }
+    }, 
+    {
+        "pk": 945, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 3.5
+        }
+    }, 
+    {
+        "pk": 1128, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 1.25
+        }
+    }, 
+    {
+        "pk": 1136, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.0
+        }
+    }, 
+    {
+        "pk": 1144, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 2.0
+        }
+    }, 
+    {
+        "pk": 1152, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 1.5
+        }
+    }, 
+    {
+        "pk": 1176, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.0
+        }
+    }, 
+    {
+        "pk": 1192, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 7.0
+        }
+    }, 
+    {
+        "pk": 1566, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 3.0
+        }
+    }, 
+    {
+        "pk": 1724, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 2.0
+        }
+    }, 
+    {
+        "pk": 946, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 4.3799999999999999
+        }
+    }, 
+    {
+        "pk": 1129, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.0
+        }
+    }, 
+    {
+        "pk": 1137, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 8.0
+        }
+    }, 
+    {
+        "pk": 1145, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.0
+        }
+    }, 
+    {
+        "pk": 1153, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 1.0
+        }
+    }, 
+    {
+        "pk": 1177, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 5.0
+        }
+    }, 
+    {
+        "pk": 1193, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 2.2999999999999998
+        }
+    }, 
+    {
+        "pk": 947, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 5.25
+        }
+    }, 
+    {
+        "pk": 1130, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 6.0
+        }
+    }, 
+    {
+        "pk": 1138, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 3.27
+        }
+    }, 
+    {
+        "pk": 1146, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.5
+        }
+    }, 
+    {
+        "pk": 1154, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.0
+        }
+    }, 
+    {
+        "pk": 1178, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 1.22
+        }
+    }, 
+    {
+        "pk": 1963, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 2.0
+        }
+    }, 
+    {
+        "pk": 948, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 7.0
+        }
+    }, 
+    {
+        "pk": 1131, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 6.0
+        }
+    }, 
+    {
+        "pk": 1139, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 3.27
+        }
+    }, 
+    {
+        "pk": 1147, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 1.5
+        }
+    }, 
+    {
+        "pk": 1155, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.5
+        }
+    }, 
+    {
+        "pk": 949, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 3.5
+        }
+    }, 
+    {
+        "pk": 1124, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.25
+        }
+    }, 
+    {
+        "pk": 1132, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 3.0
+        }
+    }, 
+    {
+        "pk": 1148, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 1.5
+        }
+    }, 
+    {
+        "pk": 1156, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 2.0
+        }
+    }, 
+    {
+        "pk": 1720, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 2.0
+        }
+    }, 
+    {
+        "pk": 1886, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 2.0
+        }
+    }, 
+    {
+        "pk": 1125, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 1.0
+        }
+    }, 
+    {
+        "pk": 1133, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 6.0
+        }
+    }, 
+    {
+        "pk": 1165, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 2.0
+        }
+    }, 
+    {
+        "pk": 1721, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.0
+        }
+    }, 
+    {
+        "pk": 1879, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 4.0
+        }
+    }, 
+    {
+        "pk": 1887, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.0
+        }
+    }, 
+    {
+        "pk": 1142, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 7.0
+        }
+    }, 
+    {
+        "pk": 1158, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 1.5
+        }
+    }, 
+    {
+        "pk": 1159, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 1.25
+        }
+    }, 
+    {
+        "pk": 1731, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 2.0
+        }
+    }, 
+    {
+        "pk": 1092, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.0
+        }
+    }, 
+    {
+        "pk": 1160, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.0
+        }
+    }, 
+    {
+        "pk": 1168, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 2.0
+        }
+    }, 
+    {
+        "pk": 1732, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.0
+        }
+    }, 
+    {
+        "pk": 1093, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 2.6899999999999999
+        }
+    }, 
+    {
+        "pk": 1161, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.5
+        }
+    }, 
+    {
+        "pk": 1169, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 3.0
+        }
+    }, 
+    {
+        "pk": 1567, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 6.0
+        }
+    }, 
+    {
+        "pk": 1725, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 2.0
+        }
+    }, 
+    {
+        "pk": 1094, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 1.5
+        }
+    }, 
+    {
+        "pk": 1170, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 4.0
+        }
+    }, 
+    {
+        "pk": 1194, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 2.0
+        }
+    }, 
+    {
+        "pk": 1568, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.0
+        }
+    }, 
+    {
+        "pk": 1726, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.0
+        }
+    }, 
+    {
+        "pk": 1122, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 14.0
+        }
+    }, 
+    {
+        "pk": 1171, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.0
+        }
+    }, 
+    {
+        "pk": 1179, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.0
+        }
+    }, 
+    {
+        "pk": 1195, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.0
+        }
+    }, 
+    {
+        "pk": 1569, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 2.0
+        }
+    }, 
+    {
+        "pk": 1964, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 2.0
+        }
+    }, 
+    {
+        "pk": 1140, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 7.0
+        }
+    }, 
+    {
+        "pk": 1180, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 3.0
+        }
+    }, 
+    {
+        "pk": 1196, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 1.0
+        }
+    }, 
+    {
+        "pk": 1570, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 2.0
+        }
+    }, 
+    {
+        "pk": 1965, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.0
+        }
+    }, 
+    {
+        "pk": 1141, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 3.5
+        }
+    }, 
+    {
+        "pk": 1157, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 2.0
+        }
+    }, 
+    {
+        "pk": 1181, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 1.5
+        }
+    }, 
+    {
+        "pk": 1197, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 1.0
+        }
+    }, 
+    {
+        "pk": 1571, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 2.0
+        }
+    }, 
+    {
+        "pk": 1090, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.0
+        }
+    }, 
+    {
+        "pk": 1174, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.0
+        }
+    }, 
+    {
+        "pk": 1182, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.0
+        }
+    }, 
+    {
+        "pk": 1572, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 4.0
+        }
+    }, 
+    {
+        "pk": 1888, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 3.0
+        }
+    }, 
+    {
+        "pk": 1967, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 7.0
+        }
+    }, 
+    {
+        "pk": 1091, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 2.0
+        }
+    }, 
+    {
+        "pk": 1175, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.0
+        }
+    }, 
+    {
+        "pk": 1183, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 1.0
+        }
+    }, 
+    {
+        "pk": 1573, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.0
+        }
+    }, 
+    {
+        "pk": 1889, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 9.0
+        }
+    }, 
+    {
+        "pk": 1968, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 7.0
+        }
+    }, 
+    {
+        "pk": 1184, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.5
+        }
+    }, 
+    {
+        "pk": 1890, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 9.0
+        }
+    }, 
+    {
+        "pk": 1969, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 3.0
+        }
+    }, 
+    {
+        "pk": 1733, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 2.0
+        }
+    }, 
+    {
+        "pk": 1891, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.0
+        }
+    }, 
+    {
+        "pk": 1162, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.80000000000000004
+        }
+    }, 
+    {
+        "pk": 1734, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.0
+        }
+    }, 
+    {
+        "pk": 1163, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 2.0
+        }
+    }, 
+    {
+        "pk": 1727, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 2.0
+        }
+    }, 
+    {
+        "pk": 1164, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.0
+        }
+    }, 
+    {
+        "pk": 1172, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 1.5
+        }
+    }, 
+    {
+        "pk": 1728, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.0
+        }
+    }, 
+    {
+        "pk": 1089, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 1.0
+        }
+    }, 
+    {
+        "pk": 1173, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 3.0
+        }
+    }, 
+    {
+        "pk": 1966, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.0
+        }
+    }, 
+    {
+        "pk": 1150, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.0
+        }
+    }, 
+    {
+        "pk": 1730, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.0
+        }
+    }, 
+    {
+        "pk": 1151, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 1.0
+        }
+    }, 
+    {
+        "pk": 1574, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 3.0
+        }
+    }, 
+    {
+        "pk": 1185, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 1.0
+        }
+    }, 
+    {
+        "pk": 1575, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.0
+        }
+    }, 
+    {
+        "pk": 1970, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 3.0
+        }
+    }, 
+    {
+        "pk": 1186, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.0
+        }
+    }, 
+    {
+        "pk": 1971, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.0
+        }
+    }, 
+    {
+        "pk": 1187, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.5
+        }
+    }, 
+    {
+        "pk": 1735, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 2.0
+        }
+    }, 
+    {
+        "pk": 1972, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 6.0
+        }
+    }, 
+    {
+        "pk": 1188, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.5
+        }
+    }, 
+    {
+        "pk": 1736, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.0
+        }
+    }, 
+    {
+        "pk": 1149, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 1.0
+        }
+    }, 
+    {
+        "pk": 1729, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 4.0
+        }
+    }, 
+    {
+        "pk": 1190, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.0
+        }
+    }, 
+    {
+        "pk": 1975, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 3.0
+        }
+    }, 
+    {
+        "pk": 1976, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 6.0
+        }
+    }, 
+    {
+        "pk": 1882, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 5.0
+        }
+    }, 
+    {
+        "pk": 1977, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.0
+        }
+    }, 
+    {
+        "pk": 1883, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 5.0
+        }
+    }, 
+    {
+        "pk": 1576, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.0
+        }
+    }, 
+    {
+        "pk": 1884, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 5.0
+        }
+    }, 
+    {
+        "pk": 1577, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 2.0
+        }
+    }, 
+    {
+        "pk": 1885, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.0
+        }
+    }, 
+    {
+        "pk": 1973, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 1.8
+        }
+    }, 
+    {
+        "pk": 1189, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 1.0
+        }
+    }, 
+    {
+        "pk": 1974, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 6.0
+        }
+    }, 
+    {
+        "pk": 1978, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 4.0
+        }
+    }, 
+    {
+        "pk": 1979, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.0
+        }
+    }, 
+    {
+        "pk": 1983, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 0.0
+        }
+    }, 
+    {
+        "pk": 1980, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 4.0
+        }
+    }, 
+    {
+        "pk": 1981, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 2.0
+        }
+    }, 
+    {
+        "pk": 1982, 
+        "model": "submissions.credittestsubmission", 
+        "fields": {
+            "expected_value": 2.0
+        }
+    },
     {
         "pk": 20, 
         "model": "submissions.numericsubmission", 

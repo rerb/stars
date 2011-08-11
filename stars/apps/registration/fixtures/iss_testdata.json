@@ -9,7 +9,8 @@
             "city": "Kelowna",
             "state": "BC",
             "org_type": "Two Year Institution",
-            "country": "Canada"
+            "country": "Canada",
+            "is_member": 1
         }
  
     },
@@ -23,7 +24,8 @@
             "city": "Hialeah",
             "state": "FL",
             "org_type": "Two Year Institution",
-            "country": "United States of America"
+            "country": "United States of America",
+            "is_member": 0
         }
  
     }

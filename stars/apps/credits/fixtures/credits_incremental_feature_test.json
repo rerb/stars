@@ -1,5 +1,13 @@
 [
     {
+    	"pk": 1,
+    	"model": "credits.incrementalfeature",
+    	"fields": {
+    		"key": "feature_one",
+    		"description": "description"
+    	}
+    },
+    {
         "pk": 1,
         "model": "credits.creditset",
         "fields": {
@@ -11,14 +19,5 @@
             "tier_2_points": 0.25,
             "supported_features": [1]
         }
-    },
-    
-    {
-    	"pk": 1,
-    	"model": "credits.incrementalfeature",
-    	"fields": {
-    		"key": "feature_one",
-    		"description": "description"
-    	}
     }
 ]
