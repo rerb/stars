@@ -157,6 +157,7 @@ class Payment(models.Model, ETLCompareMixin):
     
     change_date = models.DateTimeField(auto_now=True)
     submissionset = models.IntegerField()
+    aashe_id = models.IntegerField(blank=True, null=True)
     date = models.DateTimeField()
     amount = models.FloatField()
     user = models.EmailField()
@@ -174,6 +175,7 @@ class Payment(models.Model, ETLCompareMixin):
         """
         self.id = payment.id
         self.submissionset = payment.submissionset.id
+        self.aashe_id = ss.institution.aashe_id
         self.date = payment.date
         self.amount = payment.amount
         self.user = payment.user.email

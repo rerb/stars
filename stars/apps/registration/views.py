@@ -210,7 +210,11 @@ def register_institution(user, institution, payment_type, price, payment_dict):
     institution.set_active_submission(submissionset)
     
     # Save Payment
-    payment = Payment(submissionset=submissionset, date=datetime.today(), amount=price, user=user, reason='reg', type=payment_type, confirmation="none")
+    if institution.is_member_institution():
+        reason = "member_reg"
+    else:
+        reason = "nonmember_reg"
+    payment = Payment(submissionset=submissionset, date=datetime.today(), amount=price, user=user, reason=reason, type=payment_type, confirmation="none")
     payment.save()
     
     # Primary Contact

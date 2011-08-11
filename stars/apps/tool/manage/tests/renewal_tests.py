@@ -11,10 +11,11 @@ from datetime import date
 import sys, os, random
 
 from stars.apps.tool.manage.views import _gets_discount
-from stars.apps.submissions.models import SubmissionSet, NumericSubmission
+from stars.apps.submissions.models import SubmissionSet, NumericSubmission, Payment
 
 class RenewalTest(TestCase):
-    fixtures = ['submission_migration_test.json', 'notification_emailtemplate_tests.json']
+    fixtures = ['submission_migration_test.json', 'notification_emailtemplate_tests.json', 'iss_testdata.json']
+    multi_db = True
 
     def setUp(self):
         settings.CELERY_ALWAYS_EAGER = True
@@ -128,6 +129,10 @@ class RenewalTest(TestCase):
         post_dict = {'confirm': u'on',}
         response = c.post(url, post_dict)
         self.assertTrue(response.status_code == 302)
+        
+        # check payment
+        p = Payment.objects.all().order_by('-date')[0]
+        self.assertEqual(p.reason, "member_reg")
         
         self.assertEqual(SubmissionSet.objects.count(), 2)
         self.assertTrue(len(mail.outbox) == 2)

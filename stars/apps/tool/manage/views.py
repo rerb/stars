@@ -349,7 +349,16 @@ def pay_submissionset(request, set_id):
     discount = _gets_discount(current_inst)
     if discount:
         amount = amount / 2
-    
+        if is_member:
+            reason = "member_renew"
+        else:
+            reason = "nonmember_renew"
+    else:
+        if is_member:
+            reason = "member_reg"
+        else:
+            reason = "nonmember_reg"
+        
     pay_form = PaymentForm()
     
     if request.method == "POST":
@@ -370,7 +379,7 @@ def pay_submissionset(request, set_id):
                                     date=datetime.now(),
                                     amount=amount,
                                     user=request.user,
-                                    reason='reg',
+                                    reason=reason,
                                     type='credit',
                                     confirmation=str(result['trans_id']),
                                 )
@@ -408,6 +417,15 @@ def purchase_submissionset(request):
     discount = _gets_discount(current_inst)
     if discount:
         amount = amount / 2
+        if is_member:
+            reason = "member_renew"
+        else:
+            reason = "nonmember_renew"
+    else:
+        if is_member:
+            reason = "member_reg"
+        else:
+            reason = "nonmember_reg"
     
     pay_form = PaymentForm()
     later_form = PayLaterForm()
@@ -430,7 +448,7 @@ def purchase_submissionset(request):
                             date=datetime.now(),
                             amount=amount,
                             user=request.user,
-                            reason='reg',
+                            reason=reason,
                             type='later',
                             confirmation=None,
                         )
@@ -472,7 +490,7 @@ def purchase_submissionset(request):
                                         date=datetime.now(),
                                         amount=amount,
                                         user=request.user,
-                                        reason='reg',
+                                        reason=reason,
                                         type='credit',
                                         confirmation=str(result['trans_id']),
                                     )

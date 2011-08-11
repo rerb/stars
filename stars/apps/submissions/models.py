@@ -1365,9 +1365,10 @@ class BooleanSubmission(DocumentationFieldSubmission):
             return "---"
         
 PAYMENT_REASON_CHOICES = (
-    ('reg', 'registration'),
-    ('submit', 'submission'),
-    ('extend', 'extension'),
+    ('member_reg', 'member_reg'),
+    ('nonmember_reg', 'nonmember_reg'),
+    ('member_renew', 'member_renew'),
+    ('nonmember_renew', 'nonmember_renew')
 )
 
 PAYMENT_TYPE_CHOICES = (
@@ -1390,7 +1391,7 @@ class Payment(models.Model):
     date = models.DateTimeField()
     amount = models.FloatField()
     user = models.ForeignKey(User)
-    reason = models.CharField(max_length='8', choices=PAYMENT_REASON_CHOICES)
+    reason = models.CharField(max_length='16', choices=PAYMENT_REASON_CHOICES)
     type = models.CharField(max_length='8', choices=PAYMENT_TYPE_CHOICES)
     confirmation = models.CharField(max_length='16', blank=True, null=True, help_text='The CC confirmation code or check number')
     

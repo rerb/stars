@@ -15,6 +15,8 @@ from django.conf import settings
 
 from stars.apps.registration.views import process_payment
 from stars.apps.credits.models import CreditSet
+from stars.apps.submissions.models import Payment
+from stars.apps.institutions.models import Institution
 
 from aashe.issdjango.models import Organizations
 
@@ -23,12 +25,14 @@ import sys, os, random
 
 class TestProcess(TestCase):
     fixtures = ['registration_tests.json', 'iss_testdata.json', 'notification_emailtemplate_tests.json']
+    multi_db = True
 
     def setUp(self):
-        o = Organizations(account_num=24394, org_name='Okanagan College', org_type="Two Year Institution", state='BC', country="Canada")
-        o.save()
-        o = Organizations(account_num=16384, org_name='Florida National College', org_type="Two Year Institution", state='FL', country="United States of America")
-        o.save()
+        # o = Organizations(account_num=24394, org_name='Okanagan College', org_type="Two Year Institution", state='BC', country="Canada")
+        # o.save()
+        # o = Organizations(account_num=16384, org_name='Florida National College', org_type="Two Year Institution", state='FL', country="United States of America")
+        # o.save()
+        pass
         
 
     def regStep2(self, id, slug):
@@ -110,6 +114,11 @@ class TestProcess(TestCase):
         response = c.post(url, post_dict)
         self.assertTrue(response.status_code == 302)
         self.assertTrue(len(mail.outbox) == 2)
+        
+        # Check payments
+        institution = Institution.objects.get(aashe_id=24394)
+        p = Payment.objects.get(submissionset__institution=institution)
+        self.assertEqual(p.reason, "member_reg")
        
     # def testPayWithCard(self):
     #     """
