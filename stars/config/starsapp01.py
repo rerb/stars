@@ -25,6 +25,9 @@ DATABASES = {
 }
 DATABASE_ROUTERS = ('aashe.issdjango.router.ISSRouter',)
 
+# Celery
+CELERY_RESULT_DBURI = "sqlite:////var/www/stars/stars-celery-results.db"
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 CACHES = {
