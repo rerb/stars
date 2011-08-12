@@ -175,7 +175,7 @@ class Payment(models.Model, ETLCompareMixin):
         """
         self.id = payment.id
         self.submissionset = payment.submissionset.id
-        self.aashe_id = ss.institution.aashe_id
+        self.aashe_id = payment.institution.aashe_id
         self.date = payment.date
         self.amount = payment.amount
         self.user = payment.user.email
