@@ -161,8 +161,8 @@ class Payment(models.Model, ETLCompareMixin):
     date = models.DateTimeField()
     amount = models.FloatField()
     user = models.EmailField()
-    reason = models.CharField(max_length='8', choices=submissions.models.PAYMENT_REASON_CHOICES)
-    type = models.CharField(max_length='8', choices=submissions.models.PAYMENT_TYPE_CHOICES)
+    reason = models.CharField(max_length='16', choices=submissions.models.PAYMENT_REASON_CHOICES)
+    type = models.CharField(max_length='16', choices=submissions.models.PAYMENT_TYPE_CHOICES)
     confirmation = models.CharField(max_length='16', blank=True, null=True, help_text='The CC confirmation code or check number')
     
     # for ETLCompareMixin
@@ -175,7 +175,7 @@ class Payment(models.Model, ETLCompareMixin):
         """
         self.id = payment.id
         self.submissionset = payment.submissionset.id
-        self.aashe_id = payment.institution.aashe_id
+        self.aashe_id = payment.submissionset.institution.aashe_id
         self.date = payment.date
         self.amount = payment.amount
         self.user = payment.user.email
