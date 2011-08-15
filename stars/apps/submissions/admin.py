@@ -50,5 +50,6 @@ class SubmissionInquiryAdmin(admin.ModelAdmin):
 admin.site.register(SubmissionInquiry, SubmissionInquiryAdmin)
 
 class ExtensionRequestAdmin(admin.ModelAdmin):
-    list_display = ('submissionset', 'date',)
+    list_display = ('submissionset', 'date','user')
+    search_fields = ('user__username',)
 admin.site.register(ExtensionRequest, ExtensionRequestAdmin)
