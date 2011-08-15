@@ -1,13 +1,14 @@
 {% load humanize %}
+{% load report_tags %}
 
 {% if not field.is_empty %}
 	{% ifequal field.documentation_field.type 'long_text' %}
 	    <div style='text-align: left; margin: 0px;padding: 0px;'>
-		    {{ field.value|urlizetrunc:85|linebreaks|fix_ampersands }}
+		    {% block long_text_disply %}{{ field.value|urlize|linebreaks|fix_ampersands }}{% endblock %}
 		</div>
 	{% else %}
 	    {% ifequal field.documentation_field.type 'url' %}
-	        <a href='{{ field.value }}' target="_blank">{{ field.value|slice:":85" }}</a>
+	        {% block url_display %}<a href='{{ field.value }}' target="_blank">{{ field.value }}</a>{% endblock %}
 	    {% else %}
 	        {% ifequal field.documentation_field.type 'upload' %}
 	            {% if field.value %}

@@ -95,5 +95,52 @@ def _get_choice_context(field):
             'units' : units if units else '',
             'field_value': (True if at_least_one_selected else None)
            }
-    
-  
+
+
+from django.template.defaultfilters import stringfilter#, linebreaks
+
+def charwrap(value, arg):
+   """
+   Wraps characters at specified line length with a <br/> tag
+
+   Argument: number of characters to wrap the text at.
+   
+   Example {% field.value|charwrap:80 %}
+   """
+   
+   converted = ""
+   temp_val = value
+   while len(temp_val) > int(arg) and int(arg) > 0:
+       converted += "%s<br/>\n" % temp_val[:int(arg)]
+       temp_val = temp_val[int(arg):]
+   converted += temp_val
+   return converted
+   # return linebreaks(converted)
+
+charwrap.is_safe = True
+# charwrap.needs_autoescape = True
+charwrap = stringfilter(charwrap)
+register.filter(charwrap)
+
+def wraplinks(text, length):
+    """
+        Takes a string of HTMl and updates it to insert breaks
+        before and after links and wrap them to a certain `length`
+        
+        For example:
+        
+        text = "<p>Check this <a href='URL'>http://boguslink.com</a> out!</p>"
+        {{ text|wraplinks:7 }}
+        
+        "<p>Check this <br/><a href='URL'>http://<br/>bogusli<br/>nk.com</a><br/> out!</p>"
+    """
+    import re
+    link_re = "<a href=[\"'](?P<url>.*?)[\"']>(?P<title>.*?)</a>"
+    def wrapper(m):
+        return "<a href=\"%s\"><br/>\n%s<br/>\n</a>" % (m.group('url'), charwrap(m.group('title'), length))
+        
+    return re.sub(link_re, wrapper, text)
+
+wraplinks.is_safe = True
+wraplinks = stringfilter(wraplinks)
+register.filter(wraplinks)

@@ -40,7 +40,7 @@
             id='ec_notes' class='collapseExpand initial_expand' />
         <i>Credit Submission Notes:</i><br/>
         <div id='ec_notes_target'>
-            {{ credit_submission.submission_notes|urlizetrunc:55|linebreaks|fix_ampersands }}
+            {{ credit_submission.submission_notes|urlize|linebreaks|fix_ampersands }}
         </div>
     </div>
     {% endif %}

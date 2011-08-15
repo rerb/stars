@@ -9,11 +9,11 @@
 {% if not field.is_empty %}
     <div class='greyBox'
         {% ifequal field.documentation_field.type 'long_text' %}
-        style='padding: 10px 20px'>
+        style='padding: 10px 20px;'>
         {% else %}
         >
         {% endifequal %}
-        {% include 'institutions/scorecards/field_formatting.html' %}
+        {% block formatting_include %}{% include 'institutions/scorecards/field_formatting.html' %}{% endblock %}
     </div>
     
     {% if field.corrections.all %}
