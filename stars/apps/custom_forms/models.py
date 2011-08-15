@@ -47,6 +47,7 @@ class EligibilityQuery(models.Model):
     included_in_boundary = models.BooleanField()
     separate_administration = models.BooleanField()
     rationale = models.TextField()
+    date = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     
     def __str__(self):
         if self.requesting_institution:
