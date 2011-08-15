@@ -199,7 +199,7 @@ BROKER_USER = "guest"
 BROKER_PASSWORD = "guest"
 BROKER_VHOST = "/"
 
-CELERY_BACKEND = 'database'
+CELERY_RESULT_BACKEND = 'database'
 CELERY_RESULT_DBURI = "sqlite:////tmp/stars-celery-results.db"
 
 # Authorize.Net
