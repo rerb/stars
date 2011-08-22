@@ -10,7 +10,8 @@
             "state": "BC",
             "org_type": "Two Year Institution",
             "country": "Canada",
-            "is_member": 1
+            "is_member": 1,
+            "exclude_from_website": false
         }
  
     },
@@ -25,7 +26,8 @@
             "state": "FL",
             "org_type": "Two Year Institution",
             "country": "United States of America",
-            "is_member": 0
+            "is_member": 0,
+            "exclude_from_website": false
         }
  
     }
