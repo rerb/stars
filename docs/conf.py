@@ -13,6 +13,51 @@
 
 import sys, os
 
+sys.path[0:0] = [
+    '/Users/jamstooks/workspace/stars/eggs/South-0.7.3-py2.7.egg',
+    '/Users/jamstooks/workspace/stars/eggs/Fabric-1.0.1-py2.7.egg',
+    '/Users/jamstooks/workspace/stars/eggs/PIL-1.1.7-py2.7-macosx-10.4-x86_64.egg',
+    '/Users/jamstooks/workspace/stars/eggs/reportlab-2.4-py2.7-macosx-10.4-x86_64.egg',
+    '/Users/jamstooks/workspace/stars/eggs/recaptcha_client-1.0.5-py2.7.egg',
+    '/usr/local/lib/python2.7/site-packages',
+    '/Users/jamstooks/workspace/stars/eggs/pisa-3.0.32-py2.7.egg',
+    '/Users/jamstooks/workspace/stars/eggs/pyPdf-1.13-py2.7.egg',
+    '/Users/jamstooks/workspace/stars/eggs/html5lib-0.90-py2.7.egg',
+    '/Users/jamstooks/workspace/stars/eggs/zc.authorizedotnet-1.3.1-py2.7.egg',
+    '/Users/jamstooks/workspace/stars/eggs/sorl_thumbnail-11.01-py2.7.egg',
+    '/Users/jamstooks/workspace/stars/eggs/mercurial-1.7.5-py2.7-macosx-10.4-x86_64.egg',
+    '/Users/jamstooks/workspace/stars/eggs/aashe_python-0.1.3-py2.7.egg',
+    '/Users/jamstooks/workspace/stars/eggs/django_debug_toolbar-0.8.5-py2.7.egg',
+    '/Users/jamstooks/workspace/stars/eggs/django_extensions-0.6-py2.7.egg',
+    '/Users/jamstooks/workspace/stars/eggs/Werkzeug-0.6.2-py2.7.egg',
+    '/Users/jamstooks/workspace/stars/eggs/django_celery-2.2.4-py2.7.egg',
+    '/Users/jamstooks/workspace/stars/eggs/django_memcache_status-1.0.1-py2.7.egg',
+    '/Users/jamstooks/workspace/stars/eggs/ipython-0.10.2-py2.7.egg',
+    '/Users/jamstooks/workspace/stars/eggs/django_jsonfield-0.6-py2.7.egg',
+    '/Users/jamstooks/workspace/stars/eggs/djangorecipe-0.99-py2.7.egg',
+    '/Users/jamstooks/workspace/stars/eggs/Django-1.3-py2.7.egg',
+    '/Users/jamstooks/workspace/stars/eggs/zc.recipe.egg-1.3.2-py2.7.egg',
+    '/Users/jamstooks/workspace/stars/eggs/zc.buildout-1.5.2-py2.7.egg',
+    '/Users/jamstooks/workspace/stars/eggs/celery-2.2.6-py2.7.egg',
+    '/Users/jamstooks/workspace/stars/eggs/django_picklefield-0.1.9-py2.7.egg',
+    '/Users/jamstooks/workspace/stars/eggs/zc.creditcard-1.0-py2.7.egg',
+    '/Users/jamstooks/workspace/stars/eggs/zc.ssl-1.2-py2.7.egg',
+    '/Users/jamstooks/workspace/stars/eggs/paramiko-1.7.7.1-py2.7.egg',
+    '/Users/jamstooks/workspace/stars/eggs/pycrypto-2.3-py2.7-macosx-10.4-x86_64.egg',
+    '/Users/jamstooks/workspace/stars/eggs/pyparsing-1.5.5-py2.7.egg',
+    '/Users/jamstooks/workspace/stars/eggs/kombu-1.1.5-py2.7.egg',
+    '/Users/jamstooks/workspace/stars/eggs/anyjson-0.3.1-py2.7.egg',
+    '/Users/jamstooks/workspace/stars/eggs/python_dateutil-1.5-py2.7.egg',
+    '/Users/jamstooks/workspace/stars/eggs/zope.testing-3.10.2-py2.7.egg',
+    '/Users/jamstooks/workspace/stars/eggs/amqplib-0.6.1-py2.7.egg',
+    '/Users/jamstooks/workspace/stars/eggs/zope.interface-3.6.3-py2.7-macosx-10.4-x86_64.egg',
+    '/Users/jamstooks/workspace/stars/eggs/zope.exceptions-3.6.1-py2.7.egg',
+    '/Users/jamstooks/workspace/stars/parts/django',
+    '/Users/jamstooks/workspace/stars',
+    ]
+    
+os.environ['DJANGO_SETTINGS_MODULE'] = "stars.settings"
+
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.

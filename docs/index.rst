@@ -16,6 +16,7 @@ Contents
    :maxdepth: 3
    
    dev_index
+   code
 
 Indices and tables
 ==================
