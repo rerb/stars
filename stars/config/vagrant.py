@@ -5,6 +5,8 @@
 
 from settings import *
 
+import oboeware
+
 DEBUG = True
 
 DATABASES = {
