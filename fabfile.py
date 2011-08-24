@@ -53,14 +53,15 @@ def deploy():
     """
     pull()
     config()
+    stop_celery()
     
     with cd(env.project_path):
         buildout()
         test()
         migrate()
-    
+        
     launch()
-    restart_celery()
+    start_celery()
 
 def pull():
     """
@@ -143,13 +144,15 @@ def test():
 def migrate():
     "Run syncdb and South migrations"
     
-    print "Sync DB"
-    syncdb_cmd = "bin/django syncdb"
-    sudo(syncdb_cmd)
-    
     print "Migrate DB"
     migrate_cmd = "bin/django migrate --delete-ghost-migrations"
     sudo(migrate_cmd)
+    
+    # Apps should just use South migrations, but some
+    # third party apps may not, so I syncdb second
+    print "Sync DB"
+    syncdb_cmd = "bin/django syncdb"
+    sudo(syncdb_cmd)
     
 def launch():
     "Finalize the deployment by creating a symlink"
@@ -165,11 +168,14 @@ def launch():
     restart_cmd = "apache2ctl graceful"
     sudo(restart_cmd)
     
-def restart_celery():
-    " Restart the celery upstart service "
+def stop_celery():
+    " Stop the celery upstart service "
+    print "Stopping Celery"
     sudo('stop stars-celery')
-    import time
-    time.sleep(5)
+    
+def start_celery():
+    " Start the celery upstart service "
+    print "Restarting Celery"
     sudo('start stars-celery')
 
 def run_chef():
