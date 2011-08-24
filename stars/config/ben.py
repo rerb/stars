@@ -7,6 +7,7 @@ from settings import *
 HIDE_REPORTING_TOOL = False
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
+DEBUG_TOOLBAR = False
 MAINTENANCE_MODE = False
 
 # EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
@@ -51,12 +52,13 @@ XMLRPC_VERBOSE = False
 XMLRPC_USE_HASH = True
 
 # django toolbar
-MIDDLEWARE_CLASSES = MIDDLEWARE_CLASSES + ['debug_toolbar.middleware.DebugToolbarMiddleware',]
-INTERNAL_IPS = ('127.0.0.1',)
-INSTALLED_APPS = INSTALLED_APPS + ('debug_toolbar',)
-DEBUG_TOOLBAR_CONFIG = {
-    'INTERCEPT_REDIRECTS': False,
-}
+if DEBUG_TOOLBAR:
+    MIDDLEWARE_CLASSES = MIDDLEWARE_CLASSES + ['debug_toolbar.middleware.DebugToolbarMiddleware',]
+    INTERNAL_IPS = ('127.0.0.1',)
+    INSTALLED_APPS = INSTALLED_APPS + ('debug_toolbar',)
+    DEBUG_TOOLBAR_CONFIG = {
+        'INTERCEPT_REDIRECTS': False,
+    }
 
 # Authorize.Net
 #AUTHORIZENET_LOGIN = REAL_AUTHORIZENET_LOGIN
@@ -67,8 +69,9 @@ DEBUG_TOOLBAR_CONFIG = {
 #CACHE_BACKEND = "dummy://"
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
-        'LOCATION': 'temp_cache_table',
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+        # 'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        # 'LOCATION': 'temp_cache_table',
     }
 }
 
@@ -79,6 +82,11 @@ AUTHORIZENET_SERVER = TEST_AUTHORIZENET_SERVER
 
 #if manage.py test was called, use test settings
 if 'test' in sys.argv:
-    CACHE_BACKEND = "file:///tmp/stars-cache"
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+            'LOCATION': '/tmp/stars-cache',
+        }
+    }
     # DATABASES['default']['ENGINE'] = 'sqlite3'
-    #  DATABASES['default']['NAME'] = '/Users/jamstooks/sqlite/stars_tests.db'
+    # DATABASES['default']['NAME'] = '/Users/jamstooks/sqlite/stars_tests.db'
