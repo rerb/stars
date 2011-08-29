@@ -39,10 +39,29 @@ class Dashboard(TemplateView):
             
             # map vars
             i_list = []
+            i_qs = Institution.objects.filter(enabled=True).order_by('name')
             ratings = {}
             for r in Rating.objects.all():
                 if r.name not in ratings.keys():
                     ratings[r.name] = 0
+            
+            for i in Institution.objects.filter(enabled=True):
+                # try to find a rated one
+                ss = i.get_latest_submission(include_unrated=False)
+                if not ss:
+                    ss = i.get_latest_submission(include_unrated=True)
+                d = {
+                        'institution': i.profile,
+                        'rating': ss.rating,
+                        'ss': ss
+                    }
+                if ss.institution.charter_participant:
+                    d['image_path'] = "/media/static/images/seals/STARS-Seal-CharterParticipant_70x70.png"
+                else:
+                    d['image_path'] = "/media/static/images/seals/STARS-Seal-Participant_70x70.png"
+                i_list.append(d)
+            
+            _context['institution_list'] = i_list
             
             
             # bar chart vars
@@ -52,10 +71,8 @@ class Dashboard(TemplateView):
             """
                     
             for ss in SubmissionSet.objects.published().order_by("institution__name"):
-                d = {'institution': ss.institution.profile, 'rating': None, 'ss': ss}
                 
                 if ss.status == 'r':
-                    d['rating'] = ss.rating
                     ratings[ss.rating.name] += 1
                     # bar chart vals
                     if ss.rating.publish_score:
@@ -68,14 +85,7 @@ class Dashboard(TemplateView):
                                     bar_chart[cs.category.abbreviation]['title'] = "%s (%s)" % (cs.category.title, cs.category.abbreviation)
                                     bar_chart[cs.category.abbreviation]['ord'] = cs.category.ordinal
                                     bar_chart[cs.category.abbreviation]['list'] = [cs.get_STARS_score()]
-                else:
-                    if ss.institution.charter_participant:
-                        d['image_path'] = "/media/static/images/seals/STARS-Seal-CharterParticipant_70x70.png"
-                    else:
-                        d['image_path'] = "/media/static/images/seals/STARS-Seal-Participant_70x70.png"
-                i_list.append(d)
-                
-            _context['institution_list'] = i_list
+                    
             _context['ratings'] = ratings
             
             bar_chart_rows = []
@@ -132,7 +142,7 @@ class Dashboard(TemplateView):
 #                Pilot Participants
             
             member_numbers = {'members': 0, 'pcc': 0, 'pilot': 0, 'canadian': 0, 'us': 0, 'all': 0, 'charter': 0}
-            for i in Institution.objects.filter(enabled=True).order_by('name'):
+            for i in i_qs:
                 # print >> sys.stderr, i
                 org = i.profile
                 if org.is_member:
