@@ -67,7 +67,7 @@ class Institution(models.Model):
         """ Return the institutions SubmissionSets, reverse chron., perhaps excluding the unrated ones """
         submissions = self.submissionset_set.all()
         if not include_unrated:  # include only rated submissions
-            submissions = submissions.filter(status='r')
+            submissions = submissions.filter(status='r').filter(is_visible=True).filter(is_locked=False)
         return submissions.order_by("-date_registered")
 
     def get_latest_submission(self, include_unrated=False):
