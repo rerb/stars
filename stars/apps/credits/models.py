@@ -831,6 +831,7 @@ class DocumentationField(VersionedModel):
     ordinal = models.SmallIntegerField(default=-1)
     required = models.CharField(max_length=8, choices=REQUIRED_TYPES, default='req', help_text='If a field is conditionally required it is important to note that in the help-text and to define a custom validation rule.')
     identifier = models.CharField(max_length=2) # editable=False) # Field identifier for the Formula editor - auto-generated.
+    is_published = models.BooleanField(default=True, help_text='This documentation field will be displayed in the public report. Applies to 99.99% of fields.')
     
     class Meta:
         ordering = ('ordinal',)

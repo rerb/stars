@@ -631,6 +631,8 @@ class ExecContactForm(ModelForm):
     """
         The contact informartion for the institution's executive contact
     """
+    confirm = forms.BooleanField(label='I confirm that this is the highest ranking officer on campus.', required=True)
+    
     class Meta:
         model = Institution
         fields = ['executive_contact_first_name', 'executive_contact_middle_name', 'executive_contact_last_name', 'executive_contact_title', 'executive_contact_department', 'executive_contact_email', 'executive_contact_address', 'executive_contact_city', 'executive_contact_state', 'executive_contact_zip']

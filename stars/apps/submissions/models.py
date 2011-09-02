@@ -660,7 +660,13 @@ class CreditSubmission(models.Model):
         if (self.submission_fields):  # lazy init.
             return self.submission_fields
         
-        documentation_field_list = self.credit.documentationfield_set.all()
+        return self._fields_for_field_list(self.credit.documentationfield_set.all())
+        
+    def get_public_submission_fields(self):
+        
+        return self._fields_for_field_list(self.credit.documentationfield_set.filter(is_published=True))
+        
+    def _fields_for_field_list(self, documentation_field_list):
         
         # Create the list of submission fields.
         errors = False
