@@ -1,0 +1,23 @@
+{% extends 'tool/manage/accounts.html' %}
+
+{% block institution_content %}
+
+    <h2>Add a User</h2>
+    <form method='post' action='.'>
+    <table>
+        {{ account_form }}
+        <tr>
+          <td>
+             {{ notify_form.notify_users }}
+             <span class='help'>Notify user by e-mail of new STARS account.</span>
+          </td>
+        </tr>          
+        <tr>
+            <td>
+                <button type='submit'>Submit</button>
+                <button type='button' onclick='document.location="/tool/manage/users/";'>Cancel</button>
+            </td>
+        </tr>
+    </table>    
+    </form>
+{% endblock %}
