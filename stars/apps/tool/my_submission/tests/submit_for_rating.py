@@ -86,6 +86,7 @@ class RatingTest(TestCase):
                         'exec_contact_form-executive_contact_city': 'City',
                         'exec_contact_form-executive_contact_state': 'ST',
                         'exec_contact_form-executive_contact_zip': '12345',
+                        'exec_contact_form-confirm': 'on'
                     }
         response = c.post('/tool/submissions/submit/letter/', post_dict, follow=False)
         
