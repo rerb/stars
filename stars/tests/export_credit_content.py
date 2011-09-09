@@ -44,6 +44,8 @@ def export_credit_content(credit):
                   
     for df in df_list:
         columns.append(df)
+        
+    columns.append('Public Notes')
 
     csvWriter.writerow(columns)
     
@@ -88,7 +90,7 @@ def export_credit_content(credit):
                         
                         else:
                             row.append(dfs.value)
-                
+        row.append(cus.submission_notes)
         csvWriter.writerow(row)
             
 credit = Credit.objects.get(pk=15)
