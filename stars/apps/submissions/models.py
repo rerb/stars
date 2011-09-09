@@ -55,7 +55,7 @@ class SubmissionManager(models.Manager):
     
     def get_rated(self):
         """ All submissionsets that have been rated """
-        return SubmissionSet.objects.filter(status='r')
+        return SubmissionSet.objects.filter(institution__enabled=True).filter(is_visible=True).filter(is_locked=False).filter(status='r')
 
 class SubmissionSet(models.Model):
     """

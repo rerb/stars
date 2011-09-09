@@ -201,7 +201,7 @@ class RatedInstitutions(SortableTableViewWithInstProps):
               ]
               
     def get_queryset(self):
-        return SubmissionSet.objects.published().filter(status='r').select_related('institution')
+        return SubmissionSet.objects.get_rated().select_related('institution')
 
 """
     INSTITUTIONAL REPORTS

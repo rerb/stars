@@ -118,9 +118,12 @@ class Dashboard(TemplateView):
                 
             p2s = []
             p_qs = SubmissionSet.objects.published()
-            s_qs = SubmissionSet.objects.published().filter(status='r')
+            s_qs = SubmissionSet.objects.get_rated().select_related('institution')
             current_participants = p_count = p_qs.count()
             current_submissions = s_count = s_qs.count()
+
+            _context['current_participants'] = current_participants
+            _context['current_submissions'] = current_submissions
             while p_count:
                 slice = {}
                 p_count = p_qs.filter(date_registered__lt=current_month).count()
@@ -132,8 +135,6 @@ class Dashboard(TemplateView):
                 p2s.insert(0, slice)
     
             _context['p2s'] = p2s
-            _context['current_participants'] = current_participants
-            _context['current_submissions'] = current_submissions
             
             # the bar chart for
 #                STARS Participants
