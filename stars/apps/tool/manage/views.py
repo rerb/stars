@@ -307,19 +307,20 @@ def edit_submissionset(request, set_id):
 
 def _gets_discount(institution, current_date=date.today()):
     """
-        Get the latest submission prior to current_date
+        Get the latest paid submission prior to current_date
         that was either submitted or due before today
     """
     
     last_submission_date = None
     for ss in institution.submissionset_set.all():
         
+        d = None
         if ss.status == 'r':
             d = ss.date_submitted
-        else:
+        elif ss.is_enabled():
             d = ss.submission_deadline
         
-        if not last_submission_date or d > last_submission_date:
+        if d and (not last_submission_date or d > last_submission_date):
             last_submission_date = d
     
     if last_submission_date:
