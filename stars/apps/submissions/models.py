@@ -51,7 +51,7 @@ class SubmissionManager(models.Manager):
         qs1 = SubmissionSet.objects.filter(institution__enabled=True).filter(payment__isnull=False).filter(is_visible=True).filter(is_locked=False)
         qs2 = qs1.filter(
                 (Q(payment__type='later') & Q(date_registered__lte=deadline)) | ~Q(payment__type='later'))
-        return qs2
+        return qs2.distinct()
     
     def get_rated(self):
         """ All submissionsets that have been rated """
