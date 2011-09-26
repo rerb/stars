@@ -10,7 +10,10 @@ def get_variance(x):
     mean = mean / float(n)
     for a in x:
         std = std + (a - mean)**2
-    std = sqrt(std / float(n-1))
+    if n-1 == 0:
+        std = 0
+    else:
+        std = sqrt(std / float(n-1))
     return mean, std, min(x), max(x)
 
 class FormListWrapper(object):
