@@ -13,14 +13,14 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'USER': 'starsapp',
         'PASSWORD': 'J3z4#$szFET--6',
-        'HOST': '10.176.128.183',
+        'HOST': 'J3z4#$szFET--6',
     },
     'iss': {
         'NAME': 'iss',
         'ENGINE': 'django.db.backends.mysql',
         'USER': 'starsapp',
         'PASSWORD': 'J3z4#$szFET--6',
-        'HOST': '10.176.128.183',
+        'HOST': 'J3z4#$szFET--6',
     }
 }
 DATABASE_ROUTERS = ('aashe.issdjango.router.ISSRouter',)
