@@ -43,9 +43,9 @@ class Institution(models.Model):
     aashe_id = models.IntegerField(unique=True)
     org_type = models.CharField(max_length=32, blank=True, null=True)
     fte = models.IntegerField(blank=True, null=True)
-    is_pcc_signatory = models.BooleanField(default=False)
-    is_member = models.BooleanField(default=False)
-    is_pilot_participant = models.BooleanField(default=False)
+    is_pcc_signatory = models.NullBooleanField(default=False)
+    is_member = models.NullBooleanField(default=False)
+    is_pilot_participant = models.NullBooleanField(default=False)
     country = models.CharField(max_length=128, blank=True, null=True)
     
     def update_from_iss(self):
