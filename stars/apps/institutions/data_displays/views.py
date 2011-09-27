@@ -548,7 +548,7 @@ class ScoreFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
     """
     form_class = CharacteristicFilterForm
     template_name = "institutions/data_displays/score.html"
-    filter_keys = ("score_filter_",)
+    filter_keys = ["score_filter_"]
     success_url = "/institutions/data-displays/scores/"
     denied_template_name = "institutions/data_displays/denied_score.html"
     access_list = ['participant']
@@ -558,7 +558,7 @@ class ScoreFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
     
     def get_form(self, form_class):
         
-        filter_form = self.get_filter_form('score_filter', form_class)
+        filter_form = self.get_filter_form(self.filter_keys[0], form_class)
         
         kwargs = self.get_form_kwargs()
         kwargs['initial'] = self.get_columns()
@@ -574,7 +574,7 @@ class ScoreFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
     def get_context_data(self, **kwargs):
         
         _context = super(ScoreFilter, self).get_context_data(**kwargs)
-        filters = self.get_filter_group('score_filter')
+        filters = self.get_filter_group(self.filter_keys[0])
         _context['filters'] = filters
         _context['top_help_text'] = self.get_description_help_context_name()
         
@@ -638,7 +638,7 @@ class ScoreFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
     def form_valid(self, form):
         
         # Save the new filter in the session
-        self.save_filters(form.forms['filters'], 'score_filter')
+        self.save_filters(form.forms['filters'], self.filter_keys[0])
         self.save_columns(form)
         
         return HttpResponseRedirect(self.get_success_url())
@@ -675,7 +675,7 @@ class ContentFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
     
     def get_form(self, form_class):
         
-        filter_form = self.get_filter_form('content_filter', form_class)
+        filter_form = self.get_filter_form(self.filter_keys[0], form_class)
         
         kwargs = self.get_form_kwargs()
         kwargs['initial'] = {'reporting_field': self.get_reporting_field()}
@@ -691,7 +691,7 @@ class ContentFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
     def get_context_data(self, **kwargs):
         
         _context = super(ContentFilter, self).get_context_data(**kwargs)
-        filters = self.get_filter_group('content_filter')
+        filters = self.get_filter_group(self.filter_keys[0])
         _context['filters'] = filters
         _context['google_api_key'] = settings.GOOGLE_API_KEY
         _context['top_help_text'] = self.get_description_help_context_name()
@@ -738,7 +738,7 @@ class ContentFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
     def form_valid(self, form):
         
         # Save the new filter in the session
-        self.save_filters(form.forms['filters'], 'content_filter')
+        self.save_filters(form.forms['filters'], self.filter_keys[0])
         self.save_reporting_field(form)
         
         return HttpResponseRedirect(self.get_success_url())
