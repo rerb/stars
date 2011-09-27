@@ -1,0 +1,42 @@
+{% extends 'tool/manage/responsible_party_list.html' %}
+
+{% block institution_content %}
+
+	<a href='/tool/manage/responsible-parties/'>&lt;&lt; back to all Responsible Parties</a>
+
+	<h2>{{ title }}</h2>
+	
+	<form method='post' action='.' class='generalForm'>
+		<table>
+			{% include "helpers/standard_form.html" %}
+		</table>
+		<div class='button_row'>
+        	<button type='submit' id='submit_button'>Save</button>
+    	</div>
+	</form>
+	
+	{% if responsible_party %}
+		<h3>Assigned Credits</h3>
+		{% if not credit_list %}
+			<p>This Responsible Party has not been assigned to any Credits yet.</p>
+		{% else %}
+			<table class='greyTable' style='margin-top: 10px;'>
+				<tr>
+					<th>Subcategory</th>
+					<th>Credit</th>
+				</tr>
+				{% for cs in credit_list %}
+					<tr class='{% cycle 'even' 'odd' %}'>
+						<td style='text-align: left'>
+							{{ cs.credit.subcategory }}
+						</td>
+						<td style='text-align: left'>
+							<a href='{{ cs.get_submit_url }}'>{{ cs.credit }}</a>
+						</td>
+					</tr>
+				{% endfor %}
+			</table>
+		{% endif %}
+	{% endif %}
+	
+{% endblock %}
