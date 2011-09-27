@@ -31,7 +31,7 @@ CACHE_BACKEND = "dummy://"
 THUMBNAIL_ENGINE = "sorl.thumbnail.engines.pgmagick_engine.Engine"
 #CACHE_BACKEND = "db://temp_cache_table"
 
-MEDIA_ROOT = '/var/www/stars.dev.aashe.org/media/'
+MEDIA_ROOT = '/var/www/stars.aashe.org/media/'
 
 SSO_SERVER_URI = DEV_SSO_SERVER_URI
 STARS_DOMAIN = DEV_STARS_DOMAIN
