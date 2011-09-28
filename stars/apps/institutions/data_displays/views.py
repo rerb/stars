@@ -210,37 +210,37 @@ class FilteringMixin(object):
                                 ),
                                 Filter(
                                       key='institution__is_member',
-                                      title='AASHE Member',
+                                      title='AASHE Membership',
                                       item_list=[
-                                           ('Yes', True),
-                                           ('No', False)
+                                           ('AASHE Member', True),
+                                           ('Not an AASHE Member', False)
                                       ],
                                       base_qs=SubmissionSet.objects.filter(status='r'),
                                 ),
                                 Filter(
                                         key='institution__is_pcc_signatory',
-                                        title='ACUPCC Signatory',
+                                        title='ACUPCC Signatory Status',
                                         item_list=[
-                                             ('Yes', True),
-                                             ('No', False)
+                                             ('ACUPCC Signatory', True),
+                                             ('Not an ACUPCC Signatory', False)
                                         ],
                                         base_qs=SubmissionSet.objects.filter(status='r'),
                                 ),
                                 Filter(
                                         key='institution__charter_participant',
-                                        title='Charter Participant',
+                                        title='STARS Charter Participant',
                                         item_list=[
-                                             ('Yes', True),
-                                             ('No', False)
+                                             ('Charter Participant', True),
+                                             ('Not a Charter Participant', False)
                                         ],
                                         base_qs=SubmissionSet.objects.filter(status='r'),
                                 ),
                                 Filter(
                                         key='institution__is_pilot_participant',
-                                        title='Pilot Participant',
+                                        title='STARS Pilot Participant',
                                         item_list=[
-                                             ('Yes', True),
-                                             ('No', False)
+                                             ('Pilot Participant', True),
+                                             ('Not a Pilot Participant', False)
                                         ],
                                         base_qs=SubmissionSet.objects.filter(status='r'),
                                 ),
@@ -257,7 +257,7 @@ class FilteringMixin(object):
                                 ),
                                 RangeFilter(
                                         key='institution__fte',
-                                        title='Full-time Enrollment',
+                                        title='FTE Enrollment',
                                         item_list=[
                                             ('Less than 200', 'u200', None, 200),
                                             ('200 - 499', 'u500', 200, 500),

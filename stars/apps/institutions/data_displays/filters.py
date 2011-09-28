@@ -30,12 +30,19 @@ class Filter(object):
         
     def get_active_title(self, item):
         " A name to display for this filter when active. "
+        
+        # Translation from form
+        if item == "True":
+            item = True
+        elif item == "False":
+            item = False
+        
         if self.key == "rating__name":
             return "%s Rated Institutions" % item
-        elif item == 'True':
-            return self.title
-        elif item == 'False':
-            return "Not %s" % self.title
+        
+        for k,v in self.item_list:
+            if item == v:
+                return k
             
         return item
         
