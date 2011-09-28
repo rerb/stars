@@ -154,7 +154,7 @@ class ActiveInstitutions(SortableTableViewWithInstProps):
                     {
                        'key':'deadline',
                        'sort_field':'submission_deadline',
-                       'title':'Submission Deadline',
+                       'title':'Renewal Deadline',
                     },
               ]
     
