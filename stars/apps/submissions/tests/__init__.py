@@ -2,6 +2,7 @@ from stars.apps.submissions.tests import scoring
 from submission_manager import ManagerTest
 from extensions import ExtensionTest
 from submission_migration_tests import *
+from data_corrections import DataCorrectionTest
 #from pdf import PDFTest
 
 # __test__ = {

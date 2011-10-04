@@ -63,6 +63,62 @@
     },
     
     {
+        "pk": 5, 
+        "model": "credits.rating", 
+        "fields": {
+            "creditset": 1, 
+            "image_200": "seals/STARS-Platinum-200x200_1.png", 
+            "name": "Platinum", 
+            "image_large": "seals/STARS-Seal-Platinum.png", 
+            "minimal_score": 85
+        }
+    }, 
+    {
+        "pk": 4, 
+        "model": "credits.rating", 
+        "fields": {
+            "creditset": 1, 
+            "image_200": "seals/STARS-Gold-200x200_1.png", 
+            "name": "Gold", 
+            "image_large": "seals/STARS-Seal-Gold.png", 
+            "minimal_score": 65
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "credits.rating", 
+        "fields": {
+            "creditset": 1, 
+            "image_200": "seals/STARS-Silver-200x200_1.png", 
+            "name": "Silver", 
+            "image_large": "seals/STARS-Seal-Silver.png", 
+            "minimal_score": 45
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "credits.rating", 
+        "fields": {
+            "creditset": 1, 
+            "image_200": "seals/STARS-Bronze-200x200_1.png", 
+            "name": "Bronze", 
+            "image_large": "seals/STARS-Seal-Bronze.png", 
+            "minimal_score": 25
+        }
+    }, 
+    {
+        "pk": 1, 
+        "model": "credits.rating", 
+        "fields": {
+            "creditset": 1, 
+            "image_200": "seals/STARS-Reporter-200x200_1.png", 
+            "name": "Reporter", 
+            "image_large": "seals/STARS-Seal-Reporter.png", 
+            "minimal_score": 0
+        }
+    },
+    
+    {
         "pk": 1,
         "model": "submissions.submissionset",
         "fields": {
@@ -71,7 +127,9 @@
             "date_registered": "2010-01-01",
             "submission_deadline": "2011-01-31",
             "registering_user": 1,
-            "status": "ps"
+            "status": "r",
+            "rating": 5,
+            "score": 100.0
         }
     },
     
@@ -148,7 +206,7 @@
             "point_value": 5.0, 
             "applicability": "<p>This credit applies to all institutions.</p>", 
             "validation_rules": "", 
-            "formula": "", 
+            "formula": "points = A", 
             "type": "t1"
         }
     },
@@ -167,8 +225,8 @@
         "fields": {
             "subcategory_submission": 1,
             "submission_status": "c",
-            "review_status": "",
-            "responsible_party_confirm": true
+            "responsible_party_confirm": true,
+            "assessed_points": 5
         }
     },
     
@@ -177,7 +235,7 @@
         "model": "credits.documentationfield", 
         "fields": {
             "ordinal": 0, 
-            "max_range": 500000,
+            "max_range": 5,
             "required": "req", 
             "title": "First Test Numeric Documentation Field", 
             "tooltip_help_text": "", 
@@ -196,89 +254,8 @@
         "model": "submissions.numericsubmission",
         "fields": {
             "documentation_field": 1,
-            "value": 1200.0,
+            "value": 5.0,
             "credit_submission": 1
         }
-    },
-    
-    {
-        "pk": 2, 
-        "model": "credits.creditset", 
-        "fields": {
-            "is_locked": false, 
-            "release_date": "2011-1-01", 
-            "version": "1.1", 
-            "tier_2_points": 0.25, 
-            "scoring_method": "get_STARS_v1_1_score",
-            "previous_version": 1
-        }
-    },
-
-    {
-        "pk": 2, 
-        "model": "credits.category", 
-        "fields": {
-            "ordinal": 0, 
-            "description": "<p>Dummy Description</p>", 
-            "title": "Test Cateogory 1.1", 
-            "creditset": 2,
-            "abbreviation": "TC", 
-            "max_point_value": 0,
-            "previous_version": 1
-        }
-    },
-    
-    {
-        "pk": 2, 
-        "model": "credits.subcategory", 
-        "fields": {
-            "category": 2, 
-            "ordinal": 0, 
-            "max_point_value": 0, 
-            "description": "",
-            "title": "Test Subcategory 1.1",
-            "previous_version": 1
-        }
-    },
-    
-    {
-        "pk": 2,
-        "model": "credits.credit", 
-        "fields": {
-            "ordinal": 0, 
-            "scoring": "",
-            "staff_notes": "", 
-            "subcategory": 2, 
-            "title": "First Test Credit 1.1", 
-            "criteria": "",
-            "measurement": "",
-            "number": 1,
-            "point_value": 5.0, 
-            "applicability": "<p>This credit applies to all institutions.</p>", 
-            "validation_rules": "", 
-            "formula": "points = A",
-            "type": "t1",
-            "previous_version": 1
-        }
-    },
-
-    {
-        "pk": 2, 
-        "model": "credits.documentationfield", 
-        "fields": {
-            "ordinal": 0, 
-            "max_range": 500000,
-            "required": "req", 
-            "title": "First Test Numeric Documentation Field 1.1", 
-            "tooltip_help_text": "", 
-            "last_choice_is_other": false, 
-            "min_range": 0, 
-            "credit": 2, 
-            "inline_help_text": "", 
-            "units": null, 
-            "identifier": "A", 
-            "type": "numeric",
-            "previous_version": 1
-        }
-    }
+    }   
 ]
