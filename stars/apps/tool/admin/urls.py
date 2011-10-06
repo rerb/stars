@@ -7,7 +7,7 @@ urlpatterns = patterns(
     (r'^$', 'institutions_list'),
     (r'^search/$', 'institutions_search'),
     (r'^list$', 'institutions_list'),
-    (r'^institution/masquerade/(?P<aashe_id>\d+)/$', 'select_institution'),
+    (r'^institution/masquerade/(?P<id>\d+)/$', 'select_institution'),
 
     # Payment processing
     (r'^institution/(?P<institution_id>\d+)/payments/$', 'institution_payments'),

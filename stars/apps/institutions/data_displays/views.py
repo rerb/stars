@@ -146,19 +146,18 @@ class Dashboard(TemplateView):
             member_numbers = {'members': 0, 'pcc': 0, 'pilot': 0, 'canadian': 0, 'us': 0, 'all': 0, 'charter': 0}
             for i in i_qs:
                 # print >> sys.stderr, i
-                org = i.profile
-                if org.is_member:
+                if i.is_member:
                     member_numbers['members'] += 1
-                if org.is_signatory:
+                if i.is_pcc_signatory:
                     member_numbers['pcc'] += 1
                 if i.charter_participant:
                     member_numbers['charter'] += 1
-                if org.country == "Canada":
+                if i.country == "Canada":
                     member_numbers['canadian'] += 1
-                elif org.country == "United States of America":
+                elif i.country == "United States of America":
                     member_numbers['us'] += 1
                 else:
-                    print >> sys.stderr, "No country found for %s" % org.org_name
+                    print >> sys.stderr, "No country found for %s" % i.name
                 member_numbers['all'] += 1
             _context['member_numbers'] = member_numbers
             

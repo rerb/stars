@@ -37,10 +37,11 @@ class Institution(models.Model):
     charter_participant = models.BooleanField()
     stars_staff_notes = models.TextField(blank=True, null=True)
     date_created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+    international = models.BooleanField(default=False)
     
     # ISS properties
     name = models.CharField(max_length=255)
-    aashe_id = models.IntegerField(unique=True)
+    aashe_id = models.IntegerField(unique=True, blank=True, null=True)
     org_type = models.CharField(max_length=32, blank=True, null=True)
     fte = models.IntegerField(blank=True, null=True)
     is_pcc_signatory = models.NullBooleanField(default=False)
@@ -63,8 +64,11 @@ class Institution(models.Model):
         )
         
         iss_org = self.profile
-        for k_self, k_iss in field_mappings:
-            setattr(self, k_self, getattr(iss_org, k_iss))
+        if iss_org:
+            for k_self, k_iss in field_mappings:
+                setattr(self, k_self, getattr(iss_org, k_iss))
+        else:
+            watchdog.log("Institutions", "No ISS institution found %s" % (self.name), watchdog.ERROR)
     
     def __unicode__(self):
         return self.name.decode('utf8')
@@ -75,7 +79,7 @@ class Institution(models.Model):
         
     def get_masquerade_url(self):
         """ Returns the URL for AASHE Staff to masquerade this institution """
-        return "%sinstitution/masquerade/%d/" % (settings.ADMIN_URL, self.aashe_id)
+        return "%sinstitution/masquerade/%d/" % (settings.ADMIN_URL, self.id)
 
     def get_manage_url(self):
         """ Returns the URL for institution admins to edit this institution """
@@ -195,11 +199,7 @@ class Institution(models.Model):
             Searches stars_member_list.members for the institution
             returns True if this institution exists
         """
-        try:
-            return self.profile.is_member == 1
-        except Exception, e:
-            watchdog.log("Institutions", "ISS Institution profile error: %s" % e, watchdog.ERROR)
-            return False
+        return self.is_member
     
     def set_slug_from_iss_institution(self, iss_institution_id):
         """

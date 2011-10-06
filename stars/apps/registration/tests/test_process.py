@@ -28,19 +28,34 @@ class TestProcess(TestCase):
     multi_db = True
 
     def setUp(self):
-        # o = Organizations(account_num=24394, org_name='Okanagan College', org_type="Two Year Institution", state='BC', country="Canada")
-        # o.save()
-        # o = Organizations(account_num=16384, org_name='Florida National College', org_type="Two Year Institution", state='FL', country="United States of America")
-        # o.save()
         pass
         
+    def regInternational(self, name, slug):
+        """
+            Run the first step for international registration
+        """
+        url = '/register/international/' 
 
-    def regStep2(self, id, slug):
+        c = Client()
+        c.login(username='test_user', password='test')
+        post_dict = {}
+        response = c.get(url, post_dict)
+        self.assertTrue(response.status_code == 200)
+
+        post_dict = {'institution_name': name,}
+        response = c.post(url, post_dict, follow=False)
+        self.assertTrue(response.status_code == 302)
+
+        self.assertTrue(c.session['selected_institution'].slug == slug)
+        self.assertTrue(c.session['selected_institution'].international)
+        
+        return c
+        
+    def regStep1(self, id, slug):
         """
-           Run test up to step two of the registration process for a given institution
-   
-           return the client object
+            Run the first step of registration
         """
+        
         # Select Institution
 
         url = '/register/' 
@@ -56,6 +71,15 @@ class TestProcess(TestCase):
         self.assertTrue(response.status_code == 302)
 
         self.assertTrue(c.session['selected_institution'].slug == slug)
+        
+        return c
+
+    def regStep2(self, c, slug):
+        """
+           Run test up to step two of the registration process for a given institution
+   
+           return the client object
+        """
 
         # Contact Information
 
@@ -65,7 +89,6 @@ class TestProcess(TestCase):
         post_dict = {}
         response = c.get(url, post_dict)
         self.assertTrue(response.status_code == 200)
-
 
         # Same Emails
         post_dict = {
@@ -87,7 +110,7 @@ class TestProcess(TestCase):
         post_dict['contact_email'] = 'test2@aashe.org'
         response = c.post(url, post_dict, follow=False)
         self.assertTrue(response.status_code == 302)
-
+        
         self.assertTrue(c.session['selected_institution'].slug == slug)
 
         return c
@@ -99,7 +122,8 @@ class TestProcess(TestCase):
                - Processes the form and returns a redirect to step 2
         """
 
-        c = self.regStep2(24394, 'okanagan-college-bc')
+        c = self.regStep1(24394, 'okanagan-college-bc')
+        c = self.regStep2(c, 'okanagan-college-bc')
 
         # Test Payment
         url = '/register/step3/'
@@ -119,6 +143,23 @@ class TestProcess(TestCase):
         institution = Institution.objects.get(aashe_id=24394)
         p = Payment.objects.get(submissionset__institution=institution)
         self.assertEqual(p.reason, "member_reg")
+   
+    def testPayLaterInternational(self):
+        """
+           Test the ConfirmClassView
+               - Handles a basic HTTP request w/out 500
+               - Processes the form and returns a redirect to step 2
+        """
+
+        c = self.regInternational("Dummy Institution", 'dummy-institution')
+        c = self.regStep2(c, 'dummy-institution')
+        self.assertTrue(c.session['selected_institution'].international)
+
+        # Email notifications
+        self.assertEqual(len(mail.outbox), 2)
+        
+        # Check payments
+        institution = Institution.objects.get(name='Dummy Institution')
        
     # def testPayWithCard(self):
     #     """

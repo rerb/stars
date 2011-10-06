@@ -28,6 +28,32 @@ from zc.authorizedotnet.processing import CcProcessor
 from zc.creditcard import (AMEX, DISCOVER, MASTERCARD, VISA, UNKNOWN_CARD_TYPE)
 from aashe.issdjango.models import Organizations
 
+def reg_international(request):
+    """
+        First step for registering an international institution
+    """
+    response = _confirm_login(request)
+    if response: return response
+    
+    form = WriteInInstitutionForm()
+    if request.method == 'POST':
+        form = WriteInInstitutionForm(request.POST)
+        if form.is_valid():
+            
+            institution = Institution(name=form.cleaned_data['institution_name'], international=True)
+            institution.slug = slugify(institution.name)
+            # If they've already got this institution in their session don't overwrite it
+            # it might have contact info
+            selected_institution = request.session.get('selected_institution')
+            if not selected_institution or selected_institution.name != institution.name:
+                print "******NEW INstitution"
+                selected_institution = institution
+            request.session['selected_institution'] = selected_institution
+            return HttpResponseRedirect('/register/step2/')
+
+    template = "registration/international.html"
+    context = {'form': form,}
+    return respond(request, template, context)
 
 def reg_select_institution(request):
     """
@@ -109,8 +135,17 @@ def reg_contact_info(request):
         reg_form = RegistrationForm(request.POST, instance=institution)
 
         if reg_form.is_valid():
+            
+            print institution.international
             institution = reg_form.save(commit=False)
             request.session['selected_institution'] = institution
+            
+            # they're done if it's international
+            if institution.international:
+                institution = register_institution(request.user, institution, "credit", 0, None)
+                request.session['selected_institution'] = institution
+                return HttpResponseRedirect("/register/survey/")
+            
             return HttpResponseRedirect('/register/step3/')
         else:
             flashMessage.send("Please correct the errors below", flashMessage.ERROR)
@@ -126,13 +161,10 @@ def reg_payment(request):
          - otherwise, collect payment info and store the selected_institution into the DB
    """
     (institution, response) = _get_selected_institution(request)
-    if response: return response        
-        
-    # Determine Membership Status
-    is_member = institution.is_member_institution()
+    if response: return response
     
     # get price
-    price = _get_registration_price(is_member)
+    price = _get_registration_price(institution)
     
     pay_form = PaymentForm()
     pay_later_form = PayLaterForm()
@@ -170,7 +202,7 @@ def reg_payment(request):
                 return HttpResponseRedirect("/register/survey/")
     
     template = "registration/payment.html"
-    context = {'pay_form': pay_form, 'pay_later_form': pay_later_form, 'institution': institution, 'is_member': is_member, 'price': price}
+    context = {'pay_form': pay_form, 'pay_later_form': pay_later_form, 'institution': institution, 'is_member': institution.is_member, 'price': price}
     return respond(request, template, context)
 
 def init_submissionset(institution, user, today):
@@ -213,6 +245,8 @@ def register_institution(user, institution, payment_type, price, payment_dict):
     # Save Payment
     if institution.is_member_institution():
         reason = "member_reg"
+    elif institution.international:
+        reason = "international"
     else:
         reason = "nonmember_reg"
     payment = Payment(submissionset=submissionset, date=datetime.today(), amount=price, user=user, reason=reason, type=payment_type, confirmation="none")
@@ -226,7 +260,10 @@ def register_institution(user, institution, payment_type, price, payment_dict):
         email_to.append(user.email)
     
     # Confirmation Email
-    if payment.type == 'later':
+    if institution.international:
+        et = EmailTemplate.objects.get(slug='welcome_international_pilot')
+        email_context = {'institution': institution}
+    elif payment.type == 'later':
         et = EmailTemplate.objects.get(slug='welcome_liaison_unpaid')
         email_context = {'payment': payment,}
     else:
@@ -237,7 +274,10 @@ def register_institution(user, institution, payment_type, price, payment_dict):
                 
     # Executive Contact
     email_to = [institution.executive_contact_email,]
-    et = EmailTemplate.objects.get(slug="welcome_exec")
+    if institution.international:
+        et = EmailTemplate.objects.get(slug='welcome_international_pilot_ec')
+    else:
+        et = EmailTemplate.objects.get(slug="welcome_exec")
     email_context = {"institution": institution}
     et.send_email(email_to, email_context)
         
@@ -435,24 +475,32 @@ def _get_selected_institution(request):
         
     # if the institution is registered already, take them to the account page
     try:
-        inst = Institution.objects.get(aashe_id=institution.aashe_id)
-        if inst.is_registered():   # check for registration in the most recent credit set
-            request.session['selected_institution'] = inst
-            return None, HttpResponseRedirect("/register/account/")
+        if institution.aashe_id:
+            inst = Institution.objects.get(aashe_id=institution.aashe_id)
+            if inst.is_registered():   # check for registration in the most recent credit set
+                request.session['selected_institution'] = inst
+                return None, HttpResponseRedirect("/register/account/")
     except Institution.DoesNotExist:
         pass  # no problem - this is the usual case, institution is not registered, proceed with registration.
    
     return institution, None
 
-def _get_registration_price(is_member):
+def _get_registration_price(institution, new=True):
     """
-        Calculates the registration price based on the 
+        Calculates the registration price based on the institution
     """
-    
     price = {'member': 900, 'non': 1400}
+    
+    discount = 0
+    if new:
+        start_date = date(year=2011, month=10, day=9)
+        end_date = date(year=2011, month=10, day=14)
+    
+        if date.today() >= start_date and date.today() <= end_date:
+            discount = 250
         
-    if is_member:
-        return price['member']
+    if institution.is_member:
+        return price['member'] - discount
     else:
-        return price['non']
+        return price['non'] - discount
 

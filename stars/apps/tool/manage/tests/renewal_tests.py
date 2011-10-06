@@ -12,6 +12,7 @@ import sys, os, random
 
 from stars.apps.tool.manage.views import _gets_discount
 from stars.apps.submissions.models import SubmissionSet, NumericSubmission, Payment
+from stars.apps.tasks.update_from_iss import run_update
 
 class RenewalTest(TestCase):
     fixtures = ['submission_migration_test.json', 'notification_emailtemplate_tests.json', 'iss_testdata.json']
@@ -19,6 +20,7 @@ class RenewalTest(TestCase):
 
     def setUp(self):
         settings.CELERY_ALWAYS_EAGER = True
+        run_update()
     
     def test_gets_discount(self):
         """

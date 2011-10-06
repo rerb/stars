@@ -1056,6 +1056,9 @@ class DataCorrectionRequest(models.Model):
                 rating_changed = True
                 ss.save()
         
+        ss.pdf_report = None
+        ss.save()
+        
         # notify institution of approval
         et = EmailTemplate.objects.get(slug='approved_data_correction')
         mail_to = [ss.institution.contact_email,]
@@ -1425,7 +1428,8 @@ PAYMENT_REASON_CHOICES = (
     ('member_reg', 'member_reg'),
     ('nonmember_reg', 'nonmember_reg'),
     ('member_renew', 'member_renew'),
-    ('nonmember_renew', 'nonmember_renew')
+    ('nonmember_renew', 'nonmember_renew'),
+    ('international', 'international')
 )
 
 PAYMENT_TYPE_CHOICES = (

@@ -153,9 +153,9 @@ def _get_account_from_session(request):
     if request.user.is_staff: # staff don't have or need accounts to manage institutions
         if not current_inst:  # so, see if the staff member has a cookie with a current institution from a previous session
             if request.COOKIES.has_key('current_inst'): 
-                aashe_id = request.COOKIES['current_inst']
+                inst_id = request.COOKIES['current_inst']
                 try:
-                    current_inst = Institution.objects.get(aashe_id=aashe_id)
+                    current_inst = Institution.objects.get(id=inst_id)
                     # @todo I should really delete the cookie here, but I can't w/out a Response object
                 except Institution.DoesNotExist:
                     flashMessage.send('Current institution not found in db.', flashMessage.ERROR)

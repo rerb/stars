@@ -167,7 +167,6 @@
         "fields": {
             "subcategory_submission": 1,
             "submission_status": "c",
-            "review_status": "",
             "responsible_party_confirm": true
         }
     },
