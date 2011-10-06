@@ -46,7 +46,6 @@ def reg_international(request):
             # it might have contact info
             selected_institution = request.session.get('selected_institution')
             if not selected_institution or selected_institution.name != institution.name:
-                print "******NEW INstitution"
                 selected_institution = institution
             request.session['selected_institution'] = selected_institution
             return HttpResponseRedirect('/register/step2/')
@@ -136,7 +135,6 @@ def reg_contact_info(request):
 
         if reg_form.is_valid():
             
-            print institution.international
             institution = reg_form.save(commit=False)
             request.session['selected_institution'] = institution
             
