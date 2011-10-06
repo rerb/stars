@@ -12,11 +12,9 @@ from django.core.mail import send_mail
 class Institution(models.Model):
     """
         This model represents a STARS institution. The institution name
-        is a mirror of Drupal and will require regular updating
+        is a mirror of Salesforce and will require regular updating
     """
-    name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255)
-    aashe_id = models.IntegerField(unique=True)
     enabled = models.BooleanField(help_text="This is a staff-only flag for disabling an institution. An institution will NOT appear on the STARS Institutions list until it is enabled.", default=False)
     contact_first_name = models.CharField("Liaison First Name", max_length=32)
     contact_middle_name = models.CharField("Liaison Middle Name", max_length=32, blank=True, null=True)
@@ -39,6 +37,38 @@ class Institution(models.Model):
     charter_participant = models.BooleanField()
     stars_staff_notes = models.TextField(blank=True, null=True)
     date_created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+    international = models.BooleanField(default=False)
+    
+    # ISS properties
+    name = models.CharField(max_length=255)
+    aashe_id = models.IntegerField(unique=True, blank=True, null=True)
+    org_type = models.CharField(max_length=32, blank=True, null=True)
+    fte = models.IntegerField(blank=True, null=True)
+    is_pcc_signatory = models.NullBooleanField(default=False)
+    is_member = models.NullBooleanField(default=False)
+    is_pilot_participant = models.NullBooleanField(default=False)
+    country = models.CharField(max_length=128, blank=True, null=True)
+    
+    def update_from_iss(self):
+        "Method to update properties from the parent org in the ISS"
+        
+        field_mappings = (
+                            ("name", "org_name"),
+                            ("aashe_id", "account_num"),
+                            ("org_type", "org_type"),
+                            ("fte", "enrollment_fte"),
+                            ("is_pcc_signatory", "is_signatory"),
+                            ("is_member", "is_member"),
+                            ("is_pilot_participant", "pilot_participant"),
+                            ("country", "country")
+        )
+        
+        iss_org = self.profile
+        if iss_org:
+            for k_self, k_iss in field_mappings:
+                setattr(self, k_self, getattr(iss_org, k_iss))
+        else:
+            watchdog.log("Institutions", "No ISS institution found %s" % (self.name), watchdog.ERROR)
     
     def __unicode__(self):
         return self.name.decode('utf8')
@@ -49,7 +79,7 @@ class Institution(models.Model):
         
     def get_masquerade_url(self):
         """ Returns the URL for AASHE Staff to masquerade this institution """
-        return "%sinstitution/masquerade/%d/" % (settings.ADMIN_URL, self.aashe_id)
+        return "%sinstitution/masquerade/%d/" % (settings.ADMIN_URL, self.id)
 
     def get_manage_url(self):
         """ Returns the URL for institution admins to edit this institution """
@@ -169,11 +199,7 @@ class Institution(models.Model):
             Searches stars_member_list.members for the institution
             returns True if this institution exists
         """
-        try:
-            return self.profile.is_member == 1
-        except Exception, e:
-            watchdog.log("Institutions", "ISS Institution profile error: %s" % e, watchdog.ERROR)
-            return False
+        return self.is_member
     
     def set_slug_from_iss_institution(self, iss_institution_id):
         """

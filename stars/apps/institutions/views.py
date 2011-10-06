@@ -104,10 +104,9 @@ class SortableTableViewWithInstProps(SortableTableView):
                 inst_count += 1
                 if ss.institution.charter_participant:
                     charter_count += 1
-                profile = ss.institution.profile
-                if profile.is_member:
+                if ss.institution.is_member:
                     member_count += 1
-                if profile.pilot_participant:
+                if ss.institution.is_pilot_participant:
                     pilot_count += 1
             
         _context['inst_count'] = inst_count

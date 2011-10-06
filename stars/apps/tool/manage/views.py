@@ -346,7 +346,9 @@ def pay_submissionset(request, set_id):
     current_inst = request.user.current_inst
     ss = get_object_or_404(SubmissionSet, id=set_id, institution=current_inst)
     is_member = current_inst.is_member_institution()
-    amount = _get_registration_price(is_member)
+    # get the amount of the pay_later payments
+    p = ss.payment_set.filter(type='pay_later')[0]
+    amount = p.amount
     discount = _gets_discount(current_inst)
     if discount:
         amount = amount / 2
@@ -414,7 +416,7 @@ def purchase_submissionset(request):
     """
     current_inst = request.user.current_inst
     is_member = current_inst.is_member_institution()
-    amount = _get_registration_price(current_inst)
+    amount = _get_registration_price(current_inst, new=False)
     discount = _gets_discount(current_inst)
     if discount:
         amount = amount / 2

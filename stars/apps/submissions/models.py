@@ -799,7 +799,6 @@ class CreditUserSubmission(CreditSubmission):
     assessed_points = models.FloatField(blank=True, null=True)
     last_updated = models.DateTimeField(blank=True, null=True)
     submission_status = models.CharField(max_length=8, choices=CREDIT_SUBMISSION_STATUS_CHOICES, default='ns')
-    review_status = models.CharField(max_length=8)
     applicability_reason = models.ForeignKey(ApplicabilityReason, blank=True, null=True)
     user = models.ForeignKey(User, blank=True, null=True)
     internal_notes = models.TextField(help_text='This field is useful if you want to store notes for other people in your organization regarding this credit. They will not be published.', blank=True, null=True)
@@ -994,6 +993,20 @@ class DataCorrectionRequest(models.Model):
                 self.approve()
             
         return super(DataCorrectionRequest, self).save()
+        
+    # def will_change_score(self):
+    #     """
+    #         A quick function to determine if an institution's score will change
+    #         as a result of this correction
+    #     """
+    #     cus = CreditUserSubmission.objects.get(pk=self.reporting_field.credit_submission.id)
+    #     
+    # 
+    # def new_score(self):
+    #     """
+    #         Calculates the new score before 
+    #     """
+        
     
     def approve(self):
         """
@@ -1011,14 +1024,55 @@ class DataCorrectionRequest(models.Model):
         rfdc.save()
         self.approved = True
         
-        # notify institution of approval
-        et = EmailTemplate.objects.get(slug='approved_data_correction')
+        # Apply change to overall score.
         cus = CreditUserSubmission.objects.get(pk=self.reporting_field.credit_submission.id)
         ss = cus.subcategory_submission.category_submission.submissionset
+        score_changed = False
+        rating_changed = False
+        old_rating = ss.rating
+        old_score = ss.score
+
+        if cus.assessed_points != cus._calculate_points():
+            cus.assessed_points = cus._calculate_points()
+            cus.save()
+            
+            score_changed = True
+            
+            cus.subcategory_submission.points = None
+            cus.subcategory_submission.points = cus.subcategory_submission.get_claimed_points()
+            cus.subcategory_submission.save()
+            
+            cus.subcategory_submission.category_submission.score = None
+            cus.subcategory_submission.category_submission.score = cus.subcategory_submission.category_submission.get_STARS_score()
+            cus.subcategory_submission.category_submission.save()
+            
+            ss.score = None
+            ss.score = ss.get_STARS_score()
+            ss.save()
+            
+            new_rating = ss.creditset.get_rating(ss.score)
+            if ss.rating != new_rating:
+                ss.rating = new_rating
+                rating_changed = True
+                ss.save()
+        
+        ss.pdf_report = None
+        ss.save()
+        
+        # notify institution of approval
+        et = EmailTemplate.objects.get(slug='approved_data_correction')
         mail_to = [ss.institution.contact_email,]
         if ss.institution.contact_email != self.user.email:
             mail_to.append(self.user.email)
-        email_context = {"submissionset": ss,}
+        email_context = {
+                            "submissionset": ss,
+                            "credit_submission": cus,
+                            "score_changed": score_changed,
+                            "rating_changed": rating_changed,
+                            "old_rating": old_rating,
+                            "old_score": old_score,
+                            
+                        }
         et.send_email(mail_to, email_context)
 
 class ReportingFieldDataCorrection(models.Model):
@@ -1374,7 +1428,8 @@ PAYMENT_REASON_CHOICES = (
     ('member_reg', 'member_reg'),
     ('nonmember_reg', 'nonmember_reg'),
     ('member_renew', 'member_renew'),
-    ('nonmember_renew', 'nonmember_renew')
+    ('nonmember_renew', 'nonmember_renew'),
+    ('international', 'international')
 )
 
 PAYMENT_TYPE_CHOICES = (

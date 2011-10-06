@@ -9,6 +9,16 @@ import re
 from stars.apps.institutions.models import *
 from stars.apps.registration.utils import is_canadian_zipcode, is_usa_zipcode
 
+class WriteInInstitutionForm(forms.Form):
+    """
+        A form for an institution that we don't have stored yet
+    """
+    institution_name = forms.CharField(max_length=255, required=True)
+    
+    def __init__(self, *args, **kwargs):
+        super(WriteInInstitutionForm, self).__init__(*args, **kwargs)
+        self.fields['institution_name'].widget.attrs['size'] = 60
+
 class RegistrationSchoolChoiceForm(forms.Form):
     """
         A form for selecting an institution form institutionnames
@@ -47,7 +57,21 @@ class RegistrationForm(ModelForm):
     
     class Meta:
         model = Institution
-        exclude = ['name', 'enabled', 'aashe_id','slug']
+        fields =    [  
+                        'contact_first_name',
+                        'contact_middle_name',
+                        'contact_last_name',
+                        'contact_title',
+                        'contact_department',
+                        'contact_phone',
+                        'contact_email',
+                        'executive_contact_first_name',
+                        'executive_contact_middle_name',
+                        'executive_contact_last_name',
+                        'executive_contact_title',
+                        'executive_contact_department',
+                        'executive_contact_email',
+                    ]
         
     def clean(self):
         cleaned_data = self.cleaned_data

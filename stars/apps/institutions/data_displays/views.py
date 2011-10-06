@@ -15,6 +15,7 @@ from stars.apps.institutions.data_displays.utils import FormListWrapper, get_var
 from stars.apps.institutions.data_displays.forms import *
 from stars.apps.institutions.data_displays.models import AuthorizedUser
 from stars.apps.helpers import flashMessage
+from stars.apps.institutions.data_displays.filters import *
 
 from aashe.issdjango.models import Organizations, TechnicalAdvisor
 
@@ -145,19 +146,18 @@ class Dashboard(TemplateView):
             member_numbers = {'members': 0, 'pcc': 0, 'pilot': 0, 'canadian': 0, 'us': 0, 'all': 0, 'charter': 0}
             for i in i_qs:
                 # print >> sys.stderr, i
-                org = i.profile
-                if org.is_member:
+                if i.is_member:
                     member_numbers['members'] += 1
-                if org.is_signatory:
+                if i.is_pcc_signatory:
                     member_numbers['pcc'] += 1
                 if i.charter_participant:
                     member_numbers['charter'] += 1
-                if org.country == "Canada":
+                if i.country == "Canada":
                     member_numbers['canadian'] += 1
-                elif org.country == "United States of America":
+                elif i.country == "United States of America":
                     member_numbers['us'] += 1
                 else:
-                    print >> sys.stderr, "No country found for %s" % org.org_name
+                    print >> sys.stderr, "No country found for %s" % i.name
                 member_numbers['all'] += 1
             _context['member_numbers'] = member_numbers
             
@@ -169,16 +169,7 @@ class Dashboard(TemplateView):
         _context.update(super(Dashboard, self).get_context_data(**kwargs))
         return _context
     
-class Filter(object):
-    """
-        Filters need to be a managed more programatically
-        added and removed from the general list where avaialable
-    """
-    def __init__(self, key, title, item_list, base_qs):
-        self.key = key
-        self.title = title
-        self.item_list = item_list
-        self.base_qs = base_qs
+
     
 class FilteringMixin(object):
     """
@@ -196,7 +187,7 @@ class FilteringMixin(object):
         """
         available_filters = [
                                 Filter(
-                                        key='org_type',
+                                        key='institution__org_type',
                                         title='Organization Type',
                                         item_list=[
                                             ('All Institutions', 'DO_NOT_FILTER'), # value means "don't filter base_qs"
@@ -205,14 +196,53 @@ class FilteringMixin(object):
                                             ('Graduate Institution', 'Graduate Institution'),
                                             ('System Office', 'System Office'),
                                         ],
-                                        base_qs=Organizations.objects.filter(stars_participant_status__isnull=False).values_list('account_num', flat=True),
-                                       ),
-#                                Filter(
-#                                        'pilot_participant',
-#                                        'Pilot Participants',
-#                                        [],
-#                                        Organizations,
-#                                       ),
+                                        base_qs=SubmissionSet.objects.filter(status='r'),
+                                ),
+                                Filter(
+                                       key='institution__country',
+                                       title='Country',
+                                       item_list=[
+                                            ('United States', "United States of America"),
+                                            ('Canada', 'Canada')
+                                       ],
+                                       base_qs=SubmissionSet.objects.filter(status='r'),
+                                ),
+                                Filter(
+                                      key='institution__is_member',
+                                      title='AASHE Membership',
+                                      item_list=[
+                                           ('AASHE Member', True),
+                                           ('Not an AASHE Member', False)
+                                      ],
+                                      base_qs=SubmissionSet.objects.filter(status='r'),
+                                ),
+                                Filter(
+                                        key='institution__is_pcc_signatory',
+                                        title='ACUPCC Signatory Status',
+                                        item_list=[
+                                             ('ACUPCC Signatory', True),
+                                             ('Not an ACUPCC Signatory', False)
+                                        ],
+                                        base_qs=SubmissionSet.objects.filter(status='r'),
+                                ),
+                                Filter(
+                                        key='institution__charter_participant',
+                                        title='STARS Charter Participant',
+                                        item_list=[
+                                             ('Charter Participant', True),
+                                             ('Not a Charter Participant', False)
+                                        ],
+                                        base_qs=SubmissionSet.objects.filter(status='r'),
+                                ),
+                                Filter(
+                                        key='institution__is_pilot_participant',
+                                        title='STARS Pilot Participant',
+                                        item_list=[
+                                             ('Pilot Participant', True),
+                                             ('Not a Pilot Participant', False)
+                                        ],
+                                        base_qs=SubmissionSet.objects.filter(status='r'),
+                                ),
                                 Filter(
                                         key='rating__name',
                                         title='STARS Rating',
@@ -223,7 +253,22 @@ class FilteringMixin(object):
                                             ('Platinum', 'Platinum'),
                                         ],
                                         base_qs=SubmissionSet.objects.filter(status='r'),
-                                       )
+                                ),
+                                RangeFilter(
+                                        key='institution__fte',
+                                        title='FTE Enrollment',
+                                        item_list=[
+                                            ('Less than 200', 'u200', None, 200),
+                                            ('200 - 499', 'u500', 200, 500),
+                                            ('500 - 999', 'u1000', 500, 1000),
+                                            ('1,000 - 1,999', 'u2000', 1000, 2000),
+                                            ('2,000 - 4,999', 'u5000', 2000, 5000),
+                                            ('5,000 - 9,999', 'u10000', 5000, 10000),
+                                            ('10,000 - 19,999', 'u20000', 10000, 20000),
+                                            ('Over 20,000', 'o20000', 20000, None),
+                                        ],
+                                        base_qs=SubmissionSet.objects.filter(status='r'),
+                                ),
                               ]
         return available_filters
     
@@ -298,11 +343,8 @@ class FilteringMixin(object):
                     filter['type'] = f.title
                     filter['key'] = f.key
                     filter['base_qs'] = f.base_qs
-                    filter['item_title'] = ''
-                    for item in f.item_list:
-                        if item[1] == filter['item']:
-                            filter['item_title'] = item[0]
-                            break;
+                    filter['filter_object'] = f
+                    filter['item_title'] = f.get_active_title(filter['item'])
                     self.add_filter(filter, filter_group_key)
                     break
         
@@ -317,29 +359,11 @@ class FilteringMixin(object):
         queryset_list = []
 
         for f in filters:
-            
-            filter_kwargs = {f['key']: f['item'],}
-            
-            filtered_list = f['base_qs']
-            
-            # if it's blank we just use the base queryset
-            if f['item'] != 'DO_NOT_FILTER':
-                filtered_list = filtered_list.filter(**filter_kwargs)
-            
-            # in the case of org_type filters, we need to merge with the local db
-            if f['key'] == 'org_type':
-                ss_queryset = SubmissionSet.objects.filter(status='r')
-                filtered_list = ss_queryset.filter(institution__aashe_id__in=list(filtered_list))
+                
+            filtered_list = f['filter_object'].get_results(f['item'])
             
             queryset_list.append(filtered_list)
         
-        # combine these two if they both exist
-#        if rating_ss_list and org_ss_list:
-#            queryset = rating_ss_list.filter(id__in=org_ss_list)
-#        elif rating_ss_list and not org_ss_list:
-#            queryset = rating_ss_list
-#        elif org_ss_list and not rating_ss_list:
-#            queryset = org_ss_list
         if queryset_list:
             qs = queryset_list.pop()
             while queryset_list:
@@ -436,7 +460,7 @@ class AggregateFilter(DisplayAccessMixin, FilteringMixin, FormView):
     """
     form_class = CharacteristicFilterForm
     template_name = "institutions/data_displays/categories.html"
-    filter_keys = ("aggregated_filter",)
+    filter_keys = ("aggregated_filter_",)
     success_url = "/institutions/data-displays/categories/"
     denied_template_name = "institutions/data_displays/denied_categories.html"
     access_list = ['member', 'participant']
@@ -457,30 +481,26 @@ class AggregateFilter(DisplayAccessMixin, FilteringMixin, FormView):
         
 #        q = None
         object_list = []
+        ss_list = None
 
         for f in filters:
             
-            ss_queryset = SubmissionSet.objects.filter(status='r').exclude(rating__publish_score=False)
             d = {} # {'title': <filter type:item>, "<cat>": <cat_avg>, "<cat>_list": [], 'total': <total_submissions>}
-            if f['key'] == "rating__name":
-                d['title'] = "%s Rated Institutions" % f['item']
-            else:
-                d['title'] = f['item_title']
-            d['item'] = f['item']
+            # d['title'] = f['filter_object'].get_active_title(f['item'])
+            d['title'] = f['item_title']
+            # if f['key'] == "rating__name":
+            #     d['title'] = "%s Rated Institutions" % f['item']
+            # else:
+            #     d['title'] = f['item_title']
+            # d['item'] = f['item']
             
-            if f['key'] == "org_type":
-                
-                if f['item'] != "DO_NOT_FILTER":
-                    kwargs = {f['key']: f['item'],}
-                    org_list = Organizations.objects.filter(stars_participant_status__isnull=False).filter(**kwargs).values_list('account_num', flat=True)
-                else:
-                    org_list = Organizations.objects.filter(stars_participant_status__isnull=False).values_list('account_num', flat=True)
-                
-                ss_list = ss_queryset.filter(institution__aashe_id__in=list(org_list))
+            ss_list = f['filter_object'].get_results(f['item']).exclude(rating__publish_score=False)
+            # if f['item'] == 'DO_NOT_FILTER':
+            #     ss_list = f['base_qs'].exclude(rating__publish_score=False)
+            # else:
+            #     filter_args = {f['key']: f['item'],}
+            #     ss_list = f['base_qs'].exclude(rating__publish_score=False).filter(**filter_args)
             
-            elif f['key'] == 'rating__name':
-                
-                ss_list = ss_queryset.filter(rating__name=f['item'])
             
             count = 0
             for ss in ss_list:
@@ -527,7 +547,7 @@ class ScoreFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
     """
     form_class = CharacteristicFilterForm
     template_name = "institutions/data_displays/score.html"
-    filter_keys = ("score_filter",)
+    filter_keys = ["score_filter_"]
     success_url = "/institutions/data-displays/scores/"
     denied_template_name = "institutions/data_displays/denied_score.html"
     access_list = ['participant']
@@ -537,7 +557,7 @@ class ScoreFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
     
     def get_form(self, form_class):
         
-        filter_form = self.get_filter_form('score_filter', form_class)
+        filter_form = self.get_filter_form(self.filter_keys[0], form_class)
         
         kwargs = self.get_form_kwargs()
         kwargs['initial'] = self.get_columns()
@@ -553,7 +573,7 @@ class ScoreFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
     def get_context_data(self, **kwargs):
         
         _context = super(ScoreFilter, self).get_context_data(**kwargs)
-        filters = self.get_filter_group('score_filter')
+        filters = self.get_filter_group(self.filter_keys[0])
         _context['filters'] = filters
         _context['top_help_text'] = self.get_description_help_context_name()
         
@@ -597,8 +617,6 @@ class ScoreFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
                             if ss.rating.publish_score:
                                 if cred.submission_status == "na":
                                     score = "Not Applicable"
-                                elif cred.submission_status == 'np' or cred.submission_status == 'ns':
-                                    score = "Not Pursuing"
                                 else:
                                     if cred.credit.type == "t1":
                                         score = "%.2f / %d" % (cred.assessed_points, cred.credit.point_value)
@@ -619,7 +637,7 @@ class ScoreFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
     def form_valid(self, form):
         
         # Save the new filter in the session
-        self.save_filters(form.forms['filters'], 'score_filter')
+        self.save_filters(form.forms['filters'], self.filter_keys[0])
         self.save_columns(form)
         
         return HttpResponseRedirect(self.get_success_url())
@@ -646,7 +664,7 @@ class ContentFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
     """
     form_class = CharacteristicFilterForm
     template_name = "institutions/data_displays/content.html"
-    filter_keys = ("content_filter",)
+    filter_keys = ("content_filter_",)
     success_url = "/institutions/data-displays/content/"
     denied_template_name = "institutions/data_displays/denied_content.html"
     access_list = ['member', 'participant']
@@ -656,7 +674,7 @@ class ContentFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
     
     def get_form(self, form_class):
         
-        filter_form = self.get_filter_form('content_filter', form_class)
+        filter_form = self.get_filter_form(self.filter_keys[0], form_class)
         
         kwargs = self.get_form_kwargs()
         kwargs['initial'] = {'reporting_field': self.get_reporting_field()}
@@ -672,7 +690,7 @@ class ContentFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
     def get_context_data(self, **kwargs):
         
         _context = super(ContentFilter, self).get_context_data(**kwargs)
-        filters = self.get_filter_group('content_filter')
+        filters = self.get_filter_group(self.filter_keys[0])
         _context['filters'] = filters
         _context['google_api_key'] = settings.GOOGLE_API_KEY
         _context['top_help_text'] = self.get_description_help_context_name()
@@ -701,12 +719,10 @@ class ContentFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
                             row['score'] = "Not Applicable"
                             # set the field to None because they aren't reporting
                             row['field'] = None
-                        elif cred.submission_status == 'np' or cred.submission_status == 'ns':
-                            row['score'] = "Not Pursuing"
-                            # set the field to None because they aren't reporting
-                            row['field'] = None
                         else:
                             row['score'] = "%.2f / %d" % (cred.assessed_points, cred.credit.point_value)
+                            if cred.submission_status == 'np' or cred.submission_status == 'ns':
+                                row['field'] = None
                     else:
                         row['score'] = "Reporter"
                 
@@ -721,7 +737,7 @@ class ContentFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
     def form_valid(self, form):
         
         # Save the new filter in the session
-        self.save_filters(form.forms['filters'], 'content_filter')
+        self.save_filters(form.forms['filters'], self.filter_keys[0])
         self.save_reporting_field(form)
         
         return HttpResponseRedirect(self.get_success_url())

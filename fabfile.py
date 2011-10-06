@@ -36,7 +36,17 @@ def starsapp01():
     env.hosts = ['starsapp01']
     env.user = 'jamstooks'
     env.config_file = "starsapp01"
-
+    
+def devenv():
+    """
+        Initializes a release to a dev environment
+        typically a temporary rackspace node
+    """
+    host = prompt("Dev host:")
+    env.hosts = [host]
+    env.user = 'jamstooks'
+    env.config_file = 'development'
+    
 def setup():
     """
         Initialize the app's environment.

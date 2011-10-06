@@ -51,11 +51,11 @@ def institutions_list(request):
     return respond(request, template, {'form_list': form_list,})
     
 @user_is_staff
-def select_institution(request, aashe_id):
+def select_institution(request, id):
     """
         The admin tool for selecting a particular institution
     """
-    institution = Institution.objects.get(aashe_id=aashe_id)
+    institution = Institution.objects.get(id=id)
     if not institution:
         raise Http404("No such institution.")
     
@@ -65,7 +65,7 @@ def select_institution(request, aashe_id):
         # special hack to "remember" current institution for staff between sessions
         #  - can't store it in session because it gets overwritten on login, can's store it with account b/c staff don't have accounts.
         #  - ideally, the cookie path would be LOGIN_URL, but the first request we get is from the login redirect url.
-        response.set_cookie("current_inst", institution.aashe_id, path=settings.LOGIN_REDIRECT_URL)
+        response.set_cookie("current_inst", institution.id, path=settings.LOGIN_REDIRECT_URL)
         return response
     else:
         flashMessage.send("Unable to change institution to %s - check the log?"%institution, flashMessage.ERROR)
