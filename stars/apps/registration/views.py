@@ -103,7 +103,8 @@ def reg_select_institution(request):
                 selected_institution = request.session.get('selected_institution')
                 if not selected_institution or selected_institution.aashe_id != institution.aashe_id:
                     selected_institution = institution
-                    
+                
+                selected_institution.update_from_iss()
                 selected_institution.set_slug_from_iss_institution(form.cleaned_data['aashe_id'])
                 request.session['selected_institution'] = selected_institution
                 return HttpResponseRedirect('/register/step2/')
