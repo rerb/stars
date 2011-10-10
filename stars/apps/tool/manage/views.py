@@ -347,7 +347,7 @@ def pay_submissionset(request, set_id):
     ss = get_object_or_404(SubmissionSet, id=set_id, institution=current_inst)
     is_member = current_inst.is_member_institution()
     # get the amount of the pay_later payments
-    p = ss.payment_set.filter(type='pay_later')[0]
+    p = ss.payment_set.filter(type='later')[0]
     amount = p.amount
     discount = _gets_discount(current_inst)
     if discount:
