@@ -35,7 +35,25 @@ class InstitutionContactForm(AdminInstitutionForm):
         A restricted version of the Institution Form, allowing institution admins to edit their Contact info.
     """
     class Meta(AdminInstitutionForm.Meta):
-        exclude = ['name', 'aashe_id', 'enabled', 'charter_participant', 'slug', 'stars_staff_notes', 'international']
+        fields = [  'contact_first_name',
+                    'contact_middle_name',
+                    'contact_last_name',
+                    'contact_title',
+                    'contact_department',
+                    'contact_phone',
+                    'contact_phone_ext',
+                    'contact_email',
+                    'contact_first_name',
+                    'executive_contact_middle_name',
+                    'executive_contact_last_name',
+                    'executive_contact_title',
+                    'executive_contact_department',
+                    'executive_contact_email',
+                    'executive_contact_address',
+                    'executive_contact_city',
+                    'executive_contact_state',
+                    'executive_contact_zip'
+                ]
 
 
 class AdminEnableInstitutionForm(ModelForm):
