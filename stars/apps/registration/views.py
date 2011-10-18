@@ -158,7 +158,8 @@ def reg_payment(request):
         STEP 3: Determine the payment price and process payment for this institution's registration
          - if the institution is registered already they get forwarded to the account page
          - otherwise, collect payment info and store the selected_institution into the DB
-   """
+    """
+   
     (institution, response) = _get_selected_institution(request)
     if response: return response
     
@@ -491,12 +492,6 @@ def _get_registration_price(institution, new=True):
     price = {'member': 900, 'non': 1400}
     
     discount = 0
-    if new:
-        start_date = date(year=2011, month=10, day=9)
-        end_date = date(year=2011, month=10, day=14)
-    
-        if date.today() >= start_date and date.today() <= end_date:
-            discount = 250
         
     if institution.is_member:
         return price['member'] - discount

@@ -121,9 +121,14 @@ class TestProcess(TestCase):
                - Handles a basic HTTP request w/out 500
                - Processes the form and returns a redirect to step 2
         """
+        
+        print "Testing Pay Later"
 
         c = self.regStep1(24394, 'okanagan-college-bc')
         c = self.regStep2(c, 'okanagan-college-bc')
+        
+        # confirm that it hasn't been created yet
+        self.assertTrue(c.session['selected_institution'].id == None)
 
         # Test Payment
         url = '/register/step3/'
@@ -150,6 +155,8 @@ class TestProcess(TestCase):
                - Handles a basic HTTP request w/out 500
                - Processes the form and returns a redirect to step 2
         """
+        
+        print "Testing Pay Later International"
 
         c = self.regInternational("Dummy Institution", 'dummy-institution')
         c = self.regStep2(c, 'dummy-institution')

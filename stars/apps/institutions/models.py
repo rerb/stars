@@ -210,7 +210,6 @@ class Institution(models.Model):
                 self.aashe_id = iss_institution_id
             slug_base = '%s-%s' % (self.profile.org_name, self.profile.state.lower())
             self.slug = slugify(slug_base)
-            self.save()
         except Exception, e:
             watchdog.log("Registration", "ISS Institution profile relationship error: %s" % e, watchdog.ERROR)
             self.slug = iss_institution_id

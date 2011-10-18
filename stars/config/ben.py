@@ -88,5 +88,5 @@ if 'test' in sys.argv:
             'LOCATION': '/tmp/stars-cache',
         }
     }
-    # DATABASES['default']['ENGINE'] = 'sqlite3'
-    # DATABASES['default']['NAME'] = '/Users/jamstooks/sqlite/stars_tests.db'
+    DATABASES['default']['ENGINE'] = 'sqlite3'
+    DATABASES['default']['NAME'] = '/Users/jamstooks/sqlite/stars_tests.db'
