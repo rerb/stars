@@ -176,7 +176,7 @@ class FilteringMixin(object):
         A mixin that will save filters (dictionaries) in the session
         
         Children must define
-            `filter_keys` - a key for storing filters associated with this view
+            `filter_key` - a key for storing filters associated with this view
             
         Optionally `available_filters` can be overridden to set the default filters
     """
@@ -281,8 +281,7 @@ class FilteringMixin(object):
     
     def get_filters(self):
         filters = {}
-        for key in self.filter_keys:
-            filters[key] = self.request.session.get(key, [])
+        filters[self.filter_key] = self.request.session.get(self.filter_key, [])
         return filters
     
     def get_filter_group(self, filter_group_key):
@@ -380,7 +379,7 @@ class NarrowFilteringMixin(FilteringMixin):
     """
     def get_available_filters(self):
         available_filters = super(NarrowFilteringMixin, self).get_available_filters()
-        for f in self.get_filter_group(self.filter_keys[0]):
+        for f in self.get_filter_group(self.filter_key):
             for af in available_filters:
                 if af.key == f['key']:
                     available_filters.remove(af)
@@ -460,7 +459,7 @@ class AggregateFilter(DisplayAccessMixin, FilteringMixin, FormView):
     """
     form_class = CharacteristicFilterForm
     template_name = "institutions/data_displays/categories.html"
-    filter_keys = ("aggregated_filter_",)
+    filter_key = "aggregated_filter_"
     success_url = "/institutions/data-displays/categories/"
     denied_template_name = "institutions/data_displays/denied_categories.html"
     access_list = ['member', 'participant']
@@ -470,12 +469,12 @@ class AggregateFilter(DisplayAccessMixin, FilteringMixin, FormView):
     
     def get_form(self, form_class):
         
-        return self.get_filter_form('aggregated_filter', form_class)
+        return self.get_filter_form(self.filter_key, form_class)
     
     def get_context_data(self, **kwargs):
         
         _context = super(AggregateFilter, self).get_context_data(**kwargs)
-        filters = self.get_filter_group('aggregated_filter')
+        filters = self.get_filter_group(self.filter_key)
         _context['filters'] = filters
         _context['top_help_text'] = self.get_description_help_context_name()
         
@@ -531,7 +530,7 @@ class AggregateFilter(DisplayAccessMixin, FilteringMixin, FormView):
     def form_valid(self, form):
         
         # Save the new filter in the session
-        self.save_filters(form, 'aggregated_filter')
+        self.save_filters(form, self.filter_key)
         
         return HttpResponseRedirect(self.get_success_url())
     
@@ -547,7 +546,7 @@ class ScoreFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
     """
     form_class = CharacteristicFilterForm
     template_name = "institutions/data_displays/score.html"
-    filter_keys = ["score_filter_"]
+    filter_key = "score_filter_"
     success_url = "/institutions/data-displays/scores/"
     denied_template_name = "institutions/data_displays/denied_score.html"
     access_list = ['participant']
@@ -557,7 +556,7 @@ class ScoreFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
     
     def get_form(self, form_class):
         
-        filter_form = self.get_filter_form(self.filter_keys[0], form_class)
+        filter_form = self.get_filter_form(self.filter_key, form_class)
         
         kwargs = self.get_form_kwargs()
         kwargs['initial'] = self.get_columns()
@@ -573,7 +572,7 @@ class ScoreFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
     def get_context_data(self, **kwargs):
         
         _context = super(ScoreFilter, self).get_context_data(**kwargs)
-        filters = self.get_filter_group(self.filter_keys[0])
+        filters = self.get_filter_group(self.filter_key)
         _context['filters'] = filters
         _context['top_help_text'] = self.get_description_help_context_name()
         
@@ -637,7 +636,7 @@ class ScoreFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
     def form_valid(self, form):
         
         # Save the new filter in the session
-        self.save_filters(form.forms['filters'], self.filter_keys[0])
+        self.save_filters(form.forms['filters'], self.filter_key)
         self.save_columns(form)
         
         return HttpResponseRedirect(self.get_success_url())
@@ -664,7 +663,7 @@ class ContentFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
     """
     form_class = CharacteristicFilterForm
     template_name = "institutions/data_displays/content.html"
-    filter_keys = ("content_filter_",)
+    filter_key = "content_filter_"
     success_url = "/institutions/data-displays/content/"
     denied_template_name = "institutions/data_displays/denied_content.html"
     access_list = ['member', 'participant']
@@ -674,7 +673,7 @@ class ContentFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
     
     def get_form(self, form_class):
         
-        filter_form = self.get_filter_form(self.filter_keys[0], form_class)
+        filter_form = self.get_filter_form(self.filter_key, form_class)
         
         kwargs = self.get_form_kwargs()
         kwargs['initial'] = {'reporting_field': self.get_reporting_field()}
@@ -690,7 +689,7 @@ class ContentFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
     def get_context_data(self, **kwargs):
         
         _context = super(ContentFilter, self).get_context_data(**kwargs)
-        filters = self.get_filter_group(self.filter_keys[0])
+        filters = self.get_filter_group(self.filter_key)
         _context['filters'] = filters
         _context['google_api_key'] = settings.GOOGLE_API_KEY
         _context['top_help_text'] = self.get_description_help_context_name()
@@ -737,7 +736,7 @@ class ContentFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
     def form_valid(self, form):
         
         # Save the new filter in the session
-        self.save_filters(form.forms['filters'], self.filter_keys[0])
+        self.save_filters(form.forms['filters'], self.filter_key)
         self.save_reporting_field(form)
         
         return HttpResponseRedirect(self.get_success_url())
