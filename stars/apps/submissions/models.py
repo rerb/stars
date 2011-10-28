@@ -204,7 +204,7 @@ class SubmissionSet(models.Model):
                 total += sub.credit_set.count()
         return total
     
-    def get_STARS_rating(self):
+    def get_STARS_rating(self, recalculate=False):
         """
             Return the STARS rating (potentially provisional) for this submission
             @todo: this is inefficient - need to store or at least cache the STARS score.
@@ -212,7 +212,7 @@ class SubmissionSet(models.Model):
         if self.reporter_status:
             return self.creditset.rating_set.get(name='Reporter')
         
-        if self.is_rated():
+        if self.is_rated() and not recalculate:
             return self.rating
         
         return self.creditset.get_rating(self.get_STARS_score())
@@ -1050,7 +1050,7 @@ class DataCorrectionRequest(models.Model):
             ss.score = ss.get_STARS_score()
             ss.save()
             
-            new_rating = ss.creditset.get_rating(ss.score)
+            new_rating = ss.get_STARS_rating(recalculate=True)
             if ss.rating != new_rating:
                 ss.rating = new_rating
                 rating_changed = True
