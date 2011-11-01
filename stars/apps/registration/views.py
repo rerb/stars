@@ -492,6 +492,10 @@ def _get_registration_price(institution, new=True):
     price = {'member': 900, 'non': 1400}
     
     discount = 0
+    
+    if new:
+        if institution.is_pcc_signatory:
+            discount = 250
         
     if institution.is_member:
         return price['member'] - discount
