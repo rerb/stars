@@ -36,7 +36,24 @@ class TAApplication(models.Model):
     
     def __str__(self):
         return "%s %s" % (self.first_name, self.last_name)
+
+class SteeringCommitteeNomination(models.Model):
+    first_name = models.CharField(max_length=16)
+    last_name = models.CharField(max_length=16)
+    email = models.EmailField()
+    affiliation = models.CharField("Institution or Affiliation", max_length=64)
+    phone_number = PhoneNumberField()
+    why = models.TextField("Why would you be excited to serve on the STARS Steering Committee?")
+    skills = models.TextField("What specific skills or background would you bring to the STARS Steering Committee that would help advance STARS?")
+    successful = models.TextField("How can you help STARS become a successful rating system?")
+    strengths = models.TextField("What do you consider to be the strengths and weaknesses of STARS?")
+    perspectives = models.TextField("What perspectives or representation of stakeholder groups would you bring to the STARS Steering Committee?")
+    resume = models.FileField(upload_to='sc_apps')
+    date = models.DateTimeField(auto_now_add=True)
     
+    def __str__(self):
+        return "%s %s" % (self.first_name, self.last_name)
+
 class EligibilityQuery(models.Model):
     name = models.CharField(max_length=64)
     title = models.CharField(max_length=128)

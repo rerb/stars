@@ -1,7 +1,12 @@
 from django.forms import ModelForm
 
-from stars.apps.custom_forms.models import TAApplication, EligibilityQuery
+from stars.apps.custom_forms.models import *
 from stars.apps.credits.models import Subcategory, CreditSet
+
+class SteeringCommitteeNominationForm(ModelForm):
+    
+    class Meta:
+        model = SteeringCommitteeNomination
 
 class TAApplicationForm(ModelForm):
     

@@ -6,6 +6,7 @@ from django.core.mail import send_mail
 from django.template.loader import get_template
 from django.conf import settings
 from django.template import Context, Template
+from stars.apps.notifications.models import EmailTemplate
 
 import sys
 
@@ -73,3 +74,17 @@ class TAAppView(FormActionView):
         return r
 
 ta_application = TAAppView("custom_forms/ta_app.html", TAApplicationForm, has_upload=True, form_name='object_form', init_context={'form_title': "Technical Advisor Application",})
+
+class SteeringCommitteeNominationView(FormActionView):
+    
+    def get_success_action(self, request, context, form):
+        
+        self.save_form(form, request, context)
+        
+        et = EmailTemplate.objects.get(slug="sc_application")
+        et.send_email([request.POST['email']], context)
+        
+        r = direct_to_template(request, "custom_forms/form_success.html", extra_context=self.context_dict)
+        return r
+
+sc_application = SteeringCommitteeNominationView("custom_forms/sc_app.html", SteeringCommitteeNominationForm, has_upload=True, form_name='object_form', init_context={'form_title': "STARS Steering Committee Nomination",})

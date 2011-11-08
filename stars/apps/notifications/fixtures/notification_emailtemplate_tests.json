@@ -5,7 +5,7 @@
         "fields": {
             "description": "An email sent to an institution once a data correction request is approved.", 
             "title": "Approved Data Correction Request", 
-            "content": "Hello {{ submissionset.institution.contact_first_name }} {{ submissionset.institution.contact_last_name }},\r\n\r\nThank you for submitting a STARS Data Corrections Request.  Your request has been received, reviewed, and approved by AASHE.  You may now view the updated information in your institution's STARS Report on the STARS website (https://stars.aashe.org{{ submissionset.get_scorecard_url }}).\r\n\r\nWe appreciate your participation in STARS.  Please let us know if you have any questions.\r\n\r\nAll the best,\r\nThe STARS Team\r\nstars@aashe.org\r\n", 
+            "content": "Hello {{ submissionset.institution.contact_first_name }} {{ submissionset.institution.contact_last_name }},\r\n\r\nThank you for submitting a STARS Data Corrections Request.  Your request has been received, reviewed, and approved by AASHE.  You may now view the updated information in your institution's STARS Report on the STARS website (https://stars.aashe.org{{ submissionset.get_scorecard_url }}).\r\n\r\n{% if score_changed %}\r\nThis change has resulted in a change to your score ({{ old_score|floatformat:-2 }}). Your new overall score is: {{ submissionset.score|floatformat:-2 }}. {% if rating_changed %}This also affected your overall Rating which changed from {{ old_rating }} to {{ submissionset.rating }}.{% else %} Your overall Rating has not changed.\r\n{% endif %}{% endif %}\r\n\r\nWe appreciate your participation in STARS.  Please let us know if you have any questions.\r\n\r\nAll the best,\r\nThe STARS Team\r\nstars@aashe.org\r\n", 
             "active": true, 
             "slug": "approved_data_correction", 
             "example_data": {
@@ -113,8 +113,8 @@
         "pk": 3, 
         "model": "notifications.emailtemplate", 
         "fields": {
-            "description": "Sent to liaisons for institutions with deadlines in 6 months.", 
-            "title": "STARS Submission: Due in 6 months", 
+            "description": "Sent to liaisons for institutions whose access to the STARS Reporting Tool expires in 6 months.", 
+            "title": "STARS Reporting Tool: Access expires in 6 months", 
             "content": "Dear {{ ss.institution.contact_first_name }} {{ ss.institution.contact_last_name }},\r\n\r\nIt has been six months since your institution registered for STARS and I wanted to touch base with you to see how your progress is going.  If you haven\u2019t already done so, I\u2019d suggest that you log into the STARS Reporting Tool (http://stars.aashe.org/tool/) to get started. Also, these instructional videos (https://stars.aashe.org/pages/help/how-to-videos.html) may provide some helpful information as well.  \r\n\r\nPlease feel free to contact me, I\u2019d be happy to discuss the program with you and address any of your questions. \r\n\r\nJillian Buckholz, on behalf of the STARS Team\r\nstars@aashe.org\r\n(859) 309 6755\r\n", 
             "active": true, 
             "slug": "deadline_reminder_six_months", 
@@ -132,9 +132,9 @@
         "pk": 5, 
         "model": "notifications.emailtemplate", 
         "fields": {
-            "description": "Sent to liaisons for institutions with deadlines in 60 days.", 
-            "title": "STARS Submission: Due in 60 Days", 
-            "content": "Dear {{ ss.institution.contact_first_name }} {{ ss.institution.contact_last_name }},\r\n\r\nThis is a friendly reminder that there are only 60 days remaining until your STARS submission deadline.  If you haven't already done so, we highly recommend that you log into the STARS Reporting Tool (https://stars.aashe.org/tool/) and begin entering the data you have collected.\r\n\r\nIf you will be unable to complete your STARS Report by the submission deadline, you may apply for a six-month extension prior to the deadline.  To apply for a six-month extension, please use the \"Submission Sets\" tab under \"Manage Institution\" in the Reporting Tool and click on the \"Extend Deadline\" button.\r\n\r\nIf you have any questions please contact stars@aashe.org.\r\n\r\nWe look forward to your continued participation in STARS.\r\n\r\nThe STARS Team\r\nstars@aashe.org\r\n(859) 309 6755\r\n", 
+            "description": "Sent to liaisons for institutions whose access to the STARS Reporting Tool expires in 60 days.", 
+            "title": "STARS Reporting Tool: Access expires in 60 Days", 
+            "content": "Dear {{ ss.institution.contact_first_name }} {{ ss.institution.contact_last_name }},\r\n\r\nThis is a friendly reminder that there are only 60 days remaining until your access to the STARS Reporting Tool expires.  If you haven't already done so, we highly recommend that you log into the STARS Reporting Tool (https://stars.aashe.org/tool/) and begin entering the data you have collected.\r\n\r\nIf you are finalizing your institution's inaugural STARS Report, AASHE encourages you to submit the STARS Report for a STARS rating by the time your access to the STARS Reporting Tool expires. However, if you are unable to submit your institution's STARS Report at this time there will be an opportunity to renew your institution's participation with STARS. Institutions that renew their participation with STARS within 90 days after their access to the Reporting Tool expires may do so at a 50% discount.\r\n\r\nIf you have any questions please contact stars@aashe.org.\r\n\r\nWe look forward to your continued participation in STARS.\r\n\r\nThe STARS Team\r\nstars@aashe.org\r\n(859) 309 6755\r\n", 
             "active": true, 
             "slug": "deadline_reminder_sixty_days", 
             "example_data": {
@@ -170,9 +170,9 @@
         "pk": 4, 
         "model": "notifications.emailtemplate", 
         "fields": {
-            "description": "Sent to liaisons for institutions with deadlines in 3 months.", 
-            "title": "STARS Submission: Due in 3 months", 
-            "content": "Dear {{ ss.institution.contact_first_name }} {{ ss.institution.contact_last_name }},\r\n\r\nThis is a friendly reminder to notify you that your STARS data submission is due in 3 months. If you haven't already done so, we highly recommend that you log into the STARS Reporting Tool (http://stars.aashe.org/tool/) to get started.\r\n\r\nIf you have any questions about getting started please view these helpful instructional videos (https://stars.aashe.org/pages/help/how-to-videos.html) or contact the STARS team with your inquiries.\r\n\r\nWe look forward to your continued participation.\r\n\r\nThe STARS Team\r\nstars@aashe.org\r\n(859) 309 6755", 
+            "description": "Sent to liaisons for institutions whose access to the STARS Reporting Tool expires in 3 months.", 
+            "title": "STARS Reporting Tool: Access expires in 3 months", 
+            "content": "Dear {{ ss.institution.contact_first_name }} {{ ss.institution.contact_last_name }},\r\n\r\nThis is a friendly reminder to notify you that your access to the STARS Reporting Tool will expire in 3 months. If you haven't already done so, we highly recommend that you log into the STARS Reporting Tool (http://stars.aashe.org/tool/) to get started.\r\n\r\nIf you have any questions about getting started please view these helpful instructional videos (https://stars.aashe.org/pages/help/how-to-videos.html) or contact the STARS team with your inquiries.\r\n\r\nWe look forward to your continued participation.\r\n\r\nThe STARS Team\r\nstars@aashe.org\r\n(859) 309 6755", 
             "active": true, 
             "slug": "deadline_reminder_three_months", 
             "example_data": {
@@ -338,6 +338,18 @@
         }
     }, 
     {
+        "pk": 26, 
+        "model": "notifications.emailtemplate", 
+        "fields": {
+            "description": "Confirmation email going out to Steering Committee Nominations.", 
+            "title": "STARS Steering Committee Nomination Received", 
+            "content": "Dear Applicant,\r\n\r\nThank you for your interest in serving on the STARS Steering Committee!  We received your application materials and will review them with a taskforce of the STARS Steering Committee.\r\n\r\nPlease contact the STARS staff (stars@aashe.org) if you have any questions.  Thanks again for your support of STARS and willingness to serve the program.\r\n\r\nAll the best,\r\n\r\nThe STARS Team \r\n\r\n(209) STARS-09\r\nstars@aashe.org\r\nhttp://stars.aashe.org", 
+            "active": false, 
+            "slug": "sc_application", 
+            "example_data": {}
+        }
+    }, 
+    {
         "pk": 23, 
         "model": "notifications.emailtemplate", 
         "fields": {
@@ -355,7 +367,7 @@
         "fields": {
             "description": "Email sent to institution's liaison following a third-party inquiry about the accuracy of data in a submission.", 
             "title": "STARS Submission Data Accuracy Inquiry", 
-            "content": "Hello {{ institution.contact_first_name }} {{ institution.contact_last_name }}.\r\n\r\nAn inquiry about specific content in your institution's STARS Report has been submitted to the STARS Team. Please review the details of this inquiry which are highlighted below.  \r\n\r\nThe STARS Team encourages you to work with the individual that is reporting questionable information within your STARS Submission to resolve the issue. However, if you are unable to resolve the issue through direct communication with this individual, please contact stars@aashe.org. At that point, a STARS staff member will evaluate the inquiry related to your STARS Submission and guide you through the next steps in the process.\r\n\r\nSTARS is a voluntary, self-assessment which does not required third-party verification. If an individual has a question about particular content in an institution's STARS Report, the individual may document their concern by completing the STARS Submission Accuracy Form (http://bit.ly/lkQFKw). You can find out more about this process in the related FAQ (http://bit.ly/mqZ9l8) or the Submission Review Policy (http://bit.ly/kbvElP) approved by the STARS Steering Committee.\r\n\r\n\r\nWe thank you for your participation in STARS and involvement in this public review process.\r\n\r\nThe STARS Team\r\n\r\n---------------------------------------------\r\nDetails of STARS Submission Accuracy Inquiry\r\n---------------------------------------------\r\nContact information for individual submitting the inquiry:\r\n\r\nName: {{ inquiry.first_name }} {{ inquiry.last_name }}\r\nAffiliation: {{ inquiry.affiliation }}\r\nCity, State: {{ inquiry.city }}, {{ inquiry.state }}\r\nEmail address: {{ inquiry.email_address }}\r\nPhone number: {{ inquiry.phone_number }}\r\nAdditional Comments:\r\n{{ inquiry.additional_comments }}\r\n\r\nCredit(s) in Question\r\n{% for ci in inquiry.creditsubmissioninquiry_set.all %}\r\n    {{ ci.credit.get_identifier }}: {{ ci.credit.title }}\r\n   Explanation of Concern:\r\n       {{ ci.explanation }}\r\n\r\n{% endfor %}\r\n", 
+            "content": "Hello {{ institution.contact_first_name }} {{ institution.contact_last_name }}.\r\n\r\nAn inquiry about specific content in your institution's STARS Report has been submitted to the STARS Team. Please review the details of this inquiry which are highlighted below.  \r\n\r\nThe STARS Team encourages you to work with the individual that is reporting questionable information within your STARS Submission to resolve the issue. However, if you are unable to resolve the issue through direct communication with this individual, please contact stars@aashe.org. At that point, a STARS staff member will evaluate the inquiry related to your STARS Submission and guide you through the next steps in the process.\r\n\r\nSTARS is a voluntary, self-assessment which does not required third-party verification. If an individual has a question about particular content in an institution's STARS Report, the individual may document their concern by completing the STARS Submission Accuracy Form (http://bit.ly/lkQFKw). You can find out more about this process in the related FAQ (http://bit.ly/mqZ9l8) or the Submission Review Policy (http://bit.ly/kbvElP) approved by the STARS Steering Committee.\r\n\r\nWe thank you for your participation in STARS and involvement in this public review process.\r\n\r\nThe STARS Team\r\n\r\n---------------------------------------------\r\nDetails of STARS Submission Accuracy Inquiry\r\n---------------------------------------------\r\nContact information for individual submitting the inquiry:\r\n\r\nName: {{ inquiry.first_name }} {{ inquiry.last_name }}\r\nAffiliation: {{ inquiry.affiliation }}\r\nCity, State: {{ inquiry.city }}, {{ inquiry.state }}\r\nEmail address: {{ inquiry.email_address }}\r\nPhone number: {{ inquiry.phone_number }}\r\nAdditional Comments:\r\n{{ inquiry.additional_comments }}\r\n\r\nCredit(s) in Question\r\n{% for ci in inquiry.creditsubmissioninquiry_set.all %}\r\n    {{ ci.credit.get_identifier }}: {{ ci.credit.title }}\r\n   Explanation of Concern:\r\n       {{ ci.explanation }}\r\n\r\n{% endfor %}\r\n", 
             "active": true, 
             "slug": "submission_accuracy_inquiry", 
             "example_data": {
