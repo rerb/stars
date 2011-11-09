@@ -11,3 +11,7 @@ class EligibilityQueryAdmin(admin.ModelAdmin):
     list_display = ('name', 'date', 'email', 'institution',)
 admin.site.register(EligibilityQuery, EligibilityQueryAdmin)
 
+class SteeringCommitteeNominationAdmin(admin.ModelAdmin):
+    list_display = ('first_name', 'last_name', 'affiliation', 'email', 'date')
+admin.site.register(SteeringCommitteeNomination, SteeringCommitteeNominationAdmin)
+
