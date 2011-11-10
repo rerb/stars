@@ -121,6 +121,52 @@
     }
   }, 
   {
+    "pk": 5, 
+    "model": "institutions.institution", 
+    "fields": {
+      "executive_contact_department": "", 
+      "name": "Test Institution Five", 
+      "contact_last_name": "TestLastName", 
+      "executive_contact_middle_name": null, 
+      "charter_participant": false, 
+      "enabled": false, 
+      "aashe_id": 5, 
+      "executive_contact_email": "", 
+      "executive_contact_first_name": "", 
+      "contact_department": "", 
+      "contact_email": "ben@aashe.org", 
+      "contact_first_name": "TestFirstName", 
+      "executive_contact_title": "", 
+      "contact_title": "", 
+      "contact_phone": "", 
+      "contact_middle_name": null, 
+      "executive_contact_last_name": ""
+    }
+  },
+  {
+    "pk": 6, 
+    "model": "institutions.institution", 
+    "fields": {
+      "executive_contact_department": "", 
+      "name": "Test Institution Four", 
+      "contact_last_name": "TestLastName", 
+      "executive_contact_middle_name": null, 
+      "charter_participant": false, 
+      "enabled": false, 
+      "aashe_id": 6, 
+      "executive_contact_email": "", 
+      "executive_contact_first_name": "", 
+      "contact_department": "", 
+      "contact_email": "ben@aashe.org", 
+      "contact_first_name": "TestFirstName", 
+      "executive_contact_title": "", 
+      "contact_title": "", 
+      "contact_phone": "", 
+      "contact_middle_name": null, 
+      "executive_contact_last_name": ""
+    }
+  },
+  {
       "pk": 1,
       "model": "credits.rating",
       "fields": {
@@ -230,7 +276,7 @@
       "submission_deadline": "2011-01-31", 
       "reporter_status": false, 
       "registering_user": 5214, 
-      "institution": 1,
+      "institution": 5,
       "is_visible": true,
       "is_locked": false
     }
@@ -272,7 +318,7 @@
       "submission_deadline": "2011-01-31", 
       "reporter_status": false, 
       "registering_user": 5214, 
-      "institution": 1,
+      "institution": 4,
       "is_visible": true,
       "is_locked": false
     }

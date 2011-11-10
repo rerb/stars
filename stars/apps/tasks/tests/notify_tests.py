@@ -65,10 +65,10 @@ class NotificationTest(TestCase):
         """
         
         # deadlines
-        # 2011-01-31
+        # 2011-01-31 (institution #1)
         # 2011-02-01
         # 2011-02-02
-        # 2011-02-03
+        # 2011-02-03 (institution #4 - Rated)
         
         # only institutions that can apply for extension
         today = date(year=2010, month=11, day=30)
@@ -88,7 +88,7 @@ class NotificationTest(TestCase):
         self.assertTrue(len(mail.outbox) == 1)
         
         send_sixty_day_notifications(current_date=today+timedelta(5))
-        self.assertTrue(len(mail.outbox) == 4)
+        self.assertTrue(len(mail.outbox) == 3)
         
         
         
@@ -199,7 +199,7 @@ class NotificationTest(TestCase):
         current_date = date(year=2010, month=8, day=10)
         send_six_month_notifications(current_date)
         # Only two more should be sent, because of the count limit on notifications
-        self.assertTrue(len(mail.outbox) == 4)
+        self.assertTrue(len(mail.outbox) == 3)
         
     def test_send_notification(self):
         """
