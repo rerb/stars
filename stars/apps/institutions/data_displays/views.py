@@ -157,7 +157,7 @@ class Dashboard(TemplateView):
                         member_numbers['canadian'] += 1
                     elif i.country == "United States of America":
                         member_numbers['us'] += 1
-                    else:
+                    elif i.country == None:
                         print >> sys.stderr, "No country found for %s" % i.name
                     member_numbers['all'] += 1
             _context['member_numbers'] = member_numbers
