@@ -108,10 +108,10 @@ class RangeFilter(Filter):
                 qs = self.base_qs
                 if i[2]:
                     min_kwargs = {"%s__gte" % self.key: i[2]}
-                    qs = self.base_qs.filter(**min_kwargs)
+                    qs = qs.filter(**min_kwargs)
                 if i[3]:
                     max_kwargs = {"%s__lt" % self.key: i[3]}
-                    qs = self.base_qs.filter(**max_kwargs)
+                    qs = qs.filter(**max_kwargs)
                 return qs
         
         return None
