@@ -88,7 +88,7 @@ class NotificationTest(TestCase):
         self.assertTrue(len(mail.outbox) == 1)
         
         send_sixty_day_notifications(current_date=today+timedelta(5))
-        self.assertTrue(len(mail.outbox) == 3)
+        self.assertTrue(len(mail.outbox) == 4)
         
         
         
@@ -199,7 +199,7 @@ class NotificationTest(TestCase):
         current_date = date(year=2010, month=8, day=10)
         send_six_month_notifications(current_date)
         # Only two more should be sent, because of the count limit on notifications
-        self.assertTrue(len(mail.outbox) == 3)
+        self.assertTrue(len(mail.outbox) == 4)
         
     def test_send_notification(self):
         """

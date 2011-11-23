@@ -94,12 +94,12 @@ def send_overdue_notifications(current_time=datetime.now()):
             }
         
             send_notification(
-                                n_type='4wk',
-                                identifier="4wk-%d" % ss.id,
-                                mail_to=[ss.institution.contact_email,],
-                                template_slug="overdue_payment",
-                                email_context=email_context
-                            )
+                n_type='4wk',
+                identifier="4wk-%d" % ss.id,
+                mail_to=[ss.institution.contact_email,],
+                template_slug="overdue_payment",
+                email_context=email_context
+                )
         
 def send_submission_deadline_reminder(td, n_type, identifier, template_slug, current_date):
     
@@ -111,21 +111,18 @@ def send_submission_deadline_reminder(td, n_type, identifier, template_slug, cur
     # send it if we are within the td - timedelta
     for ss in SubmissionSet.objects.filter(status='ps').filter(submission_deadline__lte=d):
         
-        # don't send deadline reminder if they have a rating
-        if ss.institution.submissionset_set.filter(status='r').count() == 0:
-        
-            # but don't send it if we're over by 10 days (this runs every day, so this shouldn't happen)
-            # plus, some of these notifications were created after their window
-            if not d - ss.submission_deadline > timedelta(days=10):
+        # but don't send it if we're over by 10 days (this runs every day, so this shouldn't happen)
+        # plus, some of these notifications were created after their window
+        if not d - ss.submission_deadline > timedelta(days=10):
             
-                m = {
-                        'mail_to': [ss.institution.contact_email,],
-                        'template_slug': template_slug,
-                        'email_context': {'ss': ss,},
-                        'n_type': n_type,
-                        'identifier': '%s-%d' % (identifier, ss.id),
-                     }
-                message_list.append(m)
+            m = {
+                'mail_to': [ss.institution.contact_email,],
+                'template_slug': template_slug,
+                'email_context': {'ss': ss,},
+                'n_type': n_type,
+                'identifier': '%s-%d' % (identifier, ss.id),
+                }
+            message_list.append(m)
             
         send_notification_set(message_list)
     
