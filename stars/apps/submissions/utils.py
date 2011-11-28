@@ -140,9 +140,11 @@ def migrate_submission(old_ss, new_ss, keep_status=False):
         if prev_credit:
             try:
                 old_c = CreditUserSubmission.objects.get(subcategory_submission__category_submission__submissionset=old_ss, credit=prev_credit)
-                
                 c.last_updated = old_c.last_updated
-                c.user = old_c.user
+                try:
+                    c.user = old_c.user
+                except:
+                    c.user = None
                 c.internal_notes = old_c.internal_notes
                 c.submission_notes = old_c.submission_notes
                 c.responsible_party = old_c.responsible_party
