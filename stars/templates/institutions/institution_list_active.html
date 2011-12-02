@@ -5,7 +5,12 @@
 {% block tab_content %}
 	
     <span class="help_text"> <p>
-    The following <b>{{ inst_count }} institutions</b> have registered for STARS. Of these institutions <b>{{ member_count }} are AASHE members</b> <sup class='symbol'>(M)</sup>, <b>{{ charter_count }} are STARS Charter Participants</b> <sup class='symbol'>(C)</sup>, and <b>{{ pilot_count }} participated in the STARS pilot</b> <sup class='symbol'>(P)</sup>. Once one of the listed institutions have completed their STARS submission, the institution's name will be come a link to its public STARS Report. Institutions appearing twice have renewed their participation.
+    The following <b>{{ inst_count }} institutions</b> have registered for STARS. Of these institutions
+    <b>{{ member_count }} are AASHE members</b> (<sup class='symbol'>m</sup>),
+    <b>{{ charter_count }} are STARS Charter Participants</b> (<sup class='symbol'>c</sup>),
+    <b>{{ international_count }} are participating in the International Pilot</b> (<sup class='symbol'>i</sup>)
+    and <b>{{ pilot_count }} participated in the original STARS pilot</b> (<sup class='symbol'>p</sup>).
+    Once one of the listed institutions have completed their STARS submission, the institution's name will be come a link to its public STARS Report. Institutions appearing twice have renewed their participation.
     </p> </span>
     {% load cache %}
     {% cache 900 institution_list sort_key rev %}
