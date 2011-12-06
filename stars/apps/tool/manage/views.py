@@ -77,7 +77,7 @@ def edit_responsible_party(request, rp_id):
     if saved:
         return HttpResponseRedirect("/tool/manage/responsible-parties/")
     
-    credit_list = rp.creditusersubmission_set.order_by('credit__subcategory').exclude(subcategory_submission__category_submission__submissionset__is_visible=False)
+    credit_list = rp.creditusersubmission_set.order_by('credit__subcategory__category__creditset', 'credit__subcategory').exclude(subcategory_submission__category_submission__submissionset__is_visible=False)
     
     context = {'responsible_party': rp, 'object_form': object_form, 'title': "Edit Responsible Party", 'credit_list': credit_list}
     return respond(request, 'tool/manage/edit_responsible_party.html', context)
@@ -97,6 +97,23 @@ def add_responsible_party(request):
     
     context = {'object_form': object_form, 'title': "Add Responsible Party"}
     return respond(request, 'tool/manage/edit_responsible_party.html', context)
+
+@user_is_inst_admin
+def delete_responsible_party(request, rp_id):
+    """
+    Remove a responsible party if they aren't tied to any submissions
+    """
+    current_inst = request.user.current_inst
+    rp = ResponsibleParty.objects.get(institution=current_inst, id=rp_id)
+
+    credit_count = rp.creditusersubmission_set.exclude(subcategory_submission__category_submission__submissionset__is_visible=False).count()
+    if credit_count > 0:
+        flashMessage.send("This Responsible Party cannot be removed because he/she is listed with one or more credits.", flashMessage.ERROR)
+        return HttpResponseRedirect(rp.get_manage_url())
+    else:
+        flashMessage.send("Succesfully Removed Responsible Party: %s" % rp, flashMessage.ERROR)
+        rp.delete()
+        return HttpResponseRedirect("/tool/manage/responsible-parties/")
 
 @user_is_inst_admin
 def accounts(request, account_id=None):
