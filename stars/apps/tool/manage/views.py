@@ -111,7 +111,7 @@ def delete_responsible_party(request, rp_id):
         flashMessage.send("This Responsible Party cannot be removed because he/she is listed with one or more credits.", flashMessage.ERROR)
         return HttpResponseRedirect(rp.get_manage_url())
     else:
-        flashMessage.send("Succesfully Removed Responsible Party: %s" % rp, flashMessage.ERROR)
+        flashMessage.send("Succesfully Removed Responsible Party: %s" % rp, flashMessage.NOTICE)
         rp.delete()
         return HttpResponseRedirect("/tool/manage/responsible-parties/")
 
