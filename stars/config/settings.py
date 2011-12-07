@@ -123,6 +123,7 @@ INSTALLED_APPS = (
     'stars.apps.custom_forms',
     'stars.apps.tasks',
     'stars.apps.notifications',
+    'stars.apps.rules',
     'stars.tests',
     'aashe.issdjango',
     'south',
