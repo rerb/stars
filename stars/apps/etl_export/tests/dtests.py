@@ -92,6 +92,22 @@ class TestETL(TestCase):
          status = 'ps',
         )
         ss2.save()
+
+        i_state = institutions.models.InstitutionState(
+            institution = i,
+            active_submission_set = ss2,
+            latest_rated_submission_set = ss
+            )
+        i_state.save()
+
+        # Confirm is_active is populating properly
+        etl_ss = etl_export.models.SubmissionSet()
+        etl_ss.populate(ss)
+        self.assertFalse(etl_ss.is_active)
+
+        etl_ss2 = etl_export.models.SubmissionSet()
+        etl_ss2.populate(ss2)
+        self.assertTrue(etl_ss2.is_active)
         
         etl_a = etl_export.models.Institution()
         etl_a.populate(i)
@@ -145,5 +161,5 @@ class TestETL(TestCase):
         etl_to_del.save()
         
         self.assertEqual(etl_export.models.Institution.objects.count(), 2)
-        update_etl()
+        etl_export.models.Institution.etl_run_update()
         self.assertEqual(etl_export.models.Institution.objects.count(), 1)
