@@ -1,0 +1,24 @@
+{% extends 'tool/manage/base.html' %}
+
+{% block crumbs %} {{ block.super }} &gt; Contact {% endblock %}
+
+{% block tabclass %}class='tab3'{% endblock %}
+
+{% block institution_content %}
+    <form method='post' action='.' class='generalForm'>
+        <table>
+
+            {% with institution_form as object_form %}
+                {% include 'helpers/standard_form.html' %}
+            {% endwith %}
+        </table>
+        <div class='button_row'>
+            <button type='submit'>Save</button>
+        </div>
+    </form>
+{% endblock %}
+
+{% block help_content %}
+    {% load help %}
+    {% show_help_context 'manage_contact_tab' 0 %}
+{% endblock %}

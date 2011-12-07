@@ -1,0 +1,11 @@
+{% extends 'tool/admin/base.html' %}
+
+{% block title %} {{ block.super }} | Institutions{% endblock %}
+
+{% block crumbs %} {{ block.super }} &gt; Institutions {% endblock %}
+
+{% block tabclass %}class='tab1'{% endblock %}
+
+{% block admin_content %}
+    {% block institution_content %}{% endblock %}
+{% endblock %}

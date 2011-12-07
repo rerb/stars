@@ -1,0 +1,22 @@
+{% extends 'registration/base.html' %}
+
+{% block title %}
+    AASHE: STARS | Participant Registration | Step 1
+{% endblock %}
+
+{% block content %}
+    <div class='inner20'>
+        <h1>Participant Registration: <i>Select Institution</i></h1>
+        <p style='font-style: italic'>Thank you for your interest in registering as a STARS Participant!</p>
+        <p>Please select your institution from the list below. If your institution is not listed here please contact us at <a href='mailto:stars@aashe.org'>stars@aashe.org</a>.</p>
+        <p>Institutions outside of North America, please use the <a href='/register/international/'>International Pilot Registration</a>.</p>
+        <form method='POST'>
+            <table class='form'>
+                {{ form }}
+            </table>
+            <div class='button_row'>
+                <button type='submit'>Continue &gt;&gt;</button><br/><br/>
+            </div>
+        </form>
+    </div>
+{% endblock %}

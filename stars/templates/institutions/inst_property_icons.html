@@ -1,0 +1,9 @@
+{% if submissionset.institution.is_member %}
+    <sup class='symbol' title='AASHE Member'>M</sup>
+{% endif %}
+{% if submissionset.institution.pilot_participant %}
+    <sup class='symbol' title='Pilot Participant'>P</sup>
+{% endif %}
+{% if submissionset.institution.charter_participant %}
+    <sup class='symbol' title='Charter Participant'>C</sup>
+{% endif %}
