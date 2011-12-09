@@ -109,7 +109,7 @@ def send_submission_deadline_reminder(td, n_type, identifier, template_slug, cur
     
     message_list = []
     # send it if we are within the td - timedelta
-    for ss in SubmissionSet.objects.filter(status='ps').filter(submission_deadline__lte=d):
+    for ss in SubmissionSet.objects.filter(status='ps').filter(submission_deadline__lte=d).filter(is_visible=True).filter(is_locked=False):
         
         # but don't send it if we're over by 10 days (this runs every day, so this shouldn't happen)
         # plus, some of these notifications were created after their window
