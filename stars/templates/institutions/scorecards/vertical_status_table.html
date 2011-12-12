@@ -24,6 +24,13 @@
             {% endif %}
         </td>
     </tr>
+    <tr>
+      <th>Liaison</th>
+      <td>
+	{{ submissionset.institution.contact_first_name }}
+	{{ submissionset.institution.contact_last_name }}
+      </td>
+    </tr>
     {% if not preview %}
         <tr>
             <th>Submission Date</th>
