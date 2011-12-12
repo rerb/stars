@@ -58,17 +58,9 @@ class TAAppView(FormActionView):
     def get_success_action(self, request, context, form):
         
         self.save_form(form, request, context)
-        
-        t = get_template("custom_forms/ta_app_email.txt")
-        message = t.render(Context(context))
-        p = request.POST
-        email_to = [request.POST['email'], 'susan.gentile@aashe.org',]
-        send_mail(  "STARS Technical Advisor Application Received",
-                    message,
-                    settings.EMAIL_HOST_USER,
-                    email_to,
-                    fail_silently=False
-                    )
+
+        et = EmailTemplate.objects.get(slug="ta_application")
+        et.send_email([request.POST['email']], context)
         
         r = direct_to_template(request, "custom_forms/form_success.html", extra_context=self.context_dict)
         return r
