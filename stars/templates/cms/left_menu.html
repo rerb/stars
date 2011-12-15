@@ -1,0 +1,40 @@
+<div id='leftMenu'>
+	<ul class="listexpander">
+	<li>
+		<a href='{{ category.get_absolute_url }}'
+			{% if not article and not subcategory %}id='currentSelection'{% endif %}>
+			{{ category }}
+		</a>
+		{% if category.get_articles %}
+			<ul>
+			{% for a in category.get_articles %}
+			    <li>
+			        <a href='{{ a.get_absolute_url }}' {% if article and a == article %}id='currentSelection'{% endif %}>
+			            {{ a.title }}
+			        </a>
+			    </li>
+			{% endfor %}
+			</ul>
+		{% endif %}
+	</li>
+	{% for sub in category.subcategory_set.all %}
+		{% if sub.get_articles %}
+		<li>
+			<a 	href='{{ sub.get_absolute_url }}'
+				{% if not article and subcategory and sub == subcategory %}id='currentSelection'{% endif %}>
+				{{ sub.title }}
+			</a>
+			<ul>
+				{% for a in sub.get_articles %}
+				<li>
+					<a href='{{ a.get_absolute_url }}' {% if article and a == article %}id='currentSelection'{% endif %}>
+		            	{{ a.title }}
+		        	</a>
+		        </li>
+				{% endfor %}
+			</ul>
+		</li>
+		{% endif %}
+	{% endfor %}
+	</ul>
+</div>

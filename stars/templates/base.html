@@ -1,0 +1,145 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<script type="text/javascript">var _sf_startpt=(new Date()).getTime()</script>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta name="description" content="STARS is a transparent, self-reporting framework for colleges and universities to gauge relative progress toward sustainability." />
+		<meta name="keywords" content="STARS, AASHE, AASHE STARS, reporting, sustainability, colleges, universities, STARS Report, STARS Technical Manual" />
+		<title>
+			{% block title %}AASHE STARS{% endblock %}
+		</title>
+		<link href='/media/static/css/general.css' rel='stylesheet' type='text/css' />
+		<link href='/media/static/css/style.css' rel='stylesheet' type='text/css' />
+		<link rel="shortcut icon" href="http://www.aashe.org/sites/default/files/aashe_favicon.ico" type="image/x-icon" />
+		<script src='/media/static/js/new_include.js' type='text/javascript'></script>
+		<script src='/media/static/js/include.js' type='text/javascript'></script>
+		{% block extra_head %}{% endblock %}
+		{% block extra_style %}{% endblock %}
+		{% if settings_context.analytics_id %}
+		<script type="text/javascript">
+
+		  var _gaq = _gaq || [];
+		  _gaq.push(['_setAccount', '{{ settings_context.analytics_id }}']);
+  		  _gaq.push(['_setDomainName', '.aashe.org']);
+		  _gaq.push(['_trackPageview']);
+		
+		  (function() {
+		    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ga);
+		  })();
+		
+		</script>
+		{% endif %}
+	</head>
+	<body onload='{% block body_onload %}{% endblock %}' onbeforeunload='{% block body_beforeunload %}{% endblock %}'>
+	<script type="text/javascript" src="/media/static/js/wz_tooltip.js"></script>
+		<div id='topTabs'>
+			<ul>
+				<li><a href='http://www.aashe.org/'>AASHE</a></li>
+				<li class='active'><a href='/'>STARS</a></li>
+				<li><a href='http://conf2011.aashe.org/'>Annual Conference</a></li>
+			</ul>
+		</div>
+		<div id='container'>
+            <div id='header'>
+                <div id='topMenu'>
+                    <div style='float: left;padding: 0px 20px 0px 2px;'>
+                        A program of
+                        <a href='http://www.aashe.org/'>
+                            <img src='/media/static/images/home/aashe_small.png' alt='AASHE' style='vertical-align: middle' /></a>
+                    </div>
+                    {% block top_menu %}
+               			{% include 'helpers/top_menu.html' %}
+            		{% endblock %}
+                </div>
+                {% block main_menu %}
+                	{% include 'helpers/main_menu.html' %}
+		        {% endblock %}
+    			<div id='crumbs'>
+	    			{% block crumbs %}
+	    			    <a href='/'>Home</a>
+	    			{% endblock %}
+	    		</div>
+                <a href='/'><img src='/media/static/images/stars_logo.png' alt='STARS' width='221' height='90' /></a>
+            </div>
+            {% if messages or site_status.broadcast_message or extra_messages %}
+            {% load helpers %}
+            <div id="flash_message" class="visible">
+                <ul >
+                {% if site_status.broadcast_message %}
+                    <li class='notice'>{{ site_status.broadcast_message }}</li>
+                {% endif %}
+                {% block extra_messages %}{% endblock %}
+                {% for message in messages %}
+                    <li class={{ message|split:0 }}>{{ message|split:1|safe }}</li>
+                {% endfor %}
+                </ul>
+                <a href='#'  onclick="document.getElementById('flash_message').style.display = 'none';">[x]</a>
+            </div>
+            {% endif %}
+            
+			{% block content %}{% endblock %}
+		</div>
+		<div id='footer'>
+			<div class='footerBlock'>
+				<a href='http://www.aashe.org'><img src='/media/static/images/aashe_footer_logo.gif' alt='AASHE' /></a>
+			</div>
+			<div class='footerBlock' style='border: 0px;'>
+		    	&copy;2010 <a href='http://www.aashe.org'>Association for the Advancement of Sustainability in Higher Education</a><br/>
+		    	213 ½ N. Limestone, Lexington, KY 40507 - t: (859) 309-6755 - f: (859) 258-2264
+		    </div>
+		    <div class='footerBlock' style='border: 0px; float: right'>
+		    	<a href='/pages/help/'>Help</a> |
+		    	<a href='http://www.aashe.org/about/contact.php'>Contact Us</a> |
+		    	<a href='http://www.aashe.org/privacy-policy'>Privacy Policy</a> |
+		    	<a href='http://www.aashe.org/'>AASHE Home</a>
+		    	<p style='text-align: right;'>
+    		    	<a href='http://twitter.com/AASHENews' style='margin-right: 5px;' title='Twitter'>
+    		    	    <img src="/media/static/images/twitter-2.png" alt='Twitter'/></a>
+    		    	<a href='http://www.facebook.com/aasheorg'style='margin-right: 5px;' title="Facebook">
+    		    	    <img src="/media/static/images/facebook.png" alt='Facebook' /></a>    
+    		    	<a href='http://www.youtube.com/aasheorg' title="YouTube">
+    		    	    <img src="/media/static/images/youtube.png" alt='YouTube' /></a>
+		    	</p>
+		   	</div>
+		</div>
+		<div id='credits'>
+			Credits:&nbsp;&nbsp;
+			<a href='http://www.djangoproject.com' title="Django - web framework for perfectionists with deadlines.">
+				Django
+				{% if settings_context.django_version %}{{ settings_context.django_version }}{% endif %}
+			</a>
+			&nbsp;&nbsp;/&nbsp;&nbsp;
+			<a href='http://www.python.org/'>
+				Python
+				{% if settings_context.python_version %}{{ settings_context.python_version }}{% endif %}
+			</a>
+			&nbsp;&nbsp;/&nbsp;&nbsp;
+			<a href='http://www.famfamfam.com/lab/icons/silk/'>Silk Icons</a>
+			{% if settings_context.hg_revision %}
+				&nbsp;&nbsp;&nbsp;&nbsp;
+				{{ settings_context.hg_revision }}
+			{% endif %}
+		</div>
+		{% block extra_footer %}{% endblock %}
+		<script type="text/javascript">
+		var _sf_async_config={uid:22656,domain:"stars.aashe.org"};
+		(function(){
+		  function loadChartbeat() {
+		    window._sf_endpt=(new Date()).getTime();
+		    var e = document.createElement('script');
+		    e.setAttribute('language', 'javascript');
+		    e.setAttribute('type', 'text/javascript');
+		    e.setAttribute('src',
+		       (("https:" == document.location.protocol) ? "https://a248.e.akamai.net/chartbeat.download.akamai.com/102508/" : "http://static.chartbeat.com/") +
+		       "js/chartbeat.js");
+		    document.body.appendChild(e);
+		  }
+		  var oldonload = window.onload;
+		  window.onload = (typeof window.onload != 'function') ?
+		     loadChartbeat : function() { oldonload(); loadChartbeat(); };
+		})();
+		</script>
+	</body>
+</html>

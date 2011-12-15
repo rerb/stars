@@ -1,0 +1,59 @@
+{% extends 'institutions/base.html' %}
+
+{% block title %}Rated {{ block.super }}{% endblock %}
+
+{% block h1 %}Rated STARS Institutions{% endblock %}
+
+{% block tabclass %}class='tab6'{% endblock %}
+
+{% block tab_content %}
+	
+    <span class="help_text"> <p>
+    The following <b>{{ inst_count }} institutions</b> have achieved a STARS Rating. Of these institutions
+    <b>{{ member_count }} are AASHE members</b> (<sup class='symbol'>m</sup>),
+    <b>{{ charter_count }} are STARS Charter Participants</b> (<sup class='symbol'>c</sup>),
+    and <b>{{ pilot_count }} participated in the original STARS pilot</b> (<sup class='symbol'>p</sup>).
+    </p> </span>
+    {% load help %}
+  {% show_help_context 'rated_institutions_page' 0 %}
+  {% load cache %}
+  {% cache 900 institution_list_rated sort_key rev %}
+      <table id="institution_list" class='greyTable'>
+        <tr>
+          {% for col in sort_columns %}
+            <th>
+                {% ifequal col.key sort_key %}
+                    <a href='?sort={{ rev }}{{ col.key }}' title='sort'>{{ col.title }}</a>
+                    <img src='/media/static/images/{% ifequal rev '-' %}sort_desc.png{% else %}sort_asc.png{% endifequal %}' alt='^'/>
+                {% else %}
+                    <a href='?sort={{ col.key }}' title='sort'>{{ col.title }}</a>
+                {% endifequal %}
+            </th>
+          {% endfor %}
+        </tr>
+        {% for submissionset in object_list %}
+          <tr class="{% cycle 'even' 'odd' %}">
+            <td style='text-align: left'>
+                <a href='{{ submissionset.get_scorecard_url }}'>{{ submissionset.institution }}</a>
+                {% include "institutions/inst_property_icons.html" %}
+            </td>
+            <td>
+                {{ submissionset.creditset.version }}
+            </td>
+            <td>
+                {% ifequal submissionset.status 'r' %}
+                    {% if submissionset.rating %}
+                        {{ submissionset.rating }}
+                    {% else %}
+                        ---
+                    {% endif %}
+                {% endifequal %}
+            </td>
+            <td>
+              {{ submissionset.date_submitted }}
+            </td>
+          </tr>            
+        {% endfor %}
+      </table>
+	{% endcache %}
+{% endblock %}
