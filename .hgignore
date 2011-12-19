@@ -12,6 +12,8 @@ syntax: regexp
 emacs.desktop
 ^\.mr.developer.cfg$
 ^docs/_build
+^docs/stars/_build
+^docs/api/_build
 
 syntax: glob
 *.pyc
