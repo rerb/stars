@@ -52,5 +52,18 @@ def print_deadline_missed():
                 row.append(i.get_latest_submission(include_unrated=True).date_registered)
             csvWriter.writerow(row)    
 
+def print_registration_dates():
+    
+    csvWriter = csv.writer(open('dashboard/reg_dates.csv', 'wb'))
+    columns = ["institution", "date_registered",]
+    csvWriter.writerow(columns)
+    
+    for i in Institution.objects.filter(enabled=True):
+        row = [i,]
+        for ss in i.submissionset_set.order_by('date_registered'):
+            row.append(ss.date_registered)
+            csvWriter.writerow(row)  
+
 print_deadline_missed()
 print_renewed()
+print_registration_dates()
