@@ -8,6 +8,7 @@ import re, copy
 from datetime import date
 
 from stars.apps.helpers import watchdog
+from stars.apps.credits.utils import get_next_variable_name
 from mixins import VersionedModel
 
 class IncrementalFeature(models.Model):
@@ -604,12 +605,8 @@ else:
             Helper: return the next identifier for a new documentation field for this credit 
             @return a unique two-character identifier, of form "AB"
         """
-        fields = self.documentationfield_set.all().order_by('-identifier').values('identifier')[0:1]
-        lastIdent = ''
-        if (fields):
-            lastIdent = fields[0]['identifier']
-
-        return _next_identifier(lastIdent)
+        fields = self.documentationfield_set.all().values_list('identifier', flat=True)
+        return get_next_variable_name(fields)
     
     def execute_formula(self, submission):
         """ 
@@ -701,34 +698,6 @@ def compile_formula(formula, label='Formula'):
     else:
         return (True, "No %s specified"%label)
 
-def _next_identifier(identifier):
-    """ 
-        Helper: takes a simple all upper-case alpha identifier and 
-        @returns the next identifier in the series:
-
-        #doctest
-            >>> _next_identifier("")
-            'A'
-            >>> _next_identifier("A")
-            'B'
-            >>> _next_identifier("Z")
-            'AA'
-            >>> _next_identifier("AZ")
-            'BA'
-            >>> _next_identifier("ZZ")
-            'AAA'
-    """     
-    if not identifier:
-        return 'A'
-    prefix = identifier[0:-1]
-    suffix = identifier[-1:]
-    if suffix == 'Z':
-        prefix = _next_identifier(prefix)
-        suffix = 'A'
-    else:
-        suffix = chr(ord(suffix)+1)
-    return "%s%s"%(prefix,suffix)     
-        
 class ApplicabilityReason(VersionedModel):
     """
         Models reasons why a particular credit might be allowed to be considered not-applicable
