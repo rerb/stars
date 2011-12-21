@@ -38,7 +38,13 @@ def export_credit_content(credit):
 
     columns = [
                 "Institution",
+                "City",
+                "State",
+                "Country",
+                "Org type",
+                "FTE-Enrollment",
                 "Version",
+                "Status",
                 "Score",
                ]
                   
@@ -52,16 +58,31 @@ def export_credit_content(credit):
     # Create Rows
     for cus in cus_list:
         
-        row = [cus.subcategory_submission.category_submission.submissionset.institution.name, cus.subcategory_submission.category_submission.submissionset.creditset.version]
+        institution = cus.subcategory_submission.category_submission.submissionset.institution
+        profile = institution.profile
+        
+        row = [
+                institution.name,
+                profile.city,
+                profile.state,
+                institution.country,
+                institution.org_type,
+                institution.fte,
+                cus.subcategory_submission.category_submission.submissionset.creditset.version
+                ]
         
         if cus.subcategory_submission.category_submission.submissionset.rating.publish_score:
             if cus.submission_status == "na":
                 row.append("Not Applicable")
+                row.append(0)
             elif cus.submission_status == 'np' or cus.submission_status == 'ns':
                 row.append("Not Pursuing")
+                row.append(0)
             else:
+                row.append("Pursuing")
                 row.append(cus.assessed_points)
         else:
+            row.append("Reporter")
             row.append("Reporter")
         
         for df in df_list:
