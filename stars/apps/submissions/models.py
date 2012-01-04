@@ -11,7 +11,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import InMemoryUploadedFile
 
 from stars.apps.credits.models import *
-from stars.apps.institutions.models import Institution
+from stars.apps.institutions.models import Institution, ClimateZone
 from stars.apps.helpers import watchdog, flashMessage, managers
 from stars.apps.submissions.pdf.export import build_report_pdf
 from stars.apps.notifications.models import EmailTemplate
@@ -301,6 +301,74 @@ class SubmissionSet(models.Model):
             total += p.amount
             
         return total
+        
+INSTITUTION_TYPE_CHOICES = (
+                                ("2_year", "Two Year"),
+                                ("4_year", "Four Year"),
+                                ("graduate", "Graduate Institution"),
+                                ("system", "System Office")
+)
+
+INSTITUTION_CONTROL_CHOICES = (
+                                ("public", "Public"),
+                                ("private_profit", "Private for-profit"),
+                                ("private_nonprofit", "Private non-profit"),
+)
+        
+class Boundary(models.Model):
+    """
+        Defines the boundary for the submission set.
+    """
+    
+    submissionset = models.OneToOneField(SubmissionSet)
+    fte_students = models.IntegerField("Full-time Equivalent Enrollment")
+    undergrad_count = models.IntegerField("Number of Undergraduate Students")
+    graduate_count = models.IntegerField("Number of Graduate Students")
+    fte_employmees = models.IntegerField("Full-time Equivalent Employees")
+    institution_type = models.CharField(max_length=32, choices=INSTITUTION_TYPE_CHOICES)
+    institutional_control = models.CharField(max_length=32, choices=INSTITUTION_CONTROL_CHOICES)
+    endowment_size = models.IntegerField()
+    student_residential_percent = models.FloatField()
+    student_ftc_percent = models.FloatField()
+    student_ptc_percent = models.FloatField()
+    student_online_percent = models.FloatField()
+    gsf_building_space = models.FloatField()
+    gsf_lab_space = models.FloatField()
+    cultivated_grounds_acres = models.FloatField()
+    undeveloped_land_acres = models.FloatField()
+    climate_region = models.ForeignKey(ClimateZone)
+    
+    # Features
+    ag_school_present = models.BooleanField()
+    ag_school_included = models.BooleanField()
+    ag_school_details = models.TextField()
+    med_school_present = models.BooleanField()
+    med_school_included = models.BooleanField()
+    med_school_details = models.TextField()
+    pharm_school_present = models.BooleanField()
+    pharm_school_included = models.BooleanField()
+    pharm_school_details = models.TextField()
+    pub_health_school_present = models.BooleanField()
+    pub_health_school_included = models.BooleanField()
+    pub_health_school_details = models.TextField()
+    vet_school_present = models.BooleanField()
+    vet_school_included = models.BooleanField()
+    vet_school_details = models.TextField()
+    sat_campus_present = models.BooleanField()
+    sat_campus_included = models.BooleanField()
+    sat_campus_details = models.TextField()
+    hospital_present = models.BooleanField()
+    hospital_included = models.BooleanField()
+    hospital_details = models.TextField()
+    farm_present = models.BooleanField()
+    farm_included = models.BooleanField()
+    farm_details = models.TextField()
+    agr_exp_present = models.BooleanField()
+    agr_exp_included = models.BooleanField()
+    agr_exp_details = models.TextField()
+    
+    def __str__(self):
+        return self.submissionset;
 
 def get_active_submissions(creditset=None, category=None, subcategory=None, credit=None):
     """ Return a queryset for ALL active (started / finished) credit submissions that meet the given criteria.
