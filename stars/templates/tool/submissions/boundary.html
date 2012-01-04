@@ -1,0 +1,23 @@
+{% extends "tool/base.html" %}
+{% load content %}
+ 
+{% block crumbs %} 
+    {{ block.super }} >
+    <a href='/tool/submissions/'>{{ active_submission }}</a> >
+    Boundary
+{% endblock %}
+
+{% block tool_content %}
+    <h1>Submission Boundary</h1>
+    {% display_block_content 'boundary_page' user %}
+    <div class='required'>
+        <span class="required_note" title="This field is required to complete credit">*</span>
+        Required Fields<br/>
+    </div>
+    <form class='generalForm' method='post' action='.'>
+        <table>{% include "helpers/standard_form.html" %}</table>
+        <div class='button_row'>
+            <button type='submit'>Submit</button>
+        </div>
+    </form>
+{% endblock %}

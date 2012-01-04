@@ -12,6 +12,11 @@
     
 		<h1>Submission Summary: {{ user.current_inst }}</h1>
 		{% include 'tool/submissions/submission_summary_table.html' %}
+		<div class='submissionBoundary'>
+		    <p style='text-align: center;'>
+		        <img src='/media/static/images/page_white_edit.png' style='vertical-align: middle' />
+		        <a href='/tool/submissions/boundary/'>Edit Boundary</a></p>
+		</div>
 		{% for cat in category_submission_list %}
 			<a name='ec_{{ cat.category.id }}'></a>
 			<h2>
