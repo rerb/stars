@@ -1,9 +1,12 @@
-import os
+import os, sys
 
 from django.conf.urls.defaults import *
 from django.conf import settings
 from django.contrib import admin
 admin.autodiscover()
+
+import aashe_rules
+aashe_rules.autodiscover()
 
 handler500 = 'stars.apps.helpers.views.server_error'
 
@@ -12,7 +15,7 @@ urlpatterns = patterns('',
     # tool:
     #(r'^$', 'stars.apps.tool.views.stars_home_page'),
     (r'^$', 'django.views.generic.simple.direct_to_template', {'template': 'home.html'}),
-    (r'^tool/$', 'stars.apps.tool.views.tool'),
+    (r'^tool/$', 'stars.apps.tool.views.tool_dashboard'),
     (r'^tool/credit-editor/', include('stars.apps.tool.credit_editor.urls')),
     (r'^tool/admin/', include('stars.apps.tool.admin.urls')),
     (r'^tool/submissions/', include('stars.apps.tool.my_submission.urls')),
@@ -40,7 +43,7 @@ urlpatterns = patterns('',
     (r'^cfm/', include('stars.apps.custom_forms.urls')),
 
     # rules
-    (r'^rules/', include('stars.apps.rules.urls')),
+    #(r'^rules/', include('aashe_rules.urls')),
 
     # testing / debug / data migration scripts - these urls should normally be commented out!
     #(r'^migrate_required/$', 'stars.apps.helpers.views.migrate_doc_field_required'),

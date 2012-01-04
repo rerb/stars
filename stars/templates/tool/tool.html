@@ -9,29 +9,49 @@
 {% endblock %}
 
 {% block tool_content %}
-    <h1> Dashboard </h1>
-	{% if user.is_staff %}
-		<h2><a href='/tool/admin/'>Administer Site</a></h2>
-		<p>Staff tools for managing the STARS Web Site.</p>
-		<!-- <h2><a href='/process/'>Process Submissions</a></h2>
-		<p>Staff tools for processing submissions.</p> -->
-		<h2><a href='/tool/credit-editor/'>Credit Editor</a></h2>
-		<p>Staff tools for building Credit Sets.</p>    
-    {% endif %}
-	{% if user.can_admin %}
-	  <h2><a href='/tool/manage/'>Manage Institution</a></h2>
-	  <p>Specify the boundary for the institution's submission, add user accounts, update contact information, and view payment history.</p>
+    <h1>STARS Reporting Tool</h1>
+    <div style='padding: 30px;text-align: center;border-bottom: 1px solid #aaa;'>
+        <img src="/media/static/images/page_edit.png" alt='edit' style='vertical-align: top;' />
+        <a href='/tool/submissions/' style='margin-right: 15px;text-decoration: none;'>
+            My Submission</a>
+        
+        <img src="/media/static/images/star.png" alt='' style='vertical-align: top;' />
+        <a href='/tool/submission/' style='margin-right: 15px;text-decoration: none;'>
+            Submit for Rating</a>
+        
+        <img src="/media/static/images/building_edit.png" alt='' style='vertical-align: top;' />
+        <a href='/tool/submissions/boundary/' style='margin-right: 15px;text-decoration: none;'>
+            Edit Boundary</a>
+    </div>
+	{% if rating_list %}
+	<div style='float: right;text-align: center; margin: 20px;'>
+	  <h3>Previous Ratings</h3>
+	  <br/>
+	  {% for ss in rating_list %}
+	  {% load thumbnail %}
+	  {% thumbnail ss.rating.image_large "100x100" as im %}
+	  <a href='{{ ss.get_scorecard_url }}'>
+	  <img src="{{ im.url }}" width="{{ im.x }}" height="{{ im.y }}" alt='{{ ss.rating }}' /></a>
+	  {% endthumbnail %}
+	  <br/>
+	  {{ ss.date_submitted }}
+	  {% endfor %}
+	</div>
 	{% endif %}
-    {% if user.can_submit %}
-	  <h2><a href='/tool/submissions/'>My Submission</a></h2>
-	  <p>Enter and save STARS credit data for {{ user.current_inst }}.</p>
-	{% endif %}
-    {% if user.has_tool %}
-        <h2><a href='/tool/my-resources/'>My Resources</a></h2>
-        <p>Access resources available only to STARS Participants.</p>
-    {% endif %}
-    {% if user.can_view %}
-      <h2><a href='/institutions/{{ user.current_inst.slug }}/report/'>My Report(s)</a></h2>
-      <p>Preview current and review past STARS Report(s) for {{ user.current_inst }}.</p>
-    {% endif %}
+	<div style='text-align: center;margin: 20px;{% if rating_list %}margin-right: 200px;{% endif %}'>
+	  <strong>STARS Participant</strong>
+	  <table style='margin: 0px auto'>
+	    <tr>
+	      <th>Current Subscription:</th>
+	      <td align='left'>Nov 19, 2011 - Nov 20, 2012</td>
+	    </tr>
+	    <tr>
+	      <th>Available Ratings:</th>
+	      <td align='left'>1</td>
+	    </tr>
+	 </table>
+        <img src='/media/static/images/add.png' style='vertical-align: middle'/>
+        <a href='/tool/manage/submissionsets/purchase/' style="margin-right: 15px;text-decoration: none;">
+            Extend Subscription</a>
+	</div>
 {% endblock %}
