@@ -178,5 +178,5 @@ class BoundaryForm(ModelForm):
         This is a form for the Institutional Boundary
     """    
     class Meta:
-        model = SubmissionSet
-        fields = ['submission_boundary']
+        model = Boundary
+        exclude = ['submissionset',]
