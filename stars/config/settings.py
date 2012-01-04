@@ -123,13 +123,14 @@ INSTALLED_APPS = (
     'stars.apps.custom_forms',
     'stars.apps.tasks',
     'stars.apps.notifications',
-    'stars.apps.rules',
+    #'stars.apps.rules',
     'stars.tests',
     'aashe.issdjango',
     'south',
     'sorl.thumbnail',
     'django_extensions',
     'djcelery',
+    'aashe_rules',
     # 'memcache_status',
 )
 
