@@ -52,6 +52,10 @@ class CreditAdmin(admin.ModelAdmin):
           )
 admin.site.register(Credit, CreditAdmin)
 
+class ApplicabilityReasonAdmin(admin.ModelAdmin):
+    list_display = ('reason', 'credit')
+admin.site.register(ApplicabilityReason, ApplicabilityReasonAdmin)
+
 class UnitAdmin(admin.ModelAdmin):
     pass
 admin.site.register(Unit, UnitAdmin)
