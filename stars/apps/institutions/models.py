@@ -9,6 +9,13 @@ from stars.apps.credits.models import CreditSet
 # from stars.apps.notifications.models import EmailTemplate
 from django.core.mail import send_mail
 
+class ClimateZone(models.Model):
+    """
+        Climate Zones. Making this a model allows staff to create
+        zones that are outside of the USDOE climate regions
+    """
+    name = models.CharField(max_length=32)
+
 class Institution(models.Model):
     """
         This model represents a STARS institution. The institution name
@@ -213,6 +220,41 @@ class Institution(models.Model):
         except Exception, e:
             watchdog.log("Registration", "ISS Institution profile relationship error: %s" % e, watchdog.ERROR)
             self.slug = iss_institution_id
+
+RATINGS_PER_SUBSCRIPTION = 1
+SUBSCRIPTION_DURATION = 365
+
+class Subscription(models.Model):
+    """
+    Describes a subscription to the reporting tool.
+    """
+    instiutition = models.ForeignKey(Institution)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    ratings_allocated = models.SmallIntegerField(default=RATINGS_PER_SUBSCRIPTION)
+    ratings_used = models.IntegerField(default=0)
+    amount_due = models.FloatField()
+    paid_in_full = models.BooleanField()
+
+    def __str__(self):
+        return "%s (%s - %s)" % (self.institution.name, self.start_date, self.end_date)
+
+class SubscriptionPayment(models.Model):
+    """
+    Payments are applied to subscriptions
+
+    @todo: add a signal on save to update subscription.paid_in_full
+    """
+    subscription = models.ForeignKey(Subscription)
+    date = models.DateTimeField()
+    amount = models.FloatField()
+    user = models.ForeignKey(User)
+    reason = models.CharField(max_length='16')
+    method = models.CharField(max_length='8')
+    confirmation = models.CharField(max_length='16', blank=True, null=True)
+
+    def __str__(self):
+        return "%s: $%.2f (%s)" % (self.subscription.institution, self.amount, self.date)
 
 class RegistrationReason(models.Model):
     """
