@@ -1,9 +1,11 @@
 from django.conf.urls.defaults import *
+from stars.apps.tool.my_submission.views import EditBoundaryView
 
 urlpatterns = patterns(
     'stars.apps.tool.my_submission.views',
     
     (r'^$', 'summary'),
+    (r'^boundary/$', EditBoundaryView.as_view()),
     (r'^add-responsible-party/$', 'add_responsible_party'),
 #    (r'^(?P<category_id>\d+)/$', 'category_detail'),
     (r'^(?P<category_id>\d+)/(?P<subcategory_id>\d+)/$', 'subcategory_detail'),

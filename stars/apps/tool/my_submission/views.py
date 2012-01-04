@@ -1,5 +1,6 @@
 from django.shortcuts import get_object_or_404, render_to_response
 from django.http import HttpResponseRedirect, Http404
+from django.views.generic import TemplateView as GenTemplateView
 
 from datetime import datetime, date
 
@@ -49,6 +50,17 @@ def summary(request):
     }
     
     return respond(request, "tool/submissions/summary.html", context)
+    
+class EditBoundaryView(GenTemplateView):
+    """
+        A basic view to edit the boundary
+    """
+    template_name = "tool/submissions/boundary.html"
+    
+    def get_context_data(self, **kwargs):
+        _context = super(EditBoundaryView, self).get_context_data(**kwargs)
+        _context['object_form'] = NewBoundaryForm()
+        return _context
 
 class SubmissionClassMixin(SubmissionMixin, PermMixin):
     """
