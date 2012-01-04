@@ -13,6 +13,12 @@ from stars.apps.helpers import watchdog
 from stars.apps.submissions.models import *
 from stars.apps.tool.my_submission.widgets import UploadFileWidget
 
+class NewBoundaryForm(ModelForm):
+    
+    class Meta:
+        model = Boundary
+        exclude = ("submissionset",)
+
 class SubcategorySubmissionForm(ModelForm):
     
     class Meta:
