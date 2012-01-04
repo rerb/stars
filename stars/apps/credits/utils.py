@@ -1,6 +1,3 @@
-from stars.apps.credits.models import *
-from stars.apps.submissions.models import *
-
 def get_mappings():
     """
     Return a list of var names for mapping ints to variable names
