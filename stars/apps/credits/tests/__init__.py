@@ -1,4 +1,3 @@
-from migration import TestMigration
 from incremental_features import TestIncrementalFeatures
 from utils import TestUtils
 
