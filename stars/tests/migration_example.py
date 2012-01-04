@@ -1,7 +1,7 @@
 from stars.apps.institutions.models import *
 from stars.apps.credits.models import *
 from stars.apps.submissions.models import *
-from stars.apps.submissions.utils import migrate_submission
+from stars.apps.migrations.utils import migrate_submission
 
 ss = SubmissionSet.objects.get(pk=99)
 
