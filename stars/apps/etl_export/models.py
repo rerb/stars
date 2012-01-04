@@ -126,6 +126,7 @@ class SubmissionSet(models.Model, ETLCompareMixin):
     status = models.CharField(max_length=8, choices=submissions.models.SUBMISSION_STATUS_CHOICES)
     reporter_status = models.NullBooleanField()
     score = models.FloatField(blank=True, null=True)
+    is_active = models.BooleanField()
     
     # for ETLCompareMixin
     etl_exclude_fields = ['change_date',]
@@ -148,6 +149,7 @@ class SubmissionSet(models.Model, ETLCompareMixin):
         self.status = ss.status
         self.reporter_status = ss.reporter_status
         self.score = ss.get_STARS_score()
+        self.is_active = (ss == ss.institution.state.active_submission_set)
 
 class Payment(models.Model, ETLCompareMixin):
     """

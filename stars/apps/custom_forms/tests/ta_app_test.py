@@ -14,7 +14,7 @@ from stars.apps.credits.models import Subcategory
 import sys, os
 
 class TAAppTest(TestCase):
-    fixtures = ['credits_testdata.json',]
+    fixtures = ['credits_testdata.json','notification_emailtemplate_tests.json']
 
     def setUp(self):
         pass

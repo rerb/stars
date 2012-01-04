@@ -5,7 +5,7 @@
 from django.test import TestCase
 
 from stars.apps.credits.models import *
-from stars.apps.credits.utils import migrate_set
+from stars.apps.migrations.utils import migrate_creditset
 from stars.apps.submissions.models import CreditTestSubmission
 
 import sys
@@ -27,7 +27,7 @@ class TestMigration(TestCase):
     def testCopyCreditSet(self):
         print >> sys.stderr, "Test: copy creditset"
         cs = CreditSet.objects.get(pk=2)
-        new_cs = migrate_set(cs, "1.1", date.today())
+        new_cs = migrate_creditset(cs, "1.1", date.today())
         
         print "Categories: %d" % new_cs.category_set.count()
         self.assertEqual(new_cs.category_set.count(), cs.category_set.count())

@@ -65,10 +65,10 @@ class NotificationTest(TestCase):
         """
         
         # deadlines
-        # 2011-01-31
+        # 2011-01-31 (institution #1)
         # 2011-02-01
         # 2011-02-02
-        # 2011-02-03
+        # 2011-02-03 (institution #4 - Rated)
         
         # only institutions that can apply for extension
         today = date(year=2010, month=11, day=30)

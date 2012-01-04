@@ -2,7 +2,7 @@
     Celery tasks
 """
 from stars.apps.submissions.pdf.export import build_certificate_pdf
-from stars.apps.submissions.utils import migrate_ss_version, migrate_submission
+from stars.apps.migrations.utils import migrate_ss_version, migrate_submission
 from stars.apps.notifications.models import EmailTemplate
 from stars.apps.helpers import watchdog
 

@@ -12,7 +12,8 @@ from django.core import mail
 from django.test.client import Client
 from django.conf import settings
 
-from stars.apps.submissions.utils import migrate_submission, init_credit_submissions
+from stars.apps.migrations.utils import migrate_submission
+from stars.apps.submissions.utils import init_credit_submissions
 from stars.apps.submissions.models import *
 
 import sys

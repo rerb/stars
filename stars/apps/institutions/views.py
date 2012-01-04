@@ -98,6 +98,7 @@ class SortableTableViewWithInstProps(SortableTableView):
         member_count = 0
         charter_count = 0
         pilot_count = 0
+        international_count = 0
         for ss in self.get_queryset():
             if ss.institution.id not in inst_list:
                 inst_list.append(ss.institution.id)
@@ -108,11 +109,14 @@ class SortableTableViewWithInstProps(SortableTableView):
                     member_count += 1
                 if ss.institution.is_pilot_participant:
                     pilot_count += 1
+                if ss.institution.international:
+                    international_count += 1
             
         _context['inst_count'] = inst_count
         _context['member_count'] = member_count
         _context['charter_count'] = charter_count
         _context['pilot_count'] = pilot_count
+        _context['international_count'] = international_count
         return _context
     
 
