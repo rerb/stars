@@ -1,5 +1,6 @@
 import copy
 from stars.apps.submissions.models import CreditTestSubmission, CreditUserSubmission, SubcategorySubmission, DocumentationFieldSubmission, SubmissionSet
+from stars.apps.submissions.utils import init_credit_submissions
 
 def migrate_creditset(old_cs, new_version_name, release_date):
     """ Copy a creditset to a new version and update `previous_version` references' """    
@@ -187,7 +188,7 @@ def migrate_submission(old_ss, new_ss, keep_status=False):
             for f in c.get_submission_fields():
                 
                 prev_df = f.documentation_field.get_for_creditset(old_ss.creditset)
-                # print prev_df
+#                print prev_df
                 
                 if prev_df:
                     field_class = f.__class__
@@ -195,13 +196,13 @@ def migrate_submission(old_ss, new_ss, keep_status=False):
                         old_f = field_class.objects.get(documentation_field=prev_df, credit_submission=old_c)
                         f.value = old_f.value
                         f.save()
-                        # print "moved: %s" % f.documentation_field
+#                        print "moved: %s" % f.documentation_field
                     except field_class.DoesNotExist:
-                        # print "no old documentation field: %s" % f.documentation_field
+#                        print "no old documentation field: %s" % f.documentation_field
                         continue
                     
                 else:
-                    # print "No previous documentation field: %s" % f.documentation_field
+#                    print "No previous documentation field: %s" % f.documentation_field
                     continue
                     
             # don't save until all the fields are updated
