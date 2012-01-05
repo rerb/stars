@@ -38,14 +38,14 @@ class VersionMigrationTest(TestCase):
         
         # Just check the migration page returns a 200 response
         response = c.get('/tool/manage/submissionsets/1/migrate/')
-        self.assertTrue(response.status_code == 200)
+        self.assertEqual(response.status_code, 200)
         
         # Now submit for a migration
         post_dict = {
             "1-is_locked": "on"
         }
         response = c.post('/tool/manage/submissionsets/1/migrate/', post_dict)
-        self.assertTrue(response.status_code == 302)
+        self.assertEqual(response.status_code, 302)
         
         # Check that the data was migrated correctly
         ## SubmissionSet added
