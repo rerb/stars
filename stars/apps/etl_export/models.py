@@ -149,7 +149,10 @@ class SubmissionSet(models.Model, ETLCompareMixin):
         self.status = ss.status
         self.reporter_status = ss.reporter_status
         self.score = ss.get_STARS_score()
-        self.is_active = (ss == ss.institution.state.active_submission_set)
+        try:
+            self.is_active = (ss == ss.institution.state.active_submission_set)
+        except:
+            self.is_active = False
 
 class Payment(models.Model, ETLCompareMixin):
     """
