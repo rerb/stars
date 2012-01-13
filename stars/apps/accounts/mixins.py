@@ -3,7 +3,7 @@ from django.http import HttpResponseRedirect, HttpResponseForbidden, HttpRespons
 from django.utils.http import urlquote
 from django.conf import settings
 
-from stars.apps.helpers import flashMessage
+from stars.apps.helpers import flashMessage, watchdog
 from stars.apps.institutions.models import StarsAccount
 
 class StarsMixin(object):
@@ -59,7 +59,7 @@ class AccountMixin(StarsMixin):
         class MyClass(AccountMixin, BaseClass):
            pass
 
-        If there is an issue with the submissin `__call__` will report the error with a Response object
+        If there is an issue with the submission `__call__` will report the error with a Response object
         or an exception.
         
         Assumes `__call__` returns a response object and has the following declaration:
@@ -121,7 +121,7 @@ class SubmissionMixin(AccountMixin):
         class MyClass(SubmissionMixin, BaseClass):
            pass
 
-        If there is an issue with the submissin `__call__` will report the error with a Response object
+        If there is an issue with the submission `__call__` will report the error with a Response object
         or an exception.
         
         Assumes `__call__` returns a response object and has the following declaration:
@@ -157,62 +157,10 @@ class SubmissionMixin(AccountMixin):
         active_submission = current_inst.get_active_submission()
 
         if not active_submission:
-            if request.user.is_staff:
-                flashMessage.send("You need to create an active submission for %s."%current_inst, flashMessage.NOTICE)
-                return HttpResponseRedirect(settings.MANAGE_SUBMISSION_SETS_URL)
-            if request.user.account.has_perm('admin'):
-                flashMessage.send("You need to select or purchase an active submission for %s."%current_inst, flashMessage.NOTICE)
-                return HttpResponseRedirect(settings.MANAGE_SUBMISSION_SETS_URL)
-            else:
-                raise PermissionDenied("%s has no active submissions."%current_inst)
-        else:
-            if not active_submission.is_enabled():
-                raise PermissionDenied("This submission hasn't been enabled. It will be available once AASHE receives payment.")
-
-        return None
-
-class PermMixin(StarsMixin):
-    """
-        This class should be used as a mixin to provide the subclass with permission-based access.
-        The extending class should define a `perm_list` property list of permissions
-        required to call the class.
-
-        Example:
-        class MyClass(PermMixin, BaseClass):
-           perm_list = ['admin',]
-   
-        If `perm_list` is empty or undefined `__call__` will raise a `PermissionDenied` exception
-        and if `perm_message` is defined it will use that as the error message.
-
-        If the user is not authenticated `__call__` will return an HttpRedirect to the login path.
-        
-        Assumes `__call__` returns a response object and has the following declaration:
-            def __call__(self, request, *args, **kwargs):
-    """
-    
-    def __call__(self, request, *args, **kwargs):
-        
-        has_perms = True
-        
-        # Unauthenticated users are redirected to Login
-        if not request.user.is_authenticated():
-            return self.redirect_to_login(request)
-        else:
-            _perm_list = []
-            if hasattr(self, 'perm_list'):
-                _perm_list += self.perm_list
-            else:
-                has_perms = False
             
-            # Test all the required permissions
-            for perm in _perm_list:
-                if not request.user.has_perm(perm):
-                    has_perms = False
-                    
-        if has_perms:
-            return super(PermMixin, self).__call__(request, *args, **kwargs)
-        else:
-            raise PermissionDenied(self.perm_message if hasattr(self, 'perm_message') else "Permission Denied")
+            watchdog.log("get_active_submission_problem_response", "No active submission for %s." % current_inst, watchdog.ERROR)
+            
+        return None
             
 class InstitutionAccessMixin(StarsMixin):
     """
@@ -242,16 +190,14 @@ class InstitutionAccessMixin(StarsMixin):
         if not request.user.is_authenticated():
             return self.fail_response()
         
-        if not request.user.has_perm('admin'):
-            try:
-                if kwargs.has_key('institution_id'):
-                    account = StarsAccount.objects.get(institution__id=kwargs['institution_id'], user=request.user)
-                else:
-                    account = StarsAccount.objects.get(institution__slug=kwargs['institution_slug'], user=request.user)
-                if not account.has_access_level(self.access_level):
-                    return self.fail_response()
-            except StarsAccount.DoesNotExist:
-                return self.fail_response()
+        inst = None
+        if kwargs.has_key('institution_id'):
+            inst = Institution.objects.get(id=kwargs['institution_id'])
+        else
+            inst = Institution.objects.get(slug=kwargs['institution_slug'])
+        
+        if not user_has_access_level(request.user, 'admin', inst):
+            return self.fail_response()
         
         return super(InstitutionAccessMixin, self).__call__(request, *args, **kwargs)
         
