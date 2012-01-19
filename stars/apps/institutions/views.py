@@ -13,7 +13,7 @@ from stars.apps.accounts.utils import respond
 from stars.apps.accounts.mixins import InstitutionAccessMixin
 from stars.apps.credits.models import CreditSet
 from stars.apps.submissions.models import *
-from stars.apps.institutions.models import Institution, InstitutionState, StarsAccount
+from stars.apps.institutions.models import Institution, StarsAccount
 from stars.apps.institutions.forms import *
 from stars.apps.helpers.forms.views import TemplateView, FormActionView, MultiFormView
 from stars.apps.credits.views import CreditNavMixin
@@ -31,7 +31,7 @@ class SortableTableView(TemplateView):
     
     def __init__(self, *args, **kwargs):
         
-        # make sure that the extending class has defined the requred properties.
+        # make sure that the extending class has defined the required properties.
         assert (self.columns and self.default_key), "Must `colums` and `default_key` when extending this class"
         return super(SortableTableView, self).__init__(*args, **kwargs)
     
@@ -99,17 +99,17 @@ class SortableTableViewWithInstProps(SortableTableView):
         charter_count = 0
         pilot_count = 0
         international_count = 0
-        for ss in self.get_queryset():
-            if ss.institution.id not in inst_list:
-                inst_list.append(ss.institution.id)
+        for i in self.get_queryset():
+            if i.id not in inst_list:
+                inst_list.append(i.id)
                 inst_count += 1
-                if ss.institution.charter_participant:
+                if i.charter_participant:
                     charter_count += 1
-                if ss.institution.is_member:
+                if i.is_member:
                     member_count += 1
-                if ss.institution.is_pilot_participant:
+                if i.is_pilot_participant:
                     pilot_count += 1
-                if ss.institution.international:
+                if i.international:
                     international_count += 1
             
         _context['inst_count'] = inst_count
@@ -122,16 +122,16 @@ class SortableTableViewWithInstProps(SortableTableView):
 
 class ActiveInstitutions(SortableTableViewWithInstProps):
     """
-        Extending SortableTableView to show a sortable list of all active submissionsets
+        Extending SortableTableView to show a sortable list of all active participants
     """
 
     default_key = 'name'
     default_rev = '-'
-    secondary_order_field = 'institution__name'
+    secondary_order_field = 'name'
     columns = [
                     {
                         'key': 'name',
-                        'sort_field': 'institution__name',
+                        'sort_field': 'name',
                         'title': 'Institution',
                     },
                     # {
@@ -141,24 +141,19 @@ class ActiveInstitutions(SortableTableViewWithInstProps):
                     # },
                     {
                         'key': 'rating',
-                        'sort_field': 'rating',
+                        'sort_field': 'current_rating',
                         'title': 'Rating',
                     },
-                    {
-                        'key': 'version',
-                        'sort_field': 'creditset__version',
-                        'title': 'Version',
-                    },
+#                    {
+#                        'key': 'version',
+#                        'sort_field': 'creditset__version',
+#                        'title': 'Version',
+#                    },
                     # {
                     #     'key': 'date_registered',
                     #     'sort_field': 'date_registered',
                     #     'title': 'Date Registered',
                     # },
-                    {
-                       'key':'deadline',
-                       'sort_field':'submission_deadline',
-                       'title':'Renewal Deadline',
-                    },
               ]
     
     def get_queryset(self):
@@ -166,10 +161,11 @@ class ActiveInstitutions(SortableTableViewWithInstProps):
             Get the submission sets for all institutions
             
             Institutions shouldn't show up twice
-                - rated institutitons show their rating
+                - rated institutions show their rating
                 - unrated institutions show their next due date
         """
-        return SubmissionSet.objects.published().select_related('institution')
+        return Institution.objects.filter(is_participant=True)
+#        return SubmissionSet.objects.published().select_related('institution')
     
     
 class RatedInstitutions(SortableTableViewWithInstProps):
@@ -179,16 +175,16 @@ class RatedInstitutions(SortableTableViewWithInstProps):
 
     default_key = 'name'
     default_rev = '-'
-    secondary_order_field = 'institution__name'
+    secondary_order_field = 'name'
     columns = [
                     {
                         'key': 'name',
-                        'sort_field': 'institution__name',
+                        'sort_field': 'name',
                         'title': 'Institution',
                     },
                     {
                         'key': 'version',
-                        'sort_field': 'creditset__version',
+                        'sort_field': 'rated_submission__creditset__version',
                         'title': 'Version',
                     },
                     {
@@ -198,13 +194,13 @@ class RatedInstitutions(SortableTableViewWithInstProps):
                     },
                     {
                         'key':'date_submitted',
-                        'sort_field':'date_submitted',
+                        'sort_field':'rated_submission__date_submitted',
                         'title':'Submission Date',
                     },
               ]
               
     def get_queryset(self):
-        return SubmissionSet.objects.get_rated().select_related('institution')
+        return Institution.objects.get_rated().select_related('rated_submission').select_related('rated_submission__creditset')
 
 """
     INSTITUTIONAL REPORTS

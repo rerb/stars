@@ -1,32 +1,40 @@
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, date
 import sys
 
 from django.conf import settings
 from django.shortcuts import get_object_or_404
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
 from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMessage
 
 from stars.apps.accounts.utils import respond
-from stars.apps.accounts.decorators import user_is_inst_admin, user_is_staff
+from stars.apps.accounts.decorators import user_is_staff
 from stars.apps.accounts import xml_rpc
-from stars.apps.institutions.models import Institution, InstitutionState, StarsAccount
+from stars.apps.institutions.models import Institution, StarsAccount
+from stars.apps.institutions.rules import user_has_access_level
 from stars.apps.submissions.models import SubmissionSet, Payment, EXTENSION_PERIOD, ExtensionRequest
-from stars.apps.submissions.tasks import migrate_purchased_submission
+from stars.apps.submissions.tasks import migrate_purchased_submission, perform_migration
+from stars.apps.third_parties.models import ThirdParty
 from stars.apps.helpers.forms import form_helpers
 from stars.apps.helpers import watchdog
 from stars.apps.helpers import flashMessage
 from stars.apps.tool.manage.forms import *
 from stars.apps.registration.forms import PaymentForm, PayLaterForm
-from stars.apps.registration.views import process_payment, get_payment_dict, _get_registration_price, init_submissionset
-from stars.apps.submissions.tasks import perform_migration
+from stars.apps.registration.views import process_payment, get_payment_dict, _get_registration_price, init_submissionset 
     
-@user_is_inst_admin
+def _get_current_institution(request):
+    if hasattr(request.user, 'current_inst'):
+        if not user_has_access_level(request.user, 'admin', request.user.current_inst):
+            raise PermissionDenied('Sorry, only institution administrators have access.')
+        return request.user.current_inst
+    else:
+        raise Http404
+    
 def institution_detail(request):
     """
         Display the Institution Form so user can edit basic info about their institution
     """
-    current_inst = request.user.current_inst
+    current_inst = _get_current_institution(request)
     
     if request.user.is_staff:
         FormClass = AdminInstitutionForm
@@ -38,38 +46,33 @@ def institution_detail(request):
     context = {'institution_form': institution_form}
     return respond(request, 'tool/manage/detail.html', context)
     
-@user_is_inst_admin
 def institution_payments(request):
     """
         Display a list of payments made by the institution
     """
-    current_inst = request.user.current_inst
-    active_submission = current_inst.get_active_submission()
+    current_inst = _get_current_institution(request)
     
-    payment_list = Payment.objects.filter(submissionset__institution=current_inst).exclude(type='later').order_by('-date')
+    payment_list = SubscriptionPayment.objects.filter(subscription__institution=current_inst).order_by('-date')
 
-    context = {'payment_list': payment_list, 
-               'active_submission':active_submission,
+    context = {'payment_list': payment_list,
               }
     return respond(request, 'tool/manage/payments.html', context)
 
-@user_is_inst_admin
 def responsible_party_list(request):
     """
         Display a list of responsible parties for the institution
     """
-    current_inst = request.user.current_inst
+    current_inst = _get_current_institution(request)
 
     context = {'current_inst': current_inst,}
     
     return respond(request, 'tool/manage/responsible_party_list.html', context)
 
-@user_is_inst_admin
 def edit_responsible_party(request, rp_id):
     """
         Edit an existing responsible party
     """
-    current_inst = request.user.current_inst
+    current_inst = _get_current_institution(request)
     rp = get_object_or_404(ResponsibleParty, institution=current_inst, id=rp_id)
 
     (object_form, saved) = form_helpers.basic_save_form(request, rp, '', ResponsiblePartyForm)
@@ -82,12 +85,12 @@ def edit_responsible_party(request, rp_id):
     context = {'responsible_party': rp, 'object_form': object_form, 'title': "Edit Responsible Party", 'credit_list': credit_list}
     return respond(request, 'tool/manage/edit_responsible_party.html', context)
 
-@user_is_inst_admin
+
 def add_responsible_party(request):
     """
         Edit an existing responsible party
     """
-    current_inst = request.user.current_inst
+    current_inst = _get_current_institution(request)
     new_rp = ResponsibleParty(institution=current_inst)
     
     (object_form, saved) = form_helpers.basic_save_new_form(request, new_rp, 'new_rp', ResponsiblePartyForm)
@@ -98,12 +101,12 @@ def add_responsible_party(request):
     context = {'object_form': object_form, 'title': "Add Responsible Party"}
     return respond(request, 'tool/manage/edit_responsible_party.html', context)
 
-@user_is_inst_admin
+
 def delete_responsible_party(request, rp_id):
     """
     Remove a responsible party if they aren't tied to any submissions
     """
-    current_inst = request.user.current_inst
+    current_inst = _get_current_institution(request)
     rp = ResponsibleParty.objects.get(institution=current_inst, id=rp_id)
 
     credit_count = rp.creditusersubmission_set.exclude(subcategory_submission__category_submission__submissionset__is_visible=False).count()
@@ -115,16 +118,18 @@ def delete_responsible_party(request, rp_id):
         rp.delete()
         return HttpResponseRedirect("/tool/manage/responsible-parties/")
 
-@user_is_inst_admin
+
 def accounts(request, account_id=None):
     """
         Provides an interface to manage user accounts for an institution.
         Supply an optional StarsAccount id to provide an edit form for that account.
     """
+    current_inst = _get_current_institution(request)
+    
     # create a list of accounts, one of which might have an 'edit' form
     account_list = []
     editing = False
-    all_accounts = list(request.user.current_inst.starsaccount_set.all()) + list(request.user.current_inst.pendingaccount_set.all())
+    all_accounts = list(current_inst.starsaccount_set.all()) + list(current_inst.pendingaccount_set.all())
     for account in all_accounts:
         if str(account.id) == str(account_id):  # this account should supply an editing form...
             editing = True
@@ -149,12 +154,12 @@ def accounts(request, account_id=None):
               }
     return respond(request, 'tool/manage/accounts.html', context)
 
-@user_is_inst_admin
+
 def add_account(request):
     """
         Provides an interface to add user accounts to an institution.
     """
-    current_inst = request.user.current_inst
+    current_inst = _get_current_institution(request)
 
     (preferences, notify_form) = _update_preferences(request)
     
@@ -178,31 +183,33 @@ def add_account(request):
     return respond(request, 'tool/manage/add_account.html', {'account_form': account_form, 'notify_form':notify_form,})
 
     
-@user_is_inst_admin
+
 def delete_account(request, account_id):
     """
         Deletes a user account (user-institution relation)
     """
+    current_inst = _get_current_institution(request)
+    
     (preferences, notify_form) = _update_preferences(request)
     # Careful here - this needs to handle deletion of any type of account, real and pending.
     # The account must be an account current user is allowed to manage!
     # Just give a 404 if the account_id doesn't belong to the user's institution
     try:
-        account = StarsAccount.objects.get(id=account_id, institution=request.user.current_inst)
+        account = StarsAccount.objects.get(id=account_id, institution=current_inst)
     except StarsAccount.DoesNotExist:
-        account = get_object_or_404(PendingAccount, id=account_id, institution=request.user.current_inst)   
+        account = get_object_or_404(PendingAccount, id=account_id, institution=current_inst)   
         # no need to confirm deletion of pending accounts, since there is no consequence to doing so.
         account.delete()
         flashMessage.send("Pending account: %s successfully deleted."%account,flashMessage.SUCCESS)
         if preferences.notify_users:
-            account.notify(StarsAccount.DELETE_ACCOUNT, request.user, request.user.current_inst)
+            account.notify(StarsAccount.DELETE_ACCOUNT, request.user, current_inst)
         return HttpResponseRedirect(settings.MANAGE_USERS_URL)
 
     (form, deleted) = form_helpers.confirm_delete_form(request, account)       
     if deleted:
         watchdog.log('Manage Users', "Account: %s deleted."%account, watchdog.NOTICE)
         if preferences.notify_users:
-            account.notify(StarsAccount.DELETE_ACCOUNT, request.user, request.user.current_inst)
+            account.notify(StarsAccount.DELETE_ACCOUNT, request.user, current_inst)
         return HttpResponseRedirect(settings.MANAGE_USERS_URL)
     
     return respond(request, 'tool/manage/delete_account.html', {'account':account, 'confirm_form': form, 'notify_form':notify_form,})
@@ -218,14 +225,30 @@ def _update_preferences(request):
         preferences = InstitutionPreferences(institution=request.user.current_inst)
     (notify_form,saved) = form_helpers.basic_save_form(request, preferences, '', NotifyUsersForm, flash_message=False)
     return (preferences, notify_form)
+
+
+def share_data(request):
+    """
+        I'm not exactly sure how this will tie into the API yet
+        so this is really just a place-holder
+    """
+    current_inst = _get_current_institution(request)
     
-@user_is_inst_admin
+    (object_form, saved) = form_helpers.basic_save_form(request, current_inst, '', ThirdPartiesForm)
+    
+    if saved:
+        return HttpResponseRedirect("/tool/manage/share-data/")
+    
+    context = {'current_inst': current_inst, 'object_form': object_form, 'third_party_list': ThirdParty.objects.all()}
+    return respond(request, 'tool/manage/third_parties.html', context)
+
+@user_is_staff
 def submissionsets(request):
     """
         Provides an interface to manage submission sets for an institution
         and select indicate which one is the active submission
     """
-    current_inst = request.user.current_inst
+    current_inst = _get_current_institution(request)
     
     active_set = current_inst.get_active_submission()
     
@@ -236,13 +259,12 @@ def submissionsets(request):
     context = {'active_set': active_set, 'is_admin': is_admin, 'latest_creditset': latest_creditset}
     return respond(request, 'tool/manage/submissionset_list.html', context)
 
-@user_is_inst_admin
+
 def migrate_submissionset(request, set_id):
     """
         Provides a tool to migrate a submission set
     """
-    
-    current_inst = request.user.current_inst    
+    current_inst = _get_current_institution(request)    
     submission_set = get_object_or_404(SubmissionSet, id=set_id, institution=current_inst)
     latest_creditset = CreditSet.objects.get_latest()
     
@@ -276,7 +298,7 @@ def add_submissionset(request):
         Provides a form for adding a new submission set
     """
     
-    current_inst = request.user.current_inst
+    current_inst = _get_current_institution(request)
     
     # Build and precess the form for adding a new submission set
     new_set = SubmissionSet(institution=current_inst)
@@ -295,28 +317,6 @@ def add_submissionset(request):
         return HttpResponseRedirect(settings.MANAGE_SUBMISSION_SETS_URL)
     
     template = 'tool/manage/add_submissionset.html'
-    context = {
-        "object_form": object_form,
-    }
-    return respond(request, template, context)
-    
-@user_is_staff
-def edit_submissionset(request, set_id):
-    """
-        Provides a form to edit a submission set
-    """
-    
-    current_inst = request.user.current_inst
-    
-    submission_set = get_object_or_404(SubmissionSet, id=set_id, institution=current_inst)
-    
-    ObjectForm = AdminSubmissionSetForm
-    if request.user.is_staff:
-        ObjectForm = AdminSubmissionSetForm
-    
-    object_form, saved = form_helpers.basic_save_form(request, submission_set, set_id, ObjectForm)
-
-    template = 'tool/manage/edit_submissionset.html'
     context = {
         "object_form": object_form,
     }
@@ -355,12 +355,12 @@ def _gets_discount(institution, current_date=date.today()):
         
     return False
 
-@user_is_inst_admin
+
 def pay_submissionset(request, set_id):
     """
         Provides a payment form for those institutions that selected to pay later
     """
-    current_inst = request.user.current_inst
+    current_inst = _get_current_institution(request)
     ss = get_object_or_404(SubmissionSet, id=set_id, institution=current_inst)
     is_member = current_inst.is_member_institution()
     # get the amount of the pay_later payments
@@ -426,12 +426,12 @@ def send_exec_renew_email(institution):
     et = EmailTemplate.objects.get(slug="reg_renewal_exec")
     et.send_email(mail_to, {'institution': institution,})
 
-@user_is_inst_admin
+
 def purchase_submissionset(request):
     """
         Provides a view to allow institutions to purchase a new submission set
     """
-    current_inst = request.user.current_inst
+    current_inst = _get_current_institution(request)
     is_member = current_inst.is_member_institution()
     amount = _get_registration_price(current_inst, new=False)
     discount = _gets_discount(current_inst)
@@ -545,10 +545,10 @@ def purchase_submissionset(request):
     }
     return respond(request, template, context)
 
-@user_is_inst_admin
+
 def extension_request(request, set_id):
     
-    current_inst = request.user.current_inst
+    current_inst = _get_current_institution(request)
     
     ss = get_object_or_404(SubmissionSet, id=set_id, institution=current_inst)
     
@@ -578,13 +578,13 @@ def extension_request(request, set_id):
     }
     return respond(request, template, context)
 
-@user_is_inst_admin
+
 def activate_submissionset(request, set_id):
     """
         Set the selected submission set as active
     """
     
-    current_inst = request.user.current_inst
+    current_inst = _get_current_institution(request)
     
     submission_set = get_object_or_404(SubmissionSet, id=set_id)
     
@@ -592,11 +592,10 @@ def activate_submissionset(request, set_id):
     
     return HttpResponseRedirect(settings.MANAGE_SUBMISSION_SETS_URL)
 
-@user_is_inst_admin
 def boundary(request, set_id):
     """ Displays the Institution Boundary edit form """
     
-    current_inst = request.user.current_inst
+    current_inst = _get_current_institution(request)
     submission_set = get_object_or_404(SubmissionSet, id=set_id)
 
     ObjectForm = BoundaryForm

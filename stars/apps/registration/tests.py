@@ -34,7 +34,6 @@ class RegistrationTestCase(unittest.TestCase):
         
         self.assertEquals(submissionset.status, 'ps')
         self.assertEquals(submissionset.date_registered, today)
-        self.assertEquals(submissionset.submission_deadline, one_year_hence)
         self.assertEquals(submissionset.registering_user, self.user)
         
         # leap year case
@@ -43,4 +42,3 @@ class RegistrationTestCase(unittest.TestCase):
         submissionset.delete()
         submissionset = init_submissionset(self.inst, self.user, today)
         
-        self.assertEquals(submissionset.submission_deadline, one_year_hence)

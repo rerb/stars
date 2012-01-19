@@ -1,6 +1,7 @@
 import copy
 from stars.apps.submissions.models import CreditTestSubmission, CreditUserSubmission, SubcategorySubmission, DocumentationFieldSubmission, SubmissionSet
 from stars.apps.submissions.utils import init_credit_submissions
+from stars.apps.credits.models import CreditSet
 
 def migrate_creditset(old_cs, new_version_name, release_date):
     """ Copy a creditset to a new version and update `previous_version` references' """    
@@ -51,6 +52,29 @@ def migrate_creditset(old_cs, new_version_name, release_date):
                         new_dfs.save()
     return new_cs
 
+def create_ss_mirror(old_ss, new_cs=None):
+    """
+        creates a new submissionset using the latest creditset
+        and migrates the data from old_ss leaving it unchanged
+        
+        takes an optional creditset to use
+    """
+    if new_cs == None:
+        new_cs = CreditSet.objects.get_latest()
+    
+    new_ss = SubmissionSet(
+                            creditset=new_cs,
+                            institution=old_ss.institution,
+                            date_registered=old_ss.date_registered,
+                            status='ps',
+                            is_locked=True,
+                            is_visible=False)
+    new_ss.save()
+    
+    init_credit_submissions(new_ss)
+    
+    return migrate_submission(old_ss, new_ss)
+
 def migrate_ss_version(old_ss, new_cs):
     """
         Migrate a SubmissionSet from one CreditSet version to another
@@ -67,21 +91,8 @@ def migrate_ss_version(old_ss, new_cs):
     if not old_ss.is_locked:
         old_ss.is_locked = True
         old_ss.save()
-
-    new_ss = SubmissionSet(
-                            creditset=new_cs,
-                            institution=old_ss.institution,
-                            date_registered=old_ss.date_registered,
-                            submission_deadline=old_ss.submission_deadline,
-                            registering_user=old_ss.registering_user,
-                            status='ps',
-                            is_locked=True,
-                            is_visible=False)
-    new_ss.save()
-    
-    init_credit_submissions(new_ss)
-    
-    new_ss = migrate_submission(old_ss, new_ss)
+        
+    new_ss = create_ss_mirror(old_ss, new_cs)
 
     # move payments
     for p in old_ss.payment_set.all():
@@ -104,9 +115,7 @@ def migrate_ss_version(old_ss, new_cs):
 def migrate_submission(old_ss, new_ss, keep_status=False):
     """
         Migrate data from one SubmissionSet to another
-        
-        The returned SubmissionSet is locked and hidden
-        
+
         Keeping the status will keep the submission status the same
         and transfer all the properties UNLESS the submissionsets
         are of different versions.

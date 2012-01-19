@@ -124,38 +124,6 @@ def user_is_inst_admin(f):
             raise PermissionDenied("Admin privileges for %s required."%request.user.current_inst)
     return wrap
 
-def user_can_submit(f):
-    """
-        This decorator tests to see if the User can submit data for the currently selected institution 
-    """
-    @wraps(f)
-    def wrap(request, *args, **kwargs):
-        problem_with_submission = _get_active_submission_problem_response(request)
-        if problem_with_submission:
-            return problem_with_submission
-
-        if request.user.has_perm('submit'):
-            return f(request, *args, **kwargs)
-        else:
-            raise PermissionDenied("Privilege to submit data for %s required."%request.user.current_inst)
-    return wrap
-
-def user_can_view(f):
-    """
-        This decorator tests to see if the User can view un-rated submission data for the currently selected institution 
-    """
-    @wraps(f)
-    def wrap(request, *args, **kwargs):
-        problem_with_submission = _get_active_submission_problem_response(request)
-        if problem_with_submission:
-            return problem_with_submission
-
-        if request.user.has_perm('view'):
-            return f(request, *args, **kwargs)
-        else:
-            raise PermissionDenied("Privilege to view data for %s required."%request.user.current_inst)
-    return wrap
-
 def _get_account_problem_response(request):
     """ Returns a response if there are any problems with the user's account, None otherwise """
     if not request.user.is_authenticated():
@@ -198,26 +166,20 @@ def _get_active_submission_problem_response(request):
     current_inst = request.user.current_inst
     active_submission = current_inst.get_active_submission()
                 
-    if not active_submission:
-        if request.user.is_staff:
-            flashMessage.send("You need to create an active submission for %s."%current_inst, flashMessage.NOTICE)
-            return HttpResponseRedirect(settings.MANAGE_SUBMISSION_SETS_URL)
-        if request.user.account.has_perm('admin'):
-            flashMessage.send("You need to select or purchase an active submission for %s."%current_inst, flashMessage.NOTICE)
-            return HttpResponseRedirect(settings.MANAGE_SUBMISSION_SETS_URL)
-        else:
-            raise PermissionDenied("%s has no active submissions."%current_inst)
-    elif active_submission.is_locked:
-        raise PermissionDenied("This submission has been locked. This could be because you are migrating to a more recent Credit Set. Please contact your STARS Liaison or the STARS Team if you have any questions.")
-    elif active_submission.status != 'ps' and not request.user.is_staff:
-        raise PermissionDenied("This submission has been submitted and is no longer available for editing. See it under 'My Report(s).'")
-    elif active_submission.missed_deadline():
-        raise PermissionDenied("The submission deadline for this submission has passed. It is no longer available to edit.")
-    else:
-        if not active_submission.is_enabled():
-            raise PermissionDenied("This submission hasn't been enabled. It will be available once AASHE receives payment.")
+#    if not active_submission:
+#        raise PermissionDenied("There doesn't appear to be an available submisison.")
+    #    elif active_submission.status != 'ps' and not request.user.is_staff:
+#        raise PermissionDenied("This submission has been submitted and is no longer available for editing. See it under 'My Report(s).'")
+#    elif active_submission.missed_deadline():
+#        raise PermissionDenied("The submission deadline for this submission has passed. It is no longer available to edit.")
+#    else:
+#        if not active_submission.is_enabled():
+#            raise PermissionDenied("This submission hasn't been enabled. It will be available once AASHE receives payment.")
  
-    assert active_submission
+    assert active_submission, "There doesn't appear to be an available submission"
+    if active_submission.is_locked:
+        raise PermissionDenied("This submission has been locked. This could be because you are migrating to a more recent Credit Set. Please try again later and then contact your STARS Liaison or the STARS Team if you have any questions.")
+
     return None
     
     

@@ -40,7 +40,7 @@ class DocumentationFieldInline(admin.TabularInline):
     
 class CreditAdmin(admin.ModelAdmin):
     list_display = ('get_identifier','title', 'subcategory', 'type')
-    list_filter = ('subcategory',)
+    list_filter = ('subcategory','subcategory__category__creditset')
     inlines = [
             DocumentationFieldInline,
         ]

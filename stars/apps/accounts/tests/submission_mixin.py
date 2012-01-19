@@ -34,7 +34,7 @@
     >>> account.save()
     >>> u.account = account
     >>> u.save()
-    >>> ss = SubmissionSet(creditset=cs, institution=i, date_registered=datetime.now(), submission_deadline=datetime.now(), registering_user=u)
+    >>> ss = SubmissionSet(creditset=cs, institution=i, date_registered=datetime.now(), registering_user=u)
     >>> ss.save()
     
     # No Active Submission
@@ -59,8 +59,8 @@
     PermissionDenied
     
     # Active submission is disabled: permission denied
-    >>> ins = InstitutionState(institution=i, active_submission_set=ss)
-    >>> ins.save()
+    >>> i.current_submission = ss
+    >>> i.save()
     >>> ss.is_enabled()
     False
     >>> try:

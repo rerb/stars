@@ -1,5 +1,7 @@
 {% extends 'tool/submissions/columned_layout.html' %}
 
+{% load aashe_rules_tags %}
+
 {% block title %}{{ credit }} | {{ block.super}}{% endblock %}
 
 {% load submit_tags  %}
@@ -28,9 +30,13 @@
 	        <td>{{ credit_submission.last_updated|date:"m/d/y fA" }}</td>
 	        <td>{% format_available_points credit_submission %}</td>
 	        <td>
+              {% testrule institution_has_score_feature user.current_inst %}
 	        	{% ifnotequal credit_submission.assessed_points None %}
                     {{ credit_submission.assessed_points }}
                 {% endifnotequal %}
+              {% else %}
+                STARS Participants Only
+              {% endtestrule %}
          	</td>
 	    </tr>
 	</table>

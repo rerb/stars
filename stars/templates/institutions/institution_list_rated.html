@@ -31,26 +31,20 @@
             </th>
           {% endfor %}
         </tr>
-        {% for submissionset in object_list %}
+        {% for institution in object_list %}
           <tr class="{% cycle 'even' 'odd' %}">
             <td style='text-align: left'>
-                <a href='{{ submissionset.get_scorecard_url }}'>{{ submissionset.institution }}</a>
+                <a href='{{ institution.rated_submission.get_scorecard_url }}'>{{ institution }}</a>
                 {% include "institutions/inst_property_icons.html" %}
             </td>
             <td>
-                {{ submissionset.creditset.version }}
+                {{ institution.rated_submission.creditset.version }}
             </td>
             <td>
-                {% ifequal submissionset.status 'r' %}
-                    {% if submissionset.rating %}
-                        {{ submissionset.rating }}
-                    {% else %}
-                        ---
-                    {% endif %}
-                {% endifequal %}
+              {{ institution.current_rating }}
             </td>
             <td>
-              {{ submissionset.date_submitted }}
+              {{ institution.rated_submission.date_submitted }}
             </td>
           </tr>            
         {% endfor %}

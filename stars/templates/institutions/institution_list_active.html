@@ -5,7 +5,7 @@
 {% block tab_content %}
 	
     <span class="help_text"> <p>
-    The following <b>{{ inst_count }} institutions</b> have registered for STARS. Of these institutions
+    The following <b>{{ inst_count }} institutions</b> are current STARS Participants. Of these institutions
     <b>{{ member_count }} are AASHE members</b> (<sup class='symbol'>m</sup>),
     <b>{{ charter_count }} are STARS Charter Participants</b> (<sup class='symbol'>c</sup>),
     <b>{{ international_count }} are participating in the International Pilot</b> (<sup class='symbol'>i</sup>)
@@ -27,31 +27,29 @@
             </th>
           {% endfor %}
         </tr>
-        {% for submissionset in object_list %}
+        {% for institution in object_list %}
           <tr class="{% cycle 'even' 'odd' %}">
             <td style='text-align: left'>
-                {% ifequal submissionset.status 'r' %}
-                    <a href='{{ submissionset.get_scorecard_url }}'>{{ submissionset.institution }}</a>
+                {% if institution.current_rating %}
+                    <a href='{{ institution.rated_submission.get_scorecard_url }}'>{{ institution }}</a>
                 {% else %}
-                    {{ submissionset.institution }}
-                {% endifequal %}
+                    {{ institution }}
+                {% endif %}
                 {% include "institutions/inst_property_icons.html" %}
             </td>
             <td>
-                {% ifequal submissionset.status 'r' %}
-                    {{ submissionset.rating }}
-                {% else %}
-                    {% if submissionset.missed_deadline %}
-                        <span title='Did not submit'>--</span>
-                    {% endif %}
-                {% endifequal %}
+                {% if institution.current_rating %}
+                    {{ institution.current_rating }}
+                {% endif %}
             </td>
+            {% comment %}
             <td>
             	{{ submissionset.creditset.version }}
             </td>
             <td>
                 {{ submissionset.submission_deadline }}
             </td>
+            {% endcomment %}
           </tr>            
         {% endfor %}
       </table>

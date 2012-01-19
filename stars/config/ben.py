@@ -20,8 +20,8 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        # 'NAME': '/Users/jamstooks/sqlite/stars_test.db',
-        # 'ENGINE': 'sqlite3',
+#         'NAME': '/Users/jamstooks/sqlite/pre1.2_test.db',
+#         'ENGINE': 'sqlite3',
         'NAME': 'stars_pre_1.2',
         'ENGINE': 'django.db.backends.mysql',
         'USER': 'root',

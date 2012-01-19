@@ -81,7 +81,7 @@ LOGIN_URL = "/accounts/login/"
 LOGOUT_URL = "/accounts/logout/"
 LOGIN_REDIRECT_URL = "/"
 ADMIN_URL = "/tool/admin/"
-MANAGE_INSTITUTION_URL = "/tool/manage/"
+MANAGE_INSTITUTION_URL = "/tool/"
 MANAGE_USERS_URL = MANAGE_INSTITUTION_URL + "users/"
 MANAGE_SUBMISSION_SETS_URL = MANAGE_INSTITUTION_URL + "submissionsets/"
 
@@ -124,6 +124,7 @@ INSTALLED_APPS = (
     'stars.apps.tasks',
     'stars.apps.notifications',
     'stars.apps.migrations',
+    'stars.apps.third_parties',
     'stars.tests',
     'aashe.issdjango',
     'south',

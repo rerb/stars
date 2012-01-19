@@ -8,10 +8,6 @@ class InstitutionAdmin(admin.ModelAdmin):
     search_fields = ('name',)
 admin.site.register(Institution, InstitutionAdmin)
 
-class InstitutionStateAdmin(admin.ModelAdmin):
-    pass
-admin.site.register(InstitutionState, InstitutionStateAdmin)
-
 class StarsAccountAdmin(admin.ModelAdmin):
     list_display = ('user', 'institution', 'user_level')
     list_filter = ('institution',)

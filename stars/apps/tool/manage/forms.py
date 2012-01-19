@@ -2,13 +2,15 @@ import re
 
 from django.forms import ModelForm
 from django import forms
+from django.db import models
 from django.forms import widgets
 from django.forms.util import ErrorList
 from django.forms.extras.widgets import SelectDateWidget
 
-from stars.apps.credits.models import *
-from stars.apps.institutions.models import *
-from stars.apps.submissions.models import *
+from stars.apps.credits.models import CreditSet
+from stars.apps.institutions.models import Institution, StarsAccount, InstitutionPreferences, STARS_USERLEVEL_CHOICES
+from stars.apps.submissions.models import SubmissionSet, ResponsibleParty, Boundary
+from stars.apps.third_parties.models import ThirdParty
 from stars.apps.accounts.xml_rpc import get_user_by_email
 
 class AdminInstitutionForm(ModelForm):
@@ -17,7 +19,7 @@ class AdminInstitutionForm(ModelForm):
     """
     class Meta:
         model = Institution
-        exclude = ['name', 'aashe_id', ]
+        exclude = ['name', 'aashe_id', 'current_subscription', 'current_submission', 'rated_submission']
 
 #    @staticmethod
     def form_name():
@@ -180,3 +182,38 @@ class BoundaryForm(ModelForm):
     class Meta:
         model = Boundary
         exclude = ['submissionset',]
+
+class ThirdPartiesForm(ModelForm):
+    """
+        Institutions can select which orgs to share with
+    """
+    third_parties = forms.ModelMultipleChoiceField(widget=forms.CheckboxSelectMultiple(), queryset=ThirdParty.objects.all())
+    
+    class Meta:
+        model = Institution
+        fields = []
+
+    def __init__(self, *args, **kwargs):
+        if 'instance' in kwargs:            
+            initial = kwargs.setdefault('initial', {})
+            initial['third_parties'] = [t.pk for t in kwargs['instance'].third_parties.all()]
+        forms.ModelForm.__init__(self, *args, **kwargs)
+  
+    def save(self, commit=True):
+        instance = forms.ModelForm.save(self, False)
+
+        # Prepare a 'save_m2m' method for the form,
+        old_save_m2m = self.save_m2m
+        def save_m2m():
+           old_save_m2m()
+           instance.third_parties.clear()
+           for t in self.cleaned_data['third_parties']:
+               instance.third_parties.add(t)
+        self.save_m2m = save_m2m
+
+        # Do we need to save all changes now?
+        if commit:
+            instance.save()
+            self.save_m2m()
+
+        return instance

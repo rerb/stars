@@ -1,47 +1,119 @@
 # encoding: utf-8
 import datetime
 from south.db import db
-from south.v2 import SchemaMigration
+from south.v2 import DataMigration
 from django.db import models
 
-class Migration(SchemaMigration):
+from stars.apps.migrations.utils import migrate_ss_version
+
+class Migration(DataMigration):
 
     def forwards(self, orm):
-        
-        # Adding model 'SubscriptionPayment'
-        db.create_table('institutions_subscriptionpayment', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('subscription', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['institutions.Subscription'])),
-            ('date', self.gf('django.db.models.fields.DateTimeField')()),
-            ('amount', self.gf('django.db.models.fields.FloatField')()),
-            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
-            ('reason', self.gf('django.db.models.fields.CharField')(max_length='16')),
-            ('method', self.gf('django.db.models.fields.CharField')(max_length='8')),
-            ('confirmation', self.gf('django.db.models.fields.CharField')(max_length='16', null=True, blank=True)),
-        ))
-        db.send_create_signal('institutions', ['SubscriptionPayment'])
+        """
+        Create subscriptions for all institutions.
+        Migrate their payment data accordingly.
+        Only creating the most recent subscription...
 
-        # Adding model 'Subscription'
-        db.create_table('institutions_subscription', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('institution', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['institutions.Institution'])),
-            ('start_date', self.gf('django.db.models.fields.DateField')()),
-            ('end_date', self.gf('django.db.models.fields.DateField')()),
-            ('ratings_allocated', self.gf('django.db.models.fields.SmallIntegerField')(default=1)),
-            ('ratings_used', self.gf('django.db.models.fields.IntegerField')(default=0)),
-            ('amount_due', self.gf('django.db.models.fields.FloatField')()),
-            ('paid_in_full', self.gf('django.db.models.fields.BooleanField')(default=False)),
-        ))
-        db.send_create_signal('institutions', ['Subscription'])
+        Rated Institutions
+        ------------------
+         - if their latest rated submission deadline hasn't passed
+          - create a current subscription with that end date
+         - else
+          - create an expired subscription with that end date
 
+        Expired Institutions
+        --------------------
+        Those institutions who never submitted for a rating
+        - create a subscription for their last attempt
+
+        Current Participants
+        --------------------
+        Those institutions who are still working in the tool
+        - create a subscription with their current submission's deadline
+        """
+
+        td = datetime.timedelta(days=365)
+
+        need_extension = []
+
+
+        for i in orm.Institution.objects.order_by('name'):
+            print "---------------"
+            print "%s:" % i.name
+            
+            # Get all submissions
+            for ss in orm['submissions.SubmissionSet'].objects.filter(institution=i).order_by('date_registered').exclude(is_visible=False):
+                print "Submission: %s - %s" % (ss.date_registered, ss.submission_deadline)
+                
+                subscription_end = ss.submission_deadline
+
+                # rated institutions that still have time in their subscription
+                # should get a new submission
+
+                # Rated institutions
+                ratings_used = 0
+                if ss.status == 'r':
+                    ratings_used = 1
+                    print "Rated: %s" % ss.date_submitted
+                    if subscription_end > datetime.date.today():
+                        print "****NEEDS EXTENSION****"
+                        need_extension.append(ss)
+#                        print "creating submissionset and making it active"
+##                        ssKlass = orm['submissions.SubmissionSet']
+##                        new_ss = ssKlass(
+##                                         institution=i,
+##                                         date_registered=ss.date_submitted,
+##                                         submission_deadline=ss.submission_deadline,
+##                                         creditset=ss.creditset,
+##                                         registering_user=ss.registering_user,
+##                                         status='ps'
+##                                        )
+#                        new_ss = migrate_ss_version(ss, ss.creditset)
+#                        i.current_submission = new_ss
+#                        i.save()
+
+                # Create subscriptions and payments for all submissions
+                amount_due = 0
+                paid_in_full = True
+                
+                 # if there aren't any payments
+                if orm['submissions.Payment'].objects.filter(submissionset=ss).exclude(type='later').count() == 0:
+                    for p in orm['submissions.Payment'].objects.filter(submissionset=ss).filter(type='later'):
+                        if p.type == 'later':
+                            amount_due += p.amount
+                    paid_in_full = False
+
+                new_sub = orm.Subscription(
+                    institution=i,
+                    start_date=ss.date_registered,
+                    end_date=ss.submission_deadline,
+                    ratings_used=ratings_used,
+                    amount_due=amount_due,
+                    paid_in_full=paid_in_full
+                    )
+                new_sub.save()
+                print "Created Subscription: %s - %s" % (new_sub.start_date, new_sub.end_date)
+
+                for p in orm['submissions.Payment'].objects.filter(submissionset=ss).exclude(type='later'):
+                    new_payment = orm.SubscriptionPayment(
+                        subscription=new_sub,
+                        date=p.date,
+                        amount=p.amount,
+                        user=p.user,
+                        reason=p.reason,
+                        method=p.type,
+                        confirmation=p.confirmation
+                        )
+                    new_payment.save()
+                    print "Created Payment: %s (%s)" % (new_payment.amount, new_payment.method)
+
+        print "Need Extension:"
+        print "****THESE NEED TO BE DONE MANUALLY UNFORTUNATELY*****"
+        for ss in need_extension:
+            print ss.institution.name
 
     def backwards(self, orm):
-        
-        # Deleting model 'SubscriptionPayment'
-        db.delete_table('institutions_subscriptionpayment')
-
-        # Deleting model 'Subscription'
-        db.delete_table('institutions_subscription')
+        "Write your backwards methods here."
 
 
     models = {
@@ -209,7 +281,7 @@ class Migration(SchemaMigration):
             'amount_due': ('django.db.models.fields.FloatField', [], {}),
             'end_date': ('django.db.models.fields.DateField', [], {}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'instiutition': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['institutions.Institution']"}),
+            'institution': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['institutions.Institution']"}),
             'paid_in_full': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'ratings_allocated': ('django.db.models.fields.SmallIntegerField', [], {'default': '1'}),
             'ratings_used': ('django.db.models.fields.IntegerField', [], {'default': '0'}),

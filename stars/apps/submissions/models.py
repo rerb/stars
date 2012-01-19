@@ -20,6 +20,7 @@ SUBMISSION_STATUS_CHOICES = (
     ('ps', 'Pending Submission'),
     ('pr', 'Processing Submission'), # was "Pending Review"
     ('r', 'Rated'),
+    ('f', 'Finalized'),
 )
 
 # Max # of extensions allowed per submission set
@@ -67,7 +68,6 @@ class SubmissionSet(models.Model):
     date_registered = models.DateField()
     date_submitted = models.DateField(blank=True, null=True)
     date_reviewed = models.DateField(blank=True, null=True)
-    submission_deadline = models.DateField()
     registering_user = models.ForeignKey(User, related_name='registered_submissions')
     submitting_user = models.ForeignKey(User, related_name='submitted_submissions', blank=True, null=True)
     rating = models.ForeignKey(Rating, blank=True, null=True)
@@ -87,10 +87,7 @@ class SubmissionSet(models.Model):
         return unicode('%s (%s)' % (self.institution, self.creditset) )
     
     def missed_deadline(self):
-        if self.status == 'ps':
-            return self.submission_deadline < date.today()
-        else:
-            return False
+        return not self.institution.is_participant
     
     def get_upload_path(self):
         return 'secure/%d/submission-%d/' % (self.institution.id, self.id)
@@ -106,40 +103,6 @@ class SubmissionSet(models.Model):
             return file
             
         return pdf_result.getvalue()
-    
-    def can_apply_for_extension(self, today=None):
-        """
-            Returns true if this submissionset can add an extension
-            today is used for testing
-        """
-        
-        # if their total time is longer than a year and a half,
-        # then they've already had an extension
-        td = self.submission_deadline - self.date_registered
-        if td.days > 365 + (365/2):
-            return False
-        
-        # only w/in 60 days of their deadline
-        if not today:
-            today = date.today()
-        td = timedelta(days=61)
-#        print >> sys.stderr, (self.submission_deadline - today).days
-        if today <= (self.submission_deadline - td):
-            return False
-        
-        # only those who registered before 2011
-        if self.date_registered.year > 2010:
-            return False
-        
-        # no available if they have already submitted
-        if self.status == 'r' or self.status == 'pr':
-            return False
-        
-        # a max of MAX_EXTENSIONS extension(s) is allowed
-        if self.extensionrequest_set.count() >= MAX_EXTENSIONS:
-            return False
-        
-        return True
     
     def is_enabled(self):
         if self.is_visible:

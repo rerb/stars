@@ -1,12 +1,12 @@
-{% if submissionset.institution.is_member %}
+{% if institution.is_member %}
     <sup class='symbol' title='AASHE Member'>m</sup>
 {% endif %}
-{% if submissionset.institution.is_pilot_participant %}
+{% if institution.is_pilot_participant %}
     <sup class='symbol' title='Pilot Participant'>p</sup>
 {% endif %}
-{% if submissionset.institution.charter_participant %}
+{% if institution.charter_participant %}
     <sup class='symbol' title='Charter Participant'>c</sup>
 {% endif %}
-{% if submissionset.institution.international %}
+{% if institution.international %}
     <sup class='symbol' title='International Pilot Participant'>i</sup>
 {% endif %}

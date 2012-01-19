@@ -1,0 +1,64 @@
+{% extends 'tool/manage/submissionset_base.html' %}
+
+{% load content %}
+
+{% block tabclass %}class='tab6'{% endblock %}
+
+{% block institution_content %}
+  {% display_block_content 'third-parties' user %}
+  
+    <form action='.' method='post'>
+    {# @todo: Use the iteration tool available in Django 1.4 when it launches #}
+    
+    <table class='greyTable' style='margin: 15px auto;width: 80%;'>
+        <tr>
+            <th>Organization</th>
+            <th>Next Deadline</th>
+            <th>Grant Access?</th>
+        </tr>
+        {% for tp in third_party_list %}
+          <tr class="{% cycle 'even' 'odd' %}">
+            <td>
+              {{ tp.name }}
+              {% if tp.publication %}
+                <br/>({{ tp.publication }})
+              {% endif %}
+            </td>
+            <td>
+              {% if tp.next_deadline %}
+                {{ tp.next_deadline }}
+              {% endif %}
+            </td>
+            <td>
+              <input  type="checkbox"
+                      name="third_parties"
+                      value="{{ tp.id }}"
+                      id="id_third_parties_{{ forloop.counter0 }}"
+                      {% if tp in current_inst.third_parties.all %}
+                      checked="checked"
+                      {% endif %}
+              />
+            </td>
+          </tr>
+        {% endfor %}
+    </table>
+    
+    <div class='button_row'>
+          <button type='submit' id='submit_button'>Save</button>
+      </div>
+    </form>
+    
+    <h3>Finalized Submissions</h3>
+    <table class='greyTable' style='margin: 15px auto;width: 80%;'>
+        <tr>
+            <th>Date of Submission</th>
+            <th>STARS Version</th>
+        </tr>
+        <tr>
+          <td colspan="2">
+            No current snapshots <br/>
+            <a href='#'>Take a snapshot of your data now</a>
+          </td>
+        </tr>
+    </table>
+{% endblock %}

@@ -1,47 +1,52 @@
 # encoding: utf-8
 import datetime
 from south.db import db
-from south.v2 import SchemaMigration
+from south.v2 import DataMigration
 from django.db import models
 
-class Migration(SchemaMigration):
+import sys
+
+class Migration(DataMigration):
 
     def forwards(self, orm):
         
-        # Adding model 'SubscriptionPayment'
-        db.create_table('institutions_subscriptionpayment', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('subscription', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['institutions.Subscription'])),
-            ('date', self.gf('django.db.models.fields.DateTimeField')()),
-            ('amount', self.gf('django.db.models.fields.FloatField')()),
-            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
-            ('reason', self.gf('django.db.models.fields.CharField')(max_length='16')),
-            ('method', self.gf('django.db.models.fields.CharField')(max_length='8')),
-            ('confirmation', self.gf('django.db.models.fields.CharField')(max_length='16', null=True, blank=True)),
-        ))
-        db.send_create_signal('institutions', ['SubscriptionPayment'])
+        td = datetime.timedelta(days=365*3)
+        
+        for i in orm.Institution.objects.all():
+            # get the latest rated submission
+            try:
+                latest_rated_submission = orm['submissions.SubmissionSet'].objects.filter(status='r').filter(institution=i).order_by('date_submitted')[0]
+                if latest_rated_submission:
+                    i.current_rating = latest_rated_submission.rating
+                    i.rating_expires = latest_rated_submission.date_submitted + td
+            except:
+                i.current_rating = None
+                i.rating_expires = None
+            # get the active submission
+            try:
+                state = orm.InstitutionState.objects.get(institution=i)
+                if state.active_submission_set:
+                    i.current_submission = state.active_submission_set
+            except orm.InstitutionState.DoesNotExist:
+                print >> sys.stderr, "No State found for %s" % i.name
+            # get the current subscription
+            today = datetime.date.today()
+            qs = orm.Subscription.objects.filter(institution=i).filter(start_date__lte=today).filter(end_date__gte=today).order_by("-end_date")
 
-        # Adding model 'Subscription'
-        db.create_table('institutions_subscription', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('institution', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['institutions.Institution'])),
-            ('start_date', self.gf('django.db.models.fields.DateField')()),
-            ('end_date', self.gf('django.db.models.fields.DateField')()),
-            ('ratings_allocated', self.gf('django.db.models.fields.SmallIntegerField')(default=1)),
-            ('ratings_used', self.gf('django.db.models.fields.IntegerField')(default=0)),
-            ('amount_due', self.gf('django.db.models.fields.FloatField')()),
-            ('paid_in_full', self.gf('django.db.models.fields.BooleanField')(default=False)),
-        ))
-        db.send_create_signal('institutions', ['Subscription'])
-
+            if qs.count() > 0:
+                if qs.count() > 1:
+                    print >> sys.stderr, "%s: multiple current subscriptions (applying latest)" % i.name
+                i.current_subscription = qs[0]
+                
+            # Are they a participant
+            if i.current_subscription:
+                i.is_participant = True # All are participants at this point
+            else:
+                i.is_participant = False
+            i.save()
 
     def backwards(self, orm):
-        
-        # Deleting model 'SubscriptionPayment'
-        db.delete_table('institutions_subscriptionpayment')
-
-        # Deleting model 'Subscription'
-        db.delete_table('institutions_subscription')
+        "Write your backwards methods here."
 
 
     models = {
@@ -136,6 +141,9 @@ class Migration(SchemaMigration):
             'contact_phone_ext': ('django.db.models.fields.SmallIntegerField', [], {'null': 'True', 'blank': 'True'}),
             'contact_title': ('django.db.models.fields.CharField', [], {'max_length': '64'}),
             'country': ('django.db.models.fields.CharField', [], {'max_length': '128', 'null': 'True', 'blank': 'True'}),
+            'current_rating': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['credits.Rating']", 'null': 'True', 'blank': 'True'}),
+            'current_submission': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'current'", 'null': 'True', 'to': "orm['submissions.SubmissionSet']"}),
+            'current_subscription': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'current'", 'null': 'True', 'to': "orm['institutions.Subscription']"}),
             'date_created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'null': 'True', 'blank': 'True'}),
             'enabled': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'executive_contact_address': ('django.db.models.fields.CharField', [], {'max_length': '128', 'null': 'True', 'blank': 'True'}),
@@ -152,10 +160,12 @@ class Migration(SchemaMigration):
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'international': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'is_member': ('django.db.models.fields.NullBooleanField', [], {'default': 'False', 'null': 'True', 'blank': 'True'}),
+            'is_participant': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'is_pcc_signatory': ('django.db.models.fields.NullBooleanField', [], {'default': 'False', 'null': 'True', 'blank': 'True'}),
             'is_pilot_participant': ('django.db.models.fields.NullBooleanField', [], {'default': 'False', 'null': 'True', 'blank': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'org_type': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True', 'blank': 'True'}),
+            'rating_expires': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
             'slug': ('django.db.models.fields.SlugField', [], {'max_length': '255', 'db_index': 'True'}),
             'stars_staff_notes': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'})
         },
@@ -209,7 +219,7 @@ class Migration(SchemaMigration):
             'amount_due': ('django.db.models.fields.FloatField', [], {}),
             'end_date': ('django.db.models.fields.DateField', [], {}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'instiutition': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['institutions.Institution']"}),
+            'institution': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['institutions.Institution']"}),
             'paid_in_full': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'ratings_allocated': ('django.db.models.fields.SmallIntegerField', [], {'default': '1'}),
             'ratings_used': ('django.db.models.fields.IntegerField', [], {'default': '0'}),

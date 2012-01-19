@@ -4,14 +4,9 @@ from models import *
 
 class SubmissionSetAdmin(admin.ModelAdmin):
     list_display = ('creditset', 'institution', 'date_registered', 'date_submitted', 'date_reviewed', 'rating')
-    list_filter = ('submission_deadline','date_registered')
+    list_filter = ('date_registered',)
     search_fields = ('institution__name',)
 admin.site.register(SubmissionSet, SubmissionSetAdmin)
-
-class PaymentAdmin(admin.ModelAdmin):
-    list_filter = ("type",)
-    list_display = ("get_institution", "amount", "date", "user", "type",)
-admin.site.register(Payment, PaymentAdmin)
 
 class CategorySubmissionAdmin(admin.ModelAdmin):
     list_display = ('id', 'category', "submissionset")

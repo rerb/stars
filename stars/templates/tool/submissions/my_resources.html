@@ -16,8 +16,12 @@
         </h1>
         <div style='color: #555;font-style: italic'>Please click on a logo to see a larger version.</div>
         <div style='text-align: center;padding: 10px;'>
-            {% if last_submission and last_submission.is_rated %}
-                <a href='{{ last_submission.rating.image_large.url }}'><img src='{{ last_submission.rating.image_200.url }}' alt='{{ last_submission.rating }}' style='margin: 10px;border: 0px;' /></a>
+            {% if institution.current_rating %}
+                <a href='{{ institution.current_rating.image_large.url }}'>
+                  <img
+                    src='{{ institution.current_rating.image_200.url }}'
+                    alt='{{ institution.current_rating }}'
+                    style='margin: 10px;border: 0px;' /></a>
             {% endif %}
             {% if institution.charter_participant %}
                 <a href='http://www.aashe.org/files/documents/STARS/STARS_CharterParticipant.jpg'><img src='/media/static/images/STARS-CharterParticipant-200x200.png' alt='STARS Charter Particpant' style='margin: 10px;border: 0px;' /></a>
@@ -25,11 +29,11 @@
                 <a href='http://www.aashe.org/files/documents/STARS/STARS-Participant.jpg'><img src='/media/static/images/STARS-Participant-200x200.png' alt='STARS Particpant' style='margin: 10px;border: 0px;' /></a>
             {% endif %}
         </div>
-        {% if institution.get_latest_rated_submission %}
+        {% if institution.rated_submission %}
             <h2>
                 Scorecard
             </h2>
-            <p>Your <a href='{{ institution.get_latest_rated_submission.get_scorecard_url }}'>scorecard</a> is now publicly available.</p>
+            <p>Your <a href='{{ institution.rated_submission.get_scorecard_url }}'>scorecard</a> is now publicly available.</p>
         {% endif %}
         <h2>Template Press Release</h2>
         {% if institution.get_submissions %}

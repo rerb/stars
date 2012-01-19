@@ -23,6 +23,10 @@
 	</div></div>
 	
 	<div id='rail'>
+        {% if not user.current_inst.is_participant %}
+        <a href='/tool/'>
+          <img src='/media/static/images/csdc_placeholder.png' style='margin: 10px auto;'/></a>
+        {% endif %}
 		<div id='leftMenu'>
 			{% if user.is_staff %}
 	            <h4><a href='/tool/admin/'>Administer Site</a></h4>
@@ -30,16 +34,14 @@
 	            {% block credit_editor_outline %}{% endblock %}
 	        {% endif %}
 			{% if user.can_admin %}
-		    	<h4><a href='/tool/manage/'>Manage Institution</a></h4>
+		    	<h4><a href='/tool/'>Reporting Tool Summary</a></h4>
 		    {% endif %}
 			{% if user.can_submit %}
 	            <h4><a href='/tool/submissions/'>My Submission</a></h4>
 	            {% block submission_outline %}{% endblock %}
 	        {% endif %}
 	        <h4><a href='/tool/my-resources/'>My Resources</a></h4>
-	        {% if user.can_view %}
-              <h4><a href='/institutions/{{ user.current_inst.slug }}/report/'>My Report(s)</a></h4>
-            {% endif %}
+            <h4><a href='/institutions/{{ user.current_inst.slug }}/report/'>My Report(s)</a></h4>
 		</div>
 		<br/>
 		<a href='/pages/help/'><img src='/media/static/images/tool_help.png' alt='Submission Tool Help' /></a>

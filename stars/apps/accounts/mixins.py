@@ -193,7 +193,7 @@ class InstitutionAccessMixin(StarsMixin):
         inst = None
         if kwargs.has_key('institution_id'):
             inst = Institution.objects.get(id=kwargs['institution_id'])
-        else
+        else:
             inst = Institution.objects.get(slug=kwargs['institution_slug'])
         
         if not user_has_access_level(request.user, 'admin', inst):

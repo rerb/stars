@@ -89,6 +89,14 @@ class RegistrationForm(ModelForm):
                 del cleaned_data["executive_contact_email"]
 
         return cleaned_data
+
+PARTICIPATION_CHOICES = (
+                            ("participant", "STARS Participant"),
+                            ("respondent", "Survey Respondent"),
+                        )
+
+class ParticipationLevelForm(forms.Form):
+    level = forms.fields.ChoiceField(widget=forms.widgets.RadioSelect, choices=PARTICIPATION_CHOICES)
         
 class PayLaterForm(forms.Form):
     

@@ -5,9 +5,11 @@ from django.contrib.localflavor.us.models import PhoneNumberField
 from django.template.defaultfilters import slugify
 
 from stars.apps.helpers import watchdog
-from stars.apps.credits.models import CreditSet
+from stars.apps.credits.models import CreditSet, RATING_DURATION
 # from stars.apps.notifications.models import EmailTemplate
 from django.core.mail import send_mail
+
+from datetime import date
 
 class ClimateZone(models.Model):
     """
@@ -15,12 +17,23 @@ class ClimateZone(models.Model):
         zones that are outside of the USDOE climate regions
     """
     name = models.CharField(max_length=32)
+    
+class InstitutionManager(models.Manager):
+    """
+        Adds some custom query functionality to the Institution object
+    """
+    
+    def get_rated(self):
+        """ All submissionsets that have been rated """
+        return Institution.objects.filter(enabled=True).filter(current_rating__isnull=False)
+
 
 class Institution(models.Model):
     """
         This model represents a STARS institution. The institution name
         is a mirror of Salesforce and will require regular updating
     """
+    objects = InstitutionManager()
     slug = models.SlugField(max_length=255)
     enabled = models.BooleanField(help_text="This is a staff-only flag for disabling an institution. An institution will NOT appear on the STARS Institutions list until it is enabled.", default=False)
     contact_first_name = models.CharField("Liaison First Name", max_length=32)
@@ -55,6 +68,43 @@ class Institution(models.Model):
     is_member = models.NullBooleanField(default=False)
     is_pilot_participant = models.NullBooleanField(default=False)
     country = models.CharField(max_length=128, blank=True, null=True)
+    
+    # State properties
+    is_participant = models.BooleanField(default=False, help_text="An institution that isn't a participant is simply considered a Survey Respondent")
+    current_rating = models.ForeignKey("credits.Rating", blank=True, null=True)
+    rating_expires = models.DateField(blank=True, null=True)
+    current_submission = models.ForeignKey("submissions.SubmissionSet", blank=True, null=True, related_name="current")
+    current_subscription = models.ForeignKey("Subscription", blank=True, null=True, related_name='current')
+    rated_submission = models.ForeignKey("submissions.SubmissionSet", blank=True, null=True, related_name='rated')
+    
+    def update_status(self):
+        """
+            Update the status of this institution, based on subscriptions and submissions
+        """
+        # Update current_rating
+        if self.rating_expires and self.rating_expires <= date.today():
+            # if the rated submission has expired remove the rating
+            self.rated_submission = None
+            self.current_rating = None
+            self.rating_expires = None
+        
+            # @todo should i add an automated email here or put it in notifications?
+                
+        # Check subscription is current
+        if self.current_subscription:
+            if self.current_subscription.start_date <= date.today() and self.current_subription.end_date >= date.today():
+                self.is_participant = True
+            else:
+                self.is_participant = False
+                self.current_subscription = None
+                # if it has expired, check and see if there is another that is current
+                for sub in self.subscription_set.all():
+                    if sub.start_date <= date.today() and sub.end_date >= date.today():
+                        self.is_participant = True
+                        self.current_subscription = sub
+                        break
+        else:
+            self.is_participant = False
     
     def update_from_iss(self):
         "Method to update properties from the parent org in the ISS"
@@ -124,40 +174,16 @@ class Institution(models.Model):
                     
     def get_active_submission(self):
         """ Returns the current SubmissionSet for this institution """
-        try:
-            return self.state.active_submission_set
-        except Exception,e:
-            return None
+        return self.current_submission
  
     def set_active_submission(self, submission_set):
         """ Set this institution's active SubmissionSet """
-        try:
-            if self.state.active_submission_set != submission_set:
-                self.state.active_submission_set = submission_set
-        except InstitutionState.DoesNotExist:
-            self.state = InstitutionState(institution=self, active_submission_set=submission_set)
-        
-        self.state.save()
+        self.current_submission = submission_set
 
     def get_latest_rated_submission(self):
         """ Returns the most recent rated SubmissionSet for this institution """
-        
         if self.submissionset_set.filter(status='r').count() > 0:
             return self.submissionset_set.filter(status='r').order_by('date_submitted')[0]
- 
-    def set_latest_rated_submission(self):
-        """ Update this institution's most recent rated SubmissionSet """
-        latest_rated = self.get_latest_submission(include_unrated=False)
-        if latest_rated is None:
-            if self.state:
-                self.state.latest_rated_submission_set = None
-        else:
-            if self.state is None:
-                self.state = InstitutionState(institution=self, active_submission_set=latest_rated)
-            elif self.state.latest_rated_submission_set != latest_rated:
-                self.state.latest_rated_submission_set = latest_rated
-        if self.state:
-            self.state.save()
 
     def is_registered(self, creditset=None):
         """ 
@@ -228,16 +254,23 @@ class Subscription(models.Model):
     """
     Describes a subscription to the reporting tool.
     """
-    instiutition = models.ForeignKey(Institution)
+    institution = models.ForeignKey(Institution)
     start_date = models.DateField()
     end_date = models.DateField()
     ratings_allocated = models.SmallIntegerField(default=RATINGS_PER_SUBSCRIPTION)
     ratings_used = models.IntegerField(default=0)
     amount_due = models.FloatField()
-    paid_in_full = models.BooleanField()
+    paid_in_full = models.BooleanField(default=False)
 
     def __str__(self):
         return "%s (%s - %s)" % (self.institution.name, self.start_date, self.end_date)
+    
+    def get_available_ratings(self):
+        return self.ratings_allocated - self.ratings_used
+
+METHOD_CHOICES = (
+                  ('credit', 'credit'),
+                  ('check', 'check'))
 
 class SubscriptionPayment(models.Model):
     """
@@ -250,7 +283,7 @@ class SubscriptionPayment(models.Model):
     amount = models.FloatField()
     user = models.ForeignKey(User)
     reason = models.CharField(max_length='16')
-    method = models.CharField(max_length='8')
+    method = models.CharField(max_length='8', choices=METHOD_CHOICES)
     confirmation = models.CharField(max_length='16', blank=True, null=True)
 
     def __str__(self):
@@ -292,7 +325,6 @@ class InstitutionState(models.Model):
 
     def __unicode__(self):
         return unicode(self.institution)
-
 
 class InstitutionPreferences(models.Model):
     """

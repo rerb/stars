@@ -1,5 +1,5 @@
 from django.conf.urls.defaults import *
-from stars.apps.tool.my_submission.views import EditBoundaryView
+from stars.apps.tool.my_submission.views import EditBoundaryView, SaveSnapshot
 
 urlpatterns = patterns(
     'stars.apps.tool.my_submission.views',
@@ -17,6 +17,7 @@ urlpatterns = patterns(
     
     # Submit for Rating
     #(r'^submit/$', 'submit_for_rating'),
+    (r'^snapshot/$', SaveSnapshot.as_view()),
     (r'^submit/$', 'submit_confirm'),
     # (r'^submit/status/', 'submit_status'),
     (r'^submit/letter/$', 'submit_letter'),

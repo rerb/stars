@@ -11,6 +11,8 @@ from stars.apps.helpers import watchdog
 from stars.apps.credits.utils import get_next_variable_name
 from mixins import VersionedModel
 
+RATING_DURATION = 365*3
+
 class IncrementalFeature(models.Model):
     key = models.SlugField(unique=True)
     description = models.TextField()

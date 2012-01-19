@@ -8,7 +8,7 @@ from datetime import datetime, date, timedelta
 import urllib2, re, sys
 from xml.etree.ElementTree import fromstring
 
-from stars.apps.institutions.models import Institution
+from stars.apps.institutions.models import Institution, Subscription, SubscriptionPayment
 from stars.apps.registration.forms import *
 from stars.apps.registration.utils import is_canadian_zipcode, is_usa_zipcode
 from stars.apps.accounts.utils import respond, connect_iss
@@ -16,7 +16,7 @@ from stars.apps.helpers import watchdog, flashMessage
 from stars.apps.tool.admin.watchdog.models import ERROR
 from stars.apps.tool.my_submission.views import _get_active_submission
 from stars.apps.accounts import xml_rpc
-from stars.apps.submissions.models import *
+from stars.apps.submissions.models import SubmissionSet
 from stars.apps.credits.models import CreditSet
 from stars.apps.helpers.forms.views import FormActionView
 from stars.apps.accounts.mixins import AuthenticatedMixin
@@ -153,9 +153,39 @@ def reg_contact_info(request):
     context = {'reg_form': reg_form, 'institution': institution}
     return respond(request, template, context)
 
+def select_participation_level(request):
+    """
+        STEP 3: Where institutions decide if they are going to be STARS Participants or
+        simply Survey Respondents
+    """
+    (institution, response) = _get_selected_institution(request)
+    if response: return response
+    
+    # Provide the Contact Information Form
+    form = ParticipationLevelForm()
+
+    if request.method == "POST":
+        form = ParticipationLevelForm(request.POST)
+
+        if form.is_valid():
+            level = form.cleaned_data['level']
+            if level == 'participant':
+                return HttpResponseRedirect('/register/step4/')
+            if level == "respondent":
+                institution.save()
+                ss = init_submissionset(institution, request.user)
+                institution.update_status()
+                return HttpResponseRedirect('/register/survey/')
+        else:
+            flashMessage.send("Please correct the errors below", flashMessage.ERROR)
+            
+    template = "registration/select_participation_level.html"
+    context = {'form': form, 'institution': institution}
+    return respond(request, template, context)
+
 def reg_payment(request):
     """
-        STEP 3: Determine the payment price and process payment for this institution's registration
+        STEP 4: Determine the payment price and process payment for this institution's registration
          - if the institution is registered already they get forwarded to the account page
          - otherwise, collect payment info and store the selected_institution into the DB
     """
@@ -205,7 +235,24 @@ def reg_payment(request):
     context = {'pay_form': pay_form, 'pay_later_form': pay_later_form, 'institution': institution, 'is_member': institution.is_member, 'price': price}
     return respond(request, template, context)
 
-def init_submissionset(institution, user, today):
+"""
+    Registration actions:
+        add_starsaccount
+        init_submissionset
+        init_subscription
+        apply_payment
+"""
+
+def init_starsaccount(user, institution):
+    """
+        Add a StarsAccount to institution for user with the admin permission
+    """
+    account = StarsAccount(user=user, institution=institution, user_level='admin', is_selected=False, terms_of_service=True)
+    account.save()
+    account.select()
+    return account
+
+def init_submissionset(institution, user, date_callback=date.today):
     """
         Initializes a submissionset for an institution and user
         adding the today argument makes this easier to test explicitly
@@ -213,11 +260,23 @@ def init_submissionset(institution, user, today):
     # Get the current CreditSet
     creditset = CreditSet.objects.get_latest()
     # Submission is due in one year
-    deadline = today + timedelta(days=365) # Gives them an extra day on leap years :)
-    submissionset = SubmissionSet(creditset=creditset, institution=institution, date_registered=today, submission_deadline=deadline, registering_user=user, status='ps')
+    submissionset = SubmissionSet(creditset=creditset, institution=institution, date_registered=date_callback(), registering_user=user, status='ps')
     submissionset.save()
     init_credit_submissions(submissionset)
+    institution.current_submission = submissionset
+    institution.save()
     return submissionset
+
+def init_subscription(institution, amount_due, date_callback=date.today):
+    """
+        Initializes a subscription for the institution with the payment
+        
+        @todo: use a signal to update the subscription amount_due and paid_in_full
+    """
+    deadline = date_callback() + timedelta(days=365) # Gives them an extra day on leap years :)
+    subscription = Subscrition(institution=institution, start_date=date_callback(), end_date=deadline, amount_due=amount_due)
+    subscription.save()
+    return subscription
 
 def register_institution(user, institution, payment_type, price, payment_dict):
     """
@@ -237,7 +296,7 @@ def register_institution(user, institution, payment_type, price, payment_dict):
     account.select()
     
     # Set up the SubmissionSet
-    submissionset = init_submissionset(institution, user, datetime.today())
+    submissionset = init_submissionset(institution, user, date.today())
     
     # Add the institution state so it has an active submission.
     institution.set_active_submission(submissionset)
@@ -249,7 +308,7 @@ def register_institution(user, institution, payment_type, price, payment_dict):
         reason = "international"
     else:
         reason = "nonmember_reg"
-    payment = Payment(submissionset=submissionset, date=datetime.today(), amount=price, user=user, reason=reason, type=payment_type, confirmation="none")
+    payment = Payment(submissionset=submissionset, date=date.today(), amount=price, user=user, reason=reason, type=payment_type, confirmation="none")
     payment.save()
     
     # Primary Contact

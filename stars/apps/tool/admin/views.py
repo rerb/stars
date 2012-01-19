@@ -32,23 +32,10 @@ def institutions_list(request):
         A list of latest submissionsets for ALL registered institutions currently participating in STARS.
     """
     
-    ss_list = SubmissionSet.objects.order_by('institution__name').select_related('institution').filter(is_visible=True)
-    saved = False
-    
-    # Add the latest submission set and payment to each institution
-    form_list = []
-    for ss in ss_list:
-        enable_form, form_saved = form_helpers.basic_save_form(request, ss.institution, 'enable_%s' % ss.institution.id, AdminEnableInstitutionForm,  flash_message=False)
-        saved = saved or form_saved
-        form_list.append({'ss': ss, 'form': enable_form,})
-        
-    if saved:
-        flashMessage.send("Institutions updated successfully.", flashMessage.SUCCESS)
-#    if institution:
-#        enable_help_text = institution.enable_form['enabled'].help_text
+    institution_list = Institution.objects.order_by('name')
 
     template = "tool/admin/institutions/institution_list.html"
-    return respond(request, template, {'form_list': form_list,})
+    return respond(request, template, {'institution_list': institution_list,})
     
 @user_is_staff
 def select_institution(request, id):
