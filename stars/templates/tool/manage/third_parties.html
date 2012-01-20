@@ -48,17 +48,33 @@
       </div>
     </form>
     
-    <h3>Finalized Submissions</h3>
+    <h3>Snapshots</h3>
     <table class='greyTable' style='margin: 15px auto;width: 80%;'>
         <tr>
-            <th>Date of Submission</th>
+            <th>Date of Snapshot</th>
             <th>STARS Version</th>
         </tr>
+        {% if snapshot_list %}
+          {% for ss in snapshot_list %}
+            <tr>
+              <td>
+                {{ ss.date_submitted }}
+              </td>
+              <td>
+                {{ ss.creditset.version }}
+              </td>
+            </tr>
+          {% endfor %}
+        {% else %}
         <tr>
           <td colspan="2">
-            No current snapshots <br/>
-            <a href='#'>Take a snapshot of your data now</a>
+            No current snapshots
           </td>
         </tr>
+        {% endif %}
     </table>
+    <p align='center'>
+      <img src="/media/static/images/camera_add.png" alt='' style='vertical-align: top;margin-right: 10px;' />
+      <a href='/tool/submissions/snapshot/'>Take a snapshot of your data now</a>
+    </p>
 {% endblock %}

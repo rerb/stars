@@ -239,7 +239,12 @@ def share_data(request):
     if saved:
         return HttpResponseRedirect("/tool/manage/share-data/")
     
-    context = {'current_inst': current_inst, 'object_form': object_form, 'third_party_list': ThirdParty.objects.all()}
+    context = {
+                'current_inst': current_inst,
+                'object_form': object_form,
+                'third_party_list': ThirdParty.objects.all(),
+                'snapshot_list': SubmissionSet.objects.get_snapshots(current_inst),
+            }
     return respond(request, 'tool/manage/third_parties.html', context)
 
 @user_is_staff

@@ -52,7 +52,7 @@ def migrate_creditset(old_cs, new_version_name, release_date):
                         new_dfs.save()
     return new_cs
 
-def create_ss_mirror(old_ss, new_cs=None):
+def create_ss_mirror(old_ss, new_cs=None, registering_user=None):
     """
         creates a new submissionset using the latest creditset
         and migrates the data from old_ss leaving it unchanged
@@ -69,6 +69,12 @@ def create_ss_mirror(old_ss, new_cs=None):
                             status='ps',
                             is_locked=True,
                             is_visible=False)
+    
+    if registering_user:
+        new_ss.registering_user = registering_user
+    else:
+        new_ss.registering_user = old_ss.registering_user
+    
     new_ss.save()
     
     init_credit_submissions(new_ss)

@@ -13,6 +13,7 @@ from stars.apps.submissions.models import *
 from stars.apps.submissions.tasks import send_certificate_pdf
 from stars.apps.submissions.utils import init_credit_submissions
 from stars.apps.submissions.rules import user_can_submit_for_rating, user_can_edit_submission
+from stars.apps.migrations.utils import create_ss_mirror
 from stars.apps.institutions.rules import user_has_access_level
 from stars.apps.cms.xml_rpc import get_article
 from stars.apps.tool.my_submission.forms import *
@@ -76,9 +77,10 @@ class SaveSnapshot(FormView):
         First step in the form for submission
         
         @todo: get current submission mixin
+        @todo: add permission mixin
     """
     form_class = Confirm
-    success_url = "/tool/manage/share_data/"
+    success_url = "/tool/manage/share-data/"
     template_name = "tool/submissions/submit_snapshot.html"
     
     def get_context_data(self, **kwargs):
@@ -90,8 +92,36 @@ class SaveSnapshot(FormView):
         """
             When the form validates, create a finalized submission
         """
-        
-        return super(FinalizeSubmission, self).form_valid(form)
+        ss = _get_active_submission(self.request)
+        # Participants keep their existing submission and save a duplicate
+        if ss.institution.is_participant:
+            new_ss = create_ss_mirror(ss, registering_user=self.request.user)
+            new_ss.registering_user=self.request.user
+            new_ss.date_registered=date.today()
+            new_ss.date_submitted = date.today()
+            new_ss.submitting_user = self.request.user
+            new_ss.status = 'f'
+            new_ss.is_visible = True
+            new_ss.is_locked = False
+            new_ss.save()
+        # Respondents get a new, empty submissionset
+        else:
+            ss.status = "f"
+            ss.date_submitted = date.today()
+            ss.submitting_user = self.request.user
+            new_ss = SubmissionSet(
+                                    institution=ss.institution,
+                                    creditset=CreditSet.objects.get_latest(),
+                                    registering_user=self.request.user,
+                                    date_registered=date.today(),
+                                    status='ps')
+            new_ss.save()
+            init_credit_submissions(new_ss)
+            ss.institution.current_submission = new_ss
+            ss.institution.save()
+            ss.save()
+            
+        return super(SaveSnapshot, self).form_valid(form)
 
 class SubmitForRatingMixin(SubmissionMixin):
     """

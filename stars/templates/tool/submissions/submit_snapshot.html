@@ -16,11 +16,11 @@
     <form class='generalForm' method='post' action='.'>
       {% load content %}
       {% display_block_content 'save_snapshot' 0 %}
-      <table>
+      <p align='center'>
         {{ form }}
-      </table>
+      </p>
         <div class='button_row'>
-            <button type='submit'>Confirm</button>
+            <button type='submit'>Save Snapshot</button>
         </div>
     </form>
 {% endblock %}
