@@ -16,6 +16,7 @@ admin.site.register(CreditSet, CreditSetAdmin)
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ('title', 'creditset',)
     list_filter = ('creditset',)
+    search_fields = ('title',)
 
     class Media:
         js = (
@@ -26,7 +27,8 @@ admin.site.register(Category, CategoryAdmin)
 
 class SubcategoryAdmin(admin.ModelAdmin):
     list_display = ('title', 'category',)
-    list_filter = ('category',)
+    list_filter = ('category__creditset', 'category',)
+    search_fields = ('title',)
 
     class Media:
         js = (
@@ -40,7 +42,8 @@ class DocumentationFieldInline(admin.TabularInline):
     
 class CreditAdmin(admin.ModelAdmin):
     list_display = ('get_identifier','title', 'subcategory', 'type')
-    list_filter = ('subcategory',)
+    list_filter = ('subcategory__category__creditset', 'subcategory',)
+    search_fields = ('title',)
     inlines = [
             DocumentationFieldInline,
         ]
