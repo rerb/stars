@@ -175,6 +175,8 @@ def select_participation_level(request):
                 institution.save()
                 ss = init_submissionset(institution, request.user)
                 institution.update_status()
+                # Select institution
+                auth_utils.change_institution(request, institution)
                 return HttpResponseRedirect('/register/survey/')
         else:
             flashMessage.send("Please correct the errors below", flashMessage.ERROR)
@@ -219,7 +221,9 @@ def reg_payment(request):
                     if result.has_key('cleared') and result.has_key('msg'):
                         if result['cleared'] and result['trans_id']:
                             institution = register_institution(request.user, institution, "credit", price, payment_dict)
-                            request.session['selected_institution'] = institution
+                            # Select institution
+                            auth_utils.change_institution(request, institution)
+#                            request.session['selected_institution'] = institution
                             return HttpResponseRedirect("/register/survey/")
                         else:
                             flashMessage.send("Processing Error: %s" % result['msg'], flashMessage.ERROR)
@@ -228,7 +232,8 @@ def reg_payment(request):
                     
             else:
                 institution = register_institution(request.user, institution, "later", price, None)
-                request.session['selected_institution'] = institution
+                # Select institution
+                auth_utils.change_institution(request, institution)
                 return HttpResponseRedirect("/register/survey/")
     
     template = "registration/payment.html"
@@ -500,6 +505,7 @@ def process_payment(payment_dict, product_list, invoice_num=None, server=None, l
         return {'cleared': True, 'reason_code': None, 'msg': None, 'conf': capture_result.approval_code, 'trans_id': capture_result.trans_id}
     else:
         print >> sys.stderr, "Decline: %s" % result.response_reason
+        watchdog.log("process_payment", "Payment denied for %s %s (%s)" (payment_dict['billing_firstname'], payment_dict['billing_lastname'], result.response_reason), watchdog.WARNING)
         return {'cleared': False, 'reason_code': None, 'msg': result.response_reason, 'conf': None, 'trans_id': None}
 
 def _confirm_login(request):
