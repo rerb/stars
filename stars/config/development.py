@@ -32,6 +32,9 @@ CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
 THUMBNAIL_ENGINE = "sorl.thumbnail.engines.pgmagick_engine.Engine"
 #CACHE_BACKEND = "db://temp_cache_table"
 
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_FILE_PATH = '/tmp/stars_emails'
+
 MEDIA_ROOT = '/var/www/stars.aashe.org/media/'
 
 SSO_SERVER_URI = DEV_SSO_SERVER_URI
