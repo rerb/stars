@@ -276,18 +276,18 @@ def migrate_submissionset(request):
     
     if latest_creditset == current_submission.creditset:
         flashMessage.send("%s is the latest version of STARS" % (current_submission.creditset), flashMessage.ERROR)
-        return HttpResponseRedirect("/tool/manage/migrate/")
+        return HttpResponseRedirect("/tool/submissions/")
     
     if current_submission.is_locked:
         flashMessage.send("Already marked for migration.", flashMessage.ERROR)
-        return HttpResponseRedirect("/tool/manage/migrate/")
+        return HttpResponseRedirect("/tool/")
     
     ObjectForm = MigrateSubmissionSetForm
     
     object_form, saved = form_helpers.basic_save_form(request, current_submission, current_submission.id, ObjectForm)
     if saved:
         # start a migration task
-        flashMessage.send("Your migration is in progress.", flashMessage.NOTICE)
+        flashMessage.send("Your migration is in progress.", flashMessage.SUCCESS)
         perform_migration.delay(current_submission, latest_creditset, request.user)
         return HttpResponseRedirect("/tool/")
 

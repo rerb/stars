@@ -40,6 +40,8 @@ def perform_migration(old_ss, new_cs, user):
     """
     
     new_ss = migrate_ss_version(old_ss, new_cs)
+    new_ss.institution.current_submission = new_ss
+    new_ss.institution.save()
     
     email_to = [old_ss.institution.contact_email]
     if user.email not in email_to:

@@ -29,8 +29,11 @@ def _get_active_submission(request):
     current_inst = request.user.current_inst
     active_submission = current_inst.get_active_submission() if current_inst else None
     
-    if not user_can_edit_submission(request.user, current_inst.get_active_submission()):
+    if not user_can_edit_submission(request.user, active_submission):
         raise PermissionDenied("Sorry, but you do not have access to edit this submission")
+    
+    if active_submission.is_locked:
+        raise PermissionDenied("This submission is locked. It may be in the process of being migrated. Please try again.")
     
     if active_submission.categorysubmission_set.count() == 0:
         # This only gets run once. Assumes that the underlying creditset doesn't change
