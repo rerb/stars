@@ -29,7 +29,7 @@ class AbstractContent(models.Model):
     
 class CategoryMixin(models.Model):
     
-    title = models.CharField(max_length=32)
+    title = models.CharField(max_length=64)
     slug = models.SlugField(help_text='This is a URL-friendly version of the title. Do not change unless you want to change the link')
     content = models.TextField(blank=True, null=True, help_text='If left blank, the page will be populated with the teaser text from all the articles.')
     
