@@ -90,6 +90,33 @@ class RegistrationForm(ModelForm):
 
         return cleaned_data
 
+class DataCollectorRegistrationForm(ModelForm):
+    """
+        Contact Information Form with just the liaison
+    """
+    
+    def __init__(self, *args, **kwargs):
+        super(DataCollectorRegistrationForm, self).__init__(*args, **kwargs)
+        self.fields['contact_first_name'].label = "First Name"
+        self.fields['contact_middle_name'].label = "Middle Name"
+        self.fields['contact_last_name'].label = "Last Name"
+        self.fields['contact_title'].label = "Title"
+        self.fields['contact_department'].label = "Department/Office"
+        self.fields['contact_phone'].label = "Phone"
+        self.fields['contact_email'].label = "Email"
+    
+    class Meta:
+        model = Institution
+        fields =    [  
+                        'contact_first_name',
+                        'contact_middle_name',
+                        'contact_last_name',
+                        'contact_title',
+                        'contact_department',
+                        'contact_phone',
+                        'contact_email',
+                    ]
+
 PARTICIPATION_CHOICES = (
                             ("participant", "STARS Participant"),
                             ("respondent", "Survey Respondent"),
@@ -172,3 +199,9 @@ class RegistrationSurveyForm(ModelForm):
         self.fields['reasons'].help_text = "Select all that apply"
         self.fields['reasons'].label = "The reason(s) your institution registered for STARS were to:"
         self.fields['primary_reason'].label = "Which of the above reasons, if any, was the primary reason your institution registered for STARS?"
+
+class RespondentRegistrationSurveyForm(ModelForm):
+    
+    class Meta:
+        model = RespondentSurvey
+        exclude = ['institution', 'user']

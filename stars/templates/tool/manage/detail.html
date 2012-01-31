@@ -1,5 +1,7 @@
 {% extends 'tool/manage/base.html' %}
 
+{% load content %}
+
 {% block crumbs %} {{ block.super }} &gt; Contact {% endblock %}
 
 {% block tabclass %}class='tab3'{% endblock %}
@@ -19,6 +21,5 @@
 {% endblock %}
 
 {% block help_content %}
-    {% load help %}
-    {% show_help_context 'manage_contact_tab' 0 %}
+    {% display_block_content 'manage_contact_info' user %}
 {% endblock %}

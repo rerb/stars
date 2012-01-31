@@ -7,9 +7,16 @@ urlpatterns = patterns(
     (r'^$', 'reg_select_institution'),
     (r'^step1/$', 'reg_select_institution'),
     (r'^international/$', 'reg_international'),
-    (r'^step2/$', 'reg_contact_info'),
-    (r'^step3/$', 'select_participation_level'),
-    (r'^step4/$', 'reg_payment'),
+    (r'^step2/$', 'select_participation_level'),
+    
+    # participants
+    (r'^p/step3/$', 'particpant_contact_info'),
+    (r'^p/step4/$', 'reg_payment'),
+    
+    # survey respondents
+    (r'^r/step3/$', 'respondent_contact_info'),
+    (r'^r/survey/$', 'respondent_survey'),
+    
     (r'^survey/$', 'survey'),
     (r'^account/$', 'reg_account'),
 )

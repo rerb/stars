@@ -217,7 +217,12 @@ class InstitutionScorecards(TemplateView):
         institution = get_object_or_404(Institution, slug=kwargs['institution_slug'])
         
         submission_sets = []
-        for ss in institution.submissionset_set.filter(is_visible=True, is_locked=False):
+        qs = institution.submissionset_set.filter(is_visible=True, is_locked=False)
+        if not institution.is_participant:
+            # non participants only see rated submissions
+            qs = qs.filter(status='r')
+        
+        for ss in qs:
             if ss.status == 'r':
                 submission_sets.append(ss)
             elif request.user.has_perm('admin'):
@@ -230,7 +235,7 @@ class InstitutionScorecards(TemplateView):
                 except:
                     pass
                     
-        if len(submission_sets) < 1:
+        if len(submission_sets) < 1 and not institution.is_participant:
             raise Http404
                 
         return {'submission_sets': submission_sets, 'institution': institution}

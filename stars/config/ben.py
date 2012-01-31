@@ -22,11 +22,15 @@ DATABASES = {
     'default': {
 #         'NAME': '/Users/jamstooks/sqlite/pre1.2_test.db',
 #         'ENGINE': 'sqlite3',
-        'NAME': 'stars_pre_1.2',
+        'NAME': 'stars_pre-1.2_myISAM',
         'ENGINE': 'django.db.backends.mysql',
+        'STORAGE_ENGINE': 'MyISAM',
         'USER': 'root',
         'PASSWORD': '',
         'HOST': 'localhost',
+        'OPTIONS': {
+                    "connect_timeout": 30,
+                    },
     },
     'iss': {
         'NAME': 'iss',
@@ -90,3 +94,4 @@ if 'test' in sys.argv:
     }
     DATABASES['default']['ENGINE'] = 'sqlite3'
     DATABASES['default']['NAME'] = '/Users/jamstooks/sqlite/stars_tests.db'
+    DATABASES['default']['OPTIONS'] = {}

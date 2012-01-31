@@ -10,7 +10,7 @@ from django.core.mail import EmailMessage
 from stars.apps.accounts.utils import respond
 from stars.apps.accounts.decorators import user_is_staff
 from stars.apps.accounts import xml_rpc
-from stars.apps.institutions.models import Institution, StarsAccount
+from stars.apps.institutions.models import Institution, StarsAccount, Subscription, SubscriptionPayment, SUBSCRIPTION_DURATION
 from stars.apps.institutions.rules import user_has_access_level
 from stars.apps.submissions.models import SubmissionSet, Payment, EXTENSION_PERIOD, ExtensionRequest
 from stars.apps.submissions.tasks import migrate_purchased_submission, perform_migration
@@ -20,7 +20,8 @@ from stars.apps.helpers import watchdog
 from stars.apps.helpers import flashMessage
 from stars.apps.tool.manage.forms import *
 from stars.apps.registration.forms import PaymentForm, PayLaterForm
-from stars.apps.registration.views import process_payment, get_payment_dict, _get_registration_price, init_submissionset 
+from stars.apps.registration.views import process_payment, get_payment_dict, _get_registration_price, init_submissionset
+from stars.apps.notifications.models import EmailTemplate 
     
 def _get_current_institution(request):
     if hasattr(request.user, 'current_inst'):
@@ -247,22 +248,22 @@ def share_data(request):
             }
     return respond(request, 'tool/manage/third_parties.html', context)
 
-@user_is_staff
-def submissionsets(request):
-    """
-        Provides an interface to manage submission sets for an institution
-        and select indicate which one is the active submission
-    """
-    current_inst = _get_current_institution(request)
-    
-    active_set = current_inst.get_active_submission()
-    
-    is_admin = request.user.has_perm('admin')
-    
-    latest_creditset = CreditSet.objects.get_latest()
-    
-    context = {'active_set': active_set, 'is_admin': is_admin, 'latest_creditset': latest_creditset}
-    return respond(request, 'tool/manage/submissionset_list.html', context)
+#@user_is_staff
+#def submissionsets(request):
+#    """
+#        Provides an interface to manage submission sets for an institution
+#        and select indicate which one is the active submission
+#    """
+#    current_inst = _get_current_institution(request)
+#    
+#    active_set = current_inst.get_active_submission()
+#    
+#    is_admin = request.user.has_perm('admin')
+#    
+#    latest_creditset = CreditSet.objects.get_latest()
+#    
+#    context = {'active_set': active_set, 'is_admin': is_admin, 'latest_creditset': latest_creditset}
+#    return respond(request, 'tool/manage/submissionset_list.html', context)
 
 
 def migrate_submissionset(request, set_id):
@@ -297,133 +298,118 @@ def migrate_submissionset(request, set_id):
     }
     return respond(request, template, context)
 
-@user_is_staff
-def add_submissionset(request):
-    """
-        Provides a form for adding a new submission set
-    """
-    
-    current_inst = _get_current_institution(request)
-    
-    # Build and precess the form for adding a new submission set
-    new_set = SubmissionSet(institution=current_inst)
-    
-    ObjectForm = AdminSubmissionSetForm
-    # if request.user.is_staff:
-    #    ObjectForm = AdminSubmissionSetForm
-    # else:
-    #    Eventuatlly, this should lead user through a submission set purchase process (ticket #264)
-    
-    (object_form, saved) = form_helpers.basic_save_new_form(request, new_set, 'new_set', ObjectForm)
-    if saved:
-        # if this was the first one created then it should be active
-        if current_inst.get_active_submission() is None:
-            current_inst.set_active_submission(new_set)
-        return HttpResponseRedirect(settings.MANAGE_SUBMISSION_SETS_URL)
-    
-    template = 'tool/manage/add_submissionset.html'
-    context = {
-        "object_form": object_form,
-    }
-    return respond(request, template, context)
+#@user_is_staff
+#def add_submissionset(request):
+#    """
+#        Provides a form for adding a new submission set
+#    """
+#    
+#    current_inst = _get_current_institution(request)
+#    
+#    # Build and precess the form for adding a new submission set
+#    new_set = SubmissionSet(institution=current_inst)
+#    
+#    ObjectForm = AdminSubmissionSetForm
+#    # if request.user.is_staff:
+#    #    ObjectForm = AdminSubmissionSetForm
+#    # else:
+#    #    Eventuatlly, this should lead user through a submission set purchase process (ticket #264)
+#    
+#    (object_form, saved) = form_helpers.basic_save_new_form(request, new_set, 'new_set', ObjectForm)
+#    if saved:
+#        # if this was the first one created then it should be active
+#        if current_inst.get_active_submission() is None:
+#            current_inst.set_active_submission(new_set)
+#        return HttpResponseRedirect(settings.MANAGE_SUBMISSION_SETS_URL)
+#    
+#    template = 'tool/manage/add_submissionset.html'
+#    context = {
+#        "object_form": object_form,
+#    }
+#    return respond(request, template, context)
 
 def _gets_discount(institution, current_date=date.today()):
     """
-        Get the latest paid submission prior to current_date
-        that was either submitted or due before today
+        Institutions get half-off their submission if their renewal
+        within 90 days of their last subscription
     """
     
-    last_submission_date = None
-    for ss in institution.submissionset_set.all():
-        
-        d = None
-        if ss.status == 'r':
-            d = ss.date_submitted
-        elif ss.is_enabled():
-            d = ss.submission_deadline
-        
-        if d and (not last_submission_date or d > last_submission_date):
-            last_submission_date = d
+    last_subscription_end = institution.get_last_subscription_end()
     
-    if last_submission_date:
-        
-        # if they submitted or were due before feb 15th
-        # then their deadline is May 15th
-        if last_submission_date < date(year=2011, month=2, day=16):
-            if current_date < date(year=2011, month=5, day=16):
-                return True
+    if last_subscription_end:
     
-        # or if last submission was less than 90 days ago
+        # if last subscription end was less than 90 days ago
+        # or it hasn't expired
         td = timedelta(days=90)
-        if current_date - last_submission_date <= td:
+        if current_date <= last_subscription_end + td:
             return True
         
     return False
 
 
-def pay_submissionset(request, set_id):
-    """
-        Provides a payment form for those institutions that selected to pay later
-    """
-    current_inst = _get_current_institution(request)
-    ss = get_object_or_404(SubmissionSet, id=set_id, institution=current_inst)
-    is_member = current_inst.is_member_institution()
-    # get the amount of the pay_later payments
-    p = ss.payment_set.filter(type='later')[0]
-    amount = p.amount
-    discount = _gets_discount(current_inst)
-    if discount:
-        amount = amount / 2
-        if is_member:
-            reason = "member_renew"
-        else:
-            reason = "nonmember_renew"
-    else:
-        if is_member:
-            reason = "member_reg"
-        else:
-            reason = "nonmember_reg"
-        
-    pay_form = PaymentForm()
-    
-    if request.method == "POST":
-        pay_form = PaymentForm(request.POST)
-        if pay_form.is_valid():
-            payment_dict = get_payment_dict(pay_form, current_inst)
-            product_dict = {
-                'price': amount,
-                'quantity': 1,
-                'name': "STARS Participant Registration",
-            }
-    
-            result = process_payment(payment_dict, [product_dict], invoice_num=current_inst.aashe_id)
-            if result.has_key('cleared') and result.has_key('msg'):
-                if result['cleared'] and result['trans_id']:
-                    p = Payment(
-                                    submissionset=ss,
-                                    date=datetime.now(),
-                                    amount=amount,
-                                    user=request.user,
-                                    reason=reason,
-                                    type='credit',
-                                    confirmation=str(result['trans_id']),
-                                )
-                    p.save()
-                    ss.institution.set_active_submission(ss)
-                    return HttpResponseRedirect("/tool/manage/submissionsets/")
-                else:
-                    flashMessage.send("Processing Error: %s" % result['msg'], flashMessage.ERROR)
-        else:
-            flashMessage.send("Please correct the errors below", flashMessage.ERROR)
-                    
-    template = 'tool/manage/pay_submissionset.html'
-    context = {
-        "object_form": pay_form,
-        "amount": amount,
-        'is_member': is_member,
-        'discount': discount,
-    }
-    return respond(request, template, context)
+#def pay_submissionset(request, set_id):
+#    """
+#        Provides a payment form for those institutions that selected to pay later
+#    """
+#    current_inst = _get_current_institution(request)
+#    ss = get_object_or_404(SubmissionSet, id=set_id, institution=current_inst)
+#    is_member = current_inst.is_member_institution()
+#    # get the amount of the pay_later payments
+#    p = ss.payment_set.filter(type='later')[0]
+#    amount = p.amount
+#    discount = _gets_discount(current_inst)
+#    if discount:
+#        amount = amount / 2
+#        if is_member:
+#            reason = "member_renew"
+#        else:
+#            reason = "nonmember_renew"
+#    else:
+#        if is_member:
+#            reason = "member_reg"
+#        else:
+#            reason = "nonmember_reg"
+#        
+#    pay_form = PaymentForm()
+#    
+#    if request.method == "POST":
+#        pay_form = PaymentForm(request.POST)
+#        if pay_form.is_valid():
+#            payment_dict = get_payment_dict(pay_form, current_inst)
+#            product_dict = {
+#                'price': amount,
+#                'quantity': 1,
+#                'name': "STARS Participant Registration",
+#            }
+#    
+#            result = process_payment(payment_dict, [product_dict], invoice_num=current_inst.aashe_id)
+#            if result.has_key('cleared') and result.has_key('msg'):
+#                if result['cleared'] and result['trans_id']:
+#                    p = Payment(
+#                                    submissionset=ss,
+#                                    date=datetime.now(),
+#                                    amount=amount,
+#                                    user=request.user,
+#                                    reason=reason,
+#                                    type='credit',
+#                                    confirmation=str(result['trans_id']),
+#                                )
+#                    p.save()
+#                    ss.institution.set_active_submission(ss)
+#                    return HttpResponseRedirect("/tool/manage/submissionsets/")
+#                else:
+#                    flashMessage.send("Processing Error: %s" % result['msg'], flashMessage.ERROR)
+#        else:
+#            flashMessage.send("Please correct the errors below", flashMessage.ERROR)
+#                    
+#    template = 'tool/manage/pay_submissionset.html'
+#    context = {
+#        "object_form": pay_form,
+#        "amount": amount,
+#        'is_member': is_member,
+#        'discount': discount,
+#    }
+#    return respond(request, template, context)
 
 def send_exec_renew_email(institution):
             
@@ -431,10 +417,9 @@ def send_exec_renew_email(institution):
     et = EmailTemplate.objects.get(slug="reg_renewal_exec")
     et.send_email(mail_to, {'institution': institution,})
 
-
-def purchase_submissionset(request):
+def purchase_subscription(request):
     """
-        Provides a view to allow institutions to purchase a new submission set
+        Provides a view to allow institutions to purchase a new subscription
     """
     current_inst = _get_current_institution(request)
     is_member = current_inst.is_member_institution()
@@ -453,97 +438,73 @@ def purchase_submissionset(request):
             reason = "nonmember_reg"
     
     pay_form = PaymentForm()
-    later_form = PayLaterForm()
     
     if request.method == "POST":
         
-        migrate_message = "Your data is being migrated. It will appear shortly."
-        
-        later_form = PayLaterForm(request.POST)
-        if later_form.is_valid() and later_form.cleaned_data['confirm']:
-            
-            old_ss = current_inst.get_latest_submission(include_unrated=True)
-            ss = init_submissionset(current_inst, request.user, datetime.now())
-            flashMessage.send(migrate_message, flashMessage.NOTICE)
-            # Queue the task to handle the migration
-            migrate_purchased_submission.delay(old_ss, ss)
-            
-            p = Payment(
-                            submissionset=ss,
-                            date=datetime.now(),
-                            amount=amount,
-                            user=request.user,
-                            reason=reason,
-                            type='later',
-                            confirmation=None,
-                        )
-            p.save()
-            
-            if request.user.email != ss.institution.contact_email:
-                mail_to = [request.user.email, ss.institution.contact_email]
-            else:
-                mail_to = [ss.institution.contact_email,]
-            
-            et = EmailTemplate.objects.get(slug="reg_renewal_unpaid")
-            et.send_email(mail_to, {'amount': p.amount,})
-            
-            send_exec_renew_email(ss.institution)
-            
-            return HttpResponseRedirect("/tool/manage/submissionsets/")
-        else:
-            pay_form = PaymentForm(request.POST)
-            if pay_form.is_valid():
-                payment_dict = get_payment_dict(pay_form, current_inst)
-                product_dict = {
-                    'price': amount,
-                    'quantity': 1,
-                    'name': "STARS Participant Registration",
-                }
-        
-                result = process_payment(payment_dict, [product_dict], invoice_num=current_inst.aashe_id)
-                if result.has_key('cleared') and result.has_key('msg'):
-                    if result['cleared'] and result['trans_id']:
-                        
-                        old_ss = current_inst.get_latest_submission(include_unrated=True)
-                        ss = init_submissionset(current_inst, request.user, datetime.now())
-                        flashMessage.send(migrate_message, flashMessage.NOTICE)
-                        # Queue the task to handle the migration
-                        migrate_purchased_submission.delay(old_ss, ss)
-                        
-                        p = Payment(
-                                        submissionset=ss,
-                                        date=datetime.now(),
-                                        amount=amount,
-                                        user=request.user,
-                                        reason=reason,
-                                        type='credit',
-                                        confirmation=str(result['trans_id']),
-                                    )
-                        p.save()
-                        
-                        if request.user.email != ss.institution.contact_email:
-                            mail_to = [request.user.email, ss.institution.contact_email]
-                        else:
-                            mail_to = [ss.institution.contact_email,]
-
-                        et = EmailTemplate.objects.get(slug="reg_renewed_paid")
-                        email_context = {'payment_dict': payment_dict,'institution': ss.institution, "payment": p}
-                        et.send_email(mail_to, email_context)
-                        
-                        send_exec_renew_email(ss.institution)
-                        
-                        ss.institution.set_active_submission(ss)
-                        
-                        return HttpResponseRedirect("/tool/manage/submissionsets/")
-                    else:
-                        flashMessage.send("Processing Error: %s" % result['msg'], flashMessage.ERROR)
-                else:
-                    flashMessage.send("Please correct the errors below", flashMessage.ERROR)
+        pay_form = PaymentForm(request.POST)
+        if pay_form.is_valid():
+            payment_dict = get_payment_dict(pay_form, current_inst)
+            product_dict = {
+                'price': amount,
+                'quantity': 1,
+                'name': "STARS Subscription Purchase",
+            }
+    
+            result = process_payment(payment_dict, [product_dict], invoice_num=current_inst.aashe_id)
+            if result.has_key('cleared') and result.has_key('msg'):
+                if result['cleared'] and result['trans_id']:
                     
-    template = 'tool/manage/purchase_submissionset.html'
+                    # calculate start date of subscription
+                    start_date = current_inst.get_last_subscription_end()
+                    if not start_date:
+                        start_date = date.today()
+                    else:
+                        start_date += timedelta(days=1)
+                    
+                    sub = Subscription(
+                                        institution=current_inst,
+                                        start_date=start_date,
+                                        end_date=start_date + timedelta(SUBSCRIPTION_DURATION),
+                                        amount_due=0,
+                                        paid_in_full=True,
+                                       )
+                    sub.save()
+                    
+                    p = SubscriptionPayment(
+                                    subscription=sub,
+                                    date=datetime.now(),
+                                    amount=amount,
+                                    user=request.user,
+                                    reason=reason,
+                                    method='credit',
+                                    confirmation=str(result['trans_id']),
+                                )
+                    p.save()
+                    
+                    if request.user.email != current_inst.contact_email:
+                        mail_to = [request.user.email, current_inst.contact_email]
+                    else:
+                        mail_to = [current_inst.contact_email,]
+
+                    et = EmailTemplate.objects.get(slug="reg_renewed_paid")
+                    email_context = {'payment_dict': payment_dict,'institution': current_inst, "payment": p}
+                    et.send_email(mail_to, email_context)
+                    
+                    send_exec_renew_email(current_inst)
+                    
+                    current_inst.current_subscription = sub
+                    current_inst.is_participant = True
+                    current_inst.save()
+                    
+                    return HttpResponseRedirect("/tool/")
+                else:
+                    flashMessage.send("Processing Error: %s" % result['msg'], flashMessage.ERROR)
+            else:
+                flashMessage.send("Please correct the errors below", flashMessage.ERROR)
+                    
+    template = 'tool/manage/purchase_subscription.html'
     context = {
         "pay_form": pay_form,
-        "later_form": later_form,
         "amount": amount,
         'is_member': is_member,
         'discount': discount,
@@ -551,51 +512,51 @@ def purchase_submissionset(request):
     return respond(request, template, context)
 
 
-def extension_request(request, set_id):
-    
-    current_inst = _get_current_institution(request)
-    
-    ss = get_object_or_404(SubmissionSet, id=set_id, institution=current_inst)
-    
-    if not ss.can_apply_for_extension():
-        # how did they get to this page?
-        flashMessage.send("Sorry, extension requests to this submission set are not allowed at this time.", flashMessage.NOTICE)
-        watchdog.log('Extension Application', "Extension request denied." % ss, watchdog.ERROR)
-        return HttpResponseRedirect('/tool/manage/submissionsets/')
-    
-    object_form, confirmed = form_helpers.confirm_form(request)
-    
-    if confirmed:
-        er = ExtensionRequest(submissionset=ss, user=request.user)
-        er.old_deadline = ss.submission_deadline
-        er.save()
-        
-        td = EXTENSION_PERIOD
-        ss.submission_deadline += td
-        ss.save()
-        
-        flashMessage.send("Your extension request has been applied to your submission.", flashMessage.NOTICE)
-        return HttpResponseRedirect('/tool/manage/submissionsets/')
+#def extension_request(request, set_id):
+#    
+#    current_inst = _get_current_institution(request)
+#    
+#    ss = get_object_or_404(SubmissionSet, id=set_id, institution=current_inst)
+#    
+#    if not ss.can_apply_for_extension():
+#        # how did they get to this page?
+#        flashMessage.send("Sorry, extension requests to this submission set are not allowed at this time.", flashMessage.NOTICE)
+#        watchdog.log('Extension Application', "Extension request denied." % ss, watchdog.ERROR)
+#        return HttpResponseRedirect('/tool/manage/submissionsets/')
+#    
+#    object_form, confirmed = form_helpers.confirm_form(request)
+#    
+#    if confirmed:
+#        er = ExtensionRequest(submissionset=ss, user=request.user)
+#        er.old_deadline = ss.submission_deadline
+#        er.save()
+#        
+#        td = EXTENSION_PERIOD
+#        ss.submission_deadline += td
+#        ss.save()
+#        
+#        flashMessage.send("Your extension request has been applied to your submission.", flashMessage.NOTICE)
+#        return HttpResponseRedirect('/tool/manage/submissionsets/')
+#
+#    template = 'tool/manage/extension_request.html'
+#    context = {
+#        "object_form": object_form,
+#    }
+#    return respond(request, template, context)
 
-    template = 'tool/manage/extension_request.html'
-    context = {
-        "object_form": object_form,
-    }
-    return respond(request, template, context)
 
-
-def activate_submissionset(request, set_id):
-    """
-        Set the selected submission set as active
-    """
-    
-    current_inst = _get_current_institution(request)
-    
-    submission_set = get_object_or_404(SubmissionSet, id=set_id)
-    
-    current_inst.set_active_submission(submission_set)
-    
-    return HttpResponseRedirect(settings.MANAGE_SUBMISSION_SETS_URL)
+#def activate_submissionset(request, set_id):
+#    """
+#        Set the selected submission set as active
+#    """
+#    
+#    current_inst = _get_current_institution(request)
+#    
+#    submission_set = get_object_or_404(SubmissionSet, id=set_id)
+#    
+#    current_inst.set_active_submission(submission_set)
+#    
+#    return HttpResponseRedirect(settings.MANAGE_SUBMISSION_SETS_URL)
 
 def boundary(request, set_id):
     """ Displays the Institution Boundary edit form """

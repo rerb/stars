@@ -11,6 +11,7 @@ DATABASES = {
     'default': {
         'NAME': 'stars_dev',
         'ENGINE': 'django.db.backends.mysql',
+        'STORAGE_ENGINE': 'MyISAM',
         'USER': 'starsapp',
         'PASSWORD': 'J3z4#$szFET--6',
         'HOST': '10.176.128.183',

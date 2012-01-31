@@ -2,6 +2,7 @@
 
 {% load thumbnail %}
 {% load aashe_rules_tags %}
+{% load content %}
 
 {% block tabclass %}class='tab1'{% endblock %}
 
@@ -85,8 +86,9 @@
 	 </table>
       {% testrule user_has_access_level user 'admin' current_inst %}
      <img src='/media/static/images/add.png' style='vertical-align: middle'/>
-     <a href='/tool/manage/submissionsets/purchase/' style="margin-right: 15px;text-decoration: none;">
+     <a href='/tool/manage/purchase-subscription/' style="margin-right: 15px;text-decoration: none;">
      Purchase Subscription</a>
       {% endtestrule %}
 	</div>
+  {% display_block_content "tool_summary_footer" user %}
 {% endblock %}

@@ -1,57 +1,93 @@
 # encoding: utf-8
 import datetime
 from south.db import db
-from south.v2 import DataMigration
+from south.v2 import SchemaMigration
 from django.db import models
 
-import sys
-
-class Migration(DataMigration):
+class Migration(SchemaMigration):
 
     def forwards(self, orm):
         
-        td = datetime.timedelta(days=365*3)
-        
-        for i in orm.Institution.objects.all():
-            # get the latest rated submission
-            try:
-                latest_rated_submission = orm['submissions.SubmissionSet'].objects.filter(status='r').filter(institution=i).order_by('date_submitted')[0]
-                if latest_rated_submission:
-                    i.current_rating = latest_rated_submission.rating
-                    i.rating_expires = latest_rated_submission.date_submitted + td
-            except:
-                i.current_rating = None
-                i.rating_expires = None
-            # get the active submission
-            try:
-                state = orm.InstitutionState.objects.get(institution=i)
-                if state.active_submission_set:
-                    if state.active_submission_set:
-                        i.current_submission = state.active_submission_set
-                    elif state.latest_rated_submission_set:
-                        i.current_submission = latest_rated_submission_set
-                    else:
-                        print >> sys.stderr, "No submission to work with for %s" % i.name
-            except orm.InstitutionState.DoesNotExist:
-                print >> sys.stderr, "No State found for %s" % i.name
-            # get the current subscription
-            today = datetime.date.today()
-            qs = orm.Subscription.objects.filter(institution=i).filter(start_date__lte=today).filter(end_date__gte=today).order_by("-end_date")
+        # Adding field 'Institution.president_first_name'
+        db.add_column('institutions_institution', 'president_first_name', self.gf('django.db.models.fields.CharField')(max_length=32, null=True, blank=True), keep_default=False)
 
-            if qs.count() > 0:
-                if qs.count() > 1:
-                    print >> sys.stderr, "%s: multiple current subscriptions (applying latest)" % i.name
-                i.current_subscription = qs[0]
-                
-            # Are they a participant
-            if i.current_subscription:
-                i.is_participant = True # All are participants at this point
-            else:
-                i.is_participant = False
-            i.save()
+        # Adding field 'Institution.president_middle_name'
+        db.add_column('institutions_institution', 'president_middle_name', self.gf('django.db.models.fields.CharField')(max_length=32, null=True, blank=True), keep_default=False)
+
+        # Adding field 'Institution.president_last_name'
+        db.add_column('institutions_institution', 'president_last_name', self.gf('django.db.models.fields.CharField')(max_length=32, null=True, blank=True), keep_default=False)
+
+        # Adding field 'Institution.president_title'
+        db.add_column('institutions_institution', 'president_title', self.gf('django.db.models.fields.CharField')(max_length=64, null=True, blank=True), keep_default=False)
+
+        # Adding field 'Institution.president_address'
+        db.add_column('institutions_institution', 'president_address', self.gf('django.db.models.fields.CharField')(max_length=128, null=True, blank=True), keep_default=False)
+
+        # Adding field 'Institution.president_city'
+        db.add_column('institutions_institution', 'president_city', self.gf('django.db.models.fields.CharField')(max_length=32, null=True, blank=True), keep_default=False)
+
+        # Adding field 'Institution.president_state'
+        db.add_column('institutions_institution', 'president_state', self.gf('django.db.models.fields.CharField')(max_length=2, null=True, blank=True), keep_default=False)
+
+        # Adding field 'Institution.president_zip'
+        db.add_column('institutions_institution', 'president_zip', self.gf('django.db.models.fields.CharField')(max_length=8, null=True, blank=True), keep_default=False)
+
+        # Changing field 'Institution.executive_contact_email'
+        db.alter_column('institutions_institution', 'executive_contact_email', self.gf('django.db.models.fields.EmailField')(max_length=75, null=True))
+
+        # Changing field 'Institution.executive_contact_department'
+        db.alter_column('institutions_institution', 'executive_contact_department', self.gf('django.db.models.fields.CharField')(max_length=64, null=True))
+
+        # Changing field 'Institution.executive_contact_first_name'
+        db.alter_column('institutions_institution', 'executive_contact_first_name', self.gf('django.db.models.fields.CharField')(max_length=32, null=True))
+
+        # Changing field 'Institution.executive_contact_title'
+        db.alter_column('institutions_institution', 'executive_contact_title', self.gf('django.db.models.fields.CharField')(max_length=64, null=True))
+
+        # Changing field 'Institution.executive_contact_last_name'
+        db.alter_column('institutions_institution', 'executive_contact_last_name', self.gf('django.db.models.fields.CharField')(max_length=32, null=True))
+
 
     def backwards(self, orm):
-        "Write your backwards methods here."
+        
+        # Deleting field 'Institution.president_first_name'
+        db.delete_column('institutions_institution', 'president_first_name')
+
+        # Deleting field 'Institution.president_middle_name'
+        db.delete_column('institutions_institution', 'president_middle_name')
+
+        # Deleting field 'Institution.president_last_name'
+        db.delete_column('institutions_institution', 'president_last_name')
+
+        # Deleting field 'Institution.president_title'
+        db.delete_column('institutions_institution', 'president_title')
+
+        # Deleting field 'Institution.president_address'
+        db.delete_column('institutions_institution', 'president_address')
+
+        # Deleting field 'Institution.president_city'
+        db.delete_column('institutions_institution', 'president_city')
+
+        # Deleting field 'Institution.president_state'
+        db.delete_column('institutions_institution', 'president_state')
+
+        # Deleting field 'Institution.president_zip'
+        db.delete_column('institutions_institution', 'president_zip')
+
+        # Changing field 'Institution.executive_contact_email'
+        db.alter_column('institutions_institution', 'executive_contact_email', self.gf('django.db.models.fields.EmailField')(default='ben@aashe.org', max_length=75))
+
+        # User chose to not deal with backwards NULL issues for 'Institution.executive_contact_department'
+        raise RuntimeError("Cannot reverse this migration. 'Institution.executive_contact_department' and its values cannot be restored.")
+
+        # User chose to not deal with backwards NULL issues for 'Institution.executive_contact_first_name'
+        raise RuntimeError("Cannot reverse this migration. 'Institution.executive_contact_first_name' and its values cannot be restored.")
+
+        # User chose to not deal with backwards NULL issues for 'Institution.executive_contact_title'
+        raise RuntimeError("Cannot reverse this migration. 'Institution.executive_contact_title' and its values cannot be restored.")
+
+        # User chose to not deal with backwards NULL issues for 'Institution.executive_contact_last_name'
+        raise RuntimeError("Cannot reverse this migration. 'Institution.executive_contact_last_name' and its values cannot be restored.")
 
 
     models = {
@@ -153,23 +189,32 @@ class Migration(DataMigration):
             'enabled': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'executive_contact_address': ('django.db.models.fields.CharField', [], {'max_length': '128', 'null': 'True', 'blank': 'True'}),
             'executive_contact_city': ('django.db.models.fields.CharField', [], {'max_length': '16', 'null': 'True', 'blank': 'True'}),
-            'executive_contact_department': ('django.db.models.fields.CharField', [], {'max_length': '64'}),
-            'executive_contact_email': ('django.db.models.fields.EmailField', [], {'max_length': '75'}),
-            'executive_contact_first_name': ('django.db.models.fields.CharField', [], {'max_length': '32'}),
-            'executive_contact_last_name': ('django.db.models.fields.CharField', [], {'max_length': '32'}),
+            'executive_contact_department': ('django.db.models.fields.CharField', [], {'max_length': '64', 'null': 'True', 'blank': 'True'}),
+            'executive_contact_email': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'null': 'True', 'blank': 'True'}),
+            'executive_contact_first_name': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True', 'blank': 'True'}),
+            'executive_contact_last_name': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True', 'blank': 'True'}),
             'executive_contact_middle_name': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True', 'blank': 'True'}),
             'executive_contact_state': ('django.db.models.fields.CharField', [], {'max_length': '2', 'null': 'True', 'blank': 'True'}),
-            'executive_contact_title': ('django.db.models.fields.CharField', [], {'max_length': '64'}),
+            'executive_contact_title': ('django.db.models.fields.CharField', [], {'max_length': '64', 'null': 'True', 'blank': 'True'}),
             'executive_contact_zip': ('django.db.models.fields.CharField', [], {'max_length': '8', 'null': 'True', 'blank': 'True'}),
             'fte': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'international': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'is_member': ('django.db.models.fields.NullBooleanField', [], {'default': 'False', 'null': 'True', 'blank': 'True'}),
-            'is_participant': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
+            'is_participant': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'is_pcc_signatory': ('django.db.models.fields.NullBooleanField', [], {'default': 'False', 'null': 'True', 'blank': 'True'}),
             'is_pilot_participant': ('django.db.models.fields.NullBooleanField', [], {'default': 'False', 'null': 'True', 'blank': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'org_type': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True', 'blank': 'True'}),
+            'president_address': ('django.db.models.fields.CharField', [], {'max_length': '128', 'null': 'True', 'blank': 'True'}),
+            'president_city': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True', 'blank': 'True'}),
+            'president_first_name': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True', 'blank': 'True'}),
+            'president_last_name': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True', 'blank': 'True'}),
+            'president_middle_name': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True', 'blank': 'True'}),
+            'president_state': ('django.db.models.fields.CharField', [], {'max_length': '2', 'null': 'True', 'blank': 'True'}),
+            'president_title': ('django.db.models.fields.CharField', [], {'max_length': '64', 'null': 'True', 'blank': 'True'}),
+            'president_zip': ('django.db.models.fields.CharField', [], {'max_length': '8', 'null': 'True', 'blank': 'True'}),
+            'rated_submission': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'rated'", 'null': 'True', 'to': "orm['submissions.SubmissionSet']"}),
             'rating_expires': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
             'slug': ('django.db.models.fields.SlugField', [], {'max_length': '255', 'db_index': 'True'}),
             'stars_staff_notes': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'})
@@ -259,7 +304,6 @@ class Migration(DataMigration):
             'score': ('django.db.models.fields.FloatField', [], {'null': 'True', 'blank': 'True'}),
             'status': ('django.db.models.fields.CharField', [], {'max_length': '8'}),
             'submission_boundary': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
-            'submission_deadline': ('django.db.models.fields.DateField', [], {}),
             'submitting_user': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'submitted_submissions'", 'null': 'True', 'to': "orm['auth.User']"})
         }
     }

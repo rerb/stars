@@ -66,7 +66,7 @@ def change_institution(request, institution):
                 account = StarsAccount.objects.get(user=request.user, institution=institution)
                 _update_account_context(request, account=account)
                 return True
-            except StarsAccount.DoesNotExist:  # user doesn't have an account for that insitution.
+            except StarsAccount.DoesNotExist:  # user doesn't have an account for that institution.
                 raise PermissionDenied("No such account.")
     else:  # anonymous users may not select any institution
         raise PermissionDenied("You need to log in.")

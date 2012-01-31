@@ -1,4 +1,22 @@
 [
+	{
+        "pk": 130, 
+        "model": "notifications.emailtemplate", 
+        "fields": {
+            "description": "Welcome email", 
+            "title": "Welcome to the Data Collector", 
+            "content": "", 
+            "active": true, 
+            "slug": "welcome_respondent", 
+            "example_data": {
+                "institution": {
+                    "name": "[Example Institution Name]", 
+                    "contact_last_name": "[Last]", 
+                    "contact_first_name": "[First]"
+                }
+            }
+        }
+    }, 
     {
         "pk": 13, 
         "model": "notifications.emailtemplate", 
@@ -492,7 +510,7 @@
         "fields": {
             "description": "Email sent to liaison after registration with payment.", 
             "title": "STARS Registration Success", 
-            "content": "Thank you for registering as a STARS Participant!\r\n\r\nYour registration has been received and is being processed by AASHE.  Your receipt is below.\r\n\r\nYou may now access the STARS Reporting Tool (https://stars.aashe.org/pages/help/how-to-use-the-stars-reporting-tool.html). Also, see the STARS Technical Manual (https://stars.aashe.org/pages/about/technical-manual.html) for information about STARS credits, including a list of the reporting fields associated with each credit.\r\n\r\nWe encourage you to subscribe to the STARS Update (http://www.aashe.org/user/newsletters), a free monthly e-newsletter that includes updates, resources, and important information for STARS Participants. Also, visit the STARS website (https://stars.aashe.org/) for additional information about STARS and email stars@aashe.org with any questions.\r\n\r\nThe STARS Team\r\nstars@aashe.org\r\n(859) 309 6755\r\n\r\nSTARS REGISTRATION RECEIPT\r\n\r\nFEE\r\n${{ payment.amount }}\r\n\r\nBILLING INFORMATION\r\n\r\nBilled to:\r\n{{ payment_dict.name_on_card }}\r\n{{ institution.name }}\r\n{{ payment_dict.billing_address }}\r\n{{ payment_dict.billing_city }}, {{ payment_dict.billing_state }}, {{ payment_dict.billing_zipcode }}\r\n{{ institution.contact_email }}\r\n\r\nTotal Fee ${{ payment.amount }}\r\n\r\nCredit Card: [************{{ payment_dict.last_four }}]\r\nPaid to AASHE\r\n", 
+            "content": "Thank you for registering as a STARS Participant!\r\n\r\nYour registration has been received and is being processed by AASHE.  Your receipt is below.\r\n\r\nYou may now access the STARS Reporting Tool (https://stars.aashe.org/pages/help/how-to-use-the-stars-reporting-tool.html). Also, see the STARS Technical Manual (https://stars.aashe.org/pages/about/technical-manual.html) for information about STARS credits, including a list of the reporting fields associated with each credit.\r\n\r\nWe encourage you to subscribe to the STARS Update (http://www.aashe.org/user/newsletters), a free monthly e-newsletter that includes updates, resources, and important information for STARS Participants. Also, visit the STARS website (https://stars.aashe.org/) for additional information about STARS and email stars@aashe.org with any questions.\r\n\r\nThe STARS Team\r\nstars@aashe.org\r\n(859) 309 6755\r\n\r\nSTARS REGISTRATION RECEIPT\r\n\r\nFEE\r\n${{ price }}\r\n\r\nBILLING INFORMATION\r\n\r\nBilled to:\r\n{{ payment_dict.name_on_card }}\r\n{{ institution.name }}\r\n{{ payment_dict.billing_address }}\r\n{{ payment_dict.billing_city }}, {{ payment_dict.billing_state }}, {{ payment_dict.billing_zipcode }}\r\n{{ institution.contact_email }}\r\n\r\nTotal Fee ${{ payment.amount }}\r\n\r\nCredit Card: [************{{ payment_dict.last_four }}]\r\nPaid to AASHE\r\n", 
             "active": true, 
             "slug": "welcome_liaison_paid", 
             "example_data": {
@@ -513,9 +531,7 @@
                     "contact_title": "[Liaison Title]", 
                     "executive_contact_last_name": "[Last Name]"
                 }, 
-                "payment": {
-                    "amount": "[400]"
-                }
+                "price": "[400]"
             }
         }
     }, 

@@ -6,7 +6,7 @@ from django.db import models
 
 class Migration(SchemaMigration):
     
-    depends_on = (('institutions', "0022_add_rated_submission"),)
+    depends_on = (('institutions', '0022_add_rated_submission'),)
 
     def forwards(self, orm):
         
@@ -69,8 +69,8 @@ class Migration(SchemaMigration):
         # Deleting model 'Boundary'
         db.delete_table('submissions_boundary')
 
-        # User chose to not deal with backwards NULL issues for 'SubmissionSet.submission_deadline'
-        raise RuntimeError("Cannot reverse this migration. 'SubmissionSet.submission_deadline' and its values cannot be restored.")
+        # Adding field 'SubmissionSet.submission_deadline'
+        db.add_column('submissions_submissionset', 'submission_deadline', self.gf('django.db.models.fields.DateField')(default=datetime.date(2012, 1, 25)), keep_default=False)
 
 
     models = {

@@ -1,119 +1,50 @@
 # encoding: utf-8
 import datetime
 from south.db import db
-from south.v2 import DataMigration
+from south.v2 import SchemaMigration
 from django.db import models
 
-from stars.apps.migrations.utils import migrate_ss_version
-
-class Migration(DataMigration):
+class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        """
-        Create subscriptions for all institutions.
-        Migrate their payment data accordingly.
-        Only creating the most recent subscription...
+        
+        # Adding model 'RespondentRegistrationReason'
+        db.create_table('institutions_respondentregistrationreason', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('title', self.gf('django.db.models.fields.CharField')(max_length=255)),
+        ))
+        db.send_create_signal('institutions', ['RespondentRegistrationReason'])
 
-        Rated Institutions
-        ------------------
-         - if their latest rated submission deadline hasn't passed
-          - create a current subscription with that end date
-         - else
-          - create an expired subscription with that end date
+        # Adding model 'RespondentSurvey'
+        db.create_table('institutions_respondentsurvey', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('institution', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['institutions.Institution'])),
+            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
+            ('source', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
+            ('other', self.gf('django.db.models.fields.CharField')(max_length=64, null=True, blank=True)),
+            ('potential_stars', self.gf('django.db.models.fields.NullBooleanField')(null=True, blank=True)),
+        ))
+        db.send_create_signal('institutions', ['RespondentSurvey'])
 
-        Expired Institutions
-        --------------------
-        Those institutions who never submitted for a rating
-        - create a subscription for their last attempt
+        # Adding M2M table for field reasons on 'RespondentSurvey'
+        db.create_table('institutions_respondentsurvey_reasons', (
+            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
+            ('respondentsurvey', models.ForeignKey(orm['institutions.respondentsurvey'], null=False)),
+            ('respondentregistrationreason', models.ForeignKey(orm['institutions.respondentregistrationreason'], null=False))
+        ))
+        db.create_unique('institutions_respondentsurvey_reasons', ['respondentsurvey_id', 'respondentregistrationreason_id'])
 
-        Current Participants
-        --------------------
-        Those institutions who are still working in the tool
-        - create a subscription with their current submission's deadline
-        """
-
-        td = datetime.timedelta(days=365)
-
-        need_extension = []
-
-
-        for i in orm.Institution.objects.order_by('name'):
-            print "---------------"
-            print "%s:" % i.name
-            
-            # Get all submissions
-            for ss in orm['submissions.SubmissionSet'].objects.filter(institution=i).order_by('date_registered').exclude(is_visible=False):
-                print "Submission: %s - %s" % (ss.date_registered, ss.submission_deadline)
-                
-                subscription_end = ss.submission_deadline
-
-                # rated institutions that still have time in their subscription
-                # should get a new submission
-
-                # Rated institutions
-                ratings_used = 0
-                if ss.status == 'r':
-                    ratings_used = 1
-                    print "Rated: %s" % ss.date_submitted
-                    if subscription_end > datetime.date.today():
-                        print "****NEEDS EXTENSION****"
-                        need_extension.append(ss)
-#                        print "creating submissionset and making it active"
-##                        ssKlass = orm['submissions.SubmissionSet']
-##                        new_ss = ssKlass(
-##                                         institution=i,
-##                                         date_registered=ss.date_submitted,
-##                                         submission_deadline=ss.submission_deadline,
-##                                         creditset=ss.creditset,
-##                                         registering_user=ss.registering_user,
-##                                         status='ps'
-##                                        )
-#                        new_ss = migrate_ss_version(ss, ss.creditset)
-#                        i.current_submission = new_ss
-#                        i.save()
-
-                # Create subscriptions and payments for all submissions
-                amount_due = 0
-                paid_in_full = True
-                
-                 # if there aren't any payments
-                if orm['submissions.Payment'].objects.filter(submissionset=ss).exclude(type='later').count() == 0:
-                    for p in orm['submissions.Payment'].objects.filter(submissionset=ss).filter(type='later'):
-                        if p.type == 'later':
-                            amount_due += p.amount
-                    paid_in_full = False
-
-                new_sub = orm.Subscription(
-                    institution=i,
-                    start_date=ss.date_registered,
-                    end_date=ss.submission_deadline,
-                    ratings_used=ratings_used,
-                    amount_due=amount_due,
-                    paid_in_full=paid_in_full
-                    )
-                new_sub.save()
-                print "Created Subscription: %s - %s" % (new_sub.start_date, new_sub.end_date)
-
-                for p in orm['submissions.Payment'].objects.filter(submissionset=ss).exclude(type='later'):
-                    new_payment = orm.SubscriptionPayment(
-                        subscription=new_sub,
-                        date=p.date,
-                        amount=p.amount,
-                        user=p.user,
-                        reason=p.reason,
-                        method=p.type,
-                        confirmation=p.confirmation
-                        )
-                    new_payment.save()
-                    print "Created Payment: %s (%s)" % (new_payment.amount, new_payment.method)
-
-        print "Need Extension:"
-        print "****THESE NEED TO BE DONE MANUALLY UNFORTUNATELY*****"
-        for ss in need_extension:
-            print ss.institution.name
 
     def backwards(self, orm):
-        "Write your backwards methods here."
+        
+        # Deleting model 'RespondentRegistrationReason'
+        db.delete_table('institutions_respondentregistrationreason')
+
+        # Deleting model 'RespondentSurvey'
+        db.delete_table('institutions_respondentsurvey')
+
+        # Removing M2M table for field reasons on 'RespondentSurvey'
+        db.delete_table('institutions_respondentsurvey_reasons')
 
 
     models = {
@@ -208,26 +139,40 @@ class Migration(DataMigration):
             'contact_phone_ext': ('django.db.models.fields.SmallIntegerField', [], {'null': 'True', 'blank': 'True'}),
             'contact_title': ('django.db.models.fields.CharField', [], {'max_length': '64'}),
             'country': ('django.db.models.fields.CharField', [], {'max_length': '128', 'null': 'True', 'blank': 'True'}),
+            'current_rating': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['credits.Rating']", 'null': 'True', 'blank': 'True'}),
+            'current_submission': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'current'", 'null': 'True', 'to': "orm['submissions.SubmissionSet']"}),
+            'current_subscription': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'current'", 'null': 'True', 'to': "orm['institutions.Subscription']"}),
             'date_created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'null': 'True', 'blank': 'True'}),
             'enabled': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'executive_contact_address': ('django.db.models.fields.CharField', [], {'max_length': '128', 'null': 'True', 'blank': 'True'}),
             'executive_contact_city': ('django.db.models.fields.CharField', [], {'max_length': '16', 'null': 'True', 'blank': 'True'}),
-            'executive_contact_department': ('django.db.models.fields.CharField', [], {'max_length': '64'}),
-            'executive_contact_email': ('django.db.models.fields.EmailField', [], {'max_length': '75'}),
-            'executive_contact_first_name': ('django.db.models.fields.CharField', [], {'max_length': '32'}),
-            'executive_contact_last_name': ('django.db.models.fields.CharField', [], {'max_length': '32'}),
+            'executive_contact_department': ('django.db.models.fields.CharField', [], {'max_length': '64', 'null': 'True', 'blank': 'True'}),
+            'executive_contact_email': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'null': 'True', 'blank': 'True'}),
+            'executive_contact_first_name': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True', 'blank': 'True'}),
+            'executive_contact_last_name': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True', 'blank': 'True'}),
             'executive_contact_middle_name': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True', 'blank': 'True'}),
             'executive_contact_state': ('django.db.models.fields.CharField', [], {'max_length': '2', 'null': 'True', 'blank': 'True'}),
-            'executive_contact_title': ('django.db.models.fields.CharField', [], {'max_length': '64'}),
+            'executive_contact_title': ('django.db.models.fields.CharField', [], {'max_length': '64', 'null': 'True', 'blank': 'True'}),
             'executive_contact_zip': ('django.db.models.fields.CharField', [], {'max_length': '8', 'null': 'True', 'blank': 'True'}),
             'fte': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'international': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'is_member': ('django.db.models.fields.NullBooleanField', [], {'default': 'False', 'null': 'True', 'blank': 'True'}),
+            'is_participant': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'is_pcc_signatory': ('django.db.models.fields.NullBooleanField', [], {'default': 'False', 'null': 'True', 'blank': 'True'}),
             'is_pilot_participant': ('django.db.models.fields.NullBooleanField', [], {'default': 'False', 'null': 'True', 'blank': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'org_type': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True', 'blank': 'True'}),
+            'president_address': ('django.db.models.fields.CharField', [], {'max_length': '128', 'null': 'True', 'blank': 'True'}),
+            'president_city': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True', 'blank': 'True'}),
+            'president_first_name': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True', 'blank': 'True'}),
+            'president_last_name': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True', 'blank': 'True'}),
+            'president_middle_name': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True', 'blank': 'True'}),
+            'president_state': ('django.db.models.fields.CharField', [], {'max_length': '2', 'null': 'True', 'blank': 'True'}),
+            'president_title': ('django.db.models.fields.CharField', [], {'max_length': '64', 'null': 'True', 'blank': 'True'}),
+            'president_zip': ('django.db.models.fields.CharField', [], {'max_length': '8', 'null': 'True', 'blank': 'True'}),
+            'rated_submission': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'rated'", 'null': 'True', 'to': "orm['submissions.SubmissionSet']"}),
+            'rating_expires': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
             'slug': ('django.db.models.fields.SlugField', [], {'max_length': '255', 'db_index': 'True'}),
             'stars_staff_notes': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'})
         },
@@ -264,6 +209,21 @@ class Migration(DataMigration):
             'other': ('django.db.models.fields.CharField', [], {'max_length': '64', 'null': 'True', 'blank': 'True'}),
             'primary_reason': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'primary_surveys'", 'null': 'True', 'to': "orm['institutions.RegistrationReason']"}),
             'reasons': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': "orm['institutions.RegistrationReason']", 'null': 'True', 'blank': 'True'}),
+            'source': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"})
+        },
+        'institutions.respondentregistrationreason': {
+            'Meta': {'object_name': 'RespondentRegistrationReason'},
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'title': ('django.db.models.fields.CharField', [], {'max_length': '255'})
+        },
+        'institutions.respondentsurvey': {
+            'Meta': {'object_name': 'RespondentSurvey'},
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'institution': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['institutions.Institution']"}),
+            'other': ('django.db.models.fields.CharField', [], {'max_length': '64', 'null': 'True', 'blank': 'True'}),
+            'potential_stars': ('django.db.models.fields.NullBooleanField', [], {'null': 'True', 'blank': 'True'}),
+            'reasons': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': "orm['institutions.RespondentRegistrationReason']", 'null': 'True', 'blank': 'True'}),
             'source': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"})
         },
@@ -316,7 +276,6 @@ class Migration(DataMigration):
             'score': ('django.db.models.fields.FloatField', [], {'null': 'True', 'blank': 'True'}),
             'status': ('django.db.models.fields.CharField', [], {'max_length': '8'}),
             'submission_boundary': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
-            'submission_deadline': ('django.db.models.fields.DateField', [], {}),
             'submitting_user': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'submitted_submissions'", 'null': 'True', 'to': "orm['auth.User']"})
         }
     }

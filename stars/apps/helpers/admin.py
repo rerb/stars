@@ -13,3 +13,7 @@ class BlockContentAdmin(admin.ModelAdmin):
         js = ('/media/tp/js/tiny_mce/tiny_mce.js',
               '/media/static/js/textarea_admin.js',)
 admin.site.register(BlockContent, BlockContentAdmin)
+
+class SnippetContentAdmin(admin.ModelAdmin):
+    pass
+admin.site.register(SnippetContent, SnippetContentAdmin)

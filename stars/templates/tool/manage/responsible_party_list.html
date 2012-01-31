@@ -35,6 +35,6 @@
 {% endblock %}
 
 {% block help_content %}
-    {% load help %}
-    {% show_help_context 'responsible_parties' 0 %}
+    {% load content %}
+    {% display_block_content "responsible_parties" user %}
 {% endblock %}

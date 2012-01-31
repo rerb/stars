@@ -15,8 +15,7 @@ from django.conf import settings
 
 from stars.apps.registration.views import process_payment
 from stars.apps.credits.models import CreditSet
-from stars.apps.submissions.models import Payment
-from stars.apps.institutions.models import Institution
+from stars.apps.institutions.models import Institution, SubscriptionPayment
 
 from aashe.issdjango.models import Organizations
 
@@ -73,17 +72,52 @@ class TestProcess(TestCase):
         self.assertTrue(c.session['selected_institution'].slug == slug)
         
         return c
+    
+    def regStep2_participant(self, c, slug):
+        
+        url = '/register/step2/'
 
-    def regStep2(self, c, slug):
+        post_dict = {}
+        response = c.get(url, post_dict)
+        self.assertTrue(response.status_code == 200)
+
+        post_dict = {u'level': [u'participant']}
+        response = c.post(url, post_dict, follow=False)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response._headers['location'][1], 'http://testserver/register/p/step3/')
+
+        self.assertTrue(c.session['selected_institution'].slug == slug)
+        
+        return c
+    
+    def regStep2_respondent(self, c, slug):
+        
+        url = '/register/step2/'
+
+        post_dict = {}
+        response = c.get(url, post_dict)
+        self.assertTrue(response.status_code == 200)
+
+        post_dict = {u'level': [u'respondent']}
+        response = c.post(url, post_dict, follow=False)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response._headers['location'][1], 'http://testserver/register/r/step3/')
+
+        self.assertTrue(c.session['selected_institution'].slug == slug)
+        
+        return c
+        
+    def regStep3_participant(self, c, slug):
         """
-           Run test up to step two of the registration process for a given institution
+           Run test up to step 3 of the participant registration process:
+               Contact information
    
            return the client object
         """
 
         # Contact Information
 
-        url = '/register/step2/'
+        url = '/register/p/step3/'
 
         # Empty Query
         post_dict = {}
@@ -114,6 +148,39 @@ class TestProcess(TestCase):
         self.assertTrue(c.session['selected_institution'].slug == slug)
 
         return c
+    
+    def regStep3_respondent(self, c, slug):
+        """
+           Run test up to step 3 of the respondent registration process:
+               Contact information
+   
+           return the client object
+        """
+
+        # Contact Information
+
+        url = '/register/r/step3/'
+
+        # Empty Query
+        post_dict = {}
+        response = c.get(url, post_dict)
+        self.assertTrue(response.status_code == 200)
+
+        # Same Emails
+        post_dict = {
+                    "contact_first_name": 'test',
+                    'contact_last_name': 'test',
+                    'contact_title': 'test',
+                    'contact_department': 'test',
+                    'contact_phone': '123 555 1212',
+                    'contact_email': 'test@aashe.org',
+                   }
+        response = c.post(url, post_dict, follow=False)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response._headers['location'][1], 'http://testserver/register/survey/')
+        self.assertTrue(c.session['selected_institution'].slug == slug)
+
+        return c
    
     def testPayLater(self):
         """
@@ -125,13 +192,14 @@ class TestProcess(TestCase):
         print "Testing Pay Later"
 
         c = self.regStep1(24394, 'okanagan-college-bc')
-        c = self.regStep2(c, 'okanagan-college-bc')
+        c = self.regStep2_participant(c, 'okanagan-college-bc')
+        c = self.regStep3_participant(c, 'okanagan-college-bc')
         
         # confirm that it hasn't been created yet
         self.assertTrue(c.session['selected_institution'].id == None)
 
         # Test Payment
-        url = '/register/step3/'
+        url = '/register/p/step4/'
 
         # Empty Query
         post_dict = {}
@@ -146,9 +214,34 @@ class TestProcess(TestCase):
         
         # Check payments
         institution = Institution.objects.get(aashe_id=24394)
-        p = Payment.objects.get(submissionset__institution=institution)
-        self.assertEqual(p.reason, "member_reg")
+#        p = Payment.objects.get(submissionset__institution=institution)
+#        self.assertEqual(p.reason, "member_reg")
+
+        self.assertEqual(SubscriptionPayment.objects.filter(subscription__institution=institution).count(), 0)
    
+    def testRespondent(self):
+        """
+           Test the ConfirmClassView
+               - Handles a basic HTTP request w/out 500
+               - Processes the form and returns a redirect to step 2
+        """
+        
+        print "Testing Respondent Registration"
+
+        slug = 'florida-national-college-fl'
+        c = self.regStep1(16384, slug)
+        c = self.regStep2_respondent(c, slug)
+        c = self.regStep3_respondent(c, slug)
+        
+        # confirm that the institution has been created
+        self.assertNotEqual(c.session['selected_institution'].id, None)
+        
+        # Check payments
+        institution = Institution.objects.get(aashe_id=16384)
+        self.assertEqual(institution.slug, slug)
+#        p = Payment.objects.get(submissionset__institution=institution)
+#        self.assertEqual(p.reason, "member_reg")
+    
     def testPayLaterInternational(self):
         """
            Test the ConfirmClassView
@@ -159,7 +252,7 @@ class TestProcess(TestCase):
         print "Testing Pay Later International"
 
         c = self.regInternational("Dummy Institution", 'dummy-institution')
-        c = self.regStep2(c, 'dummy-institution')
+        c = self.regStep3_participant(c, 'dummy-institution')
         self.assertTrue(c.session['selected_institution'].international)
 
         # Email notifications

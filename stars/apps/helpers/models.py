@@ -26,3 +26,19 @@ class BlockContent(models.Model):
     
     def get_admin_url(self):
         return urlresolvers.reverse('admin:helpers_blockcontent_change', args=(self.id,))
+    
+class SnippetContent(models.Model):
+    """
+        Stores very brief unstyled text fragments
+    """
+    key = models.SlugField(unique=True)
+    content = models.CharField(max_length=255)
+    
+    def __str__(self):
+        return self.key
+    
+    def get_admin_url(self):
+        return urlresolvers.reverse('admin:helpers_snippetcontent_change', args=(self.id,))
+    
+    
+    

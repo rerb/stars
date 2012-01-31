@@ -14,7 +14,10 @@
        {% comment %} This should use base_edit_list, currently defined in credit_editor {% endcomment %}
        {% for payment in payment_list %}
        <tr class='{% cycle 'even' 'odd' %}'>
-           <td style='font-size:0.8em;border: 0px;'>{{ payment.submissionset }}</td>
+           <td style='font-size:0.8em;border: 0px;'>
+            {{ payment.subscription.start_date }}<br/>
+            {{ payment.subscription.end_date }}
+           </td>
            <td style='border: 0px;'>{{ payment.get_reason_display }}</td>
            <td><strong>${{ payment.amount|floatformat:2 }}</strong></td>
            <td style='border: 0px;'>{{ payment.user }}</td>

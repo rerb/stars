@@ -1,0 +1,26 @@
+{% extends 'registration/base.html' %}
+
+{% load content %}
+
+{% block title %}
+    Campus Sustainability Data Collector Registration
+{% endblock %}
+
+{% block content %}
+    <div class='inner20'>
+        <h1>{% display_snippet "reg_contact_respondent_title" user %}: <i>{{ institution }}</i></h1>
+        {% display_block_content "reg_respondent_contact_intro" user %}
+        <form method='post' action='.' class='generalForm'>
+            {% load fieldsets %}
+            <h3>{% display_snippet "reg_respondent_contact_liaison_title" user %}</h3>
+          {% display_block_content 'register_respondent_liaison_desc' user %}
+          <table class='form'>
+                {{ reg_form }}
+            </table>
+            <div class='button_row'>
+                <button type='button' onclick='document.location="/register/step1/";'>&lt;&lt; Back</button>
+                <button type='submit'>Continue &gt;&gt;</button>
+            </div>    
+        </form>
+    </div>
+{% endblock %}

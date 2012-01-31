@@ -13,6 +13,6 @@
 {% endblock %}
 
 {% block help_content %}
-    {% load help %}
-    {% show_help_context 'manage_payments' 0 %}
+    {% load content %}
+    {% display_block_content 'manage_payments' user %}
 {% endblock %}

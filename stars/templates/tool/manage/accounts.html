@@ -1,19 +1,16 @@
 {% extends 'tool/manage/base.html' %}
 
 {% load content %}
-{% load help %}
 
 {% block crumbs %} {{ block.super }} &gt; Users {% endblock %}
 
 {% block tabclass %}class='tab2'{% endblock %}
 
 {% block help_content %}
-	{# {% show_help_context 'manage_accounts' 0 %} #}
+    {% display_block_content 'manage_accounts' user %}
 {% endblock %}
 
 {% block institution_content %}
-    
-    {% if user.current_inst.is_participant %}
     <form method='post' action='/tool/manage/users/add/'>
         <table class='greyTable'>
           <tr>
@@ -96,7 +93,4 @@
            </tr>
          </table>
     </form>
-    {% else %}
-      {% display_block_content 'respondent_feature_denied' user %}
-    {% endif %}
 {% endblock %}

@@ -3,6 +3,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.localflavor.us.models import PhoneNumberField
 from django.template.defaultfilters import slugify
+from django.db.models import Max
 
 from stars.apps.helpers import watchdog
 from stars.apps.credits.models import CreditSet, RATING_DURATION
@@ -44,16 +45,27 @@ class Institution(models.Model):
     contact_phone = PhoneNumberField("Liaison Phone")
     contact_phone_ext = models.SmallIntegerField("Extension", blank=True, null=True)
     contact_email = models.EmailField("Liaison Email")
-    executive_contact_first_name = models.CharField(max_length=32)
+    executive_contact_first_name = models.CharField(max_length=32, blank=True, null=True)
     executive_contact_middle_name = models.CharField(max_length=32, blank=True, null=True)
-    executive_contact_last_name = models.CharField(max_length=32)
-    executive_contact_title = models.CharField(max_length=64)
-    executive_contact_department = models.CharField(max_length=64)
-    executive_contact_email = models.EmailField()
+    executive_contact_last_name = models.CharField(max_length=32, blank=True, null=True)
+    executive_contact_title = models.CharField(max_length=64, blank=True, null=True)
+    executive_contact_department = models.CharField(max_length=64, blank=True, null=True)
+    executive_contact_email = models.EmailField(blank=True, null=True)
     executive_contact_address = models.CharField(max_length=128, blank=True, null=True)
     executive_contact_city = models.CharField(max_length=16, blank=True, null=True)
     executive_contact_state = models.CharField(max_length=2, blank=True, null=True)
     executive_contact_zip = models.CharField(max_length=8, blank=True, null=True)
+    
+    # Contact information for the president
+    president_first_name = models.CharField(max_length=32, blank=True, null=True)
+    president_middle_name = models.CharField(max_length=32, blank=True, null=True)
+    president_last_name = models.CharField(max_length=32, blank=True, null=True)
+    president_title = models.CharField(max_length=64, blank=True, null=True)
+    president_address = models.CharField(max_length=128, blank=True, null=True)
+    president_city = models.CharField(max_length=32, blank=True, null=True)
+    president_state = models.CharField(max_length=2, blank=True, null=True)
+    president_zip = models.CharField(max_length=8, blank=True, null=True)
+    
     charter_participant = models.BooleanField()
     stars_staff_notes = models.TextField(blank=True, null=True)
     date_created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
@@ -80,6 +92,8 @@ class Institution(models.Model):
     def update_status(self):
         """
             Update the status of this institution, based on subscriptions and submissions
+            
+            NOTE: does not save the institution
         """
         # Update current_rating
         if self.rating_expires and self.rating_expires <= date.today():
@@ -92,7 +106,7 @@ class Institution(models.Model):
                 
         # Check subscription is current
         if self.current_subscription:
-            if self.current_subscription.start_date <= date.today() and self.current_subription.end_date >= date.today():
+            if self.current_subscription.start_date <= date.today() and self.current_subscription.end_date >= date.today():
                 self.is_participant = True
             else:
                 self.is_participant = False
@@ -246,6 +260,17 @@ class Institution(models.Model):
         except Exception, e:
             watchdog.log("Registration", "ISS Institution profile relationship error: %s" % e, watchdog.ERROR)
             self.slug = iss_institution_id
+            
+    def get_last_subscription_end(self):
+        """
+            Gets the end date for the last subscription in
+            all subscriptions for this institution
+        """
+        last_subscription_end = None
+        if self.subscription_set.count() > 0:
+            last_subscription_end = self.subscription_set.all().aggregate(Max('end_date'))['end_date__max']
+            
+        return last_subscription_end
 
 RATINGS_PER_SUBSCRIPTION = 1
 SUBSCRIPTION_DURATION = 365
@@ -309,6 +334,29 @@ class RegistrationSurvey(models.Model):
     other = models.CharField(max_length=64, blank=True, null=True)
     primary_reason = models.ForeignKey('RegistrationReason', related_name='primary_surveys', blank=True, null=True)
     enhancements = models.TextField("Is there anything AASHE can do or provide to improve your experience using STARS (resources, trainings, etc.)?", blank=True, null=True)
+    
+    def __unicode__(self):
+        return self.institution.__unicode__()
+
+class RespondentRegistrationReason(models.Model):
+    """
+        Possible reasons to register for CSDC
+    """ 
+    title = models.CharField(max_length=255)
+    
+    def __unicode__(self):
+        return self.title
+
+class RespondentSurvey(models.Model):
+    """
+        An optional survey for new respondents
+    """
+    institution = models.ForeignKey('Institution')
+    user = models.ForeignKey(User)
+    source = models.TextField("How did you hear about the CSDC?", blank=True, null=True)
+    reasons = models.ManyToManyField('RespondentRegistrationReason', blank=True, null=True)
+    other = models.CharField(max_length=64, blank=True, null=True)
+    potential_stars = models.NullBooleanField("Is your institution considering registering as a STARS participant?", blank=True, null=True)
     
     def __unicode__(self):
         return self.institution.__unicode__()

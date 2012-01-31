@@ -1,5 +1,7 @@
 {% extends 'registration/base.html' %}
 
+{% load content %}
+
 {% block title %}
     AASHE: STARS | Participant Registration | Step 3
 {% endblock %}
@@ -10,12 +12,16 @@
         <form method='POST'>
             <table class='form' style='margin: 10px auto'>
                 <tr>
-                  <th>STARS Participant</th>
-                  <th>Survey Respondent</th>
+                  <th>{% display_snippet "reg_participant_description_title" user %}</th>
+                  <th>{% display_snippet "reg_respondent_description_title" user %}</th>
                 </tr>
                  <tr>
-                  <td style='padding: 10px;'>Some descriptive text about the choice.</td>
-                  <td style='padding: 10px;'>Some descriptive text about the choice.</td>
+                  <td style='padding: 10px;'>
+                    {% display_block_content "reg_participant_description" user %}
+                  </td>
+                  <td style='padding: 10px;'>
+                    {% display_block_content "reg_respondent_description" user %}
+                  </td>
                  </tr>
                 <tr>
                     <td style='background-color: #ddd;padding: 10px;text-align: center;'>
