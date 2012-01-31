@@ -266,34 +266,35 @@ def share_data(request):
 #    return respond(request, 'tool/manage/submissionset_list.html', context)
 
 
-def migrate_submissionset(request, set_id):
+def migrate_submissionset(request):
     """
         Provides a tool to migrate a submission set
     """
-    current_inst = _get_current_institution(request)    
-    submission_set = get_object_or_404(SubmissionSet, id=set_id, institution=current_inst)
+    current_inst = _get_current_institution(request)
+    current_submission = current_inst.current_submission
     latest_creditset = CreditSet.objects.get_latest()
     
-    if latest_creditset == submission_set.creditset:
-        flashMessage.send("%s is the latest version of STARS" % (submission_set.creditset), flashMessage.ERROR)
-        return HttpResponseRedirect("/tool/manage/submissionsets/")
+    if latest_creditset == current_submission.creditset:
+        flashMessage.send("%s is the latest version of STARS" % (current_submission.creditset), flashMessage.ERROR)
+        return HttpResponseRedirect("/tool/manage/migrate/")
     
-    if submission_set.is_locked:
+    if current_submission.is_locked:
         flashMessage.send("Already marked for migration.", flashMessage.ERROR)
-        return HttpResponseRedirect("/tool/manage/submissionsets/")
+        return HttpResponseRedirect("/tool/manage/migrate/")
     
     ObjectForm = MigrateSubmissionSetForm
     
-    object_form, saved = form_helpers.basic_save_form(request, submission_set, set_id, ObjectForm)
+    object_form, saved = form_helpers.basic_save_form(request, current_submission, current_submission.id, ObjectForm)
     if saved:
         # start a migration task
-        perform_migration.delay(submission_set, latest_creditset, request.user)
-        return HttpResponseRedirect("/tool/manage/submissionsets/")
+        flashMessage.send("Your migration is in progress.", flashMessage.NOTICE)
+        perform_migration.delay(current_submission, latest_creditset, request.user)
+        return HttpResponseRedirect("/tool/")
 
     template = 'tool/manage/migrate_submissionset.html'
     context = {
         "object_form": object_form,
-        "submission_set": submission_set,
+        "submission_set": current_submission,
         "latest_creditset": latest_creditset,
     }
     return respond(request, template, context)

@@ -15,7 +15,7 @@ urlpatterns = patterns(
     (r'^users/delete/(?P<account_id>\d+)/$', 'delete_account'),
     (r'^share-data/$', 'share_data'),
 
-    (r'^submissionsets/(?P<set_id>\d+)/migrate/$', 'migrate_submissionset'),
+    (r'^migrate/$', 'migrate_submissionset'),
     
     (r'^purchase-subscription/', 'purchase_subscription'),
 )

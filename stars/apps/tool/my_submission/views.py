@@ -53,6 +53,7 @@ def summary(request):
     context={
         'active_submission': active_submission,
         'category_submission_list': category_submission_list,
+        'latest_creditset': CreditSet.objects.get_latest(),
         'is_admin': is_admin,
         'summary': True,
     }
@@ -314,7 +315,6 @@ def _get_category_submission_context(request, category_id):
 #    })
 #    
 #    return respond(request, "tool/submissions/category.html", context)
-
 
 def _get_subcategory_submission_context(request, category_id, subcategory_id):
     context = _get_category_submission_context(request, category_id)
