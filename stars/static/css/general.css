@@ -77,3 +77,8 @@ hr.thin {
 dt {
 	font-weight: bold;
 }
+
+table tr td p {
+	padding: 0px;
+	margin: 0px;	
+}
