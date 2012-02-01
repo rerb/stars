@@ -81,7 +81,7 @@ class SubmissionSet(models.Model):
     score = models.FloatField(blank=True, null=True)
 
     class Meta:
-        ordering = ("date_registered",)
+        ordering = ("institution__name", "date_registered",)
 
     def __unicode__(self):
         return unicode('%s (%s)' % (self.institution, self.creditset) )

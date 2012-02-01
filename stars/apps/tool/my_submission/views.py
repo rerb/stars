@@ -400,9 +400,12 @@ def delete_uploaded_file_gateway(request, inst_id, creditset_id, credit_id, fiel
     current_inst = request.user.current_inst
     if not current_inst or current_inst.id != int(inst_id):
         raise PermissionDenied("File not found")
+    active_submission = current_inst.get_active_submission()
  
-    credit_submission = get_object_or_404(CreditUserSubmission, credit__id=credit_id, \
-                                                                subcategory_submission__category_submission__submissionset__institution = current_inst)
+    credit_submission = get_object_or_404(  CreditUserSubmission,
+                                            credit__id=credit_id,
+                                            subcategory_submission__category_submission__submissionset=active_submission
+                                            )
     upload_submission = get_object_or_404(UploadSubmission, documentation_field__id=field_id, \
                                                             credit_submission = credit_submission)
 
