@@ -244,6 +244,7 @@ def respondent_contact_info(request):
         if reg_form.is_valid():
             
             institution = reg_form.save(commit=False)
+            institution.enabled = True
             institution.save()
             ss = init_submissionset(institution, request.user)
             institution.update_status()
@@ -394,7 +395,10 @@ def register_institution(user, institution, payment_type, price, payment_dict):
     
     # Set up the SubmissionSet
     submissionset = init_submissionset(institution, user)
+    
+    institution.current_subscription = subscription
     institution.set_active_submission(submissionset)
+    institution.save()
     
     # Save Payment
     if institution.is_member_institution():

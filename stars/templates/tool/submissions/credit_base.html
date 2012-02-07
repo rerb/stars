@@ -35,7 +35,7 @@
                     {{ credit_submission.assessed_points }}
                 {% endifnotequal %}
               {% else %}
-                STARS Participants Only
+                {% include "tool/participant_only_snippet.html" %}
               {% endtestrule %}
          	</td>
 	    </tr>

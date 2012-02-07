@@ -272,13 +272,21 @@ div#leftMenu h4, div#leftMenu h4 a {
     font-size: 1.2em;
     line-height: 1.6;
     font-weight: normal;
-    padding: 0px 5px;
+    padding: 0px 0px;
     margin: 0px 0px 5px 0px;
     text-transform: none;
 }
 
+div#leftMenu h4 a {
+	padding: 0px 10px;	
+}
+
 div#leftMenu h4 a:hover {
     text-decoration: underline;
+}
+
+div#leftMenu h4 a.active {
+	background-color: #848e2b;	
 }
 
 div#leftMenu ul {

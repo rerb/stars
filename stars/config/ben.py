@@ -9,6 +9,7 @@ DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 DEBUG_TOOLBAR = False
 MAINTENANCE_MODE = False
+CELERY_ALWAYS_EAGER = True
 
 # EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 # EMAIL_FILE_PATH = '/Users/jamstooks/tmp/stars-email-messages'

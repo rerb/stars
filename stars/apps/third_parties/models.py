@@ -10,6 +10,7 @@ class ThirdParty(models.Model):
     
     class Meta:
         verbose_name_plural = "Third Parties"
+        ordering = ['-next_deadline',]
     
     def __str__(self):
         return self.slug

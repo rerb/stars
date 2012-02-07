@@ -663,8 +663,8 @@ class CreditSubmission(models.Model):
     class Meta:
         ordering = ("credit__type", "credit__ordinal",)
 
-    def __unicode__(self):
-        return unicode(self.credit)
+    def __str__(self):
+        return self.credit.title
        
 #    @staticmethod
     def model_name():
