@@ -3,6 +3,7 @@
 {% load thumbnail %}
 {% load aashe_rules_tags %}
 {% load content %}
+{% load help %}
 
 {% block tabclass %}class='tab1'{% endblock %}
 
@@ -61,12 +62,13 @@
       {% else %}
         <strong>Campus Sustainability Data Collector - Survey Respondent</strong><br/>
         <span style="font-size: .8em;">
-          <a href='#'>What does this mean?</a>
+          What does this mean?
+          {% show_help_context 'what-is-respondent' %}
         </span>
       {% endif %}
 	  <table style='margin: 20px auto' class='greyTable'>
 	  	<tr>
-	  		<th>Subscriptions</th>
+	  		<th colspan='2'>STARS Subscriptions</th>
 	  	</tr>
 	  	{% with current_inst.subscription_set.all as subs %}
 	  	{% if subs %}
@@ -76,6 +78,12 @@
 			      	{{ s.start_date }} -
 			      	{{ s.end_date }}
 			      </td>
+                  {% if not s.paid_in_full %}
+                    <td>
+                      
+                      Due: ${{ s.amount_due|floatformat:"-2" }}
+                    </td>
+                  {% endif %}
 			    </tr>
 			{% endfor %}
 		{% else %}
@@ -87,7 +95,7 @@
       {% testrule user_has_access_level user 'admin' current_inst %}
      <img src='/media/static/images/add.png' style='vertical-align: middle'/>
      <a href='/tool/manage/purchase-subscription/' style="margin-right: 15px;text-decoration: none;">
-     Purchase Subscription</a>
+     Purchase STARS Paticipant Subscription</a>
       {% endtestrule %}
 	</div>
   {% display_block_content "tool_summary_footer" user %}
