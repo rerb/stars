@@ -15,7 +15,7 @@
     </div>
     <form class='generalForm' method='post' action='.'>
       {% load content %}
-      {% display_block_content 'save_snapshot' 0 %}
+      {% display_block_content 'save_snapshot' user %}
       <p align='center'>
         {{ form }}
       </p>
