@@ -70,18 +70,16 @@ div.banner {
 
 div.bannerInner {
 	font-size: 1.1em;
+	background-color: black;
 	color: white;
 	position: relative;
 	top: 30px;
 	margin: 0px 200px 0px 0px;
 	padding: 20px;
-    background-color: black;
-    background: rgba(0,0,0,0.6); 
-    border: 1px solid rgba(160, 160, 160, 0.6);
-/* 	filter:alpha(opacity=70);
+	filter:alpha(opacity=70);
 	-moz-opacity:0.70;
 	-khtml-opacity: 0.70;
-	opacity: 0.70; */
+	opacity: 0.70;
 }
 
 div.bannerInner h1 {
@@ -106,28 +104,6 @@ div.bannerInner a {
 	color: white;
 }
 
-a.homeButton {
-  border:1px solid white;
-  color: white;
-  text-decoration: none;
-  padding: 5px 10px;
-  display: inline-block;
-  font-weight: 500;
-  text-align: center;
-  width: 170px;
-  height: 100%;
-    -moz-border-radius: 5px;
-    -webkit-border-radius: 5px;
-}
-
-a.blueButton {
-  background-color: #1b617f;
-}
-
-a.greenButton {
-  background-color: #848e2b;
-}
-
 </style> 
 {% endblock %}
 
@@ -141,20 +117,8 @@ a.greenButton {
 				<hr/>
 				<table border='0' width='99%'>
 					<tr>
-                        <td>
-                          <a
-                            href='/pages/get-involved/campus-sustainability-data-collector/'
-                            class="homeButton greenButton">
-                              Campus Sustainability Data Collector
-                            </a>
-                        </td>
-						<td>
-                          <a
-                            href='/pages/get-involved/registration.html'
-                            class="homeButton blueButton">
-                              Register for<br/>STARS
-                          </a>
-                        </td>
+						<td><a href='/pages/get-involved/4269/'>Register for STARS</a></td>
+						<td align='right'><a href='/tool/'>Already Registered? Start Reporting!</a></td>
 					</tr>
 				</table>
 			</div>
@@ -187,6 +151,8 @@ a.greenButton {
 		</div>
 	</div></div>
 	<div id="rightRail">
+        <a href='/pages/get-involved/registration.html'>
+          <img src='/media/static/images/banners/jan-feb_2012.png' /></a>
 		<h2>Recently Rated Institutions</h2>
 		<span style='font-size: .9em;margin-bottom: 5px;display: block;padding-left: 4px;'>
 			{% load institution_lists %}

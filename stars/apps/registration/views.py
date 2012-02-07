@@ -8,7 +8,7 @@ from datetime import datetime, date, timedelta
 import urllib2, re, sys
 from xml.etree.ElementTree import fromstring
 
-from stars.apps.institutions.models import Institution, Subscription, SubscriptionPayment
+from stars.apps.institutions.models import Institution
 from stars.apps.registration.forms import *
 from stars.apps.registration.utils import is_canadian_zipcode, is_usa_zipcode
 from stars.apps.accounts.utils import respond, connect_iss
@@ -16,7 +16,7 @@ from stars.apps.helpers import watchdog, flashMessage
 from stars.apps.tool.admin.watchdog.models import ERROR
 from stars.apps.tool.my_submission.views import _get_active_submission
 from stars.apps.accounts import xml_rpc
-from stars.apps.submissions.models import SubmissionSet
+from stars.apps.submissions.models import *
 from stars.apps.credits.models import CreditSet
 from stars.apps.helpers.forms.views import FormActionView
 from stars.apps.accounts.mixins import AuthenticatedMixin
@@ -27,8 +27,6 @@ from stars.apps.notifications.models import EmailTemplate
 from zc.authorizedotnet.processing import CcProcessor
 from zc.creditcard import (AMEX, DISCOVER, MASTERCARD, VISA, UNKNOWN_CARD_TYPE)
 from aashe.issdjango.models import Organizations
-
-# @todo - it would be nice to use the WizardView here if possible
 
 def reg_international(request):
     """
@@ -50,7 +48,7 @@ def reg_international(request):
             if not selected_institution or selected_institution.name != institution.name:
                 selected_institution = institution
             request.session['selected_institution'] = selected_institution
-            return HttpResponseRedirect('/register/p/step3/')
+            return HttpResponseRedirect('/register/step2/')
 
     template = "registration/international.html"
     context = {'form': form,}
@@ -97,7 +95,7 @@ def reg_select_institution(request):
                 institution = Institution.objects.get(aashe_id=aashe_id)
                 if institution != request.user.current_inst or request.user.is_staff:
                     auth_utils.change_institution(request, institution)
-                return HttpResponseRedirect('/tool/')
+                return HttpResponseRedirect('/tool/manage/submissionsets/purchase/')
             except Institution.DoesNotExist:
                 institution = Institution(aashe_id=aashe_id, name=name)
                 # If they've already got this institution in their session don't overwrite it
@@ -120,74 +118,10 @@ def reg_select_institution(request):
     template = "registration/select_institution.html"
     context = {'form': form,}
     return respond(request, template, context)
-
-# ------------------------------
-# STEP 2
-# ------------------------------
-
-def select_participation_level(request):
-    """
-        Where institutions decide if they are going to be STARS Participants or
-        simply Survey Respondents
-    """
-    (institution, response) = _get_selected_institution(request)
-    if response: return response
     
-    # Provide the Contact Information Form
-    form = ParticipationLevelForm()
-
-    if request.method == "POST":
-        form = ParticipationLevelForm(request.POST)
-
-        if form.is_valid():
-            level = form.cleaned_data['level']
-            if level == 'participant':
-                return HttpResponseRedirect('/register/p/step3/')
-            if level == "respondent":
-                return HttpResponseRedirect('/register/r/step3/')
-        else:
-            flashMessage.send("Please correct the errors below", flashMessage.ERROR)
-            
-    template = "registration/select_participation_level.html"
-    context = {'form': form, 'institution': institution}
-    return respond(request, template, context)
-
-# ------------------------------
-# STEP 3
-# ------------------------------
-
-def contact_info_step(request, FormClass, success_url, template_name):
-    
-    (institution, response) = _get_selected_institution(request)
-    if response: return response
-        
-    # Provide the Contact Information Form
-    reg_form = FormClass(instance=institution)
-
-    if request.method == "POST":
-        reg_form = FormClass(request.POST, instance=institution)
-
-        if reg_form.is_valid():
-            
-            institution = reg_form.save(commit=False)
-            request.session['selected_institution'] = institution
-            
-            # they're done if it's international
-            if institution.international:
-                institution = register_institution(request.user, institution, "credit", 0, None)
-                request.session['selected_institution'] = institution
-                return HttpResponseRedirect("/register/survey/")
-            
-            return HttpResponseRedirect(success_url)
-        else:
-            flashMessage.send("Please correct the errors below", flashMessage.ERROR)
-            
-    context = {'reg_form': reg_form, 'institution': institution}
-    return respond(request, template_name, context)
-
-def particpant_contact_info(request):
+def reg_contact_info(request):
     """
-        Displays the contact forms for a participant's registration process
+        STEP 2: Displays the contact forms for an institution's registration process
          - If the institution is registered already they get forwarded to the account page
          - otherwise, store the contact info with the selected_institution in the session (NOT the DB)
     """
@@ -209,60 +143,19 @@ def particpant_contact_info(request):
             if institution.international:
                 institution = register_institution(request.user, institution, "credit", 0, None)
                 request.session['selected_institution'] = institution
-                
-                # Send confirmation email
-                email_to = [institution.contact_email]
-                if request.user.email != institution.contact_email:
-                    email_to.append(request.user.email)
-                et = EmailTemplate.objects.get(slug='welcome_respondent')
-                email_context = {'institution': institution}
-                
                 return HttpResponseRedirect("/register/survey/")
             
-            return HttpResponseRedirect('/register/p/step4/')
+            return HttpResponseRedirect('/register/step3/')
         else:
             flashMessage.send("Please correct the errors below", flashMessage.ERROR)
             
+    template = "registration/contact.html"
     context = {'reg_form': reg_form, 'institution': institution}
-    return respond(request, "registration/contact.html", context)
-
-def respondent_contact_info(request):
-    """
-        Displays the contact forms for a respondent's registration process
-         - If the institution is registered already they get forwarded to the account page
-         - otherwise, store the contact info with the selected_institution in the session (NOT the DB)
-    """
-    (institution, response) = _get_selected_institution(request)
-    if response: return response
-        
-    # Provide the Contact Information Form
-    reg_form = DataCollectorRegistrationForm(instance=institution)
-
-    if request.method == "POST":
-        reg_form = DataCollectorRegistrationForm(request.POST, instance=institution)
-
-        if reg_form.is_valid():
-            
-            institution = reg_form.save(commit=False)
-            institution.enabled = True
-            institution.save()
-            ss = init_submissionset(institution, request.user)
-            institution.update_status()
-            account = StarsAccount(user=request.user, institution=institution, user_level='admin', is_selected=False, terms_of_service=True)
-            account.save()
-            account.select()
-            auth_utils.change_institution(request, institution)
-            
-            return HttpResponseRedirect('/register/r/survey/')
-        else:
-            flashMessage.send("Please correct the errors below", flashMessage.ERROR)
-            
-    context = {'reg_form': reg_form, 'institution': institution}
-    return respond(request, "registration/contact_respondent.html", context)
+    return respond(request, template, context)
 
 def reg_payment(request):
     """
-        STEP 4: Determine the payment price and process payment for this institution's registration
+        STEP 3: Determine the payment price and process payment for this institution's registration
          - if the institution is registered already they get forwarded to the account page
          - otherwise, collect payment info and store the selected_institution into the DB
     """
@@ -296,9 +189,7 @@ def reg_payment(request):
                     if result.has_key('cleared') and result.has_key('msg'):
                         if result['cleared'] and result['trans_id']:
                             institution = register_institution(request.user, institution, "credit", price, payment_dict)
-                            # Select institution
-                            auth_utils.change_institution(request, institution)
-#                            request.session['selected_institution'] = institution
+                            request.session['selected_institution'] = institution
                             return HttpResponseRedirect("/register/survey/")
                         else:
                             flashMessage.send("Processing Error: %s" % result['msg'], flashMessage.ERROR)
@@ -307,36 +198,14 @@ def reg_payment(request):
                     
             else:
                 institution = register_institution(request.user, institution, "later", price, None)
-                
-                # They're a participant, for the purposes of registration
-                institution.is_participant = True
-                institution.save()
-                # Select institution
-                auth_utils.change_institution(request, institution)
+                request.session['selected_institution'] = institution
                 return HttpResponseRedirect("/register/survey/")
     
     template = "registration/payment.html"
     context = {'pay_form': pay_form, 'pay_later_form': pay_later_form, 'institution': institution, 'is_member': institution.is_member, 'price': price}
     return respond(request, template, context)
 
-"""
-    Registration actions:
-        add_starsaccount
-        init_submissionset
-        init_subscription
-        apply_payment
-"""
-
-def init_starsaccount(user, institution):
-    """
-        Add a StarsAccount to institution for user with the admin permission
-    """
-    account = StarsAccount(user=user, institution=institution, user_level='admin', is_selected=False, terms_of_service=True)
-    account.save()
-    account.select()
-    return account
-
-def init_submissionset(institution, user, date_callback=date.today):
+def init_submissionset(institution, user, today):
     """
         Initializes a submissionset for an institution and user
         adding the today argument makes this easier to test explicitly
@@ -344,37 +213,17 @@ def init_submissionset(institution, user, date_callback=date.today):
     # Get the current CreditSet
     creditset = CreditSet.objects.get_latest()
     # Submission is due in one year
-    submissionset = SubmissionSet(creditset=creditset, institution=institution, date_registered=date_callback(), registering_user=user, status='ps')
+    deadline = today + timedelta(days=365) # Gives them an extra day on leap years :)
+    submissionset = SubmissionSet(creditset=creditset, institution=institution, date_registered=today, submission_deadline=deadline, registering_user=user, status='ps')
     submissionset.save()
     init_credit_submissions(submissionset)
-    institution.current_submission = submissionset
-    institution.save()
     return submissionset
-
-def init_subscription(institution, amount_due, date_callback=date.today):
-    """
-        Initializes a subscription for the institution with the payment
-        
-        @todo: use a signal to update the subscription amount_due and paid_in_full
-    """
-    deadline = date_callback() + timedelta(days=365) # Gives them an extra day on leap years :)
-    subscription = Subscription(
-                                institution=institution,
-                                start_date=date_callback(),
-                                end_date=deadline,
-                                amount_due=amount_due,
-                                paid_in_full=(amount_due==0))
-    subscription.save()
-    return subscription
 
 def register_institution(user, institution, payment_type, price, payment_dict):
     """
         Register an institution for the current credit set:
          - create and store all the necessary registration information
          - send confirmation emails
-         
-        institution = register_institution(request.user, institution, "credit", price, payment_dict)
-        institution = register_institution(request.user, institution, "later", price, None)
     """
     
     # Save Institution
@@ -387,18 +236,11 @@ def register_institution(user, institution, payment_type, price, payment_dict):
     account.save()
     account.select()
     
-    # Set up the Subscription
-    if payment_dict:
-        subscription = init_subscription(institution, amount_due=0, date_callback=date.today)
-    else:
-        subscription = init_subscription(institution, amount_due=price, date_callback=date.today)
-    
     # Set up the SubmissionSet
-    submissionset = init_submissionset(institution, user)
+    submissionset = init_submissionset(institution, user, datetime.today())
     
-    institution.current_subscription = subscription
+    # Add the institution state so it has an active submission.
     institution.set_active_submission(submissionset)
-    institution.save()
     
     # Save Payment
     if institution.is_member_institution():
@@ -407,12 +249,11 @@ def register_institution(user, institution, payment_type, price, payment_dict):
         reason = "international"
     else:
         reason = "nonmember_reg"
-        
-    if payment_dict:
-        payment = SubscriptionPayment(subscription=subscription, date=date.today(), amount=price, user=user, reason=reason, method=payment_type, confirmation="none")
-        payment.save()
+    payment = Payment(submissionset=submissionset, date=datetime.today(), amount=price, user=user, reason=reason, type=payment_type, confirmation="none")
+    payment.save()
     
     # Primary Contact
+    subject = "STARS Registration Success: %s" % institution
     email_to = [institution.contact_email]
     
     if user.email != institution.contact_email:
@@ -422,9 +263,9 @@ def register_institution(user, institution, payment_type, price, payment_dict):
     if institution.international:
         et = EmailTemplate.objects.get(slug='welcome_international_pilot')
         email_context = {'institution': institution}
-    elif not payment_dict:
+    elif payment.type == 'later':
         et = EmailTemplate.objects.get(slug='welcome_liaison_unpaid')
-        email_context = {'price': price,}
+        email_context = {'payment': payment,}
     else:
         et = EmailTemplate.objects.get(slug='welcome_liaison_paid')
         email_context = {"institution": institution, 'payment': payment, 'payment_dict': payment_dict}
@@ -487,7 +328,6 @@ class RegistrationSurveyView(AuthenticatedMixin, FormActionView):
         return institution
         
 survey = RegistrationSurveyView("registration/survey.html", RegistrationSurveyForm,  form_name='object_form', instance_name='institution')
-respondent_survey = RegistrationSurveyView('registration/survey.html', RespondentRegistrationSurveyForm, form_name='object_form', instance_name='institution')
     
 def reg_account(request):
     """
@@ -508,21 +348,19 @@ def reg_account(request):
         else:            # can't find any registered institution for this user...
             flashMessage.send("No Registered Institution Selected")
             return HttpResponseRedirect("/register/step1/")
-    
-    context = {'institution': institution,}
-    
-    if institution.is_participant:
             
-        # Determine the amount due
-        amount_due = 0
-        for s in institution.subscription_set.all():
-            amount_due += s.amount_due
-            
-        context['amount_due'] = amount_due
-        template = "registration/account.html"
-    else:
-        template = "registration/account_respondent.html"
+    # Determine the amount due
+    amount_due = 0
+    try:
+        payments = Payment.objects.filter(submissionset__institution=institution)
+        for payment in payments:
+            if payment.type == 'later':
+                amount_due = payment.amount
+    except:
+        watchdog.log("Registration Account", "No payment found for institution.", watchdog.ERROR)
     
+    template = "registration/account.html"
+    context = {'institution': institution, 'amount_due': amount_due}
     return respond(request, template, context)
     
 def get_payment_dict(pay_form, institution):
@@ -603,7 +441,6 @@ def process_payment(payment_dict, product_list, invoice_num=None, server=None, l
         return {'cleared': True, 'reason_code': None, 'msg': None, 'conf': capture_result.approval_code, 'trans_id': capture_result.trans_id}
     else:
         print >> sys.stderr, "Decline: %s" % result.response_reason
-        watchdog.log("process_payment", "Payment denied for %s %s (%s)" % (payment_dict['billing_firstname'], payment_dict['billing_lastname'], result.response_reason), watchdog.WARNING)
         return {'cleared': False, 'reason_code': None, 'msg': result.response_reason, 'conf': None, 'trans_id': None}
 
 def _confirm_login(request):
@@ -657,8 +494,7 @@ def _get_registration_price(institution, new=True):
     discount = 0
     
     if new:
-        if institution.is_pcc_signatory:
-            discount = 250
+        discount = 250
         
     if institution.is_member:
         return price['member'] - discount

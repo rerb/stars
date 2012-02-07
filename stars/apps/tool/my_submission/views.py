@@ -1,20 +1,15 @@
 from django.shortcuts import get_object_or_404, render_to_response
 from django.http import HttpResponseRedirect, Http404
-from django.core.exceptions import PermissionDenied
-from django.views.generic import TemplateView as GenTemplateView
-from django.views.generic.edit import FormView, UpdateView
 
 from datetime import datetime, date
 
 from stars.apps.helpers.forms.views import *
 from stars.apps.accounts.utils import respond
-from stars.apps.accounts.mixins import SubmissionMixin
+from stars.apps.accounts.decorators import user_can_submit, user_is_inst_admin
+from stars.apps.accounts.mixins import PermMixin, SubmissionMixin
 from stars.apps.submissions.models import *
 from stars.apps.submissions.tasks import send_certificate_pdf
 from stars.apps.submissions.utils import init_credit_submissions
-from stars.apps.submissions.rules import user_can_submit_for_rating, user_can_edit_submission
-from stars.apps.migrations.utils import create_ss_mirror
-from stars.apps.institutions.rules import user_has_access_level
 from stars.apps.cms.xml_rpc import get_article
 from stars.apps.tool.my_submission.forms import *
 from stars.apps.credits.models import *
@@ -25,16 +20,8 @@ from stars.apps.tool.my_submission.forms import CreditUserSubmissionForm, Credit
 from stars.apps.notifications.models import EmailTemplate
 
 def _get_active_submission(request):
-    
     current_inst = request.user.current_inst
     active_submission = current_inst.get_active_submission() if current_inst else None
-    
-    if not user_can_edit_submission(request.user, active_submission):
-        raise PermissionDenied("Sorry, but you do not have access to edit this submission")
-    
-    if active_submission.is_locked:
-        raise PermissionDenied("This submission is locked. It may be in the process of being migrated. Please try again.")
-    
     if active_submission.categorysubmission_set.count() == 0:
         # This only gets run once. Assumes that the underlying creditset doesn't change
         # @todo: remove after integrating into registration
@@ -42,6 +29,7 @@ def _get_active_submission(request):
      
     return active_submission
 
+@user_can_submit
 def summary(request):
     """
         The entry page showing a grand summary of the submission
@@ -56,97 +44,32 @@ def summary(request):
     context={
         'active_submission': active_submission,
         'category_submission_list': category_submission_list,
-        'latest_creditset': CreditSet.objects.get_latest(),
         'is_admin': is_admin,
         'summary': True,
     }
     
     return respond(request, "tool/submissions/summary.html", context)
-    
-class EditBoundaryView(GenTemplateView):
-    """
-        A basic view to edit the boundary
-        
-        @todo: use FormView
-    """
-    template_name = "tool/submissions/boundary.html"
-    
-    def get_context_data(self, **kwargs):
-        _context = super(EditBoundaryView, self).get_context_data(**kwargs)
-        _context['object_form'] = NewBoundaryForm()
-        return _context
-    
-class SaveSnapshot(FormView):
-    """
-        First step in the form for submission
-        
-        @todo: get current submission mixin
-        @todo: add permission mixin
-    """
-    form_class = Confirm
-    success_url = "/tool/manage/share-data/"
-    template_name = "tool/submissions/submit_snapshot.html"
-    
-    def get_context_data(self, **kwargs):
-        _context = super(SaveSnapshot, self).get_context_data(**kwargs)
-        _context['active_submission'] =  _get_active_submission(self.request)
-        return _context
-    
-    def form_valid(self, form):
-        """
-            When the form validates, create a finalized submission
-        """
-        ss = _get_active_submission(self.request)
-        # Participants keep their existing submission and save a duplicate
-        if ss.institution.is_participant:
-            new_ss = create_ss_mirror(ss, registering_user=self.request.user)
-            new_ss.registering_user=self.request.user
-            new_ss.date_registered=date.today()
-            new_ss.date_submitted = date.today()
-            new_ss.submitting_user = self.request.user
-            new_ss.status = 'f'
-            new_ss.is_visible = True
-            new_ss.is_locked = False
-            new_ss.save()
-        # Respondents get a new, empty submissionset
-        else:
-            ss.status = "f"
-            ss.date_submitted = date.today()
-            ss.submitting_user = self.request.user
-            new_ss = SubmissionSet(
-                                    institution=ss.institution,
-                                    creditset=CreditSet.objects.get_latest(),
-                                    registering_user=self.request.user,
-                                    date_registered=date.today(),
-                                    status='ps')
-            new_ss.save()
-            init_credit_submissions(new_ss)
-            ss.institution.current_submission = new_ss
-            ss.institution.save()
-            ss.save()
-            
-        return super(SaveSnapshot, self).form_valid(form)
 
-class SubmitForRatingMixin(SubmissionMixin):
+class SubmissionClassMixin(SubmissionMixin, PermMixin):
     """
         Extends ``FormActionView`` to provide the class with the model instance
     """
+    perm_list = ['admin',]
+    perm_message = "Sorry, only administrators can submit for a rating."
+    
     def get_extra_context(self, request, *args, **kwargs):
         """ Extend this method to add any additional items to the context """
         return {self.instance_name: _get_active_submission(request),}
     
     def get_instance(self, request, context, *args, **kwargs):
-        """
-            Get's the active submission from the request
-            and confirms that the user can submit for a rating
-        """
+        """ Get's the active submission from the request """
         if context.has_key(self.instance_name):
-            if not user_can_submit_for_rating(request.user, context[self.instance_name]):
-                raise PermissionDenied("Sorry, you cannot submit for a rating either because you are not an administrator or you are not a STARS participant.")
+            if context[self.instance_name].missed_deadline():
+                raise Http404
             return context[self.instance_name]
         return None
 
-class ConfirmClassView(SubmitForRatingMixin, FormActionView):
+class ConfirmClassView(SubmissionClassMixin, FormActionView):
     """
         The first step in the final submission process
     """
@@ -172,7 +95,7 @@ class ConfirmClassView(SubmitForRatingMixin, FormActionView):
 # The first submission view
 submit_confirm = ConfirmClassView("tool/submissions/submit_confirm.html", BoundaryForm,  form_name='object_form', instance_name='active_submission')
 
-class LetterClassView(SubmitForRatingMixin, MultiFormView):
+class LetterClassView(SubmissionClassMixin, MultiFormView):
     """
         Extends the Form class-based view from apps.helpers
         
@@ -227,7 +150,7 @@ class LetterClassView(SubmitForRatingMixin, MultiFormView):
 # The second view of the submission process
 submit_letter = LetterClassView("tool/submissions/submit_letter.html")
 
-class FinalizeClassView(SubmitForRatingMixin, FormActionView):
+class FinalizeClassView(SubmissionClassMixin, FormActionView):
     """
         Extends the Form class-based view from apps.helpers
     """
@@ -319,6 +242,7 @@ def _get_category_submission_context(request, category_id):
 #    
 #    return respond(request, "tool/submissions/category.html", context)
 
+
 def _get_subcategory_submission_context(request, category_id, subcategory_id):
     context = _get_category_submission_context(request, category_id)
     
@@ -338,6 +262,7 @@ def _get_subcategory_submission_context(request, category_id, subcategory_id):
     })
     return context
 
+@user_can_submit
 def subcategory_detail(request, category_id, subcategory_id):
     """
         The sub-category summary page for a submission
@@ -379,6 +304,7 @@ def _get_credit_submission_context(request, category_id, subcategory_id, credit_
     })
     return context
     
+@user_can_submit
 def credit_detail(request, category_id, subcategory_id, credit_id):
     """
         Submit all reporting fields and other forms for a specific credit
@@ -402,6 +328,7 @@ def credit_detail(request, category_id, subcategory_id, credit_id):
 
     return respond(request, "tool/submissions/credit_reporting_fields.html", context)
 
+@user_can_submit
 def credit_documentation(request, category_id, subcategory_id, credit_id):
     """
         Credit documentation 
@@ -412,6 +339,7 @@ def credit_documentation(request, category_id, subcategory_id, credit_id):
     template = "tool/submissions/credit_info_popup.html" if popup else "tool/submissions/credit_info.html"
     return respond(request, template, context)
 
+@user_can_submit
 def credit_notes(request, category_id, subcategory_id, credit_id):
     """
         Internal notes for the credit submission
@@ -425,6 +353,7 @@ def credit_notes(request, category_id, subcategory_id, credit_id):
 
     return respond(request, "tool/submissions/credit_notes.html", context)
     
+@user_can_submit
 def add_responsible_party(request):
     """
         Provides a pop-up form for adding a new ResponsibleParty to an institution
@@ -461,6 +390,7 @@ def serve_uploaded_file(request, inst_id, path):
     from django.views.static import serve
     return serve(request, stored_path, document_root=settings.MEDIA_ROOT)
   
+@user_can_submit
 def delete_uploaded_file_gateway(request, inst_id, creditset_id, credit_id, field_id, filename):
     """
         Handles secure AJAX delete of uploaded files.
@@ -468,15 +398,14 @@ def delete_uploaded_file_gateway(request, inst_id, creditset_id, credit_id, fiel
     """
 
     current_inst = request.user.current_inst
-    
-    if not user_can_edit_submission(request.user, current_inst.get_active_submission()):
-        raise Http404
-    
     if not current_inst or current_inst.id != int(inst_id):
         raise PermissionDenied("File not found")
+    active_submission = current_inst.get_active_submission()
  
-    credit_submission = get_object_or_404(CreditUserSubmission, credit__id=credit_id, \
-                                                                subcategory_submission__category_submission__submissionset__institution = current_inst)
+    credit_submission = get_object_or_404(  CreditUserSubmission,
+                                            credit__id=credit_id,
+                                            subcategory_submission__category_submission__submissionset=active_submission
+                                            )
     upload_submission = get_object_or_404(UploadSubmission, documentation_field__id=field_id, \
                                                             credit_submission = credit_submission)
 

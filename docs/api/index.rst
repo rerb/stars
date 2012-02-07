@@ -18,7 +18,6 @@ must be granted on the STARS profile(?). To learn more about STARS
 permissions, read the :ref:`stars-access-levels` section.
 
 
-
 Contents:
 
 .. toctree::

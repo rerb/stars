@@ -71,10 +71,11 @@ def export_credit_content(credit):
                 cus.subcategory_submission.category_submission.submissionset.creditset.version
                 ]
         
+        # Status and Score
         if cus.subcategory_submission.category_submission.submissionset.rating.publish_score:
             if cus.submission_status == "na":
                 row.append("Not Applicable")
-                row.append(0)
+                row.append("Not Applicable")
             elif cus.submission_status == 'np' or cus.submission_status == 'ns':
                 row.append("Not Pursuing")
                 row.append(0)
