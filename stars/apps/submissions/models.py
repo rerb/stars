@@ -11,7 +11,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import InMemoryUploadedFile
 
 from stars.apps.credits.models import CreditSet, Category, Subcategory, Credit, DocumentationField, Choice, ApplicabilityReason, Rating
-from stars.apps.institutions.models import Institution
+from stars.apps.institutions.models import Institution, ClimateZone
 from stars.apps.helpers import watchdog, flashMessage, managers
 from stars.apps.submissions.pdf.export import build_report_pdf
 from stars.apps.notifications.models import EmailTemplate
@@ -20,6 +20,7 @@ SUBMISSION_STATUS_CHOICES = (
     ('ps', 'Pending Submission'),
     ('pr', 'Processing Submission'), # was "Pending Review"
     ('r', 'Rated'),
+    ('f', 'Finalized'),
 )
 
 # Max # of extensions allowed per submission set
@@ -56,6 +57,9 @@ class SubmissionManager(models.Manager):
     def get_rated(self):
         """ All submissionsets that have been rated """
         return SubmissionSet.objects.filter(institution__enabled=True).filter(is_visible=True).filter(is_locked=False).filter(status='r')
+    
+    def get_snapshots(self, institution):
+        return SubmissionSet.objects.filter(institution=institution).filter(is_visible=True).filter(is_locked=False).filter(status='f').order_by('-date_submitted')
 
 class SubmissionSet(models.Model):
     """
@@ -67,7 +71,6 @@ class SubmissionSet(models.Model):
     date_registered = models.DateField()
     date_submitted = models.DateField(blank=True, null=True)
     date_reviewed = models.DateField(blank=True, null=True)
-    submission_deadline = models.DateField()
     registering_user = models.ForeignKey(User, related_name='registered_submissions')
     submitting_user = models.ForeignKey(User, related_name='submitted_submissions', blank=True, null=True)
     rating = models.ForeignKey(Rating, blank=True, null=True)
@@ -81,16 +84,13 @@ class SubmissionSet(models.Model):
     score = models.FloatField(blank=True, null=True)
 
     class Meta:
-        ordering = ("institution__name", "date_registered",)
+        ordering = ("date_registered",)
 
     def __unicode__(self):
         return unicode('%s (%s)' % (self.institution, self.creditset) )
     
     def missed_deadline(self):
-        if self.status == 'ps':
-            return self.submission_deadline < date.today()
-        else:
-            return False
+        return not self.institution.is_participant
     
     def get_upload_path(self):
         return 'secure/%d/submission-%d/' % (self.institution.id, self.id)
@@ -106,40 +106,6 @@ class SubmissionSet(models.Model):
             return file
             
         return pdf_result.getvalue()
-    
-    def can_apply_for_extension(self, today=None):
-        """
-            Returns true if this submissionset can add an extension
-            today is used for testing
-        """
-        
-        # if their total time is longer than a year and a half,
-        # then they've already had an extension
-        td = self.submission_deadline - self.date_registered
-        if td.days > 365 + (365/2):
-            return False
-        
-        # only w/in 60 days of their deadline
-        if not today:
-            today = date.today()
-        td = timedelta(days=61)
-#        print >> sys.stderr, (self.submission_deadline - today).days
-        if today <= (self.submission_deadline - td):
-            return False
-        
-        # only those who registered before 2011
-        if self.date_registered.year > 2010:
-            return False
-        
-        # no available if they have already submitted
-        if self.status == 'r' or self.status == 'pr':
-            return False
-        
-        # a max of MAX_EXTENSIONS extension(s) is allowed
-        if self.extensionrequest_set.count() >= MAX_EXTENSIONS:
-            return False
-        
-        return True
     
     def is_enabled(self):
         if self.is_visible:
@@ -301,6 +267,74 @@ class SubmissionSet(models.Model):
             total += p.amount
             
         return total
+        
+INSTITUTION_TYPE_CHOICES = (
+                                ("2_year", "Two Year"),
+                                ("4_year", "Four Year"),
+                                ("graduate", "Graduate Institution"),
+                                ("system", "System Office")
+)
+
+INSTITUTION_CONTROL_CHOICES = (
+                                ("public", "Public"),
+                                ("private_profit", "Private for-profit"),
+                                ("private_nonprofit", "Private non-profit"),
+)
+        
+class Boundary(models.Model):
+    """
+        Defines the boundary for the submission set.
+    """
+    
+    submissionset = models.OneToOneField(SubmissionSet)
+    fte_students = models.IntegerField("Full-time Equivalent Enrollment")
+    undergrad_count = models.IntegerField("Number of Undergraduate Students")
+    graduate_count = models.IntegerField("Number of Graduate Students")
+    fte_employmees = models.IntegerField("Full-time Equivalent Employees")
+    institution_type = models.CharField(max_length=32, choices=INSTITUTION_TYPE_CHOICES)
+    institutional_control = models.CharField(max_length=32, choices=INSTITUTION_CONTROL_CHOICES)
+    endowment_size = models.IntegerField()
+    student_residential_percent = models.FloatField()
+    student_ftc_percent = models.FloatField()
+    student_ptc_percent = models.FloatField()
+    student_online_percent = models.FloatField()
+    gsf_building_space = models.FloatField()
+    gsf_lab_space = models.FloatField()
+    cultivated_grounds_acres = models.FloatField()
+    undeveloped_land_acres = models.FloatField()
+    climate_region = models.ForeignKey(ClimateZone)
+    
+    # Features
+    ag_school_present = models.BooleanField()
+    ag_school_included = models.BooleanField()
+    ag_school_details = models.TextField()
+    med_school_present = models.BooleanField()
+    med_school_included = models.BooleanField()
+    med_school_details = models.TextField()
+    pharm_school_present = models.BooleanField()
+    pharm_school_included = models.BooleanField()
+    pharm_school_details = models.TextField()
+    pub_health_school_present = models.BooleanField()
+    pub_health_school_included = models.BooleanField()
+    pub_health_school_details = models.TextField()
+    vet_school_present = models.BooleanField()
+    vet_school_included = models.BooleanField()
+    vet_school_details = models.TextField()
+    sat_campus_present = models.BooleanField()
+    sat_campus_included = models.BooleanField()
+    sat_campus_details = models.TextField()
+    hospital_present = models.BooleanField()
+    hospital_included = models.BooleanField()
+    hospital_details = models.TextField()
+    farm_present = models.BooleanField()
+    farm_included = models.BooleanField()
+    farm_details = models.TextField()
+    agr_exp_present = models.BooleanField()
+    agr_exp_included = models.BooleanField()
+    agr_exp_details = models.TextField()
+    
+    def __str__(self):
+        return self.submissionset;
 
 def get_active_submissions(creditset=None, category=None, subcategory=None, credit=None):
     """ Return a queryset for ALL active (started / finished) credit submissions that meet the given criteria.
@@ -629,8 +663,8 @@ class CreditSubmission(models.Model):
     class Meta:
         ordering = ("credit__type", "credit__ordinal",)
 
-    def __unicode__(self):
-        return unicode(self.credit)
+    def __str__(self):
+        return self.credit.title
        
 #    @staticmethod
     def model_name():
