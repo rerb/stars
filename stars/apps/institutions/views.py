@@ -190,7 +190,7 @@ class RatedInstitutions(SortableTableViewWithInstProps):
                     },
                     {
                         'key': 'rating',
-                        'sort_field': 'rating',
+                        'sort_field': 'current_rating',
                         'title': 'Rating',
                     },
                     {
