@@ -10,7 +10,7 @@ from django.core.mail import EmailMessage
 from stars.apps.accounts.utils import respond
 from stars.apps.accounts.decorators import user_is_staff
 from stars.apps.accounts import xml_rpc
-from stars.apps.institutions.models import Institution, StarsAccount, Subscription, SubscriptionPayment, SUBSCRIPTION_DURATION
+from stars.apps.institutions.models import Institution, StarsAccount, Subscription, SubscriptionPayment, SUBSCRIPTION_DURATION, PendingAccount
 from stars.apps.institutions.rules import user_has_access_level
 from stars.apps.submissions.models import SubmissionSet, EXTENSION_PERIOD, ExtensionRequest
 from stars.apps.submissions.tasks import migrate_purchased_submission, perform_migration
