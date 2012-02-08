@@ -13,11 +13,81 @@ from stars.apps.helpers import watchdog
 from stars.apps.submissions.models import *
 from stars.apps.tool.my_submission.widgets import UploadFileWidget
 
-class NewBoundaryForm(ModelForm):
+from form_utils.forms import BetterModelForm
+
+class NewBoundaryForm(BetterModelForm):
     
     class Meta:
         model = Boundary
         exclude = ("submissionset",)
+        
+        fieldsets = [
+                        (
+                            'Characteristics',
+                            {
+                                'fields':
+                                    [
+                                        'fte_students',
+                                        'undergrad_count',
+                                        'graduate_count',
+                                        'fte_employmees',
+                                        'institution_type',
+                                        'institutional_control',
+                                        'endowment_size',
+                                        'student_residential_percent',
+                                        'student_ftc_percent',
+                                        'student_ptc_percent',
+                                        'student_online_percent',
+                                        'gsf_building_space',
+                                        'gsf_lab_space',
+                                        'cultivated_grounds_acres',
+                                        'undeveloped_land_acres',
+                                        'climate_region',
+                                    ],
+                                'legend': "Characteristics",
+                                'description': 'In this context, institutional characteristics are variables that can take on a range of values.',
+                            }
+                         ),
+                         (
+                            'Features',
+                            {
+                                'fields':
+                                    [
+                                        'ag_school_present',
+                                        'ag_school_included',
+                                        'ag_school_details',
+                                        'med_school_present',
+                                        'med_school_included',
+                                        'med_school_details',
+                                        'pharm_school_present',
+                                        'pharm_school_included',
+                                        'pharm_school_details',
+                                        'pub_health_school_present',
+                                        'pub_health_school_included',
+                                        'pub_health_school_details',
+                                        'vet_school_present',
+                                        'vet_school_included',
+                                        'vet_school_details',
+                                        'sat_campus_present',
+                                        'sat_campus_included',
+                                        'sat_campus_details',
+                                        'hospital_present',
+                                        'hospital_included',
+                                        'hospital_details',
+                                        'farm_present',
+                                        'farm_included',
+                                        'farm_acres',
+                                        'farm_details',
+                                        'agr_exp_present',
+                                        'agr_exp_included',
+                                        'agr_exp_acres',
+                                        'agr_exp_details'
+                                    ],
+                                'legend': 'Features',
+                                'description': 'In this context, institutional features are entities that either are present or are not present at the institution. Institutions will indicate if feature is present at institution and, of those present, if it is included in institutional boundary. <i>Justification must be provided</i> if any of these features are excluded from the institutional boundary.',
+                            }
+                          )
+                     ]
 
 class SubcategorySubmissionForm(ModelForm):
     
@@ -641,11 +711,26 @@ class ExecContactForm(ModelForm):
     
     class Meta:
         model = Institution
-        fields = ['executive_contact_first_name', 'executive_contact_middle_name', 'executive_contact_last_name', 'executive_contact_title', 'executive_contact_department', 'executive_contact_email', 'executive_contact_address', 'executive_contact_city', 'executive_contact_state', 'executive_contact_zip']
+        fields = [
+                    'president_first_name',
+                    'president_middle_name',
+                    'president_last_name',
+                    'president_title',
+                    'president_address',
+                    'president_city',
+                    'president_state',
+                    'president_zip'
+                ]
         
     def __init__(self, *args, **kwargs):
         super(ExecContactForm, self).__init__(*args, **kwargs)
-        self.fields['executive_contact_address'].required = True
-        self.fields['executive_contact_city'].required = True
-        self.fields['executive_contact_state'].required = True
-        self.fields['executive_contact_zip'].required = True
+        for f in self.fields:
+            self.fields[f].required = True
+        self.fields['president_first_name'].label = "First Name"
+        self.fields['president_middle_name'].label = "Middle Name"
+        self.fields['president_last_name'].label = "Last Name"
+        self.fields['president_title'].label = "Title"
+        self.fields['president_address'].label = "Address"
+        self.fields['president_city'].label = "City"
+        self.fields['president_state'].label = "State"
+        self.fields['president_zip'].label = "Zipcode"

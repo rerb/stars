@@ -3,7 +3,7 @@
  
 {% block crumbs %} 
     {{ block.super }} >
-    <a href='/tool/submissions/'>{{ active_submission }}</a> >
+    <a href='/tool/submissions/'>Current Submission</a> >
     Boundary
 {% endblock %}
 
@@ -15,7 +15,19 @@
         Required Fields<br/>
     </div>
     <form class='generalForm' method='post' action='.'>
-        <table>{% include "helpers/standard_form.html" %}</table>
+      {% if form.non_field_errors %}{{ form.non_field_errors }}{% endif %}
+      {% for fieldset in form.fieldsets %}
+        <h3>{{ fieldset.legend }}</h3>
+        {% if fieldset.description %}
+          <p>{{ fieldset.description }}</p>
+        {% endif %}
+        
+        {% with fieldset as object_form %}
+          <table>
+            {% include "helpers/standard_form.html" %}
+          </table>
+        {% endwith %}
+      {% endfor %}
         <div class='button_row'>
             <button type='submit'>Submit</button>
         </div>

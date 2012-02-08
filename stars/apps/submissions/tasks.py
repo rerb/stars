@@ -2,7 +2,7 @@
     Celery tasks
 """
 from stars.apps.submissions.pdf.export import build_certificate_pdf
-from stars.apps.migrations.utils import migrate_ss_version, migrate_submission
+from stars.apps.migrations.utils import migrate_ss_version, migrate_submission, create_ss_mirror
 from stars.apps.notifications.models import EmailTemplate
 from stars.apps.helpers import watchdog
 
@@ -40,8 +40,6 @@ def perform_migration(old_ss, new_cs, user):
     """
     
     new_ss = migrate_ss_version(old_ss, new_cs)
-    new_ss.institution.current_submission = new_ss
-    new_ss.institution.save()
     
     email_to = [old_ss.institution.contact_email]
     if user.email not in email_to:
@@ -70,3 +68,13 @@ def migrate_purchased_submission(old_ss, new_ss):
     new_ss.is_visible = True
     new_ss.is_locked = False
     new_ss.save()
+    
+@task()
+def rollover_submission(old_ss):
+    new_ss = create_ss_mirror(old_ss)
+    new_ss.is_locked = False
+    new_ss.is_visible = True
+    new_ss.save()
+    new_ss.institution.current_submission = new_ss
+    new_ss.institution.save()
+    

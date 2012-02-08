@@ -8,6 +8,11 @@ class SubmissionSetAdmin(admin.ModelAdmin):
     search_fields = ('institution__name',)
 admin.site.register(SubmissionSet, SubmissionSetAdmin)
 
+class BoundaryAdmin(admin.ModelAdmin):
+    list_display = ("submissionset",)
+    search_fields = ('submissionset__institution__name',)
+admin.site.register(Boundary, BoundaryAdmin)
+
 class CategorySubmissionAdmin(admin.ModelAdmin):
     list_display = ('id', 'category', "submissionset")
     list_filter = ('submissionset__institution',)

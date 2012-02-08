@@ -9,6 +9,10 @@ class RatingAdmin(admin.ModelAdmin):
     
 admin.site.register(Rating, RatingAdmin)
 
+class IncrementalFeatureAdmin(admin.ModelAdmin):
+    pass
+admin.site.register(IncrementalFeature, IncrementalFeatureAdmin)
+
 class CreditSetAdmin(admin.ModelAdmin):
     list_display = ('version', 'release_date')
 admin.site.register(CreditSet, CreditSetAdmin)

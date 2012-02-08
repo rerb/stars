@@ -10,9 +10,9 @@ from stars.apps.helpers.forms.views import *
 from stars.apps.accounts.utils import respond
 from stars.apps.accounts.mixins import SubmissionMixin
 from stars.apps.submissions.models import *
-from stars.apps.submissions.tasks import send_certificate_pdf
+from stars.apps.submissions.tasks import send_certificate_pdf, rollover_submission
 from stars.apps.submissions.utils import init_credit_submissions
-from stars.apps.submissions.rules import user_can_submit_for_rating, user_can_edit_submission
+from stars.apps.submissions.rules import user_can_submit_for_rating, user_can_edit_submission, user_can_submit_snapshot
 from stars.apps.migrations.utils import create_ss_mirror
 from stars.apps.institutions.rules import user_has_access_level
 from stars.apps.cms.xml_rpc import get_article
@@ -62,19 +62,35 @@ def summary(request):
     }
     
     return respond(request, "tool/submissions/summary.html", context)
-    
-class EditBoundaryView(GenTemplateView):
+
+class EditBoundaryView(UpdateView):
     """
         A basic view to edit the boundary
         
         @todo: use FormView
     """
     template_name = "tool/submissions/boundary.html"
+    form_class = NewBoundaryForm
+    model = Boundary
+    success_url = "/tool/submissions/boundary/"
+    
+    def get_object(self):
+        self.active_submission = _get_active_submission(self.request)
+        try:
+            return self.active_submission.boundary
+        except:
+            return None
     
     def get_context_data(self, **kwargs):
         _context = super(EditBoundaryView, self).get_context_data(**kwargs)
-        _context['object_form'] = NewBoundaryForm()
+        _context['active_submission'] = self.active_submission
         return _context
+    
+    def form_valid(self, form):
+        if not self.object:   
+            self.object = form.save(commit=False)
+            self.object.submissionset = self.active_submission
+        return super(EditBoundaryView, self).form_valid(form)
     
 class SaveSnapshot(FormView):
     """
@@ -126,6 +142,19 @@ class SaveSnapshot(FormView):
             ss.save()
             
         return super(SaveSnapshot, self).form_valid(form)
+    
+    def render_to_response(self, context, **response_kwargs):
+        
+        if not user_can_submit_snapshot(self.request.user, context['active_submission']):
+            raise PermissionDenied("Sorry, you do not have privileges to submit a snapshot.")
+        
+        try:
+            boundary = context['active_submission'].boundary
+        except Boundary.DoesNotExist:
+            flashMessage.send("You must complete your Boundary before submitting.", flashMessage.NOTICE)
+            return HttpResponseRedirect("/tool/submissions/boundary/")
+        
+        return super(SaveSnapshot, self).render_to_response(context, **response_kwargs)
 
 class SubmitForRatingMixin(SubmissionMixin):
     """
@@ -145,18 +174,35 @@ class SubmitForRatingMixin(SubmissionMixin):
                 raise PermissionDenied("Sorry, you cannot submit for a rating either because you are not an administrator or you are not a STARS participant.")
             return context[self.instance_name]
         return None
+    
+    def render_to_response(self, context, **response_kwargs):
+        
+        if not user_can_submit_for_rating(self.request.user, context[self.instance_name]):
+            raise PermissionDenied("Sorry, you do not have privileges to submit for a rating.")
+        
+        try:
+            boundary = context[self.instance_name].boundary
+        except Boundary.DoesNotExist:
+            flashMessage.send("You must complete your Boundary before submitting.", flashMessage.NOTICE)
+            return HttpResponseRedirect("/tool/submissions/boundary/")
+        
+        if len(context['credit_list']) == 0:
+            return HttpResonseRedirect("/tool/submissions/submit/letter/")
+        
+        return super(ConfirmClassView, self).render_to_response(context, **response_kwargs)
 
-class ConfirmClassView(SubmitForRatingMixin, FormActionView):
+class ConfirmClassView(SubmitForRatingMixin, GenTemplateView):
     """
         The first step in the final submission process
-    """
+    """ 
     
-    def get_extra_context(self, request, *args, **kwargs):
-        """ Extend this method to add any additional items to the context """
-        
-        _context = super(ConfirmClassView, self).get_extra_context(request, *args, **kwargs)
+    template_name = 'tool/submissions/submit_confirm.html'
+    instance_name = "active_submission"
+    
+    def get_context_data(self, **kwargs):
+        _context = self.get_extra_context(self.request, None, None)
         # Find all Credits listed as "In Progress"
-        credit_list = [] 
+        credit_list = []
         for cat in _context[self.instance_name].categorysubmission_set.all():
                 for sub in cat.subcategorysubmission_set.all():
                     for c in sub.creditusersubmission_set.all():
@@ -164,13 +210,9 @@ class ConfirmClassView(SubmitForRatingMixin, FormActionView):
                             credit_list.append(c)
         _context.update({'credit_list': credit_list,})
         return _context
-        
-    def get_success_action(self, request, context, form):
-        self.save_form(form, request, context)
-        return HttpResponseRedirect("/tool/submissions/submit/letter/")
 
 # The first submission view
-submit_confirm = ConfirmClassView("tool/submissions/submit_confirm.html", BoundaryForm,  form_name='object_form', instance_name='active_submission')
+#submit_confirm = ConfirmClassView("tool/submissions/submit_confirm.html", BoundaryForm,  form_name='object_form', instance_name='active_submission')
 
 class LetterClassView(SubmitForRatingMixin, MultiFormView):
     """
@@ -263,8 +305,14 @@ class FinalizeClassView(SubmitForRatingMixin, FormActionView):
         et = EmailTemplate.objects.get(slug="submission_for_rating")
         et.send_email([ss.institution.contact_email,], {'submissionset': ss,})
         
+        ss.institution.current_subscription.ratings_used += 1
+        ss.institution.current_subscription.save()
+        
         # Send certificate to Marnie
         send_certificate_pdf.delay(ss)
+        
+        # update their current submission
+        rollover_submission.delay(ss)
         
         return respond(request, 'tool/submissions/submit_success.html', {})
         

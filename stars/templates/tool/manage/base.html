@@ -6,10 +6,6 @@
 
 {% block submenu_class %}class='sm_inst'{% endblock %}
 
-{% block crumbs %}
-	{{ block.super }} &gt; <a href='/tool/manage/'>Manage</a>
-{% endblock %}
-
 {% block tool_content %}
         <h1>{{ user.current_inst }}</h1>
         

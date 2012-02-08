@@ -19,6 +19,9 @@ class ClimateZone(models.Model):
     """
     name = models.CharField(max_length=32)
     
+    def __str__(self):
+        return self.name
+    
 class InstitutionManager(models.Manager):
     """
         Adds some custom query functionality to the Institution object
@@ -193,6 +196,7 @@ class Institution(models.Model):
     def set_active_submission(self, submission_set):
         """ Set this institution's active SubmissionSet """
         self.current_submission = submission_set
+        self.save()
 
     def get_latest_rated_submission(self):
         """ Returns the most recent rated SubmissionSet for this institution """

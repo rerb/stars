@@ -1,5 +1,5 @@
 import copy
-from stars.apps.submissions.models import CreditTestSubmission, CreditUserSubmission, SubcategorySubmission, DocumentationFieldSubmission, SubmissionSet
+from stars.apps.submissions.models import CreditTestSubmission, CreditUserSubmission, SubcategorySubmission, DocumentationFieldSubmission, SubmissionSet, Boundary
 from stars.apps.submissions.utils import init_credit_submissions
 from stars.apps.credits.models import CreditSet
 
@@ -90,7 +90,6 @@ def migrate_ss_version(old_ss, new_cs):
         - Migrates the data
         - Hides the old one
         - Unhides the new one and makes it active
-        - Moves payments over to new submission
         - Returns the new submissionset
     """
     
@@ -99,11 +98,6 @@ def migrate_ss_version(old_ss, new_cs):
         old_ss.save()
         
     new_ss = create_ss_mirror(old_ss, new_cs)
-
-    # move payments
-    for p in old_ss.payment_set.all():
-        p.submissionset = new_ss
-        p.save()
     
     new_ss.is_locked = False
     new_ss.is_visible = True
@@ -225,5 +219,13 @@ def migrate_submission(old_ss, new_ss, keep_status=False):
         else:
             # print "new credit: %s" % c.credit
             continue
+    
+    try:
+        new_boundary = copy.copy(old_ss.boundary)
+        new_boundary.submissionset = new_ss
+        new_boundary.id = None
+        new_boundary.save()
+    except Boundary.DoesNotExist:
+        pass
     
     return new_ss

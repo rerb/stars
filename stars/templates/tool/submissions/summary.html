@@ -28,9 +28,11 @@
                   Edit Boundary</a>
               {% endtestrule %}
               
+              {% testrule institution_has_snapshot_feature user.current_inst %}
               <img src="/media/static/images/camera_add.png" alt='' style='vertical-align: top;' />
               <a href='/tool/submissions/snapshot/' style='margin-right: 15px;text-decoration: none;'>
               Save Snapshot</a>
+              {% endtestrule %}
             </p>
 		</div>
 		{% for cat in category_submission_list %}

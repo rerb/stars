@@ -204,4 +204,18 @@ class RespondentRegistrationSurveyForm(ModelForm):
     
     class Meta:
         model = RespondentSurvey
-        exclude = ['institution', 'user']
+        fields = ['source', 'reasons', 'other', 'potential_stars']
+        
+    def __init__(self, *args, **kwargs):
+        super(RespondentRegistrationSurveyForm, self).__init__(*args, **kwargs)
+        
+        from stars.apps.institutions.models import RespondentRegistrationReason
+        choices = []
+        for r in RespondentRegistrationReason.objects.all():
+#            if r.title != "Other" and r.title != "No reason was primary":
+            choices.append((r.id, r.title))
+        
+        self.fields['reasons'].widget = forms.CheckboxSelectMultiple(choices=choices)
+        self.fields['reasons'].help_text = "Select all that apply"
+        self.fields['reasons'].label = "The reason(s) your institution registered for the CSDC were to:"
+        

@@ -12,7 +12,7 @@ from stars.apps.accounts.decorators import user_is_staff
 from stars.apps.accounts import xml_rpc
 from stars.apps.institutions.models import Institution, StarsAccount, Subscription, SubscriptionPayment, SUBSCRIPTION_DURATION
 from stars.apps.institutions.rules import user_has_access_level
-from stars.apps.submissions.models import SubmissionSet, Payment, EXTENSION_PERIOD, ExtensionRequest
+from stars.apps.submissions.models import SubmissionSet, EXTENSION_PERIOD, ExtensionRequest
 from stars.apps.submissions.tasks import migrate_purchased_submission, perform_migration
 from stars.apps.third_parties.models import ThirdParty
 from stars.apps.helpers.forms import form_helpers
@@ -55,7 +55,8 @@ def institution_payments(request):
     
     payment_list = SubscriptionPayment.objects.filter(subscription__institution=current_inst).order_by('-date')
 
-    context = {'payment_list': payment_list,
+    context = {
+                'payment_list': payment_list,
               }
     return respond(request, 'tool/manage/payments.html', context)
 

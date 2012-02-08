@@ -41,13 +41,16 @@ for i in need_migration:
 #    print i
     print "Migrating: %s" % i
     new_ss = create_ss_mirror(i.current_submission)
+    new_ss.is_locked = False
+    new_ss.is_visible = True
+    new_ss.save()
     i.current_submission = new_ss
     i.save()
 print ""
 print "Need new SS (%d)" % len(need_new_ss)
 print "--------------------"
 for i in need_new_ss:
-#    print i
+    print i
     ss = SubmissionSet(
                         institution=i,
                         creditset=CreditSet.objects.get_latest(),

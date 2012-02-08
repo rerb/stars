@@ -1,6 +1,8 @@
-{% extends 'tool/manage/submissionset_base.html' %}
+{% extends 'tool/manage/base.html' %}
 
 {% load content %}
+
+{% block crumbs %} {{ block.super }} &gt; Share Data {% endblock %}
 
 {% block tabclass %}class='tab6'{% endblock %}
 

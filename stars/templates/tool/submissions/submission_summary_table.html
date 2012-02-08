@@ -18,13 +18,11 @@
         <td>
           {{ active_submission.creditset.version }}
           {% testrule user_can_migrate_submission user active_submission %}
-            {% if latest_creditset.version != active_submission.creditset.version %}
               <br/>
               <a href='/tool/manage/migrate/' style='text-decoration: none;'>
                 <img src='/media/static/images/arrow_right.png' alt='' style='vertical-align: middle;'/>
-                Move to {{ latest_creditset }}
+                Move to latest
               </a>
-            {% endif %}
           {% endtestrule %}
         </td>
         {% testrule institution_has_score_feature user.current_inst %}

@@ -11,12 +11,7 @@
     {% load help %}
     {% show_help_context 'submit_for_rating_confirm' 0 %}
     {% include 'tool/submissions/submission_summary_table.html' %}
-    <div class='required'>
-        <span class="required_note" title="This field is required to complete credit">*</span>
-        Required Fields<br/>
-    </div>
-    <form class='generalForm' method='post' action='.'>
-        {% include "helpers/label_above_input_form.html" %}
+    <div class='greyBox'>
         {% if credit_list %}
         {% get_help_context 'submit_for_rating_credits' %}
         <div style='width: 600px;height: 200px;overflow: auto;border: 1px solid #aaa;padding: 1px;'>
@@ -36,7 +31,7 @@
         </p>
         <div class='button_row'>
             <button type='button' onclick='document.location="/tool/submissions/";'>&lt;&lt; Back</button>
-            <button type='submit'>Next &gt;&gt;</button>
+            <button type='button' onclick='document.location="/tool/submissions/submit/letter/";'>Next &gt;&gt;</button>
         </div>
-    </form>
+     </div>
 {% endblock %}
