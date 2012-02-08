@@ -94,7 +94,7 @@ def show_payment_type_icon(payment, size_class=''):
     from stars.apps.submissions.models import PAYMENT_TYPE_ICONS
     icon = Icon()
     icon.size_class = size_class
-    icon.alt = payment.get_method_display
+    icon.alt = payment.method
     icon.file, icon.title = PAYMENT_TYPE_ICONS.get(payment.method, (None, None))
     return {'icon': icon}
 
