@@ -15,6 +15,7 @@ from stars.apps.credits.models import CreditSet
 from stars.apps.submissions.models import *
 from stars.apps.institutions.models import Institution, StarsAccount
 from stars.apps.institutions.forms import *
+from stars.apps.institutions.rules import institution_has_export
 from stars.apps.helpers.forms.views import TemplateView, FormActionView, MultiFormView
 from stars.apps.credits.views import CreditNavMixin
 from stars.apps.notifications.models import EmailTemplate
@@ -369,8 +370,12 @@ class PDFExportView(InstitutionAccessMixin, ScorecardMixin, CreditNavMixin, Temp
         
         _context = self.get_context(request, *args, **kwargs)
         
-        save = False
         ss = _context['submissionset']
+        
+        if not institution_has_export(ss.institution):
+            raise PermissionDenied("Sorry, this feature is only available to current STARS Participants")
+        
+        save = False
         if ss.status == 'r':
             if ss.pdf_report:
                 return HttpResponseRedirect(ss.pdf_report.url)
