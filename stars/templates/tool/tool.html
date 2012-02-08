@@ -55,10 +55,10 @@
 	{% endif %}
 	<div style='text-align: center;margin: 20px;{% if rating_list %}margin-right: 200px;{% endif %}'>
       {% if user.current_inst.is_participant %}
-        {% thumbnail "http://www.aashe.org/files/documents/STARS/STARS_CharterParticipant.jpg" "75x75" as im %}
-          <img src="{{ im.url }}" width="{{ im.x }}" height="{{ im.y }}" alt='{{ ss.rating }}' />
-        {% endthumbnail %}<br/>
-        <strong>STARS Participant</strong>
+          {% thumbnail "http://www.aashe.org/files/documents/STARS/STARS-Participant.jpg" "75x75" as im %}
+            <img src="{{ im.url }}" width="{{ im.x }}" height="{{ im.y }}" alt='{{ ss.rating }}' />
+          {% endthumbnail %}<br/>
+          <strong>STARS Participant</strong>
       {% else %}
         <strong>Campus Sustainability Data Collector - Survey Respondent</strong><br/>
         <span style="font-size: .8em;">
