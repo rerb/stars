@@ -301,10 +301,10 @@ class Boundary(models.Model):
     student_ptc_percent = models.FloatField('Percentage of students that are Part-time commuter')
     student_online_percent = models.FloatField('Percentage of students that are On-line only')
     gsf_building_space = models.FloatField("Gross square feet of building space")
-    gsf_lab_space = models.FloatField("Gross square feet of laboratory space")
-    cultivated_grounds_acres = models.FloatField("Acres of cultivated grounds", help_text="if less than 5 acres, data not necessary")
-    undeveloped_land_acres = models.FloatField("Acres of undeveloped land", help_text="if less than 5 acres, data not necessary")
-    climate_region = models.ForeignKey(ClimateZone)
+    gsf_lab_space = models.FloatField("Gross square feet of laboratory space", help_text='Scientific research labs and other high performance facilities eligible for <a href="http://www.labs21century.gov/index.htm" target="_blank">Labs21 Environmental Performance Criteria</a> (EPC).')
+    cultivated_grounds_acres = models.FloatField("Acres of cultivated grounds", help_text="Areas that are landscaped, planted, and maintained (including athletic fields). If less than 5 acres, data not necessary.", blank=True, null=True)
+    undeveloped_land_acres = models.FloatField("Acres of undeveloped land", help_text="Areas without any buildings or development. If less than 5 acres, data not necessary", blank=True, null=True)
+    climate_region = models.ForeignKey(ClimateZone, help_text="See the <a href='http://www1.eere.energy.gov/buildings/building_america/climate_zones.html'>USDOE</a> site for more information.")
     
     # Features
     ag_school_present = models.BooleanField("Agricultural school is present")
