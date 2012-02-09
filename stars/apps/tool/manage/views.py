@@ -8,7 +8,7 @@ from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMessage
 
 from stars.apps.accounts.utils import respond
-from stars.apps.accounts.decorators import user_is_staff
+from stars.apps.accounts.decorators import user_is_staff, user_is_inst_admin
 from stars.apps.accounts import xml_rpc
 from stars.apps.institutions.models import Institution, StarsAccount, Subscription, SubscriptionPayment, SUBSCRIPTION_DURATION, PendingAccount
 from stars.apps.institutions.rules import user_has_access_level
@@ -30,7 +30,8 @@ def _get_current_institution(request):
         return request.user.current_inst
     else:
         raise Http404
-    
+
+@user_is_inst_admin
 def institution_detail(request):
     """
         Display the Institution Form so user can edit basic info about their institution
@@ -46,7 +47,8 @@ def institution_detail(request):
                 
     context = {'institution_form': institution_form}
     return respond(request, 'tool/manage/detail.html', context)
-    
+
+@user_is_inst_admin
 def institution_payments(request):
     """
         Display a list of payments made by the institution
@@ -60,6 +62,7 @@ def institution_payments(request):
               }
     return respond(request, 'tool/manage/payments.html', context)
 
+@user_is_inst_admin
 def responsible_party_list(request):
     """
         Display a list of responsible parties for the institution
@@ -70,6 +73,7 @@ def responsible_party_list(request):
     
     return respond(request, 'tool/manage/responsible_party_list.html', context)
 
+@user_is_inst_admin
 def edit_responsible_party(request, rp_id):
     """
         Edit an existing responsible party
@@ -87,7 +91,7 @@ def edit_responsible_party(request, rp_id):
     context = {'responsible_party': rp, 'object_form': object_form, 'title': "Edit Responsible Party", 'credit_list': credit_list}
     return respond(request, 'tool/manage/edit_responsible_party.html', context)
 
-
+@user_is_inst_admin
 def add_responsible_party(request):
     """
         Edit an existing responsible party
@@ -103,7 +107,7 @@ def add_responsible_party(request):
     context = {'object_form': object_form, 'title': "Add Responsible Party"}
     return respond(request, 'tool/manage/edit_responsible_party.html', context)
 
-
+@user_is_inst_admin
 def delete_responsible_party(request, rp_id):
     """
     Remove a responsible party if they aren't tied to any submissions
@@ -120,7 +124,7 @@ def delete_responsible_party(request, rp_id):
         rp.delete()
         return HttpResponseRedirect("/tool/manage/responsible-parties/")
 
-
+@user_is_inst_admin
 def accounts(request, account_id=None):
     """
         Provides an interface to manage user accounts for an institution.
@@ -156,7 +160,7 @@ def accounts(request, account_id=None):
               }
     return respond(request, 'tool/manage/accounts.html', context)
 
-
+@user_is_inst_admin
 def add_account(request):
     """
         Provides an interface to add user accounts to an institution.
@@ -184,8 +188,7 @@ def add_account(request):
     
     return respond(request, 'tool/manage/add_account.html', {'account_form': account_form, 'notify_form':notify_form,})
 
-    
-
+@user_is_inst_admin
 def delete_account(request, account_id):
     """
         Deletes a user account (user-institution relation)
@@ -228,7 +231,7 @@ def _update_preferences(request):
     (notify_form,saved) = form_helpers.basic_save_form(request, preferences, '', NotifyUsersForm, flash_message=False)
     return (preferences, notify_form)
 
-
+@user_is_inst_admin
 def share_data(request):
     """
         I'm not exactly sure how this will tie into the API yet

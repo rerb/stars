@@ -10,6 +10,7 @@ from datetime import datetime, date
 from stars.apps.helpers.forms.views import *
 from stars.apps.accounts.utils import respond
 from stars.apps.accounts.mixins import SubmissionMixin
+from stars.apps.accounts.decorators import user_has_tool
 from stars.apps.submissions.models import *
 from stars.apps.submissions.tasks import send_certificate_pdf, rollover_submission
 from stars.apps.submissions.utils import init_credit_submissions
@@ -43,7 +44,7 @@ def _get_active_submission(request):
      
     return active_submission
 
-@login_required
+@user_has_tool
 def summary(request):
     """
         The entry page showing a grand summary of the submission
@@ -388,7 +389,7 @@ def _get_subcategory_submission_context(request, category_id, subcategory_id):
     })
     return context
 
-@login_required
+@user_has_tool
 def subcategory_detail(request, category_id, subcategory_id):
     """
         The sub-category summary page for a submission
@@ -430,7 +431,7 @@ def _get_credit_submission_context(request, category_id, subcategory_id, credit_
     })
     return context
 
-@login_required
+@user_has_tool
 def credit_detail(request, category_id, subcategory_id, credit_id):
     """
         Submit all reporting fields and other forms for a specific credit
@@ -454,7 +455,7 @@ def credit_detail(request, category_id, subcategory_id, credit_id):
 
     return respond(request, "tool/submissions/credit_reporting_fields.html", context)
 
-@login_required
+@user_has_tool
 def credit_documentation(request, category_id, subcategory_id, credit_id):
     """
         Credit documentation 
@@ -465,7 +466,7 @@ def credit_documentation(request, category_id, subcategory_id, credit_id):
     template = "tool/submissions/credit_info_popup.html" if popup else "tool/submissions/credit_info.html"
     return respond(request, template, context)
 
-@login_required
+@user_has_tool
 def credit_notes(request, category_id, subcategory_id, credit_id):
     """
         Internal notes for the credit submission
@@ -479,7 +480,7 @@ def credit_notes(request, category_id, subcategory_id, credit_id):
 
     return respond(request, "tool/submissions/credit_notes.html", context)
 
-@login_required
+@user_has_tool
 def add_responsible_party(request):
     """
         Provides a pop-up form for adding a new ResponsibleParty to an institution
