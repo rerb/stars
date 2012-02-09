@@ -372,7 +372,7 @@ class PDFExportView(InstitutionAccessMixin, ScorecardMixin, CreditNavMixin, Temp
         
         ss = _context['submissionset']
         
-        if not institution_has_export(ss.institution):
+        if not institution_has_export(ss.institution) and ss.status != 'r':
             raise PermissionDenied("Sorry, this feature is only available to current STARS Participants")
         
         save = False
