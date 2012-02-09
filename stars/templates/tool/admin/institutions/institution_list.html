@@ -7,25 +7,21 @@
             <li><a href='/tool/admin/search'>Search AASHE Institutions</a></li>
         </ul>
     {% endblock %}
-    <div class='help_note'> <span class='help_text'>
-      <p>Lists most recently registered Submission for ALL institutions currently participating in STARS.</p>
-      <ul>
-        <li>Click institution name to <strong>Masquerade</strong>, and edit / view the insititutions STARS data.</li>
-        <li>Click <img src='/media/static/images/money.png'> for payment processing for this institution.</li>
-        <li>Enable or Disable institutions by checking/unchecking the box beside their name - be sure to 'Save' your changes.
-            <ul>
-                <li>(<font color='red'>*</font>) indicates a disabled institution.</li>
-            </ul>
-        </li>
-      </ul>
-    </span></div>
     {% load help %}
     {% load submit_tags %}
     {% load cache %}
 	{% cache 86400 admin_institution_list %}
     <form method='POST' action='.'>
       <table id="institution-list" style='padding:10px;'>
-        <tr><th>Institution</th><th>Rating</th><th>Admin<br>Tools</th>
+        <tr>
+          <th></th>
+          <th>Institution</th>
+          <th>Version</th>
+          <th>Rating</th>
+          <th>Participation Level</th>
+          <th>Start Date</th>
+          <th>End Date</th>
+        </tr>
 	    {% for i in institution_list %}
           <tr{% cycle ' class="odd"' ''%}>
 	        <td>
@@ -34,14 +30,23 @@
             <td>
               <a href='{{ i.get_masquerade_url }}'>{{ i }}</a>
             </td>
-            <td>{% if i.current_rating %}{{ i.current_rating }}{% endif %}</td>
-            <td align='center'>
-              <a href='{{ i.get_admin_payments_url }}' title='Manage payments for this institution'>
-              	{% for payment in i.subscriptionpayment_set.all %}
-                	{% show_payment_type_icon payment %}
-                {% endfor %}
-              </a>
+            <td>
+              {{ i.current_submission.creditset.version }}
             </td>
+            <td>{% if i.current_rating %}{{ i.current_rating }}{% endif %}</td>
+            <td>
+              {% if i.is_participant %}
+                Participant
+              {% else %}
+                Respondent
+              {% endif %}
+            </td>
+            {% if i.current_subscription %}
+              <td>{{ i.current_subscription.start_date }}</td>
+              <td>{{ i.current_subscription.end_date }}</td>
+            {% else %}
+              <td></td><td></td>
+            {% endif %}
           </tr>
 	    {% endfor %}
       </table>
