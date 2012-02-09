@@ -9,9 +9,6 @@
     {% endblock %}
     {% load help %}
     {% load submit_tags %}
-    {% load cache %}
-	{% cache 86400 admin_institution_list %}
-    <form method='POST' action='.'>
       <table id="institution-list" style='padding:10px;'>
         <tr>
           <th></th>
@@ -50,7 +47,4 @@
           </tr>
 	    {% endfor %}
       </table>
-      <button type='submit'>Save</button>
-    </form>
-    {% endcache %}
 {% endblock %}
