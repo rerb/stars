@@ -3,6 +3,7 @@ from django.http import HttpResponseRedirect, Http404
 from django.core.exceptions import PermissionDenied
 from django.views.generic import TemplateView as GenTemplateView
 from django.views.generic.edit import FormView, UpdateView
+from django.contrib.auth.decorators import login_required
 
 from datetime import datetime, date
 
@@ -42,6 +43,7 @@ def _get_active_submission(request):
      
     return active_submission
 
+@login_required
 def summary(request):
     """
         The entry page showing a grand summary of the submission
@@ -386,6 +388,7 @@ def _get_subcategory_submission_context(request, category_id, subcategory_id):
     })
     return context
 
+@login_required
 def subcategory_detail(request, category_id, subcategory_id):
     """
         The sub-category summary page for a submission
@@ -426,7 +429,8 @@ def _get_credit_submission_context(request, category_id, subcategory_id, credit_
         'credit_submission': credit_submission,
     })
     return context
-    
+
+@login_required
 def credit_detail(request, category_id, subcategory_id, credit_id):
     """
         Submit all reporting fields and other forms for a specific credit
@@ -450,6 +454,7 @@ def credit_detail(request, category_id, subcategory_id, credit_id):
 
     return respond(request, "tool/submissions/credit_reporting_fields.html", context)
 
+@login_required
 def credit_documentation(request, category_id, subcategory_id, credit_id):
     """
         Credit documentation 
@@ -460,6 +465,7 @@ def credit_documentation(request, category_id, subcategory_id, credit_id):
     template = "tool/submissions/credit_info_popup.html" if popup else "tool/submissions/credit_info.html"
     return respond(request, template, context)
 
+@login_required
 def credit_notes(request, category_id, subcategory_id, credit_id):
     """
         Internal notes for the credit submission
@@ -472,7 +478,8 @@ def credit_notes(request, category_id, subcategory_id, credit_id):
     context.update({'notes_form': notes_form,})
 
     return respond(request, "tool/submissions/credit_notes.html", context)
-    
+
+@login_required
 def add_responsible_party(request):
     """
         Provides a pop-up form for adding a new ResponsibleParty to an institution
