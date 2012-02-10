@@ -190,7 +190,7 @@ class SubmitForRatingMixin(SubmissionMixin):
             return HttpResponseRedirect("/tool/submissions/boundary/")
         
         if len(context['credit_list']) == 0:
-            return HttpResonseRedirect("/tool/submissions/submit/letter/")
+            return HttpResponseRedirect("/tool/submissions/submit/letter/")
         
         return super(ConfirmClassView, self).render_to_response(context, **response_kwargs)
 
