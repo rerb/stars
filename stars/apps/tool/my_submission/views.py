@@ -177,22 +177,6 @@ class SubmitForRatingMixin(SubmissionMixin):
                 raise PermissionDenied("Sorry, you cannot submit for a rating either because you are not an administrator or you are not a STARS participant.")
             return context[self.instance_name]
         return None
-    
-    def render_to_response(self, context, **response_kwargs):
-        
-        if not user_can_submit_for_rating(self.request.user, context[self.instance_name]):
-            raise PermissionDenied("Sorry, you do not have privileges to submit for a rating.")
-        
-        try:
-            boundary = context[self.instance_name].boundary
-        except Boundary.DoesNotExist:
-            flashMessage.send("You must complete your Boundary before submitting.", flashMessage.NOTICE)
-            return HttpResponseRedirect("/tool/submissions/boundary/")
-        
-        if len(context['credit_list']) == 0:
-            return HttpResponseRedirect("/tool/submissions/submit/letter/")
-        
-        return super(ConfirmClassView, self).render_to_response(context, **response_kwargs)
 
 class ConfirmClassView(SubmitForRatingMixin, GenTemplateView):
     """
@@ -213,6 +197,22 @@ class ConfirmClassView(SubmitForRatingMixin, GenTemplateView):
                             credit_list.append(c)
         _context.update({'credit_list': credit_list,})
         return _context
+    
+    def render_to_response(self, context, **response_kwargs):
+        
+        if not user_can_submit_for_rating(self.request.user, context[self.instance_name]):
+            raise PermissionDenied("Sorry, you do not have privileges to submit for a rating.")
+        
+        try:
+            boundary = context[self.instance_name].boundary
+        except Boundary.DoesNotExist:
+            flashMessage.send("You must complete your Boundary before submitting.", flashMessage.NOTICE)
+            return HttpResponseRedirect("/tool/submissions/boundary/")
+        
+        if len(context['credit_list']) == 0:
+            return HttpResponseRedirect("/tool/submissions/submit/letter/")
+        
+        return super(ConfirmClassView, self).render_to_response(context, **response_kwargs)
 
 # The first submission view
 #submit_confirm = ConfirmClassView("tool/submissions/submit_confirm.html", BoundaryForm,  form_name='object_form', instance_name='active_submission')
