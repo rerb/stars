@@ -214,8 +214,6 @@ def particpant_contact_info(request):
                 email_to = [institution.contact_email]
                 if request.user.email != institution.contact_email:
                     email_to.append(request.user.email)
-                et = EmailTemplate.objects.get(slug='welcome_respondent')
-                email_context = {'institution': institution}
                 
                 return HttpResponseRedirect("/register/survey/")
             
@@ -252,6 +250,15 @@ def respondent_contact_info(request):
             account.save()
             account.select()
             auth_utils.change_institution(request, institution)
+            # Primary Contact
+            email_to = [institution.contact_email]
+            
+            if request.user.email != institution.contact_email:
+                email_to.append(user.email)
+            
+            et = EmailTemplate.objects.get(slug='welcome_respondent')
+            email_context = {'institution': institution}
+            et.send_email(email_to, email_context)
             
             return HttpResponseRedirect('/register/r/survey/')
         else:
