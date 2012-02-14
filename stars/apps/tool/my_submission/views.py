@@ -4,6 +4,7 @@ from django.core.exceptions import PermissionDenied
 from django.views.generic import TemplateView as GenTemplateView
 from django.views.generic.edit import FormView, UpdateView
 from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
 
 from datetime import datetime, date
 
@@ -77,6 +78,10 @@ class EditBoundaryView(UpdateView):
     model = Boundary
     success_url = "/tool/submissions/boundary/"
     
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(EditBoundaryView, self).dispatch(*args, **kwargs)
+    
     def get_object(self):
         self.active_submission = _get_active_submission(self.request)
         try:
@@ -105,6 +110,10 @@ class SaveSnapshot(FormView):
     form_class = Confirm
     success_url = "/tool/manage/share-data/"
     template_name = "tool/submissions/submit_snapshot.html"
+    
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(SaveSnapshot, self).dispatch(*args, **kwargs)
     
     def get_context_data(self, **kwargs):
         _context = super(SaveSnapshot, self).get_context_data(**kwargs)
@@ -185,6 +194,10 @@ class ConfirmClassView(SubmitForRatingMixin, GenTemplateView):
     
     template_name = 'tool/submissions/submit_confirm.html'
     instance_name = "active_submission"
+    
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(ConfirmClassView, self).dispatch(*args, **kwargs)
     
     def get_context_data(self, **kwargs):
         _context = self.get_extra_context(self.request, None, None)

@@ -320,7 +320,7 @@ class Boundary(models.Model):
     pub_health_school_included = models.BooleanField("Public health school is included in submission")
     pub_health_school_details = models.TextField("Reason for Exclusion", blank=True, null=True)
     vet_school_present = models.BooleanField("Veterinary school is present")
-    vet_school_included = models.BooleanField(" Veterinary schoolis included in submission")
+    vet_school_included = models.BooleanField(" Veterinary school is included in submission")
     vet_school_details = models.TextField("Reason for Exclusion", blank=True, null=True)
     sat_campus_present = models.BooleanField("Satellite campuses are present")
     sat_campus_included = models.BooleanField("Satellite campuses are included in submission")
@@ -342,6 +342,43 @@ class Boundary(models.Model):
     
     def __str__(self):
         return self.submissionset.institution.name;
+    
+    def get_characteristic_fields_and_values(self):
+        """
+            This is a useful tool for displaying the boundary
+        """
+        f_set = []
+        for field_name in self.__class__.get_characteristic_field_names():
+            d = {'title': self._meta.get_field(field_name).verbose_name}
+            if hasattr(self, "get_%s_display" % field_name):
+                d['value'] = getattr(self, "get_%s_display" % field_name)
+            else:
+                d['value'] = getattr(self, field_name)
+            
+            f_set.append(d)
+                          
+        return f_set
+    
+    @classmethod
+    def get_characteristic_field_names(cls):
+        return [
+                    'fte_students',
+                    'undergrad_count',
+                    'graduate_count',
+                    'fte_employmees',
+                    'institution_type',
+                    'institutional_control',
+                    'endowment_size',
+                    'student_residential_percent',
+                    'student_ftc_percent',
+                    'student_ptc_percent',
+                    'student_online_percent',
+                    'gsf_building_space',
+                    'gsf_lab_space',
+                    'cultivated_grounds_acres',
+                    'undeveloped_land_acres',
+                    'climate_region',
+                ]
 
 def get_active_submissions(creditset=None, category=None, subcategory=None, credit=None):
     """ Return a queryset for ALL active (started / finished) credit submissions that meet the given criteria.

@@ -5,6 +5,45 @@ register = template.Library()
 
 from stars.apps.credits.models import Choice
 
+@register.inclusion_tag('institutions/tags/boundary_display.html')
+def show_boundary(submission):
+    """
+        Display the data from the submission boundary
+    """
+    
+    # Generate the characterisics table
+    
+    
+    # Generate the feature table
+    features = [
+                    ("Agricultural School", 'ag_school'),
+                    ("Medical School", 'med_school'),
+                    ("Pharmacy School", 'pharm_school'),
+                    ("Public Health", 'pub_health_school'),
+                    ("Veterinary School", 'vet_school'),
+                    ("Satellite", 'sat_campus'),
+                    ("Hospital", 'hospital'),
+                    ("Farm", 'farm'),
+                    ("Agricultural experiment station", 'agr_exp'),
+                ]
+    
+    # row obj: {'title', 'present', 'included', 'acres', 'details'}
+    feature_table = []
+    for k, p in features:
+        d = {
+                'title': k,
+                'present': getattr(submission.boundary, '%s_present' % p),
+                'included': getattr(submission.boundary, '%s_included' % p),
+                'details': getattr(submission.boundary, "%s_details" % p)
+             }
+        if hasattr(submission.boundary, "%s_acres" % p):
+            d['acres'] = getattr(submission.boundary, "%s_acres" % p)
+        else:
+            d['acres'] = None
+        feature_table.append(d)
+        
+    return {'feature_table': feature_table, 'submissionset': submission}
+
 @register.inclusion_tag('institutions/tags/crumbs.html')
 def show_scorecard_crumbs(object):
     """ Displays the crumb navigation for a particular object in the Reports Tool """

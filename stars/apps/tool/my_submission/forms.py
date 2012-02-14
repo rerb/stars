@@ -25,25 +25,7 @@ class NewBoundaryForm(BetterModelForm):
                         (
                             'Characteristics',
                             {
-                                'fields':
-                                    [
-                                        'fte_students',
-                                        'undergrad_count',
-                                        'graduate_count',
-                                        'fte_employmees',
-                                        'institution_type',
-                                        'institutional_control',
-                                        'endowment_size',
-                                        'student_residential_percent',
-                                        'student_ftc_percent',
-                                        'student_ptc_percent',
-                                        'student_online_percent',
-                                        'gsf_building_space',
-                                        'gsf_lab_space',
-                                        'cultivated_grounds_acres',
-                                        'undeveloped_land_acres',
-                                        'climate_region',
-                                    ],
+                                'fields':Boundary.get_characteristic_field_names(),
                                 'legend': "Characteristics",
                                 'description': 'In this context, institutional characteristics are variables that can take on a range of values.',
                             }
