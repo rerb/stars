@@ -23,31 +23,33 @@
 	    <tr>
 	        <th>Status</th>
 	        <th>Last Updated</th>
-	        <th>Possible Points</th>
-	        <th>Points Earned</th>
+            {% testrule institution_has_score_feature user.current_inst %}
+    	        <th>Possible Points</th>
+    	        <th>Points Earned</th>
+            {% endtestrule %}
 	    </tr><tr>
 	        <td>{% show_status_icon credit_submission %}</td>
 	        <td>{{ credit_submission.last_updated|date:"m/d/y fA" }}</td>
-	        <td>{% format_available_points credit_submission %}</td>
-	        <td>
-              {% testrule institution_has_score_feature user.current_inst %}
-	        	{% ifnotequal credit_submission.assessed_points None %}
-                    {{ credit_submission.assessed_points }}
-                {% endifnotequal %}
-              {% else %}
-                {% include "tool/participant_only_snippet.html" %}
-              {% endtestrule %}
-         	</td>
+            {% testrule institution_has_score_feature user.current_inst %}
+    	        <td>{% format_available_points credit_submission %}</td>
+    	        <td>
+    	        	{% ifnotequal credit_submission.assessed_points None %}
+                        {{ credit_submission.assessed_points }}
+                    {% endifnotequal %}
+             	</td>
+            {% endtestrule %}
 	    </tr>
 	</table>
 	<hr class='blue'/>
     <ul id="tabnav" {% block tabclass %}class='tab1'{% endblock %}>
+       {% if user.current_inst.is_participant %}
 		<li class="tab1">
 		    <a href="{{ credit_submission.get_submit_url }}documentation/">Credit Info</a>
 		    <a href="{{ credit_submission.get_submit_url }}documentation/?popup=True" target='_blank' 
 		       onclick='return open_popup("{{ credit_submission.get_submit_url }}documentation/?popup=True", "CreditInfo");'
 		     ><img src='/media/static/images/new_window.gif' alt='^' title="Open Credit Info in pop-up window"></a>
 		</li>
+      {% endif %}
 		<li class="tab2"><a href="{{ credit_submission.get_submit_url }}">Reporting Fields</a></li>
         {% testrule institution_has_internal_notes_feature user.current_inst %}
           <li class="tab3"><a href="{{ credit_submission.get_submit_url }}notes/">Internal Notes</a></li>
