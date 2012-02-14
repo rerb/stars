@@ -254,7 +254,7 @@ def respondent_contact_info(request):
             email_to = [institution.contact_email]
             
             if request.user.email != institution.contact_email:
-                email_to.append(user.email)
+                email_to.append(request.user.email)
             
             et = EmailTemplate.objects.get(slug='welcome_respondent')
             email_context = {'institution': institution}
