@@ -4,6 +4,7 @@ from django import template
 register = template.Library()
 
 from stars.apps.credits.models import Choice
+from stars.apps.submissions.models import Boundary
 
 @register.inclusion_tag('institutions/tags/boundary_display.html')
 def show_boundary(submission):
@@ -29,18 +30,21 @@ def show_boundary(submission):
     
     # row obj: {'title', 'present', 'included', 'acres', 'details'}
     feature_table = []
-    for k, p in features:
-        d = {
-                'title': k,
-                'present': getattr(submission.boundary, '%s_present' % p),
-                'included': getattr(submission.boundary, '%s_included' % p),
-                'details': getattr(submission.boundary, "%s_details" % p)
-             }
-        if hasattr(submission.boundary, "%s_acres" % p):
-            d['acres'] = getattr(submission.boundary, "%s_acres" % p)
-        else:
-            d['acres'] = None
-        feature_table.append(d)
+    try:
+        for k, p in features:
+            d = {
+                    'title': k,
+                    'present': getattr(submission.boundary, '%s_present' % p),
+                    'included': getattr(submission.boundary, '%s_included' % p),
+                    'details': getattr(submission.boundary, "%s_details" % p)
+                 }
+            if hasattr(submission.boundary, "%s_acres" % p):
+                d['acres'] = getattr(submission.boundary, "%s_acres" % p)
+            else:
+                d['acres'] = None
+            feature_table.append(d)
+    except Boundary.DoesNotExist:
+        pass
         
     return {'feature_table': feature_table, 'submissionset': submission}
 
