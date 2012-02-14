@@ -1,6 +1,7 @@
 {% extends 'tool/manage/base.html' %}
 
 {% load content %}
+{% load aashe_rules_tags %}
 
 {% block crumbs %} {{ block.super }} &gt; Share Data {% endblock %}
 
@@ -76,7 +77,12 @@
         {% endif %}
     </table>
     <p align='center'>
-      <img src="/media/static/images/camera_add.png" alt='' style='vertical-align: top;margin-right: 10px;' />
-      <a href='/tool/submissions/snapshot/'>Take a snapshot of your data now</a>
+      {% testrule institution_has_snapshot_feature user.current_inst %}
+        <img src="/media/static/images/camera_add.png" alt='' style='vertical-align: top;margin-right: 10px;' />
+        <a href='/tool/submissions/snapshot/'>Take a snapshot of your data now</a>
+      {% else %}
+        <img src='/media/static/images/arrow_right.png' alt="&gt;" style='vertical-align: middle;'/>
+        <a href='http://localhost:8000/tool/manage/migrate/'>Migrate to the latest version of STARS to start taking snapshots.</a>
+      {% endtestrule %}
     </p>
 {% endblock %}
