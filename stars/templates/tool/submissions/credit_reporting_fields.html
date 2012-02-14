@@ -37,13 +37,13 @@
         {% include "tool/submissions/submission_fields_form.html" %}
       {% endfieldset %}
       <hr/>
-      {% fieldset 'Notes (public)' 'collapsed' %}
+      {% fieldset 'Notes' 'collapsed' %}
         {% comment %}
         <!-- @todo: I added the note fields manually, but in the long-run
         we may want to rework the documentation_field_form.html template to take more than
         just documentationField objects... -->
         {% endcomment %}
-        <label>Notes about the submission (public):</label>
+        <label>Notes about the submission{% if user.current_inst.is_participant %} (public){% endif %}:</label>
         {% if submission_form.submission_notes.errors %}{{ submission_form.errors.submission_notes }}{% endif %}
     	<div class='field-form'>
     	   {{ submission_form.submission_notes }}
