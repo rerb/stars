@@ -324,6 +324,10 @@ class FinalizeClassView(SubmitForRatingMixin, FormActionView):
         ss.institution.current_subscription.ratings_used += 1
         ss.institution.current_subscription.save()
         
+        ss.institution.current_rating = ss.rating
+        ss.institution.rated_submission = ss
+        ss.institution.save()
+        
         # Send certificate to Marnie
         send_certificate_pdf.delay(ss)
         
