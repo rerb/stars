@@ -38,7 +38,7 @@ THUMBNAIL_DEBUG = True
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = '/tmp/stars_emails'
 
-MEDIA_ROOT = '/var/www/stars.aashe.org/media/'
+MEDIA_ROOT = '/var/www/stars/media/'
 
 SSO_SERVER_URI = WWW_SSO_SERVER_URI
 STARS_DOMAIN = WWW_STARS_DOMAIN
