@@ -2,6 +2,7 @@
     Personal config file for development in Ben's local environment.
 """
 
+
 from settings import *
 
 HIDE_REPORTING_TOOL = False
@@ -96,3 +97,6 @@ if 'test' in sys.argv:
     DATABASES['default']['ENGINE'] = 'sqlite3'
     DATABASES['default']['NAME'] = '/Users/jamstooks/sqlite/stars_tests.db'
     DATABASES['default']['OPTIONS'] = {}
+    
+# Thumbnails
+THUMBNAIL_DEBUG = True
