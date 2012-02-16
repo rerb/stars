@@ -442,74 +442,89 @@ def purchase_subscription(request):
         else:
             reason = "nonmember_reg"
     
+    # calculate start date of subscription
+    start_date = current_inst.get_last_subscription_end()
+    if not start_date:
+        start_date = date.today()
+    else:
+        start_date += timedelta(days=1)
+    
     pay_form = PaymentForm()
+    later_form = PayLaterForm()
     
     if request.method == "POST":
         
-        pay_form = PaymentForm(request.POST)
-        if pay_form.is_valid():
-            payment_dict = get_payment_dict(pay_form, current_inst)
-            product_dict = {
-                'price': amount,
-                'quantity': 1,
-                'name': "STARS Subscription Purchase",
-            }
+        later_form = PayLaterForm(request.POST)
+        if later_form.is_valid() and later_form.cleaned_data['confirm']:
+            
+            sub = Subscription(
+                                institution=current_inst,
+                                start_date=start_date,
+                                end_date=start_date + timedelta(SUBSCRIPTION_DURATION),
+                                amount_due=amount,
+                                paid_in_full=False,
+                               )
+            sub.save()
+            return HttpResponseRedirect("/tool/")
+        else:
+            pay_form = PaymentForm(request.POST)
+            if pay_form.is_valid():
+                payment_dict = get_payment_dict(pay_form, current_inst)
+                product_dict = {
+                    'price': amount,
+                    'quantity': 1,
+                    'name': "STARS Subscription Purchase",
+                }
+        
+                result = process_payment(payment_dict, [product_dict], invoice_num=current_inst.aashe_id)
+                if result.has_key('cleared') and result.has_key('msg'):
+                    if result['cleared'] and result['trans_id']:
+                        
+                        sub = Subscription(
+                                            institution=current_inst,
+                                            start_date=start_date,
+                                            end_date=start_date + timedelta(SUBSCRIPTION_DURATION),
+                                            amount_due=0,
+                                            paid_in_full=True,
+                                           )
+                        sub.save()
+                        
+                        p = SubscriptionPayment(
+                                        subscription=sub,
+                                        date=datetime.now(),
+                                        amount=amount,
+                                        user=request.user,
+                                        reason=reason,
+                                        method='credit',
+                                        confirmation=str(result['trans_id']),
+                                    )
+                        p.save()
+                        
+                        if request.user.email != current_inst.contact_email:
+                            mail_to = [request.user.email, current_inst.contact_email]
+                        else:
+                            mail_to = [current_inst.contact_email,]
     
-            result = process_payment(payment_dict, [product_dict], invoice_num=current_inst.aashe_id)
-            if result.has_key('cleared') and result.has_key('msg'):
-                if result['cleared'] and result['trans_id']:
-                    
-                    # calculate start date of subscription
-                    start_date = current_inst.get_last_subscription_end()
-                    if not start_date:
-                        start_date = date.today()
+                        et = EmailTemplate.objects.get(slug="reg_renewed_paid")
+                        email_context = {'payment_dict': payment_dict,'institution': current_inst, "payment": p}
+                        et.send_email(mail_to, email_context)
+                        
+                        send_exec_renew_email(current_inst)
+                        
+                        current_inst.current_subscription = sub
+                        current_inst.is_participant = True
+                        current_inst.save()
+                        
+                        return HttpResponseRedirect("/tool/")
                     else:
-                        start_date += timedelta(days=1)
-                    
-                    sub = Subscription(
-                                        institution=current_inst,
-                                        start_date=start_date,
-                                        end_date=start_date + timedelta(SUBSCRIPTION_DURATION),
-                                        amount_due=0,
-                                        paid_in_full=True,
-                                       )
-                    sub.save()
-                    
-                    p = SubscriptionPayment(
-                                    subscription=sub,
-                                    date=datetime.now(),
-                                    amount=amount,
-                                    user=request.user,
-                                    reason=reason,
-                                    method='credit',
-                                    confirmation=str(result['trans_id']),
-                                )
-                    p.save()
-                    
-                    if request.user.email != current_inst.contact_email:
-                        mail_to = [request.user.email, current_inst.contact_email]
-                    else:
-                        mail_to = [current_inst.contact_email,]
-
-                    et = EmailTemplate.objects.get(slug="reg_renewed_paid")
-                    email_context = {'payment_dict': payment_dict,'institution': current_inst, "payment": p}
-                    et.send_email(mail_to, email_context)
-                    
-                    send_exec_renew_email(current_inst)
-                    
-                    current_inst.current_subscription = sub
-                    current_inst.is_participant = True
-                    current_inst.save()
-                    
-                    return HttpResponseRedirect("/tool/")
-                else:
-                    flashMessage.send("Processing Error: %s" % result['msg'], flashMessage.ERROR)
+                        flashMessage.send("Processing Error: %s" % result['msg'], flashMessage.ERROR)
             else:
                 flashMessage.send("Please correct the errors below", flashMessage.ERROR)
                     
     template = 'tool/manage/purchase_subscription.html'
     context = {
         "pay_form": pay_form,
+        "later_form": later_form,
         "amount": amount,
         'is_member': is_member,
         'discount': discount,
