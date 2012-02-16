@@ -710,6 +710,7 @@ class ExecContactForm(ModelForm):
             self.fields[f].required = True
         self.fields['president_first_name'].label = "First Name"
         self.fields['president_middle_name'].label = "Middle Name"
+        self.fields['president_middle_name'].required = False
         self.fields['president_last_name'].label = "Last Name"
         self.fields['president_title'].label = "Title"
         self.fields['president_address'].label = "Address"
