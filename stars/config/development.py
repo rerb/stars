@@ -35,15 +35,6 @@ CACHE_BACKEND = "dummy://"
 #THUMBNAIL_ENGINE = "sorl.thumbnail.engines.pgmagick_engine.Engine"
 THUMBNAIL_DEBUG = True
 
-import logging
-from sorl.thumbnail.log import ThumbnailLogHandler
-
-handler = ThumbnailLogHandler()
-handler.setLevel(logging.ERROR)
-logging.getLogger('sorl.thumbnail').addHandler(handler)
-
-
-
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = '/tmp/stars_emails'
 
