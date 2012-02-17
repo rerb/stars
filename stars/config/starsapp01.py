@@ -40,7 +40,8 @@ CACHES = {
 
 ANALYTICS_ID = "UA-1056760-7"
 
-THUMBNAIL_ENGINE = "sorl.thumbnail.engines.pgmagick_engine.Engine"
+#THUMBNAIL_ENGINE = "sorl.thumbnail.engines.pgmagick_engine.Engine"
+THUMBNAIL_ENGINE = "sorl.thumbnail.engines.pil_engine.Engine"
 
 MEDIA_ROOT = '/var/www/stars/media/'
 
