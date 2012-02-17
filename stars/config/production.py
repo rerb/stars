@@ -28,6 +28,7 @@ DATABASE_ROUTERS = ('aashe.issdjango.router.ISSRouter',)
 
 #THUMBNAIL_ENGINE = "sorl.thumbnail.engines.pgmagick_engine.Engine"
 # GraphicsMagick is installed on the production server
+THUMBNAIL_ENGINE = "sorl.thumbnail.engines.pil_engine.Engine"
 
 CACHES = {
     'default': {
