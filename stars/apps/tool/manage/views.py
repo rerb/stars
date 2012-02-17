@@ -41,7 +41,10 @@ def institution_detail(request):
     if request.user.is_staff:
         FormClass = AdminInstitutionForm
     else:
-        FormClass = InstitutionContactForm
+        if current_inst.is_participant:
+            FormClass = ParticipantContactForm
+        else:
+            FormClass = RespondentContactForm
         
     (institution_form,saved) = form_helpers.basic_save_form(request, current_inst, str(current_inst.id), FormClass)
                 
@@ -465,6 +468,10 @@ def purchase_subscription(request):
                                 paid_in_full=False,
                                )
             sub.save()
+            
+            current_inst.is_participant = True
+            current_inst.save()
+            
             return HttpResponseRedirect("/tool/")
         else:
             pay_form = PaymentForm(request.POST)
