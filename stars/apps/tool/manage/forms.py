@@ -20,11 +20,6 @@ class AdminInstitutionForm(ModelForm):
     class Meta:
         model = Institution
         exclude = ['name', 'aashe_id', 'current_subscription', 'current_submission', 'rated_submission']
-
-#    @staticmethod
-    def form_name():
-        return u"Institution Form" 
-    form_name = staticmethod(form_name)
     
     def __init__(self, *args, **kwargs):
         super(AdminInstitutionForm, self).__init__(*args, **kwargs)
@@ -32,7 +27,7 @@ class AdminInstitutionForm(ModelForm):
             if self.fields[f].widget.__class__.__name__ == "TextInput":
                 self.fields[f].widget.attrs.update({'size': 40})
         
-class InstitutionContactForm(AdminInstitutionForm):
+class ParticipantContactForm(AdminInstitutionForm):
     """
         A restricted version of the Institution Form, allowing institution admins to edit their Contact info.
     """
@@ -45,18 +40,38 @@ class InstitutionContactForm(AdminInstitutionForm):
                     'contact_phone',
                     'contact_phone_ext',
                     'contact_email',
-                    'contact_first_name',
+                    'executive_contact_first_name',
                     'executive_contact_middle_name',
                     'executive_contact_last_name',
                     'executive_contact_title',
                     'executive_contact_department',
                     'executive_contact_email',
-                    'executive_contact_address',
-                    'executive_contact_city',
-                    'executive_contact_state',
-                    'executive_contact_zip'
                 ]
-
+        
+    def __init__(self, *args, **kwargs):
+        super(ParticipantContactForm, self).__init__(*args, **kwargs)
+        
+        self.fields['executive_contact_first_name'].required = True
+        self.fields['executive_contact_middle_name'].required = True
+        self.fields['executive_contact_last_name'].required = True
+        self.fields['executive_contact_title'].required = True
+        self.fields['executive_contact_department'].required = True
+        self.fields['executive_contact_email'].required = True
+        
+class RespondentContactForm(AdminInstitutionForm):
+    """
+        A restricted version of the Institution Form, allowing institution admins to edit their Contact info.
+    """
+    class Meta(AdminInstitutionForm.Meta):
+        fields = [  'contact_first_name',
+                    'contact_middle_name',
+                    'contact_last_name',
+                    'contact_title',
+                    'contact_department',
+                    'contact_phone',
+                    'contact_phone_ext',
+                    'contact_email',
+                ]
 
 class AdminEnableInstitutionForm(ModelForm):
     """
