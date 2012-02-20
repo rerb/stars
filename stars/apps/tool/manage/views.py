@@ -447,10 +447,10 @@ def purchase_subscription(request):
     
     # calculate start date of subscription
     start_date = current_inst.get_last_subscription_end()
-    if not start_date:
-        start_date = date.today()
-    else:
+    if start_date and start_date > date.today():
         start_date += timedelta(days=1)
+    else:
+        start_date = date.today()
     
     pay_form = PaymentForm()
     later_form = PayLaterForm()
