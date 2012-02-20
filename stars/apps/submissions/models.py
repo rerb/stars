@@ -337,6 +337,9 @@ class Boundary(models.Model):
     agr_exp_acres = models.IntegerField("Number of acres", blank=True, null=True)
     agr_exp_details = models.TextField("Reason for Exclusion", blank=True, null=True)
     
+    # Narrative
+    additional_details = models.TextField(blank=True, null=True)
+    
     class Meta:
         verbose_name_plural = "Boundaries"
     

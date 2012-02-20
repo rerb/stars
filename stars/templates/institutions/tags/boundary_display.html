@@ -1,4 +1,5 @@
 {% load help %}
+{% load humanize %}
 
 {% if submissionset.boundary %}
   <!-- BID: {{ submissionset.boundary.id }} -->
@@ -7,7 +8,7 @@
   {% for f in submissionset.boundary.get_characteristic_fields_and_values %}
     <tr>
       <th>{{ f.title|capfirst }}</th>
-      <td>{{ f.value }}</td>
+      <td>{{ f.value|intcomma }}</td>
     </tr>
   {% endfor %}
   </table>
@@ -34,6 +35,12 @@
     </tr>
     {% endfor %}
   </table>
+  {% if submissionset.boundary.additional_details %}
+     <h4 style='text-align: center;'>Additional Details</h4>
+    <p style='font-size: .9em;'>
+      {{ submissionset.boundary.additional_details|urlizetrunc:55|linebreaks|fix_ampersands }}
+    </p>
+  {% endif %}
 {% else %}
   {{ submissionset.submission_boundary|urlizetrunc:55|linebreaks|fix_ampersands }}
 {% endif %}

@@ -68,7 +68,15 @@ class NewBoundaryForm(BetterModelForm):
                                 'legend': 'Features',
                                 'description': 'In this context, institutional features are entities that either are present or are not present at the institution. Institutions will indicate if feature is present at institution and, of those present, if it is included in institutional boundary. <i>Justification must be provided</i> if any of these features are excluded from the institutional boundary.',
                             }
-                          )
+                          ),
+                            (
+                                'narrative',
+                                {
+                                    'fields': ['additional_details',],
+                                    'legend': "Narrative",
+                                    "description": "Any additional information you wish to provide about your boundary."
+                                }
+                             ),
                      ]
 
 class SubcategorySubmissionForm(ModelForm):
