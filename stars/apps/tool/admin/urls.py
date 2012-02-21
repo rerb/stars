@@ -8,6 +8,9 @@ urlpatterns = patterns(
     (r'^search/$', 'institutions_search'),
     (r'^list$', 'institutions_list'),
     (r'^institution/masquerade/(?P<id>\d+)/$', 'select_institution'),
+    
+    # Reports
+    (r'^reports/$', 'overview_report'),
 
     # Payment processing
     (r'^institution/(?P<institution_id>\d+)/payments/$', 'institution_payments'),

@@ -18,6 +18,7 @@ from stars.apps.tool.manage.forms import AdminEnableInstitutionForm
 from stars.apps.submissions.models import SubmissionSet, Payment
 from stars.apps.tool.admin.forms import PaymentForm
 from stars.apps.helpers.forms.views import FormActionView
+from stars.apps.third_parties.models import ThirdParty
 
 @user_is_staff
 def institutions_search(request):
@@ -78,6 +79,32 @@ def latest_payments(request):
     template = "tool/admin/payments/latest.html"
     return respond(request, template, {'payment_list':payments})
 
+
+@user_is_staff
+def overview_report(request):
+    """
+        Provide a quick summary report
+    """
+    
+    context = {
+                "current_participants": Institution.objects.filter(is_participant=True).count(),
+                "current_respondents": Institution.objects.filter(is_participant=False).count(),
+               }
+    
+    count = 0
+    for i in Institution.objects.all():
+        if i.subscription_set.count() == 0:
+            count += 1
+            
+    context["registered_respondents"] = count
+    context['third_party_list'] = ThirdParty.objects.all()
+    
+    context['snapshot_count'] = SubmissionSet.objects.filter(status='f').count()
+
+    template = "tool/admin/reports/quick_overview.html"
+    
+    return respond(request, template, context)
+    
 
 @user_is_staff
 def institution_payments(request, institution_id):
