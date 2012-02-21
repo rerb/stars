@@ -48,8 +48,12 @@
 	  <a href='{{ ss.get_scorecard_url }}'>
 	  <img src="{{ im.url }}" width="{{ im.x }}" height="{{ im.y }}" alt='{{ ss.rating }}' /></a>
 	  {% endthumbnail %}
+      <a
+        href='/media/{{ ss.rating.image_large }}'
+        title='Download larger logo'>
+          <img src='/media/static/images/picture_go.png' alt='download' /></a>
 	  <br/>
-	  {{ ss.date_submitted }}
+	  <a href='{{ ss.get_scorecard_url }}'>{{ ss.date_submitted }}</a>
 	  {% endfor %}
 	</div>
 	{% endif %}
