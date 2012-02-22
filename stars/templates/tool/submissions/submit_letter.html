@@ -19,11 +19,12 @@
         
         {% display_block_content 'submit_for_rating_letter' user %}
         
-        <table>
-          {% with object_form=letter_form %}
-            {% include "helpers/standard_form.html" %}
-          {% endwith %}
-        </table>
+        {{ letter_form.presidents_letter.errors }}
+        <span class="required_note" title="This field is required to complete credit">*</span>
+        {% show_help_text letter_form.fields.presidents_letter.help_text %}
+        {{ letter_form.presidents_letter|safe }}
+        <br/>
+        
         {% display_block_content 'submit_for_rating_address' user %}
         <table>
         {% with object_form=exec_contact_form %}

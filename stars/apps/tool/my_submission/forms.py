@@ -27,7 +27,7 @@ class NewBoundaryForm(BetterModelForm):
                             {
                                 'fields':Boundary.get_characteristic_field_names(),
                                 'legend': "Characteristics",
-                                'description': 'In this context, institutional characteristics are variables that can take on a range of values.',
+                                'description': 'boundary_characteristics',
                             }
                          ),
                          (
@@ -66,7 +66,7 @@ class NewBoundaryForm(BetterModelForm):
                                         'agr_exp_details'
                                     ],
                                 'legend': 'Features',
-                                'description': 'In this context, institutional features are entities that either are present or are not present at the institution. Institutions will indicate if feature is present at institution and, of those present, if it is included in institutional boundary. <i>Justification must be provided</i> if any of these features are excluded from the institutional boundary.',
+                                'description': 'boundary_features',
                             }
                           ),
                             (

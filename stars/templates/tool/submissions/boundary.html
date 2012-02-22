@@ -19,7 +19,7 @@
       {% for fieldset in form.fieldsets %}
         <h3>{{ fieldset.legend }}</h3>
         {% if fieldset.description %}
-          <p>{{ fieldset.description }}</p>
+          <p>{% display_block_content fieldset.description user %}</p>
         {% endif %}
         
         {% with fieldset as object_form %}
