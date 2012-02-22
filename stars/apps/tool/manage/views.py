@@ -469,6 +469,8 @@ def purchase_subscription(request):
                                )
             sub.save()
             
+            if not current_inst.current_subscription:
+                current_inst.current_subscription = sub
             current_inst.is_participant = True
             current_inst.save()
             
