@@ -9,7 +9,7 @@
     <tr>
       <th>{{ f.title|capfirst }}</th>
       <td>
-        {% if f.value %}{{ f.value|intcomma }}{% else %}Not Available{% endif %}
+        {% if f.value != None %}{{ f.value|intcomma }}{% else %}Not Available{% endif %}
       </td>
     </tr>
   {% endfor %}
