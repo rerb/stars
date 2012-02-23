@@ -282,6 +282,8 @@ class Category(VersionedModel):
     ordinal = models.SmallIntegerField(default=-1)
     max_point_value = models.IntegerField(default=0)
     description = models.TextField()
+    include_in_report = models.BooleanField(default=True)
+    include_in_score = models.BooleanField(default=True)
     
     class Meta:
         ordering = ('ordinal',)
