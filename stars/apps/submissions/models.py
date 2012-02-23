@@ -210,7 +210,7 @@ class SubmissionSet(models.Model):
         for cat in self.categorysubmission_set.all().select_related():
             if cat.category.is_innovation(): 
                 innovation_score = cat.get_STARS_v1_0_score()
-            else:
+            elif cat.category.include_in_score:
                 score += cat.get_STARS_v1_0_score()
                 non_inno_cats += 1
 

@@ -39,15 +39,17 @@
 			<a name='ec_{{ cat.category.id }}'></a>
 			<h2>
                 {% testrule institution_has_score_feature user.current_inst %}
-			    <span class='provScore'>
-			   		{% ifnotequal cat.category.title 'Innovation' %}
-			        	<div class='provScorePercent'>{{ cat.get_STARS_score|floatformat:2 }}%</div>
-			        	<span class='provScoreCaption'>Provisional Score</span>
-			        {% else %}
-			        	<div class='provScorePercent'>{{ cat.get_claimed_points|floatformat:2 }}</div>
-			            <span class='provScoreCaption'>Points Claimed</span>
-			        {% endifnotequal %}
-			    </span>
+                  {% if cat.category.include_in_score %}
+    			    <span class='provScore'>
+    			   		{% ifnotequal cat.category.title 'Innovation' %}
+    			        	<div class='provScorePercent'>{{ cat.get_STARS_score|floatformat:2 }}%</div>
+    			        	<span class='provScoreCaption'>Provisional Score</span>
+    			        {% else %}
+    			        	<div class='provScorePercent'>{{ cat.get_claimed_points|floatformat:2 }}</div>
+    			            <span class='provScoreCaption'>Points Claimed</span>
+    			        {% endifnotequal %}
+    			    </span>
+                  {% endif %}
                 {% endtestrule %}
 			    {% show_progress_icon cat %}
 			    <img src='/media/static/images/collapse_big.gif' alt='+' onclick='expandCollapse(this,false);' id='ec_{{ cat.category.id }}' class='collapseExpand'/>
@@ -58,10 +60,12 @@
 				<a name='ec_{{ cat.category.id }}_{{ sub.subcategory.id }}'></a>
 			    <h3>
                   {% testrule institution_has_score_feature user.current_inst %}
-			        <span class='provScore'>
-			            <div class='provScorePercent'>{{ sub.get_claimed_points|floatformat:2 }} / {{ sub.get_adjusted_available_points|floatformat:2 }}</div>
-			            <span class='provScoreCaption'>Points Claimed</span>
-			        </span>
+                    {% if cat.category.include_in_score %}
+    			        <span class='provScore'>
+    			            <div class='provScorePercent'>{{ sub.get_claimed_points|floatformat:2 }} / {{ sub.get_adjusted_available_points|floatformat:2 }}</div>
+    			            <span class='provScoreCaption'>Points Claimed</span>
+    			        </span>
+                    {% endif %}
                   {% endtestrule %}
 			        {% show_progress_icon sub %}
 			        <img
@@ -97,7 +101,9 @@
 			                <th>Credit</th>
 			                <th>Status</th>
                             {% testrule institution_has_score_feature user.current_inst %}
-			                 <th>Points</th>
+                              {% if cat.category.include_in_score %}
+			                    <th>Points</th>
+                              {% endif %}
                             {% endtestrule %}
 			            </tr>
 			            {% for c in sub.creditusersubmission_set.all %}
@@ -107,7 +113,9 @@
 				                </a></td>
 				                <td>{% show_status_icon c %}</td>
                                 {% testrule institution_has_score_feature user.current_inst %}
-				                  <td>{{ c.assessed_points|floatformat:2 }} / {% format_available_points c %}</td>
+                                  {% if cat.category.include_in_score %}
+				                    <td>{{ c.assessed_points|floatformat:2 }} / {% format_available_points c %}</td>
+                                  {% endif %}
                                 {% endtestrule %}
 				            </tr>
 			          	{% endfor %}

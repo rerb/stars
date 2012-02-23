@@ -43,6 +43,7 @@
 
 {% block category_summary_points %}
     {% if rating.publish_score %}
+      {% if cat.category.include_in_score %}
         {% ifnotequal cat.category.title 'Innovation' %}
             <div class='provScorePercent'>{{ cat.get_STARS_score|floatformat:2 }} %</div>
             <span class='provScoreCaption'>Score</span>
@@ -50,6 +51,7 @@
             <div class='provScorePercent'>{{ cat.get_STARS_score|floatformat:2 }}</div>
             <span class='provScoreCaption'>Innovation Points</span>
         {% endifnotequal %}
+      {% endif %}
     {% endif %}
 {% endblock %}
 
@@ -57,11 +59,13 @@
 
 {% block subcategory_summary_points %}
     {% if rating.publish_score %}
+      {% if sub.category_submission.category.include_in_score %}
         <div class='provScorePercent'>
             {{ sub.get_claimed_points|floatformat:2 }} /
             {{ sub.get_adjusted_available_points|floatformat:2 }}
         </div>
         <span class='provScoreCaption'>Points Claimed</span>
+      {% endif %}
     {% endif %}
 {% endblock %}
 
@@ -93,8 +97,10 @@
 {% block credit_summary_header %}
     <th>Credit</th>
     {% if rating.publish_score %}
+      {% if c.subcategory_submisison.category_submission.category.include_in_score %}
         <th>Status</th>
         <th>Points</th>
+      {% endif %}
     {% endif %}
 {% endblock %}
 
@@ -104,10 +110,12 @@
     </td>
             
     {% if rating.publish_score %}
+      {% if c.subcategory_submisison.category_submission.category.include_in_score %}
         <td style='color: #888'>
             {% include 'credits/credit_status_icon.html' %}
         </td>
         <td>{{ c.assessed_points|floatformat:2 }} / {% format_available_points c %}</td>
+      {% endif %}
     {% endif %}
 {% endblock %}
 

@@ -74,7 +74,7 @@ class NewBoundaryForm(BetterModelForm):
                                 {
                                     'fields': ['additional_details',],
                                     'legend': "Narrative",
-                                    "description": "Any additional information you wish to provide about your boundary."
+                                    "description": "boundary_narrative"
                                 }
                              ),
                      ]

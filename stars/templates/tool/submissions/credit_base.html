@@ -24,19 +24,23 @@
 	        <th>Status</th>
 	        <th>Last Updated</th>
             {% testrule institution_has_score_feature user.current_inst %}
+              {% if credit_submission.subcategory_submission.category_submisison.category.include_in_score %}
     	        <th>Possible Points</th>
     	        <th>Points Earned</th>
+              {% endif %}
             {% endtestrule %}
 	    </tr><tr>
 	        <td>{% show_status_icon credit_submission %}</td>
 	        <td>{{ credit_submission.last_updated|date:"m/d/y fA" }}</td>
             {% testrule institution_has_score_feature user.current_inst %}
+              {% if credit_submission.subcategory_submission.category_submisison.category.include_in_score %}
     	        <td>{% format_available_points credit_submission %}</td>
     	        <td>
     	        	{% ifnotequal credit_submission.assessed_points None %}
                         {{ credit_submission.assessed_points }}
                     {% endifnotequal %}
              	</td>
+              {% endif %}
             {% endtestrule %}
 	    </tr>
 	</table>
