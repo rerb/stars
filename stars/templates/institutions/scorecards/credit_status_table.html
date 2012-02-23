@@ -17,8 +17,12 @@
     </td>
     <td>
         {% if rating.publish_score %}
+          {% if category_submission.category.include_in_score %}
             {{ credit_submission.assessed_points|floatformat:2 }} /
             {% format_available_points credit_submission %}
+          {% else %}
+            N/A
+          {% endif %}
         {% else %}
             Reporter
             {% load help %}
