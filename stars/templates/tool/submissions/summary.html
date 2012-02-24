@@ -109,7 +109,7 @@
 			            {% for c in sub.creditusersubmission_set.all %}
 				            <tr class='{% cycle 'even' 'odd' %}' {% ifchanged c.credit.type %}style="border-top-width: 1px;"{% endifchanged %}>
 				                <td class='credit'><a href='{{ c.credit.get_submit_url }}'>
-				                    {{ c }} <!-- {{ c.id }} -->
+				                    {{ c.credit }} <!-- {{ c.id }} -->
 				                </a></td>
 				                <td>{% show_status_icon c %}</td>
                                 {% testrule institution_has_score_feature user.current_inst %}

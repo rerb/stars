@@ -54,9 +54,10 @@ this.listexpander = function(){
 	
 	this.showCurrent = function(list) {
 	/* custom function to find the selected element */
+		var c_id = list.id;
 	    var items = list.getElementsByTagName("a");
 	    for( var i=0; i < items.length; i++) {
-	        if( items[i].id == 'currentSelection' ) {
+	        if( items[i].id == 'currentSelection' || items[i].className == c_id ) {
 	            a = items[i];
 	            if( a.parentNode.nodeName == 'LI' ) {
 	                expandToNode(a.parentNode);
