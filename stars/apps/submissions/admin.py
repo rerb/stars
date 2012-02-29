@@ -4,7 +4,7 @@ from models import *
 
 class SubmissionSetAdmin(admin.ModelAdmin):
     list_display = ('creditset', 'institution', 'date_registered', 'date_submitted', 'date_reviewed', 'rating')
-    list_filter = ('date_registered',)
+    list_filter = ('date_registered','status')
     search_fields = ('institution__name',)
 admin.site.register(SubmissionSet, SubmissionSetAdmin)
 

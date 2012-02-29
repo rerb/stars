@@ -14,7 +14,7 @@ def update_institution_properties():
             current_rating
     """
     for i in Institution.objects.all():
-#        print >> sys.stdout, "Checking %s" % i.name
+        print >> sys.stdout, "Checking %s" % i.name
         # if their subscription has expired
         if i.current_subscription and i.current_subscription.end_date < datetime.date.today():
             print >> sys.stdout, "Subscription Expired on %s for %s" % (i.current_subscription.end_date, i)
@@ -28,7 +28,7 @@ def update_institution_properties():
             if i.current_subscription == None:
                 for s in i.subscription_set.all():
                     if s.start_date < datetime.date.today() and s.end_date > datetime.date.today():
-                        watchdog.log("Sub_cron", "New Subscription found for %s" % i, watchdog.NOTICE)
+                        watchdog.log("Sub_cron", "Renewal Subscription found for %s" % i, watchdog.NOTICE)
                         print >> sys.stdout, "Renewal Found."
                         i.current_subscription = s
                         i.is_participant = True
@@ -40,9 +40,20 @@ def update_institution_properties():
                     u = i.current_submission.registering_user
                     i.current_submission = init_submissionset(i, u)
                 except SubmissionSet.DoesNotExist:
-                    print >> sys.stderr, "No Current Submission found for %s" % i
-                    watchdog.log("Sub_cron", "No Current Submission for %s" % i, watchdog.ERROR)
+                    print >> sys.stderr, "%s downgraded to Survey Respondent" % i
+                    watchdog.log("Sub_cron", "%s downgraded to Survey Respondent" % i, watchdog.ERROR)
             
             i.save()
+                      
+        # check to see if there are any current subscriptions
+        if i.current_subscription == None:
+            print >> sys.stdout, "No subscription found for %s" % i
+            for s in i.subscription_set.all():
+                if s.start_date < datetime.date.today() and s.end_date > datetime.date.today():
+                    watchdog.log("Sub_cron", "New Subscription found for %s" % i, watchdog.NOTICE)
+                    print >> sys.stdout, "New Subscrription Found."
+                    i.current_subscription = s
+                    i.is_participant = True
+                    i.save()
             
 update_institution_properties()

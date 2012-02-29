@@ -5,16 +5,19 @@ from django import template
 register = template.Library()
 
 from stars.apps.submissions.models import SubmissionSet
+from stars.apps.institutions.models import Institution
 
 @register.inclusion_tag('institutions/tags/latest_registrants.html')
 def show_latest_registrants(count='5'):
     """ Display the (count) most recently registered institutions """
     
-    query_set = SubmissionSet.objects.published().order_by('-date_registered').select_related("institution")
+    inst_list = Institution.objects.filter(is_participant=True).filter(current_subscription__isnull=False).order_by("-current_subscription__start_date").distinct()[:count]
     
-    inst_list = []
-    for s in query_set[0:count]:
-        inst_list.append(s.institution)
+#    query_set = SubmissionSet.objects.published().order_by('-date_registered').select_related("institution")
+#    
+#    inst_list = []
+#    for s in query_set[0:count]:
+#        inst_list.append(s.institution)
         
     return {'inst_list': inst_list}
 
