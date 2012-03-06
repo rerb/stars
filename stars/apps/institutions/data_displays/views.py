@@ -8,8 +8,8 @@ from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 
-from stars.apps.submissions.models import *
-from stars.apps.institutions.models import Institution
+from stars.apps.submissions.models import SubmissionSet
+from stars.apps.institutions.models import Institution, Subscription
 from stars.apps.credits.models import Rating, Credit, Category, Subcategory, DocumentationField
 from stars.apps.institutions.data_displays.utils import FormListWrapper, get_variance
 from stars.apps.institutions.data_displays.forms import *
@@ -40,29 +40,26 @@ class Dashboard(TemplateView):
             
             # map vars
             i_list = []
-            i_qs = Institution.objects.filter(enabled=True).order_by('name')
+            i_qs = Institution.objects.filter(enabled=True).filter(Q(is_participant=True) | Q(current_rating__isnull=False)).order_by('name')
             ratings = {}
             for r in Rating.objects.all():
                 if r.name not in ratings.keys():
                     ratings[r.name] = 0
             
-            for i in Institution.objects.filter(enabled=True):
-                # try to find a rated one
-                ss = i.get_latest_submission(include_unrated=False)
-                if not ss:
-                    ss = i.get_latest_submission(include_unrated=True)
+            for i in i_qs:
                 d = {
                         'institution': i.profile,
-                        'rating': ss.rating,
-                        'ss': ss
+                        'current_rating': i.current_rating,
+                        'ss': i.rated_submission,
+                        'subscription': i.current_subscription
                     }
-                if ss.institution.charter_participant:
+                if i.charter_participant:
                     d['image_path'] = "/media/static/images/seals/STARS-Seal-CharterParticipant_70x70.png"
                 else:
                     d['image_path'] = "/media/static/images/seals/STARS-Seal-Participant_70x70.png"
                 i_list.append(d)
             
-            _context['institution_list'] = i_list
+            _context['mapped_institutions'] = i_list
             
             
             # bar chart vars
@@ -71,21 +68,20 @@ class Dashboard(TemplateView):
                 '<cat_abbr>': {'title': '<cat_title>', 'ord': #, 'list': [], 'avg': #}
             """
                     
-            for ss in SubmissionSet.objects.published().order_by("institution__name"):
+            for i in Institution.objects.filter(current_rating__isnull=False):
+                ratings[i.current_rating.name] += 1
                 
-                if ss.status == 'r':
-                    ratings[ss.rating.name] += 1
-                    # bar chart vals
-                    if ss.rating.publish_score:
-                        for cs in ss.categorysubmission_set.all():
-                            if cs.category.abbreviation != "IN":
-                                if bar_chart.has_key(cs.category.abbreviation):
-                                    bar_chart[cs.category.abbreviation]['list'].append(cs.get_STARS_score())
-                                else:
-                                    bar_chart[cs.category.abbreviation] = {}
-                                    bar_chart[cs.category.abbreviation]['title'] = "%s (%s)" % (cs.category.title, cs.category.abbreviation)
-                                    bar_chart[cs.category.abbreviation]['ord'] = cs.category.ordinal
-                                    bar_chart[cs.category.abbreviation]['list'] = [cs.get_STARS_score()]
+                if i.current_rating.publish_score:
+                    ss = i.rated_submission
+                    for cs in ss.categorysubmission_set.all():
+                        if cs.category.abbreviation != "IN":
+                            if bar_chart.has_key(cs.category.abbreviation):
+                                bar_chart[cs.category.abbreviation]['list'].append(cs.get_STARS_score())
+                            else:
+                                bar_chart[cs.category.abbreviation] = {}
+                                bar_chart[cs.category.abbreviation]['title'] = "%s (%s)" % (cs.category.title, cs.category.abbreviation)
+                                bar_chart[cs.category.abbreviation]['ord'] = cs.category.ordinal
+                                bar_chart[cs.category.abbreviation]['list'] = [cs.get_STARS_score()]
                     
             _context['ratings'] = ratings
             
@@ -118,8 +114,8 @@ class Dashboard(TemplateView):
             current_month = change_month(current_month, 1)
                 
             p2s = []
-            p_qs = SubmissionSet.objects.published()
-            s_qs = SubmissionSet.objects.get_rated().select_related('institution')
+            p_qs = Subscription.objects.all()
+            s_qs = SubmissionSet.objects.filter(status='r')
             current_participants = p_count = p_qs.count()
             current_submissions = s_count = s_qs.count()
 
@@ -127,7 +123,7 @@ class Dashboard(TemplateView):
             _context['current_submissions'] = current_submissions
             while p_count:
                 slice = {}
-                p_count = p_qs.filter(date_registered__lt=current_month).count()
+                p_count = p_qs.filter(start_date__lt=current_month).count()
                 slice['p_count'] = p_count
                 s_count = s_qs.filter(date_submitted__lt=current_month).count()
                 slice['s_count'] = s_count
@@ -143,23 +139,28 @@ class Dashboard(TemplateView):
 #                PCC Signatories
 #                Pilot Participants
             
-            member_numbers = {'members': 0, 'pcc': 0, 'pilot': 0, 'canadian': 0, 'us': 0, 'all': 0, 'charter': 0}
+            member_numbers = {'members': 0, 'pcc': 0, 'pilot': 0, 'canadian': 0, 'us': 0, 'current': 0, 'charter': 0, 'rated': 0}
             for i in i_qs:
                 if i.is_published():
                     # print >> sys.stderr, i
+                    if i.is_participant:
+                        member_numbers['current'] += 1
+                    if i.current_rating:
+                        member_numbers['rated'] += 1
                     if i.is_member:
                         member_numbers['members'] += 1
                     if i.is_pcc_signatory:
                         member_numbers['pcc'] += 1
                     if i.charter_participant:
                         member_numbers['charter'] += 1
+                    
+                    
                     if i.country == "Canada":
                         member_numbers['canadian'] += 1
                     elif i.country == "United States of America":
                         member_numbers['us'] += 1
                     elif i.country == None:
                         print >> sys.stderr, "No country found for %s" % i.name
-                    member_numbers['all'] += 1
             _context['member_numbers'] = member_numbers
             
             cache_time = datetime.now()

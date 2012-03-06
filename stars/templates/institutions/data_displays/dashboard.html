@@ -21,7 +21,7 @@
 	<script type="text/javascript">
 		function initialize() {
 			school_list = [
-					{% for i in institution_list %}
+					{% for i in mapped_institutions %}
 						{% spaceless %}
 						{% if i.institution.latitude and i.institution.longitude %}
 							{
@@ -29,21 +29,20 @@
 								lon: {{ i.institution.longitude }},
 								title: "{{ i.institution.org_name }}",
 								content: "<b>{{ i.institution.org_name }}</b><p>
-								{% if i.rating %}
-									{% thumbnail i.rating.image_large "70x70" as im %}
+								{% if i.current_rating %}
+									{% thumbnail i.current_rating.image_large "70x70" as im %}
 									    <img src='{{ im.url }}' style='margin: 0px 15px 5px 0px;' align='left' />
 									{% endthumbnail %}
 								{% else %}
 									<img src='{{ i.image_path }}' style='margin: 0px 15px 5px 0px;' align='left' />
 								{% endif %}
-								<span style='white-space: nowrap;'><i>Registration Date:</i><br/>&nbsp;{{ i.ss.date_registered }}</span><br/>
 								{% if i.rating %}
 									<span style='white-space: nowrap;'><i>Submission Date:</i><br/>&nbsp;{{ i.ss.date_submitted }}</span><br/>
 									<span style='display: block;margin: 5px 0px 0px 0px;padding: 0px;text-align: center'><a href='{{ i.ss.get_scorecard_url }}'>STARS Report</a></span>
 								{% endif %}
 								</p>",
-								{% if i.rating %}
-							      	icon: "{{ i.rating.map_icon.url }}"
+								{% if i.current_rating %}
+							      	icon: "{{ i.current_rating.map_icon.url }}"
 						      	{% else %}
 							      	icon: "/media/static/images/map_icons/participant.png"
 						      	{% endif %}
@@ -200,7 +199,7 @@
                   colors: ["#858f38"],
                   legend: 'none',
                   hAxis: {title: 'Category'},
-                  vAxis: {title: "Average Score"},
+                  vAxis: {title: "Average Score", baseline: 0},
                  });
       }
 
@@ -216,7 +215,8 @@
         data.addColumn('number', 'Total');
         
         data.addRows([
-        	['STARS', {{ member_numbers.all }}],
+        	['Current Participants', {{ member_numbers.current }}],
+        	['Rated', {{ member_numbers.rated }}],
         	['AASHE', {{ member_numbers.members }}],
         	['ACUPCC', {{ member_numbers.pcc }}],
         	['Charter', {{ member_numbers.charter }}],
@@ -234,7 +234,7 @@
 	                   '#1b617f',
                  	],
                   legend: 'none',
-                  hAxis: {title: 'Total'}
+                  hAxis: {title: 'Total', baseline: 0}
                   //vAxis: {title: "Affiliations"},
                  });
       }
@@ -317,9 +317,13 @@
 		<h3>STARS Participant Properties</h3>
 		<table class='vertical' style='margin: 20px;'>
 			<tr>
-				<th>STARS Participants</th>
-				<td>{{ member_numbers.all }}</td>
+				<th>Current STARS Participants</th>
+				<td>{{ member_numbers.current }}</td>
 			</tr>
+            <tr>
+              <th>Rated Institutions</th>
+              <td>{{ member_numbers.rated }}</td>
+            </tr>
 			<tr>
 				<th>AASHE Members</th>
 				<td>{{ member_numbers.members }}</td>
