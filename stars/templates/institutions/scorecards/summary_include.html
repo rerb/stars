@@ -59,7 +59,7 @@
 
 {% block subcategory_summary_points %}
     {% if rating.publish_score %}
-      {% if sub.category_submission.category.include_in_score %}
+      {% if cat.category.include_in_score %}
         <div class='provScorePercent'>
             {{ sub.get_claimed_points|floatformat:2 }} /
             {{ sub.get_adjusted_available_points|floatformat:2 }}
@@ -95,9 +95,11 @@
 {% endblock %}
 
 {% block credit_summary_header %}
-    <th>Credit</th>
+    <th>
+      Credit
+    </th>
     {% if rating.publish_score %}
-      {% if c.subcategory_submisison.category_submission.category.include_in_score %}
+      {% if cat.category.include_in_score %}
         <th>Status</th>
         <th>Points</th>
       {% endif %}
@@ -110,7 +112,7 @@
     </td>
             
     {% if rating.publish_score %}
-      {% if c.subcategory_submisison.category_submission.category.include_in_score %}
+      {% if cat.category.include_in_score %}
         <td style='color: #888'>
             {% include 'credits/credit_status_icon.html' %}
         </td>
