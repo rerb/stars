@@ -6,6 +6,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.http import HttpResponseRedirect, Http404
 from django.template import Context, loader, Template, RequestContext
 from django.core.mail import send_mail
+from django.db.models import Min
 
 from stars.apps.accounts.utils import respond
 from stars.apps.accounts import utils as auth_utils
@@ -14,6 +15,7 @@ from stars.apps.helpers import watchdog, flashMessage
 from stars.apps.helpers.forms import form_helpers
 from stars.apps.helpers.forms.forms import Confirm as ConfirmForm
 from stars.apps.institutions.models import Institution
+from stars.apps.institutions.views import SortableTableView
 from stars.apps.tool.manage.forms import AdminEnableInstitutionForm
 from stars.apps.submissions.models import SubmissionSet, Payment
 from stars.apps.tool.admin.forms import PaymentForm
@@ -27,16 +29,16 @@ def institutions_search(request):
     """
     return respond(request, 'tool/admin/institutions/institution_search.html', {})
 
-@user_is_staff
-def institutions_list(request):
-    """
-        A list of latest submissionsets for ALL registered institutions currently participating in STARS.
-    """
-    
-    institution_list = Institution.objects.order_by('name')
-
-    template = "tool/admin/institutions/institution_list.html"
-    return respond(request, template, {'institution_list': institution_list,})
+#@user_is_staff
+#def institutions_list(request):
+#    """
+#        A list of latest submissionsets for ALL registered institutions currently participating in STARS.
+#    """
+#    
+#    institution_list = Institution.objects.order_by('name')
+#
+#    template = "tool/admin/institutions/institution_list.html"
+#    return respond(request, template, {'institution_list': institution_list,})
     
 @user_is_staff
 def select_institution(request, id):
@@ -104,7 +106,64 @@ def overview_report(request):
     template = "tool/admin/reports/quick_overview.html"
     
     return respond(request, template, context)
+
+
+class InstitutionList(SortableTableView):
+    """
+        A quick report on registration for Jillian
+        
+        
+        Institution Name
+        Reg date
+        Renewal Date
+        Submission date
+    """
     
+    default_key = 'name'
+    default_rev = '-'
+    secondary_order_field = 'name'
+    columns = [
+                    {
+                        'key': 'name',
+                        'sort_field': 'name',
+                        'title': 'Institution',
+                    },
+                    {
+                        'key': 'version',
+                        'sort_field': 'current_submission__creditset__version',
+                        'title': 'Version',
+                    },
+                    {
+                        'key': 'participation',
+                        'sort_field': 'is_participant',
+                        'title': 'Participant?',
+                    },
+                    {
+                        'key': 'reg_date',
+                        'sort_field': 'reg_date',
+                        'title': 'Registered',
+                    },
+                    {
+                        'key': 'rating',
+                        'sort_field': 'current_rating',
+                        'title': 'Rating',
+                    },
+                    {
+                        'key': 'submission',
+                        'sort_field': 'rated_submission__date_submitted',
+                        'title': 'Submission Date',
+                    },
+                    {
+                        'key':'subscription',
+                        'sort_field':'current_subscription__start_date',
+                        'title':'Subscription',
+                    },
+              ]
+              
+    def get_queryset(self):
+        return Institution.objects.annotate(reg_date=Min('subscription__start_date')).select_related()
+    
+institutions_list = InstitutionList(template="tool/admin/institutions/institution_list.html")
 
 @user_is_staff
 def institution_payments(request, institution_id):
