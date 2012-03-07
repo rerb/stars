@@ -7,6 +7,7 @@ from django.http import HttpResponseRedirect, Http404
 from django.template import Context, loader, Template, RequestContext
 from django.core.mail import send_mail
 from django.db.models import Min
+from django.utils.decorators import method_decorator
 
 from stars.apps.accounts.utils import respond
 from stars.apps.accounts import utils as auth_utils
@@ -118,6 +119,10 @@ class InstitutionList(SortableTableView):
         Renewal Date
         Submission date
     """
+    
+    @method_decorator(user_is_staff)
+    def render(self, request, *args, **kwargs):
+        return super(InstitutionList, self).render(request, *args, **kwargs)
     
     default_key = 'name'
     default_rev = '-'
