@@ -2,35 +2,32 @@
 
 {% block institution_content %}
      {% block subsubmenu %}
-        <ul id='subsubmenu'>
-            <li class='active'><a href='/tool/admin/list'>Manage STARS Institutions</a></li>
-            <li><a href='/tool/admin/search'>Search AASHE Institutions</a></li>
-        </ul>
     {% endblock %}
     {% load help %}
     {% load submit_tags %}
-      <table id="institution-list" style='padding:10px;'>
+      <table id="institution_list" class='greyTable'>
         <tr>
           <th></th>
-          <th>Institution</th>
-          <th>Version</th>
-          <th>Rating</th>
-          <th>Participation Level</th>
-          <th>Start Date</th>
-          <th>End Date</th>
+          {% for col in sort_columns %}
+            <th>
+                {% ifequal col.key sort_key %}
+                    <a href='?sort={{ rev }}{{ col.key }}' title='sort'>{{ col.title }}</a>
+                    <img src='/media/static/images/{% ifequal rev '-' %}sort_desc.png{% else %}sort_asc.png{% endifequal %}' alt='^'/>
+                {% else %}
+                    <a href='?sort={{ col.key }}' title='sort'>{{ col.title }}</a>
+                {% endifequal %}
+            </th>
+          {% endfor %}
         </tr>
-	    {% for i in institution_list %}
-          <tr{% cycle ' class="odd"' ''%}>
-	        <td>
-	            {{ forloop.counter }}
-	        </td>
-            <td>
-              <a href='{{ i.get_masquerade_url }}'>{{ i }}</a>
+        {% for i in object_list %}
+          <tr class="{% cycle 'even' 'odd' %}">
+            <td>{{ forloop.counter }}</td>
+            <td style='text-align: left'>
+                <a href='{{ i.get_masquerade_url }}'>{{ i }}</a>
             </td>
             <td>
-              {{ i.current_submission.creditset.version }}
+                {{ i.current_submission.creditset.version }}
             </td>
-            <td>{% if i.current_rating %}{{ i.current_rating }}{% endif %}</td>
             <td>
               {% if i.is_participant %}
                 Participant
@@ -38,13 +35,28 @@
                 Respondent
               {% endif %}
             </td>
-            {% if i.current_subscription %}
-              <td>{{ i.current_subscription.start_date }}</td>
-              <td>{{ i.current_subscription.end_date }}</td>
-            {% else %}
-              <td></td><td></td>
-            {% endif %}
-          </tr>
-	    {% endfor %}
+            <td>
+              {% if i.reg_date %}
+                {{ i.reg_date }}
+              {% endif %}
+            </td>
+            <td>
+              {% if i.current_rating %}
+                <a href='{{ i.rated_submission.get_scorecard_url }}'>{{ i.current_rating }}</a>
+              {% endif %}
+            </td>
+            <td>
+              {% if i.rated_submission %}
+                {{ i.rated_submission.date_submitted }}
+              {% endif %}
+            </td>
+            <td>
+              {% if i.current_subscription %}
+                {{ i.current_subscription.start_date }} -
+                {{ i.current_subscription.end_date }}
+              {% endif %}
+            </td>
+          </tr>            
+        {% endfor %}
       </table>
 {% endblock %}
