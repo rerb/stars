@@ -8,7 +8,7 @@ from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 
-from stars.apps.submissions.models import SubmissionSet
+from stars.apps.submissions.models import SubmissionSet, CreditUserSubmission, DocumentationFieldSubmission
 from stars.apps.institutions.models import Institution, Subscription
 from stars.apps.credits.models import Rating, Credit, Category, Subcategory, DocumentationField
 from stars.apps.institutions.data_displays.utils import FormListWrapper, get_variance
