@@ -1,7 +1,8 @@
 import aashe_rules
 import sys
+from datetime import datetime, date, timedelta
 
-from datetime import datetime
+from django.db.models import Max
 
 from stars.apps.institutions.models import StarsAccount
 
@@ -32,7 +33,20 @@ def institution_has_internal_notes_feature(institution):
 aashe_rules.site.register("institution_has_internal_notes_feature", institution_has_internal_notes_feature)
 
 def institution_has_my_resources(institution):
-    return institution.is_participant
+    """
+        If they're a participant, or if their most recent subscription ended less
+        60 days prior
+    """
+    if institution.is_participant:
+        return True
+    else:
+        td = timedelta(days=60)
+        qs = institution.subscription_set.filter(end_date__lte=date.today())
+        if qs:
+            max_dict = qs.aggregate(Max("end_date"))
+            if max_dict['end_date__max'] >= date.today() - td:
+                return True
+    return False
 aashe_rules.site.register("institution_has_my_resources", institution_has_my_resources)
 
 def institution_has_export(institution):
