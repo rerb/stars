@@ -74,8 +74,11 @@ class ETLCompareMixin(object):
 
         for field in self._meta.get_all_field_names():
             if field not in self.etl_exclude_fields:
-                if getattr(self, field) != getattr(obj, field):
-                    return True
+                try:
+                    if getattr(self, field) != getattr(obj, field):
+                        return True
+                except:
+                    pass
         return False
 
     def etl_update(self, new_etl):
@@ -91,3 +94,9 @@ class ETLCompareMixin(object):
             # print "Updated ETL: %s" % new_etl
             return True
         return False
+    
+    def populate(self, obj):
+        """
+            Populate with the contents of another object to be mirrored
+        """
+        raise NotImplementedError
