@@ -1431,12 +1431,11 @@ class MultiChoiceWithOtherSubmission(MultiChoiceSubmission, AbstractChoiceWithOt
 
         return choice_list
 
-
 class URLSubmission(DocumentationFieldSubmission):
     """
         The submitted value for a URL Documentation Field
     """
-    value = models.URLField(blank=True, null=True)
+    value = models.URLField(blank=True, null=True, verify_exists=False)
         
 class DateSubmission(DocumentationFieldSubmission):
     """
