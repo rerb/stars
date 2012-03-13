@@ -27,7 +27,7 @@ admin.site.register(Subscription, SubscriptionAdmin)
 
 class SubscriptionPaymentAdmin(admin.ModelAdmin):
     list_display = ('subscription','amount','method', 'date')
-    search_fields = ('institution__name',)
+    search_fields = ('subscription__institution__name',)
 admin.site.register(SubscriptionPayment, SubscriptionPaymentAdmin)
 
 class RegistrationReasonAdmin(admin.ModelAdmin):
