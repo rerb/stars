@@ -103,6 +103,12 @@ def overview_report(request):
     context['third_party_list'] = ThirdParty.objects.all()
     
     context['snapshot_count'] = SubmissionSet.objects.filter(status='f').count()
+    
+    c = 0
+    for i in Institution.objects.all():
+        if i.submissionset_set.filter(status='f').count() > 0:
+            c += 1
+    context['institutions_with_snapshots'] = c
 
     template = "tool/admin/reports/quick_overview.html"
     

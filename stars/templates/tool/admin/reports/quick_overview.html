@@ -6,6 +6,7 @@
     <tr>
       <th>Third Party</th>
       <th>Share Count</th>
+      <th>Snapshot Count</th>
     </tr>
     {% for tp in third_party_list %}
       <tr>
@@ -13,7 +14,10 @@
           {{ tp.name }}
         </td>
         <td align='center'>
-          {{ tp.access_to_institutions.count }}        
+          {{ tp.access_to_institutions.count }}
+        </td>
+        <td align='center'>
+          {{ tp.get_snapshot_institution_count }}
         </td>
       </tr>
     {% endfor %}
@@ -36,6 +40,10 @@
     <tr>
       <th>Registered Respondents</th>
       <td>{{ registered_respondents }}</td>
+    </tr>
+    <tr>
+      <th>Institutions with Snapshots</th>
+      <td>{{ institutions_with_snapshots }}</td>
     </tr>
     <tr>
       <th>Total Snapshots</th>
