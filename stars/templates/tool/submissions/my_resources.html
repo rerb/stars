@@ -11,7 +11,7 @@
         <h1>
             {{ node.title }}
             {% if user.is_staff %}
-                <a href="http://www.aashe.org/node/4554/edit" target="_blank"><img src='/media/static/images/page_edit.png' alt='edit' /></a>
+                <a href="/_ad/cms/newarticle/83/" target="_blank"><img src='/media/static/images/page_edit.png' alt='edit' /></a>
             {% endif %}
         </h1>
         <div style='color: #555;font-style: italic'>Please click on a logo to see a larger version.</div>
@@ -41,6 +41,6 @@
         {% else %}
         	{% display_block_content 'template_press_release_unrated' user %}
         {% endif %}
-        {{ node.body }}
+        {{ node.content }}
     {% endautoescape %}
 {% endblock %}

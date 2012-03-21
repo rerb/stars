@@ -7,9 +7,9 @@ from datetime import datetime
 from stars.apps.accounts.utils import respond
 from stars.apps.accounts.decorators import user_has_tool
 from stars.apps.submissions.models import *
-from stars.apps.cms.xml_rpc import get_article
 from stars.apps.helpers import watchdog
 from stars.apps.institutions.rules import institution_has_my_resources
+from stars.apps.cms.models import NewArticle as Article
 
 def my_resources(request):
     """
@@ -22,14 +22,7 @@ def my_resources(request):
     else:
         raise Http404
     
-    try:
-        node = get_article(4554)
-    except Exception, e:
-        watchdog.log_exception(e)
-    
-    if not node:
-        watchdog.log('My Resources article not found on IRC', watchdog.ERROR)
-        raise Http404
+    node = Article.objects.get(pk=83)
     
     context={
         'node': node,
