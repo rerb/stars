@@ -188,6 +188,7 @@
 				
 		<table class='tableOfContents'>
 			{% for cat in ss.categorysubmission_set.all %}
+              {% if cat.category.include_in_report %}
 				<tr class='tocCatRow'>
 					<td width="50%">
 						<a class='tocCat' href="#cat{{ cat.subcategory.id }}">{{ cat }}</a>
@@ -216,12 +217,14 @@
 					    {% endif %}
 					</tr>
 				{% endfor %}
+              {% endif %}
 			{% endfor %}
 		</table>
 		{% endif %}
 		<p class='disclaimer'>The information presented in this submission is self-reported and has not been verified by AASHE or a third party. If you believe any of this information is erroneous, please see the <a href='http://stars.aashe.org/pages/faqs/4105/?root_category=about#Erroneous_Data'>process for inquiring</a> about the information reported by an institution.</p>
 		
 		{% for cat in ss.categorysubmission_set.all %}
+          {% if cat.category.include_in_report %}
 			<h2 class='category'>
 				<a name='cat{{ cat.category.id }}'></a>
 				{{ cat }}
@@ -365,6 +368,7 @@
 					{% endif %}{% endif %}
 				{% endfor %}
 			{% endfor %}
+          {% endif %}
 		{% endfor %}
 		<div id="footerContent">
 			<table style='margin: 0px; font-size: 1em; border:0px; padding: 0px;'>

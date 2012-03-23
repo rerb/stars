@@ -41,6 +41,12 @@
     </div>
 {% endblock %}
 
+{% block category_section %}
+  {% if cat.category.include_in_report %}
+    {{ block.super }}
+  {% endif %}
+{% endblock %}
+
 {% block category_summary_points %}
     {% if rating.publish_score %}
       {% if cat.category.include_in_score %}
