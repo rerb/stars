@@ -100,3 +100,14 @@ class ETLCompareMixin(object):
             Populate with the contents of another object to be mirrored
         """
         raise NotImplementedError
+    
+    def populate_all(self, obj):
+        """
+            Populate all the fields in this model with the fields from obj
+            
+            with the exception of self.etl_populate_exclude_fields
+        """
+
+        for field in self._meta.get_all_field_names():
+            if field not in self.etl_populate_exclude_fields:
+                setattr(self, field, getattr(obj, field))

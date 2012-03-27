@@ -224,3 +224,84 @@ class SubmissionSet(models.Model, ETLCompareMixin):
         self.status = ss.status
         self.reporter_status = ss.reporter_status
         self.score = ss.get_STARS_score()
+        
+class Boundary(models.Model, ETLCompareMixin):
+    """
+        A mirrored version of the submissions.Boundary model
+        for export to SF
+    """
+    
+    change_date = models.DateTimeField(auto_now=True)
+    aashe_id = models.IntegerField()
+    submissionset = models.OneToOneField(SubmissionSet)
+    
+    # Characteristics
+    fte_students = models.IntegerField("Full-time Equivalent Enrollment", blank=True, null=True)
+    undergrad_count = models.IntegerField("Number of Undergraduate Students", blank=True, null=True)
+    graduate_count = models.IntegerField("Number of Graduate Students", blank=True, null=True)
+    fte_employmees = models.IntegerField("Full-time Equivalent Employees", blank=True, null=True)
+    institution_type = models.CharField(max_length=32, blank=True, null=True)
+    institutional_control = models.CharField(max_length=32, blank=True, null=True)
+    endowment_size = models.IntegerField(blank=True, null=True)
+    student_residential_percent = models.FloatField('Percentage of students that are Residential', blank=True, null=True)
+    student_ftc_percent = models.FloatField('Percentage of students that are Full-time commuter', blank=True, null=True)
+    student_ptc_percent = models.FloatField('Percentage of students that are Part-time commuter', blank=True, null=True)
+    student_online_percent = models.FloatField('Percentage of students that are On-line only', blank=True, null=True)
+    gsf_building_space = models.FloatField("Gross square feet of building space", blank=True, null=True)
+    gsf_lab_space = models.FloatField("Gross square feet of laboratory space", help_text='Scientific research labs and other high performance facilities eligible for <a href="http://www.labs21century.gov/index.htm" target="_blank">Labs21 Environmental Performance Criteria</a> (EPC).', blank=True, null=True)
+    cultivated_grounds_acres = models.FloatField("Acres of cultivated grounds", help_text="Areas that are landscaped, planted, and maintained (including athletic fields). If less than 5 acres, data not necessary.", blank=True, null=True)
+    undeveloped_land_acres = models.FloatField("Acres of undeveloped land", help_text="Areas without any buildings or development. If less than 5 acres, data not necessary", blank=True, null=True)
+    climate_region = models.CharField(max_length=32, help_text="See the <a href='http://www1.eere.energy.gov/buildings/building_america/climate_zones.html'>USDOE</a> site and <a href='http://www.ashrae.org/File%20Library/docLib/Public/20081111_cztables.pdf'>ASHRAE</a>  (international) for more information.", blank=True, null=True)
+    
+    # Features
+    ag_school_present = models.BooleanField("Agricultural school is present")
+    ag_school_included = models.BooleanField("Agricultural school is included in submission")
+    ag_school_details = models.TextField("Reason for Exclusion", blank=True, null=True)
+    med_school_present = models.BooleanField("Medical school is present")
+    med_school_included = models.BooleanField("Medical school is included in submission")
+    med_school_details = models.TextField("Reason for Exclusion", blank=True, null=True)
+    pharm_school_present = models.BooleanField("Pharmacy school is present")
+    pharm_school_included = models.BooleanField("Pharmacy school is included in submission")
+    pharm_school_details = models.TextField("Reason for Exclusion", blank=True, null=True)
+    pub_health_school_present = models.BooleanField("Public health school is present")
+    pub_health_school_included = models.BooleanField("Public health school is included in submission")
+    pub_health_school_details = models.TextField("Reason for Exclusion", blank=True, null=True)
+    vet_school_present = models.BooleanField("Veterinary school is present")
+    vet_school_included = models.BooleanField(" Veterinary school is included in submission")
+    vet_school_details = models.TextField("Reason for Exclusion", blank=True, null=True)
+    sat_campus_present = models.BooleanField("Satellite campuses are present")
+    sat_campus_included = models.BooleanField("Satellite campuses are included in submission")
+    sat_campus_details = models.TextField("Reason for Exclusion", blank=True, null=True)
+    hospital_present = models.BooleanField("Hospital is present")
+    hospital_included = models.BooleanField("Hospital is included in submission")
+    hospital_details = models.TextField("Reason for Exclusion", blank=True, null=True)
+    farm_present = models.BooleanField("Farm is present", help_text='Larger than 5 acres')
+    farm_included = models.BooleanField("Farm is included in submission")
+    farm_acres = models.FloatField("Number of acres", blank=True, null=True)
+    farm_details = models.TextField("Reason for Exclusion", blank=True, null=True)
+    agr_exp_present = models.BooleanField("Agricultural experiment station is present", help_text='Larger than 5 acres')
+    agr_exp_included = models.BooleanField("Agricultural experiment station is included in submission")
+    agr_exp_acres = models.IntegerField("Number of acres", blank=True, null=True)
+    agr_exp_details = models.TextField("Reason for Exclusion", blank=True, null=True)
+    
+    additional_details = models.TextField(blank=True, null=True)
+    
+    # for ETLCompareMixin
+    etl_exclude_fields = ['change_date',]
+    etl_populate_exclude_fields = ['id', 'change_date', 'aashe_id', 'climate_region', 'submissionset']
+    etl_source_class = submissions.models.Boundary
+    
+    def populate(self, b):
+        """
+            An ETL object has to be initialized with an object to populate from
+        """
+        
+        self.populate_all(b)
+        
+        self.id = b.id
+        if b.climate_region:
+            self.climate_region = b.climate_region.name
+        self.submissionset_id = b.submissionset_id
+        self.aashe_id = b.submissionset.institution.aashe_id
+        if not self.aashe_id:
+            self.aashe_id = -1
