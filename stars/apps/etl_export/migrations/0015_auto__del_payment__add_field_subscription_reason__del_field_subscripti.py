@@ -7,9 +7,6 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        
-        # Deleting model 'Payment'
-        db.delete_table('etl_export_payment')
 
         # Adding field 'Subscription.reason'
         db.add_column('etl_export_subscription', 'reason', self.gf('django.db.models.fields.CharField')(max_length='16', null=True, blank=True), keep_default=False)
@@ -19,21 +16,6 @@ class Migration(SchemaMigration):
 
 
     def backwards(self, orm):
-        
-        # Adding model 'Payment'
-        db.create_table('etl_export_payment', (
-            ('confirmation', self.gf('django.db.models.fields.CharField')(max_length='16', null=True, blank=True)),
-            ('reason', self.gf('django.db.models.fields.CharField')(max_length='16')),
-            ('user', self.gf('django.db.models.fields.EmailField')(max_length=75)),
-            ('date', self.gf('django.db.models.fields.DateTimeField')()),
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('subscription', self.gf('django.db.models.fields.IntegerField')()),
-            ('aashe_id', self.gf('django.db.models.fields.IntegerField')(null=True, blank=True)),
-            ('amount', self.gf('django.db.models.fields.FloatField')()),
-            ('change_date', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
-            ('method', self.gf('django.db.models.fields.CharField')(max_length='16')),
-        ))
-        db.send_create_signal('etl_export', ['Payment'])
 
         # Deleting field 'Subscription.reason'
         db.delete_column('etl_export_subscription', 'reason')
