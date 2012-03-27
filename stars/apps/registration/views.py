@@ -410,6 +410,7 @@ def register_institution(user, institution, payment_type, price, payment_dict):
     submissionset = init_submissionset(institution, user)
     
     institution.current_subscription = subscription
+    institution.is_participant = True
     institution.set_active_submission(submissionset)
     institution.save()
         
