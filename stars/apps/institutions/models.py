@@ -289,6 +289,7 @@ class Subscription(models.Model):
     ratings_allocated = models.SmallIntegerField(default=RATINGS_PER_SUBSCRIPTION)
     ratings_used = models.IntegerField(default=0)
     amount_due = models.FloatField()
+    reason = models.CharField(max_length='16', blank=True, null=True)
     paid_in_full = models.BooleanField(default=False)
 
     def __str__(self):
