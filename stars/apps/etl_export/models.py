@@ -123,6 +123,7 @@ class Subscription(models.Model, ETLCompareMixin):
     ratings_allocated = models.SmallIntegerField(default=RATINGS_PER_SUBSCRIPTION)
     ratings_used = models.IntegerField(default=0)
     price = models.FloatField()
+    reason = models.CharField(max_length='16', blank=True, null=True)
     paid_in_full = models.BooleanField(default=False)
     
     # for ETLCompareMixin
@@ -144,6 +145,7 @@ class Subscription(models.Model, ETLCompareMixin):
         self.ratings_allocated = sub.ratings_allocated
         self.ratings_used = sub.ratings_used
         self.price = sub.amount_due
+        self.reason = sub.reason
         self.paid_in_ful = sub.paid_in_full
 
 class SubscriptionPayment(models.Model, ETLCompareMixin):
@@ -157,7 +159,6 @@ class SubscriptionPayment(models.Model, ETLCompareMixin):
     date = models.DateTimeField()
     amount = models.FloatField()
     user = models.EmailField()
-    reason = models.CharField(max_length='16')
     method = models.CharField(max_length='8')
     confirmation = models.CharField(max_length='16', blank=True, null=True)
     
@@ -178,7 +179,6 @@ class SubscriptionPayment(models.Model, ETLCompareMixin):
         self.date = p.date
         self.amount = p.amount
         self.user = p.user.email
-        self.reason = p.reason
         self.method = p.method
         self.confirmation = p.confirmation
         
