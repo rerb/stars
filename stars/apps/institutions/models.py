@@ -312,7 +312,6 @@ class SubscriptionPayment(models.Model):
     date = models.DateTimeField()
     amount = models.FloatField()
     user = models.ForeignKey(User)
-    reason = models.CharField(max_length='16')
     method = models.CharField(max_length='8', choices=METHOD_CHOICES)
     confirmation = models.CharField(max_length='16', blank=True, null=True)
 
