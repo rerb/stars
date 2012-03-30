@@ -1,0 +1,157 @@
+{% extends 'institutions/data_displays/dashboard_base.html' %}
+
+{% load content %}
+
+{% block body_onload %}{% endblock %}
+
+{% block extra_head %}
+   <title>Pie Chart</title>
+   <!-- <script type="text/javascript" src="http://localhost:8888/d3.js?2.3.0"></script>
+   <script type="text/javascript" src="http://localhost:8888/d3.layout.js?2.3.0"></script> -->
+   <script src="http://mbostock.github.com/d3/d3.v2.js?2.8.0"></script>
+   <script type="text/javascript" src="/media/static/js/stars_d3.js"></script>
+   <style type="text/css">
+
+#viz {
+ font: 10px sans-serif;
+ margin: 0px auto;
+ width: 700px;
+ height: 700px;
+ border: 1px solid #aaa;
+ background-color: #eee;
+}
+
+.border {
+    stroke: #ddd;
+    fill: #f5f5f5;
+}
+   </style>
+   
+{% endblock %}
+
+{% block active_viz %} class='active' {% endblock %}
+
+{% block tab_content %}
+  {{ block.super }}
+  
+  {% display_block_content 'pie_viz_summary' user %}
+   <div id="viz"></div>
+
+   <script type="text/javascript">
+
+    var r = 200,
+        w = 700,
+        h = 700,
+        inner_r = r*.1
+        label_r = r*1.25,
+        fill_color = stars_fill(),
+        stroke_color = stars_stroke();
+    var arc = d3.svg.arc().outerRadius(r).innerRadius(inner_r);
+    var label_arc = d3.svg.arc().innerRadius(inner_r).outerRadius(label_r);
+    var donut = d3.layout.pie();
+    
+    // Data filtering functions
+    var id_inner = function(d, i) {
+        return d.data.id;
+    }
+    var id_func = function() {
+        return id_inner;
+    }
+    var d_inner = function(d) {
+        return d.value;
+    }
+    var d_func = donut.value(d_inner);
+    
+
+    function draw_pie(canvas, classname, data)
+    {   
+        canvas.data([data]);
+
+        var arcs = canvas.selectAll("g.arc")
+           .data(d_func, id_inner)
+         .enter().append("svg:g")
+           .attr("class", "arc")
+           .attr("transform", "translate(" + (w / 2) + "," + (h / 2) + ")");
+
+        var fills = arcs.append("svg:path")
+           .attr("fill", function(d, i) { return fill_color(i); })
+           .attr("stroke", function(d, i) { return stroke_color(i); });
+           
+        var lines = arcs.append("svg:path")
+           .attr("fill", 'transparent')
+           .attr("stroke", "#aaaaaa")
+        
+        var labels = arcs.append("svg:text")
+           .attr("transform", function(d) {
+               var c = arc.centroid(d),
+                   x = c[0],
+                   y = c[1],
+                   // pythagorean theorem for hypotenuse
+                   h = Math.sqrt(x*x + y*y);
+               return "translate(" + (x/h * label_r) +  ',' +
+                  (y/h * label_r) +  ")"; 
+           })
+           .attr("text-anchor", "middle")
+           .text(function(d, i) { return d.data.title; });
+        
+        var tweenFill = function (b) {
+         var i = d3.interpolate({startAngle: 0, endAngle: 0}, b);
+         return function(t) {
+            var arc2 = d3.svg.arc().outerRadius((r-inner_r)*b.data.fill_fraction+inner_r).innerRadius(inner_r);
+            return arc2(i(t));
+         };
+        }
+
+        var tweenBorder = function (b) {
+         var i = d3.interpolate({startAngle: 0, endAngle: 0, innerRadius: 0}, b);
+         return function(t) {
+            var arc2 = d3.svg.arc().outerRadius(r).innerRadius(inner_r);
+            return arc2(i(t));
+         };
+        }
+        
+       lines.transition()
+          .ease("bounce")
+          .duration(750)
+          .attrTween("d", tweenBorder);
+          
+        fills.transition()
+           .ease("bounce")
+           .delay(500)
+           .duration(750)
+           .attrTween("d", tweenFill);
+           
+        labels.transition()
+           .delay(500)
+           .duration(500)
+           .attrTween("d", tweenBorder);
+           // .each("end", drawCategoryLabels);
+    }
+
+
+    //setup svg canvas
+    var vis = d3.select("#viz")
+        .append("svg:svg")
+           .attr("width", w)
+           .attr("height", h)
+           .attr("id", "charts");
+
+   // Add the outer circle
+   vis.append("svg:circle")
+             .attr("class", "border")
+             .attr("cx", w / 2)
+             .attr("cy", h / 2)
+             .attr("r", r);
+           
+    /* d3.json("data/subcategories.json", display); */
+    document.body.style.cursor = 'wait';
+    d3.json("/api/v1/subcategory-pie-chart/44/", display);
+    
+    function display(json) {
+        document.body.style.cursor = 'default';
+        data = json.slices;
+        draw_pie(vis, "pie1", data);
+    }
+   
+   </script>
+{% endblock %}

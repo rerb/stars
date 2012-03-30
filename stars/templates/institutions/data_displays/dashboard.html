@@ -1,4 +1,4 @@
-{% extends 'institutions/data_displays/base.html' %}
+{% extends 'institutions/data_displays/dashboard_base.html' %}
 
 {% load thumbnail %}
 {% load content %}
@@ -246,7 +246,10 @@
 
 {% block h1 %}STARS Dashboard{% endblock %}
 
+{% block active_summary %} class='active' {% endblock %}
+
 {% block tab_content %}
+  {{ block.super }}
 		<p style='font-size: .8em;'>Data Last Updated: {{ cache_time }}</p>
 		<div id="map_canvas" style="height:370px; border: 1px solid #aaa; margin-top: 5px; padding: 2px;"></div>
 		<hr style='clear:both' />

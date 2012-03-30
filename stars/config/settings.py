@@ -131,6 +131,7 @@ INSTALLED_APPS = (
     'django_extensions',
     'djcelery',
     'aashe_rules',
+    'tastypie',
     # 'memcache_status',
 )
 

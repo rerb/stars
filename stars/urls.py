@@ -8,9 +8,20 @@ admin.autodiscover()
 import aashe_rules
 aashe_rules.autodiscover()
 
+from tastypie.api import Api
+from stars.apps.submissions.api import SubmissionSetResource, SummaryPieChart, CategoryPieChart, SubategoryPieChart
+
+v1_api = Api(api_name='v1')
+v1_api.register(SubmissionSetResource())
+v1_api.register(SummaryPieChart())
+v1_api.register(CategoryPieChart())
+v1_api.register(SubategoryPieChart())
+
 handler500 = 'stars.apps.helpers.views.server_error'
 
 urlpatterns = patterns('',
+                       
+    (r'^api/', include(v1_api.urls)),
 
     # tool:
     #(r'^$', 'stars.apps.tool.views.stars_home_page'),
