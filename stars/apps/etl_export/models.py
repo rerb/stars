@@ -123,6 +123,7 @@ class Subscription(models.Model, ETLCompareMixin):
     ratings_allocated = models.SmallIntegerField(default=RATINGS_PER_SUBSCRIPTION)
     ratings_used = models.IntegerField(default=0)
     price = models.FloatField()
+    amount_due = models.FloatField()
     reason = models.CharField(max_length='16', blank=True, null=True)
     paid_in_full = models.BooleanField(default=False)
     
@@ -144,9 +145,18 @@ class Subscription(models.Model, ETLCompareMixin):
         self.end_date = sub.end_date
         self.ratings_allocated = sub.ratings_allocated
         self.ratings_used = sub.ratings_used
-        self.price = sub.amount_due
+        self.amount_due = sub.amount_due
         self.reason = sub.reason
-        self.paid_in_ful = sub.paid_in_full
+        self.paid_in_full = sub.paid_in_full
+        
+        # calculate the price
+        if self.paid_in_full:
+            self.price = 0
+        else:
+            self.price = self.amount_due
+        for p in sub.subscriptionpayment_set.all():
+            self.price += p.amount
+            
 
 class SubscriptionPayment(models.Model, ETLCompareMixin):
     """
