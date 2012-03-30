@@ -1,0 +1,106 @@
+{% extends 'tool/manage/base.html' %}
+
+{% load thumbnail %}
+{% load aashe_rules_tags %}
+{% load content %}
+{% load help %}
+
+{% block tabclass %}class='tab1'{% endblock %}
+
+{% block extra_head %}
+	{{ block.super }}
+	<script src='/media/static/js/listexpander.js' type='text/javascript'></script>
+	<link href='/media/static/css/listexpander.css' rel='stylesheet' type='text/css' />
+{% endblock %}
+
+{% block institution_content %}
+    <div style='padding: 30px;text-align: center;border-bottom: 1px solid #aaa;'>
+        {% testrule user_can_edit_submission user current_inst.current_submission %}
+        <img src="/media/static/images/page_edit.png" alt='edit' style='vertical-align: top;' />
+        <a href='/tool/submissions/' style='margin-right: 15px;text-decoration: none;'>
+            My Submission</a>
+        {% endtestrule %}
+        
+        {% testrule isntitution_has_my_reports current_inst %}
+        <img src="/media/static/images/magnifier.png" alt='edit' style='vertical-align: top;' />
+        <a href='/institutions/{{ user.current_inst.slug }}/report/' style='margin-right: 15px;text-decoration: none;'>
+            My Report(s)</a>
+        {% endtestrule %}
+        
+        {% testrule user_can_submit_for_rating user current_inst.current_submission %}
+        <img src="/media/static/images/star.png" alt='' style='vertical-align: top;' />
+        <a href='/tool/submissions/submit/' style='margin-right: 15px;text-decoration: none;'>
+            Submit for Rating</a>
+        {% endtestrule %}
+        
+        {% testrule user_has_access_level user 'admin' current_inst %}
+        <img src="/media/static/images/building_edit.png" alt='' style='vertical-align: top;' />
+        <a href='/tool/submissions/boundary/' style='margin-right: 15px;text-decoration: none;'>
+            Edit Boundary</a>
+        {% endtestrule %}
+    </div>
+	{% if rating_list %}
+	<div style='float: right;text-align: center; margin: 20px;'>
+	  <h3>Previous Ratings</h3>
+	  <br/>
+	  {% for ss in rating_list %}
+	  {% thumbnail ss.rating.image_large "100x100" as im %}
+	  <a href='{{ ss.get_scorecard_url }}'>
+	  <img src="{{ im.url }}" width="{{ im.x }}" height="{{ im.y }}" alt='{{ ss.rating }}' /></a>
+	  {% endthumbnail %}
+      <a
+        href='/media/{{ ss.rating.image_large }}'
+        title='Download larger logo'>
+          <img src='/media/static/images/picture_go.png' alt='download' /></a>
+	  <br/>
+	  <a href='{{ ss.get_scorecard_url }}'>{{ ss.date_submitted }}</a>
+	  {% endfor %}
+	</div>
+	{% endif %}
+	<div style='text-align: center;margin: 20px;{% if rating_list %}margin-right: 200px;{% endif %}'>
+      {% if user.current_inst.is_participant %}
+          {% thumbnail "http://www.aashe.org/files/documents/STARS/STARS-Participant.jpg" "75x75" as im %}
+            <img src="{{ im.url }}" width="{{ im.x }}" height="{{ im.y }}" alt='{{ ss.rating }}' />
+          {% endthumbnail %}<br/>
+          <strong>STARS Participant</strong>
+      {% else %}
+        <strong>Campus Sustainability Data Collector - Survey Respondent</strong><br/>
+        <span style="font-size: .8em;">
+          What does this mean?
+          {% show_help_context 'what-is-respondent' %}
+        </span>
+      {% endif %}
+	  <table style='margin: 20px auto' class='greyTable'>
+	  	<tr>
+	  		<th colspan='2'>STARS Subscriptions</th>
+	  	</tr>
+	  	{% with current_inst.subscription_set.all as subs %}
+	  	{% if subs %}
+		  	{% for s in subs %}
+			    <tr class="{% cycle 'even' 'odd' %}">
+			      <td align='left'>
+			      	{{ s.start_date }} -
+			      	{{ s.end_date }}
+			      </td>
+                  {% if not s.paid_in_full %}
+                    <td>
+                      
+                      Due: ${{ s.amount_due|floatformat:"-2" }}
+                    </td>
+                  {% endif %}
+			    </tr>
+			{% endfor %}
+		{% else %}
+			<tr><td>No Subscriptions</td></tr>
+		{% endif %}
+		{% endwith %}
+		
+	 </table>
+      {% testrule user_has_access_level user 'admin' current_inst %}
+     <img src='/media/static/images/add.png' style='vertical-align: middle'/>
+     <a href='/tool/manage/purchase-subscription/' style="margin-right: 15px;text-decoration: none;">
+     Purchase STARS Participant Subscription</a>
+      {% endtestrule %}
+	</div>
+  {% display_block_content "tool_summary_footer" user %}
+{% endblock %}

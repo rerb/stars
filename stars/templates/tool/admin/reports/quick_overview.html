@@ -1,0 +1,46 @@
+{% extends 'tool/admin/reports/base.html' %}
+
+{% block admin_content %}
+  <h3>Third Parties</h3>
+  <table>
+    <tr>
+      <th>Third Party</th>
+      <th>Share Count</th>
+    </tr>
+    {% for tp in third_party_list %}
+      <tr>
+        <td>
+          {{ tp.name }}
+        </td>
+        <td align='center'>
+          {{ tp.access_to_institutions.count }}        
+        </td>
+      </tr>
+    {% endfor %}
+  </table>
+  
+  <h3>Participation Totals</h3>
+  <table>
+    <tr>
+      <th>
+        Current Participants
+      </th>
+      <td>{{ current_participants }}</td>
+    </tr>
+    <tr>
+      <th>
+        Current Respondents
+      </th>
+      <td>{{ current_respondents }}</td>
+    </tr>
+    <tr>
+      <th>Registered Respondents</th>
+      <td>{{ registered_respondents }}</td>
+    </tr>
+    <tr>
+      <th>Total Snapshots</th>
+      <td>{{ snapshot_count }}</td>
+    </tr>
+  </table>
+  
+{% endblock %}

@@ -1,0 +1,37 @@
+<div class='greyBox'>
+	Display results for institutions with the following characteristics:<br/><br/>
+	<table class='filterList'>
+		<tr>
+			<th></th>
+			<th>Type of Characteristic</th>
+			<th>Specific Characteristic</th>
+			<th></th>
+		</tr>
+		{% for k, f in delete_forms.forms.items %}
+			<tr>
+				<td style="text-align: center;">
+					<img src='/media/static/images/delete_grey_x.png' alt='[x]' onclick="deleteFilter('{{ k }}');" style='cursor: pointer;' />
+					{{ f.delete }}
+					{{ f.errors }}
+				</td>
+				<td>{{ f.instance.type }}</td>
+				<td>{{ f.instance.item_title }}</td>
+				<td></td>
+			</tr>
+		{% endfor %}
+		{% if new_filter_form %}
+		<tr>
+			<td></td>
+			<td>
+				{{ new_filter_form.type }}
+				{{ new_filter_form.errors.type }}
+			</td>
+			<td>
+				{{ new_filter_form.errors.item }}
+				{{ new_filter_form.item }}
+			</td>
+			<td><button type='submit'>Add Filter</button></td>
+		</tr>
+		{% endif %}
+	</table>
+</div>

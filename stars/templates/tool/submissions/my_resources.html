@@ -1,0 +1,46 @@
+{% extends "tool/base.html" %}
+
+{% load content %}
+
+{% block title %} {{ block.super }} | My Resources{% endblock %}
+
+{% block header %}My Resources{% endblock %}
+
+{% block tool_content %}
+    {% autoescape off %}
+        <h1>
+            {{ node.title }}
+            {% if user.is_staff %}
+                <a href="http://www.aashe.org/node/4554/edit" target="_blank"><img src='/media/static/images/page_edit.png' alt='edit' /></a>
+            {% endif %}
+        </h1>
+        <div style='color: #555;font-style: italic'>Please click on a logo to see a larger version.</div>
+        <div style='text-align: center;padding: 10px;'>
+            {% if institution.current_rating %}
+                <a href='{{ institution.current_rating.image_large.url }}'>
+                  <img
+                    src='{{ institution.current_rating.image_200.url }}'
+                    alt='{{ institution.current_rating }}'
+                    style='margin: 10px;border: 0px;' /></a>
+            {% endif %}
+            {% if institution.charter_participant %}
+                <a href='http://www.aashe.org/files/documents/STARS/STARS_CharterParticipant.jpg'><img src='/media/static/images/STARS-CharterParticipant-200x200.png' alt='STARS Charter Particpant' style='margin: 10px;border: 0px;' /></a>
+            {% else %}
+                <a href='http://www.aashe.org/files/documents/STARS/STARS-Participant.jpg'><img src='/media/static/images/STARS-Participant-200x200.png' alt='STARS Particpant' style='margin: 10px;border: 0px;' /></a>
+            {% endif %}
+        </div>
+        {% if institution.rated_submission %}
+            <h2>
+                Scorecard
+            </h2>
+            <p>Your <a href='{{ institution.rated_submission.get_scorecard_url }}'>scorecard</a> is now publicly available.</p>
+        {% endif %}
+        <h2>Template Press Release</h2>
+        {% if institution.get_submissions %}
+        	{% display_block_content 'template_press_release_rated' user %}
+        {% else %}
+        	{% display_block_content 'template_press_release_unrated' user %}
+        {% endif %}
+        {{ node.body }}
+    {% endautoescape %}
+{% endblock %}

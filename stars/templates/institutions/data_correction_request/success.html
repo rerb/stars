@@ -1,0 +1,17 @@
+{% extends 'institutions/scorecards/credit.html' %}
+
+{% block title %}Data Correction Request | {{ block.super }}{% endblock %}
+
+{% block crumbs %}
+    {{ block.super }} &gt;
+    Data Correction Request
+{% endblock %}
+
+{% block content %}
+	<br/>
+	<h1>Data Correction Request Success</h1><br/>
+	<div class='greyBox'>
+	{% load content %}
+	{% display_block_content 'data_correction_success' user %}
+	</div>
+{% endblock %}

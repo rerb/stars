@@ -1,0 +1,89 @@
+{% extends 'tool/manage/base.html' %}
+
+{% load content %}
+{% load aashe_rules_tags %}
+
+{% block crumbs %} {{ block.super }} &gt; Share Data {% endblock %}
+
+{% block tabclass %}class='tab6'{% endblock %}
+
+{% block institution_content %}
+  {% display_block_content 'third-parties' user %}
+  
+    <form action='.' method='post'>
+    {# @todo: Use the iteration tool available in Django 1.4 when it launches #}
+    
+    <table class='greyTable' style='margin: 15px auto;width: 80%;'>
+        <tr>
+            <th>Organization</th>
+            <th>Next Deadline</th>
+            <th>Grant Access?</th>
+        </tr>
+        {% for tp in third_party_list %}
+          <tr class="{% cycle 'even' 'odd' %}">
+            <td>
+              {{ tp.name }}
+              {% if tp.publication %}
+                <br/>({{ tp.publication }})
+              {% endif %}
+            </td>
+            <td>
+              {% if tp.next_deadline %}
+                {{ tp.next_deadline }}
+              {% endif %}
+            </td>
+            <td>
+              <input  type="checkbox"
+                      name="third_parties"
+                      value="{{ tp.id }}"
+                      id="id_third_parties_{{ forloop.counter0 }}"
+                      {% if tp in current_inst.third_parties.all %}
+                      checked="checked"
+                      {% endif %}
+              />
+            </td>
+          </tr>
+        {% endfor %}
+    </table>
+    
+    <div class='button_row'>
+          <button type='submit' id='submit_button'>Save</button>
+      </div>
+    </form>
+    
+    <h3>Snapshots</h3>
+    {% display_block_content 'third-party_snapshots' user %}
+    <table class='greyTable' style='margin: 15px auto;width: 80%;'>
+        <tr>
+            <th>Date of Snapshot</th>
+            <th>STARS Version</th>
+        </tr>
+        {% if snapshot_list %}
+          {% for ss in snapshot_list %}
+            <tr>
+              <td>
+                {{ ss.date_submitted }}
+              </td>
+              <td>
+                {{ ss.creditset.version }}
+              </td>
+            </tr>
+          {% endfor %}
+        {% else %}
+        <tr>
+          <td colspan="2">
+            No current snapshots
+          </td>
+        </tr>
+        {% endif %}
+    </table>
+    <p align='center'>
+      {% testrule institution_has_snapshot_feature user.current_inst %}
+        <img src="/media/static/images/camera_add.png" alt='' style='vertical-align: top;margin-right: 10px;' />
+        <a href='/tool/submissions/snapshot/'>Take a snapshot of your data now</a>
+      {% else %}
+        <img src='/media/static/images/arrow_right.png' alt="&gt;" style='vertical-align: middle;'/>
+        <a href='/tool/manage/migrate/'>Migrate to the latest version of STARS to start taking snapshots.</a>
+      {% endtestrule %}
+    </p>
+{% endblock %}

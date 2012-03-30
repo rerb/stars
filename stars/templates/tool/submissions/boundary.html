@@ -1,0 +1,35 @@
+{% extends "tool/base.html" %}
+{% load content %}
+ 
+{% block crumbs %} 
+    {{ block.super }} >
+    <a href='/tool/submissions/'>Current Submission</a> >
+    Boundary
+{% endblock %}
+
+{% block tool_content %}
+    <h1>Institutional Boundary</h1>
+    {% display_block_content 'boundary_page' user %}
+    <div class='required'>
+        <span class="required_note" title="This field is required to complete credit">*</span>
+        Required Fields<br/>
+    </div>
+    <form class='generalForm' method='post' action='.'>
+      {% if form.non_field_errors %}{{ form.non_field_errors }}{% endif %}
+      {% for fieldset in form.fieldsets %}
+        <h3>{{ fieldset.legend }}</h3>
+        {% if fieldset.description %}
+          <p>{% display_block_content fieldset.description user %}</p>
+        {% endif %}
+        
+        {% with fieldset as object_form %}
+          <table>
+            {% include "helpers/standard_form.html" %}
+          </table>
+        {% endwith %}
+      {% endfor %}
+        <div class='button_row'>
+            <button type='submit'>Save Boundary</button>
+        </div>
+    </form>
+{% endblock %}

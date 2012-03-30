@@ -1,0 +1,168 @@
+{% extends 'institutions/data_displays/base.html' %}
+
+{% block crumbs %}
+	{{ block.super }} &gt;
+	<a href='/institutions/data-displays/categories/'>Categories</a>
+{% endblock %}
+
+{% block title %}Categories | {{ block.super }}{% endblock %}
+
+{% block body_onload %}{{ block.super }}initLookup();{% endblock %}
+
+{% block tabclass %}class='tab3'{% endblock %}
+
+{% block extra_head %}
+	{{ block.super }}
+	
+	{% include "institutions/data_displays/filter_js.html" %}
+	{% if object_list %}
+	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+      google.load("visualization", "1", {packages:["corechart"]});
+      google.setOnLoadCallback(drawChart);
+      function drawChart() {
+        var data = new google.visualization.DataTable();
+   
+		  var raw_data = [
+		  					{% for o in object_list %}
+		  						[
+		  							"{{ o.title }}",
+		  							{% if o.total %}{{ o.ER_avg|floatformat:2 }}{% else %}0{% endif %},
+		  							{% if o.total %}{{ o.OP_avg|floatformat:2 }}{% else %}0{% endif %},
+		  							{% if o.total %}{{ o.PAE_avg|floatformat:2 }}{% else %}0{% endif %}
+		  						]{% if not forloop.last %},{% endif %}
+		  					{% endfor %}
+		                 ];
+		  
+		  var categories = ["ER", "OP", "PAE"];
+		                  
+		  data.addColumn('string', 'Category');
+		  for (var i = 0; i  < raw_data.length; ++i) {
+		    data.addColumn('number', raw_data[i][0]);    
+		  }
+		  
+		  data.addRows(categories.length);
+		
+		  for (var j = 0; j < categories.length; ++j) {    
+		    data.setValue(j, 0, categories[j]);    
+		  }
+		  for (var i = 0; i  < raw_data.length; ++i) {
+		    for (var j = 1; j  < raw_data[i].length; ++j) {
+		      data.setValue(j-1, i+1, raw_data[i][j]);    
+		    }
+		  }
+
+        var chart = new google.visualization.ColumnChart(document.getElementById('barChart'));
+        chart.draw(data, {height: 220,
+        					backgroundColor: "#eff5e6",
+			                 colors: [
+			                 	'#1b617f',
+			                   '#858f38',
+			                   "#8C745A",
+			                   '#A39161',
+			                   '#404040',
+			                   '#9d9982',
+			                 ],
+                          hAxis: {title: 'Category'},
+                          vAxis: {title: "Average Score"},
+                          legend: 'top'
+                         });
+      }
+    </script>
+    {% endif %}
+{% endblock %}
+
+{% block h1 %}Aggregated STARS Category Scores{% endblock %}
+
+{% block tab_content %}
+
+	{% load content %}
+    {% display_block_content 'data_display_categories' user %}
+    
+	<form method='POST' action='.' id='filterForm'>
+		{% with new_filter_form=form.forms.new_filter_form %}
+		{% with delete_forms=form.forms.delete_forms %}
+			{% include 'institutions/data_displays/top_level_filters.html' %}
+		{% endwith %}{% endwith %}
+	</form>
+	<div style='text-align: center'>
+		<img src='/media/static/images/arrow_down.png' />
+	</div>
+	<table id='institution_list' class='greyTable'>
+		
+       	{% if object_list %}
+	       	<tr>
+	       		<th style='text-align: left' rowspan='2'>
+	       			Selected Characteristic
+	       		</th>
+	       		<th colspan='4'>
+	       			Average Scores by Category
+	       		</th>
+	       	</tr>
+	       	<tr>
+	       		<th><acronym title='Education & Research'>ER</acronym></th>
+	       		<th><acronym title='Operations'>OP</acronym></th>
+	       		<th><acronym title='Planning, Administration &amp; Engagement'>PAE</acronym></th>
+	       		<th><acronym title='Innovation'>IN</acronym></th>
+	       	</tr>
+	       	{% for o in object_list %}
+	       		<tr class="{% cycle 'even' 'odd' %}">
+	       			<td style='text-align: left'>
+	       				{{ o.title }}
+	       				( {{ o.total }} found )
+	       			</td>
+	       			<td>
+	       				{% if o.total %}
+	       					<span title="{{ o.ER_var }}" class='variance'>
+	       						{{ o.ER_avg|floatformat:2 }}%
+	       					</span>
+	       				{% else %}
+	       					--
+	       				{% endif %}
+	       			</td>
+	       			<td>
+	       				{% if o.total %}
+	       					<span title="{{ o.OP_var }}" class='variance'>
+	       						{{ o.OP_avg|floatformat:2 }}%
+	       					</span>
+	       				{% else %}
+	       					--
+	       				{% endif %}
+	       			</td>
+	       			<td>
+	       				{% if o.total %}
+	       					<span title="{{ o.PAE_var }}" class='variance'>
+	       						{{ o.PAE_avg|floatformat:2 }}%
+	       					</span>
+	       				{% else %}
+	       					--
+	       				{% endif %}
+	       			</td>
+	       			<td>
+	       				{% if o.total %}
+	       					<span title="{{ o.IN_var }}" class='variance'>
+	       						{{ o.IN_avg|floatformat:2 }}
+	       					</span>
+	       				{% else %}
+	       					--
+	       				{% endif %}
+	       			</td>
+	       		</tr>
+	       	{% endfor %}
+	    {% else %}
+       		<tr><td colspan="6">
+       			<p style='padding: 30px;'>
+       				No results yet. Please filter on a characteristic above.
+       			</p>
+       		</td></tr>
+       	{% endif %}
+	</table>
+	{% if object_list %}
+		<div style='text-align: center'>
+			<img src='/media/static/images/arrow_down.png' />
+		</div>
+		<div style='margin: 10px;padding: 2px; border: 1px solid #aaa;'>
+			<div id="barChart" style="height:220px;margin: 0px;"></div>
+		</div>
+	{% endif %}
+{% endblock %}
