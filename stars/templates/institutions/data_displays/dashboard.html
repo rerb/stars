@@ -151,10 +151,11 @@
 		data.addColumn('string', 'Month');
 		data.addColumn('number', 'Registrations');
 		data.addColumn('number', 'Submissions');
+		data.addColumn('number', 'Renewals');
 		
 		data.addRows([
-			{% for row in p2s %}
-				["{{ row.date|date:"M y" }}", {{ row.p_count }}, {{ row.s_count }}]{% if not forloop.last %},{% endif %}
+			{% for row in ratings_renewals_registrations %}
+				["{{ row.date|date:"M y" }}", {{ row.reg_count }}, {{ row.rating_count }}, {{ row.renew_count }}]{% if not forloop.last %},{% endif %}
 			{% endfor %}
 		]);
         
@@ -215,13 +216,16 @@
         data.addColumn('number', 'Total');
         
         data.addRows([
-        	['Current Participants', {{ member_numbers.current }}],
-        	['Rated', {{ member_numbers.rated }}],
-        	['AASHE', {{ member_numbers.members }}],
-        	['ACUPCC', {{ member_numbers.pcc }}],
-        	['Charter', {{ member_numbers.charter }}],
-        	['USA', {{ member_numbers.us }}],
-        	['Canada', {{ member_numbers.canadian }}]
+            ['Rated/Participating', {{ properties.uptake }}],
+        	['Current Participants', {{ properties.participant }}],
+        	['Rated', {{ properties.rated }}],
+        	['AASHE', {{ properties.member }}],
+        	['ACUPCC', {{ properties.pcc }}],
+        	['Charter', {{ properties.charter }}],
+        	['Pilot', {{ properties.pilot }}],
+        	['USA', {{ properties.us }}],
+        	['Canada', {{ properties.canada }}],
+        	['International Pilot', {{ properties.international }}]
         ]);
         
         // Create and draw the visualization.
@@ -283,11 +287,14 @@
 		<h3>STARS Registrations and Submissions</h3>
 		<table class='vertical' style='margin: 20px;'>
 			<tr>
-				<th>Registrations and Renewals</th>
-				<td>{{ current_participants }}</td>
+				<th>Registrations</th>
+				<td>{{ total_reg_count }}</td>
 			</tr><tr>
-				<th>Submissions</th>
-				<td>{{ current_submissions }}</td>
+              <th>Submissions</th>
+              <td>{{ total_rating_count }}</td>
+            </tr><tr>
+				<th>Renewals</th>
+				<td>{{ total_renew_count }}</td>
 			</tr>
 		</table>
     	{% display_block_content 'dash_parts_and_subs' user %}
@@ -314,36 +321,48 @@
 			<div id="memberNumbers" style="width:450px;height:250px;margin: 0px;"></div>
 		</div>
 		<div style='margin: 0px 0px 0px 475px;'>
-		<h3>STARS Participant Properties</h3>
+		<h3>STARS Institutions Breakdown</h3>
 		<table class='vertical' style='margin: 20px;'>
 			<tr>
+              <th>Participating and/or Rated</th>
+              <td>{{ properties.uptake }}</td>
+            </tr>
+            <tr>
 				<th>Current STARS Participants</th>
-				<td>{{ member_numbers.current }}</td>
+				<td>{{ properties.participant }}</td>
 			</tr>
             <tr>
               <th>Rated Institutions</th>
-              <td>{{ member_numbers.rated }}</td>
+              <td>{{ properties.rated }}</td>
             </tr>
 			<tr>
 				<th>AASHE Members</th>
-				<td>{{ member_numbers.members }}</td>
+				<td>{{ properties.member }}</td>
 			</tr>
 			<tr>
 				<th>ACUPCC Signatories</th>
-				<td>{{ member_numbers.pcc }}</td>
-			</tr>
-			<tr>
-				<th>Charter STARS Participants</th>
-				<td>{{ member_numbers.charter }}</td>
+				<td>{{ properties.pcc }}</td>
 			</tr>
 			<tr>
 				<th>US Institutions</th>
-				<td>{{ member_numbers.us }}</td>
+				<td>{{ properties.us }}</td>
 			</tr>
 			<tr>
 				<th>Canadian Institutions</th>
-				<td>{{ member_numbers.canadian }}</td>
+				<td>{{ properties.canada }}</td>
 			</tr>
+            <tr>
+              <th>International Pilot Participants</th>
+              <td>{{ properties.international }}</td>
+            </tr>
+            <tr>
+              <th>Charter STARS Participants</th>
+              <td>{{ properties.charter }}</td>
+            </tr>
+            <tr>
+              <th>STARS Pilot Participants</th>
+              <td>{{ properties.pilot }}</td>
+            </tr>
 		</table>
     	{% display_block_content 'dash_inst_properties' user %}
 		</div>
