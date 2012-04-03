@@ -435,6 +435,8 @@ def purchase_subscription(request):
     discount = _gets_discount(current_inst)
     if discount:
         amount = amount / 2
+        
+    if current_inst.subscription_set.all():
         if is_member:
             reason = "member_renew"
         else:
@@ -466,6 +468,7 @@ def purchase_subscription(request):
                                 end_date=start_date + timedelta(SUBSCRIPTION_DURATION),
                                 amount_due=amount,
                                 paid_in_full=False,
+                                reason=reason
                                )
             sub.save()
             
@@ -503,7 +506,6 @@ def purchase_subscription(request):
                                         date=datetime.now(),
                                         amount=amount,
                                         user=request.user,
-                                        reason=reason,
                                         method='credit',
                                         confirmation=str(result['trans_id']),
                                     )

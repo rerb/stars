@@ -7,6 +7,7 @@ from django.http import HttpResponseRedirect
 from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
+from django.db.models import Count
 
 from stars.apps.submissions.models import SubmissionSet, CreditUserSubmission, DocumentationFieldSubmission, CategorySubmission, SubcategorySubmission
 from stars.apps.institutions.models import Institution, Subscription
@@ -74,7 +75,7 @@ class Dashboard(TemplateView):
                 if i.current_rating.publish_score:
                     ss = i.rated_submission
                     for cs in ss.categorysubmission_set.all():
-                        if cs.category.abbreviation != "IN":
+                        if cs.category.include_in_score and cs.category.abbreviation != "IN":
                             if bar_chart.has_key(cs.category.abbreviation):
                                 bar_chart[cs.category.abbreviation]['list'].append(cs.get_STARS_score())
                             else:
@@ -113,55 +114,62 @@ class Dashboard(TemplateView):
             
             current_month = change_month(current_month, 1)
                 
-            p2s = []
-            p_qs = Subscription.objects.all()
-            s_qs = SubmissionSet.objects.filter(status='r')
-            current_participants = p_count = p_qs.count()
-            current_submissions = s_count = s_qs.count()
-
-            _context['current_participants'] = current_participants
-            _context['current_submissions'] = current_submissions
-            while p_count:
+            slices = []
+            
+            # go back through all months until we don't have any subscriptions
+            while Subscription.objects.filter(start_date__lte=current_month).all():
+                # create a "slice" from the current month
                 slice = {}
-                p_count = p_qs.filter(start_date__lt=current_month).count()
-                slice['p_count'] = p_count
-                s_count = s_qs.filter(date_submitted__lt=current_month).count()
-                slice['s_count'] = s_count
+                reg_count = Subscription.objects.filter(start_date__lte=current_month).values('institution').distinct('institution').count()
+                slice['reg_count'] = reg_count
+                if len(slices) == 0:
+                    _context['total_reg_count'] = reg_count
+                
+                rating_count = SubmissionSet.objects.filter(status='r').filter(date_submitted__lt=current_month).count()
+                slice['rating_count'] = rating_count
+                if len(slices) == 0:
+                    _context['total_rating_count'] = rating_count
+                
                 current_month = change_month(current_month, -1)
                 slice['date'] = current_month
-                p2s.insert(0, slice)
-    
-            _context['p2s'] = p2s
+                
+                slices.insert(0, slice)
             
-            # the bar chart for
-#                STARS Participants
-#                AASHE Members
-#                PCC Signatories
-#                Pilot Participants
+            renew_count = 0
+            for slice in slices:
+                d = slice['date']
+                # find all the subscriptions starting that month
+                for sub in Subscription.objects.filter(start_date__year=d.year).filter(start_date__month=d.month):
+                    # if this institution has previous subscriptions increment the count
+                    if sub.institution.subscription_set.filter(start_date__lt=d):
+                        renew_count += 1
+                
+                slice['renew_count'] = renew_count
             
-            member_numbers = {'members': 0, 'pcc': 0, 'pilot': 0, 'canadian': 0, 'us': 0, 'current': 0, 'charter': 0, 'rated': 0}
-            for i in i_qs:
-                if i.is_published():
-                    # print >> sys.stderr, i
-                    if i.is_participant:
-                        member_numbers['current'] += 1
-                    if i.current_rating:
-                        member_numbers['rated'] += 1
-                    if i.is_member:
-                        member_numbers['members'] += 1
-                    if i.is_pcc_signatory:
-                        member_numbers['pcc'] += 1
-                    if i.charter_participant:
-                        member_numbers['charter'] += 1
-                    
-                    
-                    if i.country == "Canada":
-                        member_numbers['canadian'] += 1
-                    elif i.country == "United States of America":
-                        member_numbers['us'] += 1
-                    elif i.country == None:
-                        print >> sys.stderr, "No country found for %s" % i.name
-            _context['member_numbers'] = member_numbers
+            _context['total_renew_count'] = renew_count
+            
+            _context['ratings_renewals_registrations'] = slices
+            
+            # Horizontal Bar Chart
+            
+            uptake_qs = Institution.objects.filter(enabled=True).filter(Q(is_participant=True) | Q(current_rating__isnull=False))
+            
+            
+            properties = {
+                            'uptake': uptake_qs.count(),
+                            'participant': uptake_qs.filter(is_participant=True).count(),
+                            'rated': uptake_qs.filter(current_rating__isnull=False).count(),
+                            'pcc': uptake_qs.filter(is_pcc_signatory=True).count(),
+                            'member': uptake_qs.filter(is_member=True).count(),
+                            'us': uptake_qs.filter(country="United States of America").count(),
+                            'canada': uptake_qs.filter(country='Canada').count(),
+                            'international': uptake_qs.filter(international=True).count(),
+                            
+                            'charter': Institution.objects.filter(charter_participant=True).count(),
+                            'pilot': Institution.objects.filter(is_pilot_participant=True).count(),
+                        }
+            
+            _context['properties'] = properties
             
             cache_time = datetime.now()
             cache.set('stars_dashboard_context', _context, 60*120) # cache this for 2 hours

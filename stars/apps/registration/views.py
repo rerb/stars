@@ -371,6 +371,12 @@ def init_subscription(institution, amount_due, date_callback=date.today):
                                 end_date=deadline,
                                 amount_due=amount_due,
                                 paid_in_full=(amount_due==0))
+    if institution.international:
+        subscription.reason = "international"
+    elif institution.is_member:
+        subscription.reason = "member_reg"
+    else:
+        subscription.reason = "nonmember_reg"
     subscription.save()
     return subscription
 
@@ -404,19 +410,12 @@ def register_institution(user, institution, payment_type, price, payment_dict):
     submissionset = init_submissionset(institution, user)
     
     institution.current_subscription = subscription
+    institution.is_participant = True
     institution.set_active_submission(submissionset)
     institution.save()
-    
-    # Save Payment
-    if institution.is_member_institution():
-        reason = "member_reg"
-    elif institution.international:
-        reason = "international"
-    else:
-        reason = "nonmember_reg"
         
     if payment_dict:
-        payment = SubscriptionPayment(subscription=subscription, date=date.today(), amount=price, user=user, reason=reason, method=payment_type, confirmation="none")
+        payment = SubscriptionPayment(subscription=subscription, date=date.today(), amount=price, user=user, method=payment_type, confirmation="none")
         payment.save()
     
     # Primary Contact

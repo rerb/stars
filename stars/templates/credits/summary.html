@@ -5,6 +5,7 @@
     <h1>{% block h1 %}{{ institution }}{% endblock %}</h1>
     {% block summaryTable %}{% endblock %}
     {% for cat in submissionset.categorysubmission_set.all %}
+      {% block category_section %}
         <a name='ec_{{ cat.category.id }}'></a>
         <h2>
             <span class='provScore'>
@@ -75,5 +76,6 @@
             {% endif %}
         {%endfor %}
         </div>
+      {% endblock %}
     {% endfor %}
 {% endblock %}
