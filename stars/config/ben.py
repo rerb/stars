@@ -75,9 +75,11 @@ if DEBUG_TOOLBAR:
 #CACHE_BACKEND = "dummy://"
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
-        # 'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
-        # 'LOCATION': 'temp_cache_table',
+#        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+         'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+         'LOCATION': 'temp_cache_table',
+#        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+#        'LOCATION': '/Users/jamstooks/tmp/stars-cache',
     }
 }
 

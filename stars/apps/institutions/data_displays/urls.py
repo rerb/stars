@@ -9,7 +9,7 @@ urlpatterns = patterns(
     'django.views.generic.simple',
     # data views
     (r'^$', "direct_to_template",{'template': 'institutions/data_views/index.html'}),
-    (r'^pie/$', TemplateView.as_view(template_name="institutions/data_displays/summary_pie_chart.html")),
+    (r'^pie-chart-visualization/$', TemplateView.as_view(template_name="institutions/data_displays/summary_pie_chart.html")),
     (r'^dashboard/$', Dashboard.as_view()),
     (r'^categories/$', never_cache(AggregateFilter.as_view())),
     (r'^scores/$', never_cache(ScoreFilter.as_view())),
