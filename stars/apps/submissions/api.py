@@ -232,7 +232,7 @@ class CategoryPieChart(Resource, SliceMixin):
         for sub in qs:
             if sub.category_submission.submissionset.rating.publish_score:
                 latest = sub.subcategory.get_latest_version()
-                if slice_dict.has_key(sub.subcategory.title):
+                if slice_dict.has_key(latest.id):
                     slice_dict[latest.id]['running_total'] += sub.get_claimed_points()
                     slice_dict[latest.id]['running_count'] += 1
                 else:
