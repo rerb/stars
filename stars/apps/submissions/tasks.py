@@ -5,9 +5,12 @@ from stars.apps.submissions.pdf.export import build_certificate_pdf
 from stars.apps.migrations.utils import migrate_ss_version, migrate_submission, create_ss_mirror
 from stars.apps.notifications.models import EmailTemplate
 from stars.apps.helpers import watchdog
+from stars.apps.credits.models import CreditSet
+from stars.apps.submissions.api import SummaryPieChart, CategoryPieChart, SubategoryPieChart
 
 from django.core.mail import EmailMessage, get_connection
 from django.conf import settings
+from django.core.cache import cache
 
 from celery.decorators import task
 
@@ -78,3 +81,46 @@ def rollover_submission(old_ss):
     new_ss.institution.current_submission = new_ss
     new_ss.institution.save()
     
+
+def update_pie_api_cache():
+    """
+        Clear each endpoint's cache and then re-fetch it
+    """
+    cs = CreditSet.objects.get_latest()
+    
+    from tastypie.api import Api
+    
+    v1_api = Api(api_name='v1')
+    v1_api.register(SummaryPieChart())
+    v1_api.register(CategoryPieChart())
+    v1_api.register(SubategoryPieChart())
+    
+    summary_view = SummaryPieChart()
+    cat_view = CategoryPieChart()
+    s_view = SubategoryPieChart()
+    
+    key = "v1:summary-pie-chart:detail:"
+    print key
+    cache.delete(key)
+    
+    summary = summary_view.obj_get_list()
+    
+    # summary
+    for cat in cs.category_set.filter(include_in_score=True):
+        print cat
+        kwargs = {"pk": cat.id,}
+        c_key = cat_view.generate_cache_key('detail', **kwargs)
+#        c_key = 'v1:category-pie-chart:detail:pk=%d' % cat.id
+        print c_key
+        cache.delete(c_key)
+        cat_view.obj_get(**kwargs)
+        
+        for sub in cat.subcategory_set.all():
+            print sub
+            kwargs = {"pk": sub.id}
+            s_key = s_view.generate_cache_key('detail', **kwargs)
+#            s_key = "v1:subcategory-pie-chart:detail:pk=%d" % sub.id
+            print s_key
+            cache.delete(s_key)
+            
+            s_view.obj_get(**kwargs)
