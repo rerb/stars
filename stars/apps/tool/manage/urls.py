@@ -18,4 +18,5 @@ urlpatterns = patterns(
     (r'^migrate/$', 'migrate_submissionset'),
     
     (r'^purchase-subscription/', 'purchase_subscription'),
+    (r'^pay-subscription/(?P<subscription_id>\d+)/$', 'pay_subscription'),
 )

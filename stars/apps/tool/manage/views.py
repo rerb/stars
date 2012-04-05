@@ -8,7 +8,7 @@ from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMessage
 
 from stars.apps.accounts.utils import respond
-from stars.apps.accounts.decorators import user_is_staff, user_is_inst_admin
+from stars.apps.accounts.decorators import user_is_staff, user_is_inst_admin, user_has_tool
 from stars.apps.accounts import xml_rpc
 from stars.apps.institutions.models import Institution, StarsAccount, Subscription, SubscriptionPayment, SUBSCRIPTION_DURATION, PendingAccount
 from stars.apps.institutions.rules import user_has_access_level
@@ -425,6 +425,7 @@ def send_exec_renew_email(institution):
     et = EmailTemplate.objects.get(slug="reg_renewal_exec")
     et.send_email(mail_to, {'institution': institution,})
 
+@user_has_tool
 def purchase_subscription(request):
     """
         Provides a view to allow institutions to purchase a new subscription
@@ -477,6 +478,19 @@ def purchase_subscription(request):
             current_inst.is_participant = True
             current_inst.save()
             
+            if request.user.email != current_inst.contact_email:
+                mail_to = [request.user.email, current_inst.contact_email]
+            else:
+                mail_to = [current_inst.contact_email,]
+
+            if reason == "member_renew" or reason == "nonmember_renew":
+                et = EmailTemplate.objects.get(slug="reg_renewal_unpaid")
+            else:
+                et = EmailTemplate.objects.get(slug="welcome_liaison_unpaid")
+                
+            email_context = {'institution': current_inst}
+            et.send_email(mail_to, email_context)
+            
             return HttpResponseRedirect("/tool/")
         else:
             pay_form = PaymentForm(request.POST)
@@ -516,11 +530,14 @@ def purchase_subscription(request):
                         else:
                             mail_to = [current_inst.contact_email,]
     
-                        et = EmailTemplate.objects.get(slug="reg_renewed_paid")
+                        if reason == "member_renew" or reason == "nonmember_renew":
+                            et = EmailTemplate.objects.get(slug="reg_renewal_paid")
+                            send_exec_renew_email(current_inst)
+                        else:
+                            et = EmailTemplate.objects.get(slug="welcome_liaison_paid")
+                            
                         email_context = {'payment_dict': payment_dict,'institution': current_inst, "payment": p}
                         et.send_email(mail_to, email_context)
-                        
-                        send_exec_renew_email(current_inst)
                         
                         current_inst.current_subscription = sub
                         current_inst.is_participant = True
@@ -542,52 +559,59 @@ def purchase_subscription(request):
     }
     return respond(request, template, context)
 
-
-#def extension_request(request, set_id):
-#    
-#    current_inst = _get_current_institution(request)
-#    
-#    ss = get_object_or_404(SubmissionSet, id=set_id, institution=current_inst)
-#    
-#    if not ss.can_apply_for_extension():
-#        # how did they get to this page?
-#        flashMessage.send("Sorry, extension requests to this submission set are not allowed at this time.", flashMessage.NOTICE)
-#        watchdog.log('Extension Application', "Extension request denied." % ss, watchdog.ERROR)
-#        return HttpResponseRedirect('/tool/manage/submissionsets/')
-#    
-#    object_form, confirmed = form_helpers.confirm_form(request)
-#    
-#    if confirmed:
-#        er = ExtensionRequest(submissionset=ss, user=request.user)
-#        er.old_deadline = ss.submission_deadline
-#        er.save()
-#        
-#        td = EXTENSION_PERIOD
-#        ss.submission_deadline += td
-#        ss.save()
-#        
-#        flashMessage.send("Your extension request has been applied to your submission.", flashMessage.NOTICE)
-#        return HttpResponseRedirect('/tool/manage/submissionsets/')
-#
-#    template = 'tool/manage/extension_request.html'
-#    context = {
-#        "object_form": object_form,
-#    }
-#    return respond(request, template, context)
-
-
-#def activate_submissionset(request, set_id):
-#    """
-#        Set the selected submission set as active
-#    """
-#    
-#    current_inst = _get_current_institution(request)
-#    
-#    submission_set = get_object_or_404(SubmissionSet, id=set_id)
-#    
-#    current_inst.set_active_submission(submission_set)
-#    
-#    return HttpResponseRedirect(settings.MANAGE_SUBMISSION_SETS_URL)
+@user_has_tool
+def pay_subscription(request, subscription_id):
+    """
+        Provides a view to allow institutions to pay for a subscription
+    """
+    current_inst = _get_current_institution(request)
+    
+    subscription = get_object_or_404(current_inst.subscription_set.all(), pk=subscription_id)
+    amount = subscription.amount_due
+    pay_form = PaymentForm()
+    
+    if request.method == "POST":
+        
+        pay_form = PaymentForm(request.POST)
+        if pay_form.is_valid():
+            payment_dict = get_payment_dict(pay_form, current_inst)
+            product_dict = {
+                'price': amount,
+                'quantity': 1,
+                'name': "STARS Subscription Payment",
+            }
+    
+            result = process_payment(payment_dict, [product_dict], invoice_num=current_inst.aashe_id)
+            if result.has_key('cleared') and result.has_key('msg'):
+                if result['cleared'] and result['trans_id']:
+                    
+                    subscription.amount_due = 0
+                    subscription.paid_in_full = True
+                    subscription.save()
+                    
+                    p = SubscriptionPayment(
+                                    subscription=subscription,
+                                    date=datetime.now(),
+                                    amount=amount,
+                                    user=request.user,
+                                    method='credit',
+                                    confirmation=str(result['trans_id']),
+                                )
+                    p.save()
+                    
+                    return HttpResponseRedirect("/tool/")
+                else:
+                    flashMessage.send("Processing Error: %s" % result['msg'], flashMessage.ERROR)
+        else:
+            flashMessage.send("Please correct the errors below", flashMessage.ERROR)
+                    
+    template = 'tool/manage/pay_subscription.html'
+    context = {
+        "pay_form": pay_form,
+        "amount": amount,
+        'is_member': current_inst.is_member,
+    }
+    return respond(request, template, context)
 
 def boundary(request, set_id):
     """ Displays the Institution Boundary edit form """

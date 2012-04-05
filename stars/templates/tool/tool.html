@@ -82,12 +82,12 @@
 			      	{{ s.start_date }} -
 			      	{{ s.end_date }}
 			      </td>
-                  {% if not s.paid_in_full %}
-                    <td>
-                      
-                      Due: ${{ s.amount_due|floatformat:"-2" }}
-                    </td>
-                  {% endif %}
+                  <td>
+                      {% if not s.paid_in_full %}
+                      Due: ${{ s.amount_due|floatformat:"-2" }}<br/>
+                      <a href='/tool/manage/pay-subscription/{{ s.id }}/'>Pay Now</a>
+                      {% endif %}
+                  </td>
 			    </tr>
 			{% endfor %}
 		{% else %}
