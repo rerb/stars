@@ -9,6 +9,8 @@ class ThirdParty(models.Model):
     logo = models.ImageField(upload_to="tps", blank=True, null=True)
     next_deadline = models.DateField(blank=True, null=True)
     access_to_institutions = models.ManyToManyField("institutions.Institution", related_name='third_parties', blank=True, null=True)
+    disabled = models.BooleanField(default=False)
+    help_text = models.TextField(blank=True, null=True)
     
     class Meta:
         verbose_name_plural = "Third Parties"
