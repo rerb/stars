@@ -531,7 +531,7 @@ def purchase_subscription(request):
                             mail_to = [current_inst.contact_email,]
     
                         if reason == "member_renew" or reason == "nonmember_renew":
-                            et = EmailTemplate.objects.get(slug="reg_renewal_paid")
+                            et = EmailTemplate.objects.get(slug="reg_renewed_paid")
                             send_exec_renew_email(current_inst)
                         else:
                             et = EmailTemplate.objects.get(slug="welcome_liaison_paid")
