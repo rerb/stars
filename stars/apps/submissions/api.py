@@ -36,40 +36,6 @@ class Slice(object):
         self.fill_fraction = fill_fraction
         self.child_chart = child_chart
 
-class GetCacheMixin(object):
-    
-    def get_cache_key(self, request):
-        raise NotImplementedError
-    
-    def obj_get(self, request = None, **kwargs):
-        """
-            wrapper that caches the result of this method
-        """
-
-        
-        object = super(CacheMixin, self).obj_get(request, kwargs)
-        
-        cache.set(key, object, 60*60*5)
-        
-        return object
-    
-    def obj_get_list(self, request=None, **kwargs):
-        """
-            wrapper that caches the result of this method
-        """
-        key = self.get_cache_key(request)
-        obj_list = cache.get(key)
-        if obj_list:
-            print "CACHE HIT: %s" % key
-            return obj_list
-        print >> sys.stderr, "CACHE MISS: %s" % key
-        
-        obj_list = super(CacheMixin, self).obj_get(request, kwargs)
-        
-        cache.set(key, obj_list, 60*60*5)
-        
-        return obj_list
-
 class SliceMixin(object):
     
     def dehydrate_slices(self, bundle):
