@@ -488,7 +488,7 @@ def purchase_subscription(request):
             else:
                 et = EmailTemplate.objects.get(slug="welcome_liaison_unpaid")
                 
-            email_context = {'institution': current_inst}
+            email_context = {'institution': current_inst, 'amount': amount}
             et.send_email(mail_to, email_context)
             
             return HttpResponseRedirect("/tool/")
