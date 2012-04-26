@@ -153,6 +153,12 @@ class SaveSnapshot(FormView):
             ss.institution.save()
             ss.save()
             
+        et = EmailTemplate.objects.get(slug="snapshot_successful")
+        to_mail = [self.request.user.email,]
+        if self.request.user.email != ss.institution.contact_email:
+            to_mail.append(ss.institution.contact_email)
+        et.send_email(to_mail, {'ss': ss,})
+            
         return super(SaveSnapshot, self).form_valid(form)
     
     def render_to_response(self, context, **response_kwargs):
