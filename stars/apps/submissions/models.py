@@ -100,12 +100,15 @@ class SubmissionSet(models.Model):
         pdf_result = build_report_pdf(self)
         
         if save:
-            name = '%s.pdf' % self.institution.slug
+            name = self.get_pdf_filename()
             file = InMemoryUploadedFile(pdf_result, "pdf", name, None, pdf_result.tell(), None)
             self.pdf_report.save(name, file)
             return file
             
         return pdf_result.getvalue()
+    
+    def get_pdf_filename(self):
+        return '%s.pdf' % self.institution.slug[:64]
     
     def is_enabled(self):
         if self.is_visible:

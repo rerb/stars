@@ -384,7 +384,7 @@ class PDFExportView(InstitutionAccessMixin, ScorecardMixin, CreditNavMixin, Temp
                 
         pdf = ss.get_pdf(save=save)
         response = HttpResponse(pdf, mimetype='application/pdf')
-        response['Content-Disposition'] = 'attachment; filename=%s.pdf' % ss.institution.slug
+        response['Content-Disposition'] = 'attachment; filename=%s' % ss.get_pdf_filename()
         return response 
 
 class ScorecardInternalNotesView(InstitutionAccessMixin, ScorecardView):
