@@ -1,0 +1,63 @@
+{% extends 'tool/base.html' %}
+
+{% load cache %}
+
+{% block tool_menu %}
+	{% with active_menu="submission"%}{{ block.super }}{% endwith %}
+{% endblock %}
+
+{% block extra_head %}
+	{{ block.super }}
+	<link href='/media/static/css/listexpander.css' rel='stylesheet' type='text/css' />
+	<script src='/media/static/js/listexpander.js' type='text/javascript'></script>
+{% endblock %}
+
+{% block body_onload %}{{ block.super }}listexpander();collapseSummary();{% endblock %}
+
+{% block submission_outline %}
+      <style type='text/css'>
+        a.credit_menu_{{ credit.id }} {
+          background-color: #aaaaaa;
+          color: white;
+        }
+      </style>
+        <ul
+          class="listexpander" id='credit_menu_{{ credit.id }}'
+          >
+        {% cache 86400 submission_credit_listexpander active_submission.creditset.id %}
+        {% for cat in active_submission.creditset.category_set.all %}
+	        <li>
+	        	<a href='/tool/submissions/#ec_{{ cat.id }}'>{{ cat }}</a>
+                <ul>
+                	{% for sub in cat.subcategory_set.all %}
+                    <li>
+                    	<a href='/tool/submissions/#ec_{{ cat.id }}_{{ sub.id }}' {% if summary %}onclick='jumpToSubcat("{{ cat.id }}", "{{ sub.id }}");'{% endif %}>
+                    		{{ sub }}
+                    	</a>
+                    	<ul>
+                    		{% for c in sub.get_tier1_credits %}
+                    			<li>
+                    				<a class='credit_menu_{{ c.id }}'
+                    					href='{{ c.get_submit_url }}'>{{ c }}</a>
+                    			</li>
+                    		{% endfor %}
+                    		{% if sub.get_tier2_credits %}
+                    			<li>
+                    				Tier 2 Credits
+                    				<ul>
+                    					{% for c in sub.get_tier2_credits %}
+                    						<li><a {% ifequal c credit %}id='currentSelection'{% endifequal %}
+                    							href='{{ c.get_submit_url }}'>{{ c }}</a></li>
+                    					{% endfor %}
+                    				</ul>
+                    			</li>
+                    		{% endif %}
+                    	</ul>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </li>  
+        {% endfor %}
+        {% endcache %}
+		</ul>
+{% endblock %}
