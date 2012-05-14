@@ -46,14 +46,12 @@
 	</table>
 	<hr class='blue'/>
     <ul id="tabnav" {% block tabclass %}class='tab1'{% endblock %}>
-       {% if user.current_inst.is_participant %}
 		<li class="tab1">
 		    <a href="{{ credit_submission.get_submit_url }}documentation/">Credit Info</a>
 		    <a href="{{ credit_submission.get_submit_url }}documentation/?popup=True" target='_blank' 
 		       onclick='return open_popup("{{ credit_submission.get_submit_url }}documentation/?popup=True", "CreditInfo");'
 		     ><img src='/media/static/images/new_window.gif' alt='^' title="Open Credit Info in pop-up window"></a>
 		</li>
-      {% endif %}
 		<li class="tab2"><a href="{{ credit_submission.get_submit_url }}">Reporting Fields</a></li>
         {% testrule institution_has_internal_notes_feature user.current_inst %}
           <li class="tab3"><a href="{{ credit_submission.get_submit_url }}notes/">Internal Notes</a></li>
