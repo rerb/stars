@@ -285,9 +285,9 @@ class ScorecardMixin(object):
             id_re = "^\d+$"
             if kwargs.has_key('submissionset'):
                 if re.match(id_re, kwargs['submissionset']):
-                    submissionset = get_object_or_404(SubmissionSet, id=kwargs['submissionset'], institution=institution)
+                    submissionset = get_object_or_404(SubmissionSet.objects.exclude(status='f'), id=kwargs['submissionset'], institution=institution)
                 elif re.match(date_re, kwargs['submissionset']):
-                    submissionset = get_object_or_404(SubmissionSet, date_submitted=kwargs['submissionset'], institution=institution)
+                    submissionset = get_object_or_404(SubmissionSet.objects.exclude(status='f'), date_submitted=kwargs['submissionset'], institution=institution)
                 else:
                     raise Http404
                 # if the submissionset isn't rated raise a 404 exception unless the user has preview access
