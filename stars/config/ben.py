@@ -24,7 +24,7 @@ DATABASES = {
     'default': {
 #         'NAME': '/Users/jamstooks/sqlite/pre1.2_test.db',
 #         'ENGINE': 'sqlite3',
-        'NAME': 'stars_pre-1.2_myISAM',
+        'NAME': 'stars_ben',
         'ENGINE': 'django.db.backends.mysql',
         'STORAGE_ENGINE': 'MyISAM',
         'USER': 'root',
