@@ -10,7 +10,7 @@ aashe_rules.autodiscover()
 
 from tastypie.api import Api
 from stars.apps.submissions.api import SubmissionSetResource, SummaryPieChart, CategoryPieChart, SubategoryPieChart
-from stars.apps.credits.api import *
+from stars.apps.credits.api.resources import *
 
 v1_api = Api(api_name='v1')
 #v1_api.register(SubmissionSetResource())
