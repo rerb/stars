@@ -22,8 +22,11 @@ class CreditSetResource(ModelResource):
         Resource for accessing any CreditSet
         
         @todo: this needs a list of categories
+        
+        class EntryResource(ModelResource):
+            authors = fields.ToManyField('path.to.api.resources.AuthorResource', 'author_set', related_name='entry')
     """
-#    categories = fields.ToManyField('stars.credits.api.resources.CategoryResource', 'categories_set')
+    categories = fields.ToManyField('stars.apps.credits.api.resources.CategoryResource', 'category_set', related_name='creditset')
     
     class Meta:
         queryset = CreditSet.objects.all()
@@ -37,8 +40,12 @@ class CategoryResource(ModelResource):
         
         Note: I had thought about using more structured URLS
         but I think this might be simpler...??
+        
+        class AuthorResource(ModelResource):
+            entry = fields.ToOneField(EntryResource, 'entry')
     """
-    creditset = fields.ToOneField('stars.credits.api.resources.CreditSetResource', 'creditset')
+    creditset = fields.ToOneField(CreditSetResource, 'creditset')
+    subcategories = fields.ToManyField('stars.apps.credits.api.resources.SubcategoryResource', 'subcategory_set', related_name='category')
     
     class Meta:
         queryset = Category.objects.all()
@@ -49,6 +56,8 @@ class SubcategoryResource(ModelResource):
     """
         Resource for accessing any Subcategory
     """
+    category = fields.ToOneField(CategoryResource, 'category')
+    
     class Meta:
         queryset = Subcategory.objects.all()
         resource_name = 'credits/subcategory'
