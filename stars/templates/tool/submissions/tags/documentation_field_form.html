@@ -1,5 +1,37 @@
+{% load help %}
+{% autoescape off %}
 
-    {% load help %}	
+<div class="control-group{% if field_form.value.errors %} error{% else %}{% if field_form.warnings %} warning{% endif %}{% endif %}">
+      <label class="control-label">
+      	{% if documentation_field.is_required %}
+	        <span class='required_note' title="This field is required to complete credit">*</span>
+	    {% endif %}
+	    {% if documentation_field.is_conditionally_required %}
+	        <span class='conditionally_required_note' title="In some cases, this field will be required to complete credit">*</span>
+	    {% endif %}
+	    {{ documentation_field.title }}
+	    {% show_help_text documentation_field.tooltip_help_text 1 %}
+      </label>
+      <div class="controls">
+        {{ field_form.value }}
+        {% if not field_form.field_includes_units and documentation_field.units %}
+            <label class='units'>{{ documentation_field.units }}</label>
+        {% endif %}
+        {% for error in field_form.errors %}
+            <span class="help-inline">{{ error }}</span>
+        {% endfor %}
+        {% for warning in field_form.warnings %}
+            <span class="help-inline">{{ error }}</span>
+        {% endfor %}
+        <p class="help-block">{{ documentation_field.inline_help_text }}</p>
+      </div>
+      	{% if documentation_field.type == "url"%}
+			{% show_help_text "Please note that additional URLs may be entered into the description fields or the public note section of STARS credits.  These additional URLs will be accessible in the live report." 0 %}
+	    {% endif %}
+    </div>
+{% endautoescape %}
+
+{% comment %}
     {% if documentation_field.is_required %}
         <span class='required_note' title="This field is required to complete credit">*</span>
     {% endif %}
@@ -22,3 +54,4 @@
     {% if documentation_field.type == "url"%}
 		{% show_help_text "Please note that additional URLs may be entered into the description fields or the public note section of STARS credits.  These additional URLs will be accessible in the live report." 0 %}
     {% endif %}
+{% endcomment %}

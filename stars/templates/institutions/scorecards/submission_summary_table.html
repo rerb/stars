@@ -1,4 +1,5 @@
-<table class='statusTable' cellspacing='0'>
+<table class='table table-striped table-bordered table-condensed' cellspacing='0'>
+	<thead>
     <tr>
         <th>
             Rating
@@ -11,6 +12,8 @@
         	<th>Download</th>
         {% endif %}
     </tr>
+    </thead>
+    <tdata>
     <tr>
         <td>
             {{ rating }}
@@ -29,7 +32,7 @@
 	</td>
         <td>
             {% if preview %}
-                <span style='color: red;font-style: italic;'>PREVIEW</i>
+                <span class="label label-warning">Preview</span>
             {% else %}
                 {{ submissionset.date_submitted }}
             {% endif %}
@@ -51,4 +54,5 @@
 	    	</td>
 	    {% endif %}
     </tr>
+    </tdata>
 </table>

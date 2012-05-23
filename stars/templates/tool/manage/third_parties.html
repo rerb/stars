@@ -4,9 +4,12 @@
 {% load aashe_rules_tags %}
 {% load help %}
 
-{% block crumbs %} {{ block.super }} &gt; Share Data {% endblock %}
+{% block crumbs-tool %}<li>Share Data</li>{% endblock %}
 
-{% block tabclass %}class='tab6'{% endblock %}
+{% block tabs %}
+	{% with active_tab="share" %}{{ block.super }}{% endwith %}
+{% endblock %}
+
 
 {% block institution_content %}
   {% display_block_content 'third-parties' user %}
@@ -14,12 +17,15 @@
     <form action='.' method='post'>
     {# @todo: Use the iteration tool available in Django 1.4 when it launches #}
     
-    <table class='greyTable' style='margin: 15px auto;width: 80%;'>
+    <table class='table'>
+    	<thead>
         <tr>
             <th>Organization</th>
             <th>Next Deadline</th>
             <th>Grant Access?</th>
         </tr>
+        </thead>
+        <tbody>
         {% for tp in third_party_list %}
           <tr class="{% cycle 'even' 'odd' %}"  {% if tp.disabled %}style="color: #888;"{% endif %}>
             <td>
@@ -48,20 +54,24 @@
             </td>
           </tr>
         {% endfor %}
+        </tbody>
     </table>
     
-    <div class='button_row'>
-          <button type='submit' id='submit_button'>Save</button>
-      </div>
+	    <div class='form-actions'>
+	          <button type='submit' id='submit_button' class='btn btn-primary'>Save</button>
+	      </div>
     </form>
     
     <h3>Snapshots</h3>
     {% display_block_content 'third-party_snapshots' user %}
-    <table class='greyTable' style='margin: 15px auto;width: 80%;'>
+    <table class='table'>
+    	<thead>
         <tr>
             <th>Date of Snapshot</th>
             <th>STARS Version</th>
         </tr>
+        </thead>
+        <tbody>
         {% if snapshot_list %}
           {% for ss in snapshot_list %}
             <tr>
@@ -80,14 +90,17 @@
           </td>
         </tr>
         {% endif %}
+        </tbody>
     </table>
     <p align='center'>
       {% testrule institution_has_snapshot_feature user.current_inst %}
-        <img src="/media/static/images/camera_add.png" alt='' style='vertical-align: top;margin-right: 10px;' />
-        <a href='/tool/submissions/snapshot/'>Take a snapshot of your data now</a>
+		<a href='/tool/submissions/snapshot/' class='btn btn-info'>
+			<i class="icon-share icon-white"></i> Save Snapshot</a>
       {% else %}
-        <img src='/media/static/images/arrow_right.png' alt="&gt;" style='vertical-align: middle;'/>
-        <a href='/tool/manage/migrate/'>Migrate to the latest version of STARS to start taking snapshots.</a>
+        <a href='/tool/manage/migrate/' class='btn'>
+        	<i class='icon-share-alt'></i> Migrate</a>
+        	to the latest version of STARS to start taking snapshots.
+        	
       {% endtestrule %}
     </p>
 {% endblock %}

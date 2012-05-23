@@ -1,8 +1,10 @@
 {% extends 'tool/manage/base.html' %}
 
-{% block crumbs %} {{ block.super }} &gt; Receipts {% endblock %}
+{% block crumbs-tool %}<li>Payments</li>{% endblock %}
 
-{% block tabclass %}class='tab4'{% endblock %}
+{% block tabs %}
+	{% with active_tab="payments" %}{{ block.super }}{% endwith %}
+{% endblock %}
 
 {% block institution_content %}
     {% include 'tool/manage/payment_list.html' %}

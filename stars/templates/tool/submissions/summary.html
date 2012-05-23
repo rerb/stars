@@ -37,19 +37,21 @@
 	        <div class="accordion-group">
 	            <div class="accordion-heading">
 	                <a class="accordion-toggle" data-toggle="collapse" data-parent="#categories" href="#ec_{{ cat.category.id }}">
-	                    <i class='icon-plus-sign'></i> <strong>{{ cat }}</strong>
+	                    <strong>{{ cat }}</strong>
 	                </a>
-	                <table class='table'>
+	                <table class='table' style='margin-bottom: 0px;'>
 	                	<tr>
-	                		<td>
-		                    {% if cat.category.include_in_score %}
-		    			   		{% ifnotequal cat.category.title 'Innovation' %}
-		    			   			Provisional Score:<br/><strong>{{ cat.get_STARS_score|floatformat:2 }}%</strong>
-		    			        {% else %}
-		    			        	Claimed Points: {{ cat.get_claimed_points|floatformat:2 }}
-		    			        {% endifnotequal %}
-							{% endif %}
-							</td>
+	                		{% testrule institution_has_score_feature user.current_inst %}
+		                		<td>
+				                    {% if cat.category.include_in_score %}
+				    			   		{% ifnotequal cat.category.title 'Innovation' %}
+				    			   			Provisional Score:<br/><strong>{{ cat.get_STARS_score|floatformat:2 }}%</strong>
+				    			        {% else %}
+				    			        	Claimed Points: {{ cat.get_claimed_points|floatformat:2 }}
+				    			        {% endifnotequal %}
+									{% endif %}
+								</td>
+							{% endtestrule %}
 							<td>
 	                    		{% show_progress_icon cat %}
 	                    	</td>
@@ -68,10 +70,70 @@
 				                        <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion_{{ sub.subcategory.id }}" href="#ec_{{ cat.category.id }}_{{ sub.subcategory.id }}">
 				                            {{ sub }}
 				                        </a>
+				                        <table class='table' style='margin-bottom: 0px;'>
+	                						<tr>
+								                {% testrule institution_has_score_feature user.current_inst %}
+						                			<td>
+									                    {% if cat.category.include_in_score %}
+									    			        Points Claimed:<br/>
+									    			        <strong>
+									    			        	{{ sub.get_claimed_points|floatformat:2 }} /
+									    			        	{{ sub.get_adjusted_available_points|floatformat:2 }}
+									    			        </strong>
+									                    {% endif %}
+													</td>
+									            {% endtestrule %}
+												<td>
+						                    		{% show_progress_icon sub %}
+						                    	</td>
+						                    </tr>
+						                </table>
 				                    </div>
 				                    <div id="ec_{{ cat.category.id }}_{{ sub.subcategory.id }}" class="accordion-body collapse in">
 				                        <div class="accordion-inner">
-				                            Anim pariatur c
+				                        	{% if active_submission.creditset.has_submission_summary_feature %}
+							   			    	<div class='well' style='text-align: center'>
+						   			    			{% if sub.description %}
+						   			    				{{ sub.description|urlizetrunc:85|linebreaks|fix_ampersands }}
+						   			    			{% endif %}
+					   			    				<a href='{{ sub.get_submit_edit_url }}' class='btn btn-info btn-small'>
+					   			    					<i class='icon-pencil icon-white'></i>
+					   			    					{% if sub.description %}
+					   			    						Edit Description
+					   			    					{% else %}
+					   			    						Add Description (optional)
+					   			    					{% endif %}
+					   			    				</a>
+							   			    	</div>
+							   			    {% endif %}
+				                            <table class='table table-condensed table-striped'>
+				                            	<thead>
+									            <tr>
+									                <th>Credit</th>
+									                <th>Status</th>
+						                            {% testrule institution_has_score_feature user.current_inst %}
+						                              {% if cat.category.include_in_score %}
+									                    <th>Points</th>
+						                              {% endif %}
+						                            {% endtestrule %}
+									            </tr>
+									            </thead>
+									            <tbody>
+									            {% for c in sub.creditusersubmission_set.all %}
+										            <tr class='{% cycle 'even' 'odd' %}' {% ifchanged c.credit.type %}style="border-top-width: 1px;"{% endifchanged %}>
+										                <td class='credit'><a href='{{ c.credit.get_submit_url }}'>
+										                    {{ c.credit }} <!-- {{ c.id }} -->
+										                </a></td>
+										                <td>{% show_status_icon c %}</td>
+						                                {% testrule institution_has_score_feature user.current_inst %}
+						                                  {% if cat.category.include_in_score %}
+										                    <td>{{ c.assessed_points|floatformat:2 }} / {% format_available_points c %}</td>
+						                                  {% endif %}
+						                                {% endtestrule %}
+										            </tr>
+									          	{% endfor %}
+									          	</tbody>
+									        </table>
 				                         </div>
 				                    </div>
 				                </div>	
@@ -84,7 +146,7 @@
 	        {% endfor %}
 	    </div>
 	    
-		<div class="accordion" id="accordion2">
+		<div class="accordion" id="accordion3">
 		{% for cat in category_submission_list %}
 		
 			<hr/>
@@ -188,6 +250,7 @@
 			</div>
 		{% endfor %}
     {% endif %}
+    
 {% endblock %}
 
 {% block extra_footer %}

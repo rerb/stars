@@ -1,5 +1,7 @@
 {% extends 'credits/columned_layout.html' %}
 
+{% load thumbnail %}
+
 {% block navHeader %}
     <h4>
         <a href='{{ submissionset.get_scorecard_url }}'>STARS {{ submissionset.creditset }}</a>
@@ -9,11 +11,15 @@
 {% block railAboveMenu %}
     <div style='text-align: center;'>
     <a href='{{ submissionset.get_scorecard_url }}'>
-        {% if preview %}
-            <img src='/media/static/images/STARS-Participant-200x200.png' alt='Preview' class='seal' />
-        {% else %}
-            <img src='{{ submissionset.rating.image_200.url }}' alt='{{ submissionset.rating }}' class='seal' />
-        {% endif %}
+    {% if preview %}
+    	{% thumbnail "https://stars.aashe.org/media/static/images/seals/Stars_Seal_Participant_RGB_300.png" "300x300" as im %}
+    		<img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" />
+		{% endthumbnail %}
+    {% else %}
+    	{% thumbnail submissionset.rating.image_large "300x300" as im %}
+    		<img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt='{{ submissionset.rating }}' />
+		{% endthumbnail %}
+    {% endif %}
     </a>
     </div>
     {% include 'institutions/scorecards/vertical_status_table.html' %}
@@ -22,44 +28,40 @@
 {% block center_column %}
     {% load submit_tags %}
     <h1>
-        {% if preview %}<i>Preview:</i>{% endif %}
         <a href='{{ submissionset.get_scorecard_url }}'>{{ institution }}</a><br/>
         {{ credit_submission.credit }}
     </h1>
     
-    <table class='statusTable' cellspacing='0'>
+    <table class='table table-bordered table-condensed table-striped'>
         {% include 'institutions/scorecards/credit_status_table.html' %}
     </table>
-    
-    {% if credit_submission.submission_notes %}
-    <div class='submissionBoundary'>
-        <img
-            src='/media/static/images/collapse_big.gif' alt='+'
-            onclick='expandCollapse(this, false);'
-            style='vertical-align: middle;'
-            id='ec_notes' class='collapseExpand initial_expand' />
-        <i>Credit Submission Notes:</i><br/>
-        <div id='ec_notes_target'>
-            {{ credit_submission.submission_notes|urlize|linebreaks|fix_ampersands }}
-        </div>
-    </div>
-    {% endif %}
-    
-    <ul id="tabnav" {% block tabclass %}class='tab1'{% endblock %}>
-        <li class="tab1">
-            <a href="{{ credit_submission.get_scorecard_url }}">Reporting Fields</a>
-        </li>
-        <li class="tab2">
-            <a href="{{ credit_submission.get_scorecard_url }}documentation/">Credit Info</a>
-        </li>
-        {% if user_tied_to_institution and credit_submission.internal_notes %}
-            <li class='tab3'>
-                <a href='{{ credit_submission.get_scorecard_url }}internal-notes/'>Internal Notes</a>
-            </li>
-        {% endif %}
-    </ul>
+	
     <div class='tabContent'>
     	{% block tab_content %}
+    
+	    {% with "fields" as active %}
+	    	{% include "institutions/scorecards/credit_tabs.html" %}
+	    {% endwith %}
+	    
+	    {% block submission_notes %}
+		    {% if credit_submission.submission_notes %}
+		    	    <div class="accordion" id="boundary">
+				       <div class="accordion-group">
+				         <div class="accordion-heading">
+				           <a class="accordion-toggle" data-toggle="collapse" data-parent="#boundary" href="#collapseOne">
+				             Credit Submission Notes
+				           </a>
+				         </div>
+				         <div id="collapseOne" class="accordion-body collapse in">
+				           <div class="accordion-inner">
+				             {{ credit_submission.submission_notes|urlize|linebreaks|fix_ampersands }}
+				            </div>
+				         </div>
+				       </div>
+				     </div>
+		    {% endif %}
+	    {% endblock %}
+    	
     	{% if credit_submission.submission_status == 'na' %}
     		<p class='hideReportingFields'>
     			This credit was marked as <b>Not Applicable</b> for the following reason:<br/><br/>

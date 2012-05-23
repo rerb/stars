@@ -2,6 +2,7 @@
 {% load help %}
 
 <table class='table table-striped table-bordered table-condensed'>
+    <thead>
     <tr>
         <th>
           STARS Version
@@ -14,15 +15,15 @@
         <th>Provisional Score</th>
         {% endtestrule %}
         <th>Export</th>
-    </tr><tr>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
         <td>
           {{ active_submission.creditset.version }}
           {% testrule user_can_migrate_submission user active_submission %}
-              <br/>
-              <a href='/tool/manage/migrate/' style='text-decoration: none;'>
-                <img src='/media/static/images/arrow_right.png' alt='' style='vertical-align: middle;'/>
-                Move to latest
-              </a>
+              <br/><a href='/tool/manage/migrate/' class='btn btn-mini'>
+        		<i class='icon-share-alt'></i >Migrate</a>
           {% endtestrule %}
         </td>
         {% testrule institution_has_score_feature user.current_inst %}
@@ -47,4 +48,5 @@
           {% endtestrule %}
     	</td>
     </tr>
+    </tbody>
 </table>

@@ -1,23 +1,28 @@
 {% extends 'institutions/scorecards/credit.html' %}
 
+{% load bootstrap %}
+
 {% block title %}Data Correction Request | {{ block.super }}{% endblock %}
 
-{% block crumbs %}
-    {{ block.super }} &gt;
-    Data Correction Request
+{% block crumb-tab %}
+   	{{ block.super }}
+   	<li>
+   		<span class="divider">/</span>
+    	Data Correction Request
+    </li>
 {% endblock %}
 
 {% block content %}
 	<br/>
 	<h1>Data Correction Request</h1><br/>
-	<form class='generalForm' method='post' action='.' style='margin: 0px 50px 10px 50px;'>
+	<form class='form-horizontal' method='post' action='.'>
 		{% load content %}
 		{% display_block_content 'data_correction_top' user %}
 		
 		<h2>Correction</h2><br/>
 		{% display_block_content "data_correction_confirm" user %}
 		{% include 'helpers/required_div.html' %}
-		<table class='greyTHTable'>
+		<table class='table'>
 			<tr>
 				<th>Credit</th>
 				<td><b>{{ credit_submission.credit }}</b></td>
@@ -36,8 +41,8 @@
 			</tr>
 		</table>
 		{% with form as object_form %}
-	    	{% include "helpers/label_above_input_form.html" %}
+	    	{{ object_form|bootstrap }}
 	    {% endwith %}
-    	<div class='button_row'><button type='submit'>Submit</button></div>
+    	<div class='form-actions'><button type='submit' class='btn btn-primary'>Submit</button></div>
     </form>
 {% endblock %}

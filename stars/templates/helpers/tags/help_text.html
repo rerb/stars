@@ -1,12 +1,14 @@
+{% autoescape off %}
     {% if help_text %}
         {% if tooltip %}
         	<a 	href="#"
         		rel="popover"
         		data-content="{{ help_text }}"
         		id="{{ id }}"
-        		data-original-title="{{ help_text_title }}"><i class='icon-question-sign'></i></a>
+        		data-original-title="{% if help_text_title %}{{ help_text_title }}{% else %}?{% endif %}"><i class='icon-question-sign'></i></a>
         {% else %}
             <span class='help_text'> {{ help_text }} </span>
         {% endif %}
     {% endif %}
     <script type='text/javascript'>$('#{{ id }}').popover();</script>
+{% endautoescape %}

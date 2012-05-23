@@ -2,9 +2,11 @@
 
 {% load content %}
 
-{% block crumbs %} {{ block.super }} &gt; Users {% endblock %}
+{% block crumbs-tool %}<li>Users</li>{% endblock %}
 
-{% block tabclass %}class='tab2'{% endblock %}
+{% block tabs %}
+	{% with active_tab="users" %}{{ block.super }}{% endwith %}
+{% endblock %}
 
 {% block help_content %}
     {% display_block_content 'manage_accounts' user %}
@@ -12,13 +14,16 @@
 
 {% block institution_content %}
     <form method='post' action='/tool/manage/users/add/'>
-        <table class='greyTable'>
+        <table class='table'>
+        	<thead>
           <tr>
             <th>User's e-mail</th>
             <th>Role</th>
             <th></th>
             <th>Last Login</th>
           </tr>
+          </thead>
+          <tbody>
           {% for row in account_list %}
             {% if row.edit_form %}
               <tr>
@@ -27,7 +32,7 @@
                      {{ row.edit_form.email }}
                 </td>
                 <td>{{ row.edit_form.userlevel }}</td>
-                <td class='buttonColumn'> <button type='submit'>Save</button> </td>
+                <td class='buttonColumn'> <button type='submit' class='btn'>Save</button> </td>
                 <td>
                   {{ notify_form.notify_users }}
                    <span class='help'>Notify user by e-mail of account changes.</span>
@@ -46,15 +51,15 @@
                 <td class='buttonColumn'>
                     {% ifnotequal account.user user %}
                         <a href='{{ account.get_edit_url }}'>
-                            <img src='/media/static/images/page_edit.png' alt='edit' title='edit' />
+                            <i class='icon-pencil'></i>
                         </a>
                         <a href='{{ account.get_delete_url }}'>
-                            <img src='/media/static/images/delete.png' alt='delete' title='delete' />
+                            <i class='icon-trash'></i>
                         </a>
                     {% else %}
                         {% if user.is_staff %}
                           <a href='{{ account.get_delete_url }}'>
-                              <img src='/media/static/images/cross.png' alt='delete' title='This is your account - are you sure you want to delete it?' />
+                              <i class='icon-trash'></i>
                           </a>
                         {% endif %}
                     {% endifnotequal %}
@@ -78,19 +83,20 @@
             <td class='buttonColumn'>
               {% if editing %}
 	            <a href='{{ account_list.0.account.get_manage_url }}'>
-	              <img src='/media/static/images/page_edit.png' alt='New' title='Edit New Account' />
+	              <i class='icon-pencil'></i>
 	            </a>
               {% else %}
-                <button type='submit'>Add</button>
+                <button type='submit' class='btn btn-primary'>Add</button>
               {% endif %}
             </td>
             <td>
               {% if not editing %}
                 {{ notify_form.notify_users }}
-                 <span class='help'>Notify user by e-mail of new STARS account.</span>
+                 <span class='help'>Notify user by e-mail of new account.</span>
               {% endif %}
             </td>
            </tr>
+           </tbody>
          </table>
     </form>
 {% endblock %}

@@ -1,17 +1,9 @@
 {% extends 'empty_base.html' %}
 
 {% block title %} Credit Info | {{ credit }}{% endblock %}
-{% block extra_head %}
-    <link href='/media/static/css/style.css' rel='stylesheet' type='text/css' />
-    <style>
-        html, body {
-            background-color: white;
-        }
-    </style>
-{% endblock %}
 
 {% block body %}
-    <div class='creditContent'>
+    <div class='well'>
         <h1>{{ credit }}</h1><br/><br/>
         {% include 'tool/submissions/credit_documentation.html' %}
     </div>

@@ -16,7 +16,7 @@
     	{% block tabs %}
     	<ul class="nav nav-tabs">
 			<li{% if active_tab == "summary" %} class="active" {% endif %}>
-				<a href="/tool/">My Summary</a>
+				<a href="/tool/">Summary</a>
 			</li>
 			
 			{% testrule user_has_access_level user 'admin' user.current_inst %}
@@ -28,13 +28,16 @@
 				<a href="/tool/manage/">Contact</a>
 			</li>
 			<li{% if active_tab == 'payments' %} class="active" {% endif %}>
-				<a href="/tool/manage/payments/">Payment History</a>
+				<a href="/tool/manage/payments/">Payments</a>
 			</li>
 			<li{% if active_tab == 'rps' %} class="active" {% endif %}>
 				<a href="/tool/manage/responsible-parties/">Responsible Parties</a>
 			</li>
 			<li{% if active_tab == 'share' %} class="active" {% endif %}>
 				<a href='/tool/manage/share-data/'>Share Data</a>
+			</li>
+			<li{% if active_tab == 'migrate' %} class="active" {% endif %}>
+				<a href='/tool/manage/migrate/'>Migrate</a>
 			</li>
 			{% endtestrule %}
 		</ul>

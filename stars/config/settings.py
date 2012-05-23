@@ -136,6 +136,7 @@ INSTALLED_APPS = (
     'djcelery',
     'aashe_rules',
     'tastypie',
+    'bootstrapform',
     # 'memcache_status',
 )
 

@@ -37,7 +37,6 @@
 					            <span class='label label-success'>STARS Participant</span><br/>
 					      {% else %}
 					        	<span class='label label-important'>Survey Respondent</span>
-					        	{% show_help_context 'what-is-respondent' %}
 					      {% endif %}
 					   	</td>
 					   	{% if current_inst.current_rating %}<td>{{ current_inst.current_rating }}</td>{% endif %}
@@ -90,10 +89,11 @@
 		
 		<div class='{% if rating_list %}span5{% else %}span9{% endif %}'>
 		  
+		  <h3>STARS Subscriptions</h3>
 		  <table class='table'>
 		  	<thead>
 		  	<tr>
-		  		<th colspan='2'>STARS Subscriptions</th>
+		  		<th colspan='2'>Subscription Period</th>
 		  	</tr>
 		  	</thead>
 		  	<tbody></tbody>
@@ -127,10 +127,12 @@
 		
 		{% if rating_list %}
 			<div class='span4'>
+				<h3>Previous Reports</h3>
 				<table class='table'>
 					<thead>
 					<tr>
-						<th>Previous Ratings</th>
+						<th>Date</th>
+						<th>Rating</th>
 					</tr>
 					<tbody>
 				  {% for ss in rating_list %}
@@ -138,13 +140,16 @@
 				  		<a href='{{ ss.get_scorecard_url }}'>{{ ss.date_submitted }}</a>
 				  	</td><td>
 				  		{% thumbnail ss.rating.image_large "50x50" as im %}
-				  		<a href='{{ ss.get_scorecard_url }}'>
-				  			<img src="{{ im.url }}" width="{{ im.x }}" height="{{ im.y }}" alt='{{ ss.rating }}' /></a>
+				  			<img src="{{ im.url }}" width="{{ im.x }}" height="{{ im.y }}" alt='{{ ss.rating }}' />
 				  		{% endthumbnail %}
-			      <a
-			        href='/media/{{ ss.rating.image_large }}'
-			        title='Download larger logo'>
-			          <i class='icon-download'></i></a>
+				  		<br/>{{ ss.rating }}
+				  		
+				  		{% thumbnail ss.rating.image_large "1650x1650" as large %}
+					      <a
+					        href='{{ large.url }}'
+					        title='Download larger logo'>
+					          <i class='icon-download-alt'></i></a>
+					    {% endthumbnail %}
 				  	</td></tr>
 				  {% endfor %}
 				 </table>

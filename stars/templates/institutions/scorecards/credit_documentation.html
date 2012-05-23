@@ -2,11 +2,6 @@
 
 {% block title %}Documentation | {{ block.super }}{% endblock %}
 
-{% block crumbs %}
-    {{ block.super }} &gt;
-    <a href='{{ credit_submission.get_scorecard_url }}documentation/'>Documentation</a>
-{% endblock %}
-
 {% block content %}
     {% include 'institutions/scorecards/credit_info_include.html' %}
 {% endblock %}

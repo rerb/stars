@@ -13,9 +13,10 @@ from stars.apps.accounts.utils import respond
 from stars.apps.accounts.mixins import InstitutionAccessMixin
 from stars.apps.credits.models import CreditSet
 from stars.apps.submissions.models import *
+from stars.apps.submissions.rules import user_can_preview_submission
 from stars.apps.institutions.models import Institution, StarsAccount
 from stars.apps.institutions.forms import *
-from stars.apps.institutions.rules import institution_has_export
+from stars.apps.institutions.rules import institution_has_export, user_has_access_level
 from stars.apps.helpers.forms.views import TemplateView, FormActionView, MultiFormView
 from stars.apps.credits.views import CreditNavMixin
 from stars.apps.notifications.models import EmailTemplate
@@ -224,17 +225,8 @@ class InstitutionScorecards(TemplateView):
             qs = qs.filter(status='r')
         
         for ss in qs:
-            if ss.status == 'r':
+            if ss.status == 'r' or user_can_preview_submission(request.user, ss):
                 submission_sets.append(ss)
-            elif request.user.has_perm('admin'):
-                submission_sets.append(ss)
-            else:
-                try:
-                    account = StarsAccount.objects.get(institution=institution, user=request.user)
-                    if account.has_access_level('observer'):
-                        submission_sets.append(ss)
-                except:
-                    pass
                     
         if len(submission_sets) < 1 and not institution.is_participant:
             raise Http404
@@ -292,7 +284,7 @@ class ScorecardMixin(object):
                     raise Http404
                 # if the submissionset isn't rated raise a 404 exception unless the user has preview access
                 if submissionset.status != 'r':
-                    if context.has_key('user_tied_to_institution'):
+                    if user_can_preview_submission(request.user, submissionset):
                         context['preview'] = True
                     else:
                         raise Http404

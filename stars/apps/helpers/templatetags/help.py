@@ -16,19 +16,24 @@ def lookup_help_context(context_name):
         return c
     except:
         watchdog.log("get_help_context", "HelpContext, '%s', not found." % context_name)
-        return ""
+        return None
 
 @register.inclusion_tag('helpers/tags/help_text.html')
 def show_help_context(context_name, as_tooltip=True):
     """ Displays a tool-tip for the help text for the given context. """
     help_context = lookup_help_context(context_name)
     
-    return {
-            'help_text': help_context.help_text, #_clean(help_context.help_text, as_tooltip),
-            "tooltip": as_tooltip,
-            "id": context_name,
-            "help_text_title": help_context.title
-            }
+    if help_context:
+        return {
+                'help_text': help_context.help_text, #_clean(help_context.help_text, as_tooltip),
+                "tooltip": as_tooltip,
+                "id": context_name,
+                "help_text_title": help_context.title
+                }
+    else:
+        return {
+                    'help_text': None
+                }
 
 @register.simple_tag
 def get_help_context(context_name):

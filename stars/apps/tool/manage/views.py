@@ -281,14 +281,6 @@ def migrate_submissionset(request):
     current_submission = current_inst.current_submission
     latest_creditset = CreditSet.objects.get_latest()
     
-    if latest_creditset == current_submission.creditset:
-        flashMessage.send("%s is the latest version of STARS" % (current_submission.creditset), flashMessage.ERROR)
-        return HttpResponseRedirect("/tool/submissions/")
-    
-    if current_submission.is_locked:
-        flashMessage.send("Already marked for migration.", flashMessage.ERROR)
-        return HttpResponseRedirect("/tool/")
-    
     ObjectForm = MigrateSubmissionSetForm
     
     object_form, saved = form_helpers.basic_save_form(request, current_submission, current_submission.id, ObjectForm)
@@ -301,8 +293,9 @@ def migrate_submissionset(request):
     template = 'tool/manage/migrate_submissionset.html'
     context = {
         "object_form": object_form,
-        "submission_set": current_submission,
+        "active_submission": current_submission,
         "latest_creditset": latest_creditset,
+        "available_submissions": None,
     }
     return respond(request, template, context)
 

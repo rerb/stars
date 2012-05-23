@@ -2,9 +2,10 @@
 
 {% block title %}{{ subcategory }} | {{ block.super}}{% endblock %}
 
-{% load submit_tags  %}
+{% load submit_tags %}
+{% load bootstrap %}
 
-{% block crumbs %} 
+{% block crumbs-tool %} 
     {{ block.super }}
     {% show_submit_crumbs subcategory %}
 {% endblock %}
@@ -20,14 +21,11 @@
 	<p>
 		{% show_help_context 'subcategory_description' 0 %}
 	</p>
-	<form method='post' action='.' class='submit_form' name='submission_form' onsubmit='enable_submit(false, true);'>
-		<div class='creditContent'>
-			<table>
-				{{ submission_form }}
-			</table>
-			<div class='button_row'>
-		        <button type='submit' id='submit_button' {% if errors %}class='errors'{% endif %}>Save</button>
+	<form method='post' action='.' class='form-horizontal' name='submission_form' onsubmit='enable_submit(false, true);'>
+			{{ submission_form|bootstrap }}
+			<div class='form-actions'>
+		        <button type='submit' id='submit_button' class='btn btn-primary{% if errors %} errors{% endif %}'>Save</button>
+		        <a href='/tool/submissions/' class='btn'>Cancel</a>
 		    </div>
-	    </div>
 	</form>
 {% endblock %}

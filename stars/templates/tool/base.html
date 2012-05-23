@@ -33,18 +33,17 @@
 		       {% if user.current_inst.is_participant %}
 		            <span class='label label-success'>STARS Participant</span><br/>
 		      {% else %}
-		        	<span class='label label-important'>Campus Sustainability Data Collector - Survey Respondent</span>
+		        	<span class='label label-important'>Survey Respondent</span>
 		        	<br/>
 		        	What does this mean?
 		          	{% show_help_context 'what-is-respondent' %}
 		      {% endif %}
+		      <br/><br/>
 	        </div>
-	        
 	        {% block tool_menu %}
 	        	{% include "tool/menu.html" %}
 			{% endblock %}
 		</div>
-	
 		<div class='span9'>
 			{% block tool_content %}{% endblock %}
 		</div>

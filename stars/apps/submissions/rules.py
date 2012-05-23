@@ -25,6 +25,10 @@ def user_can_manage_submission(user, submission):
     return submission_is_editable(submission) and user_has_access_level(user, 'admin', submission.institution)
 aashe_rules.site.register("user_can_manage_submission", user_can_manage_submission)
 
+def user_can_see_internal_notes(user, submission):
+    return user_has_access_level(user, 'view', submission.institution)
+aashe_rules.site.register("user_can_see_internal_notes", user_can_see_internal_notes)
+
 def user_can_submit_for_rating(user, submission):
     """
         Rule defines whether a user (and institution) has
@@ -46,3 +50,18 @@ def user_can_migrate_submission(user, submission):
     else:
         return False
 aashe_rules.site.register("user_can_migrate_submission", user_can_migrate_submission)
+
+def submission_has_scores(submission):
+    """
+        Indicates that the preview or reporting tool should show scores for
+        this submission
+    """
+    if submission.status == 'r':
+        return submission.rating.name != "Reporter"
+    elif submission.status == 'f':
+        # don't show score for snapshots
+        return False
+    else:
+        return submission.institution.is_participant
+aashe_rules.site.register("submission_has_scores", submission_has_scores)
+    

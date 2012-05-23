@@ -6,13 +6,7 @@
 	{% with active_menu="submission"%}{{ block.super }}{% endwith %}
 {% endblock %}
 
-{% block extra_head %}
-	{{ block.super }}
-	<link href='/media/static/css/listexpander.css' rel='stylesheet' type='text/css' />
-	<script src='/media/static/js/listexpander.js' type='text/javascript'></script>
-{% endblock %}
-
-{% block body_onload %}{{ block.super }}listexpander();collapseSummary();{% endblock %}
+{% block body_onload %}{{ block.super }}{% endblock %}
 
 {% block submission_outline %}
       <style type='text/css'>

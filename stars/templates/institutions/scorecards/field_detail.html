@@ -7,7 +7,7 @@
 {% load humanize %}
 
 {% if not field.is_empty %}
-    <div class='greyBox'
+    <div class='well'
         {% ifequal field.documentation_field.type 'long_text' %}
         style='padding: 10px 20px;'>
         {% else %}
@@ -37,7 +37,7 @@
     	{% endfor %}
     {% endif %}
 {% else %}
-    <div class='greyBoxSmall'>
+    <div class='well'>
         <span class='green'>---</span>
     </div>
 {% endif %}

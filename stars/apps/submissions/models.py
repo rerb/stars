@@ -869,10 +869,10 @@ CREDIT_SUBMISSION_STATUS_CHOICES = list(CREDIT_SUBMISSION_STATUS_CHOICES_W_NA)
 CREDIT_SUBMISSION_STATUS_CHOICES.append(('ns', 'Not Started'))
 
 CREDIT_SUBMISSION_STATUS_ICONS = {   # used by template tag to create iconic representation of status
-    'c'  : ('tick.png', 'c'),
-    'p'  : ('pencil.png', '...'),
-    'np' : ('grey_cross.png', '-'),
-    'na' : ('tag_yellow.png', '-'),
+    'c'  : ('icon-ok', 'c'),
+    'p'  : ('icon-pencil', '...'),
+    'np' : ('icon-remove', '-'),
+    'na' : ('icon-tag', '-'),
 }
 
 class CreditUserSubmission(CreditSubmission):
@@ -1060,7 +1060,7 @@ class DataCorrectionRequest(models.Model):
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
     reporting_field = generic.GenericForeignKey('content_type', 'object_id')
-    new_value = models.TextField(help_text='If this is a numeric field, then please to remove any units before approving.')
+    new_value = models.TextField()
     explanation = models.TextField()
     user = models.ForeignKey(User, blank=True, null=True)
     approved = models.BooleanField(default=False)

@@ -2,11 +2,6 @@
 
 {% block title %}Internal Notes | {{ block.super }}{% endblock %}
 
-{% block crumbs %}
-    {{ block.super }} &gt;
-    <a href='{{ credit_submission.get_scorecard_url }}internal-notes/'>Internal Notes</a>
-{% endblock %}
-
 {% block content %}
     {% include 'institutions/scorecards/internal_notes_include.html' %}
 {% endblock %}
