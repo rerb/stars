@@ -15,7 +15,9 @@ urlpatterns = patterns(
     (r'^users/delete/(?P<account_id>\d+)/$', 'delete_account'),
     (r'^share-data/$', 'share_data'),
 
-    (r'^migrate/$', 'migrate_submissionset'),
+    (r'^migrate/$', 'migrate_options'),
+    (r'^migrate/data/(?P<ss_id>\d+)/$', 'migrate_data'),
+    (r'^migrate/version/$', 'migrate_version'),
     
     (r'^purchase-subscription/', 'purchase_subscription'),
     (r'^pay-subscription/(?P<subscription_id>\d+)/$', 'pay_subscription'),

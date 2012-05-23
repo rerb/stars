@@ -8,11 +8,11 @@
           STARS Version
         </th>
         {% testrule institution_has_score_feature user.current_inst %}
-        <th>
-        	Provisional STARS Rating
-        	{% show_help_context 'provisional_rating' %}
-        </th>
-        <th>Provisional Score</th>
+	        <th>
+	        	Provisional STARS Rating
+	        	{% show_help_context 'provisional_rating' %}
+	        </th>
+	        <th>Provisional Score</th>
         {% endtestrule %}
         <th>Export</th>
     </tr>
@@ -21,7 +21,7 @@
     <tr>
         <td>
           {{ active_submission.creditset.version }}
-          {% testrule user_can_migrate_submission user active_submission %}
+          {% testrule user_can_migrate_version user active_submission %}
               <br/><a href='/tool/manage/migrate/' class='btn btn-mini'>
         		<i class='icon-share-alt'></i >Migrate</a>
           {% endtestrule %}

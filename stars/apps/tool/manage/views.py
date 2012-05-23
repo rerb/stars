@@ -13,7 +13,8 @@ from stars.apps.accounts import xml_rpc
 from stars.apps.institutions.models import Institution, StarsAccount, Subscription, SubscriptionPayment, SUBSCRIPTION_DURATION, PendingAccount
 from stars.apps.institutions.rules import user_has_access_level
 from stars.apps.submissions.models import SubmissionSet, EXTENSION_PERIOD, ExtensionRequest
-from stars.apps.submissions.tasks import migrate_purchased_submission, perform_migration
+from stars.apps.submissions.tasks import migrate_purchased_submission, perform_migration, perform_data_migration
+from stars.apps.submissions.rules import user_can_migrate_version, user_can_migrate_data
 from stars.apps.third_parties.models import ThirdParty
 from stars.apps.helpers.forms import form_helpers
 from stars.apps.helpers import watchdog
@@ -273,7 +274,7 @@ def share_data(request):
 #    return respond(request, 'tool/manage/submissionset_list.html', context)
 
 
-def migrate_submissionset(request):
+def migrate_options(request):
     """
         Provides a tool to migrate a submission set
     """
@@ -281,21 +282,73 @@ def migrate_submissionset(request):
     current_submission = current_inst.current_submission
     latest_creditset = CreditSet.objects.get_latest()
     
+    avatilable_submission_list = current_inst.submissionset_set.filter(status='r')
+
+    template = 'tool/manage/migrate_submissionset.html'
+    context = {
+        "active_submission": current_submission,
+        "latest_creditset": latest_creditset,
+        "available_submission_list": avatilable_submission_list,
+    }
+    return respond(request, template, context)
+
+def migrate_data(request, ss_id):
+    """
+        Provides a tool to migrate a submission set
+    """
+    current_inst = _get_current_institution(request)
+    current_submission = current_inst.current_submission
+    old_submission = get_object_or_404(current_inst.submissionset_set.all(), id=ss_id)
+    
+    if not user_can_migrate_data(request.user, current_submission):
+        raise PermissionDenied("Sorry, but you don't have permission to migrate data.")
+    
     ObjectForm = MigrateSubmissionSetForm
     
     object_form, saved = form_helpers.basic_save_form(request, current_submission, current_submission.id, ObjectForm)
     if saved:
         # start a migration task
-        flashMessage.send("Your migration is in progress.", flashMessage.SUCCESS)
+        flashMessage.send("Your migration is in progress. Please allow a few minutes before you can access your submission.", flashMessage.NOTICE)
+        perform_data_migration.delay(old_submission, request.user)
+        return HttpResponseRedirect("/tool/")
+
+    template = 'tool/manage/migrate_data.html'
+    context = {
+        "object_form": object_form,
+        "active_submission": current_submission,
+        "old_submission": old_submission,
+    }
+    return respond(request, template, context)
+
+def migrate_version(request):
+    """
+        Provides a tool to migrate a submission set
+    """
+    current_inst = _get_current_institution(request)
+    current_submission = current_inst.current_submission
+    latest_creditset = CreditSet.objects.get_latest()
+    
+    if latest_creditset.version == current_submission.creditset.version:
+        flashMessage.send("Already using %s." % latest_creditset, flashMessage.Error)
+        return HttpResponseRedirect("/tool/manage/migrate")
+    
+    if not user_can_migrate_version(request.user, current_submission):
+        raise PermissionDenied("Sorry, but you don't have permission to migrate data.")
+    
+    ObjectForm = MigrateSubmissionSetForm
+    
+    object_form, saved = form_helpers.basic_save_form(request, current_submission, current_submission.id, ObjectForm)
+    if saved:
+        # start a migration task
+        flashMessage.send("Your migration is in progress. Please allow a few minutes before you can access your submission.", flashMessage.NOTICE)
         perform_migration.delay(current_submission, latest_creditset, request.user)
         return HttpResponseRedirect("/tool/")
 
-    template = 'tool/manage/migrate_submissionset.html'
+    template = 'tool/manage/migrate_version.html'
     context = {
         "object_form": object_form,
         "active_submission": current_submission,
         "latest_creditset": latest_creditset,
-        "available_submissions": None,
     }
     return respond(request, template, context)
 

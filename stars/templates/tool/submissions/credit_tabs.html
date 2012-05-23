@@ -1,6 +1,10 @@
 {% load aashe_rules_tags %}
 
 <ul class="nav nav-tabs">
+  <li {% if active == "fields"%} class='active'{% endif %}>
+  	<a href="{{ credit_submission.get_submit_url }}">Reporting Fields</a>
+  </li>
+  
   <li class="dropdown{% if active == 'info' %} active{% endif %}">
     <a class="dropdown-toggle"
        data-toggle="dropdown"
@@ -19,9 +23,7 @@
       </li>
     </ul>
   </li>
-  <li {% if active == "fields"%} class='active'{% endif %}>
-  	<a href="{{ credit_submission.get_submit_url }}">Reporting Fields</a>
-  </li>
+  
   {% testrule institution_has_internal_notes_feature user.current_inst %}
      <li{% if active == "notes"%} class='active'{% endif %}>
      	<a href="{{ credit_submission.get_submit_url }}notes/">Internal Notes</a>

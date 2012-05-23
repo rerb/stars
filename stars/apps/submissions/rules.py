@@ -41,7 +41,7 @@ def user_can_submit_snapshot(user, submission):
     return user_can_manage_submission(user, submission) and institution_has_snapshot_feature(submission.institution)
 aashe_rules.site.register("user_can_submit_snapshot", user_can_submit_snapshot)
 
-def user_can_migrate_submission(user, submission):
+def user_can_migrate_version(user, submission):
     """
         Only institution admins can migrate a submission
     """
@@ -49,7 +49,14 @@ def user_can_migrate_submission(user, submission):
         return user_has_access_level(user, 'admin', submission.institution)
     else:
         return False
-aashe_rules.site.register("user_can_migrate_submission", user_can_migrate_submission)
+aashe_rules.site.register("user_can_migrate_version", user_can_migrate_version)
+
+def user_can_migrate_data(user, submission):
+    """
+        Only institution admins can migrate a submission
+    """
+    return user_has_access_level(user, 'admin', submission.institution)
+aashe_rules.site.register("user_can_migrate_data", user_can_migrate_data)
 
 def submission_has_scores(submission):
     """
