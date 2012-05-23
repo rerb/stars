@@ -10,7 +10,11 @@
 	        <span class='conditionally_required_note' title="In some cases, this field will be required to complete credit">*</span>
 	    {% endif %}
 	    {{ documentation_field.title }}
-	    {% show_help_text documentation_field.tooltip_help_text 1 %}
+	    {% with documentation_field.tooltip_help_text as help_text%}
+	    {% with "true" as tooltip %}
+	    {% with documentation_field.id as id %}
+	    	{% include "helpers/tags/help_text.html" %}
+	    {% endwith %}{% endwith %}{% endwith %}
       </label>
       <div class="controls">
         {{ field_form.value }}
