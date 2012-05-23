@@ -3,7 +3,7 @@ from django.contrib import admin
 from models import *
 
 class RatingAdmin(admin.ModelAdmin):
-    list_display = ('name', 'minimal_score', 'creditset')
+    list_display = ('name', 'minimal_score', 'creditset', 'image_large')
     list_filter = ('creditset',)
     ordering = ('minimal_score', 'creditset', )
     
