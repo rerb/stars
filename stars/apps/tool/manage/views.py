@@ -347,7 +347,7 @@ def migrate_version(request):
     template = 'tool/manage/migrate_version.html'
     context = {
         "object_form": object_form,
-        "active_submission": current_submission,
+        "current_submission": current_submission,
         "latest_creditset": latest_creditset,
     }
     return respond(request, template, context)
