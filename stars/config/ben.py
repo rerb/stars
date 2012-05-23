@@ -102,4 +102,4 @@ if 'test' in sys.argv:
     DATABASES['default']['OPTIONS'] = {}
     
 # Thumbnails
-THUMBNAIL_DEBUG = False
+THUMBNAIL_DEBUG = True

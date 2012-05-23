@@ -1,0 +1,12 @@
+Python Environment
+------------------
+
+My experience is that the easiest setup is to use the homebrew package manager. This is because it's so hard to get mysqldb going otherwise.
+
+http://stackoverflow.com/questions/7375199/python-brew-and-mysqldb
+
+Once you've done this, you'll need to set Eclipse to use your homebrew python and run bootstrap.py with the homebrew python.
+
+If you have trouble running PIL, try installing jpeg w/ homebrew:
+
+brew install jpeg

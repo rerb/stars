@@ -1,15 +1,16 @@
 = Developing with the Eclipse IDE =
 
-	1. Install the PyDev extension in eclipse
-	2. Install MercurialEclipse
-	3. Create a new Mercurial project that clones the repo
-	4. Right-click on the project: PyDev > Set as Pydev Project
-	5. Right-click on the project: PyDev > Set as Django Project
-	6. Close Eclipse
-	7. Run /my/local/python bootstrap.py from the new project directory
-	8. Run bin/buildout - this will install all the required dependencies and reconfigure pydev
-	9. Restart Eclipse
-	10. Run the tool using run as "Pydev: Django"
+	1. Install the PyDev extension in eclipse (http://pydev.org/updates)
+	2. Install MercurialEclipse (http://cbes.javaforge.com/update)
+	3. Install Eclipse Web Developer tools from indigo (already in updates)
+	4. Create a new Mercurial project that clones the repo
+	5. Close Eclipse
+	6. Run /my/local/python bootstrap.py from the new project directory
+	7. Run bin/buildout - this will install all the required dependencies and reconfigure pydev
+	8. Restart Eclipse
+	9. Right-click on the project: PyDev > Set as Pydev Project
+	10. Right-click on the project: PyDev > Set as Django Project
+	11. Run the tool using run as "Pydev: Django"
 	
 Reference:
 
