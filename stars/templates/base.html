@@ -33,13 +33,13 @@
 	<body onload='{% block body_onload %}{% endblock %}' onbeforeunload='{% block body_beforeunload %}{% endblock %}'>
 		<div class="container">
 			<div class="row top-nav">
-			  <div class="span6 aashe-tabs">
+			  <div class="span4 aashe-tabs">
 			  	<a href='http://www.aashe.org/' class='left'><strong>aashe</strong></a>
 				<a href='/' class='left'><strong>stars</strong></a>
 				<a href='http://www.aashe.org/conference' class='left'>conference</a>
 			  </div>
 			  
-			  <div class="span6 user-menu">
+			  <div class="span8 user-menu">
 			  	{% block top_menu %}
 	       			{% include 'helpers/top_menu.html' %}
 	    		{% endblock %}
