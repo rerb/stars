@@ -3,8 +3,8 @@ from django.contrib import admin
 from models import *
 
 class SubmissionSetAdmin(admin.ModelAdmin):
-    list_display = ('creditset', 'institution', 'date_registered', 'date_submitted', 'date_reviewed', 'rating')
-    list_filter = ('date_registered','status')
+    list_display = ('creditset', 'institution', 'date_registered', 'date_submitted', 'date_reviewed', 'rating', 'is_locked')
+    list_filter = ('date_registered','status', 'is_locked')
     search_fields = ('institution__name',)
 admin.site.register(SubmissionSet, SubmissionSetAdmin)
 
