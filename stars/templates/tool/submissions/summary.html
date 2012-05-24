@@ -59,7 +59,7 @@
 	                </table>
 	            </div>
 	            
-	            <div id="ec_{{ cat.category.id }}" class="accordion-body collapse in">
+	            <div id="ec_{{ cat.category.id }}" class="accordion-body in">
 	                <div class="accordion-inner">
 	                	
 	                	{% for sub in cat.subcategorysubmission_set.all %}
@@ -90,7 +90,7 @@
 						                    </tr>
 						                </table>
 				                    </div>
-				                    <div id="ec_{{ cat.category.id }}_{{ sub.subcategory.id }}" class="accordion-body collapse in">
+				                    <div id="ec_{{ cat.category.id }}_{{ sub.subcategory.id }}" class="accordion-body in">
 				                        <div class="accordion-inner">
 				                        	{% if active_submission.creditset.has_submission_summary_feature %}
 							   			    	<div class='well' style='text-align: center'>
