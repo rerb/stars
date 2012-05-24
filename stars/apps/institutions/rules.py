@@ -45,6 +45,8 @@ def institution_has_my_resources(institution):
     """
     sept = date(year=2012, day=1, month=9)
     
+    return True
+    
     if institution.is_participant or date.today() < sept:
         return True
     else:
