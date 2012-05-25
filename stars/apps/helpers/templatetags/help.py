@@ -25,7 +25,7 @@ def show_help_context(context_name, as_tooltip=True):
     
     if help_context:
         return {
-                'help_text': help_context.help_text, #_clean(help_context.help_text, as_tooltip),
+                'help_text': help_context.help_text.replace("\"", "'"), #_clean(help_context.help_text, as_tooltip),
                 "tooltip": as_tooltip,
                 "id": context_name,
                 "help_text_title": help_context.title
