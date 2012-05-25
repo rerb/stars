@@ -1,64 +1,103 @@
-from stars.apps.credits.models import CreditSet, Category, Subcategory, Credit
+from stars.apps.credits.models import *
 
 from tastypie import fields
-from tastypie.resources import ModelResource, Resource
-from tastypie.bundle import Bundle
-from tastypie.cache import SimpleCache
-
-from django.core.urlresolvers import reverse
-from django.core.cache import cache
+from tastypie.resources import ModelResource
 
 """
     STARS Credit API
-    
+
     @todo:
         - authentication
         - authorization
         - dehydration
 """
 
+BASE_RESOURCE_PATH = 'stars.apps.credits.api.resources.'
+
 class CreditSetResource(ModelResource):
     """
         Resource for accessing any CreditSet
-        
-        @todo: this needs a list of categories
-        
-        class EntryResource(ModelResource):
-            authors = fields.ToManyField('path.to.api.resources.AuthorResource', 'author_set', related_name='entry')
     """
-    categories = fields.ToManyField('stars.apps.credits.api.resources.CategoryResource', 'category_set', related_name='creditset')
-    
+    categories = fields.ManyToManyField(
+        BASE_RESOURCE_PATH + 'CategoryResource',
+        'category_set', related_name='creditset')
+    supported_features = fields.OneToManyField(
+        BASE_RESOURCE_PATH + 'IncrementalFeatureResource',
+        'supported_features', related_name='creditsets')
+
     class Meta:
         queryset = CreditSet.objects.all()
         resource_name = 'credits/creditset'
-        fields = ['id', 'release_date', 'version']
+        fields = ['id', 'release_date', 'version', 'supported_features']
         allowed_methods = ['get']
-        
+
 class CategoryResource(ModelResource):
     """
         Resource for accessing any Category
-        
+
         Note: I had thought about using more structured URLS
         but I think this might be simpler...??
-        
+
         class AuthorResource(ModelResource):
-            entry = fields.ToOneField(EntryResource, 'entry')
+            entry = fields.ForeignKey(EntryResource, 'entry')
     """
-    creditset = fields.ToOneField(CreditSetResource, 'creditset')
-    subcategories = fields.ToManyField('stars.apps.credits.api.resources.SubcategoryResource', 'subcategory_set', related_name='category')
-    
+    creditset = fields.ForeignKey(CreditSetResource, 'creditset')
+    subcategories = fields.OneToManyField(
+        BASE_RESOURCE_PATH + 'SubcategoryResource', 'subcategory_set',
+        related_name='category')
+
     class Meta:
         queryset = Category.objects.all()
         resource_name = 'credits/category'
         allowed_methods = ['get']
-        
+
 class SubcategoryResource(ModelResource):
     """
         Resource for accessing any Subcategory
     """
-    category = fields.ToOneField(CategoryResource, 'category')
-    
+    category = fields.ForeignKey(CategoryResource, 'category')
+
     class Meta:
         queryset = Subcategory.objects.all()
         resource_name = 'credits/subcategory'
+        allowed_methods = ['get']
+
+class CreditResource(ModelResource):
+    """
+        Resource for accessing any Credit
+    """
+    subcategory = fields.ForeignKey(SubcategoryResource, 'subcategory')
+
+    class Meta:
+        queryset = Credit.objects.all()
+        resource_name = 'credits/credit'
+        allowed_methods = ['get']
+        # exclude these fields because they raise
+        # "'ascii' codec can't decode byte ... in position ...: ordinal not
+        # in range(128)"
+        excludes = ['validation_rules',
+                    'criteria',
+                    'scoring']
+
+class DocumentationFieldResource(ModelResource):
+    """
+        Resource for accessing any DocumentationField
+    """
+    credit = fields.ForeignKey(CreditResource, 'credit')
+
+    class Meta:
+        queryset = DocumentationField.objects.all()
+        resource_name = 'credits/documentationfield'
+        allowed_methods = ['get']
+
+class IncrementalFeatureResource(ModelResource):
+    """
+        Resource for accessing any IncrementalFeature
+    """
+    creditsets = fields.ManyToManyField(CreditSetResource,
+                                        'creditset_set')
+
+    class Meta:
+        queryset = IncrementalFeature.objects.all()
+        resource_name = 'credits/incrementalfeature'
         allowed_methods = ['get']

@@ -1,4 +1,4 @@
-import os, sys
+import os
 
 from django.conf.urls.defaults import *
 from django.conf import settings
@@ -9,22 +9,25 @@ import aashe_rules
 aashe_rules.autodiscover()
 
 from tastypie.api import Api
-from stars.apps.submissions.api import SubmissionSetResource, SummaryPieChart, CategoryPieChart, SubategoryPieChart
+from stars.apps.submissions.api import SummaryPieChart, CategoryPieChart, SubategoryPieChart
 from stars.apps.credits.api.resources import *
 
 v1_api = Api(api_name='v1')
+v1_api.register(CategoryPieChart())
+v1_api.register(CategoryResource())
+v1_api.register(CreditResource())
+v1_api.register(CreditSetResource())
+v1_api.register(DocumentationFieldResource())
+v1_api.register(IncrementalFeatureResource())
+v1_api.register(SubategoryPieChart())
+v1_api.register(SubcategoryResource())
 #v1_api.register(SubmissionSetResource())
 v1_api.register(SummaryPieChart())
-v1_api.register(CategoryPieChart())
-v1_api.register(SubategoryPieChart())
-v1_api.register(CreditSetResource())
-v1_api.register(CategoryResource())
-v1_api.register(SubcategoryResource())
 
 handler500 = 'stars.apps.helpers.views.server_error'
 
 urlpatterns = patterns('',
-                       
+
     (r'^api/', include(v1_api.urls)),
 
     # tool:
@@ -47,13 +50,13 @@ urlpatterns = patterns('',
 
     # admin
     (r'^notifications/', include('stars.apps.notifications.urls')),
-    
+
     # institutions
     (r'^institutions/', include('stars.apps.institutions.urls')),
 
     # registration
     (r'^register/', include('stars.apps.registration.urls')),
-    
+
     # custom forms
     (r'^cfm/', include('stars.apps.custom_forms.urls')),
 
@@ -72,7 +75,7 @@ if settings.STANDALONE_MODE:
         (r'^media/static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': os.path.join(os.path.dirname(__file__), "static")}),
         # tiny_mce
         (r'^media/tp/js/tiny_mce/(?P<path>.*)$', 'django.views.static.serve', {'document_root': os.path.join(os.path.dirname(__file__), "../parts/tinyMCE/tinymce/jscripts/tiny_mce/")}),
-        
+
         (r'^media/tp/js/d3/(?P<path>.*)$', 'django.views.static.serve', {'document_root': os.path.join(os.path.dirname(__file__), "../parts/d3.js/mbostock-d3-224acae/")}),
         # uploads and others
         (r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT}),
