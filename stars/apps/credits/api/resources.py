@@ -14,22 +14,6 @@ from tastypie.resources import ModelResource
 
 BASE_RESOURCE_PATH = 'stars.apps.credits.api.resources.'
 
-class CreditSetResource(ModelResource):
-    """
-        Resource for accessing any CreditSet
-    """
-    categories = fields.ManyToManyField(
-        BASE_RESOURCE_PATH + 'CategoryResource',
-        'category_set', related_name='creditset')
-    supported_features = fields.OneToManyField(
-        BASE_RESOURCE_PATH + 'IncrementalFeatureResource',
-        'supported_features', related_name='creditsets')
-
-    class Meta:
-        queryset = CreditSet.objects.all()
-        resource_name = 'credits/creditset'
-        fields = ['id', 'release_date', 'version', 'supported_features']
-        allowed_methods = ['get']
 
 class CategoryResource(ModelResource):
     """
@@ -51,16 +35,6 @@ class CategoryResource(ModelResource):
         resource_name = 'credits/category'
         allowed_methods = ['get']
 
-class SubcategoryResource(ModelResource):
-    """
-        Resource for accessing any Subcategory
-    """
-    category = fields.ForeignKey(CategoryResource, 'category')
-
-    class Meta:
-        queryset = Subcategory.objects.all()
-        resource_name = 'credits/subcategory'
-        allowed_methods = ['get']
 
 class CreditResource(ModelResource):
     """
@@ -79,6 +53,25 @@ class CreditResource(ModelResource):
                     'criteria',
                     'scoring']
 
+
+class CreditSetResource(ModelResource):
+    """
+        Resource for accessing any CreditSet
+    """
+    categories = fields.ManyToManyField(
+        BASE_RESOURCE_PATH + 'CategoryResource',
+        'category_set', related_name='creditset')
+    supported_features = fields.OneToManyField(
+        BASE_RESOURCE_PATH + 'IncrementalFeatureResource',
+        'supported_features', related_name='creditsets')
+
+    class Meta:
+        queryset = CreditSet.objects.all()
+        resource_name = 'credits/creditset'
+        fields = ['id', 'release_date', 'version', 'supported_features']
+        allowed_methods = ['get']
+
+
 class DocumentationFieldResource(ModelResource):
     """
         Resource for accessing any DocumentationField
@@ -90,6 +83,7 @@ class DocumentationFieldResource(ModelResource):
         resource_name = 'credits/documentationfield'
         allowed_methods = ['get']
 
+
 class IncrementalFeatureResource(ModelResource):
     """
         Resource for accessing any IncrementalFeature
@@ -100,4 +94,16 @@ class IncrementalFeatureResource(ModelResource):
     class Meta:
         queryset = IncrementalFeature.objects.all()
         resource_name = 'credits/incrementalfeature'
+        allowed_methods = ['get']
+
+
+class SubcategoryResource(ModelResource):
+    """
+        Resource for accessing any Subcategory
+    """
+    category = fields.ForeignKey(CategoryResource, 'category')
+
+    class Meta:
+        queryset = Subcategory.objects.all()
+        resource_name = 'credits/subcategory'
         allowed_methods = ['get']
