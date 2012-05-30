@@ -25,7 +25,8 @@ class CategoryResource(ModelResource):
         class AuthorResource(ModelResource):
             entry = fields.ForeignKey(EntryResource, 'entry')
     """
-    creditset = fields.ForeignKey(CreditSetResource, 'creditset')
+    creditset = fields.ForeignKey(BASE_RESOURCE_PATH + 'CreditSetResource',
+                                  'creditset')
     subcategories = fields.OneToManyField(
         BASE_RESOURCE_PATH + 'SubcategoryResource', 'subcategory_set',
         related_name='category')
@@ -40,7 +41,8 @@ class CreditResource(ModelResource):
     """
         Resource for accessing any Credit
     """
-    subcategory = fields.ForeignKey(SubcategoryResource, 'subcategory')
+    subcategory = fields.ForeignKey(BASE_RESOURCE_PATH + 'SubcategoryResource',
+                                    'subcategory')
 
     class Meta:
         queryset = Credit.objects.all()
@@ -76,7 +78,7 @@ class DocumentationFieldResource(ModelResource):
     """
         Resource for accessing any DocumentationField
     """
-    credit = fields.ForeignKey(CreditResource, 'credit')
+    credit = fields.ForeignKey(BASE_RESOURCE_PATH + 'CreditResource', 'credit')
 
     class Meta:
         queryset = DocumentationField.objects.all()
@@ -88,8 +90,9 @@ class IncrementalFeatureResource(ModelResource):
     """
         Resource for accessing any IncrementalFeature
     """
-    creditsets = fields.ManyToManyField(CreditSetResource,
-                                        'creditset_set')
+    creditsets = fields.ManyToManyField(
+        BASE_RESOURCE_PATH + 'CreditSetResource',
+        'creditset_set')
 
     class Meta:
         queryset = IncrementalFeature.objects.all()
@@ -101,7 +104,8 @@ class SubcategoryResource(ModelResource):
     """
         Resource for accessing any Subcategory
     """
-    category = fields.ForeignKey(CategoryResource, 'category')
+    category = fields.ForeignKey(BASE_RESOURCE_PATH + 'CategoryResource',
+                                 'category')
 
     class Meta:
         queryset = Subcategory.objects.all()
