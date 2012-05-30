@@ -8,28 +8,11 @@ admin.autodiscover()
 import aashe_rules
 aashe_rules.autodiscover()
 
-from tastypie.api import Api
-from stars.apps.submissions.api import SummaryPieChart, CategoryPieChart, SubategoryPieChart
-from stars.apps.credits.api.resources import *
-
-v1_api = Api(api_name='v1')
-v1_api.register(CategoryPieChart())
-v1_api.register(CategoryResource())
-v1_api.register(CreditResource())
-v1_api.register(CreditSetResource())
-v1_api.register(DocumentationFieldResource())
-v1_api.register(IncrementalFeatureResource())
-v1_api.register(SubategoryPieChart())
-v1_api.register(SubcategoryResource())
-#v1_api.register(SubmissionSetResource())
-v1_api.register(SummaryPieChart())
-
 handler500 = 'stars.apps.helpers.views.server_error'
 
 urlpatterns = patterns('',
-
-    (r'^api/', include(v1_api.urls)),
-
+    (r'^api/', include('stars.apps.submissions.urls')),
+    (r'^api/', include('stars.apps.credits.api.urls')),
     # tool:
     #(r'^$', 'stars.apps.tool.views.stars_home_page'),
     (r'^$', 'django.views.generic.simple.direct_to_template', {'template': 'home.html'}),
@@ -80,7 +63,6 @@ if settings.STANDALONE_MODE:
         # uploads and others
         (r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT}),
     )
-
 
 import logging
 from sorl.thumbnail.log import ThumbnailLogHandler
