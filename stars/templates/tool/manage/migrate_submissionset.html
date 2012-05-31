@@ -47,6 +47,7 @@
 						</thead>
 						<tbody>
 							{% for sub in available_submission_list %}
+							<tr>
 								<td>
 									{% if sub.date_submitted %}
 										{{ sub.date_submitted }}
@@ -68,6 +69,7 @@
 										<i class='icon-share-alt'></i >Migrate</a>
 									</a>
 								</td>
+							</tr>
 							{% endfor %}
 						</tbody>
 					</table>
