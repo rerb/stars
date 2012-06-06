@@ -13,12 +13,12 @@ urlpatterns = patterns(
     (r'^reports/$', 'overview_report'),
 
     # Payment processing
-    (r'^institution/(?P<institution_id>\d+)/payments/$', 'institution_payments'),
-    (r'^institution/(?P<institution_id>\d+)/submissionsets/(?P<submissionset_id>\d+)/add-payment/$', 'add_payment'),
+    (r'^institution/(?P<institution_id>\d+)/payments/(?P<payment_id>\d+)/$', 'edit_subscriptionpayment'),
+    (r'^institution/(?P<institution_id>\d+)/payments/add/(?P<subscription_id>\d+)/$', 'add_subscriptionpayment'),
     (r'^payments/$', 'latest_payments'),
-    (r'^payments/(?P<payment_id>\d+)/edit/$', 'edit_payment'),
-    (r'^payments/(?P<payment_id>\d+)/receipt/$', 'send_receipt'),
-    (r'^payments/(?P<payment_id>\d+)/delete/$', 'delete_payment'),
+#    (r'^payments/(?P<payment_id>\d+)/edit/$', 'edit_payment'),
+#    (r'^payments/(?P<payment_id>\d+)/receipt/$', 'send_receipt'),
+#    (r'^payments/(?P<payment_id>\d+)/delete/$', 'delete_payment'),
 
     # Admin utilities
     (r'^watchdog/',  include('stars.apps.tool.admin.watchdog.urls')),

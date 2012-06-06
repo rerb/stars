@@ -15,10 +15,10 @@ from stars.apps.accounts.decorators import user_is_staff
 from stars.apps.helpers import watchdog, flashMessage
 from stars.apps.helpers.forms import form_helpers
 from stars.apps.helpers.forms.forms import Confirm as ConfirmForm
-from stars.apps.institutions.models import Institution
+from stars.apps.institutions.models import Institution, Subscription, SubscriptionPayment
 from stars.apps.institutions.views import SortableTableView
 from stars.apps.tool.manage.forms import AdminEnableInstitutionForm
-from stars.apps.submissions.models import SubmissionSet, Payment
+from stars.apps.submissions.models import SubmissionSet
 from stars.apps.tool.admin.forms import PaymentForm
 from stars.apps.helpers.forms.views import FormActionView
 from stars.apps.third_parties.models import ThirdParty
@@ -206,42 +206,51 @@ def institution_payments(request, institution_id):
     
 
 @user_is_staff
-def add_payment(request, institution_id, submissionset_id):
+def add_subscriptionpayment(request, institution_id, subscription_id):
     """
         Process a form for adding a new payment against the given submission set
     """
-    submissionset = get_object_or_404(SubmissionSet, institution__id=institution_id, id=submissionset_id)
-    
-#    if not active_submission:
-#            raise PermissionDenied("A Submission Set must be added before you can add a payment.")
-    payment = Payment(submissionset=submissionset, user=request.user, date=datetime.today())
+    institution = get_object_or_404(Institution, id=institution_id)
+    subscription = get_object_or_404(Subscription, institution__id=institution_id, id=subscription_id)
+    payment = SubscriptionPayment(subscription=subscription, user=request.user, date=datetime.today(), amount=subscription.amount_due)
         
     # Build and process the form for adding the payment...
     (payment_form,saved) = form_helpers.basic_save_form(request, payment, 'new_payment', PaymentForm)
     if saved:
-        return HttpResponseRedirect(payment.get_admin_url())
+        # update subscription payment status
+        if payment.amount == subscription.amount_due:
+            subscription.paid_in_full = True
+            subscription.amount_due = 0
+            subscription.save()
+        else:
+            subscription.amount_due -= payment.amount
+            subscription.save()
+            
+        return HttpResponseRedirect("/tool/manage/payments/")
 
     payment_form.add_user(request.user)
 
-    context = {'payment': payment, 'object_form':payment_form, 'title':'New Payment'}
-    return respond(request, 'tool/admin/payments/edit.html', context)
+    context = {'payment': payment, 'object_form':payment_form, 'title':'New Payment', 'institution': institution}
+    return respond(request, 'tool/manage/payment_edit.html', context)
 
 @user_is_staff
-def edit_payment(request, payment_id):
+def edit_subscriptionpayment(request, institution_id, payment_id):
     """
         Process a form for editing payment details
     """
-    payment = get_object_or_404(Payment, id=payment_id)
+    institution = get_object_or_404(Institution, id=institution_id)
+    payment = get_object_or_404(SubscriptionPayment, subscription__institution__id=institution_id, id=payment_id)
+    old_amount = payment.amount
         
     # Build and process the form for adding or modifying the payment...
     (payment_form,saved) = form_helpers.basic_save_form(request, payment, 'payment', PaymentForm)
     if saved:
-        return HttpResponseRedirect(payment.get_admin_url())
+        return HttpResponseRedirect("/tool/manage/payments/")
 
     payment_form.add_user(request.user)
 
-    context = {'payment': payment, 'object_form':payment_form, 'title':'Edit Payment Details'}
-    return respond(request, 'tool/admin/payments/edit.html', context)
+    context = {'payment': payment, 'object_form':payment_form, 'title':'Edit Payment Details', 'institution': institution}
+    return respond(request, 'tool/manage/payment_edit.html', context)
     
 @user_is_staff
 def send_receipt(request, payment_id):

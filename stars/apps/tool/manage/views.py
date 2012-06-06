@@ -60,9 +60,12 @@ def institution_payments(request):
     current_inst = _get_current_institution(request)
     
     payment_list = SubscriptionPayment.objects.filter(subscription__institution=current_inst).order_by('-date')
+    subscription_list = current_inst.subscription_set.all()
 
     context = {
                 'payment_list': payment_list,
+                'subscription_list': subscription_list,
+                "current_inst": current_inst,
               }
     return respond(request, 'tool/manage/payments.html', context)
 
