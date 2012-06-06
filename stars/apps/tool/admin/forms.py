@@ -29,9 +29,13 @@ class PaymentForm(ModelForm):
         self.fields['user'].choices.append((user.id, user.username))
         
     def clean_amount(self):
+        """
+            Confirm that if this is a new payment then the amount is not
+            more than the amount due
+        """
         amount = self.cleaned_data['amount']
         
-        if amount > self.instance.subscription.amount_due:
+        if not hasattr(self.instance, 'id') and amount > self.instance.subscription.amount_due:
             raise ValidationError("This amount is more than is due: $%s" % self.instance.subscription.amount_due)
         
         return amount
