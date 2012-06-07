@@ -41,22 +41,40 @@ def user_can_submit_snapshot(user, submission):
     return user_can_manage_submission(user, submission) and institution_has_snapshot_feature(submission.institution)
 aashe_rules.site.register("user_can_submit_snapshot", user_can_submit_snapshot)
 
-def user_can_migrate_version(user, submission):
+def user_can_migrate_version(user, institution):
     """
         Only institution admins can migrate a submission
     """
-    if submission.creditset.version != CreditSet.objects.get_latest().version:
-        return user_has_access_level(user, 'admin', submission.institution)
+    if institution.current_submission.creditset.version != CreditSet.objects.get_latest().version:
+        return user_has_access_level(user, 'admin', institution)
     else:
         return False
 aashe_rules.site.register("user_can_migrate_version", user_can_migrate_version)
 
-def user_can_migrate_data(user, submission):
+def user_can_migrate_data(user, institution):
     """
+        Can this user do a data migration?
         Only institution admins can migrate a submission
     """
-    return user_has_access_level(user, 'admin', submission.institution)
+    return user_has_access_level(user, 'admin', institution)
 aashe_rules.site.register("user_can_migrate_data", user_can_migrate_data)
+
+def user_can_migrate_from_submission(user, submission):
+    """
+        Only institution admins can migrate a submission
+        
+        Participants can migrate from Reports or Snapshots
+        Respondents can only migrate from Reports
+    """
+    if user_has_access_level(user, 'admin', submission.institution):
+        if submission.institution.is_participant:
+            if submission.status == 'r' or submission.status == 'f':
+                return True
+        else:
+            if submission.status == 'r':
+                return True
+    return False
+aashe_rules.site.register("user_can_migrate_from_submission", user_can_migrate_from_submission)
 
 def submission_has_scores(submission):
     """

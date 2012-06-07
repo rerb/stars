@@ -20,22 +20,22 @@
 		<div class='span4'>
 			<h3>Version Migration</h3>
 			<p>Migrate Submission to <strong>{{ latest_creditset }}</strong>.</p>
-			{% testrule user_can_migrate_data user active_submission %}
-				{% if active_submission.creditset != latest_creditset %} 
+			{% if active_submission.creditset != latest_creditset %} 
+				{% testrule user_can_migrate_version user active_submission.institution %}
 					<a href="/tool/manage/migrate/version/" class='btn btn-primary'>Migrate Now</a>
 				{% else %}
-					<div class="alert alert-success">
-						You are already working in <strong>{{ latest_creditset }}</strong>.
-					</div>
-				{% endif %}
+					<div class="alert">Sorry, you do not have permission to migrate versions. Please contact your STARS liaison to get admin privileges.</div>
+				{% endtestrule %}
 			{% else %}
-				<div class="alert">Sorry, you do not have permission to migrate versions. Please contact your STARS liaison to get admin privileges.
-			{% endtestrule %}
+				<div class="alert alert-success">
+					You are already working in <strong>{{ latest_creditset }}</strong>.
+				</div>
+			{% endif %}
 		</div>
 		<div class='span4 offset1'>
 			<h3>Data Migration</h3>
 			<p>Pull data from previous Reports.</p>
-			{% testrule user_can_migrate_data user active_submission %}
+			{% testrule user_can_migrate_data user active_submission.institution %}
 				{% if available_submission_list %}
 					<table class='table'>
 						<thead>

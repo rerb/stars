@@ -13,12 +13,8 @@
 	</div>
 	<div class='row'>
 		<div class='span5 offset2'>
-			<div class='alert alert-info' style='text-align: center;>
-				{% if old_submission.date_submitted %}
-					{{ old_submission.date_submitted }}
-				{% else %}
-					{{ old_submission.date_registered }}
-				{% endif %}
+			<div class='alert alert-info' style='text-align: center;''>
+				{{ old_submission.date_submitted }}
 				{% if old_submission.rating %}( {{ old_submission.rating }} ){% endif %}
 				<i class='icon-arrow-right icon-white'></i>
 				Current Submission

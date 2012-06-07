@@ -21,7 +21,7 @@
     <tr>
         <td>
           {{ active_submission.creditset.version }}
-          {% testrule user_can_migrate_version user active_submission %}
+          {% testrule user_can_migrate_version user user.current_inst %}
               <br/><a href='/tool/manage/migrate/' class='btn btn-mini'>
         		<i class='icon-share-alt'></i >Migrate</a>
           {% endtestrule %}
