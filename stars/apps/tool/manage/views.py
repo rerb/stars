@@ -336,9 +336,9 @@ def migrate_version(request):
     
     if latest_creditset.version == current_submission.creditset.version:
         flashMessage.send("Already using %s." % latest_creditset, flashMessage.Error)
-        return HttpResponseRedirect("/tool/manage/migrate")
+        return HttpResponseRedirect("/tool/manage/migrate/")
     
-    if not user_can_migrate_version(request.user, current_submission):
+    if not user_can_migrate_version(request.user, current_inst):
         raise PermissionDenied("Sorry, but you don't have permission to migrate data.")
     
     ObjectForm = MigrateSubmissionSetForm
