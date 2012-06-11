@@ -15,27 +15,40 @@ Credits (read-only)
 -------------------
 
 /credits/ - get list of all credit sets
-/credits/<id>/ - get specific credit set
-/credits/<id>/cat/ - get all the categories in a creditset
-/credits/<id>/cat/<id>/ - get a specific category
-/credits/<id>/cat/<id>/s/
-/credits/<id>/cat/<id>/sub/<id>/
-/credits/<id>/cat/<id>/sub/<id>/c/
-/credits/<id>/cat/<id>/sub/<id>/c/<id>/
-/credits/<id>/cat/<id>/sub/<id>/c/<id>/d/ - documentation field list
-/credits/<id>/cat/<id>/sub/<id>/c/<id>/d/<id>/ - specific documentation field
-
-/credits/creditset/<id>
-/credits/categories/<id>
-/credits/subcategories/<id>
+/credits/<id>/ - specific credit set
+/credits/category/ - list of all categories
+/credits/category/<id>/ - specific category
+/credits/subcategory/
+/credits/subcategory/<id>/
+/credits/credit/
+/credits/credit/<id>/
+/credits/field/
+/credits/field/<id>/
 
 Institutions
 ------------
 
 /institutions/
 /institutions/<id>/
-/institutions/<id>/ss/ - submissionsets
-/institutions/<id>/ss/<id>/
-/institutions/<id>/ss/<id>/boundary/
-/institutions/<id>/ss/<id>/
+
+Submissions
+-----------
+
+/submissions/ - list of all submission sets (per auth)
+/submissions/<id>/ - specific submission set
+/submissions/category/
+/submissions/category/<id>/
+/submissions/subcategory/
+/submissions/subcategory/<id>/
+/submissions/credit/
+/submissions/credit/<id>/
+/submissions/field/
+/submissions/field/<id>/
+
+Search
+------
+(future dev)
+
+/search/institutions/
+/search/credit/
 
