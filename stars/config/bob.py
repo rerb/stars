@@ -40,3 +40,7 @@ if DEBUG_TOOLBAR:
     DEBUG_TOOLBAR_CONFIG = {
         'INTERCEPT_REDIRECTS': False,
     }
+
+INSTALLED_APPS += ('django_nose',)
+
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
