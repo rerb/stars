@@ -3,7 +3,7 @@
 All STARS API End-points
 ========================
 
-Here is an itemized list of all the end-points in the STARS API along with their permissions and parameters. 
+Here is an itemized list of all the end-points in the STARS API along with their permissions and parameters.
 
 Profile
 -------
@@ -14,8 +14,8 @@ get_snapshot_institutions - institutions who have opted to share snapshots with 
 Credits (read-only)
 -------------------
 
-/credits/ - get list of all credit sets
-/credits/<id>/ - specific credit set
+/credits/creditset/ - get list of all credit sets
+/credits/creditset/<id>/ - specific credit set
 /credits/category/ - list of all categories
 /credits/category/<id>/ - specific category
 /credits/subcategory/
@@ -51,4 +51,3 @@ Search
 
 /search/institutions/
 /search/credit/
-
