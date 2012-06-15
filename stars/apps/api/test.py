@@ -48,11 +48,10 @@ class ApiTest(ResourceTestCase):
     def api(self, user=None):
         """If specified, user is used for authentication."""
         if user:
-            return slumber.API(API_URI,
-                               default_params={
-                                   'username': user.username,
-                                   'api_key': user.api_key.key,
-                                   'password': self.registered_user_password})
+            session = slumber.requests.session(
+                params={'username': user.username,
+                        'api_key': user.api_key.key})
+            return slumber.API(API_URI, session=session)
         else:
             return slumber.API(API_URI)
 
@@ -112,16 +111,16 @@ class ApiTest(ResourceTestCase):
     def test_api_key_no_password(self):
         raise Exception
 
-    def test_default_params_authenticated(self, resource_name=None):
-        """Does passing 'default_params' arg to slumber.API
+    def test_session_authenticated(self, resource_name=None):
+        """Does passing session arg to slumber.API
         work?  Not really our concern, but . . ."""
         resource_name = resource_name or self.default_resource_name
         user = self.registered_user
         api = self.api(user)
         return eval('api.{0}.{1}.get()'.format(self.app_name, resource_name))
 
-    def test_url_params_authenticated(self, resource_name=None):
-        """Does passing username and api key as URL params works?"""
+    def test_session_authenticated(self, resource_name=None):
+        """Does passing username and api key as session params work?"""
         resource_name = resource_name or self.default_resource_name
         user = self.registered_user
         api = self.api()
