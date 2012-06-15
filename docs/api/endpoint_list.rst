@@ -34,8 +34,8 @@ Institutions
 Submissions
 -----------
 
-/submissions/ - list of all submission sets (per auth)
-/submissions/<id>/ - specific submission set
+/submissions/submissionset/ - list of all submission sets (per auth)
+/submissions/submissionset/<id>/ - specific submission set
 /submissions/category/
 /submissions/category/<id>/
 /submissions/subcategory/
