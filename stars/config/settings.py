@@ -15,7 +15,7 @@ DEFAULT_CHARSET = 'utf-8'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # if True, prevents access by non-staff to any part of the site that is not public.
-HIDE_REPORTING_TOOL = False  
+HIDE_REPORTING_TOOL = False
 # if True, log-out and re-direct all non-staff requests to standard 503 (Temporarily Unavailable) view.
 MAINTENANCE_MODE = False
 # This message will be broadcast to all users on every response - usually used to warn about site maintenance
@@ -75,7 +75,7 @@ if 'test' in sys.argv:
                                'django.contrib.auth.backends.ModelBackend',
                                'stars.apps.accounts.aashe.AASHEAuthBackend',
                                )
-    
+
 DASHBOARD_URL = "/tool/"
 LOGIN_URL = "/accounts/login/"
 LOGOUT_URL = "/accounts/logout/"
@@ -124,6 +124,7 @@ INSTALLED_APPS = (
     'stars.apps.notifications',
     'stars.apps.migrations',
     'stars.apps.third_parties',
+    'stars.apps.api',
     'stars.tests',
     'aashe.issdjango',
     'south',
@@ -236,7 +237,7 @@ PYTHON_VERSION = None
 m = re.match('[\d\.]+', sys.version)
 if m:
     PYTHON_VERSION = m.group(0)
-    
+
 DJANGO_VERSION = django.get_version()
 HG_REVISION = None
 
