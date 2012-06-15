@@ -13,6 +13,7 @@ handler500 = 'stars.apps.helpers.views.server_error'
 urlpatterns = patterns('',
     (r'^api/', include('stars.apps.submissions.urls')),
     (r'^api/', include('stars.apps.credits.api.urls')),
+    (r'^api/', include('stars.apps.submissions.newapi.urls')),
     # tool:
     #(r'^$', 'stars.apps.tool.views.stars_home_page'),
     (r'^$', 'django.views.generic.simple.direct_to_template', {'template': 'home.html'}),
