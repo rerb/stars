@@ -34,16 +34,16 @@ Institutions
 Submissions
 -----------
 
-/submissions/submissionset/ - list of all submission sets (per auth)
-/submissions/submissionset/<id>/ - specific submission set
-/submissions/category/
-/submissions/category/<id>/
-/submissions/subcategory/
-/submissions/subcategory/<id>/
-/submissions/credit/
-/submissions/credit/<id>/
-/submissions/field/
-/submissions/field/<id>/
+/submissions/ - list of all submission sets (per auth)
+/submissions/<submission-set-id>/ - specific submission set
+/submissions/<submission-set-id>/category/ - list of all categories for specific submission set
+/submissions/<submission-set-id>/category/<category-id>/ - specific category for specific submission set
+/submissions/<submission-set-id>/subcategory/
+/submissions/<submission-set-id>/subcategory/<subcategory-id>/
+/submissions/<submission-set-id>/credit/
+/submissions/<submission-set-id>/credit/<credit-id>/
+/submissions/<submission-set-id>/field/
+/submissions/<submission-set-id>field/<field-id>/
 
 Search
 ------
