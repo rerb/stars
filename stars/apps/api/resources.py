@@ -3,7 +3,7 @@ from tastypie.authorization import ReadOnlyAuthorization
 from tastypie.resources import ModelResource
 from tastypie.serializers import Serializer
 
-TESTING = False
+TESTING = False  # When TESTING is True, authentication is turned off.
 
 
 class JSONForHTMLSerializer(Serializer):
