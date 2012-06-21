@@ -17,7 +17,7 @@ class SubmissionsApiTest(stars_api.ApiTest):
             submissions_models.CategorySubmission: 'category',
             submissions_models.SubcategorySubmission: 'subcategory',
             submissions_models.CreditUserSubmission: 'credit',
-            # submissions_models.DocumentationFieldSubmission: 'field'
+            submissions_models.DocumentationFieldSubmission: 'field'
             }
         # models_map = {}
         super(SubmissionsApiTest, self).runTest(models_map=models_map,
@@ -32,20 +32,28 @@ class SubmissionsApiTest(stars_api.ApiTest):
                       in submissions_models.SubmissionSet.objects.all() ]
         lookup_id = model_ids[random.randint(0, len(model_ids) - 1)]
         json_response = eval(
-            'self.registered_api.submissionset({0}).get()'.format(lookup_id))
-        creditset_resource_uri = json_response['creditset']
-        import pdb; pdb.set_trace()
-        eval_code = (
-            'self.registered_api.' + credit_resource_uri.replace('/', '.') +
-            'get()')
-        eval(eval_code)
+            'self.registered_api.submissions.submissionset({0}).get()'.format(
+                lookup_id))
+        creditset_resource_uri = json_response['creditset'].strip('/')
 
+        Reconstitute the link to the credit resource - take off parts
+        common to self.registered_api._store['base_url'], then slap
+        what's left on to ...['base_url]', then try to call via
+        self.registered_api ...
+
+
+        creditset_url_path = urlparse.urlsplit(creditset_resource_uri).path
+        #
+        lookup_id = creditset_resource_uri.split('/')[-1]
+        eval_code = ('self.submissions.registered_api.' +
+                     '.'.join(creditset_resource_uri.split('/')[:-1]) +
+                     'get({0})'.format(lookup_id))
+        eval(eval_code)
 
     def slumber_api_call(self, uri):
         def strip_split_slashes(s):
             return s.strip('/').split('/')
         parts = strip_split_slashes(uri)
-        import pdb; pdb.set_trace()
         # if last element is int, put it in parens after prev element
         pk = parts.pop() if isinstance(parts[-1], int) else None
         leading_parts = strip_split_slashes(urlparse.urlparse(
@@ -66,10 +74,10 @@ class SubmissionsApiTest(stars_api.ApiTest):
         lookup_id = model_ids[random.randint(0, len(model_ids) - 1)]
         resource_name = resource_name or model._meta.object_name.lower()
         json_response = eval(
-            'self.registered_api.{0}({1}).get()'.format(resource_name,
-                                                        lookup_id))
+            'self.registered_api.submissions.{0}({1}).get()'.format(
+                resource_name, lookup_id))
         credit_resource_uri = json_response[credit_resource_field_name]
-        eval_code = (
-            'self.registered_api.' + credit_resource_uri.replace('/', '.') +
-            'get()')
+        eval_code = ('self.registered_api.submissions' +
+                     credit_resource_uri.replace('/', '.') +
+                     'get()')
         eval(eval_code)
