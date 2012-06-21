@@ -77,8 +77,8 @@ class ApiTest(ResourceTestCase):
         """
         self.setUp()
         self.test_anonymous()
-        self.test_url_params_authenticated()
-        self.test_default_params_authenticated()
+        self.test_session_authenticated()
+        self.test_get_args_authenticated()
         if models_map:
             for model, resource_name in models_map.items():
                 self.test_url_credits_model(model=model,
@@ -119,8 +119,8 @@ class ApiTest(ResourceTestCase):
         api = self.api(user)
         return eval('api.{0}.{1}.get()'.format(self.app_name, resource_name))
 
-    def test_session_authenticated(self, resource_name=None):
-        """Does passing username and api key as session params work?"""
+    def test_get_args_authenticated(self, resource_name=None):
+        """Does passing username and api key as args to get() work?"""
         resource_name = resource_name or self.default_resource_name
         user = self.registered_user
         api = self.api()
