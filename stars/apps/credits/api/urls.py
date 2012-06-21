@@ -6,6 +6,7 @@ for model in (resources.CategoryResource,
               resources.CreditResource,
               resources.CreditSetResource,
               resources.DocumentationFieldResource,
+              resources.RatingResource,
               resources.SubcategoryResource):
     v1_api.register(model())
 

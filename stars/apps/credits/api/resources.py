@@ -83,6 +83,21 @@ class DocumentationFieldResource(StarsApiResource):
         allowed_methods = ['get']
 
 
+class RatingResource(StarsApiResource):
+    """
+        Resource for accessing any Rating
+    """
+    creditset = fields.ForeignKey(BASE_RESOURCE_PATH + 'CreditSetResource',
+                                  'creditset')
+
+    class Meta(StarsApiResource.Meta):
+        queryset = credits_models.Rating.objects.all()
+        resource_name = 'credits/rating'
+        allowed_methods = ['get']
+        # We don't serve images here.
+        excludes = ['image_200', 'image_large', 'map_icon']
+
+
 class SubcategoryResource(StarsApiResource):
     """
         Resource for accessing any Subcategory
