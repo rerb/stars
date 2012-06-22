@@ -25,13 +25,13 @@ class SubmissionSetResource(StarsApiResource):
     TODO: add institution
     institution = models.ForeignKey(Institution)
     """
-    categories = fields.ToManyField(
-        SUBMISSIONS_RESOURCE_PATH + 'CategorySubmissionResource',
-        'categorysubmission_set')
     creditset = fields.OneToOneField(
         CREDITS_RESOURCE_PATH + 'CreditSetResource', 'creditset')
     rating = fields.ForeignKey(
         CREDITS_RESOURCE_PATH + 'RatingResource', 'rating', null=True)
+    categories = fields.ToManyField(
+        SUBMISSIONS_RESOURCE_PATH + 'CategorySubmissionResource',
+        'categorysubmission_set')
 
     class Meta(StarsApiResource.Meta):
         queryset = SubmissionSet.objects.published()
@@ -78,6 +78,72 @@ class SubmissionSetResource(StarsApiResource):
                 (self._meta.resource_name, trailing_slash()),
                 self.wrap_view('get_field_detail')),
                 ]  # + self.base_urls()?
+
+    def get_category_list(self, request, **kwargs):
+        """Get a list of categories for the SubmissionSet with
+        id = kwargs['pk']."""
+        try:
+            obj = self.cached_obj_get(request=request,
+                                      **self.remove_api_resource_names(kwargs))
+        except ObjectDoesNotExist:
+            return HttpGone()
+        except MultipleObjectsReturned:
+            return HttpMultipleChoices(
+                "More than one resource is found at this URI.")
+
+        category_submission_resource = CategorySubmissionResource()
+        return category_submission_resource.get_list(request,
+                                                     submissionset=obj.pk)
+
+    def get_category_detail(self, request, **kwargs):
+        """Get the CategorySubmission that matches the Category
+        where id = kwargs['catpk']."""
+        category_id = kwargs.pop('catpk')
+        try:
+            obj = self.cached_obj_get(request=request,
+                                      **self.remove_api_resource_names(kwargs))
+        except ObjectDoesNotExist:
+            return HttpGone()
+        except MultipleObjectsReturned:
+            return HttpMultipleChoices(
+                "More than one resource is found at this URI.")
+        return CategorySubmissionResource().get_detail(request,
+                                                       submissionset_id=obj.pk,
+                                                       category_id=category_id)
+
+    def get_subcategory_list(self, request, **kwargs):
+        """Get the list of SubcategorySubmissions for the SubmissionSet
+        where id = kwargs['pk']."""
+        try:
+            obj = self.cached_obj_get(request=request,
+                                      **self.remove_api_resource_names(kwargs))
+        except ObjectDoesNotExist:
+            return HttpGone()
+        except MultipleObjectsReturned:
+            return HttpMultipleChoices(
+                "More than one resource is found at this URI.")
+
+        return SubcategorySubmissionResource().get_list(
+            request, submissionset_id=obj.pk)
+
+    def get_subcategory_detail(self, request, **kwargs):
+        """Get the SubcategorySubmission for the Subcategory where
+        id = kwargs['subcatpk']."""
+        subcategory_id = kwargs.pop('subcatpk')
+        # Make sure the submission set is valid:
+        try:
+            obj = self.cached_obj_get(request=request,
+                                      **self.remove_api_resource_names(kwargs))
+        except ObjectDoesNotExist:
+            return HttpGone()
+        except MultipleObjectsReturned:
+            return HttpMultipleChoices(
+                "More than one resource is found at this URI.")
+
+        kwargs['subcatpk'] = subcategory_id
+        kwargs['submissionset'] = obj
+        return SubcategorySubmissionResource().get_detail(
+            request, **kwargs)
 
     def get_credit_list(self, request, **kwargs):
         """Get a list of credits for the SubmssionSet where
@@ -150,72 +216,6 @@ class SubmissionSetResource(StarsApiResource):
         detail = field_submission_resource.get_detail(request, **kwargs)
         return detail
 
-    def get_category_list(self, request, **kwargs):
-        """Get a list of categories for the SubmissionSet with
-        id = kwargs['pk']."""
-        try:
-            obj = self.cached_obj_get(request=request,
-                                      **self.remove_api_resource_names(kwargs))
-        except ObjectDoesNotExist:
-            return HttpGone()
-        except MultipleObjectsReturned:
-            return HttpMultipleChoices(
-                "More than one resource is found at this URI.")
-
-        category_submission_resource = CategorySubmissionResource()
-        return category_submission_resource.get_list(request,
-                                                     submissionset=obj.pk)
-
-    def get_category_detail(self, request, **kwargs):
-        """Get the CategorySubmission that matches the Category
-        where id = kwargs['catpk']."""
-        category_id = kwargs.pop('catpk')
-        try:
-            obj = self.cached_obj_get(request=request,
-                                      **self.remove_api_resource_names(kwargs))
-        except ObjectDoesNotExist:
-            return HttpGone()
-        except MultipleObjectsReturned:
-            return HttpMultipleChoices(
-                "More than one resource is found at this URI.")
-        return CategorySubmissionResource().get_detail(request,
-                                                       submissionset_id=obj.pk,
-                                                       category_id=category_id)
-
-    def get_subcategory_list(self, request, **kwargs):
-        """Get the list of SubcategorySubmissions for the SubmissionSet
-        where id = kwargs['pk']."""
-        try:
-            obj = self.cached_obj_get(request=request,
-                                      **self.remove_api_resource_names(kwargs))
-        except ObjectDoesNotExist:
-            return HttpGone()
-        except MultipleObjectsReturned:
-            return HttpMultipleChoices(
-                "More than one resource is found at this URI.")
-
-        return SubcategorySubmissionResource().get_list(
-            request, submissionset_id=obj.pk)
-
-    def get_subcategory_detail(self, request, **kwargs):
-        """Get the SubcategorySubmission for the Subcategory where
-        id = kwargs['subcatpk']."""
-        subcategory_id = kwargs.pop('subcatpk')
-        # Make sure the submission set is valid:
-        try:
-            obj = self.cached_obj_get(request=request,
-                                      **self.remove_api_resource_names(kwargs))
-        except ObjectDoesNotExist:
-            return HttpGone()
-        except MultipleObjectsReturned:
-            return HttpMultipleChoices(
-                "More than one resource is found at this URI.")
-
-        kwargs['subcatpk'] = subcategory_id
-        kwargs['submissionset'] = obj
-        return SubcategorySubmissionResource().get_detail(
-            request, **kwargs)
-
 
 class CategorySubmissionResource(StarsApiResource):
     """
@@ -223,11 +223,11 @@ class CategorySubmissionResource(StarsApiResource):
     """
     submissionset = fields.ForeignKey(
         SUBMISSIONS_RESOURCE_PATH + 'SubmissionSetResource', 'submissionset')
+    category = fields.ForeignKey(
+        CREDITS_RESOURCE_PATH + 'CategoryResource', 'category')
     subcategories = fields.OneToManyField(
         SUBMISSIONS_RESOURCE_PATH + 'SubcategorySubmissionResource',
         'subcategorysubmission_set')
-    category = fields.ForeignKey(
-        CREDITS_RESOURCE_PATH + 'CategoryResource', 'category')
 
     class Meta(StarsApiResource.Meta):
         queryset = CategorySubmission.objects.all()
@@ -266,11 +266,11 @@ class SubcategorySubmissionResource(StarsApiResource):
     """
         Resource for accessing any SubcategorySubmission
     """
+    subcategory = fields.ForeignKey(
+        CREDITS_RESOURCE_PATH + 'SubcategoryResource', 'subcategory')
     category = fields.ForeignKey(
         SUBMISSIONS_RESOURCE_PATH + 'CategorySubmissionResource',
         'category_submission')
-    subcategory = fields.ForeignKey(
-        CREDITS_RESOURCE_PATH + 'SubcategoryResource', 'subcategory')
     submissions = fields.OneToManyField(
         SUBMISSIONS_RESOURCE_PATH + 'CreditSubmissionResource',
         'creditusersubmission_set')
@@ -280,26 +280,6 @@ class SubcategorySubmissionResource(StarsApiResource):
         resource_name = 'submissions/subcategory'
         allowed_methods = ['get']
         filtering = { 'category': ALL_WITH_RELATIONS }
-
-    def obj_get_list(self, request=None, **kwargs):
-        submissionset_id = kwargs.pop('submissionset_id')
-        categories_for_submissionset = CategorySubmission.objects.filter(
-            submissionset=submissionset_id)
-        return SubcategorySubmission.objects.filter(
-            category_submission__in=categories_for_submissionset)
-
-    def obj_get(self, request=None, **kwargs):
-        """Given the id of a Subcategory and a SubmissionSet,
-        get the matching SubcategorySubmission.
-        """
-        # TODO: BEN - does this SubcategorySubmission lookup look right?
-        submissionset = kwargs.pop('submissionset')
-
-        kwargs['pk'] = kwargs.pop('subcatpk')
-        subcategory = Subcategory.objects.get(**kwargs)
-
-        return subcategory.subcategorysubmission_set.get(
-            category_submission__submissionset=submissionset)
 
     def get_resource_uri(self, bundle_or_obj=None,
                          url_name='api_dispatch_list'):
@@ -317,6 +297,26 @@ class SubcategorySubmissionResource(StarsApiResource):
         subcategory_id = str(bundle_or_obj.obj.subcategory_id)
         return '/'.join(uri.split('/')[:-2] + [subcategory_id, ''])
 
+    def obj_get(self, request=None, **kwargs):
+        """Given the id of a Subcategory and a SubmissionSet,
+        get the matching SubcategorySubmission.
+        """
+        # TODO: BEN - does this SubcategorySubmission lookup look right?
+        submissionset = kwargs.pop('submissionset')
+
+        kwargs['pk'] = kwargs.pop('subcatpk')
+        subcategory = Subcategory.objects.get(**kwargs)
+
+        return subcategory.subcategorysubmission_set.get(
+            category_submission__submissionset=submissionset)
+
+    def obj_get_list(self, request=None, **kwargs):
+        submissionset_id = kwargs.pop('submissionset_id')
+        categories_for_submissionset = CategorySubmission.objects.filter(
+            submissionset=submissionset_id)
+        return SubcategorySubmission.objects.filter(
+            category_submission__in=categories_for_submissionset)
+
 
 class CreditSubmissionResource(StarsApiResource):
     """
@@ -327,33 +327,33 @@ class CreditSubmissionResource(StarsApiResource):
     subcategory = fields.ForeignKey(
         SUBMISSIONS_RESOURCE_PATH + 'SubcategorySubmissionResource',
         'subcategory_submission')
-    numeric_submissions = fields.OneToManyField(
-        SUBMISSIONS_RESOURCE_PATH + 'NumericSubmissionResource',
-        'numericsubmission_set')
-    text_submissions = fields.OneToManyField(
-        SUBMISSIONS_RESOURCE_PATH + 'TextSubmissionResource',
-        'textsubmission_set')
-    longtext_submissions = fields.OneToManyField(
-        SUBMISSIONS_RESOURCE_PATH + 'LongTextSubmissionResource',
-        'longtextsubmission_set')
-    date_submissions = fields.OneToManyField(
-        SUBMISSIONS_RESOURCE_PATH + 'DateSubmissionResource',
-        'datesubmission_set')
-    url_submissions = fields.OneToManyField(
-        SUBMISSIONS_RESOURCE_PATH + 'URLSubmissionResource',
-        'urlsubmission_set')
-    upload_submissions = fields.OneToManyField(
-        SUBMISSIONS_RESOURCE_PATH + 'UploadSubmissionResource',
-        'uploadsubmission_set')
     boolean_submissions = fields.OneToManyField(
         SUBMISSIONS_RESOURCE_PATH + 'BooleanSubmissionResource',
         'booleansubmission_set')
     choice_submissions = fields.OneToManyField(
         SUBMISSIONS_RESOURCE_PATH + 'ChoiceSubmissionResource',
         'choicesubmission_set')
+    date_submissions = fields.OneToManyField(
+        SUBMISSIONS_RESOURCE_PATH + 'DateSubmissionResource',
+        'datesubmission_set')
+    longtext_submissions = fields.OneToManyField(
+        SUBMISSIONS_RESOURCE_PATH + 'LongTextSubmissionResource',
+        'longtextsubmission_set')
     multichoicesubmission_submissions = fields.OneToManyField(
         SUBMISSIONS_RESOURCE_PATH + 'MultiChoiceSubmissionResource',
         'multichoicesubmission_set')
+    numeric_submissions = fields.OneToManyField(
+        SUBMISSIONS_RESOURCE_PATH + 'NumericSubmissionResource',
+        'numericsubmission_set')
+    text_submissions = fields.OneToManyField(
+        SUBMISSIONS_RESOURCE_PATH + 'TextSubmissionResource',
+        'textsubmission_set')
+    upload_submissions = fields.OneToManyField(
+        SUBMISSIONS_RESOURCE_PATH + 'UploadSubmissionResource',
+        'uploadsubmission_set')
+    url_submissions = fields.OneToManyField(
+        SUBMISSIONS_RESOURCE_PATH + 'URLSubmissionResource',
+        'urlsubmission_set')
 
     class Meta(StarsApiResource.Meta):
         queryset = CreditUserSubmission.objects.all()
@@ -382,6 +382,14 @@ class CreditSubmissionResource(StarsApiResource):
         credit_id = str(bundle_or_obj.obj.credit_id)
         return '/'.join(uri.split('/')[:-2] + [credit_id, ''])
 
+    def obj_get(self, request=None, **kwargs):
+        """Given the id of a Credit and a SubmissionSet, get the matching
+        CreditSubmission.
+        """
+        #TODO: BEN - what about this crazy get()?
+        credit = Credit.objects.get(pk=kwargs['credpk'])
+        return credit.creditsubmission_set.get(creditusersubmission__subcategory_submission__category_submission__submissionset=kwargs['submissionset']).creditusersubmission
+
     def obj_get_list(self, request=None, **kwargs):
         submissionset_id = kwargs.pop('submissionset_id')
         categories_for_submissionset = CategorySubmission.objects.filter(
@@ -391,14 +399,6 @@ class CreditSubmissionResource(StarsApiResource):
               category_submission__in=categories_for_submissionset)
         return CreditUserSubmission.objects.filter(
             subcategory_submission__in=subcategories_for_submissionset)
-
-    def obj_get(self, request=None, **kwargs):
-        """Given the id of a Credit and a SubmissionSet, get the matching
-        CreditSubmission.
-        """
-        #TODO: BEN - what about this crazy get()?
-        credit = Credit.objects.get(pk=kwargs['credpk'])
-        return credit.creditsubmission_set.get(creditusersubmission__subcategory_submission__category_submission__submissionset=kwargs['submissionset']).creditusersubmission
 
 
 class DocumentationFieldSubmissionResource(StarsApiResource):
@@ -426,30 +426,6 @@ class DocumentationFieldSubmissionResource(StarsApiResource):
         return(CreditUserSubmission.objects.filter(
             subcategory_submission__in=subcategories_for_submissionset))
 
-    def obj_get_list(self, request=None, **kwargs):
-        """Get the DocumentationFieldSubmissionResource's *of this type*
-        for the SubmissionSet where id = kwargs['submissionset_id'].
-
-        This uses the queryset defined in subclass's Meta classes,
-        so it's abstract.  So it doesn't get all the
-        DocumentationFieldSubmission's for a SubmissionSet, only
-        all instances of a particular subtype.
-        """
-        credit_user_submissions = \
-          self.credit_user_submissions_for_submissionset(**kwargs)
-        return self._meta.queryset.filter(
-            credit_submission__in=credit_user_submissions)
-
-    def obj_get(self, request=None, **kwargs):
-        """Given the id's of a SubmissionSet (kwargs['submissionset_id']) and
-        and a DocumentationField (kwargs['fieldpk']), get the
-        matching DocumentationFieldSubmission.
-        """
-        field_id = kwargs.pop('fieldpk')
-        field_list = self.obj_get_list(request, **kwargs)
-        field = field_list.get(documentation_field__id=field_id)
-        return field
-
     def get_resource_uri(self, bundle_or_obj=None,
                          url_name='api_dispatch_list'):
         # default uri is
@@ -464,41 +440,29 @@ class DocumentationFieldSubmissionResource(StarsApiResource):
         return '/'.join(bundle_or_obj.request.path.split('/')[:5] +
                         ['field', field_id, ''])
 
+    def obj_get(self, request=None, **kwargs):
+        """Given the id's of a SubmissionSet (kwargs['submissionset_id']) and
+        and a DocumentationField (kwargs['fieldpk']), get the
+        matching DocumentationFieldSubmission.
+        """
+        field_id = kwargs.pop('fieldpk')
+        field_list = self.obj_get_list(request, **kwargs)
+        field = field_list.get(documentation_field__id=field_id)
+        return field
 
-class NumericSubmissionResource(DocumentationFieldSubmissionResource):
+    def obj_get_list(self, request=None, **kwargs):
+        """Get the DocumentationFieldSubmissionResource's *of this type*
+        for the SubmissionSet where id = kwargs['submissionset_id'].
 
-    class Meta(DocumentationFieldSubmissionResource.Meta):
-        queryset = NumericSubmission.objects.all()
-
-
-class TextSubmissionResource(DocumentationFieldSubmissionResource):
-
-    class Meta(DocumentationFieldSubmissionResource.Meta):
-        queryset = TextSubmission.objects.all()
-
-
-class LongTextSubmissionResource(DocumentationFieldSubmissionResource):
-
-    class Meta(DocumentationFieldSubmissionResource.Meta):
-        queryset = LongTextSubmission.objects.all()
-
-
-class URLSubmissionResource(DocumentationFieldSubmissionResource):
-
-    class Meta(DocumentationFieldSubmissionResource.Meta):
-        queryset = URLSubmission.objects.all()
-
-
-class DateSubmissionResource(DocumentationFieldSubmissionResource):
-
-    class Meta(DocumentationFieldSubmissionResource.Meta):
-        queryset = DateSubmission.objects.all()
-
-
-class UploadSubmissionResource(DocumentationFieldSubmissionResource):
-
-    class Meta(DocumentationFieldSubmissionResource.Meta):
-        queryset = UploadSubmission.objects.all()
+        This uses the queryset defined in subclass's Meta classes,
+        so it's abstract.  So it doesn't get all the
+        DocumentationFieldSubmission's for a SubmissionSet, only
+        all instances of a particular subtype.
+        """
+        credit_user_submissions = \
+          self.credit_user_submissions_for_submissionset(**kwargs)
+        return self._meta.queryset.filter(
+            credit_submission__in=credit_user_submissions)
 
 
 class BooleanSubmissionResource(DocumentationFieldSubmissionResource):
@@ -513,7 +477,41 @@ class ChoiceSubmissionResource(DocumentationFieldSubmissionResource):
         queryset = ChoiceSubmission.objects.all()
 
 
+class DateSubmissionResource(DocumentationFieldSubmissionResource):
+
+    class Meta(DocumentationFieldSubmissionResource.Meta):
+        queryset = DateSubmission.objects.all()
+
+
+class LongTextSubmissionResource(DocumentationFieldSubmissionResource):
+
+    class Meta(DocumentationFieldSubmissionResource.Meta):
+        queryset = LongTextSubmission.objects.all()
+
+
 class MultiChoiceSubmissionResource(DocumentationFieldSubmissionResource):
 
     class Meta(DocumentationFieldSubmissionResource.Meta):
         queryset = MultiChoiceSubmission.objects.all()
+
+
+class NumericSubmissionResource(DocumentationFieldSubmissionResource):
+
+    class Meta(DocumentationFieldSubmissionResource.Meta):
+        queryset = NumericSubmission.objects.all()
+
+
+class TextSubmissionResource(DocumentationFieldSubmissionResource):
+    class Meta(DocumentationFieldSubmissionResource.Meta):
+        queryset = TextSubmission.objects.all()
+
+
+class UploadSubmissionResource(DocumentationFieldSubmissionResource):
+    class Meta(DocumentationFieldSubmissionResource.Meta):
+        queryset = UploadSubmission.objects.all()
+
+
+class URLSubmissionResource(DocumentationFieldSubmissionResource):
+
+    class Meta(DocumentationFieldSubmissionResource.Meta):
+        queryset = URLSubmission.objects.all()
