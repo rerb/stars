@@ -12,7 +12,7 @@ from stars.apps.api.resources import StarsApiResource
         - dehydration
 """
 
-BASE_RESOURCE_PATH = 'stars.apps.credits.api.resources.'
+CREDITS_RESOURCE_PATH = 'stars.apps.credits.api.resources.'
 
 
 class CategoryResource(StarsApiResource):
@@ -25,10 +25,10 @@ class CategoryResource(StarsApiResource):
         class AuthorResource(ModelResource):
             entry = fields.ForeignKey(EntryResource, 'entry')
     """
-    creditset = fields.ForeignKey(BASE_RESOURCE_PATH + 'CreditSetResource',
+    creditset = fields.ForeignKey(CREDITS_RESOURCE_PATH + 'CreditSetResource',
                                   'creditset')
     subcategories = fields.OneToManyField(
-        BASE_RESOURCE_PATH + 'SubcategoryResource', 'subcategory_set',
+        CREDITS_RESOURCE_PATH + 'SubcategoryResource', 'subcategory_set',
         related_name='category')
 
     class Meta(StarsApiResource.Meta):
@@ -41,8 +41,9 @@ class CreditResource(StarsApiResource):
     """
         Resource for accessing any Credit
     """
-    subcategory = fields.ForeignKey(BASE_RESOURCE_PATH + 'SubcategoryResource',
-                                    'subcategory')
+    subcategory = fields.ForeignKey(
+        CREDITS_RESOURCE_PATH + 'SubcategoryResource',
+        'subcategory')
 
     class Meta(StarsApiResource.Meta):
         queryset = credits_models.Credit.objects.all()
@@ -61,7 +62,7 @@ class CreditSetResource(StarsApiResource):
         Resource for accessing any CreditSet
     """
     categories = fields.ManyToManyField(
-        BASE_RESOURCE_PATH + 'CategoryResource',
+        CREDITS_RESOURCE_PATH + 'CategoryResource',
         'category_set', related_name='creditset')
 
     class Meta(StarsApiResource.Meta):
@@ -75,7 +76,8 @@ class DocumentationFieldResource(StarsApiResource):
     """
         Resource for accessing any DocumentationField
     """
-    credit = fields.ForeignKey(BASE_RESOURCE_PATH + 'CreditResource', 'credit')
+    credit = fields.ForeignKey(CREDITS_RESOURCE_PATH + 'CreditResource',
+                               'credit')
 
     class Meta(StarsApiResource.Meta):
         queryset = credits_models.DocumentationField.objects.all()
@@ -87,7 +89,7 @@ class RatingResource(StarsApiResource):
     """
         Resource for accessing any Rating
     """
-    creditset = fields.ForeignKey(BASE_RESOURCE_PATH + 'CreditSetResource',
+    creditset = fields.ForeignKey(CREDITS_RESOURCE_PATH + 'CreditSetResource',
                                   'creditset')
 
     class Meta(StarsApiResource.Meta):
@@ -102,7 +104,7 @@ class SubcategoryResource(StarsApiResource):
     """
         Resource for accessing any Subcategory
     """
-    category = fields.ForeignKey(BASE_RESOURCE_PATH + 'CategoryResource',
+    category = fields.ForeignKey(CREDITS_RESOURCE_PATH + 'CategoryResource',
                                  'category')
 
     class Meta(StarsApiResource.Meta):

@@ -15,17 +15,15 @@ from stars.apps.submissions.models import SubmissionSet, CategorySubmission, \
      UploadSubmission, BooleanSubmission, ChoiceSubmission, \
      MultiChoiceSubmission
 from stars.apps.api.resources import StarsApiResource
+from stars.apps.credits.api.resources import CREDITS_RESOURCE_PATH
 
 SUBMISSIONS_RESOURCE_PATH = 'stars.apps.submissions.newapi.resources.'
-CREDITS_RESOURCE_PATH = 'stars.apps.credits.api.resources.'
 
 
 class SubmissionSetResource(StarsApiResource):
     """
     TODO: add institution
-    TODO: add rating
     institution = models.ForeignKey(Institution)
-    rating = models.ForeignKey(Rating, blank=True, null=True)
     """
     categories = fields.ToManyField(
         SUBMISSIONS_RESOURCE_PATH + 'CategorySubmissionResource',
@@ -87,7 +85,8 @@ class SubmissionSetResource(StarsApiResource):
 
     def get_credit_list(self, request, **kwargs):
         """Get a list of credits for the SubmssionSet where
-        id = kwargs['pk']."""
+        id = kwargs['pk'].
+        """
         try:
             obj = self.cached_obj_get(request=request,
                                       **self.remove_api_resource_names(kwargs))
