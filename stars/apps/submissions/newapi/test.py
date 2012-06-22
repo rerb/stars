@@ -9,7 +9,6 @@ run from the REPL as doctests, if you do this:
     import doctest
     doctest.testmod(t)
 """
-
 import random
 
 from django.contrib.auth.models import User
@@ -20,22 +19,24 @@ from stars.apps.submissions.models import SubmissionSet
 from stars.apps.submissions.newapi.resources import SubmissionSetResource
 
 def get_random_resource(resource):
+    """Get a random instance of an ApiResource."""
     return get_random_queryset_obj(resource._meta.queryset)
 
 def get_random_queryset_obj(queryset):
+    """Get a random object from a queryset."""
     if queryset.count() == 0:
         raise EmptyQuerysetError
     random_index = random.randint(0, queryset.count() - 1)
     return [ instance for instance in queryset.all() ][random_index]
 
 def new_test_result():
-    """Get a unittest.TestResult object.  Used in doctests."""
+    """Get a unittest.TestResult object.  Used in doctests below."""
     setup_test_environment()
     from unittest import TestResult
     return TestResult()
 
 def setup_test_environment():
-    """Set up the test environment."""
+    """Set up the test environment.  Used in doctests below."""
     from django.test.utils import setup_test_environment
     setup_test_environment()
 
