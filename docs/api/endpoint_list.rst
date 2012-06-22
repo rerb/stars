@@ -42,7 +42,7 @@ Submissions
 /submissions/<submission-set-id>/subcategory/<subcategory-id>/
 /submissions/<submission-set-id>/credit/
 /submissions/<submission-set-id>/credit/<credit-id>/
-/submissions/<submission-set-id>field/<field-id>/
+/submissions/<submission-set-id>/field/<field-id>/
 
 Search
 ------
