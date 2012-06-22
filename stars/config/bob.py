@@ -26,6 +26,13 @@ DATABASES = {
                     "connect_timeout": 30,
                     },
     },
+    # 'default': {
+    #     'NAME': '/Users/rerb/sqlite/stars.db',
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'USER': 'root',
+    #     'PASSWORD': '',
+    #     'HOST': 'localhost',
+    # },
 }
 
 # Stand alone mode indicates that the server will be running using
@@ -41,6 +48,6 @@ if DEBUG_TOOLBAR:
         'INTERCEPT_REDIRECTS': False,
     }
 
-INSTALLED_APPS += ('django_nose',)
+# INSTALLED_APPS += ('django_nose',)
 
-TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+# TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
