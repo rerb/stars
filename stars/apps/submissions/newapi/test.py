@@ -1,83 +1,236 @@
+"""
+Tests for submissions API.
+
+These test cases fail if run via 'manage.py test' because the test
+database has no data in it, and no fixtures are defined here.  They'll
+run from the REPL as doctests, if you do this:
+
+    import stars.apps.submissions.newapi.test as t
+    import doctest
+    doctest.testmod(t)
+"""
+
 import random
-import urlparse
 
-import stars.apps.api.test as stars_api
-import stars.apps.submissions.models as submissions_models
+from django.contrib.auth.models import User
+from tastypie.models import ApiKey
+from tastypie.test import ResourceTestCase
 
+from stars.apps.submissions.models import SubmissionSet
+from stars.apps.submissions.newapi.resources import SubmissionSetResource
 
-class SubmissionsApiTest(stars_api.ApiTest):
+def get_random_resource(resource):
+    return get_random_queryset_obj(resource._meta.queryset)
 
-    def __init__(self):
-        super(SubmissionsApiTest, self).__init__(app_name='submissions')
-        self.default_resource_name = 'submissionset'
+def get_random_queryset_obj(queryset):
+    random_index = random.randint(0, queryset.count() - 1)
+    return [ instance for instance in queryset.all() ][random_index]
 
-    def runTest(self):
-        models_map = {
-            submissions_models.SubmissionSet: None,
-            submissions_models.CategorySubmission: 'category',
-            submissions_models.SubcategorySubmission: 'subcategory',
-            submissions_models.CreditUserSubmission: 'credit',
-            submissions_models.DocumentationFieldSubmission: 'field'
-            }
-        # models_map = {}
-        super(SubmissionsApiTest, self).runTest(models_map=models_map,
-                                                tearDown=False)
+def new_test_result():
+    """Get a unittest.TestResult object.  Used in doctests."""
+    setup_test_environment()
+    from unittest import TestResult
+    return TestResult()
 
-        # self.test_creditset_resource_link()
-
-        # super(SubmissionsApiTest, self).tearDown()
-
-    def test_creditset_resource_link(self):
-        model_ids = [ instance.id for instance
-                      in submissions_models.SubmissionSet.objects.all() ]
-        lookup_id = model_ids[random.randint(0, len(model_ids) - 1)]
-        json_response = eval(
-            'self.registered_api.submissions.submissionset({0}).get()'.format(
-                lookup_id))
-        creditset_resource_uri = json_response['creditset'].strip('/')
-
-        Reconstitute the link to the credit resource - take off parts
-        common to self.registered_api._store['base_url'], then slap
-        what's left on to ...['base_url]', then try to call via
-        self.registered_api ...
+def setup_test_environment():
+    """Set up the test environment."""
+    from django.test.utils import setup_test_environment
+    setup_test_environment()
 
 
-        creditset_url_path = urlparse.urlsplit(creditset_resource_uri).path
-        #
-        lookup_id = creditset_resource_uri.split('/')[-1]
-        eval_code = ('self.submissions.registered_api.' +
-                     '.'.join(creditset_resource_uri.split('/')[:-1]) +
-                     'get({0})'.format(lookup_id))
-        eval(eval_code)
+class StarsApiTestCase(ResourceTestCase):
 
-    def slumber_api_call(self, uri):
-        def strip_split_slashes(s):
-            return s.strip('/').split('/')
-        parts = strip_split_slashes(uri)
-        # if last element is int, put it in parens after prev element
-        pk = parts.pop() if isinstance(parts[-1], int) else None
-        leading_parts = strip_split_slashes(urlparse.urlparse(
-            self.registered_api._store['base_url']).path)
-        eval_source = '.'.join(leading_parts + parts)
-        if pk:
-            eval_source += '({pk})'.format(pk=pk)
-        eval_source += '.get()'
-        return eval(eval_source)
+    def setUp(self):
+        super(StarsApiTestCase, self).setUp()
 
-    def test_credits_resource_link(self, model, credit_resource_field_name,
-                                   resource_name=None):
-        """Test that the link to the credits resource that
-        corresponds to this submission resource is there, and
-        available.
+        # Create a user:
+        self.user, self.created_user = User.objects.get_or_create(
+            username='johndoe')
+
+        # Create an API key for the user:
+        _, self.created_api_key = ApiKey.objects.get_or_create(user=self.user)
+
+        # Use url_params until HTTP auth header is working - then
+        # switch to get_credentials().
+        self.credentials_as_url_params = {'username': self.user.username,
+                                          'api_key': self.user.api_key.key}
+
+    def tearDown(self):
+        if self.created_api_key:
+            ApiKey.objects.get(user=self.user).delete()
+        if self.created_user:
+            User.objects.get(pk=self.user.id).delete()
+
+    def get(self, path):
+        """Do a GET using the default credentials."""
+        return self.api_client.get(path, data=self.credentials_as_url_params)
+
+    def requires_auth(self, path):
+        # Make sure authentication is on for path.
+        resp = self.api_client.get(path)
+        self.assertHttpUnauthorized(resp)
+
+    # get_credentials() is pretty useless since self.create_apikey()
+    # returns an HTTP auth header, and authentication via HTTP auth
+    # header doesn't seem to be working.  When it does, use get_credentials(),
+    # rather than self.credentials_as_params in self.get() below.
+    # def get_credentials(self):
+    #     return self.create_apikey(username=self.user.username,
+    #                               api_key=self.user.api_key.key)
+
+    # def test_create_apikey(self):
+    #     # Try api key authentication using ResourceTestCase.create_apikey().
+    #     credentials = self.create_apikey(username=self.user.username,
+    #                                      api_key=self.user.api_key.key)
+    #     resp = self.api_client.get('/api/v1/submissions/',
+    #                                authentication=credentials)
+    #     self.assertHttpOK(resp)
+
+
+def submissions_detail_path(submissionset=None):
+    submissionset = submissionset or get_random_resource(SubmissionSetResource)
+    path = '/api/v1/submissions/{0}/'.format(submissionset.id)
+    return path
+
+
+class SubmissionResourceTestCase(StarsApiTestCase):
+
+    list_path = '/api/v1/submissions/'
+
+    def test_get_submissions_list_requires_auth(self):
         """
-        model_ids = [ instance.id for instance in model.objects.all() ]
-        lookup_id = model_ids[random.randint(0, len(model_ids) - 1)]
-        resource_name = resource_name or model._meta.object_name.lower()
-        json_response = eval(
-            'self.registered_api.submissions.{0}({1}).get()'.format(
-                resource_name, lookup_id))
-        credit_resource_uri = json_response[credit_resource_field_name]
-        eval_code = ('self.registered_api.submissions' +
-                     credit_resource_uri.replace('/', '.') +
-                     'get()')
-        eval(eval_code)
+        >>> test_result = new_test_result()
+        >>> test = SubmissionResourceTestCase(\
+                'test_get_submissions_list_requires_auth')
+        >>> test.run(test_result)
+        >>> test_result.testsRun
+        1
+        >>> test_result.errors
+        []
+        >>> test_result.failures
+        []
+        """
+        self.requires_auth(self.list_path)
+
+    def test_get_submissions_list(self):
+        """
+        >>> test_result = new_test_result()
+        >>> test = SubmissionResourceTestCase('test_get_submissions_list')
+        >>> test.run(test_result)
+        >>> test_result.testsRun
+        1
+        >>> test_result.errors
+        []
+        >>> test_result.failures
+        []
+        """
+        resp = self.get(self.list_path)
+        self.assertValidJSONResponse(resp)
+
+    def test_get_submissions_detail_requires_auth(self):
+        """
+        >>> test_result = new_test_result()
+        >>> test = SubmissionResourceTestCase(\
+                'test_get_submissions_detail_requires_auth')
+        >>> test.run(test_result)
+        >>> test_result.testsRun
+        1
+        >>> test_result.errors
+        []
+        >>> test_result.failures
+        []
+        """
+        self.requires_auth(submissions_detail_path())
+
+    def test_get_submissions_detail(self):
+        """
+        >>> test_result = new_test_result()
+        >>> test = SubmissionResourceTestCase('test_get_submissions_detail')
+        >>> test.run(test_result)
+        >>> test_result.testsRun
+        1
+        >>> test_result.errors
+        []
+        >>> test_result.failures
+        []
+        """
+        path = submissions_detail_path()
+        resp = self.get(path)
+        self.assertValidJSONResponse(resp)
+
+
+class CategorySubmissionResourceTestCase(StarsApiTestCase):
+
+    list_path = submissions_detail_path() + 'category/'
+
+    @property
+    def detail_path(self):
+        submissionset_resource = get_random_resource(SubmissionSetResource)
+        submissionset = SubmissionSet.objects.get(pk=submissionset_resource.id)
+        category_submission = get_random_queryset_obj(
+            submissionset.categorysubmission_set)
+        return (submissions_detail_path(submissionset) +
+                'category/{0}/'.format(category_submission.category_id))
+
+    def test_get_categorysubmission_list_requires_auth(self):
+        """
+        >>> test_result = new_test_result()
+        >>> test = CategorySubmissionResourceTestCase(\
+                    'test_get_categorysubmission_list_requires_auth')
+        >>> test.run(test_result)
+        >>> test_result.testsRun
+        1
+        >>> test_result.errors
+        []
+        >>> test_result.failures
+        []
+        """
+        self.requires_auth(self.list_path)
+
+    def test_get_categorysubmission_list(self):
+        """
+        >>> test_result = new_test_result()
+        >>> test = CategorySubmissionResourceTestCase(\
+                    'test_get_categorysubmission_list')
+        >>> test.run(test_result)
+        >>> test_result.testsRun
+        1
+        >>> test_result.errors
+        []
+        >>> test_result.failures
+        []
+        """
+        resp = self.get(self.list_path)
+        self.assertValidJSONResponse(resp)
+
+    def test_get_categorysubmission_detail_requires_auth(self):
+        """
+        >>> test_result = new_test_result()
+        >>> test = CategorySubmissionResourceTestCase(\
+                    'test_get_categorysubmission_detail_requires_auth')
+        >>> test.run(test_result)
+        >>> test_result.testsRun
+        1
+        >>> test_result.errors
+        []
+        >>> test_result.failures
+        []
+        """
+        self.requires_auth(self.detail_path)
+
+    def test_get_categorysubmission_detail(self):
+        """
+        >>> test_result = new_test_result()
+        >>> test = CategorySubmissionResourceTestCase(\
+                    'test_get_categorysubmission_detail')
+        >>> test.run(test_result)
+        >>> test_result.testsRun
+        1
+        >>> test_result.errors
+        []
+        >>> test_result.failures
+        []
+        """
+        import pdb; pdb.set_trace()
+        resp = self.get(self.detail_path)
+        self.assertValidJSONResponse(resp)
