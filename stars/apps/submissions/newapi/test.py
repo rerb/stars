@@ -74,7 +74,6 @@ class StarsApiTestCase(ResourceTestCase):
 
     def requires_auth(self, path):
         # Make sure authentication is on for path.
-        return True
         resp = self.api_client.get(path)
         self.assertHttpUnauthorized(resp)
 
