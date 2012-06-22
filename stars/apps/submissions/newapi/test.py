@@ -312,3 +312,84 @@ class SubcategorySubmissionResourceTestCase(StarsApiTestCase):
         """
         resp = self.get(self.detail_path)
         self.assertValidJSONResponse(resp)
+
+
+class CreditSubmissionResourceTestCase(StarsApiTestCase):
+
+    list_path = submissions_detail_path() + 'credit/'
+
+    @property
+    def detail_path(self):
+        submissionset_resource = get_random_resource(SubmissionSetResource)
+        submissionset = SubmissionSet.objects.get(pk=submissionset_resource.id)
+        category_submission = get_random_queryset_obj(
+            submissionset.categorysubmission_set)
+        subcategory_submission = get_random_queryset_obj(
+            category_submission.subcategorysubmission_set)
+        credit_submission = get_random_queryset_obj(
+            subcategory_submission.creditusersubmission_set)
+        return (submissions_detail_path(submissionset) +
+                'credit/{0}/'.format(
+                    credit_submission.credit_id))
+
+    def test_get_creditsubmission_list_requires_auth(self):
+        """
+        >>> test_result = new_test_result()
+        >>> test = CreditSubmissionResourceTestCase(\
+                    'test_get_creditsubmission_list_requires_auth')
+        >>> test.run(test_result)
+        >>> test_result.testsRun
+        1
+        >>> test_result.errors
+        []
+        >>> test_result.failures
+        []
+        """
+        self.requires_auth(self.list_path)
+
+    def test_get_creditsubmission_list(self):
+        """
+        >>> test_result = new_test_result()
+        >>> test = CreditSubmissionResourceTestCase(\
+                    'test_get_creditsubmission_list')
+        >>> test.run(test_result)
+        >>> test_result.testsRun
+        1
+        >>> test_result.errors
+        []
+        >>> test_result.failures
+        []
+        """
+        resp = self.get(self.list_path)
+        self.assertValidJSONResponse(resp)
+
+    def test_get_creditsubmission_detail_requires_auth(self):
+        """
+        >>> test_result = new_test_result()
+        >>> test = CreditSubmissionResourceTestCase(\
+                    'test_get_creditsubmission_detail_requires_auth')
+        >>> test.run(test_result)
+        >>> test_result.testsRun
+        1
+        >>> test_result.errors
+        []
+        >>> test_result.failures
+        []
+        """
+        self.requires_auth(self.detail_path)
+
+    def test_get_creditsubmission_detail(self):
+        """
+        >>> test_result = new_test_result()
+        >>> test = CreditSubmissionResourceTestCase(\
+                    'test_get_creditsubmission_detail')
+        >>> test.run(test_result)
+        >>> test_result.testsRun
+        1
+        >>> test_result.errors
+        []
+        >>> test_result.failures
+        []
+        """
+        resp = self.get(self.detail_path)
+        self.assertValidJSONResponse(resp)
