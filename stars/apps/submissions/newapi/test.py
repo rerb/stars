@@ -231,6 +231,84 @@ class CategorySubmissionResourceTestCase(StarsApiTestCase):
         >>> test_result.failures
         []
         """
-        import pdb; pdb.set_trace()
+        resp = self.get(self.detail_path)
+        self.assertValidJSONResponse(resp)
+
+
+class SubcategorySubmissionResourceTestCase(StarsApiTestCase):
+
+    list_path = submissions_detail_path() + 'subcategory/'
+
+    @property
+    def detail_path(self):
+        submissionset_resource = get_random_resource(SubmissionSetResource)
+        submissionset = SubmissionSet.objects.get(pk=submissionset_resource.id)
+        category_submission = get_random_queryset_obj(
+            submissionset.categorysubmission_set)
+        subcategory_submission = get_random_queryset_obj(
+            category_submission.subcategorysubmission_set)
+        return (submissions_detail_path(submissionset) +
+                'subcategory/{0}/'.format(
+                    subcategory_submission.subcategory_id))
+
+    def test_get_subcategorysubmission_list_requires_auth(self):
+        """
+        >>> test_result = new_test_result()
+        >>> test = SubcategorySubmissionResourceTestCase(\
+                    'test_get_subcategorysubmission_list_requires_auth')
+        >>> test.run(test_result)
+        >>> test_result.testsRun
+        1
+        >>> test_result.errors
+        []
+        >>> test_result.failures
+        []
+        """
+        self.requires_auth(self.list_path)
+
+    def test_get_subcategorysubmission_list(self):
+        """
+        >>> test_result = new_test_result()
+        >>> test = SubcategorySubmissionResourceTestCase(\
+                    'test_get_subcategorysubmission_list')
+        >>> test.run(test_result)
+        >>> test_result.testsRun
+        1
+        >>> test_result.errors
+        []
+        >>> test_result.failures
+        []
+        """
+        resp = self.get(self.list_path)
+        self.assertValidJSONResponse(resp)
+
+    def test_get_subcategorysubmission_detail_requires_auth(self):
+        """
+        >>> test_result = new_test_result()
+        >>> test = SubcategorySubmissionResourceTestCase(\
+                    'test_get_subcategorysubmission_detail_requires_auth')
+        >>> test.run(test_result)
+        >>> test_result.testsRun
+        1
+        >>> test_result.errors
+        []
+        >>> test_result.failures
+        []
+        """
+        self.requires_auth(self.detail_path)
+
+    def test_get_subcategorysubmission_detail(self):
+        """
+        >>> test_result = new_test_result()
+        >>> test = SubcategorySubmissionResourceTestCase(\
+                    'test_get_subcategorysubmission_detail')
+        >>> test.run(test_result)
+        >>> test_result.testsRun
+        1
+        >>> test_result.errors
+        []
+        >>> test_result.failures
+        []
+        """
         resp = self.get(self.detail_path)
         self.assertValidJSONResponse(resp)
