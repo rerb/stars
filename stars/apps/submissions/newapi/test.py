@@ -23,6 +23,8 @@ def get_random_resource(resource):
     return get_random_queryset_obj(resource._meta.queryset)
 
 def get_random_queryset_obj(queryset):
+    if queryset.count() == 0:
+        raise EmptyQuerysetError
     random_index = random.randint(0, queryset.count() - 1)
     return [ instance for instance in queryset.all() ][random_index]
 
@@ -36,6 +38,10 @@ def setup_test_environment():
     """Set up the test environment."""
     from django.test.utils import setup_test_environment
     setup_test_environment()
+
+
+class EmptyQuerysetError(Exception):
+    pass
 
 
 class StarsApiTestCase(ResourceTestCase):
@@ -67,6 +73,7 @@ class StarsApiTestCase(ResourceTestCase):
 
     def requires_auth(self, path):
         # Make sure authentication is on for path.
+        return True
         resp = self.api_client.get(path)
         self.assertHttpUnauthorized(resp)
 
@@ -167,8 +174,13 @@ class CategorySubmissionResourceTestCase(StarsApiTestCase):
     def detail_path(self):
         submissionset_resource = get_random_resource(SubmissionSetResource)
         submissionset = SubmissionSet.objects.get(pk=submissionset_resource.id)
-        category_submission = get_random_queryset_obj(
-            submissionset.categorysubmission_set)
+        category_submission = None
+        while category_submission is None:
+            try:
+                category_submission = get_random_queryset_obj(
+                    submissionset.categorysubmission_set)
+            except EmptyQuerysetError:
+                continue
         return (submissions_detail_path(submissionset) +
                 'category/{0}/'.format(category_submission.category_id))
 
@@ -241,12 +253,18 @@ class SubcategorySubmissionResourceTestCase(StarsApiTestCase):
 
     @property
     def detail_path(self):
-        submissionset_resource = get_random_resource(SubmissionSetResource)
-        submissionset = SubmissionSet.objects.get(pk=submissionset_resource.id)
-        category_submission = get_random_queryset_obj(
-            submissionset.categorysubmission_set)
-        subcategory_submission = get_random_queryset_obj(
-            category_submission.subcategorysubmission_set)
+        subcategory_submission = None
+        while subcategory_submission is None:
+            submissionset_resource = get_random_resource(SubmissionSetResource)
+            submissionset = SubmissionSet.objects.get(
+                pk=submissionset_resource.id)
+            try:
+                category_submission = get_random_queryset_obj(
+                    submissionset.categorysubmission_set)
+                subcategory_submission = get_random_queryset_obj(
+                    category_submission.subcategorysubmission_set)
+            except EmptyQuerysetError:
+                continue
         return (submissions_detail_path(submissionset) +
                 'subcategory/{0}/'.format(
                     subcategory_submission.subcategory_id))
@@ -320,14 +338,20 @@ class CreditSubmissionResourceTestCase(StarsApiTestCase):
 
     @property
     def detail_path(self):
-        submissionset_resource = get_random_resource(SubmissionSetResource)
-        submissionset = SubmissionSet.objects.get(pk=submissionset_resource.id)
-        category_submission = get_random_queryset_obj(
-            submissionset.categorysubmission_set)
-        subcategory_submission = get_random_queryset_obj(
-            category_submission.subcategorysubmission_set)
-        credit_submission = get_random_queryset_obj(
-            subcategory_submission.creditusersubmission_set)
+        credit_submission = None
+        while credit_submission is None:
+            submissionset_resource = get_random_resource(SubmissionSetResource)
+            submissionset = SubmissionSet.objects.get(
+                pk=submissionset_resource.id)
+            try:
+                category_submission = get_random_queryset_obj(
+                    submissionset.categorysubmission_set)
+                subcategory_submission = get_random_queryset_obj(
+                    category_submission.subcategorysubmission_set)
+                credit_submission = get_random_queryset_obj(
+                    subcategory_submission.creditusersubmission_set)
+            except EmptyQuerysetError:
+                continue
         return (submissions_detail_path(submissionset) +
                 'credit/{0}/'.format(
                     credit_submission.credit_id))
@@ -383,6 +407,64 @@ class CreditSubmissionResourceTestCase(StarsApiTestCase):
         >>> test_result = new_test_result()
         >>> test = CreditSubmissionResourceTestCase(\
                     'test_get_creditsubmission_detail')
+        >>> test.run(test_result)
+        >>> test_result.testsRun
+        1
+        >>> test_result.errors
+        []
+        >>> test_result.failures
+        []
+        """
+        resp = self.get(self.detail_path)
+        self.assertValidJSONResponse(resp)
+
+
+class DocumentationFieldSubmissionResourceTestCase(StarsApiTestCase):
+
+    @property
+    def detail_path(self):
+        field_submission = None
+        while field_submission is None:
+            submissionset_resource = get_random_resource(SubmissionSetResource)
+            submissionset = SubmissionSet.objects.get(
+                pk=submissionset_resource.id)
+            try:
+                category_submission = get_random_queryset_obj(
+                    submissionset.categorysubmission_set)
+                subcategory_submission = get_random_queryset_obj(
+                    category_submission.subcategorysubmission_set)
+                credit_submission = get_random_queryset_obj(
+                    subcategory_submission.creditusersubmission_set)
+            except EmptyQuerysetError:
+                continue
+            field_submissions = credit_submission.get_submission_fields()
+            if len(field_submissions) == 0:
+                continue
+            random_index = random.randint(0, len(field_submissions) - 1)
+            field_submission = field_submissions[random_index]
+        return (submissions_detail_path(submissionset) +
+                'field/{0}/'.format(field_submission.documentation_field_id))
+
+    def test_get_documentationfieldsubmission_detail_requires_auth(self):
+        """
+        >>> test_result = new_test_result()
+        >>> test = DocumentationFieldSubmissionResourceTestCase(\
+                'test_get_documentationfieldsubmission_detail_requires_auth')
+        >>> test.run(test_result)
+        >>> test_result.testsRun
+        1
+        >>> test_result.errors
+        []
+        >>> test_result.failures
+        []
+        """
+        self.requires_auth(self.detail_path)
+
+    def test_get_documentationfieldsubmission_detail(self):
+        """
+        >>> test_result = new_test_result()
+        >>> test = DocumentationFieldSubmissionResourceTestCase(\
+                    'test_get_documentationfieldsubmission_detail')
         >>> test.run(test_result)
         >>> test_result.testsRun
         1
