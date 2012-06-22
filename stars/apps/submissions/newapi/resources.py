@@ -77,10 +77,6 @@ class SubmissionSetResource(StarsApiResource):
                 "/(?P<fieldpk>\w[\w/-]*)%s$" %
                 (self._meta.resource_name, trailing_slash()),
                 self.wrap_view('get_field_detail')),
-
-            # url(r"^(?P<resource_name>%s)/(?P<pk>\w[\w/-]*)/field%s$" %
-            #     (self._meta.resource_name, trailing_slash()),
-            #     self.wrap_view('get_field_list')),
                 ]  # + self.base_urls()?
 
     def get_credit_list(self, request, **kwargs):
@@ -121,33 +117,6 @@ class SubmissionSetResource(StarsApiResource):
         credit_submission_resource = CreditSubmissionResource()
         detail = credit_submission_resource.get_detail(request, **kwargs)
         return detail
-
-    # TODO: THIS DOESN'T WORK
-    def get_field_list(self, request, **kwargs):
-        """Get a list of field submissions for the SubmssionSet where
-        id = kwargs['pk']."""
-        raise Exception("THIS DOESN'T WORK")
-        try:
-            obj = self.cached_obj_get(request=request,
-                                      **self.remove_api_resource_names(kwargs))
-        except ObjectDoesNotExist:
-            return HttpGone()
-        except MultipleObjectsReturned:
-            return HttpMultipleChoices(
-                "More than one resource is found at this URI.")
-
-        resource_list = list()
-        # TODO: THIS DOESN'T WORK
-        # get_list() returns a HTTPResponse, which can't be
-        # added to other HTTPResponses.
-        # Punting on this (for now, at least).
-        for field_resource in (NumericSubmissionResource,
-                               TextSubmissionResource):
-            resources = field_resource().get_list(request,
-                                                  submissionset_id=obj.pk)
-            resource_list += resources
-
-        return resource_list
 
     def get_field_detail(self, request, **kwargs):
         """Given the id's of a SubmissionSet (kwargs['pk']) and
