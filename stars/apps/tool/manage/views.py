@@ -549,6 +549,9 @@ def purchase_subscription(request):
             pay_form = PaymentForm(request.POST)
             if pay_form.is_valid():
                 payment_dict = get_payment_dict(pay_form, current_inst)
+                if pay_form.cleaned_data['discount_code'] != None:
+                        amount = _get_registration_price(current_inst, discount_code=pay_form.cleaned_data['discount_code'])
+                        flashMessage.send("Discount Code Applied", flashMessage.NOTICE)
                 product_dict = {
                     'price': amount,
                     'quantity': 1,
