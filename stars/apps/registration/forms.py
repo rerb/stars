@@ -167,6 +167,8 @@ class PaymentForm(forms.Form):
     
     def clean_discount_code(self):
         data = self.cleaned_data['discount_code']
+        if data == "":
+            return None
         
         try:
             discount = ValueDiscount.objects.get_current().get(code=data)
