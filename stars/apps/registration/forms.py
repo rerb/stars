@@ -8,6 +8,7 @@ import re
 
 from stars.apps.institutions.models import *
 from stars.apps.registration.utils import is_canadian_zipcode, is_usa_zipcode
+from stars.apps.registration.models import ValueDiscount
 
 class WriteInInstitutionForm(forms.Form):
     """
@@ -150,6 +151,7 @@ class PaymentForm(forms.Form):
     billing_city = forms.CharField(max_length=32)
     billing_state = forms.CharField(max_length=2)
     billing_zipcode = forms.CharField(max_length=7, label='Billing ZIP code')
+    discount_code = forms.CharField(max_length=16, required=False)
     
     def clean_exp_month(self):
         data = self.cleaned_data['exp_month']
@@ -161,6 +163,16 @@ class PaymentForm(forms.Form):
         if month > 12 or month < 0:
             raise forms.ValidationError(error_text)
             
+        return data
+    
+    def clean_discount_code(self):
+        data = self.cleaned_data['discount_code']
+        
+        try:
+            discount = ValueDiscount.objects.get_current().get(code=data)
+        except ValueDiscount.DoesNotExist:
+            raise forms.ValidationError("Invalid Discount Code")
+        
         return data
 
     def clean_exp_year(self):

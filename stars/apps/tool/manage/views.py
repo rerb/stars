@@ -22,6 +22,7 @@ from stars.apps.helpers import flashMessage
 from stars.apps.tool.manage.forms import *
 from stars.apps.registration.forms import PaymentForm, PayLaterForm
 from stars.apps.registration.views import process_payment, get_payment_dict, _get_registration_price, init_submissionset
+from stars.apps.registration.models import ValueDiscount
 from stars.apps.notifications.models import EmailTemplate 
     
 def _get_current_institution(request):
@@ -627,6 +628,10 @@ def pay_subscription(request, subscription_id):
         pay_form = PaymentForm(request.POST)
         if pay_form.is_valid():
             payment_dict = get_payment_dict(pay_form, current_inst)
+            if pay_form.cleaned_data['discount_code'] != None:
+                discount = ValueDiscount.objects.get(code=pay_form.cleaned_data['discount_code']).amount # we know this exists because it was validated in the form
+                amount = amount - discount
+                flashMessage.send("Discount Code Applied", flashMessage.NOTICE)
             product_dict = {
                 'price': amount,
                 'quantity': 1,

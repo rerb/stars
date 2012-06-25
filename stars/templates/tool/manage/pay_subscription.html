@@ -1,5 +1,7 @@
 {% extends 'tool/tool.html' %}
 
+{% load bootstrap %}
+
 {% block crumbs-tool %}<li>Make Payment</li>{% endblock %}
 
 {% block institution_content %}
@@ -15,7 +17,7 @@
     <br/>
     <div class='secure'>
       <table class='form' id='pay_form'>
-          {{ pay_form }}
+          {{ pay_form|bootstrap }}
       </table>
       <div class='form-actions'>
             <button type='submit' class='btn btn-success'>

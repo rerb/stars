@@ -5,9 +5,10 @@
 {% endblock %}
 
 {% block content %}
-    <div class='inner20'>
+    <div class='row'>
         <h1>{{ institution }} has registered for STARS!</h1>
 
+		<div class='well'>
         <div style='margin: 10px 50px;'>
             {% load content %}
             {% if amount_due %}
@@ -44,6 +45,8 @@
                 </tr>
             </table>
         {% endif %}
+        
+        </div>
         <div class='note'>
             Want to register another institution? <a href='/register/step1/'>You can!</a>
         </div>

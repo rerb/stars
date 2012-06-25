@@ -1,34 +1,42 @@
 {% extends 'registration/base.html' %}
 
+{% load bootstrap %}
+
 {% block title %}
     AASHE: STARS | Participant Registration | Step 3
 {% endblock %}
 
 {% block content %}
-    <div class='inner20'>
+    <div class='row'>
         <h1>Participant Registration: <i>{{ institution }}</i></h1>
         <p>Please review your contact information below.</p>
-        <table style='margin: 10px auto; width: 700px;' class='greyTable'>
-            <tr>
-                <th>STARS Liaison</th>
-                <th>Executive Contact</th>
-            </tr>
-            <tr>
-                <td>
-                    {{ institution.contact_first_name }} {{ institution.contact_last_name }}<br/>
-                    {{ institution.contact_title }}, {{ institution.contact_department }}<br/>
-                    {{ institution.contact_phone }}<br/>
-                    {{ institution.contact_email }}<br/>
-                    <a href="/register/step2/">Edit</a>
-                </td>
-                <td>
-                    {{ institution.executive_contact_first_name }} {{ institution.executive_contact_last_name }}<br/>
-                    {{ institution.executive_contact_title }}, {{ institution.executive_contact_department }}<br/>
-                    {{ institution.executive_contact_phone }}<br/>
-                    {{ institution.executive_contact_email }}<br/>
-                    <a href="/register/step2/">Edit</a>
-                </td>
-            </tr>
+    </div>
+    <div class='row'>
+        <table style='margin: 10px auto; width: 700px;' class='table'>
+            <thead>
+            	<tr>
+                	<th>STARS Liaison</th>
+                	<th>Executive Contact</th>
+           		</tr>
+           	</thead>
+           	<tbody>
+	            <tr>
+	                <td>
+	                    {{ institution.contact_first_name }} {{ institution.contact_last_name }}<br/>
+	                    {{ institution.contact_title }}, {{ institution.contact_department }}<br/>
+	                    {{ institution.contact_phone }}<br/>
+	                    {{ institution.contact_email }}<br/>
+	                    <a href="/register/p/step3/">Edit</a>
+	                </td>
+	                <td>
+	                    {{ institution.executive_contact_first_name }} {{ institution.executive_contact_last_name }}<br/>
+	                    {{ institution.executive_contact_title }}, {{ institution.executive_contact_department }}<br/>
+	                    {{ institution.executive_contact_phone }}<br/>
+	                    {{ institution.executive_contact_email }}<br/>
+	                    <a href="/register/p/step3/">Edit</a>
+	                </td>
+	            </tr>
+	   		</tbody>
         </table>
         <h2>Payment</h2>
         <p>This one-time payment covers registration and submission.</p>
@@ -40,11 +48,14 @@
                 <br/><br/>
                 <i>If you feel this is an error please contact us at <a href='mailto:stars@aashe.org'>stars@aashe.org</a>.</i>
             {% endif %}
-            <table style='margin: 10px auto; width: 400px;' class='greyTable'>
+            <table style='margin: 10px auto; width: 400px;' class='table'>
+                <thead>
                 <tr>
                     <th>Member Fee</th>
                     <th>Non-Member Fee</th>
                 </tr>
+                </thead>
+                <tbody>
                 <tr>
                     <td>$900</td>
                     <td>
@@ -55,26 +66,25 @@
                         {% endif %}
                     </td>
                 </tr>
+                </tbody>
             </table>
         </div>
-        <form method='post' action='.' class='generalForm'>
-            <div class='secure'>
-                <table class='form'>
-                    {{ pay_later_form }}
-			    </table>
-			    <table class='form' id='pay_form'>
-                    {{ pay_form }}
-                </table>
-                <div class='button_row'>
-                    {% if is_member %}
-                        Your member rate is: <b>${{ price }}</b>.
-                    {% else %}
-                        Your non-member rate is: <b>${{ price }}</b>.
-                    {% endif %}<br/><br/>
-                    <button type='button' onclick='document.location="/register/step2/";'>&lt;&lt; Back</button>
-                    <button type='submit'>Pay and Complete Registration</button><br/><br/>
-                    Secure Checkout <img src='/media/static/images/lock.png' alt='SSL' style='vertical-align: top'/><br/>
-                </div>
+        <form method='post'>
+        	{{ pay_later_form|bootstrap }}
+		    <div id='pay_form'>
+               {{ pay_form|bootstrap }}
+           	</div>
+            <div class='form-actions'>
+                {% if is_member %}
+                    Your member rate is: <b>${{ price }}</b>.
+                {% else %}
+                    Your non-member rate is: <b>${{ price }}</b>.
+                {% endif %}<br/><br/>
+                <button type='button' class='btn' onclick='document.location="/register/step2/";'>&lt;&lt; Back</button>
+                <button type='submit' class='btn btn-primary'>
+                	<i class='icon-lock icon-white'></i>
+                	Pay and Complete Registration
+                </button>
             </div>
         </form>
         <div style='font-size: .9em;color:#555;margin: 0px 50px;'>
