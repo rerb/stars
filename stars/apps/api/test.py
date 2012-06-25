@@ -71,7 +71,7 @@ class ApiTest(ResourceTestCase):
         """Runs tests for this api app (self.app_name).
 
         models_map is a dictionary specifying which models to run
-        test_url_credits() and test_url_credits_model_id() for.  Keys
+        test_url_appname() and test_url_appname_model_id() for.  Keys
         are the models, and values are the resource name (or None, if
         the resource name is the model name lower()'ed).
         """
@@ -81,9 +81,9 @@ class ApiTest(ResourceTestCase):
         self.test_get_args_authenticated()
         if models_map:
             for model, resource_name in models_map.items():
-                self.test_url_credits_model(model=model,
+                self.test_url_appname_model(model=model,
                                             resource_name=resource_name)
-                self.test_url_credits_model_id(model=model,
+                self.test_url_appname_model_id(model=model,
                                                resource_name=resource_name)
         # self.test_headers_authenticated()
         if tearDown:
@@ -129,9 +129,9 @@ class ApiTest(ResourceTestCase):
                                         self.app_name, resource_name)
         return eval(source)
 
-    def test_url_credits_model(self, model, resource_name=None,
+    def test_url_appname_model(self, model, resource_name=None,
                                objects=None):
-        """Does {self.app_name}/<model> returnsall model instances?"""
+        """Does {self.app_name}/<model> return all model instances?"""
         resource_name = resource_name or model._meta.object_name.lower()
         json_response = eval(
             'self.registered_api.{0}.{1}.get()'.format(self.app_name,
@@ -140,7 +140,7 @@ class ApiTest(ResourceTestCase):
         assert(json_response['meta']['total_count'] ==
                objects.count())
 
-    def test_url_credits_model_id(self, model, resource_name=None):
+    def test_url_appname_model_id(self, model, resource_name=None):
         """Does {self.app_name}/<model>/<id> return the correct
         model instance?"""
         model_ids = [ instance.id for instance in model.objects.all() ]
@@ -160,3 +160,90 @@ class ApiTest(ResourceTestCase):
     #                 username=user.username, api_key=user.api_key.key) }
     #     api = self.api()
     #     api.credit.get(headers=headers)
+
+
+"""
+These test cases fail if run via 'manage.py test' because the test
+database has no data in it, and no fixtures are defined here.  They'll
+run from the REPL as doctests, if you do this:
+
+    import stars.apps.submissions.newapi.test as t
+    import doctest
+    doctest.testmod(t)
+"""
+from tastypie.test import ResourceTestCase
+
+def get_random_resource(resource):
+    """Get a random instance of an ApiResource."""
+    return get_random_queryset_obj(resource._meta.queryset)
+
+def get_random_queryset_obj(queryset):
+    """Get a random object from a queryset."""
+    if queryset.count() == 0:
+        raise EmptyQuerysetError
+    random_index = random.randint(0, queryset.count() - 1)
+    return [ instance for instance in queryset.all() ][random_index]
+
+def new_test_result():
+    """Get a unittest.TestResult object.  Used in doctests below."""
+    setup_test_environment()
+    from unittest import TestResult
+    return TestResult()
+
+def setup_test_environment():
+    """Set up the test environment.  Used in doctests below."""
+    from django.test.utils import setup_test_environment
+    setup_test_environment()
+
+
+class EmptyQuerysetError(Exception):
+    pass
+
+
+class StarsApiTestCase(ResourceTestCase):
+
+    def setUp(self):
+        super(StarsApiTestCase, self).setUp()
+
+        # Create a user:
+        self.user, self.created_user = User.objects.get_or_create(
+            username='johndoe')
+
+        # Create an API key for the user:
+        _, self.created_api_key = ApiKey.objects.get_or_create(user=self.user)
+
+        # Use url_params until HTTP auth header is working - then
+        # switch to get_credentials().
+        self.credentials_as_url_params = {'username': self.user.username,
+                                          'api_key': self.user.api_key.key}
+
+    def tearDown(self):
+        if self.created_api_key:
+            ApiKey.objects.get(user=self.user).delete()
+        if self.created_user:
+            User.objects.get(pk=self.user.id).delete()
+
+    def get(self, path):
+        """Do a GET using the default credentials."""
+        return self.api_client.get(path, data=self.credentials_as_url_params)
+
+    def requires_auth(self, path):
+        # Make sure authentication is on for path.
+        resp = self.api_client.get(path)
+        self.assertHttpUnauthorized(resp)
+
+    # get_credentials() is pretty useless since self.create_apikey()
+    # returns an HTTP auth header, and authentication via HTTP auth
+    # header doesn't seem to be working.  When it does, use get_credentials(),
+    # rather than self.credentials_as_params in self.get() below.
+    # def get_credentials(self):
+    #     return self.create_apikey(username=self.user.username,
+    #                               api_key=self.user.api_key.key)
+
+    # def test_create_apikey(self):
+    #     # Try api key authentication using ResourceTestCase.create_apikey().
+    #     credentials = self.create_apikey(username=self.user.username,
+    #                                      api_key=self.user.api_key.key)
+    #     resp = self.api_client.get('/api/v1/submissions/',
+    #                                authentication=credentials)
+    #     self.assertHttpOK(resp)
