@@ -10,13 +10,14 @@ run from the REPL as doctests, if you do this:
     doctest.testmod(t)
 """
 import stars.apps.api.test as stars_api_test
-from stars.apps.api.test import StarsApiTestCase, get_random_resource, \
+from stars.apps.api.test import StarsApiTestCase, get_random_visible_resource, \
      get_random_queryset_obj, new_test_result, setup_test_environment, \
      EmptyQuerysetError
 from stars.apps.institutions.api.resources import InstitutionResource
 
 def institutions_detail_path(institution=None):
-    institution = institution or get_random_resource(InstitutionResource)
+    institution = institution or get_random_visible_resource(
+        InstitutionResource)
     path = '/api/v1/institutions/{0}/'.format(institution.id)
     return path
 
