@@ -8,6 +8,7 @@ from settings import *
 HIDE_REPORTING_TOOL = False
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
+API_TEST_MODE = DEBUG
 DEBUG_TOOLBAR = False
 MAINTENANCE_MODE = False
 CELERY_ALWAYS_EAGER = True
@@ -24,7 +25,7 @@ DATABASES = {
     'default': {
 #         'NAME': '/Users/jamstooks/sqlite/pre1.2_test.db',
 #         'ENGINE': 'sqlite3',
-        'NAME': 'stars_ben',
+        'NAME': 'stars',
         'ENGINE': 'django.db.backends.mysql',
         'STORAGE_ENGINE': 'MyISAM',
         'USER': 'root',
