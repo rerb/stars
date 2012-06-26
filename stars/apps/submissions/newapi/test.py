@@ -13,12 +13,13 @@ import random
 
 from stars.apps.submissions.models import SubmissionSet
 from stars.apps.submissions.newapi.resources import SubmissionSetResource
-from stars.apps.api.test import StarsApiTestCase, get_random_resource, \
+from stars.apps.api.test import StarsApiTestCase, get_random_visible_resource, \
      get_random_queryset_obj, new_test_result, setup_test_environment, \
      EmptyQuerysetError
 
 def submissions_detail_path(submissionset=None):
-    submissionset = submissionset or get_random_resource(SubmissionSetResource)
+    submissionset = submissionset or get_random_visible_resource(
+        SubmissionSetResource)
     path = '/api/v1/submissions/{0}/'.format(submissionset.id)
     return path
 
@@ -95,7 +96,8 @@ class CategorySubmissionResourceTestCase(StarsApiTestCase):
 
     @property
     def detail_path(self):
-        submissionset_resource = get_random_resource(SubmissionSetResource)
+        submissionset_resource = get_random_visible_resource(
+            SubmissionSetResource)
         submissionset = SubmissionSet.objects.get(pk=submissionset_resource.id)
         category_submission = None
         while category_submission is None:
@@ -178,7 +180,8 @@ class SubcategorySubmissionResourceTestCase(StarsApiTestCase):
     def detail_path(self):
         subcategory_submission = None
         while subcategory_submission is None:
-            submissionset_resource = get_random_resource(SubmissionSetResource)
+            submissionset_resource = get_random_visible_resource(
+                SubmissionSetResource)
             submissionset = SubmissionSet.objects.get(
                 pk=submissionset_resource.id)
             try:
@@ -263,7 +266,8 @@ class CreditSubmissionResourceTestCase(StarsApiTestCase):
     def detail_path(self):
         credit_submission = None
         while credit_submission is None:
-            submissionset_resource = get_random_resource(SubmissionSetResource)
+            submissionset_resource = get_random_visible_resource(
+                SubmissionSetResource)
             submissionset = SubmissionSet.objects.get(
                 pk=submissionset_resource.id)
             try:
@@ -348,7 +352,8 @@ class DocumentationFieldSubmissionResourceTestCase(StarsApiTestCase):
     def detail_path(self):
         field_submission = None
         while field_submission is None:
-            submissionset_resource = get_random_resource(SubmissionSetResource)
+            submissionset_resource = get_random_visible_resource(
+                SubmissionSetResource)
             submissionset = SubmissionSet.objects.get(
                 pk=submissionset_resource.id)
             try:
