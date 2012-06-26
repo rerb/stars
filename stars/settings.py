@@ -20,7 +20,7 @@ else:
         '/Users/jamstooks/.*': 'ben',
         '/Users/Joseph/Projects/AASHE/STARS/.*/stars': 'joseph',
         '/Users/jesse/src/.*': 'jesse',
-        '/Users/matt/.*', 'matt',
+        '/Users/matt/.*': 'matt',
     }
 
     # find the first key that matches the ROOT_PATH
