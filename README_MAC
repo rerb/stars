@@ -6,3 +6,8 @@ My experience is that the easiest setup is to use the homebrew package manager. 
 http://stackoverflow.com/questions/7375199/python-brew-and-mysqldb
 
 Once you've done this, you'll need to set Eclipse to use your homebrew python and run bootstrap.py with the homebrew python.
+
+PIP
+---
+
+If you want to work with the docs, you should probably PIP install Sphinx locally. I don't include it in the buildout.
