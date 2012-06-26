@@ -5,9 +5,7 @@ from tastypie import fields
 
 from stars.apps.institutions import models
 from stars.apps.api.resources import StarsApiResource
-from stars.apps.submissions.newapi.resources import SUBMISSIONS_RESOURCE_PATH
-
-INSTITUTIONS_RESOURCE_PATH = 'stars.apps.institutions.'
+from stars.apps.api.paths import SUBMISSIONS_RESOURCE_PATH
 
 
 class InstitutionResource(StarsApiResource):
