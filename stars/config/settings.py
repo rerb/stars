@@ -24,6 +24,7 @@ BROADCAST_MESSAGE = None
 
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
+API_TEST_MODE = DEBUG
 # Testing should be true to run test suite - controls other settings and supresses debug output.
 TESTING = False
 FIXTURE_DIRS = ('fixtures',)
