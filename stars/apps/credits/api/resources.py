@@ -66,7 +66,7 @@ class CreditSetResource(StarsApiResource):
         'category_set', related_name='creditset')
 
     class Meta(StarsApiResource.Meta):
-        queryset = credits_models.CreditSet.objects.all()
+        queryset = credits_models.CreditSet.objects.filter(version__gte='1.0')
         resource_name = 'credits/creditset'
         fields = ['id', 'release_date', 'version', 'supported_features']
         allowed_methods = ['get']
