@@ -11,6 +11,8 @@ MANAGERS = ADMINS
 
 DEFAULT_CHARSET = 'utf-8'
 
+PROJECT_PATH = os.path.join(os.path.dirname(__file__), '..')
+
 # Use a dummy Email Backend for anything but production
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
@@ -26,7 +28,7 @@ DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 # Testing should be true to run test suite - controls other settings and supresses debug output.
 TESTING = False
-FIXTURE_DIRS = ('fixtures',)
+FIXTURE_DIRS = ('fixtures', os.path.join(PROJECT_PATH, 'apps/api/fixtures'),)
 
 TIME_ZONE = 'America/Lima'
 
@@ -231,7 +233,7 @@ RECAPTCHA_PRIVATE_KEY = "6LeaEL0SAAAAACP5wb3qqxujJc3Cf_qHhVGUr4QV"
 GOOGLE_API_KEY = "ABQIAAAA-bTvhmGT1R0ug4p1J_-l4hQWDBNZ3_Sn8d2AByp8vi_J8JN7YxQq-tOQFxf4oNeYJyiW9fXWm-pwNg"
 
 #DATABASE_ROUTERS = ('aashe.issdjango.router.ISSRouter',)
-PROJECT_PATH = os.path.join(os.path.dirname(__file__), '..')
+
 
 PYTHON_VERSION = None
 m = re.match('[\d\.]+', sys.version)
