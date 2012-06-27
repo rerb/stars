@@ -24,7 +24,7 @@ class CreditSetResourceTestCase(StarsApiTestCase):
     def test_get_creditset_detail(self):
         path = self.detail_path
         resp = self.get(path)
-        self.assertValidJSONResponse(resp)
+        self.assertValidJSONResponseNotError(resp)
 
 
 class CategoryResourceTestCase(StarsApiTestCase):
@@ -44,7 +44,7 @@ class CategoryResourceTestCase(StarsApiTestCase):
 
     def test_get_category_detail(self):
         resp = self.get(self.detail_path)
-        self.assertValidJSONResponse(resp)
+        self.assertValidJSONResponseNotError(resp)
 
 
 class SubcategoryResourceTestCase(StarsApiTestCase):
@@ -64,7 +64,7 @@ class SubcategoryResourceTestCase(StarsApiTestCase):
 
     def test_get_subcategory_detail(self):
         resp = self.get(self.detail_path)
-        self.assertValidJSONResponse(resp)
+        self.assertValidJSONResponseNotError(resp)
 
 
 class CreditResourceTestCase(StarsApiTestCase):
@@ -84,7 +84,7 @@ class CreditResourceTestCase(StarsApiTestCase):
 
     def test_get_credit_detail(self):
         resp = self.get(self.detail_path)
-        self.assertValidJSONResponse(resp)
+        self.assertValidJSONResponseNotError(resp)
 
 
 class DocumentationFieldResourceTestCase(StarsApiTestCase):
@@ -104,4 +104,4 @@ class DocumentationFieldResourceTestCase(StarsApiTestCase):
 
     def test_get_documentation_field_detail(self):
         resp = self.get(self.detail_path)
-        self.assertValidJSONResponse(resp)
+        self.assertValidJSONResponseNotError(resp)
