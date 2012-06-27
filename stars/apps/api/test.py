@@ -10,6 +10,7 @@ run from the REPL as doctests, if you do this:
 import random
 
 from django.contrib.auth.models import User
+from django.utils import simplejson
 from tastypie.models import ApiKey
 from tastypie.test import ResourceTestCase
 
@@ -50,6 +51,15 @@ class EmptyQuerysetError(Exception):
         return repr(self.message)
 
 
+class ErrorResponse(Exception):
+
+    def __init__(self, message=''):
+        self.message = message
+
+    def __str__(self):
+        return
+
+
 class StarsApiTestCase(ResourceTestCase):
 
     fixtures = ['test_api_creditset.json',
@@ -84,9 +94,16 @@ class StarsApiTestCase(ResourceTestCase):
         return self.api_client.get(path, data=self.credentials_as_url_params)
 
     def requires_auth(self, path):
-        # Make sure authentication is on for path.
+        """Does path require auth?"""
         resp = self.api_client.get(path)
         self.assertHttpUnauthorized(resp)
+
+    def assertValidJSONResponseNotError(self, response):
+        """Response is valid JSON and not an error message."""
+        self.assertValidJSONResponse(response)
+        content_dict = simplejson.loads(response.content)
+        self.assertNotIn('error_message', content_dict)
+
 
     # get_credentials() is pretty useless since self.create_apikey()
     # returns an HTTP auth header, and authentication via HTTP auth
