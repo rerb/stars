@@ -42,10 +42,21 @@ def setup_test_environment():
 
 
 class EmptyQuerysetError(Exception):
-    pass
+
+    def __init__(self, message=''):
+        self.message = message
+
+    def __str__(self):
+        return repr(self.message)
 
 
 class StarsApiTestCase(ResourceTestCase):
+
+    fixtures = ['test_api_creditset.json',
+                'test_api_category.json',
+                'test_api_subcategory.json',
+                'test_api_credit.json',
+                'test_api_documentationfield.json']
 
     def setUp(self):
         super(StarsApiTestCase, self).setUp()
