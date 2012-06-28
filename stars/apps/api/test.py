@@ -44,11 +44,20 @@ class EmptyQuerysetError(Exception):
 
 class StarsApiTestCase(ResourceTestCase):
 
-    fixtures = ['test_api_creditset.json',
+    fixtures = ['test_api_institution.json',
+                'test_api_user.json',
+                'test_api_creditset.json',
                 'test_api_category.json',
                 'test_api_subcategory.json',
                 'test_api_credit.json',
-                'test_api_documentationfield.json']
+                'test_api_documentationfield.json',
+                'test_api_rating.json',
+                'test_api_submissionset.json',
+                'test_api_categorysubmission.json',
+                'test_api_subcategorysubmission.json',
+                'test_api_creditsubmission.json',
+                'test_api_documentaionfieldsubmission.json',
+                ]
 
     def setUp(self):
         super(StarsApiTestCase, self).setUp()
