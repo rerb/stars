@@ -3,6 +3,9 @@
 STARS API Endpoints
 ===================
 
+Introduction
+------------
+
 A detailed list of all the STARS API RESTful endpoints, along with example input and output.
 There are three major interfaces: Credits, Submissions, and Institutions. All
 endpoints start with a prefix of the following format::
@@ -215,3 +218,25 @@ Sample Output:
 		tooltip_help_text: "",
 		type: "numeric"
 	}
+	
+The Submissions API
+-------------------
+
+AASHE provides access to the STARS Reports through the API in the form of
+the **Submissions API**, which allows you to navigate each Report, from the
+top level down through Categories, Subcategories, Credits, and responses to
+Documentation Fields.
+
+Submissions
+^^^^^^^^^^^
+
+Submissions represent STARS Reports
+
+**List of available Reports**::
+
+/api/v1/submissions/submissionset/
+
+Sample Output (truncated):
+
+.. code-block:: javascript
+
