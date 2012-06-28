@@ -1,0 +1,32 @@
+{% extends 'tool/manage/responsible_party_list.html' %}
+
+{% block help_content %}
+    {% load help %}
+    {% show_help_context 'edit_responsible_party' 0 %}
+{% endblock %}
+
+{% block institution_content %}
+
+	<a href='/tool/manage/responsible-parties/'>&lt;&lt; back to all Responsible Parties</a>
+
+	<h2>{{ title }}</h2>
+	
+	<form method='post' action='.' class='generalForm'>
+		<table>
+			{% include "helpers/standard_form.html" %}
+		</table>
+		<div class='button_row'>
+        	<button type='submit' id='submit_button'>Save</button>
+		<button
+		   type='button'
+		   onclick="document.location='{{ responsible_party.get_manage_url }}delete/';">
+		  Delete</button>
+    	</div>
+	</form>
+	
+	{% if responsible_party %}
+		<h3>Assigned Credits</h3>
+		{% include "tool/manage/responsible_party_credits.html" %}
+	{% endif %}
+	
+{% endblock %}

@@ -1,0 +1,52 @@
+[
+    {
+        "pk": 2, 
+        "model": "credits.creditset", 
+        "fields": {
+            "previous_version": null, 
+            "is_locked": false, 
+            "release_date": "2010-11-02", 
+            "credit_identifier": "get_1_0_identifier", 
+            "scoring_method": "get_STARS_v1_0_score", 
+            "version": "1.0", 
+            "tier_2_points": 0.25, 
+            "supported_features": []
+        }
+    }, 
+    {
+        "pk": 4, 
+        "model": "credits.creditset", 
+        "fields": {
+            "previous_version": 2, 
+            "is_locked": false, 
+            "release_date": "2011-02-09", 
+            "credit_identifier": "get_1_1_identifier", 
+            "scoring_method": "get_STARS_v1_0_score", 
+            "version": "1.1", 
+            "tier_2_points": 0.25, 
+            "supported_features": [
+                1, 
+                2
+            ]
+        }
+    }, 
+    {
+        "pk": 5, 
+        "model": "credits.creditset", 
+        "fields": {
+            "previous_version": 4, 
+            "is_locked": false, 
+            "release_date": "2012-02-08", 
+            "credit_identifier": "get_1_1_identifier", 
+            "scoring_method": "get_STARS_v1_0_score", 
+            "version": "1.2", 
+            "tier_2_points": 0.25, 
+            "supported_features": [
+                1, 
+                2, 
+                3, 
+                4
+            ]
+        }
+    }
+]

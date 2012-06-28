@@ -1,0 +1,131 @@
+{% extends "tool/submissions/columned_layout.html" %}
+
+{% load aashe_rules_tags %}
+
+{% block crumbs %} 
+    {{ block.super }}
+    {% load submit_tags  %}
+    {% show_submit_crumbs active_submission.creditset %}
+{% endblock %}
+
+{% block tool_content %}
+    {% load submit_tags %}
+    {% if active_submission %}
+    
+		<h1>Submission Summary: {{ user.current_inst }}</h1>
+		{% include 'tool/submissions/submission_summary_table.html' %}
+		<div class='submissionBoundary'>
+		    <p style='text-align: center;'>
+              {% testrule user_can_submit_for_rating user user.current_inst.current_submission %}
+                <img src="/media/static/images/star.png" alt='' style='vertical-align: top;' />
+                <a href='{{ active_submission.get_submit_url }}' style='margin-right: 15px;text-decoration: none;'>
+                  Submit for Rating</a>
+              {% endtestrule %}
+              
+              {% testrule user_has_access_level user 'admin' user.current_inst %}
+              <img src="/media/static/images/building_edit.png" alt='' style='vertical-align: top;' />
+              <a href='/tool/submissions/boundary/' style='margin-right: 15px;text-decoration: none;'>
+                  Edit Boundary</a>
+              {% endtestrule %}
+              
+              {% testrule institution_has_snapshot_feature user.current_inst %}
+              <img src="/media/static/images/camera_add.png" alt='' style='vertical-align: top;' />
+              <a href='/tool/submissions/snapshot/' style='margin-right: 15px;text-decoration: none;'>
+              Save Snapshot</a>
+              {% endtestrule %}
+            </p>
+		</div>
+		{% for cat in category_submission_list %}
+			<a name='ec_{{ cat.category.id }}'></a>
+			<h2>
+                {% testrule institution_has_score_feature user.current_inst %}
+                  {% if cat.category.include_in_score %}
+    			    <span class='provScore'>
+    			   		{% ifnotequal cat.category.title 'Innovation' %}
+    			        	<div class='provScorePercent'>{{ cat.get_STARS_score|floatformat:2 }}%</div>
+    			        	<span class='provScoreCaption'>Provisional Score</span>
+    			        {% else %}
+    			        	<div class='provScorePercent'>{{ cat.get_claimed_points|floatformat:2 }}</div>
+    			            <span class='provScoreCaption'>Points Claimed</span>
+    			        {% endifnotequal %}
+    			    </span>
+                  {% endif %}
+                {% endtestrule %}
+			    {% show_progress_icon cat %}
+			    <img src='/media/static/images/collapse_big.gif' alt='+' onclick='expandCollapse(this,false);' id='ec_{{ cat.category.id }}' class='collapseExpand'/>
+			    {{ cat }} <!-- {{ cat.id }} -->
+			</h2>
+			<div id='ec_{{ cat.category.id }}_target' class='progressSubcat'>
+			{% for sub in cat.subcategorysubmission_set.all %}
+				<a name='ec_{{ cat.category.id }}_{{ sub.subcategory.id }}'></a>
+			    <h3>
+                  {% testrule institution_has_score_feature user.current_inst %}
+                    {% if cat.category.include_in_score %}
+    			        <span class='provScore'>
+    			            <div class='provScorePercent'>{{ sub.get_claimed_points|floatformat:2 }} / {{ sub.get_adjusted_available_points|floatformat:2 }}</div>
+    			            <span class='provScoreCaption'>Points Claimed</span>
+    			        </span>
+                    {% endif %}
+                  {% endtestrule %}
+			        {% show_progress_icon sub %}
+			        <img
+			        	src='/media/static/images/collapse_big.gif' alt='+'
+			        	onclick='expandCollapse(this, false);'
+			        	id='ec_{{ cat.category.id }}_{{ sub.subcategory.id }}' class='collapseExpand' />
+			        {{ sub }} <!-- {{ sub.id }} -->
+			    </h3>
+   			    {% if active_submission.creditset.has_submission_summary_feature %}
+   			    	<div style='padding: 0px 50px 0px 50px;' class='greyBox'>
+   			    		{% if sub.description %}
+   			    			{{ sub.description|urlizetrunc:85|linebreaks|fix_ampersands }}
+   			    			<p style='text-align: center;'>
+   			    				<a href='{{ sub.get_submit_edit_url }}' style='text-decoration: none;'>
+   			    					<img src='/media/static/images/page_white_edit.png' style='vertical-align: top;'/>
+   			    					Edit Subcategory Description
+   			    				</a>
+   			    			</p>
+   			    		{% else %}
+   			    			<p style='text-align: center;'>
+		   			    		<a href='{{ sub.get_submit_edit_url }}' style='text-decoration: none;'>
+		   			    			<img src='/media/static/images/add_blue.png' style='vertical-align: top;'/>
+		   			    			Add Subcategory Description
+		   			    		</a> (Optional)
+	   			    		</p>
+	   			    	{% endif %}
+   			    	</div>
+   			    {% endif %}
+			    <div id='ec_{{ cat.category.id }}_{{ sub.subcategory.id }}_target'>
+    			    <br/>
+			        <table class='greyTable'>
+			            <tr>
+			                <th>Credit</th>
+			                <th>Status</th>
+                            {% testrule institution_has_score_feature user.current_inst %}
+                              {% if cat.category.include_in_score %}
+			                    <th>Points</th>
+                              {% endif %}
+                            {% endtestrule %}
+			            </tr>
+			            {% for c in sub.creditusersubmission_set.all %}
+				            <tr class='{% cycle 'even' 'odd' %}' {% ifchanged c.credit.type %}style="border-top-width: 1px;"{% endifchanged %}>
+				                <td class='credit'><a href='{{ c.credit.get_submit_url }}'>
+				                    {{ c.credit }} <!-- {{ c.id }} -->
+				                </a></td>
+				                <td>{% show_status_icon c %}</td>
+                                {% testrule institution_has_score_feature user.current_inst %}
+                                  {% if cat.category.include_in_score %}
+				                    <td>{{ c.assessed_points|floatformat:2 }} / {% format_available_points c %}</td>
+                                  {% endif %}
+                                {% endtestrule %}
+				            </tr>
+			          	{% endfor %}
+			        </table>
+			    </div>
+			    {% if not forloop.last %}
+			    	<hr/>
+			    {% endif %}
+			{%endfor %}
+			</div>
+		{% endfor %}
+    {% endif %}
+{% endblock %}

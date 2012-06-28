@@ -1,0 +1,10 @@
+{% autoescape off %}
+	{% if user and user.is_staff %}
+		<a href='{{ edit_link }}' title='Edit {{ block.key }}' target='_blank'>
+			<img src='/media/static/images/page_edit.png'/>
+		</a>
+	{% endif %}
+	
+	{{ block.content }}
+{% endautoescape %}
+    
