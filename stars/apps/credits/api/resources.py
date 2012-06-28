@@ -1,8 +1,3 @@
-from tastypie import fields
-
-import stars.apps.credits.models as credits_models
-from stars.apps.api.resources import StarsApiResource
-
 """
     STARS Credit API
 
@@ -11,9 +6,11 @@ from stars.apps.api.resources import StarsApiResource
         - authorization
         - dehydration
 """
+from tastypie import fields
 
-CREDITS_RESOURCE_PATH = 'stars.apps.credits.api.resources.'
-
+import stars.apps.credits.models as credits_models
+from stars.apps.api.resources import StarsApiResource
+from stars.apps.api.paths import CREDITS_RESOURCE_PATH
 
 class CategoryResource(StarsApiResource):
     """
@@ -71,7 +68,7 @@ class CreditSetResource(StarsApiResource):
         'category_set', related_name='creditset')
 
     class Meta(StarsApiResource.Meta):
-        queryset = credits_models.CreditSet.objects.all()
+        queryset = credits_models.CreditSet.objects.filter(version__gte='1.0')
         resource_name = 'credits/creditset'
         fields = ['id', 'release_date', 'version', 'supported_features']
         allowed_methods = ['get']

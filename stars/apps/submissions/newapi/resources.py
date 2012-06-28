@@ -15,15 +15,13 @@ from stars.apps.submissions.models import SubmissionSet, CategorySubmission, \
      UploadSubmission, BooleanSubmission, ChoiceSubmission, \
      MultiChoiceSubmission
 from stars.apps.api.resources import StarsApiResource
-from stars.apps.credits.api.resources import CREDITS_RESOURCE_PATH
-
-SUBMISSIONS_RESOURCE_PATH = 'stars.apps.submissions.newapi.resources.'
+from stars.apps.api.paths import CREDITS_RESOURCE_PATH, \
+     SUBMISSIONS_RESOURCE_PATH, INSTITUTIONS_RESOURCE_PATH
 
 
 class SubmissionSetResource(StarsApiResource):
     """
-    TODO: add institution
-    institution = models.ForeignKey(Institution)
+        Resource for accessing any (published) SubmissionSet.
     """
     creditset = fields.OneToOneField(
         CREDITS_RESOURCE_PATH + 'CreditSetResource', 'creditset')
@@ -32,10 +30,11 @@ class SubmissionSetResource(StarsApiResource):
     categories = fields.ToManyField(
         SUBMISSIONS_RESOURCE_PATH + 'CategorySubmissionResource',
         'categorysubmission_set')
+    institution = fields.OnegToOneField(
+        INSTITUTIONS_RESOURCE_PATH + 'InstitutionResource', 'institution')
 
     class Meta(StarsApiResource.Meta):
         queryset = SubmissionSet.objects.published()
-        # queryset = SubmissionSet.objects.all()
         resource_name = 'submissions'
         allowed_methods = ['get']
         # exclude submission_boundary becauses it raises
