@@ -14,8 +14,10 @@ emacs.desktop
 ^docs/_build
 ^docs/stars/_build
 ^docs/api/_build
+^src$
 
 syntax: glob
 *.pyc
 .DS_Store
 .vagrant
+syntax: regexp
