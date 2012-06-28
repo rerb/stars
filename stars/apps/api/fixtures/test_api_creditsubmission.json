@@ -1,0 +1,1538 @@
+[
+    {
+        "pk": 5632, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2010-11-18 14:38:08", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 386, 
+            "user": 13865, 
+            "assessed_points": 0.25, 
+            "subcategory_submission": 709, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 5633, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-02-15 15:05:57", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 386, 
+            "user": 13865, 
+            "assessed_points": 0.25, 
+            "subcategory_submission": 709, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 5634, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2010-11-18 14:43:52", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 386, 
+            "user": 13865, 
+            "assessed_points": 0.25, 
+            "subcategory_submission": 709, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 5635, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2010-11-18 14:47:05", 
+            "responsible_party_confirm": false, 
+            "submission_notes": "Although UNI does not currently have a first year experience, they are in the planning process for such an undertaking.", 
+            "internal_notes": null, 
+            "submission_status": "np", 
+            "responsible_party": null, 
+            "user": 13865, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 709, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 5651, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-02-17 09:48:10", 
+            "responsible_party_confirm": false, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "np", 
+            "responsible_party": null, 
+            "user": 13865, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 712, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 5652, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-03-02 17:04:26", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 768, 
+            "user": 13865, 
+            "assessed_points": 1.5, 
+            "subcategory_submission": 712, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 5653, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2010-12-23 13:18:33", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": "These numbers represent the GSF utilized for the performance year in Energy minus Baker Hall.", 
+            "submission_status": "c", 
+            "responsible_party": 386, 
+            "user": 13865, 
+            "assessed_points": 1.96, 
+            "subcategory_submission": 712, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 32278, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-05-31 13:39:09", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 550, 
+            "user": 8491, 
+            "assessed_points": 5.0, 
+            "subcategory_submission": 4123, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 32279, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-06-08 14:25:35", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": "OAC personnel re. NOVA (leave no trace?)\r\nRebecca Neville Student Activities about NSO", 
+            "submission_status": "c", 
+            "responsible_party": 550, 
+            "user": 8491, 
+            "assessed_points": 2.0, 
+            "subcategory_submission": 4123, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 9240, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2010-10-29 15:52:20", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 253, 
+            "user": 8906, 
+            "assessed_points": 4.0, 
+            "subcategory_submission": 1177, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 9241, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2010-12-09 14:58:57", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 253, 
+            "user": 8906, 
+            "assessed_points": 3.0, 
+            "subcategory_submission": 1177, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 9242, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2010-12-09 14:57:04", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 253, 
+            "user": 8906, 
+            "assessed_points": 2.0, 
+            "subcategory_submission": 1177, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 32283, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-06-09 10:02:34", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "np", 
+            "responsible_party": 550, 
+            "user": 8491, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 4123, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 32284, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-06-09 10:13:08", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "Students in Unity's TerraHaus study, model, and communicate sustainability themes related to building energy performance and simple, community living practices.\r\n", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 550, 
+            "user": 8491, 
+            "assessed_points": 0.25, 
+            "subcategory_submission": 4123, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 32285, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-06-09 10:13:31", 
+            "responsible_party_confirm": false, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "np", 
+            "responsible_party": null, 
+            "user": 8491, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 4123, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 32286, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-06-09 10:27:40", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "Unity's annual Lapping Lecture series explores sustainability themes with all upper level students through the Environmental Challenge course.\r\nEach semester, the Unity College Student Conference showcases student research and creative work and includes presentation and award categories emphasizing sustainability.  \r\nUnity College occasionally develops and hosts student-focused sustainability conferences with our own and other Maine students including the Sustainability Training Institute and the Maine Climate Summit held on campus in 2010.", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 550, 
+            "user": 8491, 
+            "assessed_points": 0.25, 
+            "subcategory_submission": 4123, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 32287, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-06-09 10:30:29", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 550, 
+            "user": 8491, 
+            "assessed_points": 0.25, 
+            "subcategory_submission": 4123, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 32288, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-06-09 10:41:27", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 550, 
+            "user": 8491, 
+            "assessed_points": 0.25, 
+            "subcategory_submission": 4123, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 38956, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-18 18:43:58", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1422, 
+            "user": 19672, 
+            "assessed_points": 5.0, 
+            "subcategory_submission": 4994, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 38957, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-21 13:56:06", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1424, 
+            "user": 19672, 
+            "assessed_points": 5.0, 
+            "subcategory_submission": 4994, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 38958, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-21 14:00:06", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1422, 
+            "user": 19672, 
+            "assessed_points": 2.0, 
+            "subcategory_submission": 4994, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 38959, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-07 13:08:16", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1422, 
+            "user": 5335, 
+            "assessed_points": 4.0, 
+            "subcategory_submission": 4994, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 32304, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-08-01 20:46:36", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "np", 
+            "responsible_party": 550, 
+            "user": 8491, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 4126, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 32305, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-08-01 20:41:56", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 550, 
+            "user": 8491, 
+            "assessed_points": 4.0, 
+            "subcategory_submission": 4126, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 38962, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-05-18 15:00:39", 
+            "responsible_party_confirm": false, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "np", 
+            "responsible_party": null, 
+            "user": 19672, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 4994, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 38963, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-01 12:43:17", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1424, 
+            "user": 19672, 
+            "assessed_points": 0.25, 
+            "subcategory_submission": 4994, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 38964, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-05-18 15:02:57", 
+            "responsible_party_confirm": false, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "np", 
+            "responsible_party": null, 
+            "user": 19672, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 4994, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 38965, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-19 15:17:34", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1422, 
+            "user": 19672, 
+            "assessed_points": 0.25, 
+            "subcategory_submission": 4994, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 38966, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-05-18 17:12:05", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1422, 
+            "user": 19672, 
+            "assessed_points": 0.25, 
+            "subcategory_submission": 4994, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 38967, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-05-20 19:38:15", 
+            "responsible_party_confirm": false, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "na", 
+            "responsible_party": null, 
+            "user": 19672, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 4994, 
+            "applicability_reason": 72
+        }
+    }, 
+    {
+        "pk": 9275, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-01-31 17:49:16", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 253, 
+            "user": 8906, 
+            "assessed_points": 1.0, 
+            "subcategory_submission": 1182, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 9276, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-01-31 16:56:12", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1296, 
+            "user": 8906, 
+            "assessed_points": 1.0, 
+            "subcategory_submission": 1182, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 9277, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-01-31 16:56:36", 
+            "responsible_party_confirm": false, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "np", 
+            "responsible_party": null, 
+            "user": 8906, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 1182, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 9278, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-01-31 15:25:03", 
+            "responsible_party_confirm": false, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "np", 
+            "responsible_party": null, 
+            "user": 326, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 1182, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 38983, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-08-02 13:14:04", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1595, 
+            "user": 19672, 
+            "assessed_points": 2.6499999999999999, 
+            "subcategory_submission": 4997, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 38984, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-14 16:07:25", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1595, 
+            "user": 19672, 
+            "assessed_points": 1.8500000000000001, 
+            "subcategory_submission": 4997, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 38985, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-06-27 12:36:24", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 2029, 
+            "user": 19672, 
+            "assessed_points": 2.0, 
+            "subcategory_submission": 4997, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 5722, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-02-15 15:42:37", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": "Determine percentage of my other staff time involved in sustainability office.", 
+            "submission_status": "c", 
+            "responsible_party": 386, 
+            "user": 13865, 
+            "assessed_points": 3.0, 
+            "subcategory_submission": 721, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 5723, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2010-11-16 17:11:05", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 386, 
+            "user": 13865, 
+            "assessed_points": 6.0, 
+            "subcategory_submission": 721, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 5724, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-02-23 22:09:47", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "Currently this information is not in the form of a Campus Master Plan.  This is currently under consideration for the upcoming year.", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 768, 
+            "user": 13865, 
+            "assessed_points": 4.0, 
+            "subcategory_submission": 721, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 5725, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-03-01 16:47:21", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "In addition to the sustainability plan for the Iowa Board of Regents schools, UNI is currently in the strategic planning process to develop additions to the Board of Regents plan that give specific goals for just UNI.", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 386, 
+            "user": 13865, 
+            "assessed_points": 3.0, 
+            "subcategory_submission": 721, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 5726, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2010-11-18 23:09:31", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 386, 
+            "user": 13865, 
+            "assessed_points": 2.0, 
+            "subcategory_submission": 721, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 32277, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-06-01 06:34:32", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "Our Sustainability Office annually employs 14-17 students in campus sustainability work.  Though all of these students are charged with representing sustainability efforts to other campus members, four to five have a specific focus on outreach which is conducted on behalf of the Sustainability Office primarily to other students.  They are designated as \"Outreach\" at the URL provided. No other formal Student Sustainability Educators Program is currently being offered.", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 550, 
+            "user": 8491, 
+            "assessed_points": 5.0, 
+            "subcategory_submission": 4123, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 32375, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-29 21:43:43", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 550, 
+            "user": 8491, 
+            "assessed_points": 3.0, 
+            "subcategory_submission": 4135, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 32376, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-29 21:59:24", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 550, 
+            "user": 8491, 
+            "assessed_points": 6.0, 
+            "subcategory_submission": 4135, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 32377, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-29 22:09:18", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 550, 
+            "user": 8491, 
+            "assessed_points": 4.0, 
+            "subcategory_submission": 4135, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 32378, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-08-02 15:28:43", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "np", 
+            "responsible_party": 550, 
+            "user": 8491, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 4135, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 32379, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-29 22:25:24", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 550, 
+            "user": 8491, 
+            "assessed_points": 2.0, 
+            "subcategory_submission": 4135, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 5759, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-03-01 15:48:59", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 386, 
+            "user": 13865, 
+            "assessed_points": 1.0, 
+            "subcategory_submission": 726, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 5760, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-03-01 16:10:07", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 386, 
+            "user": 13865, 
+            "assessed_points": 1.0, 
+            "subcategory_submission": 726, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 5761, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-02-25 17:40:41", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 386, 
+            "user": 13865, 
+            "assessed_points": 1.0, 
+            "subcategory_submission": 726, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 5762, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-02-28 17:18:03", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 386, 
+            "user": 13865, 
+            "assessed_points": 1.0, 
+            "subcategory_submission": 726, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 9238, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-01-31 12:52:23", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 253, 
+            "user": 326, 
+            "assessed_points": 3.0, 
+            "subcategory_submission": 1177, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 9239, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2010-10-29 15:50:49", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 253, 
+            "user": 8906, 
+            "assessed_points": 6.0, 
+            "subcategory_submission": 1177, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 39054, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-06-27 12:47:43", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1422, 
+            "user": 19672, 
+            "assessed_points": 3.0, 
+            "subcategory_submission": 5006, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 39055, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-20 11:44:40", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1422, 
+            "user": 19672, 
+            "assessed_points": 6.0, 
+            "subcategory_submission": 5006, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 39056, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-05 14:22:20", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1422, 
+            "user": 19672, 
+            "assessed_points": 4.0, 
+            "subcategory_submission": 5006, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 39057, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-08-01 15:53:27", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1422, 
+            "user": 4546, 
+            "assessed_points": 3.0, 
+            "subcategory_submission": 5006, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 39058, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-20 11:51:39", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1422, 
+            "user": 19672, 
+            "assessed_points": 2.0, 
+            "subcategory_submission": 5006, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 32281, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-06-09 09:58:40", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": "Talked to Constructive Activists group 11/1/10", 
+            "submission_status": "c", 
+            "responsible_party": 550, 
+            "user": 8491, 
+            "assessed_points": 0.25, 
+            "subcategory_submission": 4123, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 32412, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-02-14 12:36:48", 
+            "responsible_party_confirm": false, 
+            "submission_notes": null, 
+            "internal_notes": null, 
+            "submission_status": "ns", 
+            "responsible_party": null, 
+            "user": null, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 4140, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 32282, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-05-31 12:56:15", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 550, 
+            "user": 8491, 
+            "assessed_points": 0.25, 
+            "subcategory_submission": 4123, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 32414, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-02-14 12:36:51", 
+            "responsible_party_confirm": false, 
+            "submission_notes": null, 
+            "internal_notes": null, 
+            "submission_status": "ns", 
+            "responsible_party": null, 
+            "user": null, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 4140, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 32415, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-02-14 12:36:53", 
+            "responsible_party_confirm": false, 
+            "submission_notes": null, 
+            "internal_notes": null, 
+            "submission_status": "ns", 
+            "responsible_party": null, 
+            "user": null, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 4140, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 39091, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-21 18:44:40", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1970, 
+            "user": 19672, 
+            "assessed_points": 1.0, 
+            "subcategory_submission": 5011, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 39092, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-21 18:57:06", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1970, 
+            "user": 19672, 
+            "assessed_points": 1.0, 
+            "subcategory_submission": 5011, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 39093, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-21 18:41:33", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1441, 
+            "user": 19672, 
+            "assessed_points": 1.0, 
+            "subcategory_submission": 5011, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 39094, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-21 18:46:52", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1441, 
+            "user": 19672, 
+            "assessed_points": 1.0, 
+            "subcategory_submission": 5011, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 32280, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-06-09 09:57:26", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": "Ask Mark in PR/Communications. x292\r\nUnity mag\r\nHawk and Handsaw\r\nCBL office newsletter \"Good Work\"?\r\nAlumni newsletter?  (ask Kate Grenier)\r\nFacebook Groups/pages?\r\n", 
+            "submission_status": "c", 
+            "responsible_party": 550, 
+            "user": 8491, 
+            "assessed_points": 4.0, 
+            "subcategory_submission": 4123, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 38960, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-08-02 18:08:12", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": "", 
+            "submission_status": "c", 
+            "responsible_party": 1422, 
+            "user": 19672, 
+            "assessed_points": 0.25, 
+            "subcategory_submission": 4994, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 38961, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-14 13:00:47", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1929, 
+            "user": 19672, 
+            "assessed_points": 0.25, 
+            "subcategory_submission": 4994, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 32306, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-08-01 20:42:22", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "np", 
+            "responsible_party": 550, 
+            "user": 8491, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 4126, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 32413, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-02-14 12:36:50", 
+            "responsible_party_confirm": false, 
+            "submission_notes": null, 
+            "internal_notes": null, 
+            "submission_status": "ns", 
+            "responsible_party": null, 
+            "user": null, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 4140, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 9140, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-01-30 18:08:13", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 253, 
+            "user": 8906, 
+            "assessed_points": 5.0, 
+            "subcategory_submission": 1165, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 9141, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-01-30 18:14:25", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 253, 
+            "user": 8906, 
+            "assessed_points": 5.0, 
+            "subcategory_submission": 1165, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 9142, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-01-27 10:17:31", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 253, 
+            "user": 8906, 
+            "assessed_points": 2.0, 
+            "subcategory_submission": 1165, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 9143, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-01-31 10:09:50", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 253, 
+            "user": 8906, 
+            "assessed_points": 4.0, 
+            "subcategory_submission": 1165, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 9144, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-01-04 16:16:38", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 253, 
+            "user": 8906, 
+            "assessed_points": 0.25, 
+            "subcategory_submission": 1165, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 9145, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-01-04 16:12:23", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 253, 
+            "user": 8906, 
+            "assessed_points": 0.25, 
+            "subcategory_submission": 1165, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 9146, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-01-05 11:18:04", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 253, 
+            "user": 8906, 
+            "assessed_points": 0.25, 
+            "subcategory_submission": 1165, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 9147, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-01-04 15:53:23", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 253, 
+            "user": 8906, 
+            "assessed_points": 0.25, 
+            "subcategory_submission": 1165, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 9148, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-01-04 15:53:49", 
+            "responsible_party_confirm": false, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "np", 
+            "responsible_party": 253, 
+            "user": 8906, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 1165, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 9149, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-01-04 16:51:51", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 253, 
+            "user": 8906, 
+            "assessed_points": 0.25, 
+            "subcategory_submission": 1165, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 9150, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-01-04 16:02:06", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 253, 
+            "user": 8906, 
+            "assessed_points": 0.25, 
+            "subcategory_submission": 1165, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 9151, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2010-12-07 15:04:34", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 253, 
+            "user": 8906, 
+            "assessed_points": 0.25, 
+            "subcategory_submission": 1165, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 9167, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-01-17 23:26:40", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1156, 
+            "user": 8906, 
+            "assessed_points": 2.6299999999999999, 
+            "subcategory_submission": 1168, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 9168, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-01-31 10:44:34", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1156, 
+            "user": 326, 
+            "assessed_points": 2.3900000000000001, 
+            "subcategory_submission": 1168, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 9169, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-01-17 23:27:41", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1156, 
+            "user": 8906, 
+            "assessed_points": 2.0, 
+            "subcategory_submission": 1168, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 5624, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-02-15 14:24:27", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "Numbers of students covered by these programs were collected from Green Iowa and Department of Residence as of Fall semester 2010.  Total numbers of students came from the 2010-2011 Common Data Set.\r\n", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 386, 
+            "user": 13865, 
+            "assessed_points": 5.0, 
+            "subcategory_submission": 709, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 5625, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-02-15 14:25:38", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 386, 
+            "user": 13865, 
+            "assessed_points": 5.0, 
+            "subcategory_submission": 709, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 5626, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2010-11-02 15:49:46", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 640, 
+            "user": 13865, 
+            "assessed_points": 2.0, 
+            "subcategory_submission": 709, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 5627, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-02-15 14:27:11", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 386, 
+            "user": 13865, 
+            "assessed_points": 4.0, 
+            "subcategory_submission": 709, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 5628, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-02-15 14:44:34", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 386, 
+            "user": 13865, 
+            "assessed_points": 0.25, 
+            "subcategory_submission": 709, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 5629, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2010-11-02 15:54:43", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 386, 
+            "user": 13865, 
+            "assessed_points": 0.25, 
+            "subcategory_submission": 709, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 5630, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2010-11-02 15:55:04", 
+            "responsible_party_confirm": false, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "np", 
+            "responsible_party": null, 
+            "user": 13865, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 709, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 5631, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2010-11-02 15:55:45", 
+            "responsible_party_confirm": false, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "np", 
+            "responsible_party": null, 
+            "user": 13865, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 709, 
+            "applicability_reason": null
+        }
+    }
+]

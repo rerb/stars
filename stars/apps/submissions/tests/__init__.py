@@ -4,10 +4,10 @@ from extensions import ExtensionTest
 from data_corrections import DataCorrectionTest
 #from pdf import PDFTest
 
+from stars.apps.submissions.newapi.test import SubmissionSetResourceTestCase,\
+     CategorySubmissionResourceTestCase
+
+from fixtures import FixturesTest
+
 # __test__ = {
-#     'manager': ManagerTest,
-#     'scoring': scoring,
-#     'extensions': ExtensionTest,
-#     'migrations': MigrationTest,
-# #    'pdf': PDFTest,
 # }

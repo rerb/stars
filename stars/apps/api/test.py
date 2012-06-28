@@ -1,12 +1,3 @@
-"""
-These test cases fail if run via 'manage.py test' because the test
-database has no data in it, and no fixtures are defined here.  They'll
-run from the REPL as doctests, if you do this:
-
-    import stars.apps.submissions.newapi.test as t
-    import doctest
-    doctest.testmod(t)
-"""
 import random
 
 from django.contrib.auth.models import User
@@ -51,22 +42,22 @@ class EmptyQuerysetError(Exception):
         return repr(self.message)
 
 
-class ErrorResponse(Exception):
-
-    def __init__(self, message=''):
-        self.message = message
-
-    def __str__(self):
-        return
-
-
 class StarsApiTestCase(ResourceTestCase):
 
-    fixtures = ['test_api_creditset.json',
+    fixtures = ['test_api_institution.json',
+                'test_api_user.json',
+                'test_api_creditset.json',
                 'test_api_category.json',
                 'test_api_subcategory.json',
                 'test_api_credit.json',
-                'test_api_documentationfield.json']
+                'test_api_documentationfield.json',
+                'test_api_rating.json',
+                'test_api_submissionset.json',
+                'test_api_categorysubmission.json',
+                'test_api_subcategorysubmission.json',
+                'test_api_creditsubmission.json',
+                'test_api_documentaionfieldsubmission.json',
+                ]
 
     def setUp(self):
         super(StarsApiTestCase, self).setUp()

@@ -1,0 +1,90 @@
+[
+    {
+        "pk": 34, 
+        "model": "submissions.submissionset", 
+        "fields": {
+            "status": "r", 
+            "rating": 3, 
+            "submission_boundary": "The University of Florida information included in this STARS submission reflect the main campus of the university and the facilities located on that campus.", 
+            "submitting_user": 8906, 
+            "is_visible": true, 
+            "creditset": 2, 
+            "presidents_letter": "secure/30/submission-34/_Dr.Machen_1-26-2011 UF Submission for AASHE STARS_1.pdf", 
+            "date_submitted": "2011-01-31", 
+            "date_registered": "2009-09-22", 
+            "date_reviewed": null, 
+            "score": 62.5140350877193, 
+            "reporter_status": false, 
+            "registering_user": 326, 
+            "is_locked": false, 
+            "institution": 30, 
+            "pdf_report": ""
+        }
+    }, 
+    {
+        "pk": 399, 
+        "model": "submissions.submissionset", 
+        "fields": {
+            "status": "r", 
+            "rating": 13, 
+            "submission_boundary": "This submission includes the main campus in Unity Maine and College-owned properties in the town of Unity.", 
+            "submitting_user": 8491, 
+            "is_visible": true, 
+            "creditset": 4, 
+            "presidents_letter": "secure/98/submission-399/AASHE STARS Cover Letter.pdf", 
+            "date_submitted": "2011-08-02", 
+            "date_registered": "2009-12-17", 
+            "date_reviewed": null, 
+            "score": 59.789416986098502, 
+            "reporter_status": false, 
+            "registering_user": 8491, 
+            "is_locked": false, 
+            "institution": 98, 
+            "pdf_report": "secure/98/submission-399/unity-college-me.pdf"
+        }
+    }, 
+    {
+        "pk": 140, 
+        "model": "submissions.submissionset", 
+        "fields": {
+            "status": "r", 
+            "rating": 4, 
+            "submission_boundary": "The boundaries of this submission include the University of Northern Iowa's 936 contiguous campus acres in Cedar Falls, Iowa. The assessment did not include leased space, off campus rental property, or off campus preserves. The boundaries were decided by the University Sustainability Council based on the ability to affect areas of campus, control the central administration over these units, and streamline the gathering and tracking of information. ", 
+            "submitting_user": 13865, 
+            "is_visible": true, 
+            "creditset": 2, 
+            "presidents_letter": "secure/139/submission-140/UNI_Affirmation_1.pdf", 
+            "date_submitted": "2011-03-02", 
+            "date_registered": "2010-01-12", 
+            "date_reviewed": null, 
+            "score": 66.6226232247285, 
+            "reporter_status": false, 
+            "registering_user": 382, 
+            "is_locked": false, 
+            "institution": 139, 
+            "pdf_report": ""
+        }
+    }, 
+    {
+        "pk": 439, 
+        "model": "submissions.submissionset", 
+        "fields": {
+            "status": "r", 
+            "rating": 13, 
+            "submission_boundary": "This assessment covers UCLA's main campus and off-campus housing. We have excluded the UCLA Health System operations from this assessment. Because STARS is not fully developed to capture the hospital and medical center operations of a large institution such as UCLA (for instance, the weighted campus user figure does not have a way to address patients or beds per day), many universities, including UCLA, have chosen to apply STARS to their main campus, using a scope that does not include their medical centers. However, we do track all of the same operational data for our medical center and UCLA\u2019s Health System is truly a leader in sustainability. Both hospitals, Reagan and Santa Monica, received awards this year from Practice Greenhealth, a national organization focused on hospital sustainability. The Health System is pursuing a number of initiatives to reduce energy use and waste, and has eliminated styrofoam in their dining facilities. We will be reporting on Health System Sustainability separately within our sustainability report and on our site (www.sustain.ucla.edu). \r\n", 
+            "submitting_user": 4546, 
+            "is_visible": true, 
+            "creditset": 4, 
+            "presidents_letter": "secure/24/submission-439/STARS Letter.pdf", 
+            "date_submitted": "2011-08-02", 
+            "date_registered": "2009-09-21", 
+            "date_reviewed": null, 
+            "score": 59.140718462823699, 
+            "reporter_status": false, 
+            "registering_user": 4546, 
+            "is_locked": false, 
+            "institution": 24, 
+            "pdf_report": ""
+        }
+    }
+]

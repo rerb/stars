@@ -1,0 +1,110 @@
+[
+    {
+        "pk": 4546, 
+        "model": "auth.user", 
+        "fields": {
+            "username": "nkatz_at_facnet_dot_ucla_dot_e", 
+            "first_name": "Nurit", 
+            "last_name": "Katz", 
+            "is_active": true, 
+            "is_superuser": false, 
+            "is_staff": false, 
+            "last_login": "2012-05-23 13:58:34", 
+            "groups": [], 
+            "user_permissions": [], 
+            "password": "kdrftiqvlgvovb5ea033m5rpc6", 
+            "email": "nkatz@facnet.ucla.edu", 
+            "date_joined": "2009-09-21 14:11:41"
+        }
+    }, 
+    {
+        "pk": 326, 
+        "model": "auth.user", 
+        "fields": {
+            "username": "aprizzia_at_ufl_dot_edu", 
+            "first_name": "Anna", 
+            "last_name": "Prizzia", 
+            "is_active": true, 
+            "is_superuser": false, 
+            "is_staff": false, 
+            "last_login": "2011-01-27 10:34:40", 
+            "groups": [], 
+            "user_permissions": [], 
+            "password": "5f5fe0723f0136be0d69527e72a7778d", 
+            "email": "aprizzia@ufl.edu", 
+            "date_joined": "2009-09-22 08:33:59"
+        }
+    }, 
+    {
+        "pk": 13865, 
+        "model": "auth.user", 
+        "fields": {
+            "username": "eric_obrien__uni_edu", 
+            "first_name": "Eric", 
+            "last_name": "O'Brien", 
+            "is_active": true, 
+            "is_superuser": false, 
+            "is_staff": false, 
+            "last_login": "2012-05-24 14:04:25", 
+            "groups": [], 
+            "user_permissions": [], 
+            "password": "56tq09f3ivnchhd5lh8anm1v90", 
+            "email": "eric.obrien@uni.edu", 
+            "date_joined": "2010-04-23 09:44:32"
+        }
+    }, 
+    {
+        "pk": 8906, 
+        "model": "auth.user", 
+        "fields": {
+            "username": "stephanieasims__ufl_edu", 
+            "first_name": "Stephanie", 
+            "last_name": "Sims", 
+            "is_active": true, 
+            "is_superuser": false, 
+            "is_staff": false, 
+            "last_login": "2012-01-25 13:52:50", 
+            "groups": [], 
+            "user_permissions": [], 
+            "password": "7c660e8121926b81fc720e5840fd1a77", 
+            "email": "stephanieasims@ufl.edu", 
+            "date_joined": "2010-01-19 12:47:34"
+        }
+    }, 
+    {
+        "pk": 8491, 
+        "model": "auth.user", 
+        "fields": {
+            "username": "jpyles_at_unity_dot_edu", 
+            "first_name": "Jesse", 
+            "last_name": "Pyles", 
+            "is_active": true, 
+            "is_superuser": false, 
+            "is_staff": false, 
+            "last_login": "2012-05-23 12:07:05", 
+            "groups": [], 
+            "user_permissions": [], 
+            "password": "i6vmbs00n9ctke19mbk78u4o22", 
+            "email": "jpyles@unity.edu", 
+            "date_joined": "2009-12-17 10:50:36"
+        }
+    }, 
+    {
+        "pk": 382, 
+        "model": "auth.user", 
+        "fields": {
+            "username": "tom_dot_schellhardt_at_uni_dot", 
+            "first_name": "Tom", 
+            "last_name": "Schellhardt", 
+            "is_active": true, 
+            "is_superuser": false, 
+            "is_staff": false, 
+            "last_login": "2010-01-25 11:07:06", 
+            "groups": [], 
+            "user_permissions": [], 
+            "password": "01860ae45c6f99f0fbd5eeceb428c10a", 
+            "email": "tom.schellhardt@uni.edu", 
+            "date_joined": "2010-01-11 17:14:04"
+        }
+    }
+]
