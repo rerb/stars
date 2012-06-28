@@ -81,6 +81,7 @@ class SubmissionSetResource(StarsApiResource):
     def get_category_list(self, request, **kwargs):
         """Get a list of categories for the SubmissionSet with
         id = kwargs['pk']."""
+        self.is_authenticated(request)
         try:
             obj = self.cached_obj_get(request=request,
                                       **self.remove_api_resource_names(kwargs))
@@ -97,6 +98,7 @@ class SubmissionSetResource(StarsApiResource):
     def get_category_detail(self, request, **kwargs):
         """Get the CategorySubmission that matches the Category
         where id = kwargs['catpk']."""
+        self.is_authenticated(request)
         category_id = kwargs.pop('catpk')
         try:
             obj = self.cached_obj_get(request=request,
@@ -113,6 +115,7 @@ class SubmissionSetResource(StarsApiResource):
     def get_subcategory_list(self, request, **kwargs):
         """Get the list of SubcategorySubmissions for the SubmissionSet
         where id = kwargs['pk']."""
+        self.is_authenticated(request)
         try:
             obj = self.cached_obj_get(request=request,
                                       **self.remove_api_resource_names(kwargs))
@@ -128,6 +131,7 @@ class SubmissionSetResource(StarsApiResource):
     def get_subcategory_detail(self, request, **kwargs):
         """Get the SubcategorySubmission for the Subcategory where
         id = kwargs['subcatpk']."""
+        self.is_authenticated(request)
         subcategory_id = kwargs.pop('subcatpk')
         # Make sure the submission set is valid:
         try:
@@ -148,6 +152,7 @@ class SubmissionSetResource(StarsApiResource):
         """Get a list of credits for the SubmssionSet where
         id = kwargs['pk'].
         """
+        self.is_authenticated(request)
         try:
             obj = self.cached_obj_get(request=request,
                                       **self.remove_api_resource_names(kwargs))
@@ -165,6 +170,7 @@ class SubmissionSetResource(StarsApiResource):
         where id = kwargs['credpk'] and the SubmissionSet where
         id = kwargs['pk'].
         """
+        self.is_authenticated(request)
         credit_id = kwargs.pop('credpk')
         try:
             submissionset = self.cached_obj_get(
@@ -188,6 +194,7 @@ class SubmissionSetResource(StarsApiResource):
         a DocumentationField (kwargs['fieldpk']), get the
         DocumentationFieldSubmissionResource that matches.
         """
+        self.is_authenticated(request)
         for field_resource_type in (NumericSubmissionResource,
                                     TextSubmissionResource,
                                     NumericSubmissionResource,
