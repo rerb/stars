@@ -30,7 +30,7 @@ class SubmissionSetResource(StarsApiResource):
     categories = fields.ToManyField(
         SUBMISSIONS_RESOURCE_PATH + 'CategorySubmissionResource',
         'categorysubmission_set')
-    institution = fields.OnegToOneField(
+    institution = fields.OneToOneField(
         INSTITUTIONS_RESOURCE_PATH + 'InstitutionResource', 'institution')
 
     class Meta(StarsApiResource.Meta):
