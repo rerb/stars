@@ -1,0 +1,2182 @@
+[
+    {
+        "pk": 326, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 0, 
+            "max_range": 100, 
+            "required": "req", 
+            "previous_version": null, 
+            "title": "The percentage (0-100) of institution\u2019s students who walk, bicycle, or use other non-motorized means as their primary method of transportation.  Please note that this may include on-campus residents ", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": 0, 
+            "credit": 46, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "A", 
+            "type": "numeric", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 327, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 1, 
+            "max_range": 100, 
+            "required": "req", 
+            "previous_version": null, 
+            "title": "The percentage (0-100) of institution\u2019s students who van or carpool as their primary method of transportation ", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": 0, 
+            "credit": 46, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "B", 
+            "type": "numeric", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 328, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 2, 
+            "max_range": 100, 
+            "required": "req", 
+            "previous_version": null, 
+            "title": "The percentage (0-100) of institution\u2019s students who take a campus shuttle or public transportation as their primary method of transportation ", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": 0, 
+            "credit": 46, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "C", 
+            "type": "numeric", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 329, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 3, 
+            "max_range": 100, 
+            "required": "req", 
+            "previous_version": null, 
+            "title": "The percentage (0-100) of institution\u2019s students who drive alone as their primary method of transportation", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": 0, 
+            "credit": 46, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "D", 
+            "type": "numeric", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 330, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 4, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": null, 
+            "title": "The website URL where information about alternative transportation is available", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 46, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "E", 
+            "type": "url", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1805, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 0, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 1066, 
+            "title": "Does the institution donate leftover or surplus food?", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 324, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "A", 
+            "type": "boolean", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1806, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 1, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 1065, 
+            "title": "A brief description of the food donation program", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 324, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "B", 
+            "type": "long_text", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1807, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 2, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": 1064, 
+            "title": "The website URL where information about the food donation program is available", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 324, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "C", 
+            "type": "url", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 491, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 0, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": null, 
+            "title": "Does the institution offer a tele-commute program for employees?", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 85, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "A", 
+            "type": "boolean", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 492, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 1, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": null, 
+            "title": "A brief description of the program", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 85, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "B", 
+            "type": "long_text", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 493, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 2, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": null, 
+            "title": "The website URL where information about the program is available", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 85, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "C", 
+            "type": "url", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 167, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 0, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": null, 
+            "title": "The number of graduates covered by the sustainability learning outcomes", 
+            "tooltip_help_text": "<h3>Learning Outcomes</h3>\r\n<p>Learning outcomes specify the knowledge and abilities that students will be able to demonstrate as a result of their education.&nbsp; Learning outcomes may be specified at the degree or course level.&nbsp;&nbsp;</p>", 
+            "last_choice_is_other": false, 
+            "min_range": 0, 
+            "credit": 18, 
+            "inline_help_text": "<p>&nbsp;</p>", 
+            "units": null, 
+            "identifier": "A", 
+            "type": "numeric", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 168, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 1, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": null, 
+            "title": "Total number of graduates ", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": 0, 
+            "credit": 18, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "B", 
+            "type": "numeric", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 220, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 2, 
+            "max_range": null, 
+            "required": "cond", 
+            "previous_version": null, 
+            "title": "A list of degree programs that have sustainability learning outcomes", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 18, 
+            "inline_help_text": "<p><span><span><span>The website URL where the inventory is posted or a copy of the inventory may be provided instead of this list if the inventory includes the relevant information.</span></span></span></p>", 
+            "units": null, 
+            "identifier": "D", 
+            "type": "long_text", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 387, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 3, 
+            "max_range": null, 
+            "required": "cond", 
+            "previous_version": null, 
+            "title": "The website URL where the publicly available sustainability course inventory that includes a list of degree programs that have specified sustainability learning outcomes is available", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 18, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "E", 
+            "type": "url", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 388, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 4, 
+            "max_range": null, 
+            "required": "cond", 
+            "previous_version": null, 
+            "title": "A copy of the sustainability course inventory ", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 18, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "F", 
+            "type": "upload", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 169, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 5, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": null, 
+            "title": "A list or sample of the sustainability learning outcomes associated with the degree programs", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 18, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "C", 
+            "type": "long_text", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2244, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 0, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 1496, 
+            "title": "A brief description of the innovative policy, practice, program, or outcome ", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 418, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "A", 
+            "type": "long_text", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2245, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 1, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 1495, 
+            "title": "A letter of affirmation from an individual with relevant expertise", 
+            "tooltip_help_text": "<h3>Letter of Affirmation</h3>\r\n<p>To help ensure that the policy, practice, program, or outcome that the institution is claiming for an innovation credit is truly innovative, institutions must submit a letter of verification from an individual with relevant expertise in the associated content area.&nbsp;&nbsp; The individual may be employed by one&rsquo;s own institution or another institution.&nbsp; The letter should affirm how the innovation meets the criteria for innovation credits.&nbsp;&nbsp;&nbsp;&nbsp;</p>\r\n<p>For example, if an institution claims an innovation credit for water use reduction, the institution might solicit a letter from a hydrologist or other water expert from another campus to verify that the strategy is innovative.&nbsp;&nbsp;&nbsp;</p>\r\n<p>The letter should be specific to a single innovation credit.&nbsp;</p>", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 418, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "B", 
+            "type": "upload", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2246, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 2, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": 1494, 
+            "title": "The website URL where information about the innovation is available ", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 418, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "C", 
+            "type": "url", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2243, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 3, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 1513, 
+            "title": "The innovation describes a new, extraordinary, unique, ground-breaking, or uncommon outcome, policies or practice", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 418, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "D", 
+            "type": "boolean", 
+            "is_published": false
+        }
+    }, 
+    {
+        "pk": 2242, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 4, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 1514, 
+            "title": "This innovation (program, policy, or outcome) is not already covered by an existing STARS credit or greatly exceeds the highest criterion of an existing STARS credit", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 418, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "E", 
+            "type": "boolean", 
+            "is_published": false
+        }
+    }, 
+    {
+        "pk": 2241, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 5, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 1515, 
+            "title": "The innovative practice, policy, program, or outcome has occurred within the past three years", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 418, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "F", 
+            "type": "boolean", 
+            "is_published": false
+        }
+    }, 
+    {
+        "pk": 2240, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 6, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 1516, 
+            "title": "My institution has not previously received a STARS innovation credit for this practice, policy, program, or outcome", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 418, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "G", 
+            "type": "boolean", 
+            "is_published": false
+        }
+    }, 
+    {
+        "pk": 1747, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 0, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 1010, 
+            "title": "Occupied building space covered by an indoor air quality plan, policy, and/or practices that include regular auditing or monitoring and a mechanism for occupants to register complaints ", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": 0, 
+            "credit": 312, 
+            "inline_help_text": "", 
+            "units": 1, 
+            "identifier": "A", 
+            "type": "numeric", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1748, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 1, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 1009, 
+            "title": "Total occupied building space ", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": 0, 
+            "credit": 312, 
+            "inline_help_text": "", 
+            "units": 1, 
+            "identifier": "B", 
+            "type": "numeric", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1749, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 2, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 1008, 
+            "title": "A brief description of the institution's indoor air quality plan, policy, and/or practices", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 312, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "C", 
+            "type": "long_text", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1750, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 3, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": 1007, 
+            "title": "The website URL where information about the institution's indoor air quality initiatives is available", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 312, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "D", 
+            "type": "url", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1622, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 0, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 884, 
+            "title": "Does the institution have an occupied, formally designated model room in a residence hall that is open to students during regular hours and demonstrates sustainable living principles?", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 289, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "A", 
+            "type": "boolean", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1623, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 1, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 883, 
+            "title": "A brief description of the model room", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 289, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "B", 
+            "type": "long_text", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1624, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 3, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": 882, 
+            "title": "The website URL where information about the model room in the residence hall is available", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 289, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "D", 
+            "type": "url", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1815, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 0, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 1076, 
+            "title": "Does campus dining operations provide reusable containers for to-go food that are returned for cleaning and reuse?", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 327, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "A", 
+            "type": "boolean", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1816, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 1, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 1075, 
+            "title": "A brief description of the reusable to-go container program", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 327, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "B", 
+            "type": "long_text", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1817, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 2, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": 1074, 
+            "title": "The website URL where information about the reusable to-go container program is available", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 327, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "C", 
+            "type": "url", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1437, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 0, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 781, 
+            "title": "Has the institution filed or co-filed one or more shareholder resolutions that address sustainability during the past three years?", 
+            "tooltip_help_text": "<h3>Shareholder Resolution</h3>\r\n<p>The <a href=\"http://www.endowmentethics.org/\" target=\"_blank\">Responsible Endowments Coalition</a> describes shareholder resolutions as follows:</p>\r\n<p><em>Formal statements that are sent annually to every single shareholder of a publicly traded company on a &ldquo;proxy ballot.&rdquo; Shareholder resolutions are also known as shareholder proposals or proxy resolutions. These resolutions usually work like a nonbinding referendum on a specific issue within a firm. [&hellip;] Any shareholder who owns more than $2,000 of a company&rsquo;s stock for one year prior to the vote can write and file a resolution and every shareholder has the right (and duty) to vote on the resolutions of all companies in which they own stock.&nbsp; The resolution process is governed by the Securities and Exchange Commission (SEC), a federal agency responsible for overseeing the market and corporate governance systems that protect shareholders from each other, from managers and from themselves. </em></p>", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 264, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "C", 
+            "type": "boolean", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1436, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 1, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 782, 
+            "title": "Has the institution submitted one or more letters about social or environmental responsibility to a company in which it holds investments during the previous three years?", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 264, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "D", 
+            "type": "boolean", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1435, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 2, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 783, 
+            "title": "Has the institution conducted a negative screening of its entire investment pool within the last three years?", 
+            "tooltip_help_text": "<p>This could take the form of prohibiting investment in an industry (e.g., tobacco or weapons manufacturing) or participating in a divestment effort (e.g., companies operating in South Africa during apartheid).&nbsp; The negative screen includes selling all but $2,000 or less of the affected direct holdings and writing a letter to all fund managers encouraging them to remove affected holdings as well.</p>\r\n<p><strong>Negative Screen</strong></p>\r\n<p>The <a href=\"http://www.endowmentethics.org/\" target=\"_blank\">Responsible Endowments Coalition</a> describes negative screens as follows:</p>\r\n<p><em>Negative screens exclude certain industries or products from investment portfolios. Schools or other investors can apply a negative screen to their investment portfolio to exclude companies from their investments. Screens are often applied by individual investors to one or more of the following sectors: tobacco, liquor, weapons, pornography, nuclear technologies, resource extraction (mining and drilling) and family planning products. Dozens of schools have screened out tobacco from their portfolios, and a handful of other schools&mdash;mostly religiously affiliated&mdash; have applied stricter screens.</em></p>\r\n<div id=\"_mcePaste\" style=\"overflow: hidden; position: absolute; left: -10000px; top: 0px; width: 1px; height: 1px;\">\r\n<p class=\"MsoNormal\" style=\"line-height: normal;\"><strong><span style=\"font-size: 13.5pt; font-family: &quot;Times New Roman&quot;,&quot;serif&quot;;\">Negative Screen</span></strong></p>\r\n<p class=\"MsoNormal\" style=\"line-height: normal;\"><span style=\"font-size: 12pt; font-family: &quot;Times New Roman&quot;,&quot;serif&quot;;\">The <a href=\"http://www.endowmentethics.org/\" target=\"_blank\"><span style=\"color: blue;\">Responsible Endowments Coalition</span></a> describes negative screens as follows:</span></p>\r\n<p class=\"MsoNormal\" style=\"line-height: normal;\"><em><span style=\"font-size: 12pt; font-family: &quot;Times New Roman&quot;,&quot;serif&quot;;\">Negative screens exclude certain industries or products from investment portfolios. Schools or other investors can apply a negative screen to their investment portfolio to exclude companies from their investments. Screens are often applied by individual investors to one or more of the following sectors: tobacco, liquor, weapons, pornography, nuclear technologies, resource extraction (mining and drilling) and family planning products. Dozens of schools have screened out tobacco from their portfolios, and a handful of other schools&mdash;mostly religiously affiliated&mdash; have applied stricter screens. </span></em><span style=\"font-size: 12pt; font-family: &quot;Times New Roman&quot;,&quot;serif&quot;;\"></span></p>\r\n</div>", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 264, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "E", 
+            "type": "boolean", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1439, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 3, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 630, 
+            "title": "A brief description of how the institution (or its foundation) has engaged in shareholder advocacy that promotes sustainability during the previous 3 years.  ", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 264, 
+            "inline_help_text": "<p>This field should include any resolutions filed or co-filed, correspondence with companies, negative screens performed, and/or divestment efforts in which the institution participated</p>", 
+            "units": null, 
+            "identifier": "A", 
+            "type": "long_text", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1438, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 4, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": 631, 
+            "title": "The website URL where information about the negative screen, divestment effort, and/or direct engagement with companies in which the institution holds investments is available", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 264, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "B", 
+            "type": "url", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 461, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 0, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": null, 
+            "title": "Has the institution implemented technologies or strategies to reduce the environmental impacts of snow and ice removal?", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 76, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "A", 
+            "type": "boolean", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 462, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 1, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": null, 
+            "title": "A brief description of the snow and ice removal program, policy, or practice", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 76, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "B", 
+            "type": "long_text", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 463, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 2, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": null, 
+            "title": "The website URL where information about the program, policy, or practice is available", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 76, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "C", 
+            "type": "url", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1822, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 0, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 1092, 
+            "title": "Option 1: Total clean and renewable electricity generated on site during the performance year and for which the institution retains or has retired the associated environmental attributes ", 
+            "tooltip_help_text": "<h3>Clean and Renewable Energy Systems</h3>\r\n<p>The following renewable systems are eligible for this credit:</p>\r\n<ul>\r\n<li>Concentrated solar thermal </li>\r\n<li>Geothermal systems that generate electricity (ground-source heat pumps that reduce demand for electricity do not count)<span>&nbsp;</span></li>\r\n<li>Low-impact hydroelectric power</li>\r\n<li>Solar photovoltaic</li>\r\n<li>Wave and tidal power</li>\r\n<li>Wind</li>\r\n</ul>\r\n<p>Biofuels from the following sources are eligible:</p>\r\n<ul>\r\n<li>Agricultural crops </li>\r\n<li>Agricultural waste</li>\r\n<li>Animal waste </li>\r\n<li>Landfill gas</li>\r\n<li>Untreated wood waste</li>\r\n<li>Other organic waste</li>\r\n</ul>", 
+            "last_choice_is_other": false, 
+            "min_range": 0, 
+            "credit": 329, 
+            "inline_help_text": "", 
+            "units": 9, 
+            "identifier": "A", 
+            "type": "numeric", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1823, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 1, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 1091, 
+            "title": "Option 2: Non-electric renewable energy generated", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": 0, 
+            "credit": 329, 
+            "inline_help_text": "", 
+            "units": 9, 
+            "identifier": "B", 
+            "type": "numeric", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1824, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 2, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 1090, 
+            "title": "Option 3: Total clean and renewable electricity generated by off-site projects that the institution catalyzed and for which the institution retains or has retired the associated environmental attributes ", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": 0, 
+            "credit": 329, 
+            "inline_help_text": "", 
+            "units": 9, 
+            "identifier": "C", 
+            "type": "numeric", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1825, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 3, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 1089, 
+            "title": "Option 4: Total RECs and other similar renewable energy products that the institution purchased during the performance year that are Green-e certified or meet the Green-e standard's technical requirements and are third party verified", 
+            "tooltip_help_text": "<h3>Green-e Certification</h3>\r\n<p>The Green-e Renewable Energy Certification Program is the leading voluntary certification and verification program in the United States for renewable energy products. Green-e certification intends to make sure that these products meet environmental and consumer protection standards.</p>\r\n<h3>Renewable Energy Certificates (RECs)</h3>\r\n<p>Green-e provides the following <a href=\"http://www.green-e.org/learn_dictionary.shtml\" target=\"_blank\">definition of RECs</a>:&nbsp;</p>\r\n<p><em>When a renewable energy facility operates, it creates electricity that is delivered into a vast network of transmission wires, often referred to as &ldquo;the grid.&rdquo; The grid is segmented into regional power networks called pools. To help facilitate the sale of renewable electricity nationally, a system was established that separates renewable electricity generation into two parts: the electricity or electrical energy produced by a renewable generator and the renewable &ldquo;attributes&rdquo; of that generation. (These attributes include the tons of greenhouse gas that were avoided by generating electricity from renewable resources instead of conventional fuels, such as coal, nuclear, oil, or gas.) These renewable (&ldquo;green&rdquo;) attributes are sold separately as renewable energy certificates (RECs). One REC is issued for each megawatt-hour (MWh) unit of renewable electricity produced. The electricity that was split from the REC is no longer considered \"renewable\" and cannot be counted as renewable or zero-emissions by whoever buys it.</em></p>\r\n<p><em>RECs contain specific information about the renewable energy generated, including where, when, at what facility, and with what type of generation. Purchasers of RECs are buying the renewable attributes of those specific units of renewable energy, which helps offset conventional electricity generation in the region where the renewable generator is located.</em></p>", 
+            "last_choice_is_other": false, 
+            "min_range": 0, 
+            "credit": 329, 
+            "inline_help_text": "", 
+            "units": 9, 
+            "identifier": "D", 
+            "type": "numeric", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1826, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 4, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 1088, 
+            "title": "Option 5: Total electricity generated with cogeneration technology using non-renewable fuel sources ", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": 0, 
+            "credit": 329, 
+            "inline_help_text": "", 
+            "units": 9, 
+            "identifier": "E", 
+            "type": "numeric", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1827, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 5, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 1087, 
+            "title": "Total energy consumed during the performance year ", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": 0, 
+            "credit": 329, 
+            "inline_help_text": "", 
+            "units": 9, 
+            "identifier": "F", 
+            "type": "numeric", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1828, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 6, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": 1086, 
+            "title": "A brief description of on-site renewable electricity generating devices ", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 329, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "G", 
+            "type": "long_text", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1829, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 7, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": 1085, 
+            "title": "A brief description of on-site renewable non-electric energy devices", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 329, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "H", 
+            "type": "long_text", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1830, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 8, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": 1084, 
+            "title": "A brief description of off-site, institution-catalyzed, renewable electricity generating devices", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 329, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "I", 
+            "type": "long_text", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1831, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 9, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": 1083, 
+            "title": "A brief description of RECs or other similar renewable energy products purchased during the previous year, including contract timeframes", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 329, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "J", 
+            "type": "long_text", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1832, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 10, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": 1082, 
+            "title": "A brief description of cogeneration technologies deployed", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 329, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "K", 
+            "type": "long_text", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1833, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 11, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": 1081, 
+            "title": "The website URL where information about the institution's renewable energy sources is available", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 329, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "L", 
+            "type": "url", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1980, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 0, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 1236, 
+            "title": "Amount of construction and demolition materials recycled, donated, or otherwise recovered ", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": 0, 
+            "credit": 365, 
+            "inline_help_text": "", 
+            "units": 7, 
+            "identifier": "A", 
+            "type": "numeric", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1981, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 1, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 1235, 
+            "title": "Amount of construction and demolition materials landfilled or incinerated ", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": 0, 
+            "credit": 365, 
+            "inline_help_text": "", 
+            "units": 7, 
+            "identifier": "B", 
+            "type": "numeric", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1982, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 2, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": 1234, 
+            "title": "A brief description of programs, policies, infrastructure investments, outreach efforts, and/or other factors that contribute to the diversion rate for construction and demolition waste", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 365, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "C", 
+            "type": "long_text", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2480, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 0, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": null, 
+            "title": "The institution's total endowment market value as of the close of the most recent fiscal year", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 443, 
+            "inline_help_text": "<p><em>Please provide the endowment market value rather than the endowment book value</em></p>", 
+            "units": 2, 
+            "identifier": "Q", 
+            "type": "numeric", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2481, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 1, 
+            "max_range": 2013, 
+            "required": "opt", 
+            "previous_version": null, 
+            "title": "Date as of", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": 2000, 
+            "credit": 443, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "R", 
+            "type": "date", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2482, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 2, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": null, 
+            "title": "Does the institution offer donors the option of directing gifts to an investment fund that considers environmental/sustainability factors?", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 443, 
+            "inline_help_text": "<p><em>This does not include alumni green funds or other giving options that simply directs gifts to be spent on sustainability programs</em></p>", 
+            "units": null, 
+            "identifier": "S", 
+            "type": "boolean", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2483, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 3, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": null, 
+            "title": "If yes, or if currently under consideration, provide a brief description", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 443, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "T", 
+            "type": "text", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2484, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 4, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": null, 
+            "title": "Has the institution made investments in on-campus energy and/or water efficiency projects through the endowment (as an endowment investment and not a payout or using operating budget funds)", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 443, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "U", 
+            "type": "boolean", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2485, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 5, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": null, 
+            "title": "Size of capital commitments made within past 3 years", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 443, 
+            "inline_help_text": "", 
+            "units": 2, 
+            "identifier": "V", 
+            "type": "numeric", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2486, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 6, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": null, 
+            "title": "Provide a brief description", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 443, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "W", 
+            "type": "text", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2464, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 7, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": null, 
+            "title": "Does institution lack the ability to vote proxies on environmental and social resolutions, as the entire equity holdings of the endowment are invested in mutual funds (e.g. CommonFund, Fidelity, Vanguard)?", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 443, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "A", 
+            "type": "boolean", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2465, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 8, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": null, 
+            "title": "Does the institution lack the ability to vote proxies on corporate governance resolutions, as the entire equity holdings of the endowment are invested in mutual funds (e.g. CommonFund, Fidelity, Vanguard)?", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 443, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "B", 
+            "type": "boolean", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2466, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 9, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": null, 
+            "title": "Do investment managers handle the details of proxy voting on environmental and social resolutions?", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 443, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "C", 
+            "type": "boolean", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2467, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 10, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": null, 
+            "title": "Do investment managers handle the details of proxy voting on corporate governance resolutions?", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 443, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "D", 
+            "type": "boolean", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2468, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 11, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": null, 
+            "title": "Are investment managers provided with general guidelines that determine proxy votes on environmental and social resolutions?", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 443, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "E", 
+            "type": "boolean", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2469, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 12, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": null, 
+            "title": "Are investment managers provided with general guidelines that determine proxy votes on corporate governance resolutions?", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 443, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "F", 
+            "type": "boolean", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2471, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 13, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": null, 
+            "title": "Are investment managers provided with specific guidelines that determine proxy votes on environmental and social resolutions?", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 443, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "H", 
+            "type": "boolean", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2470, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 14, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": null, 
+            "title": "Are investment managers provided with specific guidelines that determine proxy votes on corporate governance resolutions?", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 443, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "G", 
+            "type": "boolean", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2472, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 15, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": null, 
+            "title": "Does a single administrator determine proxy votes on environmental and social resolutions?", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 443, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "I", 
+            "type": "boolean", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2473, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 16, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": null, 
+            "title": "Does a single administrator determines proxy votes on corporate governance resolutions?", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 443, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "J", 
+            "type": "boolean", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2474, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 17, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": null, 
+            "title": "Does a committee of administrators and/or trustees deliberate and make decisions on proxy votes on environmental and social resolutions?", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 443, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "K", 
+            "type": "boolean", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2475, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 18, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": null, 
+            "title": "Does a committee of administrators and/or trustees deliberate and make decisions on proxy votes on corporate governance resolutions?", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 443, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "L", 
+            "type": "boolean", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2476, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 19, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": null, 
+            "title": "Does a committee that includes student representatives deliberate and make recommendations or decisions on proxy votes on enviromental and social resolutions?", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 443, 
+            "inline_help_text": "<p>Please provide further detail in PAE Credit 16</p>", 
+            "units": null, 
+            "identifier": "M", 
+            "type": "boolean", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2477, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 20, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": null, 
+            "title": "Does a committee that includes student representatives deliberate and make recommendations or decisions on proxy votes on corporate governance resolutions?", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 443, 
+            "inline_help_text": "<p>&nbsp;Please provide further detail in PAE Credit 16</p>", 
+            "units": null, 
+            "identifier": "N", 
+            "type": "boolean", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2478, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 21, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": null, 
+            "title": "Is institution community feedback incorporated into proxy voting decisions on environmental and social resolutions through town hall meetings or a website?", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 443, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "O", 
+            "type": "boolean", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2479, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 22, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": null, 
+            "title": "Is institution community feedback incorporated into proxy voting decisions on corporate governance resolutions through town hall meetings or a website?", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 443, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "P", 
+            "type": "boolean", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1647, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 0, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 912, 
+            "title": "The number of sustainability-focused courses offered ", 
+            "tooltip_help_text": "<h3>Sustainability-Focused Courses</h3>\r\n<p>Sustainability-focused courses concentrate on the concept of sustainability, including its social, economic, and environmental dimensions, or examine an issue or topic using sustainability as a lens.&nbsp;</p>\r\n<p><strong>&nbsp;</strong></p>\r\n<p>&nbsp;</p>", 
+            "last_choice_is_other": false, 
+            "min_range": 0, 
+            "credit": 296, 
+            "inline_help_text": "<p>A course may be either sustainability-focused or sustainability-related, not both; a course should be counted only once.</p>", 
+            "units": null, 
+            "identifier": "A", 
+            "type": "numeric", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1648, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 1, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 911, 
+            "title": "The total number of courses offered ", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": 0, 
+            "credit": 296, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "B", 
+            "type": "numeric", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1649, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 2, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 910, 
+            "title": "Number of years covered by the data", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 296, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "C", 
+            "type": "choice", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1650, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 3, 
+            "max_range": null, 
+            "required": "cond", 
+            "previous_version": 909, 
+            "title": "A list of sustainability-focused courses offered", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 296, 
+            "inline_help_text": "<p><span><span><span>The website URL where the inventory is posted or a copy of the inventory may be provided instead of this list if the inventory includes the relevant information.</span></span></span></p>", 
+            "units": null, 
+            "identifier": "D", 
+            "type": "long_text", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1651, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 4, 
+            "max_range": null, 
+            "required": "cond", 
+            "previous_version": 908, 
+            "title": "The website URL where the publicly available sustainability course inventory that includes a list of sustainability-focused courses is available", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 296, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "E", 
+            "type": "url", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1652, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 5, 
+            "max_range": null, 
+            "required": "cond", 
+            "previous_version": 907, 
+            "title": "A copy of the sustainability course inventory", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 296, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "F", 
+            "type": "upload", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 712, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 0, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": null, 
+            "title": "A brief description of the innovative policy, practice, program, or outcome", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 141, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "A", 
+            "type": "long_text", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 713, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 1, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": null, 
+            "title": "A letter of affirmation from an individual with relevant expertise", 
+            "tooltip_help_text": "<h3>Letter of Affirmation</h3>\r\n<p>To help ensure that the policy, practice, program, or outcome that the institution is claiming for an innovation credit is truly innovative, institutions must submit a letter of verification from an individual with relevant expertise in the associated content area.&nbsp;&nbsp; The individual may be employed by one&rsquo;s own institution or another institution.&nbsp; The letter should affirm how the innovation meets the criteria for innovation credits.&nbsp;&nbsp;&nbsp;&nbsp;</p>\r\n<p>For example, if an institution claims an innovation credit for water use reduction, the institution might solicit a letter from a hydrologist or other water expert from another campus to verify that the strategy is innovative.&nbsp;&nbsp;&nbsp;</p>\r\n<p>The letter should be specific to a single innovation credit.</p>", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 141, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "B", 
+            "type": "upload", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 714, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 2, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": null, 
+            "title": "The website URL where information about the innovation is available", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 141, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "C", 
+            "type": "url", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1447, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 0, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 632, 
+            "title": "Total value of the investment pool", 
+            "tooltip_help_text": "<h3>Investment Pool</h3>\r\n<p>The <a href=\"http://www.nacubo.org/\" target=\"_blank\">National Association of College and University Business Officers (NACUBO)</a> defines &ldquo;investment pool&rdquo; in their annual endowment survey as:</p>\r\n<p><em>The predominant asset pool or grouping of assets that is organized primarily to support the institution and reflect its investment policies.&nbsp; </em></p>", 
+            "last_choice_is_other": false, 
+            "min_range": 0, 
+            "credit": 265, 
+            "inline_help_text": "", 
+            "units": 2, 
+            "identifier": "A", 
+            "type": "numeric", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1446, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 1, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 633, 
+            "title": "Value of holdings in sustainable industries, such as renewable energy or sustainable forestry ", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": 0, 
+            "credit": 265, 
+            "inline_help_text": "", 
+            "units": 2, 
+            "identifier": "B", 
+            "type": "numeric", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1445, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 2, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 634, 
+            "title": "Value of holdings in businesses selected for exemplary sustainability performances", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": 0, 
+            "credit": 265, 
+            "inline_help_text": "", 
+            "units": 2, 
+            "identifier": "C", 
+            "type": "numeric", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1444, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 3, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 635, 
+            "title": "Value of holdings in sustainability investment funds, such as a renewable energy investment fund", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": 0, 
+            "credit": 265, 
+            "inline_help_text": "", 
+            "units": 2, 
+            "identifier": "D", 
+            "type": "numeric", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1443, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 4, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 636, 
+            "title": "Value of holdings in community development financial institutions (CDFIs)", 
+            "tooltip_help_text": "<h3>Community Development Financial Institution</h3>\r\n<p>The <a href=\"http://www.endowmentethics.org/\" target=\"_blank\">Responsible Endowments Coalition</a> defines a CDFI as:</p>\r\n<p><em>A unique entity established to provide credit, financial services, and other services to underserved markets or populations.</em></p>", 
+            "last_choice_is_other": false, 
+            "min_range": 0, 
+            "credit": 265, 
+            "inline_help_text": "", 
+            "units": 2, 
+            "identifier": "E", 
+            "type": "numeric", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1442, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 5, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 637, 
+            "title": "Value of holdings in socially responsible mutual funds with positive screens", 
+            "tooltip_help_text": "<h3>Positively Screened Fund</h3>\r\n<p>A fund in which managers proactively select businesses based on exemplary social and/or environmental performance.&nbsp;</p>", 
+            "last_choice_is_other": false, 
+            "min_range": 0, 
+            "credit": 265, 
+            "inline_help_text": "", 
+            "units": 2, 
+            "identifier": "F", 
+            "type": "numeric", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1441, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 6, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 638, 
+            "title": "A brief description of the companies, funds, and/or institutions referenced above", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 265, 
+            "inline_help_text": "<p>Specific disclosure of holdings (e.g. fund or company names) is not required; general information about the industries or fund types represented by the holdings is sufficient for this field.&nbsp;&nbsp;</p>", 
+            "units": null, 
+            "identifier": "G", 
+            "type": "long_text", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1440, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 7, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": 639, 
+            "title": "The website URL where information about the institution\u2019s sustainability investment activities is available", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 265, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "H", 
+            "type": "url", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 878, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 0, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 111, 
+            "title": "Does the institution have an active student group focused on sustainability?", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 148, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "A", 
+            "type": "boolean", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 877, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 1, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 112, 
+            "title": "A brief description of the student group, including its activities", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 148, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "B", 
+            "type": "long_text", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 876, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 3, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": 114, 
+            "title": "The website URL where information about the student group is available", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 148, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "D", 
+            "type": "url", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1236, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 0, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 352, 
+            "title": "Amount of construction and demolition materials recycled, donated, or otherwise recovered ", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": 0, 
+            "credit": 226, 
+            "inline_help_text": "", 
+            "units": 7, 
+            "identifier": "A", 
+            "type": "numeric", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1235, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 1, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 353, 
+            "title": "Amount of construction and demolition materials landfilled or incinerated ", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": 0, 
+            "credit": 226, 
+            "inline_help_text": "", 
+            "units": 7, 
+            "identifier": "B", 
+            "type": "numeric", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1234, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 2, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": 354, 
+            "title": "A brief description of programs, policies, infrastructure investments, outreach efforts, and/or other factors that contribute to the diversion rate for construction and demolition waste", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 226, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "C", 
+            "type": "long_text", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 758, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 0, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": null, 
+            "title": "Does the institution administer and/or participate in programs that meet the criteria for this credit?", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 111, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "C", 
+            "type": "boolean", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 597, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 1, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": null, 
+            "title": "A brief description of the institution\u2019s programs that help increase the diversity of higher education faculty ", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 111, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "A", 
+            "type": "long_text", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 598, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 2, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": null, 
+            "title": "The website URL where more information about the program(s) is available  ", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 111, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "B", 
+            "type": "url", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2171, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 0, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 1427, 
+            "title": "Does the institution have an employee assistance or wellness program that provides counseling, referral, and well-being services to employees?", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 400, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "A", 
+            "type": "boolean", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2172, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 1, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 1426, 
+            "title": "A brief description of the employee wellness program, policy, or practice", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 400, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "B", 
+            "type": "long_text", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2173, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 2, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": 1425, 
+            "title": "The website URL where information about the program, policy, or practice is available", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 400, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "C", 
+            "type": "url", 
+            "is_published": true
+        }
+    }
+]

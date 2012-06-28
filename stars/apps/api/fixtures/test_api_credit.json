@@ -1,0 +1,422 @@
+[
+    {
+        "pk": 289, 
+        "model": "credits.credit", 
+        "fields": {
+            "ordinal": 6, 
+            "scoring": "0.25 points available.", 
+            "staff_notes": "", 
+            "subcategory": 41, 
+            "previous_version": 150, 
+            "title": "Model Room in a Residence Hall", 
+            "criteria": "<p>Institution has an occupied, formally designated model room in a residence hall that is open to students during regular visitation hours and demonstrates sustainable living principles.&nbsp;</p>", 
+            "measurement": "", 
+            "number": 3, 
+            "point_value": 0.25, 
+            "applicability": "<p>This credit applies to all institutions that have residence halls.</p>", 
+            "validation_rules": null, 
+            "formula": "if A == True:\n    points = 0.25\nelse:\n    points = 0", 
+            "identifier": "ER-T2-3", 
+            "type": "t2"
+        }
+    }, 
+    {
+        "pk": 418, 
+        "model": "credits.credit", 
+        "fields": {
+            "ordinal": 0, 
+            "scoring": "<p>Institutions may earn up to 4 innovation credits.</p>\r\n<p>An institution&rsquo;s overall score is increased by the number of innovation credits it earns.&nbsp; For example, if an institution achieved an overall score of 30 based on the three main categories, earning 2 innovation credits would raise its final score to 32.&nbsp;</p>", 
+            "staff_notes": "", 
+            "subcategory": 58, 
+            "previous_version": 279, 
+            "title": "Innovation 1", 
+            "criteria": "<p>1)&nbsp; Innovation credits are reserved for new, extraordinary, unique, ground\u2010breaking, or uncommon outcomes, policies, and practices that greatly exceed the highest criterion of an existing STARS credit or are not covered by an existing STARS credit. &nbsp;</p>\r\n<p>2)&nbsp; In general, innovation credits should have roughly similar impacts or be on the same scale as Tier One credits.&nbsp;&nbsp;</p>\r\n<p>3)&nbsp; The innovative practice, policy, program, or outcome should have occurred within the past three years.</p>\r\n<p>4)&nbsp; The innovative practice or program has to be something that the institution has already done; planned activities do not count.</p>\r\n<p>5)&nbsp; An institution can only claim a particular activity as an innovation credit once.&nbsp; When re-submitting for a STARS rating, an innovation credit that the institution submitted previously cannot be re-submitted.</p>\r\n<p>6) Practices, policies, and programs that were once considered innovative but are now widely adopted (e.g. being the first institution to enact a policy 20 years ago that is now common) may not be claimed as innovation credits.</p>\r\n<p>7)&nbsp; Multiple activities or practices whose sum is innovative can be considered for an innovation credit as long as those activities or practices are related.&nbsp; For example, three innovative waste reduction programs in research laboratories could be listed together under a single innovation credit for Greening Laboratories.&nbsp; Listing a series of unrelated accomplishments or events under a single innovation credit is not accepted.</p>\r\n<p>8)&nbsp; While the practices that led to receiving an award may be appropriate for an innovation credit, winning awards and/or high sustainability rankings in other assessments is not, in and of itself, grounds for an innovation credit.&nbsp;</p>\r\n<p>9)&nbsp; Outcomes, policies, and practices that are innovative for the institution&rsquo;s region or school type are eligible for innovation credits.</p>\r\n<p>10)&nbsp; When the innovation is part of a partnership, the summary provided must clearly describe&nbsp; the institution&rsquo;s role in the innovation.</p>", 
+            "measurement": "<h3>Timeframe</h3>\r\n<p>Report on innovations that occurred during the past three years.&nbsp; Planned activities or activities that happened more than three years ago do not count for these credits.&nbsp;</p>\r\n<h3>Sampling and Data Standards</h3>\r\n<p>Not applicable</p>", 
+            "number": 1, 
+            "point_value": 1.0, 
+            "applicability": "<p>All institutions may earn innovation credits.</p>", 
+            "validation_rules": "", 
+            "formula": "points = 1 if A else 0", 
+            "identifier": "IN-1", 
+            "type": "t1"
+        }
+    }, 
+    {
+        "pk": 324, 
+        "model": "credits.credit", 
+        "fields": {
+            "ordinal": 7, 
+            "scoring": "0.25 points available.", 
+            "staff_notes": "", 
+            "subcategory": 46, 
+            "previous_version": 185, 
+            "title": "Food Donation", 
+            "criteria": "<p>Institution donates leftover or surplus food. This credit includes on-campus dining services operated by the institution or the institution&rsquo;s primary dining services contractor.</p>", 
+            "measurement": "", 
+            "number": 9, 
+            "point_value": 0.25, 
+            "applicability": "<p>This credit applies to all institutions with dining halls or on-site food service providers.</p>", 
+            "validation_rules": null, 
+            "formula": "if A == True:\n    points = 0.25\nelse:\n    points = 0", 
+            "identifier": "OP-T2-9", 
+            "type": "t2"
+        }
+    }, 
+    {
+        "pk": 327, 
+        "model": "credits.credit", 
+        "fields": {
+            "ordinal": 10, 
+            "scoring": "0.25 points available.", 
+            "staff_notes": "", 
+            "subcategory": 46, 
+            "previous_version": 188, 
+            "title": "Reusable To-Go Containers", 
+            "criteria": "<p>Institution provides reusable containers for to-go food; these containers are returned to dining operations for cleaning and reuse. This credit includes on-campus dining services operated by the institution or the institution&rsquo;s primary dining services contractor.</p>", 
+            "measurement": "", 
+            "number": 12, 
+            "point_value": 0.25, 
+            "applicability": "<p>This credit applies to all institutions with to-go food service operations.</p>", 
+            "validation_rules": null, 
+            "formula": "if A == True:\n    points = 0.25\nelse:\n    points = 0", 
+            "identifier": "OP-T2-12", 
+            "type": "t2"
+        }
+    }, 
+    {
+        "pk": 264, 
+        "model": "credits.credit", 
+        "fields": {
+            "ordinal": 1, 
+            "scoring": "<p>Institutions earn 5 points for meeting the criteria outlined above.&nbsp; Partial points are not available for this credit.&nbsp;</p>", 
+            "staff_notes": "", 
+            "subcategory": 38, 
+            "previous_version": 119, 
+            "title": "Shareholder Advocacy", 
+            "criteria": "<p>There are two possible approaches to earning this credit.&nbsp;&nbsp;</p>\r\n<p>1)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Institution filed or co-filed one or more shareholder resolutions that address sustainability or submitted one or more letters about social or environmental responsibility to a company in which it holds investments, during the previous three years.&nbsp;&nbsp;</p>\r\n<p>and/or</p>\r\n<p>2)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Institution has conducted a negative screening of its entire investment pool within the last three years.&nbsp; This could take the form of prohibiting investment in an industry (e.g. tobacco or weapons manufacturing) or participating in a divestment effort (e.g. companies operating in South Africa during apartheid).&nbsp; The negative screen includes selling all but $2,000 or less of the affected direct holdings and writing a letter to all fund managers encouraging them to remove affected holdings as well.</p>\r\n<p>Institutions for which investments are handled by the university system and/or a separate foundation of the institution should report on the shareholder advocacy activities of those entities.&nbsp;</p>", 
+            "measurement": "<h3>Timeframe</h3>\r\n<p>Report on actions taken within the past three years.</p>\r\n<h3>Sampling and Data Standards</h3>\r\n<p>Not applicable</p>", 
+            "number": 17, 
+            "point_value": 5.0, 
+            "applicability": "<p>This credit applies to institutions with endowments of US $1 million or larger.&nbsp; Institutions with endowments less than US $1 million may choose to omit this credit.</p>", 
+            "validation_rules": "", 
+            "formula": "points = 5 if C or D or E else 0", 
+            "identifier": "PAE-17", 
+            "type": "t1"
+        }
+    }, 
+    {
+        "pk": 329, 
+        "model": "credits.credit", 
+        "fields": {
+            "ordinal": 1, 
+            "scoring": "<p>Institutions earn the maximum of 7 points for this credit by obtaining all energy from clean and renewable sources.&nbsp;&nbsp; Incremental points are available for meeting some energy consumption from renewable sources, purchasing Renewable Energy Credits or green power from the electric utility, and/or generating electricity using cogeneration technologies.&nbsp; For example, an institution that met half of its energy consumption from renewable sources would earn 3.5 points (half of the points available for this credit).&nbsp;</p>", 
+            "staff_notes": "", 
+            "subcategory": 47, 
+            "previous_version": 190, 
+            "title": "Clean and Renewable Energy", 
+            "criteria": "<p>Institution supports the development and use of clean and renewable energy sources using any one or combination of the following options.&nbsp;&nbsp;</p>\r\n<p>Option 1:&nbsp; Generating electricity from clean and renewable energy sources on campus and retaining or retiring the rights to the environmental attributes of such electricity. &nbsp;(In other words, if the institution has sold Renewable Energy Credits for the clean and renewable energy it generated, it may not claim such energy here).&nbsp; The on-site renewable energy generating devices may be owned and/or maintained by another party as long as the institution has contractual rights to the associated environmental attributes.</p>\r\n<p>Option 2: Using renewable sources for non-electric, on-site energy generation, such as biomass for heating.&nbsp;</p>\r\n<p>Option 3:&nbsp; Catalyzing the development of off-site clean and renewable energy sources (e.g. an off-campus wind farm that was designed and built to supply electricity to the institution) and retaining the environmental attributes of that energy.</p>\r\n<p>Option 4: Purchasing the environmental attributes of electricity in the form of Renewable Energy Certificates (RECs) or other similar renewable energy products that are either Green-e Energy certified or meet Green-e Energy&rsquo;s technical requirements and are verified as such by a third party, or purchasing renewable electricity through the institution&rsquo;s electric utility through a certified green power purchasing option.&nbsp;</p>\r\n<p>Option 5:&nbsp; Using cogeneration technologies to generate electricity more efficiently.&nbsp; Note: generating electricity using cogeneration technology and a renewable fuel, such as biomass, is considered Option 1 and should not be counted twice.</p>\r\n<p>Since this credit is intended to recognize institutions that are generating new sources of clean and renewable energy, neither the electric grid mix for the region in which the institution is located nor the grid mix reported by the electric utility that serves the institution count for this credit.&nbsp;&nbsp;</p>\r\n<p>Technologies that reduce the amount of energy used but do not generate renewable energy do not count for this credit.&nbsp; For example, daylighting, passive solar design, and ground-source heat pumps are not counted in this credit.&nbsp; The benefits of such strategies are captured by <em>OP Credit 5: Greenhouse Gas Emissions Reductions </em>and<em> OP Credit 7: Building Energy Consumption</em>.&nbsp;</p>\r\n<p>Transportation fuels, which are covered by <em>OP Credit 14: Campus Fleet</em>, are not included in this credit.&nbsp;</p>\r\n<p>To aggregate energy consumption data from multiple sources, figures should be converted into MMBtu (one million British thermal units &ndash; a standard measure of energy) using the following equivalents:&nbsp;</p>\r\n<p>&nbsp;&nbsp;&nbsp;&nbsp; 1 kWh = 0.003412 MMBtu</p>\r\n<p>&nbsp;&nbsp;&nbsp;&nbsp; 1 MWh = 3.412 MMBtu</p>\r\n<p>&nbsp;&nbsp;&nbsp;&nbsp; 1 therm = 0.1 MMBtu</p>\r\n<p>&nbsp;&nbsp;&nbsp;&nbsp; 1 kBtu = 0.001 MMBtu</p>\r\n<p>&nbsp;&nbsp;&nbsp;&nbsp; 1 ton-hour = 0.012 MMBtu</p>\r\n<p>&nbsp;&nbsp;&nbsp;&nbsp; 1 MJ = 0.000948 MMBTU</p>", 
+            "measurement": "<h3>Timeframe</h3>\r\n<p>Report the most recent data available.&nbsp; Institutions may choose the annual start and end dates that work best with the data they have (e.g. fiscal or calendar year), as long as data are reported from a consecutive 12-month period.&nbsp;</p>\r\n<h3>Sampling</h3>\r\n<p>Report all on-site, stationary energy that was consumed by the institution (as the institution defines in the overall STARS institutional boundary).&nbsp; Reporting on a sample or subset of energy generation and consumption is not allowed for this credit.&nbsp;</p>", 
+            "number": 8, 
+            "point_value": 7.0, 
+            "applicability": "<p>This credit applies to all institutions.&nbsp;</p>", 
+            "validation_rules": "if F <= 0:\n  errors['F'] = \"Oops! The total energy consumed must be greater than zero.\"", 
+            "formula": "points = (7 * ((A+B+C)/F)) + (1.75 * ((D+E)/F))\n\nif points > 7:\n  points = 7", 
+            "identifier": "OP-8", 
+            "type": "t1"
+        }
+    }, 
+    {
+        "pk": 226, 
+        "model": "credits.credit", 
+        "fields": {
+            "ordinal": 2, 
+            "scoring": "<p>Institutions earn the maximum 1 point for this credit by diverting all of their non-hazardous construction and demolition waste from the landfill or incinerator in a one-year period.  Incremental points are available based on the percentage of waste that is diverted.  For example, an institution that diverts 50 percent of its construction and demolition waste would earn 0.5 points (half of the points available for this credit).</p>", 
+            "staff_notes": "", 
+            "subcategory": 33, 
+            "previous_version": 50, 
+            "title": "Construction and Demolition Waste Diversion", 
+            "criteria": "<p>Institution diverts non-hazardous construction and demolition waste from the landfill and/or incinerator.&nbsp;</p>\r\n<p>Soil and organic debris from excavating or clearing the site do not count for this credit.&nbsp;</p>", 
+            "measurement": "<h3>Timeframe</h3>\r\n<p>Report on the most recent data available for a one-year period.&nbsp;&nbsp; &nbsp;&nbsp;</p>\r\n<h3>Sampling and Data Standards</h3>\r\n<p>Not applicable</p>", 
+            "number": 19, 
+            "point_value": 1.0, 
+            "applicability": "<p>This credit applies to all institutions that have conducted a major construction and/or demolition project in the past three years.&nbsp;</p>", 
+            "validation_rules": "", 
+            "formula": "points = 1 * (A / (A+B))", 
+            "identifier": "OP-19", 
+            "type": "t1"
+        }
+    }, 
+    {
+        "pk": 111, 
+        "model": "credits.credit", 
+        "fields": {
+            "ordinal": 3, 
+            "scoring": "<p>Institutions earn 4 points for this credit by administering or participating in a program that meets the criteria outlined above.&nbsp; Partial points are not available for this credit.&nbsp;</p>", 
+            "staff_notes": "", 
+            "subcategory": 18, 
+            "previous_version": null, 
+            "title": "Support Programs for Future Faculty ", 
+            "criteria": "<p>Institution administers and/or participates in a program or programs to help build a diverse faculty throughout higher education.&nbsp;</p>\r\n<p>Such programs could take any of the following forms:</p>\r\n<ul>\r\n<li>Teaching fellowships or other programs to support terminal degree students from under-represented groups in gaining teaching experience. &nbsp;(The terminal degree students may be enrolled at another institution).</li>\r\n<li>Mentoring, financial, and/or other support programs to prepare and encourage undergraduate or other non-terminal degree students to pursue further education and careers as faculty members.&nbsp;&nbsp; </li>\r\n<li>Mentoring, financial, and/or other support programs for doctoral students from under-represented groups. </li>\r\n</ul>", 
+            "measurement": "<h3>Timeframe</h3>\r\n<p>Report on current program offerings and status.&nbsp;&nbsp;&nbsp;</p>\r\n<h3>Sampling and Data Standards</h3>\r\n<p>Not applicable</p>", 
+            "number": 9, 
+            "point_value": 4.0, 
+            "applicability": "<p>This credit applies to all institutions.&nbsp;</p>", 
+            "validation_rules": "", 
+            "formula": "points = 4 if C else 0", 
+            "identifier": "PAE-9", 
+            "type": "t1"
+        }
+    }, 
+    {
+        "pk": 76, 
+        "model": "credits.credit", 
+        "fields": {
+            "ordinal": 4, 
+            "scoring": "0.25 points available.", 
+            "staff_notes": "", 
+            "subcategory": 12, 
+            "previous_version": null, 
+            "title": "Snow and Ice Removal", 
+            "criteria": "<p>Institution has implemented technologies or strategies to reduce the environmental impacts of snow and ice removal.&nbsp;</p>", 
+            "measurement": "", 
+            "number": 4, 
+            "point_value": 0.25, 
+            "applicability": "<p>This credit applies to all institutions that remove snow and ice as part of their annual maintenance routines.&nbsp;</p>", 
+            "validation_rules": null, 
+            "formula": "if A == True:\n    points = 0.25\nelse:\n    points = 0", 
+            "identifier": "Tier2-4", 
+            "type": "t2"
+        }
+    }, 
+    {
+        "pk": 365, 
+        "model": "credits.credit", 
+        "fields": {
+            "ordinal": 2, 
+            "scoring": "<p>Institutions earn the maximum 1 point for this credit by diverting all of their non-hazardous construction and demolition waste from the landfill or incinerator in a one-year period.  Incremental points are available based on the percentage of waste that is diverted.  For example, an institution that diverts 50 percent of its construction and demolition waste would earn 0.5 points (half of the points available for this credit).</p>", 
+            "staff_notes": "", 
+            "subcategory": 51, 
+            "previous_version": 226, 
+            "title": "Construction and Demolition Waste Diversion", 
+            "criteria": "<p>Institution diverts non-hazardous construction and demolition waste from the landfill and/or incinerator.&nbsp;</p>\r\n<p>Soil and organic debris from excavating or clearing the site do not count for this credit.&nbsp;</p>", 
+            "measurement": "<h3>Timeframe</h3>\r\n<p>Report on the most recent data available for a one-year period.&nbsp;&nbsp; &nbsp;&nbsp;</p>\r\n<h3>Sampling and Data Standards</h3>\r\n<p>Not applicable</p>", 
+            "number": 19, 
+            "point_value": 1.0, 
+            "applicability": "<p>This credit applies to all institutions that have conducted a major construction and/or demolition project in the past three years.&nbsp;</p>", 
+            "validation_rules": "", 
+            "formula": "points = 1 * (A / (A+B))", 
+            "identifier": "OP-19", 
+            "type": "t1"
+        }
+    }, 
+    {
+        "pk": 46, 
+        "model": "credits.credit", 
+        "fields": {
+            "ordinal": 1, 
+            "scoring": "<p>Institutions earn the maximum 4 points for this credit by having all students use alternative modes of transportation for getting to and from campus.&nbsp; Incremental points are available based on the percentage of students that use alternative modes.&nbsp; For example, an institution for which 50 percent of students use alternative modes and the other 50 percent drive alone would earn 2 points (half of the available points for this credit).</p>", 
+            "staff_notes": "", 
+            "subcategory": 14, 
+            "previous_version": null, 
+            "title": "Student Commute Modal Split", 
+            "criteria": "<p class=\"CreditText\">Institution's students commute to and  from campus by a means other than single occupancy vehicle for the  majority of their daily trips.&nbsp; Alternatives to single-occupancy vehicle  transportation include living on campus, walking, bicycling, van or carpooling, taking  public transportation, or riding a campus shuttle.</p>", 
+            "measurement": "<h3>Timeframe</h3>\r\n<p>Report the most recent data available.&nbsp;</p>\r\n<h3>Sampling and Data Standards</h3>\r\n<p>Institutions may use a representative sample to gather data about student commuting behavior.&nbsp; The South Coast Air Quality Management District in California provides <a href=\"http://www.aqmd.gov/trans/doc/r2202_ecrp_guide.pdf\" target=\"_blank\">guidelines on how to measure commuting behavior</a> (pdf).&nbsp;&nbsp;</p>", 
+            "number": 15, 
+            "point_value": 4.0, 
+            "applicability": "<p>This credit applies to all institutions where students attend the physical campus.</p>", 
+            "validation_rules": "if 99 > A+B+C+D or A+B+C+D > 101:\n  errors['top'] = \"The sum of the percentages for all commuting modes should equal 100.\"", 
+            "formula": "points = 4 * ((A+B+C)/100)", 
+            "identifier": "OP-15", 
+            "type": "t1"
+        }
+    }, 
+    {
+        "pk": 141, 
+        "model": "credits.credit", 
+        "fields": {
+            "ordinal": 1, 
+            "scoring": "<p>Institutions may earn up to 4 innovation credits.&nbsp; Innovation credits are not required to be specific to any category and are scored separately.&nbsp; An institution&rsquo;s overall score is increased by the number of innovation credits it earns.&nbsp; For example, if an institution achieved an overall score of 30 based on the three main categories, earning 2 innovation credits would raise its final score to 32.&nbsp;</p>\r\n<p>Please note that institutions will report on each innovation credit separately.&nbsp;</p>", 
+            "staff_notes": "", 
+            "subcategory": 22, 
+            "previous_version": null, 
+            "title": "Innovation 2", 
+            "criteria": "<p>1)&nbsp; Innovation credits are reserved for new, extraordinary, unique, ground\u2010breaking, or uncommon outcomes, policies, and practices that greatly exceed the highest criterion of an existing STARS credit or are not covered by an existing STARS credit. &nbsp;</p>\r\n<p>2)&nbsp; In general, innovation credits should have roughly similar impacts or be on the same scale as Tier One credits.&nbsp;&nbsp;</p>\r\n<p>3)&nbsp; The innovative practice, policy, program, or outcome should have occurred within the past three years.</p>\r\n<p>4)&nbsp; The innovative practice or program has to be something that the institution has already done; planned activities do not count.</p>\r\n<p>5)&nbsp; An institution can only claim a particular activity as an innovation credit once.&nbsp; When re-submitting for a STARS rating, an innovation credit that the institution submitted previously cannot be re-submitted.</p>\r\n<p>6) Practices, policies, and programs that were once considered innovative but are now widely adopted (e.g. being the first institution to enact a policy 20 years ago that is now common) may not be claimed as innovation credits.</p>\r\n<p>7)&nbsp; Multiple activities or practices whose sum is innovative can be considered for an innovation credit as long as those activities or practices are related.&nbsp; For example, three innovative waste reduction programs in research laboratories could be listed together under a single innovation credit for Greening Laboratories.&nbsp; Listing a series of unrelated accomplishments or events under a single innovation credit is not accepted.</p>\r\n<p>8)&nbsp; While the practices that led to receiving an award may be appropriate for an innovation credit, winning awards and/or high sustainability rankings in other assessments is not, in and of itself, grounds for an innovation credit.&nbsp;</p>\r\n<p>9)&nbsp; Outcomes, policies, and practices that are innovative for the institution&rsquo;s region or school type are eligible for innovation credits.</p>\r\n<p>10)&nbsp; When the innovation is part of a partnership, the summary provided must clearly describe&nbsp; the institution&rsquo;s role in the innovation.</p>", 
+            "measurement": "<h3>Timeframe</h3>\r\n<p>Report on innovations that occurred during the past three years.&nbsp; Planned activities or activities that happened more than three years ago do not count for these credits.&nbsp;</p>\r\n<h3>Sampling and Data Standards</h3>\r\n<p>Not applicable</p>", 
+            "number": 2, 
+            "point_value": 1.0, 
+            "applicability": "<p>All institutions may earn innovation credits.&nbsp;</p>", 
+            "validation_rules": "", 
+            "formula": "points = 1 if A else 0", 
+            "identifier": "IN-2", 
+            "type": "t1"
+        }
+    }, 
+    {
+        "pk": 400, 
+        "model": "credits.credit", 
+        "fields": {
+            "ordinal": 6, 
+            "scoring": "0.25 points available.", 
+            "staff_notes": "", 
+            "subcategory": 55, 
+            "previous_version": 261, 
+            "title": "Employee Wellness Program", 
+            "criteria": "<p>Institution has an employee assistance or wellness program that provides counseling, referral, and well-being services to employees.</p>", 
+            "measurement": null, 
+            "number": 5, 
+            "point_value": 0.25, 
+            "applicability": "<p>This credit applies to all institutions.</p>", 
+            "validation_rules": null, 
+            "formula": "if A == True:\n    points = 0.25\nelse:\n    points = 0", 
+            "identifier": "PAE-T2-5", 
+            "type": "t2"
+        }
+    }, 
+    {
+        "pk": 296, 
+        "model": "credits.credit", 
+        "fields": {
+            "ordinal": 1, 
+            "scoring": "<p>Institutions earn the maximum of 10 points for this credit if sustainability-focused courses comprise 10 percent or more of all courses offered.&nbsp; Incremental points are available based on the percentage of course offerings that are sustainability-focused. &nbsp;For example, an institution where 5 percent of all courses offered were focused on sustainability would earn 5 points (half of the points available for this credit).</p>", 
+            "staff_notes": "", 
+            "subcategory": 42, 
+            "previous_version": 157, 
+            "title": "Sustainability-Focused Courses", 
+            "criteria": "<p>Institution offers sustainability-focused academic courses.&nbsp;</p>\r\n<p>This credit does not include continuing education and extension courses, which are covered by <em>PAE Credit 21: Sustainability in Continuing Education</em>.&nbsp;</p>", 
+            "measurement": "<h3>Timeframe</h3>\r\n<p>Report the most recent data available.&nbsp;</p>\r\n<p>Institutions may choose to report course offerings from one, two, or three academic years, as long as both the total number of courses offered and the number of sustainability-focused courses offered are measured during the same time.&nbsp;</p>\r\n<h3>Sampling and Data Standards</h3>\r\n<p>Courses that are cross-listed in multiple departments do not count as separate courses.&nbsp;</p>\r\n<p>To streamline the data gathering process, institutions may choose whether or not to count each time a course is offered as a separate course, as long as sustainability-focused course offerings are counted in the same way as total course offerings.&nbsp;&nbsp; For example, a course that is held twice (or if there are two sections) in the fall term and once in the spring term may be counted as 3 courses or 1 course, as long as the institution&rsquo;s course counting methodology is consistent.</p>\r\n<p>Institutions may also choose to exclude courses of 4 or fewer students, as long as they are excluded from both the count of sustainability-focused courses and the count of total courses.</p>\r\n<p>Courses offered by outside entities (e.g. courses offered by other colleges that are part of a consortium with the institution or courses offered through study abroad programs that are not administered by the institution) should not be counted in the participating institution&rsquo;s course inventory.&nbsp;&nbsp;</p>\r\n<p>However, courses developed and offered jointly by multiple institutions that are listed in the participating institution&rsquo;s course catalog may be counted.&nbsp; In such circumstances, sustainability courses and courses not focused on sustainability should be counted consistently.&nbsp; This means that if sustainability courses offered jointly by the participating institution and another entity are included in the inventory, courses not focused on sustainability meeting these criteria should be included as well.&nbsp;</p>", 
+            "number": 6, 
+            "point_value": 10.0, 
+            "applicability": "<p>This credit applies to all institutions.</p>", 
+            "validation_rules": "if A > B:\n  errors['A'] = \"Oops! The total number of courses offered should be greater than or equal to the number of sustainability-focused courses offered.\"\n\nif A>0 and not (D or E or F):\n  errors['D'] = \"One of these fields is required to earn points for this credit: a list of sustainability-focused courses, the link to the publicly available sustainability course inventory, or a copy of the inventory.\"  ", 
+            "formula": "var1 = (A/B)\n\nif var1 > 0.10:\n  var2 = 0.10 \nelse:\n  var2 = var1\n\npoints = 100 * var2\n", 
+            "identifier": "ER-6", 
+            "type": "t1"
+        }
+    }, 
+    {
+        "pk": 18, 
+        "model": "credits.credit", 
+        "fields": {
+            "ordinal": 4, 
+            "scoring": "<p>Institutions earn the maximum of 10 points available for this credit when all students graduate from programs that have adopted at least one sustainability learning outcome.&nbsp; Incremental points are available based on the percentage of students who graduate from such programs.&nbsp; For example, if half of all students graduated from programs that have specified sustainability learning outcomes, an institution would earn 5 points (half of the points available for this credit).</p>", 
+            "staff_notes": "", 
+            "subcategory": 3, 
+            "previous_version": null, 
+            "title": "Sustainability Learning Outcomes ", 
+            "criteria": "<p>Institution&rsquo;s students graduate from programs that include sustainability as a required learning outcome or include multiple sustainability learning outcomes.</p>\r\n<p>For this credit, learning outcomes at the course level count if the course is required to earn the degree.&nbsp; This credit includes graduate as well as undergraduate programs. For this credit, \"programs\" include majors, minors, concentrations, certificates, and other academic designations. Programs that include co-curricular aspects may count as long as there is an academic component of the program.<span>&nbsp;</span></p>", 
+            "measurement": "<h3>Timeframe</h3>\r\n<p>Report the most recent data available.&nbsp; Institutions may choose to report data from one, two, or three academic years, as long as both the total number of graduates and the number of graduates from programs that have specified sustainability learning outcomes are measured during the same time period.&nbsp;</p>\r\n<h3>Sampling and Data Standards</h3>\r\n<p>Not applicable</p>", 
+            "number": 9, 
+            "point_value": 10.0, 
+            "applicability": "<p>This credit applies to all institutions that have degree-granting programs.</p>", 
+            "validation_rules": "if B < A:\n  errors['A'] =\"Oops! The total number of graduates should be greater than or equal to the number of graduates covered by the sustainability learning outcomes.\"\n\nif A>0 and not (D or E or F): \n  errors['top'] = \"One of these fields must be completed in order to earn points for this credit: a list of the degree programs that specify sustainability learning outcomes, the link to the publicly available sustainability course inventory, or a copy of the inventory. \"  ", 
+            "formula": "points = 10 * (A/B)", 
+            "identifier": "ER-9", 
+            "type": "t1"
+        }
+    }, 
+    {
+        "pk": 148, 
+        "model": "credits.credit", 
+        "fields": {
+            "ordinal": 4, 
+            "scoring": "0.25 points available.", 
+            "staff_notes": "", 
+            "subcategory": 23, 
+            "previous_version": 5, 
+            "title": "Student Group", 
+            "criteria": "<p>Institution has an active student organization focused on sustainability.</p>", 
+            "measurement": "", 
+            "number": 1, 
+            "point_value": 0.25, 
+            "applicability": "<p>This credit applies to all institutions.</p>", 
+            "validation_rules": null, 
+            "formula": "if A == True:\n    points = 0.25\nelse:\n    points = 0", 
+            "identifier": "ER-T2-1", 
+            "type": "t2"
+        }
+    }, 
+    {
+        "pk": 85, 
+        "model": "credits.credit", 
+        "fields": {
+            "ordinal": 8, 
+            "scoring": "0.25 points available.", 
+            "staff_notes": "", 
+            "subcategory": 14, 
+            "previous_version": null, 
+            "title": "Telecommuting", 
+            "criteria": "<p>Institution offers a tele-commute program for employees.</p>", 
+            "measurement": "", 
+            "number": 6, 
+            "point_value": 0.25, 
+            "applicability": "<p>This credit applies to all institutions.&nbsp;</p>", 
+            "validation_rules": null, 
+            "formula": "if A == True:\n    points = 0.25\nelse:\n    points = 0", 
+            "identifier": "Tier2-6", 
+            "type": "t2"
+        }
+    }, 
+    {
+        "pk": 265, 
+        "model": "credits.credit", 
+        "fields": {
+            "ordinal": 2, 
+            "scoring": "<p>Institutions earn the maximum of 9 points available for this credit by investing 30 percent or more of their investment pool in one of the ways outlined above.&nbsp; Incremental points are available based on the percentage of the investments that meet one or more criteria outlined above.&nbsp; For example, an institution where 15 percent of investments were held in a CDFI would earn 4.5 points (half of the points available for this credit).&nbsp;&nbsp;</p>", 
+            "staff_notes": "", 
+            "subcategory": 38, 
+            "previous_version": 120, 
+            "title": "Positive Sustainability Investments", 
+            "criteria": "<p>Institution invests in any of the following:</p>\r\n<ul>\r\n<li>Sustainable industries, such as renewable energy or sustainable forestry </li>\r\n<li>Businesses selected for exemplary sustainability performances </li>\r\n<li>Sustainability investment funds, such as a renewable energy investment fund</li>\r\n<li>Community development financial institutions (CDFI)</li>\r\n<li>Socially responsible mutual funds with positive screens.&nbsp; </li>\r\n</ul>\r\n<p>Investment in a socially responsible mutual fund with only negative screens (i.e. one that excludes egregious offenders or certain industries, such as tobacco or weapons manufacturing) does not count for this credit.&nbsp;</p>\r\n<p>Institutions for which investments are handled by the university system and/or a separate foundation of the institution should report on the investment policies and activities of those entities.&nbsp;</p>", 
+            "measurement": "<h3>Timeframe</h3>\r\n<p>Report on a snapshot of the institution&rsquo;s investment portfolio taken within the past three years.&nbsp;</p>\r\n<h3>Sampling and Data Standards</h3>\r\n<p>Report on a snapshot of the entire investment portfolio.&nbsp; Reporting on a sample of the endowment or a special fund of the endowment is not allowed for this credit.&nbsp; Institutions should strive to report on a representative snapshot.&nbsp;</p>", 
+            "number": 18, 
+            "point_value": 9.0, 
+            "applicability": "<p>This credit applies to institutions with endowments of US $1 million or larger.&nbsp; Institutions with endowments less than US $1 million may choose to omit this credit.</p>", 
+            "validation_rules": "if (B + C + D + E + F) > A:\n  errors['A'] = \"Oops! The total value of the investment pool should be larger than or equal to the sum of positive sustainability investments outlined below.\"", 
+            "formula": "pos_percent = ((B + C + D + E + F) / A)\n\nif pos_percent > 0.3:\n  var1 = 0.3\nelse:\n  var1 = pos_percent\n\npoints = 30 * var1", 
+            "identifier": "PAE-18", 
+            "type": "t1"
+        }
+    }, 
+    {
+        "pk": 312, 
+        "model": "credits.credit", 
+        "fields": {
+            "ordinal": 2, 
+            "scoring": "<p>Institutions earn the full 2 points available for this credit when all buildings are covered by an indoor air quality management policy, plans, and/or practices (or if there is an institution-wide plan or policy).&nbsp;&nbsp; Partial points are available based on the percentage of occupied building space that meets the criteria.&nbsp; For example, if an institution had half of all its occupied building space covered by an IAQ policy, it would earn 1 point (half of the points available for this credit).&nbsp;</p>", 
+            "staff_notes": "", 
+            "subcategory": 44, 
+            "previous_version": 173, 
+            "title": "Indoor Air Quality", 
+            "criteria": "<p>Institution has adopted an indoor air quality management policy, plan, and/or practices that include regular auditing or monitoring and a mechanism for occupants to register complaints.&nbsp;&nbsp;Policies and plans adopted by entities of which the institution is part (e.g. state government or the university system) may count for this credit as long as the policies apply to and are followed by the institution.<span>&nbsp;</span></p>", 
+            "measurement": "<h3>Timeframe</h3>\r\n<p>Report on current policies, plans, and/or strategies.</p>\r\n<h3>Sampling and Data Standards</h3>\r\n<p>Not applicable&nbsp;</p>", 
+            "number": 3, 
+            "point_value": 2.0, 
+            "applicability": "<p>This credit applies to all institutions.&nbsp;</p>", 
+            "validation_rules": "if B < A:\n  errors['B'] = \"Total occupied building space should be greater than or equal to the amount of space covered by an IAQ plan, policy, or practices.\"", 
+            "formula": "if B == 0:\n    points = 0\nelse:\n    points = 2*(A/B)", 
+            "identifier": "OP-3", 
+            "type": "t1"
+        }
+    }, 
+    {
+        "pk": 443, 
+        "model": "credits.credit", 
+        "fields": {
+            "ordinal": 20, 
+            "scoring": "<p>Not applicable.</p>", 
+            "staff_notes": "", 
+            "subcategory": 59, 
+            "previous_version": null, 
+            "title": "Endowment", 
+            "criteria": "<p>Institution provides details about its endowment.</p>", 
+            "measurement": "", 
+            "number": 14, 
+            "point_value": 0.0, 
+            "applicability": "", 
+            "validation_rules": null, 
+            "formula": "points = 0", 
+            "identifier": "SD-14", 
+            "type": "t1"
+        }
+    }
+]
