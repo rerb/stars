@@ -1,13 +1,13 @@
 [
     {
-        "pk": 33, 
+        "pk": 10, 
         "model": "credits.subcategory", 
         "fields": {
-            "category": 7, 
-            "ordinal": 7, 
-            "description": "<p>This subcategory seeks to recognize institutions that are moving toward zero waste by reducing, reusing, recycling, and composting.&nbsp; These actions mitigate the need to extract virgin materials, such as trees and metals.&nbsp; It generally takes less energy and water to make a product with recycled material than with virgin resources.&nbsp; Reducing waste generation also reduces the flow of waste to incinerators and landfills which produce greenhouse gas emissions, can contaminate air and groundwater supplies, and tend to have disproportionate negative impacts on low-income communities. Waste reduction and diversion also save institutions costly landfill and hauling service fees. &nbsp;In addition, waste reduction campaigns can engage the entire campus community in contributing to a tangible sustainability goal.</p>", 
-            "previous_version": 15, 
-            "title": "Waste", 
+            "category": 2, 
+            "ordinal": 2, 
+            "description": "<p>This subcategory seeks to recognize institutions that are helping build a sustainable food system. Modern industrial food production often has deleterious environmental impacts.&nbsp; Pesticides and fertilizers used in agriculture can contaminate ground and surface water, which has potentially dangerous impacts on wildlife and human health.&nbsp; Furthermore, the often long-distance transportation of food to institutions produces greenhouse gas emissions and other pollution.&nbsp; Additionally, farm workers are often paid sub-standard wages, subjected to harsh working conditions, and exposed to dangerous pesticides. Institutions can use their food purchases to support their local economies; encourage safe, environmentally-friendly farming methods; and help alleviate poverty for farmers.</p>\r\n<p>Please note that while dining services can also play an important role in conserving energy and water, reducing waste, and purchasing environmentally preferable materials other than food, STARS measures these impacts across the institution instead of by department; therefore, the benefits of these actions are captured in the Energy, Water, Waste, and Purchasing subcategories, respectively.</p>", 
+            "previous_version": null, 
+            "title": "Dining Services", 
             "max_point_value": 0
         }
     }, 
@@ -24,50 +24,14 @@
         }
     }, 
     {
-        "pk": 38, 
+        "pk": 37, 
         "model": "credits.subcategory", 
         "fields": {
             "category": 8, 
-            "ordinal": 3, 
-            "description": "<p>This subcategory seeks to recognize institutions that make investment decisions that promote sustainability.&nbsp; Most institutions invest some of their assets in order to generate income. &nbsp;Together, colleges and universities invest hundreds of billions of dollars.&nbsp; Schools with transparent and democratic investment processes promote accountability and engagement by the campus and community.&nbsp; Furthermore, institutions can support sustainability by investing in companies and funds that, in addition to providing a strong rate of return, are committed to social and environmental responsibility.&nbsp; Investing in these industries also supports the development of sustainable products and services.&nbsp; Finally, campuses can engage with the businesses in which they are invested in order to promote sustainable practices.&nbsp;</p>", 
-            "previous_version": 20, 
-            "title": "Investment", 
-            "max_point_value": 0
-        }
-    }, 
-    {
-        "pk": 12, 
-        "model": "credits.subcategory", 
-        "fields": {
-            "category": 2, 
-            "ordinal": 4, 
-            "description": "<p>This subcategory seeks to recognize institutions that plan and maintain their grounds with sustainability in mind.&nbsp; Beautiful and welcoming campus grounds can be planned, planted, and maintained in any region while minimizing the use of toxic chemicals, protecting wildlife habitat, and conserving water and resources.&nbsp;&nbsp;&nbsp;</p>", 
-            "previous_version": null, 
-            "title": "Grounds", 
-            "max_point_value": 0
-        }
-    }, 
-    {
-        "pk": 41, 
-        "model": "credits.subcategory", 
-        "fields": {
-            "category": 10, 
-            "ordinal": 0, 
-            "description": "<p>This subcategory seeks to recognize institutions that provide their students with sustainability learning experiences outside the formal curriculum.&nbsp; Engaging in sustainability issues through co-curricular activities allows students to deepen and apply their understandings of sustainability principles.&nbsp; Institution-sponsored co-curricular sustainability offerings, often coordinated by student affairs offices, help integrate sustainability into the campus culture and set a positive tone for the institution.</p>", 
-            "previous_version": 23, 
-            "title": "Co-Curricular Education", 
-            "max_point_value": 0
-        }
-    }, 
-    {
-        "pk": 42, 
-        "model": "credits.subcategory", 
-        "fields": {
-            "category": 10, 
-            "ordinal": 1, 
-            "description": "<p>This subcategory seeks to recognize institutions that have formal education programs and courses that address sustainability.&nbsp; One of the primary functions of colleges and universities is to educate students.&nbsp; By training and educating future leaders, scholars, workers, and professionals, higher education institutions are uniquely positioned to prepare students to understand and address sustainability challenges.&nbsp; Institutions that offer courses covering sustainability issues help equip their students to lead society to a sustainable future.&nbsp; &nbsp;&nbsp;</p>", 
-            "previous_version": 24, 
-            "title": "Curriculum", 
+            "ordinal": 2, 
+            "description": "<p>This subcategory seeks to recognize institutions that have incorporated sustainability into their human resources programs and policies.&nbsp; This includes recognition for treating and remunerating their workers responsibly and fairly.&nbsp; An institution&rsquo;s people define its character and capacity to perform; and so, an institution&rsquo;s achievements can only be as strong as its community.&nbsp; An institution can bolster the strength of its community by making fair and responsible investments in its human capital.&nbsp; Such investments include offering benefits, wages, and other assistance that serve to respectfully and ethically compensate workers.&nbsp; Investment in human resources is integral to the achievement of a healthy and sustainable balance between human capital, natural capital, and financial capital.</p>\r\n<p>In addition, this subcategory recognizes faculty and staff training and development programs in sustainability.&nbsp; Faculty and staff members&rsquo; daily decisions impact an institution&rsquo;s sustainability performance.&nbsp; Equipping faculty and staff with the tools, knowledge, and motivation to adopt behavior changes that promote sustainability is an essential activity of a sustainable campus.&nbsp;&nbsp;&nbsp;</p>", 
+            "previous_version": 19, 
+            "title": "Human Resources", 
             "max_point_value": 0
         }
     }, 
@@ -80,126 +44,6 @@
             "description": "<p>This subcategory seeks to recognize institutions that have incorporated sustainability into their human resources programs and policies.&nbsp; This includes recognition for treating and remunerating their workers responsibly and fairly.&nbsp; An institution&rsquo;s people define its character and capacity to perform; and so, an institution&rsquo;s achievements can only be as strong as its community.&nbsp; An institution can bolster the strength of its community by making fair and responsible investments in its human capital.&nbsp; Such investments include offering benefits, wages, and other assistance that serve to respectfully and ethically compensate workers.&nbsp; Investment in human resources is integral to the achievement of a healthy and sustainable balance between human capital, natural capital, and financial capital.</p>\r\n<p>In addition, this subcategory recognizes faculty and staff training and development programs in sustainability.&nbsp; Faculty and staff members&rsquo; daily decisions impact an institution&rsquo;s sustainability performance.&nbsp; Equipping faculty and staff with the tools, knowledge, and motivation to adopt behavior changes that promote sustainability is an essential activity of a sustainable campus.&nbsp;&nbsp;&nbsp;</p>", 
             "previous_version": 37, 
             "title": "Human Resources", 
-            "max_point_value": 0
-        }
-    }, 
-    {
-        "pk": 44, 
-        "model": "credits.subcategory", 
-        "fields": {
-            "category": 11, 
-            "ordinal": 0, 
-            "description": "<p>This subcategory seeks to recognize institutions that are taking steps to improve the sustainability performance of their buildings.&nbsp;&nbsp; Buildings are generally the largest user of energy and the largest source of greenhouse gas emissions on campuses.&nbsp; Buildings also use significant amounts of potable water.&nbsp;&nbsp; Institutions can design, build, and maintain buildings in ways that provide a safe and healthy indoor environment for inhabitants while simultaneously mitigating the building&rsquo;s impact on the outdoor environment.&nbsp;</p>", 
-            "previous_version": 26, 
-            "title": "Buildings ", 
-            "max_point_value": 0
-        }
-    }, 
-    {
-        "pk": 46, 
-        "model": "credits.subcategory", 
-        "fields": {
-            "category": 11, 
-            "ordinal": 2, 
-            "description": "<p>This subcategory seeks to recognize institutions that are supporting a sustainable food system. Modern industrial food production often has deleterious environmental impacts.&nbsp; Pesticides and fertilizers used in agriculture can contaminate ground and surface water, which has potentially dangerous impacts on wildlife and human health.&nbsp; Furthermore, the often long-distance transportation of food to institutions produces greenhouse gas emissions and other pollution.&nbsp; Additionally, farm workers are often paid substandard wages, subjected to harsh working conditions, and exposed to dangerous pesticides. Institutions can use their food purchases to support their local economies; encourage safe, environmentally-friendly farming methods; and help alleviate poverty for farmers.</p>\r\n<p>Please note that while dining services can also play an important role in conserving energy and water, reducing waste, and purchasing environmentally preferable materials other than food, STARS measures these impacts across the institution instead of by department; therefore, the benefits of these actions are captured in the Energy, Water, Waste, and Purchasing subcategories, respectively.</p>", 
-            "previous_version": 28, 
-            "title": "Dining Services", 
-            "max_point_value": 0
-        }
-    }, 
-    {
-        "pk": 47, 
-        "model": "credits.subcategory", 
-        "fields": {
-            "category": 11, 
-            "ordinal": 3, 
-            "description": "<p>This subcategory seeks to recognize institutions that are reducing their energy consumption through conservation and efficiency, and switching to cleaner and renewable sources of energy such as solar, wind, geothermal, and low-impact hydropower.&nbsp;&nbsp; For most institutions, energy consumption is the largest source of greenhouse gas emissions, which cause global warming.&nbsp; Global warming is expected to have myriad negative impacts throughout the world, including increased frequency and potency of extreme weather events, sea level rise, species extinction, water shortages, declining agricultural production, and spread of diseases.&nbsp; The impacts are expected to be particularly pronounced for poor communities and countries.&nbsp; In addition to causing global warming, energy generation from fossil fuels, especially coal, produces air pollutants such as sulfur dioxide, nitrogen oxides, mercury, dioxins, arsenic, cadmium and lead.&nbsp; These pollutants contribute to acid rain as well as health problems such as heart and respiratory diseases and cancer.&nbsp; Coal mining and oil and gas drilling can also damage environmentally and/or culturally significant ecosystems.&nbsp; Nuclear power creates highly toxic and long-lasting radioactive waste.&nbsp; Large-scale hydropower floods habitat and disrupts fish migration.&nbsp;</p>\r\n<p>Implementing conservation measures and switching to renewable sources of energy can help institutions save money and protect them from utility rate volatility.&nbsp; Renewable energy may be generated locally and allow campuses to support local economic development.&nbsp; Furthermore, institutions can help shape markets by creating demand for cleaner, renewable sources of energy.&nbsp;</p>", 
-            "previous_version": 29, 
-            "title": "Energy", 
-            "max_point_value": 0
-        }
-    }, 
-    {
-        "pk": 18, 
-        "model": "credits.subcategory", 
-        "fields": {
-            "category": 3, 
-            "ordinal": 1, 
-            "description": "<p>This subcategory seeks to recognize institutions that are working to advance diversity and affordability on campus.&nbsp; In order to build a sustainable society, diverse groups will need to be able to come together and work collaboratively to address sustainability challenges.&nbsp; People of color and low-income communities tend to suffer disproportionate exposure to environmental problems.&nbsp; This environmental injustice happens as a result of unequal and segregated communities.&nbsp; To achieve environmental and social justice, society must work to address discrimination and promote equality.&nbsp; The historical legacy and persistence of discrimination based on racial, gender, religious, and other differences makes a proactive approach to promoting a culture of inclusiveness an important component of creating an equitable society. &nbsp;Higher education opens doors to opportunities that can help create a more equitable world, and those doors must be open through affordable programs accessible to all regardless of race, gender, religion, socio-economic status and other differences.&nbsp; In addition, a diverse student body, faculty, and staff provide rich resources for learning and collaboration.&nbsp;</p>", 
-            "previous_version": null, 
-            "title": "Diversity and Affordability", 
-            "max_point_value": 0
-        }
-    }, 
-    {
-        "pk": 51, 
-        "model": "credits.subcategory", 
-        "fields": {
-            "category": 11, 
-            "ordinal": 7, 
-            "description": "<p>This subcategory seeks to recognize institutions that are moving toward zero waste by reducing, reusing, recycling, and composting.&nbsp; These actions mitigate the need to extract virgin materials, such as trees and metals.&nbsp; It generally takes less energy and water to make a product with recycled material than with virgin resources.&nbsp; Reducing waste generation also reduces the flow of waste to incinerators and landfills which produce greenhouse gas emissions, can contaminate air and groundwater supplies, and tend to have disproportionate negative impacts on low-income communities. Waste reduction and diversion also save institutions costly landfill and hauling service fees. &nbsp;In addition, waste reduction campaigns can engage the entire campus community in contributing to a tangible sustainability goal.</p>", 
-            "previous_version": 33, 
-            "title": "Waste", 
-            "max_point_value": 0
-        }
-    }, 
-    {
-        "pk": 14, 
-        "model": "credits.subcategory", 
-        "fields": {
-            "category": 2, 
-            "ordinal": 6, 
-            "description": "<p>This subcategory seeks to recognize institutions that are moving toward sustainable transportation systems.&nbsp; Transportation is a major source of greenhouse gas emissions and other pollutants that contribute to health problems such as heart and respiratory diseases and cancer.&nbsp; Due to disproportionate exposure, these health impacts are frequently more pronounced in low-income communities next to major transportation corridors.&nbsp; In addition, the extraction, production, and global distribution of fuels for transportation can damage environmentally and/or culturally significant ecosystems and may financially benefit hostile and/or oppressive governments.</p>\r\n<p>At the same time, campuses can reap benefits from modeling sustainable transportation systems.&nbsp; Bicycling and walking provide human health benefits and mitigate the need for large areas of paved surface, which can help campuses to better manage storm water.&nbsp; Institutions may realize cost savings and help support local economies by reducing their dependency on petroleum-based fuels for transportation.</p>", 
-            "previous_version": null, 
-            "title": "Transportation", 
-            "max_point_value": 0
-        }
-    }, 
-    {
-        "pk": 22, 
-        "model": "credits.subcategory", 
-        "fields": {
-            "category": 4, 
-            "ordinal": 0, 
-            "description": "<p>These credits recognize institutions that are seeking innovative solutions to sustainability challenges and demonstrating sustainability leadership in ways that are not otherwise captured by STARS.&nbsp;&nbsp;</p>\r\n<p>&nbsp;</p>", 
-            "previous_version": null, 
-            "title": "Innovation", 
-            "max_point_value": 0
-        }
-    }, 
-    {
-        "pk": 23, 
-        "model": "credits.subcategory", 
-        "fields": {
-            "category": 6, 
-            "ordinal": 0, 
-            "description": "<p>This subcategory seeks to recognize institutions that provide their students with sustainability learning experiences outside the formal curriculum.&nbsp; Engaging in sustainability issues through co-curricular activities allows students to deepen and apply their understandings of sustainability principles.&nbsp; Institution-sponsored co-curricular sustainability offerings, often coordinated by student affairs offices, help integrate sustainability into the campus culture and set a positive tone for the institution.</p>", 
-            "previous_version": 1, 
-            "title": "Co-Curricular Education", 
-            "max_point_value": 0
-        }
-    }, 
-    {
-        "pk": 58, 
-        "model": "credits.subcategory", 
-        "fields": {
-            "category": 13, 
-            "ordinal": 0, 
-            "description": "<p>These credits recognize institutions that are seeking innovative solutions to sustainability challenges and demonstrating sustainability leadership in ways that are not otherwise captured by STARS.&nbsp;&nbsp;</p>\r\n<p>&nbsp;</p>", 
-            "previous_version": 40, 
-            "title": "Innovation", 
-            "max_point_value": 0
-        }
-    }, 
-    {
-        "pk": 59, 
-        "model": "credits.subcategory", 
-        "fields": {
-            "category": 14, 
-            "ordinal": 0, 
-            "description": "<p>The supplemental section includes reporting fields that are not part of STARS, but that have been requested by campus survey organizations (the Sustainable Endowments Institute, The Princeton Review, and Sierra magazine). Institutions that wish to share their data with one or more of these organizations should complete the fields in full or contact the relevant organization(s) for guidance regarding minimum reporting requirements.</p>", 
-            "previous_version": null, 
-            "title": "Supplemental Data", 
             "max_point_value": 0
         }
     }
