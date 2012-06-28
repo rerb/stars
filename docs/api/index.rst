@@ -27,6 +27,7 @@ Contents:
    terms
    usingapi
    sample
+   endpoints
 
 Indices and tables
 ==================

@@ -3,7 +3,7 @@
 All STARS API End-points
 ========================
 
-Here is an itemized list of all the end-points in the STARS API along with their permissions and parameters.
+Here is an itemized list of all the end-points in the STARS API along with their permissions and parameters. 
 
 Profile
 -------
@@ -50,3 +50,4 @@ Search
 
 /search/institutions/
 /search/credit/
+
