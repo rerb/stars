@@ -4,6 +4,8 @@
 from django.core import serializers
 
 import stars.apps.credits.api.resources as credits_resource_models
+from stars.apps.submissions.models import SubmissionSet
+from stars.apps.submissions.newapi.resources import SubmissionSetResource
 from stars.apps.api.test import get_random_visible_resource
 import stars.apps.api.make_submissions_test_fixtures as submissions_fixtures
 
@@ -16,18 +18,28 @@ credits = set()
 documentation_fields = list()
 
 def fill_buckets():
-    global documentation_fields
+
     while len(credits) < CREDITS_TO_DUMP:
         credit = get_random_visible_resource(
             credits_resource_models.CreditResource)
         credits.add(credit)
-        documentation_fields += credit.documentationfield_set.all()
-        subcategories.add(credit.subcategory)
-        categories.add(credit.subcategory.category)
-        creditset = credit.subcategory.category.creditset
-        creditsets.add(creditset)
+        fill_buckets_for_credit(credit)
 
-        submissions_fixtures.fill_buckets(creditset.submissionset_set)
+    # Add one non-visible SubmissionSet:
+    for submissionset in SubmissionSet.objects.all():
+        if submissionset not in SubmissionSetResource._meta.queryset:
+            submissions_fixtures.fill_buckets(submissionset)
+            break
+
+def fill_buckets_for_credit(credit):
+    global documentation_fields
+    documentation_fields += credit.documentationfield_set.all()
+    subcategories.add(credit.subcategory)
+    categories.add(credit.subcategory.category)
+    creditset = credit.subcategory.category.creditset
+    creditsets.add(creditset)
+    for submissionset in creditset.submissionset_set.all()[:2]:
+        submissions_fixtures.fill_buckets(submissionset)
 
 def get_dump_filename(model_name):
     return 'test_api_{0}.json'.format(model_name)
