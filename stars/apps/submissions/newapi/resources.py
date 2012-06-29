@@ -33,7 +33,7 @@ class SubmissionSetResource(StarsApiResource):
     rating = fields.CharField(readonly=True)
 
     class Meta(StarsApiResource.Meta):
-        queryset = SubmissionSet.objects.published()
+        queryset = SubmissionSet.objects.get_rated()
         resource_name = 'submissions'
         allowed_methods = ['get']
         # exclude submission_boundary becauses it raises
