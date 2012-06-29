@@ -69,11 +69,6 @@ class StarsApiTestCase(ResourceTestCase):
         # Create an API key for the user:
         _, self.created_api_key = ApiKey.objects.get_or_create(user=self.user)
 
-        # Use url_params until HTTP auth header is working - then
-        # switch to get_credentials().
-        self.credentials_as_url_params = {'username': self.user.username,
-                                          'api_key': self.user.api_key.key}
-
     def tearDown(self):
         if self.created_api_key:
             ApiKey.objects.get(user=self.user).delete()
@@ -82,7 +77,8 @@ class StarsApiTestCase(ResourceTestCase):
 
     def get(self, path):
         """Do a GET using the default credentials."""
-        return self.api_client.get(path, data=self.credentials_as_url_params)
+        return self.api_client.get(path,
+                                   authentication=self.get_credentials())
 
     def requires_auth(self, path):
         """Does path require auth?"""
@@ -95,19 +91,6 @@ class StarsApiTestCase(ResourceTestCase):
         content_dict = simplejson.loads(response.content)
         self.assertNotIn('error_message', content_dict)
 
-
-    # get_credentials() is pretty useless since self.create_apikey()
-    # returns an HTTP auth header, and authentication via HTTP auth
-    # header doesn't seem to be working.  When it does, use get_credentials(),
-    # rather than self.credentials_as_params in self.get() below.
-    # def get_credentials(self):
-    #     return self.create_apikey(username=self.user.username,
-    #                               api_key=self.user.api_key.key)
-
-    # def test_create_apikey(self):
-    #     # Try api key authentication using ResourceTestCase.create_apikey().
-    #     credentials = self.create_apikey(username=self.user.username,
-    #                                      api_key=self.user.api_key.key)
-    #     resp = self.api_client.get('/api/v1/submissions/',
-    #                                authentication=credentials)
-    #     self.assertHttpOK(resp)
+    def get_credentials(self):
+        return self.create_apikey(username=self.user.username,
+                                  api_key=self.user.api_key.key)
