@@ -40,6 +40,7 @@ class SubmissionSetResource(StarsApiResource):
         # "'ascii' codec can't decode byte ... in position ...: ordinal not
         # in range(128)"
         excludes = [
+            'submission_boundary',
             'is_locked',
             'is_visible',
             'date_reviewed',
