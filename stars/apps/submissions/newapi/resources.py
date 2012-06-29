@@ -25,8 +25,6 @@ class SubmissionSetResource(StarsApiResource):
     """
     creditset = fields.OneToOneField(
         CREDITS_RESOURCE_PATH + 'CreditSetResource', 'creditset')
-    rating = fields.ForeignKey(
-        CREDITS_RESOURCE_PATH + 'RatingResource', 'rating', null=True)
     categories = fields.ToManyField(
         SUBMISSIONS_RESOURCE_PATH + 'CategorySubmissionResource',
         'categorysubmission_set')
@@ -41,6 +39,10 @@ class SubmissionSetResource(StarsApiResource):
         # "'ascii' codec can't decode byte ... in position ...: ordinal not
         # in range(128)"
         excludes = ['submission_boundary',]
+
+    def dehydrate(self, bundle):
+        bundle.data['rating'] = str(bundle.obj.rating)
+        return bundle
 
     def override_urls(self):
         # The detail URL for each resource must be listed before the list URL.
