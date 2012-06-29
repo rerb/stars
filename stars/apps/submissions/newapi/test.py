@@ -11,6 +11,8 @@ you have the data they're looking for) when run via doctest, like this:
    #>>> doctest.testmod(test)
 """
 from stars.apps.api.test import StarsApiTestCase
+from stars.apps.submissions.models import SubmissionSet
+from stars.apps.submissions.newapi.resources import SubmissionSetResource
 
 def submissions_detail_path(submissionset_id):
     path = '/api/v1/submissions/{0}/'.format(submissionset_id)
@@ -20,7 +22,11 @@ def submissions_detail_path(submissionset_id):
 class SubmissionSetResourceTestCase(StarsApiTestCase):
 
     list_path = '/api/v1/submissions/'
-    detail_path = list_path + '34/'
+
+    def detail_path(self, submissionset_id=34):
+        return '{list_path}{submissionset_id}/'.format(
+            list_path=self.list_path,
+            submissionset_id=submissionset_id)
 
     def test_get_submissions_list_requires_auth(self):
         """
@@ -66,7 +72,7 @@ class SubmissionSetResourceTestCase(StarsApiTestCase):
         []
         >>>
         """
-        self.requires_auth(self.detail_path)
+        self.requires_auth(self.detail_path())
 
     def test_get_submissions_detail(self):
         """
@@ -81,8 +87,28 @@ class SubmissionSetResourceTestCase(StarsApiTestCase):
         []
         >>>
         """
-        resp = self.get(self.detail_path)
+        resp = self.get(self.detail_path())
         self.assertValidJSONResponse(resp)
+
+    def test_get_hidden_submission(self):
+        """
+        >>> from unittest import TestResult
+        >>> result = TestResult()
+        >>> test = SubmissionSetResourceTestCase('test_get_hidden_submission')
+        >>> test.run(result)
+        >>> result.testsRun
+        1
+        >>> result.errors + result.failures
+        []
+        >>>
+        """
+        # Get a submission set that should be filtered:
+        for submissionset in SubmissionSet.objects.all():
+            if submissionset not in SubmissionSetResource._meta.queryset:
+                hidden_submissionset = submissionset
+                break
+        resp = self.get(self.detail_path(hidden_submissionset.id))
+        self.assertHttpNotFound(resp)
 
 
 class CategorySubmissionResourceTestCase(StarsApiTestCase):

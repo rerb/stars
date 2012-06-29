@@ -18,93 +18,93 @@
         }
     }, 
     {
-        "pk": 326, 
+        "pk": 7428, 
         "model": "auth.user", 
         "fields": {
-            "username": "aprizzia_at_ufl_dot_edu", 
-            "first_name": "Anna", 
-            "last_name": "Prizzia", 
+            "username": "lbv10_at_psu_dot_edu", 
+            "first_name": "Lydia", 
+            "last_name": "Vandenbergh", 
             "is_active": true, 
             "is_superuser": false, 
             "is_staff": false, 
-            "last_login": "2011-01-27 10:34:40", 
+            "last_login": "2012-05-21 21:19:12", 
             "groups": [], 
             "user_permissions": [], 
-            "password": "5f5fe0723f0136be0d69527e72a7778d", 
-            "email": "aprizzia@ufl.edu", 
-            "date_joined": "2009-09-22 08:33:59"
+            "password": "g1r7nth6squ25151f90jjn2614", 
+            "email": "lbv10@psu.edu", 
+            "date_joined": "2009-12-02 12:39:48"
         }
     }, 
     {
-        "pk": 13865, 
+        "pk": 234, 
         "model": "auth.user", 
         "fields": {
-            "username": "eric_obrien__uni_edu", 
-            "first_name": "Eric", 
-            "last_name": "O'Brien", 
+            "username": "sara_dot_cleaves_at_unh_dot_ed", 
+            "first_name": "Sara", 
+            "last_name": "Cleaves", 
             "is_active": true, 
             "is_superuser": false, 
             "is_staff": false, 
-            "last_login": "2012-05-24 14:04:25", 
+            "last_login": "2012-02-28 12:00:17", 
             "groups": [], 
             "user_permissions": [], 
-            "password": "56tq09f3ivnchhd5lh8anm1v90", 
-            "email": "eric.obrien@uni.edu", 
-            "date_joined": "2010-04-23 09:44:32"
+            "password": "cfmn2k33s8dd4uuudgjav1gij7", 
+            "email": "sara.cleaves@unh.edu", 
+            "date_joined": "2009-10-30 12:07:43"
         }
     }, 
     {
-        "pk": 8906, 
+        "pk": 9739, 
         "model": "auth.user", 
         "fields": {
-            "username": "stephanieasims__ufl_edu", 
-            "first_name": "Stephanie", 
-            "last_name": "Sims", 
+            "username": "cooleycs_at_plu_dot_edu", 
+            "first_name": "Christine", 
+            "last_name": "Cooley-Mahoney", 
             "is_active": true, 
             "is_superuser": false, 
             "is_staff": false, 
-            "last_login": "2012-01-25 13:52:50", 
+            "last_login": "2012-04-16 14:30:54", 
             "groups": [], 
             "user_permissions": [], 
-            "password": "7c660e8121926b81fc720e5840fd1a77", 
-            "email": "stephanieasims@ufl.edu", 
-            "date_joined": "2010-01-19 12:47:34"
+            "password": "kr156t4f69on3d8hfb3q7jcov7", 
+            "email": "cooleycs@plu.edu", 
+            "date_joined": "2009-09-21 14:18:22"
         }
     }, 
     {
-        "pk": 8491, 
+        "pk": 19604, 
         "model": "auth.user", 
         "fields": {
-            "username": "jpyles_at_unity_dot_edu", 
-            "first_name": "Jesse", 
-            "last_name": "Pyles", 
+            "username": "charlene_ponto__ubc_ca", 
+            "first_name": "Charlene", 
+            "last_name": "Ponto", 
             "is_active": true, 
             "is_superuser": false, 
             "is_staff": false, 
-            "last_login": "2012-05-23 12:07:05", 
+            "last_login": "2012-02-06 17:48:39", 
             "groups": [], 
             "user_permissions": [], 
-            "password": "i6vmbs00n9ctke19mbk78u4o22", 
-            "email": "jpyles@unity.edu", 
-            "date_joined": "2009-12-17 10:50:36"
+            "password": "t3elhd50krjsuo5ae91i70n887", 
+            "email": "charlene.ponto@ubc.ca", 
+            "date_joined": "2011-02-22 18:15:39"
         }
     }, 
     {
-        "pk": 382, 
+        "pk": 7838, 
         "model": "auth.user", 
         "fields": {
-            "username": "tom_dot_schellhardt_at_uni_dot", 
-            "first_name": "Tom", 
-            "last_name": "Schellhardt", 
+            "username": "charlene_dot_easton_at_ubc_dot", 
+            "first_name": "", 
+            "last_name": "", 
             "is_active": true, 
             "is_superuser": false, 
             "is_staff": false, 
-            "last_login": "2010-01-25 11:07:06", 
+            "last_login": "2009-09-29 17:20:39", 
             "groups": [], 
             "user_permissions": [], 
-            "password": "01860ae45c6f99f0fbd5eeceb428c10a", 
-            "email": "tom.schellhardt@uni.edu", 
-            "date_joined": "2010-01-11 17:14:04"
+            "password": "e2f53f6273ac7dc6e99353878f7ed593", 
+            "email": "charlene.easton@ubc.ca", 
+            "date_joined": "2009-09-21 18:18:50"
         }
     }
 ]

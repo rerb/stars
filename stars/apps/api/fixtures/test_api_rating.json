@@ -13,14 +13,14 @@
         }
     }, 
     {
-        "pk": 4, 
+        "pk": 12, 
         "model": "credits.rating", 
         "fields": {
-            "image_large": "seals/Stars_Seal_Gold_RGB_300_1.png", 
+            "image_large": "seals/Stars_Seal_Gold_RGB_72_2.png", 
             "name": "Gold", 
-            "map_icon": "seals/gold.png", 
-            "creditset": 2, 
-            "image_200": "seals/Stars_Seal_Gold_RGB_72_1.png", 
+            "map_icon": "seals/gold_1.png", 
+            "creditset": 4, 
+            "image_200": "seals/Stars_Seal_Gold_RGB_300_2.png", 
             "publish_score": true, 
             "minimal_score": 65
         }

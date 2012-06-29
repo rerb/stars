@@ -1,5 +1,17 @@
 [
     {
+        "pk": 56, 
+        "model": "credits.subcategory", 
+        "fields": {
+            "category": 12, 
+            "ordinal": 3, 
+            "description": "<p>This subcategory seeks to recognize institutions that make investment decisions that promote sustainability.&nbsp; Most institutions invest some of their assets in order to generate income. &nbsp;Together, colleges and universities invest hundreds of billions of dollars.&nbsp; Schools with transparent and democratic investment processes promote accountability and engagement by the campus and community.&nbsp; Furthermore, institutions can support sustainability by investing in companies and funds that, in addition to providing a strong rate of return, are committed to social and environmental responsibility.&nbsp; Investing in these industries also supports the development of sustainable products and services.&nbsp; Finally, campuses can engage with the businesses in which they are invested in order to promote sustainable practices.&nbsp;</p>\r\n<p>Throughout this subcategory, the term &ldquo;sustainable investment&rdquo; is inclusive of socially responsible, environmentally responsible, ethical, impact, and mission-related investment.</p>", 
+            "previous_version": 38, 
+            "title": "Investment", 
+            "max_point_value": 0
+        }
+    }, 
+    {
         "pk": 10, 
         "model": "credits.subcategory", 
         "fields": {
@@ -12,38 +24,26 @@
         }
     }, 
     {
-        "pk": 3, 
+        "pk": 58, 
         "model": "credits.subcategory", 
         "fields": {
-            "category": 1, 
-            "ordinal": 1, 
-            "description": "<p>This subcategory seeks to recognize institutions that have formal education programs and courses that address sustainability.&nbsp; One of the primary functions of colleges and universities is to educate students.&nbsp; By training and educating future leaders, scholars, workers, and professionals, higher education institutions are uniquely positioned to prepare students to understand and address sustainability challenges.&nbsp; Institutions that offer courses covering sustainability issues help equip their students to lead society to a sustainable future.&nbsp; &nbsp;&nbsp;</p>", 
-            "previous_version": null, 
-            "title": "Curriculum", 
+            "category": 13, 
+            "ordinal": 0, 
+            "description": "<p>These credits recognize institutions that are seeking innovative solutions to sustainability challenges and demonstrating sustainability leadership in ways that are not otherwise captured by STARS.&nbsp;&nbsp;</p>\r\n<p>&nbsp;</p>", 
+            "previous_version": 40, 
+            "title": "Innovation", 
             "max_point_value": 0
         }
     }, 
     {
-        "pk": 37, 
+        "pk": 34, 
         "model": "credits.subcategory", 
         "fields": {
-            "category": 8, 
-            "ordinal": 2, 
-            "description": "<p>This subcategory seeks to recognize institutions that have incorporated sustainability into their human resources programs and policies.&nbsp; This includes recognition for treating and remunerating their workers responsibly and fairly.&nbsp; An institution&rsquo;s people define its character and capacity to perform; and so, an institution&rsquo;s achievements can only be as strong as its community.&nbsp; An institution can bolster the strength of its community by making fair and responsible investments in its human capital.&nbsp; Such investments include offering benefits, wages, and other assistance that serve to respectfully and ethically compensate workers.&nbsp; Investment in human resources is integral to the achievement of a healthy and sustainable balance between human capital, natural capital, and financial capital.</p>\r\n<p>In addition, this subcategory recognizes faculty and staff training and development programs in sustainability.&nbsp; Faculty and staff members&rsquo; daily decisions impact an institution&rsquo;s sustainability performance.&nbsp; Equipping faculty and staff with the tools, knowledge, and motivation to adopt behavior changes that promote sustainability is an essential activity of a sustainable campus.&nbsp;&nbsp;&nbsp;</p>", 
-            "previous_version": 19, 
-            "title": "Human Resources", 
-            "max_point_value": 0
-        }
-    }, 
-    {
-        "pk": 55, 
-        "model": "credits.subcategory", 
-        "fields": {
-            "category": 12, 
-            "ordinal": 2, 
-            "description": "<p>This subcategory seeks to recognize institutions that have incorporated sustainability into their human resources programs and policies.&nbsp; This includes recognition for treating and remunerating their workers responsibly and fairly.&nbsp; An institution&rsquo;s people define its character and capacity to perform; and so, an institution&rsquo;s achievements can only be as strong as its community.&nbsp; An institution can bolster the strength of its community by making fair and responsible investments in its human capital.&nbsp; Such investments include offering benefits, wages, and other assistance that serve to respectfully and ethically compensate workers.&nbsp; Investment in human resources is integral to the achievement of a healthy and sustainable balance between human capital, natural capital, and financial capital.</p>\r\n<p>In addition, this subcategory recognizes faculty and staff training and development programs in sustainability.&nbsp; Faculty and staff members&rsquo; daily decisions impact an institution&rsquo;s sustainability performance.&nbsp; Equipping faculty and staff with the tools, knowledge, and motivation to adopt behavior changes that promote sustainability is an essential activity of a sustainable campus.&nbsp;&nbsp;&nbsp;</p>", 
-            "previous_version": 37, 
-            "title": "Human Resources", 
+            "category": 7, 
+            "ordinal": 8, 
+            "description": "<p>This subcategory seeks to recognize institutions that are conserving water and making efforts to protect water quality.&nbsp; Pumping, delivering, and treating water is a major energy user, so institutions can help reduce energy consumption and the greenhouse gas emissions associated with energy generation by conserving water.&nbsp; Likewise, conservation and effective stormwater management are important in maintaining and protecting finite groundwater supplies. Water conservation and effective stormwater management also reduce the need for effluent discharge into local surface water supplies, which helps improve the health of local water ecosystems.&nbsp;</p>", 
+            "previous_version": 16, 
+            "title": "Water", 
             "max_point_value": 0
         }
     }
