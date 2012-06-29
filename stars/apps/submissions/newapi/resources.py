@@ -48,7 +48,10 @@ class SubmissionSetResource(StarsApiResource):
             ]
 
     def dehydrate_rating(self, bundle):
-        return bundle.data['rating'].name
+        if bundle.data['rating']:
+            return bundle.data['rating'].name
+        else:
+            return ''
 
     def override_urls(self):
         # The detail URL for each resource must be listed before the list URL.
