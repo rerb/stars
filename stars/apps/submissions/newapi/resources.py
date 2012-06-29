@@ -259,6 +259,8 @@ class CategorySubmissionResource(StarsApiResource):
                          url_name='api_dispatch_list'):
         uri = super(CategorySubmissionResource, self).get_resource_uri(
             bundle_or_obj)
+        if not bundle_or_obj:
+            return uri
         # default uri is
         #    submissions/category/<category-submission-id>,
         # but we want to use
@@ -303,6 +305,8 @@ class SubcategorySubmissionResource(StarsApiResource):
                          url_name='api_dispatch_list'):
         uri = super(SubcategorySubmissionResource, self).get_resource_uri(
             bundle_or_obj)
+        if not bundle_or_obj:
+            return uri
         # default uri is
         #    submissions/subcategory/<subcategory-submission-id>,
         # but we want to use
@@ -386,6 +390,8 @@ class CreditSubmissionResource(StarsApiResource):
                          url_name='api_dispatch_list'):
         uri = super(CreditSubmissionResource, self).get_resource_uri(
             bundle_or_obj)
+        if not bundle_or_obj:
+            return uri
         # default uri is
         #    submissions/credit/<credit-submission-id>,
         # but we want to use
@@ -454,6 +460,8 @@ class DocumentationFieldSubmissionResource(StarsApiResource):
         # TODO: depending on the path on the incoming request is
         # bad, right?  If it's not, the all the other get_resource_uri
         # methods should do it this way, too:
+        if not bundle_or_obj:
+            return uri
         field_id = str(bundle_or_obj.obj.documentation_field_id)
         return '/'.join(bundle_or_obj.request.path.split('/')[:5] +
                         ['field', field_id, ''])
