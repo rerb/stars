@@ -30,7 +30,7 @@ class CreditSetResourceTestCase(StarsApiTestCase):
 class CategoryResourceTestCase(StarsApiTestCase):
 
     list_path = BASE_API_PATH + 'category/'
-    detail_path = list_path + '4/'
+    detail_path = list_path + '8/'
 
     def test_get_category_list_requires_auth(self):
         self.requires_auth(self.list_path)
@@ -50,7 +50,7 @@ class CategoryResourceTestCase(StarsApiTestCase):
 class SubcategoryResourceTestCase(StarsApiTestCase):
 
     list_path = BASE_API_PATH + 'subcategory/'
-    detail_path = list_path + '46/'
+    detail_path = list_path + '10/'
 
     def test_get_subcategory_list_requires_auth(self):
         self.requires_auth(self.list_path)
@@ -70,7 +70,7 @@ class SubcategoryResourceTestCase(StarsApiTestCase):
 class CreditResourceTestCase(StarsApiTestCase):
 
     list_path = BASE_API_PATH + 'credit/'
-    detail_path = list_path + '324/'
+    detail_path = list_path + '16/'
 
     def test_get_credit_list_requires_auth(self):
         self.requires_auth(self.list_path)
@@ -90,7 +90,7 @@ class CreditResourceTestCase(StarsApiTestCase):
 class DocumentationFieldResourceTestCase(StarsApiTestCase):
 
     list_path = BASE_API_PATH + 'field/'
-    detail_path = list_path + '329/'
+    detail_path = list_path + '406/'
 
     def test_get_documentation_field_list_requires_auth(self):
         self.requires_auth(self.list_path)
