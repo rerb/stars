@@ -25,8 +25,6 @@ class SubmissionSetResource(StarsApiResource):
     """
     creditset = fields.OneToOneField(
         CREDITS_RESOURCE_PATH + 'CreditSetResource', 'creditset')
-#    rating = fields.ForeignKey(
-#        CREDITS_RESOURCE_PATH + 'RatingResource', 'rating', null=True)
     categories = fields.ToManyField(
         SUBMISSIONS_RESOURCE_PATH + 'CategorySubmissionResource',
         'categorysubmission_set')
@@ -48,7 +46,7 @@ class SubmissionSetResource(StarsApiResource):
             'date_registered',
             'status',
             ]
-        
+
     def dehydrate_rating(self, bundle):
         return bundle.data['rating'].name
 
