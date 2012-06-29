@@ -15,8 +15,8 @@ subcategory_submissions = set()
 credit_submissions = set()
 documentation_field_submissions = list()
 
-def fill_buckets(submission_set):
-    submission_set = get_random_visible_resource(
+def fill_buckets(submission_set=None):
+    submission_set = submission_set or get_random_visible_resource(
         submissions_resource_models.SubmissionSetResource)
     if submission_set in submission_sets:
         return
