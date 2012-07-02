@@ -1,0 +1,2402 @@
+[
+    {
+        "pk": 1, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2009-11-15 17:54:52", 
+            "responsible_party_confirm": false, 
+            "submission_notes": "", 
+            "internal_notes": "", 
+            "submission_status": "np", 
+            "responsible_party": null, 
+            "user": 11401, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 1, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2009-12-18 16:40:00", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": "", 
+            "submission_status": "c", 
+            "responsible_party": 1, 
+            "user": 11399, 
+            "assessed_points": 5.0, 
+            "subcategory_submission": 1, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2010-09-10 14:41:38", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": "", 
+            "submission_status": "c", 
+            "responsible_party": 1, 
+            "user": 9739, 
+            "assessed_points": 2.0, 
+            "subcategory_submission": 1, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 4, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2010-09-10 15:10:53", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": "", 
+            "submission_status": "c", 
+            "responsible_party": 1, 
+            "user": 9739, 
+            "assessed_points": 4.0, 
+            "subcategory_submission": 1, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 5, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2009-11-13 17:47:49", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": "", 
+            "submission_status": "c", 
+            "responsible_party": 1, 
+            "user": 11399, 
+            "assessed_points": 0.25, 
+            "subcategory_submission": 1, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 6, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2009-11-13 17:46:07", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": "", 
+            "submission_status": "c", 
+            "responsible_party": 1, 
+            "user": 11399, 
+            "assessed_points": 0.25, 
+            "subcategory_submission": 1, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 7, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2010-04-13 11:25:58", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": "", 
+            "submission_status": "np", 
+            "responsible_party": 1, 
+            "user": 11399, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 1, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 8, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2009-11-13 17:48:41", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": "", 
+            "submission_status": "np", 
+            "responsible_party": 1, 
+            "user": 11399, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 1, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 9, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2009-11-12 17:00:12", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": "", 
+            "submission_status": "np", 
+            "responsible_party": 1, 
+            "user": 11399, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 1, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 10, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2009-11-24 19:27:33", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": "", 
+            "submission_status": "c", 
+            "responsible_party": 1, 
+            "user": 11399, 
+            "assessed_points": 0.25, 
+            "subcategory_submission": 1, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 11, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2009-12-14 12:07:30", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": "", 
+            "submission_status": "c", 
+            "responsible_party": 1, 
+            "user": 11399, 
+            "assessed_points": 0.25, 
+            "subcategory_submission": 1, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 12, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2009-11-12 18:41:35", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": "", 
+            "submission_status": "np", 
+            "responsible_party": 1, 
+            "user": 11399, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 1, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 2050, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2010-09-03 11:46:49", 
+            "responsible_party_confirm": false, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "np", 
+            "responsible_party": null, 
+            "user": 9739, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 243, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 2051, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2010-09-03 11:46:58", 
+            "responsible_party_confirm": false, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "np", 
+            "responsible_party": null, 
+            "user": 9739, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 243, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 2052, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2010-09-03 11:47:09", 
+            "responsible_party_confirm": false, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "np", 
+            "responsible_party": null, 
+            "user": 9739, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 243, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 38956, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-18 18:43:58", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1422, 
+            "user": 19672, 
+            "assessed_points": 5.0, 
+            "subcategory_submission": 4994, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 38957, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-21 13:56:06", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1424, 
+            "user": 19672, 
+            "assessed_points": 5.0, 
+            "subcategory_submission": 4994, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 38958, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-21 14:00:06", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1422, 
+            "user": 19672, 
+            "assessed_points": 2.0, 
+            "subcategory_submission": 4994, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 38959, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-07 13:08:16", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1422, 
+            "user": 5335, 
+            "assessed_points": 4.0, 
+            "subcategory_submission": 4994, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 38960, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-08-02 18:08:12", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": "", 
+            "submission_status": "c", 
+            "responsible_party": 1422, 
+            "user": 19672, 
+            "assessed_points": 0.25, 
+            "subcategory_submission": 4994, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 38961, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-14 13:00:47", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1929, 
+            "user": 19672, 
+            "assessed_points": 0.25, 
+            "subcategory_submission": 4994, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 38962, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-05-18 15:00:39", 
+            "responsible_party_confirm": false, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "np", 
+            "responsible_party": null, 
+            "user": 19672, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 4994, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 38963, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-01 12:43:17", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1424, 
+            "user": 19672, 
+            "assessed_points": 0.25, 
+            "subcategory_submission": 4994, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 38964, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-05-18 15:02:57", 
+            "responsible_party_confirm": false, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "np", 
+            "responsible_party": null, 
+            "user": 19672, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 4994, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 38965, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-19 15:17:34", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1422, 
+            "user": 19672, 
+            "assessed_points": 0.25, 
+            "subcategory_submission": 4994, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 38966, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-05-18 17:12:05", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1422, 
+            "user": 19672, 
+            "assessed_points": 0.25, 
+            "subcategory_submission": 4994, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 38967, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-05-20 19:38:15", 
+            "responsible_party_confirm": false, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "na", 
+            "responsible_party": null, 
+            "user": 19672, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 4994, 
+            "applicability_reason": 72
+        }
+    }, 
+    {
+        "pk": 101944, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-03-22 14:10:34", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "In 2010, the Office of Physical Plant's Campus Planning and Design is updating the Guiding Principles for Campus Master Planning to include sustainability as an integrated priority through-out all principles as well as a stand-alone principle.  More information on the current status of this effort can be obtained at the link provided above and/or by contacting the Penn State Office of Physical Plant's Campus Planning and Design office.\r\n\r\nPenn State has 800 acres designated as environmental resources; this is not an amendment, but part of the plan.", 
+            "internal_notes": "800 acres designated as environmental resources; not an amendment, part of the plan\r\n\r\n\r\npavement reduction plan since 2004; constantly reducing width; \r\n\r\ngreen roof plan\r\n\r\nbicycle master plan was approved last year\r\n\r\nintermodal plan\r\n\r\nscience and intercollegiate athletics updated in 2009\r\n\r\nadopted in 2007", 
+            "submission_status": "c", 
+            "responsible_party": 540, 
+            "user": 24812, 
+            "assessed_points": 4.0, 
+            "subcategory_submission": 12999, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 101945, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-03-28 11:13:20", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "Starting in February 2010, a multi-stakeholder committee was formed to develop a Strategic Plan for Sustainability at Penn State.  Since that time, the committee has held visioning sessions with partner corporations, University executive leadership, and internal and external stakeholders from across the institution.", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 540, 
+            "user": 7428, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 12999, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 101946, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-03-22 14:12:18", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": "", 
+            "submission_status": "c", 
+            "responsible_party": 540, 
+            "user": 24812, 
+            "assessed_points": 2.0, 
+            "subcategory_submission": 12999, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 34364, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-26 13:25:30", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1703, 
+            "user": 19604, 
+            "assessed_points": 5.0, 
+            "subcategory_submission": 4395, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 34365, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-26 13:27:32", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1703, 
+            "user": 19604, 
+            "assessed_points": 5.0, 
+            "subcategory_submission": 4395, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 34366, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-26 13:30:40", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1703, 
+            "user": 19604, 
+            "assessed_points": 2.0, 
+            "subcategory_submission": 4395, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 34367, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-26 13:52:53", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1703, 
+            "user": 19604, 
+            "assessed_points": 4.0, 
+            "subcategory_submission": 4395, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 34368, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-26 15:28:59", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": "UBC has a diverse array of student groups focused on sustainability, twenty of which are highlighed on UBC's sustainabilty website. Two very active groups are Common Energy UBC and the Commerce Undergraduate Society (CUS) sustainability group. Common Energy is a student-led organization whose mission is to bring UBC beyond climate neutral, and the CUS Sustainability mission is to provide opportunities for commerce students to educate themselves on what sustainability means in the context of business; to motivate students to integrate sustainability into their professional and personal lives.\r\n\r\nStudent groups on CSO website are up to date (as of Oct 2010). Copy paste!\r\n\r\n+ Sprouts\r\n+ Bike Coop\r\n+ Engineers W/o border (UBC as a fair trade university)\r\n\r\n", 
+            "submission_status": "c", 
+            "responsible_party": 1703, 
+            "user": 19604, 
+            "assessed_points": 0.25, 
+            "subcategory_submission": 4395, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 34369, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-26 15:30:07", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1910, 
+            "user": 19604, 
+            "assessed_points": 0.25, 
+            "subcategory_submission": 4395, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 34370, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-05-26 13:07:53", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "np", 
+            "responsible_party": 1703, 
+            "user": 19604, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 4395, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 34371, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-05-26 13:08:05", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "np", 
+            "responsible_party": 1703, 
+            "user": 19604, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 4395, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 34372, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-05-26 18:57:31", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1703, 
+            "user": 19604, 
+            "assessed_points": 0.25, 
+            "subcategory_submission": 4395, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 34373, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-26 15:40:01", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1828, 
+            "user": 19604, 
+            "assessed_points": 0.25, 
+            "subcategory_submission": 4395, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 34374, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-05-26 13:05:07", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1703, 
+            "user": 19604, 
+            "assessed_points": 0.25, 
+            "subcategory_submission": 4395, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 38983, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-08-02 13:14:04", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1595, 
+            "user": 19672, 
+            "assessed_points": 2.6499999999999999, 
+            "subcategory_submission": 4997, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 38984, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-14 16:07:25", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1595, 
+            "user": 19672, 
+            "assessed_points": 1.8500000000000001, 
+            "subcategory_submission": 4997, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 38985, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-06-27 12:36:24", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 2029, 
+            "user": 19672, 
+            "assessed_points": 2.0, 
+            "subcategory_submission": 4997, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 34391, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-08 18:52:41", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1703, 
+            "user": 20564, 
+            "assessed_points": 2.6299999999999999, 
+            "subcategory_submission": 4398, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 34392, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-08 18:34:05", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "UBC has two LEED Gold certified buildings, completed in 2004 and 2005. From 2008 on, all new construction and major renovations are mandated to be LEED Gold certified.  Construction is complete on three major renovations that will soon recieve their final LEED certification. An additional five buildings are LEED registered and under construction, expected to be complete between 2011 and 2013. These buildings are all on track to achieve a minimum of LEED Gold and will be certified. Three more buildings are registered with LEED, but construction has not yet started.", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1703, 
+            "user": 19604, 
+            "assessed_points": 1.5, 
+            "subcategory_submission": 4398, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 34393, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-26 17:28:30", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1925, 
+            "user": 19604, 
+            "assessed_points": 2.0, 
+            "subcategory_submission": 4398, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 101853, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-03-22 07:08:09", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 460, 
+            "user": 7428, 
+            "assessed_points": 0.25, 
+            "subcategory_submission": 12987, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 101979, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-03-27 21:31:22", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": "The letter of support from Dr. Matson came as an e-mail attachment.  As he keeps no electronic signature file, he gave us permission to sign the letter for him. Susannah Barsom signed Dr. Matson's name, and added her own initials.\r\nIf a letter with Dr. Matson's signature is required, we will ask him to resend a hard copy.\r\n", 
+            "submission_status": "c", 
+            "responsible_party": 1628, 
+            "user": 7428, 
+            "assessed_points": 1.0, 
+            "subcategory_submission": 13004, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 101980, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-03-27 21:31:58", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 725, 
+            "user": 7428, 
+            "assessed_points": 1.0, 
+            "subcategory_submission": 13004, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 101981, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-03-27 21:32:26", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 725, 
+            "user": 7428, 
+            "assessed_points": 1.0, 
+            "subcategory_submission": 13004, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 101982, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-03-27 21:32:52", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1928, 
+            "user": 7428, 
+            "assessed_points": 1.0, 
+            "subcategory_submission": 13004, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 101983, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-03-27 21:29:32", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": "Contacts: \r\nInformation provided by John Hurst and \r\nCyndy Biek\r\nAssistant Director, New Student Programs\r\nPenn State University \r\n125A HUB-Robeson Center\r\nUniversity Park, PA 16802\r\n814-865-4178\r\nhttp://studentaffairs.psu.edu/newstudents\r\n\r\nI am copying Meeghan Hollis on this email to find out what is done in the residence halls.)\r\n\r\n\r\n\r\n ", 
+            "submission_status": "c", 
+            "responsible_party": 460, 
+            "user": 7428, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 13005, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 101984, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-03-23 14:28:19", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 460, 
+            "user": 7428, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 13005, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 101985, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-03-22 12:27:15", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "The percentage of food and beverage expenditures that were processed within 100 miles of\r\nthe institution by a company that is not publicly traded 15.7%* of total food and beverages that are purchased fall within the 100 miles stipulation. However, our current standard for sustainable purchases includes those products processed within or grown or raised within the state of Pennsylvania. This makes up 21.1% of our total food and beverage spend. (*as a percentage of food and beverage spend, non-food items are excluded.)\r\n\r\nUsing our PA Standard and including food and non-food expenditures our total percentage is 16.2%\r\n", 
+            "internal_notes": "March 2012\r\nInformation was provided by \r\nJohn K. Mondock\r\nDirector of Purchasing\r\nPenn State Housing & Food Service\r\n003 Housing & Food Services Bldg.\r\nUniversity Park, PA 16802\r\nPhone: 814-865-6386\r\nFax: 814-863-4577", 
+            "submission_status": "c", 
+            "responsible_party": 460, 
+            "user": 7428, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 13005, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 101986, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-03-22 12:29:24", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 460, 
+            "user": 7428, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 13005, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 101987, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-03-22 12:43:26", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 460, 
+            "user": 7428, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 13005, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 2049, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2010-09-02 13:08:37", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "np", 
+            "responsible_party": 436, 
+            "user": 9739, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 243, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 101989, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-03-22 12:55:42", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 460, 
+            "user": 7428, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 13005, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 101990, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-03-22 13:06:24", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "Clarification of some answers: \r\nDoes the institution offer reusable dishware at its dining services locations? Yes. All you care to eat operations use reusable china for general dining services.\r\n\r\n", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 460, 
+            "user": 7428, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 13005, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 101991, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-03-26 16:38:35", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "The answers for Questions 2, 3 and 4 above are based on campus total consumption of electric and heating fuels.  These reductions include changes that would not be considered the result of just building retrofits and renovations, but also includes new building construction.  We don\u2019t have any way to track just building retrofits and renovations.   ", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 460, 
+            "user": 7428, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 13005, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 101992, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-03-26 16:52:37", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": "Information from Mike Prinkey, March 2012: \r\n\r\nCoal  27.7%   80,553,335kwh\r\nWind  10.5%   30,497,984\r\nBiomass 3.7%  10,890,000\r\nNatural Gas 8.6%  24,965,028\r\nSolar  0.0%   68,848\r\nGeothermal 0.0%   0\r\nNuclear   26.4%  76,898,571\r\nLIHI Hydro  7.5%  21,780,000\r\nHydro   0.6%    1,778,035\r\nOther - Tier II AEPS  5.7%  16,629,292\r\nOther - Cogen  7.8%   22,564,435\r\nOther - Other Fossil Fuel/Oil  1.4  4,167,710\r\ntotal = 290,793,239\r\n ", 
+            "submission_status": "c", 
+            "responsible_party": 460, 
+            "user": 7428, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 13005, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 101993, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-03-30 07:37:10", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "*The 75% is an estimate. With over 25,000 faculty and staff at the University Park Campus, it is difficult to measure purchases. However, University Policy AD64, the Energy Conservation Policy states that all computers, appliances, and office equipment purchased with University funds must be Energy Star rated. This policy has been in place since 2009. Thus, we expect that the majority of appliances are Energy Star rated. \r\n\r\nAlthough only 11% of our paper is FSC certified, 85% is SFI certified. \r\n\r\nAlthough we do not have a policy requiring vendors to use less packaging, our General Stores reuses the supplier boxes to fill/ deliver all janitorial orders (i.e. product that we stock).", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 460, 
+            "user": 7428, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 13005, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 101994, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-03-23 11:24:11", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 460, 
+            "user": 24812, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 13005, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 101995, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-03-23 11:24:01", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "We know there are 37 waterless urinals on campus but we are a very large campus and have no way of knowing exactly how many total urinals there are across campus in order to calculate a percentage.", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 460, 
+            "user": 24812, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 13005, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 101996, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-03-23 11:25:09", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 460, 
+            "user": 24812, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 13005, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 101997, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-03-22 16:31:58", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "We were a bit confused how to answer the first question. Our answer is based on the Campus Sustainability Office employs 4 FT staff and 5 interns; the Center for Sustainability employs 14 FT and 1 PT staff; and the Physical Plant has an employee who spends a third of his time on sustainability communications with the Campus Sustainability Office.", 
+            "internal_notes": "\u2022Campus Sustainability Office = 4\r\n\u2022Center for Sustainability = 14.5\r\noDavid Riley, Lisa Brown, Sue Barsom, Cole Hons, Michael Whelton, Jude Simpson, Matt Fedorko, Zoha Memari, Eric Spielvogel, Sharon Hoover, Whitney Bennett, Christie Clancy, Mike Holzer and Jesse Rafalko (although Eric does not work FT for CfS on sustainability, his other job focuses on the same issues)\r\nPT: Neil Brown\r\n\u2022OPP: Alex Novak (12 hours on sustainability) \r\n", 
+            "submission_status": "c", 
+            "responsible_party": 460, 
+            "user": 7428, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 13005, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 39054, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-06-27 12:47:43", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1422, 
+            "user": 19672, 
+            "assessed_points": 3.0, 
+            "subcategory_submission": 5006, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 39055, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-20 11:44:40", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1422, 
+            "user": 19672, 
+            "assessed_points": 6.0, 
+            "subcategory_submission": 5006, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 39056, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-05 14:22:20", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1422, 
+            "user": 19672, 
+            "assessed_points": 4.0, 
+            "subcategory_submission": 5006, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 39057, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-08-01 15:53:27", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1422, 
+            "user": 4546, 
+            "assessed_points": 3.0, 
+            "subcategory_submission": 5006, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 39058, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-20 11:51:39", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1422, 
+            "user": 19672, 
+            "assessed_points": 2.0, 
+            "subcategory_submission": 5006, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 79514, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-02-08 10:46:59", 
+            "responsible_party_confirm": false, 
+            "submission_notes": "", 
+            "internal_notes": "", 
+            "submission_status": "p", 
+            "responsible_party": null, 
+            "user": 11385, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 10232, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 79515, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-04-24 15:47:34", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "UNH has many other sustainability student outreach campaigns, from \"Take Back the Tap\" on bottled water (in collaboration with Food and Water Watch) to RecycleMania to campaigns around sustainable food, Fair Trade, human rights, and more.", 
+            "internal_notes": "", 
+            "submission_status": "c", 
+            "responsible_party": 3295, 
+            "user": 234, 
+            "assessed_points": 5.0, 
+            "subcategory_submission": 10232, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 79516, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-04-25 09:52:22", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": "", 
+            "submission_status": "c", 
+            "responsible_party": 3295, 
+            "user": 234, 
+            "assessed_points": 2.0, 
+            "subcategory_submission": 10232, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 79517, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-04-25 10:05:50", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": "", 
+            "submission_status": "c", 
+            "responsible_party": 14, 
+            "user": 234, 
+            "assessed_points": 4.0, 
+            "subcategory_submission": 10232, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 79518, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-04-25 10:09:53", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": "", 
+            "submission_status": "c", 
+            "responsible_party": 3295, 
+            "user": 234, 
+            "assessed_points": 0.25, 
+            "subcategory_submission": 10232, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 34463, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-11 12:07:16", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": "Confirm 2009 date.", 
+            "submission_status": "c", 
+            "responsible_party": 2205, 
+            "user": 19604, 
+            "assessed_points": 6.0, 
+            "subcategory_submission": 4407, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 34464, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-26 20:38:23", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 2155, 
+            "user": 19604, 
+            "assessed_points": 4.0, 
+            "subcategory_submission": 4407, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 34465, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-26 20:40:27", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": "1) http://www.sustain.ubc.ca/pdfs/ia/51059_iatarg_april3_rv2.pdf p.5 \r\n\r\nDate: Updated 2007 Report - however, post this online on the CSO Reports/Strategies page (archive?) Should we include the 2007 version which includes the Okanagan campus (even though we are not reporting on UBC-O???)\r\n\r\nIf we want to mention the SAS:\r\n\r\nIn 2009, UBC also went through a 6 month consultative process to produce a proposed Sustainability Academic Strategy (http://www.sas.ubc.ca/), a mid-level academic plan, which was accepted by the UBC Executive. In response to the SAS report recommendations, President Toope announced the creation of the UBC Sustainability Initiative, which will promote and coordinate sustainability efforts in teaching and learning, research and campus operations.", 
+            "submission_status": "c", 
+            "responsible_party": 1703, 
+            "user": 19604, 
+            "assessed_points": 3.0, 
+            "subcategory_submission": 4407, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 34466, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-04 12:25:56", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1703, 
+            "user": 19604, 
+            "assessed_points": 2.0, 
+            "subcategory_submission": 4407, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 79523, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-04-25 10:45:59", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": "", 
+            "submission_status": "c", 
+            "responsible_party": 14, 
+            "user": 234, 
+            "assessed_points": 0.25, 
+            "subcategory_submission": 10232, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 79524, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-04-25 11:05:06", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "In regards to UNH's Outdoor Education Program, Michael Gass is an associate professor and Chairperson of the Kinesiology Department (603-862-2024, mgass@unh.edu).", 
+            "internal_notes": "", 
+            "submission_status": "c", 
+            "responsible_party": 11, 
+            "user": 234, 
+            "assessed_points": 0.25, 
+            "subcategory_submission": 10232, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 79525, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-04-25 11:05:53", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": "", 
+            "submission_status": "c", 
+            "responsible_party": 15, 
+            "user": 234, 
+            "assessed_points": 0.25, 
+            "subcategory_submission": 10232, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 39091, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-21 18:44:40", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1970, 
+            "user": 19672, 
+            "assessed_points": 1.0, 
+            "subcategory_submission": 5011, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 39092, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-21 18:57:06", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1970, 
+            "user": 19672, 
+            "assessed_points": 1.0, 
+            "subcategory_submission": 5011, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 39093, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-21 18:41:33", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1441, 
+            "user": 19672, 
+            "assessed_points": 1.0, 
+            "subcategory_submission": 5011, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 39094, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-21 18:46:52", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1441, 
+            "user": 19672, 
+            "assessed_points": 1.0, 
+            "subcategory_submission": 5011, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 79543, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-04-25 11:35:16", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": "", 
+            "submission_status": "c", 
+            "responsible_party": 80, 
+            "user": 234, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 10235, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 34499, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-08 18:08:54", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 2051, 
+            "user": 3774, 
+            "assessed_points": 1.0, 
+            "subcategory_submission": 4412, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 34500, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-20 17:46:01", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 2051, 
+            "user": 19604, 
+            "assessed_points": 1.0, 
+            "subcategory_submission": 4412, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 34501, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-27 16:56:46", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1868, 
+            "user": 20774, 
+            "assessed_points": 1.0, 
+            "subcategory_submission": 4412, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 34502, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-08 16:12:33", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1828, 
+            "user": 3774, 
+            "assessed_points": 1.0, 
+            "subcategory_submission": 4412, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 79541, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-04-25 11:34:23", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": "", 
+            "submission_status": "c", 
+            "responsible_party": 124, 
+            "user": 234, 
+            "assessed_points": 2.6299999999999999, 
+            "subcategory_submission": 10235, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 79612, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-04-30 13:58:28", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": "", 
+            "submission_status": "c", 
+            "responsible_party": 14, 
+            "user": 234, 
+            "assessed_points": 3.0, 
+            "subcategory_submission": 10244, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 79613, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-04-30 14:01:25", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "See also:\r\n\r\nhttp://www.sustainableunh.unh.edu/strategicplanning\r\n\r\nUNH Cooperative Extension Mission Statement: UNH Cooperative Extension provides New Hampshire citizens with research-based education and infor- mation, enhancing their ability to make informed decisions that strengthen youth, families and communi- ties, sustain natural resources, and improve the economy (UNH Cooperative Extension Strategic Plan 2007-2012).", 
+            "internal_notes": "", 
+            "submission_status": "c", 
+            "responsible_party": 717, 
+            "user": 234, 
+            "assessed_points": 6.0, 
+            "subcategory_submission": 10244, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 79614, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-04-30 14:03:03", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": "", 
+            "submission_status": "c", 
+            "responsible_party": 159, 
+            "user": 234, 
+            "assessed_points": 4.0, 
+            "subcategory_submission": 10244, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 79615, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-04-30 14:03:25", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "Other contact: Sara Cleaves, UNH Sustainability Academy Associate Director", 
+            "internal_notes": "", 
+            "submission_status": "c", 
+            "responsible_party": 92, 
+            "user": 234, 
+            "assessed_points": 3.0, 
+            "subcategory_submission": 10244, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 79616, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-04-30 14:07:28", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "The University has adopted a strategy of implementing change, either in the way campus activity is conducted or in the built environment, to achieve greenhouse gas reductions. We challenge ourselves by taking this more difficult path than the alternative of purchased credits which allow business as usual to persist.\r\n\r\nAll reductions are measured against a 1990 baseline. UNH is a signatory to the American College & University President\u2019s Climate Commitment (ACUPCC).", 
+            "internal_notes": "", 
+            "submission_status": "c", 
+            "responsible_party": 14, 
+            "user": 234, 
+            "assessed_points": 2.0, 
+            "subcategory_submission": 10244, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 79542, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-04-25 11:34:52", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "Press release on James Hall LEED Gold certification\r\nhttp://www.unh.edu/news/cj_nr/2010/jun/bp30leed.cfm\r\n\r\n\r\n\r\nEight buildings on the UNH campus have been awarded the Energy Star label by the Environmental Protection Agency (EPA). In total, the eight Energy Star buildings are preventing pollution equivalent to annual emissions from 230 vehicles - more than 135,000 gallons of gasoline - while saving UNH more than $180,000 per year in energy bills.\r\n\r\nMore here: http://www.energy.unh.edu/News2.htm", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 159, 
+            "user": 234, 
+            "assessed_points": 2.3700000000000001, 
+            "subcategory_submission": 10235, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 79649, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-04-30 14:41:06", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "See also http://www.carseyinstitute.unh.edu/social/home.html", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 14, 
+            "user": 234, 
+            "assessed_points": 1.0, 
+            "subcategory_submission": 10249, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 79650, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-04-30 14:42:02", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 1572, 
+            "user": 234, 
+            "assessed_points": 1.0, 
+            "subcategory_submission": 10249, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 79651, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-04-30 14:42:28", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 814, 
+            "user": 234, 
+            "assessed_points": 1.0, 
+            "subcategory_submission": 10249, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 79652, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-04-30 14:42:52", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 92, 
+            "user": 234, 
+            "assessed_points": 1.0, 
+            "subcategory_submission": 10249, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 79653, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-04-30 14:48:12", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "See www.sustainableunh.unh.edu/students", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 3295, 
+            "user": 234, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 10250, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 79654, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-05-14 13:51:20", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 847, 
+            "user": 234, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 10250, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 79655, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-05-14 13:51:54", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "100\u2013miles is much too small a radius for New Hampshire, a small state. As with energy and climate, we look and purchase regionally -- through New England and upstate New York -- and as such use a 250-mile radius.", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 17, 
+            "user": 234, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 10250, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 79656, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-05-14 13:53:00", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 17, 
+            "user": 234, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 10250, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 79657, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-05-04 09:55:59", 
+            "responsible_party_confirm": false, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "np", 
+            "responsible_party": null, 
+            "user": 234, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 10250, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 79658, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-05-04 09:57:17", 
+            "responsible_party_confirm": false, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "np", 
+            "responsible_party": null, 
+            "user": 234, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 10250, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 79659, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-05-04 09:57:30", 
+            "responsible_party_confirm": false, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "np", 
+            "responsible_party": null, 
+            "user": 234, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 10250, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 79660, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-05-04 09:57:52", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 17, 
+            "user": 234, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 10250, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 79661, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-05-14 14:01:13", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 48, 
+            "user": 234, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 10250, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 79662, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-05-15 10:05:02", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "Because UNH sells the REC's off EcoLine (and reinvests the money made in the EcoLine project and energy efficiency on campus), we cannot claim the environmental benefits of this electricity. As such, we refer you to the New England ISO-NE power pool for a breakdown of energy sources of electricity: http://www.iso-ne.com/nwsiss/grid_mkts/enrgy_srcs/index.html\r\n\r\nMore info: www.sustainableunh.unh.edu/ecoline", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 48, 
+            "user": 234, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 10250, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 79663, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-05-03 14:36:10", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "Data are reported only for centralized purchasing done through USNH Purchasing and Contract Services.\r\n\r\nWhile UNH and USNH do not have a formal vendor policy requiring vendors to use less packaging, all of our formal bids do mention it as a requested sustainable practice. ", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 45, 
+            "user": 234, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 10250, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 79664, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-05-02 11:19:05", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "http://www.unh.edu/transportation/programs/bikeprogram.htm", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 3338, 
+            "user": 234, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 10250, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 79665, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-05-09 11:24:00", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "See www.sustainableunh.unh.edu/water. We also have over 40 hydration stations across campus and 17 waterless urinals. As urinals are replaced or added to new buildings, they are waterless.", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 664, 
+            "user": 234, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 10250, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 79666, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-05-15 13:21:54", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 3390, 
+            "user": 234, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 10250, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 79667, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-05-15 13:23:06", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "We also pay for time spent by up to 5-7 faculty fellows to work on sustainability. In addition, while we now have two students we've had anywhere from 3-5 at one time; their work is project-driven. Finally, other staff across campus in other departments work on sustainability, such as staff in the UNH Energy Office, Campus Planning, Dining and more.", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 14, 
+            "user": 234, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 10250, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 101854, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-03-22 07:08:43", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 460, 
+            "user": 7428, 
+            "assessed_points": 0.25, 
+            "subcategory_submission": 12987, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 101855, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-03-22 07:14:01", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 460, 
+            "user": 7428, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 12987, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 101942, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-03-22 14:09:34", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 540, 
+            "user": 24812, 
+            "assessed_points": 3.0, 
+            "subcategory_submission": 12999, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 101943, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-03-22 14:10:16", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 540, 
+            "user": 24812, 
+            "assessed_points": 6.0, 
+            "subcategory_submission": 12999, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 101988, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-03-22 12:52:41", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 460, 
+            "user": 7428, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 13005, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 1423, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2009-12-01 12:28:08", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": "", 
+            "submission_status": "np", 
+            "responsible_party": 1, 
+            "user": 11399, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 173, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 1424, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2010-09-09 09:52:08", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": "", 
+            "submission_status": "c", 
+            "responsible_party": 1, 
+            "user": 9739, 
+            "assessed_points": 2.6000000000000001, 
+            "subcategory_submission": 173, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 1425, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2009-12-21 13:18:21", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": "", 
+            "submission_status": "np", 
+            "responsible_party": 1, 
+            "user": 11399, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 173, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 34375, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-05-26 13:07:31", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "na", 
+            "responsible_party": 1703, 
+            "user": 19604, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 4395, 
+            "applicability_reason": 72
+        }
+    }, 
+    {
+        "pk": 34462, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2011-07-26 20:31:40", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 2051, 
+            "user": 19604, 
+            "assessed_points": 3.0, 
+            "subcategory_submission": 4407, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 101852, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-03-22 07:06:43", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 460, 
+            "user": 7428, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 12987, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 79519, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-04-25 10:32:14", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": "", 
+            "submission_status": "c", 
+            "responsible_party": 12, 
+            "user": 234, 
+            "assessed_points": 0.25, 
+            "subcategory_submission": 10232, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 79520, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-04-25 10:35:41", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": "", 
+            "submission_status": "c", 
+            "responsible_party": 3295, 
+            "user": 234, 
+            "assessed_points": 0.25, 
+            "subcategory_submission": 10232, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 79521, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-04-25 10:36:31", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "According to Mary Faucher, students do not actually apply for themed housing. Rather, they indicate a 'preference' on their housing application in May/June.", 
+            "internal_notes": "", 
+            "submission_status": "c", 
+            "responsible_party": 13, 
+            "user": 234, 
+            "assessed_points": 0.25, 
+            "subcategory_submission": 10232, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 79522, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-04-25 10:37:01", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": "", 
+            "submission_status": "c", 
+            "responsible_party": 22, 
+            "user": 234, 
+            "assessed_points": 0.25, 
+            "subcategory_submission": 10232, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 101844, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-03-22 06:53:50", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": "The total number of degree seeking students was taken from the Penn State Fact Book and the number served by the program is the number of students living in East Halls 2010-2011.", 
+            "submission_status": "c", 
+            "responsible_party": 460, 
+            "user": 7428, 
+            "assessed_points": 0.46999999999999997, 
+            "subcategory_submission": 12987, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 101845, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-03-22 06:54:19", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 540, 
+            "user": 7428, 
+            "assessed_points": 5.0, 
+            "subcategory_submission": 12987, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 101846, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-03-22 08:30:37", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "The Campus Sustainability Office, Center for Sustainability, Student Affairs and other partners are considering options to make sustainability a part of new student orientation, Parents Weekend and our summer FTCAP program.  We have had small programs in the past but lack an on-going program at the scale needed to have an impact.", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 540, 
+            "user": 7428, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 12987, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 101847, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-03-22 06:56:41", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 540, 
+            "user": 7428, 
+            "assessed_points": 4.0, 
+            "subcategory_submission": 12987, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 101848, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-03-22 08:34:07", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 540, 
+            "user": 7428, 
+            "assessed_points": 0.25, 
+            "subcategory_submission": 12987, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 101849, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-03-22 07:03:44", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": "David Cranage <dac2@psu.edu>", 
+            "submission_status": "c", 
+            "responsible_party": 460, 
+            "user": 7428, 
+            "assessed_points": 0.25, 
+            "subcategory_submission": 12987, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 101850, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-03-22 07:05:14", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 460, 
+            "user": 7428, 
+            "assessed_points": 0.0, 
+            "subcategory_submission": 12987, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 101851, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-03-22 07:05:53", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": null, 
+            "submission_status": "c", 
+            "responsible_party": 460, 
+            "user": 7428, 
+            "assessed_points": 0.25, 
+            "subcategory_submission": 12987, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 2012, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2010-01-25 15:25:19", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": "", 
+            "submission_status": "c", 
+            "responsible_party": 1, 
+            "user": 11399, 
+            "assessed_points": 3.0, 
+            "subcategory_submission": 238, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 2013, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2010-09-09 10:08:37", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": "", 
+            "submission_status": "c", 
+            "responsible_party": 1, 
+            "user": 9739, 
+            "assessed_points": 4.0, 
+            "subcategory_submission": 238, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 2014, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2009-12-17 11:55:17", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": "", 
+            "submission_status": "c", 
+            "responsible_party": 1, 
+            "user": 11399, 
+            "assessed_points": 4.0, 
+            "subcategory_submission": 238, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 2015, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2010-09-09 10:10:09", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": "", 
+            "submission_status": "c", 
+            "responsible_party": 1, 
+            "user": 9739, 
+            "assessed_points": 3.0, 
+            "subcategory_submission": 238, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 2016, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2010-01-26 16:49:20", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": "", 
+            "submission_status": "c", 
+            "responsible_party": 1, 
+            "user": 11399, 
+            "assessed_points": 2.0, 
+            "subcategory_submission": 238, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 101871, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-03-22 07:46:44", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": "We only pursue LEED certification for new construction or major renovations,  not existing buildings. ", 
+            "submission_status": "c", 
+            "responsible_party": 1661, 
+            "user": 7428, 
+            "assessed_points": 2.6299999999999999, 
+            "subcategory_submission": 12990, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 101872, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-03-28 10:50:08", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": "Using construction square footage from FY 07/08, 08/09, and 09/10. \r\n\r\nThis includes the construction of:\r\n1. Lewis Katz Building (base)117,387\r\n2. Student Health Center (silver) 64,589\r\n3. Borland Building (silver)90,899\r\n\r\n\r\nRec Hall Fitness Center Addition (Gold)\r\nFood Science (not certified) Forest Resources (silver), Medlar Field (base) completed outside of 3 year ", 
+            "submission_status": "c", 
+            "responsible_party": 1661, 
+            "user": 7428, 
+            "assessed_points": 2.54, 
+            "subcategory_submission": 12990, 
+            "applicability_reason": null
+        }
+    }, 
+    {
+        "pk": 101873, 
+        "model": "submissions.creditusersubmission", 
+        "fields": {
+            "last_updated": "2012-03-22 07:48:12", 
+            "responsible_party_confirm": true, 
+            "submission_notes": "", 
+            "internal_notes": "Information from Bill Driebelbis from phone conversation on 7/7", 
+            "submission_status": "c", 
+            "responsible_party": 1661, 
+            "user": 7428, 
+            "assessed_points": 2.0, 
+            "subcategory_submission": 12990, 
+            "applicability_reason": null
+        }
+    }
+]

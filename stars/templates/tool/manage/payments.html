@@ -1,0 +1,18 @@
+{% extends 'tool/manage/base.html' %}
+
+{% block crumbs %} {{ block.super }} &gt; Receipts {% endblock %}
+
+{% block tabclass %}class='tab4'{% endblock %}
+
+{% block institution_content %}
+    {% include 'tool/manage/payment_list.html' %}
+    
+    {% if user.is_staff %}
+        <p><a href='{{ user.current_inst.get_admin_payments_url }}'>Administer Payments for this Institution</a></p>
+    {% endif %}
+{% endblock %}
+
+{% block help_content %}
+    {% load content %}
+    {% display_block_content 'manage_payments' user %}
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends 'tool/manage/submissionset_base.html' %}
+
+{% block crumbs %} {{ block.super }} &gt; Purchase{% endblock %}
+
+{% block institution_content %}
+    <h2>Purchase a new Subscription</h2>
+    <form method='post' action='.' class='generalForm'>
+    
+    <table>
+      <tr>
+        <th>Amount:</th>
+        <td>${{ amount|floatformat:2 }} {% if is_member %} (Member Discount){% endif %}</td>
+      </tr>
+    </table>
+    <br/>
+    <div class='secure'>
+    
+      <table class='form'>
+        {{ later_form }}
+      </table>
+      <table class='form' id='pay_form'>
+          {{ pay_form }}
+      </table>
+      <div class='button_row'>
+            <button type='submit'>Purchase Subscription</button><br/><br/>
+            Secure Checkout:
+            <img src="/media/static/images/lock.png" alt="SSL" style="vertical-align: top">
+      </div>
+    </div>
+    </form>
+{% endblock %}

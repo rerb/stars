@@ -1,0 +1,522 @@
+[
+    {
+        "pk": 473, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 0, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": null, 
+            "title": "Does campus dining operations provide reusable containers for to-go food that are returned for cleaning and re-use?", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 66, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "A", 
+            "type": "boolean", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 474, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 1, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": null, 
+            "title": "A brief description of the reusable to-go container program", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 66, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "B", 
+            "type": "long_text", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 475, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 2, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": null, 
+            "title": "The website URL where information about the reusable to-go container program is available", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 66, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "C", 
+            "type": "url", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1304, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 0, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 542, 
+            "title": "Does the institution use weather data or weather sensors to automatically adjust irrigation practices?", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 241, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "A", 
+            "type": "boolean", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1303, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 1, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 543, 
+            "title": "A brief description of how weather data or sensors are used", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 241, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "B", 
+            "type": "long_text", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1302, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 2, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": 544, 
+            "title": "The website URL where information about the practice is available", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 241, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "C", 
+            "type": "url", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2186, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 0, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 1447, 
+            "title": "Total value of the investment pool", 
+            "tooltip_help_text": "<h3>Investment Pool</h3>\r\n<p>The <a href=\"http://www.nacubo.org/\" target=\"_blank\">National Association of College and University Business Officers (NACUBO)</a> defines &ldquo;investment pool&rdquo; in their annual endowment survey as:</p>\r\n<p><em>The predominant asset pool or grouping of assets that is organized primarily to support the institution and reflect its investment policies.&nbsp; </em></p>", 
+            "last_choice_is_other": false, 
+            "min_range": 0, 
+            "credit": 404, 
+            "inline_help_text": "", 
+            "units": 2, 
+            "identifier": "A", 
+            "type": "numeric", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2187, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 1, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 1446, 
+            "title": "Value of holdings in sustainable industries, such as renewable energy or sustainable forestry ", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": 0, 
+            "credit": 404, 
+            "inline_help_text": "", 
+            "units": 2, 
+            "identifier": "B", 
+            "type": "numeric", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2188, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 2, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 1445, 
+            "title": "Value of holdings in businesses selected for exemplary sustainability performances", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": 0, 
+            "credit": 404, 
+            "inline_help_text": "", 
+            "units": 2, 
+            "identifier": "C", 
+            "type": "numeric", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2189, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 3, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 1444, 
+            "title": "Value of holdings in sustainability investment funds, such as a renewable energy investment fund", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": 0, 
+            "credit": 404, 
+            "inline_help_text": "", 
+            "units": 2, 
+            "identifier": "D", 
+            "type": "numeric", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2190, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 4, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 1443, 
+            "title": "Value of holdings in community development financial institutions (CDFIs)", 
+            "tooltip_help_text": "<h3>Community Development Financial Institution</h3>\r\n<p>The <a href=\"http://www.endowmentethics.org/\" target=\"_blank\">Responsible Endowments Coalition</a> defines a CDFI as:</p>\r\n<p><em>A unique entity established to provide credit, financial services, and other services to underserved markets or populations.</em></p>", 
+            "last_choice_is_other": false, 
+            "min_range": 0, 
+            "credit": 404, 
+            "inline_help_text": "", 
+            "units": 2, 
+            "identifier": "E", 
+            "type": "numeric", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2191, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 5, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 1442, 
+            "title": "Value of holdings in socially responsible mutual funds with positive screens", 
+            "tooltip_help_text": "<h3>Positively Screened Fund</h3>\r\n<p>A fund in which managers proactively select businesses based on exemplary social and/or environmental performance.&nbsp;</p>", 
+            "last_choice_is_other": false, 
+            "min_range": 0, 
+            "credit": 404, 
+            "inline_help_text": "", 
+            "units": 2, 
+            "identifier": "F", 
+            "type": "numeric", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2192, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 6, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 1441, 
+            "title": "A brief description of the companies, funds, and/or institutions referenced above", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 404, 
+            "inline_help_text": "<p>Specific disclosure of holdings (e.g. fund or company names) is not required; general information about the industries or fund types represented by the holdings is sufficient for this field.&nbsp;&nbsp;</p>", 
+            "units": null, 
+            "identifier": "G", 
+            "type": "long_text", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2193, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 7, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": 1440, 
+            "title": "The website URL where information about the institution\u2019s sustainability investment activities is available", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 404, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "H", 
+            "type": "url", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2180, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 0, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 1431, 
+            "title": "Does the institution have a committee on investor responsibility or similar body that meets the criteria for this credit?", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 402, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "D", 
+            "type": "boolean", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2177, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 1, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 1434, 
+            "title": "The charter or mission statement of the CIR or other body, which reflects social and environmental concerns, or a brief description of how the CIR is tasked to address social and environmental concerns ", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 402, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "A", 
+            "type": "long_text", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2178, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 2, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 1433, 
+            "title": "Members of the CIR, including affiliations", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 402, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "B", 
+            "type": "long_text", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2326, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 3, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": null, 
+            "title": "Recent examples (within the past 3 years) of CIR actions", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 402, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "E", 
+            "type": "long_text", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2179, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 4, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": 1432, 
+            "title": "The website URL where information about the committee is available", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 402, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "C", 
+            "type": "url", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2251, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 0, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 1499, 
+            "title": "A brief description of the innovative policy, practice, program, or outcome", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 419, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "A", 
+            "type": "long_text", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2252, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 1, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 1498, 
+            "title": "A letter of affirmation from an individual with relevant expertise", 
+            "tooltip_help_text": "<h3>Letter of Affirmation</h3>\r\n<p>To help ensure that the policy, practice, program, or outcome that the institution is claiming for an innovation credit is truly innovative, institutions must submit a letter of verification from an individual with relevant expertise in the associated content area.&nbsp;&nbsp; The individual may be employed by one&rsquo;s own institution or another institution.&nbsp; The letter should affirm how the innovation meets the criteria for innovation credits.&nbsp;&nbsp;&nbsp;&nbsp;</p>\r\n<p>For example, if an institution claims an innovation credit for water use reduction, the institution might solicit a letter from a hydrologist or other water expert from another campus to verify that the strategy is innovative.&nbsp;&nbsp;&nbsp;</p>\r\n<p>The letter should be specific to a single innovation credit.</p>", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 419, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "B", 
+            "type": "upload", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2253, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 2, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": 1497, 
+            "title": "The website URL where information about the innovation is available", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 419, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "C", 
+            "type": "url", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2250, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 3, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 1517, 
+            "title": "The innovation describes a new, extraordinary, unique, ground-breaking, or uncommon outcome, policies or practice ", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 419, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "D", 
+            "type": "boolean", 
+            "is_published": false
+        }
+    }, 
+    {
+        "pk": 2249, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 4, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 1518, 
+            "title": "This innovation (program, policy, or outcome) is not already covered by an existing STARS credit or greatly exceeds the highest criterion of an existing STARS credit ", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 419, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "E", 
+            "type": "boolean", 
+            "is_published": false
+        }
+    }, 
+    {
+        "pk": 2248, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 5, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 1519, 
+            "title": "The innovative practice, policy, program, or outcome has occurred within the past three years ", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 419, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "F", 
+            "type": "boolean", 
+            "is_published": false
+        }
+    }, 
+    {
+        "pk": 2247, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 6, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 1520, 
+            "title": "My institution has not previously received a STARS innovation credit for this practice, policy, program, or outcome", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 419, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "G", 
+            "type": "boolean", 
+            "is_published": false
+        }
+    }
+]

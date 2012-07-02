@@ -1,0 +1,112 @@
+[
+    {
+        "pk": 410, 
+        "model": "submissions.submissionset", 
+        "fields": {
+            "status": "r", 
+            "rating": 12, 
+            "submission_boundary": "UBC\u2019s boundary for the STARS report includes all core academic and administrative buildings, as well as ancillary buildings such as student housing and athletics facilities, at the UBC Vancouver campus.  In total, 402 buildings comprising over 13 million square feet are included.  Buildings owned by third-party tenants and privately-owned residences located on campus are not included in the STARS boundary.", 
+            "submitting_user": 19604, 
+            "is_visible": true, 
+            "creditset": 4, 
+            "presidents_letter": "secure/29/submission-410/2011_July14 Prof Toope Letter STARS (Signed) (2).pdf", 
+            "date_submitted": "2011-08-02", 
+            "date_registered": "2009-09-21", 
+            "date_reviewed": null, 
+            "score": 65.094085213032599, 
+            "reporter_status": false, 
+            "registering_user": 7838, 
+            "is_locked": false, 
+            "institution": 29, 
+            "pdf_report": "secure/29/submission-410/university-of-british-columbia-bc.pdf"
+        }
+    }, 
+    {
+        "pk": 715, 
+        "model": "submissions.submissionset", 
+        "fields": {
+            "status": "ps", 
+            "rating": null, 
+            "submission_boundary": null, 
+            "submitting_user": null, 
+            "is_visible": true, 
+            "creditset": 5, 
+            "presidents_letter": "", 
+            "date_submitted": null, 
+            "date_registered": "2009-10-30", 
+            "date_reviewed": null, 
+            "score": null, 
+            "reporter_status": false, 
+            "registering_user": 234, 
+            "is_locked": false, 
+            "institution": 55, 
+            "pdf_report": ""
+        }
+    }, 
+    {
+        "pk": 860, 
+        "model": "submissions.submissionset", 
+        "fields": {
+            "status": "ps", 
+            "rating": null, 
+            "submission_boundary": null, 
+            "submitting_user": null, 
+            "is_visible": true, 
+            "creditset": 5, 
+            "presidents_letter": "", 
+            "date_submitted": null, 
+            "date_registered": "2009-12-06", 
+            "date_reviewed": null, 
+            "score": null, 
+            "reporter_status": false, 
+            "registering_user": 7428, 
+            "is_locked": false, 
+            "institution": 70, 
+            "pdf_report": ""
+        }
+    }, 
+    {
+        "pk": 29, 
+        "model": "submissions.submissionset", 
+        "fields": {
+            "status": "r", 
+            "rating": 3, 
+            "submission_boundary": "The boundaries of this report include the University in its entirety.", 
+            "submitting_user": 9739, 
+            "is_visible": true, 
+            "creditset": 2, 
+            "presidents_letter": "secure/25/letter/ltr STARS Steering Committee, 9-02-2010_1.pdf", 
+            "date_submitted": "2010-09-13", 
+            "date_registered": "2009-09-21", 
+            "date_reviewed": "2010-09-14", 
+            "score": 45.027759856630801, 
+            "reporter_status": false, 
+            "registering_user": 9739, 
+            "is_locked": false, 
+            "institution": 25, 
+            "pdf_report": "secure/25/submission-29/pacific-lutheran-university-wa.pdf"
+        }
+    }, 
+    {
+        "pk": 439, 
+        "model": "submissions.submissionset", 
+        "fields": {
+            "status": "r", 
+            "rating": 13, 
+            "submission_boundary": "This assessment covers UCLA's main campus and off-campus housing. We have excluded the UCLA Health System operations from this assessment. Because STARS is not fully developed to capture the hospital and medical center operations of a large institution such as UCLA (for instance, the weighted campus user figure does not have a way to address patients or beds per day), many universities, including UCLA, have chosen to apply STARS to their main campus, using a scope that does not include their medical centers. However, we do track all of the same operational data for our medical center and UCLA\u2019s Health System is truly a leader in sustainability. Both hospitals, Reagan and Santa Monica, received awards this year from Practice Greenhealth, a national organization focused on hospital sustainability. The Health System is pursuing a number of initiatives to reduce energy use and waste, and has eliminated styrofoam in their dining facilities. We will be reporting on Health System Sustainability separately within our sustainability report and on our site (www.sustain.ucla.edu). \r\n", 
+            "submitting_user": 4546, 
+            "is_visible": true, 
+            "creditset": 4, 
+            "presidents_letter": "secure/24/submission-439/STARS Letter.pdf", 
+            "date_submitted": "2011-08-02", 
+            "date_registered": "2009-09-21", 
+            "date_reviewed": null, 
+            "score": 59.140718462823699, 
+            "reporter_status": false, 
+            "registering_user": 4546, 
+            "is_locked": false, 
+            "institution": 24, 
+            "pdf_report": ""
+        }
+    }
+]
