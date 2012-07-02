@@ -24,12 +24,14 @@ class SubmissionSetResource(StarsApiResource):
         Resource for accessing any (published) SubmissionSet.
     """
     creditset = fields.OneToOneField(
-        CREDITS_RESOURCE_PATH + 'CreditSetResource', 'creditset')
+        CREDITS_RESOURCE_PATH + 'NestedCreditSetResource', 'creditset',
+        full=True)
     categories = fields.ToManyField(
-        SUBMISSIONS_RESOURCE_PATH + 'CategorySubmissionResource',
-        'categorysubmission_set')
+        SUBMISSIONS_RESOURCE_PATH + 'NestedCategorySubmissionResource',
+        'categorysubmission_set', full=True)
     institution = fields.OneToOneField(
-        INSTITUTIONS_RESOURCE_PATH + 'InstitutionResource', 'institution')
+        INSTITUTIONS_RESOURCE_PATH + 'NestedInstitutionResource',
+        'institution', full=True)
     rating = fields.CharField(readonly=True)
 
     class Meta(StarsApiResource.Meta):
@@ -239,7 +241,8 @@ class CategorySubmissionResource(StarsApiResource):
     submissionset = fields.ForeignKey(
         SUBMISSIONS_RESOURCE_PATH + 'SubmissionSetResource', 'submissionset')
     category = fields.ForeignKey(
-        CREDITS_RESOURCE_PATH + 'CategoryResource', 'category')
+        CREDITS_RESOURCE_PATH + 'NestedCategoryResource', 'category',
+        full=True)
     subcategories = fields.OneToManyField(
         SUBMISSIONS_RESOURCE_PATH + 'SubcategorySubmissionResource',
         'subcategorysubmission_set')
@@ -277,6 +280,21 @@ class CategorySubmissionResource(StarsApiResource):
         kwargs['category'] = Category.objects.get(pk=kwargs.pop('category_id'))
         return super(CategorySubmissionResource, self).obj_get(request,
                                                                **kwargs)
+
+
+class NestedCategorySubmissionResource(CategorySubmissionResource):
+    """
+        Resource for embedding abbreviated CategorySubmission info
+        as a nested resource within another resource.
+    """
+    title = fields.CharField()
+
+    class Meta(CategorySubmissionResource.Meta):
+        fields = ['title']
+        allowed_methods = None
+
+    def dehydrate_title(self, bundle):
+        return bundle.obj.category.title
 
 
 class SubcategorySubmissionResource(StarsApiResource):

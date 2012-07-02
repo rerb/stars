@@ -35,6 +35,16 @@ class CategoryResource(StarsApiResource):
         excludes = ['max_point_value']
 
 
+class NestedCategoryResource(StarsApiResource):
+    """
+        A resource for nesting Category info in other resources.
+        Shows fewer fields, disallows all HTTP methods.
+    """
+    class Meta(CategoryResource.Meta):
+        fields = ['title', 'resource_uri']
+        allowed_methods = None
+
+
 class CreditResource(StarsApiResource):
     """
         Resource for accessing any Credit
@@ -64,14 +74,24 @@ class CreditSetResource(StarsApiResource):
         Resource for accessing any CreditSet
     """
     categories = fields.ManyToManyField(
-        CREDITS_RESOURCE_PATH + 'CategoryResource',
-        'category_set', related_name='creditset')
+        CREDITS_RESOURCE_PATH + 'NestedCategoryResource',
+        'category_set', related_name='creditset', full=True)
 
     class Meta(StarsApiResource.Meta):
         queryset = credits_models.CreditSet.objects.filter(version__gte='1.0')
         resource_name = 'credits/creditset'
         fields = ['id', 'release_date', 'version', 'supported_features']
         allowed_methods = ['get']
+
+
+class NestedCreditSetResource(StarsApiResource):
+    """
+        An abbreviated CreditSetResource for embedding within other
+        resources.
+    """
+    class Meta(CreditSetResource.Meta):
+        fields = ['version']
+        allowed_methods = None
 
 
 class DocumentationFieldResource(StarsApiResource):
