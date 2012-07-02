@@ -48,7 +48,8 @@ class SubmissionSetResource(StarsApiResource):
             'date_reviewed',
             'date_registered',
             'status',
-            'reporter_status'
+            'reporter_status',
+            'submission_boundary'
             ]
 
     def dehydrate(self, bundle):
@@ -343,12 +344,12 @@ class SubcategorySubmissionResource(StarsApiResource):
         allowed_methods = ['get']
         filtering = { 'category': ALL_WITH_RELATIONS }
 
-    def dehydrate(self, bundle):
+    def dehydrate_points(self, bundle):
 
         if bundle.obj.category_submission.submissionset.reporter_status:
-            bundle.data['points'] = None
-
-        return bundle
+            return None
+        else:
+            return bundle.data['points']
 
     def get_resource_uri(self, bundle_or_obj=None,
                          url_name='api_dispatch_list'):
@@ -425,7 +426,7 @@ class CreditSubmissionResource(StarsApiResource):
     longtext_submissions = fields.OneToManyField(
         SUBMISSIONS_RESOURCE_PATH + 'NestedLongTextSubmissionResource',
         'longtextsubmission_set', full=True)
-    multichoicesubmission_submissions = fields.OneToManyField(
+    multichoice_submissions = fields.OneToManyField(
         SUBMISSIONS_RESOURCE_PATH + 'NestedMultiChoiceSubmissionResource',
         'multichoicesubmission_set', full=True)
     numeric_submissions = fields.OneToManyField(
@@ -451,29 +452,34 @@ class CreditSubmissionResource(StarsApiResource):
         excludes = [
                         'last_updated',
                         'internal_notes',
-                        "responsible_party_confirm",
+                        'responsible_party_confirm',
+                        'submission_notes'
                     ]
 
+    def dehydrate_title(self, bundle):
+        return bundle.obj.credit.title
+
     def dehydrate(self, bundle):
+
+        bundle.data['title'] = self.dehydrate_title(bundle)
 
         if bundle.obj.subcategory_submission.category_submission.submissionset.reporter_status:
             bundle.data['assessed_points'] = None
 
-        bundle.data['credit_title'] = bundle.obj.credit.title
-
         # combine all the fields into one list
         field_list = []
         field_types = [
-                        "boolean_fields",
-                        "choice_fields",
-                        "date_fields",
-                        "longtext_fields",
-                        "multichoice_fields",
-                        "numeric_fields",
-                        "text_fields",
-                        "upload_fields",
-                        "url_fields"
+                        "boolean_submissions",
+                        "choice_submissions",
+                        "date_submissions",
+                        "longtext_submissions",
+                        "multichoice_submissions",
+                        "numeric_submissions",
+                        "text_submissions",
+                        "upload_submissions",
+                        "url_submissions"
                        ]
+
         for ft in field_types:
             for f in bundle.data[ft]:
                 field_list.append(f)
@@ -529,15 +535,17 @@ class NestedCreditSubmissionResource(CreditSubmissionResource):
         Resource for embedding abbreviated CategorySubmission info
         as a nested resource within another resource.
     """
-    title = fields.CharField()
-
     class Meta(CreditSubmissionResource.Meta):
         fields = ['title']
         allowed_methods = None
 
-    def dehydrate_title(self, bundle):
-        return bundle.obj.credit.title
-
+    def dehydrate(self, bundle):
+        """Need to override CreditSubmissionResource.dehydrate() because it
+        assumes this bundle contains keys that this nested version
+        doesn't."""
+        bundle.data['title'] = super(NestedCreditSubmissionResource,
+                                     self).dehydrate_title(bundle)
+        return bundle
 
 class DocumentationFieldSubmissionResource(StarsApiResource):
 
