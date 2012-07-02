@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<script type="text/javascript">var _sf_startpt=(new Date()).getTime()</script>
+		<link rel="stylesheet/less" type="text/css" href="/media/static/bootstrap/css/bootstrap.css">
+ 		<link rel="stylesheet/less" type="text/css" href="/media/static/fonts/dejavu-sans/stylesheet.css">
+		<link rel="stylesheet/less" type="text/css" href="/media/static/less/stars.less">
+		<script src="/media/static/js/less-1.3.0.min.js" type="text/javascript"></script>
+		
+		<link rel="shortcut icon" href="/media/static/images/stars_favicon.ico" type="image/x-icon" />
+		
+		<script src="/media/static/bootstrap/js/jquery.js" type="text/javascript"></script>
+		<script src="/media/static/bootstrap/js/bootstrap.js" type="text/javascript"></script>
+		<script src="/media/static/js/include.js" type="text/javascript"></script>
+		<script src="/media/static/js/new_include.js" type="text/javascript"></script>
+		
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+		
+		<meta name="description" content="STARS is a transparent, self-reporting framework for colleges and universities to gauge relative progress toward sustainability." />
+		<meta name="keywords" content="STARS, AASHE, AASHE STARS, reporting, sustainability, colleges, universities, STARS Report, STARS Technical Manual" />
+		<title>
+			{% block title %}AASHE STARS{% endblock %}
+		</title>
+		
+		{% include "helpers/google_analytics.html" %}
+		
+		<script src='/media/static/js/new_include.js' type='text/javascript'></script>
+		<script src='/media/static/js/include.js' type='text/javascript'></script>
+		{% block extra_head %}{% endblock %}
+		{% block extra_style %}{% endblock %}
+	</head>
+	
+	<body onload='{% block body_onload %}{% endblock %}' onbeforeunload='{% block body_beforeunload %}{% endblock %}'>
+		<div class="container">
+			<div class="row top-nav">
+			  <div class="span4 aashe-tabs">
+			  	<a href='http://www.aashe.org/' class='left'><strong>aashe</strong></a>
+				<a href='/' class='left'><strong>stars</strong></a>
+				<a href='http://www.aashe.org/conference' class='left'>conference</a>
+			  </div>
+			  
+			  <div class="span8 user-menu">
+			  	{% block top_menu %}
+	       			{% include 'helpers/top_menu.html' %}
+	    		{% endblock %}
+			  </div>
+			</div>
+			
+			<div class="row header">
+				<div class='span2 header-image'>
+					<a href='/'><img src="{{ STATIC_URL }}/images/stars_logo.png" width='120px' /></a>
+				</div>
+				<div class="span10 header-search"></div>
+				<div class='navbar span10'>
+					<div class="navbar-inner">
+    					<div class="container">
+    						{% block main_menu %}
+								{% include 'helpers/main_menu.html' %}
+							{% endblock %}
+						</div>
+					</div>
+				</div>
+				<div class='span10'>
+					{% block crumbs %}{% endblock %}
+				</div>
+			</div>
+			
+			{% if messages  %}
+	            {% load helpers %}
+	            {% for message in messages %}
+		            <div class="alert fade in alert-{{ message|split:0 }}">
+			            <button class="close" data-dismiss="alert">×</button>
+			            {{ message|split:1|safe }}
+			          </div>
+			    {% endfor %}
+            {% endif %}
+			{% block content %}{% endblock %}
+			
+			<div class="row footer">
+				<div class='span2 footer-image'>
+					<img src="{{ STATIC_URL }}/images/AASHE_RGB_72.png" width='120px' />
+				</div>
+				<div class='span10 footer-border'></div>
+				<div class='span6'>
+					&copy;2012 <a href='http://www.aashe.org'>Association for the Advancement of Sustainability in Higher Education</a><br/>
+		        	1536 Wynkoop St., Suite 100, Denver CO 80202 - t: (303)395-1332<br/>
+                	<strong>Remittance Address: PO Box 824583, Philadelphia, PA 19182-4583</strong>
+				</div>
+				<div class='span4 bottom-menu'>
+					<a href='/pages/help/'>Help</a> |
+			    	<a href='http://www.aashe.org/about/contact.php'>Contact Us</a> |
+			    	<a href='http://www.aashe.org/privacy-policy'>Privacy Policy</a> |
+			    	<a href='http://www.aashe.org/'>AASHE Home</a>
+			    	<p style='text-align: right;'>
+	    		    	<a href='http://twitter.com/AASHENews' style='margin-right: 5px;' title='Twitter'>
+	    		    	    <img src="/media/static/images/twitter-2.png" alt='Twitter'/></a>
+	    		    	<a href='http://www.facebook.com/aasheorg' style='margin-right: 5px;' title="Facebook">
+	    		    	    <img src="/media/static/images/facebook.png" alt='Facebook' /></a>    
+	    		    	<a href='http://www.youtube.com/aasheorg' title="YouTube">
+	    		    	    <img src="/media/static/images/youtube.png" alt='YouTube' /></a>
+			    	</p>
+				</div>
+			</div>
+			
+			<div class="row credits">
+				<div class='span12'>
+					<a href='http://www.djangoproject.com' title="Django - web framework for perfectionists with deadlines.">
+						Django
+						{% if settings_context.django_version %}{{ settings_context.django_version }}{% endif %}
+					</a>
+					&nbsp;&nbsp;/&nbsp;&nbsp;
+					<a href='http://www.python.org/'>
+						Python
+						{% if settings_context.python_version %}{{ settings_context.python_version }}{% endif %}
+					</a>
+					&nbsp;&nbsp;/&nbsp;&nbsp;
+					<a href='http://www.famfamfam.com/lab/icons/silk/'>Silk Icons</a>
+					&nbsp;&nbsp;/&nbsp;&nbsp;
+					<a href='http://twitter.github.com/bootstrap/'>Bootstrap</a>
+					{% if settings_context.hg_revision %}
+						&nbsp;&nbsp;&nbsp;&nbsp;
+						{{ settings_context.hg_revision }}
+					{% endif %}
+				</div>
+			</div>
+		</div>
+	
+		
+		{% include "helpers/chartbeat.html" %}
+		{% block extra_footer %}{% endblock %}
+		
+	</body>
+</html>
