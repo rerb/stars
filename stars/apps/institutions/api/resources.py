@@ -31,3 +31,13 @@ class InstitutionResource(StarsApiResource):
             if submission not in SubmissionSet.objects.get_rated():
                 del(submission)
         return bundle.data['submission_sets']
+
+
+class NestedInstitutionResource(StarsApiResource):
+    """
+        A resource for embedding institution info in other resources.
+        A middle way between just an InstitutionResource URI and full=True.
+    """
+    class Meta(InstitutionResource.Meta):
+        fields = ['name']
+        allowed_methods = []
