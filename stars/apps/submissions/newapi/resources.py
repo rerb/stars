@@ -234,18 +234,31 @@ class SubmissionSetResource(StarsApiResource):
         return detail
 
 
+class NestedSubmissionSetResource(SubmissionSetResource):
+    """
+        Resource for embedding abbreviated SubmissionSet info
+        as a nested resource within another resource.
+    """
+    title = fields.CharField()
+
+    class Meta(SubmissionSetResource.Meta):
+        fields = ['date_submitted', 'rating']
+        allowed_methods = None
+
+
 class CategorySubmissionResource(StarsApiResource):
     """
         Resource for accessing any CategorySubmission
     """
     submissionset = fields.ForeignKey(
-        SUBMISSIONS_RESOURCE_PATH + 'SubmissionSetResource', 'submissionset')
+        SUBMISSIONS_RESOURCE_PATH + 'NestedSubmissionSetResource',
+        'submissionset', full=True)
     category = fields.ForeignKey(
         CREDITS_RESOURCE_PATH + 'NestedCategoryResource', 'category',
         full=True)
     subcategories = fields.OneToManyField(
-        SUBMISSIONS_RESOURCE_PATH + 'SubcategorySubmissionResource',
-        'subcategorysubmission_set')
+        SUBMISSIONS_RESOURCE_PATH + 'NestedSubcategorySubmissionResource',
+        'subcategorysubmission_set', full=True)
 
     class Meta(StarsApiResource.Meta):
         queryset = CategorySubmission.objects.all()
@@ -302,13 +315,14 @@ class SubcategorySubmissionResource(StarsApiResource):
         Resource for accessing any SubcategorySubmission
     """
     subcategory = fields.ForeignKey(
-        CREDITS_RESOURCE_PATH + 'SubcategoryResource', 'subcategory')
+        CREDITS_RESOURCE_PATH + 'NestedSubcategoryResource', 'subcategory',
+        full=True)
     category = fields.ForeignKey(
-        SUBMISSIONS_RESOURCE_PATH + 'CategorySubmissionResource',
-        'category_submission')
+        SUBMISSIONS_RESOURCE_PATH + 'NestedCategorySubmissionResource',
+        'category_submission', full=True)
     submissions = fields.OneToManyField(
-        SUBMISSIONS_RESOURCE_PATH + 'CreditSubmissionResource',
-        'creditusersubmission_set')
+        SUBMISSIONS_RESOURCE_PATH + 'NestedCreditSubmissionResource',
+        'creditusersubmission_set', full=True)
 
     class Meta(StarsApiResource.Meta):
         queryset = SubcategorySubmission.objects.all()
@@ -355,42 +369,57 @@ class SubcategorySubmissionResource(StarsApiResource):
             category_submission__in=categories_for_submissionset)
 
 
+class NestedSubcategorySubmissionResource(SubcategorySubmissionResource):
+    """
+        Resource for embedding abbreviated SubcategorySubmission info
+        as a nested resource within another resource.
+    """
+    title = fields.CharField()
+
+    class Meta(SubcategorySubmissionResource.Meta):
+        fields = ['title']
+        allowed_methods = None
+
+    def dehydrate_title(self, bundle):
+        return bundle.obj.subcategory.title
+
+
 class CreditSubmissionResource(StarsApiResource):
     """
         Resource for accessing any CreditSubmission
     """
     credit = fields.ForeignKey(
-        CREDITS_RESOURCE_PATH + 'CreditResource', 'credit')
+        CREDITS_RESOURCE_PATH + 'NestedCreditResource', 'credit', full=True)
     subcategory = fields.ForeignKey(
-        SUBMISSIONS_RESOURCE_PATH + 'SubcategorySubmissionResource',
-        'subcategory_submission')
+        SUBMISSIONS_RESOURCE_PATH + 'NestedSubcategorySubmissionResource',
+        'subcategory_submission', full=True)
     boolean_submissions = fields.OneToManyField(
-        SUBMISSIONS_RESOURCE_PATH + 'BooleanSubmissionResource',
-        'booleansubmission_set')
+        SUBMISSIONS_RESOURCE_PATH + 'NestedBooleanSubmissionResource',
+        'booleansubmission_set', full=True)
     choice_submissions = fields.OneToManyField(
-        SUBMISSIONS_RESOURCE_PATH + 'ChoiceSubmissionResource',
-        'choicesubmission_set')
+        SUBMISSIONS_RESOURCE_PATH + 'NestedChoiceSubmissionResource',
+        'choicesubmission_set', full=True)
     date_submissions = fields.OneToManyField(
-        SUBMISSIONS_RESOURCE_PATH + 'DateSubmissionResource',
-        'datesubmission_set')
+        SUBMISSIONS_RESOURCE_PATH + 'NestedDateSubmissionResource',
+        'datesubmission_set', full=True)
     longtext_submissions = fields.OneToManyField(
-        SUBMISSIONS_RESOURCE_PATH + 'LongTextSubmissionResource',
-        'longtextsubmission_set')
+        SUBMISSIONS_RESOURCE_PATH + 'NestedLongTextSubmissionResource',
+        'longtextsubmission_set', full=True)
     multichoicesubmission_submissions = fields.OneToManyField(
-        SUBMISSIONS_RESOURCE_PATH + 'MultiChoiceSubmissionResource',
-        'multichoicesubmission_set')
+        SUBMISSIONS_RESOURCE_PATH + 'NestedMultiChoiceSubmissionResource',
+        'multichoicesubmission_set', full=True)
     numeric_submissions = fields.OneToManyField(
-        SUBMISSIONS_RESOURCE_PATH + 'NumericSubmissionResource',
-        'numericsubmission_set')
+        SUBMISSIONS_RESOURCE_PATH + 'NestedNumericSubmissionResource',
+        'numericsubmission_set', full=True)
     text_submissions = fields.OneToManyField(
-        SUBMISSIONS_RESOURCE_PATH + 'TextSubmissionResource',
-        'textsubmission_set')
+        SUBMISSIONS_RESOURCE_PATH + 'NestedTextSubmissionResource',
+        'textsubmission_set', full=True)
     upload_submissions = fields.OneToManyField(
-        SUBMISSIONS_RESOURCE_PATH + 'UploadSubmissionResource',
-        'uploadsubmission_set')
+        SUBMISSIONS_RESOURCE_PATH + 'NestedUploadSubmissionResource',
+        'uploadsubmission_set', full=True)
     url_submissions = fields.OneToManyField(
-        SUBMISSIONS_RESOURCE_PATH + 'URLSubmissionResource',
-        'urlsubmission_set')
+        SUBMISSIONS_RESOURCE_PATH + 'NestedURLSubmissionResource',
+        'urlsubmission_set', full=True)
 
     class Meta(StarsApiResource.Meta):
         queryset = CreditUserSubmission.objects.all()
@@ -438,6 +467,21 @@ class CreditSubmissionResource(StarsApiResource):
               category_submission__in=categories_for_submissionset)
         return CreditUserSubmission.objects.filter(
             subcategory_submission__in=subcategories_for_submissionset)
+
+
+class NestedCreditSubmissionResource(CreditSubmissionResource):
+    """
+        Resource for embedding abbreviated CategorySubmission info
+        as a nested resource within another resource.
+    """
+    title = fields.CharField()
+
+    class Meta(CreditSubmissionResource.Meta):
+        fields = ['title']
+        allowed_methods = None
+
+    def dehydrate_title(self, bundle):
+        return bundle.obj.credit.title
 
 
 class DocumentationFieldSubmissionResource(StarsApiResource):
@@ -506,9 +550,32 @@ class DocumentationFieldSubmissionResource(StarsApiResource):
             credit_submission__in=credit_user_submissions)
 
 
+class NestedDocumentationFieldSubmissionResource(
+        DocumentationFieldSubmissionResource):
+    """
+        Resource for embedding abbreviated DocumentationFieldSubmission info
+        as a nested resource within another resource.
+    """
+    title = fields.CharField()
+
+    class Meta(DocumentationFieldSubmissionResource.Meta):
+        fields = ['title']
+        allowed_methods = None
+
+    def dehydrate_title(self, bundle):
+        return bundle.obj.documentation_field.title
+
+
 class BooleanSubmissionResource(DocumentationFieldSubmissionResource):
 
     class Meta(DocumentationFieldSubmissionResource.Meta):
+        queryset = BooleanSubmission.objects.all()
+
+
+class NestedBooleanSubmissionResource(
+        NestedDocumentationFieldSubmissionResource):
+
+    class Meta(NestedDocumentationFieldSubmissionResource.Meta):
         queryset = BooleanSubmission.objects.all()
 
 
@@ -518,9 +585,23 @@ class ChoiceSubmissionResource(DocumentationFieldSubmissionResource):
         queryset = ChoiceSubmission.objects.all()
 
 
+class NestedChoiceSubmissionResource(
+        NestedDocumentationFieldSubmissionResource):
+
+    class Meta(NestedDocumentationFieldSubmissionResource.Meta):
+        queryset = ChoiceSubmission.objects.all()
+
+
 class DateSubmissionResource(DocumentationFieldSubmissionResource):
 
     class Meta(DocumentationFieldSubmissionResource.Meta):
+        queryset = DateSubmission.objects.all()
+
+
+class NestedDateSubmissionResource(
+        NestedDocumentationFieldSubmissionResource):
+
+    class Meta(NestedDocumentationFieldSubmissionResource.Meta):
         queryset = DateSubmission.objects.all()
 
 
@@ -530,9 +611,23 @@ class LongTextSubmissionResource(DocumentationFieldSubmissionResource):
         queryset = LongTextSubmission.objects.all()
 
 
+class NestedLongTextSubmissionResource(
+        NestedDocumentationFieldSubmissionResource):
+
+    class Meta(NestedDocumentationFieldSubmissionResource.Meta):
+        queryset = LongTextSubmission.objects.all()
+
+
 class MultiChoiceSubmissionResource(DocumentationFieldSubmissionResource):
 
     class Meta(DocumentationFieldSubmissionResource.Meta):
+        queryset = MultiChoiceSubmission.objects.all()
+
+
+class NestedMultiChoiceSubmissionResource(
+        NestedDocumentationFieldSubmissionResource):
+
+    class Meta(NestedDocumentationFieldSubmissionResource.Meta):
         queryset = MultiChoiceSubmission.objects.all()
 
 
@@ -542,17 +637,46 @@ class NumericSubmissionResource(DocumentationFieldSubmissionResource):
         queryset = NumericSubmission.objects.all()
 
 
+class NestedNumericSubmissionResource(
+        NestedDocumentationFieldSubmissionResource):
+
+    class Meta(NestedDocumentationFieldSubmissionResource.Meta):
+        queryset = NumericSubmission.objects.all()
+
+
 class TextSubmissionResource(DocumentationFieldSubmissionResource):
+
     class Meta(DocumentationFieldSubmissionResource.Meta):
         queryset = TextSubmission.objects.all()
 
 
+class NestedTextSubmissionResource(
+        NestedDocumentationFieldSubmissionResource):
+
+    class Meta(NestedDocumentationFieldSubmissionResource.Meta):
+        queryset = TextSubmission.objects.all()
+
+
 class UploadSubmissionResource(DocumentationFieldSubmissionResource):
+
     class Meta(DocumentationFieldSubmissionResource.Meta):
+        queryset = UploadSubmission.objects.all()
+
+
+class NestedUploadSubmissionResource(
+        NestedDocumentationFieldSubmissionResource):
+
+    class Meta(NestedDocumentationFieldSubmissionResource.Meta):
         queryset = UploadSubmission.objects.all()
 
 
 class URLSubmissionResource(DocumentationFieldSubmissionResource):
 
     class Meta(DocumentationFieldSubmissionResource.Meta):
+        queryset = URLSubmission.objects.all()
+
+
+class NestedURLSubmissionResource(NestedDocumentationFieldSubmissionResource):
+
+    class Meta(NestedDocumentationFieldSubmissionResource.Meta):
         queryset = URLSubmission.objects.all()

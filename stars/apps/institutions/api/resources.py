@@ -14,8 +14,8 @@ class InstitutionResource(StarsApiResource):
         Resource for accessing any Institution.
     """
     submission_sets = fields.OneToManyField(
-        SUBMISSIONS_RESOURCE_PATH + "SubmissionSetResource",
-        'submissionset_set')
+        SUBMISSIONS_RESOURCE_PATH + "NestedSubmissionSetResource",
+        'submissionset_set', full=True)
 
     class Meta(StarsApiResource.Meta):
         # @todo: filter out Institutions w/enabled == False?
