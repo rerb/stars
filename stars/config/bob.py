@@ -14,6 +14,8 @@ CELERY_ALWAYS_EAGER = True
 ADMINS = ('bob.erb@aashe.org',)
 MANAGERS = ADMINS
 
+API_TEST_MODE = True
+
 DATABASES = {
     'default': {
         'NAME': 'stars',
