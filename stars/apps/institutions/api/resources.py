@@ -14,8 +14,8 @@ class InstitutionResource(StarsApiResource):
         Resource for accessing any Institution.
     """
     submission_sets = fields.OneToManyField(
-        SUBMISSIONS_RESOURCE_PATH + "SubmissionSetResource",
-        'submissionset_set')
+        SUBMISSIONS_RESOURCE_PATH + "NestedSubmissionSetResource",
+        'submissionset_set', full=True)
 
     class Meta(StarsApiResource.Meta):
         # @todo: filter out Institutions w/enabled == False?
@@ -31,3 +31,13 @@ class InstitutionResource(StarsApiResource):
             if submission not in SubmissionSet.objects.get_rated():
                 del(submission)
         return bundle.data['submission_sets']
+
+
+class NestedInstitutionResource(StarsApiResource):
+    """
+        A resource for embedding institution info in other resources.
+        A middle way between just an InstitutionResource URI and full=True.
+    """
+    class Meta(InstitutionResource.Meta):
+        fields = ['name']
+        allowed_methods = []
