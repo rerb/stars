@@ -14,6 +14,7 @@ from stars.apps.submissions.models import SubmissionSet, CategorySubmission, \
      TextSubmission, LongTextSubmission, URLSubmission, DateSubmission, \
      UploadSubmission, BooleanSubmission, ChoiceSubmission, \
      MultiChoiceSubmission
+from stars.apps.submissions import rules as submission_rules
 from stars.apps.api.resources import StarsApiResource
 from stars.apps.api.paths import CREDITS_RESOURCE_PATH, \
      SUBMISSIONS_RESOURCE_PATH, INSTITUTIONS_RESOURCE_PATH
@@ -30,7 +31,6 @@ class SubmissionSetResource(StarsApiResource):
         'categorysubmission_set')
     institution = fields.OneToOneField(
         INSTITUTIONS_RESOURCE_PATH + 'InstitutionResource', 'institution')
-    rating = fields.CharField(readonly=True)
 
     class Meta(StarsApiResource.Meta):
         queryset = SubmissionSet.objects.get_rated()
@@ -40,16 +40,21 @@ class SubmissionSetResource(StarsApiResource):
         # "'ascii' codec can't decode byte ... in position ...: ordinal not
         # in range(128)"
         excludes = [
-            'submission_boundary',
             'is_locked',
             'is_visible',
             'date_reviewed',
             'date_registered',
             'status',
+            'reporter_status'
             ]
 
-    def dehydrate_rating(self, bundle):
-        return str(bundle.obj.rating)
+    def dehydrate(self, bundle):
+        bundle.data['rating'] = str(bundle.obj.rating)
+        
+        if bundle.obj.reporter_status:
+            bundle.data['score'] = None
+        
+        return bundle
 
     def override_urls(self):
         # The detail URL for each resource must be listed before the list URL.
@@ -251,6 +256,13 @@ class CategorySubmissionResource(StarsApiResource):
         filtering = { 'submissionset': 'exact',
                       'category': 'exact',
                       'id': ALL_WITH_RELATIONS }
+        
+    def dehydrate(self, bundle):
+        
+        if bundle.obj.submissionset.reporter_status:
+            bundle.data['score'] = None
+        
+        return bundle
 
     def get_resource_uri(self, bundle_or_obj=None,
                          url_name='api_dispatch_list'):
@@ -288,7 +300,7 @@ class SubcategorySubmissionResource(StarsApiResource):
     category = fields.ForeignKey(
         SUBMISSIONS_RESOURCE_PATH + 'CategorySubmissionResource',
         'category_submission')
-    submissions = fields.OneToManyField(
+    credits = fields.OneToManyField(
         SUBMISSIONS_RESOURCE_PATH + 'CreditSubmissionResource',
         'creditusersubmission_set')
 
@@ -297,6 +309,13 @@ class SubcategorySubmissionResource(StarsApiResource):
         resource_name = 'submissions/subcategory'
         allowed_methods = ['get']
         filtering = { 'category': ALL_WITH_RELATIONS }
+        
+    def dehydrate(self, bundle):
+        
+        if bundle.obj.category_submission.submissionset.reporter_status:
+            bundle.data['points'] = None
+        
+        return bundle
 
     def get_resource_uri(self, bundle_or_obj=None,
                          url_name='api_dispatch_list'):
@@ -346,31 +365,31 @@ class CreditSubmissionResource(StarsApiResource):
     subcategory = fields.ForeignKey(
         SUBMISSIONS_RESOURCE_PATH + 'SubcategorySubmissionResource',
         'subcategory_submission')
-    boolean_submissions = fields.OneToManyField(
+    boolean_fields = fields.OneToManyField(
         SUBMISSIONS_RESOURCE_PATH + 'BooleanSubmissionResource',
         'booleansubmission_set')
-    choice_submissions = fields.OneToManyField(
+    choice_fields = fields.OneToManyField(
         SUBMISSIONS_RESOURCE_PATH + 'ChoiceSubmissionResource',
         'choicesubmission_set')
-    date_submissions = fields.OneToManyField(
+    date_fields = fields.OneToManyField(
         SUBMISSIONS_RESOURCE_PATH + 'DateSubmissionResource',
         'datesubmission_set')
-    longtext_submissions = fields.OneToManyField(
+    longtext_fields = fields.OneToManyField(
         SUBMISSIONS_RESOURCE_PATH + 'LongTextSubmissionResource',
         'longtextsubmission_set')
-    multichoicesubmission_submissions = fields.OneToManyField(
+    multichoice_fields = fields.OneToManyField(
         SUBMISSIONS_RESOURCE_PATH + 'MultiChoiceSubmissionResource',
         'multichoicesubmission_set')
-    numeric_submissions = fields.OneToManyField(
+    numeric_fields = fields.OneToManyField(
         SUBMISSIONS_RESOURCE_PATH + 'NumericSubmissionResource',
         'numericsubmission_set')
-    text_submissions = fields.OneToManyField(
+    text_fields = fields.OneToManyField(
         SUBMISSIONS_RESOURCE_PATH + 'TextSubmissionResource',
         'textsubmission_set')
-    upload_submissions = fields.OneToManyField(
+    upload_fields = fields.OneToManyField(
         SUBMISSIONS_RESOURCE_PATH + 'UploadSubmissionResource',
         'uploadsubmission_set')
-    url_submissions = fields.OneToManyField(
+    url_fields = fields.OneToManyField(
         SUBMISSIONS_RESOURCE_PATH + 'URLSubmissionResource',
         'urlsubmission_set')
 
@@ -381,7 +400,42 @@ class CreditSubmissionResource(StarsApiResource):
         # exclude submission_notes  becauses it raises
         # "'ascii' codec can't decode byte ... in position ...: ordinal not
         # in range(128)"
-        excludes = ['submission_notes']
+        excludes = [
+                        'last_updated',
+                        'internal_notes',
+                        "responsible_party_confirm",
+                    ]
+        
+    def dehydrate(self, bundle):
+        
+        if bundle.obj.subcategory_submission.category_submission.submissionset.reporter_status:
+            bundle.data['assessed_points'] = None
+            
+        bundle.data['credit_title'] = bundle.obj.credit.title
+            
+        # combine all the fields into one list
+        field_list = []
+        field_types = [
+                        "boolean_fields",
+                        "choice_fields",
+                        "date_fields",
+                        "longtext_fields",
+                        "multichoice_fields",
+                        "numeric_fields",
+                        "text_fields",
+                        "upload_fields",
+                        "url_fields"
+                       ]
+        for ft in field_types:
+            for f in bundle.data[ft]:
+                field_list.append(f)
+            del bundle.data[ft]
+        
+        # only show the fields if their published with this credit
+        if submission_rules.publish_credit_data(bundle.obj):
+            bundle.data['fields'] = field_list
+        
+        return bundle
 
     def get_resource_uri(self, bundle_or_obj=None,
                          url_name='api_dispatch_list'):

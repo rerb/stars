@@ -13,6 +13,12 @@ def submission_is_editable(submission):
     return submission.status != 'r' and submission == submission.institution.current_submission
 aashe_rules.site.register("submission_is_editable", submission_is_editable)
 
+def publish_credit_data(credit_submission):
+    """
+        Identifies whether a credit's fields should be published anywhere
+    """
+    return credit_submission.submission_status == 'c'
+
 def user_can_preview_submission(user, submission):
     return user_has_access_level(user, 'view', submission.institution)
 aashe_rules.site.register("user_can_preview_submission", user_can_preview_submission)
