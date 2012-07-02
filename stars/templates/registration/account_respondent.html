@@ -1,0 +1,23 @@
+{% extends 'registration/base.html' %}
+
+{% load content %}
+
+{% block title %}
+    Campus Sustainability Data Collector Registration | Account
+{% endblock %}
+
+{% block content %}
+    <div class='inner20'>
+        <h1>
+          {{ institution }} {% display_snippet "reg_participant_account_title" user %}
+        </h1>
+
+        <div style='margin: 10px 50px;'>
+            {% display_block_content "reg_respondent_congrats" user %}
+        </div>
+        
+        <div class='note'>
+            Want to register another institution? <a href='/register/step1/'>You can!</a>
+        </div>
+    </div>
+{% endblock %}

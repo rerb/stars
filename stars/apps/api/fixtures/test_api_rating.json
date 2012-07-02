@@ -1,0 +1,41 @@
+[
+    {
+        "pk": 3, 
+        "model": "credits.rating", 
+        "fields": {
+            "image_large": "seals/Stars_Seal_Silver_RGB_300_2.png", 
+            "name": "Silver", 
+            "map_icon": "seals/silver.png", 
+            "creditset": 2, 
+            "image_200": "seals/Stars_Seal_Silver_RGB_72_2.png", 
+            "publish_score": true, 
+            "minimal_score": 45
+        }
+    }, 
+    {
+        "pk": 4, 
+        "model": "credits.rating", 
+        "fields": {
+            "image_large": "seals/Stars_Seal_Gold_RGB_300_1.png", 
+            "name": "Gold", 
+            "map_icon": "seals/gold.png", 
+            "creditset": 2, 
+            "image_200": "seals/Stars_Seal_Gold_RGB_72_1.png", 
+            "publish_score": true, 
+            "minimal_score": 65
+        }
+    }, 
+    {
+        "pk": 13, 
+        "model": "credits.rating", 
+        "fields": {
+            "image_large": "seals/Stars_Seal_Silver_RGB_300.png", 
+            "name": "Silver", 
+            "map_icon": "seals/silver_1.png", 
+            "creditset": 4, 
+            "image_200": "seals/Stars_Seal_Silver_RGB_72.png", 
+            "publish_score": true, 
+            "minimal_score": 45
+        }
+    }
+]

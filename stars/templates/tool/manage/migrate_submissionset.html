@@ -1,0 +1,22 @@
+{% extends 'tool/manage/submissionset_base.html' %}
+
+{% block crumbs %} {{ block.super }} &gt; Migrate Submission Set{% endblock %}
+
+{% block institution_content %}
+    <h2>Migrate Submission Set to {{ latest_creditset }}</h2>
+    {% load content %}
+    {% display_block_content 'migrate_submissionset' user %}
+    <div class='greyBox'>
+    <form method='post' action='.'>
+    <table class='form'>
+        {{ object_form }}
+        <tr>
+            <td>
+                <button type='submit'>Migrate</button>
+                <button type='button' onclick="document.location='/tool/manage/submissionsets/';">Cancel</button>
+            </td>
+        </tr>
+    </table>
+    </form>
+    </div>
+{% endblock %}

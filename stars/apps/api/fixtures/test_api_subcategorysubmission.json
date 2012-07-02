@@ -1,0 +1,162 @@
+[
+    {
+        "pk": 4994, 
+        "model": "submissions.subcategorysubmission", 
+        "fields": {
+            "category_submission": 1113, 
+            "points": 17.25, 
+            "subcategory": 23, 
+            "description": null
+        }
+    }, 
+    {
+        "pk": 4997, 
+        "model": "submissions.subcategorysubmission", 
+        "fields": {
+            "category_submission": 1114, 
+            "points": 6.5, 
+            "subcategory": 26, 
+            "description": null
+        }
+    }, 
+    {
+        "pk": 4135, 
+        "model": "submissions.subcategorysubmission", 
+        "fields": {
+            "category_submission": 917, 
+            "points": 15.0, 
+            "subcategory": 35, 
+            "description": null
+        }
+    }, 
+    {
+        "pk": 712, 
+        "model": "submissions.subcategorysubmission", 
+        "fields": {
+            "category_submission": 156, 
+            "points": 3.46, 
+            "subcategory": 8, 
+            "description": null
+        }
+    }, 
+    {
+        "pk": 4140, 
+        "model": "submissions.subcategorysubmission", 
+        "fields": {
+            "category_submission": 918, 
+            "points": null, 
+            "subcategory": 40, 
+            "description": null
+        }
+    }, 
+    {
+        "pk": 1165, 
+        "model": "submissions.subcategorysubmission", 
+        "fields": {
+            "category_submission": 257, 
+            "points": 17.75, 
+            "subcategory": 1, 
+            "description": null
+        }
+    }, 
+    {
+        "pk": 5006, 
+        "model": "submissions.subcategorysubmission", 
+        "fields": {
+            "category_submission": 1115, 
+            "points": 18.0, 
+            "subcategory": 35, 
+            "description": null
+        }
+    }, 
+    {
+        "pk": 1168, 
+        "model": "submissions.subcategorysubmission", 
+        "fields": {
+            "category_submission": 258, 
+            "points": 7.0199999999999996, 
+            "subcategory": 8, 
+            "description": null
+        }
+    }, 
+    {
+        "pk": 721, 
+        "model": "submissions.subcategorysubmission", 
+        "fields": {
+            "category_submission": 157, 
+            "points": 18.0, 
+            "subcategory": 17, 
+            "description": null
+        }
+    }, 
+    {
+        "pk": 5011, 
+        "model": "submissions.subcategorysubmission", 
+        "fields": {
+            "category_submission": 1116, 
+            "points": 4.0, 
+            "subcategory": 40, 
+            "description": null
+        }
+    }, 
+    {
+        "pk": 4126, 
+        "model": "submissions.subcategorysubmission", 
+        "fields": {
+            "category_submission": 916, 
+            "points": 4.0, 
+            "subcategory": 26, 
+            "description": null
+        }
+    }, 
+    {
+        "pk": 726, 
+        "model": "submissions.subcategorysubmission", 
+        "fields": {
+            "category_submission": 158, 
+            "points": 4.0, 
+            "subcategory": 22, 
+            "description": null
+        }
+    }, 
+    {
+        "pk": 1177, 
+        "model": "submissions.subcategorysubmission", 
+        "fields": {
+            "category_submission": 259, 
+            "points": 18.0, 
+            "subcategory": 17, 
+            "description": null
+        }
+    }, 
+    {
+        "pk": 4123, 
+        "model": "submissions.subcategorysubmission", 
+        "fields": {
+            "category_submission": 915, 
+            "points": 17.5, 
+            "subcategory": 23, 
+            "description": null
+        }
+    }, 
+    {
+        "pk": 1182, 
+        "model": "submissions.subcategorysubmission", 
+        "fields": {
+            "category_submission": 260, 
+            "points": 2.0, 
+            "subcategory": 22, 
+            "description": null
+        }
+    }, 
+    {
+        "pk": 709, 
+        "model": "submissions.subcategorysubmission", 
+        "fields": {
+            "category_submission": 155, 
+            "points": 17.25, 
+            "subcategory": 1, 
+            "description": null
+        }
+    }
+]

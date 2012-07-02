@@ -1,0 +1,62 @@
+[
+    {
+        "pk": 8, 
+        "model": "credits.category", 
+        "fields": {
+            "ordinal": 3, 
+            "description": "<p>The Planning, Administration &amp; Engagement section includes the subcategories Coordination and Planning, Diversity and Affordability, Human Resources, Investment, and Public Engagement.</p>", 
+            "previous_version": 3, 
+            "title": "Planning, Administration & Engagement", 
+            "creditset": 4, 
+            "include_in_score": true, 
+            "abbreviation": "PAE", 
+            "include_in_report": true, 
+            "max_point_value": 0
+        }
+    }, 
+    {
+        "pk": 1, 
+        "model": "credits.category", 
+        "fields": {
+            "ordinal": 0, 
+            "description": "<p>The Education &amp; Research category includes Co-Curricular Education, Curriculum, and Research sub-categories.</p>", 
+            "previous_version": null, 
+            "title": "Education & Research", 
+            "creditset": 2, 
+            "include_in_score": true, 
+            "abbreviation": "ER", 
+            "include_in_report": true, 
+            "max_point_value": 0
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "credits.category", 
+        "fields": {
+            "ordinal": 2, 
+            "description": "<p>The Operations category includes Buildings, Climate, Dining Services, Energy, Grounds, Purchasing, Transportation, Waste, and Water sub-categories.</p>", 
+            "previous_version": null, 
+            "title": "Operations", 
+            "creditset": 2, 
+            "include_in_score": true, 
+            "abbreviation": "OP", 
+            "include_in_report": true, 
+            "max_point_value": 0
+        }
+    }, 
+    {
+        "pk": 12, 
+        "model": "credits.category", 
+        "fields": {
+            "ordinal": 3, 
+            "description": "<p>The Planning, Administration &amp; Engagement section includes the subcategories Coordination and Planning, Diversity and Affordability, Human Resources, Investment, and Public Engagement.</p>", 
+            "previous_version": 8, 
+            "title": "Planning, Administration & Engagement", 
+            "creditset": 5, 
+            "include_in_score": true, 
+            "abbreviation": "PAE", 
+            "include_in_report": true, 
+            "max_point_value": 0
+        }
+    }
+]

@@ -1,0 +1,107 @@
+[
+    {
+        "pk": 16, 
+        "model": "credits.credit", 
+        "fields": {
+            "ordinal": 2, 
+            "scoring": "<p>Institutions earn the maximum of 10 points for this credit when sustainability-related courses comprise 30 percent or more of all courses offered.&nbsp; Incremental points are available based on the percentage of course offerings that are sustainability-related.&nbsp; For example, an institution where 15 percent of all courses offered were related to sustainability would earn 5 points (half of the points available for this credit).</p>", 
+            "staff_notes": "", 
+            "subcategory": 3, 
+            "previous_version": null, 
+            "title": "Sustainability-Related Courses", 
+            "criteria": "<p>Institution offers sustainability-related academic courses.&nbsp;</p>\r\n<p>This credit does not include continuing education and extension courses, which are covered by <em>PAE Credit 21: Sustainability in Continuing Education</em>.&nbsp;</p>", 
+            "measurement": "<h3>Timeframe</h3>\r\n<p>Report the most recent data available.&nbsp;</p>\r\n<p>Institutions may choose to report course offerings from one, two, or three academic years, as long as both the total number of courses offered and the number of sustainability-related courses offered are measured during the same time.&nbsp;</p>\r\n<h3>Sampling and Data Standards</h3>\r\n<p>Courses that are cross-listed in multiple departments do not count as separate courses.&nbsp;</p>\r\n<p>To streamline the data gathering process, institutions may choose to count each time a course is offered (e.g. multiple sections of the same course) as a separate course or as the same course, as long as sustainability-related course offerings are counted in the same way as total course offerings.&nbsp;&nbsp; For example, a course that is held twice (or if there are two sections) in the fall term and once in the spring term may be counted as 3 courses or 1 course, as long as the institution&rsquo;s course counting methodology is consistent.&nbsp;</p>\r\n<p>Courses offered by outside entities (e.g. courses offered by other colleges that are part of a consortium with the institution or courses offered through study abroad programs that are not administered by the institution) should not be counted in the participating institution&rsquo;s course inventory.&nbsp;&nbsp;</p>\r\n<p>However, courses developed and offered jointly by multiple institutions that are listed in the participating institution&rsquo;s course catalog may be counted.&nbsp; In such circumstances, sustainability and non-sustainability courses should be counted consistently.&nbsp; This means that if sustainability courses offered jointly by the participating institution and another entity are included in the inventory, non sustainability courses meeting these criteria should be included as well.&nbsp; &nbsp;</p>", 
+            "number": 7, 
+            "point_value": 10.0, 
+            "applicability": "<p>This credit applies to all institutions.</p>", 
+            "validation_rules": "if A > B:\n  errors['A'] = \"Oops! The total number of courses offered should be greater than or equal to the number of sustainability-related courses offered.\"\n\nif A>0 and not (D or E or F):\n  errors['top'] = \"One of these fields must be completed in order to earn points for this credit: a list of sustainability-related courses, the link to the publicly available sustainability course inventory, or a copy of the inventory.\"  ", 
+            "formula": "var1 = (A/B)\n\nif var1 > 0.30:\n  var2 = 0.30 \nelse:\n  var2 = var1\n\npoints = (10/0.3) * var2", 
+            "identifier": "ER-7", 
+            "type": "t1"
+        }
+    }, 
+    {
+        "pk": 57, 
+        "model": "credits.credit", 
+        "fields": {
+            "ordinal": 1, 
+            "scoring": "0.25 points available.", 
+            "staff_notes": "", 
+            "subcategory": 10, 
+            "previous_version": null, 
+            "title": "Trayless Dining", 
+            "criteria": "<p>Institution has a trayless dining program in which trays are removed from or not available in dining halls.&nbsp; The program may take the form of trays being eliminated permanently, being eliminated in some but not all cafeterias, or being removed during certain time periods. &nbsp;</p>", 
+            "measurement": "", 
+            "number": 1, 
+            "point_value": 0.25, 
+            "applicability": "<p>This credit applies to all institutions that have residential dining halls.&nbsp;</p>", 
+            "validation_rules": null, 
+            "formula": "if A == True:\n    points = 0.25\nelse:\n    points = 0", 
+            "identifier": "Tier2-1", 
+            "type": "t2"
+        }
+    }, 
+    {
+        "pk": 258, 
+        "model": "credits.credit", 
+        "fields": {
+            "ordinal": 3, 
+            "scoring": "<p>Institutions earn 2 points for meeting the criteria outlined above.&nbsp;&nbsp; Partial points are not available for this credit.&nbsp;</p>\r\n<p>&nbsp;</p>", 
+            "staff_notes": "", 
+            "subcategory": 37, 
+            "previous_version": 116, 
+            "title": "Sustainability in New Employee Orientation", 
+            "criteria": "<p>Institution covers sustainability topics in new employee orientation and/or in outreach and guidance materials distributed to new employees, including faculty and staff.&nbsp;&nbsp;&nbsp;&nbsp;</p>", 
+            "measurement": "<h3>Timeframe</h3>\r\n<p>Report on current program status and offerings.&nbsp;</p>\r\n<h3>Sampling and Data Standards</h3>\r\n<p>Not applicable</p>", 
+            "number": 14, 
+            "point_value": 2.0, 
+            "applicability": "<p>This credit applies to all institutions.</p>", 
+            "validation_rules": "", 
+            "formula": "points = 2 if C else 0", 
+            "identifier": "PAE-14", 
+            "type": "t1"
+        }
+    }, 
+    {
+        "pk": 37, 
+        "model": "credits.credit", 
+        "fields": {
+            "ordinal": 0, 
+            "scoring": "<p>Institutions earn the maximum of 6 points when food that meets the criteria outlined above comprises 50 percent or more of food purchases.&nbsp; Incremental points are available based on the percentage of food expenditures devoted to sustainable food.&nbsp; For example, an institution that spent 25 percent of its food budget on sustainable food would earn 3 points (half of the points available for this credit).</p>", 
+            "staff_notes": "", 
+            "subcategory": 10, 
+            "previous_version": null, 
+            "title": "Food Purchasing", 
+            "criteria": "<p>Institution purchases food that meets one or more of the following criteria:</p>\r\n<ul>\r\n<li>Grown and processed within 250 miles of the institution</li>\r\n<li>Third-party certified (USDA Certified Organic, Marine Stewardship Council Blue Ecolabel, Food Alliance, Fair Trade) </li>\r\n<li>Grown on a farm that operates as a cooperative, has a profit sharing policy for all employees, or has a social responsibility policy covering the following for all workers: union or prevailing wages, transportation and/or housing support, and/or health care benefits.<span> <br /></span></li>\r\n</ul>\r\n<p>Food purchases that meet multiple criteria listed above should not be double-counted.<span>&nbsp;</span></p>\r\n<ul>\r\n</ul>\r\n<p>This credit includes food purchases for dining halls and catering services operated by the institution or the institution&rsquo;s primary dining services contractor (e.g. Aramark, Bon App&eacute;tit Management Company, Chartwells, Sodexo).&nbsp; On-site franchises, convenience stores, vending machines, or concessions are excluded from this credit.&nbsp;&nbsp;</p>", 
+            "measurement": "<h3>Timeframe</h3>\r\n<p>Report the most recent data available.&nbsp;&nbsp;&nbsp;</p>\r\n<h3>Sampling and Data Standards</h3>\r\n<p>Institutions may choose to track food purchases for a 12-month consecutive period or use representative samples.&nbsp; When using samples, institutions should accommodate seasonal and other variations in sustainable food availability and purchasing.&nbsp;</p>\r\n<p>Include food purchases for dining halls and catering services operated by the institution or the institution&rsquo;s primary dining services contractor.&nbsp; On-site franchises, convenience stores, vending machines, or concessions are excluded from this credit.&nbsp;&nbsp;</p>", 
+            "number": 6, 
+            "point_value": 6.0, 
+            "applicability": "<p>This credit applies to all institutions that have residential dining halls.&nbsp; Institutions that do not have residential dining halls may choose to pursue or omit this credit.&nbsp;</p>", 
+            "validation_rules": "", 
+            "formula": "points = 12 * (A/100) \n\nif points > 6:\n  points = 6", 
+            "identifier": "OP-6", 
+            "type": "t1"
+        }
+    }, 
+    {
+        "pk": 398, 
+        "model": "credits.credit", 
+        "fields": {
+            "ordinal": 4, 
+            "scoring": "<p>Institutions earn the maximum of 5 points for this credit by having a peer-to-peer educator program that reaches all employees.&nbsp; Incremental points are available based on the percentage of employees served by the peer-to-peer educator program.&nbsp; For example, an institution with a program that serves 50 percent of all employees would earn 2.5 points (half of the points available for this credit).</p>", 
+            "staff_notes": "", 
+            "subcategory": 55, 
+            "previous_version": 259, 
+            "title": "Employee Sustainability Educators Program", 
+            "criteria": "<p>Institution administers or oversees an ongoing faculty/staff peer-to-peer sustainability outreach and education program.&nbsp; In the program, employee sustainability educators are formally designated and receive formal training or participate in an institution-sponsored orientation.&nbsp; The institution offers financial or other support to the program.</p>", 
+            "measurement": "<h3>Timeframe</h3>\r\n<p>Report on current program status and offerings.&nbsp;</p>\r\n<h3>Sampling and Data Standards</h3>\r\n<p>Not applicable</p>", 
+            "number": 15, 
+            "point_value": 5.0, 
+            "applicability": "<p>This credit applies to all institutions.</p>", 
+            "validation_rules": "if H > F:\n  errors['H'] = \"Oops! The number of employees served by the first program should be less than or equal to the total number of people employed by the institution.\"\n\nif H > 200000:\n  warnings['H'] = \"The number of employees served by the first program is larger than expected.\"\n\nif M > F:\n  errors['M'] = \"Oops! The number of employees served by the second program should be less than or equal to the total number of people employed by the institution.\"\n\nif M > 200000:\n  warnings['M'] = \"The number of students served by the second program is larger than expected.\"\n\nif P > F:\n  errors['P'] = \"Oops! The number of employees served by all other programs should be less than or equal to the total number of people employed by the institution.\"\n\nif P > 200000:\n  warnings['P'] = \"The number of students served by the third program is larger than expected.\"\n\nif M:  # number of employees for 2nd program is non-zero...\n  if not L:\n    errors['L'] = \"This field is required to earn points for the second program.\"\n\n  if not B:\n    errors['B'] = \"This field is required to earn points for the second program.\"\n\n  if not C:\n    errors['C'] = \"This field is required to earn points for the second program.\"\n\n  if not D:\n    errors['D'] = \"This field is required to earn points for the second program.\"\n\n\nif P:   # number of employees served by other progs is non-zero\n  if not O:\n   errors['O'] = \"This field is required to earn points for all other programs.\"\n\n  if not Q:\n    errors['Q'] = \"This field is required to earn points for all other programs.\"\n\n  if not R:\n    errors['R'] = \"This field is required to earn points for all other programs.\"\n\n  if not S:\n    errors['S'] = \"This field is required to earn points for all other programs.\"", 
+            "formula": "emp_served = H + (M or 0) + (P or 0) #total employees served by a program\n\nif emp_served >= F:\n  var2 = F \nelse:\n  var2 = emp_served\n\n\npoints = 5 * (var2/F)", 
+            "identifier": "PAE-15", 
+            "type": "t1"
+        }
+    }
+]

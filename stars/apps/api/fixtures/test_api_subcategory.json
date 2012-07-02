@@ -1,0 +1,50 @@
+[
+    {
+        "pk": 10, 
+        "model": "credits.subcategory", 
+        "fields": {
+            "category": 2, 
+            "ordinal": 2, 
+            "description": "<p>This subcategory seeks to recognize institutions that are helping build a sustainable food system. Modern industrial food production often has deleterious environmental impacts.&nbsp; Pesticides and fertilizers used in agriculture can contaminate ground and surface water, which has potentially dangerous impacts on wildlife and human health.&nbsp; Furthermore, the often long-distance transportation of food to institutions produces greenhouse gas emissions and other pollution.&nbsp; Additionally, farm workers are often paid sub-standard wages, subjected to harsh working conditions, and exposed to dangerous pesticides. Institutions can use their food purchases to support their local economies; encourage safe, environmentally-friendly farming methods; and help alleviate poverty for farmers.</p>\r\n<p>Please note that while dining services can also play an important role in conserving energy and water, reducing waste, and purchasing environmentally preferable materials other than food, STARS measures these impacts across the institution instead of by department; therefore, the benefits of these actions are captured in the Energy, Water, Waste, and Purchasing subcategories, respectively.</p>", 
+            "previous_version": null, 
+            "title": "Dining Services", 
+            "max_point_value": 0
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "credits.subcategory", 
+        "fields": {
+            "category": 1, 
+            "ordinal": 1, 
+            "description": "<p>This subcategory seeks to recognize institutions that have formal education programs and courses that address sustainability.&nbsp; One of the primary functions of colleges and universities is to educate students.&nbsp; By training and educating future leaders, scholars, workers, and professionals, higher education institutions are uniquely positioned to prepare students to understand and address sustainability challenges.&nbsp; Institutions that offer courses covering sustainability issues help equip their students to lead society to a sustainable future.&nbsp; &nbsp;&nbsp;</p>", 
+            "previous_version": null, 
+            "title": "Curriculum", 
+            "max_point_value": 0
+        }
+    }, 
+    {
+        "pk": 37, 
+        "model": "credits.subcategory", 
+        "fields": {
+            "category": 8, 
+            "ordinal": 2, 
+            "description": "<p>This subcategory seeks to recognize institutions that have incorporated sustainability into their human resources programs and policies.&nbsp; This includes recognition for treating and remunerating their workers responsibly and fairly.&nbsp; An institution&rsquo;s people define its character and capacity to perform; and so, an institution&rsquo;s achievements can only be as strong as its community.&nbsp; An institution can bolster the strength of its community by making fair and responsible investments in its human capital.&nbsp; Such investments include offering benefits, wages, and other assistance that serve to respectfully and ethically compensate workers.&nbsp; Investment in human resources is integral to the achievement of a healthy and sustainable balance between human capital, natural capital, and financial capital.</p>\r\n<p>In addition, this subcategory recognizes faculty and staff training and development programs in sustainability.&nbsp; Faculty and staff members&rsquo; daily decisions impact an institution&rsquo;s sustainability performance.&nbsp; Equipping faculty and staff with the tools, knowledge, and motivation to adopt behavior changes that promote sustainability is an essential activity of a sustainable campus.&nbsp;&nbsp;&nbsp;</p>", 
+            "previous_version": 19, 
+            "title": "Human Resources", 
+            "max_point_value": 0
+        }
+    }, 
+    {
+        "pk": 55, 
+        "model": "credits.subcategory", 
+        "fields": {
+            "category": 12, 
+            "ordinal": 2, 
+            "description": "<p>This subcategory seeks to recognize institutions that have incorporated sustainability into their human resources programs and policies.&nbsp; This includes recognition for treating and remunerating their workers responsibly and fairly.&nbsp; An institution&rsquo;s people define its character and capacity to perform; and so, an institution&rsquo;s achievements can only be as strong as its community.&nbsp; An institution can bolster the strength of its community by making fair and responsible investments in its human capital.&nbsp; Such investments include offering benefits, wages, and other assistance that serve to respectfully and ethically compensate workers.&nbsp; Investment in human resources is integral to the achievement of a healthy and sustainable balance between human capital, natural capital, and financial capital.</p>\r\n<p>In addition, this subcategory recognizes faculty and staff training and development programs in sustainability.&nbsp; Faculty and staff members&rsquo; daily decisions impact an institution&rsquo;s sustainability performance.&nbsp; Equipping faculty and staff with the tools, knowledge, and motivation to adopt behavior changes that promote sustainability is an essential activity of a sustainable campus.&nbsp;&nbsp;&nbsp;</p>", 
+            "previous_version": 37, 
+            "title": "Human Resources", 
+            "max_point_value": 0
+        }
+    }
+]

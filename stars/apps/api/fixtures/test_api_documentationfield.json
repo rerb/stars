@@ -1,0 +1,662 @@
+[
+    {
+        "pk": 406, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 0, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": null, 
+            "title": "Does the institution have a trayless dining program in which trays are removed from or not available in dining halls?", 
+            "tooltip_help_text": "<p>The program may take the form of trays being removed permanently, being eliminated in some but not all cafeterias, or being removed during certain time periods.</p>", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 57, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "A", 
+            "type": "boolean", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 407, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 1, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": null, 
+            "title": "A brief description of the trayless dining program", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 57, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "B", 
+            "type": "long_text", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 408, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 2, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": null, 
+            "title": "The website URL where information about the program is available", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 57, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "C", 
+            "type": "url", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1400, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 0, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 762, 
+            "title": "Does the institution cover sustainability topics in new employee orientation and/or in outreach and guidance materials distributed to new employees, including faculty and staff?", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 258, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "C", 
+            "type": "boolean", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1402, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 1, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 620, 
+            "title": "A brief description of how sustainability is included in new employee orientation", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 258, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "A", 
+            "type": "long_text", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 1401, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 2, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": 621, 
+            "title": "The website URL for the information about sustainability in new employee orientation", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 258, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "B", 
+            "type": "url", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2153, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 0, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 1417, 
+            "title": "Total number of people employed by the institution", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": 0, 
+            "credit": 398, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "F", 
+            "type": "numeric", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2154, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 1, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 1416, 
+            "title": "Program name (1st program)  ", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 398, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "G", 
+            "type": "text", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2155, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 2, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 1415, 
+            "title": "Number of employees served by the program (1st program)", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": 0, 
+            "credit": 398, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "H", 
+            "type": "numeric", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2156, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 3, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 1414, 
+            "title": " A brief description of how the employee educators are selected (1st program)", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 398, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "I", 
+            "type": "long_text", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2157, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 4, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 1413, 
+            "title": "A brief description of the formal training that the employee educators receive (1st program)", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 398, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "J", 
+            "type": "long_text", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2158, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 5, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": 1412, 
+            "title": "A brief description of the staff and/or other financial support the institution provides to the program (1st program)", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 398, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "K", 
+            "type": "long_text", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2152, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 6, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": 1418, 
+            "title": "The website URL where information about the program is available (1st program)", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 398, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "E", 
+            "type": "url", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2159, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 7, 
+            "max_range": null, 
+            "required": "cond", 
+            "previous_version": 1411, 
+            "title": "Program name (2nd program)", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 398, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "L", 
+            "type": "text", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2160, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 8, 
+            "max_range": null, 
+            "required": "cond", 
+            "previous_version": 1410, 
+            "title": "Number of employees served by the program (2nd program)", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": 0, 
+            "credit": 398, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "M", 
+            "type": "numeric", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2149, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 9, 
+            "max_range": null, 
+            "required": "cond", 
+            "previous_version": 1421, 
+            "title": "A brief description of how the employee educators are selected (2nd program)", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 398, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "B", 
+            "type": "long_text", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2150, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 10, 
+            "max_range": null, 
+            "required": "cond", 
+            "previous_version": 1420, 
+            "title": "A brief description of the formal training that the employee educators receive (2nd program)", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 398, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "C", 
+            "type": "long_text", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2151, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 11, 
+            "max_range": null, 
+            "required": "cond", 
+            "previous_version": 1419, 
+            "title": "A brief description of the financial or other support the institution provides to the program (2nd program)", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 398, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "D", 
+            "type": "long_text", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2161, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 12, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": 1409, 
+            "title": "The website URL where information about the program is available (2nd program)", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 398, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "N", 
+            "type": "url", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2162, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 13, 
+            "max_range": null, 
+            "required": "cond", 
+            "previous_version": 1408, 
+            "title": "Program name(s) (all other programs)", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 398, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "O", 
+            "type": "text", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2163, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 14, 
+            "max_range": null, 
+            "required": "cond", 
+            "previous_version": 1407, 
+            "title": "Number of employees served by the program(s) (all other programs)", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": 0, 
+            "credit": 398, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "P", 
+            "type": "numeric", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2164, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 15, 
+            "max_range": null, 
+            "required": "cond", 
+            "previous_version": 1406, 
+            "title": "A brief description of how the employee educators are selected (all other programs)", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 398, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "Q", 
+            "type": "long_text", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2165, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 16, 
+            "max_range": null, 
+            "required": "cond", 
+            "previous_version": 1405, 
+            "title": "A brief description of the formal training that the employee educators receive (all other programs)", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 398, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "R", 
+            "type": "long_text", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2166, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 17, 
+            "max_range": null, 
+            "required": "cond", 
+            "previous_version": 1404, 
+            "title": "A brief description of the staff and/or other financial support the institution provides to the program(s) (all other programs)", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 398, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "S", 
+            "type": "long_text", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 2167, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 18, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": 1403, 
+            "title": "The website URL where information about the program(s) is available (all other programs)", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 398, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "T", 
+            "type": "url", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 275, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 0, 
+            "max_range": 100, 
+            "required": "req", 
+            "previous_version": null, 
+            "title": "Percentage of food expenditures that meet one or more of the criteria for this credit (0 - 100)", 
+            "tooltip_help_text": "<p>Any of the following criteria may be counted for this credit:</p>\r\n<ul>\r\n<li>Grown and processed within 250 miles of the institution</li>\r\n<li>Third-party certified (USDA Certified Organic, Marine Stewardship Council Blue Ecolabel, Food Alliance, Fair Trade)</li>\r\n<li> Grown on a farm that operates as a cooperative, has a profit sharing policy for all employees, or has a social responsibility policy covering all workers</li>\r\n</ul>", 
+            "last_choice_is_other": false, 
+            "min_range": 0, 
+            "credit": 37, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "A", 
+            "type": "numeric", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 276, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 1, 
+            "max_range": null, 
+            "required": "opt", 
+            "previous_version": null, 
+            "title": "The Website URL where information about the institution's sustainable food procurement efforts is available", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 37, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "B", 
+            "type": "url", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 162, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 0, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": null, 
+            "title": "The number of sustainability-related courses offered ", 
+            "tooltip_help_text": "<h3>Sustainability-Related Courses</h3>\r\n<p>Sustainability-related courses incorporate sustainability as a distinct course component or module, or concentrate on a single sustainability principle or issue.</p>\r\n<p>&nbsp;</p>", 
+            "last_choice_is_other": false, 
+            "min_range": 0, 
+            "credit": 16, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "A", 
+            "type": "numeric", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 163, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 1, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": null, 
+            "title": "The total number of courses offered ", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": 0, 
+            "credit": 16, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "B", 
+            "type": "numeric", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 164, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 2, 
+            "max_range": null, 
+            "required": "req", 
+            "previous_version": null, 
+            "title": "Number of years covered by the data", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 16, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "C", 
+            "type": "choice", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 218, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 3, 
+            "max_range": null, 
+            "required": "cond", 
+            "previous_version": null, 
+            "title": "A list of sustainability-related courses offered", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 16, 
+            "inline_help_text": "<p><span><span><span>The website URL where the inventory is posted or a copy of the inventory may be provided instead of this list if the inventory includes the relevant information.</span></span></span></p>", 
+            "units": null, 
+            "identifier": "D", 
+            "type": "long_text", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 383, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 4, 
+            "max_range": null, 
+            "required": "cond", 
+            "previous_version": null, 
+            "title": "The website URL where the sustainability course inventory that includes a list of sustainability-related courses is posted", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 16, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "E", 
+            "type": "url", 
+            "is_published": true
+        }
+    }, 
+    {
+        "pk": 384, 
+        "model": "credits.documentationfield", 
+        "fields": {
+            "ordinal": 5, 
+            "max_range": null, 
+            "required": "cond", 
+            "previous_version": null, 
+            "title": "A copy of the sustainability course inventory", 
+            "tooltip_help_text": "", 
+            "last_choice_is_other": false, 
+            "min_range": null, 
+            "credit": 16, 
+            "inline_help_text": "", 
+            "units": null, 
+            "identifier": "F", 
+            "type": "upload", 
+            "is_published": true
+        }
+    }
+]
