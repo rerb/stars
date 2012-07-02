@@ -42,7 +42,7 @@ class SubmissionSetResource(StarsApiResource):
         # exclude submission_boundary becauses it raises
         # "'ascii' codec can't decode byte ... in position ...: ordinal not
         # in range(128)"
-        excludes = [
+        excludes = StarsApiResource.Meta.excludes + [
             'is_locked',
             'is_visible',
             'date_reviewed',
@@ -449,7 +449,7 @@ class CreditSubmissionResource(StarsApiResource):
         # exclude submission_notes  becauses it raises
         # "'ascii' codec can't decode byte ... in position ...: ordinal not
         # in range(128)"
-        excludes = [
+        excludes = StarsApiResource.Meta.excludes + [
                         'last_updated',
                         'internal_notes',
                         'responsible_party_confirm',

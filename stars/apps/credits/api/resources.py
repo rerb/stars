@@ -64,10 +64,10 @@ class CreditResource(StarsApiResource):
         # exclude these fields because they raise
         # "'ascii' codec can't decode byte ... in position ...: ordinal not
         # in range(128)"
-        excludes = ['validation_rules',
-                    'formula',
-                    'staff_notes'
-                   ]
+        excludes = StarsApiResource.Meta.excludes + ['validation_rules',
+                                                     'formula',
+                                                     'staff_notes'
+                                                     ]
 
 
 class NestedCreditResource(CreditResource):
@@ -117,11 +117,11 @@ class DocumentationFieldResource(StarsApiResource):
         queryset = credits_models.DocumentationField.objects.all()
         resource_name = 'credits/field'
         allowed_methods = ['get']
-        excludes = [
-                    'last_choice_is_other',
-                    'is_published',
-                    'identifier',
-                ]
+        excludes = StarsApiResource.Meta.excludes + [
+            'last_choice_is_other',
+            'is_published',
+            'identifier',
+            ]
 
 
 class NestedDocumentationFieldResource(DocumentationFieldResource):
@@ -149,7 +149,7 @@ class SubcategoryResource(StarsApiResource):
         queryset = credits_models.Subcategory.objects.all()
         resource_name = 'credits/subcategory'
         allowed_methods = ['get']
-        excludes = ['max_point_value']
+        excludes = StarsApiResource.Meta.excludes + ['max_point_value']
 
 
 class NestedSubcategoryResource(SubcategoryResource):
