@@ -135,9 +135,9 @@ INSTALLED_APPS = (
     'django_extensions',
     'djcelery',
     'aashe_rules',
-    # 'tastypie',
+    'tastypie',
     'bootstrapform',
-    # 'memcache_status',
+    'memcache_status',
 )
 
 # Is this running on the django dev server?
