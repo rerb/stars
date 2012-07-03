@@ -18,8 +18,7 @@ class InstitutionResource(StarsApiResource):
         'submissionset_set', full=True)
 
     class Meta(StarsApiResource.Meta):
-        # @todo: filter out Institutions w/enabled == False?
-        queryset = models.Institution.objects.all()
+        queryset = models.Institution.objects.filter(enabled=True)
         resource_name = 'institutions'
         # @todo: need aashe_id and/or id?
         fields = ['name', 'aashe_id', 'id']
