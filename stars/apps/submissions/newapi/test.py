@@ -10,6 +10,8 @@ you have the data they're looking for) when run via doctest, like this:
    #>>> from stars.apps.submissions.newapi import test
    #>>> doctest.testmod(test)
 """
+import json
+
 from stars.apps.api.test import StarsApiTestCase
 from stars.apps.submissions.models import SubmissionSet
 from stars.apps.submissions.newapi.resources import SubmissionSetResource
@@ -17,6 +19,22 @@ from stars.apps.submissions.newapi.resources import SubmissionSetResource
 def submissions_detail_path(submissionset_id):
     path = '/api/v1/submissions/{0}/'.format(submissionset_id)
     return path
+
+def submissionset_for_subcategorysubmission(subcategorysubmission):
+    categorysubmission = subcategorysubmission.category_submission
+    return categorysubmission.submissionset
+
+def subcatsub_with_points(from_reporter=True):
+    """Get a SubcategorySubmission with points, related to a
+    visible SubmissionSet, optionally submitted by a reporter.
+    """
+    for submission_from_reporter in \
+        SubmissionSetResource._meta.queryset.filter(
+            reporter_status=from_reporter):
+      for catsub in submission_from_reporter.categorysubmission_set.all():
+            for subcatsub in catsub.subcategorysubmission_set.filter(
+                    points__gt=0):
+                return subcatsub
 
 
 class SubmissionSetResourceTestCase(StarsApiTestCase):
@@ -181,8 +199,13 @@ class CategorySubmissionResourceTestCase(StarsApiTestCase):
 
 class SubcategorySubmissionResourceTestCase(StarsApiTestCase):
 
-    list_path = submissions_detail_path(75) + 'subcategory/'
-    detail_path = list_path + '3/'
+    def list_path(self, submissionset_id=75):
+        return submissions_detail_path(submissionset_id) + 'subcategory/'
+
+    def detail_path(self, submissionset_id=75, subcategory_id=3):
+        return '{list_path}{subcategory_id}/'.format(
+            list_path=self.list_path(submissionset_id),
+            subcategory_id=subcategory_id)
 
     def test_get_subcategorysubmission_list_requires_auth(self):
         """
@@ -197,7 +220,7 @@ class SubcategorySubmissionResourceTestCase(StarsApiTestCase):
         []
         >>>
         """
-        self.requires_auth(self.list_path)
+        self.requires_auth(self.list_path())
 
     def test_get_subcategorysubmission_list(self):
         """
@@ -212,7 +235,7 @@ class SubcategorySubmissionResourceTestCase(StarsApiTestCase):
         []
         >>>
         """
-        resp = self.get(self.list_path)
+        resp = self.get(self.list_path())
         self.assertValidJSONResponse(resp)
 
     def test_get_subcategorysubmission_detail_requires_auth(self):
@@ -228,7 +251,7 @@ class SubcategorySubmissionResourceTestCase(StarsApiTestCase):
         []
         >>>
         """
-        self.requires_auth(self.detail_path)
+        self.requires_auth(self.detail_path())
 
     def test_get_subcategorysubmission_detail(self):
         """
@@ -243,12 +266,50 @@ class SubcategorySubmissionResourceTestCase(StarsApiTestCase):
         []
         >>>
         """
-        resp = self.get(self.detail_path)
+        resp = self.get(self.detail_path())
         self.assertValidJSONResponse(resp)
+
+    def test_dehydrate_points(self):
+        """Points for SubmissionSets from data reports should be
+        hidden.
+
+        >>> from unittest import TestResult
+        >>> result = TestResult()
+        >>> test = SubcategorySubmissionResourceTestCase(\
+                    'test_dehydrate_points')
+        >>> test.run(result)
+        >>> result.testsRun
+        1
+        >>> result.errors + result.failures
+        []
+        >>>
+        """
+        # Make sure points aren't None for everybody:
+        subcatsub_with_points_not_from_reporter = subcatsub_with_points(
+            from_reporter=False)
+        subcategory_id = subcatsub_with_points_not_from_reporter.subcategory.id
+        resp = self.get(self.detail_path(
+            submissionset_id=submissionset_for_subcategorysubmission(
+                subcatsub_with_points_not_from_reporter).id,
+            subcategory_id=subcategory_id))
+        self.assertValidJSONResponse(resp)
+        payload = json.loads(resp.content)
+        self.assertTrue(payload['points'] is not None)
+        # Now check that they're None for reporters:
+        subcatsub_with_points_from_reporter = subcatsub_with_points(
+            from_reporter=True)
+        subcategory_id = subcatsub_with_points_from_reporter.subcategory.id
+        resp = self.get(self.detail_path(
+            submissionset_id=submissionset_for_subcategorysubmission(
+                subcatsub_with_points_from_reporter).id,
+            subcategory_id=subcategory_id))
+        self.assertValidJSONResponse(resp)
+        payload = json.loads(resp.content)
+        self.assertTrue(payload['points'] is None)
 
 
 class CreditSubmissionResourceTestCase(StarsApiTestCase):
-    #1602
+
     list_path = submissions_detail_path(75) + 'credit/'
     detail_path = list_path + '17/'
 
