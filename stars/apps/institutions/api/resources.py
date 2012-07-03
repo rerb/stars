@@ -16,13 +16,28 @@ class InstitutionResource(StarsApiResource):
     submission_sets = fields.OneToManyField(
         SUBMISSIONS_RESOURCE_PATH + "NestedSubmissionSetResource",
         'submissionset_set', full=True)
+    postal_code = fields.CharField(readonly=True)
+    city = fields.CharField(readonly=True)
+    state = fields.CharField(readonly=True)
+    country = fields.CharField(readonly=True)
 
     class Meta(StarsApiResource.Meta):
         queryset = models.Institution.objects.filter(enabled=True)
         resource_name = 'institutions'
-        # @todo: need aashe_id and/or id?
         fields = ['name']
         allowed_methods = ['get']
+
+    def dehydrate_city(self, bundle):
+        return bundle.obj.profile.city
+
+    def dehydrate_state(self, bundle):
+        return bundle.obj.profile.state
+
+    def dehydrate_country(self, bundle):
+        return bundle.obj.profile.country
+
+    def dehydrate_postal_code(self, bundle):
+        return bundle.obj.profile.postal_code
 
     def dehydrate_submission_sets(self, bundle):
         """Filter unrated submission sets."""
