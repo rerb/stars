@@ -298,7 +298,7 @@ class Boundary(models.Model):
     fte_employmees = models.IntegerField("Full-time Equivalent Employees", blank=True, null=True)
     institution_type = models.CharField(max_length=32, choices=INSTITUTION_TYPE_CHOICES, blank=True, null=True)
     institutional_control = models.CharField(max_length=32, choices=INSTITUTION_CONTROL_CHOICES, blank=True, null=True)
-    endowment_size = models.IntegerField(blank=True, null=True)
+    endowment_size = models.BigIntegerField(blank=True, null=True)
     student_residential_percent = models.FloatField('Percentage of students that are Residential', blank=True, null=True)
     student_ftc_percent = models.FloatField('Percentage of students that are Full-time commuter', blank=True, null=True, help_text="Please indicate the percentage of full-time enrolled students that commute to campus.")
     student_ptc_percent = models.FloatField('Percentage of students that are Part-time commuter', blank=True, null=True, help_text='Please indicate the percentage of part-time enrolled students that commute to campus.')
