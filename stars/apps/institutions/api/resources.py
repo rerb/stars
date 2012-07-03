@@ -41,10 +41,9 @@ class InstitutionResource(StarsApiResource):
 
     def dehydrate_submission_sets(self, bundle):
         """Filter unrated submission sets."""
-        for submission in bundle.data['submission_sets']:
-            if submission not in SubmissionSet.objects.get_rated():
-                del(submission)
-        return bundle.data['submission_sets']
+        rated_submissions = [ ss for ss in bundle.data['submission_sets']
+                              if ss.obj.rating ]
+        return rated_submissions
 
 
 class NestedInstitutionResource(StarsApiResource):
