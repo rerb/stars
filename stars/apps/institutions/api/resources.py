@@ -21,7 +21,7 @@ class InstitutionResource(StarsApiResource):
         queryset = models.Institution.objects.filter(enabled=True)
         resource_name = 'institutions'
         # @todo: need aashe_id and/or id?
-        fields = ['name', 'aashe_id', 'id']
+        fields = ['name']
         allowed_methods = ['get']
 
     def dehydrate_submission_sets(self, bundle):
