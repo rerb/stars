@@ -16,7 +16,7 @@ from stars.apps.api.test import StarsApiTestCase
 
 class InstitutionResourceTestCase(StarsApiTestCase):
 
-    list_path = '/api/v1/institutions/'
+    list_path = '/api/0.1/institutions/'
     detail_path = list_path + '24/'
 
     def test_get_institutions_list_requires_auth(self):

@@ -5,7 +5,7 @@ from django.utils import simplejson
 from tastypie.models import ApiKey
 from tastypie.test import ResourceTestCase
 
-API_URI = 'http://localhost:8000/api/v1'
+API_URI = 'http://localhost:8000/api/0.1'
 
 def get_random_visible_resource(resource):
     """Get a random instance of an ApiResource that's exposed.

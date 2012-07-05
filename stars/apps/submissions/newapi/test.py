@@ -16,7 +16,7 @@ from stars.apps.api.test import StarsApiTestCase
 from stars.apps.submissions.models import SubmissionSet
 from stars.apps.submissions.newapi.resources import SubmissionSetResource
 
-submissions_list_path = '/api/v1/submissions/'
+submissions_list_path = '/api/0.1/submissions/'
 
 def submissions_detail_path(submissionset_id=34):
     return '{list_path}{submissionset_id}/'.format(

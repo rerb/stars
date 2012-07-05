@@ -3,7 +3,7 @@ Tests for the STARS credits API.
 """
 from stars.apps.api.test import StarsApiTestCase
 
-BASE_API_PATH = '/api/v1/credits/'
+BASE_API_PATH = '/api/0.1/credits/'
 
 
 class CreditSetResourceTestCase(StarsApiTestCase):

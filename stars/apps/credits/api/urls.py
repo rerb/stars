@@ -1,12 +1,12 @@
 from tastypie.api import Api
 from stars.apps.credits.api import resources
 
-v1_api = Api(api_name='v1')
+api = Api(api_name='0.1')
 for model in (resources.CategoryResource,
               resources.CreditResource,
               resources.CreditSetResource,
               resources.DocumentationFieldResource,
               resources.SubcategoryResource):
-    v1_api.register(model())
+    api.register(model())
 
-urlpatterns = v1_api.urls
+urlpatterns = api.urls
