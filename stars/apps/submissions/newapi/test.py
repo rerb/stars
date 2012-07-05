@@ -216,6 +216,51 @@ class CategorySubmissionResourceTestCase(StarsApiTestCase):
         resp = self.get(self.detail_path)
         self.assertValidJSONResponse(resp)
 
+    def test_get_hidden_categorysubmission(self):
+        """
+        >>> from unittest import TestResult
+        >>> result = TestResult()
+        >>> test = CategorySubmissionResourceTestCase(\
+                'test_get_hidden_categorysubmission')
+        >>> test.run(result)
+        >>> result.testsRun
+        1
+        >>> result.errors + result.failures
+        []
+        >>>
+        """
+        # Get a submission set that should be filtered:
+        for submissionset in SubmissionSet.objects.all():
+            if submissionset not in SubmissionSetResource._meta.queryset:
+                hidden_submissionset = submissionset
+                break
+        resp = self.get(submissions_detail_path(hidden_submissionset.id))
+        self.assertHttpNotFound(resp)
+
+    def test_unrated_submissions_are_hidden(self):
+        """
+        >>> from unittest import TestResult
+        >>> result = TestResult()
+        >>> test = SubmissionSetResourceTestCase(\
+                    'test_unrated_submissions_are_hidden')
+        >>> test.run(result)
+        >>> result.testsRun
+        1
+        >>> result.errors + result.failures
+        []
+        >>>
+        """
+        resp = self.get(submissions_list_path + '?limit=0')
+        payload = json.loads(resp.content)
+        visible_submissionsets = payload['objects']
+        visible_submissionset_ids = [
+            submissionset['resource_uri'].split('/')[-2] for submissionset
+            in visible_submissionsets ]
+        rated_submissionset_ids = [ str(submissionset.id) for submissionset in
+                                    SubmissionSet.objects.get_rated() ]
+        self.assertTrue(
+            set(visible_submissionset_ids) == set(rated_submissionset_ids))
+
 
 class SubcategorySubmissionResourceTestCase(StarsApiTestCase):
 
