@@ -5,7 +5,10 @@ from data_corrections import DataCorrectionTest
 #from pdf import PDFTest
 
 from stars.apps.submissions.newapi.test import SubmissionSetResourceTestCase,\
-     CategorySubmissionResourceTestCase
+     CategorySubmissionResourceTestCase, \
+     SubcategorySubmissionResourceTestCase, \
+     CreditSubmissionResourceTestCase, \
+     DocumentationFieldSubmissionResourceTestCase
 
 from fixtures import FixturesTest
 
