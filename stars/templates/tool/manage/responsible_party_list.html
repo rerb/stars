@@ -1,0 +1,40 @@
+{% extends 'tool/manage/base.html' %}
+
+{% block crumbs %} {{ block.super }} &gt; <a href='/tool/manage/responsible-parties/'>Responsible Parties</a> {% endblock %}
+
+{% block tabclass %}class='tab5'{% endblock %}
+
+{% block institution_content %}
+		{% with current_inst.responsibleparty_set.all as rp_list %}
+			{% if not rp_list %}
+				<p>No responsible parties yet. <a href='/tool/manage/responsible-parties/add/'>Add one</a>.</p>
+			{% else %}
+				<table class='greyTable'>
+					<tr>
+						<th>Name</th>
+						<th>Title</th>
+						<th>Email</th>
+					</tr>
+					{% for rp in rp_list %}
+						<tr class='{% cycle 'even' 'odd' %}'>
+							<td><a href='{{ rp.get_manage_url }}'>{{ rp.first_name }} {{ rp.last_name }}</a></td>
+							<td>{{ rp.title }}</td>
+							<td><a href='mailto:{{ rp.email }}'>{{ rp.email }}</a></td>
+						</tr>
+					{% endfor %}
+				</table>
+				<p style='text-align: center;'>
+					<a href='/tool/manage/responsible-parties/add/'>
+						<img src='/media/static/images/add.png' alt='[+]' style='vertical-align: middle'/>
+					</a><a href='/tool/manage/responsible-parties/add/'>
+						Add Responsible Party
+					</a>
+				</p>
+			{% endif %}
+		{% endwith %}
+{% endblock %}
+
+{% block help_content %}
+    {% load content %}
+    {% display_block_content "responsible_parties" user %}
+{% endblock %}

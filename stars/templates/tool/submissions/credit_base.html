@@ -1,0 +1,64 @@
+{% extends 'tool/submissions/columned_layout.html' %}
+
+{% load aashe_rules_tags %}
+
+{% block title %}{{ credit }} | {{ block.super}}{% endblock %}
+
+{% load submit_tags  %}
+
+{% block crumbs %} 
+    {{ block.super }}
+    {% show_submit_crumbs credit %}
+{% endblock %}
+
+{% block extra_head %}
+{{ block.super }}
+<script type='text/javascript'>expandTo = 1;</script>
+{% endblock %}
+
+{% block tool_content %}
+	<h1>{{ credit }}</h1>
+	
+	<table class='statusTable' cellspacing='0'>
+	    <tr>
+	        <th>Status</th>
+	        <th>Last Updated</th>
+            {% testrule institution_has_score_feature user.current_inst %}
+              {% if credit_submission.subcategory_submission.category_submisison.category.include_in_score %}
+    	        <th>Possible Points</th>
+    	        <th>Points Earned</th>
+              {% endif %}
+            {% endtestrule %}
+	    </tr><tr>
+	        <td>{% show_status_icon credit_submission %}</td>
+	        <td>{{ credit_submission.last_updated|date:"m/d/y fA" }}</td>
+            {% testrule institution_has_score_feature user.current_inst %}
+              {% if credit_submission.subcategory_submission.category_submisison.category.include_in_score %}
+    	        <td>{% format_available_points credit_submission %}</td>
+    	        <td>
+    	        	{% ifnotequal credit_submission.assessed_points None %}
+                        {{ credit_submission.assessed_points }}
+                    {% endifnotequal %}
+             	</td>
+              {% endif %}
+            {% endtestrule %}
+	    </tr>
+	</table>
+	<hr class='blue'/>
+    <ul id="tabnav" {% block tabclass %}class='tab1'{% endblock %}>
+		<li class="tab1">
+		    <a href="{{ credit_submission.get_submit_url }}documentation/">Credit Info</a>
+		    <a href="{{ credit_submission.get_submit_url }}documentation/?popup=True" target='_blank' 
+		       onclick='return open_popup("{{ credit_submission.get_submit_url }}documentation/?popup=True", "CreditInfo");'
+		     ><img src='/media/static/images/new_window.gif' alt='^' title="Open Credit Info in pop-up window"></a>
+		</li>
+		<li class="tab2"><a href="{{ credit_submission.get_submit_url }}">Reporting Fields</a></li>
+        {% testrule institution_has_internal_notes_feature user.current_inst %}
+          <li class="tab3"><a href="{{ credit_submission.get_submit_url }}notes/">Internal Notes</a></li>
+        {% endtestrule %}
+	</ul>
+	<div class='tabContent'>
+        {% block tab_content %}
+        {% endblock %}
+    </div>
+{% endblock %}

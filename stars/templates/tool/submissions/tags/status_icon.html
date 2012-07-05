@@ -1,0 +1,8 @@
+	    <span class='status {{ icon.size_class }}'>
+	      {% if icon.file %}
+            <img src='/media/static/images/{{ icon.file }}' title='{{ icon.title }}' alt='{{ icon.alt }}'>
+            {{ icon.title }}
+          {% else %}
+            &nbsp;
+          {% endif %}
+	    </span>

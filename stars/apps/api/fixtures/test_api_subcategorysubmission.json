@@ -1,0 +1,222 @@
+[
+    {
+        "pk": 1, 
+        "model": "submissions.subcategorysubmission", 
+        "fields": {
+            "category_submission": 1, 
+            "points": 12.0, 
+            "subcategory": 1, 
+            "description": null
+        }
+    }, 
+    {
+        "pk": 4994, 
+        "model": "submissions.subcategorysubmission", 
+        "fields": {
+            "category_submission": 1113, 
+            "points": 17.25, 
+            "subcategory": 23, 
+            "description": null
+        }
+    }, 
+    {
+        "pk": 10244, 
+        "model": "submissions.subcategorysubmission", 
+        "fields": {
+            "category_submission": 2291, 
+            "points": null, 
+            "subcategory": 53, 
+            "description": null
+        }
+    }, 
+    {
+        "pk": 4997, 
+        "model": "submissions.subcategorysubmission", 
+        "fields": {
+            "category_submission": 1114, 
+            "points": 6.5, 
+            "subcategory": 26, 
+            "description": null
+        }
+    }, 
+    {
+        "pk": 10249, 
+        "model": "submissions.subcategorysubmission", 
+        "fields": {
+            "category_submission": 2292, 
+            "points": null, 
+            "subcategory": 58, 
+            "description": null
+        }
+    }, 
+    {
+        "pk": 10250, 
+        "model": "submissions.subcategorysubmission", 
+        "fields": {
+            "category_submission": 2293, 
+            "points": null, 
+            "subcategory": 59, 
+            "description": null
+        }
+    }, 
+    {
+        "pk": 5006, 
+        "model": "submissions.subcategorysubmission", 
+        "fields": {
+            "category_submission": 1115, 
+            "points": 18.0, 
+            "subcategory": 35, 
+            "description": null
+        }
+    }, 
+    {
+        "pk": 5011, 
+        "model": "submissions.subcategorysubmission", 
+        "fields": {
+            "category_submission": 1116, 
+            "points": 4.0, 
+            "subcategory": 40, 
+            "description": null
+        }
+    }, 
+    {
+        "pk": 4395, 
+        "model": "submissions.subcategorysubmission", 
+        "fields": {
+            "category_submission": 976, 
+            "points": 17.25, 
+            "subcategory": 23, 
+            "description": null
+        }
+    }, 
+    {
+        "pk": 173, 
+        "model": "submissions.subcategorysubmission", 
+        "fields": {
+            "category_submission": 40, 
+            "points": 2.6000000000000001, 
+            "subcategory": 8, 
+            "description": null
+        }
+    }, 
+    {
+        "pk": 4398, 
+        "model": "submissions.subcategorysubmission", 
+        "fields": {
+            "category_submission": 977, 
+            "points": 6.1299999999999999, 
+            "subcategory": 26, 
+            "description": null
+        }
+    }, 
+    {
+        "pk": 4407, 
+        "model": "submissions.subcategorysubmission", 
+        "fields": {
+            "category_submission": 978, 
+            "points": 18.0, 
+            "subcategory": 35, 
+            "description": null
+        }
+    }, 
+    {
+        "pk": 12987, 
+        "model": "submissions.subcategorysubmission", 
+        "fields": {
+            "category_submission": 3014, 
+            "points": null, 
+            "subcategory": 41, 
+            "description": null
+        }
+    }, 
+    {
+        "pk": 4412, 
+        "model": "submissions.subcategorysubmission", 
+        "fields": {
+            "category_submission": 979, 
+            "points": 4.0, 
+            "subcategory": 40, 
+            "description": null
+        }
+    }, 
+    {
+        "pk": 12990, 
+        "model": "submissions.subcategorysubmission", 
+        "fields": {
+            "category_submission": 3015, 
+            "points": null, 
+            "subcategory": 44, 
+            "description": null
+        }
+    }, 
+    {
+        "pk": 12999, 
+        "model": "submissions.subcategorysubmission", 
+        "fields": {
+            "category_submission": 3016, 
+            "points": null, 
+            "subcategory": 53, 
+            "description": null
+        }
+    }, 
+    {
+        "pk": 13004, 
+        "model": "submissions.subcategorysubmission", 
+        "fields": {
+            "category_submission": 3017, 
+            "points": null, 
+            "subcategory": 58, 
+            "description": null
+        }
+    }, 
+    {
+        "pk": 13005, 
+        "model": "submissions.subcategorysubmission", 
+        "fields": {
+            "category_submission": 3018, 
+            "points": null, 
+            "subcategory": 59, 
+            "description": null
+        }
+    }, 
+    {
+        "pk": 238, 
+        "model": "submissions.subcategorysubmission", 
+        "fields": {
+            "category_submission": 48, 
+            "points": 16.0, 
+            "subcategory": 17, 
+            "description": null
+        }
+    }, 
+    {
+        "pk": 243, 
+        "model": "submissions.subcategorysubmission", 
+        "fields": {
+            "category_submission": 49, 
+            "points": null, 
+            "subcategory": 22, 
+            "description": null
+        }
+    }, 
+    {
+        "pk": 10232, 
+        "model": "submissions.subcategorysubmission", 
+        "fields": {
+            "category_submission": 2289, 
+            "points": null, 
+            "subcategory": 41, 
+            "description": null
+        }
+    }, 
+    {
+        "pk": 10235, 
+        "model": "submissions.subcategorysubmission", 
+        "fields": {
+            "category_submission": 2290, 
+            "points": null, 
+            "subcategory": 44, 
+            "description": null
+        }
+    }
+]

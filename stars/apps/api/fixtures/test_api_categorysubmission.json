@@ -1,0 +1,200 @@
+[
+    {
+        "pk": 1, 
+        "model": "submissions.categorysubmission", 
+        "fields": {
+            "category": 1, 
+            "submissionset": 29, 
+            "score": 25.875
+        }
+    }, 
+    {
+        "pk": 40, 
+        "model": "submissions.categorysubmission", 
+        "fields": {
+            "category": 2, 
+            "submissionset": 29, 
+            "score": 46.090000000000003
+        }
+    }, 
+    {
+        "pk": 48, 
+        "model": "submissions.categorysubmission", 
+        "fields": {
+            "category": 3, 
+            "submissionset": 29, 
+            "score": 63.118279569892501
+        }
+    }, 
+    {
+        "pk": 49, 
+        "model": "submissions.categorysubmission", 
+        "fields": {
+            "category": 4, 
+            "submissionset": 29, 
+            "score": 0.0
+        }
+    }, 
+    {
+        "pk": 3014, 
+        "model": "submissions.categorysubmission", 
+        "fields": {
+            "category": 10, 
+            "submissionset": 860, 
+            "score": null
+        }
+    }, 
+    {
+        "pk": 3015, 
+        "model": "submissions.categorysubmission", 
+        "fields": {
+            "category": 11, 
+            "submissionset": 860, 
+            "score": null
+        }
+    }, 
+    {
+        "pk": 3016, 
+        "model": "submissions.categorysubmission", 
+        "fields": {
+            "category": 12, 
+            "submissionset": 860, 
+            "score": null
+        }
+    }, 
+    {
+        "pk": 3017, 
+        "model": "submissions.categorysubmission", 
+        "fields": {
+            "category": 13, 
+            "submissionset": 860, 
+            "score": null
+        }
+    }, 
+    {
+        "pk": 3018, 
+        "model": "submissions.categorysubmission", 
+        "fields": {
+            "category": 14, 
+            "submissionset": 860, 
+            "score": null
+        }
+    }, 
+    {
+        "pk": 976, 
+        "model": "submissions.categorysubmission", 
+        "fields": {
+            "category": 6, 
+            "submissionset": 410, 
+            "score": 62.025062656641602
+        }
+    }, 
+    {
+        "pk": 977, 
+        "model": "submissions.categorysubmission", 
+        "fields": {
+            "category": 7, 
+            "submissionset": 410, 
+            "score": 54.877192982456101
+        }
+    }, 
+    {
+        "pk": 978, 
+        "model": "submissions.categorysubmission", 
+        "fields": {
+            "category": 8, 
+            "submissionset": 410, 
+            "score": 66.379999999999995
+        }
+    }, 
+    {
+        "pk": 979, 
+        "model": "submissions.categorysubmission", 
+        "fields": {
+            "category": 9, 
+            "submissionset": 410, 
+            "score": 4.0
+        }
+    }, 
+    {
+        "pk": 1113, 
+        "model": "submissions.categorysubmission", 
+        "fields": {
+            "category": 6, 
+            "submissionset": 439, 
+            "score": 54.536340852130301
+        }
+    }, 
+    {
+        "pk": 1114, 
+        "model": "submissions.categorysubmission", 
+        "fields": {
+            "category": 7, 
+            "submissionset": 439, 
+            "score": 42.3258145363409
+        }
+    }, 
+    {
+        "pk": 1115, 
+        "model": "submissions.categorysubmission", 
+        "fields": {
+            "category": 8, 
+            "submissionset": 439, 
+            "score": 68.560000000000002
+        }
+    }, 
+    {
+        "pk": 1116, 
+        "model": "submissions.categorysubmission", 
+        "fields": {
+            "category": 9, 
+            "submissionset": 439, 
+            "score": 4.0
+        }
+    }, 
+    {
+        "pk": 2289, 
+        "model": "submissions.categorysubmission", 
+        "fields": {
+            "category": 10, 
+            "submissionset": 715, 
+            "score": null
+        }
+    }, 
+    {
+        "pk": 2290, 
+        "model": "submissions.categorysubmission", 
+        "fields": {
+            "category": 11, 
+            "submissionset": 715, 
+            "score": null
+        }
+    }, 
+    {
+        "pk": 2291, 
+        "model": "submissions.categorysubmission", 
+        "fields": {
+            "category": 12, 
+            "submissionset": 715, 
+            "score": null
+        }
+    }, 
+    {
+        "pk": 2292, 
+        "model": "submissions.categorysubmission", 
+        "fields": {
+            "category": 13, 
+            "submissionset": 715, 
+            "score": null
+        }
+    }, 
+    {
+        "pk": 2293, 
+        "model": "submissions.categorysubmission", 
+        "fields": {
+            "category": 14, 
+            "submissionset": 715, 
+            "score": null
+        }
+    }
+]
