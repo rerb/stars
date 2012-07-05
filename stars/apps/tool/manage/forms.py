@@ -202,7 +202,7 @@ class ThirdPartiesForm(ModelForm):
     """
         Institutions can select which orgs to share with
     """
-    third_parties = forms.ModelMultipleChoiceField(widget=forms.CheckboxSelectMultiple(), queryset=ThirdParty.objects.all())
+    third_parties = forms.ModelMultipleChoiceField(widget=forms.CheckboxSelectMultiple(), queryset=ThirdParty.objects.all(), required=False)
     
     class Meta:
         model = Institution
