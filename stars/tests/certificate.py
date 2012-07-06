@@ -7,7 +7,8 @@ from stars.apps.submissions.pdf.export import build_certificate_pdf
 
 import sys
 
-ss = SubmissionSet.objects.get(pk=60)
+ss_id = raw_input("SubmissionSet id: ")
+ss = SubmissionSet.objects.get(pk=int(ss_id))
 
 outfile = "certificate.pdf"
 
