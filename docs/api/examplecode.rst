@@ -10,6 +10,22 @@ REST API.
 Python
 ------
 
+.. code-block:: python
+
+    import json
+    import urllib2
+    
+    uri = 'stars.aashe.org'
+    endpoint = 'CHANGEME'
+    username = 'CHANGEME'
+    key = 'CHANGME'
+    
+    target = "http://%s/%s&username=%s&api_key=%s" % (uri, endpoint, username, key)
+    
+    result = json.load(urllib2.urlopen(target))
+    
+    print result
+
 
 Ruby
 ----
@@ -54,7 +70,7 @@ PHP
 		$api_key = "examplekey";
 		
 		$request = curl_init();
-		curl_setopt($request, CURLOPT_URL, 'http://<endpoint>/api/v1/credits/subcategory/1/?username='. $user ."&api_key=" . $api_key);
+		curl_setopt($request, CURLOPT_URL, 'http://stars.aashe.org/api/<version>/credits/subcategory/1/?username='. $user ."&api_key=" . $api_key);
 		
 		$response = curl_exec($request);
 		$json = json_decode($response);
