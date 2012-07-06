@@ -1,0 +1,19 @@
+{% extends 'institutions/data_displays/base.html' %}
+
+{% block crumbs %}
+  {{ block.super }} &gt;
+  <a href='/institutions/data-displays/dashboard/'>Dashboard</a>
+{% endblock %}
+
+{% block title %}Dashboard | {{ block.super }}{% endblock %}
+
+{% block tabclass %}class='tab2'{% endblock %}
+
+{% block h1 %}STARS Dashboard{% endblock %}
+
+{% block tab_content %}
+  <ul class='nav nav-pills'>
+    <li{% block active_summary %}{% endblock %}><a href='/institutions/data-displays/dashboard/'>Summary</a></li>
+    <li{% block active_viz %}{% endblock %}><a href='/institutions/data-displays/pie-chart-visualization/'>Average Scores</a></li>
+  </ul>
+{% endblock %}

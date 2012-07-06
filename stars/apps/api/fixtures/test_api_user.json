@@ -1,0 +1,110 @@
+[
+    {
+        "pk": 4546, 
+        "model": "auth.user", 
+        "fields": {
+            "username": "nkatz_at_facnet_dot_ucla_dot_e", 
+            "first_name": "Nurit", 
+            "last_name": "Katz", 
+            "is_active": true, 
+            "is_superuser": false, 
+            "is_staff": false, 
+            "last_login": "2012-05-23 13:58:34", 
+            "groups": [], 
+            "user_permissions": [], 
+            "password": "kdrftiqvlgvovb5ea033m5rpc6", 
+            "email": "nkatz@facnet.ucla.edu", 
+            "date_joined": "2009-09-21 14:11:41"
+        }
+    }, 
+    {
+        "pk": 7428, 
+        "model": "auth.user", 
+        "fields": {
+            "username": "lbv10_at_psu_dot_edu", 
+            "first_name": "Lydia", 
+            "last_name": "Vandenbergh", 
+            "is_active": true, 
+            "is_superuser": false, 
+            "is_staff": false, 
+            "last_login": "2012-05-21 21:19:12", 
+            "groups": [], 
+            "user_permissions": [], 
+            "password": "g1r7nth6squ25151f90jjn2614", 
+            "email": "lbv10@psu.edu", 
+            "date_joined": "2009-12-02 12:39:48"
+        }
+    }, 
+    {
+        "pk": 234, 
+        "model": "auth.user", 
+        "fields": {
+            "username": "sara_dot_cleaves_at_unh_dot_ed", 
+            "first_name": "Sara", 
+            "last_name": "Cleaves", 
+            "is_active": true, 
+            "is_superuser": false, 
+            "is_staff": false, 
+            "last_login": "2012-02-28 12:00:17", 
+            "groups": [], 
+            "user_permissions": [], 
+            "password": "cfmn2k33s8dd4uuudgjav1gij7", 
+            "email": "sara.cleaves@unh.edu", 
+            "date_joined": "2009-10-30 12:07:43"
+        }
+    }, 
+    {
+        "pk": 9739, 
+        "model": "auth.user", 
+        "fields": {
+            "username": "cooleycs_at_plu_dot_edu", 
+            "first_name": "Christine", 
+            "last_name": "Cooley-Mahoney", 
+            "is_active": true, 
+            "is_superuser": false, 
+            "is_staff": false, 
+            "last_login": "2012-04-16 14:30:54", 
+            "groups": [], 
+            "user_permissions": [], 
+            "password": "kr156t4f69on3d8hfb3q7jcov7", 
+            "email": "cooleycs@plu.edu", 
+            "date_joined": "2009-09-21 14:18:22"
+        }
+    }, 
+    {
+        "pk": 19604, 
+        "model": "auth.user", 
+        "fields": {
+            "username": "charlene_ponto__ubc_ca", 
+            "first_name": "Charlene", 
+            "last_name": "Ponto", 
+            "is_active": true, 
+            "is_superuser": false, 
+            "is_staff": false, 
+            "last_login": "2012-02-06 17:48:39", 
+            "groups": [], 
+            "user_permissions": [], 
+            "password": "t3elhd50krjsuo5ae91i70n887", 
+            "email": "charlene.ponto@ubc.ca", 
+            "date_joined": "2011-02-22 18:15:39"
+        }
+    }, 
+    {
+        "pk": 7838, 
+        "model": "auth.user", 
+        "fields": {
+            "username": "charlene_dot_easton_at_ubc_dot", 
+            "first_name": "", 
+            "last_name": "", 
+            "is_active": true, 
+            "is_superuser": false, 
+            "is_staff": false, 
+            "last_login": "2009-09-29 17:20:39", 
+            "groups": [], 
+            "user_permissions": [], 
+            "password": "e2f53f6273ac7dc6e99353878f7ed593", 
+            "email": "charlene.easton@ubc.ca", 
+            "date_joined": "2009-09-21 18:18:50"
+        }
+    }
+]
