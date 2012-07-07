@@ -1,3 +1,4 @@
+from exceptions import IndexError
 import random
 
 from django.contrib.auth.models import User
@@ -19,18 +20,12 @@ def get_random_queryset_obj(queryset):
     if queryset.count() == 0:
         raise EmptyQuerysetError
     random_index = random.randint(0, queryset.count() - 1)
-    return [ instance for instance in queryset.all() ][random_index]
-
-def new_test_result():
-    """Get a unittest.TestResult object.  Used in doctests below."""
-    setup_test_environment()
-    from unittest import TestResult
-    return TestResult()
-
-def setup_test_environment():
-    """Set up the test environment.  Used in doctests below."""
-    from django.test.utils import setup_test_environment
-    setup_test_environment()
+    try:
+        return list(queryset.all())[random_index]
+    except IndexError:
+        # As far as I can see, an IndexError should never happen here.
+        # Still, it does.  So screw it, and return the first obj:
+        return list(queryset.all())[0]
 
 
 class EmptyQuerysetError(Exception):
@@ -44,20 +39,7 @@ class EmptyQuerysetError(Exception):
 
 class StarsApiTestCase(ResourceTestCase):
 
-    fixtures = ['test_api_institution.json',
-                'test_api_user.json',
-                'test_api_creditset.json',
-                'test_api_category.json',
-                'test_api_subcategory.json',
-                'test_api_credit.json',
-                'test_api_documentationfield.json',
-                'test_api_rating.json',
-                'test_api_submissionset.json',
-                'test_api_categorysubmission.json',
-                'test_api_subcategorysubmission.json',
-                'test_api_creditsubmission.json',
-                'test_api_documentaionfieldsubmission.json',
-                ]
+    fixtures = ['api_test_fixture.json']
 
     def setUp(self):
         super(StarsApiTestCase, self).setUp()

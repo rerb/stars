@@ -1,142 +1,45 @@
 """
 Tests for submissions API.
-
-There's a problem (with the test fixtures, I suppose) that keeps these
-tests from passing via 'manage.py test'.  They'll pass when run from a
-'manage.py shell' REPL (running against your dev database -- assuming
-you have the data they're looking for) when run via doctest, like this:
-
-   #>>> import doctest
-   #>>> from stars.apps.submissions.newapi import test
-   #>>> doctest.testmod(test)
 """
 import json
 
 from stars.apps.api.test import StarsApiTestCase
-from stars.apps.submissions.models import SubmissionSet
-from stars.apps.submissions.newapi.resources import SubmissionSetResource
+
+from stars.apps.submissions.models import SubmissionSet, CategorySubmission, \
+     SubcategorySubmission, CreditUserSubmission, LongTextSubmission
 
 submissions_list_path = '/api/0.1/submissions/'
 
-def submissions_detail_path(submissionset_id=34):
+def submissions_detail_path(submissionset_id):
     return '{list_path}{submissionset_id}/'.format(
         list_path=submissions_list_path,
         submissionset_id=submissionset_id)
 
-def submissionset_for_subcategorysubmission(subcategorysubmission):
-    categorysubmission = subcategorysubmission.category_submission
-    return categorysubmission.submissionset
-
-def subcatsub_with_points(from_reporter=True):
-    """Get a SubcategorySubmission with points, related to a
-    visible SubmissionSet, optionally submitted by a reporter.
-    """
-    for submission_from_reporter in \
-        SubmissionSetResource._meta.queryset.filter(
-            reporter_status=from_reporter):
-      for catsub in submission_from_reporter.categorysubmission_set.all():
-            for subcatsub in catsub.subcategorysubmission_set.filter(
-                    points__gt=0):
-                return subcatsub
-
+RATED_SUBMISSIONSET_ID = 75
+UNRATED_SUBMISSIONSET_ID = 688
 
 class SubmissionSetResourceTestCase(StarsApiTestCase):
 
     def test_get_submissions_list_requires_auth(self):
-        """
-        >>> from unittest import TestResult
-        >>> result = TestResult()
-        >>> test = SubmissionSetResourceTestCase(\
-                    'test_get_submissions_list_requires_auth')
-        >>> test.run(result)
-        >>> result.testsRun
-        1
-        >>> result.errors + result.failures
-        []
-        >>>
-        """
         self.requires_auth(submissions_list_path)
 
     def test_get_submissions_list(self):
-        """
-        >>> from unittest import TestResult
-        >>> result = TestResult()
-        >>> test = SubmissionSetResourceTestCase(\
-                    'test_get_submissions_list')
-        >>> test.run(result)
-        >>> result.testsRun
-        1
-        >>> result.errors + result.failures
-        []
-        >>>
-        """
         resp = self.get(submissions_list_path)
         self.assertValidJSONResponse(resp)
 
     def test_get_submissions_detail_requires_auth(self):
-        """
-        >>> from unittest import TestResult
-        >>> result = TestResult()
-        >>> test = SubmissionSetResourceTestCase(\
-                    'test_get_submissions_detail_requires_auth')
-        >>> test.run(result)
-        >>> result.testsRun
-        1
-        >>> result.errors + result.failures
-        []
-        >>>
-        """
-        self.requires_auth(submissions_detail_path())
+        self.requires_auth(submissions_detail_path(RATED_SUBMISSIONSET_ID))
 
     def test_get_submissions_detail(self):
-        """
-        >>> from unittest import TestResult
-        >>> result = TestResult()
-        >>> test = SubmissionSetResourceTestCase(\
-                    'test_get_submissions_detail')
-        >>> test.run(result)
-        >>> result.testsRun
-        1
-        >>> result.errors + result.failures
-        []
-        >>>
-        """
-        resp = self.get(submissions_detail_path())
+        resp = self.get(submissions_detail_path(RATED_SUBMISSIONSET_ID))
         self.assertValidJSONResponse(resp)
 
-    def test_get_hidden_submission(self):
-        """
-        >>> from unittest import TestResult
-        >>> result = TestResult()
-        >>> test = SubmissionSetResourceTestCase('test_get_hidden_submission')
-        >>> test.run(result)
-        >>> result.testsRun
-        1
-        >>> result.errors + result.failures
-        []
-        >>>
-        """
+    def test_get_unrated_submission(self):
         # Get a submission set that should be filtered:
-        for submissionset in SubmissionSet.objects.all():
-            if submissionset not in SubmissionSetResource._meta.queryset:
-                hidden_submissionset = submissionset
-                break
-        resp = self.get(submissions_detail_path(hidden_submissionset.id))
+        resp = self.get(submissions_detail_path(UNRATED_SUBMISSIONSET_ID))
         self.assertHttpNotFound(resp)
 
     def test_unrated_submissions_are_hidden(self):
-        """
-        >>> from unittest import TestResult
-        >>> result = TestResult()
-        >>> test = SubmissionSetResourceTestCase(\
-                    'test_unrated_submissions_are_hidden')
-        >>> test.run(result)
-        >>> result.testsRun
-        1
-        >>> result.errors + result.failures
-        []
-        >>>
-        """
         resp = self.get(submissions_list_path + '?limit=0')
         payload = json.loads(resp.content)
         visible_submissionsets = payload['objects']
@@ -151,223 +54,120 @@ class SubmissionSetResourceTestCase(StarsApiTestCase):
 
 class CategorySubmissionResourceTestCase(StarsApiTestCase):
 
-    list_path = submissions_detail_path(34) + 'category/'
-    detail_path = list_path + '1/'
+    RATED_CATEGORYSUBMISSION_ID = 91
+    UNRATED_CATEGORYSUBMISSION_ID = 2176
+
+    def list_path(self, rated_submissionset):
+        """rated_submissionset is True or False."""
+        submissionset_id = (RATED_SUBMISSIONSET_ID if rated_submissionset
+                            else UNRATED_SUBMISSIONSET_ID)
+        return submissions_detail_path(submissionset_id) + 'category/'
+
+    def detail_path(self, rated_submissionset):
+        catsub_id = (self.RATED_CATEGORYSUBMISSION_ID if rated_submissionset
+                     else self.UNRATED_CATEGORYSUBMISSION_ID)
+        catsub = CategorySubmission.objects.get(pk=catsub_id)
+        return (self.list_path(rated_submissionset) +
+                str(catsub.category.id) + '/')
 
     def test_get_categorysubmission_list_requires_auth(self):
-        """
-        >>> from unittest import TestResult
-        >>> result = TestResult()
-        >>> test = CategorySubmissionResourceTestCase(\
-                    'test_get_categorysubmission_list_requires_auth')
-        >>> test.run(result)
-        >>> result.testsRun
-        1
-        >>> result.errors + result.failures
-        []
-        >>>
-        """
-        self.requires_auth(self.list_path)
+        self.requires_auth(self.list_path(rated_submissionset=True))
 
     def test_get_categorysubmission_list(self):
-        """
-        >>> from unittest import TestResult
-        >>> result = TestResult()
-        >>> test = CategorySubmissionResourceTestCase(\
-                    'test_get_categorysubmission_list')
-        >>> test.run(result)
-        >>> result.testsRun
-        1
-        >>> result.errors + result.failures
-        []
-        >>>
-        """
-        resp = self.get(self.list_path)
+        resp = self.get(self.list_path(rated_submissionset=True))
         self.assertValidJSONResponse(resp)
 
     def test_get_categorysubmission_detail_requires_auth(self):
-        """
-        >>> from unittest import TestResult
-        >>> result = TestResult()
-        >>> test = CategorySubmissionResourceTestCase(\
-                    'test_get_categorysubmission_detail_requires_auth')
-        >>> test.run(result)
-        >>> result.testsRun
-        1
-        >>> result.errors + result.failures
-        []
-        >>>
-        """
-        self.requires_auth(self.detail_path)
+        self.requires_auth(self.detail_path(rated_submissionset=True))
 
     def test_get_categorysubmission_detail(self):
-        """
-        >>> from unittest import TestResult
-        >>> result = TestResult()
-        >>> test = CategorySubmissionResourceTestCase(\
-                    'test_get_categorysubmission_detail')
-        >>> test.run(result)
-        >>> result.testsRun
-        1
-        >>> result.errors + result.failures
-        []
-        >>>
-        """
-        resp = self.get(self.detail_path)
+        path = self.detail_path(rated_submissionset=True)
+        resp = self.get(path)
         self.assertValidJSONResponse(resp)
-
-    def test_get_hidden_categorysubmission(self):
-        """
-        >>> from unittest import TestResult
-        >>> result = TestResult()
-        >>> test = CategorySubmissionResourceTestCase(\
-                'test_get_hidden_categorysubmission')
-        >>> test.run(result)
-        >>> result.testsRun
-        1
-        >>> result.errors + result.failures
-        []
-        >>>
-        """
-        # Get a submission set that should be filtered:
-        for submissionset in SubmissionSet.objects.all():
-            if submissionset not in SubmissionSetResource._meta.queryset:
-                hidden_submissionset = submissionset
-                break
-        resp = self.get(submissions_detail_path(hidden_submissionset.id))
-        self.assertHttpNotFound(resp)
-
-    def test_unrated_submissions_are_hidden(self):
-        """
-        >>> from unittest import TestResult
-        >>> result = TestResult()
-        >>> test = SubmissionSetResourceTestCase(\
-                    'test_unrated_submissions_are_hidden')
-        >>> test.run(result)
-        >>> result.testsRun
-        1
-        >>> result.errors + result.failures
-        []
-        >>>
-        """
-        resp = self.get(submissions_list_path + '?limit=0')
-        payload = json.loads(resp.content)
-        visible_submissionsets = payload['objects']
-        visible_submissionset_ids = [
-            submissionset['resource_uri'].split('/')[-2] for submissionset
-            in visible_submissionsets ]
-        rated_submissionset_ids = [ str(submissionset.id) for submissionset in
-                                    SubmissionSet.objects.get_rated() ]
-        self.assertTrue(
-            set(visible_submissionset_ids) == set(rated_submissionset_ids))
 
 
 class SubcategorySubmissionResourceTestCase(StarsApiTestCase):
 
-    def list_path(self, submissionset_id=75):
+    # TODO - add gets for UNRATED_SUBCATEGORYSUBMISSION_ID?
+
+    RATED_SUBCATEGORYSUBMISSION_ID = 429
+    UNRATED_SUBCATEGORYSUBMISSION_ID = None
+
+    def list_path(self, rated_submissionset):
+        """List URI for the SubcategorySubmissions of a SubmissionSet.
+        The SubcategorySubmissions belong to a SubmissionSet that's rated
+        if rated_submissionset is True, otherwise they belong to an unrated
+        SubmissionSet.
+        """
+        submissionset_id = (RATED_SUBMISSIONSET_ID if rated_submissionset
+                            else UNRATED_SUBMISSIONSET_ID)
+        return self.list_path_for_submissionset(submissionset_id)
+
+    def list_path_for_submissionset(self, submissionset_id):
         return submissions_detail_path(submissionset_id) + 'subcategory/'
 
-    def detail_path(self, submissionset_id=75, subcategory_id=3):
-        return '{list_path}{subcategory_id}/'.format(
-            list_path=self.list_path(submissionset_id),
-            subcategory_id=subcategory_id)
+    def detail_path(self, rated_submissionset):
+        """Detail URI for one SubcategorySubmission of a SubmissionSet.
+        The SubcategorySubmission belongs to a SubmissionSet that's rated
+        if rated_submissionset is True, otherwise it belongs to an unrated
+        SubmissionSet.
+        """
+        subcatsub_id = (
+            self.RATED_SUBCATEGORYSUBMISSION_ID if rated_submissionset
+            else self.UNRATED_SUBCATEGORYSUBMISSION_ID)
+        return (self.list_path(rated_submissionset) +
+                self.detail_path_part(subcatsub_id))
+
+    def detail_path_part(self, subcategorysubmission_id):
+        """Part of detail path for a specific SubcategorySubmission."""
+        subcategorysubmission = SubcategorySubmission.objects.get(
+            pk=subcategorysubmission_id)
+        return str(subcategorysubmission.subcategory.id) + '/'
 
     def test_get_subcategorysubmission_list_requires_auth(self):
-        """
-        >>> from unittest import TestResult
-        >>> result = TestResult()
-        >>> test = SubcategorySubmissionResourceTestCase(\
-                    'test_get_subcategorysubmission_list_requires_auth')
-        >>> test.run(result)
-        >>> result.testsRun
-        1
-        >>> result.errors + result.failures
-        []
-        >>>
-        """
-        self.requires_auth(self.list_path())
+        self.requires_auth(self.list_path(rated_submissionset=True))
 
     def test_get_subcategorysubmission_list(self):
-        """
-        >>> from unittest import TestResult
-        >>> result = TestResult()
-        >>> test = SubcategorySubmissionResourceTestCase(\
-                    'test_get_subcategorysubmission_list')
-        >>> test.run(result)
-        >>> result.testsRun
-        1
-        >>> result.errors + result.failures
-        []
-        >>>
-        """
-        resp = self.get(self.list_path())
+        resp = self.get(self.list_path(rated_submissionset=True))
         self.assertValidJSONResponse(resp)
 
     def test_get_subcategorysubmission_detail_requires_auth(self):
-        """
-        >>> from unittest import TestResult
-        >>> result = TestResult()
-        >>> test = SubcategorySubmissionResourceTestCase(\
-                    'test_get_subcategorysubmission_detail_requires_auth')
-        >>> test.run(result)
-        >>> result.testsRun
-        1
-        >>> result.errors + result.failures
-        []
-        >>>
-        """
-        self.requires_auth(self.detail_path())
+        self.requires_auth(self.detail_path(rated_submissionset=True))
 
     def test_get_subcategorysubmission_detail(self):
-        """
-        >>> from unittest import TestResult
-        >>> result = TestResult()
-        >>> test = SubcategorySubmissionResourceTestCase(\
-                    'test_get_subcategorysubmission_detail')
-        >>> test.run(result)
-        >>> result.testsRun
-        1
-        >>> result.errors + result.failures
-        []
-        >>>
-        """
-        resp = self.get(self.detail_path())
+        path = self.detail_path(rated_submissionset=True)
+        resp = self.get(path)
         self.assertValidJSONResponse(resp)
 
     def test_dehydrate_points(self):
-        """Points for SubmissionSets from data reports should be
-        hidden.
+        RATED_NON_REPORTER_SUBMISSIONSET_ID = RATED_SUBMISSIONSET_ID
+        RATED_NON_REPORTER_SUBCATEGORYSUBMISSION_WITH_POINTS_ID = \
+          self.RATED_SUBCATEGORYSUBMISSION_ID
+        RATED_REPORTER_SUBMISSIONSET_ID = 113
+        RATED_REPORTER_SUBCATEGORYSUBMISSION_WITH_POINTS_ID = 1291
 
-        >>> from unittest import TestResult
-        >>> result = TestResult()
-        >>> test = SubcategorySubmissionResourceTestCase(\
-                    'test_dehydrate_points')
-        >>> test.run(result)
-        >>> result.testsRun
-        1
-        >>> result.errors + result.failures
-        []
-        >>>
-        """
         # Make sure points aren't None for everybody:
-        subcatsub_with_points_not_from_reporter = subcatsub_with_points(
-            from_reporter=False)
-        subcategory_id = subcatsub_with_points_not_from_reporter.subcategory.id
-        resp = self.get(self.detail_path(
-            submissionset_id=submissionset_for_subcategorysubmission(
-                subcatsub_with_points_not_from_reporter).id,
-            subcategory_id=subcategory_id))
+        path = (
+            self.list_path_for_submissionset(
+                RATED_NON_REPORTER_SUBMISSIONSET_ID) +
+            self.detail_path_part(
+                RATED_NON_REPORTER_SUBCATEGORYSUBMISSION_WITH_POINTS_ID))
+
+        resp = self.get(path)
+
         self.assertValidJSONResponse(resp)
         payload = json.loads(resp.content)
         self.assertTrue(payload['points'] is not None)
+
         # Now check that they're None for reporters:
-        subcatsub_with_points_from_reporter = subcatsub_with_points(
-            from_reporter=True)
-        subcategory_id = subcatsub_with_points_from_reporter.subcategory.id
-        resp = self.get(self.detail_path(
-            submissionset_id=submissionset_for_subcategorysubmission(
-                subcatsub_with_points_from_reporter).id,
-            subcategory_id=subcategory_id))
+        path = (
+            self.list_path_for_submissionset(
+                RATED_REPORTER_SUBMISSIONSET_ID) +
+            self.detail_path_part(
+                RATED_REPORTER_SUBCATEGORYSUBMISSION_WITH_POINTS_ID))
+
+        resp = self.get(path)
+
         self.assertValidJSONResponse(resp)
         payload = json.loads(resp.content)
         self.assertTrue(payload['points'] is None)
@@ -375,103 +175,73 @@ class SubcategorySubmissionResourceTestCase(StarsApiTestCase):
 
 class CreditSubmissionResourceTestCase(StarsApiTestCase):
 
-    list_path = submissions_detail_path(75) + 'credit/'
-    detail_path = list_path + '17/'
+    RATED_CREDITSUBMISSION_ID = 3475
+    UNRATED_CREDITSUBMISSION_ID = None
+
+    def list_path(self, rated_submissionset):
+        """List URI for the CreditSubmissions of a SubmissionSet.
+        The CreditSubmissions belong to a SubmissionSet that's rated
+        if rated_submissionset is True, otherwise they belong to an unrated
+        SubmissionSet.
+        """
+        submissionset_id = (RATED_SUBMISSIONSET_ID if rated_submissionset
+                            else UNRATED_SUBMISSIONSET_ID)
+        return submissions_detail_path(submissionset_id) + 'credit/'
+
+    def detail_path(self, rated_submissionset):
+        """Detail URI for one CreditSubmission of a SubmissionSet.
+        The CreditSubmission belongs to a SubmissionSet that's rated
+        if rated_submissionset is True, otherwise it belongs to an unrated
+        SubmissionSet.
+        """
+        creditsubmission_id = (
+            self.RATED_CREDITSUBMISSION_ID if rated_submissionset
+            else self.UNRATED_CREDITSUBMISSION_ID)
+        creditsubmission = CreditUserSubmission.objects.get(
+            pk=creditsubmission_id)
+        return (self.list_path(rated_submissionset) +
+                str(creditsubmission.credit.id) + '/')
 
     def test_get_creditsubmission_list_requires_auth(self):
-        """
-        >>> from unittest import TestResult
-        >>> result = TestResult()
-        >>> test = CreditSubmissionResourceTestCase(\
-                    'test_get_creditsubmission_list_requires_auth')
-        >>> test.run(result)
-        >>> result.testsRun
-        1
-        >>> result.errors + result.failures
-        []
-        >>>
-        """
-        self.requires_auth(self.list_path)
+        self.requires_auth(self.list_path(rated_submissionset=True))
 
     def test_get_creditsubmission_list(self):
-        """
-        >>> from unittest import TestResult
-        >>> result = TestResult()
-        >>> test = CreditSubmissionResourceTestCase(\
-                    'test_get_creditsubmission_list')
-        >>> test.run(result)
-        >>> result.testsRun
-        1
-        >>> result.errors + result.failures
-        []
-        >>>
-        """
-        resp = self.get(self.list_path)
+        resp = self.get(self.list_path(rated_submissionset=True))
         self.assertValidJSONResponse(resp)
 
     def test_get_creditsubmission_detail_requires_auth(self):
-        """
-        >>> from unittest import TestResult
-        >>> result = TestResult()
-        >>> test = CreditSubmissionResourceTestCase(\
-                    'test_get_creditsubmission_detail_requires_auth')
-        >>> test.run(result)
-        >>> result.testsRun
-        1
-        >>> result.errors + result.failures
-        []
-        >>>
-        """
-        self.requires_auth(self.detail_path)
+        self.requires_auth(self.detail_path(rated_submissionset=True))
 
     def test_get_creditsubmission_detail(self):
-        """
-        >>> from unittest import TestResult
-        >>> result = TestResult()
-        >>> test = CreditSubmissionResourceTestCase(\
-                    'test_get_creditsubmission_detail')
-        >>> test.run(result)
-        >>> result.testsRun
-        1
-        >>> result.errors + result.failures
-        []
-        >>>
-        """
-        resp = self.get(self.detail_path)
+        path = self.detail_path(rated_submissionset=True)
+        resp = self.get(path)
         self.assertValidJSONResponse(resp)
 
 
 class DocumentationFieldSubmissionResourceTestCase(StarsApiTestCase):
 
-    detail_path = submissions_detail_path(75) + 'field/167/'
+    RATED_DOCUMENTATIONFIELDSUBMISSION_ID = 10345
+    UNRATED_DOCUMENTATIONFIELDSUBMISSION_ID = None
+
+    def detail_path(self, rated_submissionset):
+        """Detail URI for one DocumentationFieldSubmission of a
+        SubmissionSet.  The DocumentationFieldSubmission belongs to a
+        SubmissionSet that's rated if rated_submissionset is True,
+        otherwise it belongs to an unrated SubmissionSet.
+        """
+        submissionset_id = (RATED_SUBMISSIONSET_ID if rated_submissionset
+                            else UNRATED_SUBMISSIONSET_ID)
+        documenatationfieldsubmission_id = (
+            self.RATED_DOCUMENTATIONFIELDSUBMISSION_ID if rated_submissionset
+            else self.UNRATED_DOCUMENTATIONFIELDSUBMISSION_ID)
+        documentationfieldsubmission = LongTextSubmission.objects.get(
+            pk=documenatationfieldsubmission_id)
+        return (submissions_detail_path(submissionset_id) + 'field/' +
+                str(documentationfieldsubmission.documentation_field.id) + '/')
 
     def test_get_documentationfieldsubmission_detail_requires_auth(self):
-        """
-        >>> from unittest import TestResult
-        >>> result = TestResult()
-        >>> test = DocumentationFieldSubmissionResourceTestCase(\
-                'test_get_documentationfieldsubmission_detail_requires_auth')
-        >>> test.run(result)
-        >>> result.testsRun
-        1
-        >>> result.errors + result.failures
-        []
-        >>>
-        """
-        self.requires_auth(self.detail_path)
+        self.requires_auth(self.detail_path(rated_submissionset=True))
 
     def test_get_documentationfieldsubmission_detail(self):
-        """
-        >>> from unittest import TestResult
-        >>> result = TestResult()
-        >>> test = DocumentationFieldSubmissionResourceTestCase(\
-                    'test_get_documentationfieldsubmission_detail')
-        >>> test.run(result)
-        >>> result.testsRun
-        1
-        >>> result.errors + result.failures
-        []
-        >>>
-        """
-        resp = self.get(self.detail_path)
+        resp = self.get(self.detail_path(rated_submissionset=True))
         self.assertValidJSONResponse(resp)
