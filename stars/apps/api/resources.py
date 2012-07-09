@@ -27,4 +27,3 @@ class StarsApiResource(ModelResource):
             authentication = ApiKeyAuthentication()
         authorization = ReadOnlyAuthorization()
         serializer = JSONForHTMLSerializer()
-        excludes = ['id']

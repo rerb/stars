@@ -42,15 +42,14 @@ class SubmissionSetResource(StarsApiResource):
         # exclude submission_boundary becauses it raises
         # "'ascii' codec can't decode byte ... in position ...: ordinal not
         # in range(128)"
-        excludes = StarsApiResource.Meta.excludes + [
-            'is_locked',
-            'is_visible',
-            'date_reviewed',
-            'date_registered',
-            'status',
-            'reporter_status',
-            'submission_boundary'
-            ]
+        excludes = ['is_locked',
+                    'is_visible',
+                    'date_reviewed',
+                    'date_registered',
+                    'status',
+                    'reporter_status',
+                    'submission_boundary'
+                    ]
 
     def dehydrate(self, bundle):
         bundle.data['rating'] = str(bundle.obj.rating)
@@ -458,11 +457,10 @@ class CreditSubmissionResource(StarsApiResource):
         # exclude submission_notes  becauses it raises
         # "'ascii' codec can't decode byte ... in position ...: ordinal not
         # in range(128)"
-        excludes = StarsApiResource.Meta.excludes + [
-                        'last_updated',
-                        'internal_notes',
-                        'responsible_party_confirm',
-                        'submission_notes'
+        excludes = ['last_updated',
+                    'internal_notes',
+                    'responsible_party_confirm',
+                    'submission_notes'
                     ]
 
     def dehydrate_title(self, bundle):
