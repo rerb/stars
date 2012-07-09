@@ -2,7 +2,7 @@
     Personal config file for development in Bob's local environment.
 """
 
-from settings import *
+from bob import *
 
 HIDE_REPORTING_TOOL = False
 DEBUG = True
@@ -14,47 +14,24 @@ CELERY_ALWAYS_EAGER = True
 ADMINS = ('bob.erb@aashe.org',)
 MANAGERS = ADMINS
 
-if 'test' not in sys.argv:
-    API_TEST_MODE = True
-else:
-    API_TEST_MODE = True
-
 DATABASES = {
     'default': {
-        'NAME': 'stars',
-        'ENGINE': 'django.db.backends.mysql',
-        'STORAGE_ENGINE': 'MyISAM',
+        'NAME': '/Users/rerb/sqlite/stars.sqlite',
+        'ENGINE': 'django.db.backends.sqlite3',
         'USER': 'root',
         'PASSWORD': '',
         'HOST': 'localhost',
-        'OPTIONS': {
-                    "connect_timeout": 30,
-                    },
     },
     'iss': {
-        'NAME': 'iss',
-        'ENGINE': 'django.db.backends.mysql',
+        'NAME': '/Users/rerb/sqlite/iss.sqlite',
+        'ENGINE': 'django.db.backends.sqlite3',
         'USER': 'root',
         'PASSWORD': '',
         'HOST': 'localhost',
     }
-    # 'default': {
-    #     'NAME': '/Users/rerb/sqlite/stars.db',
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'USER': 'root',
-    #     'PASSWORD': '',
-    #     'HOST': 'localhost',
-    # },
-    # 'iss': {
-    #     'NAME': '/Users/rerb/sqlite/iss.db',
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'USER': 'root',
-    #     'PASSWORD': '',
-    #     'HOST': 'localhost',
-    # }
 }
 
-DATABASE_ROUTERS = ('aashe.issdjango.router.ISSRouter',)
+API_TEST_MODE = False
 
 # Stand alone mode indicates that the server will be running using
 # the django dev server so we will need to serve the static files (see urls.py)
@@ -64,7 +41,7 @@ STANDALONE_MODE = True
 if DEBUG_TOOLBAR:
     MIDDLEWARE_CLASSES = MIDDLEWARE_CLASSES + ['debug_toolbar.middleware.DebugToolbarMiddleware',]
     INTERNAL_IPS = ('127.0.0.1',)
-    INSTALLED_APPS = INSTALLED_APPS + ('debug_toolbar')
+    INSTALLED_APPS = INSTALLED_APPS + ('debug_toolbar',)
     DEBUG_TOOLBAR_CONFIG = {
         'INTERCEPT_REDIRECTS': False,
     }
