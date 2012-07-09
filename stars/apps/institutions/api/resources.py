@@ -13,18 +13,21 @@ class InstitutionResource(StarsApiResource):
     """
         Resource for accessing any Institution.
     """
-    submission_sets = fields.OneToManyField(
+#    submission_sets = fields.OneToManyField(
+#        SUBMISSIONS_RESOURCE_PATH + "NestedSubmissionSetResource",
+#        'submissionset_set', full=True)
+    current_report = fields.OneToOneField(
         SUBMISSIONS_RESOURCE_PATH + "NestedSubmissionSetResource",
-        'submissionset_set', full=True)
+        'rated_submission', full=True, null=True)
     postal_code = fields.CharField(readonly=True)
     city = fields.CharField(readonly=True)
     state = fields.CharField(readonly=True)
     country = fields.CharField(readonly=True)
 
     class Meta(StarsApiResource.Meta):
-        queryset = models.Institution.objects.filter(enabled=True)
+        queryset = models.Institution.objects.get_rated().order_by('name')
         resource_name = 'institutions'
-        fields = ['name']
+        fields = ['name', 'is_member']
         allowed_methods = ['get']
 
     def dehydrate_city(self, bundle):
