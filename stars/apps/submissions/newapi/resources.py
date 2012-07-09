@@ -27,7 +27,7 @@ class SubmissionSetResource(StarsApiResource):
     creditset = fields.OneToOneField(
         CREDITS_RESOURCE_PATH + 'NestedCreditSetResource', 'creditset',
         full=True)
-    categories = fields.ToManyField(
+    category_submissions = fields.ToManyField(
         SUBMISSIONS_RESOURCE_PATH + 'NestedCategorySubmissionResource',
         'categorysubmission_set', full=True)
     institution = fields.OneToOneField(
