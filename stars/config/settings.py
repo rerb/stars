@@ -136,8 +136,6 @@ INSTALLED_APPS = (
     'djcelery',
     'aashe_rules',
     'tastypie',
-    'django_nose',
-    'fixture_magic',
     # 'memcache_status',
 )
 

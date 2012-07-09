@@ -46,6 +46,7 @@ if DEBUG_TOOLBAR:
         'INTERCEPT_REDIRECTS': False,
     }
 
-# INSTALLED_APPS += ('django_nose',)
+INSTALLED_APPS += ('django_nose',
+                   'fixture_magic')
 
-# TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
