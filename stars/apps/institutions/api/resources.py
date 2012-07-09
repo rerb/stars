@@ -4,7 +4,6 @@
 from tastypie import fields
 
 from stars.apps.institutions import models
-from stars.apps.submissions.models import SubmissionSet
 from stars.apps.api.resources import StarsApiResource
 from stars.apps.api.paths import SUBMISSIONS_RESOURCE_PATH
 
@@ -13,9 +12,9 @@ class InstitutionResource(StarsApiResource):
     """
         Resource for accessing any Institution.
     """
-#    submission_sets = fields.OneToManyField(
-#        SUBMISSIONS_RESOURCE_PATH + "NestedSubmissionSetResource",
-#        'submissionset_set', full=True)
+    submission_sets = fields.OneToManyField(
+       SUBMISSIONS_RESOURCE_PATH + "NestedSubmissionSetResource",
+       'submissionset_set', full=True)
     current_report = fields.OneToOneField(
         SUBMISSIONS_RESOURCE_PATH + "NestedSubmissionSetResource",
         'rated_submission', full=True, null=True)
@@ -31,16 +30,20 @@ class InstitutionResource(StarsApiResource):
         allowed_methods = ['get']
 
     def dehydrate_city(self, bundle):
-        return bundle.obj.profile.city
+        if bundle.obj.profile:
+            return bundle.obj.profile.city
 
     def dehydrate_state(self, bundle):
-        return bundle.obj.profile.state
+        if bundle.obj.profile:
+            return bundle.obj.profile.state
 
     def dehydrate_country(self, bundle):
-        return bundle.obj.profile.country
+        if bundle.obj.profile:
+            return bundle.obj.profile.country
 
     def dehydrate_postal_code(self, bundle):
-        return bundle.obj.profile.postal_code
+        if bundle.obj.profile:
+            return bundle.obj.profile.postal_code
 
     def dehydrate_submission_sets(self, bundle):
         """Filter unrated submission sets."""
