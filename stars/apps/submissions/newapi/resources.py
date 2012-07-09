@@ -256,7 +256,9 @@ class NestedSubmissionSetResource(SubmissionSetResource):
 
     def dehydrate(self, bundle):
         bundle.data['version'] = str(bundle.obj.creditset.version)
-        bundle.data['rating'] = str(bundle.obj.rating.name)
+        bundle.data['rating'] = None
+        if bundle.obj.rating != None:
+            bundle.data['rating'] = str(bundle.obj.rating.name)
 
         return bundle
 
