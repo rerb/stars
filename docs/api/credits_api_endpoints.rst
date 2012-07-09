@@ -1,3 +1,5 @@
+.. _credits_api_endpoints:
+
 The Credits API
 ===============
 
@@ -5,6 +7,10 @@ AASHE provides access to the STARS Technical Manual through the API in the form 
 the **Credits API**, which allows you to navigate each CreditSet (version of STARS),
 from the top level down through Categories, Subcategories, Credits, and Documentation
 Fields.
+
+.. note::
+
+   This API is GET only.
 
 Credit Sets
 -----------
@@ -18,6 +24,7 @@ List URI
 	/api/0.1/credits/creditset/
 
 Sample Output (truncated):
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: javascript
 

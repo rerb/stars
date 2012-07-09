@@ -1,3 +1,5 @@
+.. _submissions_api_endpoints:
+
 The Submissions API
 ===================
 
@@ -5,6 +7,10 @@ AASHE provides access to the STARS Reports through the API in the form of
 the **Submissions API**, which allows you to navigate each Report, from the
 top level down through Categories, Subcategories, Credits, and responses to
 Documentation Fields.
+
+.. note::
+
+   This API is GET only.
 
 Submissions
 -----------

@@ -13,26 +13,14 @@ automated, programmable way. It can also be used by participating
 institutions to retrieve their STARS submission data in a
 machine-readable format for export or additional processing.
 
-To access STARS information via the API, the appropriate permissions
-must be granted on the STARS profile(?). To learn more about STARS
-permissions, read the :ref:`stars-access-levels` section.
-
-
-Contents:
+Table of Contents
+-----------------
 
 .. toctree::
-   :maxdepth: 2
+	:maxdepth: 2
 
-   access
-   terms
-   usingapi
-   sample
-   endpoints
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
+	usingapi
+	sample
+	endpoints
+	examplecode
+	next

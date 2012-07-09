@@ -79,7 +79,3 @@ PHP
 		print_r($json);
 		
 		?>
-
-
-Java
-----

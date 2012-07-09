@@ -34,5 +34,6 @@ All examples below ``json``.
 	:maxdepth: 2
 
 	credits_api_endpoints
+	institutions_api_endpoints
 	submissions_api_endpoints
    
