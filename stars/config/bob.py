@@ -17,42 +17,48 @@ MANAGERS = ADMINS
 if 'test' not in sys.argv:
     API_TEST_MODE = True
 else:
-    API_TEST_MODE = True
+    API_TEST_MODE = False
 
-DATABASES = {
-    'default': {
-        'NAME': 'stars',
-        'ENGINE': 'django.db.backends.mysql',
-        'STORAGE_ENGINE': 'MyISAM',
-        'USER': 'root',
-        'PASSWORD': '',
-        'HOST': 'localhost',
-        'OPTIONS': {
-                    "connect_timeout": 30,
-                    },
-    },
-    'iss': {
-        'NAME': 'iss',
-        'ENGINE': 'django.db.backends.mysql',
-        'USER': 'root',
-        'PASSWORD': '',
-        'HOST': 'localhost',
+if (('test' not in sys.argv) and
+    ('testserver' not in sys.argv)):
+    DATABASES = {
+        'default': {
+            'NAME': 'stars',
+            'ENGINE': 'django.db.backends.mysql',
+            'STORAGE_ENGINE': 'MyISAM',
+            'USER': 'root',
+            'PASSWORD': '',
+            'HOST': 'localhost',
+            'OPTIONS': {
+                "connect_timeout": 30,
+                },
+                },
+        'iss': {
+            'NAME': 'iss',
+            'ENGINE': 'django.db.backends.mysql',
+            'USER': 'root',
+            'PASSWORD': '',
+            'HOST': 'localhost',
+            }
     }
-    # 'default': {
-    #     'NAME': '/Users/rerb/sqlite/stars.db',
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'USER': 'root',
-    #     'PASSWORD': '',
-    #     'HOST': 'localhost',
-    # },
-    # 'iss': {
-    #     'NAME': '/Users/rerb/sqlite/iss.db',
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'USER': 'root',
-    #     'PASSWORD': '',
-    #     'HOST': 'localhost',
-    # }
-}
+
+else:
+    DATABASES = {
+        'default': {
+            'NAME': '/Users/rerb/sqlite/stars.db',
+            'ENGINE': 'django.db.backends.sqlite3',
+            'USER': 'root',
+            'PASSWORD': '',
+            'HOST': 'localhost',
+            },
+        'iss': {
+            'NAME': '/Users/rerb/sqlite/iss.db',
+            'ENGINE': 'django.db.backends.sqlite3',
+            'USER': 'root',
+            'PASSWORD': '',
+            'HOST': 'localhost',
+            }
+    }
 
 DATABASE_ROUTERS = ('aashe.issdjango.router.ISSRouter',)
 
@@ -60,15 +66,7 @@ DATABASE_ROUTERS = ('aashe.issdjango.router.ISSRouter',)
 # the django dev server so we will need to serve the static files (see urls.py)
 STANDALONE_MODE = True
 
-# django toolbar
-if DEBUG_TOOLBAR:
-    MIDDLEWARE_CLASSES = MIDDLEWARE_CLASSES + ['debug_toolbar.middleware.DebugToolbarMiddleware',]
-    INTERNAL_IPS = ('127.0.0.1',)
-    INSTALLED_APPS = INSTALLED_APPS + ('debug_toolbar')
-    DEBUG_TOOLBAR_CONFIG = {
-        'INTERCEPT_REDIRECTS': False,
-    }
+INSTALLED_APPS += ('django_nose',
+                   'fixture_magic')
 
-# INSTALLED_APPS += ('django_nose',)
-
-# TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
