@@ -48,7 +48,7 @@ class SubmissionSetResource(StarsApiResource):
                     'date_registered',
                     'status',
                     'reporter_status',
-                    'submission_boundary'
+                    'submission_boundary',
                     ]
 
     def dehydrate(self, bundle):
@@ -283,6 +283,7 @@ class CategorySubmissionResource(StarsApiResource):
         filtering = { 'submissionset': 'exact',
                       'category': 'exact',
                       'id': ALL_WITH_RELATIONS }
+        excludes = ['id']
 
     def dehydrate(self, bundle):
 
@@ -352,6 +353,7 @@ class SubcategorySubmissionResource(StarsApiResource):
         resource_name = 'submissions/subcategory'
         allowed_methods = ['get']
         filtering = { 'category': ALL_WITH_RELATIONS }
+        excludes = ['id']
 
     def dehydrate_points(self, bundle):
 
@@ -461,7 +463,8 @@ class CreditSubmissionResource(StarsApiResource):
         excludes = ['last_updated',
                     'internal_notes',
                     'responsible_party_confirm',
-                    'submission_notes'
+                    'submission_notes',
+                    'id'
                     ]
 
     def dehydrate_title(self, bundle):
@@ -567,6 +570,7 @@ class DocumentationFieldSubmissionResource(StarsApiResource):
     class Meta(StarsApiResource.Meta):
         resource_name = 'submissions/field'
         allowed_methods = ['get']
+        excludes = ['id']
 
     def credit_user_submissions_for_submissionset(self,
                                                   submissionset_id):
