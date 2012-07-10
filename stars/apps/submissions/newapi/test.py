@@ -18,6 +18,7 @@ def submissions_detail_path(submissionset_id):
 RATED_SUBMISSIONSET_ID = 75
 UNRATED_SUBMISSIONSET_ID = 688
 
+
 class SubmissionSetResourceTestCase(StarsApiTestCase):
 
     def test_get_submissions_list_requires_auth(self):
@@ -84,6 +85,11 @@ class CategorySubmissionResourceTestCase(StarsApiTestCase):
         path = self.detail_path(rated_submissionset=True)
         resp = self.get(path)
         self.assertValidJSONResponse(resp)
+
+    def test_get_categorysubmission_for_unrated_submissionset(self):
+        path = self.detail_path(rated_submissionset=False)
+        resp = self.get(path)
+        self.assertHttpGone(resp)
 
 
 class SubcategorySubmissionResourceTestCase(StarsApiTestCase):
