@@ -8,6 +8,7 @@ from stars.apps.api.test import StarsApiTestCase
 
 class InstitutionResourceTestCase(StarsApiTestCase):
 
+    multi_db = True
     list_path = '/api/0.1/institutions/'
     detail_path = list_path + '74/'
 
