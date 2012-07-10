@@ -1,40 +1,9 @@
-from exceptions import IndexError
-import random
-
 from django.contrib.auth.models import User
 from django.utils import simplejson
 from tastypie.models import ApiKey
 from tastypie.test import ResourceTestCase
 
 API_URI = 'http://localhost:8000/api/0.1'
-
-def get_random_visible_resource(resource):
-    """Get a random instance of an ApiResource that's exposed.
-
-    Any filtering done in the resource's _meta.queryset is respected here.
-    """
-    return get_random_queryset_obj(resource._meta.queryset)
-
-def get_random_queryset_obj(queryset):
-    """Get a random object from a queryset."""
-    if queryset.count() == 0:
-        raise EmptyQuerysetError
-    random_index = random.randint(0, queryset.count() - 1)
-    try:
-        return list(queryset.all())[random_index]
-    except IndexError:
-        # As far as I can see, an IndexError should never happen here.
-        # Still, it does.  So screw it, and return the first obj:
-        return list(queryset.all())[0]
-
-
-class EmptyQuerysetError(Exception):
-
-    def __init__(self, message=''):
-        self.message = message
-
-    def __str__(self):
-        return repr(self.message)
 
 
 class StarsApiTestCase(ResourceTestCase):
