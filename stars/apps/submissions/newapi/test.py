@@ -17,6 +17,8 @@ def submissions_detail_path(submissionset_id):
 
 RATED_SUBMISSIONSET_ID = 75
 UNRATED_SUBMISSIONSET_ID = 688
+RATED_NON_REPORTER_SUBMISSIONSET_ID = RATED_SUBMISSIONSET_ID
+RATED_REPORTER_SUBMISSIONSET_ID = 113
 
 
 class SubmissionSetResourceTestCase(StarsApiTestCase):
@@ -51,6 +53,18 @@ class SubmissionSetResourceTestCase(StarsApiTestCase):
                                     SubmissionSet.objects.get_rated() ]
         self.assertTrue(
             set(visible_submissionset_ids) == set(rated_submissionset_ids))
+
+    def test_scoring_hidden_for_reporter(self):
+        path = submissions_detail_path(RATED_REPORTER_SUBMISSIONSET_ID)
+        resp = self.get(path)
+        payload = json.loads(resp.content)
+        self.assertTrue(payload['score'] is None)
+
+    def test_scoring_shown_for_non_reporter(self):
+        path = submissions_detail_path(RATED_NON_REPORTER_SUBMISSIONSET_ID)
+        resp = self.get(path)
+        payload = json.loads(resp.content)
+        self.assertFalse(payload['score'] is None)
 
 
 class CategorySubmissionResourceTestCase(StarsApiTestCase):
@@ -98,6 +112,9 @@ class SubcategorySubmissionResourceTestCase(StarsApiTestCase):
 
     RATED_SUBCATEGORYSUBMISSION_ID = 429
     UNRATED_SUBCATEGORYSUBMISSION_ID = None
+    RATED_NON_REPORTER_SUBCATEGORYSUBMISSION_WITH_POINTS_ID = \
+      RATED_SUBCATEGORYSUBMISSION_ID
+    RATED_REPORTER_SUBCATEGORYSUBMISSION_WITH_POINTS_ID = 1291
 
     def list_path(self, rated_submissionset):
         """List URI for the SubcategorySubmissions of a SubmissionSet.
@@ -146,18 +163,13 @@ class SubcategorySubmissionResourceTestCase(StarsApiTestCase):
         self.assertValidJSONResponse(resp)
 
     def test_dehydrate_points(self):
-        RATED_NON_REPORTER_SUBMISSIONSET_ID = RATED_SUBMISSIONSET_ID
-        RATED_NON_REPORTER_SUBCATEGORYSUBMISSION_WITH_POINTS_ID = \
-          self.RATED_SUBCATEGORYSUBMISSION_ID
-        RATED_REPORTER_SUBMISSIONSET_ID = 113
-        RATED_REPORTER_SUBCATEGORYSUBMISSION_WITH_POINTS_ID = 1291
 
         # Make sure points aren't None for everybody:
         path = (
             self.list_path_for_submissionset(
                 RATED_NON_REPORTER_SUBMISSIONSET_ID) +
             self.detail_path_part(
-                RATED_NON_REPORTER_SUBCATEGORYSUBMISSION_WITH_POINTS_ID))
+                self.RATED_NON_REPORTER_SUBCATEGORYSUBMISSION_WITH_POINTS_ID))
 
         resp = self.get(path)
 
@@ -170,7 +182,7 @@ class SubcategorySubmissionResourceTestCase(StarsApiTestCase):
             self.list_path_for_submissionset(
                 RATED_REPORTER_SUBMISSIONSET_ID) +
             self.detail_path_part(
-                RATED_REPORTER_SUBCATEGORYSUBMISSION_WITH_POINTS_ID))
+                self.RATED_REPORTER_SUBCATEGORYSUBMISSION_WITH_POINTS_ID))
 
         resp = self.get(path)
 
@@ -180,6 +192,8 @@ class SubcategorySubmissionResourceTestCase(StarsApiTestCase):
 
 
 class CreditSubmissionResourceTestCase(StarsApiTestCase):
+
+    # TODO - add gets for UNRATED_CREDITSUBMISSION_ID?
 
     RATED_CREDITSUBMISSION_ID = 3475
     UNRATED_CREDITSUBMISSION_ID = None
@@ -225,6 +239,8 @@ class CreditSubmissionResourceTestCase(StarsApiTestCase):
 
 
 class DocumentationFieldSubmissionResourceTestCase(StarsApiTestCase):
+
+    # TODO - add get for UNRATED_DOCUMENTATIONFIELDSUBMISSION_ID?
 
     RATED_DOCUMENTATIONFIELDSUBMISSION_ID = 10345
     UNRATED_DOCUMENTATIONFIELDSUBMISSION_ID = None
