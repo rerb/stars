@@ -261,6 +261,7 @@ class NestedSubmissionSetResource(SubmissionSetResource):
 
         return bundle
 
+
 class CategorySubmissionResource(StarsApiResource):
     """
         Resource for accessing any CategorySubmission
@@ -589,8 +590,6 @@ class DocumentationFieldSubmissionResource(StarsApiResource):
         # TODO: depending on the path on the incoming request is
         # bad, right?  If it's not, the all the other get_resource_uri
         # methods should do it this way, too:
-        if not bundle_or_obj:
-            return uri
         field_id = str(bundle_or_obj.obj.documentation_field_id)
         return '/'.join(bundle_or_obj.request.path.split('/')[:5] +
                         ['field', field_id, ''])
