@@ -59,7 +59,7 @@ class SubmissionSetResource(StarsApiResource):
 
         return bundle
 
-    def override_urls(self):
+    def prepend_urls(self):
         # The detail URL for each resource must be listed before the list URL.
         return [
             url(r"^(?P<resource_name>%s)/(?P<pk>\w[\w/-]*)/category"
