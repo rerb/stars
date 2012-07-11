@@ -32,13 +32,10 @@ def show_progress_icon(category, size_class=''):
     
     z = category.__class__.__name__
     
-    measure_class = "progressBarMeasure"
-    
     if z == 'int':
         # if the int is a percent
         numerator = ''
         denominator = ''
-        bar_class = "progressBarSmall"
         content = ''
         caption = title = "%d%%" % category
         percentage = category
@@ -48,28 +45,19 @@ def show_progress_icon(category, size_class=''):
         if numerator > 0:
             percentage = float(numerator)/float(denominator) * 100;
         else:
-            percentage = 1.0 # Fix for css issues
+            percentage = 0 # Fix for css issues
         title = "%.0f / %.0f" % (numerator, denominator)
         
         if z == "CategorySubmission":
-            bar_class = "progressBarLarge"
-            if percentage < 50:
-                measure_class = "progressBarMeasureRight"
-                bar_class = "progressBarLargeRight"
-                percentage = 100 - percentage
             content = "%.0f / %.0f" % (numerator, denominator)
             caption = "Credits Completed"
         elif z == "SubcategorySubmission":
-            bar_class = "progressBarSmall"
             content = ""
             caption = "%.0f / %.0f Credits Completed" % (numerator, denominator)
     return {
         'percentage': percentage, 
         'numerator': numerator,
         'denominator': denominator,
-        'size_class': size_class,
-        'measure_class': measure_class,
-        'bar_class': bar_class,
         'content': content,
         'caption': caption,
         'title': title,
@@ -79,14 +67,12 @@ class Icon(object):
     __slots__ = ('title', 'file', 'alt', 'size_class')
     
 @register.inclusion_tag('tool/submissions/tags/status_icon.html')
-def show_status_icon(credit, size_class=''):
+def show_status_icon(credit, white=0):
     """ Displays an icon representing credit status """
     from stars.apps.submissions.models import CREDIT_SUBMISSION_STATUS_ICONS
-    icon = Icon()
-    icon.size_class = size_class
-    icon.title = credit.get_submission_status_display
-    icon.file, icon.alt = CREDIT_SUBMISSION_STATUS_ICONS.get(credit.submission_status, (None, None))
-    return {'icon': icon}
+    title = credit.get_submission_status_display
+    icon, alt = CREDIT_SUBMISSION_STATUS_ICONS.get(credit.submission_status, (None, None))
+    return {'icon': icon, 'white': white, 'title': title}
 
 @register.inclusion_tag('tool/submissions/tags/payment_icon.html')
 def show_payment_type_icon(payment, size_class=''):

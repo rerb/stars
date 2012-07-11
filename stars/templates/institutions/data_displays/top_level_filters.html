@@ -1,12 +1,15 @@
 <div class='greyBox'>
 	Display results for institutions with the following characteristics:<br/><br/>
-	<table class='filterList'>
+	<table class='table'>
+		<thead>
 		<tr>
 			<th></th>
 			<th>Type of Characteristic</th>
 			<th>Specific Characteristic</th>
 			<th></th>
 		</tr>
+		</thead>
+		<tbody>
 		{% for k, f in delete_forms.forms.items %}
 			<tr>
 				<td style="text-align: center;">
@@ -30,8 +33,9 @@
 				{{ new_filter_form.errors.item }}
 				{{ new_filter_form.item }}
 			</td>
-			<td><button type='submit'>Add Filter</button></td>
+			<td><button type='submit' class='btn'>Add Filter</button></td>
 		</tr>
 		{% endif %}
+		</tbody>
 	</table>
 </div>

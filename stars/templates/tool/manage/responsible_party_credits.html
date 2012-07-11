@@ -1,12 +1,15 @@
 {% if not credit_list %}
 <p>This Responsible Party has not been assigned to any Credits yet.</p>
 {% else %}
-<table class='greyTable' style='margin-top: 10px;'>
+<table class='table'>
+	<thead>
   <tr>
     <th>Subcategory</th>
     <th>Credit</th>
     <th>STARS Version</th>
   </tr>
+  </thead>
+  <tbody>
   {% for cs in credit_list %}
   <tr class='{% cycle 'even' 'odd' %}'>
     <td style='text-align: left'>
@@ -18,5 +21,6 @@
     <td>{{ cs.credit.subcategory.category.creditset.version }}</td>
   </tr>
   {% endfor %}
+  </tbody>
 </table>
 {% endif %}

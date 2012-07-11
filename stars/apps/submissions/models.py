@@ -59,7 +59,7 @@ class SubmissionManager(models.Manager):
         return SubmissionSet.objects.filter(institution__enabled=True).filter(is_visible=True).filter(is_locked=False).filter(status='r')
     
     def get_snapshots(self, institution):
-        return SubmissionSet.objects.filter(institution=institution).filter(is_visible=True).filter(is_locked=False).filter(status='f').order_by('-date_submitted')
+        return SubmissionSet.objects.filter(institution=institution).filter(is_locked=False).filter(status='f').order_by('-date_submitted')
 
 class SubmissionSet(models.Model):
     """
@@ -298,10 +298,10 @@ class Boundary(models.Model):
     fte_employmees = models.IntegerField("Full-time Equivalent Employees", blank=True, null=True)
     institution_type = models.CharField(max_length=32, choices=INSTITUTION_TYPE_CHOICES, blank=True, null=True)
     institutional_control = models.CharField(max_length=32, choices=INSTITUTION_CONTROL_CHOICES, blank=True, null=True)
-    endowment_size = models.IntegerField(blank=True, null=True)
+    endowment_size = models.BigIntegerField(blank=True, null=True)
     student_residential_percent = models.FloatField('Percentage of students that are Residential', blank=True, null=True)
-    student_ftc_percent = models.FloatField('Percentage of students that are Full-time commuter', blank=True, null=True, help_text="Please indicate the number of full-time enrolled students that commute to campus.")
-    student_ptc_percent = models.FloatField('Percentage of students that are Part-time commuter', blank=True, null=True, help_text='Please indicate the number of part-time enrolled students that commute to campus.')
+    student_ftc_percent = models.FloatField('Percentage of students that are Full-time commuter', blank=True, null=True, help_text="Please indicate the percentage of full-time enrolled students that commute to campus.")
+    student_ptc_percent = models.FloatField('Percentage of students that are Part-time commuter', blank=True, null=True, help_text='Please indicate the percentage of part-time enrolled students that commute to campus.')
     student_online_percent = models.FloatField('Percentage of students that are On-line only', blank=True, null=True)
     gsf_building_space = models.FloatField("Gross square feet of building space", blank=True, null=True, help_text="For guidance, consult <a href='http://nces.ed.gov/pubs2006/ficm/content.asp?ContentType=Section&chapter=3&section=2&subsection=1' target='_blank'>3.2.1 Gross Area (Gross Square Feet-GSF)</a> of the U.S. Department of Education's Postsecondary Education Facilities Inventory and Classification Manual.")
     gsf_lab_space = models.FloatField("Gross square feet of laboratory space", help_text='Scientific research labs and other high performance facilities eligible for <a href="http://www.labs21century.gov/index.htm" target="_blank">Labs21 Environmental Performance Criteria</a> (EPC).', blank=True, null=True)
@@ -869,10 +869,10 @@ CREDIT_SUBMISSION_STATUS_CHOICES = list(CREDIT_SUBMISSION_STATUS_CHOICES_W_NA)
 CREDIT_SUBMISSION_STATUS_CHOICES.append(('ns', 'Not Started'))
 
 CREDIT_SUBMISSION_STATUS_ICONS = {   # used by template tag to create iconic representation of status
-    'c'  : ('tick.png', 'c'),
-    'p'  : ('pencil.png', '...'),
-    'np' : ('grey_cross.png', '-'),
-    'na' : ('tag_yellow.png', '-'),
+    'c'  : ('icon-ok', 'c'),
+    'p'  : ('icon-pencil', '...'),
+    'np' : ('icon-remove', '-'),
+    'na' : ('icon-tag', '-'),
 }
 
 class CreditUserSubmission(CreditSubmission):
@@ -1060,7 +1060,7 @@ class DataCorrectionRequest(models.Model):
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
     reporting_field = generic.GenericForeignKey('content_type', 'object_id')
-    new_value = models.TextField(help_text='If this is a numeric field, then please to remove any units before approving.')
+    new_value = models.TextField()
     explanation = models.TextField()
     user = models.ForeignKey(User, blank=True, null=True)
     approved = models.BooleanField(default=False)

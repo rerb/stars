@@ -88,7 +88,12 @@ class SummaryPieChart(Resource, SliceMixin):
                     # @todo: exclude supplemental
                     latest = cat.category.get_latest_version()
                     if scores.has_key(cat.category.abbreviation):
-                        scores[latest.abbreviation]['running_total'] += cat.score
+                        if cat.score == None:
+                            pass
+                        if cat.category.title == 'Innovation':
+                            scores[latest.abbreviation]['running_total'] += cat.get_claimed_points()
+                        else:
+                            scores[latest.abbreviation]['running_total'] += cat.get_STARS_score()
                         scores[latest.abbreviation]['running_count'] += 1
                     else:
                         scores[latest.abbreviation] = {

@@ -31,6 +31,10 @@ def user_can_manage_submission(user, submission):
     return submission_is_editable(submission) and user_has_access_level(user, 'admin', submission.institution)
 aashe_rules.site.register("user_can_manage_submission", user_can_manage_submission)
 
+def user_can_see_internal_notes(user, submission):
+    return user_has_access_level(user, 'view', submission.institution)
+aashe_rules.site.register("user_can_see_internal_notes", user_can_see_internal_notes)
+
 def user_can_submit_for_rating(user, submission):
     """
         Rule defines whether a user (and institution) has
@@ -43,12 +47,52 @@ def user_can_submit_snapshot(user, submission):
     return user_can_manage_submission(user, submission) and institution_has_snapshot_feature(submission.institution)
 aashe_rules.site.register("user_can_submit_snapshot", user_can_submit_snapshot)
 
-def user_can_migrate_submission(user, submission):
+def user_can_migrate_version(user, institution):
     """
         Only institution admins can migrate a submission
     """
-    if submission.creditset.version != CreditSet.objects.get_latest().version:
-        return user_has_access_level(user, 'admin', submission.institution)
+    if institution.current_submission.creditset.version != CreditSet.objects.get_latest().version:
+        return user_has_access_level(user, 'admin', institution)
     else:
         return False
-aashe_rules.site.register("user_can_migrate_submission", user_can_migrate_submission)
+aashe_rules.site.register("user_can_migrate_version", user_can_migrate_version)
+
+def user_can_migrate_data(user, institution):
+    """
+        Can this user do a data migration?
+        Only institution admins can migrate a submission
+    """
+    return user_has_access_level(user, 'admin', institution)
+aashe_rules.site.register("user_can_migrate_data", user_can_migrate_data)
+
+def user_can_migrate_from_submission(user, submission):
+    """
+        Only institution admins can migrate a submission
+        
+        Participants can migrate from Reports or Snapshots
+        Respondents can only migrate from Reports
+    """
+    if user_has_access_level(user, 'admin', submission.institution):
+        if submission.institution.is_participant:
+            if submission.status == 'r' or submission.status == 'f':
+                return True
+        else:
+            if submission.status == 'r':
+                return True
+    return False
+aashe_rules.site.register("user_can_migrate_from_submission", user_can_migrate_from_submission)
+
+def submission_has_scores(submission):
+    """
+        Indicates that the preview or reporting tool should show scores for
+        this submission
+    """
+    if submission.status == 'r':
+        return submission.rating.name != "Reporter"
+    elif submission.status == 'f':
+        # don't show score for snapshots
+        return False
+    else:
+        return submission.institution.is_participant
+aashe_rules.site.register("submission_has_scores", submission_has_scores)
+    

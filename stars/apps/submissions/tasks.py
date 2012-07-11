@@ -57,6 +57,19 @@ def perform_migration(old_ss, new_cs, user):
         watchdog.log('perform_migration', 'Migration email template missing', watchdog.ERROR)
 
 @task()
+def perform_data_migration(old_ss, user):
+    """
+        Just duplicates a submission and archives the old one
+    """
+    new_ss = create_ss_mirror(old_ss, registering_user=user)
+    new_ss.is_locked = False
+    new_ss.save()
+    
+    old_ss.institution.current_submission = new_ss
+    old_ss.institution.save()
+    
+
+@task()
 def migrate_purchased_submission(old_ss, new_ss):
     """
         Hide the submission, move the data from the old_ss

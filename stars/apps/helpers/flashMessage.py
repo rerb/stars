@@ -9,7 +9,7 @@ NOTICE = 0
 SUCCESS = 1
 ERROR = 2
 
-MESSAGE_CLASSES = ["notice", "success", "error"]  # correspond to CSS classes used to display messages.
+MESSAGE_CLASSES = ["info", "success", "error"]  # correspond to CSS classes used to display messages.
 
 
 """

@@ -17,7 +17,7 @@ PROJECT_PATH = os.path.join(os.path.dirname(__file__), '..')
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # if True, prevents access by non-staff to any part of the site that is not public.
-HIDE_REPORTING_TOOL = False
+HIDE_REPORTING_TOOL = False  
 # if True, log-out and re-direct all non-staff requests to standard 503 (Temporarily Unavailable) view.
 MAINTENANCE_MODE = False
 # This message will be broadcast to all users on every response - usually used to warn about site maintenance
@@ -42,6 +42,7 @@ USE_I18N = False
 MEDIA_URL = '/media/'
 
 ADMIN_MEDIA_PREFIX = '/media/admin/'
+STATIC_URL = "/media/static/"
 
 SECRET_KEY = 'omxxweql@m7!@yh5a-)=f^_xo*(m2+gaz#+8dje)e6wv@q$v%@'
 
@@ -78,7 +79,7 @@ if 'test' in sys.argv:
                                'django.contrib.auth.backends.ModelBackend',
                                'stars.apps.accounts.aashe.AASHEAuthBackend',
                                )
-
+    
 DASHBOARD_URL = "/tool/"
 LOGIN_URL = "/accounts/login/"
 LOGOUT_URL = "/accounts/logout/"
@@ -96,6 +97,9 @@ TEMPLATE_DIRS = [os.path.join(os.path.dirname(__file__), "..", "templates")]
 TEMPLATE_CONTEXT_PROCESSORS = (
     "stars.apps.accounts.utils.account_context",
     'stars.apps.helpers.utils.settings_context',
+    'django.core.context_processors.static',
+    'django.core.context_processors.media',
+    'django.contrib.messages.context_processors.messages',
     "django.contrib.auth.context_processors.auth")
 
 INSTALLED_APPS = (
@@ -136,7 +140,8 @@ INSTALLED_APPS = (
     'djcelery',
     'aashe_rules',
     'tastypie',
-    # 'memcache_status',
+    'bootstrapform',
+    'memcache_status',
 )
 
 # Is this running on the django dev server?
@@ -239,7 +244,7 @@ PYTHON_VERSION = None
 m = re.match('[\d\.]+', sys.version)
 if m:
     PYTHON_VERSION = m.group(0)
-
+    
 DJANGO_VERSION = django.get_version()
 HG_REVISION = None
 

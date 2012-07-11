@@ -832,6 +832,9 @@ class DocumentationField(VersionedModel):
             label = "%s ..."%l 
         return label
     
+    def get_escaped_tooltip_help_text(self):
+        return self.tooltip_help_text.replace("\"", "'")
+    
     def __cmp__(self, other):
         """ Used for ordering by ordinal """
         return cmp(self.ordinal, other.ordinal)

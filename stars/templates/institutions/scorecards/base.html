@@ -10,14 +10,16 @@
 
 {% block body_onload %}{{ block.super }}listexpander();collapseSummary();{% endblock %}
 
-{% block crumbs %}
-    <a href='/institutions/'>STARS Institutions</a> &gt;
-    <a href='{{ submissionset.get_scorecard_url }}'>{{ submissionset.institution }}</a> &gt;
-    <a href='{{ submissionset.get_scorecard_url }}'>
+{% block crumb-tab %}
+    <li>
+    	<a href='/institutions/{{ submissionset.institution.slug }}/report/'>{{ submissionset.institution }}</a>
+    	<span class="divider">/</span>
+    </li>
+    <li>
     	{% if submissionset.was_submitted %}
     		{{ submissionset.date_submitted }}
     	{% else %}
     		{{ submissionset.creditset }}
     	{% endif %}
-    </a>
+    </li>
 {% endblock %}

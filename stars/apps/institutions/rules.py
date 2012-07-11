@@ -7,6 +7,12 @@ from django.db.models import Max
 from stars.apps.institutions.models import StarsAccount
 
 def user_has_access_level(user, access_level, institution):
+    """
+        Access levels are "admin", "submit", "view"
+    """
+    if not user.is_authenticated():
+        return False
+    
     if user.is_staff:
         return True
     try:
@@ -35,9 +41,13 @@ aashe_rules.site.register("institution_has_internal_notes_feature", institution_
 def institution_has_my_resources(institution):
     """
         If they're a participant, or if their most recent subscription ended less
-        60 days prior
+        60 days prior or it is before september 2012
     """
-    if institution.is_participant:
+    sept = date(year=2012, day=1, month=9)
+    
+    return True
+    
+    if institution.is_participant or date.today() < sept:
         return True
     else:
         td = timedelta(days=60)

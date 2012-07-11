@@ -49,7 +49,8 @@ DATABASE_ROUTERS = ('aashe.issdjango.router.ISSRouter',)
 # the django dev server so we will need to serve the static files (see urls.py)
 STANDALONE_MODE = True
 
-MEDIA_ROOT = '/Users/jamstooks/workspace/media/stars/'
+MEDIA_ROOT = '/Users/jamstooks/aashe/app_media/stars/'
+STATIC_URL = "/media/static/"
 
 SSO_SERVER_URI = WWW_SSO_SERVER_URI
 STARS_DOMAIN = WWW_STARS_DOMAIN

@@ -1,216 +1,84 @@
-{% extends 'base.html' %}
-
-{% block extra_head %}
-<style type="text/css">
-#leftContent{
-	background-color: #fff;
-	width: 670px;
-	border-right:270px solid #fff; /* The width and color of the rail */
-	margin-right:-270px; /* Hat tip to Ryan Brill */
-	float:left;
-}
-#rightRail{
-	background-color: #fff;
-	width:270px;
-	float:left;
-}
-
-div.homeFeature {
-	font-family: Garamond, serif;
-	color: #1b617f;
-	font-size: 1.8em;
-	margin: 0px 0px;
-	padding: 0px 0px;
-	font-weight: bold;
-}
-div.smallFeature {
-	border: 1px solid #848e2b;
-	background-color: #f6f6f0;
-	color: #404040;
-	float: left;
-	margin: 5px;
-	width: 204px;
-	font-size: .9em;
-}
-div.smallFeature h3 {
-	color: #848e2b;
-	font-family: Garamond, serif;
-	font-size: 1.7em;
-	font-weight: bold;
-	border: 0px;
-	padding: 0px;
-	margin: 10px 15px;
-	text-transform: none;
-}
-div.smallFeature p {
-	margin: 10px;
-}
-div.smallFeature img {
-	padding: 0px 5px 25px 0px;
-}
-
-#rightRail h2 {
-	font-size: 1.6em;
-	font-family: Garamond, serif;
-	font-weight: bold;
-	border-width: 0px 0px 1px 0px;
-	border-color: #999999;
-	border-style: solid;
-	padding: 0px;
-	margin: 10px 0px;
-	color: #404040;
-}
-
-div.banner {
-	width: 650px;
-	height: 300px;
-	background-image: url('/media/static/images/home/cobblestone.jpg');
-	padding: 0px 0px;
-}
-
-div.bannerInner {
-	font-size: 1.1em;
-	color: white;
-	position: relative;
-	top: 30px;
-	margin: 0px 200px 0px 0px;
-	padding: 20px;
-    background-color: black;
-    background: rgba(0,0,0,0.6); 
-    border: 1px solid rgba(160, 160, 160, 0.6);
-/* 	filter:alpha(opacity=70);
-	-moz-opacity:0.70;
-	-khtml-opacity: 0.70;
-	opacity: 0.70; */
-}
-
-div.bannerInner h1 {
-	border: 0px;
-	color: white;
-	font-size: 1.8em;
-    font-weight: normal;
-	margin: 0px;
-	filter:alpha(opacity=100);
-	-moz-opacity: 1.0;
-	-khtml-opacity: 1.0;
-	opacity: 1.0;
-}
-
-div.bannerInner hr {
-	color: white;
-	background-color: white;
-	margin: 10px 0px;
-	height: 2px;
-}
-
-div.bannerInner a {
-	color: white;
-}
-
-a.homeButton {
-  border:1px solid white;
-  color: white;
-  text-decoration: none;
-  padding: 5px 10px;
-  display: inline-block;
-  font-weight: 500;
-  text-align: center;
-  width: 170px;
-  height: 100%;
-    -moz-border-radius: 5px;
-    -webkit-border-radius: 5px;
-}
-
-a.blueButton {
-  background-color: #1b617f;
-}
-
-a.greenButton {
-  background-color: #848e2b;
-}
-
-</style> 
-{% endblock %}
+{% extends "base.html" %}
 
 {% block content %}
-	<div id="leftContent"><div class='inner10'>
-		<div class='banner'>
-			<div class='bannerInner'>
-				<h1>Register for STARS!</h1>
-				<hr/>
-				Earn recognition for sustainability leadership by registering as a STARS Participant today.
-				<hr/>
-				<table border='0' width='99%'>
-					<tr>
-                        <td>
-                          <a
-                            href='/pages/get-involved/campus-sustainability-data-collector/'
-                            class="homeButton greenButton">
-                              Campus Sustainability Data Collector
-                            </a>
-                        </td>
-						<td>
-                          <a
-                            href='/pages/get-involved/registration.html'
-                            class="homeButton blueButton">
-                              Register for<br/>STARS
-                          </a>
-                        </td>
-					</tr>
-				</table>
+	<div class="row">
+	  <div class="span8  stars-hero">
+	    <div class="row">
+	    	<div class='span8 stars-hero-title'>
+	    		<div class="row">
+			      <div class="span4">
+			      	<h1>Register for STARS!</h1>
+			      </div>
+			      <div class="span4">
+			      	Earn recognition for sustainability leadership by registering as a STARS Participant today.
+			      </div>
+	      		</div>
+	    	</div>
+	    	<div class='span8 stars-hero-title2'>
+	    		
+	    		<a class="btn btn-large btn-success" href="/pages/get-involved/campus-sustainability-data-collector/">
+                	Campus Sustainability Data Collector
+                </a>
+	    	
+	    		<a class="btn btn-large btn-success" href="/pages/get-involved/registration.html">
+	    			Register for <strong>STARS</strong>
+	    		</a>
+	    	</div>
+	    </div>
+	  </div>
+	  
+	  <div class="span4 home-right-rail">
+	  	<h3 class='home'>Recently Rated Institutions</h3>
+		{% load institution_lists %}
+		{% show_rated_registrants %}
+		<a href="/institutions/" class="right-link">View All</a>
+		<h3 class='home'>Latest Registrants</h3>
+		{% show_latest_registrants %}
+		<a href="/institutions/" class="right-link">View All Participants</a>
+	  </div>
+	  
+	</div>
+	
+	<div class='row'>
+		<div class='span8 sub-hero'>
+			<h2 class='home'>The Sustainability Tracking, Assessment & Rating System<sup>&trade;</sup></h2> (STARS)
+			is a transparent, self-reporting framework for colleges and universities to measure their sustainability performance.
+			STARS&reg; was developed by AASHE with broad participation from the higher education community.
+		</div>
+		<div class='span4 update'>
+			<h4 class='home'>STARS Update</h4>
+			The STARS Update is a free, monthly e-newsletter. Your subscription will keep you up to speed
+			on the latest STARS news, resources, participant highlights, events, and more.<br/>
+			<a 	href='http://visitor.r20.constantcontact.com/manage/optin/ea?v=001dLsZf5Cw4pMCUTlQhD3r3Q%3D%3D'
+				class='btn btn-info pull-right'>
+				<i class='icon-envelope icon-white'></i>
+				Subscribe Today!
+			</a>
+		</div>
+	</div>
+	
+	<div class='row'>
+		<div class="span6">
+			<div class="well">
+				<h4>About STARS</h4>
+				<a href="https://stars.aashe.org/pages/about">Learn more</a> about STARS, including program goals, guidelines, FAQs, and more.
+			</div>
+			<div class="well">
+				<h4>Credit Details</h4>
+				To <a href='/pages/about/technical-manual.html'>view the STARS 1.2 credits</a>, download the current Credit Checklist or Technical Manual.
+			</div>
+			<div class="well">
+				<h4>Founding Partners</h4>
+				AASHE thanks the STARS <a href='/pages/governance/3978/'>Founding Partner Organizations</a> for their contributions to the system. 
 			</div>
 		</div>
-		<hr class='blue' />
-		<div class='homeFeature'>
-			The Sustainability Tracking, Assessment & Rating System<sup>&trade;</sup> (STARS) is a transparent, self-reporting framework for colleges and universities to measure their sustainability performance. STARS&reg; was developed by AASHE with broad participation from the higher education community.
+		<div class='span6 highlights'>
+			<div class='well'>
+				<h4>Highlights</h4>
+				{% load content %}
+        		{% display_block_content 'highlights' user %}
+        	</div>
 		</div>
-		<hr class='blue' />
-		<div class='smallFeature' style='margin-left: 0px;'>
-			<h3>About STARS</h3>
-			<p>
-				<img src='/media/static/images/home/star.png' align='left' alt=''/>
-				<a href='/pages/about'>Learn more</a> about STARS, including program goals, guidelines, FAQs, and more. 
-			</p>
-		</div>
-		<div class='smallFeature'>
-			<h3>Founding Partners</h3>
-			<p>
-				<img src='/media/static/images/home/founding_partners.png' align='left' alt=''/>
-				AASHE thanks the STARS <a href='/pages/governance/3978/'>Founding Partner Organizations</a> for their contributions to the system. 
-			</p>
-		</div>
-		<div class='smallFeature'>
-			<h3>Credit Details</h3>
-			<p>
-			<img src='/media/static/images/home/credits.png' align='left' alt=''/>
-			To <a href='/pages/about/technical-manual.html'>view the STARS 1.2 credits</a>, download the current Credit Checklist or Technical Manual.
-			</p>
-		</div>
-	</div></div>
-	<div id="rightRail">
-		<h2>Recently Rated Institutions</h2>
-		<span style='font-size: .9em;margin-bottom: 5px;display: block;padding-left: 4px;'>
-			{% load institution_lists %}
-			{% show_rated_registrants %}
-		</span>
-		<span style='display: block;text-align: right;'>
-			<a href='/institutions/'>View All</a>
-		</span>
-		<h2>Latest Registrants</h2>
-		<span style='font-size: .9em;margin-bottom: 5px;display: block;padding-left: 4px;'>
-			{% show_latest_registrants %}
-		</span>
-		<span style='display: block;text-align: right;'>
-			<a href='/institutions/'>View All Participants</a>
-		</span>
-		<hr/>
-		<h2>STARS Update</h2>
-		<a href='http://visitor.r20.constantcontact.com/manage/optin/ea?v=001dLsZf5Cw4pMCUTlQhD3r3Q%3D%3D'><img src='/media/static/images/home/update_icon.png' align='right' style='margin: 5px;' alt='' /></a>
-		<i>STARS Update</i> is a free, monthly e-newsletter. Your subscription will keep you up to speed on the latest STARS news, resources, participant highlights, events, and more.
-		<br/>
-		<button class='blue' type='button' onclick="document.location='http://visitor.r20.constantcontact.com/manage/optin/ea?v=001dLsZf5Cw4pMCUTlQhD3r3Q%3D%3D';">Subscribe Today!</button>
-        <hr/>
-        {% load content %}
-        {% display_block_content 'highlights' user %}
 	</div>
+
 {% endblock %}

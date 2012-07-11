@@ -3,14 +3,11 @@
 {% load thumbnail %}
 {% load content %}
 
-{% block crumbs %}
-	{{ block.super }} &gt;
-	<a href='/institutions/data-displays/dashboard/'>Dashboard</a>
+{% block crumb-tab %}
+	<li>Dashboard Summary</li>
 {% endblock %}
 
 {% block title %}Dashboard | {{ block.super }}{% endblock %}
-
-{% block tabclass %}class='tab2'{% endblock %}
 
 {% block body_onload %}{{ block.super }}initialize();{% endblock %}
 
@@ -127,17 +124,15 @@
         new google.visualization.PieChart(document.getElementById('ratingChart')).
           draw(data,
                {
-                 width: 450,
-                 height: 250,
                  is3D: true,
                  legend: 'left',
-                 backgroundColor: "#eff5e6",
+                 backgroundColor: "#f5f5f5",
                  colors: [
-                   "#908c89",
-                   '#A39161',
-                   "#A8A9AD",
-                   "#8C745A",
-                   '#858f38',
+                        	"#8E8C8A", // platinum
+                        	"#A39161", // gold
+							"#A7A9AC", // silver
+							"#8C7459", // bronze
+							"#848E2B", // reporter
                  ],
                  pieResidueSliceColor: "#1b617f"
                });
@@ -162,10 +157,8 @@
         // Create and draw the visualization.
         var ac = new google.visualization.AreaChart(document.getElementById('areaChart'));
         ac.draw(data, {
-          width: 450,
-          height: 250,
-          backgroundColor: "#eff5e6",
-          colors: ['#858f38', "#b6a780"],
+          backgroundColor: "#f5f5f5",
+          colors: ["#00A060", "#6BBC49", "#CEDC45"],
           legend: 'top',
           hAxis: {title: 'Date'},
           vAxis: {title: "Total"},
@@ -195,9 +188,8 @@
         new google.visualization.ColumnChart(document.getElementById('barChart')).
             draw(data,
                  {
-                  width:450, height:250,
-                  backgroundColor: "#eff5e6",
-                  colors: ["#858f38"],
+                  backgroundColor: "#f5f5f5",
+                  colors: ["#0080CF", "#00BCE4"],
                   legend: 'none',
                   hAxis: {title: 'Category'},
                   vAxis: {title: "Average Score", baseline: 0},
@@ -232,10 +224,9 @@
         new google.visualization.BarChart(document.getElementById('memberNumbers')).
             draw(data,
                  {
-                  width:450, height:250,
-                  backgroundColor: "#eff5e6",
+                  backgroundColor: "#f5f5f5",
                   colors: [
-	                   '#1b617f',
+	                   "#5160AB", "#A486BD"
                  	],
                   legend: 'none',
                   hAxis: {title: 'Total', baseline: 0}
@@ -254,119 +245,136 @@
 
 {% block tab_content %}
   {{ block.super }}
-		<p style='font-size: .8em;'>Data Last Updated: {{ cache_time }}</p>
-		<div id="map_canvas" style="height:370px; border: 1px solid #aaa; margin-top: 5px; padding: 2px;"></div>
-		<hr style='clear:both' />
-		<div style='margin: 0px 0px 10px 0px;padding: 2px; border: 1px solid #aaa;float: left;'>
-			<div id="ratingChart" style="width:450px;height:250px;margin: 0px;"></div>
-		</div>
-		<div style='margin: 0px 0px 0px 475px;'>
-		<h3>STARS Ratings</h3>
-		<table class='vertical' style='margin: 20px;'>
-			<tr>
-				<th>Platinum</th>
-				<td>{{ ratings.Platinum }}</td>
-			</tr><tr>
-				<th>Gold</th>
-				<td>{{ ratings.Gold }}</td>
-			</tr><tr>
-				<th>Silver</th>
-				<td>{{ ratings.Silver }}</td>
-			</tr><tr>
-				<th>Bronze</th>
-				<td>{{ ratings.Bronze }}</td>
-			</tr><tr>
-				<th>Reporter</th>
-				<td>{{ ratings.Reporter }}</td>
-			</tr>
-		</table>
-    	{% display_block_content 'dash_ratings' user %}
-		</div>
-		<hr style='clear: both;' />
-		<div style='margin: 0px 0px 10px 0px;padding: 2px; border: 1px solid #aaa;float: left;'>
-			<div id="areaChart" style="width:450px;height:250px;margin: 0px;"></div>
-		</div>
-		<div style='margin: 0px 0px 0px 475px;'>
-		<h3>STARS Registrations and Submissions</h3>
-		<table class='vertical' style='margin: 20px;'>
-			<tr>
-				<th>Registrations</th>
-				<td>{{ total_reg_count }}</td>
-			</tr><tr>
-              <th>Submissions</th>
-              <td>{{ total_rating_count }}</td>
-            </tr><tr>
-				<th>Renewals</th>
-				<td>{{ total_renew_count }}</td>
-			</tr>
-		</table>
-    	{% display_block_content 'dash_parts_and_subs' user %}
-		</div>
-		<hr style='clear: both;' />
-		<div style='margin: 0px 0px 10px 0px;padding: 2px; border: 1px solid #aaa;float: left;'>
-			<div id="barChart" style="width:450px;height:250px;margin: 0px;"></div>
-		</div>
-		<div style='margin: 0px 0px 0px 475px;'>
-		<h3>Average Category Scores</h3>
-		<table class='vertical' style='margin: 20px;'>
-			{% for cat in bar_chart|dictsort:"ord" %}
-				<tr>
-					<th>{{ cat.title }}</th>
-					<td><span class='variance' title="{{ cat.var }}">{{ cat.avg|floatformat:2 }}%</span></td>
-				</tr>
-			{% endfor %}
-		</table>
-    	{% display_block_content 'dash_avg_cat_scores' user %}
+		Data Last Updated: {{ cache_time }}
+		<div class="row">
+			<div class="span12 dashboard-map" id="map_canvas" style='height: 370px;'></div>
 		</div>
 		
-		<hr style='clear: both;' />
-		<div style='margin: 0px 0px 10px 0px;padding: 2px; border: 1px solid #aaa;float: left;'>
-			<div id="memberNumbers" style="width:450px;height:250px;margin: 0px;"></div>
+		<div class="row">
+			<div class="span7">
+				<div class="dashboard-chart" id="ratingChart"></div>
+			</div>
+			<div class="span5">
+				<h2 class='dashboard'>STARS Ratings</h3>
+				<table class="table table-condensed">
+					<tbody>
+						<tr>
+							<th>Platinum</th>
+							<td>{{ ratings.Platinum }}</td>
+						</tr><tr>
+							<th>Gold</th>
+							<td>{{ ratings.Gold }}</td>
+						</tr><tr>
+							<th>Silver</th>
+							<td>{{ ratings.Silver }}</td>
+						</tr><tr>
+							<th>Bronze</th>
+							<td>{{ ratings.Bronze }}</td>
+						</tr><tr>
+							<th>Reporter</th>
+							<td>{{ ratings.Reporter }}</td>
+						</tr>
+					</tbody>
+				</table>
+		    	{% display_block_content 'dash_ratings' user %}
+			</div>
 		</div>
-		<div style='margin: 0px 0px 0px 475px;'>
-		<h3>STARS Institutions Breakdown</h3>
-		<table class='vertical' style='margin: 20px;'>
-			<tr>
-              <th>Participating and/or Rated</th>
-              <td>{{ properties.uptake }}</td>
-            </tr>
-            <tr>
-				<th>Current STARS Participants</th>
-				<td>{{ properties.participant }}</td>
-			</tr>
-            <tr>
-              <th>Rated Institutions</th>
-              <td>{{ properties.rated }}</td>
-            </tr>
-			<tr>
-				<th>AASHE Members</th>
-				<td>{{ properties.member }}</td>
-			</tr>
-			<tr>
-				<th>ACUPCC Signatories</th>
-				<td>{{ properties.pcc }}</td>
-			</tr>
-			<tr>
-				<th>US Institutions</th>
-				<td>{{ properties.us }}</td>
-			</tr>
-			<tr>
-				<th>Canadian Institutions</th>
-				<td>{{ properties.canada }}</td>
-			</tr>
-            <tr>
-              <th>International Pilot Participants</th>
-              <td>{{ properties.international }}</td>
-            </tr>
-            <tr>
-              <th>Charter STARS Participants</th>
-              <td>{{ properties.charter }}</td>
-            </tr>
-            <tr>
-              <th>STARS Pilot Participants</th>
-              <td>{{ properties.pilot }}</td>
-            </tr>
-		</table>
-    	{% display_block_content 'dash_inst_properties' user %}
+		
+		<div class="row">
+			<div class="span7">
+				<div class="dashboard-chart" id="areaChart"></div>
+			</div>
+			<div class="span5">
+ 				<h2 class='dashboard'>STARS Registrations and Submissions</h2>
+				<table class="table table-condensed">
+					<tbody>
+						<tr>
+							<th>Registrations</th>
+							<td>{{ total_reg_count }}</td>
+						</tr><tr>
+			              <th>Submissions</th>
+			              <td>{{ total_rating_count }}</td>
+			            </tr><tr>
+							<th>Renewals</th>
+							<td>{{ total_renew_count }}</td>
+						</tr>
+					</tbody>
+				</table>
+		    	{% display_block_content 'dash_parts_and_subs' user %}
+			</div>
+		</div>
+		
+		<div class="row">
+			<div class="span7">
+				<div class="dashboard-chart" id="barChart"></div>
+			</div>
+			<div class="span5">
+				<h2 class='dashboard'>Average Category Scores</h2>
+				<table class="table table-condensed">
+					<tbody>
+					{% for cat in bar_chart|dictsort:"ord" %}
+						<tr>
+							<th>{{ cat.title }}</th>
+							<td><span class='variance' title="{{ cat.var }}">{{ cat.avg|floatformat:2 }}%</span></td>
+						</tr>
+					{% endfor %}
+					</tbody>
+				</table>
+    			{% display_block_content 'dash_avg_cat_scores' user %}
+			</div>
+		</div>
+		
+		<div class="row">
+			<div class="span7">
+				<div class="dashboard-chart" id="memberNumbers"></div>
+			</div>
+			<div class="span5">
+				<h2 class='dashboard'>STARS Institutions Breakdown</h2>
+				<table class="table table-condensed">
+					<tbody>
+						<tr>
+			              <th>Participating and/or Rated</th>
+			              <td>{{ properties.uptake }}</td>
+			            </tr>
+			            <tr>
+							<th>Current STARS Participants</th>
+							<td>{{ properties.participant }}</td>
+						</tr>
+			            <tr>
+			              <th>Rated Institutions</th>
+			              <td>{{ properties.rated }}</td>
+			            </tr>
+						<tr>
+							<th>AASHE Members</th>
+							<td>{{ properties.member }}</td>
+						</tr>
+						<tr>
+							<th>ACUPCC Signatories</th>
+							<td>{{ properties.pcc }}</td>
+						</tr>
+						<tr>
+							<th>US Institutions</th>
+							<td>{{ properties.us }}</td>
+						</tr>
+						<tr>
+							<th>Canadian Institutions</th>
+							<td>{{ properties.canada }}</td>
+						</tr>
+			            <tr>
+			              <th>International Pilot Participants</th>
+			              <td>{{ properties.international }}</td>
+			            </tr>
+			            <tr>
+			              <th>Charter STARS Participants</th>
+			              <td>{{ properties.charter }}</td>
+			            </tr>
+			            <tr>
+			              <th>STARS Pilot Participants</th>
+			              <td>{{ properties.pilot }}</td>
+			            </tr>
+		           </tbody>
+				</table>
+		    	{% display_block_content 'dash_inst_properties' user %}
+		    </div>
 		</div>
 {% endblock %}

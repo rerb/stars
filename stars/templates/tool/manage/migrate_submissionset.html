@@ -1,22 +1,86 @@
-{% extends 'tool/manage/submissionset_base.html' %}
+{% extends 'tool/manage/base.html' %}
 
-{% block crumbs %} {{ block.super }} &gt; Migrate Submission Set{% endblock %}
+{% load aashe_rules_tags %}
+
+{% block crumbs-tool %}
+	<li>
+		<a href='/tool/submissions/'>{{ active_submission.creditset.version }}</a>
+		<span class="divider">/</span>
+	</li>
+	<li>Migrate</li>
+{% endblock %}
+
+{% block tabs %}
+	{% with active_tab="migrate" %}{{ block.super }}{% endwith %}
+{% endblock %}
 
 {% block institution_content %}
-    <h2>Migrate Submission Set to {{ latest_creditset }}</h2>
-    {% load content %}
-    {% display_block_content 'migrate_submissionset' user %}
-    <div class='greyBox'>
-    <form method='post' action='.'>
-    <table class='form'>
-        {{ object_form }}
-        <tr>
-            <td>
-                <button type='submit'>Migrate</button>
-                <button type='button' onclick="document.location='/tool/manage/submissionsets/';">Cancel</button>
-            </td>
-        </tr>
-    </table>
-    </form>
-    </div>
+
+	<div class='row'>
+		<div class='span4'>
+			<h3>Version Migration</h3>
+			<p>Migrate Submission to <strong>{{ latest_creditset }}</strong>.</p>
+			{% if active_submission.creditset != latest_creditset %} 
+				{% testrule user_can_migrate_version user user.current_inst %}
+					<a href="/tool/manage/migrate/version/" class='btn btn-primary'>Migrate Now</a>
+				{% else %}
+					<div class="alert">Sorry, you do not have permission to migrate versions. Please contact your STARS liaison to get admin privileges.</div>
+				{% endtestrule %}
+			{% else %}
+				<div class="alert alert-success">
+					You are already working in <strong>{{ latest_creditset }}</strong>.
+				</div>
+			{% endif %}
+		</div>
+		<div class='span4 offset1'>
+			<h3>Data Migration</h3>
+			<p>Pull data from previous Reports.</p>
+			{% testrule user_can_migrate_data user active_submission.institution %}
+				{% if available_submission_list %}
+					<table class='table'>
+						<thead>
+							<tr>
+								<th>Date</th>
+								<th>Type</th>
+								<th></th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for sub in available_submission_list %}
+							<tr>
+								<td>
+									{% if sub.date_submitted %}
+										{{ sub.date_submitted }}
+									{% else %}
+										{{ sub.date_registered }}
+									{% endif %}
+								</td>
+								<td>
+									{% if sub.status == 'f' %}
+										Snapshot
+									{% else %}{% if sub.status == "r" %}
+										Report
+									{% else %}
+										Unpublished
+									{% endif %}{% endif %}
+								</td>
+								<td>
+									<a href='/tool/manage/migrate/data/{{ sub.id }}/' class='btn btn-mini'>
+										<i class='icon-share-alt'></i >Migrate</a>
+									</a>
+								</td>
+							</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				{% else %}
+					<div class="alert">
+						No currently available submissions.
+					</div>
+				{% endif %}
+			{% else %}
+				<div class="alert">Sorry, you do not have permission to migrate data. Please contact your STARS liaison to get admin privileges.
+			{% endtestrule %}
+		</div>
+	</div>
 {% endblock %}

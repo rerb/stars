@@ -4,72 +4,86 @@
     
     Colors used:
     STARS Blue, PMS 8764 (R-27, G-97, B-127) #1b617f
-    STARS Green, PMS 8664 (R-132, G-142, B-43) #848e2b
+    STARS Green, PMS 8664 (R-132, G-142, B-43) #15387F
     75% Black, (R-64, G-64, B-64) #404040
+    
+    New Colors:
+    STARS Blue: #15387F
+ 	Lighter: #0080CF
+ 	Lightest: #00BCE4
+ 	
+ 	Purple: #3C2985
+ 	Fade 1: #5160AB
+ 	Fade 2: #A486BD
+ 	
+ 	Grey-green: #394A58
+ 	
 
     Type styles:
-    Headings � Garamond, bold, 28pt font, 33pt leading, 75% black
-    Sub-heads � Garamont, bold, 17pt font, 20.4 leading, 75% black
-    Green call-out text � Garamont, regular, 21pt font, 24pt leading, STARS Green (R-132, G-142, B-43)
-    Body copy � Verdana, regular, 12pt font, 18pt leading, 75% black
-    Links � use same font/weight as body copy, underlined, STARS Blue (R-27, G-97, B-127)
+    Headings: Garamond, bold, 28pt font, 33pt leading, 75% black
+    Sub-heads: Garamont, bold, 17pt font, 20.4 leading, 75% black
+    Green call-out text: Garamont, regular, 21pt font, 24pt leading, STARS Green (R-132, G-142, B-43)
+    Body copy: Verdana, regular, 12pt font, 18pt leading, 75% black
+    Links: use same font/weight as body copy, underlined, STARS Blue (R-27, G-97, B-127)
+    
+    New type styles:
+    'DejaVu Sans'
     
 */
 
 html, body {
-    background-color: #716d5e;
+    background-color: #ffffff;
     padding: 10px 0px 10px 0px;
-    background-image: url('/media/static/images/bg.png');
-    background-position: left top;
-   	background-repeat: repeat-x;
 }
 
 /* CSS Columns, thanks to A List Apart: http://www.alistapart.com/articles/multicolumnlayouts/ */
 
-#topTabs ul {
-	border: none;
-	list-style: none;
+#topTabs {
+	border-width: 0px 0px 2px 0px;
+	border-color: #617E95;
+	border-style: solid;
 	text-align: left;	
 	margin: 0px;
 	padding:0px;
+	font-size: 1.6em;
 }
 
-#topTabs ul li {
-	display: inline;
-	float: left;
-	font-size: 11px;
-	line-height: 29px;
-	list-style-image: none;
-	list-style-type: none;
-	margin: 0px 0px 0px 10px;
-	padding: 0px;
-}
-
-#topTabs ul li a {
+#topTabs a.left {
+	padding: 0px 20px 0px 0px;
 	text-decoration: none;
-	color: white;	
-	padding: 0px 10px;
-	border: 0px;
-	display: block;
-	border: 1px solid transparent;
-	border-top-left-radius: 5px 5px;
-	border-top-right-radius: 5px 5px;
-	-moz-border-radius-topleft: 5px;
-	-moz-border-radius-topright: 5px;
-	border-color: transparent;
-	border-bottom-width: 0px;
+	color: #617E95;
 }
 
-#topTabs ul li.active a, #topTabs ul li a:hover {
-	border: 1px solid #5C584C;
-	border-bottom: 0px;
-	background-color: #716D5E;
+#topTabs a.left strong {
+	color: #394A58;
 }
 
-#topTabs ul li.active a {
-	 background-image: url('/media/static/images/icon-arrow-up.png');
-	 background-repeat: no-repeat;
-	 background-position: 50% 100%;
+#topMenu, ul#mainMenu, #crumbs {
+    width: 820px;
+    margin: 0px;
+    display: block;
+    float: right;
+/*    background-color: #eee;*/
+    padding: 0px;
+    clear: right;
+    position: relative;
+}
+
+#topMenu {
+    font-size: .5em;
+    text-align: right;
+    clear: none;
+}
+
+#topMenu a {
+    color: black;
+    text-decoration: none;
+    color: #394A58;
+}
+
+#topMenu a:hover {
+    color: #0080CF;
+    text-decoration: underline;
 }
 
 #container {
@@ -117,7 +131,7 @@ html, body {
     margin: 0px 0px 0px 0px;
     overflow: hidden;
     background-color: #ffffff;
-    border-bottom: 4px solid #848e2b;
+    border-bottom: 4px solid #15387F;
 }
 
 #footer, #credits {
@@ -178,37 +192,9 @@ div.inner20 {
     margin: 0px;
 }
 
-#topMenu, ul#mainMenu, #crumbs {
-    width: 700px;
-    margin: 0px;
-    display: block;
-    float: right;
-/*    background-color: #eee;*/
-    padding: 0px;
-    clear: right;
-    position: relative;
-    color: #707070;
-}
-
-#topMenu {
-    font-size: .8em;
-    text-align: right;
-}
-
-#topMenu a {
-    color: black;
-    text-decoration: none;
-}
-
-#topMenu a:hover {
-    color: #176180;
-    text-decoration: underline;
-}
-
 ul#mainMenu {
     padding: 5px 0px;
-    margin: 5px 0px;
-    font-family: Garamond, serif;
+    margin: 25px 0px 5px 0;
     font-size: 1.3em;
     overflow: hidden;
     list-style: none;
@@ -224,16 +210,16 @@ ul#mainMenu a {
     margin: 0px 0px 0px 1px;
     padding: 5px 2px;
     text-align: center;
-    width: 135px;
+    width: 158px;
     display: block;
     float: right;
     color: white;
-    background-color: #848e2b;
+    background-color: #3C2985;
     text-decoration: none;
 }
 
 ul#mainMenu li.current a, ul#mainMenu a:hover {
-    background-color: #1b617f;
+    background-color: #0080CF;
 }
 
 #crumbs {
@@ -248,7 +234,7 @@ ul#mainMenu li.current a, ul#mainMenu a:hover {
 }
 
 #crumbs a:hover {
-    color: #176180;
+    color: #0080CF;
     text-decoration: underline;
 }
 
@@ -268,7 +254,6 @@ div#leftMenu h4, div#leftMenu h4 a {
     background-color: #1b617f;
     color: white;
     text-decoration: none;
-    font-family: Garamond, serif;
     font-size: 1.2em;
     line-height: 1.6;
     font-weight: normal;
@@ -286,7 +271,7 @@ div#leftMenu h4 a:hover {
 }
 
 div#leftMenu h4 a.active {
-	background-color: #848e2b;	
+	background-color: #15387F;	
 }
 
 div#leftMenu ul {
@@ -317,7 +302,6 @@ div#leftMenu a {
 
 div#leftMenu ul li a {
     color: #555555;
-    font-family: Verdana, sans-serif;
     font-size: 1.0em;
     margin: 0px;
     text-decoration: none;
@@ -401,7 +385,6 @@ table.statusTableVertical th, table.statusTableVertical td {
 table.statusTable th, table.greyTable th, table.orderingTable th {
     background-color: #ddd;
     font-weight: normal;
-    font-family: Garamond, serif;
     font-size: 1.2em;
     color: #404040;
     font-weight: bold;
@@ -423,7 +406,7 @@ table.greyTable td {
 }
 
 div.submissionBoundary {
-    border: 1px solid #848e2b;
+    border: 1px solid #15387F;
     border-width: 1px 0px;
     padding: 5px 25px;
     margin: 10px 60px;
@@ -445,7 +428,6 @@ span.progressTitle {
     float: right;
     width: 150px;
     text-align: center;
-    font-family: Verdana, sans-serif;
     font-size: .4em;
     margin-right: 30px;
 }
@@ -464,11 +446,11 @@ div.progressBarSmallRight, div.progressBarSmall {
 }
 
 div.progressBarLargeRight, div.progressBarSmallRight {
-    background-color: #848e2b;
+    background-color: #15387F;
 }
 
 div.progressBarMeasure, div.progressBarMeasureRight {
-    background-color: #848e2b;
+    background-color: #15387F;
     color: white;
     height: 100%;
     text-align: left;
@@ -499,7 +481,6 @@ span.provScore {
     float: right;
     width: 170px;
     text-align: center;
-    font-family: Garamond, serif;
     margin: 0px;
     padding: 0px;
     font-size: .35em;
@@ -519,7 +500,6 @@ div.provScorePercent {
 }
 
 span.provScoreCaption {
-    font-family: Verdana, sans-serif;
     margin: 0px;
     padding: 0px;
     text-align: center;
@@ -566,7 +546,6 @@ margin: 1em 0 0 0; /* set margins as desired */
 /*border-bottom: 1px solid #aaa;*/ /* set border COLOR as desired */
 list-style-type: none;
 padding: 3px 10px 0px 15px; /* THIRD number must change with respect to padding-top (X) below */
-font-family: Garamond, serif;
 }
 
 ul#tabnav li { /* do not change */
@@ -580,9 +559,9 @@ background-color: #fff; /* set background color to match above border color */
 
 ul#tabnav.tab1 li.tab1 a, ul#tabnav.tab2 li.tab2 a, ul#tabnav.tab3 li.tab3 a, ul#tabnav.tab4 li.tab4 a, ul#tabnav.tab5 li.tab5 a, ul#tabnav.tab6 li.tab6 a { /* settings for selected tab link */
 background-color: #fff; /* set selected tab background color as desired */
-color: #848e2b; /* set selected tab link color as desired */
+color: #15387F; /* set selected tab link color as desired */
 position: relative;
-border-top: 3px solid #848e2b;
+border-top: 3px solid #15387F;
 top: 1px;
 padding-top: 4px; /* must change with respect to padding (X) above and below */
 margin: 0px;
@@ -750,12 +729,11 @@ div.button_row {
 }
 
 div.button_row button, a.button {
-	background-color: #848e2b;
+	background-color: #15387F;
 	color: white;
 	border: 0px;
 	padding: 5px 20px;
 	margin: 0px 10px;
-	font-family: Garamond, serif;
 	font-size: 1.5em;
 	cursor: pointer;
     -moz-border-radius: 5px;
@@ -764,7 +742,7 @@ div.button_row button, a.button {
 }
 
 div.button_row button.enabled {
-	background-color: #848e2b;
+	background-color: #15387F;
 }
 
 div.button_row button.disabled {
@@ -871,12 +849,12 @@ div#flash_message ul {
     background-color: #FFFFFF;
     font-size: 1em;
     font-style: italic;
-    color: #848e2b;
+    color: #15387F;
     text-align: left;
 }
 
 div#flash_message ul li.notice {
-    color: #848e2b;
+    color: #15387F;
 }   
 div#flash_message ul li.error {
     color: #DD0033;
@@ -979,7 +957,7 @@ img.tip {
 }
 
 .green {
-    color: #848e2b;
+    color: #15387F;
 }
 
 .bold {
@@ -1039,8 +1017,7 @@ p.hideReportingFields {
 }
 
 span.scorecardFieldTitle {
-	font-size: 1.4em;
-	font-family: Garamond;	
+	font-size: 1.4em;	
 }
 
 div.correction {
@@ -1098,7 +1075,7 @@ acronym, .variance {
 
 sup.symbol {
     font-size: xx-small;
-    color: #848e2b;
+    color: #15387F;
     cursor: default;
     padding: 0px 3px;
 }

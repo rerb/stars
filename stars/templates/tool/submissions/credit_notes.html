@@ -1,6 +1,6 @@
 {% extends 'tool/submissions/credit_base.html' %}
 
-{% block tabclass %}class='tab3'{% endblock %}
+{% block credit_tabs %}{% with active='notes' %}{{ block.super }}{% endwith %}{% endblock %}
 
 {% block tab_content %}
 <div class='creditContent'>

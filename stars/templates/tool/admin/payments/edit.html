@@ -4,15 +4,12 @@
 
 {% block payment_content %}
     <h2>{{ title }}: {{ payment.submissionset.institution }}</h2>
-    <form method='post' action='.'>
-      <table class='form'>
+    <form method='post' action='.' class='form'>
+    	{{ object_Form }}
         {% include 'helpers/standard_form.html' %}
-        <tr>
-            <td class='buttonRow'>
-                <button type='submit'>Submit</button>
-                <button type='button' onclick='document.location="{{ object_form.instance.get_delete_url }}";'>Delete</button>
-            </td>
-        </tr>
-      </table>
+		<div class='form-actions'>
+                <button type='submit' class='btn btn-primary'>Save Payment</button>
+                <!-- <button type='button' class='btn' onclick='document.location="{{ object_form.instance.get_delete_url }}";'>Delete</button> -->
+		</div>
     </form>
 {% endblock %}

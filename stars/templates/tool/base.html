@@ -1,5 +1,8 @@
 {% extends 'base.html' %}
 
+{% load thumbnail %}
+{% load help %}
+
 {% block title %}Reporting Tool | {{ block.super }}{% endblock %}
 
 {% block main_menu %} 
@@ -9,42 +12,41 @@
 {% endblock %}
 
 {% block crumbs %}
-	<a href='/'>Home</a> &gt;
-    {% if user.current_inst %}
-        <a href='/tool/'>{{ user.current_inst }}</a>
-    {% else %}
-        <a href='/tool/'>Submission Tool</a>
-    {% endif %}
+	<ul class="breadcrumb">
+		<li>
+	    	<a href="/">Home</a> <span class="divider">/</span>
+	  	</li>
+	  <li>
+	    <a href='/tool/'>Reporting</a>
+    	<span class="divider">/</span>
+	  </li>
+	  {% block crumbs-tool %}{% endblock %}
+	</ul>
 {% endblock %}
 
 {% block content %}
-	<div id="content"><div class='inner20'>
-		{% block tool_content %}{% endblock %}
-	</div></div>
-	
-	<div id='rail'>
-        {% if not user.current_inst.is_participant %}
-          <img src='/media/static/images/csdc_placeholder.png' style='margin: 10px auto;'/>
-        {% endif %}
-		<div id='leftMenu'>
-			{% if user.is_staff %}
-	            <h4><a href='/tool/admin/'>Administer Site</a></h4>
-	            <h4><a href='/tool/credit-editor/'>Credit Editor</a></h4>
-	            {% block credit_editor_outline %}{% endblock %}
-	        {% endif %}
-			{% if user.can_admin %}
-		    	<h4><a href='/tool/'>Reporting Tool Summary</a></h4>
-		    {% endif %}
-			{% if user.can_submit %}
-	            <h4><a href='/tool/submissions/'>My Submission</a></h4>
-	            {% block submission_outline %}{% endblock %}
-	        {% endif %}
-	        <h4><a href='/tool/my-resources/'>My Resources</a></h4>
-            {% if user.current_inst.is_participant %}
-              <h4><a href='/institutions/{{ user.current_inst.slug }}/report/'>My Report(s)</a></h4>
-            {% endif %}
+	<div class='row'>
+		
+		<div class='span3'>
+	        
+	        <div style='text-align: center'>
+		       {% if user.current_inst.is_participant %}
+		            <span class='label label-success'>STARS Participant</span><br/>
+		      {% else %}
+		        	<span class='label label-important'>Survey Respondent</span>
+		        	<br/>
+		        	What does this mean?
+		          	{% show_help_context 'what-is-respondent' %}
+		      {% endif %}
+		      <br/><br/>
+	        </div>
+	        {% block tool_menu %}
+	        	{% include "tool/menu.html" %}
+			{% endblock %}
 		</div>
-		<br/>
-		<a href='/pages/help/'><img src='/media/static/images/tool_help.png' alt='Submission Tool Help' /></a>
+		<div class='span9'>
+			{% block tool_content %}{% endblock %}
+		</div>
 	</div>
+	
 {% endblock %}

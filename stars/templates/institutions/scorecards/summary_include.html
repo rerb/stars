@@ -2,43 +2,55 @@
 
 {% load submit_tags %}
 {% load report_tags %}
+{% load thumbnail %}
 
-{% block h1 %}{% if preview %}<i>Preview</i>: {% endif %}{{ institution }}{% endblock %}
+{% block h1 %}
+	{{ institution }}
+{% endblock %}
 
 {% block navHeader %}
     <h4>
-        <a href='{{ submissionset.get_scorecard_url }}'>STARS {{ submissionset.creditset }}{% if preview %} (Preview){% endif %}</a>
+        <a href='{{ submissionset.get_scorecard_url }}'>STARS {{ submissionset.creditset }}</a>
+        {% if preview %}<span class="label label-warning">Preview</span>{% endif %}
     </h4>
 {% endblock %}
 
 {% block railAboveMenu %}
     <div style='text-align: center;'>
     {% if preview %}
-        <img src='/media/static/images/STARS-Participant-200x200.png' alt='Preview' class='seal' />
+    	{% thumbnail "https://stars.aashe.org/media/static/images/seals/Stars_Seal_Participant_RGB_300.png" "300x300" as im %}
+    		<img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" />
+		{% endthumbnail %}
     {% else %}
-        <img src='{{ submissionset.rating.image_200.url }}' alt='{{ submissionset.rating }}' class='seal' />
+    	{% thumbnail submissionset.rating.image_large "300x300" as im %}
+    		<img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt='{{ submissionset.rating }}' />
+		{% endthumbnail %}
     {% endif %}
     </div>
 {% endblock %}
 
 {% block summaryTable %}
     {% if preview %}
-    	<p style='margin: 10px 40px;border: 2px dotted red; background-color: #eedddd; padding: 15px 30px; text-align: center;'>
-    		This is a preview of your report. To continue editing your final report please click on the <a href='/tool/submissions/'>My Submission</a> link.
-    	</p>
+    	<div class="alert">
+    		This is a preview of your report. To continue editing your final report please go to <a href='/tool/submissions/'>My Submission</a>.
+    	</div>
     {% endif %}
     {% include 'institutions/scorecards/submission_summary_table.html' %}
-    <div class='submissionBoundary'>
-        <img
-            src='/media/static/images/collapse_big.gif' alt='+'
-            onclick='expandCollapse(this, false);'
-            style='vertical-align: middle;'
-            id='ec_boundary' class='collapseExpand initial_expand' />
-        <i>Submission Boundary:</i><br/>
-        <div id='ec_boundary_target'>
-          {% show_boundary submissionset %}
-        </div>
-    </div>
+    
+    <div class="accordion" id="boundary">
+       <div class="accordion-group">
+         <div class="accordion-heading">
+           <a class="accordion-toggle" data-toggle="collapse" data-parent="#boundary" href="#collapseOne">
+             Submission Boundary
+           </a>
+         </div>
+         <div id="collapseOne" class="accordion-body collapse in">
+           <div class="accordion-inner">
+             {% show_boundary submissionset %}
+            </div>
+         </div>
+       </div>
+     </div>
 {% endblock %}
 
 {% block category_section %}
@@ -46,36 +58,6 @@
     {{ block.super }}
   {% endif %}
 {% endblock %}
-
-{% block category_summary_points %}
-    {% if rating.publish_score %}
-      {% if cat.category.include_in_score %}
-        {% ifnotequal cat.category.title 'Innovation' %}
-            <div class='provScorePercent'>{{ cat.get_STARS_score|floatformat:2 }} %</div>
-            <span class='provScoreCaption'>Score</span>
-        {% else %}
-            <div class='provScorePercent'>{{ cat.get_STARS_score|floatformat:2 }}</div>
-            <span class='provScoreCaption'>Innovation Points</span>
-        {% endifnotequal %}
-      {% endif %}
-    {% endif %}
-{% endblock %}
-
-{% block category_summary_progress %}{% endblock %}
-
-{% block subcategory_summary_points %}
-    {% if rating.publish_score %}
-      {% if cat.category.include_in_score %}
-        <div class='provScorePercent'>
-            {{ sub.get_claimed_points|floatformat:2 }} /
-            {{ sub.get_adjusted_available_points|floatformat:2 }}
-        </div>
-        <span class='provScoreCaption'>Points Claimed</span>
-      {% endif %}
-    {% endif %}
-{% endblock %}
-
-{% block subcategory_summary_progress %}{% endblock %}
 
 {% block subcategory_description %}
 	{% if submissionset.creditset.has_submission_summary_feature %}
@@ -98,33 +80,6 @@
 			{% endif %}
 		{% endif %}
 	{% endif %}
-{% endblock %}
-
-{% block credit_summary_header %}
-    <th>
-      Credit
-    </th>
-    {% if rating.publish_score %}
-      {% if cat.category.include_in_score %}
-        <th>Status</th>
-        <th>Points</th>
-      {% endif %}
-    {% endif %}
-{% endblock %}
-
-{% block credit_summary_row %}
-    <td class='credit'>
-        <a href='{{ c.get_scorecard_url }}'>{{ c }}</a>
-    </td>
-            
-    {% if rating.publish_score %}
-      {% if cat.category.include_in_score %}
-        <td style='color: #888'>
-            {% include 'credits/credit_status_icon.html' %}
-        </td>
-        <td>{{ c.assessed_points|floatformat:2 }} / {% format_available_points c %}</td>
-      {% endif %}
-    {% endif %}
 {% endblock %}
 
 {% block center_column_footer %}

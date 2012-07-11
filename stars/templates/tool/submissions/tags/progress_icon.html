@@ -1,8 +1,5 @@
-<span class='progressTitle'>
-    <div class="{{ bar_class }}" title="{{ title }}">
-        <div class="{{ measure_class }}" style="width: {{ percentage }}%">
-            &nbsp;{{ content }}&nbsp;
-        </div>
-    </div>
-    <span class='progressBarCaption'>{{ caption }}</span>
-</span>
+<small>{{ caption }}: {{ content }}</small>
+<div class="progress progress-success">
+  <div class="bar"
+       style="width: {{ percentage }}%;"></div>
+</div>

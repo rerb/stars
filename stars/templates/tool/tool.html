@@ -5,7 +5,11 @@
 {% load content %}
 {% load help %}
 
-{% block tabclass %}class='tab1'{% endblock %}
+{% block tabs %}
+	{% with active_tab="summary" %}{{ block.super }}{% endwith %}
+{% endblock %}
+
+{% block crumbs-tool %}<li>My Summary</li>{% endblock %}
 
 {% block extra_head %}
 	{{ block.super }}
@@ -14,93 +18,146 @@
 {% endblock %}
 
 {% block institution_content %}
-    <div style='padding: 30px;text-align: center;border-bottom: 1px solid #aaa;'>
-        {% testrule user_can_edit_submission user current_inst.current_submission %}
-        <img src="/media/static/images/page_edit.png" alt='edit' style='vertical-align: top;' />
-        <a href='/tool/submissions/' style='margin-right: 15px;text-decoration: none;'>
-            My Submission</a>
+	
+	<div class='row'>
+		<div class='span9'>
+			<table class='table table-striped table-bordered table-condensed' style='margin: 40px 0px;'>
+				<thead>
+					<tr>
+						<th>Institution Name</th>
+						<th>Participation Level</th>
+						{% if current_inst.current_rating %}<th>Current Rating</th>{% endif %}
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>{{ current_inst }}</td>
+						<td>
+							{% if user.current_inst.is_participant %}
+					            <span class='label label-success'>STARS Participant</span><br/>
+					      {% else %}
+					        	<span class='label label-important'>Survey Respondent</span>
+					      {% endif %}
+					   	</td>
+					   	{% if current_inst.current_rating %}<td>{{ current_inst.current_rating }}</td>{% endif %}
+					 </tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+	
+<!-- 	<ul class="nav nav-pills">
+		{% testrule user_can_edit_submission user current_inst.current_submission %}
+			<li>
+	        	<a href='/tool/submissions/'>
+		        	<img src="/media/static/images/page_edit.png" alt='edit' class='icon' />
+		        	My Submission</a>
+	        </li>
         {% endtestrule %}
         
-        {% testrule isntitution_has_my_reports current_inst %}
-        <img src="/media/static/images/magnifier.png" alt='edit' style='vertical-align: top;' />
-        <a href='/institutions/{{ user.current_inst.slug }}/report/' style='margin-right: 15px;text-decoration: none;'>
+	  {% testrule isntitution_has_my_reports current_inst %}
+	  	<li>
+        
+        <a href='/institutions/{{ user.current_inst.slug }}/report/'>
+        	<img src="/media/static/images/magnifier.png" alt='edit' />
             My Report(s)</a>
+        </li>
         {% endtestrule %}
         
         {% testrule user_can_submit_for_rating user current_inst.current_submission %}
-        <img src="/media/static/images/star.png" alt='' style='vertical-align: top;' />
-        <a href='/tool/submissions/submit/' style='margin-right: 15px;text-decoration: none;'>
+        <li>
+        
+        <a href='/tool/submissions/submit/'>
+        	<img src="/media/static/images/star.png" alt='' />
             Submit for Rating</a>
+        </li>
         {% endtestrule %}
         
         {% testrule user_has_access_level user 'admin' current_inst %}
-        <img src="/media/static/images/building_edit.png" alt='' style='vertical-align: top;' />
-        <a href='/tool/submissions/boundary/' style='margin-right: 15px;text-decoration: none;'>
+        <li>
+        
+        <a href='/tool/submissions/boundary/'>
+        	<img src="/media/static/images/building_edit.png" alt='' />
             Edit Boundary</a>
+        </li>
         {% endtestrule %}
-    </div>
-	{% if rating_list %}
-	<div style='float: right;text-align: center; margin: 20px;'>
-	  <h3>Previous Ratings</h3>
-	  <br/>
-	  {% for ss in rating_list %}
-	  {% thumbnail ss.rating.image_large "100x100" as im %}
-	  <a href='{{ ss.get_scorecard_url }}'>
-	  <img src="{{ im.url }}" width="{{ im.x }}" height="{{ im.y }}" alt='{{ ss.rating }}' /></a>
-	  {% endthumbnail %}
-      <a
-        href='/media/{{ ss.rating.image_large }}'
-        title='Download larger logo'>
-          <img src='/media/static/images/picture_go.png' alt='download' /></a>
-	  <br/>
-	  <a href='{{ ss.get_scorecard_url }}'>{{ ss.date_submitted }}</a><br/>
-	  {% endfor %}
-	</div>
-	{% endif %}
-	<div style='text-align: center;margin: 20px;{% if rating_list %}margin-right: 200px;{% endif %}'>
-      {% if user.current_inst.is_participant %}
-          {% thumbnail "http://www.aashe.org/files/documents/STARS/STARS-Participant.jpg" "75x75" as im %}
-            <img src="{{ im.url }}" width="{{ im.x }}" height="{{ im.y }}" alt='{{ ss.rating }}' />
-          {% endthumbnail %}<br/>
-          <strong>STARS Participant</strong>
-      {% else %}
-        <strong>Campus Sustainability Data Collector - Survey Respondent</strong><br/>
-        <span style="font-size: .8em;">
-          What does this mean?
-          {% show_help_context 'what-is-respondent' %}
-        </span>
-      {% endif %}
-	  <table style='margin: 20px auto' class='greyTable'>
-	  	<tr>
-	  		<th colspan='2'>STARS Subscriptions</th>
-	  	</tr>
-	  	{% with current_inst.subscription_set.all as subs %}
-	  	{% if subs %}
-		  	{% for s in subs %}
-			    <tr class="{% cycle 'even' 'odd' %}">
-			      <td align='left'>
-			      	{{ s.start_date }} -
-			      	{{ s.end_date }}
-			      </td>
-                  <td>
-                      {% if not s.paid_in_full %}
-                      Due: ${{ s.amount_due|floatformat:"-2" }}<br/>
-                      <a href='/tool/manage/pay-subscription/{{ s.id }}/'>Pay Now</a>
-                      {% endif %}
-                  </td>
-			    </tr>
-			{% endfor %}
-		{% else %}
-			<tr><td>No Subscriptions</td></tr>
-		{% endif %}
-		{% endwith %}
+	</ul>
+
+	<hr/> -->
+	
+	<div class='row'>
 		
-	 </table>
-      {% testrule user_has_access_level user 'admin' current_inst %}
-     <img src='/media/static/images/add.png' style='vertical-align: middle'/>
-     <a href='/tool/manage/purchase-subscription/' style="margin-right: 15px;text-decoration: none;">
-     Purchase STARS Participant Subscription</a>
-      {% endtestrule %}
+		<div class='{% if rating_list %}span5{% else %}span9{% endif %}'>
+		  
+		  <h3>STARS Subscriptions</h3>
+		  <table class='table'>
+		  	<thead>
+		  	<tr>
+		  		<th colspan='2'>Subscription Period</th>
+		  	</tr>
+		  	</thead>
+		  	<tbody></tbody>
+		  	{% with current_inst.subscription_set.all as subs %}
+		  	{% if subs %}
+			  	{% for s in subs %}
+				    <tr class="{% cycle 'even' 'odd' %}">
+				      <td align='left'>
+				      	{{ s.start_date }} -
+				      	{{ s.end_date }}
+				      </td>
+	                  <td>
+	                      {% if not s.paid_in_full %}
+	                      Due: ${{ s.amount_due|floatformat:"-2" }}<br/>
+	                      <a href='/tool/manage/pay-subscription/{{ s.id }}/'>Pay Now</a>
+	                      {% endif %}
+	                  </td>
+				    </tr>
+				{% endfor %}
+			{% else %}
+				<tr><td>No Subscriptions</td></tr>
+			{% endif %}
+			{% endwith %}
+			</tbody>
+		 </table>
+	      {% testrule user_has_access_level user 'admin' current_inst %}
+	     <a href='/tool/manage/purchase-subscription/' class='btn btn-info'>
+	     Purchase STARS Participant Subscription</a>
+	      {% endtestrule %}
+		</div>
+		
+		{% if rating_list %}
+			<div class='span4'>
+				<h3>Previous Reports</h3>
+				<table class='table'>
+					<thead>
+					<tr>
+						<th>Date</th>
+						<th>Rating</th>
+					</tr>
+					<tbody>
+				  {% for ss in rating_list %}
+				  	<tr><td>
+				  		<a href='{{ ss.get_scorecard_url }}'>{{ ss.date_submitted }}</a>
+				  	</td><td>
+				  		{% thumbnail ss.rating.image_large "50x50" as im %}
+				  			<img src="{{ im.url }}" width="{{ im.x }}" height="{{ im.y }}" alt='{{ ss.rating }}' />
+				  		{% endthumbnail %}
+				  		<br/>{{ ss.rating }}
+				  		
+				  		{% thumbnail ss.rating.image_large "1650x1650" as large %}
+					      <a
+					        href='{{ large.url }}'
+					        title='Download larger logo'>
+					          <i class='icon-download-alt'></i></a>
+					    {% endthumbnail %}
+				  	</td></tr>
+				  {% endfor %}
+				 </table>
+			</div>
+		{% endif %}
+		
 	</div>
-  {% display_block_content "tool_summary_footer" user %}
+	
+	<div class='well' style='margin-top: 30px;'>{% display_block_content "tool_summary_footer" user %}</div>
+	
 {% endblock %}

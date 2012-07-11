@@ -13,7 +13,8 @@ from stars.apps.accounts import xml_rpc
 from stars.apps.institutions.models import Institution, StarsAccount, Subscription, SubscriptionPayment, SUBSCRIPTION_DURATION, PendingAccount
 from stars.apps.institutions.rules import user_has_access_level
 from stars.apps.submissions.models import SubmissionSet, EXTENSION_PERIOD, ExtensionRequest
-from stars.apps.submissions.tasks import migrate_purchased_submission, perform_migration
+from stars.apps.submissions.tasks import migrate_purchased_submission, perform_migration, perform_data_migration
+from stars.apps.submissions.rules import user_can_migrate_version, user_can_migrate_from_submission, user_can_migrate_data
 from stars.apps.third_parties.models import ThirdParty
 from stars.apps.helpers.forms import form_helpers
 from stars.apps.helpers import watchdog
@@ -21,6 +22,7 @@ from stars.apps.helpers import flashMessage
 from stars.apps.tool.manage.forms import *
 from stars.apps.registration.forms import PaymentForm, PayLaterForm
 from stars.apps.registration.views import process_payment, get_payment_dict, _get_registration_price, init_submissionset
+from stars.apps.registration.models import ValueDiscount
 from stars.apps.notifications.models import EmailTemplate 
     
 def _get_current_institution(request):
@@ -59,9 +61,12 @@ def institution_payments(request):
     current_inst = _get_current_institution(request)
     
     payment_list = SubscriptionPayment.objects.filter(subscription__institution=current_inst).order_by('-date')
+    subscription_list = current_inst.subscription_set.all()
 
     context = {
                 'payment_list': payment_list,
+                'subscription_list': subscription_list,
+                "current_inst": current_inst,
               }
     return respond(request, 'tool/manage/payments.html', context)
 
@@ -273,7 +278,7 @@ def share_data(request):
 #    return respond(request, 'tool/manage/submissionset_list.html', context)
 
 
-def migrate_submissionset(request):
+def migrate_options(request):
     """
         Provides a tool to migrate a submission set
     """
@@ -281,27 +286,75 @@ def migrate_submissionset(request):
     current_submission = current_inst.current_submission
     latest_creditset = CreditSet.objects.get_latest()
     
-    if latest_creditset == current_submission.creditset:
-        flashMessage.send("%s is the latest version of STARS" % (current_submission.creditset), flashMessage.ERROR)
-        return HttpResponseRedirect("/tool/submissions/")
+    if current_inst.is_participant:
+        available_submission_list = current_inst.submissionset_set.filter(status='r') | current_inst.submissionset_set.filter(status='f')
+    else:
+        available_submission_list = current_inst.submissionset_set.filter(status='r')
+
+    template = 'tool/manage/migrate_submissionset.html'
+    context = {
+        "active_submission": current_submission,
+        "latest_creditset": latest_creditset,
+        "available_submission_list": available_submission_list,
+    }
+    return respond(request, template, context)
+
+def migrate_data(request, ss_id):
+    """
+        Provides a tool to migrate a submission set
+    """
+    current_inst = _get_current_institution(request)
+    current_submission = current_inst.current_submission
+    old_submission = get_object_or_404(current_inst.submissionset_set.all(), id=ss_id)
     
-    if current_submission.is_locked:
-        flashMessage.send("Already marked for migration.", flashMessage.ERROR)
-        return HttpResponseRedirect("/tool/")
+    if not user_can_migrate_from_submission(request.user, old_submission):
+        raise PermissionDenied("Sorry, but you don't have permission to migrate data.")
     
     ObjectForm = MigrateSubmissionSetForm
     
     object_form, saved = form_helpers.basic_save_form(request, current_submission, current_submission.id, ObjectForm)
     if saved:
         # start a migration task
-        flashMessage.send("Your migration is in progress.", flashMessage.SUCCESS)
+        flashMessage.send("Your migration is in progress. Please allow a few minutes before you can access your submission.", flashMessage.NOTICE)
+        perform_data_migration.delay(old_submission, request.user)
+        return HttpResponseRedirect("/tool/")
+
+    template = 'tool/manage/migrate_data.html'
+    context = {
+        "object_form": object_form,
+        "active_submission": current_submission,
+        "old_submission": old_submission,
+    }
+    return respond(request, template, context)
+
+def migrate_version(request):
+    """
+        Provides a tool to migrate a submission set
+    """
+    current_inst = _get_current_institution(request)
+    current_submission = current_inst.current_submission
+    latest_creditset = CreditSet.objects.get_latest()
+    
+    if latest_creditset.version == current_submission.creditset.version:
+        flashMessage.send("Already using %s." % latest_creditset, flashMessage.Error)
+        return HttpResponseRedirect("/tool/manage/migrate/")
+    
+    if not user_can_migrate_version(request.user, current_inst):
+        raise PermissionDenied("Sorry, but you don't have permission to migrate data.")
+    
+    ObjectForm = MigrateSubmissionSetForm
+    
+    object_form, saved = form_helpers.basic_save_form(request, current_submission, current_submission.id, ObjectForm)
+    if saved:
+        # start a migration task
+        flashMessage.send("Your migration is in progress. Please allow a few minutes before you can access your submission.", flashMessage.NOTICE)
         perform_migration.delay(current_submission, latest_creditset, request.user)
         return HttpResponseRedirect("/tool/")
 
-    template = 'tool/manage/migrate_submissionset.html'
+    template = 'tool/manage/migrate_version.html'
     context = {
         "object_form": object_form,
-        "submission_set": current_submission,
+        "current_submission": current_submission,
         "latest_creditset": latest_creditset,
     }
     return respond(request, template, context)
@@ -496,6 +549,9 @@ def purchase_subscription(request):
             pay_form = PaymentForm(request.POST)
             if pay_form.is_valid():
                 payment_dict = get_payment_dict(pay_form, current_inst)
+                if pay_form.cleaned_data['discount_code'] != None:
+                        amount = _get_registration_price(current_inst, discount_code=pay_form.cleaned_data['discount_code'])
+                        flashMessage.send("Discount Code Applied", flashMessage.NOTICE)
                 product_dict = {
                     'price': amount,
                     'quantity': 1,
@@ -575,6 +631,10 @@ def pay_subscription(request, subscription_id):
         pay_form = PaymentForm(request.POST)
         if pay_form.is_valid():
             payment_dict = get_payment_dict(pay_form, current_inst)
+            if pay_form.cleaned_data['discount_code'] != None:
+                discount = ValueDiscount.objects.get(code=pay_form.cleaned_data['discount_code']).amount # we know this exists because it was validated in the form
+                amount = amount - discount
+                flashMessage.send("Discount Code Applied", flashMessage.NOTICE)
             product_dict = {
                 'price': amount,
                 'quantity': 1,

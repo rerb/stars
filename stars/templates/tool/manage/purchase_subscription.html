@@ -1,31 +1,28 @@
-{% extends 'tool/manage/submissionset_base.html' %}
+{% extends 'tool/tool.html' %}
 
-{% block crumbs %} {{ block.super }} &gt; Purchase{% endblock %}
+{% load bootstrap %}
+
+{% block crumbs-tool %}<li>Purchase Subscription</li>{% endblock %}
 
 {% block institution_content %}
     <h2>Purchase a new Subscription</h2>
-    <form method='post' action='.' class='generalForm'>
+    <form method='post' action='.'>
     
-    <table>
-      <tr>
-        <th>Amount:</th>
-        <td>${{ amount|floatformat:2 }} {% if is_member %} (Member Discount){% endif %}</td>
-      </tr>
-    </table>
-    <br/>
-    <div class='secure'>
-    
-      <table class='form'>
-        {{ later_form }}
-      </table>
-      <table class='form' id='pay_form'>
-          {{ pay_form }}
-      </table>
-      <div class='button_row'>
-            <button type='submit'>Purchase Subscription</button><br/><br/>
-            Secure Checkout:
-            <img src="/media/static/images/lock.png" alt="SSL" style="vertical-align: top">
+    	<table>
+	      <tr>
+	        <th>Amount:</th>
+	        <td>${{ amount|floatformat:2 }} {% if is_member %} (Member Discount){% endif %}</td>
+	      </tr>
+	    </table>
+	    <br/>
+       	{{ later_form|bootstrap }}
+       	<div id='pay_form'>
+        	{{ pay_form|bootstrap }}
+        </div>
+      <div class='form-actions'>
+            <button type='submit' class='btn btn-success'>
+            	<i class='icon-lock icon-white'></i>
+            	Purchase Subscription</button>
       </div>
-    </div>
     </form>
 {% endblock %}

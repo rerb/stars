@@ -2,6 +2,10 @@
 
 {% load content %}
 
+{% block crumb-tab %}
+	<li>Dashboard Average Scores</li>
+{% endblock %}
+
 {% block body_onload %}{% endblock %}
 
 {% block extra_head %}
@@ -15,8 +19,6 @@
  margin: 0px auto;
  width: 700px;
  height: 700px;
- border: 1px solid #aaa;
- background-color: #eee;
 }
 
 .border {
@@ -25,8 +27,8 @@
 }
 
 .reset_button {
-  stroke: #848f33;
-  fill: #848f33;
+  stroke: #00A060;
+  fill: #00A060;
 }
 
 .reset_button_disabled {
@@ -47,7 +49,7 @@
   {{ block.super }}
   
   {% display_block_content 'pie_viz_summary' user %}
-   <div id="viz"></div>
+   <div class="well"><div id="viz"></div></div>
    <p align='center'>Built using <a href='http://mbostock.github.com/d3/'>d3.js</a>.</p>
 
    <script type="text/javascript">

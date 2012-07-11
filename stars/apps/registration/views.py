@@ -292,6 +292,9 @@ def reg_payment(request):
 
                 pay_form = PaymentForm(request.POST)
                 if pay_form.is_valid():
+                    if pay_form.cleaned_data['discount_code'] != None:
+                        price = _get_registration_price(institution, discount_code=pay_form.cleaned_data['discount_code'])
+                        flashMessage.send("Discount Code Applied", flashMessage.NOTICE)
                     payment_dict = get_payment_dict(pay_form, institution)
                     product_dict = {
                         'price': price,
@@ -654,16 +657,24 @@ def _get_selected_institution(request):
    
     return institution, None
 
-def _get_registration_price(institution, new=True):
+def _get_registration_price(institution, new=True, discount_code=None):
     """
         Calculates the registration price based on the institution
+        
+        Coupon code should be evaluated beforehand. If the coupon code is not valid
+        no discount will be assessed
     """
     price = {'member': 900, 'non': 1400}
     
     discount = 0
+    if discount_code:
+        try:
+            discount = ValueDiscount.objects.get(code=discount_code).amount
+        except ValueDiscount.DoesNotExist:
+            watchdog.log("_get_registration_price", "Invalid Coupon Code", watchdog.WARNING)
+            pass
         
     if institution.is_member:
         return price['member'] - discount
     else:
         return price['non'] - discount
-
