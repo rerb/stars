@@ -14,13 +14,54 @@ CELERY_ALWAYS_EAGER = True
 ADMINS = ('bob.erb@aashe.org',)
 MANAGERS = ADMINS
 
-if 'test' not in sys.argv:
-    API_TEST_MODE = True
+if 'test' in sys.argv:
+    API_TEST_MODE = False  # Unintuitive, isn't it?  Should rename to AUTH_ON.
 else:
-    API_TEST_MODE = False
+    API_TEST_MODE = True  # If True, auth is turned off
 
-if (('test' not in sys.argv) and
-    ('testserver' not in sys.argv)):
+USE_SQLITE_FOR_TESTS = True
+
+if (('test' in sys.argv) or ('testserver' in sys.argv)):
+    if USE_SQLITE_FOR_TESTS:
+        DATABASES = {
+            'default': {
+                'NAME': '/Users/rerb/sqlite/stars.db',
+                'ENGINE': 'django.db.backends.sqlite3',
+                'USER': 'root',
+                'PASSWORD': '',
+                'HOST': 'localhost',
+                },
+                'iss': {
+                    'NAME': '/Users/rerb/sqlite/iss.db',
+                    'ENGINE': 'django.db.backends.sqlite3',
+                    'USER': 'root',
+                    'PASSWORD': '',
+                    'HOST': 'localhost',
+                }
+        }
+    else:
+        DATABASES = {
+            'default': {
+                'NAME': 'stars-test',
+                'ENGINE': 'django.db.backends.mysql',
+                'STORAGE_ENGINE': 'MyISAM',
+                'USER': 'root',
+                'PASSWORD': '',
+                'HOST': 'localhost',
+                'OPTIONS': {
+                    "connect_timeout": 30,
+                    },
+                },
+            'iss': {
+                'NAME': 'iss-test',
+                'ENGINE': 'django.db.backends.mysql',
+                'USER': 'root',
+                'PASSWORD': '',
+                'HOST': 'localhost',
+                }
+        }
+
+else:
     DATABASES = {
         'default': {
             'NAME': 'stars',
@@ -32,7 +73,7 @@ if (('test' not in sys.argv) and
             'OPTIONS': {
                 "connect_timeout": 30,
                 },
-                },
+            },
         'iss': {
             'NAME': 'iss',
             'ENGINE': 'django.db.backends.mysql',
@@ -42,23 +83,6 @@ if (('test' not in sys.argv) and
             }
     }
 
-else:
-    DATABASES = {
-        'default': {
-            'NAME': '/Users/rerb/sqlite/stars.db',
-            'ENGINE': 'django.db.backends.sqlite3',
-            'USER': 'root',
-            'PASSWORD': '',
-            'HOST': 'localhost',
-            },
-        'iss': {
-            'NAME': '/Users/rerb/sqlite/iss.db',
-            'ENGINE': 'django.db.backends.sqlite3',
-            'USER': 'root',
-            'PASSWORD': '',
-            'HOST': 'localhost',
-            }
-    }
 
 DATABASE_ROUTERS = ('aashe.issdjango.router.ISSRouter',)
 
@@ -69,4 +93,4 @@ STANDALONE_MODE = True
 INSTALLED_APPS += ('django_nose',
                    'fixture_magic')
 
-TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+#TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
