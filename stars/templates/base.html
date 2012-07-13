@@ -101,23 +101,27 @@
 			
 			<div class="row credits">
 				<div class='span12'>
+					Credits: 
 					<a href='http://www.djangoproject.com' title="Django - web framework for perfectionists with deadlines.">
 						Django
 						{% if settings_context.django_version %}{{ settings_context.django_version }}{% endif %}
 					</a>
-					&nbsp;&nbsp;/&nbsp;&nbsp;
+					<span class="divider">/</span>
 					<a href='http://www.python.org/'>
 						Python
 						{% if settings_context.python_version %}{{ settings_context.python_version }}{% endif %}
 					</a>
-					&nbsp;&nbsp;/&nbsp;&nbsp;
-					<a href='http://www.famfamfam.com/lab/icons/silk/'>Silk Icons</a>
-					&nbsp;&nbsp;/&nbsp;&nbsp;
+					<span class="divider">/</span>
 					<a href='http://twitter.github.com/bootstrap/'>Bootstrap</a>
+					<span class="divider">/</span>
+					<a href="http://tastypieapi.org/" title='webservice API framework for Django'>Tastypie</a>
+					
 					{% if settings_context.hg_revision %}
 						&nbsp;&nbsp;&nbsp;&nbsp;
 						{{ settings_context.hg_revision }}
 					{% endif %}
+					<span class="divider">|</span>
+					<a href='http://stars-api-documentation.readthedocs.org/en/latest/index.html'>API</a>
 				</div>
 			</div>
 		</div>
