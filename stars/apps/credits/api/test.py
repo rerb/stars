@@ -1,15 +1,17 @@
 """
 Tests for the STARS credits API.
 """
-from stars.apps.api.test import StarsApiTestCase
+from stars.apps.api.test import ReadOnlyResourceTestCase
+
 
 BASE_API_PATH = '/api/0.1/credits/'
 
 
-class CreditSetResourceTestCase(StarsApiTestCase):
+class CreditSetResourceTestCase(ReadOnlyResourceTestCase):
 
     list_path = BASE_API_PATH + 'creditset/'
     detail_path = list_path + '4/'
+    __test__ = True  # Override ReadOnlyResourceTestCase.__test__ for nose.
 
     def test_get_creditset_list_requires_auth(self):
         self.requires_auth(self.list_path)
@@ -26,10 +28,11 @@ class CreditSetResourceTestCase(StarsApiTestCase):
         self.assertValidJSONResponseNotError(resp)
 
 
-class CategoryResourceTestCase(StarsApiTestCase):
+class CategoryResourceTestCase(ReadOnlyResourceTestCase):
 
     list_path = BASE_API_PATH + 'category/'
     detail_path = list_path + '6/'
+    __test__ = True  # Override ReadOnlyResourceTestCase.__test__ for nose.
 
     def test_get_category_list_requires_auth(self):
         self.requires_auth(self.list_path)
@@ -46,10 +49,11 @@ class CategoryResourceTestCase(StarsApiTestCase):
         self.assertValidJSONResponseNotError(resp)
 
 
-class SubcategoryResourceTestCase(StarsApiTestCase):
+class SubcategoryResourceTestCase(ReadOnlyResourceTestCase):
 
     list_path = BASE_API_PATH + 'subcategory/'
     detail_path = list_path + '21/'
+    __test__ = True  # Override ReadOnlyResourceTestCase.__test__ for nose.
 
     def test_get_subcategory_list_requires_auth(self):
         self.requires_auth(self.list_path)
@@ -66,10 +70,11 @@ class SubcategoryResourceTestCase(StarsApiTestCase):
         self.assertValidJSONResponseNotError(resp)
 
 
-class CreditResourceTestCase(StarsApiTestCase):
+class CreditResourceTestCase(ReadOnlyResourceTestCase):
 
     list_path = BASE_API_PATH + 'credit/'
     detail_path = list_path + '143/'
+    __test__ = True  # Override ReadOnlyResourceTestCase.__test__ for nose.
 
     def test_get_credit_list_requires_auth(self):
         self.requires_auth(self.list_path)
@@ -86,10 +91,11 @@ class CreditResourceTestCase(StarsApiTestCase):
         self.assertValidJSONResponseNotError(resp)
 
 
-class DocumentationFieldResourceTestCase(StarsApiTestCase):
+class DocumentationFieldResourceTestCase(ReadOnlyResourceTestCase):
 
     list_path = BASE_API_PATH + 'field/'
     detail_path = list_path + '26/'
+    __test__ = True  # Override ReadOnlyResourceTestCase.__test__ for nose.
 
     def test_get_documentation_field_list_requires_auth(self):
         self.requires_auth(self.list_path)
