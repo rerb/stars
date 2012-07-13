@@ -1,10 +1,5 @@
 """
-    STARS Credit API
-
-    @todo:
-        - authentication
-        - authorization
-        - dehydration
+    STARS Credit API.
 """
 from tastypie import fields
 
@@ -12,15 +7,10 @@ import stars.apps.credits.models as credits_models
 from stars.apps.api.resources import StarsApiResource
 from stars.apps.api.paths import CREDITS_RESOURCE_PATH
 
+
 class CategoryResource(StarsApiResource):
     """
-        Resource for accessing any Category
-
-        Note: I had thought about using more structured URLS
-        but I think this might be simpler...??
-
-        class AuthorResource(ModelResource):
-            entry = fields.ForeignKey(EntryResource, 'entry')
+        Resource for accessing any Category.
     """
     creditset = fields.ForeignKey(
         CREDITS_RESOURCE_PATH + 'NestedCreditSetResource',
