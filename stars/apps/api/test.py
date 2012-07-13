@@ -75,3 +75,43 @@ class StarsApiTestCase(ResourceTestCase):
         """Does path require authentication?"""
         resp = self.api_client.get(path)
         self.assertHttpUnauthorized(resp)
+
+
+class ReadOnlyResourceTestCase(StarsApiTestCase):
+    """A base test case for resources that don't allow any
+    write HTTP methods (PATCH, POST, PUT, or DELETE).
+
+    self.__class__.__name__ is patched into the method doc strings
+    below to indicate which sub class test failed.  The traceback
+    provided when a test fails points to this file, which isn't
+    very helpful.
+    """
+
+    # So nose won't think ReadOnlyResourceTestCase is a test that should
+    # should be run when it sees ReadOnlyResourceTestCase imported.
+    __test__ = False
+
+    def test_delete_not_allowed(self):
+        """No DELETE requests are allowed"""
+        self._testMethodDoc += ' ({0}).'.format(self.__class__.__name__)
+        resp = self.delete(self.detail_path)
+        self.assertHttpMethodNotAllowed(resp)
+
+    def test_patch_not_allowed(self):
+        """No PATCH requests are allowed"""
+        self._testMethodDoc += ' ({0}).'.format(self.__class__.__name__)
+        resp = self.patch(self.detail_path, data={})
+        self.assertHttpMethodNotAllowed(resp)
+
+    def test_post_not_allowed(self):
+        """No POST requests are allowed"""
+        self._testMethodDoc += ' ({0}).'.format(self.__class__.__name__)
+        if self.list_path:  # DocumentationFieldSubmission has only detail_path.
+            resp = self.post(self.list_path, data={})
+            self.assertHttpMethodNotAllowed(resp)
+
+    def test_put_not_allowed(self):
+        """No PUT requests are allowed"""
+        self._testMethodDoc += ' ({0}).'.format(self.__class__.__name__)
+        resp = self.put(self.detail_path, data={})
+        self.assertHttpMethodNotAllowed(resp)
