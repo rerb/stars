@@ -3,17 +3,17 @@ Tests for institutions API.
 """
 import json
 
-from stars.apps.api.test import StarsApiTestCase
-from stars.apps.institutions.models import Institution
+from stars.apps.api.test import ReadOnlyResourceTestCase
 
 
-class InstitutionResourceTestCase(StarsApiTestCase):
+class InstitutionResourceTestCase(ReadOnlyResourceTestCase):
 
     RATED_INSTITUTION = 74
 
     multi_db = True
     list_path = '/api/0.1/institutions/'
     detail_path = list_path + str(RATED_INSTITUTION) + '/'
+    __test__ = True  # Override ReadOnlyResourceTestCase.__test__ for nose.
 
     def test_get_institutions_list_requires_auth(self):
         self.requires_auth(self.list_path)
@@ -110,33 +110,3 @@ class InstitutionResourceTestCase(StarsApiTestCase):
         payload = json.loads(resp.content)
         self.assertTrue(payload['meta']['total_count'] is 1,
                         'case insensitive match failed')
-
-    # Tests for methods that aren't allowed:
-
-    def test_delete_not_allowed(self):
-        """No DELETE requests are allowed."""
-        resp = self.delete(self.detail_path)
-        self.assertHttpMethodNotAllowed(resp)
-
-    def test_patch_not_allowed(self):
-        """No PATCH requests are allowed."""
-        patch_data = { 'name': 'Billy Bob\'s School of Regrets' }
-        resp = self.patch(self.detail_path, data=patch_data)
-        self.assertHttpMethodNotAllowed(resp)
-
-    TEST_INSTITUTION_DATA = { 'city': 'West Middlesex',
-                              'country': 'Canada',
-                              'is_member': True,
-                              'name': 'Lost Souls Academy del Morte',
-                              'postal_code': '30030-3797',
-                              'state': 'BC' }
-
-    def test_post_not_allowed(self):
-        """No POST requests are allowed."""
-        resp = self.post(self.list_path, data=self.TEST_INSTITUTION_DATA)
-        self.assertHttpMethodNotAllowed(resp)
-
-    def test_put_not_allowed(self):
-        """No PUT requests are allowed."""
-        resp = self.put(self.detail_path, data=self.TEST_INSTITUTION_DATA)
-        self.assertHttpMethodNotAllowed(resp)
