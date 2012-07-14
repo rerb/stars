@@ -1,6 +1,7 @@
 """
     Personal config file for development in Bob's local environment.
 """
+import os
 
 from settings import *
 
@@ -14,15 +15,25 @@ CELERY_ALWAYS_EAGER = True
 ADMINS = ('bob.erb@aashe.org',)
 MANAGERS = ADMINS
 
-if 'test' in sys.argv:
-    API_TEST_MODE = False  # Unintuitive, isn't it?  Should rename to AUTH_ON.
-else:
-    API_TEST_MODE = True  # If True, auth is turned off
+def get_api_test_mode():
+    try:
+        return int(os.environ['API_TEST_MODE'])
+    except KeyError:
+        if 'test' in sys.argv:
+            return False  # Unintuitive, isn't it? Should rename to AUTH_ON.
+        else:
+            return True  # If True, auth is turned off
 
-USE_SQLITE_FOR_TESTS = True
+API_TEST_MODE = get_api_test_mode()
+
+def use_sqlite_for_tests():
+    try:
+        return os.environ['USE_SQLITE_FOR_TESTS']
+    except KeyError:
+        return True
 
 if (('test' in sys.argv) or ('testserver' in sys.argv)):
-    if USE_SQLITE_FOR_TESTS:
+    if use_sqlite_for_tests():
         DATABASES = {
             'default': {
                 'NAME': '/Users/rerb/sqlite/stars.db',
@@ -93,4 +104,6 @@ STANDALONE_MODE = True
 INSTALLED_APPS += ('django_nose',
                    'fixture_magic')
 
-#TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+if 'TEST_RUNNER' in os.environ:
+    if os.environ['TEST_RUNNER']:  # only use it if there's a value set
+        TEST_RUNNER = os.environ['TEST_RUNNER'] or TEST_RUNNER
