@@ -26,15 +26,40 @@ class StarsApiTestCase(ResourceTestCase):
         if self.created_user:
             User.objects.get(pk=self.user.id).delete()
 
+    # HTTP method wrappers:
+
+    def delete(self, path):
+        """Do a DELETE using the default credentials."""
+        return self.api_client.delete(path,
+                                      authentication=self.get_credentials())
+
     def get(self, path):
         """Do a GET using the default credentials."""
         return self.api_client.get(path,
                                    authentication=self.get_credentials())
 
-    def requires_auth(self, path):
-        """Does path require auth?"""
-        resp = self.api_client.get(path)
-        self.assertHttpUnauthorized(resp)
+    def patch(self, path, data=None):
+        """Do a PATCH using the default credentials."""
+        data = data or {}
+        return self.api_client.patch(path,
+                                     authentication=self.get_credentials(),
+                                     data=data)
+
+    def post(self, path, data=None):
+        """Do a POST using the default credentials."""
+        data = data or {}
+        return self.api_client.post(path,
+                                    authentication=self.get_credentials(),
+                                    data=data)
+
+    def put(self, path, data=None):
+        """Do a PUT using the default credentials."""
+        data = data or {}
+        return self.api_client.put(path,
+                                   authentication=self.get_credentials(),
+                                   data=data)
+
+    # Misc.
 
     def assertValidJSONResponseNotError(self, response):
         """Response is valid JSON and not an error message."""
@@ -45,3 +70,48 @@ class StarsApiTestCase(ResourceTestCase):
     def get_credentials(self):
         return self.create_apikey(username=self.user.username,
                                   api_key=self.user.api_key.key)
+
+    def requires_auth(self, path):
+        """Does path require authentication?"""
+        resp = self.api_client.get(path)
+        self.assertHttpUnauthorized(resp)
+
+
+class ReadOnlyResourceTestCase(StarsApiTestCase):
+    """A base test case for resources that don't allow any
+    write HTTP methods (PATCH, POST, PUT, or DELETE).
+
+    self.__class__.__name__ is patched into the method doc strings
+    below to indicate which sub class test failed.  The traceback
+    provided when a test fails points to this file, which isn't
+    very helpful.
+    """
+
+    # So nose won't think ReadOnlyResourceTestCase is a test that should
+    # should be run when it sees ReadOnlyResourceTestCase imported.
+    __test__ = False
+
+    def test_delete_not_allowed(self):
+        """No DELETE requests are allowed"""
+        self._testMethodDoc += ' ({0}).'.format(self.__class__.__name__)
+        resp = self.delete(self.detail_path)
+        self.assertHttpMethodNotAllowed(resp)
+
+    def test_patch_not_allowed(self):
+        """No PATCH requests are allowed"""
+        self._testMethodDoc += ' ({0}).'.format(self.__class__.__name__)
+        resp = self.patch(self.detail_path, data={})
+        self.assertHttpMethodNotAllowed(resp)
+
+    def test_post_not_allowed(self):
+        """No POST requests are allowed"""
+        self._testMethodDoc += ' ({0}).'.format(self.__class__.__name__)
+        if self.list_path:  # DocumentationFieldSubmission has only detail_path.
+            resp = self.post(self.list_path, data={})
+            self.assertHttpMethodNotAllowed(resp)
+
+    def test_put_not_allowed(self):
+        """No PUT requests are allowed"""
+        self._testMethodDoc += ' ({0}).'.format(self.__class__.__name__)
+        resp = self.put(self.detail_path, data={})
+        self.assertHttpMethodNotAllowed(resp)

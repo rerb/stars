@@ -6,7 +6,7 @@ from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from tastypie import fields
 from tastypie.constants import ALL_WITH_RELATIONS
 from tastypie.utils import trailing_slash
-from tastypie.http import HttpGone, HttpMultipleChoices
+from tastypie.http import HttpGone, HttpMultipleChoices, HttpMethodNotAllowed
 
 from stars.apps.credits.models import Category, Credit, Subcategory
 from stars.apps.submissions.models import SubmissionSet, CategorySubmission, \
@@ -48,8 +48,7 @@ class SubmissionSetResource(StarsApiResource):
                     'date_registered',
                     'status',
                     'reporter_status',
-                    'submission_boundary',
-                    ]
+                    'submission_boundary']
 
     def dehydrate(self, bundle):
         bundle.data['rating'] = str(bundle.obj.rating)
@@ -93,11 +92,17 @@ class SubmissionSetResource(StarsApiResource):
                 "/(?P<fieldpk>\w[\w/-]*)%s$" %
                 (self._meta.resource_name, trailing_slash()),
                 self.wrap_view('get_field_detail')),
-                ]  # + self.base_urls()?
+                ]
 
     def get_category_list(self, request, **kwargs):
         """Get a list of categories for the SubmissionSet with
         id = kwargs['pk']."""
+        # Need to check CategorySubmissionResource.Meta.allowed_methods
+        # explicitly because the URL fiddling done above
+        # bypasses the usual check:
+        if (request.method.lower() not in
+            CategorySubmissionResource.Meta.allowed_methods):
+            return HttpMethodNotAllowed()
         self.is_authenticated(request)
         try:
             obj = self.cached_obj_get(request=request,
@@ -115,6 +120,12 @@ class SubmissionSetResource(StarsApiResource):
     def get_category_detail(self, request, **kwargs):
         """Get the CategorySubmission that matches the Category
         where id = kwargs['catpk']."""
+        # Need to check CategorySubmissionResource.Meta.allowed_methods
+        # explicitly because the URL fiddling done above
+        # bypasses the usual check:
+        if (request.method.lower() not in
+            CategorySubmissionResource.Meta.allowed_methods):
+            return HttpMethodNotAllowed()
         self.is_authenticated(request)
         category_id = kwargs.pop('catpk')
         try:
@@ -132,6 +143,12 @@ class SubmissionSetResource(StarsApiResource):
     def get_subcategory_list(self, request, **kwargs):
         """Get the list of SubcategorySubmissions for the SubmissionSet
         where id = kwargs['pk']."""
+        # Need to check SubcategorySubmissionResource.Meta.allowed_methods
+        # explicitly because the URL fiddling done above
+        # bypasses the usual check:
+        if (request.method.lower() not in
+            SubcategorySubmissionResource.Meta.allowed_methods):
+            return HttpMethodNotAllowed()
         self.is_authenticated(request)
         try:
             obj = self.cached_obj_get(request=request,
@@ -148,6 +165,12 @@ class SubmissionSetResource(StarsApiResource):
     def get_subcategory_detail(self, request, **kwargs):
         """Get the SubcategorySubmission for the Subcategory where
         id = kwargs['subcatpk']."""
+        # Need to check SubcategorySubmissionResource.Meta.allowed_methods
+        # explicitly because the URL fiddling done above
+        # bypasses the usual check:
+        if (request.method.lower() not in
+            SubcategorySubmissionResource.Meta.allowed_methods):
+            return HttpMethodNotAllowed()
         self.is_authenticated(request)
         subcategory_id = kwargs.pop('subcatpk')
         # Make sure the submission set is valid:
@@ -169,6 +192,12 @@ class SubmissionSetResource(StarsApiResource):
         """Get a list of credits for the SubmssionSet where
         id = kwargs['pk'].
         """
+        # Need to check CreditSubmissionResource.Meta.allowed_methods
+        # explicitly because the URL fiddling done above
+        # bypasses the usual check:
+        if (request.method.lower() not in
+            CreditSubmissionResource.Meta.allowed_methods):
+            return HttpMethodNotAllowed()
         self.is_authenticated(request)
         try:
             obj = self.cached_obj_get(request=request,
@@ -187,6 +216,12 @@ class SubmissionSetResource(StarsApiResource):
         where id = kwargs['credpk'] and the SubmissionSet where
         id = kwargs['pk'].
         """
+        # Need to check CreditSubmissionResource.Meta.allowed_methods
+        # explicitly because the URL fiddling done above
+        # bypasses the usual check:
+        if (request.method.lower() not in
+            CreditSubmissionResource.Meta.allowed_methods):
+            return HttpMethodNotAllowed()
         self.is_authenticated(request)
         credit_id = kwargs.pop('credpk')
         try:
@@ -211,6 +246,13 @@ class SubmissionSetResource(StarsApiResource):
         a DocumentationField (kwargs['fieldpk']), get the
         DocumentationFieldSubmissionResource that matches.
         """
+        # Need to check
+        # DocumentationFieldSubmissionResource.Meta.allowed_methods
+        # explicitly because the URL fiddling done above bypasses the
+        # usual check:
+        if (request.method.lower() not in
+            DocumentationFieldSubmissionResource.Meta.allowed_methods):
+            return HttpMethodNotAllowed()
         self.is_authenticated(request)
         for field_resource_type in (NumericSubmissionResource,
                                     TextSubmissionResource,
@@ -222,8 +264,7 @@ class SubmissionSetResource(StarsApiResource):
                                     UploadSubmissionResource,
                                     BooleanSubmissionResource,
                                     ChoiceSubmissionResource,
-                                    MultiChoiceSubmissionResource
-                                    ):
+                                    MultiChoiceSubmissionResource):
             resources = field_resource_type().obj_get_list(
                 request, submissionset_id=kwargs['pk'])
             try:
@@ -247,10 +288,8 @@ class NestedSubmissionSetResource(SubmissionSetResource):
     """
 
     class Meta(SubmissionSetResource.Meta):
-        fields = [
-                    'date_submitted',
-                    'rating'
-                ]
+        fields = [ 'date_submitted',
+                    'rating' ]
         allowed_methods = None
 
     def dehydrate(self, bundle):
@@ -286,10 +325,8 @@ class CategorySubmissionResource(StarsApiResource):
         excludes = ['id']
 
     def dehydrate(self, bundle):
-
         if bundle.obj.submissionset.reporter_status:
             bundle.data['score'] = None
-
         return bundle
 
     def get_resource_uri(self, bundle_or_obj=None,
@@ -356,7 +393,6 @@ class SubcategorySubmissionResource(StarsApiResource):
         excludes = ['id']
 
     def dehydrate_points(self, bundle):
-
         if bundle.obj.category_submission.submissionset.reporter_status:
             return None
         else:
@@ -384,7 +420,6 @@ class SubcategorySubmissionResource(StarsApiResource):
         """Given the id of a Subcategory and a SubmissionSet,
         get the matching SubcategorySubmission.
         """
-        # TODO: BEN - does this SubcategorySubmission lookup look right?
         submissionset = kwargs.pop('submissionset')
 
         kwargs['pk'] = kwargs.pop('subcatpk')
@@ -464,14 +499,12 @@ class CreditSubmissionResource(StarsApiResource):
                     'internal_notes',
                     'responsible_party_confirm',
                     'submission_notes',
-                    'id'
-                    ]
+                    'id']
 
     def dehydrate_title(self, bundle):
         return bundle.obj.credit.title
 
     def dehydrate(self, bundle):
-
         bundle.data['title'] = self.dehydrate_title(bundle)
 
         if bundle.obj.subcategory_submission.category_submission.submissionset.reporter_status:
@@ -479,8 +512,7 @@ class CreditSubmissionResource(StarsApiResource):
 
         # combine all the fields into one list
         field_list = []
-        field_types = [
-                        "boolean_submissions",
+        field_types = [ "boolean_submissions",
                         "choice_submissions",
                         "date_submissions",
                         "longtext_submissions",
@@ -488,8 +520,7 @@ class CreditSubmissionResource(StarsApiResource):
                         "numeric_submissions",
                         "text_submissions",
                         "upload_submissions",
-                        "url_submissions"
-                       ]
+                        "url_submissions" ]
 
         for ft in field_types:
             for f in bundle.data[ft]:
@@ -574,7 +605,7 @@ class DocumentationFieldSubmissionResource(StarsApiResource):
 
     def credit_user_submissions_for_submissionset(self,
                                                   submissionset_id):
-        """Get all the CreditUserSubmission's for a
+        """Get all the CreditUserSubmissions for a
         SubmissionSet."""
         categories_for_submissionset = CategorySubmission.objects.filter(
             submissionset=submissionset_id)

@@ -2,6 +2,7 @@
     STARS Institutions API
 """
 from tastypie import fields
+import tastypie.exceptions
 
 from stars.apps.institutions import models
 from stars.apps.api.resources import StarsApiResource
@@ -21,13 +22,36 @@ class InstitutionResource(StarsApiResource):
     postal_code = fields.CharField(readonly=True)
     city = fields.CharField(readonly=True)
     state = fields.CharField(readonly=True)
-    country = fields.CharField(readonly=True)
 
     class Meta(StarsApiResource.Meta):
         queryset = models.Institution.objects.get_rated().order_by('name')
         resource_name = 'institutions'
-        fields = ['name', 'is_member']
+        fields = ['name', 'is_member', 'country']
         allowed_methods = ['get']
+
+    def build_filters(self, filters=None):
+        """Map the filter names we provide in the API to Django queryset
+        filters."""
+        filters = filters or {}
+        orm_filters = {}
+        # Keys in filter_map are the names exposed via the API, and
+        # values are the corresponding Django queryset filters.
+        filter_map = { 'name_startswith': 'name__istartswith',
+                       'name_contains': 'name__icontains',
+                       'name_endswith': 'name__iendswith',
+                       'name': 'name__iexact' }
+        for filter, value in filters.items():
+            try:
+                orm_filters[filter_map[filter.lower()]] = value
+            except KeyError:
+                # Just one misspelled filter will cause a BadRequest error.
+                error_msg = ('Invalid search filter: {0}.  '
+                             'Valid filters are: ').format(filter)
+                for filter_name in filter_map:
+                    error_msg += filter_name + ' '
+                error_msg = error_msg[:-1] + '.'
+                raise tastypie.exceptions.InvalidFilterError(error_msg)
+        return orm_filters
 
     def dehydrate_city(self, bundle):
         if bundle.obj.profile:
@@ -36,10 +60,6 @@ class InstitutionResource(StarsApiResource):
     def dehydrate_state(self, bundle):
         if bundle.obj.profile:
             return bundle.obj.profile.state
-
-    def dehydrate_country(self, bundle):
-        if bundle.obj.profile:
-            return bundle.obj.profile.country
 
     def dehydrate_postal_code(self, bundle):
         if bundle.obj.profile:
