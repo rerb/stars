@@ -16,7 +16,6 @@ from django.conf import settings
 
 from stars.apps.submissions.models import SubmissionSet
 
-from datetime import date, timedelta
 import sys, os
 
 class RatingTest(TestCase):
