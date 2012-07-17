@@ -20,13 +20,13 @@ class AdminInstitutionForm(ModelForm):
     class Meta:
         model = Institution
         exclude = ['name', 'aashe_id', 'current_subscription', 'current_submission', 'rated_submission']
-    
+
     def __init__(self, *args, **kwargs):
         super(AdminInstitutionForm, self).__init__(*args, **kwargs)
         for f in self.fields:
             if self.fields[f].widget.__class__.__name__ == "TextInput":
                 self.fields[f].widget.attrs.update({'size': 40})
-        
+
 class ParticipantContactForm(AdminInstitutionForm):
     """
         A restricted version of the Institution Form, allowing institution admins to edit their Contact info.
@@ -47,17 +47,17 @@ class ParticipantContactForm(AdminInstitutionForm):
                     'executive_contact_department',
                     'executive_contact_email',
                 ]
-        
+
     def __init__(self, *args, **kwargs):
         super(ParticipantContactForm, self).__init__(*args, **kwargs)
-        
+
         self.fields['executive_contact_first_name'].required = True
         self.fields['executive_contact_middle_name'].required = True
         self.fields['executive_contact_last_name'].required = True
         self.fields['executive_contact_title'].required = True
         self.fields['executive_contact_department'].required = True
         self.fields['executive_contact_email'].required = True
-        
+
 class RespondentContactForm(AdminInstitutionForm):
     """
         A restricted version of the Institution Form, allowing institution admins to edit their Contact info.
@@ -76,13 +76,13 @@ class RespondentContactForm(AdminInstitutionForm):
 class AdminEnableInstitutionForm(ModelForm):
     """
         This form allows admin to enable / disable a SubmissionSet
-    """    
+    """
     class Meta:
         model = Institution
         fields = ['enabled']
 
 class ResponsiblePartyForm(ModelForm):
-    
+
     class Meta:
         model = ResponsibleParty
         exclude = ['institution',]
@@ -95,24 +95,24 @@ class MigrateSubmissionSetForm(ModelForm):
     class Meta:
         model = SubmissionSet
         fields = ['is_locked',]
-        
+
     def __init__(self, *args, **kwargs):
         super(MigrateSubmissionSetForm, self).__init__(*args, **kwargs)
-        
+
         self.fields['is_locked'].label = "I am sure I want to migrate?"
 
 class AdminSubmissionSetForm(ModelForm):
     """
         This form allows for editing of a SubmissionSet
     """
-    
+
     class Meta:
         model = SubmissionSet
         exclude = ['institution', 'submission_boundary', 'presidents_letter','reporter_status','pdf_report','score']
-        
+
 #    @staticmethod
     def form_name():
-        return u"Administer Submission Set Form" 
+        return u"Administer Submission Set Form"
     form_name = staticmethod(form_name)
 
     def __init__(self, *args, **kwargs):
@@ -123,13 +123,12 @@ class AdminSubmissionSetForm(ModelForm):
         self.fields['rating'].choices = [('', '----------')] + [(r.id, r.name) for r in self.instance.creditset.rating_set.all()]
 
     def clean(self):
-        """ Validate date ordering: registered < submitted < reviewed and registered < deadline """    
+        """ Validate date ordering: registered < submitted < reviewed and registered < deadline """
         cleaned_data = self.cleaned_data
         registered = cleaned_data.get('date_registered')
         submitted = cleaned_data.get('date_submitted')
         reviewed = cleaned_data.get('date_reviewed')
-        deadline = cleaned_data.get('submission_deadline')
-        
+
         if not registered : # this check is handled by normal validation... but to be sure
             msg = u"Registration date is required."
             self._errors['date_registered'] = ErrorList([msg])
@@ -137,7 +136,7 @@ class AdminSubmissionSetForm(ModelForm):
             if submitted :
                 if submitted <= registered :
                     msg = u"Submission date must be later than registration date."
-                    self._errors['date_submitted'] = ErrorList([msg])            
+                    self._errors['date_submitted'] = ErrorList([msg])
                 if reviewed and reviewed < submitted :
                     msg = u"Review can't be before submission date."
                     self._errors['date_reviewed'] = ErrorList([msg])
@@ -145,13 +144,9 @@ class AdminSubmissionSetForm(ModelForm):
                 msg = u"Cannot specify a Review date without a Submission date."
                 self._errors['date_reviewed'] = ErrorList([msg])
                 del cleaned_data["date_reviewed"]
-                
-            if deadline and deadline <= registered :
-                msg = u"Submission Deadline must be later than registration date."
-                self._errors['submission_deadline'] = ErrorList([msg])
-            
+
         return cleaned_data
-    
+
 class NotifyUsersForm(ModelForm):
     """
         Does the admin want to notify users of any changes made to their accounts?
@@ -161,20 +156,20 @@ class NotifyUsersForm(ModelForm):
     class Meta:
         model = InstitutionPreferences
         fields = ['notify_users', ]
-    
+
 class AccountForm(forms.Form):
     """
         A form used to identify, add, or edit a user account
     """
-    
+
     email = forms.EmailField(widget=widgets.TextInput(attrs={'size': 40,}))
     userlevel = forms.CharField(label="Role", widget=widgets.Select(choices=STARS_USERLEVEL_CHOICES))
-    
+
 #    @staticmethod
     def form_name():
-        return u"Administer User Form" 
+        return u"Administer User Form"
     form_name = staticmethod(form_name)
-         
+
 class EditAccountForm(AccountForm):
     """
         An account form intended for editing an existing account (email field is hidden)
@@ -189,11 +184,11 @@ class DisabledAccountForm(AccountForm):
         super(DisabledAccountForm, self).__init__(*args, **kwargs)
         self.fields['email'].widget.attrs.update({"disabled":"disabled"})
         self.fields['userlevel'].widget.attrs={"disabled":"disabled"}
-       
+
 class BoundaryForm(ModelForm):
     """
         This is a form for the Institutional Boundary
-    """    
+    """
     class Meta:
         model = Boundary
         exclude = ['submissionset',]
@@ -203,17 +198,17 @@ class ThirdPartiesForm(ModelForm):
         Institutions can select which orgs to share with
     """
     third_parties = forms.ModelMultipleChoiceField(widget=forms.CheckboxSelectMultiple(), queryset=ThirdParty.objects.all(), required=False)
-    
+
     class Meta:
         model = Institution
         fields = []
 
     def __init__(self, *args, **kwargs):
-        if 'instance' in kwargs:            
+        if 'instance' in kwargs:
             initial = kwargs.setdefault('initial', {})
             initial['third_parties'] = [t.pk for t in kwargs['instance'].third_parties.all()]
         forms.ModelForm.__init__(self, *args, **kwargs)
-  
+
     def save(self, commit=True):
         instance = forms.ModelForm.save(self, False)
 
