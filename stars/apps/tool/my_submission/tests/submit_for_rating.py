@@ -26,8 +26,6 @@ class RatingTest(TestCase):
 
         settings.CELERY_ALWAYS_EAGER = True
 
-        # Change the submission deadline to tomorrow
-        # to allow access
         ss = SubmissionSet.objects.get(pk=1)
         ss.save()
 
