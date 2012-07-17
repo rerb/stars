@@ -11,7 +11,7 @@
 {% endblock %}
 
 {% block tab_content %}
-	
+
     <span class="help_text"> <p>
     The following <b>{{ inst_count }} institutions</b> are current STARS Participants. Of these institutions
     <b>{{ member_count }} are AASHE members</b> (<sup class='symbol'>m</sup>),
@@ -57,11 +57,8 @@
             <td>
             	{{ submissionset.creditset.version }}
             </td>
-            <td>
-                {{ submissionset.submission_deadline }}
-            </td>
             {% endcomment %}
-          </tr>            
+          </tr>
         {% endfor %}
         </tbody>
       </table>

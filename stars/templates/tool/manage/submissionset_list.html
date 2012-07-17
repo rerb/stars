@@ -5,7 +5,6 @@
         <tr>
             <th>Credit Set</th>
             <th>Registered</th>
-            <th>Due</th>
             <th>Status</th>
             <th>
                 Active
@@ -33,20 +32,6 @@
             </td>
             <td>{{ set.date_registered }}</td>
             <td>
-            	{{ set.submission_deadline }}
-            	<span style='font-size: .8em;'>
-	            	{% if set.extensionrequest_set.all %}
-	            		<br/>
-	            		{% for e in set.extensionrequest_set.all %}
-	            			<br/>
-	            			extended on {{ e.date }}<br/>
-	            			from {{ e.old_deadline }}<br/>
-	            			by {{ e.user.email }}
-	            		{% endfor %}
-	            	{% endif %}
-            	</span>
-            </td>
-            <td>
             	{% if set.is_locked %}
             		Locked
             	{% else %}
@@ -60,7 +45,7 @@
 		            {% else %}
 		            	Deadline Expired
 		            {% endif %}
-		            
+
 	                {% if set.is_rated %}
 	                    <br/><a href='{{ set.get_scorecard_url }}'>Report</a>
 	                {% endif %}
@@ -103,7 +88,7 @@
         {% endif %}
         {% endcomment %}
     </table>
-    
+
     <p style='text-align: center; padding: 10px'>
     	<img src='/media/static/images/add.png' style='vertical-align: middle'/>
     	<a href='/tool/manage/submissionsets/purchase/'>Purchase another Submission Set</a>
