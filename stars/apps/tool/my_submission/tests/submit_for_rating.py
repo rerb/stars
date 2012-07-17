@@ -23,25 +23,24 @@ class RatingTest(TestCase):
     fixtures = ['submit_for_rating_tests.json','notification_emailtemplate_tests.json']
 
     def setUp(self):
-        
+
         settings.CELERY_ALWAYS_EAGER = True
-        
+
         # Change the submission deadline to tomorrow
         # to allow access
         ss = SubmissionSet.objects.get(pk=1)
-        ss.submission_deadline = date.today() + timedelta(days=1)
         ss.save()
-        
+
     def test_process(self):
-        
+
         c = Client()
         c.login(username='test_user', password='test')
-        
+
         self.confirmView(c)
         self.letterView(c)
         self.finalizeView(c)
-        
-        
+
+
     def confirmView(self, c):
         """
             Test the ConfirmClassView
@@ -50,31 +49,31 @@ class RatingTest(TestCase):
         """
 
         print >> sys.stderr, "TESTING: Confirm Submission"
-        
+
         post_dict = {}
         response = c.get('/tool/submissions/submit/', post_dict)
         print response.status_code
         self.assertTrue(response.status_code == 200)
-        
+
         post_dict = {'submission_boundary': 'boundary text',}
         response = c.post('/tool/submissions/submit/', post_dict, follow=False)
         self.assertTrue(response.status_code == 302)
-        
+
     def letterView(self, c):
         """
             Tests the LetterClassView
                 - Handles a basic HTTP request w/out 500
                 - Processes the form and redirects to step 3
         """
-        
+
         print >> sys.stderr, "TESTING: Letter"
-        
+
         post_dict = {}
         response = c.get('/tool/submissions/submit/letter/', post_dict)
         self.assertTrue(response.status_code == 200)
-        
+
         f = open(os.path.join(os.path.dirname(__file__), 'test.pdf'))
-        
+
         post_dict = {
                         'letter_form-presidents_letter': f,
                         'exec_contact_form-executive_contact_first_name': 'First',
@@ -89,7 +88,7 @@ class RatingTest(TestCase):
                         'exec_contact_form-confirm': 'on'
                     }
         response = c.post('/tool/submissions/submit/letter/', post_dict, follow=False)
-        
+
         self.assertTrue(response.status_code == 302)
 
     def finalizeView(self, c):
@@ -101,11 +100,11 @@ class RatingTest(TestCase):
         """
 
         print >> sys.stderr, "TESTING: Finalize"
-        
+
         post_dict = {}
         response = c.get('/tool/submissions/submit/finalize/', post_dict)
         self.assertTrue(response.status_code == 200)
-        
+
         post_dict = {'confirm': 1,}
         response = c.post('/tool/submissions/submit/finalize/', post_dict, follow=False)
         self.assertTrue(response.status_code == 200)
@@ -113,4 +112,3 @@ class RatingTest(TestCase):
         self.assertTrue(ss.status == 'r')
         # one email to institution
         self.assertTrue(len(mail.outbox) == 2)
-        

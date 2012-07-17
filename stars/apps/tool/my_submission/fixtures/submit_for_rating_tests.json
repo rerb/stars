@@ -2,7 +2,7 @@
     {
         "pk": 1,
          "model": "credits.creditset",
-         "fields": 
+         "fields":
         {
             "is_locked": false,
              "release_date": "2010-08-12",
@@ -15,7 +15,7 @@
     {
         "pk": 5215,
          "model": "auth.user",
-         "fields": 
+         "fields":
         {
             "username": "test_user",
              "first_name": "",
@@ -24,10 +24,10 @@
              "is_superuser": false,
              "is_staff": false,
              "last_login": "2010-08-12 15:14:01",
-             "groups": 
+             "groups":
             [
             ],
-             "user_permissions": 
+             "user_permissions":
             [
             ],
              "password": "sha1$ac334$deb690d155846e66261da300c3c26ae164f70f2a",
@@ -35,11 +35,11 @@
              "date_joined": "2010-08-12 15:14:01"
         }
     },
-     
+
     {
         "pk": 1,
          "model": "credits.rating",
-         "fields": 
+         "fields":
         {
             "creditset": 1,
              "image_200": "",
@@ -48,11 +48,11 @@
              "minimal_score": 0
         }
     },
-     
+
     {
         "pk": 2,
          "model": "credits.rating",
-         "fields": 
+         "fields":
         {
             "creditset": 1,
              "image_200": "",
@@ -61,11 +61,11 @@
              "minimal_score": 1
         }
     },
-     
+
     {
         "pk": 1,
          "model": "credits.category",
-         "fields": 
+         "fields":
         {
             "ordinal": 0,
              "description": "<p>Blah</p>",
@@ -75,11 +75,11 @@
              "max_point_value": 0
         }
     },
-     
+
     {
         "pk": 1,
          "model": "credits.subcategory",
-         "fields": 
+         "fields":
         {
             "category": 1,
              "ordinal": 0,
@@ -88,11 +88,11 @@
              "title": "Sub 1"
         }
     },
-     
+
     {
         "pk": 1,
          "model": "credits.credit",
-         "fields": 
+         "fields":
         {
             "ordinal": 0,
              "scoring": "<p>blah</p>",
@@ -109,11 +109,11 @@
              "type": "t1"
         }
     },
-     
+
     {
         "pk": 1,
          "model": "credits.documentationfield",
-         "fields": 
+         "fields":
         {
             "ordinal": 0,
              "max_range": null,
@@ -129,11 +129,11 @@
              "type": "text"
         }
     },
-     
+
     {
         "pk": 1,
          "model": "institutions.institution",
-         "fields": 
+         "fields":
         {
             "executive_contact_department": "edept",
              "name": "Test Institution",
@@ -155,19 +155,19 @@
              "executive_contact_last_name": "elast"
         }
     },
-     
+
     {
         "pk": 1,
          "model": "institutions.baseaccount",
-         "fields": 
+         "fields":
         {
         }
     },
-     
+
     {
         "pk": 1,
          "model": "institutions.starsaccount",
-         "fields": 
+         "fields":
         {
             "baseaccount_ptr": 1,
              "is_selected": true,
@@ -177,11 +177,11 @@
              "institution": 1
         }
     },
-     
+
     {
         "pk": 1,
          "model": "submissions.submissionset",
-         "fields": 
+         "fields":
         {
             "status": "ps",
              "rating": null,
@@ -192,7 +192,6 @@
              "presidents_letter": "",
              "date_submitted": null,
              "date_registered": "2010-08-12",
-             "submission_deadline": "2010-08-12",
              "reporter_status": false,
              "registering_user": 5215,
              "institution": 1
@@ -202,7 +201,7 @@
     {
         "pk": 1,
          "model": "institutions.institutionstate",
-         "fields": 
+         "fields":
         {
             "active_submission_set": 1,
              "latest_rated_submission_set": null,
@@ -213,7 +212,7 @@
     {
         "pk": 1,
          "model": "submissions.payment",
-         "fields": 
+         "fields":
         {
              "submissionset": 1,
              "amount": 10,
@@ -224,40 +223,40 @@
              "confirmation": ""
         }
     },
-     
+
     {
         "pk": 1,
          "model": "submissions.categorysubmission",
-         "fields": 
+         "fields":
         {
             "category": 1,
              "submissionset": 1
         }
     },
-     
+
     {
         "pk": 1,
          "model": "submissions.subcategorysubmission",
-         "fields": 
+         "fields":
         {
             "category_submission": 1,
              "subcategory": 1
         }
     },
-     
+
     {
         "pk": 1,
          "model": "submissions.creditsubmission",
-         "fields": 
+         "fields":
         {
             "credit": 1
         }
     },
-     
+
     {
         "pk": 1,
          "model": "submissions.creditusersubmission",
-         "fields": 
+         "fields":
         {
             "last_updated": "2010-08-12 15:34:17",
              "responsible_party_confirm": false,
