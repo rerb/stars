@@ -140,33 +140,6 @@ class NotificationTest(TestCase):
         # Only one more should be sent, because of the count limit on notifications
         self.assertTrue(len(mail.outbox) == 2)
 
-    def test_6month_notify(self):
-        """
-            Tests:
-                - Show that only unpaid institutions are notified
-                2011-07-31
-                2011-04-03
-        """
-        mail.outbox = []
-
-        current_date = date(year=2010, month=7, day=30)
-        send_six_month_notifications(current_date)
-        self.assertTrue(len(mail.outbox) == 0)
-
-        current_date = date(year=2010, month=7, day=31)
-        send_six_month_notifications(current_date)
-        self.assertTrue(len(mail.outbox) == 1)
-
-        current_date = date(year=2010, month=8, day=1)
-        send_six_month_notifications(current_date)
-        # Only one more should be sent, because of the count limit on notifications
-        self.assertTrue(len(mail.outbox) == 2)
-
-        current_date = date(year=2010, month=8, day=10)
-        send_six_month_notifications(current_date)
-        # Only two more should be sent, because of the count limit on notifications
-        self.assertTrue(len(mail.outbox) == 4)
-
     def test_send_notification(self):
         """
             Tests:
