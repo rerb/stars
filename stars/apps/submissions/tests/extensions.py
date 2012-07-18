@@ -1,6 +1,6 @@
 """
     Submission Extension Logic
-    
+
     Test Premises:
      - 60 days before deadline
      - registered before 2011
@@ -22,32 +22,17 @@ class ExtensionTest(TestCase):
         """
             Ensure that no SubmissionSet can be extended before the 60 day deadline
         """
-        
+
         ss = SubmissionSet.objects.get(pk=1) # deadline 2011-05-1
-        
+
         today = datetime.date(year=2011, month=3, day=1)
         self.assertFalse(ss.can_apply_for_extension(today=today))
-        
+
         today = datetime.date(year=2011, month=3, day=2)
         self.assertTrue(ss.can_apply_for_extension(today=today))
-        
+
         today = datetime.date(year=2011, month=3, day=3)
         self.assertTrue(ss.can_apply_for_extension(today=today))
-        
+
         today = datetime.date(year=2011, month=3, day=4)
         self.assertTrue(ss.can_apply_for_extension(today=today))
-        
-    def testYear(self):
-        """
-            Ensure that institutions registering in 2011 can't get extensions
-        """
-        
-        today = datetime.date(year=2011, month=3, day=4)
-        
-        ss = SubmissionSet.objects.get(pk=1) # registered 2010-05-1
-        self.assertTrue(ss.can_apply_for_extension(today=today))
-        
-        ss = SubmissionSet.objects.get(pk=5) # registered 2011-05-1
-        self.assertFalse(ss.can_apply_for_extension(today=today))
-        
-        
