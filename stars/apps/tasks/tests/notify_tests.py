@@ -58,39 +58,6 @@ class NotificationTest(TestCase):
         send_notification_set(set)
         self.assertTrue(len(mail.outbox) == 3)
 
-    def test_send_sixty_day_notifications(self):
-        """
-            send_sixty_day_notifications
-        """
-
-        # deadlines
-        # 2011-01-31 (institution #1)
-        # 2011-02-01
-        # 2011-02-02
-        # 2011-02-03 (institution #4 - Rated)
-
-        # only institutions that can apply for extension
-        today = date(year=2010, month=11, day=30)
-        send_sixty_day_notifications(current_date=today)
-        self.assertTrue(len(mail.outbox) == 0)
-
-        today = date(year=2010, month=12, day=2)
-        send_sixty_day_notifications(current_date=today)
-        self.assertTrue(len(mail.outbox) == 1)
-
-        # don't send twice
-        send_sixty_day_notifications(current_date=today)
-        self.assertTrue(len(mail.outbox) == 1)
-
-        # test the 10-day window
-        send_sixty_day_notifications(current_date=today+timedelta(20))
-        self.assertTrue(len(mail.outbox) == 1)
-
-        send_sixty_day_notifications(current_date=today+timedelta(5))
-        self.assertTrue(len(mail.outbox) == 4)
-
-
-
     def testWelcomeList(self):
         """
             - Ensure that `get_new_institutions` returns the correct institutions
