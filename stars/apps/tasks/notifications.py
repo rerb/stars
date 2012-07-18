@@ -6,9 +6,6 @@
 from datetime import timedelta, datetime, date
 import sys, calendar
 
-from django.conf import settings
-from django.core.mail import EmailMessage
-
 from stars.apps.institutions.models import * # required for execfile management func
 from stars.apps.submissions.models import SubmissionSet, Payment
 from stars.apps.tasks.models import EmailNotification
