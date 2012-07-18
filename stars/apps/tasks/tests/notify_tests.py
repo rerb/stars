@@ -11,7 +11,6 @@ from django.core import mail
 from stars.apps.tasks.notifications import *
 from stars.apps.notifications.models import EmailTemplate
 
-import sys, os
 from datetime import date, timedelta
 
 class NotificationTest(TestCase):
@@ -20,36 +19,36 @@ class NotificationTest(TestCase):
     def setUp(self):
         et = EmailTemplate(slug='test', description='test', content="testing: {{ val }}")
         et.save()
-    
+
     def test_post_submission_survey(self):
         """
             send_post_submission_survey
         """
-        
+
         # 2011-01-01
         # 2011-01-02
-        
+
         today = date(year=2011, month=1, day=29)
         send_post_submission_survey(today)
-        
+
         today = date(year=2011, month=1, day=31)
         send_post_submission_survey(today)
         self.assertTrue(len(mail.outbox) == 1)
-        
+
         today = date(year=2011, month=2, day=1)
         send_post_submission_survey(today)
         self.assertTrue(len(mail.outbox) == 2)
-        
+
         today = date(year=2011, month=2, day=2)
         send_post_submission_survey(today)
         self.assertTrue(len(mail.outbox) == 2)
-        
-        
+
+
     def test_send_notification_set(self):
         """
             send_notification_set
         """
-        
+
         set = [
                 {'mail_to': ['ben@aashe.org',], 'template_slug': 'test', 'n_type': 'tst', 'identifier': 'tst_1', 'email_context': {"val": "testval",}},
                 {'mail_to': ['ben@aashe.org',], 'template_slug': 'test', 'n_type': 'tst', 'identifier': 'tst_2', 'email_context': {"val": "testval",}},
@@ -58,78 +57,78 @@ class NotificationTest(TestCase):
                ]
         send_notification_set(set)
         self.assertTrue(len(mail.outbox) == 3)
-    
+
     def test_send_sixty_day_notifications(self):
         """
             send_sixty_day_notifications
         """
-        
+
         # deadlines
         # 2011-01-31 (institution #1)
         # 2011-02-01
         # 2011-02-02
         # 2011-02-03 (institution #4 - Rated)
-        
+
         # only institutions that can apply for extension
         today = date(year=2010, month=11, day=30)
         send_sixty_day_notifications(current_date=today)
         self.assertTrue(len(mail.outbox) == 0)
-        
+
         today = date(year=2010, month=12, day=2)
         send_sixty_day_notifications(current_date=today)
         self.assertTrue(len(mail.outbox) == 1)
-        
+
         # don't send twice
         send_sixty_day_notifications(current_date=today)
         self.assertTrue(len(mail.outbox) == 1)
-        
+
         # test the 10-day window
         send_sixty_day_notifications(current_date=today+timedelta(20))
         self.assertTrue(len(mail.outbox) == 1)
-        
+
         send_sixty_day_notifications(current_date=today+timedelta(5))
         self.assertTrue(len(mail.outbox) == 4)
-        
-        
-        
+
+
+
     def testWelcomeList(self):
         """
             - Ensure that `get_new_institutions` returns the correct institutions
         """
-        
+
         today = date(year=2010, month=5, day=28)
         ss_list = get_new_institutions(today)
         self.assertTrue(len(ss_list) == 0)
-        
+
         today = date(year=2010, month=5, day=29)
         ss_list = get_new_institutions(today)
         self.assertTrue(len(ss_list) == 0)
-        
+
         today = date(year=2010, month=6, day=5)
         ss_list = get_new_institutions(today)
         self.assertTrue(len(ss_list) == 1)
-        
+
         today = date(year=2010, month=6, day=6)
         ss_list = get_new_institutions(today)
         self.assertTrue(len(ss_list) == 2)
-        
+
     def testWelcomeNotify(self):
-        
+
         mail.outbox = []
-        
+
         current_date = date(year=2010, month=5, day=28)
         send_welcome_email(current_date)
         self.assertTrue(len(mail.outbox) == 0)
-        
+
         current_date = date(year=2010, month=6, day=5)
         send_welcome_email(current_date)
         self.assertTrue(len(mail.outbox) == 1)
-        
+
         current_date = date(year=2010, month=6, day=6)
         send_welcome_email(current_date)
         # Only one more should be sent, because of the count limit on notifications
         self.assertTrue(len(mail.outbox) == 2)
-        
+
         # no duplicates
         send_welcome_email(current_date)
         self.assertTrue(len(mail.outbox) == 2)
@@ -140,19 +139,19 @@ class NotificationTest(TestCase):
                 - Ensure that `get_overdue_payments` returns the correct SubmissionSets
                 2011-05-01 2011-05-03
         """
-        
+
         today = date(year=2010, month=5, day=29)
         ss_list = get_overdue_payments(4, today)
         self.assertTrue(len(ss_list) == 1)
-        
+
         today = date(year=2010, month=5, day=31)
         ss_list = get_overdue_payments(4, today)
         self.assertTrue(len(ss_list) == 2)
-        
+
         today = date(year=2010, month=5, day=25)
         ss_list = get_overdue_payments(4, today)
         self.assertTrue(len(ss_list) == 0)
-        
+
     def test_overdue_notify(self):
         """
             http://docs.djangoproject.com/en/dev/topics/testing/#e-mail-services
@@ -160,20 +159,20 @@ class NotificationTest(TestCase):
                 - Show that only unpaid institutions are notified
         """
         mail.outbox = []
-        
+
         current_date = date(year=2010, month=5, day=25)
         send_overdue_notifications(current_date)
         self.assertTrue(len(mail.outbox) == 0)
-        
+
         current_date = date(year=2010, month=5, day=29)
         send_overdue_notifications(current_date)
         self.assertTrue(len(mail.outbox) == 1)
-        
+
         current_date = date(year=2010, month=5, day=31)
         send_overdue_notifications(current_date)
         # Only one more should be sent, because of the count limit on notifications
         self.assertTrue(len(mail.outbox) == 2)
-        
+
     def test_6month_notify(self):
         """
             Tests:
@@ -200,7 +199,7 @@ class NotificationTest(TestCase):
         send_six_month_notifications(current_date)
         # Only two more should be sent, because of the count limit on notifications
         self.assertTrue(len(mail.outbox) == 4)
-        
+
     def test_send_notification(self):
         """
             Tests:
@@ -208,8 +207,8 @@ class NotificationTest(TestCase):
                 - email shows up in outbox
         """
         mail.outbox = []
-        
+
         for i in range(0, 3):
             send_notification("tst", "test_1", ["ben@aashe.org"], 'test', {'val': "test val",}, count=2)
-        
+
         self.assertTrue(len(mail.outbox) == 2 )
