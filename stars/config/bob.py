@@ -27,10 +27,20 @@ def get_api_test_mode():
 API_TEST_MODE = get_api_test_mode()
 
 def use_sqlite_for_tests():
+    """If environmental variable USE_SQLITE_FOR_TESTS is not set or 1,
+    use sqlite.  If it's 0, don't."""
     try:
-        return os.environ['USE_SQLITE_FOR_TESTS']
+        use_sqlite = os.environ['USE_SQLITE_FOR_TESTS']
     except KeyError:
         return True
+    if use_sqlite:
+        try:
+            return bool(int(use_sqlite))
+        except ValueError:
+            raise Exception(
+                "env var USE_SQLITE_FOR_TESTS should be int, not '{0}'".format(
+                    use_sqlite))
+    return True  # default
 
 if (('test' in sys.argv) or ('testserver' in sys.argv)):
     if use_sqlite_for_tests():
@@ -104,6 +114,7 @@ STANDALONE_MODE = True
 INSTALLED_APPS += ('django_nose',
                    'fixture_magic')
 
-if 'TEST_RUNNER' in os.environ:
+
+if 'TEST_RUNNER' in os.environ: # django_nose.NoseTestSuiteRunner, for example
     if os.environ['TEST_RUNNER']:  # only use it if there's a value set
         TEST_RUNNER = os.environ['TEST_RUNNER'] or TEST_RUNNER
