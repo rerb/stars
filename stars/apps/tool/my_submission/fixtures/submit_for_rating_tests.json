@@ -141,6 +141,7 @@
              "contact_last_name": "Last",
              "executive_contact_middle_name": "",
              "charter_participant": true,
+             "current_submission": 1,
              "enabled": true,
              "aashe_id": 99999,
              "executive_contact_email": "bens@aashe.org",
