@@ -36,8 +36,6 @@ class RatingTest(TestCase):
         c = Client()
         c.login(username='test_user', password='test')
 
-        import pdb; pdb.set_trace()
-
         self.confirmView(c)
         self.letterView(c)
         self.finalizeView(c)
