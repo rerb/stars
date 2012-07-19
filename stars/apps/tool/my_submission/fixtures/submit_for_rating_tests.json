@@ -153,7 +153,9 @@
              "contact_title": "Title",
              "contact_phone": "860-555-1212",
              "contact_middle_name": "",
-             "executive_contact_last_name": "elast"
+             "executive_contact_last_name": "elast",
+             "is_participant": true,
+             "current_subscription": 1
         }
     },
 
@@ -201,12 +203,36 @@
 
     {
         "pk": 1,
+        "model": "submissions.boundary",
+        "fields":
+        {
+            "submissionset": 1
+        }
+    },
+
+    {
+        "pk": 1,
          "model": "institutions.institutionstate",
          "fields":
         {
             "active_submission_set": 1,
              "latest_rated_submission_set": null,
              "institution": 1
+        }
+    },
+
+    {
+        "pk": 1,
+        "model": "institutions.subscription",
+        "fields":
+        {
+            "institution": 1,
+            "start_date": "1970-01-01",
+            "end_date": "2070-12-31",
+            "ratings_allocated": 100,
+            "ratings_used": 1,
+            "amount_due": 0.0,
+            "paid_in_full": true
         }
     },
 
@@ -256,19 +282,22 @@
 
     {
         "pk": 1,
-         "model": "submissions.creditusersubmission",
-         "fields":
+        "model": "helpers.helpcontext",
+        "fields": {
+            "help_text": "Text That Looks Like Help Text",
+            "name": "submit_for_rating_credits",
+            "title": null
+        }
+    },
+
+    {
+        "pk": 19,
+        "model": "helpers.helpcontext",
+        "fields":
         {
-            "last_updated": "2010-08-12 15:34:17",
-             "responsible_party_confirm": false,
-             "submission_notes": "",
-             "internal_notes": "",
-             "submission_status": "ns",
-             "responsible_party": null,
-             "user": null,
-             "assessed_points": 0.0,
-             "subcategory_submission": 1,
-             "applicability_reason": null
+            "help_text": "Turn left",
+            "name": "submit_for_rating_warning",
+            "title": null
         }
     }
 ]
