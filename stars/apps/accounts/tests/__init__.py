@@ -1,4 +1,4 @@
-import submission_mixin, account_mixin, users
+import account_mixin, users
 from submission_mixin import SubmissionMixinTest
 __test__ = {
     'submission': SubmissionMixinTest,
