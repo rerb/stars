@@ -15,7 +15,7 @@ from datetime import timedelta, datetime
      - will add boundary later
      - aashe_id can be "-1"
 """
-        
+
 class Institution(models.Model, ETLCompareMixin):
     """
         This model houses all the required fields for the
@@ -24,7 +24,7 @@ class Institution(models.Model, ETLCompareMixin):
     """
     aashe_id = models.IntegerField()
     change_date = models.DateTimeField(auto_now=True)
-    
+
     liaison_first_name = models.CharField(max_length=32)
     liaison_middle_name = models.CharField(max_length=32, blank=True, null=True)
     liaison_last_name = models.CharField(max_length=32)
@@ -32,23 +32,22 @@ class Institution(models.Model, ETLCompareMixin):
     liaison_department = models.CharField(max_length=64)
     liaison_phone = PhoneNumberField()
     liaison_email = models.EmailField()
-    
+
     charter_participant = models.BooleanField()
     international = models.BooleanField(default=False)
-    
+
     is_participant = models.BooleanField()
     current_rating = models.CharField(max_length=16, null=True, blank=True)
     rating_expires = models.DateField(blank=True, null=True)
     registration_date = models.DateField(blank=True, null=True)
     last_submission_date = models.DateField(blank=True, null=True)
     submission_due_date = models.DateField(blank=True, null=True)
-    
+
     current_submission = models.ForeignKey("SubmissionSet", blank=True, null=True, related_name="current")
     current_subscription = models.ForeignKey("Subscription", blank=True, null=True, related_name='current')
     rated_submission = models.ForeignKey("SubmissionSet", blank=True, null=True, related_name='rated')
     current_stars_version = models.CharField(max_length=5)
     rating_valid_until = models.DateField(blank=True, null=True)
-    registration_date = models.DateField(blank=True, null=True)
     last_submission_date = models.DateField(blank=True, null=True)
     submission_due_date = models.DateField(blank=True, null=True)
     is_published = models.BooleanField()
@@ -64,7 +63,7 @@ class Institution(models.Model, ETLCompareMixin):
         """
             An ETL object has to be initialized with an object to populate from
         """
-        
+
         print institution
 
         self.id = institution.id
@@ -72,7 +71,7 @@ class Institution(models.Model, ETLCompareMixin):
         if not self.aashe_id:
             self.aashe_id = -1
         self.change_date = datetime.now()
-        
+
         custom_mappings = (
                     ("liaison_first_name", "contact_first_name"),
                     ("liaison_middle_name", "contact_middle_name"),
@@ -89,26 +88,26 @@ class Institution(models.Model, ETLCompareMixin):
         self.liaison_department = institution.contact_department
         self.liaison_phone = institution.contact_phone
         self.liaison_email = institution.contact_email
-        
+
         self.charter_participant = institution.charter_participant
         self.international = institution.international
-        
+
         self.is_participant = institution.is_participant
-        
+
         self.current_rating = None
         if institution.current_rating:
             self.current_rating = institution.current_rating.name
-            
+
         self.rating_expires = institution.rating_expires
-        
+
         self.current_submission = None
         if institution.current_submission:
             self.current_submission_id = institution.current_submission.id
-        
+
         self.current_subscription = None
         if institution.current_subscription:
             self.current_subscription_id = institution.current_subscription.id
-        
+
         self.rated_submission = None
         if institution.rated_submission:
             self.rated_submission_id = institution.rated_submission.id
@@ -117,7 +116,7 @@ class Subscription(models.Model, ETLCompareMixin):
     """
         A mirror of the institutions.Subscription model
     """
-    
+
     change_date = models.DateTimeField(auto_now=True)
     aashe_id = models.IntegerField()
     start_date = models.DateField()
@@ -128,11 +127,11 @@ class Subscription(models.Model, ETLCompareMixin):
     amount_due = models.FloatField()
     reason = models.CharField(max_length='16', blank=True, null=True)
     paid_in_full = models.BooleanField(default=False)
-    
+
     # for ETLCompareMixin
     etl_exclude_fields = ['change_date',]
     etl_source_class = institutions.models.Subscription
-    
+
     def populate(self, sub):
         """
             Populate this object from the original subscription object
@@ -142,7 +141,7 @@ class Subscription(models.Model, ETLCompareMixin):
         if not self.aashe_id:
             self.aashe_id = -1
         self.change_date = datetime.now()
-        
+
         self.start_date = sub.start_date
         self.end_date = sub.end_date
         self.ratings_allocated = sub.ratings_allocated
@@ -150,7 +149,7 @@ class Subscription(models.Model, ETLCompareMixin):
         self.amount_due = sub.amount_due
         self.reason = sub.reason
         self.paid_in_full = sub.paid_in_full
-        
+
         # calculate the price
         if self.paid_in_full:
             self.price = 0
@@ -158,13 +157,13 @@ class Subscription(models.Model, ETLCompareMixin):
             self.price = self.amount_due
         for p in sub.subscriptionpayment_set.all():
             self.price += p.amount
-            
+
 
 class SubscriptionPayment(models.Model, ETLCompareMixin):
     """
         A mirror of the institutions.SubscriptionPayment model
     """
-    
+
     change_date = models.DateTimeField(auto_now=True)
     aashe_id = models.IntegerField()
     subscription = models.ForeignKey("Subscription")
@@ -173,10 +172,10 @@ class SubscriptionPayment(models.Model, ETLCompareMixin):
     user = models.EmailField()
     method = models.CharField(max_length='8')
     confirmation = models.CharField(max_length='16', blank=True, null=True)
-    
+
     etl_exclude_fields = ['change_date',]
     etl_source_class = institutions.models.SubscriptionPayment
-    
+
     def populate(self, p):
         """
             Populate this object from the original payment object
@@ -186,20 +185,20 @@ class SubscriptionPayment(models.Model, ETLCompareMixin):
         if not self.aashe_id:
             self.aashe_id = -1
         self.change_date = datetime.now()
-        
+
         self.subscription_id = p.subscription_id
         self.date = p.date
         self.amount = p.amount
         self.user = p.user.email
         self.method = p.method
         self.confirmation = p.confirmation
-        
+
 class SubmissionSet(models.Model, ETLCompareMixin):
     """
         A mirrored version of the submissions.SubmissionSet model
         for export to SF
     """
-    
+
     change_date = models.DateTimeField(auto_now=True)
     version = models.CharField(max_length=8)
     aashe_id = models.IntegerField()
@@ -212,22 +211,22 @@ class SubmissionSet(models.Model, ETLCompareMixin):
     reporter_status = models.NullBooleanField()
     score = models.FloatField(blank=True, null=True)
     is_active = models.BooleanField()
-    
+
     # for ETLCompareMixin
     etl_exclude_fields = ['change_date',]
     etl_source_class = submissions.models.SubmissionSet
-    
+
     def populate(self, ss):
         """
             An ETL object has to be initialized with an object to populate from
         """
-        
+
         self.id = ss.id
         self.version = ss.creditset.version
         self.aashe_id = ss.institution.aashe_id
         if not self.aashe_id:
             self.aashe_id = -1
-        
+
         self.date_registered = ss.date_registered
         self.date_submitted = ss.date_submitted
         self.registering_user = ss.registering_user.email
@@ -236,17 +235,17 @@ class SubmissionSet(models.Model, ETLCompareMixin):
         self.status = ss.status
         self.reporter_status = ss.reporter_status
         self.score = ss.get_STARS_score()
-        
+
 class Boundary(models.Model, ETLCompareMixin):
     """
         A mirrored version of the submissions.Boundary model
         for export to SF
     """
-    
+
     change_date = models.DateTimeField(auto_now=True)
     aashe_id = models.IntegerField()
     submissionset = models.OneToOneField(SubmissionSet)
-    
+
     # Characteristics
     fte_students = models.IntegerField("Full-time Equivalent Enrollment", blank=True, null=True)
     undergrad_count = models.IntegerField("Number of Undergraduate Students", blank=True, null=True)
@@ -264,7 +263,7 @@ class Boundary(models.Model, ETLCompareMixin):
     cultivated_grounds_acres = models.FloatField("Acres of cultivated grounds", help_text="Areas that are landscaped, planted, and maintained (including athletic fields). If less than 5 acres, data not necessary.", blank=True, null=True)
     undeveloped_land_acres = models.FloatField("Acres of undeveloped land", help_text="Areas without any buildings or development. If less than 5 acres, data not necessary", blank=True, null=True)
     climate_region = models.CharField(max_length=32, help_text="See the <a href='http://www1.eere.energy.gov/buildings/building_america/climate_zones.html'>USDOE</a> site and <a href='http://www.ashrae.org/File%20Library/docLib/Public/20081111_cztables.pdf'>ASHRAE</a>  (international) for more information.", blank=True, null=True)
-    
+
     # Features
     ag_school_present = models.BooleanField("Agricultural school is present")
     ag_school_included = models.BooleanField("Agricultural school is included in submission")
@@ -295,21 +294,21 @@ class Boundary(models.Model, ETLCompareMixin):
     agr_exp_included = models.BooleanField("Agricultural experiment station is included in submission")
     agr_exp_acres = models.IntegerField("Number of acres", blank=True, null=True)
     agr_exp_details = models.TextField("Reason for Exclusion", blank=True, null=True)
-    
+
     additional_details = models.TextField(blank=True, null=True)
-    
+
     # for ETLCompareMixin
     etl_exclude_fields = ['change_date',]
     etl_populate_exclude_fields = ['id', 'change_date', 'aashe_id', 'climate_region', 'submissionset']
     etl_source_class = submissions.models.Boundary
-    
+
     def populate(self, b):
         """
             An ETL object has to be initialized with an object to populate from
         """
-        
+
         self.populate_all(b)
-        
+
         self.id = b.id
         if b.climate_region:
             self.climate_region = b.climate_region.name
