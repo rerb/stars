@@ -57,6 +57,10 @@ class SubmissionMixinTest(TestCase):
         self.request = DummyRequest(self.u)
         self.sc = SubClass()
 
+    def test_active_submission_exists(self):
+        """Is this a test of this test setup?"""
+        self.assertEqual(self.sc(self.request), 'Hello World!')
+
     def test_no_active_submission_so_redirect(self):
         self.u.is_staff = True
         self.u.save()
@@ -64,7 +68,7 @@ class SubmissionMixinTest(TestCase):
         self.i.save()
         self.assertIsInstance(self.sc(self.request), HttpResponseRedirect)
 
-    def test_submission_is_disabled_so_raise_permissiondenied(self):
+    def test_active_submission_is_disabled_so_raise_permissiondenied(self):
         self.i.current_submission = self.ss
         self.i.save()
         self.ss.is_visible = False  # causes is_enabled() to be False
@@ -87,6 +91,3 @@ class SubmissionMixinTest(TestCase):
         with self.assertRaises(Exception) as e:
             self.sc(self.request)
         self.assertEqual(e.__class__.__name__, 'PermissionDenied')
-
-    def test_active_submission_exist(self):
-        self.assertEqual(self.sc(self.request), 'Hello World!')
