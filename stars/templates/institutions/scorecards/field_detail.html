@@ -1,16 +1,31 @@
 {% load humanize %}
 {% load help %}
+{% load aashe_rules_tags %}
 
 <span class='scorecardFieldTitle'>
+	{% if user.is_staff %}
+		<a href="{{ field.get_flag_url }}" class='btn btn-warning btn-mini'>Flag <i class='icon-flag icon-white'></i></a>
+	{% endif %}
+	{% if field.flags.all %}
+    	{% for f in field.flags.all %}
+    		<a 	href="{% if user.is_staff %}{{ f.get_admin_url }}{% else %}#{% endif %}"
+		    	rel="popover"
+		    	id="flag_{{ f.id }}"
+		    	data-content="{{ f.description }}"
+		    	data-original-title="Flagged Field">
+	    		<i class='icon-flag'> </i></a>
+	    	<script type='text/javascript'>$('#flag_{{ f.id }}').popover();</script>
+    	{% endfor %}
+    {% endif %}
     {{ field.documentation_field.title }}
     {% if not preview and user_is_inst_admin %}
-    <a 	href="{{ field.get_correction_url }}"
-    	rel="popover"
-    	id="dc_{{ field.id }}"
-    	data-content="{% get_help_context 'data_correction_popup' %}"
-    	data-original-title="Data Correction Request">
-    		<i class='icon-pencil'> </i></a>
-    <script type='text/javascript'>$('#dc_{{ field.id }}').popover();</script>
+	    <a 	href="{{ field.get_correction_url }}"
+	    	rel="popover"
+	    	id="dc_{{ field.id }}"
+	    	data-content="{% get_help_context 'data_correction_popup' %}"
+	    	data-original-title="Data Correction Request">
+	    		<i class='icon-pencil'> </i></a>
+	    <script type='text/javascript'>$('#dc_{{ field.id }}').popover();</script>
     {% endif %}:
 </span>
 

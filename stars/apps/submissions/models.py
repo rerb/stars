@@ -9,6 +9,7 @@ from django.db.models import Q
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import InMemoryUploadedFile
+from django.core import urlresolvers
 
 from stars.apps.credits.models import CreditSet, Category, Subcategory, Credit, DocumentationField, Choice, ApplicabilityReason, Rating
 from stars.apps.institutions.models import Institution, ClimateZone
@@ -1171,6 +1172,23 @@ class ReportingFieldDataCorrection(models.Model):
     object_id = models.PositiveIntegerField()
     reporting_field = generic.GenericForeignKey('content_type', 'object_id')
     explanation = models.TextField(blank=True, null=True)
+    
+class DocumentationFieldFlag(models.Model):
+    """
+        A flag that can be added by staff for a particular documentation field
+    """
+    date = models.DateField(auto_now_add=True)
+    description = models.TextField()
+    
+    content_type = models.ForeignKey(ContentType)
+    object_id = models.PositiveIntegerField()
+    reporting_field = generic.GenericForeignKey('content_type', 'object_id')
+    
+    def get_admin_url(self):
+        return urlresolvers.reverse("admin:submissions_documentationfieldflag_change", args=[self.id])
+    
+    def __str__(self):
+        return "%s: %s" % (self.reporting_field.get_institution(), self.reporting_field.documentation_field.title)
 
 class DocumentationFieldSubmission(models.Model):
     """
@@ -1179,6 +1197,7 @@ class DocumentationFieldSubmission(models.Model):
     documentation_field = models.ForeignKey(DocumentationField, related_name="%(class)s_set")
     credit_submission = models.ForeignKey(CreditSubmission)
     corrections = generic.GenericRelation(ReportingFieldDataCorrection, content_type_field='content_type', object_id_field='object_id')
+    flags = generic.GenericRelation(DocumentationFieldFlag, content_type_field='content_type', object_id_field='object_id')
     
     class Meta:
         abstract = True
@@ -1197,7 +1216,9 @@ class DocumentationFieldSubmission(models.Model):
         return self.credit_submission
         
     def get_institution(self):
-        return self.credit_submission.get_institution()
+        parent = CreditUserSubmission.objects.get(pk=self.credit_submission.id)
+        return parent.get_institution()
+#        return self.credit_submission.get_institution()
         
     def get_creditset(self):
         return self.credit_submission.get_creditset()
@@ -1259,6 +1280,16 @@ class DocumentationFieldSubmission(models.Model):
         
         ct = ContentType.objects.get_for_model(self)
         return "%s%s/%d/" % (self.credit_submission.get_scorecard_url(), ct.id, self.id)
+    
+    def get_flag_url(self):
+        
+#        return "%s/%d/flag/" % (self.credit_submission.get_scorecard_url(), self.id)
+        link = "%s?content_type=%s&object_id=%d" % (
+                                                        urlresolvers.reverse('admin:submissions_documentationfieldflag_add'),
+                                                        ContentType.objects.get_for_model(self).id,
+                                                        self.id
+                                                    )
+        return link
 
 class AbstractChoiceSubmission(DocumentationFieldSubmission):
     class Meta:  

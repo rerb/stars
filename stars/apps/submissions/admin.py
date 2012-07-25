@@ -43,6 +43,10 @@ admin.site.register(ResponsibleParty, ResponsiblePartyAdmin)
 
 class CreditSubmissionInquiryInline(admin.TabularInline):
     model = CreditSubmissionInquiry
+    
+class DocumentationFieldFlagAdmin(admin.ModelAdmin):
+    model = DocumentationFieldFlag
+admin.site.register(DocumentationFieldFlag, DocumentationFieldFlagAdmin)
 
 class SubmissionInquiryAdmin(admin.ModelAdmin):
     list_display = ('date', 'anonymous', 'last_name', 'first_name', 'submissionset')
