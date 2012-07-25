@@ -123,6 +123,19 @@ function togglePayment(obj) {
 }
 
 /*
+ * Shows/hides part of a form based on a checkbox
+ * requires twitter bootstrap accordion
+ */
+function toggleFormCollapse(obj) {
+	
+	f = document.getElementById('checkboxCollapse');
+	if( obj.checked )
+		f.style.display = "none";
+	else
+		f.style.display = "table";
+}
+
+/*
  * Makes this div invisible and that div visible
  */
 function swap_divs(this_div_id, that_div_id) {

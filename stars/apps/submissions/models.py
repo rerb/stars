@@ -1574,13 +1574,14 @@ class SubmissionInquiry(models.Model):
     
     submissionset = models.ForeignKey(SubmissionSet)
     date = models.DateTimeField(auto_now_add=True)
-    first_name = models.CharField(max_length=128, null=True)
-    last_name = models.CharField(max_length=128, null=True)
-    affiliation = models.CharField(max_length=128)
-    city = models.CharField(max_length=32)
-    state = models.CharField(max_length=2)
-    email_address = models.EmailField()
-    phone_number = PhoneNumberField()
+    anonymous = models.BooleanField()
+    first_name = models.CharField(max_length=128, null=True, blank=True)
+    last_name = models.CharField(max_length=128, null=True, blank=True)
+    affiliation = models.CharField(max_length=128, null=True, blank=True)
+    city = models.CharField(max_length=32, null=True, blank=True)
+    state = models.CharField(max_length=2, null=True, blank=True)
+    email_address = models.EmailField(null=True, blank=True)
+    phone_number = PhoneNumberField(null=True, blank=True)
     additional_comments = models.TextField(blank=True, null=True, help_text="Include any other comments about the Submission, including the Submission Boundary and Subcategory Descriptions.")
     
     class Meta:

@@ -1,21 +1,23 @@
 {% extends 'base.html' %}
 
+{% load bootstrap %}
+
 {% block title %}{{ block.super }} | {{ form_title }}{% endblock %}
 
 {% block content %}
-    <div class='inner20'>
-        <h1>{{ form_title }}</h1>
-        {% block top_boilerplate %}{% endblock %}
-        {% block required %}
-        <div style="font-size: .9em;padding:10px;">
-            <span class="required_note" title="This field is required to complete credit">*</span>
-            Required Fields
-        </div>
-        {% endblock %}
-        <form class='generalForm' method='post' action='.' enctype="multipart/form-data">
-          	{% include 'helpers/label_above_input_form.html' %}
-            <div class='button_row'><button type='submit'>Submit</button></div>
-        </form>
-        {% block bottom_boilerplate %}{% endblock %}
-    </div>
+	<h1>{{ form_title }}</h1>
+	{% block top_boilerplate %}{% endblock %}
+	{% block required %}
+	<div style="font-size: .9em;padding:10px;">
+	    <span class="required_note" title="This field is required to complete credit">*</span>
+	    Required Fields
+	</div>
+	{% endblock %}
+	<form class='generalForm' method='post' action='.' enctype="multipart/form-data">
+	  	{{ object_form|bootstrap }}
+	  	<div class='form-actions'>
+	   		<button type='submit' class='btn btn-success'>Submit</button>
+	   	</div>
+	</form>
+	{% block bottom_boilerplate %}{% endblock %}
 {% endblock %}
