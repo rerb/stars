@@ -1,5 +1,6 @@
 {% extends 'tool/manage/base.html' %}
 
+{% load content %}
 {% load aashe_rules_tags %}
 
 {% block crumbs-tool %}
@@ -17,6 +18,9 @@
 {% block institution_content %}
 
 	<div class='row'>
+		<div class='span12'>
+			{% display_block_content 'migrate_submissionset' user %}
+		</div>
 		<div class='span4'>
 			<h3>Version Migration</h3>
 			<p>Migrate Submission to <strong>{{ latest_creditset }}</strong>.</p>
