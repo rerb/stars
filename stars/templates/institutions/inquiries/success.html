@@ -13,9 +13,14 @@
       </script>
 {% endblock %}
 
-{% block crumbs %}
-	{{ block.super }} >
-	STARS Submission Accuracy Inquiry
+{% block crumb-tab %}
+	<li>
+		<a href='{{ submissionset.get_scorecard_url }}'>{{ submissionset.date_submitted }}</a>
+		<span class="divider">/</span>
+	</li>
+	<li>
+		Accuracy Inquiry
+	</li>
 {% endblock %}
 
 {% block content %}

@@ -8,13 +8,15 @@ class SubmissionSelectForm(Form):
     institution = forms.ModelChoiceField(queryset=SubmissionSet.objects.get_rated().order_by('institution__name'), empty_label="Please Select an Institution's Submission")
 
 class SubmissionInquiryForm(ModelForm):
-    
+
     class Meta:
         model = SubmissionInquiry
         exclude = ['submissionset', 'date']
         
     def __init__(self, *args, **kwargs):
         super(SubmissionInquiryForm, self).__init__(*args, **kwargs)
+        self.fields['anonymous'].widget = forms.CheckboxInput(attrs={'onchange': 'toggleFormCollapse(this);',})
+        self.fields['anonymous'].required = False
         
 class CreditSubmissionInquiryForm(ModelForm):
     

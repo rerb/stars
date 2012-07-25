@@ -119,12 +119,19 @@ def migrate_submission(old_ss, new_ss, keep_status=False):
         Keeping the status will keep the submission status the same
         and transfer all the properties UNLESS the submissionsets
         are of different versions.
+        
+        Note: don't migrate IN data if the previous submission was rated
     """
     
     # if the old SubmissionSet hasn't been initialized we don't have to do anything
     if old_ss.categorysubmission_set.count() == 0:
         new_ss.save()
         return new_ss
+    
+    # check if we can migrate innovation data
+    migrate_innovation_category = True
+    if old_ss.submission_status == "r":
+        migrate_innovation_category = False
     
     # Since there is currently no change necessary with the category we will ignore it
     # I'm keeping this in here in case we add data to the CategorySubmission objects
@@ -136,7 +143,11 @@ def migrate_submission(old_ss, new_ss, keep_status=False):
         
     # Get all SubcategorySubmissions in this SubmissionSet regardless of Category
     
-    for sub in SubcategorySubmission.objects.filter(category_submission__submissionset=new_ss):
+    ss_set = SubcategorySubmission.objects.filter(category_submission__submissionset=new_ss)
+    if not migrate_innovation_category:
+        ss_set = ss_set.exclude(category_submission__category__abbreviation="IN")
+    
+    for sub in ss_set:
         
         # get the related subcategory
         prev_sub = sub.subcategory.get_for_creditset(old_ss.creditset)
@@ -159,9 +170,12 @@ def migrate_submission(old_ss, new_ss, keep_status=False):
         
     # print "Total CUS's: %d" % CreditUserSubmission.objects.count()
     
-    for c in CreditUserSubmission.objects.filter(subcategory_submission__category_submission__submissionset=new_ss):
+    c_set = CreditUserSubmission.objects.filter(subcategory_submission__category_submission__submissionset=new_ss)
+    if not migrate_innovation_category:
+        c_set = c_set.exclude(subcategory_submission__category_submission__category__abbreviation="IN")
+    
+    for c in c_set:
         
-       
         # find the parent credit
         prev_credit = c.credit.get_for_creditset(old_ss.creditset)
         # print "Previous Credit: %s" % prev_credit
