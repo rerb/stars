@@ -14,7 +14,7 @@ from mercurial import commands
 env.project_name = 'stars'
 env.project_root = "/var/www/%s/" % env.project_name
 env.path = "%ssrc/" % env.project_root
-env.repo = "ssh://hg@bitbucket.org/ben_aashe/stars"
+env.repo = "ssh://hg@bitbucket.org/aashe/stars"
 
 def vagrant():
     """
