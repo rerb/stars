@@ -24,68 +24,45 @@ class RenewalTest(TestCase):
 
     def test_gets_discount(self):
         """
-            current date: 3/1/11 (less than 90 days after 1/31/11)
-
-                unsubmitted due before current_date
-                unsubmitted due after current_date
-                date submitted before current_date
-
-            current date 5/1/11
-
-                date submitted 30 days before current date
-                date submitted 100 days before current date
-                unsubmitted due 30 days before current date
-                unsubmitted due 100 days before current date
-                unsubmitted due after current date
-
-            multiple submissions w/ different submission or due dates
+        Given a subscription that ended on 1/31/11 ...
         """
-
         ss = SubmissionSet.objects.get(pk=1)
         i = ss.institution
 
+        # If the current date is 3/1/11 (less than 90 days after 1/31/11):
         current_date = date(year=2011, month=3, day=1)
 
-        # unsubmitted due before current_date
+        # unsubmitted - gets discount
         self.assertTrue(_gets_discount(i, current_date))
-        # unsubmitted due after current_date
-        ss.save()
-        self.assertTrue(_gets_discount(i, current_date))
-        # date submitted before current_date
+
+        # date submitted before current_date - gets discount
         ss.status = 'r'
         ss.date_submitted = date(year=2011, month=2, day=1)
         ss.save()
         self.assertTrue(_gets_discount(i, current_date))
 
+        # If the current date is 5/14/11:
         current_date = date(year=2011, month=5, day=14)
-        self.assertTrue(_gets_discount(i, current_date))
 
-        current_date = date(year=2011, month=5, day=16)
+        # no discount for you
         self.assertFalse(_gets_discount(i, current_date))
 
-        current_date = date(year=2012, month=5, day=1)
+        # If the current date is 5/1/11:
+        current_date = date(year=2011, month=5, day=1)
 
-        # date submitted 30 days before current date
-        ss.date_submitted = date(year=2012, month=4, day=1)
+        # date submitted 30 days before current date - gets discount
+        ss.date_submitted = date(year=2011, month=4, day=1)
         ss.save()
         self.assertTrue(_gets_discount(i, current_date))
 
-        # date submitted 100 days before current date
-        ss.date_submitted = date(year=2012, month=1, day=1)
+        # date submitted 100 days before current date - gets discount
+        ss.date_submitted = date(year=2011, month=1, day=1)
         ss.save()
-        self.assertFalse(_gets_discount(i, current_date))
+        self.assertTrue(_gets_discount(i, current_date))
 
-        # unsubmitted due 30 days before current date
+        # unsubmitted 30 days before current date - gets discount
         ss.status = 'ps'
         ss.date_submitted = None
-        ss.save()
-        self.assertTrue(_gets_discount(i, current_date))
-
-        # unsubmitted due 100 days before current date
-        ss.save()
-        self.assertFalse(_gets_discount(i, current_date))
-
-        # unsubmitted due after current date
         ss.save()
         self.assertTrue(_gets_discount(i, current_date))
 
@@ -105,6 +82,7 @@ class RenewalTest(TestCase):
             - results in a new submission
             - sends an email
         """
+        import pdb; pdb.set_trace()
 
         user = User.objects.get(pk=1)
         user.set_password('test')
