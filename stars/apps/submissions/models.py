@@ -1132,6 +1132,8 @@ class DataCorrectionRequest(models.Model):
             new_rating = ss.get_STARS_rating(recalculate=True)
             if ss.rating != new_rating:
                 ss.rating = new_rating
+                ss.institution.current_rating = new_rating
+                ss.institution.save()
                 rating_changed = True
                 ss.save()
 
