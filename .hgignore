@@ -22,4 +22,5 @@ syntax: glob
 *.pyc
 .DS_Store
 .vagrant
+.pydevproject
 */#*#$
