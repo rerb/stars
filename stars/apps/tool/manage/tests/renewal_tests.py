@@ -1,21 +1,23 @@
 """
-    Unittests for the submission renewal process
+    Unittests for the subscription renewal process
 """
+from datetime import date
+
 from django.test import TestCase
 from django.core import mail
 from django.test.client import Client
 from django.conf import settings
 from django.contrib.auth.models import User
 
-from datetime import date
-import sys, os, random
-
+from stars.apps.institutions.models import Subscription
 from stars.apps.tool.manage.views import _gets_discount
-from stars.apps.submissions.models import SubmissionSet, NumericSubmission, Payment
+from stars.apps.submissions.models import SubmissionSet, Payment
 from stars.apps.tasks.update_from_iss import run_update
 
 class RenewalTest(TestCase):
-    fixtures = ['submission_migration_test.json', 'notification_emailtemplate_tests.json', 'iss_testdata.json']
+    fixtures = ['submission_migration_test.json',
+                'notification_emailtemplate_tests.json',
+                'iss_testdata.json']
     multi_db = True
 
     def setUp(self):
@@ -24,88 +26,62 @@ class RenewalTest(TestCase):
 
     def test_gets_discount(self):
         """
-            current date: 3/1/11 (less than 90 days after 1/31/11)
-
-                unsubmitted due before current_date
-                unsubmitted due after current_date
-                date submitted before current_date
-
-            current date 5/1/11
-
-                date submitted 30 days before current date
-                date submitted 100 days before current date
-                unsubmitted due 30 days before current date
-                unsubmitted due 100 days before current date
-                unsubmitted due after current date
-
-            multiple submissions w/ different submission or due dates
+        Given a subscription that ended on 1/31/11 ...
         """
-
         ss = SubmissionSet.objects.get(pk=1)
         i = ss.institution
 
+        # If the current date is 3/1/11 (less than 90 days after 1/31/11):
         current_date = date(year=2011, month=3, day=1)
 
-        # unsubmitted due before current_date
+        # unsubmitted - gets discount
         self.assertTrue(_gets_discount(i, current_date))
-        # unsubmitted due after current_date
-        ss.save()
-        self.assertTrue(_gets_discount(i, current_date))
-        # date submitted before current_date
+
+        # date submitted before current_date - gets discount
         ss.status = 'r'
         ss.date_submitted = date(year=2011, month=2, day=1)
         ss.save()
         self.assertTrue(_gets_discount(i, current_date))
 
+        # If the current date is 5/14/11:
         current_date = date(year=2011, month=5, day=14)
-        self.assertTrue(_gets_discount(i, current_date))
 
-        current_date = date(year=2011, month=5, day=16)
+        # no discount for you
         self.assertFalse(_gets_discount(i, current_date))
 
-        current_date = date(year=2012, month=5, day=1)
+        # If the current date is 5/1/11:
+        current_date = date(year=2011, month=5, day=1)
 
-        # date submitted 30 days before current date
-        ss.date_submitted = date(year=2012, month=4, day=1)
+        # date submitted 30 days before current date - gets discount
+        ss.date_submitted = date(year=2011, month=4, day=1)
         ss.save()
         self.assertTrue(_gets_discount(i, current_date))
 
-        # date submitted 100 days before current date
-        ss.date_submitted = date(year=2012, month=1, day=1)
+        # date submitted 100 days before current date - gets discount
+        ss.date_submitted = date(year=2011, month=1, day=1)
         ss.save()
-        self.assertFalse(_gets_discount(i, current_date))
+        self.assertTrue(_gets_discount(i, current_date))
 
-        # unsubmitted due 30 days before current date
+        # unsubmitted 30 days before current date - gets discount
         ss.status = 'ps'
         ss.date_submitted = None
         ss.save()
         self.assertTrue(_gets_discount(i, current_date))
 
-        # unsubmitted due 100 days before current date
-        ss.save()
-        self.assertFalse(_gets_discount(i, current_date))
-
-        # unsubmitted due after current date
-        ss.save()
-        self.assertTrue(_gets_discount(i, current_date))
-
-    def test_purchase_submission(self):
+    def test_purchase_subscription(self):
         """
-            purchase_submissionset()
-
             Page loads
             - 200 response code
 
             Pay Later
-            - results in a new submission
+            - results in a new subscription
             - sends an email
 
             Pay w/ CC
             - transaction processes
-            - results in a new submission
+            - results in a new subscription
             - sends an email
         """
-
         user = User.objects.get(pk=1)
         user.set_password('test')
         user.save()
@@ -114,10 +90,10 @@ class RenewalTest(TestCase):
         login = c.login(username='tester', password='test')
         self.assertTrue(login)
 
-        # Total Submissions
-        self.assertEqual(SubmissionSet.objects.count(), 1)
+        # Total Subscriptions
+        self.assertEqual(Subscription.objects.count(), 1)
 
-        url = "/tool/manage/submissionsets/purchase/"
+        url = "/tool/manage/purchase-subscription/"
 
         # Page Loads
         response = c.get(url)
@@ -130,34 +106,25 @@ class RenewalTest(TestCase):
 
         # check payment
         p = Payment.objects.all().order_by('-date')[0]
-        self.assertEqual(p.reason, "member_reg")
+        self.assertEqual(p.reason, "reg")
 
-        self.assertEqual(SubmissionSet.objects.count(), 2)
-        self.assertTrue(len(mail.outbox) == 2)
+        self.assertEqual(Subscription.objects.count(), 2)
+        self.assertTrue(len(mail.outbox) == 1)
 
-        # confirm the data migration
-        self.assertEqual(NumericSubmission.objects.count(), 2)
-        ns1 = NumericSubmission.objects.all()[0]
-        ns2 = NumericSubmission.objects.all()[1]
-        self.assertEqual(ns1.value, ns2.value)
+        # Pay Now
+        post_dict = {
+                       'name_on_card': 'Test Person',
+                       'card_number': '4007000000027',
+                       'exp_month': str(date.today().month),
+                       'exp_year': str(date.today().year + 1),
+                       'cv_code': '123',
+                       'billing_address': '123 Street rd',
+                       'billing_city': "City",
+                       'billing_state': 'RI',
+                       'billing_zipcode': '01234',
+                    }
+        response = c.post(url, post_dict)
+        self.assertTrue(response.status_code == 302)
 
-       # print >> sys.stdout, mail.outbox[1].message()
-
-        # # Pay Now
-        # post_dict = {
-        #                'name_on_card': 'Test Person',
-        #                'card_number': '4007000000027',
-        #                # 'card_number': '4222222222222',
-        #                'exp_month': str(date.today().month),
-        #                'exp_year': str(date.today().year + 1),
-        #                'cv_code': '123',
-        #                'billing_address': '123 Street rd',
-        #                'billing_city': "City",
-        #                'billing_state': 'RI',
-        #                'billing_zipcode': '01234',
-        #             }
-        # response = c.post(url, post_dict)
-        # self.assertTrue(response.status_code == 302)
-        #
-        # self.assertTrue(SubmissionSet.objects.count() == 3)
-        # self.assertTrue(len(mail.outbox) == 4)
+        self.assertTrue(Subscription.objects.count() == 3)
+        self.assertTrue(len(mail.outbox) == 3)

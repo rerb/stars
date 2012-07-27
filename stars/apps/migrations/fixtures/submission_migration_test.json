@@ -24,7 +24,8 @@
             "executive_contact_title": "Executive",
             "contact_title": "Title",
             "executive_contact_first_name": "FirstName",
-            "executive_contact_last_name": "Trask"
+            "executive_contact_last_name": "Trask",
+            "current_submission": 1
         }
     },
 
@@ -277,6 +278,18 @@
             "identifier": "A",
             "type": "numeric",
             "previous_version": 1
+        }
+    },
+
+    {
+        "pk": 1,
+        "model": "institutions.subscription",
+        "fields": {
+            "institution": 1,
+            "start_date": "2010-1-30",
+            "end_date": "2011-1-31",
+            "amount_due": 0.0,
+            "paid_in_full": true
         }
     }
 ]

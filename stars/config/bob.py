@@ -118,3 +118,20 @@ INSTALLED_APPS += ('django_nose',
 if 'TEST_RUNNER' in os.environ: # django_nose.NoseTestSuiteRunner, for example
     if os.environ['TEST_RUNNER']:  # only use it if there's a value set
         TEST_RUNNER = os.environ['TEST_RUNNER'] or TEST_RUNNER
+
+# Stuff copied from ben.py that I don't know what it is:
+
+SSO_SERVER_URI = WWW_SSO_SERVER_URI
+STARS_DOMAIN = WWW_STARS_DOMAIN
+SSO_API_KEY = WWW_SSO_API_KEY
+
+XMLRPC_VERBOSE = False
+XMLRPC_USE_HASH = True
+
+# Authorize.Net
+AUTHORIZENET_LOGIN = TEST_AUTHORIZENET_LOGIN
+AUTHORIZENET_KEY = TEST_AUTHORIZENET_KEY
+AUTHORIZENET_SERVER = TEST_AUTHORIZENET_SERVER
+
+# Thumbnails
+THUMBNAIL_DEBUG = True
