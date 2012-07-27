@@ -9,6 +9,7 @@ from django.db.models import Q
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import InMemoryUploadedFile
+from django.core import urlresolvers
 
 from stars.apps.credits.models import CreditSet, Category, Subcategory, Credit, DocumentationField, Choice, ApplicabilityReason, Rating
 from stars.apps.institutions.models import Institution, ClimateZone
@@ -151,11 +152,6 @@ class SubmissionSet(models.Model):
         if self.is_rated():
             return unicode(self.rating)
         return self.get_status_display()
-
-    def get_submission_date(self):
-        """ Returns a reasonable submission date for this submission based on its current status """
-        return self.date_reviewed if self.is_rated() else \
-               self.date_submitted
 
     def is_pending_review(self):
         """ Return True iff this submission set has been rated """
@@ -1136,6 +1132,8 @@ class DataCorrectionRequest(models.Model):
             new_rating = ss.get_STARS_rating(recalculate=True)
             if ss.rating != new_rating:
                 ss.rating = new_rating
+                ss.institution.current_rating = new_rating
+                ss.institution.save()
                 rating_changed = True
                 ss.save()
 
@@ -1170,6 +1168,23 @@ class ReportingFieldDataCorrection(models.Model):
     object_id = models.PositiveIntegerField()
     reporting_field = generic.GenericForeignKey('content_type', 'object_id')
     explanation = models.TextField(blank=True, null=True)
+    
+class DocumentationFieldFlag(models.Model):
+    """
+        A flag that can be added by staff for a particular documentation field
+    """
+    date = models.DateField(auto_now_add=True)
+    description = models.TextField()
+    
+    content_type = models.ForeignKey(ContentType)
+    object_id = models.PositiveIntegerField()
+    reporting_field = generic.GenericForeignKey('content_type', 'object_id')
+    
+    def get_admin_url(self):
+        return urlresolvers.reverse("admin:submissions_documentationfieldflag_change", args=[self.id])
+    
+    def __str__(self):
+        return "%s: %s" % (self.reporting_field.get_institution(), self.reporting_field.documentation_field.title)
 
 class DocumentationFieldSubmission(models.Model):
     """
@@ -1178,6 +1193,7 @@ class DocumentationFieldSubmission(models.Model):
     documentation_field = models.ForeignKey(DocumentationField, related_name="%(class)s_set")
     credit_submission = models.ForeignKey(CreditSubmission)
     corrections = generic.GenericRelation(ReportingFieldDataCorrection, content_type_field='content_type', object_id_field='object_id')
+    flags = generic.GenericRelation(DocumentationFieldFlag, content_type_field='content_type', object_id_field='object_id')
 
     class Meta:
         abstract = True
@@ -1196,7 +1212,8 @@ class DocumentationFieldSubmission(models.Model):
         return self.credit_submission
 
     def get_institution(self):
-        return self.credit_submission.get_institution()
+        parent = CreditUserSubmission.objects.get(pk=self.credit_submission.id)
+        return parent.get_institution()
 
     def get_creditset(self):
         return self.credit_submission.get_creditset()
@@ -1258,6 +1275,16 @@ class DocumentationFieldSubmission(models.Model):
 
         ct = ContentType.objects.get_for_model(self)
         return "%s%s/%d/" % (self.credit_submission.get_scorecard_url(), ct.id, self.id)
+    
+    def get_flag_url(self):
+        
+#        return "%s/%d/flag/" % (self.credit_submission.get_scorecard_url(), self.id)
+        link = "%s?content_type=%s&object_id=%d" % (
+                                                        urlresolvers.reverse('admin:submissions_documentationfieldflag_add'),
+                                                        ContentType.objects.get_for_model(self).id,
+                                                        self.id
+                                                    )
+        return link
 
 class AbstractChoiceSubmission(DocumentationFieldSubmission):
     class Meta:
@@ -1573,13 +1600,14 @@ class SubmissionInquiry(models.Model):
 
     submissionset = models.ForeignKey(SubmissionSet)
     date = models.DateTimeField(auto_now_add=True)
-    first_name = models.CharField(max_length=128, null=True)
-    last_name = models.CharField(max_length=128, null=True)
-    affiliation = models.CharField(max_length=128)
-    city = models.CharField(max_length=32)
-    state = models.CharField(max_length=2)
-    email_address = models.EmailField()
-    phone_number = PhoneNumberField()
+    anonymous = models.BooleanField()
+    first_name = models.CharField(max_length=128, null=True, blank=True)
+    last_name = models.CharField(max_length=128, null=True, blank=True)
+    affiliation = models.CharField(max_length=128, null=True, blank=True)
+    city = models.CharField(max_length=32, null=True, blank=True)
+    state = models.CharField(max_length=2, null=True, blank=True)
+    email_address = models.EmailField(null=True, blank=True)
+    phone_number = PhoneNumberField(null=True, blank=True)
     additional_comments = models.TextField(blank=True, null=True, help_text="Include any other comments about the Submission, including the Submission Boundary and Subcategory Descriptions.")
 
     class Meta:

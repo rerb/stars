@@ -1,5 +1,7 @@
 {% extends 'institutions/scorecards/base.html' %}
 
+{% load bootstrap %}
+
 {% block extra_head %}
 	{{ block.super }}
 	<script type="text/javascript" src="http://code.jquery.com/jquery-1.4.2.min.js"></script>
@@ -13,40 +15,64 @@
       </script>
 {% endblock %}
 
-{% block crumbs %}
-	{{ block.super }} >
-	STARS Submission Accuracy Inquiry
+{% block crumb-tab %}
+	<li>
+		<a href='{{ submissionset.get_scorecard_url }}'>{{ submissionset.date_submitted }}</a>
+		<span class="divider">/</span>
+	</li>
+	<li>
+		Accuracy Inquiry
+	</li>
 {% endblock %}
 
 {% block body_onload %}disable_select_options();{% endblock %}
 
 {% block content %}
 	<br/>
-	<h1>STARS Submission Accuracy Inquiry: {{ submissionset.institution }}</h1>
-	{% include 'helpers/required_div.html' %}
+	<h1>{{ submissionset.institution }}: Accuracy Inquiry:</h1>
 	<form class='generalForm' method='post' action='.' enctype="multipart/form-data" style='margin: 10px 50px;'>
 		{% load content %}
         {% display_block_content 'accuracy_header' user %}
 		<h2>Your Contact Information</h2><br/>
 		{% load fieldsets %}
-		<table>
-			{% get_fieldset first_name,last_name,affiliation,city,state,email_address,phone_number as object_form from inquirer_details %}
-			{% include 'helpers/standard_form.html' %}
-		</table>
-			{% get_fieldset additional_comments as object_form from inquirer_details %}
-			{% include 'helpers/label_above_input_form.html' %}
+		
+		<div class="accordion" id="accordion2">
+			<div class="accordion-group">
+              <div class="accordion-heading">
+              	<div class="accordion-toggle">
+              	{% get_fieldset anonymous as object_form from inquirer_details %}
+              	{{ object_form|bootstrap }}
+<!--                 <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseOne">
+                  Collapsible Group Item #1
+                </a> -->
+                </div>
+              </div>
+              <div id="checkboxCollapse" class="accordion-body collapse in">
+                <div class="accordion-inner">
+                  	{% get_fieldset first_name,last_name,affiliation,city,state,email_address,phone_number as object_form from inquirer_details %}
+					{{ object_form|bootstrap }} 
+                </div>
+              </div>
+              <div id="checkboxCollapse" class="accordion-body collapse in">
+                <div class="accordion-inner">			
+				{% get_fieldset additional_comments as object_form from inquirer_details %}
+				{{ object_form|bootstrap }} 
+                </div>
+              </div>
+            </div>
+         </div>
 	  	<h2>Specific Credit(s) In Question for {{ submissionset.institution }}</h2>
         {% display_block_content 'credit_dispute' user %}
 	  	{{ credit_inquiries.management_form }}
 	  	{% for form in credit_inquiries.forms %}
-	  		<table id='{{ credit_inquiries.prefix }}_table{{ forloop.counter0 }}'>
-	  			{{ form }}
-	  		</table>
+	  		<div id='{{ credit_inquiries.prefix }}_table{{ forloop.counter0 }}' class='tbl'>
+	  			{{ form|bootstrap }}
+	  		</div>
 	  	{% endfor %}
-			<img src='/media/static/images/add.png' alt='+' onclick="addFormToFormset('{{ credit_inquiries.prefix }}');"/>
-			<a href="javascript:addFormToFormset('{{ credit_inquiries.prefix }}');" class="add-row">
-				Add Another
+			<a href="javascript:addFormToFormset('{{ credit_inquiries.prefix }}');" class="btn">
+				<i class='icon-plus-sign'></i> Add Another Credit
 			</a>
+		<hr/>
 		<p style='font-style: italic'>Please verify that you are a living, breathing, human being.</p>
 		{% if recaptcha_error %}
 			<ul class='errorlist'><li>Captcha did not validate. Please try again.</li></ul>
@@ -59,6 +85,9 @@
 		<div id='recaptcha'>
 			{{ recaptcha_html }}
 		</div>
-	    <div class='button_row'><button type='submit'>Submit</button></div>
+		
+		<div class='form-actions'>
+    		<button type='submit' class='btn btn-success'>Submit</button>
+    	</div>
 	</form>
 {% endblock %}

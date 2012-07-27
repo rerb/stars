@@ -1,6 +1,7 @@
 from django import template
 from django.utils.html import strip_spaces_between_tags, escape
 from django.utils.safestring import mark_safe 
+from django.core import urlresolvers
 
 import re
 
@@ -40,6 +41,9 @@ def get_help_context(context_name):
     """ Simply returns the helptext, unstyled. """
     help_context = lookup_help_context(context_name)
 
+    if not help_context:
+#        return "<a href='%s?key=%s'>Add Help Context</a>" % (urlresolvers.reverse('admin:helpers_helpcontext_add'), context_name)
+        return "..."
     return help_context.help_text
 
 @register.inclusion_tag('helpers/tags/help_text.html')
