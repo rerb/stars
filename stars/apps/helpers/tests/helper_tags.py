@@ -1,5 +1,5 @@
 """
-    Test Suite for Helpers.  
+    Test Suite for Helpers.
     These tests cover all of the helpers, including
      - form helpers
      - exceptions
@@ -11,30 +11,21 @@ from django.test import TestCase
 
 from stars.apps.helpers.templatetags import help
 class Help_tags_Test(TestCase):
-        
+
     """
         #######   help.py Test Suite.  #######
     """
-    def test_show_help_context_as_tooltip(self):
-        context = help.show_help_context("test")
-        # test help text is:  This 'help context' is used by "automated unit tests" - do not change this text!
+
+    TEST_HELP_TEXT = ("This 'help context' is used by 'automated unit tests' "
+                      "- do not change this text!")
+
+    def test_show_help_text_as_tooltip(self):
+        context = help.show_help_text(self.TEST_HELP_TEXT)
         self.assertTrue(context['tooltip'])
-        self.assertEqual(context['help_text'], "This \&#39;help context\&#39; is used by \&quot;automated unit tests\&quot; - do not change this text!")
+        self.assertEqual(context['help_text'],
+                         self.TEST_HELP_TEXT.replace("'", "\&#39;"))
 
     def test_show_help_context_as_inline(self):
         context = help.show_help_context("test", False)
-        # test help text is:  This 'help context' is used by "automated unit tests" - do not change this text!
         self.assertFalse(context['tooltip'])
-        self.assertEqual(context['help_text'], "This \'help context\' is used by \"automated unit tests\" - do not change this text!")
-
-    def test_show_help_text_as_tooltip(self):
-        context = help.show_help_text("This 'help context' is used by \"automated unit tests\" - do not change this text!")
-        # test help text is:  This 'help context' is used by "automated unit tests" - do not change this text!
-        self.assertTrue(context['tooltip'])
-        self.assertEqual(context['help_text'], "This \\&#39;help context\\&#39; is used by \\&quot;automated unit tests\\&quot; - do not change this text!")
-
-    def test_show_help_text_as_inline(self):
-        context = help.show_help_text("This 'help context' is used by \"automated unit tests\" - do not change this text!", False)
-        # test help text is:  This 'help context' is used by "automated unit tests" - do not change this text!
-        self.assertFalse(context['tooltip'])
-        self.assertEqual(context['help_text'], "This \'help context\' is used by \"automated unit tests\" - do not change this text!")
+        self.assertEqual(context['help_text'], self.TEST_HELP_TEXT)
