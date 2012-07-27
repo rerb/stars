@@ -4,9 +4,6 @@ import sys
 from django.db import DatabaseError
 
 from stars.apps.institutions.models import Institution
-from stars.apps.migrations.utils import create_ss_mirror
-from stars.apps.registration.views import init_submissionset
-from stars.apps.helpers import watchdog
 
 def eval_participant_status(i):
     """
