@@ -63,7 +63,7 @@ def deploy():
     """
     pull()
     config()
-    stop_celery()
+#    stop_celery()
     
     with cd(env.project_path):
         buildout()
