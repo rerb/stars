@@ -4,10 +4,10 @@
 
 <span class='scorecardFieldTitle'>
 	{% if user.is_staff %}
-		<a href="{{ field.get_flag_url }}" class='btn btn-warning btn-mini'>Flag <i class='icon-flag icon-white'></i></a>
+		<a href="{{ field.get_flag_url }}" class='btn btn-warning btn-mini'><i class='icon-flag icon-white'></i></a>
 	{% endif %}
-	{% if field.flags.all %}
-    	{% for f in field.flags.all %}
+	{% if field.flags %}
+    	{% for f in field.flags %}
     		<a 	href="{% if user.is_staff %}{{ f.get_admin_url }}{% else %}#{% endif %}"
 		    	rel="popover"
 		    	id="flag_{{ f.id }}"

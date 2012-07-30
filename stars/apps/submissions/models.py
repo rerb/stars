@@ -8,8 +8,8 @@ from django.contrib.localflavor.us.models import PhoneNumberField
 from django.db.models import Q
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
-from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core import urlresolvers
+from django.core.files.uploadedfile import InMemoryUploadedFile
 
 from stars.apps.credits.models import CreditSet, Category, Subcategory, Credit, DocumentationField, Choice, ApplicabilityReason, Rating
 from stars.apps.institutions.models import Institution, ClimateZone
@@ -41,6 +41,40 @@ def upload_path_callback(instance, filename):
     path = "%s%s" % (path, filename)
     return path
 
+class Flag(models.Model):
+    """
+        A flag that can be added by staff for a submission/credit/field
+    """
+    date = models.DateField(auto_now_add=True)
+    description = models.TextField()
+    content_type = models.ForeignKey(ContentType)
+    object_id = models.PositiveIntegerField()
+    target = generic.GenericForeignKey('content_type', 'object_id')
+    
+    def get_admin_url(self):
+        return urlresolvers.reverse("admin:submissions_flag_change", args=[self.id])
+    
+    def __str__(self):
+        return "%s" % self.target
+
+class FlaggableModel():
+#    flags = generic.GenericRelation(Flag, content_type_field='content_type', object_id_field='object_id')
+    
+    def get_flag_url(self):
+    
+        #return "%s/%d/flag/" % (self.credit_submission.get_scorecard_url(), self.id)
+        link = "%s?content_type=%s&object_id=%d" % (
+                                                        urlresolvers.reverse('admin:submissions_flag_add'),
+                                                        ContentType.objects.get_for_model(self).id,
+                                                        self.id
+                                                    )
+        return link
+    
+    @property
+    def flags(self):
+        type = ContentType.objects.get_for_model(self)
+        return Flag.objects.filter(content_type__pk=type.id, object_id=self.id)
+
 class SubmissionManager(models.Manager):
     """
         Adds some custom query functionality to the SubmissionSet object
@@ -62,7 +96,7 @@ class SubmissionManager(models.Manager):
     def get_snapshots(self, institution):
         return SubmissionSet.objects.filter(institution=institution).filter(is_locked=False).filter(status='f').order_by('-date_submitted')
 
-class SubmissionSet(models.Model):
+class SubmissionSet(models.Model, FlaggableModel):
     """
         A creditset (ex: 1.0) that is being submitted
     """
@@ -870,7 +904,7 @@ CREDIT_SUBMISSION_STATUS_ICONS = {   # used by template tag to create iconic rep
     'na' : ('icon-tag', '-'),
 }
 
-class CreditUserSubmission(CreditSubmission):
+class CreditUserSubmission(CreditSubmission, FlaggableModel):
     """
         An individual submitted credit for an institutions STARS submission set
     """
@@ -1168,32 +1202,14 @@ class ReportingFieldDataCorrection(models.Model):
     object_id = models.PositiveIntegerField()
     reporting_field = generic.GenericForeignKey('content_type', 'object_id')
     explanation = models.TextField(blank=True, null=True)
-    
-class DocumentationFieldFlag(models.Model):
-    """
-        A flag that can be added by staff for a particular documentation field
-    """
-    date = models.DateField(auto_now_add=True)
-    description = models.TextField()
-    
-    content_type = models.ForeignKey(ContentType)
-    object_id = models.PositiveIntegerField()
-    reporting_field = generic.GenericForeignKey('content_type', 'object_id')
-    
-    def get_admin_url(self):
-        return urlresolvers.reverse("admin:submissions_documentationfieldflag_change", args=[self.id])
-    
-    def __str__(self):
-        return "%s: %s" % (self.reporting_field.get_institution(), self.reporting_field.documentation_field.title)
 
-class DocumentationFieldSubmission(models.Model):
+class DocumentationFieldSubmission(models.Model, FlaggableModel):
     """
         The submitted value for a documentation field (abstract).
     """
     documentation_field = models.ForeignKey(DocumentationField, related_name="%(class)s_set")
     credit_submission = models.ForeignKey(CreditSubmission)
     corrections = generic.GenericRelation(ReportingFieldDataCorrection, content_type_field='content_type', object_id_field='object_id')
-    flags = generic.GenericRelation(DocumentationFieldFlag, content_type_field='content_type', object_id_field='object_id')
 
     class Meta:
         abstract = True
@@ -1275,16 +1291,6 @@ class DocumentationFieldSubmission(models.Model):
 
         ct = ContentType.objects.get_for_model(self)
         return "%s%s/%d/" % (self.credit_submission.get_scorecard_url(), ct.id, self.id)
-    
-    def get_flag_url(self):
-        
-#        return "%s/%d/flag/" % (self.credit_submission.get_scorecard_url(), self.id)
-        link = "%s?content_type=%s&object_id=%d" % (
-                                                        urlresolvers.reverse('admin:submissions_documentationfieldflag_add'),
-                                                        ContentType.objects.get_for_model(self).id,
-                                                        self.id
-                                                    )
-        return link
 
 class AbstractChoiceSubmission(DocumentationFieldSubmission):
     class Meta:
