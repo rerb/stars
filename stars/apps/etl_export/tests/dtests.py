@@ -17,7 +17,6 @@ from stars.apps.etl_export.utils import *
 from stars.apps import etl_export
 
 class TestETL(TestCase):
-#    fixtures = ['etl_tests.json']
 
     def setUp(self):
         pass
@@ -82,8 +81,6 @@ class TestETL(TestCase):
         )
         ss.save()
 
-        i.set_active_submission(ss)
-
         ss2 = submissions.models.SubmissionSet(
          institution = i,
          creditset = cs2,
@@ -96,6 +93,8 @@ class TestETL(TestCase):
         )
         ss2.save()
 
+        i.set_active_submission(ss2)
+
         i_state = institutions.models.InstitutionState(
             institution = i,
             active_submission_set = ss2,
@@ -104,18 +103,13 @@ class TestETL(TestCase):
         i_state.save()
 
         # Confirm is_active is populating properly
-
-        # @BEN - etl_export.models.SubmissionSet has a boolean is_active
-        # attribute, but submissions.models.SubmissionSet doesn't;
-        # delete this bit of the test or compare is_active to a different
-        # value, like is_enabled()?
         etl_ss = etl_export.models.SubmissionSet()
         etl_ss.populate(ss)
         self.assertFalse(etl_ss.is_active)
 
         etl_ss2 = etl_export.models.SubmissionSet()
         etl_ss2.populate(ss2)
-        # self.assertTrue(etl_ss2.is_active)
+        self.assertTrue(etl_ss2.is_active)
 
         etl_a = etl_export.models.Institution()
         etl_a.populate(i)
@@ -128,15 +122,7 @@ class TestETL(TestCase):
 
         self.assertEqual(etl_a.current_rating, 'gold')
 
-        # @BEN - neither Institution in etl_export.models nor
-        # institutions.models has a participant_status attribute;
-        # delete this assertion or compare different attributes?
-        # self.assertEqual(etl_a.participant_status, "Pending Submission")
-
-        # @BEN - etl_export.models.Institution has a registration_date
-        # attribute, but institutions.models.Institution doesn't;
-        # delete this assertion or compare to a different value?
-        # self.assertEqual(etl_a.registration_date, date(2010, 2, 2))
+        self.assertEqual(etl_a.is_participant, i.is_participant)
 
         etl_b = etl_export.models.Institution()
         etl_b.populate(i)
@@ -146,12 +132,6 @@ class TestETL(TestCase):
         ss2.save()
         etl_c = etl_export.models.Institution()
         etl_c.populate(i)
-        # more checking of etl_export.models.Institution.participant_status,
-        # and registration_date, which don't exist:
-        # self.assertEqual(etl_c.participant_status, "Processing Submission")
-        # self.assertEqual(etl_a.participant_status, "Pending Submission")
-        # self.assertEqual(etl_b.registration_date, date(2010, 2, 2))
-        # self.assertTrue(etl_a.etl_has_changed(etl_c))
 
         # Add the first etl_export.models.Institution object
         etl_1 = etl_export.models.Institution()
@@ -164,22 +144,13 @@ class TestETL(TestCase):
         result = etl_1.etl_update(etl_2)
         self.assertFalse(result)
 
-        # @BEN - looks like this bit is checking if changes are
-        # propagated correctly, by changing the status on the SubmisionSet
-        # associated with i, making a new etl_export.Institution from i,
-        # then comparing it to the etl_export.Institution created from
-        # i before the status on the SubmissionSet was changed.  Should
-        # the status of a SubmissionSet be reflected in the etl_export.
-        # Institution?  Doesn't look like it is.
-
-        # ss.status = 'pr'
-        # ss.save()
-
-        # # Update again, but this time with changes
-        # new_etl = etl_export.models.Institution()
-        # new_etl.populate(i)
-        # result = etl_1.etl_update(new_etl)
-        # self.assertTrue(result)
+        # Update again, but this time with changes
+        i.is_participant = not i.is_participant
+        i.save()
+        new_etl = etl_export.models.Institution()
+        new_etl.populate(i)
+        result = etl_1.etl_update(new_etl)
+        self.assertTrue(result)
 
         # Now make sure it deletes an object when it doesn't exist
         etl_to_del = etl_export.models.Institution()
