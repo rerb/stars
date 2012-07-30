@@ -1,6 +1,7 @@
 from django.contrib import admin
 
 from models import *
+#from mixins import Flag
 
 class SubmissionSetAdmin(admin.ModelAdmin):
     list_display = ('creditset', 'institution', 'date_registered', 'date_submitted', 'date_reviewed', 'rating', 'is_locked')
@@ -44,9 +45,9 @@ admin.site.register(ResponsibleParty, ResponsiblePartyAdmin)
 class CreditSubmissionInquiryInline(admin.TabularInline):
     model = CreditSubmissionInquiry
     
-class DocumentationFieldFlagAdmin(admin.ModelAdmin):
-    model = DocumentationFieldFlag
-admin.site.register(DocumentationFieldFlag, DocumentationFieldFlagAdmin)
+class FlagAdmin(admin.ModelAdmin):
+    model = Flag
+admin.site.register(Flag, FlagAdmin)
 
 class SubmissionInquiryAdmin(admin.ModelAdmin):
     list_display = ('date', 'anonymous', 'last_name', 'first_name', 'submissionset')

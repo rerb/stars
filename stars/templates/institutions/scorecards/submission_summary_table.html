@@ -17,6 +17,20 @@
     <tr>
         <td>
             {{ rating }}
+            {% if user.is_staff %}
+				<a href="{{ submissionset.get_flag_url }}" class='btn btn-warning btn-mini'><i class='icon-flag icon-white'></i></a>
+			{% endif %}
+			{% if submissionset.flags %}
+		    	{% for f in submissionset.flags %}
+		    		<a 	href="{% if user.is_staff %}{{ f.get_admin_url }}{% else %}#{% endif %}"
+				    	rel="popover"
+				    	id="flag_{{ f.id }}"
+				    	data-content="{{ f.description }}"
+				    	data-original-title="Flagged Field">
+			    		<i class='icon-flag'> </i></a>
+			    	<script type='text/javascript'>$('#flag_{{ f.id }}').popover();</script>
+		    	{% endfor %}
+		    {% endif %}
         </td>
         <td>
             {% if rating.publish_score %}
