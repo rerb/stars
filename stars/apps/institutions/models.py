@@ -43,7 +43,7 @@ class Institution(models.Model):
     contact_first_name = models.CharField("Liaison First Name", max_length=32)
     contact_middle_name = models.CharField("Liaison Middle Name", max_length=32, blank=True, null=True)
     contact_last_name = models.CharField("Liaison Last Name", max_length=32)
-    contact_title = models.CharField("Liaison Title", max_length=64)
+    contact_title = models.CharField("Liaison Title", max_length=255)
     contact_department = models.CharField("Liaison Department", max_length=64)
     contact_phone = PhoneNumberField("Liaison Phone")
     contact_phone_ext = models.SmallIntegerField("Extension", blank=True, null=True)
