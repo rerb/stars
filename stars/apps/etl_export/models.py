@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.db import models
 from django.contrib.localflavor.us.models import PhoneNumberField
 
@@ -5,10 +7,7 @@ from stars.apps.institutions.models import RATINGS_PER_SUBSCRIPTION
 from stars.apps import submissions
 from stars.apps import institutions
 
-from stars.apps.credits.models import Rating
 from stars.apps.etl_export.mixins import ETLCompareMixin
-
-from datetime import timedelta, datetime
 
 """
     Notes
