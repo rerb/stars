@@ -1,0 +1,67 @@
+{% load humanize %}
+{% load help %}
+{% load aashe_rules_tags %}
+
+<span class='scorecardFieldTitle'>
+	{% if user.is_staff %}
+		<a href="{{ field.get_flag_url }}" class='btn btn-warning btn-mini'>Flag <i class='icon-flag icon-white'></i></a>
+	{% endif %}
+	{% if field.flags.all %}
+    	{% for f in field.flags.all %}
+    		<a 	href="{% if user.is_staff %}{{ f.get_admin_url }}{% else %}#{% endif %}"
+		    	rel="popover"
+		    	id="flag_{{ f.id }}"
+		    	data-content="{{ f.description }}"
+		    	data-original-title="Flagged Field">
+	    		<i class='icon-flag'> </i></a>
+	    	<script type='text/javascript'>$('#flag_{{ f.id }}').popover();</script>
+    	{% endfor %}
+    {% endif %}
+    {{ field.documentation_field.title }}
+    {% if not preview and user_is_inst_admin %}
+	    <a 	href="{{ field.get_correction_url }}"
+	    	rel="popover"
+	    	id="dc_{{ field.id }}"
+	    	data-content="{% get_help_context 'data_correction_popup' %}"
+	    	data-original-title="Data Correction Request">
+	    		<i class='icon-pencil'> </i></a>
+	    <script type='text/javascript'>$('#dc_{{ field.id }}').popover();</script>
+    {% endif %}:
+</span>
+
+{% if not field.is_empty %}
+    <div class='well'
+        {% ifequal field.documentation_field.type 'long_text' %}
+        style='padding: 10px 20px;'>
+        {% else %}
+        >
+        {% endifequal %}
+        {% block formatting_include %}{% include 'institutions/scorecards/field_formatting.html' %}{% endblock %}
+    </div>
+    
+    {% if field.corrections.all %}
+    	{% for c in field.corrections.all %}
+    
+		    <div class='correction'>
+		    	<img src='/media/static/images/expand_big.gif' alt='+' onclick='expandCollapse(this,false);' id='correction_{{ c.id }}' class='collapseExpand' style='vertical-align: text-bottom;'/>
+		    	<span style="color: #000">Data Corrected: {{ c.change_date }}</span>
+		    	<br/>
+		    	<div style='{% block correction_display %}display: none;{% endblock %}font-size: .8em;margin: 10px 20px;' id='correction_{{ c.id }}_target'>
+		    		<p>{{ institution }} requested that AASHE Staff correct a mistake in this reporting field for the reason specified below.</p>
+		    		<span style='color: #000; font-weight: bold;'>Previous Value:</span>
+		    		{{ c.previous_value }}
+		    		{% if c.explanation %}
+		    			<br/><br/>
+		    			<span style='color: #000; font-weight: bold;'>Explanation:</span>
+		  				{{ c.explanation }}
+		    		{% endif %}
+		    	</div>
+		    </div>
+    	{% endfor %}
+    {% endif %}
+{% else %}
+    <div class='well'>
+        <span class='green'>---</span>
+    </div>
+{% endif %}
+<br/>
