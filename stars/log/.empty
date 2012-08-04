@@ -1,0 +1,6 @@
+This file is only a placeholder in the stars/log subdirectory.  Log
+files are going into stars/log, and it needs to exist before STARS
+starts; adding it into the repository ensures it will be there.  Since
+Mercurial tracks files, not directories, we can't add an empty
+subdirectory to the repository.  So we add this file to the
+subdirectory, then add it to the repository.
