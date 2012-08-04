@@ -13,7 +13,7 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 
 from stars.apps.credits.models import CreditSet, Category, Subcategory, Credit, DocumentationField, Choice, ApplicabilityReason, Rating
 from stars.apps.institutions.models import Institution, ClimateZone
-from stars.apps.helpers import watchdog, flashMessage, managers
+from stars.apps.helpers import flashMessage, managers, logger
 from stars.apps.submissions.pdf.export import build_report_pdf
 from stars.apps.notifications.models import EmailTemplate
 
@@ -33,6 +33,8 @@ EXTENSION_PERIOD = timedelta(days=366/2)
 # Institutions that registered before May 29th, but haven't paid are still published
 REGISTRATION_PUBLISH_DEADLINE = date(2010, 5, 29)
 
+logger = logger.getLogger(__name__)
+
 def upload_path_callback(instance, filename):
     """
         Dynamically alters the upload path based on the instance
@@ -50,18 +52,18 @@ class Flag(models.Model):
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
     target = generic.GenericForeignKey('content_type', 'object_id')
-    
+
     def get_admin_url(self):
         return urlresolvers.reverse("admin:submissions_flag_change", args=[self.id])
-    
+
     def __str__(self):
         return "%s" % self.target
 
 class FlaggableModel():
 #    flags = generic.GenericRelation(Flag, content_type_field='content_type', object_id_field='object_id')
-    
+
     def get_flag_url(self):
-    
+
         #return "%s/%d/flag/" % (self.credit_submission.get_scorecard_url(), self.id)
         link = "%s?content_type=%s&object_id=%d" % (
                                                         urlresolvers.reverse('admin:submissions_flag_add'),
@@ -69,7 +71,7 @@ class FlaggableModel():
                                                         self.id
                                                     )
         return link
-    
+
     @property
     def flags(self):
         type = ContentType.objects.get_for_model(self)
@@ -219,7 +221,9 @@ class SubmissionSet(models.Model, FlaggableModel):
         """
             Return the total STARS score for this submission
             Relies on the scoring method defined by the CreditSet model.
-             - define version-specific scoring methods below, and add to SCORING_METHOD_CHOICES in CreditSet model.
+
+             - define version-specific scoring methods below, and add
+               to SCORING_METHOD_CHOICES in CreditSet model.
         """
         if self.status == 'r' and self.score:
             return self.score
@@ -232,7 +236,10 @@ class SubmissionSet(models.Model, FlaggableModel):
                 self.save()
             return score()
         else:
-            watchdog.log("Submissions", "No method (%s) defined to score submission %s"%(scoring_method, self.creditset.version), watchdog.ERROR)
+            logger.error(
+                "No method (%s) defined to score submission %s" %
+                (scoring_method, self.creditset.version),
+                {'who': 'Submissions'})
             return 0
 
     def get_STARS_v1_0_score(self):
@@ -525,7 +532,10 @@ class CategorySubmission(models.Model):
                 self.save()
             return score()
         else:
-            watchdog.log("Submissions", "No method (%s) defined to score category submission %s"%(scoring_method, self.submissionset.creditset.version), watchdog.ERROR)
+            logger.error(
+                "No method (%s) defined to score category submission %s" %
+                (scoring_method, self.submissionset.creditset.version),
+                {'who': 'Submissions'})
             return 0
 
     def get_STARS_v1_0_score(self):
@@ -846,34 +856,43 @@ class CreditSubmission(models.Model):
         """
             Convert points to numeric and round to the correct # decimals
             Returns (points, error) where
-                - points = rounded numeric point value (or 0 if an error occurred)
-                - error = error message  or None if conversion was successful
+
+                - points = rounded numeric point value (or 0 if an
+                  error occurred)
+
+                - error = error message or None if conversion was successful
         """
         try: # Ensure that the result of the formula was a valid points value!
             points = float(points)
-            return (round(points,2), None)
+            return (round(points, 2), None)
         except Exception, e:
             if log_error:
-                watchdog.log("Submission", "Error converting formula result (%s) to numeric type : %s"%(points.__str__(),e), watchdog.ERROR)
-            return (0, "Non-numeric result calculated for points: %s"%points)
+                logger.error(
+                    "Error converting formula result (%s) to numeric type: %s" %
+                    (points.__str__(),e), {'who': 'Submission'})
+            return (0, "Non-numeric result calculated for points: %s" % points)
 
     def validate_points(self, points, log_error=True):
         """
              Helper: Validate the points calculated for this submission
              Returns (points, messages), where points are the validated points
-               - message is a list of error messages associated with any validation errors,
-                  which is empty if the the points validated.
+
+             - message is a list of error messages associated with any
+               validation errors, which is empty if the the points
+               validated.
         """
         messages = []
 
-        points, numeric_error = self.round_points(points, log_error)      # is it numeric
+        # is it numeric?
+        points, numeric_error = self.round_points(points, log_error)
         if numeric_error:
             messages.append(numeric_error)
 
-        if points<0 or points>self.credit.point_value:  # is it in range?
-            range_error = ( "Points (%s) are out of range (0 - %s)."%(points.__str__(), self.credit.point_value) )
+        if points < 0 or points > self.credit.point_value:  # is it in range?
+            range_error = ("Points (%s) are out of range (0 - %s)." %
+                           (points.__str__(), self.credit.point_value))
             if log_error:
-                watchdog.log("Submission", range_error, watchdog.ERROR)
+                logger.error(range_error, {'who': 'Submission'})
             messages.append(range_error)
             points = 0
 
@@ -1351,7 +1370,10 @@ class AbstractChoiceWithOther(object):
 
 
 class ChoiceWithOtherSubmission(ChoiceSubmission, AbstractChoiceWithOther):
-    """ A proxy model (does not create a new table) for a Choice Submission with an 'other' choice """
+    """
+        A proxy model (does not create a new table) for a Choice
+        Submission with an 'other' choice
+    """
     class Meta:
         proxy = True
 
@@ -1359,32 +1381,49 @@ class ChoiceWithOtherSubmission(ChoiceSubmission, AbstractChoiceWithOther):
         """
             Given a single value (the pk for a Choice object),
             return a list of the form: [choiceId, otherValue], where
-             - choiceId is the id of the selection choice and otherValue is the the text value of
-               the choice, if it is a non-bonafide (other) choice.
-            This is really the decompress logic for a ChoiceWithOtherSelectWidget (MutliWidget),
-              but needs to do "model"-type stuff, so it is passed to the widget via the form.
+
+             - choiceId is the id of the selection choice and
+               otherValue is the the text value of the choice, if it
+               is a non-bonafide (other) choice.
+
+            This is really the decompress logic for a
+            ChoiceWithOtherSelectWidget (MutliWidget), but needs to do
+            "model"-type stuff, so it is passed to the widget via the
+            form.
         """
         if not value:
             return [None, None]
-        # The choice must be in the DB - this algorithm is not foolproof - could use a little more thought.
+        # The choice must be in the DB - this algorithm is not
+        # foolproof - could use a little more thought.
         try:
             choice = Choice.objects.get(id=value)
         except:
-            watchdog.log("Submissions", "Attempt to decompress non-existing Choice (id=%s)"%value, watchdog.ERROR)
+            logger.error("Attempt to decompress non-existing Choice (id=%s)" %
+                         value, {'who': 'Submissions'})
             return [None, None]
         if choice.is_bonafide:  # A bonafide choice is one of the actual choices
             return [value, None]
-        else:                   # whereas non-bonafide choices represent an 'other' choice.
-            # value is not one of the bonafide choices - try to find it in the DB.
-            # The selection is the last choice, and the Choice text is the 'other' field.
+        else:                   # whereas non-bonafide choices
+                                #represent an 'other' choice.
+
+            # value is not one of the bonafide choices - try to find
+            # it in the DB.  The selection is the last choice, and the
+            # Choice text is the 'other' field.
             return [self.get_last_choice().pk, choice.choice ]
 
     def compress(self, choice, other_value):
         """
-            Given a decompressed choice / other value pair into a single Choice value
-            Return a single Choice representing the selection, or None.
-            Assumes choice is a Choice and other_value has been properly sanatized!
-            See decompress() above, except compress is peformed during clean() in ModelChoiceWithOtherField
+            Given a decompressed choice / other value pair into a
+            single Choice value
+
+            Return a single Choice representing the selection, or
+            None.
+
+            Assumes choice is a Choice and other_value has been
+            properly sanatized!
+
+            See decompress() above, except compress is peformed during
+            clean() in ModelChoiceWithOtherField
         """
         # Warn the user about potentially lost data
         last_choice = self.get_last_choice()
@@ -1420,27 +1459,40 @@ class MultiChoiceWithOtherSubmission(MultiChoiceSubmission, AbstractChoiceWithOt
 
     def decompress(self, value):
         """
-            Given a list of values (list of pk for  Choice objects),
-            return a list of the form: [[choiceId1, choiceId2], otherValue], where
-             - choiceId's are the id's of the selected choices and otherValue is the the text value of
-               the choice, if it is a non-bonafide (other) choice.
-            This is really the decompress logic for a SelectMultipleWithOtherWidget (MutliWidget),
-              but needs to do "model"-type stuff, so it is passed to the widget via the form.
+            Given a list of values (list of pk for Choice objects),
+            return a list of the form: [[choiceId1, choiceId2],
+            otherValue], where
+
+             - choiceId's are the id's of the selected choices and
+               otherValue is the the text value of the choice, if it
+               is a non-bonafide (other) choice.
+
+            This is really the decompress logic for a
+            SelectMultipleWithOtherWidget (MutliWidget), but needs to
+            do "model"-type stuff, so it is passed to the widget via
+            the form.
         """
         if not value:
             return [[], None]
-        # The choice must be in the DB - this algorithm is not foolproof - could use a little more thought.
+        # The choice must be in the DB - this algorithm is not
+        # foolproof - could use a little more thought.
         choice_list=[]
         other = None
         for choice_id in value:
             try:
                 choice = Choice.objects.get(id=choice_id)
             except:
-                watchdog.log("Submissions", "Attempt to decompress non-existing Choice (id=%s)"%choice_id, watchdog.ERROR)
+                logger.error(
+                    "Attempt to decompress non-existing Choice (id=%s)" %
+                    choice_id, {'who': 'Submissions'})
                 return [[], None]
-            if not choice.is_bonafide:  # An 'other'  choice replace the choice with the last choice.
+            if not choice.is_bonafide:  # An 'other' choice replace
+                                        # the choice with the last
+                                        # choice.
                 if other:
-                    watchdog.log("Submissions", "Found multiple 'other' choices (%s and %s) associated with single MultiChoiceWithOtherSubmission (id=%s)"%other, choice.choice, self_id, watchdog.ERROR)
+                    logger.error("Found multiple 'other' choices (%s and %s) associated with single MultiChoiceWithOtherSubmission (id=%s)" %
+                                 (other, choice.choice, self.id),
+                                 {'who': 'Submissions'})
                 else:
                     choice_id = self.get_last_choice().pk
                     other = choice.choice

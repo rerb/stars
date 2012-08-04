@@ -10,9 +10,11 @@ from django.template import RequestContext
 
 from stars.apps.institutions.models import Institution
 from stars.apps.accounts.utils import change_institution
-from stars.apps.helpers import watchdog
+from stars.apps.helpers import logger
 from stars.apps.accounts.forms import LoginForm, TOSForm
 from stars.apps.accounts.utils import respond
+
+logger = logger.getLogger(__name__)
 
 @never_cache
 def login(request, redirect_field_name=REDIRECT_FIELD_NAME):
@@ -60,33 +62,33 @@ def select_school(request, institution_id):
         try:
             institution = Institution.objects.get(id=institution_id)
         except Institution.DoesNotExist:
-            watchdog.log('Auth', "Attempt to select non-existent institution id= %s"%institution_id, watchdog.NOTICE)
-              
+            logger.info("Attempt to select non-existent institution id = %s" %
+                        institution_id, {'who': 'Auth'})
         if change_institution(request, institution):
             return HttpResponseRedirect(settings.DASHBOARD_URL)
         else:
             raise PermissionDenied("Your request could not be completed.")
     else:
         return HttpResponseRedirect(settings.LOGIN_URL)
-    
+
 
 def terms_of_service(request):
     """
         Provide a form where a user can agree to the terms of service
     """
-    
+
     if not request.user.account:
-        watchdog.log('TOC', "User passed to TOS w/out StarsAccount: uid", watchdog.ERROR)
+        logger.error("User passed to TOS w/out StarsAccount: uid",
+                     {'who': 'TOC'})
         return HttpResponseRedirect("/")
-    
+
     next = request.REQUEST.get('next', '/')
-    
+
     form = TOSForm(instance=request.user.account)
     if request.method == "POST":
         form = TOSForm(request.POST, instance=request.user.account)
         if form.is_valid():
             form.save()
             return HttpResponseRedirect(next)
-    
+
     return respond(request, "auth/tos_agree.html", {'form': form, 'next': next,})
-    

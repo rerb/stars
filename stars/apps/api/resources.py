@@ -5,6 +5,7 @@ from tastypie.serializers import Serializer
 
 from django.conf import settings # When settings API_TEST_MODE is True, authentication is turned off.
 
+
 class JSONForHTMLSerializer(Serializer):
     """
         Serializer that returns JSON when asked for HTML.  Removes
@@ -27,3 +28,6 @@ class StarsApiResource(ModelResource):
             authentication = ApiKeyAuthentication()
         authorization = ReadOnlyAuthorization()
         serializer = JSONForHTMLSerializer()
+
+    def __init__(self, *args, **kwargs):
+        super(StarsApiResource, self).__init__(*args, **kwargs)

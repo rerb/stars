@@ -4,7 +4,6 @@ from django.shortcuts import render_to_response
 
 from stars.apps.helpers.shortcuts import render_to_any_response
 from stars.apps.helpers import exceptions
-from stars.apps.tool.admin.watchdog.models import WatchdogEntry
 
 import sys
 
@@ -17,50 +16,47 @@ class TemplateView(object):
 
     def __call__(self, request, *args, **kwargs):
         """ Simply calls render """
-        
+
         return self.render(request, *args, **kwargs)
 
     def render(self, request, *args, **kwargs):
         """ Renders the response """
-        
+
         context = self.get_context(request, *args, **kwargs)
         if context.__class__.__name__ == "HttpResponseRedirect":
             return context
-        
+
         return render_to_response(self.template,
                                   context,
                                   context_instance=RequestContext(request))
-        
+
     def get_context(self, request, *args, **kwargs):
         """ Add/update any context variables """
         _context = {}
         return _context
 
 def server_error(request):
+    """Before watchdog was dragged out and shot, the context below was
+    filled with info from any exception available via WatchdogEntry.  Not
+    much going on here anymore.
+    """
     context = {}
-    
-    if (WatchdogEntry.exception):
-        if ( isinstance(WatchdogEntry.exception, exceptions.StarsException) ) :
-            user_message = WatchdogEntry.exception.user_message
-        else:
-            user_message = ""
-        context = { "user_message":user_message, 
-                    "db_error": (isinstance(WatchdogEntry.exception, exceptions.DbAccessException)), 
-                    "rpc_error":(isinstance(WatchdogEntry.exception, exceptions.RpcException)), 
-                  } 
-        
-    return render_to_any_response(HttpResponseServerError, "500.html", context, context_instance=RequestContext(request))
+
+    return render_to_any_response(HttpResponseServerError,
+                                  "500.html",
+                                  context,
+                                  context_instance=RequestContext(request))
 
 def forbidden(request, user_message):
-    """ 
-        Permission Denied is handled by custom middleware and re-directed here 
+    """
+        Permission Denied is handled by custom middleware and re-directed here
         Django has no native handler for 403, yet... see: http://code.djangoproject.com/ticket/5515
-    """ 
+    """
     return render_to_any_response(HttpResponseForbidden, "403.html", {"user_message":user_message}, context_instance=RequestContext(request))
 
 # THE VIEWS BELOW ARE FOR TESTING / DEBUG / DATA MIGRATION AND SHOULD NOT NORMALLY BE INCLUDED IN URLS
 def migrate_doc_field_required(request):
-    """ Migrate data from the is_required  boolean field to the required choice field 
+    """ Migrate data from the is_required  boolean field to the required choice field
         Run this script when upgrading from rev. 526 or earlier to rev. 528 or later
          - be sure both is_required and required fields are defined in DocumentationField model
          - be sure the is_required() method in DocumentationField model is NOT defined (comment it out)
@@ -73,7 +69,7 @@ def migrate_doc_field_required(request):
     from django.http import HttpResponseRedirect
     from stars.apps.credits.models import DocumentationField
     from stars.apps.helpers import flashMessage
-    
+
     fields = DocumentationField.objects.all()
     count = 0
     for field in fields:
@@ -83,7 +79,7 @@ def migrate_doc_field_required(request):
             field.required = 'opt'
         field.save()
         count +=1
-        
+
     flashMessage.send("Data successfully migrated %s fields from is_required to required field - drop is_required from DB."%count, flashMessage.SUCCESS)
     return HttpResponseRedirect(settings.DASHBOARD_URL)
 

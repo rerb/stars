@@ -12,7 +12,7 @@ from django.utils.decorators import method_decorator
 from stars.apps.accounts.utils import respond
 from stars.apps.accounts import utils as auth_utils
 from stars.apps.accounts.decorators import user_is_staff
-from stars.apps.helpers import watchdog, flashMessage
+from stars.apps.helpers import logger, flashMessage
 from stars.apps.helpers.forms import form_helpers
 from stars.apps.helpers.forms.forms import Confirm as ConfirmForm
 from stars.apps.institutions.models import Institution, Subscription, SubscriptionPayment
@@ -22,6 +22,8 @@ from stars.apps.submissions.models import SubmissionSet
 from stars.apps.tool.admin.forms import PaymentForm
 from stars.apps.helpers.forms.views import FormActionView
 from stars.apps.third_parties.models import ThirdParty
+
+logger = logger.getLogger(__name__)
 
 @user_is_staff
 def institutions_search(request):
@@ -35,12 +37,12 @@ def institutions_search(request):
 #    """
 #        A list of latest submissionsets for ALL registered institutions currently participating in STARS.
 #    """
-#    
+#
 #    institution_list = Institution.objects.order_by('name')
 #
 #    template = "tool/admin/institutions/institution_list.html"
 #    return respond(request, template, {'institution_list': institution_list,})
-    
+
 @user_is_staff
 def select_institution(request, id):
     """
@@ -49,9 +51,9 @@ def select_institution(request, id):
     institution = Institution.objects.get(id=id)
     if not institution:
         raise Http404("No such institution.")
-    
-    if auth_utils.change_institution(request, institution):  
-        redirect_url = request.GET.get('redirect', settings.MANAGE_INSTITUTION_URL) 
+
+    if auth_utils.change_institution(request, institution):
+        redirect_url = request.GET.get('redirect', settings.MANAGE_INSTITUTION_URL)
         response = HttpResponseRedirect(redirect_url)
         # special hack to "remember" current institution for staff between sessions
         #  - can't store it in session because it gets overwritten on login, can's store it with account b/c staff don't have accounts.
@@ -72,9 +74,9 @@ def latest_payments(request):
     # SELECT payment, submissionset__institution FROM Payment GROUP BY submissionset__institution__id  HAVING  payment.date = MAX(payment.date)
     # But I can't figure out how to get Django to do this in single query - closest I can come is:
     #    institutions = Institution.objects.annotate(latest_payment=Max('submissionset__payment__date'))
-    #  but that annotates each institution with the latest payment DATE - not the Payment object :-(  So... 
+    #  but that annotates each institution with the latest payment DATE - not the Payment object :-(  So...
     # - First a query to get the id's for latest payment for each institution
-    # - Then a query to get the actual objects - seems like there must be a direct way here....  
+    # - Then a query to get the actual objects - seems like there must be a direct way here....
     from django.db.models import Max
 #    payment_ids = Payment.objects.values('submissionset__institution').annotate(latest_payment=Max('date')).values('id')
     payments = Payment.objects.all().order_by('-date').select_related('submissionset', 'submissionset__institution')
@@ -88,22 +90,22 @@ def overview_report(request):
     """
         Provide a quick summary report
     """
-    
+
     context = {
                 "current_participants": Institution.objects.filter(is_participant=True).count(),
                 "current_respondents": Institution.objects.filter(is_participant=False).count(),
                }
-    
+
     count = 0
     for i in Institution.objects.all():
         if i.subscription_set.count() == 0:
             count += 1
-            
+
     context["registered_respondents"] = count
     context['third_party_list'] = ThirdParty.objects.all()
-    
+
     context['snapshot_count'] = SubmissionSet.objects.filter(status='f').count()
-    
+
     c = 0
     for i in Institution.objects.all():
         if i.submissionset_set.filter(status='f').count() > 0:
@@ -111,25 +113,25 @@ def overview_report(request):
     context['institutions_with_snapshots'] = c
 
     template = "tool/admin/reports/quick_overview.html"
-    
+
     return respond(request, template, context)
 
 
 class InstitutionList(SortableTableView):
     """
         A quick report on registration for Jillian
-        
-        
+
+
         Institution Name
         Reg date
         Renewal Date
         Submission date
     """
-    
+
     @method_decorator(user_is_staff)
     def render(self, request, *args, **kwargs):
         return super(InstitutionList, self).render(request, *args, **kwargs)
-    
+
     default_key = 'name'
     default_rev = '-'
     secondary_order_field = 'name'
@@ -170,10 +172,10 @@ class InstitutionList(SortableTableView):
                         'title':'Subscription',
                     },
               ]
-              
+
     def get_queryset(self):
         return Institution.objects.annotate(reg_date=Min('subscription__start_date')).select_related()
-    
+
 institutions_list = InstitutionList(template="tool/admin/institutions/institution_list.html")
 
 @user_is_staff
@@ -182,7 +184,7 @@ def institution_payments(request, institution_id):
         Display a detailed list of payments made by the institution
     """
     institution = get_object_or_404(Institution, id=institution_id)
-    
+
     payment_list = Payment.objects.filter(submissionset__institution=institution).order_by('-date')
 
     # Build the form for adding a new payment for staff, if there is active submission
@@ -195,15 +197,15 @@ def institution_payments(request, institution_id):
     else:
         new_payment_form = None
         new_payment_url = None
-        
+
     context = {'institution': institution,
-               'payment_list': payment_list, 
+               'payment_list': payment_list,
                'active_submission':active_submission,
                'new_payment_url':new_payment_url,
                'new_payment_form':new_payment_form,
               }
     return respond(request, 'tool/admin/payments/detail_list.html', context)
-    
+
 
 @user_is_staff
 def add_subscriptionpayment(request, institution_id, subscription_id):
@@ -213,7 +215,7 @@ def add_subscriptionpayment(request, institution_id, subscription_id):
     institution = get_object_or_404(Institution, id=institution_id)
     subscription = get_object_or_404(Subscription, institution__id=institution_id, id=subscription_id)
     payment = SubscriptionPayment(subscription=subscription, user=request.user, date=datetime.today(), amount=subscription.amount_due)
-        
+
     # Build and process the form for adding the payment...
     (payment_form,saved) = form_helpers.basic_save_form(request, payment, 'new_payment', PaymentForm)
     if saved:
@@ -225,7 +227,7 @@ def add_subscriptionpayment(request, institution_id, subscription_id):
         else:
             subscription.amount_due -= payment.amount
             subscription.save()
-            
+
         return HttpResponseRedirect("/tool/manage/payments/")
 
     payment_form.add_user(request.user)
@@ -241,7 +243,7 @@ def edit_subscriptionpayment(request, institution_id, payment_id):
     institution = get_object_or_404(Institution, id=institution_id)
     payment = get_object_or_404(SubscriptionPayment, subscription__institution__id=institution_id, id=payment_id)
     old_amount = payment.amount
-        
+
     # Build and process the form for adding or modifying the payment...
     (payment_form,saved) = form_helpers.basic_save_form(request, payment, 'payment', PaymentForm)
     if saved:
@@ -251,16 +253,16 @@ def edit_subscriptionpayment(request, institution_id, payment_id):
 
     context = {'payment': payment, 'object_form':payment_form, 'title':'Edit Payment Details', 'institution': institution}
     return respond(request, 'tool/manage/payment_edit.html', context)
-    
+
 @user_is_staff
 def send_receipt(request, payment_id):
     """
         Tool allowing staff to send receipts for payments to the STARS Liaison
     """
     payment = get_object_or_404(Payment, id=payment_id)
-    
+
 class PaymentReceiptView(FormActionView):
-    
+
     def get_success_action(self, request, context, form):
 
         send_mail(  context['subject'],
@@ -271,17 +273,17 @@ class PaymentReceiptView(FormActionView):
                     )
 
         return render_to_response("tool/admin/payments/receipt_confirm.html", RequestContext(request, context))
-    
+
     def get_extra_context(self, request, *args, **kwargs):
         """ Extend this method to add any additional items to the context """
-        
+
         print >> sys.stderr, "my_kwargs: %s" % kwargs
-        
+
         payment = get_object_or_404(Payment, id=kwargs['payment_id'])
         t = loader.get_template('tool/admin/payments/receipt.txt')
         message = t.render(Context({'payment': payment, 'today': date.today()}))
         subject = "STARS Payment Receipt"
-        
+
         return {'payment': payment, 'message': message, 'subject': subject}
 
 send_receipt = PaymentReceiptView("tool/admin/payments/receipt.html", ConfirmForm, has_upload=True, form_name='object_form',)
@@ -292,10 +294,11 @@ def delete_payment(request, payment_id):
         Confirmation for deleting a Payment
     """
     payment = get_object_or_404(Payment, id=payment_id)
-    
-    (form, deleted) = form_helpers.confirm_delete_form(request, payment)       
+
+    (form, deleted) = form_helpers.confirm_delete_form(request, payment)
     if deleted:
-        watchdog.log('Inst. Admin', "Payment: %s deleted."%payment, watchdog.NOTICE)
+        logger.info("Payment: %s deleted." % payment,
+                    {'who': 'Inst. Admin'})
         return HttpResponseRedirect(payment.get_admin_url())
-    
+
     return respond(request, 'tool/admin/payments/delete.html', {'payment':payment, 'confirm_form': form})

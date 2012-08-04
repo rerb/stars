@@ -1,10 +1,12 @@
 """
     Celery tasks
 """
+import sys
+
 from stars.apps.submissions.pdf.export import build_certificate_pdf
 from stars.apps.migrations.utils import migrate_ss_version, migrate_submission, create_ss_mirror
 from stars.apps.notifications.models import EmailTemplate
-from stars.apps.helpers import watchdog
+from stars.apps.helpers import logger
 from stars.apps.credits.models import CreditSet
 from stars.apps.submissions.api import SummaryPieChart, CategoryPieChart, SubategoryPieChart
 
@@ -14,7 +16,7 @@ from django.core.cache import cache
 
 from celery.decorators import task
 
-import sys
+logger = logger.getLogger(__name__)
 
 @task()
 def hello_world():
@@ -23,7 +25,7 @@ def hello_world():
 
 @task()
 def send_certificate_pdf(ss):
-    
+
     pdf = build_certificate_pdf(ss)
 
     et = EmailTemplate.objects.get(slug='certificate_to_marnie')
@@ -33,7 +35,7 @@ def send_certificate_pdf(ss):
                     context=email_context,
                     attachments=((ss.institution.slug, pdf.getvalue(), 'application/pdf'),),
                     title="New Certificate: %s" % ss)
-    
+
 @task()
 def perform_migration(old_ss, new_cs, user):
     """
@@ -41,20 +43,21 @@ def perform_migration(old_ss, new_cs, user):
         email the Liaison, copying the user
         (if the emails are different)
     """
-    
+
     new_ss = migrate_ss_version(old_ss, new_cs)
-    
+
     email_to = [old_ss.institution.contact_email]
     if user.email not in email_to:
         email_to.append(user.email)
-        
+
     try:
         et = EmailTemplate.objects.get(slug='migration_success')
         email_context = {"old_ss": old_ss, "new_ss": new_ss}
         et.send_email(email_to, email_context)
-        
+
     except EmailTemplate.DoesNotExist:
-        watchdog.log('perform_migration', 'Migration email template missing', watchdog.ERROR)
+        logger.error('Migration email template missing',
+                     {'who': 'perform_migration'})
 
 @task()
 def perform_data_migration(old_ss, user):
@@ -64,10 +67,10 @@ def perform_data_migration(old_ss, user):
     new_ss = create_ss_mirror(old_ss, registering_user=user)
     new_ss.is_locked = False
     new_ss.save()
-    
+
     old_ss.institution.current_submission = new_ss
     old_ss.institution.save()
-    
+
 
 @task()
 def migrate_purchased_submission(old_ss, new_ss):
@@ -78,13 +81,13 @@ def migrate_purchased_submission(old_ss, new_ss):
     new_ss.is_visible = False
     new_ss.is_locked = True
     new_ss.save()
-    
+
     migrate_submission(old_ss, new_ss)
-    
+
     new_ss.is_visible = True
     new_ss.is_locked = False
     new_ss.save()
-    
+
 @task()
 def rollover_submission(old_ss):
     new_ss = create_ss_mirror(old_ss)
@@ -93,31 +96,31 @@ def rollover_submission(old_ss):
     new_ss.save()
     new_ss.institution.current_submission = new_ss
     new_ss.institution.save()
-    
+
 
 def update_pie_api_cache():
     """
         Clear each endpoint's cache and then re-fetch it
     """
     cs = CreditSet.objects.get_latest()
-    
+
     from tastypie.api import Api
-    
+
     v1_api = Api(api_name='v1')
     v1_api.register(SummaryPieChart())
     v1_api.register(CategoryPieChart())
     v1_api.register(SubategoryPieChart())
-    
+
     summary_view = SummaryPieChart()
     cat_view = CategoryPieChart()
     s_view = SubategoryPieChart()
-    
+
     key = "v1:summary-pie-chart:detail:"
     print key
     cache.delete(key)
-    
+
     summary = summary_view.obj_get_list()
-    
+
     # summary
     for cat in cs.category_set.filter(include_in_score=True):
         print cat
@@ -127,7 +130,7 @@ def update_pie_api_cache():
         print c_key
         cache.delete(c_key)
         cat_view.obj_get(**kwargs)
-        
+
         for sub in cat.subcategory_set.all():
             print sub
             kwargs = {"pk": sub.id}
@@ -135,5 +138,5 @@ def update_pie_api_cache():
 #            s_key = "v1:subcategory-pie-chart:detail:pk=%d" % sub.id
             print s_key
             cache.delete(s_key)
-            
+
             s_view.obj_get(**kwargs)
