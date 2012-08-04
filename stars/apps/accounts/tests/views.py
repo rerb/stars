@@ -1,29 +1,36 @@
-"""Tests for stars.apps.tool.manage.views.
+"""Tests for stars.apps.accounts.views.
 """
 from unittest import TestCase
 
-# from django.contrib.auth.models import User
+from django.contrib.auth.models import User
 import testfixtures
 
-# from dummy_request import DummyRequest
-# from stars.apps.institutions.models import Institution
+from dummy_request import DummyRequest
+from stars.apps.institutions.models import Institution
 from stars.apps.accounts import views
-
-def mock_user_is_inst_admin(func, *args, **kwargs):
-    return func(*args, **kwargs)
 
 
 class ViewsTest(TestCase):
 
-    def test_delete_account_logging(self):
-        """Does delete_account log a message when an account is deleted?
+    def setUp(self):
+        user = User()
+        user.account_list = ["account",]
+        user.current_inst = Institution(name='Fake Institution',
+                                        aashe_id='-2',
+                                        enabled=True)
+        self.request = DummyRequest(user)
+
+    def test_select_school_logging(self):
+        """Does select_school log a message error when there's no institution
+        for the id provided?
         """
         with testfixtures.LogCapture('stars') as log:
             with testfixtures.Replacer() as r:
                 r.replace(
-                    'stars.apps.tool.manage.views.user_is_inst_admin',
-                    mock_user_is_inst_admin)
-
+                    'django.contrib.auth.models.AnonymousUser.is_authenticated',
+                    lambda x: True)
+                r.replace('stars.apps.accounts.views.change_institution',
+                          lambda x, y: True)
                 views.select_school(self.request, 999999)
 
         self.assertEqual(len(log.records), 1)
@@ -31,3 +38,16 @@ class ViewsTest(TestCase):
             self.assertEqual(record.levelname, 'INFO')
             self.assertTrue(record.module_path.startswith('stars'))
             self.assertTrue('non-existent institution' in record.msg)
+
+    def test_terms_of_service_logging(self):
+        """Does terms_of_service log an error if there's no request.user.account?
+        """
+        with testfixtures.LogCapture('stars') as log:
+            self.request.user.account = None
+            views.terms_of_service(self.request)
+
+        self.assertEqual(len(log.records), 1)
+        for record in log.records:
+            self.assertEqual(record.levelname, 'ERROR')
+            self.assertTrue(record.module_path.startswith('stars'))
+            self.assertTrue('w/out StarsAccount: uid' in record.msg)
