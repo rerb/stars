@@ -278,12 +278,12 @@ LOGGING = {
     },
     'handlers': {
         'stars_console': {
-            'level': 'DEBUG',
+            'level': 'INFO',
             'class': 'logging.StreamHandler',
             'formatter': 'verbose'
         },
         'stars_log': {
-            'level': 'DEBUG',
+            'level': 'INFO',
             'class': 'logging.handlers.TimedRotatingFileHandler',
             'when': 'W0',  # one log per week, starting on Monday
             'backupCount': 4,  # keep logs for 4 weeks
@@ -291,7 +291,7 @@ LOGGING = {
             'filename': os.path.join(PROJECT_PATH, 'log', 'stars.log')
         },
         'mail_admins': {
-            'level': 'DEBUG',
+            'level': 'ERROR',
             'class': 'django.utils.log.AdminEmailHandler',
             'include_html': True
         },
@@ -304,7 +304,7 @@ LOGGING = {
             'filename': os.path.join(PROJECT_PATH, 'log', 'stars.tp.log')
         },
         'third_party_console': {
-            'level': 'DEBUG',
+            'level': 'INFO',
             'class': 'logging.StreamHandler',
             'formatter': 'simple'
         },
@@ -312,21 +312,21 @@ LOGGING = {
     'loggers': {
         '': {
             'handlers':['third_party_log', 'third_party_console'],
-            'level':'DEBUG',
+            'level':'WARNING',
         },
         'django': {
             'handlers':['third_party_log', 'third_party_console'],
-            'level':'DEBUG',
+            'level':'WARNING',
             'propagate': False
         },
         'django.request': {
             'handlers': ['mail_admins'],
-            'level': 'DEBUG',
+            'level': 'ERROR',
             'propagate': True,
         },
         'stars': {
             'handlers': ['stars_log', 'stars_console'],
-            'level': 'DEBUG',
+            'level': 'INFO',
             'propagate': False
         },
     }
