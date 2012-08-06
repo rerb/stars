@@ -2,6 +2,7 @@
 """
 from unittest import TestCase
 
+from django.contrib.auth.models import User
 from django.http import HttpRequest
 import testfixtures
 
@@ -79,6 +80,7 @@ class MockRequest(HttpRequest):
         self.path = '/mock/request/bogus/path'
         self.META = {}
         self.environ = {}
+        self.user = User(username='jimmy_smits')
 
 
 class MockRegistrationSchoolChoiceForm(object):
