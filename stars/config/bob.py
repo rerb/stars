@@ -104,16 +104,13 @@ else:
             }
     }
 
-
 DATABASE_ROUTERS = ('aashe.issdjango.router.ISSRouter',)
 
 # Stand alone mode indicates that the server will be running using
 # the django dev server so we will need to serve the static files (see urls.py)
 STANDALONE_MODE = True
 
-INSTALLED_APPS += ('django_nose',
-                   'fixture_magic')
-
+INSTALLED_APPS += ('django_nose',)
 
 if 'TEST_RUNNER' in os.environ: # django_nose.NoseTestSuiteRunner, for example
     if os.environ['TEST_RUNNER']:  # only use it if there's a value set

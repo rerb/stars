@@ -12,14 +12,16 @@ from django.utils.encoding import smart_str, smart_unicode
 
 from stars.apps.institutions.models import * # required for execfile management func
 from stars.apps.cms.models import Category
-from stars.apps.helpers import watchdog
+from stars.apps.helpers import logger
+
+logger = logger.getLogger(__name__)
 
 def render_to_pdf(template_src, context_dict):
     """
         Creates a pdf from a temlate and context
         Returns a StringIO.StringIO object
     """
-    
+
     template = get_template(template_src)
     context = Context(context_dict)
 #    print >> sys.stdout, "Building PDF"
@@ -28,8 +30,8 @@ def render_to_pdf(template_src, context_dict):
 #    print >> sys.stdout, "%s: Finished HTML" % datetime.now()
     result = StringIO.StringIO()
 #    print >> sys.stdout, "RESULT"
-#    print >> sys.stderr, html   
-    
+#    print >> sys.stderr, html
+
     # print >> sys.stdout, "%s: Generating PDF" % datetime.now()
     pdf = pisa.pisaDocument(html, result)
     # print >> sys.stdout, "%s: Finished PDF" % datetime.now()
@@ -39,7 +41,7 @@ def render_to_pdf(template_src, context_dict):
     else:
         msg = "PDF Generation Failed %s" % html
         print >> sys.stderr, msg
-        watchdog.log("PDF Tool", msg, watchdog.ERROR)
+        logger.error(msg, {'who': 'PDF Tool'})
         return None
 
 def link_path_callback(path):
@@ -63,14 +65,14 @@ def build_report_pdf(submission_set):
             }
     if submission_set.status != 'r':
         context['preview'] = True
-    
+
     return render_to_pdf('institutions/pdf/report.html', context)
 
 def build_certificate_pdf(ss):
     """
         Build a PDF certificate for Institution Presidents
     """
-    
+
     context = {
                 'ss': ss,
                 'project_path': settings.PROJECT_PATH,

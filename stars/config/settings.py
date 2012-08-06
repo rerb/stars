@@ -17,7 +17,7 @@ PROJECT_PATH = os.path.join(os.path.dirname(__file__), '..')
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # if True, prevents access by non-staff to any part of the site that is not public.
-HIDE_REPORTING_TOOL = False  
+HIDE_REPORTING_TOOL = False
 # if True, log-out and re-direct all non-staff requests to standard 503 (Temporarily Unavailable) view.
 MAINTENANCE_MODE = False
 # This message will be broadcast to all users on every response - usually used to warn about site maintenance
@@ -79,7 +79,7 @@ if 'test' in sys.argv:
                                'django.contrib.auth.backends.ModelBackend',
                                'stars.apps.accounts.aashe.AASHEAuthBackend',
                                )
-    
+
 DASHBOARD_URL = "/tool/"
 LOGIN_URL = "/accounts/login/"
 LOGOUT_URL = "/accounts/logout/"
@@ -244,11 +244,93 @@ PYTHON_VERSION = None
 m = re.match('[\d\.]+', sys.version)
 if m:
     PYTHON_VERSION = m.group(0)
-    
+
 DJANGO_VERSION = django.get_version()
 HG_REVISION = None
 
 SOUTH_TESTS_MIGRATE = False
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': True,
+
+   # """  STARS Watchdog logged the following {{entry.get_severity_display}}:
+   #      {{entry.get_severity}}: {{ entry.message }}
+   #      Module: {{entry.module}}
+   #      Path: {{entry.request_path}}
+   #      Referer: {{entry.request_referer}}
+   #      Host: {{entry.request_host}}
+   #      User: {{entry.user}}
+   #      Timestamp: {{entry.timestamp.ctime}}
+   #      {% endautoescape %}
+   #  """
+
+    'formatters': {
+        'simple': {
+            'format': '%(levelname)s %(asctime)s "%(message)s"'
+        },
+        'verbose': {
+            'format': ('%(levelname)s %(asctime)s "%(message)s" '
+                       'module:%(module_path)s request_user:%(user)s '
+                       'request_path:%(path)s request_host:%(host)s '
+                       'request_referer:%(referer)s')
+        },
+    },
+    'handlers': {
+        'stars_console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose'
+        },
+        'stars_log': {
+            'level': 'INFO',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'when': 'W0',  # one log per week, starting on Monday
+            'backupCount': 4,  # keep logs for 4 weeks
+            'formatter': 'verbose',
+            'filename': os.path.join(PROJECT_PATH, 'log', 'stars.log')
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler',
+            'include_html': True
+        },
+        'third_party_log': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'when': 'W0',  # one log per week, starting on Monday
+            'backupCount': 4,  # keep logs for 4 weeks
+            'formatter': 'simple',
+            'filename': os.path.join(PROJECT_PATH, 'log', 'stars.tp.log')
+        },
+        'third_party_console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
+    },
+    'loggers': {
+        '': {
+            'handlers':['third_party_log', 'third_party_console'],
+            'level':'WARNING',
+        },
+        'django': {
+            'handlers':['third_party_log', 'third_party_console'],
+            'level':'WARNING',
+            'propagate': False
+        },
+        'django.request': {
+            'handlers': ['mail_admins'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+        'stars': {
+            'handlers': ['stars_log', 'stars_console'],
+            'level': 'INFO',
+            'propagate': False
+        },
+    }
+}
 
 if os.path.exists(os.path.join(os.path.dirname(__file__), 'hg_info.py')):
     from hg_info import revision

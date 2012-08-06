@@ -3,6 +3,8 @@ from utils import TestUtils
 from stars.apps.credits.api.test import CategoryResourceTestCase, \
      CreditSetResourceTestCase, SubcategoryResourceTestCase, \
      CreditResourceTestCase, DocumentationFieldResourceTestCase
+from credit import CreditTest
+from creditset import CreditsetTest
 
 __test__ = {
     'TestIncrementalFeatures': TestIncrementalFeatures,
@@ -12,4 +14,6 @@ __test__ = {
     'SubcategoryResourceTestCase': SubcategoryResourceTestCase,
     'CreditResourceTestCase': CreditResourceTestCase,
     'DocumentationFieldResourceTestCase': DocumentationFieldResourceTestCase,
+    'CreditTest': CreditTest,
+    'CreditsetTest': CreditsetTest
     }

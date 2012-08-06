@@ -3,15 +3,18 @@ from django.db.models.signals import pre_save
 from django.dispatch import receiver
 
 from stars.apps.institutions import Institution, Subscription, SubscriptionPayment
-from stars.apps.helpers import watchdog
+from stars.apps.helpers import logger
+
+logger = logger.getLogger(__name__)
 
 @receiver(post_save, sender=SubscriptionPayment)
 def apply_payment(sender, **kwargs):
     """
-        When a payment is saved, apply the changes to the subscription and institution
-        
-        if it's a new payment then add all the payments up for that subscription and
-        mark paid_in_full if necessary
+        When a payment is saved, apply the changes to the subscription
+        and institution
+
+        if it's a new payment then add all the payments up for that
+        subscription and mark paid_in_full if necessary
     """
     payment = kwargs['instance']
     subscription = payment.subscription
@@ -23,12 +26,13 @@ def apply_payment(sender, **kwargs):
     elif total < subscription.amount_due:
         subscription.paid_in_full = False
     else:
-        watchdog.log("apply_payment", "Payments exceed amount due for %s." % subscription.institution, watchdog.ERROR)
+        logger.error("Payments exceed amount due for %s." %
+                     subscription.institution, {'who': 'apply_payment'})
     subscription.institution.update_status()
 
 """
 Events:
-    
+
     Registration
         - add subscription
         - update status

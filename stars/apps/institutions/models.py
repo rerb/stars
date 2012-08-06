@@ -1,16 +1,19 @@
+from datetime import date
+
 from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.localflavor.us.models import PhoneNumberField
 from django.template.defaultfilters import slugify
 from django.db.models import Max
-
-from stars.apps.helpers import watchdog
-from stars.apps.credits.models import CreditSet, RATING_DURATION
-# from stars.apps.notifications.models import EmailTemplate
 from django.core.mail import send_mail
 
-from datetime import date
+from stars.apps.helpers import logger
+from stars.apps.credits.models import CreditSet, RATING_DURATION
+# from stars.apps.notifications.models import EmailTemplate
+
+logger = logger.getLogger(__name__)
+
 
 class ClimateZone(models.Model):
     """
@@ -18,15 +21,15 @@ class ClimateZone(models.Model):
         zones that are outside of the USDOE climate regions
     """
     name = models.CharField(max_length=32)
-    
+
     def __str__(self):
         return self.name
-    
+
 class InstitutionManager(models.Manager):
     """
         Adds some custom query functionality to the Institution object
     """
-    
+
     def get_rated(self):
         """ All submissionsets that have been rated """
         return Institution.objects.filter(enabled=True).filter(current_rating__isnull=False)
@@ -58,7 +61,7 @@ class Institution(models.Model):
     executive_contact_city = models.CharField(max_length=16, blank=True, null=True)
     executive_contact_state = models.CharField(max_length=2, blank=True, null=True)
     executive_contact_zip = models.CharField(max_length=8, blank=True, null=True)
-    
+
     # Contact information for the president
     president_first_name = models.CharField(max_length=32, blank=True, null=True)
     president_middle_name = models.CharField(max_length=32, blank=True, null=True)
@@ -68,12 +71,12 @@ class Institution(models.Model):
     president_city = models.CharField(max_length=32, blank=True, null=True)
     president_state = models.CharField(max_length=2, blank=True, null=True)
     president_zip = models.CharField(max_length=8, blank=True, null=True)
-    
+
     charter_participant = models.BooleanField()
     stars_staff_notes = models.TextField(blank=True, null=True)
     date_created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     international = models.BooleanField(default=False)
-    
+
     # ISS properties
     name = models.CharField(max_length=255)
     aashe_id = models.IntegerField(unique=True, blank=True, null=True)
@@ -83,7 +86,7 @@ class Institution(models.Model):
     is_member = models.NullBooleanField(default=False)
     is_pilot_participant = models.NullBooleanField(default=False)
     country = models.CharField(max_length=128, blank=True, null=True)
-    
+
     # State properties
     is_participant = models.BooleanField(default=False, help_text="An institution that isn't a participant is simply considered a Survey Respondent")
     current_rating = models.ForeignKey("credits.Rating", blank=True, null=True)
@@ -91,11 +94,11 @@ class Institution(models.Model):
     current_submission = models.ForeignKey("submissions.SubmissionSet", blank=True, null=True, related_name="current")
     current_subscription = models.ForeignKey("Subscription", blank=True, null=True, related_name='current')
     rated_submission = models.ForeignKey("submissions.SubmissionSet", blank=True, null=True, related_name='rated')
-    
+
     def update_status(self):
         """
             Update the status of this institution, based on subscriptions and submissions
-            
+
             NOTE: does not save the institution
         """
         # Update current_rating
@@ -104,9 +107,9 @@ class Institution(models.Model):
             self.rated_submission = None
             self.current_rating = None
             self.rating_expires = None
-        
+
             # @todo should i add an automated email here or put it in notifications?
-                
+
         # Check subscription is current
         if self.current_subscription:
             if self.current_subscription.start_date <= date.today() and self.current_subscription.end_date >= date.today():
@@ -122,10 +125,10 @@ class Institution(models.Model):
                         break
         else:
             self.is_participant = False
-    
+
     def update_from_iss(self):
         "Method to update properties from the parent org in the ISS"
-        
+
         field_mappings = (
                             ("name", "org_name"),
                             ("aashe_id", "account_num"),
@@ -136,21 +139,22 @@ class Institution(models.Model):
                             ("is_pilot_participant", "pilot_participant"),
                             ("country", "country")
         )
-        
+
         iss_org = self.profile
         if iss_org:
             for k_self, k_iss in field_mappings:
                 setattr(self, k_self, getattr(iss_org, k_iss))
         else:
-            watchdog.log("Institutions", "No ISS institution found %s" % (self.name), watchdog.ERROR)
-    
+            logger.error("No ISS institution found %s" % (self.name),
+                         {'who': 'Institutions'})
+
     def __unicode__(self):
         return self.name.decode('utf8')
-        
+
     def get_admin_url(self):
         """ Returns the base URL for AASHE Staff to administer aspects of this institution """
         return "%sinstitution/%d/" % (settings.ADMIN_URL, self.id)
-        
+
     def get_masquerade_url(self):
         """ Returns the URL for AASHE Staff to masquerade this institution """
         return "%sinstitution/masquerade/%d/" % (settings.ADMIN_URL, self.id)
@@ -158,7 +162,7 @@ class Institution(models.Model):
     def get_manage_url(self):
         """ Returns the URL for institution admins to edit this institution """
         return settings.MANAGE_INSTITUTION_URL
-            
+
     def get_admin_payments_url(self):
         """ Returns the URL for administering this institution's payments """
         return "%spayments/" % self.get_admin_url()
@@ -166,7 +170,7 @@ class Institution(models.Model):
     def has_multiple_submissions(self):
         """ Return True if this institution has more than one submission set """
         return self.submissionset_set.count() > 1
-    
+
     def get_submissions(self, include_unrated=False):
         """ Return the institutions SubmissionSets, reverse chron., perhaps excluding the unrated ones """
         submissions = self.submissionset_set.all()
@@ -180,7 +184,7 @@ class Institution(models.Model):
             return self.get_submissions(include_unrated)[0]
         except:
             return None
-        
+
     def get_payments(self):
         """ Return the latest payment for this institution """
         payments = []
@@ -188,11 +192,11 @@ class Institution(models.Model):
             for p in ss.payment_set.all():
                 payments.append(p)
         return payments
-                    
+
     def get_active_submission(self):
         """ Returns the current SubmissionSet for this institution """
         return self.current_submission
- 
+
     def set_active_submission(self, submission_set):
         """ Set this institution's active SubmissionSet """
         self.current_submission = submission_set
@@ -204,33 +208,33 @@ class Institution(models.Model):
             return self.submissionset_set.filter(status='r').order_by('date_submitted')[0]
 
     def is_registered(self, creditset=None):
-        """ 
-            Return True iff this institution is registered for the given credit set 
+        """
+            Return True iff this institution is registered for the given credit set
             creditset - if None, the latest creditset will be checked.
         """
         if not creditset:
             creditset = CreditSet.objects.get_latest()
-            
+
         for submission in self.submissionset_set.all():
             if submission.creditset == creditset:
                 return True
         # assert: no submission has been registered for the given credit set for this institution
         return False
-    
+
     def is_published(self):
         """
             Returns true if the institution has a rating that's less than three years old
             or
             if the institution has a current paid submission
         """
-        
+
         if self.enabled:
             for ss in self.submissionset_set.all():
                 if ss.status == "r":
                     return True
                 elif ss.is_enabled():
                     return True
-        
+
         return False
 
     @property
@@ -239,10 +243,12 @@ class Institution(models.Model):
         try:
             return Organizations.objects.get(account_num=self.aashe_id)
         except Organizations.DoesNotExist as e:
-            watchdog.log("Institutions", "No ISS institution found for aashe_id %s: %s" % (self.aashe_id, e), watchdog.ERROR)
+            logger.error("No ISS institution found for aashe_id %s: %s" %
+                         (self.aashe_id, e), {'who': 'Institutions'})
             return None
         except Organizations.MultipleObjectsReturned as e:
-            watchdog.log("Institutions", "Multiple ISS Institutions for aashe_id %s: %s" % (self.aashe_id, e), watchdog.ERROR)
+            logger.error("Multiple ISS Institutions for aashe_id %s: %s" %
+                         (self.aashe_id, e), {'who': 'Institutions'})
             return None
 
     def is_member_institution(self):
@@ -251,7 +257,7 @@ class Institution(models.Model):
             returns True if this institution exists
         """
         return self.is_member
-    
+
     def set_slug_from_iss_institution(self, iss_institution_id):
         """
             Sets the slug field based on an institution row from the ISS
@@ -259,12 +265,14 @@ class Institution(models.Model):
         try:
             if self.aashe_id == None:
                 self.aashe_id = iss_institution_id
-            slug_base = '%s-%s' % (self.profile.org_name, self.profile.state.lower())
+            slug_base = '%s-%s' % (self.profile.org_name,
+                                   self.profile.state.lower())
             self.slug = slugify(slug_base)
         except Exception, e:
-            watchdog.log("Registration", "ISS Institution profile relationship error: %s" % e, watchdog.ERROR)
+            logger.error("ISS Institution profile relationship error: %s" % e,
+                         {'who': 'Registration'})
             self.slug = iss_institution_id
-            
+
     def get_last_subscription_end(self):
         """
             Gets the end date for the last subscription in
@@ -273,7 +281,7 @@ class Institution(models.Model):
         last_subscription_end = None
         if self.subscription_set.count() > 0:
             last_subscription_end = self.subscription_set.all().aggregate(Max('end_date'))['end_date__max']
-            
+
         return last_subscription_end
 
 RATINGS_PER_SUBSCRIPTION = 1
@@ -294,7 +302,7 @@ class Subscription(models.Model):
 
     def __str__(self):
         return "%s (%s - %s)" % (self.institution.name, self.start_date, self.end_date)
-    
+
     def get_available_ratings(self):
         return self.ratings_allocated - self.ratings_used
 
@@ -321,12 +329,12 @@ class SubscriptionPayment(models.Model):
 class RegistrationReason(models.Model):
     """
         Possible reasons to register for STARS
-    """ 
+    """
     title = models.CharField(max_length=255)
-    
+
     def __unicode__(self):
         return self.title
-        
+
 class RegistrationSurvey(models.Model):
     """
         An optional survey for new registrants
@@ -338,16 +346,16 @@ class RegistrationSurvey(models.Model):
     other = models.CharField(max_length=64, blank=True, null=True)
     primary_reason = models.ForeignKey('RegistrationReason', related_name='primary_surveys', blank=True, null=True)
     enhancements = models.TextField("Is there anything AASHE can do or provide to improve your experience using STARS (resources, trainings, etc.)?", blank=True, null=True)
-    
+
     def __unicode__(self):
         return self.institution.__unicode__()
 
 class RespondentRegistrationReason(models.Model):
     """
         Possible reasons to register for CSDC
-    """ 
+    """
     title = models.CharField(max_length=255)
-    
+
     def __unicode__(self):
         return self.title
 
@@ -361,7 +369,7 @@ class RespondentSurvey(models.Model):
     reasons = models.ManyToManyField('RespondentRegistrationReason', blank=True, null=True)
     other = models.CharField(max_length=64, blank=True, null=True)
     potential_stars = models.NullBooleanField("Is your institution considering registering as a STARS participant?", blank=True, null=True)
-    
+
     def __unicode__(self):
         return self.institution.__unicode__()
 
@@ -387,7 +395,7 @@ class InstitutionPreferences(models.Model):
     """
     institution = models.OneToOneField(Institution, primary_key=True, related_name='preferences', editable=False)
     notify_users = models.BooleanField(default=True)
-    
+
 
 STARS_USERLEVEL_CHOICES = settings.STARS_PERMISSIONS
 
@@ -427,14 +435,14 @@ class AbstractAccount(BaseAccount):
 
     def is_pending(self):
         return False
-        
+
     def has_access_level(self, access_level):
         """
             Allows for access comparison on an institution that may not be their `current_institution`
-            
+
             `settings.STARS_PERMISSIONS` is a tuple with the highest level coming first
         """
-        
+
         # see if the user level matches
         if access_level == self.user_level:
             return True
@@ -445,9 +453,9 @@ class AbstractAccount(BaseAccount):
                     break
                 if perm[0] == self.user_level:
                     return True
-                
+
         return False
-            
+
 
     def last_access(self):
         """
@@ -462,7 +470,7 @@ class AbstractAccount(BaseAccount):
         last_login = self.user.last_login.replace(microsecond=0)
         date_joined = self.user.date_joined.replace(microsecond=0)
         return None if (self.user.last_login < self.user.date_joined) else self.user.last_login
-    
+
     # Each action below corresponds to an e-mail template for a notification message
     NEW_ACCOUNT='new_account.txt'
     CHANGE_ROLE='change_role.txt'
@@ -477,20 +485,20 @@ class AbstractAccount(BaseAccount):
         return render_to_string(template, context)
 
     def notify(self, action, admin, institution):
-        """ 
-            Notify account holder about an action taken on their account 
+        """
+            Notify account holder about an action taken on their account
             action must be one of the action constants defined by this class above
         """
         # et = EmailTemplate.objects.get(slug='invite_notification')
-        
+
         send_mail('STARS Account notification for: %s'%self.user,
                       self.get_formatted_message(action, admin, institution),
                       settings.EMAIL_HOST_USER, [self.user.email], fail_silently=True )
-            
+
     @classmethod
     def update_account(cls, admin, notify_user, institution, user_level, **user_params):
-        """ 
-            Create or update an account 
+        """
+            Create or update an account
             admin is the user who is doing the update - used for notifying user of account change.
             user_params are passed through to cls to uniquely identify or create account.
             returns the updated or newly created account.
@@ -509,12 +517,12 @@ class AbstractAccount(BaseAccount):
             account = cls(institution=institution, user_level=user_level, **user_params)
             is_create = True
         account.save()
-        
+
         # Notify the user only if something actually changes AND admin wanted to notify them.
         if has_changed and notify_user:
             action = StarsAccount.NEW_ACCOUNT if is_create else StarsAccount.CHANGE_ROLE
             account.notify(action, admin, institution)
-            
+
         return account
 
 
@@ -527,14 +535,14 @@ class StarsAccount(AbstractAccount):
           - BEST PRACTICES: use request.user.has_perm( perm ) to check access rights!
     """
     user = models.ForeignKey(User)
-    is_selected = models.BooleanField(default=False)  # True if the user has this account selected - we need this so we can persist the user's account on logout. 
+    is_selected = models.BooleanField(default=False)  # True if the user has this account selected - we need this so we can persist the user's account on logout.
 
     class Meta:
         unique_together = ("user", "institution")
-    
+
     def __unicode__(self):
         return "%s" % self.user
-    
+
     def select(self):
         """
             Make this account the user's active account, and so de-select all of user's other accounts.
@@ -544,25 +552,25 @@ class StarsAccount(AbstractAccount):
                 account.deselect()
             self.is_selected = True
             self.save()
-        
+
     def deselect(self):
-        """ 
+        """
             De-select this account, and persist the change.
         """
         self.is_selected = False
         self.save()
-        
+
     @staticmethod
     def get_selected_account(user):
-        """ 
-            Return the account the given user currently has selected, or None 
+        """
+            Return the account the given user currently has selected, or None
             Ideally, this method would be part of the user object... but...
         """
         account = user.starsaccount_set.filter(is_selected=True)
         return account[0] if account else None  # there should only be one account selected at a time.
 
     def has_perm(self, perm):
-        """ 
+        """
             Return True if this account grants user the given permission.
             CAREFUL: only checks permission - does not do complete access rights check.
             Clients should call request.user.has_perm(perm) to verify user access rights within current request context.
@@ -591,15 +599,15 @@ class PendingAccount(AbstractAccount):
 
     class Meta:
         unique_together = ("user_email", "institution")
-    
+
     def __unicode__(self):
         return "%s" % self.user_email
-    
+
     def is_pending(self):
         return True
 
     def _get_user(self):
-        """ 
+        """
             Clients want to treat self as if it were a StarsAccount, which has a User field.
               so we need to fulfill calls to account.user.x
             So, we create a DuckUser, which (hopefully) supplies all the methods clients will call on!
@@ -623,10 +631,10 @@ class PendingAccount(AbstractAccount):
                 account.user_level = pending.user_level
             except StarsAccount.DoesNotExist:
                 account = StarsAccount(user=user, institution=pending.institution, user_level=pending.user_level)
-            
+
             account.save()
             pending.delete()
-                        
+
         if account:  # selected account will be the last account converted
             account.select()
         return account
@@ -642,14 +650,14 @@ class DuckUser(object):
      """
     def __init__(self, user_email):
         self.email = user_email
-        
+
     def __str__(self):
         return "%s" % self.email
-    
+
     def get_full_name(self):
         return self.__str__()
-       
-    
+
+
 class DuckAccount(object):
     """
         If it walks like a StarsAccount, and quacks like a StarsAccount...
@@ -667,10 +675,10 @@ class DuckAccount(object):
         self.user = user
         self.institution = institution
         self.user_level = user_level
-        
+
     def __str__(self):
         return "%s (quack)"%self.user
-   
+
     def has_perm(self, perm):
         return _has_perm(self, perm)
 

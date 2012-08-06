@@ -3,10 +3,10 @@ from django.utils.html import strip_spaces_between_tags, escape
 from django.utils.safestring import mark_safe
 from django.core import urlresolvers
 
-import re
-
 from stars.apps.helpers.models import BlockContent, SnippetContent
-from stars.apps.helpers import watchdog
+from stars.apps.helpers import logger
+
+logger = logger.getLogger(__name__)
 
 register = template.Library()
 
@@ -17,10 +17,12 @@ def display_block_content(key, user=None):
         block = BlockContent.objects.get(key=key)
         edit_link = block.get_admin_url()
     except BlockContent.DoesNotExist:
-        watchdog.log("lookup_block_content", "BlockContent, '%s', not found." % key, watchdog.WARNING)
+        logger.warning("BlockContent, '%s', not found." % key,
+                       {'who': 'lookup_block_content'})
         block = ""
-        edit_link = "%s?key=%s" % (urlresolvers.reverse('admin:helpers_blockcontent_add'), key)
-        
+        edit_link = "%s?key=%s" % (
+            urlresolvers.reverse('admin:helpers_blockcontent_add'), key)
+
     return {'block': block, 'user': user, 'edit_link': edit_link}
 
 @register.inclusion_tag('helpers/tags/snippet_content.html')
@@ -33,8 +35,10 @@ def display_snippet(key, user=None):
         snippet = SnippetContent.objects.get(key=key)
         edit_link = snippet.get_admin_url()
     except SnippetContent.DoesNotExist:
-        watchdog.log("lookup_snippet_content", "SnippetContent, '%s', not found." % key, watchdog.WARNING)
+        logger.warning("SnippetContent, '%s', not found." % key,
+                       {'who': 'lookup_snippet_content'})
         snippet = ""
-        edit_link = "%s?key=%s" % (urlresolvers.reverse('admin:helpers_snippetcontent_add'), key)
-        
+        edit_link = "%s?key=%s" % (
+            urlresolvers.reverse('admin:helpers_snippetcontent_add'), key)
+
     return {'snippet': snippet, 'user': user, 'edit_link': edit_link}

@@ -17,14 +17,16 @@ from stars.apps.submissions.tasks import migrate_purchased_submission, perform_m
 from stars.apps.submissions.rules import user_can_migrate_version, user_can_migrate_from_submission, user_can_migrate_data
 from stars.apps.third_parties.models import ThirdParty
 from stars.apps.helpers.forms import form_helpers
-from stars.apps.helpers import watchdog
+from stars.apps.helpers import logger
 from stars.apps.helpers import flashMessage
 from stars.apps.tool.manage.forms import *
 from stars.apps.registration.forms import PaymentForm, PayLaterForm
 from stars.apps.registration.views import process_payment, get_payment_dict, _get_registration_price, init_submissionset
 from stars.apps.registration.models import ValueDiscount
-from stars.apps.notifications.models import EmailTemplate 
-    
+from stars.apps.notifications.models import EmailTemplate
+
+logger = logger.getLogger(__name__)
+
 def _get_current_institution(request):
     if hasattr(request.user, 'current_inst'):
         if not user_has_access_level(request.user, 'admin', request.user.current_inst):
@@ -39,7 +41,7 @@ def institution_detail(request):
         Display the Institution Form so user can edit basic info about their institution
     """
     current_inst = _get_current_institution(request)
-    
+
     if request.user.is_staff:
         FormClass = AdminInstitutionForm
     else:
@@ -47,9 +49,9 @@ def institution_detail(request):
             FormClass = ParticipantContactForm
         else:
             FormClass = RespondentContactForm
-        
+
     (institution_form,saved) = form_helpers.basic_save_form(request, current_inst, str(current_inst.id), FormClass)
-                
+
     context = {'institution_form': institution_form}
     return respond(request, 'tool/manage/detail.html', context)
 
@@ -59,7 +61,7 @@ def institution_payments(request):
         Display a list of payments made by the institution
     """
     current_inst = _get_current_institution(request)
-    
+
     payment_list = SubscriptionPayment.objects.filter(subscription__institution=current_inst).order_by('-date')
     subscription_list = current_inst.subscription_set.all()
 
@@ -78,7 +80,7 @@ def responsible_party_list(request):
     current_inst = _get_current_institution(request)
 
     context = {'current_inst': current_inst,}
-    
+
     return respond(request, 'tool/manage/responsible_party_list.html', context)
 
 @user_is_inst_admin
@@ -93,9 +95,9 @@ def edit_responsible_party(request, rp_id):
 
     if saved:
         return HttpResponseRedirect("/tool/manage/responsible-parties/")
-    
+
     credit_list = rp.creditusersubmission_set.order_by('credit__subcategory__category__creditset', 'credit__subcategory').exclude(subcategory_submission__category_submission__submissionset__is_visible=False)
-    
+
     context = {'responsible_party': rp, 'object_form': object_form, 'title': "Edit Responsible Party", 'credit_list': credit_list}
     return respond(request, 'tool/manage/edit_responsible_party.html', context)
 
@@ -106,12 +108,12 @@ def add_responsible_party(request):
     """
     current_inst = _get_current_institution(request)
     new_rp = ResponsibleParty(institution=current_inst)
-    
+
     (object_form, saved) = form_helpers.basic_save_new_form(request, new_rp, 'new_rp', ResponsiblePartyForm)
-    
+
     if saved:
         return HttpResponseRedirect("/tool/manage/responsible-parties/")
-    
+
     context = {'object_form': object_form, 'title': "Add Responsible Party"}
     return respond(request, 'tool/manage/edit_responsible_party.html', context)
 
@@ -139,7 +141,7 @@ def accounts(request, account_id=None):
         Supply an optional StarsAccount id to provide an edit form for that account.
     """
     current_inst = _get_current_institution(request)
-    
+
     # create a list of accounts, one of which might have an 'edit' form
     account_list = []
     editing = False
@@ -149,7 +151,7 @@ def accounts(request, account_id=None):
             editing = True
             edit_form = EditAccountForm(initial={'email':account.user.email, 'userlevel':account.user_level})
         else:
-            edit_form = None 
+            edit_form = None
 
         account_list.append({'account':account, 'edit_form':edit_form})
 
@@ -159,9 +161,9 @@ def accounts(request, account_id=None):
         new_account_form = AccountForm()
 
     (preferences, notify_form) = _update_preferences(request)
-    
+
     context = {
-               'account_list': account_list, 
+               'account_list': account_list,
                'new_account_form': new_account_form,
                'notify_form':notify_form,
                'editing': editing
@@ -176,7 +178,7 @@ def add_account(request):
     current_inst = _get_current_institution(request)
 
     (preferences, notify_form) = _update_preferences(request)
-    
+
     if request.method == 'POST':
         account_form = AccountForm(request.POST)
         if account_form.is_valid():
@@ -193,7 +195,7 @@ def add_account(request):
             return HttpResponseRedirect(StarsAccount.get_manage_url())
     else:
         account_form = AccountForm()
-    
+
     return respond(request, 'tool/manage/add_account.html', {'account_form': account_form, 'notify_form':notify_form,})
 
 @user_is_inst_admin
@@ -202,34 +204,46 @@ def delete_account(request, account_id):
         Deletes a user account (user-institution relation)
     """
     current_inst = _get_current_institution(request)
-    
+
     (preferences, notify_form) = _update_preferences(request)
-    # Careful here - this needs to handle deletion of any type of account, real and pending.
-    # The account must be an account current user is allowed to manage!
-    # Just give a 404 if the account_id doesn't belong to the user's institution
+
+    # Careful here - this needs to handle deletion of any type of
+    # account, real and pending.  The account must be an account
+    # current user is allowed to manage!  Just give a 404 if the
+    # account_id doesn't belong to the user's institution
     try:
-        account = StarsAccount.objects.get(id=account_id, institution=current_inst)
+        account = StarsAccount.objects.get(id=account_id,
+                                           institution=current_inst)
     except StarsAccount.DoesNotExist:
-        account = get_object_or_404(PendingAccount, id=account_id, institution=current_inst)   
-        # no need to confirm deletion of pending accounts, since there is no consequence to doing so.
+        account = get_object_or_404(PendingAccount, id=account_id,
+                                    institution=current_inst)
+        # no need to confirm deletion of pending accounts, since there
+        # is no consequence to doing so.
         account.delete()
-        flashMessage.send("Pending account: %s successfully deleted."%account,flashMessage.SUCCESS)
+        flashMessage.send("Pending account: %s successfully deleted." %
+                          account, flashMessage.SUCCESS)
         if preferences.notify_users:
-            account.notify(StarsAccount.DELETE_ACCOUNT, request.user, current_inst)
+            account.notify(StarsAccount.DELETE_ACCOUNT, request.user,
+                           current_inst)
         return HttpResponseRedirect(settings.MANAGE_USERS_URL)
 
-    (form, deleted) = form_helpers.confirm_delete_form(request, account)       
+    (form, deleted) = form_helpers.confirm_delete_form(request, account)
     if deleted:
-        watchdog.log('Manage Users', "Account: %s deleted."%account, watchdog.NOTICE)
+        logger.info("Account: %s deleted." % account,
+                    {'who': 'Manage Users'})
         if preferences.notify_users:
-            account.notify(StarsAccount.DELETE_ACCOUNT, request.user, current_inst)
+            account.notify(StarsAccount.DELETE_ACCOUNT, request.user,
+                           current_inst)
         return HttpResponseRedirect(settings.MANAGE_USERS_URL)
-    
-    return respond(request, 'tool/manage/delete_account.html', {'account':account, 'confirm_form': form, 'notify_form':notify_form,})
+
+    return respond(request, 'tool/manage/delete_account.html',
+                   {'account':account,
+                    'confirm_form': form,
+                    'notify_form':notify_form,})
 
 def _update_preferences(request):
-    """ 
-        Helper method to DRY code around managing institution preferences 
+    """
+        Helper method to DRY code around managing institution preferences
         Returns (preferences, preferences_form)
     """
     try:
@@ -246,12 +260,12 @@ def share_data(request):
         so this is really just a place-holder
     """
     current_inst = _get_current_institution(request)
-    
+
     (object_form, saved) = form_helpers.basic_save_form(request, current_inst, '', ThirdPartiesForm)
-    
+
     if saved:
         return HttpResponseRedirect("/tool/manage/share-data/")
-    
+
     context = {
                 'current_inst': current_inst,
                 'object_form': object_form,
@@ -267,13 +281,13 @@ def share_data(request):
 #        and select indicate which one is the active submission
 #    """
 #    current_inst = _get_current_institution(request)
-#    
+#
 #    active_set = current_inst.get_active_submission()
-#    
+#
 #    is_admin = request.user.has_perm('admin')
-#    
+#
 #    latest_creditset = CreditSet.objects.get_latest()
-#    
+#
 #    context = {'active_set': active_set, 'is_admin': is_admin, 'latest_creditset': latest_creditset}
 #    return respond(request, 'tool/manage/submissionset_list.html', context)
 
@@ -285,7 +299,7 @@ def migrate_options(request):
     current_inst = _get_current_institution(request)
     current_submission = current_inst.current_submission
     latest_creditset = CreditSet.objects.get_latest()
-    
+
     if current_inst.is_participant:
         available_submission_list = current_inst.submissionset_set.filter(status='r') | current_inst.submissionset_set.filter(status='f')
     else:
@@ -306,12 +320,12 @@ def migrate_data(request, ss_id):
     current_inst = _get_current_institution(request)
     current_submission = current_inst.current_submission
     old_submission = get_object_or_404(current_inst.submissionset_set.all(), id=ss_id)
-    
+
     if not user_can_migrate_from_submission(request.user, old_submission):
         raise PermissionDenied("Sorry, but you don't have permission to migrate data.")
-    
+
     ObjectForm = MigrateSubmissionSetForm
-    
+
     object_form, saved = form_helpers.basic_save_form(request, current_submission, current_submission.id, ObjectForm)
     if saved:
         # start a migration task
@@ -334,16 +348,16 @@ def migrate_version(request):
     current_inst = _get_current_institution(request)
     current_submission = current_inst.current_submission
     latest_creditset = CreditSet.objects.get_latest()
-    
+
     if latest_creditset.version == current_submission.creditset.version:
         flashMessage.send("Already using %s." % latest_creditset, flashMessage.Error)
         return HttpResponseRedirect("/tool/manage/migrate/")
-    
+
     if not user_can_migrate_version(request.user, current_inst):
         raise PermissionDenied("Sorry, but you don't have permission to migrate data.")
-    
+
     ObjectForm = MigrateSubmissionSetForm
-    
+
     object_form, saved = form_helpers.basic_save_form(request, current_submission, current_submission.id, ObjectForm)
     if saved:
         # start a migration task
@@ -364,25 +378,25 @@ def migrate_version(request):
 #    """
 #        Provides a form for adding a new submission set
 #    """
-#    
+#
 #    current_inst = _get_current_institution(request)
-#    
+#
 #    # Build and precess the form for adding a new submission set
 #    new_set = SubmissionSet(institution=current_inst)
-#    
+#
 #    ObjectForm = AdminSubmissionSetForm
 #    # if request.user.is_staff:
 #    #    ObjectForm = AdminSubmissionSetForm
 #    # else:
 #    #    Eventuatlly, this should lead user through a submission set purchase process (ticket #264)
-#    
+#
 #    (object_form, saved) = form_helpers.basic_save_new_form(request, new_set, 'new_set', ObjectForm)
 #    if saved:
 #        # if this was the first one created then it should be active
 #        if current_inst.get_active_submission() is None:
 #            current_inst.set_active_submission(new_set)
 #        return HttpResponseRedirect(settings.MANAGE_SUBMISSION_SETS_URL)
-#    
+#
 #    template = 'tool/manage/add_submissionset.html'
 #    context = {
 #        "object_form": object_form,
@@ -394,17 +408,17 @@ def _gets_discount(institution, current_date=date.today()):
         Institutions get half-off their submission if their renewal
         within 90 days of their last subscription
     """
-    
+
     last_subscription_end = institution.get_last_subscription_end()
-    
+
     if last_subscription_end:
-    
+
         # if last subscription end was less than 90 days ago
         # or it hasn't expired
         td = timedelta(days=90)
         if current_date <= last_subscription_end + td:
             return True
-        
+
     return False
 
 
@@ -430,9 +444,9 @@ def _gets_discount(institution, current_date=date.today()):
 #            reason = "member_reg"
 #        else:
 #            reason = "nonmember_reg"
-#        
+#
 #    pay_form = PaymentForm()
-#    
+#
 #    if request.method == "POST":
 #        pay_form = PaymentForm(request.POST)
 #        if pay_form.is_valid():
@@ -442,7 +456,7 @@ def _gets_discount(institution, current_date=date.today()):
 #                'quantity': 1,
 #                'name': "STARS Participant Registration",
 #            }
-#    
+#
 #            result = process_payment(payment_dict, [product_dict], invoice_num=current_inst.aashe_id)
 #            if result.has_key('cleared') and result.has_key('msg'):
 #                if result['cleared'] and result['trans_id']:
@@ -462,7 +476,7 @@ def _gets_discount(institution, current_date=date.today()):
 #                    flashMessage.send("Processing Error: %s" % result['msg'], flashMessage.ERROR)
 #        else:
 #            flashMessage.send("Please correct the errors below", flashMessage.ERROR)
-#                    
+#
 #    template = 'tool/manage/pay_submissionset.html'
 #    context = {
 #        "object_form": pay_form,
@@ -473,7 +487,7 @@ def _gets_discount(institution, current_date=date.today()):
 #    return respond(request, template, context)
 
 def send_exec_renew_email(institution):
-            
+
     mail_to = [institution.executive_contact_email,]
     et = EmailTemplate.objects.get(slug="reg_renewal_exec")
     et.send_email(mail_to, {'institution': institution,})
@@ -489,7 +503,7 @@ def purchase_subscription(request):
     discount = _gets_discount(current_inst)
     if discount:
         amount = amount / 2
-        
+
     if current_inst.subscription_set.all():
         if is_member:
             reason = "member_renew"
@@ -500,22 +514,22 @@ def purchase_subscription(request):
             reason = "member_reg"
         else:
             reason = "nonmember_reg"
-    
+
     # calculate start date of subscription
     start_date = current_inst.get_last_subscription_end()
     if start_date and start_date > date.today():
         start_date += timedelta(days=1)
     else:
         start_date = date.today()
-    
+
     pay_form = PaymentForm()
     later_form = PayLaterForm()
-    
+
     if request.method == "POST":
-        
+
         later_form = PayLaterForm(request.POST)
         if later_form.is_valid() and later_form.cleaned_data['confirm']:
-            
+
             sub = Subscription(
                                 institution=current_inst,
                                 start_date=start_date,
@@ -525,12 +539,12 @@ def purchase_subscription(request):
                                 reason=reason
                                )
             sub.save()
-            
+
             if not current_inst.current_subscription:
                 current_inst.current_subscription = sub
             current_inst.is_participant = True
             current_inst.save()
-            
+
             if request.user.email != current_inst.contact_email:
                 mail_to = [request.user.email, current_inst.contact_email]
             else:
@@ -540,10 +554,10 @@ def purchase_subscription(request):
                 et = EmailTemplate.objects.get(slug="reg_renewal_unpaid")
             else:
                 et = EmailTemplate.objects.get(slug="welcome_liaison_unpaid")
-                
+
             email_context = {'institution': current_inst, 'amount': amount}
             et.send_email(mail_to, email_context)
-            
+
             return HttpResponseRedirect("/tool/")
         else:
             pay_form = PaymentForm(request.POST)
@@ -557,11 +571,11 @@ def purchase_subscription(request):
                     'quantity': 1,
                     'name': "STARS Subscription Purchase",
                 }
-        
+
                 result = process_payment(payment_dict, [product_dict], invoice_num=current_inst.aashe_id)
                 if result.has_key('cleared') and result.has_key('msg'):
                     if result['cleared'] and result['trans_id']:
-                        
+
                         sub = Subscription(
                                             institution=current_inst,
                                             start_date=start_date,
@@ -570,7 +584,7 @@ def purchase_subscription(request):
                                             paid_in_full=True,
                                            )
                         sub.save()
-                        
+
                         p = SubscriptionPayment(
                                         subscription=sub,
                                         date=datetime.now(),
@@ -580,31 +594,31 @@ def purchase_subscription(request):
                                         confirmation=str(result['trans_id']),
                                     )
                         p.save()
-                        
+
                         if request.user.email != current_inst.contact_email:
                             mail_to = [request.user.email, current_inst.contact_email]
                         else:
                             mail_to = [current_inst.contact_email,]
-    
+
                         if reason == "member_renew" or reason == "nonmember_renew":
                             et = EmailTemplate.objects.get(slug="reg_renewed_paid")
                             send_exec_renew_email(current_inst)
                         else:
                             et = EmailTemplate.objects.get(slug="welcome_liaison_paid")
-                            
+
                         email_context = {'payment_dict': payment_dict,'institution': current_inst, "payment": p}
                         et.send_email(mail_to, email_context)
-                        
+
                         current_inst.current_subscription = sub
                         current_inst.is_participant = True
                         current_inst.save()
-                        
+
                         return HttpResponseRedirect("/tool/")
                     else:
                         flashMessage.send("Processing Error: %s" % result['msg'], flashMessage.ERROR)
             else:
                 flashMessage.send("Please correct the errors below", flashMessage.ERROR)
-                    
+
     template = 'tool/manage/purchase_subscription.html'
     context = {
         "pay_form": pay_form,
@@ -621,13 +635,13 @@ def pay_subscription(request, subscription_id):
         Provides a view to allow institutions to pay for a subscription
     """
     current_inst = _get_current_institution(request)
-    
+
     subscription = get_object_or_404(current_inst.subscription_set.all(), pk=subscription_id)
     amount = subscription.amount_due
     pay_form = PaymentForm()
-    
+
     if request.method == "POST":
-        
+
         pay_form = PaymentForm(request.POST)
         if pay_form.is_valid():
             payment_dict = get_payment_dict(pay_form, current_inst)
@@ -640,15 +654,15 @@ def pay_subscription(request, subscription_id):
                 'quantity': 1,
                 'name': "STARS Subscription Payment",
             }
-    
+
             result = process_payment(payment_dict, [product_dict], invoice_num=current_inst.aashe_id)
             if result.has_key('cleared') and result.has_key('msg'):
                 if result['cleared'] and result['trans_id']:
-                    
+
                     subscription.amount_due = 0
                     subscription.paid_in_full = True
                     subscription.save()
-                    
+
                     p = SubscriptionPayment(
                                     subscription=subscription,
                                     date=datetime.now(),
@@ -658,13 +672,13 @@ def pay_subscription(request, subscription_id):
                                     confirmation=str(result['trans_id']),
                                 )
                     p.save()
-                    
+
                     return HttpResponseRedirect("/tool/")
                 else:
                     flashMessage.send("Processing Error: %s" % result['msg'], flashMessage.ERROR)
         else:
             flashMessage.send("Please correct the errors below", flashMessage.ERROR)
-                    
+
     template = 'tool/manage/pay_subscription.html'
     context = {
         "pay_form": pay_form,
@@ -675,12 +689,12 @@ def pay_subscription(request, subscription_id):
 
 def boundary(request, set_id):
     """ Displays the Institution Boundary edit form """
-    
+
     current_inst = _get_current_institution(request)
     submission_set = get_object_or_404(SubmissionSet, id=set_id)
 
     ObjectForm = BoundaryForm
-    
+
     object_form, saved = form_helpers.basic_save_form(request, submission_set, submission_set.id, ObjectForm)
 
     template = 'tool/manage/boundary.html'

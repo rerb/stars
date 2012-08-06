@@ -2,8 +2,6 @@ import re
 from datetime import date, timedelta
 from django import template
 
-from stars.apps.helpers import watchdog
-
 deadline = date(year=2010, month=8, day=20)
 
 register = template.Library()
@@ -22,5 +20,5 @@ def charter_countdown():
         title = "1 day remaining"
     if td.days > 1:
         title = "%s days remaining" % td.days
-    
+
     return {'display': display, 'title': title}

@@ -1,10 +1,13 @@
+import sys
+from time import time
+import xmlrpclib, random, hashlib, hmac
+
 from django.conf import settings
 
-import xmlrpclib, random, hashlib, hmac
-from time import time
 from stars.apps.helpers.exceptions import RpcException
-from stars.apps.helpers import watchdog
-import sys
+from stars.apps.helpers import logger
+
+logger = logger.getLogger(__name__)
 
 def run_rpc(service_name, args, sessid='????'):
     """
@@ -27,7 +30,7 @@ def run_rpc(service_name, args, sessid='????'):
     try:
         hash_digest, domain, timestamp, nonce = get_params(service_name)
         if (settings.XMLRPC_USE_HASH):
-            
+
             result = service(hash_digest, domain, timestamp, nonce, sessid, *args)
         else:
             result = service(*args)
@@ -38,7 +41,8 @@ def run_rpc(service_name, args, sessid='????'):
             if 'login' in service_name:
                 args=list(args)
                 args[1] = '*******'   # Hack: don't log the user's password!!
-            watchdog.log("XML-RPC", "%s %s"%(fault.faultString, args), watchdog.WARNING)
+            logger.warning("%s %s" % (fault.faultString, args),
+                           {'who': 'XML-RPC'})
             return None
         else:
             raise RpcException(fault.faultString, RPC_ERROR_USER_MSG)  # server error on irc
@@ -67,14 +71,14 @@ def get_server():
         Get the RPC server being used
     """
     return xmlrpclib.ServerProxy(settings.SSO_SERVER_URI, verbose=settings.XMLRPC_VERBOSE)
-    
+
 def list_methods():
     """
         Query Drupal for all available RPC methods
     """
     return get_server().system.listMethods()
 
-def method_help(method):    
+def method_help(method):
     """
         Query Drupal for help and parameters for a RPC method
     """
@@ -86,5 +90,5 @@ def method_help(method):
 """
     Available Commands
     ['system.multicall', 'system.methodSignature', 'system.getCapabilities', 'system.listMethods', 'system.methodHelp', 'aasheuser.current', 'aasheuser.listbyrole', 'aasheuser.delete', 'aasheuser.get', 'aasheuser.login', 'aasheuser.logout', 'aasheuser.save', 'node.get', 'node.save', 'node.delete', 'user.delete', 'user.get', 'user.login', 'user.logout', 'user.save', 'node.all']
-    
+
 """

@@ -1,12 +1,14 @@
 from django import template
 from django.utils.html import strip_spaces_between_tags, escape
-from django.utils.safestring import mark_safe 
+from django.utils.safestring import mark_safe
 from django.core import urlresolvers
 
 import re
 
 from stars.apps.helpers.models import HelpContext
-from stars.apps.helpers import watchdog
+from stars.apps.helpers import logger
+
+logger = logger.getLogger(__name__)
 
 register = template.Library()
 
@@ -16,14 +18,15 @@ def lookup_help_context(context_name):
         c = HelpContext.objects.get(name=context_name)
         return c
     except:
-        watchdog.log("get_help_context", "HelpContext, '%s', not found." % context_name)
+        logger.error("HelpContext, '%s', not found." % context_name,
+                     {'who': 'get_help_context'})
         return None
 
 @register.inclusion_tag('helpers/tags/help_text.html')
 def show_help_context(context_name, as_tooltip=True):
     """ Displays a tool-tip for the help text for the given context. """
     help_context = lookup_help_context(context_name)
-    
+
     if help_context:
         return {
                 'help_text': help_context.help_text.replace("\"", "'"), #_clean(help_context.help_text, as_tooltip),
