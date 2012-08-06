@@ -78,6 +78,7 @@ class MockRequest(HttpRequest):
         # path and META are here for logging formatters:
         self.path = '/mock/request/bogus/path'
         self.META = {}
+        self.environ = {}
 
 
 class MockRegistrationSchoolChoiceForm(object):
