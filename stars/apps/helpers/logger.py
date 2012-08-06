@@ -28,40 +28,50 @@ class StarsLoggerAdapter(logging.LoggerAdapter):
 
     def __init__(self, logger, extra=None):
         logging.LoggerAdapter.__init__(self, logger, extra or {})
+        logging.captureWarnings(True)
+
+    def find_in_stack(self, attr):
+        for f in inspect.stack():
+            if attr in f[0].f_locals:
+                return f[0].f_locals[attr]
+        return ''
 
     def process(self, msg, kwargs):
-        extra = {'path': '-',
-                 'host': '-',
-                 'user': '-',
-                 'referer': '-'}
+        extra = {'path': '',
+                 'host': '',
+                 'user': '',
+                 'referer': ''}
         try:
             frame = inspect.currentframe()
             caller = frame.f_back.f_back
-            caller_locals = caller.f_locals
+            module_path = caller.f_globals['__name__']
+            extra['module_path'] = module_path
             try:
-                caller_module = caller_locals['self'].__module__
-            except KeyError:
-                # no self? let's try one step back:
-                try:
-                    caller_module = caller.f_back.f_locals['self'].__module__
-                except KeyError:
-                    # still no self? let's use __name__:
-                    caller_module = caller.f_globals['__name__']
-            extra['module_path'] = caller_module
-            try:
-                request = caller_locals['request']
-                extra['path'] = request.path
-                extra['host'] = request.get_host()
-                extra['user'] = request.user.username or 'anonymous'
-                try:
-                    extra['referer'] = request.environ['HTTP_REFERER']
-                except KeyError:  # no referer is ok
-                    pass
-            except KeyError:  # no request in the caller
-                pass
-            else:
+                request = self.find_in_stack('request')
+                if request:
+                    extra['request'] = request  # for AdminEmailHandler
+                    extra['path'] = request.path
+                    try:
+                        extra['host'] = request.get_host()
+                    except KeyError:  # raised by get_host()
+                        pass
+                    try:
+                        extra['user'] = request.user.username
+                    except AttributeError:
+                        try:
+                            user = self.find_in_stack('user')
+                            if user:
+                                extra['user'] = user.username
+                        finally:
+                            if user:
+                                del user
+                    try:
+                        extra['referer'] = request.environ['HTTP_REFERER']
+                    except KeyError:  # no referer is ok
+                        pass
+            finally:
                 del request
         finally:
-            del caller_module, caller_locals, caller, frame
+            del module_path, caller, frame
         kwargs['extra'] = extra
         return msg, kwargs
