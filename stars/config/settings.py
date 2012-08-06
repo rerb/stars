@@ -254,79 +254,43 @@ LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,
 
-   # """  STARS Watchdog logged the following {{entry.get_severity_display}}:
-   #      {{entry.get_severity}}: {{ entry.message }}
-   #      Module: {{entry.module}}
-   #      Path: {{entry.request_path}}
-   #      Referer: {{entry.request_referer}}
-   #      Host: {{entry.request_host}}
-   #      User: {{entry.user}}
-   #      Timestamp: {{entry.timestamp.ctime}}
-   #      {% endautoescape %}
-   #  """
-
     'formatters': {
         'simple': {
-            'format': '%(levelname)s %(asctime)s "%(message)s"'
-        },
-        'verbose': {
             'format': ('%(levelname)s %(asctime)s "%(message)s" '
-                       'module:%(module_path)s request_user:%(user)s '
-                       'request_path:%(path)s request_host:%(host)s '
-                       'request_referer:%(referer)s')
+                       'location:%(filename)s/%(funcName)s/%(lineno)s')
+        },
+        'stars': {
+            'format': ('%(levelname)s %(asctime)s "%(message)s" '
+                       'location:%(module_path)s/%(funcName)s/%(lineno)s '
+                       'request_user:%(user)s request_path:%(path)s '
+                       'request_host:%(host)s request_referer:%(referer)s')
         },
     },
+
     'handlers': {
         'stars_console': {
             'level': 'INFO',
             'class': 'logging.StreamHandler',
-            'formatter': 'verbose'
+            'formatter': 'stars'
         },
-        'stars_log': {
+        'simple_console': {
             'level': 'INFO',
-            'class': 'logging.handlers.TimedRotatingFileHandler',
-            'when': 'W0',  # one log per week, starting on Monday
-            'backupCount': 4,  # keep logs for 4 weeks
-            'formatter': 'verbose',
-            'filename': os.path.join(PROJECT_PATH, 'log', 'stars.log')
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
         },
         'mail_admins': {
             'level': 'ERROR',
             'class': 'django.utils.log.AdminEmailHandler',
             'include_html': True
         },
-        'third_party_log': {
-            'level': 'DEBUG',
-            'class': 'logging.handlers.TimedRotatingFileHandler',
-            'when': 'W0',  # one log per week, starting on Monday
-            'backupCount': 4,  # keep logs for 4 weeks
-            'formatter': 'simple',
-            'filename': os.path.join(PROJECT_PATH, 'log', 'stars.tp.log')
-        },
-        'third_party_console': {
-            'level': 'INFO',
-            'class': 'logging.StreamHandler',
-            'formatter': 'simple'
-        },
     },
+
     'loggers': {
         '': {
-            'handlers':['third_party_log', 'third_party_console'],
-            'level':'WARNING',
-        },
-        'django': {
-            'handlers':['third_party_log', 'third_party_console'],
-            'level':'WARNING',
-            'propagate': False
-        },
-        'django.request': {
-            'handlers': ['mail_admins'],
-            'level': 'ERROR',
-            'propagate': True,
+            'handlers':['simple_console', 'mail_admins']
         },
         'stars': {
-            'handlers': ['stars_log', 'stars_console'],
-            'level': 'INFO',
+            'handlers': ['stars_console', 'mail_admins'],
             'propagate': False
         },
     }
