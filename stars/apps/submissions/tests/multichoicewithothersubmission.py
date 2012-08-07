@@ -19,7 +19,6 @@ class MultiChoiceWithOtherSubmissionTest(TestCase):
 
         self.assertEqual(len(log.records), 1)
         self.assertEqual(log.records[0].levelname, 'ERROR')
-        self.assertTrue(log.records[0].module_path.startswith('stars'))
         self.assertTrue(log.records[0].msg.startswith(
             'Attempt to decompress non-existing'))
 
@@ -41,7 +40,6 @@ class MultiChoiceWithOtherSubmissionTest(TestCase):
 
         self.assertEqual(len(log.records), 1)
         self.assertEqual(log.records[0].levelname, 'ERROR')
-        self.assertTrue(log.records[0].module_path.startswith('stars'))
         self.assertTrue(log.records[0].msg.startswith(
             'Found multiple \'other\' choices'))
 

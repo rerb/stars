@@ -1,4 +1,5 @@
 from datetime import timedelta, datetime, date
+import logging
 import sys
 
 from django.conf import settings
@@ -17,7 +18,6 @@ from stars.apps.submissions.tasks import migrate_purchased_submission, perform_m
 from stars.apps.submissions.rules import user_can_migrate_version, user_can_migrate_from_submission, user_can_migrate_data
 from stars.apps.third_parties.models import ThirdParty
 from stars.apps.helpers.forms import form_helpers
-from stars.apps.helpers import logger
 from stars.apps.helpers import flashMessage
 from stars.apps.tool.manage.forms import *
 from stars.apps.registration.forms import PaymentForm, PayLaterForm
@@ -25,7 +25,7 @@ from stars.apps.registration.views import process_payment, get_payment_dict, _ge
 from stars.apps.registration.models import ValueDiscount
 from stars.apps.notifications.models import EmailTemplate
 
-logger = logger.getLogger(__name__)
+logger = logging.getLogger('stars.request')
 
 def _get_current_institution(request):
     if hasattr(request.user, 'current_inst'):
@@ -230,7 +230,7 @@ def delete_account(request, account_id):
     (form, deleted) = form_helpers.confirm_delete_form(request, account)
     if deleted:
         logger.info("Account: %s deleted." % account,
-                    {'who': 'Manage Users'})
+                    extra={'request': request})
         if preferences.notify_users:
             account.notify(StarsAccount.DELETE_ACCOUNT, request.user,
                            current_inst)

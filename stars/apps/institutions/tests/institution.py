@@ -20,7 +20,6 @@ class InstitutionTest(TestCase):
 
         self.assertEqual(len(log.records), 1)
         self.assertEqual(log.records[0].levelname, 'ERROR')
-        self.assertTrue(log.records[0].module_path.startswith('stars'))
         self.assertTrue('No ISS institution found bob' in log.records[0].msg)
 
     def test_profile_logging(self):
@@ -34,7 +33,6 @@ class InstitutionTest(TestCase):
 
         self.assertEqual(len(log.records), 1)
         self.assertEqual(log.records[0].levelname, 'ERROR')
-        self.assertTrue(log.records[0].module_path.startswith('stars'))
         self.assertTrue(
             'No ISS institution found for aashe_id' in log.records[0].msg)
 
@@ -48,7 +46,6 @@ class InstitutionTest(TestCase):
 
         self.assertEqual(len(log.records), 1)
         self.assertEqual(log.records[0].levelname, 'ERROR')
-        self.assertTrue(log.records[0].module_path.startswith('stars'))
         self.assertTrue('profile relationship error' in log.records[0].msg)
 
 

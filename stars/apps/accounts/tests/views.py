@@ -24,7 +24,7 @@ class ViewsTest(TestCase):
         """Does select_school log a message error when there's no institution
         for the id provided?
         """
-        with testfixtures.LogCapture('stars') as log:
+        with testfixtures.LogCapture('stars.request') as log:
             with testfixtures.Replacer() as r:
                 r.replace(
                     'django.contrib.auth.models.AnonymousUser.is_authenticated',
@@ -36,18 +36,16 @@ class ViewsTest(TestCase):
         self.assertEqual(len(log.records), 1)
         for record in log.records:
             self.assertEqual(record.levelname, 'INFO')
-            self.assertTrue(record.module_path.startswith('stars'))
             self.assertTrue('non-existent institution' in record.msg)
 
     def test_terms_of_service_logging(self):
         """Does terms_of_service log an error if there's no request.user.account?
         """
-        with testfixtures.LogCapture('stars') as log:
+        with testfixtures.LogCapture('stars.request') as log:
             self.request.user.account = None
             views.terms_of_service(self.request)
 
         self.assertEqual(len(log.records), 1)
         for record in log.records:
             self.assertEqual(record.levelname, 'ERROR')
-            self.assertTrue(record.module_path.startswith('stars'))
             self.assertTrue('w/out StarsAccount: uid' in record.msg)

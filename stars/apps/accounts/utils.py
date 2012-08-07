@@ -1,3 +1,4 @@
+import logging
 import MySQLdb
 import re
 
@@ -7,11 +8,11 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 
 from stars.apps.institutions.models import StarsAccount, PendingAccount, Institution
-from stars.apps.helpers import logger, flashMessage
+from stars.apps.helpers import flashMessage
 from django.conf import settings
 from django.http import HttpResponseRedirect
 
-logger = logger.getLogger(__name__)
+logger = logging.getLogger('stars')
 
 
 def respond(request, template, context):
@@ -175,7 +176,8 @@ def _get_account_from_session(request):
                 except Institution.DoesNotExist:
                     flashMessage.send('Current institution not found in db.',
                                       flashMessage.ERROR)
-                    logger.error("Current institution not found in database.")
+                    logger.error("Current institution not found in database.",
+                                 exc_info=True)
         return (None, current_inst)
 
     # Convert any pending accounts

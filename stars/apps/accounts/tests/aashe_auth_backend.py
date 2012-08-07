@@ -22,10 +22,9 @@ class AASHEAuthBackendTest(TestCase):
         self.user.is_staff = False
         self.user.account = 1
 
-        with LogCapture('stars') as log:
+        with LogCapture('stars.user') as log:
             self.aashe_auth_backend.has_perm(self.user, 'bo-o-o-o-gus!')
 
         self.assertEqual(len(log.records), 1)
         self.assertEqual(log.records[0].levelname, 'ERROR')
-        self.assertEqual(log.records[0].module_path, 'stars.apps.accounts.aashe')
         self.assertTrue('bo-o-o-o-gus' in log.records[0].msg)

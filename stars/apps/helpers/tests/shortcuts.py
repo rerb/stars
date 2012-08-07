@@ -22,10 +22,8 @@ class ShortcutsTest(TestCase):
         self.assertEqual(len(log.records), 2)
 
         self.assertEqual(log.records[0].levelname, 'INFO')
-        self.assertTrue(log.records[0].module_path.startswith('stars'))
         self.assertTrue('failed' in log.records[0].msg)
 
         self.assertEqual(log.records[1].levelname, 'ERROR')
-        self.assertTrue(log.records[1].module_path.startswith('stars'))
         self.assertTrue('resource was not found' in log.records[1].msg.message)
         self.assertTrue(log.records[1].exc_info)

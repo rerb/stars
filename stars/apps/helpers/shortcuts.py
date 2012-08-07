@@ -2,13 +2,14 @@
 Helper functions and classes that provide convient helpers
 modelled on Django's shortcuts module
 """
+import logging
+
 from django.template import loader, Context
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse, Http404
-from stars.apps.helpers import logger
 from stars.apps.helpers import exceptions
 
-logger = logger.getLogger(__name__)
+logger = logging.getLogger('stars')
 
 def render_to_any_response(HttpResponseClass, *args, **kwargs):
     """
@@ -31,7 +32,7 @@ def get_cmsobject_or_404(klass, *args, **kwargs):
         object = klass(*args, **kwargs)
         if (object == None):
             logger.info("Attempt to get %s object (%s, %s) failed" %
-                        (klass.__name__, args, kwargs), {'who': 'CMS'})
+                        (klass.__name__, args, kwargs))
             raise ObjectDoesNotExist("Requested resource was not found.")
 
     except Exception, e:

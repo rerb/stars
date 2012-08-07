@@ -1,17 +1,17 @@
+import logging
+import xmlrpclib, random, hashlib, hmac
+from time import time
+
 from django.conf import settings
 from django.contrib.auth.models import User, check_password
 
 from stars.apps.accounts import xml_rpc
-from stars.apps.helpers import logger
 from stars.apps.institutions.models import StarsAccount
-
-import xmlrpclib, random, hashlib, hmac
-from time import time
 
 # Django Docs:
 # http://docs.djangoproject.com/en/dev/topics/auth/
 
-logger = logger.getLogger(__name__)
+logger = logging.getLogger('stars.user')
 
 
 class AASHEAuthBackend:
@@ -94,7 +94,7 @@ class AASHEAuthBackend:
 
         if not perm in PERMS:
             logger.error('Internal Error: Attempt to check non-exisitent '
-                         'permission %s' % perm, {'who': 'Auth'})
+                         'permission %s' % perm, extra={'user': user})
             return False    # can't give permission for something we
                             # don't recognize!
 

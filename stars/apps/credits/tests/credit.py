@@ -25,7 +25,6 @@ class CreditTest(TestCase):
 
         self.assertEqual(len(log.records), 1)
         self.assertEqual(log.records[0].levelname, 'ERROR')
-        self.assertTrue(log.records[0].module_path.startswith('stars'))
         self.assertTrue('No identifier' in log.records[0].msg)
 
     def test_execute_formula_logging(self):
@@ -37,7 +36,6 @@ class CreditTest(TestCase):
 
         self.assertEqual(len(log.records), 1)
         self.assertEqual(log.records[0].levelname, 'ERROR')
-        self.assertTrue(log.records[0].module_path.startswith('stars'))
         self.assertTrue('Formula Exception' in log.records[0].msg)
         self.assertTrue(log.records[0].exc_info)
 
@@ -50,7 +48,6 @@ class CreditTest(TestCase):
 
         self.assertEqual(len(log.records), 1)
         self.assertEqual(log.records[0].levelname, 'ERROR')
-        self.assertTrue(log.records[0].module_path.startswith('stars'))
         self.assertTrue('Validation Exception' in log.records[0].msg)
         self.assertTrue(log.records[0].exc_info)
 

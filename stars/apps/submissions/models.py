@@ -1,5 +1,7 @@
 from datetime import datetime, date, timedelta
+import logging
 import os, re, sys
+
 from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User
@@ -13,7 +15,7 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 
 from stars.apps.credits.models import CreditSet, Category, Subcategory, Credit, DocumentationField, Choice, ApplicabilityReason, Rating
 from stars.apps.institutions.models import Institution, ClimateZone
-from stars.apps.helpers import flashMessage, managers, logger
+from stars.apps.helpers import flashMessage, managers
 from stars.apps.submissions.pdf.export import build_report_pdf
 from stars.apps.notifications.models import EmailTemplate
 
@@ -33,7 +35,7 @@ EXTENSION_PERIOD = timedelta(days=366/2)
 # Institutions that registered before May 29th, but haven't paid are still published
 REGISTRATION_PUBLISH_DEADLINE = date(2010, 5, 29)
 
-logger = logger.getLogger(__name__)
+logger = logging.getLogger('stars')
 
 def upload_path_callback(instance, filename):
     """
@@ -238,8 +240,7 @@ class SubmissionSet(models.Model, FlaggableModel):
         else:
             logger.error(
                 "No method (%s) defined to score submission %s" %
-                (scoring_method, self.creditset.version),
-                {'who': 'Submissions'})
+                (scoring_method, self.creditset.version))
             return 0
 
     def get_STARS_v1_0_score(self):
@@ -534,8 +535,7 @@ class CategorySubmission(models.Model):
         else:
             logger.error(
                 "No method (%s) defined to score category submission %s" %
-                (scoring_method, self.submissionset.creditset.version),
-                {'who': 'Submissions'})
+                (scoring_method, self.submissionset.creditset.version))
             return 0
 
     def get_STARS_v1_0_score(self):
@@ -869,7 +869,7 @@ class CreditSubmission(models.Model):
             if log_error:
                 logger.error(
                     "Error converting formula result (%s) to numeric type: %s" %
-                    (points.__str__(),e), {'who': 'Submission'})
+                    (points.__str__(),e), exc_info=True)
             return (0, "Non-numeric result calculated for points: %s" % points)
 
     def validate_points(self, points, log_error=True):
@@ -892,7 +892,7 @@ class CreditSubmission(models.Model):
             range_error = ("Points (%s) are out of range (0 - %s)." %
                            (points.__str__(), self.credit.point_value))
             if log_error:
-                logger.error(range_error, {'who': 'Submission'})
+                logger.error(range_error)
             messages.append(range_error)
             points = 0
 
@@ -1399,7 +1399,7 @@ class ChoiceWithOtherSubmission(ChoiceSubmission, AbstractChoiceWithOther):
             choice = Choice.objects.get(id=value)
         except:
             logger.error("Attempt to decompress non-existing Choice (id=%s)" %
-                         value, {'who': 'Submissions'})
+                         value, exc_info=True)
             return [None, None]
         if choice.is_bonafide:  # A bonafide choice is one of the actual choices
             return [value, None]
@@ -1484,15 +1484,14 @@ class MultiChoiceWithOtherSubmission(MultiChoiceSubmission, AbstractChoiceWithOt
             except:
                 logger.error(
                     "Attempt to decompress non-existing Choice (id=%s)" %
-                    choice_id, {'who': 'Submissions'})
+                    choice_id, exc_info=True)
                 return [[], None]
             if not choice.is_bonafide:  # An 'other' choice replace
                                         # the choice with the last
                                         # choice.
                 if other:
                     logger.error("Found multiple 'other' choices (%s and %s) associated with single MultiChoiceWithOtherSubmission (id=%s)" %
-                                 (other, choice.choice, self.id),
-                                 {'who': 'Submissions'})
+                                 (other, choice.choice, self.id))
                 else:
                     choice_id = self.get_last_choice().pk
                     other = choice.choice

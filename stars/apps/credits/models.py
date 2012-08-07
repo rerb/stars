@@ -1,19 +1,19 @@
+import logging
+import re, copy
+from datetime import date
+
 from django.db import models
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.utils.encoding import smart_unicode
 from django.conf import settings
 
-import re, copy
-from datetime import date
-
-from stars.apps.helpers import logger
 from stars.apps.credits.utils import get_next_variable_name
 from mixins import VersionedModel
 
 RATING_DURATION = 365*3
 
-logger = logger.getLogger(__name__)
+logger = logging.getLogger('stars')
 
 
 class IncrementalFeature(models.Model):
@@ -145,7 +145,7 @@ class CreditSet(VersionedModel):
                 return rating
         # oh-oh - we didn't find any suitable rating.
         logger.error("No valid rating could be found for score "
-                     "%s in creditset %s" % (score, self), {'who': 'Credits'})
+                     "%s in creditset %s" % (score, self))
         return Rating(name="Rating Unavailable", minimal_score=0, creditset=self)
 
     def get_version_identifier(self):
@@ -197,7 +197,7 @@ class CreditSet(VersionedModel):
             if lock_changed and self.is_released() :
                 lock_status = 'LOCKED' if self.is_locked else 'UN-LOCKED'
                 logger.info("Released Credit Set %s was %s" %
-                            (self, lock_status), {'who': 'Credit Editor'})
+                            (self, lock_status))
         except ObjectDoesNotExist:
             pass    #  saving a new credit set - locks don't apply - carry on.
 
@@ -535,8 +535,7 @@ class Credit(VersionedModel):
         if hasattr(self, callback):
             return getattr(self, callback)()
 
-        logger.error("No identifier could be found for credit %s" % self.id,
-                     {'who': 'Credits'})
+        logger.error("No identifier could be found for credit %s" % self.id)
         return self.get_1_0_identifier()
 
     def get_1_0_identifier(self):
@@ -643,8 +642,7 @@ else:
         except AssertionError, e:  # Assertions may be used in formula for extra validation - assume assertion text is intended for user
             return(False, "%s"%e, e, points)
         except Exception, e:
-            logger.exception("Formula Exception: %s" % e,
-                             {'who': 'Credit'})
+            logger.exception("Formula Exception: %s" % e)
             return(False, "There was an error processing this credit. AASHE has noted the error and will work to resolve the issue.", e, points)
         return (True, "Formula executed successfully", None, points)
 
@@ -673,8 +671,7 @@ else:
             if str(e):
                 errors['top'] ="%s"%e
         except Exception, e:
-            logger.exception("Validation Exception: %s" % e,
-                             {'who': 'Credit'})
+            logger.exception("Validation Exception: %s" % e)
             errors['top'] = "There was an error processing this credit. AASHE has noted the error and will work to resolve the issue."
         return errors,warnings
 

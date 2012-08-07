@@ -1,3 +1,5 @@
+import logging
+
 from tastypie.authentication import ApiKeyAuthentication, Authentication
 from tastypie.authorization import ReadOnlyAuthorization
 from tastypie.resources import ModelResource
@@ -5,9 +7,7 @@ from tastypie.serializers import Serializer
 
 from django.conf import settings # When settings API_TEST_MODE is True, authentication is turned off.
 
-from stars.apps.helpers.logger import getLogger
-
-logger = getLogger(__name__)
+logger = logging.getLogger('stars')
 
 
 class JSONForHTMLSerializer(Serializer):

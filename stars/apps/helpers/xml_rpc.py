@@ -1,3 +1,4 @@
+import logging
 import sys
 from time import time
 import xmlrpclib, random, hashlib, hmac
@@ -5,9 +6,8 @@ import xmlrpclib, random, hashlib, hmac
 from django.conf import settings
 
 from stars.apps.helpers.exceptions import RpcException
-from stars.apps.helpers import logger
 
-logger = logger.getLogger(__name__)
+logger = logging.getLogger('stars')
 
 def run_rpc(service_name, args, sessid='????'):
     """

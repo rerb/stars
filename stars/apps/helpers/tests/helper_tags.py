@@ -30,6 +30,5 @@ class HelpTagsTest(TestCase):
 
         self.assertEqual(len(log.records), 1)
         self.assertEqual(log.records[0].levelname, 'ERROR')
-        self.assertTrue(log.records[0].module_path.startswith('stars'))
         self.assertTrue('HelpContext' in log.records[0].msg)
         self.assertTrue('not found' in log.records[0].msg)

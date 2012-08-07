@@ -42,5 +42,4 @@ class UtilsTest(TestCase):
         self.assertEqual(len(log.records), 2)
         for record in log.records:
             self.assertEqual(record.levelname, 'ERROR')
-            self.assertTrue(record.module_path.startswith('stars'))
             self.assertTrue('institution not found' in record.msg)

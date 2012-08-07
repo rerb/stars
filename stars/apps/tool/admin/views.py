@@ -1,4 +1,5 @@
 from datetime import datetime, date
+import logging
 import sys
 
 from django.conf import settings
@@ -12,7 +13,7 @@ from django.utils.decorators import method_decorator
 from stars.apps.accounts.utils import respond
 from stars.apps.accounts import utils as auth_utils
 from stars.apps.accounts.decorators import user_is_staff
-from stars.apps.helpers import logger, flashMessage
+from stars.apps.helpers import flashMessage
 from stars.apps.helpers.forms import form_helpers
 from stars.apps.helpers.forms.forms import Confirm as ConfirmForm
 from stars.apps.institutions.models import Institution, Subscription, SubscriptionPayment
@@ -23,7 +24,7 @@ from stars.apps.tool.admin.forms import PaymentForm
 from stars.apps.helpers.forms.views import FormActionView
 from stars.apps.third_parties.models import ThirdParty
 
-logger = logger.getLogger(__name__)
+logger = logging.getLogger('stars.request')
 
 @user_is_staff
 def institutions_search(request):
@@ -298,7 +299,7 @@ def delete_payment(request, payment_id):
     (form, deleted) = form_helpers.confirm_delete_form(request, payment)
     if deleted:
         logger.info("Payment: %s deleted." % payment,
-                    {'who': 'Inst. Admin'})
+                    extra={'request': request})
         return HttpResponseRedirect(payment.get_admin_url())
 
     return respond(request, 'tool/admin/payments/delete.html', {'payment':payment, 'confirm_form': form})

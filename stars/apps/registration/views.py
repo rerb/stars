@@ -1,18 +1,20 @@
+import logging
+from datetime import datetime, date, timedelta
+import urllib2, re, sys
+from xml.etree.ElementTree import fromstring
+
 from django.http import Http404, HttpResponseRedirect, HttpResponseForbidden
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import user_passes_test, login_required
 from django.forms import widgets
 from django.conf import settings
 
-from datetime import datetime, date, timedelta
-import urllib2, re, sys
-from xml.etree.ElementTree import fromstring
-
-from stars.apps.institutions.models import Institution, Subscription, SubscriptionPayment
+from stars.apps.institutions.models import Institution, Subscription, \
+     SubscriptionPayment
 from stars.apps.registration.forms import *
 from stars.apps.registration.utils import is_canadian_zipcode, is_usa_zipcode
 from stars.apps.accounts.utils import respond, connect_iss
-from stars.apps.helpers import flashMessage, logger
+from stars.apps.helpers import flashMessage
 from stars.apps.tool.my_submission.views import _get_active_submission
 from stars.apps.accounts import xml_rpc
 from stars.apps.submissions.models import SubmissionSet
@@ -27,7 +29,7 @@ from zc.authorizedotnet.processing import CcProcessor
 from zc.creditcard import (AMEX, DISCOVER, MASTERCARD, VISA, UNKNOWN_CARD_TYPE)
 from aashe.issdjango.models import Organizations
 
-logger = logger.getLogger(__name__)
+logger = logging.getLogger('stars')
 
 # @todo - it would be nice to use the WizardView here if possible
 
@@ -125,8 +127,9 @@ def reg_select_institution(request):
             e = form.errors
             # Since this is a pull-down menu, there is really no way
             # for this to happen.
+            logger = logging.getLogger('stars.request')
             logger.error("The institution select form didn't validate.",
-                         {'who': 'Registration'})
+                         extra={'request': request})
 
     form.fields['aashe_id'].widget = widgets.Select(choices=institution_list)
 
@@ -637,8 +640,7 @@ def process_payment(payment_dict, product_list, invoice_num=None, server=None,
         logger.warning("Payment denied for %s %s (%s)" %
                        (payment_dict['billing_firstname'],
                         payment_dict['billing_lastname'],
-                        result.response_reason),
-                        {'who': 'process_payment'})
+                        result.response_reason))
         return {'cleared': False, 'reason_code': None,
                 'msg': result.response_reason, 'conf': None, 'trans_id': None}
 
@@ -698,8 +700,7 @@ def _get_registration_price(institution, new=True, discount_code=None):
         try:
             discount = ValueDiscount.objects.get(code=discount_code).amount
         except ValueDiscount.DoesNotExist:
-            logger.warning("Invalid Coupon Code",
-                           {'who': '_get_registration_price'})
+            logger.warning("Invalid Coupon Code", exc_info=True)
             pass
 
     if institution.is_member:

@@ -1,11 +1,12 @@
+import logging
+
 from django import template
 from django.utils.html import strip_spaces_between_tags, escape
 from django.utils.safestring import mark_safe
 
 from stars.apps.cms.models import ArticleMenu
-from stars.apps.helpers import logger
 
-logger = logger.getLogger(__name__)
+logger = logging.getLogger('stars')
 
 register = template.Library()
 

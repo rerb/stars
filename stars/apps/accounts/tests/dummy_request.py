@@ -11,3 +11,6 @@ class DummyRequest(object):
 
     def get_host(self):
         return self.host
+
+    def get(self, *args, **kwargs):
+        return ''

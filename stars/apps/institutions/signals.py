@@ -1,11 +1,13 @@
+import logging
+
 import django.dispatch
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 
-from stars.apps.institutions import Institution, Subscription, SubscriptionPayment
-from stars.apps.helpers import logger
+from stars.apps.institutions import Institution, Subscription, \
+     SubscriptionPayment
 
-logger = logger.getLogger(__name__)
+logger = logging.getLogger('stars')
 
 @receiver(post_save, sender=SubscriptionPayment)
 def apply_payment(sender, **kwargs):
@@ -27,7 +29,7 @@ def apply_payment(sender, **kwargs):
         subscription.paid_in_full = False
     else:
         logger.error("Payments exceed amount due for %s." %
-                     subscription.institution, {'who': 'apply_payment'})
+                     subscription.institution)
     subscription.institution.update_status()
 
 """

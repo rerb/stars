@@ -26,7 +26,6 @@ class PDFExportTest(TestCase):
 
         self.assertEqual(len(log.records), 1)
         self.assertEqual(log.records[0].levelname, 'ERROR')
-        self.assertTrue(log.records[0].module_path.startswith('stars'))
         self.assertTrue(log.records[0].msg.startswith(
             'PDF Generation Failed'))
 

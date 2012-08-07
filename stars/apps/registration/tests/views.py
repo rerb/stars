@@ -12,10 +12,10 @@ from stars.apps.registration import views
 
 class ViewsTest(TestCase):
 
-    def test_select_institution_logging(self):
-        """Does select_institution log an error for an invalid form?
+    def test_reg_select_institution_logging(self):
+        """Does reg_select_institution log an error for an invalid form?
         """
-        with testfixtures.LogCapture('stars') as log:
+        with testfixtures.LogCapture('stars.request') as log:
             with testfixtures.Replacer() as r:
                 r.replace('stars.apps.registration.views._confirm_login',
                           lambda x: False)
@@ -28,7 +28,6 @@ class ViewsTest(TestCase):
 
         self.assertEqual(len(log.records), 1)
         self.assertEqual(log.records[0].levelname, 'ERROR')
-        self.assertTrue(log.records[0].module_path.startswith('stars'))
         self.assertTrue('form didn\'t validate' in log.records[0].msg)
 
     def test_process_payment_logging(self):
@@ -53,7 +52,6 @@ class ViewsTest(TestCase):
 
         self.assertEqual(len(log.records), 1)
         self.assertEqual(log.records[0].levelname, 'WARNING')
-        self.assertTrue(log.records[0].module_path.startswith('stars'))
         self.assertTrue('Payment denied' in log.records[0].msg)
 
     def test__get_registration_price_logging(self):
@@ -66,7 +64,6 @@ class ViewsTest(TestCase):
 
         self.assertEqual(len(log.records), 1)
         self.assertEqual(log.records[0].levelname, 'WARNING')
-        self.assertTrue(log.records[0].module_path.startswith('stars'))
         self.assertTrue('Invalid Coupon Code' in log.records[0].msg)
 
 
@@ -81,6 +78,10 @@ class MockRequest(HttpRequest):
         self.META = {}
         self.environ = {}
         self.user = User(username='jimmy_smits')
+        self.host = 'hamlin'
+
+    def get(self, *args, **kwargs):
+        return ''
 
 
 class MockRegistrationSchoolChoiceForm(object):

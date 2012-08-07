@@ -1,13 +1,15 @@
+import logging
+
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect, HttpResponseForbidden, HttpResponseNotFound, Http404
 from django.utils.http import urlquote
 from django.conf import settings
 
-from stars.apps.helpers import flashMessage, logger
+from stars.apps.helpers import flashMessage
 from stars.apps.institutions.models import StarsAccount, Institution
 from stars.apps.institutions.rules import user_has_access_level, institution_has_export
 
-logger = logger.getLogger(__name__)
+logger = logging.getLogger('stars.request')
 
 
 class StarsMixin(object):
@@ -163,7 +165,7 @@ class SubmissionMixin(AccountMixin):
         if not active_submission:
 
             logger.error("No active submission for %s." % current_inst,
-                         {'who': "get_active_submission_problem_response"})
+                         extra={'request': request})
 
         return None
 
