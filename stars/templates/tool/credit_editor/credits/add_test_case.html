@@ -1,0 +1,19 @@
+{% extends "tool/credit_editor/credits/base.html" %}
+
+{% block tabclass %}class='tab4'{% endblock %}
+
+{% block credit_content %}
+   <form action='.' method='POST' class='generalForm'>
+        <div class='form'>
+      		<div class='documentationField'>
+      		{% include "helpers/standard_form.html" %}
+      		</div>
+            {% with object_form as submission_form %}
+                {% include "tool/submissions/submission_fields_form.html" %}
+            {% endwith %}
+            <div class='button_row'>
+                <button type='submit' id='submit_button'>Add</button>
+            </div>
+        </div>
+    </form>
+{% endblock %}
