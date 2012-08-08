@@ -97,9 +97,13 @@ class RatingTest(TestCase):
         self.assertTrue(response.status_code == 200)
 
         post_dict = {'confirm': 1,}
-        response = c.post('/tool/submissions/submit/finalize/', post_dict, follow=False)
-        self.assertTrue(response.status_code == 200)
+        response = c.post('/tool/submissions/submit/finalize/', post_dict,
+                          follow=False)
+        self.assertEqual(response.status_code, 200)
         ss = SubmissionSet.objects.get(pk=1)
         self.assertTrue(ss.status == 'r')
-        # one email to institution
-        self.assertTrue(len(mail.outbox) == 2)
+        # one email to institution, and another as a side effect of
+        # send_certificate_pdf.delay():
+        mail_messages_that_are_not_errors = [ msg for msg in mail.outbox if
+                                              'ERROR:' not in msg.subject ]
+        self.assertEqual(len(mail_messages_that_are_not_errors), 2)
