@@ -36,9 +36,10 @@ class TemplateView(object):
         return _context
 
 def server_error(request):
-    """Before watchdog was dragged out and shot, the context below was
-    filled with info from any exception available via WatchdogEntry.  Not
-    much going on here anymore.
+    """Before watchdog moved to a farm upstate where he can run and
+    play and chase rabbits all day, the context below was filled with
+    info from any exception available via WatchdogEntry.  Not much
+    going on here anymore.
     """
     context = {}
 
