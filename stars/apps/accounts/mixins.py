@@ -5,12 +5,28 @@ from django.http import HttpResponseRedirect, HttpResponseForbidden, HttpRespons
 from django.utils.http import urlquote
 from django.conf import settings
 
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+
 from stars.apps.helpers import flashMessage
 from stars.apps.institutions.models import StarsAccount, Institution
 from stars.apps.institutions.rules import user_has_access_level, institution_has_export
 
 logger = logging.getLogger('stars.request')
 
+class StarsAccountMixin(object):
+    """
+        Login Required
+        Adds STARS account list to class
+    """
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(StarsAccountMixin, self).dispatch(*args, **kwargs)
+
+    def get_stars_account_list(self):
+        """ get all STARS Accounts associated with this user """
+        return StarsAccount.objects.filter(user=self.request.user)
+    
 
 class StarsMixin(object):
     """
