@@ -77,7 +77,8 @@ AUTHENTICATION_BACKENDS = ('stars.apps.accounts.aashe.AASHEAuthBackend',)
 if 'test' in sys.argv:
     AUTHENTICATION_BACKENDS = (
                                'django.contrib.auth.backends.ModelBackend',
-                               'stars.apps.accounts.aashe.AASHEAuthBackend',
+                               'aashe_python.aashe.aasheauth.backends.AASHEBackend',
+#                               'stars.apps.accounts.aashe.AASHEAuthBackend',
                                )
 
 DASHBOARD_URL = "/tool/"
