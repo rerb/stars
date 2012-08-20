@@ -1,16 +1,18 @@
 import logging
 
+from django.contrib import messages
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponseRedirect, HttpResponseForbidden, HttpResponseNotFound, Http404
+from django.http import HttpResponseRedirect, HttpResponseForbidden, \
+     HttpResponseNotFound, Http404
 from django.utils.http import urlquote
 from django.conf import settings
 
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 
-from stars.apps.helpers import flashMessage
 from stars.apps.institutions.models import StarsAccount, Institution
-from stars.apps.institutions.rules import user_has_access_level, institution_has_export
+from stars.apps.institutions.rules import user_has_access_level, \
+     institution_has_export
 
 logger = logging.getLogger('stars.request')
 
@@ -30,18 +32,21 @@ class StarsAccountMixin(object):
 
 class StarsMixin(object):
     """
-        The base mixin class that provides `redirect_to_login` for now... maybe others
+        The base mixin class that provides `redirect_to_login` for
+        now... maybe others
     """
 
     def redirect_to_login(self, request):
-        """ Returns a Redirect Response to the login URL, with a ?next= parameter back to the current request path """
-        flashMessage.send("Please login to access STARS tools.", flashMessage.NOTICE)
+        """ Returns a Redirect Response to the login URL, with a
+        ?next= parameter back to the current request path """
+        messages.info(request, "Please login to access STARS tools.")
         path = urlquote(request.get_full_path())
         return HttpResponseRedirect('%s?next=%s' %(settings.LOGIN_URL, path))
 
     def redirect_to_tool(self, request, message):
-        """ Returns a Redirect Response to the STARS tool, showing the given message """
-        flashMessage.send(message, flashMessage.NOTICE)
+        """ Returns a Redirect Response to the STARS tool, showing the
+        given message """
+        messages.info(request, message)
         return HttpResponseRedirect(settings.DASHBOARD_URL)
 
 class AuthenticatedMixin(StarsMixin):
@@ -75,16 +80,19 @@ class AuthenticatedMixin(StarsMixin):
 
 class AccountMixin(StarsMixin):
     """
-        This class should be used as a mixin to provide the subclass with `STARSAccount` verification.
+        This class should be used as a mixin to provide the subclass
+        with `STARSAccount` verification.
 
         Example:
         class MyClass(AccountMixin, BaseClass):
            pass
 
-        If there is an issue with the submission `__call__` will report the error with a Response object
-        or an exception.
+        If there is an issue with the submission `__call__` will
+        report the error with a Response object or an exception.
 
-        Assumes `__call__` returns a response object and has the following declaration:
+        Assumes `__call__` returns a response object and has the
+        following declaration:
+
             def __call__(self, request, *args, **kwargs):
 
         @Todo: check for expired submissionsets!
@@ -105,11 +113,16 @@ class AccountMixin(StarsMixin):
                 - current institution isn't enabled
 
             Assumes:
-                - apps.auth.middleware is adding the following properties to `request.user`:
+
+                - apps.auth.middleware is adding the following
+                  properties to `request.user`:
+
                     - `current_inst`
                     - `account_list`
 
-            NOTE: this is a duplicate of the decorator in `stars.apps.auth.decorators`.
+            NOTE: this is a duplicate of the decorator in
+            `stars.apps.auth.decorators`.
+
             Any changes made here, should be duplicated there.
         """
 
@@ -118,16 +131,34 @@ class AccountMixin(StarsMixin):
         if not current_inst:
 
             if request.user.is_staff:
-                flashMessage.send("You need to select an institution.", flashMessage.NOTICE)
+                messages.info(request, "You need to select an institution.")
                 path = urlquote(request.get_full_path())
-                return HttpResponseRedirect('%s?next=%s' %(settings.ADMIN_URL, path))
+                return HttpResponseRedirect('%s?next=%s' %
+                                            (settings.ADMIN_URL, path))
 
-            elif request.user.account_list: # user has accounts, just none selected (this shouldn't happen, but just in case...)
-                return self.redirect_to_tool(request, "You need to select an institution before proceeding")
+            elif request.user.account_list:
+                # user has accounts, just none selected (this
+                # shouldn't happen, but just in case...)
+                return self.redirect_to_tool(
+                    request,
+                    "You need to select an institution before proceeding")
             else: # user has no accounts (also shouldn't really happen...
-                error_msg = """Your AASHE Account is not verified to access the STARS Reporting Tool.  Only institutions that are registered as STARS Participants are able to access the Reporting Tool.  You may be receiving this message because you have not been listed as a user by the account's administrator.  The administrator is likely to be the person who first registered for STARS or your institution's STARS Liaison.  Please contact this person so they may list you as a user in the Reporting Tool and you may gain access.
-    <br/><br/>
-    To add users, once the administrator is logged into the Reporting Tool, simply choose the "Manage Institution" link and click on the "Users" tab."""
+                error_msg = """
+                Your AASHE Account is not verified to access the STARS
+                Reporting Tool.  Only institutions that are registered
+                as STARS Participants are able to access the Reporting
+                Tool.  You may be receiving this message because you
+                have not been listed as a user by the account's
+                administrator.  The administrator is likely to be the
+                person who first registered for STARS or your
+                institution's STARS Liaison.  Please contact this
+                person so they may list you as a user in the Reporting
+                Tool and you may gain access.
+                <br/><br/>
+                To add users, once the administrator is logged into
+                the Reporting Tool, simply choose the "Manage
+                Institution" link and click on the "Users" tab."""
+
                 raise PermissionDenied(error_msg)
         else:
             if not current_inst.enabled:

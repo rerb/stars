@@ -3,6 +3,7 @@ import logging
 import sys
 
 from django.conf import settings
+from django.contrib import messages
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect, Http404
 from django.core.exceptions import PermissionDenied
@@ -18,7 +19,6 @@ from stars.apps.submissions.tasks import migrate_purchased_submission, perform_m
 from stars.apps.submissions.rules import user_can_migrate_version, user_can_migrate_from_submission, user_can_migrate_data
 from stars.apps.third_parties.models import ThirdParty
 from stars.apps.helpers.forms import form_helpers
-from stars.apps.helpers import flashMessage
 from stars.apps.tool.manage.forms import *
 from stars.apps.registration.forms import PaymentForm, PayLaterForm
 from stars.apps.registration.views import process_payment, get_payment_dict, _get_registration_price, init_submissionset
@@ -127,10 +127,13 @@ def delete_responsible_party(request, rp_id):
 
     credit_count = rp.creditusersubmission_set.exclude(subcategory_submission__category_submission__submissionset__is_visible=False).count()
     if credit_count > 0:
-        flashMessage.send("This Responsible Party cannot be removed because he/she is listed with one or more credits.", flashMessage.ERROR)
+        messages.error(request,
+                       "This Responsible Party cannot be removed because "
+                       "he/she is listed with one or more credits.")
         return HttpResponseRedirect(rp.get_manage_url())
     else:
-        flashMessage.send("Succesfully Removed Responsible Party: %s" % rp, flashMessage.NOTICE)
+        messages.info(request,
+                      "Successfully Removed Responsible Party: %s" % rp)
         rp.delete()
         return HttpResponseRedirect("/tool/manage/responsible-parties/")
 
@@ -187,16 +190,25 @@ def add_account(request):
             user_level = account_form.cleaned_data['userlevel']
             user_list = xml_rpc.get_user_by_email(user_email)
             if not user_list:
-                flashMessage.send("There is no AASHE user with e-mail: %s. STARS Account pending user's registration at www.aashe.org" % user_email, flashMessage.NOTICE)
-                PendingAccount.update_account(request.user, preferences.notify_users, current_inst, user_level, user_email=user_email)
+                messages.info(request,
+                              "There is no AASHE user with e-mail: %s. "
+                              "STARS Account pending user's registration "
+                              "at www.aashe.org" % user_email)
+                PendingAccount.update_account(request.user,
+                                              preferences.notify_users,
+                                              current_inst, user_level,
+                                              user_email=user_email)
             else:
                 user = xml_rpc.get_user_from_user_dict(user_list[0], None)
-                StarsAccount.update_account(request.user, preferences.notify_users, current_inst, user_level, user=user)
+                StarsAccount.update_account(request.user,
+                                            preferences.notify_users,
+                                            current_inst, user_level, user=user)
             return HttpResponseRedirect(StarsAccount.get_manage_url())
     else:
         account_form = AccountForm()
 
-    return respond(request, 'tool/manage/add_account.html', {'account_form': account_form, 'notify_form':notify_form,})
+    return respond(request, 'tool/manage/add_account.html',
+                   {'account_form': account_form, 'notify_form':notify_form,})
 
 @user_is_inst_admin
 def delete_account(request, account_id):
@@ -220,8 +232,8 @@ def delete_account(request, account_id):
         # no need to confirm deletion of pending accounts, since there
         # is no consequence to doing so.
         account.delete()
-        flashMessage.send("Pending account: %s successfully deleted." %
-                          account, flashMessage.SUCCESS)
+        messages.success(request,
+                         "Pending account: %s successfully deleted." % account)
         if preferences.notify_users:
             account.notify(StarsAccount.DELETE_ACCOUNT, request.user,
                            current_inst)
@@ -249,8 +261,10 @@ def _update_preferences(request):
     try:
         preferences = request.user.current_inst.preferences
     except InstitutionPreferences.DoesNotExist:
-        preferences = InstitutionPreferences(institution=request.user.current_inst)
-    (notify_form,saved) = form_helpers.basic_save_form(request, preferences, '', NotifyUsersForm, flash_message=False)
+        preferences = InstitutionPreferences(
+            institution=request.user.current_inst)
+    (notify_form,saved) = form_helpers.basic_save_form(
+        request, preferences, '', NotifyUsersForm, show_message=False)
     return (preferences, notify_form)
 
 @user_is_inst_admin
@@ -329,7 +343,9 @@ def migrate_data(request, ss_id):
     object_form, saved = form_helpers.basic_save_form(request, current_submission, current_submission.id, ObjectForm)
     if saved:
         # start a migration task
-        flashMessage.send("Your migration is in progress. Please allow a few minutes before you can access your submission.", flashMessage.NOTICE)
+        messages.info(request,
+                      "Your migration is in progress. Please allow a "
+                      "few minutes before you can access your submission.")
         perform_data_migration.delay(old_submission, request.user)
         return HttpResponseRedirect("/tool/")
 
@@ -350,19 +366,27 @@ def migrate_version(request):
     latest_creditset = CreditSet.objects.get_latest()
 
     if latest_creditset.version == current_submission.creditset.version:
-        flashMessage.send("Already using %s." % latest_creditset, flashMessage.Error)
+        messages.error(request, "Already using %s." % latest_creditset)
         return HttpResponseRedirect("/tool/manage/migrate/")
 
     if not user_can_migrate_version(request.user, current_inst):
-        raise PermissionDenied("Sorry, but you don't have permission to migrate data.")
+        raise PermissionDenied("Sorry, but you don't have permission "
+                               "to migrate data.")
 
     ObjectForm = MigrateSubmissionSetForm
 
-    object_form, saved = form_helpers.basic_save_form(request, current_submission, current_submission.id, ObjectForm)
+    object_form, saved = form_helpers.basic_save_form(request,
+                                                      current_submission,
+                                                      current_submission.id,
+                                                      ObjectForm)
     if saved:
         # start a migration task
-        flashMessage.send("Your migration is in progress. Please allow a few minutes before you can access your submission.", flashMessage.NOTICE)
-        perform_migration.delay(current_submission, latest_creditset, request.user)
+        messages.info(request, "Your migration is in progress. "
+                      "Please allow a few minutes before you can access "
+                      "your submission.")
+        perform_migration.delay(current_submission,
+                                latest_creditset,
+                                request.user)
         return HttpResponseRedirect("/tool/")
 
     template = 'tool/manage/migrate_version.html'
@@ -473,9 +497,10 @@ def _gets_discount(institution, current_date=date.today()):
 #                    ss.institution.set_active_submission(ss)
 #                    return HttpResponseRedirect("/tool/manage/submissionsets/")
 #                else:
-#                    flashMessage.send("Processing Error: %s" % result['msg'], flashMessage.ERROR)
+#                    messages.error(request,
+#                                   "Processing Error: %s" % result['msg'])
 #        else:
-#            flashMessage.send("Please correct the errors below", flashMessage.ERROR)
+#            messages.error(request, "Please correct the errors below")
 #
 #    template = 'tool/manage/pay_submissionset.html'
 #    context = {
@@ -531,13 +556,12 @@ def purchase_subscription(request):
         if later_form.is_valid() and later_form.cleaned_data['confirm']:
 
             sub = Subscription(
-                                institution=current_inst,
-                                start_date=start_date,
-                                end_date=start_date + timedelta(SUBSCRIPTION_DURATION),
-                                amount_due=amount,
-                                paid_in_full=False,
-                                reason=reason
-                               )
+                institution=current_inst,
+                start_date=start_date,
+                end_date=start_date + timedelta(SUBSCRIPTION_DURATION),
+                amount_due=amount,
+                paid_in_full=False,
+                reason=reason)
             sub.save()
 
             if not current_inst.current_subscription:
@@ -564,25 +588,28 @@ def purchase_subscription(request):
             if pay_form.is_valid():
                 payment_dict = get_payment_dict(pay_form, current_inst)
                 if pay_form.cleaned_data['discount_code'] != None:
-                        amount = _get_registration_price(current_inst, discount_code=pay_form.cleaned_data['discount_code'])
-                        flashMessage.send("Discount Code Applied", flashMessage.NOTICE)
+                        amount = _get_registration_price(
+                            current_inst,
+                            discount_code=pay_form.cleaned_data['discount_code'])
+                        messages.info(request, "Discount Code Applied")
                 product_dict = {
                     'price': amount,
                     'quantity': 1,
                     'name': "STARS Subscription Purchase",
                 }
 
-                result = process_payment(payment_dict, [product_dict], invoice_num=current_inst.aashe_id)
+                result = process_payment(payment_dict, [product_dict],
+                                         invoice_num=current_inst.aashe_id)
                 if result.has_key('cleared') and result.has_key('msg'):
                     if result['cleared'] and result['trans_id']:
 
                         sub = Subscription(
-                                            institution=current_inst,
-                                            start_date=start_date,
-                                            end_date=start_date + timedelta(SUBSCRIPTION_DURATION),
-                                            amount_due=0,
-                                            paid_in_full=True,
-                                           )
+                            institution=current_inst,
+                            start_date=start_date,
+                            end_date=(start_date +
+                                      timedelta(SUBSCRIPTION_DURATION)),
+                            amount_due=0,
+                            paid_in_full=True)
                         sub.save()
 
                         p = SubscriptionPayment(
@@ -596,17 +623,23 @@ def purchase_subscription(request):
                         p.save()
 
                         if request.user.email != current_inst.contact_email:
-                            mail_to = [request.user.email, current_inst.contact_email]
+                            mail_to = [request.user.email,
+                                       current_inst.contact_email]
                         else:
                             mail_to = [current_inst.contact_email,]
 
-                        if reason == "member_renew" or reason == "nonmember_renew":
-                            et = EmailTemplate.objects.get(slug="reg_renewed_paid")
+                        if (reason == "member_renew" or
+                            reason == "nonmember_renew"):
+                            et = EmailTemplate.objects.get(
+                                slug="reg_renewed_paid")
                             send_exec_renew_email(current_inst)
                         else:
-                            et = EmailTemplate.objects.get(slug="welcome_liaison_paid")
+                            et = EmailTemplate.objects.get(
+                                slug="welcome_liaison_paid")
 
-                        email_context = {'payment_dict': payment_dict,'institution': current_inst, "payment": p}
+                        email_context = {'payment_dict': payment_dict,
+                                         'institution': current_inst,
+                                         "payment": p}
                         et.send_email(mail_to, email_context)
 
                         current_inst.current_subscription = sub
@@ -615,9 +648,10 @@ def purchase_subscription(request):
 
                         return HttpResponseRedirect("/tool/")
                     else:
-                        flashMessage.send("Processing Error: %s" % result['msg'], flashMessage.ERROR)
+                        messages.error(request, "Processing Error: %s" %
+                                       result['msg'])
             else:
-                flashMessage.send("Please correct the errors below", flashMessage.ERROR)
+                messages.error(request, "Please correct the errors below")
 
     template = 'tool/manage/purchase_subscription.html'
     context = {
@@ -636,26 +670,29 @@ def pay_subscription(request, subscription_id):
     """
     current_inst = _get_current_institution(request)
 
-    subscription = get_object_or_404(current_inst.subscription_set.all(), pk=subscription_id)
+    subscription = get_object_or_404(current_inst.subscription_set.all(),
+                                     pk=subscription_id)
     amount = subscription.amount_due
     pay_form = PaymentForm()
 
     if request.method == "POST":
-
         pay_form = PaymentForm(request.POST)
         if pay_form.is_valid():
             payment_dict = get_payment_dict(pay_form, current_inst)
             if pay_form.cleaned_data['discount_code'] != None:
-                discount = ValueDiscount.objects.get(code=pay_form.cleaned_data['discount_code']).amount # we know this exists because it was validated in the form
+                # we know this exists because it was validated in the form
+                discount = ValueDiscount.objects.get(
+                    code=pay_form.cleaned_data['discount_code']).amount
                 amount = amount - discount
-                flashMessage.send("Discount Code Applied", flashMessage.NOTICE)
+                messages.info(request, "Discount Code Applied")
             product_dict = {
                 'price': amount,
                 'quantity': 1,
                 'name': "STARS Subscription Payment",
             }
 
-            result = process_payment(payment_dict, [product_dict], invoice_num=current_inst.aashe_id)
+            result = process_payment(payment_dict, [product_dict],
+                                     invoice_num=current_inst.aashe_id)
             if result.has_key('cleared') and result.has_key('msg'):
                 if result['cleared'] and result['trans_id']:
 
@@ -675,9 +712,10 @@ def pay_subscription(request, subscription_id):
 
                     return HttpResponseRedirect("/tool/")
                 else:
-                    flashMessage.send("Processing Error: %s" % result['msg'], flashMessage.ERROR)
+                    messages.error(request,
+                                   "Processing Error: %s" % result['msg'])
         else:
-            flashMessage.send("Please correct the errors below", flashMessage.ERROR)
+            messages.error(request, "Please correct the errors below")
 
     template = 'tool/manage/pay_subscription.html'
     context = {

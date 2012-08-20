@@ -109,7 +109,9 @@ class RenewalTest(TestCase):
         self.assertEqual(p.reason, "reg")
 
         self.assertEqual(Subscription.objects.count(), 2)
-        self.assertTrue(len(mail.outbox) == 1)
+        mail_messages_that_are_not_errors = [ msg for msg in mail.outbox if
+                                              'ERROR:' not in msg.subject ]
+        self.assertEqual(len(mail_messages_that_are_not_errors), 1)
 
         # Pay Now
         post_dict = {
@@ -126,5 +128,7 @@ class RenewalTest(TestCase):
         response = c.post(url, post_dict)
         self.assertTrue(response.status_code == 302)
 
-        self.assertTrue(Subscription.objects.count() == 3)
-        self.assertTrue(len(mail.outbox) == 3)
+        self.assertEqual(Subscription.objects.count(), 3)
+        mail_messages_that_are_not_errors = [ msg for msg in mail.outbox if
+                                              'ERROR:' not in msg.subject ]
+        self.assertEqual(len(mail_messages_that_are_not_errors), 3)

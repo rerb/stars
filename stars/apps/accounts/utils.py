@@ -3,12 +3,12 @@ import MySQLdb
 import re
 
 from django.conf import settings
+from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 
 from stars.apps.institutions.models import StarsAccount, PendingAccount, Institution
-from stars.apps.helpers import flashMessage
 from django.conf import settings
 from django.http import HttpResponseRedirect
 
@@ -174,8 +174,8 @@ def _get_account_from_session(request):
                     # @todo I should really delete the cookie here,
                     # but I can't w/out a Response object
                 except Institution.DoesNotExist:
-                    flashMessage.send('Current institution not found in db.',
-                                      flashMessage.ERROR)
+                    messages.error(request,
+                                   'Current institution not found in db.')
                     logger.error("Current institution not found in database.",
                                  exc_info=True)
         return (None, current_inst)

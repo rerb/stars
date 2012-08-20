@@ -3,6 +3,7 @@ import logging
 import sys
 
 from django.conf import settings
+from django.contrib import messages
 from django.shortcuts import render_to_response, get_object_or_404
 from django.http import HttpResponseRedirect, Http404
 from django.template import Context, loader, Template, RequestContext
@@ -13,7 +14,6 @@ from django.utils.decorators import method_decorator
 from stars.apps.accounts.utils import respond
 from stars.apps.accounts import utils as auth_utils
 from stars.apps.accounts.decorators import user_is_staff
-from stars.apps.helpers import flashMessage
 from stars.apps.helpers.forms import form_helpers
 from stars.apps.helpers.forms.forms import Confirm as ConfirmForm
 from stars.apps.institutions.models import Institution, Subscription, SubscriptionPayment
@@ -54,15 +54,23 @@ def select_institution(request, id):
         raise Http404("No such institution.")
 
     if auth_utils.change_institution(request, institution):
-        redirect_url = request.GET.get('redirect', settings.MANAGE_INSTITUTION_URL)
+        redirect_url = request.GET.get('redirect',
+                                       settings.MANAGE_INSTITUTION_URL)
         response = HttpResponseRedirect(redirect_url)
-        # special hack to "remember" current institution for staff between sessions
-        #  - can't store it in session because it gets overwritten on login, can's store it with account b/c staff don't have accounts.
-        #  - ideally, the cookie path would be LOGIN_URL, but the first request we get is from the login redirect url.
-        response.set_cookie("current_inst", institution.id, path=settings.LOGIN_REDIRECT_URL)
+        # special hack to "remember" current institution for staff
+        # between sessions
+        #  - can't store it in session because it gets overwritten on
+        #    login, can's store it with account b/c staff don't have
+        #    accounts.
+        #  - ideally, the cookie path would be LOGIN_URL, but the
+        #    first request we get is from the login redirect url.
+        response.set_cookie("current_inst", institution.id,
+                            path=settings.LOGIN_REDIRECT_URL)
         return response
     else:
-        flashMessage.send("Unable to change institution to %s - check the log?"%institution, flashMessage.ERROR)
+        messages.error(request,
+                       "Unable to change institution to %s - check the log?" %
+                       institution)
         return HttpResponseRedirect(settings.ADMIN_URL)
 
 @user_is_staff

@@ -15,7 +15,7 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 
 from stars.apps.credits.models import CreditSet, Category, Subcategory, Credit, DocumentationField, Choice, ApplicabilityReason, Rating
 from stars.apps.institutions.models import Institution, ClimateZone
-from stars.apps.helpers import flashMessage, managers
+from stars.apps.helpers import managers
 from stars.apps.submissions.pdf.export import build_report_pdf
 from stars.apps.notifications.models import EmailTemplate
 
@@ -990,9 +990,10 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
         return self.credit.point_value
 
     def _calculate_points(self):
-        """ Helper: returns the number of points calculated for this submission"""
+        """ Helper: returns the number of points calculated for this
+        submission"""
         # Somewhat complex logic is required here so that i something goes wrong,
-        #   we log a detailed message, but only show the user meaningful messages.
+        # we log a detailed message, but only show the user meaningful messages.
         if not self.is_complete(): # no points for incomplete submission
             return 0
         assessed_points = 0  # default is zero - now re-calculate points...
@@ -1004,8 +1005,10 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
             (points, messages) = self.validate_points(points)
             validation_error = len(messages) > 0
 
-        if not ran or validation_error:  #. Provide a generic message for user...
-            flashMessage.send("There was an error processing this credit. AASHE has noted the error and will work to resolve the issue.", flashMessage.ERROR)
+        if not ran or validation_error:
+            logger.error("There was an error processing this credit. "
+                         "AASHE has noted the error and will work to "
+                         "resolve the issue.")
         else:
             assessed_points = points
 
@@ -1428,8 +1431,11 @@ class ChoiceWithOtherSubmission(ChoiceSubmission, AbstractChoiceWithOther):
         # Warn the user about potentially lost data
         last_choice = self.get_last_choice()
         if other_value and choice != last_choice:
-            flashMessage.send("Warning: '%s' will not be saved because '%s' was not selected."%(other_value, last_choice.choice), flashMessage.NOTICE)
-        return super(ChoiceWithOtherSubmission, self).compress(choice, other_value)
+            logger.warning(
+                "'%s' will not be saved because '%s' was not selected." %
+                (other_value, last_choice.choice))
+        return super(ChoiceWithOtherSubmission, self).compress(choice,
+                                                               other_value)
 
 
 class MultiChoiceSubmission(AbstractChoiceSubmission):
@@ -1452,8 +1458,12 @@ class MultiChoiceSubmission(AbstractChoiceSubmission):
         return '[%s]' %','.join([self._get_str(choice) for choice in choices])
 
 
-class MultiChoiceWithOtherSubmission(MultiChoiceSubmission, AbstractChoiceWithOther):
-    """ A proxy model (does not create a new table) for a MultiChoice Submission with an 'other' choice """
+class MultiChoiceWithOtherSubmission(MultiChoiceSubmission,
+                                     AbstractChoiceWithOther):
+    """
+        A proxy model (does not create a new table) for a MultiChoice
+        Submission with an 'other' choice
+    """
     class Meta:
         proxy = True
 
@@ -1490,8 +1500,11 @@ class MultiChoiceWithOtherSubmission(MultiChoiceSubmission, AbstractChoiceWithOt
                                         # the choice with the last
                                         # choice.
                 if other:
-                    logger.error("Found multiple 'other' choices (%s and %s) associated with single MultiChoiceWithOtherSubmission (id=%s)" %
-                                 (other, choice.choice, self.id))
+                    logger.error(
+                        "Found multiple 'other' choices "
+                        "(%s and %s) associated with single "
+                        "MultiChoiceWithOtherSubmission (id=%s)" %
+                        (other, choice.choice, self.id))
                 else:
                     choice_id = self.get_last_choice().pk
                     other = choice.choice
@@ -1501,19 +1514,27 @@ class MultiChoiceWithOtherSubmission(MultiChoiceSubmission, AbstractChoiceWithOt
 
     def compress(self, choices, other_value):
         """
-            Given a decompressed choice list / other value pair into a single Choice list
-            Return a list of Choices representing the selections, or None.
-            Assumes choices is a list of Choices and other_value has been properly sanatized!
-            See decompress() above, except compress is peformed during clean() in ModelMultipleChoiceWithOtherField
+            Given a decompressed choice list / other value pair into a
+            single Choice list, return a list of Choices representing
+            the selections, or None.
+
+            Assumes choices is a list of Choices and other_value has
+            been properly sanatized!
+
+            See decompress() above, except compress is peformed during
+            clean() in ModelMultipleChoiceWithOtherField
         """
         choice_list = []
         for choice in choices:
-            choice_list.append( super(MultiChoiceWithOtherSubmission, self).compress(choice, other_value) )
+            choice_list.append(super(MultiChoiceWithOtherSubmission,
+                                     self).compress(choice, other_value) )
 
         # Warn the user about potentially lost data
         last_choice = self.get_last_choice()
         if other_value and not last_choice in choices:
-            flashMessage.send("Warning: '%s' will not be saved because '%s' was not selected."%(other_value, last_choice.choice), flashMessage.NOTICE)
+            logger.warning(
+                "'%s' will not be saved because '%s' was not selected." %
+                (other_value, last_choice.choice))
 
         return choice_list
 
