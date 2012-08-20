@@ -1,6 +1,8 @@
 # Default Settings for STARS project
 # These can be extended by any .py file in the config folder
 import logging, os, sys, django, re
+from django.contrib import messages
+from django.contrib.messages import constants as messages
 
 sys.path.append('../')
 
@@ -65,6 +67,7 @@ MIDDLEWARE_CLASSES = [ # a list so it can be editable during tests (see below)
     'stars.apps.tool.admin.watchdog.middleware.WatchdogMiddleware',  # must come before flatpage so it doesn't log flatpages as 404's
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
     'stars.apps.helpers.flashMessage.FlashMessageMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware'
 ]
 
 CACHE_BACKEND = "dummy://"
@@ -416,6 +419,12 @@ LOGGING = {
 }
 
 logging.captureWarnings(True)
+
+MESSAGE_TAGS = { messages.DEBUG: 'alert fade in alert-debug',
+                 messages.INFO : 'alert fade in alert-info',
+                 messages.SUCCESS : 'alert fade in alert-success',
+                 messages.WARNING : 'alert fade in alert-warning',
+                 messages.ERROR : 'alert fade in alert-error' }
 
 if os.path.exists(os.path.join(os.path.dirname(__file__), 'hg_info.py')):
     from hg_info import revision
