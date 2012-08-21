@@ -3,9 +3,7 @@ from django.http import HttpResponseServerError, HttpResponseForbidden
 from django.shortcuts import render_to_response
 
 from stars.apps.helpers.shortcuts import render_to_any_response
-from stars.apps.helpers import exceptions
 
-import sys
 
 class TemplateView(object):
     """
