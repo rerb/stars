@@ -134,9 +134,9 @@ class SubmissionSet(models.Model, FlaggableModel):
     def get_upload_path(self):
         return 'secure/%d/submission-%d/' % (self.institution.id, self.id)
 
-    def get_pdf(self, save=False):
+    def get_pdf(self, save=False, template=None):
 
-        pdf_result = build_report_pdf(self)
+        pdf_result = build_report_pdf(self, template)
 
         if save:
             name = self.get_pdf_filename()
@@ -211,7 +211,7 @@ class SubmissionSet(models.Model, FlaggableModel):
             Return the STARS rating (potentially provisional) for this submission
             @todo: this is inefficient - need to store or at least cache the STARS score.
         """
-        if self.reporter_status:
+        if self.reporter_status or self.status == 'f':
             return self.creditset.rating_set.get(name='Reporter')
 
         if self.is_rated() and not recalculate:

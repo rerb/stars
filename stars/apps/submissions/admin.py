@@ -4,7 +4,7 @@ from models import *
 #from mixins import Flag
 
 class SubmissionSetAdmin(admin.ModelAdmin):
-    list_display = ('creditset', 'institution', 'date_registered', 'date_submitted', 'date_reviewed', 'rating', 'is_locked')
+    list_display = ('creditset', 'institution', 'date_registered', 'date_submitted', 'status', 'rating', 'is_locked')
     list_filter = ('date_registered','status', 'is_locked')
     search_fields = ('institution__name',)
 admin.site.register(SubmissionSet, SubmissionSetAdmin)

@@ -103,4 +103,4 @@ if 'test' in sys.argv:
     DATABASES['default']['OPTIONS'] = {}
     
 # Thumbnails
-THUMBNAIL_DEBUG = True
+THUMBNAIL_DEBUG = False

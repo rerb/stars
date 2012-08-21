@@ -1,6 +1,7 @@
 import cStringIO as StringIO
 import ho.pisa as pisa
 from logging import getLogger
+
 from cgi import escape
 import sys, os
 from datetime import datetime
@@ -47,7 +48,7 @@ def render_to_pdf(template_src, context_dict):
 def link_path_callback(path):
     return os.path.join(settings.MEDIA_ROOT, path)
 
-def build_report_pdf(submission_set):
+def build_report_pdf(submission_set, template=None):
     """
         Build a PDF export of a specific submission
         store it in outfile, if submitted
@@ -66,7 +67,9 @@ def build_report_pdf(submission_set):
     if submission_set.status != 'r':
         context['preview'] = True
 
-    return render_to_pdf('institutions/pdf/report.html', context)
+    if not template:
+        template = 'institutions/pdf/report.html'
+    return render_to_pdf(template, context)
 
 def build_certificate_pdf(ss):
     """
