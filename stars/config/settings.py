@@ -1,7 +1,6 @@
 # Default Settings for STARS project
 # These can be extended by any .py file in the config folder
 import logging, os, sys, django, re
-from django.contrib import messages
 from django.contrib.messages import constants as messages
 
 sys.path.append('../')
