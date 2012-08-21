@@ -21,7 +21,7 @@ class TasksTest(TestCase):
         institution = Institution(contact_email=user.email)
         submissionset = SubmissionSet(institution=institution)
 
-        with testfixtures.LogCapture('stars') as log:
+        with testfixtures.LogCapture('stars.user') as log:
             with testfixtures.Replacer() as r:
                 r.replace('stars.apps.submissions.tasks.migrate_ss_version',
                           mock_migrate_ss_version)
@@ -29,6 +29,5 @@ class TasksTest(TestCase):
 
         self.assertEqual(len(log.records), 1)
         self.assertEqual(log.records[0].levelname, 'ERROR')
-        self.assertTrue(log.records[0].module_path.startswith('stars'))
         self.assertTrue(log.records[0].msg.startswith(
             'Migration email template missing'))

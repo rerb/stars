@@ -22,7 +22,6 @@ class NumericSubmissionFormTest(TestCase):
 
         self.assertEqual(len(log.records), 1)
         self.assertEqual(log.records[0].levelname, 'INFO')
-        self.assertTrue(log.records[0].module_path.startswith('stars'))
         self.assertTrue('No Instance' in log.records[0].msg)
 
 
@@ -44,7 +43,6 @@ class TextSubmissionFormTest(TestCase):
 
         self.assertEqual(len(log.records), 1)
         self.assertEqual(log.records[0].levelname, 'INFO')
-        self.assertTrue(log.records[0].module_path.startswith('stars'))
         self.assertTrue('No Instance' in log.records[0].msg)
 
 
@@ -62,5 +60,4 @@ class LongTextSubmissionFormTest(TestCase):
 
         self.assertEqual(len(log.records), 1)
         self.assertEqual(log.records[0].levelname, 'INFO')
-        self.assertTrue(log.records[0].module_path.startswith('stars'))
         self.assertTrue('No Instance' in log.records[0].msg)

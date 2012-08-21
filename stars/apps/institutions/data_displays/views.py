@@ -5,6 +5,7 @@ from django.core.cache import cache
 from django.forms.formsets import formset_factory
 from django.http import HttpResponseRedirect
 from django.db.models import Q
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.db.models import Count
@@ -15,7 +16,6 @@ from stars.apps.credits.models import Rating, Credit, Category, Subcategory, Doc
 from stars.apps.institutions.data_displays.utils import FormListWrapper, get_variance
 from stars.apps.institutions.data_displays.forms import *
 from stars.apps.institutions.data_displays.models import AuthorizedUser
-from stars.apps.helpers import flashMessage
 from stars.apps.institutions.data_displays.filters import *
 
 from aashe.issdjango.models import Organizations, TechnicalAdvisor
@@ -30,15 +30,15 @@ class Dashboard(TemplateView):
         Display data in a visual form
     """
     template_name = "institutions/data_displays/dashboard.html"
-    
+
     def get_context_data(self, **kwargs):
-        
+
         _context = cache.get('stars_dashboard_context')
         cache_time = cache.get('stars_dashboard_context_cache_time')
-        
+
         if not _context:
             _context = {}
-            
+
             # map vars
             i_list = []
             i_qs = Institution.objects.filter(enabled=True).filter(Q(is_participant=True) | Q(current_rating__isnull=False)).order_by('name')
@@ -46,7 +46,7 @@ class Dashboard(TemplateView):
             for r in Rating.objects.all():
                 if r.name not in ratings.keys():
                     ratings[r.name] = 0
-            
+
             for i in i_qs:
                 d = {
                         'institution': i.profile,
@@ -59,19 +59,19 @@ class Dashboard(TemplateView):
                 else:
                     d['image_path'] = "/media/static/images/seals/STARS-Seal-Participant_70x70.png"
                 i_list.append(d)
-            
+
             _context['mapped_institutions'] = i_list
-            
-            
+
+
             # bar chart vars
             bar_chart = {}
             """
                 '<cat_abbr>': {'title': '<cat_title>', 'ord': #, 'list': [], 'avg': #}
             """
-                    
+
             for i in Institution.objects.filter(current_rating__isnull=False):
                 ratings[i.current_rating.name] += 1
-                
+
                 if i.current_rating.publish_score:
                     ss = i.rated_submission
                     for cs in ss.categorysubmission_set.all():
@@ -83,24 +83,24 @@ class Dashboard(TemplateView):
                                 bar_chart[cs.category.abbreviation]['title'] = "%s (%s)" % (cs.category.title, cs.category.abbreviation)
                                 bar_chart[cs.category.abbreviation]['ord'] = cs.category.ordinal
                                 bar_chart[cs.category.abbreviation]['list'] = [cs.get_STARS_score()]
-                    
+
             _context['ratings'] = ratings
-            
+
             bar_chart_rows = []
             for k,v in bar_chart.items():
                 avg, std, min, max = get_variance(v['list'])
                 var = "Standard Deviation: %.2f | Min: %.2f | Max %.2f" % (std, min, max)
                 bar_chart_rows.append({'short': k, 'avg': avg, 'var': var, 'ord': v['ord'], 'title': v['title']})
-                
+
             _context['bar_chart'] = bar_chart_rows
-            
+
             # get participants-to-submission figures
-            
+
             current_month = date.today()
             current_month = current_month.replace(day=1)
-            
+
             def change_month(d, delta):
-                
+
                 if d.month + delta == 13:
                     d = d.replace(month=1)
                     d = d.replace(year=d.year + 1)
@@ -109,13 +109,13 @@ class Dashboard(TemplateView):
                     d = d.replace(year=d.year - 1)
                 else:
                     d = d.replace(month=d.month+delta)
-                    
+
                 return d
-            
+
             current_month = change_month(current_month, 1)
-                
+
             slices = []
-            
+
             # go back through all months until we don't have any subscriptions
             while Subscription.objects.filter(start_date__lte=current_month).all():
                 # create a "slice" from the current month
@@ -124,17 +124,17 @@ class Dashboard(TemplateView):
                 slice['reg_count'] = reg_count
                 if len(slices) == 0:
                     _context['total_reg_count'] = reg_count
-                
+
                 rating_count = SubmissionSet.objects.filter(status='r').filter(date_submitted__lt=current_month).count()
                 slice['rating_count'] = rating_count
                 if len(slices) == 0:
                     _context['total_rating_count'] = rating_count
-                
+
                 current_month = change_month(current_month, -1)
                 slice['date'] = current_month
-                
+
                 slices.insert(0, slice)
-            
+
             renew_count = 0
             for slice in slices:
                 d = slice['date']
@@ -143,18 +143,18 @@ class Dashboard(TemplateView):
                     # if this institution has previous subscriptions increment the count
                     if sub.institution.subscription_set.filter(start_date__lt=d):
                         renew_count += 1
-                
+
                 slice['renew_count'] = renew_count
-            
+
             _context['total_renew_count'] = renew_count
-            
+
             _context['ratings_renewals_registrations'] = slices
-            
+
             # Horizontal Bar Chart
-            
+
             uptake_qs = Institution.objects.filter(enabled=True).filter(Q(is_participant=True) | Q(current_rating__isnull=False))
-            
-            
+
+
             properties = {
                             'uptake': uptake_qs.count(),
                             'participant': uptake_qs.filter(is_participant=True).count(),
@@ -164,33 +164,33 @@ class Dashboard(TemplateView):
                             'us': uptake_qs.filter(country="United States of America").count(),
                             'canada': uptake_qs.filter(country='Canada').count(),
                             'international': uptake_qs.filter(international=True).count(),
-                            
+
                             'charter': Institution.objects.filter(charter_participant=True).count(),
                             'pilot': Institution.objects.filter(is_pilot_participant=True).count(),
                         }
-            
+
             _context['properties'] = properties
-            
+
             cache_time = datetime.now()
             cache.set('stars_dashboard_context', _context, 60*120) # cache this for 2 hours
             cache.set('stars_dashboard_context_cache_time', cache_time, 60*120)
-        
+
         _context['cache_time'] = cache_time
         _context.update(super(Dashboard, self).get_context_data(**kwargs))
         return _context
-    
 
-    
+
+
 class FilteringMixin(object):
     """
         A mixin that will save filters (dictionaries) in the session
-        
+
         Children must define
             `filter_key` - a key for storing filters associated with this view
-            
+
         Optionally `available_filters` can be overridden to set the default filters
     """
-    
+
     def get_available_filters(self):
         """
             Used to poplulate the child select using JavaScript
@@ -281,39 +281,39 @@ class FilteringMixin(object):
                                 ),
                               ]
         return available_filters
-    
+
     def get_context_data(self, **kwargs):
-        
+
         _context = {}
         _context['available_filters'] = self.get_available_filters()
         _context.update(super(FilteringMixin, self).get_context_data(**kwargs))
         return _context
-    
+
     def get_filters(self):
         filters = {}
         filters[self.filter_key] = self.request.session.get(self.filter_key, [])
         return filters
-    
+
     def get_filter_group(self, filter_group_key):
         return self.request.session.get(filter_group_key, [])
-    
+
     def set_filters(self, filter_list, filter_group_key):
         self.request.session[filter_group_key] = filter_list
-        
+
     def add_filter(self, new_filter, filter_group_key):
         filters = self.get_filter_group(filter_group_key)
         if new_filter not in filters:
             filters.append(new_filter)
         self.set_filters(filters, filter_group_key)
-        
+
     def drop_filter(self, filter, filter_group_key):
         filters = self.get_filter_group(filter_group_key)
         try:
             filters.remove(filter)
-            self.set_filters(filters, filter_group_key) 
+            self.set_filters(filters, filter_group_key)
         except:
             pass
-        
+
     def get_filter_form(self, filter_group_key, form_class):
         """
             Provides two forms:
@@ -324,28 +324,28 @@ class FilteringMixin(object):
         available_filters = self.get_available_filters()
         if available_filters:
             new_filter_form = form_class(available_filters, **self.get_form_kwargs())
-        
+
         delete_forms = {}
         for f in self.get_filter_group(filter_group_key):
             kwargs = self.get_form_kwargs()
             kwargs['instance'] = f
             kwargs['prefix'] = "filter_%d" % (len(delete_forms) + 1)
             delete_forms[kwargs['prefix']] = DelCharacteristicFilterForm(**kwargs)
-        
+
         form_dict = {
                         'delete_forms': FormListWrapper(delete_forms),
                         'new_filter_form': new_filter_form,
                     }
-        
+
         form = FormListWrapper(form_dict)
-        
+
         return form
-        
+
     def save_filters(self, form, filter_group_key):
-        
+
         if self.request.POST.has_key('type') and self.request.POST.has_key('item'):
             filter = {'type': self.request.POST['type'], 'item': self.request.POST['item']}
-            
+
             # add a key value for the column
             for f in self.get_available_filters():
                 if f.key == filter['type']:
@@ -356,23 +356,23 @@ class FilteringMixin(object):
                     filter['item_title'] = f.get_active_title(filter['item'])
                     self.add_filter(filter, filter_group_key)
                     break
-        
+
         # Delete requested filters
         for k,v in form.forms['delete_forms'].forms.items():
             key = '%s-delete' % k
             if self.request.POST.has_key(key) and self.request.POST[key]:
                 self.drop_filter(v.instance, filter_group_key)
-                
+
     def get_filtered_queryset(self, filters):
-        
+
         queryset_list = []
 
         for f in filters:
-                
+
             filtered_list = f['filter_object'].get_results(f['item'])
-            
+
             queryset_list.append(filtered_list)
-        
+
         if queryset_list:
             qs = queryset_list.pop()
             while queryset_list:
@@ -380,9 +380,9 @@ class FilteringMixin(object):
                 qs = qs.filter(id__in=next_qs.values('id'))
         else:
             qs = SubmissionSet.objects.none()
-            
+
         return qs
-    
+
 class NarrowFilteringMixin(FilteringMixin):
     """
         Removes a filter once it's in use
@@ -394,35 +394,35 @@ class NarrowFilteringMixin(FilteringMixin):
                 if af.key == f['key']:
                     available_filters.remove(af)
         return available_filters
-    
+
 class DisplayAccessMixin(object):
     """
         Objects must define two properties:
-        
+
             denied_template_name = ""
             access_list = ['', ''] valid strings are 'member' and 'participant'
-            
+
         if either access level is fulfilled then they pass
         if access_list is empty no access levels are required
-        
+
         users must be authenticated
     """
     def deny_action(self, request):
         """
             @todo - I should turn this into some sort of (class?) decorator
         """
-        
+
         try:
             au = AuthorizedUser.objects.get(email=request.user.email, start_date__lte=datetime.now(), end_date__gte=datetime.now())
         except AuthorizedUser.DoesNotExist:
             au = None
-        
+
         ta_access = False
         ta_qs = TechnicalAdvisor.objects.filter(email=request.user.email)
         ta = next(iter(ta_qs), None)
         if ta:
             ta_access= True
-        
+
         if self.access_list:
             denied = True
             profile = request.user.get_profile()
@@ -431,7 +431,7 @@ class DisplayAccessMixin(object):
                     denied = False
                 elif au and au.member_level: # check the authorized users
                     denied = False
-                
+
             if 'participant' in self.access_list:
                 if profile.is_participant() or profile.is_aashe_staff or ta_access:
                     denied = False
@@ -441,30 +441,30 @@ class DisplayAccessMixin(object):
                 self.template_name = self.denied_template_name
                 return self.render_to_response({'top_help_text': self.get_description_help_context_name(),})
         return None
-    
+
     @method_decorator(login_required)
     def get(self, request, *args, **kwargs):
-        
+
         deny_action = self.deny_action(request)
         if deny_action:
             return deny_action
-        
+
         return super(DisplayAccessMixin, self).get(request, *args, **kwargs)
-    
+
     @method_decorator(login_required)
     def post(self, request, *args, **kwargs):
-        
+
         deny_action = self.deny_action(request)
         if deny_action:
             return deny_action
-        
+
         return super(DisplayAccessMixin, self).post(request, *args, **kwargs)
-    
-    
+
+
 class AggregateFilter(DisplayAccessMixin, FilteringMixin, FormView):
     """
         Provides a filtering tool for average category scores
-        
+
         Participants and Members Only
     """
     form_class = CharacteristicFilterForm
@@ -473,27 +473,27 @@ class AggregateFilter(DisplayAccessMixin, FilteringMixin, FormView):
     success_url = "/institutions/data-displays/categories/"
     denied_template_name = "institutions/data_displays/denied_categories.html"
     access_list = ['member', 'participant']
-    
+
     def get_description_help_context_name(self):
         return "data_display_categories"
-    
+
     def get_form(self, form_class):
-        
+
         return self.get_filter_form(self.filter_key, form_class)
-    
+
     def get_context_data(self, **kwargs):
-        
+
         _context = super(AggregateFilter, self).get_context_data(**kwargs)
         filters = self.get_filter_group(self.filter_key)
         _context['filters'] = filters
         _context['top_help_text'] = self.get_description_help_context_name()
-        
+
 #        q = None
         object_list = []
         ss_list = None
 
         for f in filters:
-            
+
             d = {} # {'title': <filter type:item>, "<cat>": <cat_avg>, "<cat>_list": [], 'total': <total_submissions>}
             # d['title'] = f['filter_object'].get_active_title(f['item'])
             d['title'] = f['item_title']
@@ -502,15 +502,15 @@ class AggregateFilter(DisplayAccessMixin, FilteringMixin, FormView):
             # else:
             #     d['title'] = f['item_title']
             # d['item'] = f['item']
-            
+
             ss_list = f['filter_object'].get_results(f['item']).exclude(rating__publish_score=False)
             # if f['item'] == 'DO_NOT_FILTER':
             #     ss_list = f['base_qs'].exclude(rating__publish_score=False)
             # else:
             #     filter_args = {f['key']: f['item'],}
             #     ss_list = f['base_qs'].exclude(rating__publish_score=False).filter(**filter_args)
-            
-            
+
+
             count = 0
             for ss in ss_list:
                 for cat in ss.categorysubmission_set.all():
@@ -520,38 +520,38 @@ class AggregateFilter(DisplayAccessMixin, FilteringMixin, FormView):
                     d[k_list].append(cat.get_STARS_score())
                 count += 1
             d['total'] = count
-            
+
             for k in d.keys():
                 m = re.match("(\w+)_list", k)
                 if m:
                     cat_abr = m.groups()[0]
-                    if len(d['%s_list'% cat_abr]) != 0: 
+                    if len(d['%s_list'% cat_abr]) != 0:
                         d["%s_avg" % cat_abr], std, min, max = get_variance(d['%s_list'% cat_abr])
                     else:
                         d["%s_avg" % cat_abr] = std, min, max = None
                     d['%s_var' % cat_abr] = "Standard Deviation: %.2f | Min: %.2f | Max %.2f" % (std, min, max)
-            
+
             object_list.insert(0, d)
-                    
+
         _context['object_list'] = object_list
-        
+
         return _context
-    
+
     def form_valid(self, form):
-        
+
         # Save the new filter in the session
         self.save_filters(form, self.filter_key)
-        
+
         return HttpResponseRedirect(self.get_success_url())
-    
+
     def form_invalid(self, form):
-        flashMessage.send("Please correct the errors below.", flashMessage.ERROR)
+        messages.error(self.request, "Please correct the errors below.")
         return super(AggregateFilter, self).form_invalid(form)
-    
+
 class ScoreFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
     """
         Provides a filtering tool for scores
-        
+
         Participants Only
     """
     form_class = CharacteristicFilterForm
@@ -560,43 +560,43 @@ class ScoreFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
     success_url = "/institutions/data-displays/scores/"
     denied_template_name = "institutions/data_displays/denied_score.html"
     access_list = ['participant']
-    
+
     def get_description_help_context_name(self):
         return "data_display_scores"
-    
+
     def get_form(self, form_class):
-        
+
         filter_form = self.get_filter_form(self.filter_key, form_class)
-        
+
         kwargs = self.get_form_kwargs()
         kwargs['initial'] = self.get_columns()
         col_form = ScoreColumnForm(**kwargs)
-        
+
         form_dict = {
                         'filters': filter_form,
                         'columns': col_form,
                     }
-        
+
         return FormListWrapper(form_dict)
-    
+
     def get_context_data(self, **kwargs):
-        
+
         _context = super(ScoreFilter, self).get_context_data(**kwargs)
         filters = self.get_filter_group(self.filter_key)
         _context['filters'] = filters
         _context['top_help_text'] = self.get_description_help_context_name()
-        
+
         cols = self.get_columns()
-        
+
         if not cols:
             _context['object_list'] = None
             _context['columns'] = None
         else:
-            
+
             columns = []
             for k, col in cols.items():
                 columns.insert(0, (k, col))
-                
+
             queryset = self.get_filtered_queryset(filters)
             object_list = []
             for ss in queryset.order_by('institution__name').exclude(rating__publish_score=False):
@@ -633,42 +633,42 @@ class ScoreFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
                                         score = "%.2f / %.2f" % (cred.assessed_points, ss.creditset.tier_2_points)
                             else:
                                 score = "Reporter"
-                            
+
                         row['cols'].append({'score': score, 'units': units, 'url': url})
-                    
+
                 object_list.append(row)
-                    
+
             _context['object_list'] = object_list
             _context['columns'] = columns
-        
+
         return _context
-    
+
     def form_valid(self, form):
-        
+
         # Save the new filter in the session
         self.save_filters(form.forms['filters'], self.filter_key)
         self.save_columns(form)
-        
+
         return HttpResponseRedirect(self.get_success_url())
-    
+
     def save_columns(self, form):
-        
+
         columns = form.forms['columns'].cleaned_data
-        
+
         self.request.session['columns'] = columns
-        
+
     def get_columns(self):
-        
+
         return self.request.session.get('columns', None)
-    
+
     def form_invalid(self, form):
-        flashMessage.send("Please correct the errors below.", flashMessage.ERROR)
+        messages.error(self.request, "Please correct the errors below.")
         return super(ScoreFilter, self).form_invalid(form)
 
 class ContentFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
     """
         Provides a filtering tool for scores
-        
+
         Participants and Members Only
     """
     form_class = CharacteristicFilterForm
@@ -677,36 +677,36 @@ class ContentFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
     success_url = "/institutions/data-displays/content/"
     denied_template_name = "institutions/data_displays/denied_content.html"
     access_list = ['member', 'participant']
-    
+
     def get_description_help_context_name(self):
         return "data_display_content"
-    
+
     def get_form(self, form_class):
-        
+
         filter_form = self.get_filter_form(self.filter_key, form_class)
-        
+
         kwargs = self.get_form_kwargs()
         kwargs['initial'] = {'reporting_field': self.get_reporting_field()}
         reporting_field_form = ReportingFieldSelectForm(**kwargs)
-        
+
         form_dict = {
                         'filters': filter_form,
                         'reporting_field': reporting_field_form,
                     }
-        
+
         return FormListWrapper(form_dict)
-    
+
     def get_context_data(self, **kwargs):
-        
+
         _context = super(ContentFilter, self).get_context_data(**kwargs)
         filters = self.get_filter_group(self.filter_key)
         _context['filters'] = filters
         _context['google_api_key'] = settings.GOOGLE_API_KEY
         _context['top_help_text'] = self.get_description_help_context_name()
-        
-        
+
+
         rf = self.get_reporting_field()
-            
+
         if not rf:
             _context['object_list'] = None
             _context['reporting_field'] = None
@@ -714,7 +714,7 @@ class ContentFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
             queryset = self.get_filtered_queryset(filters)
             object_list = []
             for ss in queryset.order_by('institution__name'):
-                
+
                 field_class = DocumentationFieldSubmission.get_field_class(rf)
                 cus_lookup = "subcategory_submission__category_submission__submissionset"
                 # I have to get creditusersubmissions so i can be sure these are actual user submissions and not tests
@@ -734,64 +734,64 @@ class ContentFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
                                 row['field'] = None
                     else:
                         row['score'] = "Reporter"
-                
+
                 except:
                     row = {'field': None, 'ss': ss, 'credit': None, "score": None}
                 object_list.append(row)
             _context['object_list'] = object_list
             _context['reporting_field'] = rf
-        
+
         return _context
-    
+
     def form_valid(self, form):
-        
+
         # Save the new filter in the session
         self.save_filters(form.forms['filters'], self.filter_key)
         self.save_reporting_field(form)
-        
+
         return HttpResponseRedirect(self.get_success_url())
-    
+
     def save_reporting_field(self, form):
-        
+
         field = form.forms['reporting_field'].cleaned_data['reporting_field']
-        
+
         self.request.session['reporting_field'] = field
-        
+
     def get_reporting_field(self):
-        
+
         return self.request.session.get('reporting_field', None)
-    
+
     def form_invalid(self, form):
-        flashMessage.send("Please correct the errors below.", flashMessage.ERROR)
+        messages.error(self.request, "Please correct the errors below.")
         return super(ContentFilter, self).form_invalid(form)
-    
+
 class CallbackView(TemplateView):
     """
         Child classes must implement self.get_object_list()
     """
-    
+
     template_name = "institutions/data_displays/option_callback.html"
-    
+
     def get_context_data(self, **kwargs):
-        
+
         _context = super(CallbackView, self).get_context_data(**kwargs)
         if self.request.GET.has_key('current'):
             _context['current'] = int(self.request.GET['current'])
-        
+
         _context['object_list'] = self.get_object_list(**kwargs)
-        
+
         return _context
-    
+
 class CategoryInCreditSetCallback(CallbackView):
     """
         A callback method that accepts returns a list of
         categories as <options> for a <select>
     """
     def get_object_list(self, **kwargs):
-        
+
         cs = CreditSet.objects.get(pk=kwargs['cs_id'])
         return cs.category_set.all()
-    
+
 
 class SubcategoryInCategoryCallback(CallbackView):
     """
@@ -799,7 +799,7 @@ class SubcategoryInCategoryCallback(CallbackView):
         subcategories as <options> for a <select>
     """
     def get_object_list(self, **kwargs):
-        
+
         cat = Category.objects.get(pk=kwargs['category_id'])
         return cat.subcategory_set.all()
 
@@ -809,7 +809,7 @@ class CreditInSubcategoryCallback(CallbackView):
         credits as <options> for a <select>
     """
     def get_object_list(self, **kwargs):
-        
+
         sub = Subcategory.objects.get(pk=kwargs['subcategory_id'])
         return sub.credit_set.all()
 
@@ -819,6 +819,6 @@ class FieldInCreditCallback(CallbackView):
         documentation fields as <options> for a <select>
     """
     def get_object_list(self, **kwargs):
-        
+
         credit = Credit.objects.get(pk=kwargs['credit_id'])
         return credit.documentationfield_set.all()

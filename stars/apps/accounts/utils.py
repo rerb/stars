@@ -1,17 +1,18 @@
+import logging
 import MySQLdb
 import re
 
 from django.conf import settings
+from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 
 from stars.apps.institutions.models import StarsAccount, PendingAccount, Institution
-from stars.apps.helpers import logger, flashMessage
 from django.conf import settings
 from django.http import HttpResponseRedirect
 
-logger = logger.getLogger(__name__)
+logger = logging.getLogger('stars')
 
 
 def respond(request, template, context):
@@ -173,9 +174,10 @@ def _get_account_from_session(request):
                     # @todo I should really delete the cookie here,
                     # but I can't w/out a Response object
                 except Institution.DoesNotExist:
-                    flashMessage.send('Current institution not found in db.',
-                                      flashMessage.ERROR)
-                    logger.error("Current institution not found in database.")
+                    messages.error(request,
+                                   'Current institution not found in db.')
+                    logger.error("Current institution not found in database.",
+                                 exc_info=True)
         return (None, current_inst)
 
     # Convert any pending accounts

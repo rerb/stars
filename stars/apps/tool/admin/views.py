@@ -1,7 +1,9 @@
 from datetime import datetime, date
+import logging
 import sys
 
 from django.conf import settings
+from django.contrib import messages
 from django.shortcuts import render_to_response, get_object_or_404
 from django.http import HttpResponseRedirect, Http404
 from django.template import Context, loader, Template, RequestContext
@@ -12,7 +14,6 @@ from django.utils.decorators import method_decorator
 from stars.apps.accounts.utils import respond
 from stars.apps.accounts import utils as auth_utils
 from stars.apps.accounts.decorators import user_is_staff
-from stars.apps.helpers import logger, flashMessage
 from stars.apps.helpers.forms import form_helpers
 from stars.apps.helpers.forms.forms import Confirm as ConfirmForm
 from stars.apps.institutions.models import Institution, Subscription, SubscriptionPayment
@@ -23,7 +24,7 @@ from stars.apps.tool.admin.forms import PaymentForm
 from stars.apps.helpers.forms.views import FormActionView
 from stars.apps.third_parties.models import ThirdParty
 
-logger = logger.getLogger(__name__)
+logger = logging.getLogger('stars.request')
 
 @user_is_staff
 def institutions_search(request):
@@ -53,15 +54,23 @@ def select_institution(request, id):
         raise Http404("No such institution.")
 
     if auth_utils.change_institution(request, institution):
-        redirect_url = request.GET.get('redirect', settings.MANAGE_INSTITUTION_URL)
+        redirect_url = request.GET.get('redirect',
+                                       settings.MANAGE_INSTITUTION_URL)
         response = HttpResponseRedirect(redirect_url)
-        # special hack to "remember" current institution for staff between sessions
-        #  - can't store it in session because it gets overwritten on login, can's store it with account b/c staff don't have accounts.
-        #  - ideally, the cookie path would be LOGIN_URL, but the first request we get is from the login redirect url.
-        response.set_cookie("current_inst", institution.id, path=settings.LOGIN_REDIRECT_URL)
+        # special hack to "remember" current institution for staff
+        # between sessions
+        #  - can't store it in session because it gets overwritten on
+        #    login, can's store it with account b/c staff don't have
+        #    accounts.
+        #  - ideally, the cookie path would be LOGIN_URL, but the
+        #    first request we get is from the login redirect url.
+        response.set_cookie("current_inst", institution.id,
+                            path=settings.LOGIN_REDIRECT_URL)
         return response
     else:
-        flashMessage.send("Unable to change institution to %s - check the log?"%institution, flashMessage.ERROR)
+        messages.error(request,
+                       "Unable to change institution to %s - check the log?" %
+                       institution)
         return HttpResponseRedirect(settings.ADMIN_URL)
 
 @user_is_staff
@@ -298,7 +307,7 @@ def delete_payment(request, payment_id):
     (form, deleted) = form_helpers.confirm_delete_form(request, payment)
     if deleted:
         logger.info("Payment: %s deleted." % payment,
-                    {'who': 'Inst. Admin'})
+                    extra={'request': request})
         return HttpResponseRedirect(payment.get_admin_url())
 
     return respond(request, 'tool/admin/payments/delete.html', {'payment':payment, 'confirm_form': form})

@@ -1,14 +1,15 @@
+import logging
+import re
+
 from django import template
 from django.utils.html import strip_spaces_between_tags, escape
 from django.utils.safestring import mark_safe
 from django.core import urlresolvers
 
-import re
 
 from stars.apps.helpers.models import HelpContext
-from stars.apps.helpers import logger
 
-logger = logger.getLogger(__name__)
+logger = logging.getLogger('stars')
 
 register = template.Library()
 
@@ -19,7 +20,7 @@ def lookup_help_context(context_name):
         return c
     except:
         logger.error("HelpContext, '%s', not found." % context_name,
-                     {'who': 'get_help_context'})
+                     exc_info=True)
         return None
 
 @register.inclusion_tag('helpers/tags/help_text.html')

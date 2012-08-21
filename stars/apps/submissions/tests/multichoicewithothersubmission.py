@@ -19,7 +19,6 @@ class MultiChoiceWithOtherSubmissionTest(TestCase):
 
         self.assertEqual(len(log.records), 1)
         self.assertEqual(log.records[0].levelname, 'ERROR')
-        self.assertTrue(log.records[0].module_path.startswith('stars'))
         self.assertTrue(log.records[0].msg.startswith(
             'Attempt to decompress non-existing'))
 
@@ -41,9 +40,25 @@ class MultiChoiceWithOtherSubmissionTest(TestCase):
 
         self.assertEqual(len(log.records), 1)
         self.assertEqual(log.records[0].levelname, 'ERROR')
-        self.assertTrue(log.records[0].module_path.startswith('stars'))
         self.assertTrue(log.records[0].msg.startswith(
             'Found multiple \'other\' choices'))
+
+    def test_compress_warning_logging(self):
+        """Does compress log a warning message if data might be lost?
+        """
+        mcwos = MultiChoiceWithOtherSubmission()
+        with testfixtures.LogCapture('stars') as log:
+            with testfixtures.Replacer() as r:
+                r.replace(
+                    'stars.apps.submissions.models.'
+                    'MultiChoiceWithOtherSubmission.get_last_choice',
+                    lambda x: Choice(id=-88888,
+                                     is_bonafide=False, choice='green'))
+                mcwos.compress(choices=['yellow'], other_value=True)
+
+        self.assertEqual(len(log.records), 1)
+        self.assertEqual(log.records[0].levelname, 'WARNING')
+        self.assertTrue('will not be saved because' in log.records[0].msg)
 
 
 class MockChoiceModel(object):

@@ -14,7 +14,7 @@ from stars.apps.institutions.models import * # required for execfile management 
 from stars.apps.cms.models import Category
 from stars.apps.helpers import logger
 
-logger = logger.getLogger(__name__)
+logger = logging.getLogger('stars')
 
 def render_to_pdf(template_src, context_dict):
     """
@@ -41,7 +41,7 @@ def render_to_pdf(template_src, context_dict):
     else:
         msg = "PDF Generation Failed %s" % html
         print >> sys.stderr, msg
-        logger.error(msg, {'who': 'PDF Tool'})
+        logger.error(msg)
         return None
 
 def link_path_callback(path):

@@ -1,4 +1,5 @@
 from datetime import date
+import logging
 
 from django.conf import settings
 from django.db import models
@@ -8,11 +9,10 @@ from django.template.defaultfilters import slugify
 from django.db.models import Max
 from django.core.mail import send_mail
 
-from stars.apps.helpers import logger
 from stars.apps.credits.models import CreditSet, RATING_DURATION
 # from stars.apps.notifications.models import EmailTemplate
 
-logger = logger.getLogger(__name__)
+logger = logging.getLogger('stars')
 
 
 class ClimateZone(models.Model):
@@ -145,8 +145,7 @@ class Institution(models.Model):
             for k_self, k_iss in field_mappings:
                 setattr(self, k_self, getattr(iss_org, k_iss))
         else:
-            logger.error("No ISS institution found %s" % (self.name),
-                         {'who': 'Institutions'})
+            logger.error("No ISS institution found %s" % (self.name))
 
     def __unicode__(self):
         return self.name.decode('utf8')
@@ -244,11 +243,11 @@ class Institution(models.Model):
             return Organizations.objects.get(account_num=self.aashe_id)
         except Organizations.DoesNotExist as e:
             logger.error("No ISS institution found for aashe_id %s: %s" %
-                         (self.aashe_id, e), {'who': 'Institutions'})
+                         (self.aashe_id, e), exc_info=True)
             return None
         except Organizations.MultipleObjectsReturned as e:
             logger.error("Multiple ISS Institutions for aashe_id %s: %s" %
-                         (self.aashe_id, e), {'who': 'Institutions'})
+                         (self.aashe_id, e), exc_info=True)
             return None
 
     def is_member_institution(self):
@@ -270,7 +269,7 @@ class Institution(models.Model):
             self.slug = slugify(slug_base)
         except Exception, e:
             logger.error("ISS Institution profile relationship error: %s" % e,
-                         {'who': 'Registration'})
+                         exc_info=True)
             self.slug = iss_institution_id
 
     def get_last_subscription_end(self):

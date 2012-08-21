@@ -1,6 +1,8 @@
 # Default Settings for STARS project
 # These can be extended by any .py file in the config folder
-import os, sys, django, re
+import logging, os, sys, django, re
+from django.contrib import messages
+from django.contrib.messages import constants as messages
 
 sys.path.append('../')
 
@@ -65,6 +67,7 @@ MIDDLEWARE_CLASSES = [ # a list so it can be editable during tests (see below)
     'stars.apps.tool.admin.watchdog.middleware.WatchdogMiddleware',  # must come before flatpage so it doesn't log flatpages as 404's
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
     'stars.apps.helpers.flashMessage.FlashMessageMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware'
 ]
 
 CACHE_BACKEND = "dummy://"
@@ -250,87 +253,177 @@ HG_REVISION = None
 
 SOUTH_TESTS_MIGRATE = False
 
+# Notes on logging:
+#
+# 1. Log record formats
+#
+#    The beginning of each log record has this format;
+#
+#    {loglevel} {timestamp} "{message}" location={file}:{function}:{linenumber}
+#
+#    the stars.user logger adds a user element;
+#
+#    {loglevel} {timestamp} "{message}" location={file}:{function}:{linenumber} \
+#        user={user}
+#
+#    and the stars.request logger adds path, host, and referer elements:
+#
+#    {loglevel} {timestamp} "{message}" location={file}:{function}:{linenumber} \
+#        user={user} path={path} host={host} referer={referer}
+#
+#    {location} is where the logger was called.
+#
+#    The {file} part of the location element is usually a path relative to
+#    settings.PROJECT_PATH; if it stars with '/', however, it's an absolute
+#    path.
+#
+# 2. Loggers:
+#
+#    The base logger is named 'stars'.  Use it without any extra context
+#    and the file location will added to the log record.
+#
+#        >>> import logging
+#        >>> logger = logging.getLogger('stars')
+#        >>> logger.setLevel(logging.INFO)
+#        >>> logger.info("Just sayin' hi")
+#        INFO 2012-08-07 15:02:07,411 "Just sayin' hi" \
+#            location=apps/test/logtest.py:test_stars_log:5
+#
+#    Use the logger named 'stars.user' if you have a user available
+#    and want the username to be inserted into the log message:
+#
+#        >>> user = User.objects.create(username='jack')
+#        >>> logger = logger.getLogger('stars.user')
+#        >>> logger.info("Just sayin' hi", extra={'user'=user})
+#        INFO 2012-08-07 15:02:07,411 "Just sayin' hi" \
+#            location=apps/test/logtest.py:test_stars_log:5 user=Jack
+#
+#    Use the logger named 'stars.request' if you have a request available
+#    and want the log record to have request data inserted into it:
+#
+#        >>> request = Request.objects.create(path='/crooked/hill', \
+#                                             host='reimold', \
+#                                             user='Jack', \
+#                                             referer='bodette')
+#        >>> logger = logger.getLogger('stars.request')
+#        >>> logger.info("Just sayin' hi", extra={'request'=request})
+#        INFO 2012-08-07 15:02:07,411 "Just sayin' hi" \
+#            location=apps/test/logtest.py:test_stars_log:5 user=Jack \
+#            path=/crooked/hill host=reimold referer=bodette
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,
 
-   # """  STARS Watchdog logged the following {{entry.get_severity_display}}:
-   #      {{entry.get_severity}}: {{ entry.message }}
-   #      Module: {{entry.module}}
-   #      Path: {{entry.request_path}}
-   #      Referer: {{entry.request_referer}}
-   #      Host: {{entry.request_host}}
-   #      User: {{entry.user}}
-   #      Timestamp: {{entry.timestamp.ctime}}
-   #      {% endautoescape %}
-   #  """
-
     'formatters': {
-        'simple': {
-            'format': '%(levelname)s %(asctime)s "%(message)s"'
-        },
-        'verbose': {
+        # For log messages from third-parties, to which we can't
+        # add module_name:
+        'simple_formatter': {
             'format': ('%(levelname)s %(asctime)s "%(message)s" '
-                       'module:%(module_path)s request_user:%(user)s '
-                       'request_path:%(path)s request_host:%(host)s '
-                       'request_referer:%(referer)s')
+                       'location=%(pathname)s:%(funcName)s:%(lineno)s')
         },
+        # The simplest custom formatter; module_name is added by
+        # stars.apps.helpers.logging_filters.ModuleNameFilter.
+        'stars_formatter': {
+            'format': ('%(levelname)s %(asctime)s "%(message)s" '
+                       'location=%(module_name)s:%(funcName)s:%(lineno)s')
+        },
+        # In additon to module_name, username is used in this formatter
+        # (added by stars.apps.helpers.logging_filters.UserNameFilter).
+        'stars_user_formatter': {
+            'format': ('%(levelname)s %(asctime)s "%(message)s" '
+                       'location=%(module_name)s:%(funcName)s:%(lineno)s '
+                       'user=%(username)s')
+        },
+        # In addition to module_name, elements from a request are
+        # included in this format (request elements added by
+        # stars.apps.helpers.logging_filters.RequestFilter).
+        'stars_request_formatter': {
+            'format': (
+                '%(levelname)s %(asctime)s "%(message)s" '
+                'location=%(module_name)s:%(funcName)s:%(lineno)s '
+                'user=%(request_user)s '
+                'path=%(request_path)s '
+                'host=%(request_host)s '
+                'referer=%(request_referer)s')
+        }
     },
+
+    'filters': {
+        'module_name_filter': {
+            '()': 'stars.apps.helpers.logging_filters.ModuleNameFilter'
+        },
+        'request_filter': {
+            '()': 'stars.apps.helpers.logging_filters.RequestFilter'
+        },
+        'user_filter': {
+            '()': 'stars.apps.helpers.logging_filters.UserFilter'
+        }
+    },
+
     'handlers': {
-        'stars_console': {
+        'simple_console_handler': {
             'level': 'INFO',
             'class': 'logging.StreamHandler',
-            'formatter': 'verbose'
+            'formatter': 'simple_formatter'
         },
-        'stars_log': {
+        'stars_console_handler': {
             'level': 'INFO',
-            'class': 'logging.handlers.TimedRotatingFileHandler',
-            'when': 'W0',  # one log per week, starting on Monday
-            'backupCount': 4,  # keep logs for 4 weeks
-            'formatter': 'verbose',
-            'filename': os.path.join(PROJECT_PATH, 'log', 'stars.log')
+            'class': 'logging.StreamHandler',
+            'formatter': 'stars_formatter'
         },
-        'mail_admins': {
+        'stars_request_console_handler': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'stars_request_formatter'
+        },
+        'stars_user_console_handler': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'stars_user_formatter'
+        },
+        'mail_admins_handler': {
             'level': 'ERROR',
             'class': 'django.utils.log.AdminEmailHandler',
             'include_html': True
-        },
-        'third_party_log': {
-            'level': 'DEBUG',
-            'class': 'logging.handlers.TimedRotatingFileHandler',
-            'when': 'W0',  # one log per week, starting on Monday
-            'backupCount': 4,  # keep logs for 4 weeks
-            'formatter': 'simple',
-            'filename': os.path.join(PROJECT_PATH, 'log', 'stars.tp.log')
-        },
-        'third_party_console': {
-            'level': 'INFO',
-            'class': 'logging.StreamHandler',
-            'formatter': 'simple'
-        },
+        }
     },
+
     'loggers': {
+        # root logger, for third party log messages:
         '': {
-            'handlers':['third_party_log', 'third_party_console'],
-            'level':'WARNING',
+            'handlers':['simple_console_handler', 'mail_admins_handler']
         },
-        'django': {
-            'handlers':['third_party_log', 'third_party_console'],
-            'level':'WARNING',
-            'propagate': False
-        },
-        'django.request': {
-            'handlers': ['mail_admins'],
-            'level': 'ERROR',
-            'propagate': True,
-        },
+        # logger with module_name added to log record:
         'stars': {
-            'handlers': ['stars_log', 'stars_console'],
-            'level': 'INFO',
-            'propagate': False
+            'handlers': ['stars_console_handler', 'mail_admins_handler'],
+            'propagate': False,
+            'filters': ['module_name_filter']
         },
+        # logger with module_name and username added to log record:
+        'stars.user': {
+            'handlers': ['stars_user_console_handler',
+                         'mail_admins_handler'],
+            'propagate': False,
+            'filters' : ['module_name_filter', 'user_filter']
+        },
+        # logger with module_name and request elements added to log record:
+        'stars.request': {
+            'handlers': ['stars_request_console_handler',
+                         'mail_admins_handler'],
+            'propagate': False,
+            'filters': ['module_name_filter', 'request_filter']
+        }
     }
 }
+
+logging.captureWarnings(True)
+
+MESSAGE_TAGS = { messages.DEBUG: 'alert fade in alert-debug',
+                 messages.INFO : 'alert fade in alert-info',
+                 messages.SUCCESS : 'alert fade in alert-success',
+                 messages.WARNING : 'alert fade in alert-warning',
+                 messages.ERROR : 'alert fade in alert-error' }
 
 if os.path.exists(os.path.join(os.path.dirname(__file__), 'hg_info.py')):
     from hg_info import revision

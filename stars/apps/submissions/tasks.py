@@ -1,12 +1,12 @@
 """
     Celery tasks
 """
+import logging
 import sys
 
 from stars.apps.submissions.pdf.export import build_certificate_pdf
 from stars.apps.migrations.utils import migrate_ss_version, migrate_submission, create_ss_mirror
 from stars.apps.notifications.models import EmailTemplate
-from stars.apps.helpers import logger
 from stars.apps.credits.models import CreditSet
 from stars.apps.submissions.api import SummaryPieChart, CategoryPieChart, SubategoryPieChart
 
@@ -16,7 +16,7 @@ from django.core.cache import cache
 
 from celery.decorators import task
 
-logger = logger.getLogger(__name__)
+logger = logging.getLogger('stars.user')
 
 @task()
 def hello_world():
@@ -57,7 +57,7 @@ def perform_migration(old_ss, new_cs, user):
 
     except EmailTemplate.DoesNotExist:
         logger.error('Migration email template missing',
-                     {'who': 'perform_migration'})
+                     extra={'user': user}, exc_info=True)
 
 @task()
 def perform_data_migration(old_ss, user):

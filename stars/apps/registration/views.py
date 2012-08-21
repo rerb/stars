@@ -1,18 +1,20 @@
-from django.http import Http404, HttpResponseRedirect, HttpResponseForbidden
-from django.shortcuts import get_object_or_404
-from django.contrib.auth.decorators import user_passes_test, login_required
-from django.forms import widgets
-from django.conf import settings
-
+import logging
 from datetime import datetime, date, timedelta
 import urllib2, re, sys
 from xml.etree.ElementTree import fromstring
 
-from stars.apps.institutions.models import Institution, Subscription, SubscriptionPayment
+from django.http import Http404, HttpResponseRedirect, HttpResponseForbidden
+from django.shortcuts import get_object_or_404
+from django.contrib import messages
+from django.contrib.auth.decorators import user_passes_test, login_required
+from django.forms import widgets
+from django.conf import settings
+
+from stars.apps.institutions.models import Institution, Subscription, \
+     SubscriptionPayment
 from stars.apps.registration.forms import *
 from stars.apps.registration.utils import is_canadian_zipcode, is_usa_zipcode
 from stars.apps.accounts.utils import respond, connect_iss
-from stars.apps.helpers import flashMessage, logger
 from stars.apps.tool.my_submission.views import _get_active_submission
 from stars.apps.accounts import xml_rpc
 from stars.apps.submissions.models import SubmissionSet
@@ -27,7 +29,7 @@ from zc.authorizedotnet.processing import CcProcessor
 from zc.creditcard import (AMEX, DISCOVER, MASTERCARD, VISA, UNKNOWN_CARD_TYPE)
 from aashe.issdjango.models import Organizations
 
-logger = logger.getLogger(__name__)
+logger = logging.getLogger('stars')
 
 # @todo - it would be nice to use the WizardView here if possible
 
@@ -125,8 +127,9 @@ def reg_select_institution(request):
             e = form.errors
             # Since this is a pull-down menu, there is really no way
             # for this to happen.
+            logger = logging.getLogger('stars.request')
             logger.error("The institution select form didn't validate.",
-                         {'who': 'Registration'})
+                         extra={'request': request})
 
     form.fields['aashe_id'].widget = widgets.Select(choices=institution_list)
 
@@ -159,7 +162,7 @@ def select_participation_level(request):
             if level == "respondent":
                 return HttpResponseRedirect('/register/r/step3/')
         else:
-            flashMessage.send("Please correct the errors below", flashMessage.ERROR)
+            messages.error(request, "Please correct the errors below")
 
     template = "registration/select_participation_level.html"
     context = {'form': form, 'institution': institution}
@@ -187,13 +190,14 @@ def contact_info_step(request, FormClass, success_url, template_name):
 
             # they're done if it's international
             if institution.international:
-                institution = register_institution(request.user, institution, "credit", 0, None)
+                institution = register_institution(request.user, institution,
+                                                   "credit", 0, None)
                 request.session['selected_institution'] = institution
                 return HttpResponseRedirect("/register/survey/")
 
             return HttpResponseRedirect(success_url)
         else:
-            flashMessage.send("Please correct the errors below", flashMessage.ERROR)
+            messages.error(request, "Please correct the errors below")
 
     context = {'reg_form': reg_form, 'institution': institution}
     return respond(request, template_name, context)
@@ -201,8 +205,10 @@ def contact_info_step(request, FormClass, success_url, template_name):
 def particpant_contact_info(request):
     """
         Displays the contact forms for a participant's registration process
-         - If the institution is registered already they get forwarded to the account page
-         - otherwise, store the contact info with the selected_institution in the session (NOT the DB)
+         - If the institution is registered already they get forwarded
+           to the account page
+         - otherwise, store the contact info with the
+           selected_institution in the session (NOT the DB)
     """
     (institution, response) = _get_selected_institution(request)
     if response: return response
@@ -220,7 +226,8 @@ def particpant_contact_info(request):
 
             # they're done if it's international
             if institution.international:
-                institution = register_institution(request.user, institution, "credit", 0, None)
+                institution = register_institution(request.user, institution,
+                                                   "credit", 0, None)
                 request.session['selected_institution'] = institution
 
                 # Send confirmation email
@@ -232,7 +239,7 @@ def particpant_contact_info(request):
 
             return HttpResponseRedirect('/register/p/step4/')
         else:
-            flashMessage.send("Please correct the errors below", flashMessage.ERROR)
+            messages.error(request, "Please correct the errors below")
 
     context = {'reg_form': reg_form, 'institution': institution}
     return respond(request, "registration/contact.html", context)
@@ -240,8 +247,10 @@ def particpant_contact_info(request):
 def respondent_contact_info(request):
     """
         Displays the contact forms for a respondent's registration process
-         - If the institution is registered already they get forwarded to the account page
-         - otherwise, store the contact info with the selected_institution in the session (NOT the DB)
+         - If the institution is registered already they get forwarded
+           to the account page
+         - otherwise, store the contact info with the
+           selected_institution in the session (NOT the DB)
     """
     (institution, response) = _get_selected_institution(request)
     if response: return response
@@ -250,7 +259,8 @@ def respondent_contact_info(request):
     reg_form = DataCollectorRegistrationForm(instance=institution)
 
     if request.method == "POST":
-        reg_form = DataCollectorRegistrationForm(request.POST, instance=institution)
+        reg_form = DataCollectorRegistrationForm(request.POST,
+                                                 instance=institution)
 
         if reg_form.is_valid():
 
@@ -259,7 +269,9 @@ def respondent_contact_info(request):
             institution.save()
             ss = init_submissionset(institution, request.user)
             institution.update_status()
-            account = StarsAccount(user=request.user, institution=institution, user_level='admin', is_selected=False, terms_of_service=True)
+            account = StarsAccount(user=request.user, institution=institution,
+                                   user_level='admin', is_selected=False,
+                                   terms_of_service=True)
             account.save()
             account.select()
             auth_utils.change_institution(request, institution)
@@ -275,16 +287,19 @@ def respondent_contact_info(request):
 
             return HttpResponseRedirect('/register/r/survey/')
         else:
-            flashMessage.send("Please correct the errors below", flashMessage.ERROR)
+            messages.error(request, "Please correct the errors below")
 
     context = {'reg_form': reg_form, 'institution': institution}
     return respond(request, "registration/contact_respondent.html", context)
 
 def reg_payment(request):
     """
-        STEP 4: Determine the payment price and process payment for this institution's registration
-         - if the institution is registered already they get forwarded to the account page
-         - otherwise, collect payment info and store the selected_institution into the DB
+        STEP 4: Determine the payment price and process payment for
+        this institution's registration
+         - if the institution is registered already they get forwarded
+           to the account page
+         - otherwise, collect payment info and store the
+           selected_institution into the DB
     """
 
     (institution, response) = _get_selected_institution(request)
@@ -306,8 +321,10 @@ def reg_payment(request):
                 pay_form = PaymentForm(request.POST)
                 if pay_form.is_valid():
                     if pay_form.cleaned_data['discount_code'] != None:
-                        price = _get_registration_price(institution, discount_code=pay_form.cleaned_data['discount_code'])
-                        flashMessage.send("Discount Code Applied", flashMessage.NOTICE)
+                        price = _get_registration_price(
+                            institution,
+                            discount_code=pay_form.cleaned_data['discount_code'])
+                        messages.info(request, "Discount Code Applied")
                     payment_dict = get_payment_dict(pay_form, institution)
                     product_dict = {
                         'price': price,
@@ -315,21 +332,26 @@ def reg_payment(request):
                         'name': "STARS Participant Registration",
                     }
 
-                    result = process_payment(payment_dict, [product_dict], invoice_num=institution.aashe_id)
+                    result = process_payment(payment_dict, [product_dict],
+                                             invoice_num=institution.aashe_id)
                     if result.has_key('cleared') and result.has_key('msg'):
                         if result['cleared'] and result['trans_id']:
-                            institution = register_institution(request.user, institution, "credit", price, payment_dict)
+                            institution = register_institution(
+                                request.user, institution, "credit", price,
+                                payment_dict)
                             # Select institution
                             auth_utils.change_institution(request, institution)
-#                            request.session['selected_institution'] = institution
+#                           request.session['selected_institution'] = institution
                             return HttpResponseRedirect("/register/survey/")
                         else:
-                            flashMessage.send("Processing Error: %s" % result['msg'], flashMessage.ERROR)
+                            messages.error(
+                                request, "Processing Error: %s" % result['msg'])
                 else:
-                    flashMessage.send("Please correct the errors below", flashMessage.ERROR)
+                    messages.error(request, "Please correct the errors below")
 
             else:
-                institution = register_institution(request.user, institution, "later", price, None)
+                institution = register_institution(request.user, institution,
+                                                   "later", price, None)
 
                 # They're a participant, for the purposes of registration
                 institution.is_participant = True
@@ -339,7 +361,9 @@ def reg_payment(request):
                 return HttpResponseRedirect("/register/survey/")
 
     template = "registration/payment.html"
-    context = {'pay_form': pay_form, 'pay_later_form': pay_later_form, 'institution': institution, 'is_member': institution.is_member, 'price': price}
+    context = {'pay_form': pay_form, 'pay_later_form': pay_later_form,
+               'institution': institution, 'is_member': institution.is_member,
+               'price': price}
     return respond(request, template, context)
 
 """
@@ -472,10 +496,11 @@ class RegistrationSurveyView(AuthenticatedMixin, FormActionView):
     def render(self, request, *args, **kwargs):
 
         if not self.get_institution(request):
-            flashMessage.send("No Registered Institution Selected")
+            messages.error(request, "No Registered Institution Selected")
             return HttpResponseRedirect("/register/step1/")
 
-        return super(RegistrationSurveyView, self).render(request, *args, **kwargs)
+        return super(RegistrationSurveyView, self).render(
+            request, *args, **kwargs)
 
     def save_form(self, form, request, context):
         """ Updates the resonse with the user and institution before saving """
@@ -514,21 +539,24 @@ respondent_survey = RegistrationSurveyView('registration/survey.html', Responden
 def reg_account(request):
     """
         Displays the user's account page.
-        If a user is associated with multiple institutions provide a selection option
+        If a user is associated with multiple institutions provide a
+        selection option
     """
     response = _confirm_login(request)
     if response: return response
 
-    # Get the user's current account information. First try the registration selected_institution from the session...
+    # Get the user's current account information. First try the
+    # registration selected_institution from the session...
     institution = request.session.get('selected_institution', None)
 
-    if not institution:  # If that's not there, we'll try to get it from the user's accounts (from DB)
+    if not institution:  # If that's not there, we'll try to get it
+                         # from the user's accounts (from DB)
         account = request.user.account
         if account and account.institution.is_registered():
             institution = account.institution
             request.session['selected_institution'] = institution
         else:            # can't find any registered institution for this user...
-            flashMessage.send("No Registered Institution Selected")
+            messages.error(request, "No Registered Institution Selected")
             return HttpResponseRedirect("/register/step1/")
 
     context = {'institution': institution,}
@@ -637,8 +665,7 @@ def process_payment(payment_dict, product_list, invoice_num=None, server=None,
         logger.warning("Payment denied for %s %s (%s)" %
                        (payment_dict['billing_firstname'],
                         payment_dict['billing_lastname'],
-                        result.response_reason),
-                        {'who': 'process_payment'})
+                        result.response_reason))
         return {'cleared': False, 'reason_code': None,
                 'msg': result.response_reason, 'conf': None, 'trans_id': None}
 
@@ -657,9 +684,13 @@ def _confirm_login(request):
 
 def _get_selected_institution(request):
     """
-        Confirm that requesting user is logged in and get their selected institution from the session, if possible:
-         - If there are any issues (no institution selected, or selected institution already registered), return an appropriate response.
-         - If the user is logged in and has a selected institution, return the institution
+        Confirm that requesting user is logged in and get their
+        selected institution from the session, if possible:
+         - If there are any issues (no institution selected, or
+           selected institution already registered), return an
+           appropriate response.
+         - If the user is logged in and has a selected institution,
+           return the institution
         returns (institution, response), one of which is None.
     """
     response = _confirm_login(request)
@@ -669,18 +700,20 @@ def _get_selected_institution(request):
     # Confirm that there is an institution in their session
     institution = request.session.get('selected_institution')
     if not institution:
-        flashMessage.send("No Institution Selected")
+        messages.error(request, "No Institution Selected")
         return None, HttpResponseRedirect('/register/step1/')
 
     # if the institution is registered already, take them to the account page
     try:
         if institution.aashe_id:
             inst = Institution.objects.get(aashe_id=institution.aashe_id)
-            if inst.is_registered():   # check for registration in the most recent credit set
+            if inst.is_registered():   # check for registration in the most
+                                       # recent credit set
                 request.session['selected_institution'] = inst
                 return None, HttpResponseRedirect("/register/account/")
     except Institution.DoesNotExist:
-        pass  # no problem - this is the usual case, institution is not registered, proceed with registration.
+        pass  # no problem - this is the usual case, institution is not
+              # registered, proceed with registration.
 
     return institution, None
 
@@ -698,8 +731,7 @@ def _get_registration_price(institution, new=True, discount_code=None):
         try:
             discount = ValueDiscount.objects.get(code=discount_code).amount
         except ValueDiscount.DoesNotExist:
-            logger.warning("Invalid Coupon Code",
-                           {'who': '_get_registration_price'})
+            logger.warning("Invalid Coupon Code", exc_info=True)
             pass
 
     if institution.is_member:

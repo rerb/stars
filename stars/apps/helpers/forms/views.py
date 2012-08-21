@@ -2,9 +2,9 @@ from django.template import RequestContext
 from django.shortcuts import render_to_response
 from django.http import HttpResponseRedirect
 from django.core.exceptions import PermissionDenied
+from django.contrib import messages
 
 from stars.apps.accounts.decorators import _redirect_to_login
-from stars.apps.helpers import flashMessage
 
 import sys
 
@@ -18,23 +18,23 @@ class TemplateView(object):
     def __call__(self, request, *args, **kwargs):
         """ Simply calls render """
         return self.render(request, *args, **kwargs)
-        
+
     @property
     def __name__(self):
         return self.__class__.__name__
 
     def render(self, request, *args, **kwargs):
         """ Renders the response """
-        
+
         return render_to_response(self.template,
                                   self.get_context(request, *args, **kwargs),
                                   context_instance=RequestContext(request))
-        
+
     def get_context(self, request, *args, **kwargs):
         """ Add/update any context variables """
         _context = {}
         return _context
-    
+
 class FormActionView(object):
     """
         This callable class can be extended to handle any form submission
@@ -53,7 +53,7 @@ class FormActionView(object):
             self.context_dict = {}
         else:
             self.context_dict = init_context
-            
+
     @property
     def __name__(self):
         return self.__class__.__name__
@@ -71,7 +71,7 @@ class FormActionView(object):
 
         if response:
             return response
-            
+
         return render_to_response(self.template, RequestContext(request, context))
 
     def get_instance(self, request, context, *args, **kwargs):
@@ -114,13 +114,13 @@ class FormActionView(object):
                 if r:
                     return r
             else:
-                flashMessage.send("Please correct the errors below.", flashMessage.ERROR)
+                messages.error(request, "Please correct the errors below.")
 
         context[self.form_name] = form
         return None
-        
+
     def get_form(self, request, context):
-        
+
         _formClass = self.get_form_class(context)
         kwargs = self.get_form_kwargs(request, context)
         return _formClass(**kwargs)
@@ -156,24 +156,24 @@ class FormActionView(object):
         if context.has_key(self.instance_name):
             kwargs['instance'] = context[self.instance_name]
         return kwargs
-        
+
 class MultiFormView(object):
     """
         A class based view used to process multiple forms on a page
-        
+
         Extending classes must define a form_class_list property
         form_class_list = [
             {'form_name': 'form_name', 'form_class': FormClass, 'instance_name': 'instance', 'has_upload': False,}
         ]
         ... and a template property (these can both be passed as keyword parameters if necessary
     """
-    
+
     form_class_list = []
-    
+
     @property
     def __name__(self):
         return self.__class__.__name__
-    
+
     def __init__(self, template=None, form_class_list=None, extra_context=None):
         """
             Initializes the view with a template, list of forms and some initial context
@@ -184,63 +184,65 @@ class MultiFormView(object):
         """
         if template:
             self.template = template
-        
+
         if form_class_list:
             self.form_class_list.append(form_class_list)
-            
+
         if extra_context:
             self.init_context = extra_context
         else:
             self.init_context = {}
-            
+
     def __call__(self, request, *args, **kwargs):
         """
             Typically just calls render.
             **kwargs will contain the data from the parsed URL
         """
-        
+
         return self.render(request, *args, **kwargs)
-        
+
     def render(self, request, *args, **kwargs):
         """
             Render returns the HttpResponse object after getting the context and processing the forms
         """
         context = self.get_context(request, **kwargs)
-        
+
         context, response = self.process_forms(request, context)
         if response:
             return response
-            
+
         return render_to_response(self.template, context, context_instance=RequestContext(request))
-        
+
     def get_context(self, request, **kwargs):
         """
             Returns a context dictionary with self.extra_context applied
         """
         context = {}
         context.update(self.init_context)
-        
+
         context.update(self.get_extra_context(request, context, **kwargs))
-        
+
         return context
-        
+
     def get_extra_context(self, request, context, **kwargs):
         """
             A place where extending classes can update the context given the context so far
         """
         return {}
-        
+
     def process_forms(self, request, context):
         """
-            Calls get_form_list to initialize the forms and then processes them all
-            
+            Calls get_form_list to initialize the forms and then
+            processes them all
+
             Returns an updated context and a response object
-            
-            The response is None, or a response object on success using `get_success_response`
+
+            The response is None, or a response object on success
+            using `get_success_response`
         """
-            
+
         form_list, context = self.get_form_list(request, context)
-        
+
         # Validate Forms
         validated = True
         for form_name, form in form_list.iteritems():
@@ -248,54 +250,57 @@ class MultiFormView(object):
             if request.method == 'POST':
                 if not form.is_valid():
                     validated = False
-        
+
         # Save Forms
         if request.method == 'POST':
             if validated:
                 for form_name, form in form_list.iteritems():
                     form.save()
-                    
+
                 context = self.extra_success_action(request, context)
                 return context, self.get_success_response(request, context)
             else:
-                flashMessage.send("Please correct the errors below.", flashMessage.ERROR)
-        
+                messages.error(request, "Please correct the errors below.")
+
         return context, None
-        
+
     def get_form_list(self, request, context):
         """
-            Creates forms for all the form dictionaries in self.form_class_list
-            Uses the 'instance_name' to search the context for the instance
-            if the instance isn't found it assumes that there is no instance for this form (new object)
-            
+            Creates forms for all the form dictionaries in
+            self.form_class_list Uses the 'instance_name' to search
+            the context for the instance if the instance isn't found
+            it assumes that there is no instance for this form (new
+            object)
+
             Returns a form_list and an updated context
         """
         form_list = {}
 
         for form_class in self.form_class_list:
             klass = form_class['form_class']
-            kwargs = self.get_form_kwargs(form_class, request, context, prefix=form_class['form_name'])
+            kwargs = self.get_form_kwargs(form_class, request, context,
+                                          prefix=form_class['form_name'])
             form_list[form_class['form_name']] = klass(**kwargs)
         return form_list, context
-        
+
     def extra_success_action(self, request, context):
         """
             An access point for performing an action after a successful form completion
         """
         return context
-        
+
     def get_success_response(self, request, context):
         """
             On successful submission of the form, redirect to the returned URL
             Returns None if redirect not necessary
         """
         return None
-        
+
     def get_form_kwargs(self, form_dict, request, context, prefix=None):
         """
             Get the parameters for the form classes. If there was a post request add 'data'
             and if there are file_uploads required, add files.
-            
+
             form_dict:
             {'form_name': 'form_name', 'form_class': FormClass, 'instance_name': 'instance', 'has_upload': False,}
         """
@@ -310,4 +315,3 @@ class MultiFormView(object):
             kwargs['prefix'] = prefix
 
         return kwargs
-        

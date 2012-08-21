@@ -59,10 +59,15 @@ class VersionMigrationTest(TestCase):
         self.assertEqual(ns1.value, ns2.value)
 
         # Check that an email was sent.
-        self.assertEqual(len(mail.outbox), 1)
+
+        mail_messages_that_are_not_errors = [ msg for msg in mail.outbox if
+                                              'ERROR:' not in msg.subject ]
+        self.assertEqual(len(mail_messages_that_are_not_errors), 1)
+
 
 class MigrationTest(TestCase):
-    fixtures = ['submission_migration_test.json','notification_emailtemplate_tests.json']
+    fixtures = ['submission_migration_test.json',
+                'notification_emailtemplate_tests.json']
 
     def setUp(self):
         pass

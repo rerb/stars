@@ -18,7 +18,6 @@ class CreditSubmissionTest(TestCase):
 
         self.assertEqual(len(log.records), 1)
         self.assertEqual(log.records[0].levelname, 'ERROR')
-        self.assertTrue(log.records[0].module_path.startswith('stars'))
         self.assertTrue(log.records[0].msg.startswith(
             'Error converting formula'))
 
@@ -32,6 +31,5 @@ class CreditSubmissionTest(TestCase):
 
         self.assertEqual(len(log.records), 1)
         self.assertEqual(log.records[0].levelname, 'ERROR')
-        self.assertTrue(log.records[0].module_path.startswith('stars'))
         self.assertTrue(log.records[0].msg.startswith(
             'Points (-1.0) are out of range'))

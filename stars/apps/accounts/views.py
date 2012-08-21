@@ -1,3 +1,5 @@
+import logging
+
 from django.conf import settings
 from django.http import HttpResponseRedirect
 from django.core.exceptions import PermissionDenied
@@ -10,11 +12,10 @@ from django.template import RequestContext
 
 from stars.apps.institutions.models import Institution
 from stars.apps.accounts.utils import change_institution
-from stars.apps.helpers import logger
 from stars.apps.accounts.forms import LoginForm, TOSForm
 from stars.apps.accounts.utils import respond
 
-logger = logger.getLogger(__name__)
+logger = logging.getLogger('stars.request')
 
 @never_cache
 def login(request, redirect_field_name=REDIRECT_FIELD_NAME):
@@ -63,7 +64,7 @@ def select_school(request, institution_id):
             institution = Institution.objects.get(id=institution_id)
         except Institution.DoesNotExist:
             logger.info("Attempt to select non-existent institution id = %s" %
-                        institution_id, {'who': 'Auth'})
+                        institution_id, extra={'request': request})
         if change_institution(request, institution):
             return HttpResponseRedirect(settings.DASHBOARD_URL)
         else:
@@ -79,7 +80,7 @@ def terms_of_service(request):
 
     if not request.user.account:
         logger.error("User passed to TOS w/out StarsAccount: uid",
-                     {'who': 'TOC'})
+                     extra={'request': request})
         return HttpResponseRedirect("/")
 
     next = request.REQUEST.get('next', '/')

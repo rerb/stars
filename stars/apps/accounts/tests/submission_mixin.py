@@ -35,10 +35,9 @@ class SubmissionMixinTest(TestCase):
         """Does get_active_submission_problem_response log an error
         when there's no active submission?
         """
-        with LogCapture('stars') as log:
+        with LogCapture('stars.request') as log:
             self.mixed_in.get_active_submission_problem_response(self.request)
 
         self.assertEqual(len(log.records), 1)
         self.assertEqual(log.records[0].levelname, 'ERROR')
-        self.assertTrue(log.records[0].module_path.startswith('stars'))
         self.assertTrue('No active submission' in log.records[0].msg)

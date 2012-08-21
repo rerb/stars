@@ -22,4 +22,3 @@ class CMSTagsTest(TestCase):
         self.assertEqual(len(log.records), 1)
         for record in log.records:
             self.assertEqual(record.levelname, 'ERROR')
-            self.assertTrue(record.module_path.startswith('stars'))

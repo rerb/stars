@@ -1,5 +1,7 @@
+import logging
 import sys
 import string
+
 from django.forms import ModelForm
 from django.forms.widgets import TextInput, HiddenInput
 from django import forms
@@ -12,12 +14,9 @@ from stars.apps.helpers.forms.util import WarningList
 from stars.apps.submissions.models import *
 from stars.apps.tool.my_submission.widgets import UploadFileWidget
 
-import stars.apps.helpers.logger  # Full path to avoid collision w/
-                                  # logger in stars.apps.submissions.models.
-
 from form_utils.forms import BetterModelForm
 
-logger = stars.apps.helpers.logger.getLogger(__name__)
+logger = logging.getLogger('stars')
 
 
 class NewBoundaryForm(BetterModelForm):
@@ -245,7 +244,7 @@ class NumericSubmissionForm(SubmissionFieldForm):
                     "The value is must be less than or equal to %d." %max)
 
         elif not self.instance:
-            logger.info("No Instance", {'who': 'NumericSubmission'})
+            logger.info("No Instance")
         return value
 
 class TextSubmissionForm(SubmissionFieldForm):
@@ -276,7 +275,7 @@ class TextSubmissionForm(SubmissionFieldForm):
                         "The text is too long for this field. "
                         "Limit: %d characters"% max)
         elif not self.instance:
-            logger.info("No Instance", {'who': 'TextSubmission'})
+            logger.info("No Instance")
         return value
 
 class LongTextSubmissionForm(SubmissionFieldForm):
@@ -303,7 +302,7 @@ class LongTextSubmissionForm(SubmissionFieldForm):
                         "The text is too long for this field. "
                         "Limit: %d words" % max)
         elif not self.instance:
-            logger.info("No Instance", {'who': 'LongTextSubmission'})
+            logger.info("No Instance")
         return value
 
 class UploadSubmissionForm(SubmissionFieldForm):
