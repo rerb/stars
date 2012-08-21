@@ -417,7 +417,8 @@ LOGGING = {
     }
 }
 
-logging.captureWarnings(True)
+# disabled until python 2.7
+#logging.captureWarnings(True)
 
 MESSAGE_TAGS = { messages.DEBUG: 'alert fade in alert-debug',
                  messages.INFO : 'alert fade in alert-info',
