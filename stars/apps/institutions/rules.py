@@ -24,6 +24,10 @@ def user_has_access_level(user, access_level, institution):
     return False
 aashe_rules.site.register("user_has_access_level", user_has_access_level)
 
+def user_is_institution_admin(user, institution):
+    return user_has_access_level(user, 'admin', institution)
+aashe_rules.site.register("user_is_institution_admin", user_is_institution_admin)
+
 def institution_can_get_rated(institution):
     if institution.is_participant and institution.current_subscription.get_available_ratings() > 0 and institution.current_subscription.paid_in_full:
     	return True

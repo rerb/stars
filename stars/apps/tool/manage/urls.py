@@ -1,9 +1,10 @@
 from django.conf.urls.defaults import *
+from views import ContactView
 
 urlpatterns = patterns(
     'stars.apps.tool.manage.views',
     
-    (r'^$', 'institution_detail'),
+    (r'^contacts/$', ContactView.as_view()),
     (r'^payments/$', 'institution_payments'),
     (r'^responsible-parties/$', 'responsible_party_list'),
     (r'^responsible-parties/add/$', 'add_responsible_party'),

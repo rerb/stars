@@ -25,6 +25,14 @@ from stars.apps.registration.views import process_payment, get_payment_dict, _ge
 from stars.apps.registration.models import ValueDiscount
 from stars.apps.notifications.models import EmailTemplate
 
+
+# new imports
+from stars.apps.tool.mixins import ToolMixin
+from stars.apps.helpers.mixins import StarsFormMixin
+
+from django.views.generic import UpdateView
+from django.contrib import messages
+
 logger = logging.getLogger('stars.request')
 
 def _get_current_institution(request):
@@ -35,25 +43,30 @@ def _get_current_institution(request):
     else:
         raise Http404
 
-@user_is_inst_admin
-def institution_detail(request):
+class ContactView(ToolMixin, StarsFormMixin, UpdateView):
     """
-        Display the Institution Form so user can edit basic info about their institution
+        Displays the contact form for an institution
+        
+        Contact form is customized based on the user's permission level
     """
-    current_inst = _get_current_institution(request)
-
-    if request.user.is_staff:
-        FormClass = AdminInstitutionForm
-    else:
-        if current_inst.is_participant:
-            FormClass = ParticipantContactForm
+    template_name = 'tool/manage/detail.html'
+    logical_rules = [{
+                        'name': 'user_is_institution_admin',
+                        'param_callbacks': [('user', 'get_request_user'), ('institution', 'get_institution')]
+                      }]
+    
+    def get_object(self):
+        return self.get_institution()
+    
+    def get_form_class(self):
+        if self.request.user.is_staff:
+            FormClass = AdminInstitutionForm
         else:
-            FormClass = RespondentContactForm
-
-    (institution_form,saved) = form_helpers.basic_save_form(request, current_inst, str(current_inst.id), FormClass)
-
-    context = {'institution_form': institution_form}
-    return respond(request, 'tool/manage/detail.html', context)
+            if self.get_institution().is_participant:
+                FormClass = ParticipantContactForm
+            else:
+                FormClass = RespondentContactForm
+        return FormClass
 
 @user_is_inst_admin
 def institution_payments(request):

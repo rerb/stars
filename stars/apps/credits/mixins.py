@@ -2,6 +2,24 @@ from django.db import models
 
 import sys
 
+
+class StructureMixin(object):
+    
+    def __init__(self, *args, **kwargs):
+        self.structure_cache = {}
+        
+    def set_structure_object(self, key, value):
+        self.structure_cache[key] = value
+        
+    def get_structure_object(self, key):
+        if self.structure_cache.has_key(key):
+            return self.structure_cache[key]
+        else:
+            return None
+
+class CreditsetStructureMixin(StructureMixin):
+    pass
+
 class VersionedModel(models.Model):
     previous_version = models.OneToOneField('self', null=True, blank=True, related_name='_next_version')
         
