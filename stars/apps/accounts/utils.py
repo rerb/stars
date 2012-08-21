@@ -1,4 +1,4 @@
-import logging
+from logging import getLogger
 import MySQLdb
 import re
 
@@ -12,7 +12,7 @@ from stars.apps.institutions.models import StarsAccount, PendingAccount, Institu
 from django.conf import settings
 from django.http import HttpResponseRedirect
 
-logger = logging.getLogger('stars')
+logger = getLogger('stars')
 
 
 def respond(request, template, context):

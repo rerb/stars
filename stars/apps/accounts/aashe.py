@@ -1,4 +1,4 @@
-import logging
+from logging import getLogger
 import xmlrpclib, random, hashlib, hmac
 from time import time
 
@@ -11,7 +11,7 @@ from stars.apps.institutions.models import StarsAccount
 # Django Docs:
 # http://docs.djangoproject.com/en/dev/topics/auth/
 
-logger = logging.getLogger('stars.user')
+logger = getLogger('stars.user')
 
 
 class AASHEAuthBackend:

@@ -1,4 +1,4 @@
-import logging
+from logging import getLogger
 import re
 
 from django import template
@@ -9,7 +9,7 @@ from django.core import urlresolvers
 
 from stars.apps.helpers.models import HelpContext
 
-logger = logging.getLogger('stars')
+logger = getLogger('stars')
 
 register = template.Library()
 

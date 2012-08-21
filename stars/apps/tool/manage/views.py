@@ -1,5 +1,5 @@
 from datetime import timedelta, datetime, date
-import logging
+from logging import getLogger
 import sys
 
 from django.conf import settings
@@ -25,7 +25,7 @@ from stars.apps.registration.views import process_payment, get_payment_dict, _ge
 from stars.apps.registration.models import ValueDiscount
 from stars.apps.notifications.models import EmailTemplate
 
-logger = logging.getLogger('stars.request')
+logger = getLogger('stars.request')
 
 def _get_current_institution(request):
     if hasattr(request.user, 'current_inst'):

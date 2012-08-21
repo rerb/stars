@@ -1,5 +1,5 @@
 from datetime import date
-import logging
+from logging import getLogger
 
 from django.conf import settings
 from django.db import models
@@ -12,7 +12,7 @@ from django.core.mail import send_mail
 from stars.apps.credits.models import CreditSet, RATING_DURATION
 # from stars.apps.notifications.models import EmailTemplate
 
-logger = logging.getLogger('stars')
+logger = getLogger('stars')
 
 
 class ClimateZone(models.Model):

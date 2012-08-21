@@ -1,4 +1,4 @@
-import logging
+from logging import getLogger
 
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
@@ -11,7 +11,7 @@ from stars.apps.institutions.models import StarsAccount, Institution
 from stars.apps.institutions.rules import user_has_access_level, \
      institution_has_export
 
-logger = logging.getLogger('stars.request')
+logger = getLogger('stars.request')
 
 
 class StarsMixin(object):

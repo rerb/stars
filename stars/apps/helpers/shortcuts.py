@@ -2,14 +2,14 @@
 Helper functions and classes that provide convient helpers
 modelled on Django's shortcuts module
 """
-import logging
+from logging import getLogger
 
 from django.template import loader, Context
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse, Http404
 from stars.apps.helpers import exceptions
 
-logger = logging.getLogger('stars')
+logger = getLogger('stars')
 
 def render_to_any_response(HttpResponseClass, *args, **kwargs):
     """

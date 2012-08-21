@@ -1,4 +1,4 @@
-import logging
+from logging import getLogger
 import sys
 import string
 
@@ -16,7 +16,7 @@ from stars.apps.tool.my_submission.widgets import UploadFileWidget
 
 from form_utils.forms import BetterModelForm
 
-logger = logging.getLogger('stars')
+logger = getLogger('stars')
 
 
 class NewBoundaryForm(BetterModelForm):

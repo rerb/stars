@@ -1,4 +1,4 @@
-import logging
+from logging import getLogger
 
 from django import template
 from django.utils.html import strip_spaces_between_tags, escape
@@ -6,7 +6,7 @@ from django.utils.safestring import mark_safe
 
 from stars.apps.cms.models import ArticleMenu
 
-logger = logging.getLogger('stars')
+logger = getLogger('stars')
 
 register = template.Library()
 

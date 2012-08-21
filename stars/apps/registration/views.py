@@ -1,4 +1,4 @@
-import logging
+from logging import getLogger
 from datetime import datetime, date, timedelta
 import urllib2, re, sys
 from xml.etree.ElementTree import fromstring
@@ -29,7 +29,7 @@ from zc.authorizedotnet.processing import CcProcessor
 from zc.creditcard import (AMEX, DISCOVER, MASTERCARD, VISA, UNKNOWN_CARD_TYPE)
 from aashe.issdjango.models import Organizations
 
-logger = logging.getLogger('stars')
+logger = getLogger('stars')
 
 # @todo - it would be nice to use the WizardView here if possible
 
@@ -127,7 +127,7 @@ def reg_select_institution(request):
             e = form.errors
             # Since this is a pull-down menu, there is really no way
             # for this to happen.
-            logger = logging.getLogger('stars.request')
+            logger = getLogger('stars.request')
             logger.error("The institution select form didn't validate.",
                          extra={'request': request})
 

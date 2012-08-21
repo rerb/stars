@@ -1,5 +1,5 @@
 from datetime import datetime, date
-import logging
+from logging import getLogger
 import sys
 
 from django.conf import settings
@@ -24,7 +24,7 @@ from stars.apps.tool.admin.forms import PaymentForm
 from stars.apps.helpers.forms.views import FormActionView
 from stars.apps.third_parties.models import ThirdParty
 
-logger = logging.getLogger('stars.request')
+logger = getLogger('stars.request')
 
 @user_is_staff
 def institutions_search(request):

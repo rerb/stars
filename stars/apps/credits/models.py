@@ -1,4 +1,4 @@
-import logging
+from logging import getLogger
 import re, copy
 from datetime import date
 
@@ -13,7 +13,7 @@ from mixins import VersionedModel
 
 RATING_DURATION = 365*3
 
-logger = logging.getLogger('stars')
+logger = getLogger('stars')
 
 
 class IncrementalFeature(models.Model):

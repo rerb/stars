@@ -1,4 +1,4 @@
-import logging
+from logging import getLogger
 
 from django.conf import settings
 from django.http import HttpResponseRedirect
@@ -15,7 +15,7 @@ from stars.apps.accounts.utils import change_institution
 from stars.apps.accounts.forms import LoginForm, TOSForm
 from stars.apps.accounts.utils import respond
 
-logger = logging.getLogger('stars.request')
+logger = getLogger('stars.request')
 
 @never_cache
 def login(request, redirect_field_name=REDIRECT_FIELD_NAME):

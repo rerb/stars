@@ -1,5 +1,5 @@
 from datetime import datetime, date, timedelta
-import logging
+from logging import getLogger
 import os, re, sys
 
 from django.conf import settings
@@ -35,7 +35,7 @@ EXTENSION_PERIOD = timedelta(days=366/2)
 # Institutions that registered before May 29th, but haven't paid are still published
 REGISTRATION_PUBLISH_DEADLINE = date(2010, 5, 29)
 
-logger = logging.getLogger('stars')
+logger = getLogger('stars')
 
 def upload_path_callback(instance, filename):
     """

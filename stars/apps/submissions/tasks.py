@@ -1,7 +1,7 @@
 """
     Celery tasks
 """
-import logging
+from logging import getLogger
 import sys
 
 from stars.apps.submissions.pdf.export import build_certificate_pdf
@@ -16,7 +16,7 @@ from django.core.cache import cache
 
 from celery.decorators import task
 
-logger = logging.getLogger('stars.user')
+logger = getLogger('stars.user')
 
 @task()
 def hello_world():

@@ -1,6 +1,6 @@
 import cStringIO as StringIO
 import ho.pisa as pisa
-import logging
+from logging import getLogger
 from cgi import escape
 import sys, os
 from datetime import datetime
@@ -14,7 +14,7 @@ from django.utils.encoding import smart_str, smart_unicode
 from stars.apps.institutions.models import * # required for execfile management func
 from stars.apps.cms.models import Category
 
-logger = logging.getLogger('stars')
+logger = getLogger('stars')
 
 def render_to_pdf(template_src, context_dict):
     """

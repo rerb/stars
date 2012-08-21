@@ -1,4 +1,4 @@
-import logging
+from logging import getLogger
 
 from django import template
 from django.utils.html import strip_spaces_between_tags, escape
@@ -7,7 +7,7 @@ from django.core import urlresolvers
 
 from stars.apps.helpers.models import BlockContent, SnippetContent
 
-logger = logging.getLogger('stars.user')
+logger = getLogger('stars.user')
 
 register = template.Library()
 
