@@ -1,12 +1,8 @@
 from django.template import RequestContext
 from django.shortcuts import render_to_response
 from django.http import HttpResponseRedirect
-from django.core.exceptions import PermissionDenied
 from django.contrib import messages
 
-from stars.apps.accounts.decorators import _redirect_to_login
-
-import sys
 
 class TemplateView(object):
     """
