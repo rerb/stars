@@ -1,6 +1,6 @@
 # Default Settings for STARS project
 # These can be extended by any .py file in the config folder
-import logging, os, sys, django, re
+import os, sys, django, re
 from django.contrib import messages
 from django.contrib.messages import constants as messages
 
@@ -418,7 +418,8 @@ LOGGING = {
     }
 }
 
-logging.captureWarnings(True)
+if sys.version[:3] >= '2.7':
+    logging.captureWarnings(True)
 
 MESSAGE_TAGS = { messages.DEBUG: 'alert fade in alert-debug',
                  messages.INFO : 'alert fade in alert-info',
