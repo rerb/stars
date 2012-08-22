@@ -2,7 +2,6 @@
 # These can be extended by any .py file in the config folder
 import os, sys, django, re
 from django.contrib import messages
-from django.contrib.messages import constants as messages
 
 sys.path.append('../')
 
