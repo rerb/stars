@@ -11,13 +11,13 @@ from stars.apps.helpers import shortcuts
 class ShortcutsTest(TestCase):
 
     def test_get_cmsobject_or_404_logging(self):
-        """Does get_cmsobject_or_404 log a message and an exception
-        when it can't find a resource?
+        """
+        Does get_cmsobject_or_404 log a message and exception if no resource?
         """
         with testfixtures.LogCapture('stars') as log:
-            with self.assertRaises(Http404):
-                shortcuts.get_cmsobject_or_404(lambda x: None,
-                                               'arg_for_lambda')
+            self.assertRaises(Http404,
+                              shortcuts.get_cmsobject_or_404,
+                              lambda x: None, 'arg_for_lambda')
 
         self.assertEqual(len(log.records), 2)
 
