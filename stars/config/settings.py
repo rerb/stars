@@ -79,9 +79,15 @@ AUTHENTICATION_BACKENDS = ('stars.apps.accounts.aashe.AASHEAuthBackend',)
 if 'test' in sys.argv:
     AUTHENTICATION_BACKENDS = (
                                'django.contrib.auth.backends.ModelBackend',
-                               'aashe_python.aashe.aasheauth.backends.AASHEBackend',
-#                               'stars.apps.accounts.aashe.AASHEAuthBackend',
+                               'aashe.aasheauth.backends.AASHEBackend',
+                               # 'stars.apps.accounts.aashe.AASHEAuthBackend',
                                )
+
+AASHE_DRUPAL_URI = "http://www.aashe.org/services/xmlrpc"
+AASHE_DRUPAL_KEY = "15cf217790e3d45199aeb862f73ab2ff"
+AASHE_DRUPAL_KEY_DOMAIN = "acupcc.aashe.org"
+AASHE_DRUPAL_COOKIE_SESSION = "SESS0e65dd9c18edb0e7e84759989a5ca2d3"
+AASHE_DRUPAL_COOKIE_DOMAIN = ".aashe.org"
 
 DASHBOARD_URL = "/tool/"
 LOGIN_URL = "/accounts/login/"
@@ -418,6 +424,7 @@ LOGGING = {
 }
 
 if sys.version[:3] >= '2.7':
+    import logging
     logging.captureWarnings(True)
 
 MESSAGE_TAGS = { messages.DEBUG: 'alert fade in alert-debug',
