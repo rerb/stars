@@ -27,7 +27,7 @@ class StarsApiResource(ModelResource):
     class Meta:
         if settings.API_TEST_MODE:
             authentication = Authentication()
-            logger.warning('no authentication active')
+            logger.warning('no API authentication active')
         else:
             authentication = ApiKeyAuthentication()
         authorization = ReadOnlyAuthorization()
