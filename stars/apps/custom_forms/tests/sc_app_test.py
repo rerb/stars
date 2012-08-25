@@ -1,7 +1,7 @@
 """
 
-    # SC Application 
-    
+    # SC Application
+
 """
 
 from django.test import TestCase
@@ -10,11 +10,12 @@ from django.test.client import Client
 
 from stars.apps.custom_forms.models import SteeringCommitteeNomination
 
-import sys, os
+import os
+
 
 class SCAppTest(TestCase):
     fixtures = ['notification_emailtemplate_tests.json',]
-    
+
     def setUp(self):
         pass
 
@@ -26,7 +27,7 @@ class SCAppTest(TestCase):
                 - view sends email
         """
         self.assertTrue(SteeringCommitteeNomination.objects.count() == 0)
-        
+
         c = Client()
         f = open(os.path.join(os.path.dirname(__file__), '__init__.py'))
         post_dict = {
@@ -43,7 +44,7 @@ class SCAppTest(TestCase):
             'resume': f,
         }
         response = c.post('/cfm/sc-app/', post_dict)
-        
+
         self.assertTrue(response.status_code == 200)
         self.assertTrue(len(mail.outbox) == 1)
         self.assertTrue(SteeringCommitteeNomination.objects.count() == 1)

@@ -1,81 +1,76 @@
-from stars.apps.custom_forms.forms import *
-from stars.apps.helpers.forms.views import FormActionView
+from django.shortcuts import render
+from django.views.generic.edit import FormView
 
-from django.views.generic.simple import direct_to_template
-from django.core.mail import send_mail
-from django.template.loader import get_template
-from django.conf import settings
-from django.template import Context
+from stars.apps.custom_forms.forms import EligibilityForm, \
+     SteeringCommitteeNominationForm, TAApplicationForm
+from stars.apps.helpers.mixins import StarsFormMixin
 from stars.apps.notifications.models import EmailTemplate
 
 
-class EligibilityView(FormActionView):
+class EligibilityView(StarsFormMixin, FormView):
+    """
+        View for the form that lets folks petition for STARS membership for
+        an institution that doesn't qualify under the usual conditions.
+    """
 
-    def get_success_action(self, request, context, form):
+    form_class = EligibilityForm
+    template_name = 'custom_forms/eligibility.html'
 
-        self.save_form(form, request, context)
+    def form_valid(self, form):
+        form.send_email()
+        return render(request=self.request,
+                      template_name="custom_forms/form_success.html",
+                      dictionary=self.get_context_data())
 
-        responses = []
-        for field in form:
-            value = field.data
-            if field.field.__class__.__name__ == "BooleanField":
-                if value:
-                    value = "YES"
-                else:
-                    value = "NO"
-            responses.append({'label': field.label, 'value': value})
-
-        _context = Context({'responses': responses,})
-        t = get_template("custom_forms/eligibility_staff_email.txt")
-        message = t.render(_context)
-
-        email_to = ['stars@aashe.org',]
-        send_mail(  "Eligibility Query from %s at %s" % (form.cleaned_data['name'], form.cleaned_data['institution']),
-                    message,
-                    form.cleaned_data['email'],
-                    email_to,
-                    fail_silently=False
-                    )
+    def get_context_data(self, **kwargs):
+        context = super(EligibilityView, self).get_context_data(**kwargs)
+        context['form_title'] = 'Eligibility Inquiry'
+        return context
 
 
-        t = get_template("custom_forms/eligibility_query_response.txt")
-        message = t.render(_context)
-        send_mail( "Thank you for your enquiry",
-                   message,
-                   settings.EMAIL_HOST_USER,
-                   [form.cleaned_data['email'],],
-                   fail_silently=False
-                   )
+class SteeringCommitteeNominationView(StarsFormMixin, FormView):
+    """
+       View for the form that lest folks apply to be sit on the STARS
+       steering committee.
+    """
 
-        r = direct_to_template(request, "custom_forms/form_success.html", extra_context=self.context_dict)
-        return r
+    form_class = SteeringCommitteeNominationForm
+    template_name = 'custom_forms/sc_app.html'
 
-eligibility = EligibilityView("custom_forms/eligibility.html", EligibilityForm, has_upload=False, form_name='object_form', init_context={'form_title': "Eligibility Inquiry",})
-
-class TAAppView(FormActionView):
-
-    def get_success_action(self, request, context, form):
-
-        self.save_form(form, request, context)
-
-        et = EmailTemplate.objects.get(slug="ta_application")
-        et.send_email([request.POST['email']], context)
-
-        r = direct_to_template(request, "custom_forms/form_success.html", extra_context=self.context_dict)
-        return r
-
-ta_application = TAAppView("custom_forms/ta_app.html", TAApplicationForm, has_upload=True, form_name='object_form', init_context={'form_title': "Technical Advisor Application",})
-
-class SteeringCommitteeNominationView(FormActionView):
-
-    def get_success_action(self, request, context, form):
-
-        self.save_form(form, request, context)
-
+    def form_valid(self, form):
+        form.save()
         et = EmailTemplate.objects.get(slug="sc_application")
-        et.send_email([request.POST['email']], context)
+        et.send_email([self.request.POST['email']], self.initial)
+        return render(request=self.request,
+                      template_name="custom_forms/form_success.html",
+                      dictionary=self.get_context_data())
 
-        r = direct_to_template(request, "custom_forms/form_success.html", extra_context=self.context_dict)
-        return r
+    def get_context_data(self, **kwargs):
+        context = super(SteeringCommitteeNominationView,
+                        self).get_context_data(**kwargs)
+        context['form_title'] = 'STARS Steering Committee Nomination'
+        return context
 
-sc_application = SteeringCommitteeNominationView("custom_forms/sc_app.html", SteeringCommitteeNominationForm, has_upload=True, form_name='object_form', init_context={'form_title': "STARS Steering Committee Nomination",})
+
+class TechnicalAdvisorApplicationView(StarsFormMixin, FormView):
+    """
+        View for the form that allows folks to apply to be STARS
+        Techiical Advisors.
+    """
+
+    form_class = TAApplicationForm
+    template_name = 'custom_forms/ta_app.html'
+
+    def form_valid(self, form):
+        form.save()
+        et = EmailTemplate.objects.get(slug="ta_application")
+        et.send_email([self.request.POST['email']], self.initial)
+        return render(request=self.request,
+                      template_name="custom_forms/form_success.html",
+                      dictionary=self.get_context_data())
+
+    def get_context_data(self, **kwargs):
+        context = super(TechnicalAdvisorApplicationView,
+                        self).get_context_data(**kwargs)
+        context['form_title'] = 'Technical Advisor Application'
+        return context
