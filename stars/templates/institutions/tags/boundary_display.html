@@ -31,7 +31,7 @@
       <td align='center'>
         {% if row.included %}Yes{% else %}No{% endif %}
         {% if row.details %}
-          {% show_help_text row.details 1 %}
+          {% show_help_text row.details 1 row.id %}
         {% endif %}
       </td>
     </tr>
