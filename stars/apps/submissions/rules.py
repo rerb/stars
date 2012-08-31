@@ -20,7 +20,13 @@ def publish_credit_data(credit_submission):
     return credit_submission.submission_status == 'c'
 
 def user_can_preview_submission(user, submission):
-    return user_has_access_level(user, 'view', submission.institution)
+    """
+        Only rated submissions and the current submission data
+    """
+    if user_has_access_level(user, 'view', submission.institution):
+        if submission.status == 'r' or submission == submission.institution.current_submission:
+            return True
+    return False
 aashe_rules.site.register("user_can_preview_submission", user_can_preview_submission)
 
 def user_can_edit_submission(user, submission):

@@ -51,9 +51,9 @@ def get_help_context(context_name):
     return help_context.help_text
 
 @register.inclusion_tag('helpers/tags/help_text.html')
-def show_help_text(help_text, as_tooltip=True):
+def show_help_text(help_text, as_tooltip=True, id=None):
     """ Displays a tool-tip for the given help text with quotes properly escaped. """
-    return {'help_text': _clean(help_text, as_tooltip), "tooltip": as_tooltip}
+    return {'help_text': _clean(help_text, as_tooltip), "tooltip": as_tooltip, "id": id}
 
 def _clean(text, as_tooltip):
     """ Helper to prepare the help text """

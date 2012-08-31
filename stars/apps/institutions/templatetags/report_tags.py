@@ -36,7 +36,8 @@ def show_boundary(submission):
                     'title': k,
                     'present': getattr(submission.boundary, '%s_present' % p),
                     'included': getattr(submission.boundary, '%s_included' % p),
-                    'details': getattr(submission.boundary, "%s_details" % p)
+                    'details': getattr(submission.boundary, "%s_details" % p),
+                    'id': p
                  }
             if hasattr(submission.boundary, "%s_acres" % p):
                 d['acres'] = getattr(submission.boundary, "%s_acres" % p)
