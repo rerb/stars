@@ -609,7 +609,8 @@ def purchase_subscription(request):
                             end_date=(start_date +
                                       timedelta(SUBSCRIPTION_DURATION)),
                             amount_due=0,
-                            paid_in_full=True)
+                            paid_in_full=True,
+                            reason=reason)
                         sub.save()
 
                         p = SubscriptionPayment(
