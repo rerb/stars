@@ -1,0 +1,32 @@
+{% load aashe_rules_tags %}
+
+<ul class="nav nav-tabs">
+  <li {% if active == "fields"%} class='active'{% endif %}>
+  	<a href="{{ credit_submission.get_submit_url }}">Reporting Fields</a>
+  </li>
+  
+  <li class="dropdown{% if active == 'info' %} active{% endif %}">
+    <a class="dropdown-toggle"
+       data-toggle="dropdown"
+       href="#">
+        Credit Info
+        <b class="caret"></b>
+      </a>
+    <ul class="dropdown-menu">
+      <li>
+      	<a href="{{ credit_submission.get_submit_url }}documentation/">Open Here</a>
+      </li>
+      <li>
+      	<a href="{{ credit_submission.get_submit_url }}documentation/?popup=True" target='_blank' 
+		       onclick='return open_popup("{{ credit_submission.get_submit_url }}documentation/?popup=True", "CreditInfo");'
+		     >Pop Out</a>
+      </li>
+    </ul>
+  </li>
+  
+  {% testrule institution_has_internal_notes_feature user.current_inst %}
+     <li{% if active == "notes"%} class='active'{% endif %}>
+     	<a href="{{ credit_submission.get_submit_url }}notes/">Internal Notes</a>
+     </li>
+   {% endtestrule %}
+</ul>
