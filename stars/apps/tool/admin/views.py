@@ -262,13 +262,6 @@ def edit_subscriptionpayment(request, institution_id, payment_id):
     context = {'payment': payment, 'object_form':payment_form, 'title':'Edit Payment Details', 'institution': institution}
     return respond(request, 'tool/manage/payment_edit.html', context)
 
-@user_is_staff
-def send_receipt(request, payment_id):
-    """
-        Tool allowing staff to send receipts for payments to the STARS Liaison
-    """
-    payment = get_object_or_404(Payment, id=payment_id)
-
 class PaymentReceiptView(FormActionView):
 
     def get_success_action(self, request, context, form):
