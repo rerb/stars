@@ -6,7 +6,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.shortcuts import render_to_response, get_object_or_404
 from django.http import HttpResponseRedirect, Http404
-from django.template import Context, loader, Template, RequestContext
+from django.template import Context, loader, RequestContext
 from django.core.mail import send_mail
 from django.db.models import Min
 from django.utils.decorators import method_decorator
@@ -18,7 +18,6 @@ from stars.apps.helpers.forms import form_helpers
 from stars.apps.helpers.forms.forms import Confirm as ConfirmForm
 from stars.apps.institutions.models import Institution, Subscription, SubscriptionPayment
 from stars.apps.institutions.views import SortableTableView
-from stars.apps.tool.manage.forms import AdminEnableInstitutionForm
 from stars.apps.submissions.models import SubmissionSet
 from stars.apps.tool.admin.forms import PaymentForm
 from stars.apps.helpers.forms.views import FormActionView
