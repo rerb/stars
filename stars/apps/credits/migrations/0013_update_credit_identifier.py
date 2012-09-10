@@ -3,17 +3,21 @@ import datetime
 from south.db import db
 from south.v2 import DataMigration
 from django.db import models
+from django.core.exceptions import ObjectDoesNotExist
 
 class Migration(DataMigration):
-    
+
     def forwards(self, orm):
-        cs = orm.CreditSet.objects.get(version='1.1')
+        try:
+            cs = orm.CreditSet.objects.get(version='1.1')
+        except ObjectDoesNotExist:
+            return
         cs.credit_identifier = "get_1_1_identifier"
         cs.save()
-    
+
     def backwards(self, orm):
         "Write your backwards methods here."
-    
+
     models = {
         'credits.applicabilityreason': {
             'Meta': {'object_name': 'ApplicabilityReason'},
@@ -116,5 +120,5 @@ class Migration(DataMigration):
             'name': ('django.db.models.fields.CharField', [], {'max_length': '32'})
         }
     }
-    
+
     complete_apps = ['credits']
