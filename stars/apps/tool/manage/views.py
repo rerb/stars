@@ -1,37 +1,44 @@
 from datetime import timedelta, datetime, date
 from logging import getLogger
-import sys
 
 from django.conf import settings
 from django.contrib import messages
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect, Http404
 from django.core.exceptions import PermissionDenied
-from django.core.mail import EmailMessage
 
 from stars.apps.accounts.utils import respond
-from stars.apps.accounts.decorators import user_is_staff, user_is_inst_admin, user_has_tool
+from stars.apps.accounts.decorators import user_is_inst_admin, user_has_tool
 from stars.apps.accounts import xml_rpc
-from stars.apps.institutions.models import Institution, StarsAccount, Subscription, SubscriptionPayment, SUBSCRIPTION_DURATION, PendingAccount
+from stars.apps.credits.models import CreditSet
+from stars.apps.institutions.models import StarsAccount, Subscription, \
+     SubscriptionPayment, SUBSCRIPTION_DURATION, PendingAccount
 from stars.apps.institutions.rules import user_has_access_level
-from stars.apps.submissions.models import SubmissionSet, EXTENSION_PERIOD, ExtensionRequest
-from stars.apps.submissions.tasks import migrate_purchased_submission, perform_migration, perform_data_migration
-from stars.apps.submissions.rules import user_can_migrate_version, user_can_migrate_from_submission, user_can_migrate_data
+from stars.apps.submissions.models import SubmissionSet
+from stars.apps.submissions.tasks import perform_migration, \
+     perform_data_migration
+from stars.apps.submissions.rules import user_can_migrate_version, \
+     user_can_migrate_from_submission
 from stars.apps.third_parties.models import ThirdParty
 from stars.apps.helpers.forms import form_helpers
-from stars.apps.tool.manage.forms import *
+
+from stars.apps.tool.manage.forms import AdminInstitutionForm, \
+     ParticipantContactForm, RespondentContactForm, ResponsibleParty, \
+     ResponsiblePartyForm, EditAccountForm, DisabledAccountForm, \
+     AccountForm, ThirdPartiesForm, InstitutionPreferences, \
+     NotifyUsersForm, MigrateSubmissionSetForm, BoundaryForm
+
 from stars.apps.registration.forms import PaymentForm, PayLaterForm
-from stars.apps.registration.views import process_payment, get_payment_dict, _get_registration_price, init_submissionset
+from stars.apps.registration.views import process_payment, get_payment_dict, \
+     _get_registration_price
 from stars.apps.registration.models import ValueDiscount
 from stars.apps.notifications.models import EmailTemplate
-
 
 # new imports
 from stars.apps.tool.mixins import ToolMixin
 from stars.apps.helpers.mixins import StarsFormMixin
 
 from django.views.generic import UpdateView
-from django.contrib import messages
 
 logger = getLogger('stars.request')
 
@@ -46,7 +53,7 @@ def _get_current_institution(request):
 class ContactView(ToolMixin, StarsFormMixin, UpdateView):
     """
         Displays the contact form for an institution
-        
+
         Contact form is customized based on the user's permission level
     """
     template_name = 'tool/manage/detail.html'
@@ -54,10 +61,10 @@ class ContactView(ToolMixin, StarsFormMixin, UpdateView):
                         'name': 'user_is_institution_admin',
                         'param_callbacks': [('user', 'get_request_user'), ('institution', 'get_institution')]
                       }]
-    
+
     def get_object(self):
         return self.get_institution()
-    
+
     def get_form_class(self):
         if self.request.user.is_staff:
             FormClass = AdminInstitutionForm
