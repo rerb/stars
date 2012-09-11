@@ -9,13 +9,18 @@ from django.template.defaultfilters import slugify
 import MySQLdb, datetime
 
 class Migration(DataMigration):
-    
+
     def forwards(self, orm):
-        
-        db = MySQLdb.connect(user=settings.AASHE_MYSQL_LOGIN, db='live_irc', passwd=settings.AASHE_MYSQL_PASS, host=settings.AASHE_MYSQL_SERVER)
+
+        try:
+            db = MySQLdb.connect(user=settings.AASHE_MYSQL_LOGIN, db='live_irc',
+                                 passwd=settings.AASHE_MYSQL_PASS,
+                                 host=settings.AASHE_MYSQL_SERVER)
+        except MySQLdb.OperationalError:
+            return
 
         cursor = db.cursor()
-        
+
         query = """
                 select n.title, nr.body, n.created, n.changed, nr.timestamp
                 from node as n
@@ -23,11 +28,11 @@ class Migration(DataMigration):
                 on n.nid
                 where n.type='article'
                 and n.nid = nr.nid;"""
-                
+
         cursor.execute(query)
-        
+
         for row in cursor.fetchall():
-            
+
             a = orm.NewArticle(
                                title=row[0],
                                slug=slugify(row[0]),
@@ -38,10 +43,10 @@ class Migration(DataMigration):
                                stamp=datetime.datetime.fromtimestamp(row[4])
                                )
             a.save()
-    
+
     def backwards(self, orm):
         "Write your backwards methods here."
-    
+
     models = {
         'cms.articlecategory': {
             'Meta': {'object_name': 'ArticleCategory'},
@@ -87,5 +92,5 @@ class Migration(DataMigration):
             'title': ('django.db.models.fields.CharField', [], {'max_length': '32'})
         }
     }
-    
+
     complete_apps = ['cms']

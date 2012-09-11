@@ -26,7 +26,7 @@ class SCAppTest(TestCase):
                 - Form saves the SC model
                 - view sends email
         """
-        self.assertTrue(SteeringCommitteeNomination.objects.count() == 0)
+        self.assertEqual(SteeringCommitteeNomination.objects.count(), 0)
 
         c = Client()
         f = open(os.path.join(os.path.dirname(__file__), '__init__.py'))
@@ -43,8 +43,8 @@ class SCAppTest(TestCase):
             'perspectives': 'blah blah',
             'resume': f,
         }
-        response = c.post('/cfm/sc-app/', post_dict)
+        response = c.post('/cfm/sc-app/', post_dict, follow=True)
 
-        self.assertTrue(response.status_code == 200)
-        self.assertTrue(len(mail.outbox) == 1)
-        self.assertTrue(SteeringCommitteeNomination.objects.count() == 1)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(SteeringCommitteeNomination.objects.count(), 1)
