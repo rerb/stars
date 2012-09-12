@@ -1,21 +1,28 @@
 """Tests for apps/tool/manage/views.py.
 """
+import datetime
+import time
+
 from bs4 import BeautifulSoup
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.messages.middleware import MessageMiddleware
+from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest
 from django.shortcuts import render
 from django.test import TestCase
+from django.test.client import RequestFactory
+import factory
 import testfixtures
 
 from stars.apps.credits.models import CreditSet
 from stars.apps.institutions.models import Institution, PendingAccount, \
-     Subscription
+     Subscription, SubscriptionPayment, StarsAccount
 from stars.apps.registration.models import ValueDiscount
 from stars.apps.submissions.models import SubmissionSet
 from stars.apps.tool.manage import views
+
 
 class ViewsTest(TestCase):
 
@@ -264,7 +271,7 @@ class ViewsTest(TestCase):
         self.assertTrue('rocessing Error' in error_message_divs[0].text)
 
     def test_purchase_subscription_invalid_payform_error_message(self):
-        """Does purchase_subscription show an error when payment form is invalid?
+        """Does purchase_subscription show an error if payment form is invalid?
         """
         with testfixtures.Replacer() as r:
             r.replace(
@@ -364,3 +371,65 @@ class MockPaymentForm(object):
 
     def is_valid(self):
         return True
+
+
+class InstitutionFactory(factory.Factory):
+    FACTORY_FOR = Institution
+
+
+class UserFactory(factory.Factory):
+    FACTORY_FOR = User
+
+    username = factory.Sequence(
+        lambda i: 'testuser-{0}.{1}'.format(i, time.time()))
+
+
+class StarsAccountFactory(factory.Factory):
+    FACTORY_FOR = StarsAccount
+
+    institution = factory.SubFactory(InstitutionFactory)
+    user = factory.SubFactory(UserFactory)
+
+
+class SubscriptionFactory(factory.Factory):
+    FACTORY_FOR = Subscription
+
+    institution = factory.SubFactory(InstitutionFactory)
+    start_date = '1970-01-01'
+    end_date = datetime.date.today()
+    amount_due = 1000.00
+
+
+class SubscriptionPaymentFactory(factory.Factory):
+    FACTORY_FOR = SubscriptionPayment
+
+    subscription = factory.SubFactory(SubscriptionFactory)
+    date = datetime.date.today()
+    amount = 50.00
+    user = factory.SubFactory(UserFactory)
+
+
+class InstitutionPaymentsViewTest(TestCase):
+
+    def setUp(self):
+        institution = InstitutionFactory(enabled=True)
+        self.account = StarsAccountFactory(institution=institution)
+
+        subscription = SubscriptionFactory(institution=institution)
+        for i in range(4):
+            SubscriptionPaymentFactory(subscription=subscription)
+
+        self.request = RequestFactory()
+        self.request.user = self.account.user
+        self.request.user.current_inst = self.account.institution
+
+    def test_request_by_non_admin(self):
+        with self.assertRaises(PermissionDenied):
+            views.institution_payments(self.request, '')
+
+    def test_request_by_admin(self):
+        self.account.user_level = 'admin'
+        self.account.save()
+        self.request.user.has_perm = lambda x: True
+        response = views.institution_payments(self.request, '')
+        self.assertEqual(response.status_code, 200)
