@@ -5,6 +5,7 @@ from stars.apps.credits.api.test import CategoryResourceTestCase, \
      CreditResourceTestCase, DocumentationFieldResourceTestCase
 from credit import CreditTest
 from creditset import CreditsetTest
+from views import TestStructure
 
 __test__ = {
     'TestIncrementalFeatures': TestIncrementalFeatures,
@@ -15,5 +16,6 @@ __test__ = {
     'CreditResourceTestCase': CreditResourceTestCase,
     'DocumentationFieldResourceTestCase': DocumentationFieldResourceTestCase,
     'CreditTest': CreditTest,
-    'CreditsetTest': CreditsetTest
+    'CreditsetTest': CreditsetTest,
+    'TestStructure': TestStructure,
     }

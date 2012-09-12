@@ -98,7 +98,7 @@ if 'test' in sys.argv:
             'LOCATION': '/tmp/stars-cache',
         }
     }
-    DATABASES['default']['ENGINE'] = 'sqlite3'
+    DATABASES['default']['ENGINE'] = 'django.db.backends.sqlite3'
     DATABASES['default']['NAME'] = '/Users/jamstooks/sqlite/stars_tests.db'
     DATABASES['default']['OPTIONS'] = {}
     

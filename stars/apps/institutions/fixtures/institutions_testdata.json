@@ -4,7 +4,8 @@
      "model": "institutions.institution",
      "fields": {
          "name": "Institution",
-         "aashe_id": "-1"
+         "aashe_id": "-1",
+         "slug": "test-institution"
      }
  },
 
@@ -13,7 +14,8 @@
      "model": "institutions.institution",
      "fields": {
          "name": "AASHE",
-         "aashe_id": "-2"
+         "aashe_id": "-2",
+         "slug": "test-institution-2"
      }
  },
 

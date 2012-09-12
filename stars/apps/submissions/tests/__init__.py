@@ -18,3 +18,4 @@ from multichoicewithothersubmission import MultiChoiceWithOtherSubmissionTest
 from submissionset import SubmissionSetTest
 from pdf_export import PDFExportTest
 from tasks import TasksTest
+from views import TestSubmissionStructureMixin

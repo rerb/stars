@@ -7,6 +7,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.utils.encoding import smart_unicode
 from django.conf import settings
+from django.template.defaultfilters import slugify
 
 from stars.apps.credits.utils import get_next_variable_name
 from mixins import VersionedModel
@@ -79,7 +80,7 @@ class CreditSet(VersionedModel):
     tier_2_points = models.FloatField()
     is_locked = models.BooleanField(default=False, verbose_name="Lock Credits", help_text="When a credit set is locked, most credit editor functions will be disabled.")
     scoring_method = models.CharField(max_length=25, choices=SCORING_METHOD_CHOICES)
-    credit_identifier = models.CharField(max_length=25, choices=IDENTIFIER_CHOICES, default='get_1_0_identifier')
+    credit_identifier = models.CharField(max_length=25, choices=IDENTIFIER_CHOICES, default='get_1_1_identifier')
     supported_features = models.ManyToManyField(IncrementalFeature)
     objects = CreditSetManager()
 
@@ -391,6 +392,7 @@ class Category(VersionedModel):
 class Subcategory(VersionedModel):
     category = models.ForeignKey(Category)
     title = models.CharField(max_length=64)
+    slug = models.SlugField(max_length=64, blank=True, null=True)
     ordinal = models.SmallIntegerField(default=-1)
     max_point_value = models.IntegerField(default=0)
     description = models.TextField()
@@ -467,6 +469,7 @@ class Subcategory(VersionedModel):
     def save(self, *args, **kwargs):
         if self.ordinal == -1 :
             self.ordinal = _get_next_ordinal(self.category.subcategory_set.all())
+        self.slug = slugify(self.title)
         super(Subcategory, self).save(*args, **kwargs)
 
     def get_delete_url(self):
