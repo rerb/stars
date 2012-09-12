@@ -38,7 +38,7 @@ from stars.apps.notifications.models import EmailTemplate
 from stars.apps.tool.mixins import ToolMixin
 from stars.apps.helpers.mixins import StarsFormMixin
 
-from django.views.generic import UpdateView
+from django.views.generic import ListView, UpdateView
 
 logger = getLogger('stars.request')
 
@@ -59,7 +59,8 @@ class ContactView(ToolMixin, StarsFormMixin, UpdateView):
     template_name = 'tool/manage/detail.html'
     logical_rules = [{
                         'name': 'user_is_institution_admin',
-                        'param_callbacks': [('user', 'get_request_user'), ('institution', 'get_institution')]
+                        'param_callbacks': [('user', 'get_request_user'),
+                                            ('institution', 'get_institution')]
                       }]
 
     def get_object(self):
@@ -75,22 +76,28 @@ class ContactView(ToolMixin, StarsFormMixin, UpdateView):
                 FormClass = RespondentContactForm
         return FormClass
 
-@user_is_inst_admin
-def institution_payments(request):
+
+class InstitutionPaymentsView(ToolMixin, ListView):
     """
         Display a list of payments made by the institution
     """
-    current_inst = _get_current_institution(request)
+    template_name = 'tool/manage/payments.html'
+    logical_rules = [{ 'name': 'user_is_institution_admin',
+                       'param_callbacks': [('user', 'get_request_user'),
+                                           ('institution', 'get_institution')] }]
+    context_object_name = 'payment_list'
 
-    payment_list = SubscriptionPayment.objects.filter(subscription__institution=current_inst).order_by('-date')
-    subscription_list = current_inst.subscription_set.all()
+    def get_queryset(self):
+        current_inst = self.get_institution()
+        return SubscriptionPayment.objects.filter(
+            subscription__institution=current_inst).order_by('-date')
 
-    context = {
-                'payment_list': payment_list,
-                'subscription_list': subscription_list,
-                "current_inst": current_inst,
-              }
-    return respond(request, 'tool/manage/payments.html', context)
+    def get_context_data(self, **kwargs):
+        context = super(InstitutionPaymentsView, self).get_context_data(**kwargs)
+        current_inst = self.get_institution()
+        context['subscription_list'] = current_inst.subscription_set.all()
+        context['current_inst'] = current_inst
+        return context
 
 @user_is_inst_admin
 def responsible_party_list(request):
@@ -158,7 +165,7 @@ def delete_responsible_party(request, rp_id):
         return HttpResponseRedirect("/tool/manage/responsible-parties/")
 
 @user_is_inst_admin
-def accounts(request, account_id=None):
+def accounts(request, account_id=None, institution_slug=None):
     """
         Provides an interface to manage user accounts for an institution.
         Supply an optional StarsAccount id to provide an edit form for that account.

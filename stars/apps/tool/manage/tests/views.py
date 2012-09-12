@@ -376,6 +376,10 @@ class MockPaymentForm(object):
 class InstitutionFactory(factory.Factory):
     FACTORY_FOR = Institution
 
+    enabled = True
+    slug = factory.Sequence(
+        lambda i: 'test-inst-{0}-{1}'.format(i, time.time()))
+
 
 class UserFactory(factory.Factory):
     FACTORY_FOR = User
@@ -412,24 +416,31 @@ class SubscriptionPaymentFactory(factory.Factory):
 class InstitutionPaymentsViewTest(TestCase):
 
     def setUp(self):
-        institution = InstitutionFactory(enabled=True)
-        self.account = StarsAccountFactory(institution=institution)
+        self.institution = InstitutionFactory(enabled=True)
 
-        subscription = SubscriptionFactory(institution=institution)
+        self.account = StarsAccountFactory(institution=self.institution)
+
+        subscription = SubscriptionFactory(institution=self.institution)
         for i in range(4):
             SubscriptionPaymentFactory(subscription=subscription)
 
         self.request = RequestFactory()
         self.request.user = self.account.user
         self.request.user.current_inst = self.account.institution
+        self.request.method = 'GET'
 
     def test_request_by_non_admin(self):
-        with self.assertRaises(PermissionDenied):
-            views.institution_payments(self.request, '')
+        self.account.user_level = ''
+        self.account.save()
+        response = views.InstitutionPaymentsView.as_view()(
+            self.request,
+            institution_slug=self.institution.slug)
+        self.assertEqual(response.status_code, 403)
 
     def test_request_by_admin(self):
         self.account.user_level = 'admin'
         self.account.save()
-        self.request.user.has_perm = lambda x: True
-        response = views.institution_payments(self.request, '')
+        response = views.InstitutionPaymentsView.as_view()(
+            self.request,
+            institution_slug=self.institution.slug)
         self.assertEqual(response.status_code, 200)
