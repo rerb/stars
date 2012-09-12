@@ -11,24 +11,28 @@
 {% endblock %}
 
 {% block tool_content %}
-        
-        
+
+
     	{% block tabs %}
     	<ul class="nav nav-tabs">
 			<li{% if active_tab == "summary" %} class="active" {% endif %}>
 				<a href="/tool/">Summary</a>
 			</li>
-			
+
 			{% testrule user_has_access_level user 'admin' user.current_inst %}
-			
+
 			<li{% if active_tab == 'users' %} class="active" {% endif %}>
 				<a href="/tool/manage/users/">Users</a>
 			</li>
 			<li{% if active_tab == 'contact' %} class="active" {% endif %}>
-				<a href="/tool/manage/">Contact</a>
+				<a href="/tool/{{ user.current_inst.slug }}/manage/contact">
+                  Contact
+                </a>
 			</li>
 			<li{% if active_tab == 'payments' %} class="active" {% endif %}>
-				<a href="/tool/manage/payments/">Payments</a>
+				<a href="/tool/{{ user.current_inst.slug }}/manage/payments">
+                  Payments
+                </a>
 			</li>
 			<li{% if active_tab == 'rps' %} class="active" {% endif %}>
 				<a href="/tool/manage/responsible-parties/">Responsible Parties</a>
@@ -42,7 +46,7 @@
 			{% endtestrule %}
 		</ul>
 		{% endblock %}
-    	
+
     	<div class='tabContent'>
     	    <div class='help_note'>
     	        {% block help_content %}{% endblock %}
