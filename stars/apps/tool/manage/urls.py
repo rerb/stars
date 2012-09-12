@@ -4,7 +4,7 @@ from views import ContactView, InstitutionPaymentsView
 urlpatterns = patterns(
     'stars.apps.tool.manage.views',
 
-    (r'^contacts/$', ContactView.as_view()),
+    url(r'^contact/$', ContactView.as_view(), name='institution-contact'),
     url(r'^payments/$', InstitutionPaymentsView.as_view(),
         name='institution-payments'),
     (r'^responsible-parties/$', 'responsible_party_list'),
