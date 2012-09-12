@@ -1,4 +1,3 @@
-from models import SubmissionSet
 from stars.apps.institutions.models import Institution
 from stars.apps.credits.mixins import CreditsetStructureMixin
 
@@ -8,7 +7,7 @@ class SubmissionStructureMixin(CreditsetStructureMixin):
     """
         Retrieves objects from the URL kwargs for a Submission
     """
-    
+
     def get_institution(self, refresh=False):
         """
             Get's the selected institution from the URL
@@ -18,5 +17,3 @@ class SubmissionStructureMixin(CreditsetStructureMixin):
             i = get_object_or_404(Institution, slug=self.kwargs['institution_slug'])
             self.set_structure_object('current_inst', i)
         return i
-        
-        
