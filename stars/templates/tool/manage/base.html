@@ -35,7 +35,7 @@
                 </a>
 			</li>
 			<li{% if active_tab == 'rps' %} class="active" {% endif %}>
-				<a href="/tool/manage/responsible-parties/">Responsible Parties</a>
+				<a href="/tool/{{ user.current_inst.slug }}/manage/responsible-parties/">Responsible Parties</a>
 			</li>
 			<li{% if active_tab == 'share' %} class="active" {% endif %}>
 				<a href='/tool/manage/share-data/'>Share Data</a>
