@@ -20,7 +20,7 @@ from stars.apps.credits.models import CreditSet
 from stars.apps.institutions.models import Institution, PendingAccount, \
      Subscription, SubscriptionPayment, StarsAccount
 from stars.apps.registration.models import ValueDiscount
-from stars.apps.submissions.models import SubmissionSet
+from stars.apps.submissions.models import ResponsibleParty, SubmissionSet
 from stars.apps.tool.manage import views
 
 
@@ -416,13 +416,51 @@ class SubscriptionPaymentFactory(factory.Factory):
 class InstitutionPaymentsViewTest(TestCase):
 
     def setUp(self):
-        self.institution = InstitutionFactory(enabled=True)
+        self.institution = InstitutionFactory()
 
         self.account = StarsAccountFactory(institution=self.institution)
 
         subscription = SubscriptionFactory(institution=self.institution)
         for i in range(4):
             SubscriptionPaymentFactory(subscription=subscription)
+
+        self.request = RequestFactory()
+        self.request.user = self.account.user
+        self.request.user.current_inst = self.account.institution
+        self.request.method = 'GET'
+
+    def test_request_by_non_admin(self):
+        self.account.user_level = ''
+        self.account.save()
+        response = views.InstitutionPaymentsView.as_view()(
+            self.request,
+            institution_slug=self.institution.slug)
+        self.assertEqual(response.status_code, 403)
+
+    def test_request_by_admin(self):
+        self.account.user_level = 'admin'
+        self.account.save()
+        response = views.InstitutionPaymentsView.as_view()(
+            self.request,
+            institution_slug=self.institution.slug)
+        self.assertEqual(response.status_code, 200)
+
+
+class ResponsiblePartyFactory(factory.Factory):
+    FACTORY_FOR = ResponsibleParty
+
+    institution = factory.SubFactory(InstitutionFactory)
+
+
+class ResponsiblePartyViewTest(TestCase):
+
+    def setUp(self):
+        self.institution = InstitutionFactory()
+
+        self.account = StarsAccountFactory(institution=self.institution)
+
+        for i in range(4):
+            _ = ResponsiblePartyFactory(institution=self.institution)
 
         self.request = RequestFactory()
         self.request.user = self.account.user

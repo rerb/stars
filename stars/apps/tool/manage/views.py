@@ -99,19 +99,28 @@ class InstitutionPaymentsView(ToolMixin, ListView):
         context['current_inst'] = current_inst
         return context
 
-@user_is_inst_admin
-def responsible_party_list(request):
+
+class ResponsiblePartyListView(ToolMixin, ListView):
     """
         Display a list of responsible parties for the institution
     """
-    current_inst = _get_current_institution(request)
+    template_name = 'tool/manage/responsible_party_list.html'
+    logical_rules = [{ 'name': 'user_is_institution_admin',
+                       'param_callbacks': [('user', 'get_request_user'),
+                                           ('institution', 'get_institution')] }]
 
-    context = {'current_inst': current_inst,}
+    def get_queryset(self):
+        current_inst = self.get_institution()
+        return current_inst.responsibleparty_set.all()
 
-    return respond(request, 'tool/manage/responsible_party_list.html', context)
+    def get_context_data(self, **kwargs):
+        context = super(ResponsiblePartyListView, self).get_context_data(
+            **kwargs)
+        context['institution_slug'] = self.get_institution().slug
+        return context
 
 @user_is_inst_admin
-def edit_responsible_party(request, rp_id):
+def edit_responsible_party(request, institution_slug, rp_id):
     """
         Edit an existing responsible party
     """
@@ -129,7 +138,7 @@ def edit_responsible_party(request, rp_id):
     return respond(request, 'tool/manage/edit_responsible_party.html', context)
 
 @user_is_inst_admin
-def add_responsible_party(request):
+def add_responsible_party(request, institution_slug):
     """
         Edit an existing responsible party
     """
