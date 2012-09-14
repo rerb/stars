@@ -79,12 +79,12 @@ class ContactView(ToolMixin, StarsFormMixin, UpdateView):
 
 class InstitutionPaymentsView(ToolMixin, ListView):
     """
-        Display a list of payments made by the institution
+        Display a list of payments made by the institution.
     """
     template_name = 'tool/manage/payments.html'
-    logical_rules = [{ 'name': 'user_is_institution_admin',
-                       'param_callbacks': [('user', 'get_request_user'),
-                                           ('institution', 'get_institution')] }]
+    logical_rules = [{'name': 'user_is_institution_admin',
+                      'param_callbacks': [('user', 'get_request_user'),
+                                          ('institution', 'get_institution')]}]
     context_object_name = 'payment_list'
 
     def get_queryset(self):
@@ -93,7 +93,8 @@ class InstitutionPaymentsView(ToolMixin, ListView):
             subscription__institution=current_inst).order_by('-date')
 
     def get_context_data(self, **kwargs):
-        context = super(InstitutionPaymentsView, self).get_context_data(**kwargs)
+        context = super(InstitutionPaymentsView, self).get_context_data(
+            **kwargs)
         current_inst = self.get_institution()
         context['subscription_list'] = current_inst.subscription_set.all()
         context['current_inst'] = current_inst
@@ -102,12 +103,12 @@ class InstitutionPaymentsView(ToolMixin, ListView):
 
 class ResponsiblePartyListView(ToolMixin, ListView):
     """
-        Display a list of responsible parties for the institution
+        Display a list of responsible parties for the institution.
     """
     template_name = 'tool/manage/responsible_party_list.html'
-    logical_rules = [{ 'name': 'user_is_institution_admin',
-                       'param_callbacks': [('user', 'get_request_user'),
-                                           ('institution', 'get_institution')] }]
+    logical_rules = [{'name': 'user_is_institution_admin',
+                      'param_callbacks': [('user', 'get_request_user'),
+                                          ('institution', 'get_institution')]}]
 
     def get_queryset(self):
         current_inst = self.get_institution()
@@ -119,23 +120,38 @@ class ResponsiblePartyListView(ToolMixin, ListView):
         context['institution_slug'] = self.get_institution().slug
         return context
 
-@user_is_inst_admin
-def edit_responsible_party(request, institution_slug, rp_id):
+
+class ResponsiblePartyEditView(ToolMixin, StarsFormMixin, UpdateView):
     """
-        Edit an existing responsible party
+        Edit a responsible party.
     """
-    current_inst = _get_current_institution(request)
-    rp = get_object_or_404(ResponsibleParty, institution=current_inst, id=rp_id)
+    model = ResponsibleParty
+    form_class = ResponsiblePartyForm
+    template_name = 'tool/manage/new_edit_responsible_party.html'
+    logical_rules = [{'name': 'user_is_institution_admin',
+                      'param_callbacks': [('user', 'get_request_user'),
+                                          ('institution', 'get_institution')]}]
+    context_object_name = 'responsible_party'
 
-    (object_form, saved) = form_helpers.basic_save_form(request, rp, '', ResponsiblePartyForm)
+    def get_success_url(self):
+        return '/tool/{institution_slug}/manage/responsible-parties/'.format(
+            institution_slug=self.kwargs['institution_slug'])
 
-    if saved:
-        return HttpResponseRedirect("/tool/manage/responsible-parties/")
+    def get_context_data(self, **kwargs):
+        context = super(ResponsiblePartyEditView, self).get_context_data(
+            **kwargs)
+        context['title'] = 'Edit Responsible Party'
+        context['credit_list'] = self._get_credit_list()
+        return context
 
-    credit_list = rp.creditusersubmission_set.order_by('credit__subcategory__category__creditset', 'credit__subcategory').exclude(subcategory_submission__category_submission__submissionset__is_visible=False)
+    def _get_credit_list(self):
+        responsible_party = self.get_object()
+        return responsible_party.creditusersubmission_set.order_by(
+            'credit__subcategory__category__creditset',
+            'credit__subcategory'
+            ).exclude(
+                subcategory_submission__category_submission__submissionset__is_visible=False)
 
-    context = {'responsible_party': rp, 'object_form': object_form, 'title': "Edit Responsible Party", 'credit_list': credit_list}
-    return respond(request, 'tool/manage/edit_responsible_party.html', context)
 
 @user_is_inst_admin
 def add_responsible_party(request, institution_slug):
@@ -173,6 +189,8 @@ def delete_responsible_party(request, rp_id):
         rp.delete()
         return HttpResponseRedirect("/tool/manage/responsible-parties/")
 
+# TODO - rename 'accounts' to 'users' (or user_accounts or stars_users or
+#        stars_accounts)
 @user_is_inst_admin
 def accounts(request, account_id=None, institution_slug=None):
     """
