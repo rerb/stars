@@ -738,7 +738,7 @@ class ResponsibleParty(models.Model):
         return "%s, %s" % (self.last_name, self.first_name)
 
     def get_manage_url(self):
-        return "/tool/{slug}/manage/responsible-parties/{id}/".format(
+        return "/tool/{slug}/manage/responsible-party/{id}/".format(
               slug=self.institution.slug, id=self.id)
 
 class CreditSubmission(models.Model):
