@@ -452,7 +452,7 @@ class ResponsiblePartyFactory(factory.Factory):
     institution = factory.SubFactory(InstitutionFactory)
 
 
-class ResponsiblePartyViewTest(TestCase):
+class ResponsiblePartyListViewTest(TestCase):
 
     def setUp(self):
         self.institution = InstitutionFactory()
@@ -481,4 +481,39 @@ class ResponsiblePartyViewTest(TestCase):
         response = views.InstitutionPaymentsView.as_view()(
             self.request,
             institution_slug=self.institution.slug)
+        self.assertEqual(response.status_code, 200)
+
+
+class ResponsiblePartyEditViewTest(TestCase):
+
+    def setUp(self):
+        self.institution = InstitutionFactory()
+
+        self.account = StarsAccountFactory(institution=self.institution)
+
+        self.responsible_parties = [
+            ResponsiblePartyFactory(institution=self.institution) for i
+            in range(4)]
+
+        self.request = RequestFactory()
+        self.request.user = self.account.user
+
+    def test_get_by_non_admin(self):
+        self.request.method = 'GET'
+        self.account.user_level = ''
+        self.account.save()
+        response = views.ResponsiblePartyEditView.as_view()(
+            self.request,
+            institution_slug=self.institution.slug,
+            pk=self.responsible_parties[0].id)
+        self.assertEqual(response.status_code, 403)
+
+    def test_get_by_admin(self):
+        self.request.method = 'GET'
+        self.account.user_level = 'admin'
+        self.account.save()
+        response = views.ResponsiblePartyEditView.as_view()(
+            self.request,
+            institution_slug=self.institution.slug,
+            pk=self.responsible_parties[0].id)
         self.assertEqual(response.status_code, 200)
