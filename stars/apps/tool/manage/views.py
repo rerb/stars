@@ -3,6 +3,7 @@ from logging import getLogger
 
 from django.conf import settings
 from django.contrib import messages
+from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect, Http404
 from django.core.exceptions import PermissionDenied
@@ -134,8 +135,7 @@ class ResponsiblePartyEditView(ToolMixin, StarsFormMixin, UpdateView):
     context_object_name = 'responsible_party'
 
     def get_success_url(self):
-        return '/tool/{institution_slug}/manage/responsible-parties/'.format(
-            institution_slug=self.kwargs['institution_slug'])
+        return reverse('responsible-party-list', kwargs=self.kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(ResponsiblePartyEditView, self).get_context_data(
@@ -152,22 +152,6 @@ class ResponsiblePartyEditView(ToolMixin, StarsFormMixin, UpdateView):
             ).exclude(
                 subcategory_submission__category_submission__submissionset__is_visible=False)
 
-
-@user_is_inst_admin
-def add_responsible_party(request, institution_slug):
-    """
-        Edit an existing responsible party
-    """
-    current_inst = _get_current_institution(request)
-    new_rp = ResponsibleParty(institution=current_inst)
-
-    (object_form, saved) = form_helpers.basic_save_new_form(request, new_rp, 'new_rp', ResponsiblePartyForm)
-
-    if saved:
-        return HttpResponseRedirect("/tool/manage/responsible-parties/")
-
-    context = {'object_form': object_form, 'title': "Add Responsible Party"}
-    return respond(request, 'tool/manage/edit_responsible_party.html', context)
 
 @user_is_inst_admin
 def delete_responsible_party(request, rp_id):
@@ -188,6 +172,23 @@ def delete_responsible_party(request, rp_id):
                       "Successfully Removed Responsible Party: %s" % rp)
         rp.delete()
         return HttpResponseRedirect("/tool/manage/responsible-parties/")
+
+
+@user_is_inst_admin
+def add_responsible_party(request, institution_slug):
+    """
+        Edit an existing responsible party
+    """
+    current_inst = _get_current_institution(request)
+    new_rp = ResponsibleParty(institution=current_inst)
+
+    (object_form, saved) = form_helpers.basic_save_new_form(request, new_rp, 'new_rp', ResponsiblePartyForm)
+
+    if saved:
+        return HttpResponseRedirect("/tool/manage/responsible-parties/")
+
+    context = {'object_form': object_form, 'title': "Add Responsible Party"}
+    return respond(request, 'tool/manage/edit_responsible_party.html', context)
 
 # TODO - rename 'accounts' to 'users' (or user_accounts or stars_users or
 #        stars_accounts)
