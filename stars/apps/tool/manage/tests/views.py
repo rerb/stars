@@ -497,9 +497,9 @@ class ResponsiblePartyEditViewTest(TestCase):
 
         self.request = RequestFactory()
         self.request.user = self.account.user
+        self.request.method = 'GET'
 
     def test_get_by_non_admin(self):
-        self.request.method = 'GET'
         self.account.user_level = ''
         self.account.save()
         response = views.ResponsiblePartyEditView.as_view()(
@@ -509,7 +509,6 @@ class ResponsiblePartyEditViewTest(TestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_get_by_admin(self):
-        self.request.method = 'GET'
         self.account.user_level = 'admin'
         self.account.save()
         response = views.ResponsiblePartyEditView.as_view()(
