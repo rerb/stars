@@ -1,0 +1,43 @@
+{% extends 'tool/manage/base.html' %}
+
+{% block crumbs-tool %}<li>Responsible Parties</li>{% endblock %}
+
+{% block tabs %}
+    {% with active_tab="rps" %}{{ block.super }}{% endwith %}
+{% endblock %}
+
+{% load bootstrap %}
+
+{% block help_content %}
+    {% load help %}
+    {% show_help_context 'delete_responsible_party' 0 %}
+{% endblock %}
+
+{% block institution_content %}
+
+	<h2>Delete Responsible Party</h2>
+
+
+	<form method='post' action='.' class='form-horizontal'>
+      <table class='form'>
+        <tr><td>First name:</td><td>{{ object.first_name }}</td></tr>
+        <tr><td>Last name:</td><td>{{ object.last_name }}</td></tr>
+        <tr><td>Title:</td><td>{{ object.title }}</td></tr>
+        <tr><td>Department:</td><td>{{ object.department }}</td></tr>
+        <tr><td>Email:</td><td>{{ object.email }}</td></tr>
+        <tr><td>Phone:</td><td>{{ object.phone }}</td></tr>
+      </table>
+
+      <h3>Are you sure you want to delete this responsible party?<h3>
+      <div class='form-actions'>
+        <button type='submit' id='submit_button' class='btn btn-primary'>
+          Yes! Delete!
+        </button>
+        <button type='button' class='btn'
+                onclick="document.location='{{ object.get_manage_url }}';">
+           No! Wait! Do <emphasis>NOT</emphasis> delete this responsible party!
+         </button>
+        </div>
+     </form>
+
+{% endblock %}
