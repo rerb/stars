@@ -159,7 +159,7 @@ class ResponsiblePartyEditView(ToolMixin, StarsFormMixin, UpdateView):
         context['title'] = 'Edit Responsible Party'
         context['institution_slug'] = self.get_institution().slug
         context['credit_list'] = _creditusersubmissions_for_responsible_party(
-            responsible_party=self.get_object())
+                responsible_party=self.get_object()).all()
         return context
 
 
