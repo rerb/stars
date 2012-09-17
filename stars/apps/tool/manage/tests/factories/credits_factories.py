@@ -9,16 +9,27 @@ from stars.apps.credits.models import ApplicabilityReason, Category, \
 class CreditSetFactory(factory.Factory):
     FACTORY_FOR = CreditSet
 
-    version = factory.Sequence(lambda i: str(i))
     release_date = '1970-01-01'
     tier_2_points = 1
 
-    @factory.post_generation(extract_prefix='incremental_features')
-    def add_incremental_features(self, create, extracted, **kwargs):
+    @classmethod
+    def _prepare(cls, create, **kwargs):
+        """
+            Assigns a (hopefully) unique version if no version is provided.
+        """
+        if ('version' not in kwargs and
+            CreditSet.objects.count()):
+            highest_version = CreditSet.objects.all().order_by('-id')[0].id
+            kwargs['version'] = int(highest_version) + 1
+        credit_set = super(CreditSetFactory, cls)._prepare(create, **kwargs)
+        return credit_set
+
+    @factory.post_generation(extract_prefix='supported_features')
+    def add_supported_features(self, create, extracted, **kwargs):
         # allow something like CreditSetFactory(
         #     incremental_features=IncrementalFeature.objects.filter(...))
         if extracted:
-            self.incremental_features = extracted
+            self.supported_features = extracted
 
 
 class CategoryFactory(factory.Factory):
