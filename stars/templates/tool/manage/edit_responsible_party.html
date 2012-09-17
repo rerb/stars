@@ -9,34 +9,47 @@
 
 {% block institution_content %}
 
-	<a href='/tool/{{ responsible_party.institution.slug}}/manage/responsible-parties/' class="btn btn-small">
-		<i class='icon-chevron-left'></i>
-		All Responsible Parties
-	</a>
+    <a href='/tool/{{ institution_slug }}/manage/responsible-parties/' class="btn btn-small">
+        <i class='icon-chevron-left'></i>
+        All Responsible Parties
+    </a>
 
-	<h2>{{ title }}</h2>
+    <h2>{{ title }}</h2>
 
-	<form method='post' action='.' class='form-horizontal'>
-		{{ form|bootstrap }}
-		<div class='form-actions'>
-        	<button
-        		type='submit'
-        		id='submit_button'
-        		class='btn btn-primary'>
-        			Save
-        	</button>
-			<button
-		   		type='button'
-		   		class='btn'
-		  		 onclick="document.location='{{ responsible_party.get_manage_url }}delete/';">
-		  			Delete
-		  	</button>
-    	</div>
-	</form>
+    <form method='post' action='.' class='form-horizontal'>
+        {{ form|bootstrap }}
+        <div class='form-actions'>
+            <button
+                type='submit'
+                id='submit_button'
+                class='btn btn-primary'>
+                    Save
+            </button>
+            <button
+                type='button'
+                class='btn'
+                onclick="document.location='{% url responsible-party-list institution_slug=institution_slug %}'">
+                    Cancel
+            </button>
+            {% if responsible_party %}
+              {% comment %}
+                if there's a responsible_party available, show a button
+                to delete it.
+              {% endcomment %}
+              <button
+                  type='button'
+                  class='btn'
+                  onclick="document.location='{{ responsible_party.get_manage_url }}delete/';">
 
-	{% if responsible_party %}
-		<h3>Assigned Credits</h3>
-		{% include "tool/manage/responsible_party_credits.html" %}
-	{% endif %}
+                      Delete
+              </button>
+            {% endif %}
+        </div>
+    </form>
+
+    {% if responsible_party %}
+        <h3>Assigned Credits</h3>
+        {% include "tool/manage/responsible_party_credits.html" %}
+    {% endif %}
 
 {% endblock %}
