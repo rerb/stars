@@ -961,12 +961,12 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
         """ Indicate if this credit has been marked anything other than pending or not started """
         return self.submission_status != 'p' and self.submission_status != 'ns' and self.submission_status != None
 
-    def save(self):
+    def save(self, *args, **kwargs):
         """ Override model.Model save() method to update credit status"""
         self.last_updated = datetime.now()
         self.assessed_points = float( self._calculate_points() )
 
-        super(CreditUserSubmission, self).save()
+        super(CreditUserSubmission, self).save(*args, **kwargs)
 
     def is_complete(self):
         return self.submission_status == 'c'
