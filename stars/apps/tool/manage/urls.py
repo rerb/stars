@@ -1,19 +1,29 @@
 from django.conf.urls.defaults import patterns, url
 from views import ContactView, InstitutionPaymentsView, \
+     ResponsiblePartyCreateView, ResponsiblePartyDeleteView, \
      ResponsiblePartyEditView, ResponsiblePartyListView
 
 urlpatterns = patterns(
     'stars.apps.tool.manage.views',
 
     url(r'^contact/$', ContactView.as_view(), name='institution-contact'),
+
     url(r'^payments/$', InstitutionPaymentsView.as_view(),
         name='institution-payments'),
+
     url(r'^responsible-parties/$', ResponsiblePartyListView.as_view(),
         name='responsible-party-list'),
-    (r'^responsible-parties/add/$', 'add_responsible_party'),
+
+    url(r'^responsible-party/create/$', ResponsiblePartyCreateView.as_view(),
+        name='responsible-party-create'),
+
     url(r'^responsible-party/(?P<pk>\d+)/$',
         ResponsiblePartyEditView.as_view(), name='responsible-party-edit'),
-    (r'^responsible-parties/(?P<rp_id>\d+)/delete/$', 'delete_responsible_party'),
+
+    url(r'^responsible-party/(?P<pk>\d+)/delete/$',
+        ResponsiblePartyDeleteView.as_view(),
+        name='responsible-party-delete'),
+
     (r'^users/$', 'accounts'),
     (r'^users/add/$', 'add_account'),
     (r'^users/edit/(?P<account_id>\d+)/$', 'accounts'),
