@@ -8,7 +8,11 @@
 
 {% block institution_content %}
     {% if not object_list %}
-        <p>No responsible parties yet. <a href='/tool/manage/responsible-parties/add/'>Add one</a>.</p>
+        <p>
+          No responsible parties yet.
+          <a href='/tool/{{ institution_slug }}/manage/responsible-party/create/'>
+            Add one</a>.
+        </p>
     {% else %}
         <table class='table'>
             <thead>
@@ -29,7 +33,7 @@
             </tbody>
         </table>
         <p style='text-align: center;'>
-            <a href='/tool/{{ institution_slug }}/manage/responsible-parties/add/' class='btn btn-info'>
+            <a href='/tool/{{ institution_slug }}/manage/responsible-party/create/' class='btn btn-info'>
                 Add a Responsible Party
             </a>
         </p>
