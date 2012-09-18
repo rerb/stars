@@ -144,7 +144,7 @@ class ResponsiblePartyEditView(ToolMixin, StarsFormMixin, UpdateView):
     logical_rules = [{'name': 'user_is_institution_admin',
                       'param_callbacks': [('user', 'get_request_user'),
                                           ('institution', 'get_institution')]}]
-    template_name = 'tool/manage/edit_responsible_party.html'
+    template_name = 'tool/manage/responsible_party_edit.html'
 
     def get_success_url(self, institution_slug=None):
         # Allow institution_slug to be passed in for testing.
@@ -209,7 +209,7 @@ class ResponsiblePartyCreateView(ToolMixin, StarsFormMixin, CreateView):
                       'param_callbacks': [('user', 'get_request_user'),
                                           ('institution', 'get_institution')]}]
     model = ResponsibleParty
-    template_name = 'tool/manage/edit_responsible_party.html'
+    template_name = 'tool/manage/responsible_party_edit.html'
     valid_message = 'Responsible Party Added.'
 
     def get_context_data(self, **kwargs):
