@@ -12,10 +12,6 @@
 {% block tool_content %}
     <h1>Institutional Boundary</h1>
     {% display_block_content 'boundary_page' user %}
-    <div class='required'>
-        <span class="required_note" title="This field is required to complete credit">*</span>
-        Required Fields<br/>
-    </div>
     <form class='form-horizontal' method='post' action='.'>
       {% if form.non_field_errors %}{{ form.non_field_errors }}{% endif %}
       {% for fieldset in form.fieldsets %}
