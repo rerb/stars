@@ -12,8 +12,8 @@ from django.test import TestCase
 from django.test.client import Client, RequestFactory
 import testfixtures
 
-from factories import CreditUserSubmissionFactory, InstitutionFactory, \
-     ResponsiblePartyFactory, StarsAccountFactory
+from stars.test_factories import CreditUserSubmissionFactory, \
+     InstitutionFactory, ResponsiblePartyFactory, StarsAccountFactory
 from stars.apps.credits.models import CreditSet
 from stars.apps.institutions.models import Institution, PendingAccount, \
      Subscription
@@ -671,3 +671,9 @@ class ResponsiblePartyDeleteViewTest(TestCase):
             {'class': settings.MESSAGE_TAGS[messages.ERROR]})
         self.assertEqual(len(info_message_divs), 1)
         self.assertTrue('cannot be removed' in info_message_divs[0].text)
+
+
+class AccountCreateViewTest(TestCase):
+
+    def test____no_email_for_user(self):
+        raise 'Not Implemented'
