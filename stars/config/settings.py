@@ -63,7 +63,6 @@ MIDDLEWARE_CLASSES = [ # a list so it can be editable during tests (see below)
     'stars.apps.accounts.maintenancemode.middleware.MaintenanceModeMiddleware',
     'django.contrib.redirects.middleware.RedirectFallbackMiddleware',
     'django.middleware.doc.XViewMiddleware',
-    'stars.apps.tool.admin.watchdog.middleware.WatchdogMiddleware',  # must come before flatpage so it doesn't log flatpages as 404's
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
     'stars.apps.helpers.flashMessage.FlashMessageMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware'
@@ -124,7 +123,6 @@ INSTALLED_APPS = (
     'stars.apps.tool.credit_editor',
     'stars.apps.tool.my_submission',
     'stars.apps.tool.admin',
-    'stars.apps.tool.admin.watchdog',
     'stars.apps.tool.manage',
     'stars.apps.institutions',
     "stars.apps.institutions.data_displays",
