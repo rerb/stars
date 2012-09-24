@@ -741,6 +741,21 @@ class ResponsibleParty(models.Model):
         return "/tool/{slug}/manage/responsible-party/{id}/".format(
               slug=self.institution.slug, id=self.id)
 
+    def get_creditusersubmissions(self, order_by=None):
+        """
+            Returns a queryset of (visible) CreditUserSubmissions related to
+            this responsible party.
+
+            order_by arg is a tuple passed to queryset.order_by.
+        """
+        order_by = order_by or ('credit__subcategory__category__creditset',
+                                'credit__subcategory')
+        qs = self.creditusersubmission_set
+        qs = qs.order_by(*order_by)
+        qs = qs.exclude(subcategory_submission__category_submission__submissionset__is_visible=False)
+        return qs
+
+
 class CreditSubmission(models.Model):
     """
         A complete submission data set for a credit
