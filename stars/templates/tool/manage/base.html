@@ -7,50 +7,53 @@
 {% block submenu_class %}class='sm_inst'{% endblock %}
 
 {% block tool_menu %}
-	{% with active_menu="summary"%}{{ block.super }}{% endwith %}
+    {% with active_menu="summary"%}{{ block.super }}{% endwith %}
 {% endblock %}
 
 {% block tool_content %}
 
+    {% block tabs %}
+    <ul class="nav nav-tabs">
+        <li{% if active_tab == "summary" %} class="active" {% endif %}>
+            <a href="/tool/">Summary</a>
+        </li>
 
-    	{% block tabs %}
-    	<ul class="nav nav-tabs">
-			<li{% if active_tab == "summary" %} class="active" {% endif %}>
-				<a href="/tool/">Summary</a>
-			</li>
+        {% testrule user_has_access_level user 'admin' user.current_inst %}
 
-			{% testrule user_has_access_level user 'admin' user.current_inst %}
+        <li{% if active_tab == 'users' %} class="active" {% endif %}>
+            <a href="/tool/{{ user.current_inst.slug }}/manage/users/">
+              Users
+            </a>
+        </li>
+        <li{% if active_tab == 'contact' %} class="active" {% endif %}>
+            <a href="/tool/{{ user.current_inst.slug }}/manage/contact">
+              Contact
+            </a>
+        </li>
+        <li{% if active_tab == 'payments' %} class="active" {% endif %}>
+            <a href="/tool/{{ user.current_inst.slug }}/manage/payments">
+              Payments
+            </a>
+        </li>
+        <li{% if active_tab == 'rps' %} class="active" {% endif %}>
+            <a href="/tool/{{ user.current_inst.slug }}/manage/responsible-parties/">
+              Responsible Parties
+            </a>
+        </li>
+        <li{% if active_tab == 'share' %} class="active" {% endif %}>
+            <a href='/tool/manage/share-data/'>Share Data</a>
+        </li>
+        <li{% if active_tab == 'migrate' %} class="active" {% endif %}>
+            <a href='/tool/manage/migrate/'>Migrate</a>
+        </li>
+        {% endtestrule %}
+    </ul>
+    {% endblock %}
 
-			<li{% if active_tab == 'users' %} class="active" {% endif %}>
-				<a href="/tool/manage/users/">Users</a>
-			</li>
-			<li{% if active_tab == 'contact' %} class="active" {% endif %}>
-				<a href="/tool/{{ user.current_inst.slug }}/manage/contact">
-                  Contact
-                </a>
-			</li>
-			<li{% if active_tab == 'payments' %} class="active" {% endif %}>
-				<a href="/tool/{{ user.current_inst.slug }}/manage/payments">
-                  Payments
-                </a>
-			</li>
-			<li{% if active_tab == 'rps' %} class="active" {% endif %}>
-				<a href="/tool/{{ user.current_inst.slug }}/manage/responsible-parties/">Responsible Parties</a>
-			</li>
-			<li{% if active_tab == 'share' %} class="active" {% endif %}>
-				<a href='/tool/manage/share-data/'>Share Data</a>
-			</li>
-			<li{% if active_tab == 'migrate' %} class="active" {% endif %}>
-				<a href='/tool/manage/migrate/'>Migrate</a>
-			</li>
-			{% endtestrule %}
-		</ul>
-		{% endblock %}
-
-    	<div class='tabContent'>
-    	    <div class='help_note'>
-    	        {% block help_content %}{% endblock %}
-    	    </div>
-            {% block institution_content %}{% endblock %}
-    	</div>
+    <div class='tabContent'>
+        <div class='help_note'>
+            {% block help_content %}{% endblock %}
+        </div>
+        {% block institution_content %}{% endblock %}
+    </div>
 {% endblock %}
