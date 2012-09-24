@@ -1,8 +1,7 @@
 from renewal_tests import RenewalTest
 from views import ViewsTest, InstitutionPaymentsViewTest, \
      ResponsiblePartyCreateViewTest, ResponsiblePartyDeleteViewTest, \
-     ResponsiblePartyListViewTest, ResponsiblePartyEditViewTest, \
-     TopLevelFunctionsTest
+     ResponsiblePartyListViewTest, ResponsiblePartyEditViewTest
 
 __test__ = {
     'renewal_test': RenewalTest,
@@ -11,6 +10,5 @@ __test__ = {
     'responsible_party_view_test': ResponsiblePartyListViewTest,
     'responsible_party_edit_view_test': ResponsiblePartyEditViewTest,
     'responsible_party_create_view_test': ResponsiblePartyCreateViewTest,
-    'responsible_party_delete_view_test': ResponsiblePartyDeleteViewTest,
-    'top_level_functions_test': TopLevelFunctionsTest,
+    'responsible_party_delete_view_test': ResponsiblePartyDeleteViewTest
 }

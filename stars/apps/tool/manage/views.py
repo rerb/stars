@@ -50,17 +50,6 @@ def _get_current_institution(request):
     else:
         raise Http404
 
-def _creditusersubmissions_for_responsible_party(responsible_party):
-    """
-        Returns a queryset of CreditUserSubmissions related to a
-        responsible party.
-    """
-    qs = responsible_party.creditusersubmission_set
-    qs.order_by('credit__subcategory__category__creditset',
-                'credit__subcategory')
-    qs.exclude(subcategory_submission__category_submission__submissionset__is_visible=False)
-    return qs
-
 
 class ContactView(AdminToolMixin, ValidationMessageFormMixin, UpdateView):
     """
@@ -138,8 +127,8 @@ class ResponsiblePartyEditView(AdminToolMixin, ValidationMessageFormMixin,
             **kwargs)
         context['title'] = 'Edit Responsible Party'
         context['institution_slug'] = self.get_institution().slug
-        context['credit_list'] = _creditusersubmissions_for_responsible_party(
-                responsible_party=self.get_object()).all()
+        context['credit_list'] = \
+          self.get_object().get_creditusersubmissions().all()
         return context
 
 
@@ -158,8 +147,7 @@ class ResponsiblePartyDeleteView(AdminToolMixin, ValidationMessageFormMixin,
             there are credits related to it.
         """
         responsible_party = self.get_object()
-        if _creditusersubmissions_for_responsible_party(
-                self.get_object()).count():
+        if self.get_object().get_creditusersubmissions().count():
             messages.error(self.request,
                            "This Responsible Party cannot be removed because "
                            "he/she is listed with one or more credits.")

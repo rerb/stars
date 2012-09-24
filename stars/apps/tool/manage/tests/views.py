@@ -379,25 +379,6 @@ class InstitutionPaymentsViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
 
-class TopLevelFunctionsTest(TestCase):
-    """Tests for functions defined in the top level of apps.tool.manage.views"""
-
-    def test__creditusersubmissions_for_responsible_party(self):
-        """Does _get_credits_for_responsible_party return the correct queryset?
-        """
-        institution = InstitutionFactory()
-        responsible_party = ResponsiblePartyFactory(institution=institution)
-
-        credit_ids = [ credit.id for credit in
-                       _make_credits_for_responsible_party(responsible_party) ]
-        credit_ids_from_view = [
-            credit.id for credit in
-            views._creditusersubmissions_for_responsible_party(
-                responsible_party).all() ]
-        self.assertEqual(sorted(credit_ids),
-                         sorted(credit_ids_from_view))
-
-
 class ResponsiblePartyListViewTest(TestCase):
 
     def setUp(self):
@@ -651,9 +632,8 @@ class ResponsiblePartyDeleteViewTest(TestCase):
         self.assertEqual(len(info_message_divs), 1)
         self.assertTrue('uccessfully Deleted' in info_message_divs[0].text)
 
-    def test_delete_responsible_party_credit_count_error_message(self):
-        """Is an error shown if credit_count deletion fails?
-        """
+    def test_delete_responsible_party_with_credits_error_message(self):
+        """Is an error shown when a deletion fails?"""
         self.account.user_level = 'admin'
         self.account.save()
         self.request.method = 'POST'
@@ -673,7 +653,7 @@ class ResponsiblePartyDeleteViewTest(TestCase):
         self.assertTrue('cannot be removed' in info_message_divs[0].text)
 
 
-class AccountCreateViewTest(TestCase):
+# class AccountCreateViewTest(TestCase):
 
-    def test____no_email_for_user(self):
-        raise 'Not Implemented'
+#     def test____no_email_for_user(self):
+#         raise 'Not Implemented'
