@@ -3,7 +3,6 @@ from logging import getLogger
 
 from django.conf import settings
 from django.contrib import messages
-from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect, Http404
 from django.core.exceptions import PermissionDenied
@@ -36,7 +35,7 @@ from stars.apps.registration.models import ValueDiscount
 from stars.apps.notifications.models import EmailTemplate
 
 # new imports
-from stars.apps.tool.mixins import ToolMixin
+from stars.apps.tool.mixins import AdminToolMixin
 from stars.apps.helpers.mixins import StarsFormMixin
 
 from django.views.generic import CreateView, DeleteView, ListView, UpdateView
@@ -63,17 +62,12 @@ def _creditusersubmissions_for_responsible_party(responsible_party):
     return qs
 
 
-class ContactView(ToolMixin, StarsFormMixin, UpdateView):
+class ContactView(AdminToolMixin, StarsFormMixin, UpdateView):
     """
         Displays the contact form for an institution
 
         Contact form is customized based on the user's permission level
     """
-    logical_rules = [{
-                        'name': 'user_is_institution_admin',
-                        'param_callbacks': [('user', 'get_request_user'),
-                                            ('institution', 'get_institution')]
-                      }]
     template_name = 'tool/manage/detail.html'
 
     def get_object(self):
@@ -90,14 +84,11 @@ class ContactView(ToolMixin, StarsFormMixin, UpdateView):
         return FormClass
 
 
-class InstitutionPaymentsView(ToolMixin, ListView):
+class InstitutionPaymentsView(AdminToolMixin, ListView):
     """
         Displays a list of payments made by an institution.
     """
     context_object_name = 'payment_list'
-    logical_rules = [{'name': 'user_is_institution_admin',
-                      'param_callbacks': [('user', 'get_request_user'),
-                                          ('institution', 'get_institution')]}]
     template_name = 'tool/manage/payments.html'
 
     def get_queryset(self):
@@ -114,13 +105,10 @@ class InstitutionPaymentsView(ToolMixin, ListView):
         return context
 
 
-class ResponsiblePartyListView(ToolMixin, ListView):
+class ResponsiblePartyListView(AdminToolMixin, ListView):
     """
         Displays a list of responsible parties for an institution.
     """
-    logical_rules = [{'name': 'user_is_institution_admin',
-                      'param_callbacks': [('user', 'get_request_user'),
-                                          ('institution', 'get_institution')]}]
     template_name = 'tool/manage/responsible_party_list.html'
 
     def get_queryset(self):
@@ -134,24 +122,15 @@ class ResponsiblePartyListView(ToolMixin, ListView):
         return context
 
 
-class ResponsiblePartyEditView(ToolMixin, StarsFormMixin, UpdateView):
+class ResponsiblePartyEditView(AdminToolMixin, StarsFormMixin, UpdateView):
     """
         Provides a form to edit a responsible party.
     """
     context_object_name = 'responsible_party'
     form_class = ResponsiblePartyForm
     model = ResponsibleParty
-    logical_rules = [{'name': 'user_is_institution_admin',
-                      'param_callbacks': [('user', 'get_request_user'),
-                                          ('institution', 'get_institution')]}]
+    success_url_name = 'responsible-party-list'
     template_name = 'tool/manage/responsible_party_edit.html'
-
-    def get_success_url(self, institution_slug=None):
-        # Allow institution_slug to be passed in for testing.
-        institution_slug = institution_slug or self.kwargs['institution_slug']
-        return reverse(
-            'responsible-party-list',
-            kwargs={'institution_slug': institution_slug})
 
     def get_context_data(self, **kwargs):
         context = super(ResponsiblePartyEditView, self).get_context_data(
@@ -163,22 +142,13 @@ class ResponsiblePartyEditView(ToolMixin, StarsFormMixin, UpdateView):
         return context
 
 
-class ResponsiblePartyDeleteView(ToolMixin, StarsFormMixin, DeleteView):
+class ResponsiblePartyDeleteView(AdminToolMixin, StarsFormMixin, DeleteView):
     """
        Deletes a responsible party if they aren't tied to any submissions.
     """
-    logical_rules = [{'name': 'user_is_institution_admin',
-                      'param_callbacks': [('user', 'get_request_user'),
-                                          ('institution', 'get_institution')]}]
     model = ResponsibleParty
+    success_url_name = 'responsible-party-list'
     template_name = 'tool/manage/responsible_party_confirm_delete.html'
-
-    def get_success_url(self, institution_slug=None):
-        # Allow institution_slug to be passed in for testing.
-        institution_slug = institution_slug or self.kwargs['institution_slug']
-        return reverse(
-            'responsible-party-list',
-            kwargs={'institution_slug': institution_slug})
 
     def delete(self, *args, **kwargs):
         """
@@ -200,15 +170,13 @@ class ResponsiblePartyDeleteView(ToolMixin, StarsFormMixin, DeleteView):
                                                                   **kwargs)
 
 
-class ResponsiblePartyCreateView(ToolMixin, StarsFormMixin, CreateView):
+class ResponsiblePartyCreateView(AdminToolMixin, StarsFormMixin, CreateView):
     """
         Provides a form to create a responsible party.
     """
     form_class = ResponsiblePartyForm
-    logical_rules = [{'name': 'user_is_institution_admin',
-                      'param_callbacks': [('user', 'get_request_user'),
-                                          ('institution', 'get_institution')]}]
     model = ResponsibleParty
+    success_url_name = 'responsible-party-list'
     template_name = 'tool/manage/responsible_party_edit.html'
     valid_message = 'Responsible Party Added.'
 
@@ -218,12 +186,6 @@ class ResponsiblePartyCreateView(ToolMixin, StarsFormMixin, CreateView):
         context['title'] = 'Add Responsible Party'
         context['institution_slug'] = self.get_institution().slug
         return context
-
-    def get_success_url(self, institution_slug=None):
-        # Allow institution_slug to be passed in for testing.
-        institution_slug = institution_slug or self.kwargs['institution_slug']
-        return reverse('responsible-party-list',
-                       kwargs={'institution_slug': institution_slug})
 
     def form_valid(self, form):
         """
