@@ -36,7 +36,7 @@ from stars.apps.notifications.models import EmailTemplate
 
 # new imports
 from stars.apps.tool.mixins import AdminToolMixin
-from stars.apps.helpers.mixins import StarsFormMixin
+from stars.apps.helpers.mixins import ValidationMessageFormMixin
 
 from django.views.generic import CreateView, DeleteView, ListView, UpdateView
 
@@ -62,7 +62,7 @@ def _creditusersubmissions_for_responsible_party(responsible_party):
     return qs
 
 
-class ContactView(AdminToolMixin, StarsFormMixin, UpdateView):
+class ContactView(AdminToolMixin, ValidationMessageFormMixin, UpdateView):
     """
         Displays the contact form for an institution
 
@@ -122,7 +122,8 @@ class ResponsiblePartyListView(AdminToolMixin, ListView):
         return context
 
 
-class ResponsiblePartyEditView(AdminToolMixin, StarsFormMixin, UpdateView):
+class ResponsiblePartyEditView(AdminToolMixin, ValidationMessageFormMixin,
+                               UpdateView):
     """
         Provides a form to edit a responsible party.
     """
@@ -142,7 +143,8 @@ class ResponsiblePartyEditView(AdminToolMixin, StarsFormMixin, UpdateView):
         return context
 
 
-class ResponsiblePartyDeleteView(AdminToolMixin, StarsFormMixin, DeleteView):
+class ResponsiblePartyDeleteView(AdminToolMixin, ValidationMessageFormMixin,
+                                 DeleteView):
     """
        Deletes a responsible party if they aren't tied to any submissions.
     """
@@ -170,7 +172,8 @@ class ResponsiblePartyDeleteView(AdminToolMixin, StarsFormMixin, DeleteView):
                                                                   **kwargs)
 
 
-class ResponsiblePartyCreateView(AdminToolMixin, StarsFormMixin, CreateView):
+class ResponsiblePartyCreateView(AdminToolMixin, ValidationMessageFormMixin,
+                                 CreateView):
     """
         Provides a form to create a responsible party.
     """
