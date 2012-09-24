@@ -1,11 +1,30 @@
-from stars.apps.accounts.mixins import StarsAccountMixin
+from django.core.urlresolvers import reverse
+
 from aashe_rules.mixins import RulesMixin
+from stars.apps.accounts.mixins import StarsAccountMixin
 from stars.apps.submissions.mixins import SubmissionStructureMixin
 
+
 class ToolMixin(StarsAccountMixin, RulesMixin, SubmissionStructureMixin):
-    
-    def get_success_url(self):
+
+    def get_success_url(self, institution_slug=None):
         """
-            Forms almost always stay on the page they were
+            Forms redirect to the named url specified as
+            success_url_name, or stay on the same page.
         """
-        return self.request.path
+        if getattr(self, 'success_url_name', False):
+            institution_slug = (institution_slug or
+                                self.kwargs['institution_slug'])
+            return reverse(self.success_url_name,
+                           kwargs={'institution_slug': institution_slug})
+        else:
+            return self.request.path
+
+
+class AdminToolMixin(ToolMixin):
+    """
+        A ToolMixin that's available only to institution admins.
+    """
+    logical_rules = [{'name': 'user_is_institution_admin',
+                      'param_callbacks': [('user', 'get_request_user'),
+                                          ('institution', 'get_institution')]}]
