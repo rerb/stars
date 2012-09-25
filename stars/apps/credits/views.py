@@ -6,9 +6,16 @@ from django.http import Http404
 from stars.apps.credits.models import *
 
 class StructureMixin(object):
+    """
+        Caches values retrieved from the URL arguments in the view class
+        
+        Adds the values to the context if their callback is in context_callbacks
+    """
     
-    def __init__(self, *args, **kwargs):
+    def __init__(self, **kwargs):
         self._structure_cache = {}
+        self.context_callbacks = []
+        self.update_context_callbacks()
         
     def set_structure_object(self, key, value):
         self._structure_cache[key] = value
@@ -18,6 +25,12 @@ class StructureMixin(object):
             return self._structure_cache[key]
         else:
             return None
+        
+    def add_context_callback(self, method):
+        self.context_callbacks.append(method)
+        
+    def update_context_callbacks(self):
+        pass
     
     def get_obj_or_call(self, cache_key, kwargs_key, klass, property):
         """
@@ -27,12 +40,11 @@ class StructureMixin(object):
             returns None if not found
             raises 404 if key is in kwargs, but still not found
         """
-        
         obj = self.get_structure_object(cache_key)
         if not obj and self.kwargs.has_key(kwargs_key):
             _kwargs = {property: self.kwargs[kwargs_key]}
             obj = get_object_or_404(klass, **_kwargs)
-            self.set_structure_object(cache_key, obj)
+            self.set_structure_object(cache_key, obj)  
         return obj
     
     def get_structure_as_context(self):
@@ -40,6 +52,27 @@ class StructureMixin(object):
             Returns a dictionary that can be merged with the template context
         """
         return self._structure_cache
+    
+    def get_context_data(self, **kwargs):
+        """
+            Before getting context, run all the structure update methods
+        """
+        
+        # This hack is to protect against `ProcessFormView' calling
+        # `get_context_data(form=form)
+        if not self.kwargs:
+            self.kwargs = kwargs
+        else:
+            self.kwargs.update(kwargs)
+        
+        # run the callbacks
+        for callback in self.context_callbacks:
+            getattr(self, callback)()
+            
+        _context = super(StructureMixin, self).get_context_data(**kwargs)
+        _context.update(self.get_structure_as_context())
+        
+        return _context
 
 
 class CreditsetStructureMixin(StructureMixin):
@@ -50,19 +83,14 @@ class CreditsetStructureMixin(StructureMixin):
         It makes an assumption about the kwargs naming schema:
             /creditset_version/category_abbreviation/subcategory_slug/credit_number/field_id/
     """
-    def get_context_data(self, **kwargs):
-        """
-            Before getting context, run all the structure update methods
-        """
-        self.kwargs = kwargs
-        self.get_creditset()
-        self.get_category()
-        self.get_subcategory()
-        self.get_credit()
-        self.get_field()
-        _context = super(StructureMixin, self).get_context_data(**kwargs)
-        _context.update(self.get_structure_as_context())
-        return _context
+    
+    def update_context_callbacks(self):
+        super(CreditsetStructureMixin, self).update_context_callbacks()
+        self.add_context_callback("get_creditset")
+        self.add_context_callback("get_category")
+        self.add_context_callback("get_subcategory")
+        self.add_context_callback("get_credit")
+        self.add_context_callback("get_field")
     
     def get_creditset(self):
         """
@@ -114,9 +142,9 @@ class CreditsetStructureMixin(StructureMixin):
         if self.get_subcategory():
             return self.get_obj_or_call(
                                         cache_key='credit',
-                                        kwargs_key='credit_number',
+                                        kwargs_key='credit_identifier',
                                         klass=self.get_subcategory().credit_set.all(),
-                                        property='number'
+                                        property='identifier'
                                         )
 
     def get_field(self):

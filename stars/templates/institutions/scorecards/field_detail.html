@@ -18,14 +18,16 @@
     	{% endfor %}
     {% endif %}
     {{ field.documentation_field.title }}
-    {% if not preview and user_is_inst_admin %}
-	    <a 	href="{{ field.get_correction_url }}"
-	    	rel="popover"
-	    	id="dc_{{ field.id }}"
-	    	data-content="{% get_help_context 'data_correction_popup' %}"
-	    	data-original-title="Data Correction Request">
-	    		<i class='icon-pencil'> </i></a>
-	    <script type='text/javascript'>$('#dc_{{ field.id }}').popover();</script>
+    {% if not preview %}
+	    {% testrule user_is_institution_admin user institution %}
+		    <a 	href="{{ field.get_correction_url }}"
+		    	rel="popover"
+		    	id="dc_{{ field.id }}"
+		    	data-content="{% get_help_context 'data_correction_popup' %}"
+		    	data-original-title="Data Correction Request">
+		    		<i class='icon-pencil'> </i></a>
+		    <script type='text/javascript'>$('#dc_{{ field.id }}').popover();</script>
+	    {% endtestrule %}
     {% endif %}:
 </span>
 

@@ -21,7 +21,6 @@
 		
 		<h2>Correction</h2><br/>
 		{% display_block_content "data_correction_confirm" user %}
-		{% include 'helpers/required_div.html' %}
 		<table class='table'>
 			<tr>
 				<th>Credit</th>
@@ -29,7 +28,7 @@
 			</tr>
 			<tr>
 				<th>Reporting Field</th>
-				<td>{{ reporting_field.documentation_field.title }}</td>
+				<td>{{ field.title }}</td>
 			</tr>
 			<tr>
 				<th>Previous Value</th>
@@ -43,6 +42,9 @@
 		{% with form as object_form %}
 	    	{{ object_form|bootstrap }}
 	    {% endwith %}
-    	<div class='form-actions'><button type='submit' class='btn btn-primary'>Submit</button></div>
+    	<div class='form-actions'>
+    		<button type='submit' class='btn btn-primary'>Submit</button>
+    		<a href='{{ credit_submission.get_scorecard_url }}' class='btn'>Cancel</a>
+    	</div>
     </form>
 {% endblock %}

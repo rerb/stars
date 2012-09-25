@@ -29,6 +29,21 @@ def user_can_preview_submission(user, submission):
     return False
 aashe_rules.site.register("user_can_preview_submission", user_can_preview_submission)
 
+def user_can_view_submission(user, submission):
+    """
+        If a submission isn't rated then only the institution's users can see the submission
+    """
+    if submission.status == 'r':
+        return True
+    return user_can_preview_submission(user, submission)
+aashe_rules.site.register("user_can_view_submission", user_can_view_submission)
+
+def user_can_view_pdf(user, submisison):
+    if institution_has_export(submission.institution) and submission.status != 'r':
+        return False
+    return True
+aashe_rules.site.register("user_can_view_pdf", user_can_view_pdf)
+
 def user_can_edit_submission(user, submission):
     return submission_is_editable(submission) and user_has_access_level(user, 'submit', submission.institution)
 aashe_rules.site.register("user_can_edit_submission", user_can_edit_submission)

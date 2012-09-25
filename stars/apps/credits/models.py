@@ -526,7 +526,7 @@ class Credit(VersionedModel):
         return '%s%s' % (submissionset.get_scorecard_url(), self.get_browse_url())
 
     def get_browse_url(self):
-        return "%d/%d/%d/" % (self.subcategory.category.id, self.subcategory.id, self.id)
+        return "%s/%s/%s/" % (self.subcategory.category.abbreviation, self.subcategory.slug, self.identifier)
 
     def is_tier2(self):
         """ Returns True iff this credit is a Tier 2 credit """

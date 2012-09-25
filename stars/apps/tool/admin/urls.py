@@ -1,12 +1,13 @@
 from django.conf.urls.defaults import *
+from views import InstitutionList
 
 urlpatterns = patterns(
     'stars.apps.tool.admin.views',
     
     # Institutional Admin
-    (r'^$', 'institutions_list'),
+    (r'^$', InstitutionList.as_view()),
     (r'^search/$', 'institutions_search'),
-    (r'^list$', 'institutions_list'),
+    (r'^list$', InstitutionList.as_view()),
     (r'^institution/masquerade/(?P<id>\d+)/$', 'select_institution'),
     
     # Reports

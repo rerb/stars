@@ -24,6 +24,13 @@ def user_has_access_level(user, access_level, institution):
     return False
 aashe_rules.site.register("user_has_access_level", user_has_access_level)
 
+def user_has_view_access(user, institution):
+    """
+        hardcoded version of user_has_access_level for view access
+    """
+    return user_has_access_level(user, "view", institution)
+aashe_rules.site.register("user_has_view_access", user_has_view_access)
+
 def user_is_institution_admin(user, institution):
     return user_has_access_level(user, 'admin', institution)
 aashe_rules.site.register("user_is_institution_admin", user_is_institution_admin)

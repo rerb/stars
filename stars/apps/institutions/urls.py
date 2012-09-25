@@ -7,35 +7,35 @@ urlpatterns = patterns(
     'stars.apps.institutions.views',
     
     # Active Institutions
-    (r'^$', ActiveInstitutions(template="institutions/institution_list_active.html")),
-    (r'^rated/$', RatedInstitutions(template="institutions/institution_list_rated.html")),
+    (r'^$', ActiveInstitutions.as_view()),
+    (r'^rated/$', RatedInstitutions.as_view()),
     
     # Submission Inquiry Form
     (r'^inquiry/$', 'inquiry_select_institution'),
 
     # All scorecards for an Institution
-    (r'^(?P<institution_slug>[^/]+)/report/$', InstitutionScorecards(template='institutions/scorecards/list.html')),
+    (r'^(?P<institution_slug>[^/]+)/report/$', InstitutionScorecards.as_view()),
 
     # Specific scorecard summary for an institution
-    (r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/$', ScorecardView(template='institutions/scorecards/summary.html')),
+    (r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/$', ScorecardSummary.as_view()),
     
     # Specific scorecard summary for an institution
     (r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/inquiry/$', SubmissionInquiryView()),
     
     # PDF Export of Submission
-    (r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/pdf/$', never_cache(PDFExportView(template=None))),
+    (r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/pdf/$', PDFExportView.as_view()),
 
     # Credit Scorecard
-     (r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/(?P<category_id>\d+)/(?P<subcategory_id>\d+)/(?P<credit_id>\d+)/$', ScorecardView(template='institutions/scorecards/credit.html')),
+     (r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/(?P<category_abbreviation>[^/]+)/(?P<subcategory_slug>[^/]+)/(?P<credit_identifier>[^/]+)/$', ScorecardCredit.as_view()),
     
     # Data correction request
-    (r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/(?P<category_id>\d+)/(?P<subcategory_id>\d+)/(?P<credit_id>\d+)/(?P<field_type>\d+)/(?P<field_id>\d+)/$', data_correction_view),
+    (r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/(?P<category_abbreviation>[^/]+)/(?P<subcategory_slug>[^/]+)/(?P<credit_identifier>[^/]+)/(?P<field_id>\d+)/$', DataCorrectionView.as_view()),
     
     # Credit Documentation
-     (r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/(?P<category_id>\d+)/(?P<subcategory_id>\d+)/(?P<credit_id>\d+)/documentation/$', ScorecardView(template='institutions/scorecards/credit_documentation.html')),
+    (r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/(?P<category_abbreviation>[^/]+)/(?P<subcategory_slug>[^/]+)/(?P<credit_identifier>[^/]+)/documentation/$', ScorecardCreditDocumentation.as_view()),
      
     # Internal Notes
-    (r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/(?P<category_id>\d+)/(?P<subcategory_id>\d+)/(?P<credit_id>\d+)/internal-notes/$', ScorecardInternalNotesView(template='institutions/scorecards/internal_notes.html')),
+    (r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/(?P<category_abbreviation>[^/]+)/(?P<subcategory_slug>[^/]+)/(?P<credit_identifier>[^/]+)/internal-notes/$', ScorecardInternalNotesView.as_view()),
     
     (r'^data-displays/', include('stars.apps.institutions.data_displays.urls')),
 )

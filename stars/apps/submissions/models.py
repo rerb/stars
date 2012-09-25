@@ -1311,8 +1311,9 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
 
     def get_correction_url(self):
 
-        ct = ContentType.objects.get_for_model(self)
-        return "%s%s/%d/" % (self.credit_submission.get_scorecard_url(), ct.id, self.id)
+#        ct = ContentType.objects.get_for_model(self)
+#        return "%s%s/%d/" % (self.credit_submission.get_scorecard_url(), ct.id, self.id)
+        return "%s%d/" % (self.credit_submission.get_scorecard_url(), self.documentation_field.id)
 
 class AbstractChoiceSubmission(DocumentationFieldSubmission):
     class Meta:

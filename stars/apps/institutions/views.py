@@ -5,6 +5,7 @@ from django.views.generic.simple import direct_to_template
 from django.core.exceptions import PermissionDenied
 from django.utils.functional import curry
 from django.forms.models import inlineformset_factory
+from django.views.generic import TemplateView, CreateView, View
 
 import sys, re
 from datetime import date
@@ -15,12 +16,41 @@ from stars.apps.accounts.mixins import InstitutionAccessMixin
 from stars.apps.credits.models import CreditSet
 from stars.apps.submissions.models import *
 from stars.apps.submissions.rules import user_can_preview_submission
+from stars.apps.submissions.views import SubmissionStructureMixin
 from stars.apps.institutions.models import Institution, StarsAccount
 from stars.apps.institutions.forms import *
 from stars.apps.institutions.rules import institution_has_export, user_has_access_level
-from stars.apps.helpers.forms.views import TemplateView, FormActionView, MultiFormView
+from stars.apps.helpers.forms.views import FormActionView, MultiFormView
 from stars.apps.credits.views import CreditNavMixin
 from stars.apps.notifications.models import EmailTemplate
+
+from aashe_rules.mixins import RulesMixin
+
+from stars.apps.credits.views import StructureMixin
+from stars.apps.institutions.models import Institution
+
+class InstitutionStructureMixin(StructureMixin):
+    """
+        Extends the StructureMixin to work with Institutions
+    """
+    
+    def update_context_callbacks(self):
+        super(InstitutionStructureMixin, self).update_context_callbacks()
+        self.add_context_callback("get_institution")
+    
+    def get_institution(self):
+        """
+            Attempts to get an institution.
+            Returns None if not in kwargs.
+            Raises 404 if key in kwargs and not found.
+        """
+        return self.get_obj_or_call(
+                                    cache_key='institution',
+                                    kwargs_key='institution_slug',
+                                    klass=Institution,
+                                    property="slug"
+                                    )
+
 
 class SortableTableView(TemplateView):
     """
@@ -38,24 +68,21 @@ class SortableTableView(TemplateView):
         assert (self.columns and self.default_key), "Must `colums` and `default_key` when extending this class"
         return super(SortableTableView, self).__init__(*args, **kwargs)
 
-    @property
-    def __name__(self):
-        "Added to get DjDT to work"
-        return self.__class__.__name__
-
-    def get_context(self, request, *args, **kwargs):
+    def get_context_data(self, **kwargs):
         """ Add/update any context variables """
-        context = {'sort_columns': self.columns, 'default_key': self.default_key}
+        _context = super(SortableTableView, self).get_context_data(**kwargs)
+        
+        _context.update({'sort_columns': self.columns, 'default_key': self.default_key})
 
-        (context['sort_key'], context['rev'], context['object_list']) = self.get_object_list(request)
+        (_context['sort_key'], _context['rev'], _context['object_list']) = self.get_object_list()
 
-        return context
+        return _context
 
     def get_queryset(self):
         """ Gets the base queryset for the object_list """
         raise NotImplementedError, "Please override this method"
 
-    def get_object_list(self, request):
+    def get_object_list(self):
         """
             Returns a queryset based on the GET Parameters
             Also returns the selected `sort_key`
@@ -67,15 +94,15 @@ class SortableTableView(TemplateView):
         rev = ""
         queryset = self.get_queryset()
 
-        if request.GET.has_key('sort'):
-            if request.GET['sort'][0] == '-':
+        if self.request.GET.has_key('sort'):
+            if self.request.GET['sort'][0] == '-':
                 asc = '-'
                 rev = ''
-                sort_key = request.GET['sort'][1:]
+                sort_key = self.request.GET['sort'][1:]
             else:
                 asc = ''
                 rev = '-'
-                sort_key = request.GET['sort']
+                sort_key = self.request.GET['sort']
         else:
             sort_key = self.default_key
             rev = self.default_rev
@@ -88,13 +115,14 @@ class SortableTableView(TemplateView):
 
         return (sort_key, rev, queryset)
 
+
 class SortableTableViewWithInstProps(SortableTableView):
     """ Extends SortableTableView to include institutional properties from the list"""
 
-    def get_context(self, request, *args, **kwargs):
+    def get_context_data(self, **kwargs):
         """ update the context with the # of members and charter participants """
 
-        _context = super(SortableTableViewWithInstProps, self).get_context(request, *args, **kwargs)
+        _context = super(SortableTableViewWithInstProps, self).get_context_data(**kwargs)
 
         inst_list = []
         inst_count = 0
@@ -128,6 +156,7 @@ class ActiveInstitutions(SortableTableViewWithInstProps):
         Extending SortableTableView to show a sortable list of all active participants
     """
 
+    template_name = "institutions/institution_list_active.html"
     default_key = 'name'
     default_rev = '-'
     secondary_order_field = 'name'
@@ -176,6 +205,7 @@ class RatedInstitutions(SortableTableViewWithInstProps):
         Extending SortableTableView to show a sortable list of all active submissionsets
     """
 
+    template_name = "institutions/institution_list_rated.html"
     default_key = 'name'
     default_rev = '-'
     secondary_order_field = 'name'
@@ -205,19 +235,19 @@ class RatedInstitutions(SortableTableViewWithInstProps):
     def get_queryset(self):
         return Institution.objects.get_rated().select_related('rated_submission').select_related('rated_submission__creditset')
 
-"""
-    INSTITUTIONAL REPORTS
-"""
 
-class InstitutionScorecards(TemplateView):
+class InstitutionScorecards(InstitutionStructureMixin, TemplateView):
     """
         Provides a list of available reports for an institution
 
         Unrated SubmissionSets will be displayed to participating users only.
     """
-    def get_context(self, request, *args, **kwargs):
+    template_name = 'institutions/scorecards/list.html'
+    
+    def get_context_data(self, **kwargs):
+        _context = super(InstitutionScorecards, self).get_context_data(**kwargs)
 
-        institution = get_object_or_404(Institution, slug=kwargs['institution_slug'])
+        institution = self.get_institution()
 
         submission_sets = []
         qs = institution.submissionset_set.filter(is_visible=True, is_locked=False)
@@ -226,91 +256,55 @@ class InstitutionScorecards(TemplateView):
             qs = qs.filter(status='r')
 
         for ss in qs:
-            if ss.status == 'r' or user_can_preview_submission(request.user, ss):
+            if ss.status == 'r' or user_can_preview_submission(self.request.user, ss):
                 submission_sets.append(ss)
 
         if len(submission_sets) < 1 and not institution.is_participant:
             raise Http404
 
-        return {'submission_sets': submission_sets, 'institution': institution}
+        _context.update({'submission_sets': submission_sets, 'institution': institution})
+        return _context
 
-class ScorecardMixin(object):
 
-    def get_submissionset_context(self, request, **kwargs):
-        """
-            Gets all the available contexts associated with a submission from the kwargs
+class ScorecardView(RulesMixin, InstitutionStructureMixin, SubmissionStructureMixin, TemplateView):
+    """
+        Browse credits according to submission in the credit browsing view
+    """
 
-            Available keywords:
-                - institution_slug
-                - submissionset (id or date submitted)
-                - category_id
-                - subcategory_id
-                - credit_id
+    def update_logical_rules(self):
+        
+        super(ScorecardView, self).update_logical_rules()
+        self.add_logical_rule({
+                    'name': 'user_can_view_submission',
+                    'param_callbacks':
+                        [
+                            ('user', "get_request_user"),
+                            ('submission', "get_submissionset")
+                        ],
+                })
 
-            Refuse access to non 'observer' or higher roles for unrated submissions
-        """
-        context = {}
-        # Get the Institution
-        context['user_tied_to_institution'] = False
-        context['preview'] = False
-        if kwargs.has_key('institution_slug'):
-            institution = get_object_or_404(Institution, slug=kwargs['institution_slug'])
-            context['institution'] = institution
+    def get_context_data(self, **kwargs):
+        """ Expects arguments for category_id/subcategory_id/credit_id """
+        _context = super(ScorecardView, self).get_context_data(**kwargs)
+        
+        ss = self.get_submissionset()
 
-            # Check that the user has a StarsAccount for this institution, or is an admin
-            if request.user.is_authenticated():
-                try:
-                    account = StarsAccount.objects.get(institution=institution, user=request.user)
-                except StarsAccount.DoesNotExist:
-                    account = None
+        url_prefix = ss.get_scorecard_url()
 
-                if account:
-                    context['user_tied_to_institution'] = True
-                    if account.user_level == 'admin':
-                        context['user_is_inst_admin'] = True
+#        _context['outline'] = self.get_creditset_navigation(_context['submissionset'].creditset, url_prefix=url_prefix, current=_context['current'])
+        _context['outline'] = self.get_creditset_nav(url_prefix=url_prefix)
 
-                if request.user.is_staff:
-                    context['user_tied_to_institution'] = True
-                    context['user_is_inst_admin'] = True
+        _context['score'] = ss.get_STARS_score()
+        
+        rating = ss.get_STARS_rating()
+        _context['rating'] = rating
+        
+        _context['preview'] = False
+        if not ss.status == 'r':
+            _context['preview'] = True
 
-            # Get the SubmissionSet
-            date_re = "^\d{4}-\d{2}-\d{2}$"
-            id_re = "^\d+$"
-            if kwargs.has_key('submissionset'):
-                if re.match(id_re, kwargs['submissionset']):
-                    submissionset = get_object_or_404(SubmissionSet.objects.exclude(status='f'), id=kwargs['submissionset'], institution=institution)
-                elif re.match(date_re, kwargs['submissionset']):
-                    submissionset = get_object_or_404(SubmissionSet.objects.exclude(status='f'), date_submitted=kwargs['submissionset'], institution=institution)
-                else:
-                    raise Http404
-                # if the submissionset isn't rated raise a 404 exception unless the user has preview access
-                if submissionset.status != 'r':
-                    if user_can_preview_submission(request.user, submissionset):
-                        context['preview'] = True
-                    else:
-                        raise Http404
-
-                context['submissionset'] = submissionset
-
-        category, subcategory, credit = self.get_creditset_selection(request, submissionset.creditset, **kwargs)
-
-        # Get the submission objects for each element...
-        context['current'] = None
-        if category:
-            category_submission = get_object_or_404(CategorySubmission, category=category, submissionset=submissionset)
-            context['category_submission'] = category_submission
-            context['current'] = category
-        if subcategory:
-            subcategory_submission = get_object_or_404(SubcategorySubmission, category_submission=category_submission, subcategory=subcategory)
-            context['subcategory_submission'] = subcategory_submission
-            context['current'] = subcategory
-        if credit:
-            credit_submission = get_object_or_404(CreditUserSubmission, subcategory_submission=subcategory_submission, credit=credit)
-            context['credit_submission'] = credit_submission
-            context['current'] = credit
-
-        return context
-
+        return _context
+    
     def get_category_url(self, category, url_prefix):
         """ The default link for a category. """
         return "%s%s" % (url_prefix, category.get_browse_url())
@@ -322,51 +316,37 @@ class ScorecardMixin(object):
     def get_credit_url(self, credit, url_prefix):
         """ The default credit link. """
         return "%s%s" % (url_prefix, credit.get_browse_url())
+    
+class ScorecardSummary(ScorecardView):
+    template_name = 'institutions/scorecards/summary.html'
+    
+class ScorecardCredit(ScorecardView):
+    template_name = 'institutions/scorecards/credit.html'
+    
+class ScorecardCreditDocumentation(ScorecardView):
+    template_name = 'institutions/scorecards/credit_documentation.html'
 
-class ScorecardView(ScorecardMixin, CreditNavMixin, TemplateView):
-    """
-        Browse credits according to submission in the credit browsing view
-    """
-    @property
-    def __name__(self):
-        return self.__class__.__name__
-
-    def get_context(self, request, *args, **kwargs):
-        """ Expects arguments for category_id/subcategory_id/credit_id """
-
-        context = self.get_submissionset_context(request, **kwargs)
-
-        url_prefix = context['submissionset'].get_scorecard_url()
-
-        context['outline'] = self.get_creditset_navigation(context['submissionset'].creditset, url_prefix=url_prefix, current=context['current'])
-
-        context['score'] = context['submissionset'].get_STARS_score()
-        context['rating'] = context['submissionset'].get_STARS_rating()
-
-        return context
-
-class PDFExportView(InstitutionAccessMixin, ScorecardMixin, CreditNavMixin, TemplateView):
+class PDFExportView(RulesMixin, InstitutionStructureMixin, SubmissionStructureMixin, View):
     """
         Displays an exported PDF version of the selected report
     """
+    
+    def update_logical_rules(self):
+        
+        super(ScorecardView, self).update_logical_rules()
+        self.add_logical_rule({
+                    'name': 'user_can_view_pdf',
+                    'param_callbacks':
+                        [
+                            ('user', "get_request_user"),
+                            ('submission', "get_submission")
+                        ],
+                })
 
-    # Mixin required properties
-    access_level = 'observer'
-
-    def get_context(self, request, *args, **kwargs):
-        """ Expects arguments for category_id/subcategory_id/credit_id """
-
-        return self.get_submissionset_context(request, **kwargs)
-
-    def render(self, request, *args, **kwargs):
+    def render_to_response(self, context, **response_kwargs):
         """ Renders the pdf as a response """
 
-        _context = self.get_context(request, *args, **kwargs)
-
-        ss = _context['submissionset']
-
-        if not institution_has_export(ss.institution) and ss.status != 'r':
-            raise PermissionDenied("Sorry, this feature is only available to current STARS Participants")
+        ss = ss.get_submission()
 
         save = False
         if ss.status == 'r':
@@ -387,69 +367,62 @@ class ScorecardInternalNotesView(InstitutionAccessMixin, ScorecardView):
 
     # Mixin required properties
     access_level = 'observer'
+    template_name = 'institutions/scorecards/internal_notes.html'
 
-class DataCorrectionView(CreditNavMixin, ScorecardMixin, FormActionView):
+class DataCorrectionView(RulesMixin, InstitutionStructureMixin, SubmissionStructureMixin, CreateView):
     """
         Provides a form for institutions to request a data correction
     """
-    form_list = []
-    template = "institutions/new_data_correction.html"
+    template_name = "institutions/data_correction_request/new.html"
+    form_class = DataCorrectionRequestForm
+    
+    def update_logical_rules(self):
+        super(DataCorrectionView, self).update_logical_rules()
+        self.add_logical_rule({
+                    'name': 'user_is_institution_admin',
+                    'param_callbacks':
+                        [
+                            ('user', "get_request_user"),
+                            ('submission', "get_institution")
+                        ],
+                })
 
-    def get_extra_context(self, request, *args, **kwargs):
-        """ Expects arguments for category_id/subcategory_id/credit_id """
 
-        _context = self.get_submissionset_context(request, **kwargs)
-
-        #@todo: get submission field
-        field_type = ContentType.objects.get(id=kwargs['field_type'])
-        field = field_type.get_object_for_this_type(id=kwargs['field_id'])
-        _context['reporting_field'] = field
-
-        return _context
-
-    def get_success_action(self, request, context, form):
-        """
-            On successful submission of the form, redirect to the returned URL
-            Returns None if redirect not necessary
-        """
-
-        field = context['reporting_field']
-
-        correction = form.save(commit=False)
-        correction.reporting_field = field
-        correction.user = request.user
-        correction.save()
-
+    def form_valid(self, form):
+        self.object = form.save()
+        
         et = EmailTemplate.objects.get(slug="data_correction_request")
         context = {
-            "correction": correction,
-            "submissionset": context['submissionset']
+            "correction": self.object,
+            "submissionset": self.get_submissionset()
         }
         et.send_email(["stars@aashe.org",], context)
+        
+        _context = self.get_context_data()
+        _context.update(context)
+        
+        return direct_to_template(self.request, "institutions/data_correction_request/success.html", _context)
+    
+    def get_form_kwargs(self):
+        kwargs = super(DataCorrectionView, self).get_form_kwargs()
+        kwargs['instance'] = DataCorrectionRequest(user=self.request.user, reporting_field=self.get_fieldsubmission())
+        return kwargs
 
-        return direct_to_template(request, "institutions/data_correction_request/success.html", context)
 
-data_correction_view = DataCorrectionView("institutions/data_correction_request/new.html", DataCorrectionRequestForm)
-
-class SubmissionInquirySelectView(FormActionView):
+class SubmissionInquirySelectView(FormView):
     """
         Provides a form for people to dispute the submission for a particular institution.
     """
+    
+    template_name = "institutions/inquiries/select_submission.html"
+    form_class = SubmissionSelectForm
 
-    def get_success_action(self, request, context, form):
+    def form_valid(self, form):
+        ss = form.cleaned_data['institution']
+        return HttpResponseRedirect("%sinquiry/" % ss.get_scorecard_url())
+    
 
-        if form.is_valid():
-            ss = form.cleaned_data['institution']
-            return HttpResponseRedirect("%sinquiry/" % ss.get_scorecard_url())
-
-inquiry_select_institution = SubmissionInquirySelectView(
-                                                            formClass=SubmissionSelectForm,
-                                                            template='institutions/inquiries/select_submission.html',
-                                                            init_context={'form_title': "STARS Submission Accuracy Inquiry",},
-                                                            form_name='object_form'
-                                                        )
-
-class SubmissionInquiryView(CreditNavMixin, ScorecardMixin, MultiFormView):
+class SubmissionInquiryView(MultiFormView):
     """
         Allows a visitor to submit disputes for several credits at once
     """
@@ -457,15 +430,13 @@ class SubmissionInquiryView(CreditNavMixin, ScorecardMixin, MultiFormView):
     form_list = []
     template = "institutions/inquiries/new.html"
 
-    def get_context(self, request, *args, **kwargs):
+    def get_context_data(self, **kwargs):
         """ Expects arguments for category_id/subcategory_id/credit_id """
-
-        context = self.get_submissionset_context(request, **kwargs)
-
+        _context = super(self, SubmissionInquiryView).get_context_data(**kwargs)
         # add the recaptcha key
-        context['recaptcha_public_key'] = settings.RECAPTCHA_PUBLIC_KEY
+        _context['recaptcha_public_key'] = settings.RECAPTCHA_PUBLIC_KEY
 
-        return context
+        return _context
 
     def get_form_list(self, request, context):
 

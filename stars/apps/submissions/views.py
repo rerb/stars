@@ -1,29 +1,27 @@
+from django.shortcuts import get_object_or_404
+
 from stars.apps.credits.views import CreditsetStructureMixin
-from stars.apps.submissions.models import SubmissionSet, CategorySubmission, SubcategorySubmission, CreditSubmission
-from stars.apps.institutions.models import Institution
+from stars.apps.submissions.models import SubmissionSet, CategorySubmission, SubcategorySubmission, CreditSubmission, DocumentationFieldSubmission
+
+import re
 
 class SubmissionStructureMixin(CreditsetStructureMixin):
     """
         Extends the creditset structure to work with SubmissionSets
         
         URL structure can be one of the following
-            /institution_slug/submissionset_date/category_abbreviation/subcategory_slug/credit_number/
-            or
-            /institution_slug/submissionset_id/category_abbreviation/subcategory_slug/credit_number/
+            /institution_slug/submissionset/category_abbreviation/subcategory_slug/credit_number/
+            
+            <submissionset> can be either an ID or a date (####-##-##)
     """
     
-    def get_institution(self):
-        """
-            Attempts to get an institution.
-            Returns None if not in kwargs.
-            Raises 404 if key in kwargs and not found.
-        """
-        return self.get_obj_or_call(
-                                    cache_key='institution',
-                                    kwargs_key='institution_slug',
-                                    klass=Institution,
-                                    property="slug"
-                                    )
+    def update_context_callbacks(self):
+        super(SubmissionStructureMixin, self).update_context_callbacks()
+        self.add_context_callback("get_submissionset")
+        self.add_context_callback("get_categorysubmission")
+        self.add_context_callback("get_subcategorysubmission")
+        self.add_context_callback("get_creditsubmission")
+        self.add_context_callback("get_fieldsubmission")
     
     def get_submissionset(self):
         """
@@ -31,20 +29,21 @@ class SubmissionStructureMixin(CreditsetStructureMixin):
             Returns None if not in kwargs.
             Raises 404 if key in kwargs and not found.
         """
-        
-        if self.get_institution():
-            kwargs_key = 'submissionset_id'
+        obj = self.get_structure_object('submissionset')
+        if not obj and self.get_institution():
             property = 'pk'
-            if self.kwargs.has_key('submissionset_date'):
-                kwargs_key = 'submissionset_date'
+            pattern = "\d{4}-\d{2}-\d{2}"
+            if re.match(pattern, self.kwargs['submissionset']):
+                #if self.kwargs.has_key('submissionset_date'):
                 property = 'date_submitted'
                 
             return self.get_obj_or_call(
                                         cache_key='submissionset',
-                                        kwargs_key=kwargs_key,
+                                        kwargs_key='submissionset',
                                         klass=self.get_institution().submissionset_set.all(),
                                         property=property
                                         )
+        return obj
             
     def get_creditset(self):
         """
@@ -61,7 +60,7 @@ class SubmissionStructureMixin(CreditsetStructureMixin):
         """
         if self.get_submissionset():
             return self.get_obj_or_call(
-                                        cache_key='categorysubmission',
+                                        cache_key='category_submission',
                                         kwargs_key="category_abbreviation",
                                         klass=self.get_submissionset().categorysubmission_set.all(),
                                         property='category__abbreviation'
@@ -75,13 +74,13 @@ class SubmissionStructureMixin(CreditsetStructureMixin):
         """
         if self.get_categorysubmission():
             return self.get_obj_or_call(
-                                        cache_key='subcategorysubmission',
+                                        cache_key='subcategory_submission',
                                         kwargs_key="subcategory_slug",
                                         klass=self.get_categorysubmission().subcategorysubmission_set.all(),
                                         property='subcategory__slug'
                                         )
             
-    def get_creditusersubmission(self):
+    def get_creditsubmission(self):
         """
             Attempts to get a creditusersubmission.
             Returns None if not in kwargs.
@@ -89,8 +88,23 @@ class SubmissionStructureMixin(CreditsetStructureMixin):
         """
         if self.get_subcategorysubmission():
             return self.get_obj_or_call(
-                                        cache_key='creditsubmission',
-                                        kwargs_key="credit_number",
+                                        cache_key='credit_submission',
+                                        kwargs_key="credit_identifier",
                                         klass=self.get_subcategorysubmission().creditusersubmission_set.all(),
-                                        property='credit__number'
+                                        property='credit__identifier'
                                         )
+            
+    def get_fieldsubmission(self):
+        """
+            Attempts to get a submission field.
+            Returns None if not in kwargs.
+            Raises 404 if key in kwargs and not found.
+        """
+        cache_key = "field_submission"
+        obj = self.get_structure_object(cache_key)
+        
+        if not obj and self.get_creditsubmission() and self.get_field():
+            klass = DocumentationFieldSubmission.get_field_class(self.get_field())
+            obj = get_object_or_404(klass, documentation_field=self.get_field(), credit_submission=self.get_creditsubmission())
+            self.set_structure_object(cache_key, obj)
+        return obj

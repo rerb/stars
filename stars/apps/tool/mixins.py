@@ -1,6 +1,6 @@
 from stars.apps.accounts.mixins import StarsAccountMixin
 from aashe_rules.mixins import RulesMixin
-from stars.apps.submissions.mixins import SubmissionStructureMixin
+from stars.apps.submissions.views import SubmissionStructureMixin
 
 class ToolMixin(StarsAccountMixin, RulesMixin, SubmissionStructureMixin):
     

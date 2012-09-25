@@ -136,6 +136,7 @@ class InstitutionList(SortableTableView):
         Renewal Date
         Submission date
     """
+    template_name = "tool/admin/institutions/institution_list.html"
 
     @method_decorator(user_is_staff)
     def render(self, request, *args, **kwargs):
@@ -184,8 +185,6 @@ class InstitutionList(SortableTableView):
 
     def get_queryset(self):
         return Institution.objects.annotate(reg_date=Min('subscription__start_date')).select_related()
-
-institutions_list = InstitutionList(template="tool/admin/institutions/institution_list.html")
 
 @user_is_staff
 def institution_payments(request, institution_id):
