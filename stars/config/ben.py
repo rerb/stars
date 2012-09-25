@@ -13,8 +13,8 @@ DEBUG_TOOLBAR = False
 MAINTENANCE_MODE = False
 CELERY_ALWAYS_EAGER = True
 
-# EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
-# EMAIL_FILE_PATH = '/Users/jamstooks/tmp/stars-email-messages'
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_FILE_PATH = '/tmp/stars-email-messages'
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 # no emails during local dev
