@@ -1,9 +1,14 @@
 from renewal_tests import RenewalTest
-from responsible_party_tests import ResponisblePartyTest
-from views import ViewsTest
+from views import ViewsTest, InstitutionPaymentsViewTest, \
+     ResponsiblePartyCreateViewTest, ResponsiblePartyDeleteViewTest, \
+     ResponsiblePartyListViewTest, ResponsiblePartyEditViewTest
 
 __test__ = {
     'renewal_test': RenewalTest,
-    'responsible_party_test': ResponisblePartyTest,
-    'views': ViewsTest
+    'views': ViewsTest,
+    'intitution_payments_view_test': InstitutionPaymentsViewTest,
+    'responsible_party_view_test': ResponsiblePartyListViewTest,
+    'responsible_party_edit_view_test': ResponsiblePartyEditViewTest,
+    'responsible_party_create_view_test': ResponsiblePartyCreateViewTest,
+    'responsible_party_delete_view_test': ResponsiblePartyDeleteViewTest
 }

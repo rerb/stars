@@ -3,39 +3,41 @@
 {% block crumbs-tool %}<li>Responsible Parties</li>{% endblock %}
 
 {% block tabs %}
-	{% with active_tab="rps" %}{{ block.super }}{% endwith %}
+    {% with active_tab="rps" %}{{ block.super }}{% endwith %}
 {% endblock %}
 
 {% block institution_content %}
-		{% with current_inst.responsibleparty_set.all as rp_list %}
-			{% if not rp_list %}
-				<p>No responsible parties yet. <a href='/tool/manage/responsible-parties/add/'>Add one</a>.</p>
-			{% else %}
-				<table class='table'>
-					<thead>
-					<tr>
-						<th>Name</th>
-						<th>Title</th>
-						<th>Email</th>
-					</tr>
-					</thead>
-					<tbody>
-					{% for rp in rp_list %}
-						<tr class='{% cycle 'even' 'odd' %}'>
-							<td><a href='{{ rp.get_manage_url }}'>{{ rp.first_name }} {{ rp.last_name }}</a></td>
-							<td>{{ rp.title }}</td>
-							<td><a href='mailto:{{ rp.email }}'>{{ rp.email }}</a></td>
-						</tr>
-					{% endfor %}
-					</tbody>
-				</table>
-				<p style='text-align: center;'>
-					<a href='/tool/manage/responsible-parties/add/' class='btn btn-info'>
-						Add a Responsible Party
-					</a>
-				</p>
-			{% endif %}
-		{% endwith %}
+    {% if not object_list %}
+        <p>
+          No responsible parties yet.
+          <a href='/tool/{{ institution_slug }}/manage/responsible-party/create/'>
+            Add one</a>.
+        </p>
+    {% else %}
+        <table class='table'>
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Title</th>
+                <th>Email</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for rp in object_list %}
+                <tr class='{% cycle 'even' 'odd' %}'>
+                    <td><a href='{{ rp.get_manage_url }}'>{{ rp.first_name }} {{ rp.last_name }}</a></td>
+                    <td>{{ rp.title }}</td>
+                    <td><a href='mailto:{{ rp.email }}'>{{ rp.email }}</a></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <p style='text-align: center;'>
+            <a href='/tool/{{ institution_slug }}/manage/responsible-party/create/' class='btn btn-info'>
+                Add a Responsible Party
+            </a>
+        </p>
+    {% endif %}
 {% endblock %}
 
 {% block help_content %}

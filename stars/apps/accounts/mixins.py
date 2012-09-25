@@ -1,13 +1,13 @@
 from logging import getLogger
 
+from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect, HttpResponseForbidden, \
      HttpResponseNotFound, Http404
-from django.utils.http import urlquote
-from django.conf import settings
 from django.utils.decorators import method_decorator
-from django.contrib.auth.decorators import login_required
+from django.utils.http import urlquote
 
 from stars.apps.institutions.models import StarsAccount, Institution
 from stars.apps.institutions.rules import user_has_access_level, \
@@ -27,7 +27,7 @@ class StarsAccountMixin(object):
     def get_stars_account_list(self):
         """ get all STARS Accounts associated with this user """
         return StarsAccount.objects.filter(user=self.request.user)
-    
+
 
 class StarsMixin(object):
     """

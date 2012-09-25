@@ -1,37 +1,44 @@
 from datetime import timedelta, datetime, date
 from logging import getLogger
-import sys
 
 from django.conf import settings
 from django.contrib import messages
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect, Http404
 from django.core.exceptions import PermissionDenied
-from django.core.mail import EmailMessage
 
 from stars.apps.accounts.utils import respond
-from stars.apps.accounts.decorators import user_is_staff, user_is_inst_admin, user_has_tool
+from stars.apps.accounts.decorators import user_is_inst_admin, user_has_tool
 from stars.apps.accounts import xml_rpc
-from stars.apps.institutions.models import Institution, StarsAccount, Subscription, SubscriptionPayment, SUBSCRIPTION_DURATION, PendingAccount
+from stars.apps.credits.models import CreditSet
+from stars.apps.institutions.models import StarsAccount, Subscription, \
+     SubscriptionPayment, SUBSCRIPTION_DURATION, PendingAccount
 from stars.apps.institutions.rules import user_has_access_level
-from stars.apps.submissions.models import SubmissionSet, EXTENSION_PERIOD, ExtensionRequest
-from stars.apps.submissions.tasks import migrate_purchased_submission, perform_migration, perform_data_migration
-from stars.apps.submissions.rules import user_can_migrate_version, user_can_migrate_from_submission, user_can_migrate_data
+from stars.apps.submissions.models import SubmissionSet
+from stars.apps.submissions.tasks import perform_migration, \
+     perform_data_migration
+from stars.apps.submissions.rules import user_can_migrate_version, \
+     user_can_migrate_from_submission
 from stars.apps.third_parties.models import ThirdParty
 from stars.apps.helpers.forms import form_helpers
-from stars.apps.tool.manage.forms import *
+
+from stars.apps.tool.manage.forms import AdminInstitutionForm, \
+     ParticipantContactForm, RespondentContactForm, ResponsibleParty, \
+     ResponsiblePartyForm, EditAccountForm, DisabledAccountForm, \
+     AccountForm, ThirdPartiesForm, InstitutionPreferences, \
+     NotifyUsersForm, MigrateSubmissionSetForm, BoundaryForm
+
 from stars.apps.registration.forms import PaymentForm, PayLaterForm
-from stars.apps.registration.views import process_payment, get_payment_dict, _get_registration_price, init_submissionset
+from stars.apps.registration.views import process_payment, get_payment_dict, \
+     _get_registration_price
 from stars.apps.registration.models import ValueDiscount
 from stars.apps.notifications.models import EmailTemplate
 
-
 # new imports
-from stars.apps.tool.mixins import ToolMixin
-from stars.apps.helpers.mixins import StarsFormMixin
+from stars.apps.tool.mixins import AdminToolMixin
+from stars.apps.helpers.mixins import ValidationMessageFormMixin
 
-from django.views.generic import UpdateView
-from django.contrib import messages
+from django.views.generic import CreateView, DeleteView, ListView, UpdateView
 
 logger = getLogger('stars.request')
 
@@ -43,21 +50,18 @@ def _get_current_institution(request):
     else:
         raise Http404
 
-class ContactView(ToolMixin, StarsFormMixin, UpdateView):
+
+class ContactView(AdminToolMixin, ValidationMessageFormMixin, UpdateView):
     """
         Displays the contact form for an institution
-        
+
         Contact form is customized based on the user's permission level
     """
     template_name = 'tool/manage/detail.html'
-    logical_rules = [{
-                        'name': 'user_is_institution_admin',
-                        'param_callbacks': [('user', 'get_request_user'), ('institution', 'get_institution')]
-                      }]
-    
+
     def get_object(self):
         return self.get_institution()
-    
+
     def get_form_class(self):
         if self.request.user.is_staff:
             FormClass = AdminInstitutionForm
@@ -68,90 +72,132 @@ class ContactView(ToolMixin, StarsFormMixin, UpdateView):
                 FormClass = RespondentContactForm
         return FormClass
 
+
+class InstitutionPaymentsView(AdminToolMixin, ListView):
+    """
+        Displays a list of payments made by an institution.
+    """
+    context_object_name = 'payment_list'
+    template_name = 'tool/manage/payments.html'
+
+    def get_queryset(self):
+        current_inst = self.get_institution()
+        return SubscriptionPayment.objects.filter(
+            subscription__institution=current_inst).order_by('-date')
+
+    def get_context_data(self, **kwargs):
+        context = super(InstitutionPaymentsView, self).get_context_data(
+            **kwargs)
+        current_inst = self.get_institution()
+        context['subscription_list'] = current_inst.subscription_set.all()
+        context['current_inst'] = current_inst
+        return context
+
+
+class ResponsiblePartyListView(AdminToolMixin, ListView):
+    """
+        Displays a list of responsible parties for an institution.
+    """
+    template_name = 'tool/manage/responsible_party_list.html'
+
+    def get_queryset(self):
+        current_inst = self.get_institution()
+        return current_inst.responsibleparty_set.all()
+
+    def get_context_data(self, **kwargs):
+        context = super(ResponsiblePartyListView, self).get_context_data(
+            **kwargs)
+        context['institution_slug'] = self.get_institution().slug
+        return context
+
+
+class ResponsiblePartyEditView(AdminToolMixin, ValidationMessageFormMixin,
+                               UpdateView):
+    """
+        Provides a form to edit a responsible party.
+    """
+    context_object_name = 'responsible_party'
+    form_class = ResponsiblePartyForm
+    model = ResponsibleParty
+    success_url_name = 'responsible-party-list'
+    template_name = 'tool/manage/responsible_party_edit.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ResponsiblePartyEditView, self).get_context_data(
+            **kwargs)
+        context['title'] = 'Edit Responsible Party'
+        context['institution_slug'] = self.get_institution().slug
+        context['credit_list'] = \
+          self.get_object().get_creditusersubmissions().all()
+        return context
+
+
+class ResponsiblePartyDeleteView(AdminToolMixin, ValidationMessageFormMixin,
+                                 DeleteView):
+    """
+       Deletes a responsible party if they aren't tied to any submissions.
+    """
+    model = ResponsibleParty
+    success_url_name = 'responsible-party-list'
+    template_name = 'tool/manage/responsible_party_confirm_delete.html'
+
+    def delete(self, *args, **kwargs):
+        """
+            Prevents this responsible party from being deleted if
+            there are credits related to it.
+        """
+        responsible_party = self.get_object()
+        if self.get_object().get_creditusersubmissions().count():
+            messages.error(self.request,
+                           "This Responsible Party cannot be removed because "
+                           "he/she is listed with one or more credits.")
+            return HttpResponseRedirect(responsible_party.get_manage_url())
+        else:
+            messages.info(self.request,
+                          "Successfully Deleted Responsible Party: %s" %
+                          responsible_party)
+            return super(ResponsiblePartyDeleteView, self).delete(*args,
+                                                                  **kwargs)
+
+
+class ResponsiblePartyCreateView(AdminToolMixin, ValidationMessageFormMixin,
+                                 CreateView):
+    """
+        Provides a form to create a responsible party.
+    """
+    form_class = ResponsiblePartyForm
+    model = ResponsibleParty
+    success_url_name = 'responsible-party-list'
+    template_name = 'tool/manage/responsible_party_edit.html'
+    valid_message = 'Responsible Party Added.'
+
+    def get_context_data(self, **kwargs):
+        context = super(ResponsiblePartyCreateView, self).get_context_data(
+            **kwargs)
+        context['title'] = 'Add Responsible Party'
+        context['institution_slug'] = self.get_institution().slug
+        return context
+
+    def form_valid(self, form):
+        """
+            Attach the current institution to the responsible party before
+            it's saved.
+        """
+        self.object = form.save(commit=False)
+        self.object.institution = self.get_institution()
+        self.object.save()
+        return super(ResponsiblePartyCreateView, self).form_valid(form)
+
+
+##############################################################################
+##############################################################################
+##############################################################################
+##############################################################################
+
+# TODO - rename 'accounts' to 'users' (or user_accounts or stars_users or
+#        stars_accounts)
 @user_is_inst_admin
-def institution_payments(request):
-    """
-        Display a list of payments made by the institution
-    """
-    current_inst = _get_current_institution(request)
-
-    payment_list = SubscriptionPayment.objects.filter(subscription__institution=current_inst).order_by('-date')
-    subscription_list = current_inst.subscription_set.all()
-
-    context = {
-                'payment_list': payment_list,
-                'subscription_list': subscription_list,
-                "current_inst": current_inst,
-              }
-    return respond(request, 'tool/manage/payments.html', context)
-
-@user_is_inst_admin
-def responsible_party_list(request):
-    """
-        Display a list of responsible parties for the institution
-    """
-    current_inst = _get_current_institution(request)
-
-    context = {'current_inst': current_inst,}
-
-    return respond(request, 'tool/manage/responsible_party_list.html', context)
-
-@user_is_inst_admin
-def edit_responsible_party(request, rp_id):
-    """
-        Edit an existing responsible party
-    """
-    current_inst = _get_current_institution(request)
-    rp = get_object_or_404(ResponsibleParty, institution=current_inst, id=rp_id)
-
-    (object_form, saved) = form_helpers.basic_save_form(request, rp, '', ResponsiblePartyForm)
-
-    if saved:
-        return HttpResponseRedirect("/tool/manage/responsible-parties/")
-
-    credit_list = rp.creditusersubmission_set.order_by('credit__subcategory__category__creditset', 'credit__subcategory').exclude(subcategory_submission__category_submission__submissionset__is_visible=False)
-
-    context = {'responsible_party': rp, 'object_form': object_form, 'title': "Edit Responsible Party", 'credit_list': credit_list}
-    return respond(request, 'tool/manage/edit_responsible_party.html', context)
-
-@user_is_inst_admin
-def add_responsible_party(request):
-    """
-        Edit an existing responsible party
-    """
-    current_inst = _get_current_institution(request)
-    new_rp = ResponsibleParty(institution=current_inst)
-
-    (object_form, saved) = form_helpers.basic_save_new_form(request, new_rp, 'new_rp', ResponsiblePartyForm)
-
-    if saved:
-        return HttpResponseRedirect("/tool/manage/responsible-parties/")
-
-    context = {'object_form': object_form, 'title': "Add Responsible Party"}
-    return respond(request, 'tool/manage/edit_responsible_party.html', context)
-
-@user_is_inst_admin
-def delete_responsible_party(request, rp_id):
-    """
-    Remove a responsible party if they aren't tied to any submissions
-    """
-    current_inst = _get_current_institution(request)
-    rp = ResponsibleParty.objects.get(institution=current_inst, id=rp_id)
-
-    credit_count = rp.creditusersubmission_set.exclude(subcategory_submission__category_submission__submissionset__is_visible=False).count()
-    if credit_count > 0:
-        messages.error(request,
-                       "This Responsible Party cannot be removed because "
-                       "he/she is listed with one or more credits.")
-        return HttpResponseRedirect(rp.get_manage_url())
-    else:
-        messages.info(request,
-                      "Successfully Removed Responsible Party: %s" % rp)
-        rp.delete()
-        return HttpResponseRedirect("/tool/manage/responsible-parties/")
-
-@user_is_inst_admin
-def accounts(request, account_id=None):
+def accounts(request, account_id=None, institution_slug=None):
     """
         Provides an interface to manage user accounts for an institution.
         Supply an optional StarsAccount id to provide an edit form for that account.

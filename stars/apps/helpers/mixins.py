@@ -1,19 +1,23 @@
 from django.contrib import messages
 
-class StarsFormMixin(object):
+
+class ValidationMessageFormMixin(object):
     """
-        A custom mixin to add a message upon success
+        A custom mixin to add a message upon form validation.
     """
+    valid_message = "Changes saved successfully."
+    invalid_message = "Please correct the errors below."
+
     def get_valid_message(self):
-        return "Changes Saved Successfully"
-    
+        return self.valid_message
+
     def get_invalid_message(self):
-        return "Please correct the errors below"
-    
+        return self.invalid_message
+
     def form_valid(self, form):
         messages.success(self.request, self.get_valid_message())
-        return super(StarsFormMixin, self).form_valid(form)
-    
+        return super(ValidationMessageFormMixin, self).form_valid(form)
+
     def form_invalid(self, form):
         messages.error(self.request, self.get_invalid_message())
-        return super(StarsFormMixin, self).form_invalid(form)
+        return super(ValidationMessageFormMixin, self).form_invalid(form)

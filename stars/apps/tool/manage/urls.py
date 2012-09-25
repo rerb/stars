@@ -1,15 +1,29 @@
-from django.conf.urls.defaults import *
-from views import ContactView
+from django.conf.urls.defaults import patterns, url
+from views import ContactView, InstitutionPaymentsView, \
+     ResponsiblePartyCreateView, ResponsiblePartyDeleteView, \
+     ResponsiblePartyEditView, ResponsiblePartyListView
 
 urlpatterns = patterns(
     'stars.apps.tool.manage.views',
-    
-    (r'^contacts/$', ContactView.as_view()),
-    (r'^payments/$', 'institution_payments'),
-    (r'^responsible-parties/$', 'responsible_party_list'),
-    (r'^responsible-parties/add/$', 'add_responsible_party'),
-    (r'^responsible-parties/(?P<rp_id>\d+)/$', 'edit_responsible_party'),
-    (r'^responsible-parties/(?P<rp_id>\d+)/delete/$', 'delete_responsible_party'),
+
+    url(r'^contact/$', ContactView.as_view(), name='institution-contact'),
+
+    url(r'^payments/$', InstitutionPaymentsView.as_view(),
+        name='institution-payments'),
+
+    url(r'^responsible-parties/$', ResponsiblePartyListView.as_view(),
+        name='responsible-party-list'),
+
+    url(r'^responsible-party/create/$', ResponsiblePartyCreateView.as_view(),
+        name='responsible-party-create'),
+
+    url(r'^responsible-party/(?P<pk>\d+)/$',
+        ResponsiblePartyEditView.as_view(), name='responsible-party-edit'),
+
+    url(r'^responsible-party/(?P<pk>\d+)/delete/$',
+        ResponsiblePartyDeleteView.as_view(),
+        name='responsible-party-delete'),
+
     (r'^users/$', 'accounts'),
     (r'^users/add/$', 'add_account'),
     (r'^users/edit/(?P<account_id>\d+)/$', 'accounts'),
@@ -19,7 +33,7 @@ urlpatterns = patterns(
     (r'^migrate/$', 'migrate_options'),
     (r'^migrate/data/(?P<ss_id>\d+)/$', 'migrate_data'),
     (r'^migrate/version/$', 'migrate_version'),
-    
+
     (r'^purchase-subscription/', 'purchase_subscription'),
     (r'^pay-subscription/(?P<subscription_id>\d+)/$', 'pay_subscription'),
 )

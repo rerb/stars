@@ -9,20 +9,26 @@ from django.template.defaultfilters import slugify
 import MySQLdb, datetime, time
 
 class Migration(DataMigration):
-    
+
     def forwards(self, orm):
-        
-        db = MySQLdb.connect(user=settings.AASHE_MYSQL_LOGIN, db='live_irc', passwd=settings.AASHE_MYSQL_PASS, host=settings.AASHE_MYSQL_SERVER)
+
+        try:
+            db = MySQLdb.connect(user=settings.AASHE_MYSQL_LOGIN,
+                                 db='live_irc',
+                                 passwd=settings.AASHE_MYSQL_PASS,
+                                 host=settings.AASHE_MYSQL_SERVER)
+        except MySQLdb.OperationalError:
+            return
 
         cursor = db.cursor()
-        
+
         for a in orm.NewArticle.objects.all():
 
             query = """
                     select node.nid, node.title, nr.body, nr.teaser
                     from node
                     left join node_revisions as nr
-                    on node.nid 
+                    on node.nid
                     where node.type = 'article'
                     and node.title = "%s"
                     and node.created = %s
@@ -34,7 +40,7 @@ class Migration(DataMigration):
                                                     time.mktime(a.changed.timetuple()),
                                                     time.mktime(a.stamp.timetuple())
                                                 )
-            
+
             cursor.execute(query)
             count = 0
             for row in cursor.fetchall():
@@ -45,11 +51,11 @@ class Migration(DataMigration):
                     a.irc_id = row[0]
                     a.save()
                     count += 1
-    
-    
+
+
     def backwards(self, orm):
         "Write your backwards methods here."
-    
+
     models = {
         'cms.articlecategory': {
             'Meta': {'object_name': 'ArticleCategory'},
@@ -97,5 +103,5 @@ class Migration(DataMigration):
             'title': ('django.db.models.fields.CharField', [], {'max_length': '32'})
         }
     }
-    
+
     complete_apps = ['cms']

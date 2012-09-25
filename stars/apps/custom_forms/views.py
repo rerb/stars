@@ -3,11 +3,11 @@ from django.views.generic.edit import FormView
 
 from stars.apps.custom_forms.forms import EligibilityForm, \
      SteeringCommitteeNominationForm, TAApplicationForm
-from stars.apps.helpers.mixins import StarsFormMixin
+from stars.apps.helpers.mixins import ValidationMessageFormMixin
 from stars.apps.notifications.models import EmailTemplate
 
 
-class EligibilityView(StarsFormMixin, FormView):
+class EligibilityView(ValidationMessageFormMixin, FormView):
     """
         View for the form that lets folks petition for STARS membership for
         an institution that doesn't qualify under the usual conditions.
@@ -28,7 +28,7 @@ class EligibilityView(StarsFormMixin, FormView):
         return context
 
 
-class SteeringCommitteeNominationView(StarsFormMixin, FormView):
+class SteeringCommitteeNominationView(ValidationMessageFormMixin, FormView):
     """
        View for the form that lest folks apply to be sit on the STARS
        steering committee.
@@ -52,7 +52,7 @@ class SteeringCommitteeNominationView(StarsFormMixin, FormView):
         return context
 
 
-class TechnicalAdvisorApplicationView(StarsFormMixin, FormView):
+class TechnicalAdvisorApplicationView(ValidationMessageFormMixin, FormView):
     """
         View for the form that allows folks to apply to be STARS
         Techiical Advisors.

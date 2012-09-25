@@ -738,7 +738,23 @@ class ResponsibleParty(models.Model):
         return "%s, %s" % (self.last_name, self.first_name)
 
     def get_manage_url(self):
-        return "/tool/manage/responsible-parties/%d/" % self.id
+        return "/tool/{slug}/manage/responsible-party/{id}/".format(
+              slug=self.institution.slug, id=self.id)
+
+    def get_creditusersubmissions(self, order_by=None):
+        """
+            Returns a queryset of (visible) CreditUserSubmissions related to
+            this responsible party.
+
+            order_by arg is a tuple passed to queryset.order_by.
+        """
+        order_by = order_by or ('credit__subcategory__category__creditset',
+                                'credit__subcategory')
+        qs = self.creditusersubmission_set
+        qs = qs.order_by(*order_by)
+        qs = qs.exclude(subcategory_submission__category_submission__submissionset__is_visible=False)
+        return qs
+
 
 class CreditSubmission(models.Model):
     """
@@ -960,12 +976,12 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
         """ Indicate if this credit has been marked anything other than pending or not started """
         return self.submission_status != 'p' and self.submission_status != 'ns' and self.submission_status != None
 
-    def save(self):
+    def save(self, *args, **kwargs):
         """ Override model.Model save() method to update credit status"""
         self.last_updated = datetime.now()
         self.assessed_points = float( self._calculate_points() )
 
-        super(CreditUserSubmission, self).save()
+        super(CreditUserSubmission, self).save(*args, **kwargs)
 
     def is_complete(self):
         return self.submission_status == 'c'
@@ -1310,9 +1326,6 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
         return False
 
     def get_correction_url(self):
-
-#        ct = ContentType.objects.get_for_model(self)
-#        return "%s%s/%d/" % (self.credit_submission.get_scorecard_url(), ct.id, self.id)
         return "%s%d/" % (self.credit_submission.get_scorecard_url(), self.documentation_field.id)
 
 class AbstractChoiceSubmission(DocumentationFieldSubmission):
