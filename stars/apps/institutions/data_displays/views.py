@@ -120,7 +120,7 @@ class Dashboard(TemplateView):
             while Subscription.objects.filter(start_date__lte=current_month).all():
                 # create a "slice" from the current month
                 slice = {}
-                reg_count = Subscription.objects.filter(start_date__lte=current_month).values('institution').distinct('institution').count()
+                reg_count = Subscription.objects.filter(start_date__lte=current_month).values('institution').distinct().count()
                 slice['reg_count'] = reg_count
                 if len(slices) == 0:
                     _context['total_reg_count'] = reg_count
