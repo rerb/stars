@@ -1,5 +1,5 @@
 from django.conf.urls.defaults import patterns, url
-from views import ContactView, InstitutionPaymentsView, \
+from views import AccountCreateView, ContactView, InstitutionPaymentsView, \
      ResponsiblePartyCreateView, ResponsiblePartyDeleteView, \
      ResponsiblePartyEditView, ResponsiblePartyListView
 
@@ -24,10 +24,19 @@ urlpatterns = patterns(
         ResponsiblePartyDeleteView.as_view(),
         name='responsible-party-delete'),
 
-    (r'^users/$', 'accounts'),
-    (r'^users/add/$', 'add_account'),
-    (r'^users/edit/(?P<account_id>\d+)/$', 'accounts'),
-    (r'^users/delete/(?P<account_id>\d+)/$', 'delete_account'),
+    url(r'^users/$', 'accounts', name='account-list'),
+
+    url(r'^users/create/$', AccountCreateView.as_view(),
+        name='account-create'),
+
+    (r'^users/old-add/$', 'add_account'),
+
+    # (r'^users/edit/(?P<account_id>\d+)/$', 'account-edit'),
+    # (r'^users/delete/(?P<account_id>\d+)/$', 'account-delete'),
+    url(r'^users/edit/(?P<pk>\d+)/$', 'accounts', name='account-edit'),
+    url(r'^users/delete/(?P<pk>\d+)/$', 'delete_account',
+        name='account-delete'),
+
     (r'^share-data/$', 'share_data'),
 
     (r'^migrate/$', 'migrate_options'),

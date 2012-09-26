@@ -17,6 +17,8 @@ ADMINS = (('Bob Erb', 'bob@aashe.org'),)
 # Send emails to to django.core.mail.outbox rather than the console:
 EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
 
+INSTALLED_APPS += ('template_repl',)
+
 def get_api_test_mode():
     try:
         return int(os.environ['API_TEST_MODE'])

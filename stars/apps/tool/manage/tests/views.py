@@ -13,10 +13,11 @@ from django.test.client import Client, RequestFactory
 import testfixtures
 
 from stars.test_factories import CreditUserSubmissionFactory, \
-     InstitutionFactory, ResponsiblePartyFactory, StarsAccountFactory
+     InstitutionFactory, ResponsiblePartyFactory, StarsAccountFactory, \
+     UserFactory
 from stars.apps.credits.models import CreditSet
 from stars.apps.institutions.models import Institution, PendingAccount, \
-     Subscription
+     StarsAccount, Subscription
 from stars.apps.registration.models import ValueDiscount
 from stars.apps.submissions.models import ResponsibleParty, SubmissionSet
 from stars.apps.tool.manage import views
@@ -653,7 +654,83 @@ class ResponsiblePartyDeleteViewTest(TestCase):
         self.assertTrue('cannot be removed' in info_message_divs[0].text)
 
 
-# class AccountCreateViewTest(TestCase):
+class AccountCreateViewTest(TestCase):
 
-#     def test____no_email_for_user(self):
-#         raise 'Not Implemented'
+    def setUp(self):
+        self.institution = InstitutionFactory()
+
+        self.account = StarsAccountFactory(institution=self.institution)
+
+        self.responsible_party = ResponsiblePartyFactory(
+            institution=self.institution)
+
+        self.request = _get_request_ready_for_messages()
+        self.request.user = self.account.user
+        self.request.method = 'GET'
+
+    def test_get_by_non_admin_is_blocked(self):
+        """Is a GET by a non-admin user blocked?"""
+        self.account.user_level = ''
+        self.account.save()
+        response = views.AccountCreateView.as_view()(
+            request=self.request,
+            institution_slug=self.institution.slug)
+        self.assertEqual(response.status_code, 403)
+
+    def test_get_by_admin_succeeds(self):
+        """Does a GET by an admin user succeed?"""
+        self.account.user_level = 'admin'
+        self.account.save()
+        response = views.AccountCreateView.as_view()(
+            request=self.request,
+            institution_slug=self.institution.slug)
+        self.assertEqual(response.status_code, 200)
+
+    def test_form_valid_no_aashe_user_account_creates_pendingaccount(self):
+        """Does form_valid() create a PendingAccount if no ASSHE account exists?
+        """
+        self.account.user_level = 'admin'
+        self.account.save()
+        self.request.method = 'POST'
+        pending_account_count_before = PendingAccount.objects.count()
+        form_input = { 'email': 'joe.hump@fixityourself.com',
+                       'userlevel': 'bystander' }
+        self.request.POST = form_input
+        _ = views.AccountCreateView.as_view()(
+            request=self.request,
+            institution_slug=self.institution.slug)
+        self.assertEqual(pending_account_count_before + 1,
+                         PendingAccount.objects.count())
+
+    def test_form_valid_aashe_user_account_creates_starsaccount(self):
+        """Does form_valid() create a StarsAccount if an ASSHE account exists?
+        """
+        self.account.user_level = 'admin'
+        self.account.save()
+        self.request.method = 'POST'
+        stars_account_count_before = StarsAccount.objects.count()
+        form_input = { 'email': 'joe.hump@fixityourself.com',
+                       'userlevel': 'bystander' }
+        self.request.POST = form_input
+        with testfixtures.Replacer() as r:
+            r.replace(
+                'stars.apps.tool.manage.views.xml_rpc.get_user_by_email',
+                lambda x : ['replaced',])
+            r.replace(
+                'stars.apps.tool.manage.views.xml_rpc.get_user_from_user_dict',
+                lambda x, y: UserFactory())
+            _ = views.AccountCreateView.as_view()(
+                request=self.request,
+                institution_slug=self.institution.slug)
+        self.assertEqual(stars_account_count_before + 1,
+                         StarsAccount.objects.count())
+
+    def test_get_success_url_is_loadable(self):
+        """Is the url returned by get_success_url() loadable?"""
+        self.account.user_level = 'admin'
+        self.account.save()
+        view = views.AccountCreateView()
+        success_url = view.get_success_url(
+            institution_slug=self.institution.slug)
+        response = Client().get(success_url, follow=True)
+        self.assertEqual(response.status_code, 200)

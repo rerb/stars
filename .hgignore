@@ -23,6 +23,7 @@ syntax: glob
 .DS_Store
 .vagrant
 .pydevproject
-
-syntax: regexp
-^venv$
+sc_apps
+ta_apps
+secure
+.idea

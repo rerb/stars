@@ -2,6 +2,7 @@ from datetime import date
 from logging import getLogger
 
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.localflavor.us.models import PhoneNumberField
@@ -9,7 +10,7 @@ from django.template.defaultfilters import slugify
 from django.db.models import Max
 from django.core.mail import send_mail
 
-from stars.apps.credits.models import CreditSet, RATING_DURATION
+from stars.apps.credits.models import CreditSet
 # from stars.apps.notifications.models import EmailTemplate
 
 logger = getLogger('stars')
@@ -398,48 +399,62 @@ class InstitutionPreferences(models.Model):
 
 STARS_USERLEVEL_CHOICES = settings.STARS_PERMISSIONS
 
+
 class BaseAccount(models.Model):
     """
-        A 'multi-table inheritance' base class - ensures all accounts have unique id's.
-        This is important because the different kinds of Accounts are mixed together in lists and
-        so must have uniuqe id's between them so their id's uniquely identify them in the list.
-        Multi-table inheritance is a way of ensuring that each child class record has a unique id.
+        A 'multi-table inheritance' base class - ensures all accounts
+        have unique id's.  This is important because the different
+        kinds of Accounts are mixed together in lists and so must have
+        uniuqe id's between them so their id's uniquely identify them
+        in the list.  Multi-table inheritance is a way of ensuring
+        that each child class record has a unique id.
     """
     pass
+
 
 class AbstractAccount(BaseAccount):
     """
         Abstract base class for StarsAccount and Pendingccount.
-        Logically, this stuff could go in the BaseAccount class, but there are 2 reasons to use an Abstract base class here:
+
+        Logically, this stuff could go in the BaseAccount class, but
+        there are 2 reasons to use an Abstract base class here:
+
         1) so that the reverse relation, institution.starsaccount_set, works
         2) so that unique_together constraints can be handled by Django
     """
     institution = models.ForeignKey(Institution)
     terms_of_service = models.BooleanField()
     # user_level is a role
-    user_level = models.CharField("Role", max_length='6', choices=STARS_USERLEVEL_CHOICES)
+    user_level = models.CharField("Role", max_length='6',
+                                  choices=STARS_USERLEVEL_CHOICES)
 
     class Meta:
         abstract = True
 
-    @classmethod
-    def get_manage_url(cls):
-        return settings.MANAGE_USERS_URL
+    def get_manage_url(self):
+        return reverse('account-list',
+                       kwargs={'institution_slug': self.institution.slug})
 
     def get_edit_url(self):
-        return "%sedit/%s/"%(settings.MANAGE_USERS_URL, self.id)
+        return reverse('account-edit',
+                       kwargs={'institution_slug': self.institution.slug,
+                               'pk': self.id})
 
     def get_delete_url(self):
-        return "%sdelete/%s/"%(settings.MANAGE_USERS_URL, self.id)
+        return reverse('account-delete',
+                       kwargs={'institution_slug': self.institution.slug,
+                               'pk': self.id})
 
     def is_pending(self):
         return False
 
     def has_access_level(self, access_level):
         """
-            Allows for access comparison on an institution that may not be their `current_institution`
+            Allows for access comparison on an institution that may
+            not be their `current_institution`
 
-            `settings.STARS_PERMISSIONS` is a tuple with the highest level coming first
+            `settings.STARS_PERMISSIONS` is a tuple with the highest
+            level coming first
         """
 
         # see if the user level matches
@@ -455,22 +470,27 @@ class AbstractAccount(BaseAccount):
 
         return False
 
-
     def last_access(self):
         """
             Return the date of the last access to this account, or None
             Currently, this just uses the date of user's last login to STARS.
         """
-        # HACK alert - Django stores a default of now() in last_login field when account is created.
-        #            - as a result, last_login < date_joined when user hasn't logged in yet.
-        #  - seems a bit fragile, but that's really the only way I can think of to determine if user has not logged in yet...
+        # HACK alert - Django stores a default of now() in last_login
+        #              field when account is created.
+        #            - as a result, last_login < date_joined when user
+        #              hasn't logged in yet.
+        #  - seems a bit fragile, but that's really the only way I can
+        #    think of to determine if user has not logged in yet...
+
         if self.is_pending():
             return None
         last_login = self.user.last_login.replace(microsecond=0)
         date_joined = self.user.date_joined.replace(microsecond=0)
-        return None if (self.user.last_login < self.user.date_joined) else self.user.last_login
+        return None if (self.user.last_login < self.user.date_joined) else \
+          self.user.last_login
 
-    # Each action below corresponds to an e-mail template for a notification message
+    # Each action below corresponds to an e-mail template for a
+    # notification message
     NEW_ACCOUNT='new_account.txt'
     CHANGE_ROLE='change_role.txt'
     DELETE_ACCOUNT='delete_account.txt'
@@ -485,21 +505,29 @@ class AbstractAccount(BaseAccount):
 
     def notify(self, action, admin, institution):
         """
-            Notify account holder about an action taken on their account
-            action must be one of the action constants defined by this class above
+            Notify account holder about an action taken on their
+            account action must be one of the action constants defined
+            by this class above
         """
         # et = EmailTemplate.objects.get(slug='invite_notification')
 
         send_mail('STARS Account notification for: %s'%self.user,
                       self.get_formatted_message(action, admin, institution),
-                      settings.EMAIL_HOST_USER, [self.user.email], fail_silently=True )
+                      settings.EMAIL_HOST_USER, [self.user.email],
+                      fail_silently=True)
 
     @classmethod
-    def update_account(cls, admin, notify_user, institution, user_level, **user_params):
+    def update_account(cls, admin, notify_user, institution, user_level,
+                       **user_params):
         """
             Create or update an account
-            admin is the user who is doing the update - used for notifying user of account change.
-            user_params are passed through to cls to uniquely identify or create account.
+
+            admin is the user who is doing the update - used for
+            notifying user of account change.
+
+            user_params are passed through to cls to uniquely identify
+            or create account.
+
             returns the updated or newly created account.
         """
         has_changed = True
@@ -513,13 +541,16 @@ class AbstractAccount(BaseAccount):
                 has_changed = False
         except cls.DoesNotExist:
             # Or create one
-            account = cls(institution=institution, user_level=user_level, **user_params)
+            account = cls(institution=institution, user_level=user_level,
+                          **user_params)
             is_create = True
         account.save()
 
-        # Notify the user only if something actually changes AND admin wanted to notify them.
+        # Notify the user only if something actually changes AND admin
+        # wanted to notify them.
         if has_changed and notify_user:
-            action = StarsAccount.NEW_ACCOUNT if is_create else StarsAccount.CHANGE_ROLE
+            action = StarsAccount.NEW_ACCOUNT if is_create else \
+              StarsAccount.CHANGE_ROLE
             account.notify(action, admin, institution)
 
         return account

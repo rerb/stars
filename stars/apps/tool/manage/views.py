@@ -38,7 +38,8 @@ from stars.apps.notifications.models import EmailTemplate
 from stars.apps.tool.mixins import AdminToolMixin
 from stars.apps.helpers.mixins import ValidationMessageFormMixin
 
-from django.views.generic import CreateView, DeleteView, ListView, UpdateView
+from django.views.generic import CreateView, DeleteView, FormView, ListView, \
+     UpdateView
 
 logger = getLogger('stars.request')
 
@@ -189,13 +190,93 @@ class ResponsiblePartyCreateView(AdminToolMixin, ValidationMessageFormMixin,
         return super(ResponsiblePartyCreateView, self).form_valid(form)
 
 
+class AccountCreateView(AdminToolMixin, ValidationMessageFormMixin,
+                        FormView):
+    """
+        Allows creation of StarsAccount (and PendingAccount) objects.
+
+        If the email address provided doesn't match a StarsAccount,
+        a PendingAccount is created instead.
+    """
+    form_class = AccountForm
+    success_url_name = 'account-list'
+    template_name = 'tool/manage/add_account.html'
+    valid_message = 'Account created.'
+
+    def __init__(self, *args, **kwargs):
+        """
+            Declares new attributes, preferences and notify_form.
+            Sure, this isn't necessary, but after they're declared
+            here, they won't be a surprise when they're used later.
+        """
+        self.preferences = None
+        self.notify_form = None
+        super(AccountCreateView, self).__init__(*args, **kwargs)
+
+    def get_aashe_user(self, email):
+        """
+            Returns the User object that ties together a STARS user account
+            and an AASHE (Drupal) account.  If there's no matching AASHE
+            account, None is returned.
+        """
+        user_list = xml_rpc.get_user_by_email(email)
+        if user_list:
+            return xml_rpc.get_user_from_user_dict(user_list[0], None)
+        else:
+            return None
+
+    def get_context_data(self, **kwargs):
+        context = super(AccountCreateView, self).get_context_data(**kwargs)
+        context['notify_form'] = self.notify_form
+        return context
+
+    def dispatch(self, request, *args, **kwargs):
+        """
+            Save preferences for this institution, for use in form_valid()
+            and get_context_data() later.
+        """
+        # self.kwargs is assigned in
+        # django.views.generic.base.dispatch, which gets called at the
+        # end of this method, but _update_preferences() below calls
+        # get_institution(), which depends on self.kwargs already
+        # being set.  That's why it gets set here first.
+        self.kwargs = kwargs
+        (self.preferences, self.notify_form) = _update_preferences(
+            request, self.get_institution())
+        return super(AccountCreateView, self).dispatch(
+            request, *args, **kwargs)
+
+    def form_valid(self, form):
+        # Get the AASHE account info for this email
+        user_level = form.cleaned_data['userlevel']
+        user_email = form.cleaned_data['email']
+        aashe_user = self.get_aashe_user(email=user_email)
+        if aashe_user:
+            StarsAccount.update_account(
+                self.request.user,
+                self.preferences.notify_users,
+                self.get_institution(),
+                user_level,
+                user=aashe_user)
+        else:
+            messages.info(self.request,
+                          "There is no AASHE user with e-mail: %s. "
+                          "STARS Account is pending user's registration "
+                          "at www.aashe.org." % user_email)
+            PendingAccount.update_account(
+                self.request.user,
+                self.preferences.notify_users,
+                self.get_institution(),
+                user_level,
+                user_email=user_email)
+        return super(AccountCreateView, self).form_valid(form)
+
+
 ##############################################################################
 ##############################################################################
 ##############################################################################
 ##############################################################################
 
-# TODO - rename 'accounts' to 'users' (or user_accounts or stars_users or
-#        stars_accounts)
 @user_is_inst_admin
 def accounts(request, account_id=None, institution_slug=None):
     """
@@ -222,7 +303,7 @@ def accounts(request, account_id=None, institution_slug=None):
     else:
         new_account_form = AccountForm()
 
-    (preferences, notify_form) = _update_preferences(request)
+    (preferences, notify_form) = _update_preferences(request, current_inst)
 
     context = {
                'account_list': account_list,
@@ -239,7 +320,8 @@ def add_account(request):
     """
     current_inst = _get_current_institution(request)
 
-    (preferences, notify_form) = _update_preferences(request)
+    (preferences, notify_form) = _update_preferences(request,
+                                                     current_inst)
 
     if request.method == 'POST':
         account_form = AccountForm(request.POST)
@@ -253,16 +335,21 @@ def add_account(request):
                               "There is no AASHE user with e-mail: %s. "
                               "STARS Account pending user's registration "
                               "at www.aashe.org" % user_email)
-                PendingAccount.update_account(request.user,
-                                              preferences.notify_users,
-                                              current_inst, user_level,
-                                              user_email=user_email)
+                account = PendingAccount.update_account(
+                    request.user,
+                    preferences.notify_users,
+                    current_inst,
+                    user_level,
+                    user_email=user_email)
             else:
                 user = xml_rpc.get_user_from_user_dict(user_list[0], None)
-                StarsAccount.update_account(request.user,
-                                            preferences.notify_users,
-                                            current_inst, user_level, user=user)
-            return HttpResponseRedirect(StarsAccount.get_manage_url())
+                account = StarsAccount.update_account(
+                    request.user,
+                    preferences.notify_users,
+                    current_inst,
+                    user_level,
+                    user=user)
+            return HttpResponseRedirect(account.get_manage_url())
     else:
         account_form = AccountForm()
 
@@ -276,7 +363,8 @@ def delete_account(request, account_id):
     """
     current_inst = _get_current_institution(request)
 
-    (preferences, notify_form) = _update_preferences(request)
+    (preferences, notify_form) = _update_preferences(request,
+                                                     current_inst)
 
     # Careful here - this needs to handle deletion of any type of
     # account, real and pending.  The account must be an account
@@ -312,16 +400,15 @@ def delete_account(request, account_id):
                     'confirm_form': form,
                     'notify_form':notify_form,})
 
-def _update_preferences(request):
+def _update_preferences(request, institution):
     """
         Helper method to DRY code around managing institution preferences
         Returns (preferences, preferences_form)
     """
     try:
-        preferences = request.user.current_inst.preferences
+        preferences = institution.preferences
     except InstitutionPreferences.DoesNotExist:
-        preferences = InstitutionPreferences(
-            institution=request.user.current_inst)
+        preferences = InstitutionPreferences(institution=institution)
     (notify_form,saved) = form_helpers.basic_save_form(
         request, preferences, '', NotifyUsersForm, show_message=False)
     return (preferences, notify_form)
