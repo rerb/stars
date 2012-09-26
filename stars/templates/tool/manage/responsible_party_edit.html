@@ -9,7 +9,8 @@
 
 {% block institution_content %}
 
-    <a href='/tool/{{ institution_slug }}/manage/responsible-parties/' class="btn btn-small">
+    <a href='{% url responsible-party-list institution_slug=institution_slug %}'
+       class="btn btn-small">
         <i class='icon-chevron-left'></i>
         All Responsible Parties
     </a>
