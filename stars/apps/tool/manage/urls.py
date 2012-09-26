@@ -11,6 +11,7 @@ urlpatterns = patterns(
     url(r'^payments/$', InstitutionPaymentsView.as_view(),
         name='institution-payments'),
 
+    # Responsible Party views:
     url(r'^responsible-party/$', ResponsiblePartyListView.as_view(),
         name='responsible-party-list'),
 
@@ -24,17 +25,18 @@ urlpatterns = patterns(
         ResponsiblePartyDeleteView.as_view(),
         name='responsible-party-delete'),
 
-    url(r'^users/$', 'accounts', name='account-list'),
+    # User/Account views:
+    url(r'^user/$', 'accounts',
+        name='account-list'),
 
-    url(r'^users/create/$', AccountCreateView.as_view(),
+    url(r'^user/create/$', AccountCreateView.as_view(),
         name='account-create'),
 
     (r'^users/old-add/$', 'add_account'),
 
-    # (r'^users/edit/(?P<account_id>\d+)/$', 'account-edit'),
-    # (r'^users/delete/(?P<account_id>\d+)/$', 'account-delete'),
-    url(r'^users/edit/(?P<pk>\d+)/$', 'accounts', name='account-edit'),
-    url(r'^users/delete/(?P<pk>\d+)/$', 'delete_account',
+    url(r'^user/edit/(?P<pk>\d+)/$', 'accounts',
+        name='account-edit'),
+    url(r'^user/delete/(?P<pk>\d+)/$', 'delete_account',
         name='account-delete'),
 
     (r'^share-data/$', 'share_data'),
