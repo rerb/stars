@@ -21,7 +21,7 @@
         {% testrule user_has_access_level user 'admin' user.current_inst %}
 
         <li{% if active_tab == 'users' %} class="active" {% endif %}>
-            <a href="/tool/{{ user.current_inst.slug }}/manage/users/">
+            <a href="{% url account-list user.current_inst.slug %}">
               Users
             </a>
         </li>
@@ -36,7 +36,7 @@
             </a>
         </li>
         <li{% if active_tab == 'rps' %} class="active" {% endif %}>
-            <a href="{% url responsible-party-list institution_slug=user.current_inst.slug %}">
+            <a href="{% url responsible-party-list user.current_inst.slug %}">
               Responsible Parties
             </a>
         </li>
