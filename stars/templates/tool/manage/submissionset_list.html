@@ -79,7 +79,14 @@
         <tr>
             <td colspan='10' style='text-align: center;border-top: 1px solid #aaa;'>
                 {% if not user.current_inst.starsaccount_set.all %}
-                    <p>You must <a href='/tool/manage/users/'>add</a> at least one user to this institution before you can create a submission set.</p>
+                    <p>
+                        You must
+                        <a href='{% url account-create institution.slug %}'>
+                            add
+                        </a>
+                        at least one user to this institution before you can
+                        create a submission set.
+                    </p>
                 {% else %}
                     <a href='/tool/manage/submissionsets/add/'>Add</a>
                 {% endif %}
