@@ -2,8 +2,8 @@
 
 {% load bootstrap %}
 
-{% block institution_content %}
 
+{% block institution_content %}
     <h2>Add a User</h2>
     <form method='post' action='.'>
         {{ form|bootstrap }}
@@ -19,7 +19,7 @@
             <button
                 type='button'
                 class='btn'
-                onclick="document.location='{% url account-list institution_slug=institution_slug %}'">
+                onclick="document.location='{% url account-list institution.slug %}'">
                     Cancel
             </button>
         </div>

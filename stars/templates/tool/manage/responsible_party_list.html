@@ -6,11 +6,13 @@
     {% with active_tab="rps" %}{{ block.super }}{% endwith %}
 {% endblock %}
 
+BOB
+
 {% block institution_content %}
     {% if not object_list %}
         <p>
           No responsible parties yet.
-          <a href='/tool/{{ institution_slug }}/manage/responsible-party/create/'>
+          <a href='{% url responsiible-party-create institution.slug %}'>
             Add one</a>.
         </p>
     {% else %}
@@ -33,7 +35,7 @@
             </tbody>
         </table>
         <p style='text-align: center;'>
-            <a href='/tool/{{ institution_slug }}/manage/responsible-party/create/' class='btn btn-info'>
+            <a href='{% url responsible-party-create institution.slug %}' class='btn btn-info'>
                 Add a Responsible Party
             </a>
         </p>

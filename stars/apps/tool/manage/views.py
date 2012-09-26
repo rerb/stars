@@ -106,12 +106,6 @@ class ResponsiblePartyListView(InstitutionAdminToolMixin, ListView):
         current_inst = self.get_institution()
         return current_inst.responsibleparty_set.all()
 
-    def get_context_data(self, **kwargs):
-        context = super(ResponsiblePartyListView, self).get_context_data(
-            **kwargs)
-        context['institution_slug'] = self.get_institution().slug
-        return context
-
 
 class ResponsiblePartyEditView(InstitutionAdminToolMixin,
                                ValidationMessageFormMixin,
@@ -129,7 +123,6 @@ class ResponsiblePartyEditView(InstitutionAdminToolMixin,
         context = super(ResponsiblePartyEditView, self).get_context_data(
             **kwargs)
         context['title'] = 'Edit Responsible Party'
-        context['institution_slug'] = self.get_institution().slug
         context['credit_list'] = \
           self.get_object().get_creditusersubmissions().all()
         return context
@@ -163,7 +156,8 @@ class ResponsiblePartyDeleteView(InstitutionAdminToolMixin, ValidationMessageFor
                                                                   **kwargs)
 
 
-class ResponsiblePartyCreateView(InstitutionAdminToolMixin, ValidationMessageFormMixin,
+class ResponsiblePartyCreateView(InstitutionAdminToolMixin,
+                                 ValidationMessageFormMixin,
                                  CreateView):
     """
         Provides a form to create a responsible party.
@@ -178,7 +172,6 @@ class ResponsiblePartyCreateView(InstitutionAdminToolMixin, ValidationMessageFor
         context = super(ResponsiblePartyCreateView, self).get_context_data(
             **kwargs)
         context['title'] = 'Add Responsible Party'
-        context['institution_slug'] = self.get_institution().slug
         return context
 
     def form_valid(self, form):

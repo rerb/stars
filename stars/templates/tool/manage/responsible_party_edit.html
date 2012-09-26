@@ -9,7 +9,7 @@
 
 {% block institution_content %}
 
-    <a href='{% url responsible-party-list institution_slug=institution_slug %}'
+    <a href='{% url responsible-party-list institution.slug %}'
        class="btn btn-small">
         <i class='icon-chevron-left'></i>
         All Responsible Parties
@@ -29,7 +29,7 @@
             <button
                 type='button'
                 class='btn'
-                onclick="document.location='{% url responsible-party-list institution_slug=institution_slug %}'">
+                onclick="document.location='{% url responsible-party-list institution.slug %}'">
                     Cancel
             </button>
             {% if responsible_party %}
