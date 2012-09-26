@@ -11,7 +11,7 @@ urlpatterns = patterns(
     url(r'^payments/$', InstitutionPaymentsView.as_view(),
         name='institution-payments'),
 
-    url(r'^responsible-parties/$', ResponsiblePartyListView.as_view(),
+    url(r'^responsible-party/$', ResponsiblePartyListView.as_view(),
         name='responsible-party-list'),
 
     url(r'^responsible-party/create/$', ResponsiblePartyCreateView.as_view(),
