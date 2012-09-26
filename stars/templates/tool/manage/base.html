@@ -36,7 +36,7 @@
             </a>
         </li>
         <li{% if active_tab == 'rps' %} class="active" {% endif %}>
-            <a href="/tool/{{ user.current_inst.slug }}/manage/responsible-parties/">
+            <a href="{% url responsible-party-list institution_slug=user.current_inst.slug %}">
               Responsible Parties
             </a>
         </li>
