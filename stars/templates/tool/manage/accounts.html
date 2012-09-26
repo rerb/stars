@@ -13,7 +13,7 @@
 {% endblock %}
 
 {% block institution_content %}
-    <form method='post' action='/tool/manage/users/add/'>
+    <form method='post' action='{% url account-create institution.slug %}'
         <table class='table'>
         	<thead>
           <tr>
@@ -38,7 +38,7 @@
                    <span class='help'>Notify user by e-mail of account changes.</span>
                 </td>
               </tr>
-            {% else %} 
+            {% else %}
               {% with row.account as account %}
               <tr class='{% cycle 'even' 'odd' %}{% if account.is_pending %} pending{% endif %}'  {% if account.is_pending %}title="Account pending - user must register at www.aashe.org."{% endif %}>
                 <td>
@@ -72,7 +72,7 @@
                   {% endif %}
                 </td>
               </tr>
-              {% endwith %} 
+              {% endwith %}
             {% endif %}
           {% endfor %}
           <tr>
