@@ -5,7 +5,7 @@ from django.views.generic.simple import direct_to_template
 from django.core.exceptions import PermissionDenied
 from django.utils.functional import curry
 from django.forms.models import inlineformset_factory
-from django.views.generic import TemplateView, CreateView, View
+from django.views.generic import FormView, CreateView, TemplateView, View
 
 import sys, re
 from datetime import date
@@ -33,11 +33,11 @@ class InstitutionStructureMixin(StructureMixin):
     """
         Extends the StructureMixin to work with Institutions
     """
-    
+
     def update_context_callbacks(self):
         super(InstitutionStructureMixin, self).update_context_callbacks()
         self.add_context_callback("get_institution")
-    
+
     def get_institution(self):
         """
             Attempts to get an institution.
@@ -71,7 +71,7 @@ class SortableTableView(TemplateView):
     def get_context_data(self, **kwargs):
         """ Add/update any context variables """
         _context = super(SortableTableView, self).get_context_data(**kwargs)
-        
+
         _context.update({'sort_columns': self.columns, 'default_key': self.default_key})
 
         (_context['sort_key'], _context['rev'], _context['object_list']) = self.get_object_list()
@@ -243,7 +243,7 @@ class InstitutionScorecards(InstitutionStructureMixin, TemplateView):
         Unrated SubmissionSets will be displayed to participating users only.
     """
     template_name = 'institutions/scorecards/list.html'
-    
+
     def get_context_data(self, **kwargs):
         _context = super(InstitutionScorecards, self).get_context_data(**kwargs)
 
@@ -272,7 +272,7 @@ class ScorecardView(RulesMixin, InstitutionStructureMixin, SubmissionStructureMi
     """
 
     def update_logical_rules(self):
-        
+
         super(ScorecardView, self).update_logical_rules()
         self.add_logical_rule({
                     'name': 'user_can_view_submission',
@@ -286,7 +286,7 @@ class ScorecardView(RulesMixin, InstitutionStructureMixin, SubmissionStructureMi
     def get_context_data(self, **kwargs):
         """ Expects arguments for category_id/subcategory_id/credit_id """
         _context = super(ScorecardView, self).get_context_data(**kwargs)
-        
+
         ss = self.get_submissionset()
 
         url_prefix = ss.get_scorecard_url()
@@ -295,16 +295,16 @@ class ScorecardView(RulesMixin, InstitutionStructureMixin, SubmissionStructureMi
         _context['outline'] = self.get_creditset_nav(url_prefix=url_prefix)
 
         _context['score'] = ss.get_STARS_score()
-        
+
         rating = ss.get_STARS_rating()
         _context['rating'] = rating
-        
+
         _context['preview'] = False
         if not ss.status == 'r':
             _context['preview'] = True
 
         return _context
-    
+
     def get_category_url(self, category, url_prefix):
         """ The default link for a category. """
         return "%s%s" % (url_prefix, category.get_browse_url())
@@ -316,13 +316,13 @@ class ScorecardView(RulesMixin, InstitutionStructureMixin, SubmissionStructureMi
     def get_credit_url(self, credit, url_prefix):
         """ The default credit link. """
         return "%s%s" % (url_prefix, credit.get_browse_url())
-    
+
 class ScorecardSummary(ScorecardView):
     template_name = 'institutions/scorecards/summary.html'
-    
+
 class ScorecardCredit(ScorecardView):
     template_name = 'institutions/scorecards/credit.html'
-    
+
 class ScorecardCreditDocumentation(ScorecardView):
     template_name = 'institutions/scorecards/credit_documentation.html'
 
@@ -330,9 +330,9 @@ class PDFExportView(RulesMixin, InstitutionStructureMixin, SubmissionStructureMi
     """
         Displays an exported PDF version of the selected report
     """
-    
+
     def update_logical_rules(self):
-        
+
         super(ScorecardView, self).update_logical_rules()
         self.add_logical_rule({
                     'name': 'user_can_view_pdf',
@@ -375,7 +375,7 @@ class DataCorrectionView(RulesMixin, InstitutionStructureMixin, SubmissionStruct
     """
     template_name = "institutions/data_correction_request/new.html"
     form_class = DataCorrectionRequestForm
-    
+
     def update_logical_rules(self):
         super(DataCorrectionView, self).update_logical_rules()
         self.add_logical_rule({
@@ -390,19 +390,19 @@ class DataCorrectionView(RulesMixin, InstitutionStructureMixin, SubmissionStruct
 
     def form_valid(self, form):
         self.object = form.save()
-        
+
         et = EmailTemplate.objects.get(slug="data_correction_request")
         context = {
             "correction": self.object,
             "submissionset": self.get_submissionset()
         }
         et.send_email(["stars@aashe.org",], context)
-        
+
         _context = self.get_context_data()
         _context.update(context)
-        
+
         return direct_to_template(self.request, "institutions/data_correction_request/success.html", _context)
-    
+
     def get_form_kwargs(self):
         kwargs = super(DataCorrectionView, self).get_form_kwargs()
         kwargs['instance'] = DataCorrectionRequest(user=self.request.user, reporting_field=self.get_fieldsubmission())
@@ -413,14 +413,14 @@ class SubmissionInquirySelectView(FormView):
     """
         Provides a form for people to dispute the submission for a particular institution.
     """
-    
+
     template_name = "institutions/inquiries/select_submission.html"
     form_class = SubmissionSelectForm
 
     def form_valid(self, form):
         ss = form.cleaned_data['institution']
         return HttpResponseRedirect("%sinquiry/" % ss.get_scorecard_url())
-    
+
 
 class SubmissionInquiryView(MultiFormView):
     """
