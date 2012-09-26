@@ -3,10 +3,9 @@ from django.core.urlresolvers import reverse
 from aashe_rules.mixins import RulesMixin
 from stars.apps.accounts.mixins import StarsAccountMixin
 from stars.apps.institutions.views import InstitutionStructureMixin
-from stars.apps.submissions.views import SubmissionStructureMixin
 
 
-class ToolMixin(StarsAccountMixin, RulesMixin, SubmissionStructureMixin):
+class ToolMixin(StarsAccountMixin, RulesMixin):
 
     def get_success_url(self, institution_slug=None):
         """
@@ -22,7 +21,7 @@ class ToolMixin(StarsAccountMixin, RulesMixin, SubmissionStructureMixin):
             return self.request.path
 
 
-class AdminToolMixin(ToolMixin, InstitutionStructureMixin):
+class InstitutionAdminToolMixin(ToolMixin, InstitutionStructureMixin):
     """
         A ToolMixin that's available only to institution admins.
     """

@@ -35,7 +35,7 @@ from stars.apps.registration.models import ValueDiscount
 from stars.apps.notifications.models import EmailTemplate
 
 # new imports
-from stars.apps.tool.mixins import AdminToolMixin
+from stars.apps.tool.mixins import InstitutionAdminToolMixin
 from stars.apps.helpers.mixins import ValidationMessageFormMixin
 
 from django.views.generic import CreateView, DeleteView, FormView, ListView, \
@@ -52,7 +52,8 @@ def _get_current_institution(request):
         raise Http404
 
 
-class ContactView(AdminToolMixin, ValidationMessageFormMixin, UpdateView):
+class ContactView(InstitutionAdminToolMixin, ValidationMessageFormMixin,
+                  UpdateView):
     """
         Displays the contact form for an institution
 
@@ -74,7 +75,7 @@ class ContactView(AdminToolMixin, ValidationMessageFormMixin, UpdateView):
         return FormClass
 
 
-class InstitutionPaymentsView(AdminToolMixin, ListView):
+class InstitutionPaymentsView(InstitutionAdminToolMixin, ListView):
     """
         Displays a list of payments made by an institution.
     """
@@ -95,7 +96,7 @@ class InstitutionPaymentsView(AdminToolMixin, ListView):
         return context
 
 
-class ResponsiblePartyListView(AdminToolMixin, ListView):
+class ResponsiblePartyListView(InstitutionAdminToolMixin, ListView):
     """
         Displays a list of responsible parties for an institution.
     """
@@ -112,7 +113,8 @@ class ResponsiblePartyListView(AdminToolMixin, ListView):
         return context
 
 
-class ResponsiblePartyEditView(AdminToolMixin, ValidationMessageFormMixin,
+class ResponsiblePartyEditView(InstitutionAdminToolMixin,
+                               ValidationMessageFormMixin,
                                UpdateView):
     """
         Provides a form to edit a responsible party.
@@ -133,7 +135,7 @@ class ResponsiblePartyEditView(AdminToolMixin, ValidationMessageFormMixin,
         return context
 
 
-class ResponsiblePartyDeleteView(AdminToolMixin, ValidationMessageFormMixin,
+class ResponsiblePartyDeleteView(InstitutionAdminToolMixin, ValidationMessageFormMixin,
                                  DeleteView):
     """
        Deletes a responsible party if they aren't tied to any submissions.
@@ -161,7 +163,7 @@ class ResponsiblePartyDeleteView(AdminToolMixin, ValidationMessageFormMixin,
                                                                   **kwargs)
 
 
-class ResponsiblePartyCreateView(AdminToolMixin, ValidationMessageFormMixin,
+class ResponsiblePartyCreateView(InstitutionAdminToolMixin, ValidationMessageFormMixin,
                                  CreateView):
     """
         Provides a form to create a responsible party.
@@ -190,7 +192,7 @@ class ResponsiblePartyCreateView(AdminToolMixin, ValidationMessageFormMixin,
         return super(ResponsiblePartyCreateView, self).form_valid(form)
 
 
-class AccountCreateView(AdminToolMixin, ValidationMessageFormMixin,
+class AccountCreateView(InstitutionAdminToolMixin, ValidationMessageFormMixin,
                         FormView):
     """
         Allows creation of StarsAccount (and PendingAccount) objects.
