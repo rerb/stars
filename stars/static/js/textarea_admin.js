@@ -17,5 +17,5 @@ tinyMCE.init({
 	plugins : "table,iespell,searchreplace,contextmenu,paste",
 	theme_advanced_blockformats : "h2,h3,h4,h5",
 	paste_auto_cleanup_on_paste : true,
-	extended_valid_elements : "a[name|href|target=_self|title|onclick],img[class|src|border=0|alt|title|hspace|vspace|width|height|align|onmouseover|onmouseout|name],hr[class|width|size|noshade],font[face|size|color|style],span[class|align|style],form[action|method],input[type|name|value|src|border]"
+	extended_valid_elements : "a[name|href|target=_self|title|onclick],img[class|src|border=0|alt|title|hspace|vspace|width|height|align|onmouseover|onmouseout|name],hr[class|width|size|noshade],font[face|size|color|style],span[class|align|style],form[action|method],input[type|name|value|src|border],iframe[width|height|src|allowfullscreen|frameborder]"
 });
