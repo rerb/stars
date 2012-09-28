@@ -122,7 +122,7 @@ class ResponsiblePartyEditView(InstitutionAdminToolMixin,
     def get_context_data(self, **kwargs):
         context = super(ResponsiblePartyEditView, self).get_context_data(
             **kwargs)
-        context['title'] = 'Edit Responsible Party'
+        context['tab_content_title'] = 'edit a responsible party'
         context['credit_list'] = \
           self.get_object().get_creditusersubmissions().all()
         return context
@@ -171,7 +171,7 @@ class ResponsiblePartyCreateView(InstitutionAdminToolMixin,
     def get_context_data(self, **kwargs):
         context = super(ResponsiblePartyCreateView, self).get_context_data(
             **kwargs)
-        context['title'] = 'Add Responsible Party'
+        context['tab_content_title'] = 'add a responsible party'
         return context
 
     def form_valid(self, form):
