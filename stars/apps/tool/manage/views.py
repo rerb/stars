@@ -195,7 +195,7 @@ class AccountCreateView(InstitutionAdminToolMixin, ValidationMessageFormMixin,
     """
     form_class = AccountForm
     success_url_name = 'account-list'
-    template_name = 'tool/manage/add_account.html'
+    template_name = 'tool/manage/account_create.html'
     valid_message = 'Account created.'
 
     def __init__(self, *args, **kwargs):
@@ -223,6 +223,7 @@ class AccountCreateView(InstitutionAdminToolMixin, ValidationMessageFormMixin,
     def get_context_data(self, **kwargs):
         context = super(AccountCreateView, self).get_context_data(**kwargs)
         context['notify_form'] = self.notify_form
+        context['tab_content_title'] = 'add a user'
         return context
 
     def dispatch(self, request, *args, **kwargs):
@@ -273,7 +274,7 @@ class AccountCreateView(InstitutionAdminToolMixin, ValidationMessageFormMixin,
 ##############################################################################
 
 @user_is_inst_admin
-def accounts(request, account_id=None, institution_slug=None):
+def accounts(request, account_id=None, institution_slug=None, pk=None):
     """
         Provides an interface to manage user accounts for an institution.
         Supply an optional StarsAccount id to provide an edit form for that account.
@@ -309,50 +310,7 @@ def accounts(request, account_id=None, institution_slug=None):
     return respond(request, 'tool/manage/accounts.html', context)
 
 @user_is_inst_admin
-def add_account(request):
-    """
-        Provides an interface to add user accounts to an institution.
-    """
-    current_inst = _get_current_institution(request)
-
-    (preferences, notify_form) = _update_preferences(request,
-                                                     current_inst)
-
-    if request.method == 'POST':
-        account_form = AccountForm(request.POST)
-        if account_form.is_valid():
-            # Get the AASHE account info for this email
-            user_email = account_form.cleaned_data['email']
-            user_level = account_form.cleaned_data['userlevel']
-            user_list = xml_rpc.get_user_by_email(user_email)
-            if not user_list:
-                messages.info(request,
-                              "There is no AASHE user with e-mail: %s. "
-                              "STARS Account pending user's registration "
-                              "at www.aashe.org" % user_email)
-                account = PendingAccount.update_account(
-                    request.user,
-                    preferences.notify_users,
-                    current_inst,
-                    user_level,
-                    user_email=user_email)
-            else:
-                user = xml_rpc.get_user_from_user_dict(user_list[0], None)
-                account = StarsAccount.update_account(
-                    request.user,
-                    preferences.notify_users,
-                    current_inst,
-                    user_level,
-                    user=user)
-            return HttpResponseRedirect(account.get_manage_url())
-    else:
-        account_form = AccountForm()
-
-    return respond(request, 'tool/manage/add_account.html',
-                   {'account_form': account_form, 'notify_form':notify_form,})
-
-@user_is_inst_admin
-def delete_account(request, account_id):
+def delete_account(request, account_id, institution_slug=None, pk=None):
     """
         Deletes a user account (user-institution relation)
     """
