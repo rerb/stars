@@ -51,11 +51,13 @@
     {% endblock %}
 
     <div class='tabContent'>
-        <h2>
-            {% block tab_content_title %}
-                {{ tab_content_title|title }}
-            {% endblock %}
-        </h2>
+        <p>
+            <h2>
+                {% block tab_content_title %}
+                    {{ tab_content_title|title }}
+                {% endblock %}
+            </h2>
+        </p>
         <div class='help_note'>
             {% block help_content %}
             {% endblock %}
