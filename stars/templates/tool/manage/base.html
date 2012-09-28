@@ -51,8 +51,14 @@
     {% endblock %}
 
     <div class='tabContent'>
+        <h2>
+            {% block tab_content_title %}
+                {{ tab_content_title|title }}
+            {% endblock %}
+        </h2>
         <div class='help_note'>
-            {% block help_content %}{% endblock %}
+            {% block help_content %}
+            {% endblock %}
         </div>
         {% block institution_content %}{% endblock %}
     </div>
