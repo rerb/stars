@@ -1,0 +1,10 @@
+{% for object in object_set %}
+    {% if forloop.revcounter0 %}
+    	<li>
+        	<a href='{{ object.get_submit_url }}'>{{ object }}</a>
+        	<span class="divider">/</span>
+        </li>
+    {% else %}
+        <li>{{ object }}</li>
+    {% endif %}
+{% endfor %}

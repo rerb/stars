@@ -1,0 +1,27 @@
+{% extends 'tool/manage/accounts.html' %}
+
+{% load bootstrap %}
+
+
+{% block institution_content %}
+    <h2>Add a User</h2>
+    <form method='post' action='.'>
+        {{ form|bootstrap }}
+        {{ notify_form.notify_users }}
+        <span class='help'>Notify user by e-mail of new STARS account.</span>
+        <div class='form-actions'>
+            <button
+                type='submit'
+                id='submit_button'
+                class='btn btn-primary'>
+                    Save
+            </button>
+            <button
+                type='button'
+                class='btn'
+                onclick="document.location='{% url account-list institution.slug %}'">
+                    Cancel
+            </button>
+        </div>
+    </form>
+{% endblock %}
