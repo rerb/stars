@@ -32,8 +32,6 @@ urlpatterns = patterns(
     url(r'^user/create/$', AccountCreateView.as_view(),
         name='account-create'),
 
-    (r'^users/old-add/$', 'add_account'),
-
     url(r'^user/edit/(?P<pk>\d+)/$', 'accounts',
         name='account-edit'),
     url(r'^user/delete/(?P<pk>\d+)/$', 'delete_account',
