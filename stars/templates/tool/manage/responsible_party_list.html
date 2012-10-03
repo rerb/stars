@@ -25,9 +25,18 @@
             <tbody>
             {% for rp in object_list %}
                 <tr class='{% cycle 'even' 'odd' %}'>
-                    <td><a href='{% url responsible-party-edit institution.slug rp.id %}'>{{ rp.first_name }} {{ rp.last_name }}</a></td>
+                    <td>{{ rp.first_name }} {{ rp.last_name }}</td>
                     <td>{{ rp.title }}</td>
                     <td><a href='mailto:{{ rp.email }}'>{{ rp.email }}</a></td>
+                    <td class='buttonColumn'>
+                        <a href='{% url responsible-party-edit institution.slug rp.id %}'>
+                            <i class='icon-pencil'></i>
+                        </a>
+                        <a href='{% url responsible-party-delete institution.slug rp.id %}'>
+                            <i class='icon-trash'></i>
+                        </a>
+
+                    </td>
                 </tr>
             {% endfor %}
             </tbody>
