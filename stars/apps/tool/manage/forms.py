@@ -156,6 +156,7 @@ class NotifyUsersForm(ModelForm):
         model = InstitutionPreferences
         fields = ['notify_users', ]
 
+
 class AccountForm(forms.Form):
     """
         A form used to add and edit a user account.

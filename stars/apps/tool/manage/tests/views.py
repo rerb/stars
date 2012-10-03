@@ -12,9 +12,9 @@ from django.test import TestCase
 from django.test.client import Client, RequestFactory
 import testfixtures
 
-from stars.test_factories import CreditUserSubmissionFactory, \
-     InstitutionFactory, ResponsiblePartyFactory, StarsAccountFactory, \
-     UserFactory
+from stars.test_factories import (CreditUserSubmissionFactory,
+     InstitutionFactory, PendingAccountFactory, ResponsiblePartyFactory,
+     StarsAccountFactory, UserFactory)
 from stars.apps.credits.models import CreditSet
 from stars.apps.institutions.models import Institution, PendingAccount, \
      StarsAccount, Subscription
@@ -70,32 +70,6 @@ class ViewsTest(TestCase):
             code=MockPaymentForm().cleaned_data['discount_code'],
             amount=100.00, start_date='1000-01-01', end_date='5000-01-01')
         value_discount.save()
-
-    def test_add_account_nonexistent_user(self):
-        """Does add_account show an error if a nonexistent user is specified?
-        """
-        self.request.method = 'POST'
-        with testfixtures.Replacer() as r:
-            r.replace(
-                'stars.apps.accounts.decorators._get_account_problem_response',
-                lambda x: False)
-            r.replace(
-                'stars.apps.tool.manage.views._get_current_institution',
-                lambda x: self.request.institution)
-            r.replace(
-                'stars.apps.tool.manage.views.AccountForm', MockAccountForm)
-            r.replace(
-                'stars.apps.tool.manage.views.xml_rpc.get_user_by_email',
-                lambda x : None)
-            _ = views.add_account(self.request)
-        response = render(self.request, 'base.html')
-        soup = BeautifulSoup(response.content)
-        info_message_divs = soup.find_all(
-            'div',
-            {'class': settings.MESSAGE_TAGS[messages.INFO]})
-        self.assertEqual(len(info_message_divs), 1)
-        self.assertTrue('no AASHE user with e-mail'
-                        in info_message_divs[0].text)
 
     def test_delete_account_pending_account_message(self):
         """Does delete_account display a msg if the account is pending?
@@ -654,6 +628,58 @@ class ResponsiblePartyDeleteViewTest(TestCase):
         self.assertTrue('cannot be removed' in info_message_divs[0].text)
 
 
+class AccountListViewTest(TestCase):
+
+    def setUp(self):
+        self.institution = InstitutionFactory()
+
+        self.accounts = list()
+        for i in xrange(4):
+            self.accounts.append(
+                StarsAccountFactory(institution=self.institution))
+
+        self.pending_accounts = list()
+        for account in self.accounts:
+            self.pending_accounts.append(
+                PendingAccountFactory(institution=self.institution))
+
+        self.request = RequestFactory()
+        self.request.user = self.accounts[0].user
+        self.request.user.current_inst = self.accounts[0].institution
+        self.request.method = 'GET'
+
+    def test_request_by_non_admin(self):
+        self.accounts[0].user_level = ''
+        self.accounts[0].save()
+        response = views.AccountListView.as_view()(
+            self.request,
+            institution_slug=self.institution.slug)
+        self.assertEqual(response.status_code, 403)
+
+    def test_request_by_admin(self):
+        self.accounts[0].user_level = 'admin'
+        self.accounts[0].save()
+        response = views.AccountListView.as_view()(
+            self.request,
+            institution_slug=self.institution.slug)
+        self.assertEqual(response.status_code, 200)
+
+    def test_lists_stars_and_pending_accounts(self):
+        """Are both StarsAccounts and PendingAccounts listed?"""
+        self.accounts[0].user_level = 'admin'
+        self.accounts[0].save()
+        _ = views.AccountListView.as_view()(
+            self.request,
+            institution_slug=self.institution.slug)
+        response = render(self.request, 'base.html')
+        soup = BeautifulSoup(response.content)
+        table = soup.find('table')
+        tbody = table.findChild('tbody')
+        rows = tbody.findChildren('tr')
+        self.assertEqual(len(rows),
+                         len(self.accounts) + len(self.pending_accounts))
+
+
 class AccountCreateViewTest(TestCase):
 
     def setUp(self):
@@ -731,6 +757,171 @@ class AccountCreateViewTest(TestCase):
         self.account.save()
         view = views.AccountCreateView()
         success_url = view.get_success_url(
+            institution_slug=self.institution.slug)
+        response = Client().get(success_url, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+    def test_notify_user(self):
+        """Is a user notified when his account is created?"""
+        raise NotImplemented()
+
+
+class AccountDeleteViewTest(TestCase):
+
+    def setUp(self):
+        self.institution = InstitutionFactory()
+
+        self.account = StarsAccountFactory(institution=self.institution)
+
+        self.request = _get_request_ready_for_messages()
+        self.request.user = self.account.user
+        self.request.method = 'GET'
+
+    def test_get_by_non_admin_is_blocked(self):
+        """Is a GET by a non-admin user blocked?"""
+        self.account.user_level = ''
+        self.account.save()
+        response = views.AccountDeleteView.as_view()(
+            self.request,
+            institution_slug=self.institution.slug,
+            pk=self.account.id)
+        self.assertEqual(response.status_code, 403)
+
+    def test_get_by_admin_succeeds(self):
+        """Does a GET by an admin user succeed?"""
+        self.account.user_level = 'admin'
+        self.account.save()
+        response = views.AccountDeleteView.as_view()(
+            self.request,
+            institution_slug=self.institution.slug,
+            pk=self.account.id)
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_success_url_is_loadable(self):
+        """Is the url returned by get_success_url() loadable?"""
+        self.account.user_level = 'admin'
+        self.account.save()
+        view = views.AccountDeleteView()
+        success_url = view.get_success_url(
+            institution_slug=self.institution.slug)
+        response = Client().get(success_url, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+    def test_delete_stars_account(self):
+        """Does deleting a stars account work?"""
+        self.account.user_level = 'admin'
+        self.account.save()
+        self.request.method = 'POST'
+        stars_account_count_before = StarsAccount.objects.count()
+        self.request.POST = {}
+        self.request.FILES = None
+        _ = views.AccountDeleteView.as_view()(
+            request=self.request,
+            institution_slug=self.institution.slug,
+            pk=self.account.id)
+        self.assertEqual(stars_account_count_before - 1,
+                         StarsAccount.objects.count())
+
+    def test_notify_user(self):
+        """Is a user notified when his account is deleted?"""
+        raise NotImplemented()
+
+
+class PendingAccountDeleteViewTest(TestCase):
+
+    def setUp(self):
+        self.institution = InstitutionFactory()
+
+        self.account = StarsAccountFactory(institution=self.institution)
+
+        self.pending_account = PendingAccountFactory(
+            institution=self.institution)
+
+        self.request = _get_request_ready_for_messages()
+        self.request.user = self.account.user
+        self.request.method = 'GET'
+
+    def test_get_by_non_admin_is_blocked(self):
+        """Is a GET by a non-admin user blocked?"""
+        self.account.user_level = ''
+        self.account.save()
+        response = views.PendingAccountDeleteView.as_view()(
+            self.request,
+            institution_slug=self.institution.slug,
+            pk=self.pending_account.id)
+        self.assertEqual(response.status_code, 403)
+
+    def test_get_by_admin_succeeds(self):
+        """Does a GET by an admin user succeed?"""
+        self.account.user_level = 'admin'
+        self.account.save()
+        response = views.PendingAccountDeleteView.as_view()(
+            self.request,
+            institution_slug=self.institution.slug,
+            pk=self.pending_account.id)
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_success_url_is_loadable(self):
+        """Is the url returned by get_success_url() loadable?"""
+        self.account.user_level = 'admin'
+        self.account.save()
+        view = views.PendingAccountDeleteView()
+        success_url = view.get_success_url(
+            institution_slug=self.institution.slug)
+        response = Client().get(success_url, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+    def test_delete_stars_account(self):
+        """Does deleting a pending account work?"""
+        self.account.user_level = 'admin'
+        self.account.save()
+        self.request.method = 'POST'
+        pending_account_count_before = PendingAccount.objects.count()
+        self.request.POST = {}
+        self.request.FILES = None
+        _ = views.PendingAccountDeleteView.as_view()(
+            request=self.request,
+            institution_slug=self.institution.slug,
+            pk=self.pending_account.id)
+        self.assertEqual(pending_account_count_before - 1,
+                         PendingAccount.objects.count())
+
+
+class AccountEditViewTest(TestCase):
+
+    def setUp(self):
+        self.institution = InstitutionFactory()
+
+        self.account = StarsAccountFactory(institution=self.institution)
+        self.account_to_edit = StarsAccountFactory(institution=self.institution)
+
+        self.request = RequestFactory()
+        self.request.user = self.account.user
+        self.request.method = 'GET'
+
+    def test_get_by_non_admin(self):
+        self.account.user_level = ''
+        self.account.save()
+        response = views.AccountEditView.as_view()(
+            self.request,
+            institution_slug=self.institution.slug,
+            pk=self.account.id)
+        self.assertEqual(response.status_code, 403)
+
+    def test_get_by_admin(self):
+        self.account.user_level = 'admin'
+        self.account.save()
+        response = views.AccountEditView.as_view()(
+            self.request,
+            institution_slug=self.institution.slug,
+            pk=self.account.id)
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_success_url_is_loadable(self):
+        """Is the url returned by get_success_url() loadable?"""
+        self.account.user_level = 'admin'
+        self.account.save()
+        success_url = views.AccountEditView().get_success_url(
             institution_slug=self.institution.slug)
         response = Client().get(success_url, follow=True)
         self.assertEqual(response.status_code, 200)

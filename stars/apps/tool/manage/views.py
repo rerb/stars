@@ -3,6 +3,7 @@ from logging import getLogger
 
 from django.conf import settings
 from django.contrib import messages
+from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect, Http404
 from django.core.exceptions import PermissionDenied
@@ -24,7 +25,7 @@ from stars.apps.helpers.forms import form_helpers
 
 from stars.apps.tool.manage.forms import AdminInstitutionForm, \
      ParticipantContactForm, RespondentContactForm, ResponsibleParty, \
-     ResponsiblePartyForm, EditAccountForm, DisabledAccountForm, \
+     ResponsiblePartyForm, DisabledAccountForm, \
      AccountForm, ThirdPartiesForm, InstitutionPreferences, \
      NotifyUsersForm, MigrateSubmissionSetForm, BoundaryForm
 
@@ -37,9 +38,10 @@ from stars.apps.notifications.models import EmailTemplate
 # new imports
 from stars.apps.tool.mixins import InstitutionAdminToolMixin
 from stars.apps.helpers.mixins import ValidationMessageFormMixin
+from stars.apps.helpers.queryset_sequence import QuerySetSequence
 
-from django.views.generic import CreateView, DeleteView, FormView, ListView, \
-     UpdateView
+from django.views.generic import (CreateView, DeleteView, FormView, ListView,
+                                  UpdateView)
 
 logger = getLogger('stars.request')
 
@@ -106,6 +108,12 @@ class ResponsiblePartyListView(InstitutionAdminToolMixin, ListView):
         current_inst = self.get_institution()
         return current_inst.responsibleparty_set.all()
 
+    def get_context_data(self, **kwargs):
+        context = super(ResponsiblePartyListView, self).get_context_data(
+            **kwargs)
+        context['tab_content_title'] = 'responsible parties'
+        return context
+
 
 class ResponsiblePartyEditView(InstitutionAdminToolMixin,
                                ValidationMessageFormMixin,
@@ -128,7 +136,8 @@ class ResponsiblePartyEditView(InstitutionAdminToolMixin,
         return context
 
 
-class ResponsiblePartyDeleteView(InstitutionAdminToolMixin, ValidationMessageFormMixin,
+class ResponsiblePartyDeleteView(InstitutionAdminToolMixin,
+                                 ValidationMessageFormMixin,
                                  DeleteView):
     """
        Deletes a responsible party if they aren't tied to any submissions.
@@ -147,7 +156,11 @@ class ResponsiblePartyDeleteView(InstitutionAdminToolMixin, ValidationMessageFor
             messages.error(self.request,
                            "This Responsible Party cannot be removed because "
                            "he/she is listed with one or more credits.")
-            return HttpResponseRedirect(responsible_party.get_manage_url())
+            return HttpResponseRedirect(
+                reverse(
+                    'responsible-party-list',
+                    kwargs={ 'institution_slug': self.get_institution().slug }))
+
         else:
             messages.info(self.request,
                           "Successfully Deleted Responsible Party: %s" %
@@ -185,6 +198,25 @@ class ResponsiblePartyCreateView(InstitutionAdminToolMixin,
         return super(ResponsiblePartyCreateView, self).form_valid(form)
 
 
+class AccountListView(InstitutionAdminToolMixin, ListView):
+    """
+        Displays a list of user accounts for an institution.
+    """
+    template_name = 'tool/manage/account_list.html'
+
+    def get_queryset(self):
+        institution = self.get_institution()
+        stars_accounts = StarsAccount.objects.filter(institution=institution)
+        pending_accounts = PendingAccount.objects.filter(institution=institution)
+        return QuerySetSequence(stars_accounts, pending_accounts).order_by(
+            'user.email')
+
+    def get_context_data(self, **kwargs):
+        context = super(AccountListView, self).get_context_data(**kwargs)
+        context['tab_content_title'] = 'users'
+        return context
+
+
 class AccountCreateView(InstitutionAdminToolMixin, ValidationMessageFormMixin,
                         FormView):
     """
@@ -195,12 +227,12 @@ class AccountCreateView(InstitutionAdminToolMixin, ValidationMessageFormMixin,
     """
     form_class = AccountForm
     success_url_name = 'account-list'
-    template_name = 'tool/manage/account_create.html'
+    template_name = 'tool/manage/account_detail.html'
     valid_message = 'Account created.'
 
     def __init__(self, *args, **kwargs):
         """
-            Declares new attributes, preferences and notify_form.
+            Declares new attributes; preferences and notify_form.
             Sure, this isn't necessary, but after they're declared
             here, they won't be a surprise when they're used later.
         """
@@ -224,6 +256,8 @@ class AccountCreateView(InstitutionAdminToolMixin, ValidationMessageFormMixin,
         context = super(AccountCreateView, self).get_context_data(**kwargs)
         context['notify_form'] = self.notify_form
         context['tab_content_title'] = 'add a user'
+        context['help_content_name'] = 'add_account'
+        context['creating_new_account'] = True
         return context
 
     def dispatch(self, request, *args, **kwargs):
@@ -266,6 +300,59 @@ class AccountCreateView(InstitutionAdminToolMixin, ValidationMessageFormMixin,
                 user_level,
                 user_email=user_email)
         return super(AccountCreateView, self).form_valid(form)
+
+
+class AccountEditView(AccountCreateView):
+    """
+        Provides an edit view for StarsAccount and PendingAccount objects.
+    """
+    valid_message = 'User updated.'
+    form_class = AccountForm
+
+    def get_context_data(self, **kwargs):
+        context = super(AccountEditView, self).get_context_data(
+            **kwargs)
+        context['tab_content_title'] = 'edit a user'
+        context['help_content_name'] = 'edit_account'
+        context['creating_new_account'] = False
+        return context
+
+    def get_initial(self):
+        try:
+            account = get_object_or_404(StarsAccount, id=self.kwargs['pk'])
+        except Http404:
+            account = get_object_or_404(PendingAccount, id=self.kwargs['pk'])
+        return { 'userlevel': account.user_level,
+                 'email': account.user.email }
+
+
+class AccountDeleteView(InstitutionAdminToolMixin,
+                        ValidationMessageFormMixin,
+                        DeleteView):
+    """
+       Deletes a StarsAccount.
+    """
+    model = StarsAccount
+    success_url_name = 'account-list'
+    template_name = 'tool/manage/account_confirm_delete.html'
+
+    def delete(self, request, *args, **kwargs):
+
+        (preferences, notify_form) = _update_preferences(request,
+                                                         self.get_institution())
+        logger.info("Account: %s deleted." % self.get_object(),
+                    extra={'request': request})
+        if preferences.notify_users:
+            self.get_object().notify(StarsAccount.DELETE_ACCOUNT, request.user,
+                                     self.get_institution())
+        return super(AccountDeleteView, self).delete(request, *args, **kwargs)
+
+
+class PendingAccountDeleteView(AccountDeleteView):
+    """
+        Deletes a PendingAccount.
+    """
+    model = PendingAccount
 
 
 ##############################################################################
