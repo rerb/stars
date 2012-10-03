@@ -158,22 +158,29 @@ class NotifyUsersForm(ModelForm):
 
 class AccountForm(forms.Form):
     """
-        A form used to identify, add, or edit a user account
-    """
+        A form used to add and edit a user account.
 
+        When editing an account, the email field is readonly.
+    """
     email = forms.EmailField(widget=widgets.TextInput(attrs={'size': 40,}))
-    userlevel = forms.CharField(label="Role", widget=widgets.Select(choices=STARS_USERLEVEL_CHOICES))
+    userlevel = forms.CharField(
+        label="Role",
+        widget=widgets.Select(choices=STARS_USERLEVEL_CHOICES))
 
-#    @staticmethod
-    def form_name():
-        return u"Administer User Form"
-    form_name = staticmethod(form_name)
+    def __init__(self, *args, **kwargs):
+        super(AccountForm, self).__init__(*args, **kwargs)
+        if 'email' in self.initial:
+            self.fields['email'].widget.attrs['readonly'] = True
 
-class EditAccountForm(AccountForm):
-    """
-        An account form intended for editing an existing account (email field is hidden)
-    """
-    email = forms.EmailField(widget=widgets.HiddenInput)
+    def clean_email(self):
+        """
+            Guards against nasty POSTs that try to change the email.
+        """
+        try:
+            return self.initial['email']
+        except KeyError:
+            return self.cleaned_data.get('email', None)
+
 
 class DisabledAccountForm(AccountForm):
     """
