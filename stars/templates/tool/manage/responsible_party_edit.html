@@ -32,7 +32,7 @@
               <button
                   type='button'
                   class='btn'
-                  onclick="document.location='{{ responsible_party.get_manage_url }}delete/';">
+                  onclick="document.location='{% url responsible-party-delete institution.slug responsible_party.id %}';">
 
                       Delete
               </button>

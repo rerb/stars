@@ -46,7 +46,7 @@
                     Yes! Delete!
                 </button>
                 <button type='button' class='btn'
-                    onclick="document.location='{{ object.get_manage_url }}';">
+                    onclick="document.location='{% url responsible-party-list institution.slug %}';">
                      No! Wait! Do <emphasis>NOT</emphasis> delete this
                      responsible party!
                </button>

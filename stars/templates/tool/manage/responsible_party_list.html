@@ -6,8 +6,6 @@
     {% with active_tab="rps" %}{{ block.super }}{% endwith %}
 {% endblock %}
 
-BOB
-
 {% block institution_content %}
     {% if not object_list %}
         <p>
@@ -27,7 +25,7 @@ BOB
             <tbody>
             {% for rp in object_list %}
                 <tr class='{% cycle 'even' 'odd' %}'>
-                    <td><a href='{{ rp.get_manage_url }}'>{{ rp.first_name }} {{ rp.last_name }}</a></td>
+                    <td><a href='{% url responsible-party-edit institution.slug rp.id %}'>{{ rp.first_name }} {{ rp.last_name }}</a></td>
                     <td>{{ rp.title }}</td>
                     <td><a href='mailto:{{ rp.email }}'>{{ rp.email }}</a></td>
                 </tr>
