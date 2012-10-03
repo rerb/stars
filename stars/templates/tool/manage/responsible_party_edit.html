@@ -24,19 +24,6 @@
                 onclick="document.location='{% url responsible-party-list institution.slug %}'">
                     Cancel
             </button>
-            {% if responsible_party %}
-              {% comment %}
-                if there's a responsible_party available, show a button
-                to delete it.
-              {% endcomment %}
-              <button
-                  type='button'
-                  class='btn'
-                  onclick="document.location='{% url responsible-party-delete institution.slug responsible_party.id %}';">
-
-                      Delete
-              </button>
-            {% endif %}
         </div>
     </form>
 
