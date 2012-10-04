@@ -47,12 +47,21 @@ urlpatterns = patterns(
         PendingAccountDeleteView.as_view(),
         name='pending-account-delete'),
 
-    (r'^share-data/$', 'share_data'),
+    url(r'^share-data/$', 'share_data',
+        name='share-data'),
 
-    (r'^migrate/$', 'migrate_options'),
-    (r'^migrate/data/(?P<ss_id>\d+)/$', 'migrate_data'),
-    (r'^migrate/version/$', 'migrate_version'),
+    url(r'^migrate/$', 'migrate_options',
+        name='migrate-options'),
 
-    (r'^purchase-subscription/', 'purchase_subscription'),
-    (r'^pay-subscription/(?P<subscription_id>\d+)/$', 'pay_subscription'),
+    url(r'^migrate/data/(?P<ss_id>\d+)/$', 'migrate_data',
+        name='migrate-data'),
+
+    url(r'^migrate/version/$', 'migrate_version',
+        name='migrate-version'),
+
+    url(r'^purchase-subscription/', 'purchase_subscription',
+        name='purchase-subscription'),
+
+    url(r'^pay-subscription/(?P<subscription_id>\d+)/$', 'pay_subscription',
+        name='pay-subscription'),
 )
