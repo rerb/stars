@@ -71,30 +71,6 @@ class ViewsTest(TestCase):
             amount=100.00, start_date='1000-01-01', end_date='5000-01-01')
         value_discount.save()
 
-    def test_delete_account_pending_account_message(self):
-        """Does delete_account display a msg if the account is pending?
-        """
-        pending_account = PendingAccount()
-        pending_account.id = -999
-        pending_account.institution = self.request.institution
-        pending_account.save()
-        with testfixtures.Replacer() as r:
-            r.replace(
-                'stars.apps.accounts.decorators._get_account_problem_response',
-                lambda x: False)
-            r.replace(
-                'stars.apps.tool.manage.views._get_current_institution',
-                lambda x: self.request.institution)
-            _ = views.delete_account(request=self.request, account_id=-999)
-        response = render(self.request, 'base.html')
-        soup = BeautifulSoup(response.content)
-        success_message_divs = soup.find_all(
-            'div',
-            {'class': settings.MESSAGE_TAGS[messages.SUCCESS]})
-        self.assertEqual(len(success_message_divs), 1)
-        self.assertTrue('ending account:' and 'successfully deleted' in
-                        success_message_divs[0].text)
-
     def test_migrate_data_migration_started_message(self):
         """Does migrate_data show a message when a migration starts?
         """
@@ -325,147 +301,88 @@ class MockPaymentForm(object):
         return True
 
 
-class InstitutionPaymentsViewTest(TestCase):
+class _InstitutionAdminToolMixinTest(TestCase):
+    """
+        Provides a base TestCase that checks if a view;
+
+            1. is non GET-able by non-admin users;
+
+            2. is GET-able by admin users, and;
+
+            3. returns a loadable (by an admin) success_url.
+    """
+
+    view_class = None  # Must be set in subclass.
 
     def setUp(self):
         self.institution = InstitutionFactory()
 
         self.account = StarsAccountFactory(institution=self.institution)
-
-        self.request = RequestFactory()
-        self.request.user = self.account.user
-        self.request.user.current_inst = self.account.institution
-        self.request.method = 'GET'
-
-    def test_request_by_non_admin(self):
-        self.account.user_level = ''
-        self.account.save()
-        response = views.InstitutionPaymentsView.as_view()(
-            self.request,
-            institution_slug=self.institution.slug)
-        self.assertEqual(response.status_code, 403)
-
-    def test_request_by_admin(self):
-        self.account.user_level = 'admin'
-        self.account.save()
-        response = views.InstitutionPaymentsView.as_view()(
-            self.request,
-            institution_slug=self.institution.slug)
-        self.assertEqual(response.status_code, 200)
-
-
-class ResponsiblePartyListViewTest(TestCase):
-
-    def setUp(self):
-        self.institution = InstitutionFactory()
-
-        self.account = StarsAccountFactory(institution=self.institution)
-
-        for i in xrange(4):
-            _ = ResponsiblePartyFactory(institution=self.institution)
-
-        self.request = RequestFactory()
-        self.request.user = self.account.user
-        self.request.user.current_inst = self.account.institution
-        self.request.method = 'GET'
-
-    def test_request_by_non_admin(self):
-        self.account.user_level = ''
-        self.account.save()
-        response = views.ResponsiblePartyListView.as_view()(
-            self.request,
-            institution_slug=self.institution.slug)
-        self.assertEqual(response.status_code, 403)
-
-    def test_request_by_admin(self):
-        self.account.user_level = 'admin'
-        self.account.save()
-        response = views.ResponsiblePartyListView.as_view()(
-            self.request,
-            institution_slug=self.institution.slug)
-        self.assertEqual(response.status_code, 200)
-
-
-class ResponsiblePartyEditViewTest(TestCase):
-
-    def setUp(self):
-        self.institution = InstitutionFactory()
-
-        self.account = StarsAccountFactory(institution=self.institution)
-
-        self.responsible_party = ResponsiblePartyFactory(
-            institution=self.institution)
-
-        self.request = RequestFactory()
-        self.request.user = self.account.user
-        self.request.method = 'GET'
-
-    def test_get_by_non_admin(self):
-        self.account.user_level = ''
-        self.account.save()
-        response = views.ResponsiblePartyEditView.as_view()(
-            self.request,
-            institution_slug=self.institution.slug,
-            pk=self.responsible_party.id)
-        self.assertEqual(response.status_code, 403)
-
-    def test_get_by_admin(self):
-        self.account.user_level = 'admin'
-        self.account.save()
-        response = views.ResponsiblePartyEditView.as_view()(
-            self.request,
-            institution_slug=self.institution.slug,
-            pk=self.responsible_party.id)
-        self.assertEqual(response.status_code, 200)
-
-    def test_get_success_url_is_loadable(self):
-        """Is the url returned by get_success_url() loadable?"""
-        self.account.user_level = 'admin'
-        self.account.save()
-        success_url = views.ResponsiblePartyEditView().get_success_url(
-            institution_slug=self.institution.slug)
-        response = Client().get(success_url, follow=True)
-        self.assertEqual(response.status_code, 200)
-
-
-class ResponsiblePartyCreateViewTest(TestCase):
-
-    def setUp(self):
-        self.institution = InstitutionFactory()
-
-        self.account = StarsAccountFactory(institution=self.institution)
+        self.account_to_edit = StarsAccountFactory(institution=self.institution)
 
         self.request = _get_request_ready_for_messages()
         self.request.user = self.account.user
         self.request.method = 'GET'
 
-    def test_get_by_non_admin_is_blocked(self):
-        """Is a GET by a non-admin user blocked?"""
+    def _get_pk(self):
+        """
+            Provides the value for the kwarg named 'pk' that's
+            passed to the view's on_view() product.  Subclasses
+            might need to override this, if, for instance, the
+            view under test expects the id of a ResponsibleParty
+            as the value of the pk kwarg.
+        """
+        return self.account.id
+
+    def test_get_by_non_admin(self):
         self.account.user_level = ''
         self.account.save()
-        response = views.ResponsiblePartyCreateView.as_view()(
+        response = self.view_class.as_view()(
             self.request,
-            institution_slug=self.institution.slug)
+            institution_slug=self.institution.slug,
+            pk=self._get_pk())
         self.assertEqual(response.status_code, 403)
 
-    def test_get_by_admin_succeeds(self):
-        """Does a GET by an admin user succeed?"""
+    def test_get_by_admin(self):
         self.account.user_level = 'admin'
         self.account.save()
-        response = views.ResponsiblePartyCreateView.as_view()(
+        response = self.view_class.as_view()(
             self.request,
-            institution_slug=self.institution.slug)
+            institution_slug=self.institution.slug,
+            pk=self._get_pk())
         self.assertEqual(response.status_code, 200)
 
     def test_get_success_url_is_loadable(self):
         """Is the url returned by get_success_url() loadable?"""
         self.account.user_level = 'admin'
         self.account.save()
-        view = views.ResponsiblePartyCreateView()
+        view = self.view_class()
+        # Hack a request object onto the view, since it'll be
+        # referenced if no success_url or success_url_name is specified
+        # in the view:
+        view.request = RequestFactory()
+        # Now set request.path to a sentinel value we can watch for:
+        view.request.path = 'SENTINEL'
         success_url = view.get_success_url(
             institution_slug=self.institution.slug)
-        response = Client().get(success_url, follow=True)
-        self.assertEqual(response.status_code, 200)
+        if success_url is not 'SENTINEL':
+            response = Client().get(success_url, follow=True)
+            self.assertEqual(response.status_code, 200)
+
+
+class InstitutionPaymentsViewTest(_InstitutionAdminToolMixinTest):
+
+    view_class = views.InstitutionPaymentsView
+
+
+class ResponsiblePartyListViewTest(_InstitutionAdminToolMixinTest):
+
+    view_class = views.ResponsiblePartyListView
+
+
+class ResponsiblePartyCreateViewTest(_InstitutionAdminToolMixinTest):
+
+    view_class = views.ResponsiblePartyCreateView
 
     def test_post_creates_a_responsible_party(self):
         """Does a POST by an admin create a responsible party?"""
@@ -512,49 +429,30 @@ class ResponsiblePartyCreateViewTest(TestCase):
                          ResponsibleParty.objects.count())
 
 
-class ResponsiblePartyDeleteViewTest(TestCase):
+class ResponsiblePartyEditViewTest(_InstitutionAdminToolMixinTest):
+
+    view_class = views.ResponsiblePartyEditView
 
     def setUp(self):
-        self.institution = InstitutionFactory()
-
-        self.account = StarsAccountFactory(institution=self.institution)
-
+        super(ResponsiblePartyEditViewTest, self).setUp()
         self.responsible_party = ResponsiblePartyFactory(
             institution=self.institution)
 
-        self.request = _get_request_ready_for_messages()
-        self.request.user = self.account.user
-        self.request.method = 'GET'
+    def _get_pk(self):
+        return self.responsible_party.id
 
-    def test_get_by_non_admin_is_blocked(self):
-        """Is a GET by a non-admin user blocked?"""
-        self.account.user_level = ''
-        self.account.save()
-        response = views.ResponsiblePartyDeleteView.as_view()(
-            self.request,
-            institution_slug=self.institution.slug,
-            pk=self.responsible_party.id)
-        self.assertEqual(response.status_code, 403)
 
-    def test_get_by_admin_succeeds(self):
-        """Does a GET by an admin user succeed?"""
-        self.account.user_level = 'admin'
-        self.account.save()
-        response = views.ResponsiblePartyDeleteView.as_view()(
-            self.request,
-            institution_slug=self.institution.slug,
-            pk=self.responsible_party.id)
-        self.assertEqual(response.status_code, 200)
+class ResponsiblePartyDeleteViewTest(_InstitutionAdminToolMixinTest):
 
-    def test_get_success_url_is_loadable(self):
-        """Is the url returned by get_success_url() loadable?"""
-        self.account.user_level = 'admin'
-        self.account.save()
-        view = views.ResponsiblePartyDeleteView()
-        success_url = view.get_success_url(
-            institution_slug=self.institution.slug)
-        response = Client().get(success_url, follow=True)
-        self.assertEqual(response.status_code, 200)
+    view_class = views.ResponsiblePartyDeleteView
+
+    def setUp(self):
+        super(ResponsiblePartyDeleteViewTest, self).setUp()
+        self.responsible_party = ResponsiblePartyFactory(
+            institution=self.institution)
+
+    def _get_pk(self):
+        return self.responsible_party.id
 
     def test_delete_responsible_party_listed_with_no_credits(self):
         """Does delete for a resp. party listed with no credits succeed?"""
@@ -628,46 +526,24 @@ class ResponsiblePartyDeleteViewTest(TestCase):
         self.assertTrue('cannot be removed' in info_message_divs[0].text)
 
 
-class AccountListViewTest(TestCase):
+class AccountListViewTest(_InstitutionAdminToolMixinTest):
 
-    def setUp(self):
-        self.institution = InstitutionFactory()
-
-        self.accounts = list()
-        for i in xrange(4):
-            self.accounts.append(
-                StarsAccountFactory(institution=self.institution))
-
-        self.pending_accounts = list()
-        for account in self.accounts:
-            self.pending_accounts.append(
-                PendingAccountFactory(institution=self.institution))
-
-        self.request = RequestFactory()
-        self.request.user = self.accounts[0].user
-        self.request.user.current_inst = self.accounts[0].institution
-        self.request.method = 'GET'
-
-    def test_request_by_non_admin(self):
-        self.accounts[0].user_level = ''
-        self.accounts[0].save()
-        response = views.AccountListView.as_view()(
-            self.request,
-            institution_slug=self.institution.slug)
-        self.assertEqual(response.status_code, 403)
-
-    def test_request_by_admin(self):
-        self.accounts[0].user_level = 'admin'
-        self.accounts[0].save()
-        response = views.AccountListView.as_view()(
-            self.request,
-            institution_slug=self.institution.slug)
-        self.assertEqual(response.status_code, 200)
+    view_class = views.AccountListView
 
     def test_lists_stars_and_pending_accounts(self):
         """Are both StarsAccounts and PendingAccounts listed?"""
-        self.accounts[0].user_level = 'admin'
-        self.accounts[0].save()
+        self.account.user_level = 'admin'
+        self.account.save()
+
+        accounts = list()
+        for i in xrange(4):
+            accounts.append(StarsAccountFactory(institution=self.institution))
+
+        pending_accounts = list()
+        for account in accounts:
+            pending_accounts.append(
+                PendingAccountFactory(institution=self.institution))
+
         _ = views.AccountListView.as_view()(
             self.request,
             institution_slug=self.institution.slug)
@@ -676,41 +552,12 @@ class AccountListViewTest(TestCase):
         table = soup.find('table')
         tbody = table.findChild('tbody')
         rows = tbody.findChildren('tr')
-        self.assertEqual(len(rows),
-                         len(self.accounts) + len(self.pending_accounts))
+        self.assertEqual(len(rows), len(accounts) + len(pending_accounts))
 
 
-class AccountCreateViewTest(TestCase):
+class AccountCreateViewTest(_InstitutionAdminToolMixinTest):
 
-    def setUp(self):
-        self.institution = InstitutionFactory()
-
-        self.account = StarsAccountFactory(institution=self.institution)
-
-        self.responsible_party = ResponsiblePartyFactory(
-            institution=self.institution)
-
-        self.request = _get_request_ready_for_messages()
-        self.request.user = self.account.user
-        self.request.method = 'GET'
-
-    def test_get_by_non_admin_is_blocked(self):
-        """Is a GET by a non-admin user blocked?"""
-        self.account.user_level = ''
-        self.account.save()
-        response = views.AccountCreateView.as_view()(
-            request=self.request,
-            institution_slug=self.institution.slug)
-        self.assertEqual(response.status_code, 403)
-
-    def test_get_by_admin_succeeds(self):
-        """Does a GET by an admin user succeed?"""
-        self.account.user_level = 'admin'
-        self.account.save()
-        response = views.AccountCreateView.as_view()(
-            request=self.request,
-            institution_slug=self.institution.slug)
-        self.assertEqual(response.status_code, 200)
+    view_class = views.AccountCreateView
 
     def test_form_valid_no_aashe_user_account_creates_pendingaccount(self):
         """Does form_valid() create a PendingAccount if no ASSHE account exists?
@@ -751,61 +598,19 @@ class AccountCreateViewTest(TestCase):
         self.assertEqual(stars_account_count_before + 1,
                          StarsAccount.objects.count())
 
-    def test_get_success_url_is_loadable(self):
-        """Is the url returned by get_success_url() loadable?"""
-        self.account.user_level = 'admin'
-        self.account.save()
-        view = views.AccountCreateView()
-        success_url = view.get_success_url(
-            institution_slug=self.institution.slug)
-        response = Client().get(success_url, follow=True)
-        self.assertEqual(response.status_code, 200)
-
     def test_notify_user(self):
         """Is a user notified when his account is created?"""
         raise NotImplemented()
 
 
-class AccountDeleteViewTest(TestCase):
+class AccountEditViewTest(_InstitutionAdminToolMixinTest):
 
-    def setUp(self):
-        self.institution = InstitutionFactory()
+    view_class = views.AccountEditView
 
-        self.account = StarsAccountFactory(institution=self.institution)
 
-        self.request = _get_request_ready_for_messages()
-        self.request.user = self.account.user
-        self.request.method = 'GET'
+class AccountDeleteViewTest(_InstitutionAdminToolMixinTest):
 
-    def test_get_by_non_admin_is_blocked(self):
-        """Is a GET by a non-admin user blocked?"""
-        self.account.user_level = ''
-        self.account.save()
-        response = views.AccountDeleteView.as_view()(
-            self.request,
-            institution_slug=self.institution.slug,
-            pk=self.account.id)
-        self.assertEqual(response.status_code, 403)
-
-    def test_get_by_admin_succeeds(self):
-        """Does a GET by an admin user succeed?"""
-        self.account.user_level = 'admin'
-        self.account.save()
-        response = views.AccountDeleteView.as_view()(
-            self.request,
-            institution_slug=self.institution.slug,
-            pk=self.account.id)
-        self.assertEqual(response.status_code, 200)
-
-    def test_get_success_url_is_loadable(self):
-        """Is the url returned by get_success_url() loadable?"""
-        self.account.user_level = 'admin'
-        self.account.save()
-        view = views.AccountDeleteView()
-        success_url = view.get_success_url(
-            institution_slug=self.institution.slug)
-        response = Client().get(success_url, follow=True)
-        self.assertEqual(response.status_code, 200)
+    view_class = views.AccountDeleteView
 
     def test_delete_stars_account(self):
         """Does deleting a stars account work?"""
@@ -827,49 +632,17 @@ class AccountDeleteViewTest(TestCase):
         raise NotImplemented()
 
 
-class PendingAccountDeleteViewTest(TestCase):
+class PendingAccountDeleteViewTest(_InstitutionAdminToolMixinTest):
+
+    view_class = views.PendingAccountDeleteView
 
     def setUp(self):
-        self.institution = InstitutionFactory()
-
-        self.account = StarsAccountFactory(institution=self.institution)
-
+        super(PendingAccountDeleteViewTest, self).setUp()
         self.pending_account = PendingAccountFactory(
             institution=self.institution)
 
-        self.request = _get_request_ready_for_messages()
-        self.request.user = self.account.user
-        self.request.method = 'GET'
-
-    def test_get_by_non_admin_is_blocked(self):
-        """Is a GET by a non-admin user blocked?"""
-        self.account.user_level = ''
-        self.account.save()
-        response = views.PendingAccountDeleteView.as_view()(
-            self.request,
-            institution_slug=self.institution.slug,
-            pk=self.pending_account.id)
-        self.assertEqual(response.status_code, 403)
-
-    def test_get_by_admin_succeeds(self):
-        """Does a GET by an admin user succeed?"""
-        self.account.user_level = 'admin'
-        self.account.save()
-        response = views.PendingAccountDeleteView.as_view()(
-            self.request,
-            institution_slug=self.institution.slug,
-            pk=self.pending_account.id)
-        self.assertEqual(response.status_code, 200)
-
-    def test_get_success_url_is_loadable(self):
-        """Is the url returned by get_success_url() loadable?"""
-        self.account.user_level = 'admin'
-        self.account.save()
-        view = views.PendingAccountDeleteView()
-        success_url = view.get_success_url(
-            institution_slug=self.institution.slug)
-        response = Client().get(success_url, follow=True)
-        self.assertEqual(response.status_code, 200)
+    def _get_pk(self):
+        return self.pending_account.id
 
     def test_delete_stars_account(self):
         """Does deleting a pending account work?"""
@@ -887,41 +660,6 @@ class PendingAccountDeleteViewTest(TestCase):
                          PendingAccount.objects.count())
 
 
-class AccountEditViewTest(TestCase):
+class ShareDataViewTest(_InstitutionAdminToolMixinTest):
 
-    def setUp(self):
-        self.institution = InstitutionFactory()
-
-        self.account = StarsAccountFactory(institution=self.institution)
-        self.account_to_edit = StarsAccountFactory(institution=self.institution)
-
-        self.request = RequestFactory()
-        self.request.user = self.account.user
-        self.request.method = 'GET'
-
-    def test_get_by_non_admin(self):
-        self.account.user_level = ''
-        self.account.save()
-        response = views.AccountEditView.as_view()(
-            self.request,
-            institution_slug=self.institution.slug,
-            pk=self.account.id)
-        self.assertEqual(response.status_code, 403)
-
-    def test_get_by_admin(self):
-        self.account.user_level = 'admin'
-        self.account.save()
-        response = views.AccountEditView.as_view()(
-            self.request,
-            institution_slug=self.institution.slug,
-            pk=self.account.id)
-        self.assertEqual(response.status_code, 200)
-
-    def test_get_success_url_is_loadable(self):
-        """Is the url returned by get_success_url() loadable?"""
-        self.account.user_level = 'admin'
-        self.account.save()
-        success_url = views.AccountEditView().get_success_url(
-            institution_slug=self.institution.slug)
-        response = Client().get(success_url, follow=True)
-        self.assertEqual(response.status_code, 200)
+    view_class = views.ShareDataView
