@@ -17,6 +17,8 @@ class ToolMixin(StarsAccountMixin, RulesMixin):
                                 self.kwargs['institution_slug'])
             return reverse(self.success_url_name,
                            kwargs={'institution_slug': institution_slug})
+        elif getattr(self, 'success_url', False):
+            return self.success_url
         else:
             return self.request.path
 
