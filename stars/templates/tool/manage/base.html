@@ -26,7 +26,7 @@
             </a>
         </li>
         <li{% if active_tab == 'contact' %} class="active" {% endif %}>
-            <a href="/tool/{{ user.current_inst.slug }}/manage/contact">
+            <a href="{% url institution-contact user.current_inst.slug %}">
               Contact
             </a>
         </li>
@@ -41,10 +41,10 @@
             </a>
         </li>
         <li{% if active_tab == 'share' %} class="active" {% endif %}>
-            <a href='/tool/manage/share-data/'>Share Data</a>
+            <a href="{% url share-data user.current_inst.slug %}">Share Data</a>
         </li>
         <li{% if active_tab == 'migrate' %} class="active" {% endif %}>
-            <a href='/tool/manage/migrate/'>Migrate</a>
+            <a href="{% url migrate-options user.current_inst.slug %}">Migrate</a>
         </li>
         {% endtestrule %}
     </ul>
