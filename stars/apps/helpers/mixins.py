@@ -5,7 +5,7 @@ class ValidationMessageFormMixin(object):
     """
         A custom mixin to add a message upon form validation.
     """
-    valid_message = "Changes saved successfully."
+    valid_message = "Changes saved."
     invalid_message = "Please correct the errors below."
 
     def get_valid_message(self):
