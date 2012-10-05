@@ -23,11 +23,11 @@ from stars.apps.submissions.rules import user_can_migrate_version, \
 from stars.apps.third_parties.models import ThirdParty
 from stars.apps.helpers.forms import form_helpers
 
-from stars.apps.tool.manage.forms import AdminInstitutionForm, \
-     ParticipantContactForm, RespondentContactForm, ResponsibleParty, \
-     ResponsiblePartyForm, DisabledAccountForm, \
-     AccountForm, ThirdPartiesForm, InstitutionPreferences, \
-     NotifyUsersForm, MigrateSubmissionSetForm, BoundaryForm
+from stars.apps.tool.manage.forms import (AdminInstitutionForm,
+     ParticipantContactForm, RespondentContactForm, ResponsibleParty,
+     ResponsiblePartyForm, DisabledAccountForm,
+     AccountForm, ThirdPartiesForm, InstitutionPreferences,
+     NotifyUsersForm, MigrateSubmissionSetForm, BoundaryForm)
 
 from stars.apps.registration.forms import PaymentForm, PayLaterForm
 from stars.apps.registration.views import process_payment, get_payment_dict, \
@@ -41,7 +41,7 @@ from stars.apps.helpers.mixins import ValidationMessageFormMixin
 from stars.apps.helpers.queryset_sequence import QuerySetSequence
 
 from django.views.generic import (CreateView, DeleteView, FormView, ListView,
-                                  UpdateView)
+                                  TemplateView, UpdateView)
 
 logger = getLogger('stars.request')
 
@@ -355,7 +355,6 @@ class PendingAccountDeleteView(AccountDeleteView):
     model = PendingAccount
 
 
-
 class ShareDataView(InstitutionAdminToolMixin,
                     ValidationMessageFormMixin,
                     FormView):
@@ -374,6 +373,31 @@ class ShareDataView(InstitutionAdminToolMixin,
             self.get_institution())
         return context
 
+
+class MigrateOptionsView(InstitutionAdminToolMixin, TemplateView):
+    """
+        Provides a user with migration options (i.e., migrate some data or
+        migrate a submission).
+    """
+    template_name = 'tool/manage/migrate_submissionset.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(MigrateOptionsView, self).get_context_data(**kwargs)
+        context['active_submission'] = self.get_institution().current_submission
+        context['latest_creditset'] = CreditSet.objects.get_latest()
+        context['available_submission_list'] = self._get_available_submissions(
+            institution=self.get_institution())
+        return context
+
+    @classmethod
+    def _get_available_submissions(cls, institution):
+        submissions = institution.submissionset_set.filter(status='r')
+        if institution.is_participant:
+            submissions = (submissions |
+                           institution.submissionset_set.filter(status='f'))
+        return submissions
+
+
 ##############################################################################
 ##############################################################################
 ##############################################################################
@@ -391,27 +415,6 @@ def _update_preferences(request, institution):
     (notify_form,saved) = form_helpers.basic_save_form(
         request, preferences, '', NotifyUsersForm, show_message=False)
     return (preferences, notify_form)
-
-def migrate_options(request, institution_slug=None):
-    """
-        Provides a tool to migrate a submission set
-    """
-    current_inst = _get_current_institution(request)
-    current_submission = current_inst.current_submission
-    latest_creditset = CreditSet.objects.get_latest()
-
-    if current_inst.is_participant:
-        available_submission_list = current_inst.submissionset_set.filter(status='r') | current_inst.submissionset_set.filter(status='f')
-    else:
-        available_submission_list = current_inst.submissionset_set.filter(status='r')
-
-    template = 'tool/manage/migrate_submissionset.html'
-    context = {
-        "active_submission": current_submission,
-        "latest_creditset": latest_creditset,
-        "available_submission_list": available_submission_list,
-    }
-    return respond(request, template, context)
 
 def migrate_data(request, ss_id):
     """

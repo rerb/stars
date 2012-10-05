@@ -14,7 +14,7 @@ import testfixtures
 
 from stars.test_factories import (CreditUserSubmissionFactory,
      InstitutionFactory, PendingAccountFactory, ResponsiblePartyFactory,
-     StarsAccountFactory, UserFactory)
+     SubmissionSetFactory, StarsAccountFactory, UserFactory)
 from stars.apps.credits.models import CreditSet
 from stars.apps.institutions.models import Institution, PendingAccount, \
      StarsAccount, Subscription
@@ -663,3 +663,37 @@ class PendingAccountDeleteViewTest(_InstitutionAdminToolMixinTest):
 class ShareDataViewTest(_InstitutionAdminToolMixinTest):
 
     view_class = views.ShareDataView
+
+
+class MigrateOptionsViewTest(_InstitutionAdminToolMixinTest):
+
+    view_class = views.MigrateOptionsView
+
+    def setUp(self):
+        super(MigrateOptionsViewTest, self).setUp()
+        self.request.user.user_level = 'admin'
+        self.r_status_submissionsets = list()
+        self.f_status_submissionsets = list()
+        for _ in xrange(2):
+            self.r_status_submissionsets.append(SubmissionSetFactory(
+                institution=self.institution, status='r'))
+        for _ in xrange(2):
+            self.f_status_submissionsets.append(SubmissionSetFactory(
+                institution=self.institution, status='f'))
+
+    def test__get_available_submissions_not_participant(self):
+        self.institution.is_participant = False
+        view = views.MigrateOptionsView
+        available_submissions = view._get_available_submissions(
+            institution=self.institution)
+        self.assertEqual(len(available_submissions),
+                         len(self.r_status_submissionsets))
+
+    def test__get_available_submissions_is_participant(self):
+        self.institution.is_participant = True
+        view = views.MigrateOptionsView
+        available_submissions = view._get_available_submissions(
+            institution=self.institution)
+        self.assertEqual(len(available_submissions),
+                         len(self.r_status_submissionsets) +
+                         len(self.f_status_submissionsets))
