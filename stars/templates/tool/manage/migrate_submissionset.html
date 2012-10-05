@@ -24,9 +24,9 @@
 		<div class='span4'>
 			<h3>Version Migration</h3>
 			<p>Migrate Submission to <strong>{{ latest_creditset }}</strong>.</p>
-			{% if active_submission.creditset != latest_creditset %} 
+			{% if active_submission.creditset != latest_creditset %}
 				{% testrule user_can_migrate_version user user.current_inst %}
-					<a href="/tool/manage/migrate/version/" class='btn btn-primary'>Migrate Now</a>
+					<a href="{% url migrate-data institution.slug active_submission.id %}" class='btn btn-primary'>Migrate Now</a>
 				{% else %}
 					<div class="alert">Sorry, you do not have permission to migrate versions. Please contact your STARS liaison to get admin privileges.</div>
 				{% endtestrule %}
@@ -69,7 +69,7 @@
 									{% endif %}{% endif %}
 								</td>
 								<td>
-									<a href='/tool/manage/migrate/data/{{ sub.id }}/' class='btn btn-mini'>
+									<a href="{% url migrate-data institution.slug sub.id %}" class='btn btn-mini'>
 										<i class='icon-share-alt'></i >Migrate</a>
 									</a>
 								</td>
