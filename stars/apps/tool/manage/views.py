@@ -398,6 +398,51 @@ class MigrateOptionsView(InstitutionAdminToolMixin, TemplateView):
         return submissions
 
 
+class MigrateDataView(InstitutionAdminToolMixin,
+                      ValidationMessageFormMixin,
+                      UpdateView):
+
+    form_class = MigrateSubmissionSetForm
+    model = SubmissionSet
+    success_url = '/tool/'
+    template_name = 'tool/manage/migrate_data.html'
+
+    def _get_old_submission(self):
+        return get_object_or_404(
+            self.get_institution().submissionset_set.all(),
+            id=self.kwargs['pk'])
+
+    logical_rules = (InstitutionAdminToolMixin.logical_rules +
+                     [{'name': 'user_can_migrate_from_submission',
+                       'param_callbacks': [('user', 'get_request_user'),
+                                           ('submission',
+                                            '_get_old_submission')]}])
+
+    def get_context_data(self, **kwargs):
+        context = super(MigrateDataView, self).get_context_data(**kwargs)
+        context['active_submission'] = self.get_institution().current_submission
+        context['old_submission'] = self._get_old_submission()
+        return context
+
+    def form_valid(self, form):
+        # if user hasn't checked the magic box:
+        if not form.cleaned_data['is_locked']:
+            messages.warning(self.request,
+                             "Before the migration can begin, you need to "
+                             "confirm your intention by checking that little "
+                             "check box down there above the Migrate My Data "
+                             "button.")
+            return HttpResponseRedirect(self.request.path)
+
+        # otherwise, start a migration task
+        messages.warning(self.request,
+                      "Your migration is in progress. Please allow a "
+                      "few minutes before you can access your submission.")
+        perform_data_migration.delay(self._get_old_submission(),
+                                     self.request.user)
+        return super(MigrateDataView, self).form_valid(form)
+
+
 ##############################################################################
 ##############################################################################
 ##############################################################################
@@ -415,36 +460,6 @@ def _update_preferences(request, institution):
     (notify_form,saved) = form_helpers.basic_save_form(
         request, preferences, '', NotifyUsersForm, show_message=False)
     return (preferences, notify_form)
-
-def migrate_data(request, ss_id):
-    """
-        Provides a tool to migrate a submission set
-    """
-    current_inst = _get_current_institution(request)
-    current_submission = current_inst.current_submission
-    old_submission = get_object_or_404(current_inst.submissionset_set.all(), id=ss_id)
-
-    if not user_can_migrate_from_submission(request.user, old_submission):
-        raise PermissionDenied("Sorry, but you don't have permission to migrate data.")
-
-    ObjectForm = MigrateSubmissionSetForm
-
-    object_form, saved = form_helpers.basic_save_form(request, current_submission, current_submission.id, ObjectForm)
-    if saved:
-        # start a migration task
-        messages.info(request,
-                      "Your migration is in progress. Please allow a "
-                      "few minutes before you can access your submission.")
-        perform_data_migration.delay(old_submission, request.user)
-        return HttpResponseRedirect("/tool/")
-
-    template = 'tool/manage/migrate_data.html'
-    context = {
-        "object_form": object_form,
-        "active_submission": current_submission,
-        "old_submission": old_submission,
-    }
-    return respond(request, template, context)
 
 def migrate_version(request):
     """

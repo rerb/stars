@@ -16,8 +16,8 @@ from stars.test_factories import (CreditUserSubmissionFactory,
      InstitutionFactory, PendingAccountFactory, ResponsiblePartyFactory,
      SubmissionSetFactory, StarsAccountFactory, UserFactory)
 from stars.apps.credits.models import CreditSet
-from stars.apps.institutions.models import Institution, PendingAccount, \
-     StarsAccount, Subscription
+from stars.apps.institutions.models import (Institution, PendingAccount,
+                                            StarsAccount, Subscription)
 from stars.apps.registration.models import ValueDiscount
 from stars.apps.submissions.models import ResponsibleParty, SubmissionSet
 from stars.apps.tool.manage import views
@@ -697,3 +697,22 @@ class MigrateOptionsViewTest(_InstitutionAdminToolMixinTest):
         self.assertEqual(len(available_submissions),
                          len(self.r_status_submissionsets) +
                          len(self.f_status_submissionsets))
+
+
+class MigrateDataViewTest(_InstitutionAdminToolMixinTest):
+
+    view_class = views.MigrateDataView
+
+    def setUp(self):
+        super(MigrateDataViewTest, self).setUp()
+        self.institution.is_participant = True
+        self.submissionset = SubmissionSetFactory(
+            institution=self.institution, status='r')
+
+    def _get_pk(self):
+        return self.submissionset.id
+
+    def test_form_valid_starts_migration(self):
+        """When all is ok, is a migration task started?
+        """
+        raise NotImplemented()

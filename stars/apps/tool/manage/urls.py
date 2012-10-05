@@ -1,7 +1,7 @@
 from django.conf.urls.defaults import patterns, url
 from views import (AccountCreateView, AccountDeleteView, AccountEditView,
                    AccountListView, ContactView, InstitutionPaymentsView,
-                   MigrateOptionsView,
+                   MigrateDataView, MigrateOptionsView,
                    PendingAccountDeleteView,
                    ResponsiblePartyCreateView, ResponsiblePartyDeleteView,
                    ResponsiblePartyEditView, ResponsiblePartyListView,
@@ -55,7 +55,7 @@ urlpatterns = patterns(
     url(r'^migrate/$', MigrateOptionsView.as_view(),
         name='migrate-options'),
 
-    url(r'^migrate/data/(?P<ss_id>\d+)/$', 'migrate_data',
+    url(r'^migrate/data/(?P<pk>\d+)/$', MigrateDataView.as_view(),
         name='migrate-data'),
 
     url(r'^migrate/version/$', 'migrate_version',

@@ -24,12 +24,18 @@
 	<div class='row'>
 		<div class='span9'>
     		{% display_block_content 'data_migration_warning' user %}
-    		
+
     		<form method='post' action='.'>
-    			{{ object_form|bootstrap }}
+    			{{ form|bootstrap }}
     			<div class='form-actions'>
-    				<button type='submit' class='btn btn-success'>Migrate my Data</button>
-    				<a href='/tool/manage/migrate/' class='btn'>Cancel</a>
+    				<button type='submit'
+                            class='btn btn-success'>
+                        Migrate my Data
+                    </button>
+    				<a href='{% url migrate-options instution.slug %}'
+                       class='btn'>
+                        Cancel
+                    </a>
     			</div>
     		</form>
 		</div>
