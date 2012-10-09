@@ -1,0 +1,40 @@
+{% if settings_context.debug %}
+	dev |
+{% endif %}
+	{% if user %}
+        {% if user.is_staff and site_status.maintenance_mode %}
+            <div class='notice'>STARS site is Offline</div>
+        {% else %}
+            {% if user.is_staff and site_status.hide_reporting_tool %}
+                <div class='notice'>Reporting Tool is Hidden</div>
+            {% endif %}
+        {% endif %}
+        {% if user.is_authenticated %}
+        
+            {% load helpers %}
+        	{{ user.email|truncchar:25 }} |
+			{% if user.account_list %}
+	    		<select onchange="selectSchool(this);">
+			  		<option value='0'>Select your institution</option>
+			  		{% for a in user.account_list %}
+			    		<option value='{{ a.institution.id }}' {% ifequal a user.account %}selected='selected'{% endifequal %}>{{ a.institution.name|truncchar:40 }}</option>
+			  		{% endfor %}
+				</select> |
+			{% else %}
+		        {% if user.current_inst %}
+					<span title='{{ user.current_inst }}'>{{ user.current_inst.name|truncchar:40  }}</span>
+					{% if user.is_staff %}(<a href='/tool/admin/'>change</a>){% endif %} |
+				{% else %}
+			  		{% if user.is_staff %}
+			    		<a href='/tool/admin/'>Select Institution</a> |
+					{% endif %}
+		    	{% endif %}
+			{% endif %}
+			<a href='/pages/help/'>Help</a> |
+			<a href='/accounts/logout/'>Log Out</a>
+        {% else %}
+            <a href='/pages/help/'>Help</a> |
+            <a href='/accounts/login/'>Log In</a><a href='/pages/help/3900/'>
+                <img src='/media/static/images/help.png' alt='[?]' style='vertical-align: top;' /></a>
+        {% endif %}
+    {% endif %}    
