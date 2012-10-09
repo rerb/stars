@@ -1,0 +1,67 @@
+{% extends 'tool/base.html' %}
+
+{% load aashe_rules_tags %}
+
+{% block title %}{{ block.super }} | Manage | {{ user.current_inst }}{% endblock %}
+
+{% block submenu_class %}class='sm_inst'{% endblock %}
+
+{% block tool_menu %}
+    {% with active_menu="summary"%}{{ block.super }}{% endwith %}
+{% endblock %}
+
+{% block tool_content %}
+
+    {% block tabs %}
+    <ul class="nav nav-tabs">
+        <li{% if active_tab == "summary" %} class="active" {% endif %}>
+            <a href="/tool/">Summary</a>
+        </li>
+
+        {% testrule user_has_access_level user 'admin' user.current_inst %}
+
+        <li{% if active_tab == 'users' %} class="active" {% endif %}>
+            <a href="{% url account-list user.current_inst.slug %}">
+              Users
+            </a>
+        </li>
+        <li{% if active_tab == 'contact' %} class="active" {% endif %}>
+            <a href="{% url institution-contact user.current_inst.slug %}">
+              Contact
+            </a>
+        </li>
+        <li{% if active_tab == 'payments' %} class="active" {% endif %}>
+            <a href="/tool/{{ user.current_inst.slug }}/manage/payments">
+              Payments
+            </a>
+        </li>
+        <li{% if active_tab == 'rps' %} class="active" {% endif %}>
+            <a href="{% url responsible-party-list user.current_inst.slug %}">
+              Responsible Parties
+            </a>
+        </li>
+        <li{% if active_tab == 'share' %} class="active" {% endif %}>
+            <a href="{% url share-data user.current_inst.slug %}">Share Data</a>
+        </li>
+        <li{% if active_tab == 'migrate' %} class="active" {% endif %}>
+            <a href="{% url migrate-options user.current_inst.slug %}">Migrate</a>
+        </li>
+        {% endtestrule %}
+    </ul>
+    {% endblock %}
+
+    <div class='tabContent'>
+        <p>
+            <h2>
+                {% block tab_content_title %}
+                    {{ tab_content_title|title }}
+                {% endblock %}
+            </h2>
+        </p>
+        <div class='help_note'>
+            {% block help_content %}
+            {% endblock %}
+        </div>
+        {% block institution_content %}{% endblock %}
+    </div>
+{% endblock %}

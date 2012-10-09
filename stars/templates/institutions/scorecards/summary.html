@@ -1,0 +1,10 @@
+{% extends "institutions/scorecards/base.html" %}
+
+{% block body_onload %}expandTo = 0;{{ block.super }}{% endblock %}
+
+{% block content %}
+	{% load cache %}
+	{% cache 21600 submission_summary submissionset.id preview %}
+    	{% include 'institutions/scorecards/summary_include.html' %}
+	{% endcache %}
+{% endblock %}

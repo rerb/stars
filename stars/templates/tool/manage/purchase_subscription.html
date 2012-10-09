@@ -1,0 +1,28 @@
+{% extends 'tool/tool.html' %}
+
+{% load bootstrap %}
+
+{% block crumbs-tool %}<li>Purchase Subscription</li>{% endblock %}
+
+{% block institution_content %}
+    <h2>Purchase a new Subscription</h2>
+    <form method='post' action='.'>
+    
+    	<table>
+	      <tr>
+	        <th>Amount:</th>
+	        <td>${{ amount|floatformat:2 }} {% if is_member %} (Member Discount){% endif %}</td>
+	      </tr>
+	    </table>
+	    <br/>
+       	{{ later_form|bootstrap }}
+       	<div id='pay_form'>
+        	{{ pay_form|bootstrap }}
+        </div>
+      <div class='form-actions'>
+            <button type='submit' class='btn btn-success'>
+            	<i class='icon-lock icon-white'></i>
+            	Purchase Subscription</button>
+      </div>
+    </form>
+{% endblock %}
