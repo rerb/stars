@@ -266,14 +266,8 @@ class AccountCreateView(InstitutionAdminToolMixin, ValidationMessageFormMixin,
             Save preferences for this institution, for use in form_valid()
             and get_context_data() later.
         """
-        # self.kwargs is assigned in
-        # django.views.generic.base.dispatch, which gets called at the
-        # end of this method, but _update_preferences() below calls
-        # get_institution(), which depends on self.kwargs already
-        # being set.  That's why it gets set here first.
-        self.kwargs = kwargs
         (self.preferences, self.notify_form) = _update_preferences(
-            request, self.get_institution())
+            request, Institution.objects.get(slug=kwargs['institution_slug']))
         return super(AccountCreateView, self).dispatch(
             request, *args, **kwargs)
 
@@ -771,21 +765,5 @@ def pay_subscription(request, subscription_id):
         "pay_form": pay_form,
         "amount": amount,
         'is_member': current_inst.is_member,
-    }
-    return respond(request, template, context)
-
-def boundary(request, set_id):
-    """ Displays the Institution Boundary edit form """
-
-    current_inst = _get_current_institution(request)
-    submission_set = get_object_or_404(SubmissionSet, id=set_id)
-
-    ObjectForm = BoundaryForm
-
-    object_form, saved = form_helpers.basic_save_form(request, submission_set, submission_set.id, ObjectForm)
-
-    template = 'tool/manage/boundary.html'
-    context = {
-        "object_form": object_form,
     }
     return respond(request, template, context)
