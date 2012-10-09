@@ -456,24 +456,31 @@ class MigrateVersionView(InstitutionAdminToolMixin,
                        "check box down there above the Migrate My Data "
                        "button.")
 
-    logical_rules = (InstitutionAdminToolMixin.logical_rules +
-                     [{'name': 'user_can_migrate_version',
-                       'param_callbacks': [('user', 'get_request_user'),
-                                           ('current_inst',
-                                            'get_institution')]}])
-
-    # @todo - POST should redirect to get_success_url(), but it's not.
-    # Here's why:
+    # Tempted to pull the call to the user_can_migrate_version rule
+    # out of dispatch() below, and add it to logical_rules instead?
+    # I was, too.  But that didn't work . . .
+    #
+    # I had user_can_migrate_version added to logical_rules like this:
+    #
+    # logical_rules = (InstitutionAdminToolMixin.logical_rules +
+    #                  [{'name': 'user_can_migrate_version',
+    #                    'param_callbacks': [('user', 'get_request_user'),
+    #                                        ('current_inst',
+    #                                         'get_institution')]}])
+    #
+    # But POSTs wouldn't redirect to get_success_url(). Here's why:
     #
     # 1. extra logical rule: user_can_migrate_version
-    #   a. user is admin for inst, and
-    #      submissionset.version != latest creditset.version
-    #   b. prevents GET of view if rule is False
+    #   a. is True when (user is admin for inst, and
+    #                    submissionset.version != latest creditset.version)
+    #   b. prevents GET of view if rule is False (which is good)
     #   c. if rule is True on GET, form is displayed
     #      i. on POST, submissionset.version is set to latest creditset.version
     #        *. before rules are checked
     #     ii. rule is now False, so view returns HttpResponseForbidden
     #         (rather than redirecting to get_success_url())
+    #
+    # So that's why the call to user_can_migrate_version() is in dispatch().
 
     def dispatch(self, request, *args, **kwargs):
         """
@@ -483,12 +490,17 @@ class MigrateVersionView(InstitutionAdminToolMixin,
         Also saves latest_creditset and current_submission onto self
         for use in other methods.
         """
-        self.latest_creditset = CreditSet.objects.get_latest()
         # Can't use self.get_institution() yet, since self.kwargs
         # isn't set until django.views.generic.base.dispatch, which
         # doesn't get called until the end of this method; so use
         # Institution.objects.get() instead:
         current_inst = Institution.objects.get(slug=kwargs['institution_slug'])
+
+        if not user_can_migrate_version(request.user, current_inst):
+            raise PermissionDenied("Sorry, but you don't have permission "
+                                   "to migrate data.")
+
+        self.latest_creditset = CreditSet.objects.get_latest()
         self.current_submission = current_inst.current_submission
         if (self.latest_creditset.version ==
             self.current_submission.creditset.version):
