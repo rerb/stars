@@ -3,6 +3,7 @@ from logging import getLogger
 
 from django.conf import settings
 from django.contrib import messages
+from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect, Http404
 from django.core.exceptions import PermissionDenied
@@ -22,11 +23,11 @@ from stars.apps.submissions.rules import user_can_migrate_version, \
 from stars.apps.third_parties.models import ThirdParty
 from stars.apps.helpers.forms import form_helpers
 
-from stars.apps.tool.manage.forms import AdminInstitutionForm, \
-     ParticipantContactForm, RespondentContactForm, ResponsibleParty, \
-     ResponsiblePartyForm, EditAccountForm, DisabledAccountForm, \
-     AccountForm, ThirdPartiesForm, InstitutionPreferences, \
-     NotifyUsersForm, MigrateSubmissionSetForm, BoundaryForm
+from stars.apps.tool.manage.forms import (AdminInstitutionForm,
+     ParticipantContactForm, RespondentContactForm, ResponsibleParty,
+     ResponsiblePartyForm, DisabledAccountForm,
+     AccountForm, ThirdPartiesForm, InstitutionPreferences,
+     NotifyUsersForm, MigrateSubmissionSetForm, BoundaryForm)
 
 from stars.apps.registration.forms import PaymentForm, PayLaterForm
 from stars.apps.registration.views import process_payment, get_payment_dict, \
@@ -35,11 +36,13 @@ from stars.apps.registration.models import ValueDiscount
 from stars.apps.notifications.models import EmailTemplate
 
 # new imports
+from stars.apps.institutions.models import Institution
 from stars.apps.tool.mixins import InstitutionAdminToolMixin
 from stars.apps.helpers.mixins import ValidationMessageFormMixin
+from stars.apps.helpers.queryset_sequence import QuerySetSequence
 
-from django.views.generic import CreateView, DeleteView, FormView, ListView, \
-     UpdateView
+from django.views.generic import (CreateView, DeleteView, FormView, ListView,
+                                  TemplateView, UpdateView)
 
 logger = getLogger('stars.request')
 
@@ -106,6 +109,12 @@ class ResponsiblePartyListView(InstitutionAdminToolMixin, ListView):
         current_inst = self.get_institution()
         return current_inst.responsibleparty_set.all()
 
+    def get_context_data(self, **kwargs):
+        context = super(ResponsiblePartyListView, self).get_context_data(
+            **kwargs)
+        context['tab_content_title'] = 'responsible parties'
+        return context
+
 
 class ResponsiblePartyEditView(InstitutionAdminToolMixin,
                                ValidationMessageFormMixin,
@@ -122,13 +131,14 @@ class ResponsiblePartyEditView(InstitutionAdminToolMixin,
     def get_context_data(self, **kwargs):
         context = super(ResponsiblePartyEditView, self).get_context_data(
             **kwargs)
-        context['title'] = 'Edit Responsible Party'
+        context['tab_content_title'] = 'edit a responsible party'
         context['credit_list'] = \
           self.get_object().get_creditusersubmissions().all()
         return context
 
 
-class ResponsiblePartyDeleteView(InstitutionAdminToolMixin, ValidationMessageFormMixin,
+class ResponsiblePartyDeleteView(InstitutionAdminToolMixin,
+                                 ValidationMessageFormMixin,
                                  DeleteView):
     """
        Deletes a responsible party if they aren't tied to any submissions.
@@ -147,7 +157,11 @@ class ResponsiblePartyDeleteView(InstitutionAdminToolMixin, ValidationMessageFor
             messages.error(self.request,
                            "This Responsible Party cannot be removed because "
                            "he/she is listed with one or more credits.")
-            return HttpResponseRedirect(responsible_party.get_manage_url())
+            return HttpResponseRedirect(
+                reverse(
+                    'responsible-party-list',
+                    kwargs={ 'institution_slug': self.get_institution().slug }))
+
         else:
             messages.info(self.request,
                           "Successfully Deleted Responsible Party: %s" %
@@ -171,7 +185,7 @@ class ResponsiblePartyCreateView(InstitutionAdminToolMixin,
     def get_context_data(self, **kwargs):
         context = super(ResponsiblePartyCreateView, self).get_context_data(
             **kwargs)
-        context['title'] = 'Add Responsible Party'
+        context['tab_content_title'] = 'add a responsible party'
         return context
 
     def form_valid(self, form):
@@ -185,6 +199,25 @@ class ResponsiblePartyCreateView(InstitutionAdminToolMixin,
         return super(ResponsiblePartyCreateView, self).form_valid(form)
 
 
+class AccountListView(InstitutionAdminToolMixin, ListView):
+    """
+        Displays a list of user accounts for an institution.
+    """
+    template_name = 'tool/manage/account_list.html'
+
+    def get_queryset(self):
+        institution = self.get_institution()
+        stars_accounts = StarsAccount.objects.filter(institution=institution)
+        pending_accounts = PendingAccount.objects.filter(institution=institution)
+        return QuerySetSequence(stars_accounts, pending_accounts).order_by(
+            'user.email')
+
+    def get_context_data(self, **kwargs):
+        context = super(AccountListView, self).get_context_data(**kwargs)
+        context['tab_content_title'] = 'users'
+        return context
+
+
 class AccountCreateView(InstitutionAdminToolMixin, ValidationMessageFormMixin,
                         FormView):
     """
@@ -195,12 +228,12 @@ class AccountCreateView(InstitutionAdminToolMixin, ValidationMessageFormMixin,
     """
     form_class = AccountForm
     success_url_name = 'account-list'
-    template_name = 'tool/manage/add_account.html'
+    template_name = 'tool/manage/account_detail.html'
     valid_message = 'Account created.'
 
     def __init__(self, *args, **kwargs):
         """
-            Declares new attributes, preferences and notify_form.
+            Declares new attributes; preferences and notify_form.
             Sure, this isn't necessary, but after they're declared
             here, they won't be a surprise when they're used later.
         """
@@ -223,6 +256,9 @@ class AccountCreateView(InstitutionAdminToolMixin, ValidationMessageFormMixin,
     def get_context_data(self, **kwargs):
         context = super(AccountCreateView, self).get_context_data(**kwargs)
         context['notify_form'] = self.notify_form
+        context['tab_content_title'] = 'add a user'
+        context['help_content_name'] = 'add_account'
+        context['creating_new_account'] = True
         return context
 
     def dispatch(self, request, *args, **kwargs):
@@ -230,14 +266,8 @@ class AccountCreateView(InstitutionAdminToolMixin, ValidationMessageFormMixin,
             Save preferences for this institution, for use in form_valid()
             and get_context_data() later.
         """
-        # self.kwargs is assigned in
-        # django.views.generic.base.dispatch, which gets called at the
-        # end of this method, but _update_preferences() below calls
-        # get_institution(), which depends on self.kwargs already
-        # being set.  That's why it gets set here first.
-        self.kwargs = kwargs
         (self.preferences, self.notify_form) = _update_preferences(
-            request, self.get_institution())
+            request, Institution.objects.get(slug=kwargs['institution_slug']))
         return super(AccountCreateView, self).dispatch(
             request, *args, **kwargs)
 
@@ -267,133 +297,229 @@ class AccountCreateView(InstitutionAdminToolMixin, ValidationMessageFormMixin,
         return super(AccountCreateView, self).form_valid(form)
 
 
-##############################################################################
-##############################################################################
-##############################################################################
-##############################################################################
-
-@user_is_inst_admin
-def accounts(request, account_id=None, institution_slug=None):
+class AccountEditView(AccountCreateView):
     """
-        Provides an interface to manage user accounts for an institution.
-        Supply an optional StarsAccount id to provide an edit form for that account.
+        Provides an edit view for StarsAccount and PendingAccount objects.
     """
-    current_inst = _get_current_institution(request)
+    valid_message = 'User updated.'
+    form_class = AccountForm
 
-    # create a list of accounts, one of which might have an 'edit' form
-    account_list = []
-    editing = False
-    all_accounts = list(current_inst.starsaccount_set.all()) + list(current_inst.pendingaccount_set.all())
-    for account in all_accounts:
-        if str(account.id) == str(account_id):  # this account should supply an editing form...
-            editing = True
-            edit_form = EditAccountForm(initial={'email':account.user.email, 'userlevel':account.user_level})
-        else:
-            edit_form = None
+    def get_context_data(self, **kwargs):
+        context = super(AccountEditView, self).get_context_data(
+            **kwargs)
+        context['tab_content_title'] = 'edit a user'
+        context['help_content_name'] = 'edit_account'
+        context['creating_new_account'] = False
+        return context
 
-        account_list.append({'account':account, 'edit_form':edit_form})
+    def get_initial(self):
+        try:
+            account = get_object_or_404(StarsAccount, id=self.kwargs['pk'])
+        except Http404:
+            account = get_object_or_404(PendingAccount, id=self.kwargs['pk'])
+        return { 'userlevel': account.user_level,
+                 'email': account.user.email }
 
-    if editing:
-        new_account_form = DisabledAccountForm()
-    else:
-        new_account_form = AccountForm()
 
-    (preferences, notify_form) = _update_preferences(request, current_inst)
-
-    context = {
-               'account_list': account_list,
-               'new_account_form': new_account_form,
-               'notify_form':notify_form,
-               'editing': editing
-              }
-    return respond(request, 'tool/manage/accounts.html', context)
-
-@user_is_inst_admin
-def add_account(request):
+class AccountDeleteView(InstitutionAdminToolMixin,
+                        ValidationMessageFormMixin,
+                        DeleteView):
     """
-        Provides an interface to add user accounts to an institution.
+       Deletes a StarsAccount.
     """
-    current_inst = _get_current_institution(request)
+    model = StarsAccount
+    success_url_name = 'account-list'
+    template_name = 'tool/manage/account_confirm_delete.html'
 
-    (preferences, notify_form) = _update_preferences(request,
-                                                     current_inst)
+    def delete(self, request, *args, **kwargs):
 
-    if request.method == 'POST':
-        account_form = AccountForm(request.POST)
-        if account_form.is_valid():
-            # Get the AASHE account info for this email
-            user_email = account_form.cleaned_data['email']
-            user_level = account_form.cleaned_data['userlevel']
-            user_list = xml_rpc.get_user_by_email(user_email)
-            if not user_list:
-                messages.info(request,
-                              "There is no AASHE user with e-mail: %s. "
-                              "STARS Account pending user's registration "
-                              "at www.aashe.org" % user_email)
-                account = PendingAccount.update_account(
-                    request.user,
-                    preferences.notify_users,
-                    current_inst,
-                    user_level,
-                    user_email=user_email)
-            else:
-                user = xml_rpc.get_user_from_user_dict(user_list[0], None)
-                account = StarsAccount.update_account(
-                    request.user,
-                    preferences.notify_users,
-                    current_inst,
-                    user_level,
-                    user=user)
-            return HttpResponseRedirect(account.get_manage_url())
-    else:
-        account_form = AccountForm()
-
-    return respond(request, 'tool/manage/add_account.html',
-                   {'account_form': account_form, 'notify_form':notify_form,})
-
-@user_is_inst_admin
-def delete_account(request, account_id):
-    """
-        Deletes a user account (user-institution relation)
-    """
-    current_inst = _get_current_institution(request)
-
-    (preferences, notify_form) = _update_preferences(request,
-                                                     current_inst)
-
-    # Careful here - this needs to handle deletion of any type of
-    # account, real and pending.  The account must be an account
-    # current user is allowed to manage!  Just give a 404 if the
-    # account_id doesn't belong to the user's institution
-    try:
-        account = StarsAccount.objects.get(id=account_id,
-                                           institution=current_inst)
-    except StarsAccount.DoesNotExist:
-        account = get_object_or_404(PendingAccount, id=account_id,
-                                    institution=current_inst)
-        # no need to confirm deletion of pending accounts, since there
-        # is no consequence to doing so.
-        account.delete()
-        messages.success(request,
-                         "Pending account: %s successfully deleted." % account)
-        if preferences.notify_users:
-            account.notify(StarsAccount.DELETE_ACCOUNT, request.user,
-                           current_inst)
-        return HttpResponseRedirect(settings.MANAGE_USERS_URL)
-
-    (form, deleted) = form_helpers.confirm_delete_form(request, account)
-    if deleted:
-        logger.info("Account: %s deleted." % account,
+        (preferences, notify_form) = _update_preferences(request,
+                                                         self.get_institution())
+        logger.info("Account: %s deleted." % self.get_object(),
                     extra={'request': request})
         if preferences.notify_users:
-            account.notify(StarsAccount.DELETE_ACCOUNT, request.user,
-                           current_inst)
-        return HttpResponseRedirect(settings.MANAGE_USERS_URL)
+            self.get_object().notify(StarsAccount.DELETE_ACCOUNT, request.user,
+                                     self.get_institution())
+        return super(AccountDeleteView, self).delete(request, *args, **kwargs)
 
-    return respond(request, 'tool/manage/delete_account.html',
-                   {'account':account,
-                    'confirm_form': form,
-                    'notify_form':notify_form,})
+
+class PendingAccountDeleteView(AccountDeleteView):
+    """
+        Deletes a PendingAccount.
+    """
+    model = PendingAccount
+
+
+class ShareDataView(InstitutionAdminToolMixin,
+                    ValidationMessageFormMixin,
+                    FormView):
+    """
+        Allows users to choose which third parties to share data with.
+    """
+    form_class = ThirdPartiesForm
+    template_name = 'tool/manage/third_parties.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ShareDataView, self).get_context_data(**kwargs)
+        context['tab_content_title'] = 'share data'
+        context['help_content_name'] = 'edit_account'
+        context['third_party_list'] = ThirdParty.objects.all()
+        context['snapshot_list'] = SubmissionSet.objects.get_snapshots(
+            self.get_institution())
+        return context
+
+
+class MigrateOptionsView(InstitutionAdminToolMixin, TemplateView):
+    """
+        Provides a user with migration options (i.e., migrate some data or
+        migrate a submission).
+    """
+    template_name = 'tool/manage/migrate_submissionset.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(MigrateOptionsView, self).get_context_data(**kwargs)
+        context['active_submission'] = self.get_institution().current_submission
+        context['latest_creditset'] = CreditSet.objects.get_latest()
+        context['available_submission_list'] = self._get_available_submissions(
+            institution=self.get_institution())
+        return context
+
+    @classmethod
+    def _get_available_submissions(cls, institution):
+        submissions = institution.submissionset_set.filter(status='r')
+        if institution.is_participant:
+            submissions = (submissions |
+                           institution.submissionset_set.filter(status='f'))
+        return submissions
+
+
+class MigrateDataView(InstitutionAdminToolMixin,
+                      ValidationMessageFormMixin,
+                      UpdateView):
+    """
+        Provides a form to solicit user's confirmation that this
+        data migration should proceed.
+    """
+    form_class = MigrateSubmissionSetForm
+    model = SubmissionSet
+    success_url = '/tool/'
+    template_name = 'tool/manage/migrate_data.html'
+    valid_message = ("Your migration is in progress. Please allow a "
+                     "few minutes before you can access your submission.")
+    invalid_message = ("Before the migration can begin, you need to "
+                       "confirm your intention by checking that little "
+                       "check box down there above the Migrate My Data "
+                       "button.")
+
+    logical_rules = (InstitutionAdminToolMixin.logical_rules +
+                     [{'name': 'user_can_migrate_from_submission',
+                       'param_callbacks': [('user', 'get_request_user'),
+                                           ('submission',
+                                            '_get_old_submission')]}])
+
+    def _get_old_submission(self):
+        return get_object_or_404(
+            self.get_institution().submissionset_set.all(),
+            id=self.kwargs['pk'])
+
+    def get_context_data(self, **kwargs):
+        context = super(MigrateDataView, self).get_context_data(**kwargs)
+        context['active_submission'] = self.get_institution().current_submission
+        context['old_submission'] = self._get_old_submission()
+        return context
+
+    def form_valid(self, form):
+        # if user hasn't checked the magic box:
+        if not form.cleaned_data['is_locked']:
+            return self.form_invalid(form)
+        # otherwise, start a migration task
+        perform_data_migration.delay(self._get_old_submission(),
+                                     self.request.user)
+        return super(MigrateDataView, self).form_valid(form)
+
+
+class MigrateVersionView(InstitutionAdminToolMixin,
+                         ValidationMessageFormMixin,
+                         UpdateView):
+    """
+        Provides a form to solicit user's confirmation that this
+        version migration should proceed.
+    """
+    form_class = MigrateSubmissionSetForm
+    model = SubmissionSet
+    success_url = '/tool/'
+    template_name = 'tool/manage/migrate_version.html'
+    valid_message = ("Your migration is in progress. Please allow a "
+                     "few minutes before you can access your submission.")
+    invalid_message = ("Before the migration can begin, you need to "
+                       "confirm your intention by checking that little "
+                       "check box down there above the Migrate My Data "
+                       "button.")
+
+    logical_rules = (InstitutionAdminToolMixin.logical_rules +
+                     [{'name': 'user_can_migrate_version',
+                       'param_callbacks': [('user', 'get_request_user'),
+                                           ('current_inst',
+                                            'get_institution')]}])
+
+    # @todo - POST should redirect to get_success_url(), but it's not.
+    # Here's why:
+    #
+    # 1. extra logical rule: user_can_migrate_version
+    #   a. user is admin for inst, and
+    #      submissionset.version != latest creditset.version
+    #   b. prevents GET of view if rule is False
+    #   c. if rule is True on GET, form is displayed
+    #      i. on POST, submissionset.version is set to latest creditset.version
+    #        *. before rules are checked
+    #     ii. rule is now False, so view returns HttpResponseForbidden
+    #         (rather than redirecting to get_success_url())
+
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Short-circuits the migration process if the current submission
+        is already at the latest version.
+
+        Also saves latest_creditset and current_submission onto self
+        for use in other methods.
+        """
+        self.latest_creditset = CreditSet.objects.get_latest()
+        # Can't use self.get_institution() yet, since self.kwargs
+        # isn't set until django.views.generic.base.dispatch, which
+        # doesn't get called until the end of this method; so use
+        # Institution.objects.get() instead:
+        current_inst = Institution.objects.get(slug=kwargs['institution_slug'])
+        self.current_submission = current_inst.current_submission
+        if (self.latest_creditset.version ==
+            self.current_submission.creditset.version):
+            messages.error(request, "Already using %s." % self.latest_creditset)
+            return HttpResponseRedirect(
+                reverse('migrate-options',
+                        kwargs={ 'institution_slug': current_inst.slug }))
+        return super(MigrateVersionView, self).dispatch(
+            request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(MigrateVersionView, self).get_context_data(**kwargs)
+        context['current_submission'] = self.current_submission
+        context['latest_creditset'] = self.latest_creditset
+        return context
+
+    def form_valid(self, form):
+        # if user hasn't checked the magic box, do not proceed . . .
+        if not form.cleaned_data['is_locked']:
+            return self.form_invalid(form)
+        # . . . otherwise, start a migration task
+        perform_migration.delay(self.current_submission,
+                                self.latest_creditset,
+                                self.request.user)
+        return super(MigrateVersionView, self).form_valid(form)
+
+
+##############################################################################
+##############################################################################
+##############################################################################
+##############################################################################
 
 def _update_preferences(request, institution):
     """
@@ -407,166 +533,6 @@ def _update_preferences(request, institution):
     (notify_form,saved) = form_helpers.basic_save_form(
         request, preferences, '', NotifyUsersForm, show_message=False)
     return (preferences, notify_form)
-
-@user_is_inst_admin
-def share_data(request):
-    """
-        I'm not exactly sure how this will tie into the API yet
-        so this is really just a place-holder
-    """
-    current_inst = _get_current_institution(request)
-
-    (object_form, saved) = form_helpers.basic_save_form(request, current_inst, '', ThirdPartiesForm)
-
-    if saved:
-        return HttpResponseRedirect("/tool/manage/share-data/")
-
-    context = {
-                'current_inst': current_inst,
-                'object_form': object_form,
-                'third_party_list': ThirdParty.objects.all(),
-                'snapshot_list': SubmissionSet.objects.get_snapshots(current_inst),
-            }
-    return respond(request, 'tool/manage/third_parties.html', context)
-
-#@user_is_staff
-#def submissionsets(request):
-#    """
-#        Provides an interface to manage submission sets for an institution
-#        and select indicate which one is the active submission
-#    """
-#    current_inst = _get_current_institution(request)
-#
-#    active_set = current_inst.get_active_submission()
-#
-#    is_admin = request.user.has_perm('admin')
-#
-#    latest_creditset = CreditSet.objects.get_latest()
-#
-#    context = {'active_set': active_set, 'is_admin': is_admin, 'latest_creditset': latest_creditset}
-#    return respond(request, 'tool/manage/submissionset_list.html', context)
-
-
-def migrate_options(request):
-    """
-        Provides a tool to migrate a submission set
-    """
-    current_inst = _get_current_institution(request)
-    current_submission = current_inst.current_submission
-    latest_creditset = CreditSet.objects.get_latest()
-
-    if current_inst.is_participant:
-        available_submission_list = current_inst.submissionset_set.filter(status='r') | current_inst.submissionset_set.filter(status='f')
-    else:
-        available_submission_list = current_inst.submissionset_set.filter(status='r')
-
-    template = 'tool/manage/migrate_submissionset.html'
-    context = {
-        "active_submission": current_submission,
-        "latest_creditset": latest_creditset,
-        "available_submission_list": available_submission_list,
-    }
-    return respond(request, template, context)
-
-def migrate_data(request, ss_id):
-    """
-        Provides a tool to migrate a submission set
-    """
-    current_inst = _get_current_institution(request)
-    current_submission = current_inst.current_submission
-    old_submission = get_object_or_404(current_inst.submissionset_set.all(), id=ss_id)
-
-    if not user_can_migrate_from_submission(request.user, old_submission):
-        raise PermissionDenied("Sorry, but you don't have permission to migrate data.")
-
-    ObjectForm = MigrateSubmissionSetForm
-
-    object_form, saved = form_helpers.basic_save_form(request, current_submission, current_submission.id, ObjectForm)
-    if saved:
-        # start a migration task
-        messages.info(request,
-                      "Your migration is in progress. Please allow a "
-                      "few minutes before you can access your submission.")
-        perform_data_migration.delay(old_submission, request.user)
-        return HttpResponseRedirect("/tool/")
-
-    template = 'tool/manage/migrate_data.html'
-    context = {
-        "object_form": object_form,
-        "active_submission": current_submission,
-        "old_submission": old_submission,
-    }
-    return respond(request, template, context)
-
-def migrate_version(request):
-    """
-        Provides a tool to migrate a submission set
-    """
-    current_inst = _get_current_institution(request)
-    current_submission = current_inst.current_submission
-    latest_creditset = CreditSet.objects.get_latest()
-
-    if latest_creditset.version == current_submission.creditset.version:
-        messages.error(request, "Already using %s." % latest_creditset)
-        return HttpResponseRedirect("/tool/manage/migrate/")
-
-    if not user_can_migrate_version(request.user, current_inst):
-        raise PermissionDenied("Sorry, but you don't have permission "
-                               "to migrate data.")
-
-    ObjectForm = MigrateSubmissionSetForm
-
-    object_form, saved = form_helpers.basic_save_form(request,
-                                                      current_submission,
-                                                      current_submission.id,
-                                                      ObjectForm)
-    if saved:
-        # start a migration task
-        messages.info(request, "Your migration is in progress. "
-                      "Please allow a few minutes before you can access "
-                      "your submission.")
-        perform_migration.delay(current_submission,
-                                latest_creditset,
-                                request.user)
-        return HttpResponseRedirect("/tool/")
-
-    template = 'tool/manage/migrate_version.html'
-    context = {
-        "object_form": object_form,
-        "current_submission": current_submission,
-        "latest_creditset": latest_creditset,
-    }
-    return respond(request, template, context)
-
-#@user_is_staff
-#def add_submissionset(request):
-#    """
-#        Provides a form for adding a new submission set
-#    """
-#
-#    current_inst = _get_current_institution(request)
-#
-#    # Build and precess the form for adding a new submission set
-#    new_set = SubmissionSet(institution=current_inst)
-#
-#    ObjectForm = AdminSubmissionSetForm
-#    # if request.user.is_staff:
-#    #    ObjectForm = AdminSubmissionSetForm
-#    # else:
-#    #    Eventuatlly, this should lead user through a submission set purchase process (ticket #264)
-#
-#    (object_form, saved) = form_helpers.basic_save_new_form(request, new_set, 'new_set', ObjectForm)
-#    if saved:
-#        # if this was the first one created then it should be active
-#        if current_inst.get_active_submission() is None:
-#            current_inst.set_active_submission(new_set)
-#        return HttpResponseRedirect(settings.MANAGE_SUBMISSION_SETS_URL)
-#
-#    template = 'tool/manage/add_submissionset.html'
-#    context = {
-#        "object_form": object_form,
-#    }
-#    return respond(request, template, context)
 
 def _gets_discount(institution, current_date=date.today()):
     """
@@ -586,71 +552,6 @@ def _gets_discount(institution, current_date=date.today()):
 
     return False
 
-
-#def pay_submissionset(request, set_id):
-#    """
-#        Provides a payment form for those institutions that selected to pay later
-#    """
-#    current_inst = _get_current_institution(request)
-#    ss = get_object_or_404(SubmissionSet, id=set_id, institution=current_inst)
-#    is_member = current_inst.is_member_institution()
-#    # get the amount of the pay_later payments
-#    p = ss.payment_set.filter(type='later')[0]
-#    amount = p.amount
-#    discount = _gets_discount(current_inst)
-#    if discount:
-#        amount = amount / 2
-#        if is_member:
-#            reason = "member_renew"
-#        else:
-#            reason = "nonmember_renew"
-#    else:
-#        if is_member:
-#            reason = "member_reg"
-#        else:
-#            reason = "nonmember_reg"
-#
-#    pay_form = PaymentForm()
-#
-#    if request.method == "POST":
-#        pay_form = PaymentForm(request.POST)
-#        if pay_form.is_valid():
-#            payment_dict = get_payment_dict(pay_form, current_inst)
-#            product_dict = {
-#                'price': amount,
-#                'quantity': 1,
-#                'name': "STARS Participant Registration",
-#            }
-#
-#            result = process_payment(payment_dict, [product_dict], invoice_num=current_inst.aashe_id)
-#            if result.has_key('cleared') and result.has_key('msg'):
-#                if result['cleared'] and result['trans_id']:
-#                    p = Payment(
-#                                    submissionset=ss,
-#                                    date=datetime.now(),
-#                                    amount=amount,
-#                                    user=request.user,
-#                                    reason=reason,
-#                                    type='credit',
-#                                    confirmation=str(result['trans_id']),
-#                                )
-#                    p.save()
-#                    ss.institution.set_active_submission(ss)
-#                    return HttpResponseRedirect("/tool/manage/submissionsets/")
-#                else:
-#                    messages.error(request,
-#                                   "Processing Error: %s" % result['msg'])
-#        else:
-#            messages.error(request, "Please correct the errors below")
-#
-#    template = 'tool/manage/pay_submissionset.html'
-#    context = {
-#        "object_form": pay_form,
-#        "amount": amount,
-#        'is_member': is_member,
-#        'discount': discount,
-#    }
-#    return respond(request, template, context)
 
 def send_exec_renew_email(institution):
 
@@ -864,21 +765,5 @@ def pay_subscription(request, subscription_id):
         "pay_form": pay_form,
         "amount": amount,
         'is_member': current_inst.is_member,
-    }
-    return respond(request, template, context)
-
-def boundary(request, set_id):
-    """ Displays the Institution Boundary edit form """
-
-    current_inst = _get_current_institution(request)
-    submission_set = get_object_or_404(SubmissionSet, id=set_id)
-
-    ObjectForm = BoundaryForm
-
-    object_form, saved = form_helpers.basic_save_form(request, submission_set, submission_set.id, ObjectForm)
-
-    template = 'tool/manage/boundary.html'
-    context = {
-        "object_form": object_form,
     }
     return respond(request, template, context)

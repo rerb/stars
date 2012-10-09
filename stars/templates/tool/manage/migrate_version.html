@@ -16,19 +16,22 @@
 			<div class='alert alert-info' style='text-align: center;'>
 				{{ current_submission.creditset }}
 				<i class='icon-arrow-right icon-white'></i>
-				{{ latest_creditset }}
+				{{ latest_creditset.version }}
 			</div>
 		</div>
 	</div>
 	<div class='row'>
 		<div class='span9'>
     		{% display_block_content 'version_migration_warning' user %}
-    		
+
     		<form method='post' action='.'>
-    			{{ object_form|bootstrap }}
+    			{{ form|bootstrap }}
     			<div class='form-actions'>
-    				<button type='submit' class='btn btn-success'>Migrate Version</button>
-    				<a href='/tool/manage/migrate/' class='btn'>Cancel</a>
+    				<button type='submit' class='btn btn-success'>
+                        Migrate Version
+                    </button>
+    				<a href="{% url migrate-options institution.slug %}"
+                       class='btn'>Cancel</a>
     			</div>
     		</form>
 		</div>

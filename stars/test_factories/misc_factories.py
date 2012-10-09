@@ -10,6 +10,8 @@ class UserFactory(factory.Factory):
     username = factory.Sequence(
         lambda i: 'testuser-{0}.{1}'.format(i, time.time()))
     password = 'test'
+    email = factory.LazyAttribute(
+        lambda o: '{0}@example.com'.format(o.username))
 
     @classmethod
     def _prepare(cls, create, **kwargs):

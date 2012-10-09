@@ -12,12 +12,13 @@ from django.test import TestCase
 from django.test.client import Client, RequestFactory
 import testfixtures
 
-from stars.test_factories import CreditUserSubmissionFactory, \
-     InstitutionFactory, ResponsiblePartyFactory, StarsAccountFactory, \
-     UserFactory
+import aashe_rules
+from stars.test_factories import (CreditUserSubmissionFactory,
+     InstitutionFactory, PendingAccountFactory, ResponsiblePartyFactory,
+     SubmissionSetFactory, StarsAccountFactory, UserFactory)
 from stars.apps.credits.models import CreditSet
-from stars.apps.institutions.models import Institution, PendingAccount, \
-     StarsAccount, Subscription
+from stars.apps.institutions.models import (Institution, PendingAccount,
+                                            StarsAccount, Subscription)
 from stars.apps.registration.models import ValueDiscount
 from stars.apps.submissions.models import ResponsibleParty, SubmissionSet
 from stars.apps.tool.manage import views
@@ -70,135 +71,6 @@ class ViewsTest(TestCase):
             code=MockPaymentForm().cleaned_data['discount_code'],
             amount=100.00, start_date='1000-01-01', end_date='5000-01-01')
         value_discount.save()
-
-    def test_add_account_nonexistent_user(self):
-        """Does add_account show an error if a nonexistent user is specified?
-        """
-        self.request.method = 'POST'
-        with testfixtures.Replacer() as r:
-            r.replace(
-                'stars.apps.accounts.decorators._get_account_problem_response',
-                lambda x: False)
-            r.replace(
-                'stars.apps.tool.manage.views._get_current_institution',
-                lambda x: self.request.institution)
-            r.replace(
-                'stars.apps.tool.manage.views.AccountForm', MockAccountForm)
-            r.replace(
-                'stars.apps.tool.manage.views.xml_rpc.get_user_by_email',
-                lambda x : None)
-            _ = views.add_account(self.request)
-        response = render(self.request, 'base.html')
-        soup = BeautifulSoup(response.content)
-        info_message_divs = soup.find_all(
-            'div',
-            {'class': settings.MESSAGE_TAGS[messages.INFO]})
-        self.assertEqual(len(info_message_divs), 1)
-        self.assertTrue('no AASHE user with e-mail'
-                        in info_message_divs[0].text)
-
-    def test_delete_account_pending_account_message(self):
-        """Does delete_account display a msg if the account is pending?
-        """
-        pending_account = PendingAccount()
-        pending_account.id = -999
-        pending_account.institution = self.request.institution
-        pending_account.save()
-        with testfixtures.Replacer() as r:
-            r.replace(
-                'stars.apps.accounts.decorators._get_account_problem_response',
-                lambda x: False)
-            r.replace(
-                'stars.apps.tool.manage.views._get_current_institution',
-                lambda x: self.request.institution)
-            _ = views.delete_account(request=self.request, account_id=-999)
-        response = render(self.request, 'base.html')
-        soup = BeautifulSoup(response.content)
-        success_message_divs = soup.find_all(
-            'div',
-            {'class': settings.MESSAGE_TAGS[messages.SUCCESS]})
-        self.assertEqual(len(success_message_divs), 1)
-        self.assertTrue('ending account:' and 'successfully deleted' in
-                        success_message_divs[0].text)
-
-    def test_migrate_data_migration_started_message(self):
-        """Does migrate_data show a message when a migration starts?
-        """
-        submissionset = SubmissionSet.objects.get(pk=1)
-        self.request.institution.current_submission = submissionset
-        self.request.institution.save()
-        with testfixtures.Replacer() as r:
-            r.replace(
-                'stars.apps.tool.manage.views._get_current_institution',
-                lambda x: self.request.institution)
-            r.replace(
-                'stars.apps.tool.manage.views.user_can_migrate_from_submission',
-                lambda x,y: True)
-            r.replace(
-                'stars.apps.tool.manage.views.form_helpers.basic_save_form',
-                lambda w,x,y,z: (None, True))
-            _ = views.migrate_data(self.request, 1)
-        response = render(self.request, 'base.html')
-        soup = BeautifulSoup(response.content)
-        info_message_divs = soup.find_all(
-            'div',
-            {'class': settings.MESSAGE_TAGS[messages.INFO]})
-        self.assertEqual(len(info_message_divs), 1)
-        self.assertTrue('migration is in progress' in
-                        info_message_divs[0].text)
-
-    def test_migrate_version_already_using_version_error_message(self):
-        """Does migrate_version show an error msg if that version is current?
-        """
-        submissionset = SubmissionSet.objects.get(pk=1)
-        submissionset.creditset = CreditSet.objects.get_latest()
-        submissionset.save()
-        self.request.institution.current_submission = submissionset
-        self.request.institution.save()
-        with testfixtures.Replacer() as r:
-            r.replace(
-                'stars.apps.tool.manage.views._get_current_institution',
-                lambda x: self.request.institution)
-            r.replace(
-                'stars.apps.tool.manage.views.user_can_migrate_version',
-                lambda x,y: True)
-            _ = views.migrate_version(self.request)
-        response = render(self.request, 'base.html')
-        soup = BeautifulSoup(response.content)
-        error_message_divs = soup.find_all(
-            'div',
-            {'class': settings.MESSAGE_TAGS[messages.ERROR]})
-        self.assertEqual(len(error_message_divs), 1)
-        self.assertTrue('Already using' in error_message_divs[0].text)
-
-    def test_migrate_version_migration_started_message(self):
-        """Does migrate_version show a message when a migration starts?
-        """
-        submissionset = SubmissionSet.objects.get(pk=1)
-        self.request.institution.current_submission = submissionset
-        self.request.institution.save()
-        with testfixtures.Replacer() as r:
-            r.replace(
-                'stars.apps.tool.manage.views._get_current_institution',
-                lambda x: self.request.institution)
-            r.replace(
-                'stars.apps.tool.manage.views.user_can_migrate_version',
-                lambda x,y: True)
-            r.replace(
-                'stars.apps.tool.manage.views.form_helpers.basic_save_form',
-                lambda w,x,y,z: (None, True))
-            r.replace(
-                'stars.apps.tool.manage.views.perform_migration.delay',
-                lambda x,y,z: None)
-            _ = views.migrate_version(self.request)
-        response = render(self.request, 'base.html')
-        soup = BeautifulSoup(response.content)
-        info_message_divs = soup.find_all(
-            'div',
-            {'class': settings.MESSAGE_TAGS[messages.INFO]})
-        self.assertEqual(len(info_message_divs), 1)
-        self.assertTrue('migration is in progress' in
-                        info_message_divs[0].text)
 
     def test_purchase_subscription_discount_code_applied_message(self):
         """Does purchase_subscription show a msg when a discount code is used?
@@ -351,147 +223,88 @@ class MockPaymentForm(object):
         return True
 
 
-class InstitutionPaymentsViewTest(TestCase):
+class _InstitutionAdminToolMixinTest(TestCase):
+    """
+        Provides a base TestCase that checks if a view;
+
+            1. is non GET-able by non-admin users;
+
+            2. is GET-able by admin users, and;
+
+            3. returns a loadable (by an admin) success_url.
+    """
+
+    view_class = None  # Must be set in subclass.
 
     def setUp(self):
         self.institution = InstitutionFactory()
 
         self.account = StarsAccountFactory(institution=self.institution)
-
-        self.request = RequestFactory()
-        self.request.user = self.account.user
-        self.request.user.current_inst = self.account.institution
-        self.request.method = 'GET'
-
-    def test_request_by_non_admin(self):
-        self.account.user_level = ''
-        self.account.save()
-        response = views.InstitutionPaymentsView.as_view()(
-            self.request,
-            institution_slug=self.institution.slug)
-        self.assertEqual(response.status_code, 403)
-
-    def test_request_by_admin(self):
-        self.account.user_level = 'admin'
-        self.account.save()
-        response = views.InstitutionPaymentsView.as_view()(
-            self.request,
-            institution_slug=self.institution.slug)
-        self.assertEqual(response.status_code, 200)
-
-
-class ResponsiblePartyListViewTest(TestCase):
-
-    def setUp(self):
-        self.institution = InstitutionFactory()
-
-        self.account = StarsAccountFactory(institution=self.institution)
-
-        for i in xrange(4):
-            _ = ResponsiblePartyFactory(institution=self.institution)
-
-        self.request = RequestFactory()
-        self.request.user = self.account.user
-        self.request.user.current_inst = self.account.institution
-        self.request.method = 'GET'
-
-    def test_request_by_non_admin(self):
-        self.account.user_level = ''
-        self.account.save()
-        response = views.ResponsiblePartyListView.as_view()(
-            self.request,
-            institution_slug=self.institution.slug)
-        self.assertEqual(response.status_code, 403)
-
-    def test_request_by_admin(self):
-        self.account.user_level = 'admin'
-        self.account.save()
-        response = views.ResponsiblePartyListView.as_view()(
-            self.request,
-            institution_slug=self.institution.slug)
-        self.assertEqual(response.status_code, 200)
-
-
-class ResponsiblePartyEditViewTest(TestCase):
-
-    def setUp(self):
-        self.institution = InstitutionFactory()
-
-        self.account = StarsAccountFactory(institution=self.institution)
-
-        self.responsible_party = ResponsiblePartyFactory(
-            institution=self.institution)
-
-        self.request = RequestFactory()
-        self.request.user = self.account.user
-        self.request.method = 'GET'
-
-    def test_get_by_non_admin(self):
-        self.account.user_level = ''
-        self.account.save()
-        response = views.ResponsiblePartyEditView.as_view()(
-            self.request,
-            institution_slug=self.institution.slug,
-            pk=self.responsible_party.id)
-        self.assertEqual(response.status_code, 403)
-
-    def test_get_by_admin(self):
-        self.account.user_level = 'admin'
-        self.account.save()
-        response = views.ResponsiblePartyEditView.as_view()(
-            self.request,
-            institution_slug=self.institution.slug,
-            pk=self.responsible_party.id)
-        self.assertEqual(response.status_code, 200)
-
-    def test_get_success_url_is_loadable(self):
-        """Is the url returned by get_success_url() loadable?"""
-        self.account.user_level = 'admin'
-        self.account.save()
-        success_url = views.ResponsiblePartyEditView().get_success_url(
-            institution_slug=self.institution.slug)
-        response = Client().get(success_url, follow=True)
-        self.assertEqual(response.status_code, 200)
-
-
-class ResponsiblePartyCreateViewTest(TestCase):
-
-    def setUp(self):
-        self.institution = InstitutionFactory()
-
-        self.account = StarsAccountFactory(institution=self.institution)
+        self.account_to_edit = StarsAccountFactory(institution=self.institution)
 
         self.request = _get_request_ready_for_messages()
         self.request.user = self.account.user
         self.request.method = 'GET'
 
-    def test_get_by_non_admin_is_blocked(self):
-        """Is a GET by a non-admin user blocked?"""
+    def _get_pk(self):
+        """
+            Provides the value for the kwarg named 'pk' that's
+            passed to the view's on_view() product.  Subclasses
+            might need to override this, if, for instance, the
+            view under test expects the id of a ResponsibleParty
+            as the value of the pk kwarg.
+        """
+        return self.account.id
+
+    def test_get_by_non_admin(self):
         self.account.user_level = ''
         self.account.save()
-        response = views.ResponsiblePartyCreateView.as_view()(
+        response = self.view_class.as_view()(
             self.request,
-            institution_slug=self.institution.slug)
+            institution_slug=self.institution.slug,
+            pk=self._get_pk())
         self.assertEqual(response.status_code, 403)
 
-    def test_get_by_admin_succeeds(self):
-        """Does a GET by an admin user succeed?"""
+    def test_get_by_admin(self):
         self.account.user_level = 'admin'
         self.account.save()
-        response = views.ResponsiblePartyCreateView.as_view()(
+        response = self.view_class.as_view()(
             self.request,
-            institution_slug=self.institution.slug)
+            institution_slug=self.institution.slug,
+            pk=self._get_pk())
         self.assertEqual(response.status_code, 200)
 
     def test_get_success_url_is_loadable(self):
         """Is the url returned by get_success_url() loadable?"""
         self.account.user_level = 'admin'
         self.account.save()
-        view = views.ResponsiblePartyCreateView()
+        view = self.view_class()
+        # Hack a request object onto the view, since it'll be
+        # referenced if no success_url or success_url_name is specified
+        # in the view:
+        view.request = RequestFactory()
+        # Now set request.path to a sentinel value we can watch for:
+        view.request.path = 'SENTINEL'
         success_url = view.get_success_url(
             institution_slug=self.institution.slug)
-        response = Client().get(success_url, follow=True)
-        self.assertEqual(response.status_code, 200)
+        if success_url is not 'SENTINEL':
+            response = Client().get(success_url, follow=True)
+            self.assertEqual(response.status_code, 200)
+
+
+class InstitutionPaymentsViewTest(_InstitutionAdminToolMixinTest):
+
+    view_class = views.InstitutionPaymentsView
+
+
+class ResponsiblePartyListViewTest(_InstitutionAdminToolMixinTest):
+
+    view_class = views.ResponsiblePartyListView
+
+
+class ResponsiblePartyCreateViewTest(_InstitutionAdminToolMixinTest):
+
+    view_class = views.ResponsiblePartyCreateView
 
     def test_post_creates_a_responsible_party(self):
         """Does a POST by an admin create a responsible party?"""
@@ -538,49 +351,30 @@ class ResponsiblePartyCreateViewTest(TestCase):
                          ResponsibleParty.objects.count())
 
 
-class ResponsiblePartyDeleteViewTest(TestCase):
+class ResponsiblePartyEditViewTest(_InstitutionAdminToolMixinTest):
+
+    view_class = views.ResponsiblePartyEditView
 
     def setUp(self):
-        self.institution = InstitutionFactory()
-
-        self.account = StarsAccountFactory(institution=self.institution)
-
+        super(ResponsiblePartyEditViewTest, self).setUp()
         self.responsible_party = ResponsiblePartyFactory(
             institution=self.institution)
 
-        self.request = _get_request_ready_for_messages()
-        self.request.user = self.account.user
-        self.request.method = 'GET'
+    def _get_pk(self):
+        return self.responsible_party.id
 
-    def test_get_by_non_admin_is_blocked(self):
-        """Is a GET by a non-admin user blocked?"""
-        self.account.user_level = ''
-        self.account.save()
-        response = views.ResponsiblePartyDeleteView.as_view()(
-            self.request,
-            institution_slug=self.institution.slug,
-            pk=self.responsible_party.id)
-        self.assertEqual(response.status_code, 403)
 
-    def test_get_by_admin_succeeds(self):
-        """Does a GET by an admin user succeed?"""
-        self.account.user_level = 'admin'
-        self.account.save()
-        response = views.ResponsiblePartyDeleteView.as_view()(
-            self.request,
-            institution_slug=self.institution.slug,
-            pk=self.responsible_party.id)
-        self.assertEqual(response.status_code, 200)
+class ResponsiblePartyDeleteViewTest(_InstitutionAdminToolMixinTest):
 
-    def test_get_success_url_is_loadable(self):
-        """Is the url returned by get_success_url() loadable?"""
-        self.account.user_level = 'admin'
-        self.account.save()
-        view = views.ResponsiblePartyDeleteView()
-        success_url = view.get_success_url(
-            institution_slug=self.institution.slug)
-        response = Client().get(success_url, follow=True)
-        self.assertEqual(response.status_code, 200)
+    view_class = views.ResponsiblePartyDeleteView
+
+    def setUp(self):
+        super(ResponsiblePartyDeleteViewTest, self).setUp()
+        self.responsible_party = ResponsiblePartyFactory(
+            institution=self.institution)
+
+    def _get_pk(self):
+        return self.responsible_party.id
 
     def test_delete_responsible_party_listed_with_no_credits(self):
         """Does delete for a resp. party listed with no credits succeed?"""
@@ -654,37 +448,38 @@ class ResponsiblePartyDeleteViewTest(TestCase):
         self.assertTrue('cannot be removed' in info_message_divs[0].text)
 
 
-class AccountCreateViewTest(TestCase):
+class AccountListViewTest(_InstitutionAdminToolMixinTest):
 
-    def setUp(self):
-        self.institution = InstitutionFactory()
+    view_class = views.AccountListView
 
-        self.account = StarsAccountFactory(institution=self.institution)
-
-        self.responsible_party = ResponsiblePartyFactory(
-            institution=self.institution)
-
-        self.request = _get_request_ready_for_messages()
-        self.request.user = self.account.user
-        self.request.method = 'GET'
-
-    def test_get_by_non_admin_is_blocked(self):
-        """Is a GET by a non-admin user blocked?"""
-        self.account.user_level = ''
-        self.account.save()
-        response = views.AccountCreateView.as_view()(
-            request=self.request,
-            institution_slug=self.institution.slug)
-        self.assertEqual(response.status_code, 403)
-
-    def test_get_by_admin_succeeds(self):
-        """Does a GET by an admin user succeed?"""
+    def test_lists_stars_and_pending_accounts(self):
+        """Are both StarsAccounts and PendingAccounts listed?"""
         self.account.user_level = 'admin'
         self.account.save()
-        response = views.AccountCreateView.as_view()(
-            request=self.request,
+
+        accounts = list()
+        for i in xrange(4):
+            accounts.append(StarsAccountFactory(institution=self.institution))
+
+        pending_accounts = list()
+        for account in accounts:
+            pending_accounts.append(
+                PendingAccountFactory(institution=self.institution))
+
+        _ = views.AccountListView.as_view()(
+            self.request,
             institution_slug=self.institution.slug)
-        self.assertEqual(response.status_code, 200)
+        response = render(self.request, 'base.html')
+        soup = BeautifulSoup(response.content)
+        table = soup.find('table')
+        tbody = table.findChild('tbody')
+        rows = tbody.findChildren('tr')
+        self.assertEqual(len(rows), len(accounts) + len(pending_accounts))
+
+
+class AccountCreateViewTest(_InstitutionAdminToolMixinTest):
+
+    view_class = views.AccountCreateView
 
     def test_form_valid_no_aashe_user_account_creates_pendingaccount(self):
         """Does form_valid() create a PendingAccount if no ASSHE account exists?
@@ -725,12 +520,239 @@ class AccountCreateViewTest(TestCase):
         self.assertEqual(stars_account_count_before + 1,
                          StarsAccount.objects.count())
 
-    def test_get_success_url_is_loadable(self):
-        """Is the url returned by get_success_url() loadable?"""
+    def test_notify_user(self):
+        """Is a user notified when his account is created?"""
+        raise NotImplemented()
+
+
+class AccountEditViewTest(_InstitutionAdminToolMixinTest):
+
+    view_class = views.AccountEditView
+
+
+class AccountDeleteViewTest(_InstitutionAdminToolMixinTest):
+
+    view_class = views.AccountDeleteView
+
+    def test_delete_stars_account(self):
+        """Does deleting a stars account work?"""
         self.account.user_level = 'admin'
         self.account.save()
-        view = views.AccountCreateView()
-        success_url = view.get_success_url(
-            institution_slug=self.institution.slug)
-        response = Client().get(success_url, follow=True)
+        self.request.method = 'POST'
+        stars_account_count_before = StarsAccount.objects.count()
+        self.request.POST = {}
+        self.request.FILES = None
+        _ = views.AccountDeleteView.as_view()(
+            request=self.request,
+            institution_slug=self.institution.slug,
+            pk=self.account.id)
+        self.assertEqual(stars_account_count_before - 1,
+                         StarsAccount.objects.count())
+
+    def test_notify_user(self):
+        """Is a user notified when his account is deleted?"""
+        raise NotImplemented()
+
+
+class PendingAccountDeleteViewTest(_InstitutionAdminToolMixinTest):
+
+    view_class = views.PendingAccountDeleteView
+
+    def setUp(self):
+        super(PendingAccountDeleteViewTest, self).setUp()
+        self.pending_account = PendingAccountFactory(
+            institution=self.institution)
+
+    def _get_pk(self):
+        return self.pending_account.id
+
+    def test_delete_stars_account(self):
+        """Does deleting a pending account work?"""
+        self.account.user_level = 'admin'
+        self.account.save()
+        self.request.method = 'POST'
+        pending_account_count_before = PendingAccount.objects.count()
+        self.request.POST = {}
+        self.request.FILES = None
+        _ = views.PendingAccountDeleteView.as_view()(
+            request=self.request,
+            institution_slug=self.institution.slug,
+            pk=self.pending_account.id)
+        self.assertEqual(pending_account_count_before - 1,
+                         PendingAccount.objects.count())
+
+
+class ShareDataViewTest(_InstitutionAdminToolMixinTest):
+
+    view_class = views.ShareDataView
+
+
+class MigrateOptionsViewTest(_InstitutionAdminToolMixinTest):
+
+    view_class = views.MigrateOptionsView
+
+    def setUp(self):
+        super(MigrateOptionsViewTest, self).setUp()
+        self.request.user.user_level = 'admin'
+        self.r_status_submissionsets = list()
+        self.f_status_submissionsets = list()
+        for _ in xrange(2):
+            self.r_status_submissionsets.append(SubmissionSetFactory(
+                institution=self.institution, status='r'))
+        for _ in xrange(2):
+            self.f_status_submissionsets.append(SubmissionSetFactory(
+                institution=self.institution, status='f'))
+
+    def test__get_available_submissions_not_participant(self):
+        self.institution.is_participant = False
+        view = views.MigrateOptionsView
+        available_submissions = view._get_available_submissions(
+            institution=self.institution)
+        self.assertEqual(len(available_submissions),
+                         len(self.r_status_submissionsets))
+
+    def test__get_available_submissions_is_participant(self):
+        self.institution.is_participant = True
+        view = views.MigrateOptionsView
+        available_submissions = view._get_available_submissions(
+            institution=self.institution)
+        self.assertEqual(len(available_submissions),
+                         len(self.r_status_submissionsets) +
+                         len(self.f_status_submissionsets))
+
+
+class _MigrateDataVersionViewTest(_InstitutionAdminToolMixinTest):
+    """
+        A base class for MigrateDataViewTest and MigrateVersionViewTest.
+    """
+
+    # The following attributes must be set in the subclass.
+    view_class = None  # name of the class to test
+    privelege_rule = None   # name of rule used as gatekeeper
+
+    OPEN, CLOSED = True, False
+
+    def setUp(self):
+        super(_MigrateDataVersionViewTest, self).setUp()
+        self.institution.is_participant = True
+        self.submissionset = SubmissionSetFactory(
+            institution=self.institution, status='r')
+        self.institution.current_submission = self.submissionset
+        self.institution.save()
+
+    def _get_pk(self):
+        return self.submissionset.id
+
+    def _set_gate(self, state):
+        """
+            Stubs out the gatekeeper rule so that it always
+            returns state (which should be OPEN or FALSE).
+        """
+        aashe_rules.site.unregister(self.privelege_rule)
+        aashe_rules.site.register(self.privelege_rule,
+                                  lambda u, i: state)
+
+    def test_get_by_non_priveleged_user(self):
+        """Does a GET by a user w/o the appropriate priveleges fail?
+        """
+        self.account.user_level = 'admin'
+        self.account.save()
+        # close the gate:
+        self._set_gate(self.CLOSED)
+        response = self.view_class.as_view()(
+            self.request,
+            institution_slug=self.institution.slug,
+            pk=self._get_pk())
+        self.assertEqual(response.status_code, 403)
+
+    def test_get_by_priveleged_user(self):
+        """Does a GET by a user w/the appropriate priveleges succeed?
+        """
+        self.account.user_level = 'admin'
+        self.account.save()
+        # stub out the gatekeeper rule:
+        self._set_gate(self.OPEN)
+        response = self.view_class.as_view()(
+            self.request,
+            institution_slug=self.institution.slug,
+            pk=self._get_pk())
+        self.assertEqual(response.status_code, 200)
+
+    def test_form_valid_starts_migration(self,
+                                         migration_function,
+                                         stub_function):
+        """When all is ok, is a migration task started?
+
+        migration_function - name of the function that starts the migration
+
+        stub_function - stand-in for migration function; should raise
+                        ZeroDivisionError
+        """
+        self.account.user_level = 'admin'
+        self.account.save()
+        self.request.method = 'POST'
+        self.request.POST = { 'is_locked': True }
+        # open the gate:
+        self._set_gate(self.OPEN)
+        with testfixtures.Replacer() as r:
+            # stub out the migration function with a lambda that'll
+            # raise a ZeroDivisionError, then we can check to
+            # see if that error's raised when the migration
+            # function should be called.
+            r.replace(migration_function, stub_function)
+            self.assertRaises(ZeroDivisionError,
+                              self.view_class.as_view(),
+                              self.request,
+                              institution_slug=self.institution.slug,
+                              pk=self._get_pk())
+
+
+class MigrateDataViewTest(_MigrateDataVersionViewTest):
+
+    view_class = views.MigrateDataView
+    privelege_rule = 'user_can_migrate_from_submission'
+
+    def test_form_valid_starts_migration(self):
+        super(MigrateDataViewTest, self).test_form_valid_starts_migration(
+                'stars.apps.tool.manage.views.perform_data_migration.delay',
+                lambda x, y: 1/0)
+
+
+class MigrateVersionViewTest(_MigrateDataVersionViewTest):
+
+    view_class = views.MigrateVersionView
+    privelege_rule = 'user_can_migrate_version'
+
+    def test_form_valid_starts_migration(self):
+        super(MigrateVersionViewTest, self).test_form_valid_starts_migration(
+                'stars.apps.tool.manage.views.perform_migration.delay',
+                lambda x, y, z: 1/0)
+
+    def test_dispatch_prevents_migration_when_already_at_latest_version(self):
+        """Does dispatch prevent migration if current sub is at latest version?
+        """
+        self.account.user_level = 'admin'
+        self.account.save()
+        latest_creditset = CreditSet.objects.get_latest()
+        self.submissionset.creditset = latest_creditset
+        self.submissionset.save()
+        response = self.view_class().dispatch(
+            self.request,
+            institution_slug=self.institution.slug,
+            pk=self._get_pk())
+        self.assertEqual(response.status_code, 302)
+
+    def test_dispatch_allows_migration_when_not_already_at_latest_version(self):
+        """Does dispatch allow migration if current sub isn't at latest version?
+        """
+        self.account.user_level = 'admin'
+        self.account.save()
+        with testfixtures.Replacer() as r:
+            r.replace(
+                'stars.apps.tool.manage.views.' + self.privelege_rule,
+                lambda u, i: True)
+            response = self.view_class().dispatch(
+                self.request,
+                institution_slug=self.institution.slug,
+                pk=self._get_pk())
         self.assertEqual(response.status_code, 200)

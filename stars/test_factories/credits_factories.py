@@ -27,7 +27,7 @@ class CreditSetFactory(factory.Factory):
     @factory.post_generation(extract_prefix='supported_features')
     def add_supported_features(self, create, extracted, **kwargs):
         # allow something like CreditSetFactory(
-        #     incremental_features=IncrementalFeature.objects.filter(...))
+        #     supported_features=IncrementalFeature.objects.filter(...))
         if extracted:
             self.supported_features = extracted
 

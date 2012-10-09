@@ -9,14 +9,6 @@
 
 {% block institution_content %}
 
-    <a href='{% url responsible-party-list institution.slug %}'
-       class="btn btn-small">
-        <i class='icon-chevron-left'></i>
-        All Responsible Parties
-    </a>
-
-    <h2>{{ title }}</h2>
-
     <form method='post' action='.' class='form-horizontal'>
         {{ form|bootstrap }}
         <div class='form-actions'>
@@ -32,19 +24,6 @@
                 onclick="document.location='{% url responsible-party-list institution.slug %}'">
                     Cancel
             </button>
-            {% if responsible_party %}
-              {% comment %}
-                if there's a responsible_party available, show a button
-                to delete it.
-              {% endcomment %}
-              <button
-                  type='button'
-                  class='btn'
-                  onclick="document.location='{{ responsible_party.get_manage_url }}delete/';">
-
-                      Delete
-              </button>
-            {% endif %}
         </div>
     </form>
 

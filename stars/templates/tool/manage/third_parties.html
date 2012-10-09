@@ -10,13 +10,12 @@
 	{% with active_tab="share" %}{{ block.super }}{% endwith %}
 {% endblock %}
 
-
 {% block institution_content %}
   {% display_block_content 'third-parties' user %}
-  
+
     <form action='.' method='post'>
     {# @todo: Use the iteration tool available in Django 1.4 when it launches #}
-    
+
     <table class='table'>
     	<thead>
         <tr>
@@ -56,12 +55,12 @@
         {% endfor %}
         </tbody>
     </table>
-    
+
 	    <div class='form-actions'>
 	          <button type='submit' id='submit_button' class='btn btn-primary'>Save</button>
 	      </div>
     </form>
-    
+
     <h3>Snapshots</h3>
     {% display_block_content 'third-party_snapshots' user %}
     <table class='table'>
@@ -94,13 +93,13 @@
     </table>
     <p align='center'>
       {% testrule institution_has_snapshot_feature user.current_inst %}
-		<a href='/tool/submissions/snapshot/' class='btn btn-info'>
-			<i class="icon-share icon-white"></i> Save Snapshot</a>
+		<a href='{% url save-snapshot %}' class='btn btn'>
+			<i class="icon-share-alt"></i> Take a Snapshot of Your Data Now</a>
       {% else %}
-        <a href='/tool/manage/migrate/' class='btn'>
+        <a href='{% url migrate-options institution.slug  %}' class='btn'>
         	<i class='icon-share-alt'></i> Migrate</a>
         	to the latest version of STARS to start taking snapshots.
-        	
+
       {% endtestrule %}
     </p>
 {% endblock %}
