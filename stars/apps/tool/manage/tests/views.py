@@ -12,6 +12,7 @@ from django.test import TestCase
 from django.test.client import Client, RequestFactory
 import testfixtures
 
+import aashe_rules
 from stars.test_factories import (CreditUserSubmissionFactory,
      InstitutionFactory, PendingAccountFactory, ResponsiblePartyFactory,
      SubmissionSetFactory, StarsAccountFactory, UserFactory)
@@ -70,85 +71,6 @@ class ViewsTest(TestCase):
             code=MockPaymentForm().cleaned_data['discount_code'],
             amount=100.00, start_date='1000-01-01', end_date='5000-01-01')
         value_discount.save()
-
-    def test_migrate_data_migration_started_message(self):
-        """Does migrate_data show a message when a migration starts?
-        """
-        submissionset = SubmissionSet.objects.get(pk=1)
-        self.request.institution.current_submission = submissionset
-        self.request.institution.save()
-        with testfixtures.Replacer() as r:
-            r.replace(
-                'stars.apps.tool.manage.views._get_current_institution',
-                lambda x: self.request.institution)
-            r.replace(
-                'stars.apps.tool.manage.views.user_can_migrate_from_submission',
-                lambda x,y: True)
-            r.replace(
-                'stars.apps.tool.manage.views.form_helpers.basic_save_form',
-                lambda w,x,y,z: (None, True))
-            _ = views.migrate_data(self.request, 1)
-        response = render(self.request, 'base.html')
-        soup = BeautifulSoup(response.content)
-        info_message_divs = soup.find_all(
-            'div',
-            {'class': settings.MESSAGE_TAGS[messages.INFO]})
-        self.assertEqual(len(info_message_divs), 1)
-        self.assertTrue('migration is in progress' in
-                        info_message_divs[0].text)
-
-    def test_migrate_version_already_using_version_error_message(self):
-        """Does migrate_version show an error msg if that version is current?
-        """
-        submissionset = SubmissionSet.objects.get(pk=1)
-        submissionset.creditset = CreditSet.objects.get_latest()
-        submissionset.save()
-        self.request.institution.current_submission = submissionset
-        self.request.institution.save()
-        with testfixtures.Replacer() as r:
-            r.replace(
-                'stars.apps.tool.manage.views._get_current_institution',
-                lambda x: self.request.institution)
-            r.replace(
-                'stars.apps.tool.manage.views.user_can_migrate_version',
-                lambda x,y: True)
-            _ = views.migrate_version(self.request)
-        response = render(self.request, 'base.html')
-        soup = BeautifulSoup(response.content)
-        error_message_divs = soup.find_all(
-            'div',
-            {'class': settings.MESSAGE_TAGS[messages.ERROR]})
-        self.assertEqual(len(error_message_divs), 1)
-        self.assertTrue('Already using' in error_message_divs[0].text)
-
-    def test_migrate_version_migration_started_message(self):
-        """Does migrate_version show a message when a migration starts?
-        """
-        submissionset = SubmissionSet.objects.get(pk=1)
-        self.request.institution.current_submission = submissionset
-        self.request.institution.save()
-        with testfixtures.Replacer() as r:
-            r.replace(
-                'stars.apps.tool.manage.views._get_current_institution',
-                lambda x: self.request.institution)
-            r.replace(
-                'stars.apps.tool.manage.views.user_can_migrate_version',
-                lambda x,y: True)
-            r.replace(
-                'stars.apps.tool.manage.views.form_helpers.basic_save_form',
-                lambda w,x,y,z: (None, True))
-            r.replace(
-                'stars.apps.tool.manage.views.perform_migration.delay',
-                lambda x,y,z: None)
-            _ = views.migrate_version(self.request)
-        response = render(self.request, 'base.html')
-        soup = BeautifulSoup(response.content)
-        info_message_divs = soup.find_all(
-            'div',
-            {'class': settings.MESSAGE_TAGS[messages.INFO]})
-        self.assertEqual(len(info_message_divs), 1)
-        self.assertTrue('migration is in progress' in
-                        info_message_divs[0].text)
 
     def test_purchase_subscription_discount_code_applied_message(self):
         """Does purchase_subscription show a msg when a discount code is used?
@@ -699,20 +621,138 @@ class MigrateOptionsViewTest(_InstitutionAdminToolMixinTest):
                          len(self.f_status_submissionsets))
 
 
-class MigrateDataViewTest(_InstitutionAdminToolMixinTest):
+class _MigrateDataVersionViewTest(_InstitutionAdminToolMixinTest):
+    """
+        A base class for MigrateDataViewTest and MigrateVersionViewTest.
+    """
 
-    view_class = views.MigrateDataView
+    # The following attributes must be set in the subclass.
+    view_class = None  # name of the class to test
+    privelege_rule = None   # name of rule used as gatekeeper
+
+    OPEN, CLOSED = True, False
 
     def setUp(self):
-        super(MigrateDataViewTest, self).setUp()
+        super(_MigrateDataVersionViewTest, self).setUp()
         self.institution.is_participant = True
         self.submissionset = SubmissionSetFactory(
             institution=self.institution, status='r')
+        self.institution.current_submission = self.submissionset
+        self.institution.save()
 
     def _get_pk(self):
         return self.submissionset.id
 
-    def test_form_valid_starts_migration(self):
-        """When all is ok, is a migration task started?
+    def _set_gate(self, state):
         """
-        raise NotImplemented()
+            Stubs out the gatekeeper rule so that it always
+            returns state (which should be OPEN or FALSE).
+        """
+        aashe_rules.site.unregister(self.privelege_rule)
+        aashe_rules.site.register(self.privelege_rule,
+                                  lambda u, i: state)
+
+    def test_get_by_non_priveleged_user(self):
+        """Does a GET by a user w/o the appropriate priveleges fail?
+        """
+        self.account.user_level = 'admin'
+        self.account.save()
+        # close the gate:
+        self._set_gate(self.CLOSED)
+        response = self.view_class.as_view()(
+            self.request,
+            institution_slug=self.institution.slug,
+            pk=self._get_pk())
+        self.assertEqual(response.status_code, 403)
+
+    def test_get_by_priveleged_user(self):
+        """Does a GET by a user w/the appropriate priveleges succeed?
+        """
+        self.account.user_level = 'admin'
+        self.account.save()
+        # stub out the gatekeeper rule:
+        self._set_gate(self.OPEN)
+        response = self.view_class.as_view()(
+            self.request,
+            institution_slug=self.institution.slug,
+            pk=self._get_pk())
+        self.assertEqual(response.status_code, 200)
+
+    def test_form_valid_starts_migration(self,
+                                         migration_function,
+                                         stub_function):
+        """When all is ok, is a migration task started?
+
+        migration_function - name of the function that starts the migration
+
+        stub_function - stand-in for migration function; should raise
+                        ZeroDivisionError
+        """
+        self.account.user_level = 'admin'
+        self.account.save()
+        self.request.method = 'POST'
+        self.request.POST = { 'is_locked': True }
+        # open the gate:
+        self._set_gate(self.OPEN)
+        with testfixtures.Replacer() as r:
+            # stub out the migration function with a lambda that'll
+            # raise a ZeroDivisionError, then we can check to
+            # see if that error's raised when the migration
+            # function should be called.
+            r.replace(migration_function, stub_function)
+            self.assertRaises(ZeroDivisionError,
+                              self.view_class.as_view(),
+                              self.request,
+                              institution_slug=self.institution.slug,
+                              pk=self._get_pk())
+
+
+class MigrateDataViewTest(_MigrateDataVersionViewTest):
+
+    view_class = views.MigrateDataView
+    privelege_rule = 'user_can_migrate_from_submission'
+
+    def test_form_valid_starts_migration(self):
+        super(MigrateDataViewTest, self).test_form_valid_starts_migration(
+                'stars.apps.tool.manage.views.perform_data_migration.delay',
+                lambda x, y: 1/0)
+
+
+class MigrateVersionViewTest(_MigrateDataVersionViewTest):
+
+    view_class = views.MigrateVersionView
+    privelege_rule = 'user_can_migrate_version'
+
+    def test_form_valid_starts_migration(self):
+        super(MigrateVersionViewTest, self).test_form_valid_starts_migration(
+                'stars.apps.tool.manage.views.perform_migration.delay',
+                lambda x, y, z: 1/0)
+
+    def test_dispatch_prevents_migration_when_already_at_latest_version(self):
+        """Does dispatch prevent migration if current sub is at latest version?
+        """
+        self.account.user_level = 'admin'
+        self.account.save()
+        latest_creditset = CreditSet.objects.get_latest()
+        self.submissionset.creditset = latest_creditset
+        self.submissionset.save()
+        response = self.view_class().dispatch(
+            self.request,
+            institution_slug=self.institution.slug,
+            pk=self._get_pk())
+        self.assertEqual(response.status_code, 302)
+
+    def test_dispatch_allows_migration_when_not_already_at_latest_version(self):
+        """Does dispatch allow migration if current sub isn't at latest version?
+        """
+        self.account.user_level = 'admin'
+        self.account.save()
+        with testfixtures.Replacer() as r:
+            r.replace(
+                'stars.apps.tool.manage.views.' + self.privelege_rule,
+                lambda u, i: True)
+            response = self.view_class().dispatch(
+                self.request,
+                institution_slug=self.institution.slug,
+                pk=self._get_pk())
+        self.assertEqual(response.status_code, 200)
