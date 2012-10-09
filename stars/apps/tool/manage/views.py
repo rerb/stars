@@ -36,6 +36,7 @@ from stars.apps.registration.models import ValueDiscount
 from stars.apps.notifications.models import EmailTemplate
 
 # new imports
+from stars.apps.institutions.models import Institution
 from stars.apps.tool.mixins import InstitutionAdminToolMixin
 from stars.apps.helpers.mixins import ValidationMessageFormMixin
 from stars.apps.helpers.queryset_sequence import QuerySetSequence
@@ -401,22 +402,31 @@ class MigrateOptionsView(InstitutionAdminToolMixin, TemplateView):
 class MigrateDataView(InstitutionAdminToolMixin,
                       ValidationMessageFormMixin,
                       UpdateView):
-
+    """
+        Provides a form to solicit user's confirmation that this
+        data migration should proceed.
+    """
     form_class = MigrateSubmissionSetForm
     model = SubmissionSet
     success_url = '/tool/'
     template_name = 'tool/manage/migrate_data.html'
-
-    def _get_old_submission(self):
-        return get_object_or_404(
-            self.get_institution().submissionset_set.all(),
-            id=self.kwargs['pk'])
+    valid_message = ("Your migration is in progress. Please allow a "
+                     "few minutes before you can access your submission.")
+    invalid_message = ("Before the migration can begin, you need to "
+                       "confirm your intention by checking that little "
+                       "check box down there above the Migrate My Data "
+                       "button.")
 
     logical_rules = (InstitutionAdminToolMixin.logical_rules +
                      [{'name': 'user_can_migrate_from_submission',
                        'param_callbacks': [('user', 'get_request_user'),
                                            ('submission',
                                             '_get_old_submission')]}])
+
+    def _get_old_submission(self):
+        return get_object_or_404(
+            self.get_institution().submissionset_set.all(),
+            id=self.kwargs['pk'])
 
     def get_context_data(self, **kwargs):
         context = super(MigrateDataView, self).get_context_data(**kwargs)
@@ -427,20 +437,89 @@ class MigrateDataView(InstitutionAdminToolMixin,
     def form_valid(self, form):
         # if user hasn't checked the magic box:
         if not form.cleaned_data['is_locked']:
-            messages.warning(self.request,
-                             "Before the migration can begin, you need to "
-                             "confirm your intention by checking that little "
-                             "check box down there above the Migrate My Data "
-                             "button.")
-            return HttpResponseRedirect(self.request.path)
-
+            return self.form_invalid(form)
         # otherwise, start a migration task
-        messages.warning(self.request,
-                      "Your migration is in progress. Please allow a "
-                      "few minutes before you can access your submission.")
         perform_data_migration.delay(self._get_old_submission(),
                                      self.request.user)
         return super(MigrateDataView, self).form_valid(form)
+
+
+class MigrateVersionView(InstitutionAdminToolMixin,
+                         ValidationMessageFormMixin,
+                         UpdateView):
+    """
+        Provides a form to solicit user's confirmation that this
+        version migration should proceed.
+    """
+    form_class = MigrateSubmissionSetForm
+    model = SubmissionSet
+    success_url = '/tool/'
+    template_name = 'tool/manage/migrate_version.html'
+    valid_message = ("Your migration is in progress. Please allow a "
+                     "few minutes before you can access your submission.")
+    invalid_message = ("Before the migration can begin, you need to "
+                       "confirm your intention by checking that little "
+                       "check box down there above the Migrate My Data "
+                       "button.")
+
+    logical_rules = (InstitutionAdminToolMixin.logical_rules +
+                     [{'name': 'user_can_migrate_version',
+                       'param_callbacks': [('user', 'get_request_user'),
+                                           ('current_inst',
+                                            'get_institution')]}])
+
+    # @todo - POST should redirect to get_success_url(), but it's not.
+    # Here's why:
+    #
+    # 1. extra logical rule: user_can_migrate_version
+    #   a. user is admin for inst, and
+    #      submissionset.version != latest creditset.version
+    #   b. prevents GET of view if rule is False
+    #   c. if rule is True on GET, form is displayed
+    #      i. on POST, submissionset.version is set to latest creditset.version
+    #        *. before rules are checked
+    #     ii. rule is now False, so view returns HttpResponseForbidden
+    #         (rather than redirecting to get_success_url())
+
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Short-circuits the migration process if the current submission
+        is already at the latest version.
+
+        Also saves latest_creditset and current_submission onto self
+        for use in other methods.
+        """
+        self.latest_creditset = CreditSet.objects.get_latest()
+        # Can't use self.get_institution() yet, since self.kwargs
+        # isn't set until django.views.generic.base.dispatch, which
+        # doesn't get called until the end of this method; so use
+        # Institution.objects.get() instead:
+        current_inst = Institution.objects.get(slug=kwargs['institution_slug'])
+        self.current_submission = current_inst.current_submission
+        if (self.latest_creditset.version ==
+            self.current_submission.creditset.version):
+            messages.error(request, "Already using %s." % self.latest_creditset)
+            return HttpResponseRedirect(
+                reverse('migrate-options',
+                        kwargs={ 'institution_slug': current_inst.slug }))
+        return super(MigrateVersionView, self).dispatch(
+            request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(MigrateVersionView, self).get_context_data(**kwargs)
+        context['current_submission'] = self.current_submission
+        context['latest_creditset'] = self.latest_creditset
+        return context
+
+    def form_valid(self, form):
+        # if user hasn't checked the magic box, do not proceed . . .
+        if not form.cleaned_data['is_locked']:
+            return self.form_invalid(form)
+        # . . . otherwise, start a migration task
+        perform_migration.delay(self.current_submission,
+                                self.latest_creditset,
+                                self.request.user)
+        return super(MigrateVersionView, self).form_valid(form)
 
 
 ##############################################################################
@@ -460,46 +539,6 @@ def _update_preferences(request, institution):
     (notify_form,saved) = form_helpers.basic_save_form(
         request, preferences, '', NotifyUsersForm, show_message=False)
     return (preferences, notify_form)
-
-def migrate_version(request):
-    """
-        Provides a tool to migrate a submission set
-    """
-    current_inst = _get_current_institution(request)
-    current_submission = current_inst.current_submission
-    latest_creditset = CreditSet.objects.get_latest()
-
-    if latest_creditset.version == current_submission.creditset.version:
-        messages.error(request, "Already using %s." % latest_creditset)
-        return HttpResponseRedirect("/tool/manage/migrate/")
-
-    if not user_can_migrate_version(request.user, current_inst):
-        raise PermissionDenied("Sorry, but you don't have permission "
-                               "to migrate data.")
-
-    ObjectForm = MigrateSubmissionSetForm
-
-    object_form, saved = form_helpers.basic_save_form(request,
-                                                      current_submission,
-                                                      current_submission.id,
-                                                      ObjectForm)
-    if saved:
-        # start a migration task
-        messages.info(request, "Your migration is in progress. "
-                      "Please allow a few minutes before you can access "
-                      "your submission.")
-        perform_migration.delay(current_submission,
-                                latest_creditset,
-                                request.user)
-        return HttpResponseRedirect("/tool/")
-
-    template = 'tool/manage/migrate_version.html'
-    context = {
-        "object_form": object_form,
-        "current_submission": current_submission,
-        "latest_creditset": latest_creditset,
-    }
-    return respond(request, template, context)
 
 def _gets_discount(institution, current_date=date.today()):
     """
