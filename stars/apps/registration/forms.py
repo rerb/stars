@@ -1,10 +1,6 @@
 from django import forms
-from django.forms import widgets
 from django.forms import ModelForm
-from django.contrib.localflavor.us.forms import USStateField
 from django.forms.util import ErrorList
-
-import re
 
 from stars.apps.institutions.models import *
 from stars.apps.registration.utils import is_canadian_zipcode, is_usa_zipcode
