@@ -306,7 +306,7 @@ def reg_payment(request):
     if response: return response
 
     # get price
-    price = _get_registration_price(institution)
+    price = get_registration_price(institution)
 
     pay_form = PaymentForm()
     pay_later_form = PayLaterForm()
@@ -321,7 +321,7 @@ def reg_payment(request):
                 pay_form = PaymentForm(request.POST)
                 if pay_form.is_valid():
                     if pay_form.cleaned_data['discount_code'] != None:
-                        price = _get_registration_price(
+                        price = get_registration_price(
                             institution,
                             discount_code=pay_form.cleaned_data['discount_code'])
                         messages.info(request, "Discount Code Applied")
@@ -717,7 +717,7 @@ def _get_selected_institution(request):
 
     return institution, None
 
-def _get_registration_price(institution, new=True, discount_code=None):
+def get_registration_price(institution, new=True, discount_code=None):
     """
         Calculates the registration price based on the institution.
 
