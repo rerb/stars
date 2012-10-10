@@ -411,11 +411,21 @@ class MigrateDataView(InstitutionAdminToolMixin,
                        "check box down there above the Migrate My Data "
                        "button.")
 
-    logical_rules = (InstitutionAdminToolMixin.logical_rules +
-                     [{'name': 'user_can_migrate_from_submission',
-                       'param_callbacks': [('user', 'get_request_user'),
-                                           ('submission',
-                                            '_get_old_submission')]}])
+#    _logical_rules = (InstitutionAdminToolMixin._logical_rules +
+#                     [{'name': 'user_can_migrate_from_submission',
+#                       'param_callbacks': [('user', 'get_request_user'),
+#                                           ('submission',
+#                                            '_get_old_submission')]}])
+    
+    def update_logical_rules(self):
+        super(MigrateDataView, self).update_logical_rules()
+        self.add_logical_rule({
+                                'name': 'user_can_migrate_from_submission',
+                                'param_callbacks': [
+                                                        ('user', 'get_request_user'),
+                                                        ('submission', '_get_old_submission')
+                                                    ]
+                               })
 
     def _get_old_submission(self):
         return get_object_or_404(
@@ -456,11 +466,21 @@ class MigrateVersionView(InstitutionAdminToolMixin,
                        "check box down there above the Migrate My Data "
                        "button.")
 
-    logical_rules = (InstitutionAdminToolMixin.logical_rules +
-                     [{'name': 'user_can_migrate_version',
-                       'param_callbacks': [('user', 'get_request_user'),
-                                           ('current_inst',
-                                            'get_institution')]}])
+#    logical_rules = (InstitutionAdminToolMixin.logical_rules +
+#                     [{'name': 'user_can_migrate_version',
+#                       'param_callbacks': [('user', 'get_request_user'),
+#                                           ('current_inst',
+#                                            'get_institution')]}])
+    
+    def update_logical_rules(self):
+        super(MigrateVersionView, self).update_logical_rules()
+        self.add_logical_rule({
+                                'name': 'user_can_migrate_version',
+                                'param_callbacks': [
+                                                        ('user', 'get_request_user'),
+                                                        ('current_inst', 'get_institution')
+                                                    ]
+                               })
 
     # @todo - POST should redirect to get_success_url(), but it's not.
     # Here's why:
@@ -475,34 +495,39 @@ class MigrateVersionView(InstitutionAdminToolMixin,
     #     ii. rule is now False, so view returns HttpResponseForbidden
     #         (rather than redirecting to get_success_url())
 
-    def dispatch(self, request, *args, **kwargs):
-        """
-        Short-circuits the migration process if the current submission
-        is already at the latest version.
-
-        Also saves latest_creditset and current_submission onto self
-        for use in other methods.
-        """
-        self.latest_creditset = CreditSet.objects.get_latest()
-        # Can't use self.get_institution() yet, since self.kwargs
-        # isn't set until django.views.generic.base.dispatch, which
-        # doesn't get called until the end of this method; so use
-        # Institution.objects.get() instead:
-        current_inst = Institution.objects.get(slug=kwargs['institution_slug'])
-        self.current_submission = current_inst.current_submission
-        if (self.latest_creditset.version ==
-            self.current_submission.creditset.version):
-            messages.error(request, "Already using %s." % self.latest_creditset)
-            return HttpResponseRedirect(
-                reverse('migrate-options',
-                        kwargs={ 'institution_slug': current_inst.slug }))
-        return super(MigrateVersionView, self).dispatch(
-            request, *args, **kwargs)
+#    def dispatch(self, request, *args, **kwargs):
+#        """
+#        Short-circuits the migration process if the current submission
+#        is already at the latest version.
+#
+#        Also saves latest_creditset and current_submission onto self
+#        for use in other methods.
+#        """
+#        self.latest_creditset = CreditSet.objects.get_latest()
+#        # Can't use self.get_institution() yet, since self.kwargs
+#        # isn't set until django.views.generic.base.dispatch, which
+#        # doesn't get called until the end of this method; so use
+#        # Institution.objects.get() instead:
+#        current_inst = Institution.objects.get(slug=kwargs['institution_slug'])
+#        self.current_submission = current_inst.current_submission
+#        if (self.latest_creditset.version ==
+#            self.current_submission.creditset.version):
+#            messages.error(request, "Already using %s." % self.latest_creditset)
+#            return HttpResponseRedirect(
+#                reverse('migrate-options',
+#                        kwargs={ 'institution_slug': current_inst.slug }))
+#        return super(MigrateVersionView, self).dispatch(
+#            request, *args, **kwargs)
+        
+    def get_success_url(self):
+        return reverse('migrate-options',
+                        kwargs={ 'institution_slug': self.get_institution().slug })
 
     def get_context_data(self, **kwargs):
         context = super(MigrateVersionView, self).get_context_data(**kwargs)
-        context['current_submission'] = self.current_submission
-        context['latest_creditset'] = self.latest_creditset
+        current_submission = self.get_institution().current_submission
+        context['current_submission'] = current_submission
+        context['latest_creditset'] = CreditSet.objects.get_latest()
         return context
 
     def form_valid(self, form):
@@ -510,8 +535,8 @@ class MigrateVersionView(InstitutionAdminToolMixin,
         if not form.cleaned_data['is_locked']:
             return self.form_invalid(form)
         # . . . otherwise, start a migration task
-        perform_migration.delay(self.current_submission,
-                                self.latest_creditset,
+        perform_migration.delay(self.get_institution().current_submission,
+                                CreditSet.objects.get_latest(),
                                 self.request.user)
         return super(MigrateVersionView, self).form_valid(form)
 
