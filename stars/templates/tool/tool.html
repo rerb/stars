@@ -101,7 +101,7 @@
                 </tbody>
             </table>
             {% testrule user_has_access_level user 'admin' current_inst %}
-                <a href='{% url purchase-subscription institution.slug %}'
+                <a href='{% url purchase-subscription current_inst.slug %}'
                    class='btn btn-info'>
                     Purchase STARS Participant Subscription
                 </a>
