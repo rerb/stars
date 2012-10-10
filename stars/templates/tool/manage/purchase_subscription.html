@@ -7,11 +7,13 @@
 {% block institution_content %}
     <h2>Purchase a new Subscription</h2>
     <form method='post' action='.'>
-    
+
     	<table>
 	      <tr>
 	        <th>Amount:</th>
-	        <td>${{ amount|floatformat:2 }} {% if is_member %} (Member Discount){% endif %}</td>
+	        <td>${{ amount|floatformat:2 }}
+                {% if is_member %} (Member Discount){% endif %}
+            </td>
 	      </tr>
 	    </table>
 	    <br/>
@@ -22,7 +24,12 @@
       <div class='form-actions'>
             <button type='submit' class='btn btn-success'>
             	<i class='icon-lock icon-white'></i>
-            	Purchase Subscription</button>
+            	Purchase Subscription
+            </button>
+            <button class='btn'
+                    href='{% url tool-dashboard %}'>
+                Cancel
+            </button>
       </div>
     </form>
 {% endblock %}
