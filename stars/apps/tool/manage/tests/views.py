@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.messages.middleware import MessageMiddleware
 from django.contrib.sessions.middleware import SessionMiddleware
+from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest
 from django.shortcuts import render
 from django.test import TestCase
@@ -626,11 +627,7 @@ class _MigrateDataVersionViewTest(_InstitutionAdminToolMixinTest):
         A base class for MigrateDataViewTest and MigrateVersionViewTest.
     """
 
-    # The following attributes must be set in the subclass.
-    view_class = None  # name of the class to test
-    privelege_rule = None   # name of rule used as gatekeeper
-
-    OPEN, CLOSED = True, False
+    view_class = None  # name of the class to test, must be set in subclass.
 
     def setUp(self):
         super(_MigrateDataVersionViewTest, self).setUp()
@@ -643,26 +640,36 @@ class _MigrateDataVersionViewTest(_InstitutionAdminToolMixinTest):
     def _get_pk(self):
         return self.submissionset.id
 
-    def _set_gate(self, state):
+    def open_gate(self, replacer):
         """
-            Stubs out the gatekeeper rule so that it always
-            returns state (which should be OPEN or FALSE).
+            Each subclass uses a gatekeeper to limit access.
+            open_gate() must disable this so that access is
+            granted.
+
+            replacer is a testfixtures.Replacer object, which
+            can be used to patch a new function over the gatekeeper.
         """
-        aashe_rules.site.unregister(self.privelege_rule)
-        aashe_rules.site.register(self.privelege_rule,
-                                  lambda u, i: state)
+        raise NotImplementedError
+
+    def close_gate(self, replacer):
+        """
+            Each subclass uses a gatekeeper to limit access.
+            close_gate() must disable this so that access is
+            not granted.
+        """
+        raise NotImplementedError
 
     def test_get_by_non_priveleged_user(self):
         """Does a GET by a user w/o the appropriate priveleges fail?
         """
         self.account.user_level = 'admin'
         self.account.save()
-        # close the gate:
-        self._set_gate(self.CLOSED)
-        response = self.view_class.as_view()(
-            self.request,
-            institution_slug=self.institution.slug,
-            pk=self._get_pk())
+        with testfixtures.Replacer() as r:
+            self.close_gate(r)
+            response = self.view_class.as_view()(
+                self.request,
+                institution_slug=self.institution.slug,
+                pk=self._get_pk())
         self.assertEqual(response.status_code, 403)
 
     def test_get_by_priveleged_user(self):
@@ -670,12 +677,12 @@ class _MigrateDataVersionViewTest(_InstitutionAdminToolMixinTest):
         """
         self.account.user_level = 'admin'
         self.account.save()
-        # stub out the gatekeeper rule:
-        self._set_gate(self.OPEN)
-        response = self.view_class.as_view()(
-            self.request,
-            institution_slug=self.institution.slug,
-            pk=self._get_pk())
+        with testfixtures.Replacer() as r:
+            self.open_gate(r)
+            response = self.view_class.as_view()(
+                self.request,
+                institution_slug=self.institution.slug,
+                pk=self._get_pk())
         self.assertEqual(response.status_code, 200)
 
     def test_form_valid_starts_migration(self,
@@ -692,9 +699,9 @@ class _MigrateDataVersionViewTest(_InstitutionAdminToolMixinTest):
         self.account.save()
         self.request.method = 'POST'
         self.request.POST = { 'is_locked': True }
-        # open the gate:
-        self._set_gate(self.OPEN)
+
         with testfixtures.Replacer() as r:
+            self.open_gate(r)
             # stub out the migration function with a lambda that'll
             # raise a ZeroDivisionError, then we can check to
             # see if that error's raised when the migration
@@ -709,6 +716,8 @@ class _MigrateDataVersionViewTest(_InstitutionAdminToolMixinTest):
 
 class MigrateDataViewTest(_MigrateDataVersionViewTest):
 
+    OPEN, CLOSE = True, False
+
     view_class = views.MigrateDataView
     privelege_rule = 'user_can_migrate_from_submission'
 
@@ -717,11 +726,45 @@ class MigrateDataViewTest(_MigrateDataVersionViewTest):
                 'stars.apps.tool.manage.views.perform_data_migration.delay',
                 lambda x, y: 1/0)
 
+    def _set_gate(self, state):
+        """
+            Stubs out the gatekeeper rule so that it always
+            returns state (which should be OPEN or FALSE).
+        """
+        aashe_rules.site.unregister(self.privelege_rule)
+        aashe_rules.site.register(self.privelege_rule,
+                                  lambda u, i: state)
+
+    def open_gate(self, replacer):
+        return self._set_gate(self.OPEN)
+
+    def close_gate(self, replacer):
+        return self._set_gate(self.CLOSE)
+
 
 class MigrateVersionViewTest(_MigrateDataVersionViewTest):
 
     view_class = views.MigrateVersionView
-    privelege_rule = 'user_can_migrate_version'
+
+    def close_gate(self, replacer):
+        replacer.replace(
+            'stars.apps.tool.manage.views.user_can_migrate_version',
+            lambda u, i: False)
+
+    def open_gate(self, replacer):
+        replacer.replace(
+            'stars.apps.tool.manage.views.user_can_migrate_version',
+            lambda u, i: True)
+
+    def test_get_by_non_admin(self):
+        self.assertRaises(PermissionDenied,
+                          super(MigrateVersionViewTest,
+                                self).test_get_by_non_admin)
+
+    def test_get_by_non_priveleged_user(self):
+        self.assertRaises(PermissionDenied,
+                          super(MigrateVersionViewTest,
+                                self).test_get_by_non_priveleged_user)
 
     def test_form_valid_starts_migration(self):
         super(MigrateVersionViewTest, self).test_form_valid_starts_migration(
@@ -736,10 +779,12 @@ class MigrateVersionViewTest(_MigrateDataVersionViewTest):
         latest_creditset = CreditSet.objects.get_latest()
         self.submissionset.creditset = latest_creditset
         self.submissionset.save()
-        response = self.view_class().dispatch(
-            self.request,
-            institution_slug=self.institution.slug,
-            pk=self._get_pk())
+        with testfixtures.Replacer() as r:
+            self.open_gate(r)
+            response = self.view_class().dispatch(
+                self.request,
+                institution_slug=self.institution.slug,
+                pk=self._get_pk())
         self.assertEqual(response.status_code, 302)
 
     def test_dispatch_allows_migration_when_not_already_at_latest_version(self):
@@ -748,11 +793,9 @@ class MigrateVersionViewTest(_MigrateDataVersionViewTest):
         self.account.user_level = 'admin'
         self.account.save()
         with testfixtures.Replacer() as r:
-            r.replace(
-                'stars.apps.tool.manage.views.' + self.privelege_rule,
-                lambda u, i: True)
-            response = self.view_class().dispatch(
-                self.request,
-                institution_slug=self.institution.slug,
-                pk=self._get_pk())
-        self.assertEqual(response.status_code, 200)
+            self.close_gate(r)
+            self.assertRaises(PermissionDenied,
+                              self.view_class().dispatch,
+                              self.request,
+                              institution_slug=self.institution.slug,
+                              pk=self._get_pk())

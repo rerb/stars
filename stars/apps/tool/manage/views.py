@@ -411,12 +411,6 @@ class MigrateDataView(InstitutionAdminToolMixin,
                        "check box down there above the Migrate My Data "
                        "button.")
 
-#    _logical_rules = (InstitutionAdminToolMixin._logical_rules +
-#                     [{'name': 'user_can_migrate_from_submission',
-#                       'param_callbacks': [('user', 'get_request_user'),
-#                                           ('submission',
-#                                            '_get_old_submission')]}])
-    
     def update_logical_rules(self):
         super(MigrateDataView, self).update_logical_rules()
         self.add_logical_rule({
@@ -457,7 +451,6 @@ class MigrateVersionView(InstitutionAdminToolMixin,
     """
     form_class = MigrateSubmissionSetForm
     model = SubmissionSet
-    success_url = '/tool/'
     template_name = 'tool/manage/migrate_version.html'
     valid_message = ("Your migration is in progress. Please allow a "
                      "few minutes before you can access your submission.")
@@ -466,12 +459,6 @@ class MigrateVersionView(InstitutionAdminToolMixin,
                        "check box down there above the Migrate My Data "
                        "button.")
 
-#    logical_rules = (InstitutionAdminToolMixin.logical_rules +
-#                     [{'name': 'user_can_migrate_version',
-#                       'param_callbacks': [('user', 'get_request_user'),
-#                                           ('current_inst',
-#                                            'get_institution')]}])
-    
     def update_logical_rules(self):
         super(MigrateVersionView, self).update_logical_rules()
         self.add_logical_rule({
@@ -482,42 +469,6 @@ class MigrateVersionView(InstitutionAdminToolMixin,
                                                     ]
                                })
 
-    # @todo - POST should redirect to get_success_url(), but it's not.
-    # Here's why:
-    #
-    # 1. extra logical rule: user_can_migrate_version
-    #   a. user is admin for inst, and
-    #      submissionset.version != latest creditset.version
-    #   b. prevents GET of view if rule is False
-    #   c. if rule is True on GET, form is displayed
-    #      i. on POST, submissionset.version is set to latest creditset.version
-    #        *. before rules are checked
-    #     ii. rule is now False, so view returns HttpResponseForbidden
-    #         (rather than redirecting to get_success_url())
-
-#    def dispatch(self, request, *args, **kwargs):
-#        """
-#        Short-circuits the migration process if the current submission
-#        is already at the latest version.
-#
-#        Also saves latest_creditset and current_submission onto self
-#        for use in other methods.
-#        """
-#        self.latest_creditset = CreditSet.objects.get_latest()
-#        # Can't use self.get_institution() yet, since self.kwargs
-#        # isn't set until django.views.generic.base.dispatch, which
-#        # doesn't get called until the end of this method; so use
-#        # Institution.objects.get() instead:
-#        current_inst = Institution.objects.get(slug=kwargs['institution_slug'])
-#        self.current_submission = current_inst.current_submission
-#        if (self.latest_creditset.version ==
-#            self.current_submission.creditset.version):
-#            messages.error(request, "Already using %s." % self.latest_creditset)
-#            return HttpResponseRedirect(
-#                reverse('migrate-options',
-#                        kwargs={ 'institution_slug': current_inst.slug }))
-#        return super(MigrateVersionView, self).dispatch(
-#            request, *args, **kwargs)
         
     def get_success_url(self):
         return reverse('migrate-options',
