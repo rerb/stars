@@ -21,7 +21,7 @@ from stars.apps.credits.models import CreditSet
 from stars.apps.institutions.models import (Institution, PendingAccount,
                                             StarsAccount, Subscription)
 from stars.apps.registration.models import ValueDiscount
-from stars.apps.submissions.models import ResponsibleParty, SubmissionSet
+from stars.apps.submissions.models import ResponsibleParty
 from stars.apps.tool.manage import views
 
 def _get_request_ready_for_messages():
@@ -627,7 +627,13 @@ class _MigrateDataVersionViewTest(_InstitutionAdminToolMixinTest):
         A base class for MigrateDataViewTest and MigrateVersionViewTest.
     """
 
-    view_class = None  # name of the class to test, must be set in subclass.
+    # Name of the class to test:
+    view_class = None
+    # Each subclass protects itself with a rule that must be True before
+    # access is granted.  That's called 'gatekeeper_rule' here:
+    gatekeeper_rule = None
+    # Name of the function that actually starts the migration:
+    migration_function_name = None
 
     def setUp(self):
         super(_MigrateDataVersionViewTest, self).setUp()
@@ -640,36 +646,37 @@ class _MigrateDataVersionViewTest(_InstitutionAdminToolMixinTest):
     def _get_pk(self):
         return self.submissionset.id
 
-    def open_gate(self, replacer):
+    def _stub_out_rule(self, rule_name, returns):
         """
-            Each subclass uses a gatekeeper to limit access.
-            open_gate() must disable this so that access is
-            granted.
+            Deregisters a rule, and replaces it with a function that
+            always returns arg named returns.
+        """
+        aashe_rules.site.unregister(rule_name)
+        aashe_rules.site.register(rule_name,
+                                  lambda *args: returns)
 
-            replacer is a testfixtures.Replacer object, which
-            can be used to patch a new function over the gatekeeper.
+    def close_gate(self):
         """
-        raise NotImplementedError
+            Tweaks the gatekeeper rule to prevent access.
+        """
+        self._stub_out_rule(rule_name=self.gatekeeper_rule, returns=False)
 
-    def close_gate(self, replacer):
+    def open_gate(self):
         """
-            Each subclass uses a gatekeeper to limit access.
-            close_gate() must disable this so that access is
-            not granted.
+            Tweaks the gatekeeper rule to allow access.
         """
-        raise NotImplementedError
+        self._stub_out_rule(rule_name=self.gatekeeper_rule, returns=True)
 
     def test_get_by_non_priveleged_user(self):
         """Does a GET by a user w/o the appropriate priveleges fail?
         """
         self.account.user_level = 'admin'
         self.account.save()
-        with testfixtures.Replacer() as r:
-            self.close_gate(r)
-            response = self.view_class.as_view()(
-                self.request,
-                institution_slug=self.institution.slug,
-                pk=self._get_pk())
+        self.close_gate()
+        response = self.view_class.as_view()(
+            self.request,
+            institution_slug=self.institution.slug,
+            pk=self._get_pk())
         self.assertEqual(response.status_code, 403)
 
     def test_get_by_priveleged_user(self):
@@ -677,23 +684,15 @@ class _MigrateDataVersionViewTest(_InstitutionAdminToolMixinTest):
         """
         self.account.user_level = 'admin'
         self.account.save()
-        with testfixtures.Replacer() as r:
-            self.open_gate(r)
-            response = self.view_class.as_view()(
-                self.request,
-                institution_slug=self.institution.slug,
-                pk=self._get_pk())
+        self.open_gate()
+        response = self.view_class.as_view()(
+            self.request,
+            institution_slug=self.institution.slug,
+            pk=self._get_pk())
         self.assertEqual(response.status_code, 200)
 
-    def test_form_valid_starts_migration(self,
-                                         migration_function,
-                                         stub_function):
+    def test_form_valid_starts_migration(self):
         """When all is ok, is a migration task started?
-
-        migration_function - name of the function that starts the migration
-
-        stub_function - stand-in for migration function; should raise
-                        ZeroDivisionError
         """
         self.account.user_level = 'admin'
         self.account.save()
@@ -701,12 +700,14 @@ class _MigrateDataVersionViewTest(_InstitutionAdminToolMixinTest):
         self.request.POST = { 'is_locked': True }
 
         with testfixtures.Replacer() as r:
-            self.open_gate(r)
+            self.open_gate()
             # stub out the migration function with a lambda that'll
             # raise a ZeroDivisionError, then we can check to
             # see if that error's raised when the migration
             # function should be called.
-            r.replace(migration_function, stub_function)
+            r.replace('stars.apps.tool.manage.views.' +
+                      self.migration_function_name,
+                      lambda *args: 1/0)
             self.assertRaises(ZeroDivisionError,
                               self.view_class.as_view(),
                               self.request,
@@ -716,60 +717,16 @@ class _MigrateDataVersionViewTest(_InstitutionAdminToolMixinTest):
 
 class MigrateDataViewTest(_MigrateDataVersionViewTest):
 
-    OPEN, CLOSE = True, False
-
     view_class = views.MigrateDataView
-    privelege_rule = 'user_can_migrate_from_submission'
-
-    def test_form_valid_starts_migration(self):
-        super(MigrateDataViewTest, self).test_form_valid_starts_migration(
-                'stars.apps.tool.manage.views.perform_data_migration.delay',
-                lambda x, y: 1/0)
-
-    def _set_gate(self, state):
-        """
-            Stubs out the gatekeeper rule so that it always
-            returns state (which should be OPEN or FALSE).
-        """
-        aashe_rules.site.unregister(self.privelege_rule)
-        aashe_rules.site.register(self.privelege_rule,
-                                  lambda u, i: state)
-
-    def open_gate(self, replacer):
-        return self._set_gate(self.OPEN)
-
-    def close_gate(self, replacer):
-        return self._set_gate(self.CLOSE)
+    gatekeeper_rule = 'user_can_migrate_from_submission'
+    migration_function_name = 'perform_data_migration.delay'
 
 
 class MigrateVersionViewTest(_MigrateDataVersionViewTest):
 
     view_class = views.MigrateVersionView
-
-    def close_gate(self, replacer):
-        replacer.replace(
-            'stars.apps.tool.manage.views.user_can_migrate_version',
-            lambda u, i: False)
-
-    def open_gate(self, replacer):
-        replacer.replace(
-            'stars.apps.tool.manage.views.user_can_migrate_version',
-            lambda u, i: True)
-
-    def test_get_by_non_admin(self):
-        self.assertRaises(PermissionDenied,
-                          super(MigrateVersionViewTest,
-                                self).test_get_by_non_admin)
-
-    def test_get_by_non_priveleged_user(self):
-        self.assertRaises(PermissionDenied,
-                          super(MigrateVersionViewTest,
-                                self).test_get_by_non_priveleged_user)
-
-    def test_form_valid_starts_migration(self):
-        super(MigrateVersionViewTest, self).test_form_valid_starts_migration(
-                'stars.apps.tool.manage.views.perform_migration.delay',
-                lambda x, y, z: 1/0)
+    gatekeeper_rule = 'user_can_migrate_version'
+    migration_function_name = 'perform_migration.delay'
 
     def test_dispatch_prevents_migration_when_already_at_latest_version(self):
         """Does dispatch prevent migration if current sub is at latest version?
@@ -779,23 +736,19 @@ class MigrateVersionViewTest(_MigrateDataVersionViewTest):
         latest_creditset = CreditSet.objects.get_latest()
         self.submissionset.creditset = latest_creditset
         self.submissionset.save()
-        with testfixtures.Replacer() as r:
-            self.open_gate(r)
-            response = self.view_class().dispatch(
-                self.request,
-                institution_slug=self.institution.slug,
-                pk=self._get_pk())
-        self.assertEqual(response.status_code, 302)
+        response = self.view_class().dispatch(
+            self.request,
+            institution_slug=self.institution.slug,
+            pk=self._get_pk())
+        self.assertEqual(response.status_code, 403)
 
     def test_dispatch_allows_migration_when_not_already_at_latest_version(self):
         """Does dispatch allow migration if current sub isn't at latest version?
         """
         self.account.user_level = 'admin'
         self.account.save()
-        with testfixtures.Replacer() as r:
-            self.close_gate(r)
-            self.assertRaises(PermissionDenied,
-                              self.view_class().dispatch,
-                              self.request,
-                              institution_slug=self.institution.slug,
-                              pk=self._get_pk())
+        response = self.view_class().dispatch(
+            self.request,
+            institution_slug=self.institution.slug,
+            pk=self._get_pk())
+        self.assertEqual(response.status_code, 200)
