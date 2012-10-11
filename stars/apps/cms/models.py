@@ -37,7 +37,7 @@ class CategoryMixin(models.Model):
         abstract=True
 
     def get_articles(self):
-        return self.newarticle_set.filter(published=True)
+        return self.newarticle_set.filter(published=True).order_by('ordinal')
 
 class Category(CategoryMixin, AbstractContent):
     """
@@ -49,6 +49,9 @@ class Category(CategoryMixin, AbstractContent):
 
     def get_absolute_url(self):
         return "/pages/%s/" % self.slug
+        
+    def get_published_subcategories(self):
+        return self.subcategory_set.filter(published=True).order_by('ordinal')
 
 class Subcategory(CategoryMixin, AbstractContent):
     parent = models.ForeignKey(Category)
@@ -72,6 +75,9 @@ class Subcategory(CategoryMixin, AbstractContent):
         """
         for cat in Category.objects.all():
             cat.save()
+            
+    def get_published_articles(self):
+        return self.newarticle_set.filter(published=True).order_by('ordinal')
 
 class NewArticle(AbstractContent):
     """

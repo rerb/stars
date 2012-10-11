@@ -27,6 +27,12 @@ class InstitutionAdminToolMixin(ToolMixin, InstitutionStructureMixin):
     """
         A ToolMixin that's available only to institution admins.
     """
-    logical_rules = [{'name': 'user_is_institution_admin',
-                      'param_callbacks': [('user', 'get_request_user'),
-                                          ('institution', 'get_institution')]}]
+    def update_logical_rules(self):
+        super(ToolMixin, self).update_logical_rules()
+        self.add_logical_rule({
+                                'name': 'user_is_institution_admin',
+                                'param_callbacks': [
+                                                        ('user', 'get_request_user'),
+                                                        ('institution', 'get_institution')
+                                                    ]
+                               })

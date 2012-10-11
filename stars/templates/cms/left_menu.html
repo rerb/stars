@@ -11,13 +11,13 @@
 	        </a>
 	    </li>
 	{% endfor %}
-	{% for sub in category.subcategory_set.all %}
+	{% for sub in category.get_published_subcategories %}
 		<li class="nav-header" {% if not article and subcategory and sub == subcategory %}class="active"{% endif %}>
 			<a 	href='{{ sub.get_absolute_url }}'>
 				{{ sub.title }}
 			</a>
 		</li>
-		{% for a in sub.get_articles %}
+		{% for a in sub.get_published_articles %}
 			<li {% if article and a == article %}class="active"{% endif %}>
 				<a href='{{ a.get_absolute_url }}'>
 	            	{{ a.title }}
