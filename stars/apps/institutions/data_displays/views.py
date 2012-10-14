@@ -547,7 +547,7 @@ class AggregateFilter(DisplayAccessMixin, FilteringMixin, FormView):
                             d["%s_avg" % cat_abr] = std, min, max = None
                         d['%s_var' % cat_abr] = "Standard Deviation: %.2f | Min: %.2f | Max %.2f" % (std, min, max)
                 
-                cache.set(cache_key, d, 60*60*2) # cache this for 2 hours
+                cache.set(cache_key, d, 60*60*24) # cache this for 2 hours
                 
             object_list.insert(0, d)
     
@@ -664,7 +664,7 @@ class ScoreFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
                     object_list.append(row)
     
                 _context['object_list'] = object_list
-                cache.set(cache_key, object_list, 60*60*2) # Cache the results for 2 hours
+                cache.set(cache_key, object_list, 60*60*24) # Cache the results for 2 hours
 
         return _context
 
@@ -768,7 +768,7 @@ class ContentFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
                     object_list.append(row)
                 _context['object_list'] = object_list
 
-                cache.set(cache_key, object_list, 60*60*2)
+                cache.set(cache_key, object_list, 60*60*24)
                 
         return _context
 
