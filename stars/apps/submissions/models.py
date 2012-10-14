@@ -12,6 +12,7 @@ from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
 from django.core import urlresolvers
 from django.core.files.uploadedfile import InMemoryUploadedFile
+from django.core.cache import cache
 
 from stars.apps.credits.models import CreditSet, Category, Subcategory, Credit, DocumentationField, Choice, ApplicabilityReason, Rating
 from stars.apps.institutions.models import Institution, ClimateZone
@@ -176,10 +177,17 @@ class SubmissionSet(models.Model, FlaggableModel):
         return "/tool/submissions/submit/"
 
     def get_scorecard_url(self):
-        if self.date_submitted:
-            return '/institutions/%s/report/%s/'% (self.institution.slug, self.date_submitted)
+        cache_key = "submission_%d_scorecard_url" % self.id
+        url = cache.get(cache_key)
+        if url:
+            return url
         else:
-            return '/institutions/%s/report/%s/'% (self.institution.slug, self.id)
+            if self.date_submitted:
+                url = '/institutions/%s/report/%s/'% (self.institution.slug, self.date_submitted)
+            else:
+                url = '/institutions/%s/report/%s/'% (self.institution.slug, self.id)
+            cache.set(cache_key, url, 60*60*24) # cache for 24 hours
+            return url
 
     def get_parent(self):
         """ Used for building crumbs """
@@ -512,7 +520,14 @@ class CategorySubmission(models.Model):
         return self.category.get_submit_url()
 
     def get_scorecard_url(self):
-        return '%s%s' % (self.submissionset.get_scorecard_url(), self.category.get_browse_url())
+        cache_key = "category_%d_scorecard_url" % self.id
+        url = cache.get(cache_key)
+        if url:
+            return url
+        else:
+            url = '%s%s' % (self.submissionset.get_scorecard_url(), self.category.get_browse_url())
+            cache.set(cache_key, url, 60*60*24) # cache for 24 hours
+            return url
 
     def get_STARS_score(self):
         """
@@ -947,7 +962,14 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
         return self.credit.get_submit_url()
 
     def get_scorecard_url(self):
-        return self.credit.get_scorecard_url(self.subcategory_submission.category_submission.submissionset)
+        cache_key = "cus_%d_scorecard_url" % self.id
+        url = cache.get(cache_key)
+        if url:
+            return url
+        else:
+            url = self.credit.get_scorecard_url(self.subcategory_submission.category_submission.submissionset)
+            cache.set(cache_key, url, 60*60*24) # cache for 24 hours
+            return url
 
     def get_parent(self):
         """ Used for building crumbs """

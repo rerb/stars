@@ -22,6 +22,7 @@ from aashe.issdjango.models import Organizations, TechnicalAdvisor
 
 from sorl.thumbnail import get_thumbnail
 
+from operator import itemgetter
 from datetime import date, datetime
 import re, sys
 
@@ -382,6 +383,15 @@ class FilteringMixin(object):
             qs = SubmissionSet.objects.none()
 
         return qs
+    
+    def get_filters_hash(self, filters):
+        """
+            Has the filters together to get a cache key for the filter
+        """
+        hash_str = ""
+        for f in sorted(filters, key=itemgetter('key', 'item')): # sort for consistency
+            hash_str += "%s:%s|" % (f['key'], f['item'])
+        return hash(hash_str)
 
 class NarrowFilteringMixin(FilteringMixin):
     """
@@ -485,54 +495,62 @@ class AggregateFilter(DisplayAccessMixin, FilteringMixin, FormView):
 
         _context = super(AggregateFilter, self).get_context_data(**kwargs)
         filters = self.get_filter_group(self.filter_key)
+        
         _context['filters'] = filters
         _context['top_help_text'] = self.get_description_help_context_name()
 
-#        q = None
         object_list = []
         ss_list = None
 
         for f in filters:
-
-            d = {} # {'title': <filter type:item>, "<cat>": <cat_avg>, "<cat>_list": [], 'total': <total_submissions>}
-            # d['title'] = f['filter_object'].get_active_title(f['item'])
-            d['title'] = f['item_title']
-            # if f['key'] == "rating__name":
-            #     d['title'] = "%s Rated Institutions" % f['item']
-            # else:
-            #     d['title'] = f['item_title']
-            # d['item'] = f['item']
-
-            ss_list = f['filter_object'].get_results(f['item']).exclude(rating__publish_score=False)
-            # if f['item'] == 'DO_NOT_FILTER':
-            #     ss_list = f['base_qs'].exclude(rating__publish_score=False)
-            # else:
-            #     filter_args = {f['key']: f['item'],}
-            #     ss_list = f['base_qs'].exclude(rating__publish_score=False).filter(**filter_args)
-
-
-            count = 0
-            for ss in ss_list:
-                for cat in ss.categorysubmission_set.all():
-                    k_list = "%s_list" % cat.category.abbreviation
-                    if not d.has_key(k_list):
-                        d[k_list] = []
-                    d[k_list].append(cat.get_STARS_score())
-                count += 1
-            d['total'] = count
-
-            for k in d.keys():
-                m = re.match("(\w+)_list", k)
-                if m:
-                    cat_abr = m.groups()[0]
-                    if len(d['%s_list'% cat_abr]) != 0:
-                        d["%s_avg" % cat_abr], std, min, max = get_variance(d['%s_list'% cat_abr])
-                    else:
-                        d["%s_avg" % cat_abr] = std, min, max = None
-                    d['%s_var' % cat_abr] = "Standard Deviation: %.2f | Min: %.2f | Max %.2f" % (std, min, max)
-
+            
+            cache_key = "%s|%s" % (f['key'], f['item'].replace(" ", "_"))
+            if cache.has_key(cache_key):
+                d = cache.get(cache_key)
+            
+            else:
+            
+                d = {} # {'title': <filter type:item>, "<cat>": <cat_avg>, "<cat>_list": [], 'total': <total_submissions>}
+                # d['title'] = f['filter_object'].get_active_title(f['item'])
+                d['title'] = f['item_title']
+                # if f['key'] == "rating__name":
+                #     d['title'] = "%s Rated Institutions" % f['item']
+                # else:
+                #     d['title'] = f['item_title']
+                # d['item'] = f['item']
+    
+                ss_list = f['filter_object'].get_results(f['item']).exclude(rating__publish_score=False)
+                # if f['item'] == 'DO_NOT_FILTER':
+                #     ss_list = f['base_qs'].exclude(rating__publish_score=False)
+                # else:
+                #     filter_args = {f['key']: f['item'],}
+                #     ss_list = f['base_qs'].exclude(rating__publish_score=False).filter(**filter_args)
+    
+    
+                count = 0
+                for ss in ss_list:
+                    for cat in ss.categorysubmission_set.all():
+                        k_list = "%s_list" % cat.category.abbreviation
+                        if not d.has_key(k_list):
+                            d[k_list] = []
+                        d[k_list].append(cat.get_STARS_score())
+                    count += 1
+                d['total'] = count
+    
+                for k in d.keys():
+                    m = re.match("(\w+)_list", k)
+                    if m:
+                        cat_abr = m.groups()[0]
+                        if len(d['%s_list'% cat_abr]) != 0:
+                            d["%s_avg" % cat_abr], std, min, max = get_variance(d['%s_list'% cat_abr])
+                        else:
+                            d["%s_avg" % cat_abr] = std, min, max = None
+                        d['%s_var' % cat_abr] = "Standard Deviation: %.2f | Min: %.2f | Max %.2f" % (std, min, max)
+                
+                cache.set(cache_key, d, 60*60*2) # cache this for 2 hours
+                
             object_list.insert(0, d)
-
+    
         _context['object_list'] = object_list
 
         return _context
@@ -587,59 +605,66 @@ class ScoreFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
         _context['top_help_text'] = self.get_description_help_context_name()
 
         cols = self.get_columns()
+        columns = []
+        for k, col in cols.items():
+            columns.insert(0, (k, col))
+        _context['columns'] = columns
 
         if not cols:
             _context['object_list'] = None
-            _context['columns'] = None
         else:
 
-            columns = []
-            for k, col in cols.items():
-                columns.insert(0, (k, col))
-
-            queryset = self.get_filtered_queryset(filters)
-            object_list = []
-            for ss in queryset.order_by('institution__name').exclude(rating__publish_score=False):
-                row = {'ss': ss, 'cols': []}
-                count = 0
-                for k, col in columns:
-                    if col != None:
-                        score = "--"
-                        units = ""
-                        if isinstance(col, Category):
-                            cat = col.get_for_creditset(ss.creditset)
-                            if cat:
-                                obj = CategorySubmission.objects.get(submissionset=ss, category=cat)
-                                score = "%.2f" % obj.get_STARS_score()
-                                if obj.category.abbreviation != "IN":
-                                    units = "%"
+            # caching
+            c_list = map(str, cols.values())
+            c_list.sort()
+            cache_key = "%s|%s" % (str(self.get_filters_hash(filters)), hash("|".join(c_list)))
+            object_list = cache.get(cache_key)
+            if object_list:
+                _context['object_list'] = object_list
+            else:
+                queryset = self.get_filtered_queryset(filters)
+                object_list = []
+                for ss in queryset.order_by('institution__name').exclude(rating__publish_score=False):
+                    row = {'ss': ss, 'cols': []}
+                    count = 0
+                    for k, col in columns:
+                        if col != None:
+                            score = "--"
+                            units = ""
+                            if isinstance(col, Category):
+                                cat = col.get_for_creditset(ss.creditset)
+                                if cat:
+                                    obj = CategorySubmission.objects.get(submissionset=ss, category=cat)
+                                    score = "%.2f" % obj.get_STARS_score()
+                                    if obj.category.abbreviation != "IN":
+                                        units = "%"
+                                    url = obj.get_scorecard_url()
+                            elif isinstance(col, Subcategory):
+                                sub = col.get_for_creditset(ss.creditset)
+                                obj = SubcategorySubmission.objects.get(category_submission__submissionset=ss, subcategory=sub)
+                                score = "%.2f / %.2f" % (obj.get_claimed_points(), obj.get_adjusted_available_points())
                                 url = obj.get_scorecard_url()
-                        elif isinstance(col, Subcategory):
-                            sub = col.get_for_creditset(ss.creditset)
-                            obj = SubcategorySubmission.objects.get(category_submission__submissionset=ss, subcategory=sub)
-                            score = "%.2f / %.2f" % (obj.get_claimed_points(), obj.get_adjusted_available_points())
-                            url = obj.get_scorecard_url()
-                        elif isinstance(col, Credit):
-                            credit = col.get_for_creditset(ss.creditset)
-                            cred = CreditUserSubmission.objects.get(subcategory_submission__category_submission__submissionset=ss, credit=credit)
-                            url = cred.get_scorecard_url()
-                            if ss.rating.publish_score:
-                                if cred.submission_status == "na":
-                                    score = "Not Applicable"
-                                else:
-                                    if cred.credit.type == "t1":
-                                        score = "%.2f / %d" % (cred.assessed_points, cred.credit.point_value)
+                            elif isinstance(col, Credit):
+                                credit = col.get_for_creditset(ss.creditset)
+                                cred = CreditUserSubmission.objects.get(subcategory_submission__category_submission__submissionset=ss, credit=credit)
+                                url = cred.get_scorecard_url()
+                                if ss.rating.publish_score:
+                                    if cred.submission_status == "na":
+                                        score = "Not Applicable"
                                     else:
-                                        score = "%.2f / %.2f" % (cred.assessed_points, ss.creditset.tier_2_points)
-                            else:
-                                score = "Reporter"
-
-                        row['cols'].append({'score': score, 'units': units, 'url': url})
-
-                object_list.append(row)
-
-            _context['object_list'] = object_list
-            _context['columns'] = columns
+                                        if cred.credit.type == "t1":
+                                            score = "%.2f / %d" % (cred.assessed_points, cred.credit.point_value)
+                                        else:
+                                            score = "%.2f / %.2f" % (cred.assessed_points, ss.creditset.tier_2_points)
+                                else:
+                                    score = "Reporter"
+    
+                            row['cols'].append({'score': score, 'units': units, 'url': url})
+    
+                    object_list.append(row)
+    
+                _context['object_list'] = object_list
+                cache.set(cache_key, object_list, 60*60*2) # Cache the results for 2 hours
 
         return _context
 
@@ -700,47 +725,51 @@ class ContentFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
 
         _context = super(ContentFilter, self).get_context_data(**kwargs)
         filters = self.get_filter_group(self.filter_key)
+        rf = self.get_reporting_field()
+        _context['reporting_field'] = rf
         _context['filters'] = filters
         _context['google_api_key'] = settings.GOOGLE_API_KEY
         _context['top_help_text'] = self.get_description_help_context_name()
 
-
-        rf = self.get_reporting_field()
-
         if not rf:
             _context['object_list'] = None
-            _context['reporting_field'] = None
         else:
-            queryset = self.get_filtered_queryset(filters)
-            object_list = []
-            for ss in queryset.order_by('institution__name'):
-
-                field_class = DocumentationFieldSubmission.get_field_class(rf)
-                cus_lookup = "subcategory_submission__category_submission__submissionset"
-                # I have to get creditusersubmissions so i can be sure these are actual user submissions and not tests
-                cus = CreditUserSubmission.objects.get(**{cus_lookup: ss, 'credit': rf.credit.get_for_creditset(ss.creditset)})
-                try:
-                    df = field_class.objects.get(credit_submission=cus, documentation_field=rf.get_for_creditset(ss.creditset))
-                    cred = CreditUserSubmission.objects.get(pk=df.credit_submission.id)
-                    row = {'field': df, 'ss': ss, 'credit': cred}
-                    if ss.rating.publish_score:
-                        if cred.submission_status == "na":
-                            row['score'] = "Not Applicable"
-                            # set the field to None because they aren't reporting
-                            row['field'] = None
-                        else:
-                            row['score'] = "%.2f / %d" % (cred.assessed_points, cred.credit.point_value)
-                            if cred.submission_status == 'np' or cred.submission_status == 'ns':
+            cache_key = "%s_%s" % (self.get_filters_hash(filters), rf.id)
+            object_list = cache.get(cache_key)
+            if object_list:
+                _context['object_list'] = object_list
+            else:
+                queryset = self.get_filtered_queryset(filters)
+                object_list = []
+                for ss in queryset.order_by('institution__name'):
+    
+                    field_class = DocumentationFieldSubmission.get_field_class(rf)
+                    cus_lookup = "subcategory_submission__category_submission__submissionset"
+                    # I have to get creditusersubmissions so i can be sure these are actual user submissions and not tests
+                    cus = CreditUserSubmission.objects.get(**{cus_lookup: ss, 'credit': rf.credit.get_for_creditset(ss.creditset)})
+                    try:
+                        df = field_class.objects.get(credit_submission=cus, documentation_field=rf.get_for_creditset(ss.creditset))
+                        cred = CreditUserSubmission.objects.get(pk=df.credit_submission.id)
+                        row = {'field': df, 'ss': ss, 'credit': cred}
+                        if ss.rating.publish_score:
+                            if cred.submission_status == "na":
+                                row['score'] = "Not Applicable"
+                                # set the field to None because they aren't reporting
                                 row['field'] = None
-                    else:
-                        row['score'] = "Reporter"
+                            else:
+                                row['score'] = "%.2f / %d" % (cred.assessed_points, cred.credit.point_value)
+                                if cred.submission_status == 'np' or cred.submission_status == 'ns':
+                                    row['field'] = None
+                        else:
+                            row['score'] = "Reporter"
+    
+                    except:
+                        row = {'field': None, 'ss': ss, 'credit': None, "score": None}
+                    object_list.append(row)
+                _context['object_list'] = object_list
 
-                except:
-                    row = {'field': None, 'ss': ss, 'credit': None, "score": None}
-                object_list.append(row)
-            _context['object_list'] = object_list
-            _context['reporting_field'] = rf
-
+                cache.set(cache_key, object_list, 60*60*2)
+                
         return _context
 
     def form_valid(self, form):
