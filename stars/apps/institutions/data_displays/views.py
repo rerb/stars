@@ -684,7 +684,7 @@ class ScoreFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
 
     def get_columns(self):
 
-        return self.request.session.get('columns', None)
+        return self.request.session.get('columns', {})
 
     def form_invalid(self, form):
         messages.error(self.request, "Please correct the errors below.")
