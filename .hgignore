@@ -9,6 +9,7 @@ syntax: regexp
 ^\.pydevproject\.bak$
 ^\.settings$
 ^\.project
+^venv$
 emacs.desktop
 ^\.mr.developer.cfg$
 ^docs/_build

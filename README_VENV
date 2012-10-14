@@ -1,0 +1,23 @@
+This sets up a venv with a particular version of python. You will still use buildout.
+
+	1	Switch to the version of python you want to use:
+		`$ brew switch python 2.6.5`
+		
+	2	Create the virtual environment with the python 2.6.5 executable
+		`$virtualenv venv -p /usr/local/bin/python --no-site-packages`
+		
+	3	Start the virtualenv
+		`$ source venv/bin/activate`
+		
+	4	Pip install requirements
+		`pip install -r requirements.txt`
+		
+	5	Prepare pydev
+		`cp .pydevproject.bak .pydevproject`
+		
+	6	Run buildout
+		`python bootstrap.py;bin/buildout`
+		
+	7	start eclipse, set as pydev project, and django project
+	
+	8	in the project's properties, change the python interpreter to the on in venv
