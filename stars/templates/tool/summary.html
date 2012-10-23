@@ -31,16 +31,16 @@
                     <tr>
                         <th>Institution Name</th>
                         <th>Participation Level</th>
-                        {% if current_inst.current_rating %}
+                        {% if institution.current_rating %}
                             <th>Current Rating</th>
                         {% endif %}
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td>{{ current_inst }}</td>
+                        <td>{{ institution }}</td>
                         <td>
-                            {% if user.current_inst.is_participant %}
+                            {% if user.institution.is_participant %}
                                 <span class='label label-success'>
                                     STARS Participant
                                 </span>
@@ -51,8 +51,8 @@
                                 </span>
                             {% endif %}
                         </td>
-                        {% if current_inst.current_rating %}
-                            <td>{{ current_inst.current_rating }}</td>
+                        {% if institution.current_rating %}
+                            <td>{{ institution.current_rating }}</td>
                         {% endif %}
                     </tr>
                 </tbody>
@@ -73,7 +73,7 @@
                 </thead>
                 <tbody>
                 </tbody>
-                    {% with current_inst.subscription_set.all as subs %}
+                    {% with institution.subscription_set.all as subs %}
                         {% if subs %}
                             {% for s in subs %}
                                 <tr class="{% cycle 'even' 'odd' %}">
@@ -100,8 +100,8 @@
                     {% endwith %}
                 </tbody>
             </table>
-            {% testrule user_has_access_level user 'admin' current_inst %}
-                <a href='{% url purchase-subscription current_inst.slug %}'
+            {% testrule user_has_access_level user 'admin' institution %}
+                <a href='{% url purchase-subscription institution.slug %}'
                    class='btn btn-info'>
                     Purchase STARS Participant Subscription
                 </a>
