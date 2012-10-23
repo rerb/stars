@@ -31,13 +31,14 @@ from stars.apps.tool.manage.forms import (AdminInstitutionForm,
 
 from stars.apps.registration.forms import PaymentForm, PayLaterForm
 from stars.apps.registration.views import process_payment, get_payment_dict, \
-     _get_registration_price
+     get_registration_price
 from stars.apps.registration.models import ValueDiscount
 from stars.apps.notifications.models import EmailTemplate
 
 # new imports
 from stars.apps.institutions.models import Institution
-from stars.apps.tool.mixins import InstitutionAdminToolMixin
+from stars.apps.tool.mixins import (InstitutionAdminToolMixin,
+                                    InstitutionToolMixin)
 from stars.apps.helpers.mixins import ValidationMessageFormMixin
 from stars.apps.helpers.queryset_sequence import QuerySetSequence
 
@@ -62,6 +63,7 @@ class ContactView(InstitutionAdminToolMixin, ValidationMessageFormMixin,
 
         Contact form is customized based on the user's permission level
     """
+    tab_content_title = 'contact'
     template_name = 'tool/manage/detail.html'
 
     def get_object(self):
@@ -83,6 +85,7 @@ class InstitutionPaymentsView(InstitutionAdminToolMixin, ListView):
         Displays a list of payments made by an institution.
     """
     context_object_name = 'payment_list'
+    tab_content_title = 'payments'
     template_name = 'tool/manage/payments.html'
 
     def get_queryset(self):
@@ -103,17 +106,12 @@ class ResponsiblePartyListView(InstitutionAdminToolMixin, ListView):
     """
         Displays a list of responsible parties for an institution.
     """
+    tab_content_title = 'responsible parties'
     template_name = 'tool/manage/responsible_party_list.html'
 
     def get_queryset(self):
         current_inst = self.get_institution()
         return current_inst.responsibleparty_set.all()
-
-    def get_context_data(self, **kwargs):
-        context = super(ResponsiblePartyListView, self).get_context_data(
-            **kwargs)
-        context['tab_content_title'] = 'responsible parties'
-        return context
 
 
 class ResponsiblePartyEditView(InstitutionAdminToolMixin,
@@ -126,12 +124,12 @@ class ResponsiblePartyEditView(InstitutionAdminToolMixin,
     form_class = ResponsiblePartyForm
     model = ResponsibleParty
     success_url_name = 'responsible-party-list'
+    tab_content_title = 'edit a responsible party'
     template_name = 'tool/manage/responsible_party_edit.html'
 
     def get_context_data(self, **kwargs):
         context = super(ResponsiblePartyEditView, self).get_context_data(
             **kwargs)
-        context['tab_content_title'] = 'edit a responsible party'
         context['credit_list'] = \
           self.get_object().get_creditusersubmissions().all()
         return context
@@ -145,6 +143,7 @@ class ResponsiblePartyDeleteView(InstitutionAdminToolMixin,
     """
     model = ResponsibleParty
     success_url_name = 'responsible-party-list'
+    tab_content_title = 'delete a responsible party'
     template_name = 'tool/manage/responsible_party_confirm_delete.html'
 
     def delete(self, *args, **kwargs):
@@ -179,14 +178,9 @@ class ResponsiblePartyCreateView(InstitutionAdminToolMixin,
     form_class = ResponsiblePartyForm
     model = ResponsibleParty
     success_url_name = 'responsible-party-list'
+    tab_content_title = 'add a responsible party'
     template_name = 'tool/manage/responsible_party_edit.html'
     valid_message = 'Responsible Party Added.'
-
-    def get_context_data(self, **kwargs):
-        context = super(ResponsiblePartyCreateView, self).get_context_data(
-            **kwargs)
-        context['tab_content_title'] = 'add a responsible party'
-        return context
 
     def form_valid(self, form):
         """
@@ -203,6 +197,7 @@ class AccountListView(InstitutionAdminToolMixin, ListView):
     """
         Displays a list of user accounts for an institution.
     """
+    tab_content_title = 'users'
     template_name = 'tool/manage/account_list.html'
 
     def get_queryset(self):
@@ -211,11 +206,6 @@ class AccountListView(InstitutionAdminToolMixin, ListView):
         pending_accounts = PendingAccount.objects.filter(institution=institution)
         return QuerySetSequence(stars_accounts, pending_accounts).order_by(
             'user.email')
-
-    def get_context_data(self, **kwargs):
-        context = super(AccountListView, self).get_context_data(**kwargs)
-        context['tab_content_title'] = 'users'
-        return context
 
 
 class AccountCreateView(InstitutionAdminToolMixin, ValidationMessageFormMixin,
@@ -228,6 +218,7 @@ class AccountCreateView(InstitutionAdminToolMixin, ValidationMessageFormMixin,
     """
     form_class = AccountForm
     success_url_name = 'account-list'
+    tab_content_title = 'add a user'
     template_name = 'tool/manage/account_detail.html'
     valid_message = 'Account created.'
 
@@ -256,7 +247,6 @@ class AccountCreateView(InstitutionAdminToolMixin, ValidationMessageFormMixin,
     def get_context_data(self, **kwargs):
         context = super(AccountCreateView, self).get_context_data(**kwargs)
         context['notify_form'] = self.notify_form
-        context['tab_content_title'] = 'add a user'
         context['help_content_name'] = 'add_account'
         context['creating_new_account'] = True
         return context
@@ -301,13 +291,13 @@ class AccountEditView(AccountCreateView):
     """
         Provides an edit view for StarsAccount and PendingAccount objects.
     """
-    valid_message = 'User updated.'
     form_class = AccountForm
+    tab_content_title = 'edit a user'
+    valid_message = 'User updated.'
 
     def get_context_data(self, **kwargs):
         context = super(AccountEditView, self).get_context_data(
             **kwargs)
-        context['tab_content_title'] = 'edit a user'
         context['help_content_name'] = 'edit_account'
         context['creating_new_account'] = False
         return context
@@ -329,6 +319,7 @@ class AccountDeleteView(InstitutionAdminToolMixin,
     """
     model = StarsAccount
     success_url_name = 'account-list'
+    tab_content_title = 'delete a user'
     template_name = 'tool/manage/account_confirm_delete.html'
 
     def delete(self, request, *args, **kwargs):
@@ -357,11 +348,11 @@ class ShareDataView(InstitutionAdminToolMixin,
         Allows users to choose which third parties to share data with.
     """
     form_class = ThirdPartiesForm
+    tab_content_title = 'share data'
     template_name = 'tool/manage/third_parties.html'
 
     def get_context_data(self, **kwargs):
         context = super(ShareDataView, self).get_context_data(**kwargs)
-        context['tab_content_title'] = 'share data'
         context['help_content_name'] = 'edit_account'
         context['third_party_list'] = ThirdParty.objects.all()
         context['snapshot_list'] = SubmissionSet.objects.get_snapshots(
@@ -374,6 +365,7 @@ class MigrateOptionsView(InstitutionAdminToolMixin, TemplateView):
         Provides a user with migration options (i.e., migrate some data or
         migrate a submission).
     """
+    tab_content_title = 'migrate'
     template_name = 'tool/manage/migrate_submissionset.html'
 
     def get_context_data(self, **kwargs):
@@ -403,6 +395,7 @@ class MigrateDataView(InstitutionAdminToolMixin,
     form_class = MigrateSubmissionSetForm
     model = SubmissionSet
     success_url = '/tool/'
+    tab_content_title = 'data migration'
     template_name = 'tool/manage/migrate_data.html'
     valid_message = ("Your migration is in progress. Please allow a "
                      "few minutes before you can access your submission.")
@@ -413,13 +406,10 @@ class MigrateDataView(InstitutionAdminToolMixin,
 
     def update_logical_rules(self):
         super(MigrateDataView, self).update_logical_rules()
-        self.add_logical_rule({
-                                'name': 'user_can_migrate_from_submission',
+        self.add_logical_rule({ 'name': 'user_can_migrate_from_submission',
                                 'param_callbacks': [
-                                                        ('user', 'get_request_user'),
-                                                        ('submission', '_get_old_submission')
-                                                    ]
-                               })
+                                    ('user', 'get_request_user'),
+                                    ('submission', '_get_old_submission')] })
 
     def _get_old_submission(self):
         return get_object_or_404(
@@ -451,7 +441,9 @@ class MigrateVersionView(InstitutionAdminToolMixin,
     """
     form_class = MigrateSubmissionSetForm
     model = SubmissionSet
+    success_url_name = 'migrate-options'
     template_name = 'tool/manage/migrate_version.html'
+    tab_content_title = 'migrate version'
     valid_message = ("Your migration is in progress. Please allow a "
                      "few minutes before you can access your submission.")
     invalid_message = ("Before the migration can begin, you need to "
@@ -461,18 +453,11 @@ class MigrateVersionView(InstitutionAdminToolMixin,
 
     def update_logical_rules(self):
         super(MigrateVersionView, self).update_logical_rules()
-        self.add_logical_rule({
-                                'name': 'user_can_migrate_version',
+        self.add_logical_rule({ 'name': 'user_can_migrate_version',
                                 'param_callbacks': [
-                                                        ('user', 'get_request_user'),
-                                                        ('current_inst', 'get_institution')
-                                                    ]
-                               })
+                                    ('user', 'get_request_user'),
+                                    ('current_inst', 'get_institution')] })
 
-        
-    def get_success_url(self):
-        return reverse('migrate-options',
-                        kwargs={ 'institution_slug': self.get_institution().slug })
 
     def get_context_data(self, **kwargs):
         context = super(MigrateVersionView, self).get_context_data(**kwargs)
@@ -490,6 +475,7 @@ class MigrateVersionView(InstitutionAdminToolMixin,
                                 CreditSet.objects.get_latest(),
                                 self.request.user)
         return super(MigrateVersionView, self).form_valid(form)
+
 
 
 ##############################################################################
@@ -536,13 +522,13 @@ def send_exec_renew_email(institution):
     et.send_email(mail_to, {'institution': institution,})
 
 @user_has_tool
-def purchase_subscription(request):
+def purchase_subscription(request, institution_slug=None):
     """
         Provides a view to allow institutions to purchase a new subscription
     """
     current_inst = _get_current_institution(request)
     is_member = current_inst.is_member_institution()
-    amount = _get_registration_price(current_inst, new=False)
+    amount = get_registration_price(current_inst, new=False)
     discount = _gets_discount(current_inst)
     if discount:
         amount = amount / 2
@@ -606,7 +592,7 @@ def purchase_subscription(request):
             if pay_form.is_valid():
                 payment_dict = get_payment_dict(pay_form, current_inst)
                 if pay_form.cleaned_data['discount_code'] != None:
-                        amount = _get_registration_price(
+                        amount = get_registration_price(
                             current_inst,
                             discount_code=pay_form.cleaned_data['discount_code'])
                         messages.info(request, "Discount Code Applied")
