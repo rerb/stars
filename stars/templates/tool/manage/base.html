@@ -15,7 +15,7 @@
     {% block tabs %}
     <ul class="nav nav-tabs">
         <li{% if active_tab == "summary" %} class="active" {% endif %}>
-            <a href="/tool/">Summary</a>
+            <a href="{% url tool-summary institution.slug %}">Summary</a>
         </li>
 
         {% testrule user_has_access_level user 'admin' user.current_inst %}
@@ -31,7 +31,7 @@
             </a>
         </li>
         <li{% if active_tab == 'payments' %} class="active" {% endif %}>
-            <a href="/tool/{{ user.current_inst.slug }}/manage/payments">
+            <a href="{% url institution-payments institution.slug %}">
               Payments
             </a>
         </li>
