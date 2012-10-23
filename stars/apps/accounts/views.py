@@ -3,6 +3,7 @@ from logging import getLogger
 from django.conf import settings
 from django.http import HttpResponseRedirect
 from django.core.exceptions import PermissionDenied
+from django.core.urlresolvers import reverse
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.views.decorators.cache import never_cache
@@ -66,7 +67,8 @@ def select_school(request, institution_id):
             logger.info("Attempt to select non-existent institution id = %s" %
                         institution_id, extra={'request': request})
         if change_institution(request, institution):
-            return HttpResponseRedirect(settings.DASHBOARD_URL)
+            return HttpResponseRedirect(reverse('tool-summary',
+                                                args=(institution.slug,)))
         else:
             raise PermissionDenied("Your request could not be completed.")
     else:
