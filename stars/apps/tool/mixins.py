@@ -23,6 +23,18 @@ class ToolMixin(StarsAccountMixin, RulesMixin):
         else:
             return self.request.path
 
+    def get_context_data(self, **kwargs):
+        """
+            If this ToolMixin has an attribute named 'tab_content_title',
+            pass it along in the form context.
+        """
+        context = super(ToolMixin, self).get_context_data(**kwargs)
+        try:
+            context['tab_content_title'] = self.tab_content_title
+        except AttributeError:
+            pass
+        return context
+
 
 class InstitutionToolMixin(ToolMixin, InstitutionStructureMixin):
     """
