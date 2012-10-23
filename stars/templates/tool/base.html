@@ -5,7 +5,7 @@
 
 {% block title %}Reporting Tool | {{ block.super }}{% endblock %}
 
-{% block main_menu %} 
+{% block main_menu %}
 	{% with selected="mm_tool" %}
     	{% include 'helpers/main_menu.html' %}
     {% endwith %}
@@ -17,7 +17,7 @@
 	    	<a href="/">Home</a> <span class="divider">/</span>
 	  	</li>
 	  <li>
-	    <a href='/tool/'>Reporting</a>
+	    <a href='{% url tool-summary institution.slug %}'>Reporting</a>
     	<span class="divider">/</span>
 	  </li>
 	  {% block crumbs-tool %}{% endblock %}
@@ -26,9 +26,9 @@
 
 {% block content %}
 	<div class='row'>
-		
+
 		<div class='span3'>
-	        
+
 	        <div style='text-align: center'>
 		       {% if user.current_inst.is_participant %}
 		            <span class='label label-success'>STARS Participant</span><br/>
@@ -48,5 +48,5 @@
 			{% block tool_content %}{% endblock %}
 		</div>
 	</div>
-	
+
 {% endblock %}
