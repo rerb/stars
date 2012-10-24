@@ -26,7 +26,6 @@ from stars.apps.accounts import utils as auth_utils
 from stars.apps.notifications.models import EmailTemplate
 
 from zc.authorizedotnet.processing import CcProcessor
-from zc.creditcard import (AMEX, DISCOVER, MASTERCARD, VISA, UNKNOWN_CARD_TYPE)
 from aashe.issdjango.models import Organizations
 
 logger = getLogger('stars')
