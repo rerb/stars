@@ -41,11 +41,10 @@
             {% endfor %}
             </tbody>
         </table>
-        <p style='text-align: center;'>
-            <a href='{% url responsible-party-create institution.slug %}' class='btn btn-info'>
-                Add a Responsible Party
-            </a>
-        </p>
+        <a href='{% url responsible-party-create institution.slug %}'
+           class='btn btn-primary'>
+            Add a Responsible Party
+        </a>
     {% endif %}
 {% endblock %}
 
