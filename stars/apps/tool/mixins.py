@@ -30,10 +30,17 @@ class ToolMixin(StarsAccountMixin, RulesMixin):
         """
         context = super(ToolMixin, self).get_context_data(**kwargs)
         try:
-            context['tab_content_title'] = self.tab_content_title
+            context['tab_content_title'] = self.get_tab_content_title()
         except AttributeError:
             pass
         return context
+
+    def get_tab_content_title(self):
+        """
+            Returns self.tab_content_title.  Provides a hook for
+            subclasses to deduce tab_content_title programmatically.
+        """
+        return self.tab_content_title
 
 
 class InstitutionToolMixin(ToolMixin, InstitutionStructureMixin):
