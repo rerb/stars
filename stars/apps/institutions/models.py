@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, timedelta
 from logging import getLogger
 
 from django.conf import settings
@@ -11,6 +11,7 @@ from django.db.models import Max
 from django.core.mail import send_mail
 
 from stars.apps.credits.models import CreditSet
+from stars.apps.registration.models import DiscountManager
 # from stars.apps.notifications.models import EmailTemplate
 
 logger = getLogger('stars')
@@ -294,14 +295,123 @@ class Subscription(models.Model):
     institution = models.ForeignKey(Institution)
     start_date = models.DateField()
     end_date = models.DateField()
-    ratings_allocated = models.SmallIntegerField(default=RATINGS_PER_SUBSCRIPTION)
+    ratings_allocated = models.SmallIntegerField(
+        default=RATINGS_PER_SUBSCRIPTION)
     ratings_used = models.IntegerField(default=0)
     amount_due = models.FloatField()
     reason = models.CharField(max_length='16', blank=True, null=True)
     paid_in_full = models.BooleanField(default=False)
 
+    MEMBER_BASE_PRICE = 900
+    NONMEMBER_BASE_PRICE = 1400
+
+    @classmethod
+    def new_subscription_for(cls, institution, *args, **kwargs):
+        """
+            Factory method that returns a tuple of a new (unsaved!)
+            Subscription for the specified institution, and a boolean
+            indicating if the subscription was discounted.
+
+            Logic for determining a Subscription's start and end
+            dates, price, and reason is encapsulated here.
+
+            Note that the Subscription provided has not been saved;
+            it's up to the caller to save it.
+        """
+        subscription = cls.__init__(*args, **kwargs)
+        subscription.start_date = cls._get_start_date_for_new_subscription(
+            institution)
+        subscription.end_date = subscription.start_date + timedelta(
+            SUBSCRIPTION_DURATION)
+        subscription.reason = cls._get_reason_for_new_subscription(
+            institution)
+        subscription.amount_due, discounted = (
+            cls._get_price_for_new_subscription(institution))
+        return subscription, discounted
+
+    @classmethod
+    def _get_reason_for_new_subscription(cls, institution):
+        """
+            Get the reason for a new subscription for an institution.
+            It's a renewal or (initial) registration, for a member or
+            a nonmember.
+        """
+        institution_type = ('member' if institution.is_member_institution()
+                            else
+                            'nonmember')
+        subscription_type = ('renewal' if institution.subscription_set.count()
+                             else
+                             'registration')
+        return '_'.join([institution_type, subscription_type])
+
+    @classmethod
+    def _get_start_date_for_new_subscription(cls, institution):
+        """
+            Get the start date for a new subscription for an
+            institution, taking into account any current subscription.
+        """
+        start_date = institution.get_last_subscription_end()
+        if start_date and start_date >= date.today():
+            start_date += timedelta(days=1)
+        else:
+            start_date = date.today()
+        return start_date
+
+    @classmethod
+    def _subscription_discounted(cls, institution):
+        """
+            Returns True if instituion should get a discount.
+
+            Institutions get half-off their submission if their
+            renewal within 90 days of their last subscription
+        """
+        last_subscription_end = institution.get_last_subscription_end()
+
+        if last_subscription_end:
+
+            # if last subscription end was less than 90 days ago
+            # or it hasn't expired
+            td = timedelta(days=90)
+            return date.today() <= last_subscription_end + td
+
+        return False
+
+    @classmethod
+    def _get_price_for_new_subscription(cls, institution, promo_code=None):
+        """
+            Returns a tuple of the price for a new STARS subscription
+            for an institution, and if that price was discounted.
+        """
+        price = (cls.MEMBER_BASE_PRICE if institution.is_member
+                 else cls.NONMEMBER_BASE_PRICE)
+
+        if promo_code:
+            price = cls._apply_promo_code(price, promo_code)
+
+        gets_discount = cls._subscription_discounted(institution)
+
+        if gets_discount:
+            price /=  2
+
+        return (price, gets_discount)
+
+    @classmethod
+    def _apply_promo_code(cls, price, promo_code=None):
+        """
+            Returns price, after applying any promotional discount
+            tied to promo_code.
+        """
+        discount = 0
+        if promo_code:
+            current_promos = DiscountManager().get_current()
+            if promo_code in [ promo.code for promo in current_promos ]:
+                discount = [ promo.amount for promo in current_promos if
+                             promo.code == promo_code ][0]
+        return price - discount
+
     def __str__(self):
-        return "%s (%s - %s)" % (self.institution.name, self.start_date, self.end_date)
+        return "%s (%s - %s)" % (self.institution.name, self.start_date,
+                                 self.end_date)
 
     def get_available_ratings(self):
         return self.ratings_allocated - self.ratings_used
