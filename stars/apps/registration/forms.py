@@ -137,9 +137,10 @@ class PaymentOptionsForm(forms.Form):
     """
     pay_when = forms.ChoiceField(
         choices=[
-            (Subscription.PAY_NOW, 'Pay now'),
+            (Subscription.PAY_NOW, 'Pay now, by credit card'),
             (Subscription.PAY_LATER, 'Pay later (i.e., be billed)')],
-        widget=forms.RadioSelect())
+        widget=forms.RadioSelect(),
+        label='')
 
 class PromoForm(forms.ModelForm):
     """
