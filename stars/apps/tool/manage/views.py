@@ -30,7 +30,7 @@ from stars.apps.tool.manage.forms import (AdminInstitutionForm,
      AccountForm, ThirdPartiesForm, InstitutionPreferences,
      NotifyUsersForm, MigrateSubmissionSetForm, BoundaryForm)
 
-from stars.apps.registration.forms import (PaymentForm, PaymentOptionsForm,
+from stars.apps.registration.forms import (PayNowForm, PaymentOptionsForm,
                                            PayLaterForm)
 from stars.apps.registration.views import process_payment, get_payment_dict
 from stars.apps.registration.models import ValueDiscount
@@ -594,7 +594,7 @@ class SubscriptionCreateView(InstitutionToolMixin,
 
     def get_form_class(self):
         return { Subscription.PAY_LATER: PayLaterForm,
-                 Subscription.PAY_NOW: PaymentForm }[self.pay_when]
+                 Subscription.PAY_NOW: PayNowForm }[self.pay_when]
 
     def get_tab_content_title(self):
         return { Subscription.PAY_LATER: 'purchase a subscription: pay now',
@@ -628,7 +628,7 @@ def _update_preferences(request, institution):
     return (preferences, notify_form)
 
 @user_has_tool
-def pay_subscription(request, subscription_id):
+def pay_subscription(request, institution_slug, subscription_id):
     """
         Provides a view to allow institutions to pay for a subscription
     """
@@ -637,10 +637,10 @@ def pay_subscription(request, subscription_id):
     subscription = get_object_or_404(current_inst.subscription_set.all(),
                                      pk=subscription_id)
     amount = subscription.amount_due
-    pay_form = PaymentForm()
+    pay_form = PayNowForm()
 
     if request.method == "POST":
-        pay_form = PaymentForm(request.POST)
+        pay_form = PayNowForm(request.POST)
         if pay_form.is_valid():
             payment_dict = get_payment_dict(pay_form, current_inst)
             if pay_form.cleaned_data['discount_code'] != None:
