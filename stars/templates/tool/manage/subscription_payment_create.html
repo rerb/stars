@@ -2,26 +2,13 @@
 
 {% load bootstrap %}
 
-{% block crumbs-tool %}<li>Purchase Subscription</li>{% endblock %}
+{% block crumbs-tool %}<li>{{ breadcrumb|title }}</li>{% endblock %}
 
 {% block institution_content %}
 
-  <p>
-      Excellent! Your new STARS subscription will run from
-      {{ subscription_start_date }}
-      to {{ subscription_end_date }}.
-  </p>
-  <p>
-      Choose one of the payment options below to continue.
-  </p>
-
   <form method='post' action='.' class='form-horizontal'>
 
-    {% for radio in form.pay_when %}
-      <div class='radio'>
-        {{ radio }}
-      </div>
-    {% endfor %}
+    {{ form|bootstrap }}
 
     <div class='form-actions'>
 
@@ -29,7 +16,8 @@
           type='submit'
           id='submit_button'
           class='btn btn-primary'>
-              Continue
+              <i class='icon-lock icon-white'></i>
+              Purchase Subscription
       </button>
 
       <button

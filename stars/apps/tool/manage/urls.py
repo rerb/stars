@@ -4,11 +4,10 @@ from views import (AccountCreateView, AccountDeleteView,
                    AccountEditView, AccountListView, ContactView,
                    InstitutionPaymentsView, MigrateDataView,
                    MigrateOptionsView, MigrateVersionView,
-                   PendingAccountDeleteView,
-                   ResponsiblePartyCreateView,
-                   ResponsiblePartyDeleteView,
-                   ResponsiblePartyEditView, ResponsiblePartyListView,
-                   ShareDataView, SubscriptionCreateView,
+                   PendingAccountDeleteView, ResponsiblePartyCreateView,
+                   ResponsiblePartyDeleteView, ResponsiblePartyEditView,
+                   ResponsiblePartyListView, ShareDataView,
+                   SubscriptionCreateView, SubscriptionPaymentCreateView,
                    SubscriptionPaymentOptionsView)
 
 urlpatterns = patterns(
@@ -75,6 +74,7 @@ urlpatterns = patterns(
     url(r'^subscription/create/$', SubscriptionCreateView.as_view(),
         name='subscription-create'),
 
-    url(r'^pay-subscription/(?P<subscription_id>\d+)/$', 'pay_subscription',
-        name='pay-subscription'),
+    url(r'^subscription/(?P<subscription_id>\d+)/payment/$',
+        SubscriptionPaymentCreateView.as_view(),
+        name='subscription-payment-create'),
 )

@@ -86,7 +86,7 @@
                                             Due: ${{ s.amount_due|floatformat:"-2" }}
                                             <br/>
                                             <a
-                                              href="{% url pay-subscription institution.slug s.id %}">
+                                              href="{% url subscription-payment-create institution.slug s.id %}">
                                                 Pay Now
                                             </a>
                                         {% endif %}
