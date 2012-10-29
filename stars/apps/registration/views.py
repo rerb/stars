@@ -1,22 +1,17 @@
 from logging import getLogger
 from datetime import datetime, date, timedelta
-import urllib2, re, sys
-from xml.etree.ElementTree import fromstring
+import sys
 
-from django.http import Http404, HttpResponseRedirect, HttpResponseForbidden
-from django.shortcuts import get_object_or_404
+from django.http import HttpResponseRedirect
 from django.contrib import messages
-from django.contrib.auth.decorators import user_passes_test, login_required
 from django.forms import widgets
 from django.conf import settings
 
 from stars.apps.institutions.models import Institution, Subscription, \
      SubscriptionPayment
 from stars.apps.registration.forms import *
-from stars.apps.registration.utils import is_canadian_zipcode, is_usa_zipcode
-from stars.apps.accounts.utils import respond, connect_iss
-from stars.apps.tool.my_submission.views import _get_active_submission
-from stars.apps.accounts import xml_rpc
+from stars.apps.registration.utils import is_canadian_zipcode
+from stars.apps.accounts.utils import respond
 from stars.apps.submissions.models import SubmissionSet
 from stars.apps.credits.models import CreditSet
 from stars.apps.helpers.forms.views import FormActionView
@@ -26,7 +21,6 @@ from stars.apps.accounts import utils as auth_utils
 from stars.apps.notifications.models import EmailTemplate
 
 from zc.authorizedotnet.processing import CcProcessor
-from zc.creditcard import (AMEX, DISCOVER, MASTERCARD, VISA, UNKNOWN_CARD_TYPE)
 from aashe.issdjango.models import Organizations
 
 logger = getLogger('stars')
