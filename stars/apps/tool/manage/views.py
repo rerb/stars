@@ -404,7 +404,7 @@ class MigrateDataView(InstitutionAdminToolMixin,
     """
     form_class = MigrateSubmissionSetForm
     model = SubmissionSet
-    success_url = '/tool/'
+    success_url_name = 'tool-summary'
     tab_content_title = 'data migration'
     template_name = 'tool/manage/migrate_data.html'
     valid_message = ("Your migration is in progress. Please allow a "
