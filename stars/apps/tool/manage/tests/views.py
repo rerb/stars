@@ -2,11 +2,9 @@
 """
 from bs4 import BeautifulSoup
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.messages.middleware import MessageMiddleware
 from django.contrib.sessions.middleware import SessionMiddleware
-from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest
 from django.shortcuts import render
 from django.test import TestCase
@@ -18,9 +16,7 @@ from stars.test_factories import (CreditUserSubmissionFactory,
      InstitutionFactory, PendingAccountFactory, ResponsiblePartyFactory,
      SubmissionSetFactory, StarsAccountFactory, UserFactory)
 from stars.apps.credits.models import CreditSet
-from stars.apps.institutions.models import (Institution, PendingAccount,
-                                            StarsAccount, Subscription)
-from stars.apps.registration.models import ValueDiscount
+from stars.apps.institutions.models import PendingAccount, StarsAccount
 from stars.apps.submissions.models import ResponsibleParty
 from stars.apps.tool.manage import views
 
@@ -48,180 +44,6 @@ def _make_credits_for_responsible_party(responsible_party):
         credits.append(
             CreditUserSubmissionFactory(responsible_party=responsible_party))
     return credits
-
-
-class ViewsTest(TestCase):
-
-    fixtures = ['responsible_party_test_data.json']
-
-    def setUp(self):
-        self.request = _get_request_ready_for_messages()
-
-        self.request.user = User.objects.get(pk=1)
-        self.request.institution = Institution.objects.get(pk=1)
-        self.request.user.current_inst = self.request.institution
-        self.request.user.has_perm = lambda x: True
-        self.request.method = 'POST'
-
-        self.subscription = Subscription(start_date='2000-01-01',
-                                         end_date='3000-01-01',
-                                         amount_due=500.00)
-        self.subscription.institution = self.request.institution
-        self.subscription.save()
-        value_discount = ValueDiscount(
-            code=MockPaymentForm().cleaned_data['discount_code'],
-            amount=100.00, start_date='1000-01-01', end_date='5000-01-01')
-        value_discount.save()
-
-    def test_purchase_subscription_discount_code_applied_message(self):
-        """Does purchase_subscription show a msg when a discount code is used?
-        """
-        with testfixtures.Replacer() as r:
-            r.replace(
-                'stars.apps.tool.manage.views._get_current_institution',
-                lambda x: self.request.institution)
-            r.replace('stars.apps.tool.manage.views.PaymentForm',
-                      MockPaymentForm)
-            r.replace(
-                'stars.apps.tool.manage.views.get_payment_dict',
-                lambda x,y: dict())
-            r.replace(
-                'stars.apps.tool.manage.views.process_payment',
-                lambda x,y,invoice_num: dict())
-            response = views.purchase_subscription(self.request)
-        soup = BeautifulSoup(response.content)
-        info_message_divs = soup.find_all(
-            'div',
-            {'class': settings.MESSAGE_TAGS[messages.INFO]})
-        self.assertEqual(len(info_message_divs), 1)
-        self.assertTrue('Discount Code Applied' in
-                        info_message_divs[0].text)
-
-    def test_purchase_subscription_processing_error_error_message(self):
-        """Does purchase_subscription show an error msg upon a processing error?
-        """
-        with testfixtures.Replacer() as r:
-            r.replace(
-                'stars.apps.tool.manage.views._get_current_institution',
-                lambda x: self.request.institution)
-            r.replace('stars.apps.tool.manage.views.PaymentForm',
-                      MockPaymentForm)
-            r.replace(
-                'stars.apps.tool.manage.views.get_payment_dict',
-                lambda x,y: dict())
-            r.replace(
-                'stars.apps.tool.manage.views.process_payment',
-                lambda x,y,invoice_num: { 'cleared': False,
-                                          'msg': None })
-            response = views.purchase_subscription(self.request)
-        soup = BeautifulSoup(response.content)
-        error_message_divs = soup.find_all(
-            'div',
-            {'class': settings.MESSAGE_TAGS[messages.ERROR]})
-        self.assertEqual(len(error_message_divs), 1)
-        self.assertTrue('rocessing Error' in error_message_divs[0].text)
-
-    def test_purchase_subscription_invalid_payform_error_message(self):
-        """Does purchase_subscription show an error if payment form is invalid?
-        """
-        with testfixtures.Replacer() as r:
-            r.replace(
-                'stars.apps.tool.manage.views._get_current_institution',
-                lambda x: self.request.institution)
-            response = views.purchase_subscription(self.request)
-        soup = BeautifulSoup(response.content)
-        error_message_divs = soup.find_all(
-            'div',
-            {'class': settings.MESSAGE_TAGS[messages.ERROR]})
-        self.assertEqual(len(error_message_divs), 1)
-        self.assertTrue('lease correct the errors' in
-                        error_message_divs[0].text)
-
-    def test_pay_subscription_discount_code_applied_message(self):
-        """Does pay_subscription show a msg when a discount code is used?
-        """
-        with testfixtures.Replacer() as r:
-            r.replace(
-                'stars.apps.tool.manage.views._get_current_institution',
-                lambda x: self.request.institution)
-            r.replace('stars.apps.tool.manage.views.PaymentForm',
-                      MockPaymentForm)
-            r.replace(
-                'stars.apps.tool.manage.views.get_payment_dict',
-                lambda x,y: dict())
-            r.replace(
-                'stars.apps.tool.manage.views.process_payment',
-                lambda x,y,invoice_num: dict())
-            response = views.pay_subscription(self.request,
-                                              self.subscription.id)
-        soup = BeautifulSoup(response.content)
-        info_message_divs = soup.find_all(
-            'div',
-            {'class': settings.MESSAGE_TAGS[messages.INFO]})
-        self.assertEqual(len(info_message_divs), 1)
-        self.assertTrue('Discount Code Applied' in
-                        info_message_divs[0].text)
-
-    def test_pay_subscription_processing_error_error_message(self):
-        """Does pay_subscription show an error msg upon a processing error?
-        """
-        with testfixtures.Replacer() as r:
-            r.replace(
-                'stars.apps.tool.manage.views._get_current_institution',
-                lambda x: self.request.institution)
-            r.replace('stars.apps.tool.manage.views.PaymentForm',
-                      MockPaymentForm)
-            r.replace(
-                'stars.apps.tool.manage.views.get_payment_dict',
-                lambda x,y: dict())
-            r.replace(
-                'stars.apps.tool.manage.views.process_payment',
-                lambda x,y,invoice_num: { 'cleared': False,
-                                          'msg': None })
-            response = views.pay_subscription(self.request,
-                                              self.subscription.id)
-        soup = BeautifulSoup(response.content)
-        error_message_divs = soup.find_all(
-            'div',
-            {'class': settings.MESSAGE_TAGS[messages.ERROR]})
-        self.assertEqual(len(error_message_divs), 1)
-        self.assertTrue('rocessing Error' in error_message_divs[0].text)
-
-    def test_pay_subscription_invalid_payform_error_message(self):
-        """Does pay_subscription show an error when payment form is invalid?
-        """
-        with testfixtures.Replacer() as r:
-            r.replace(
-                'stars.apps.tool.manage.views._get_current_institution',
-                lambda x: self.request.institution)
-            response = views.pay_subscription(self.request,
-                                              self.subscription.id)
-        soup = BeautifulSoup(response.content)
-        error_message_divs = soup.find_all(
-            'div',
-            {'class': settings.MESSAGE_TAGS[messages.ERROR]})
-        self.assertEqual(len(error_message_divs), 1)
-        self.assertTrue('lease correct the errors' in
-                        error_message_divs[0].text)
-
-
-class MockAccountForm(object):
-
-    def __init__(self, *args, **kwargs):
-        self.cleaned_data = {'email': "doesn't matter",
-                             'userlevel': "doesn't matter"}
-
-    def is_valid(self):
-        return True
-
-
-class MockPaymentForm(object):
-
-    def __init__(self, *args, **kwargs):
-        self.cleaned_data = { 'discount_code': 'ILOVETOSAVEMONEY' }
-
-    def is_valid(self):
-        return True
 
 
 class _InstitutionAdminToolMixinTest(TestCase):
