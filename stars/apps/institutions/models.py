@@ -7,6 +7,7 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.localflavor.us.models import PhoneNumberField
+from django.contrib import messages
 from django.template.defaultfilters import slugify
 from django.db.models import Max
 from django.core.mail import send_mail
@@ -326,11 +327,24 @@ class Subscription(models.Model):
             the Subscription's reason, start_date, and end_date are
             calculated.
 
+            Returns a tuple of the Subscription created, and a boolean
+            indicating if a promo discount was applied when the amount
+            due was ciphered.
+
             Doing this via a static factory method rather than in
             __init__, because tweaking __init__ on a Model causes
             weird things to happen.
         """
+        # promo_code is a kwarg we need to pop off kwargs before passing it
+        # to Subscription():
+        try:
+            promo_code = kwargs.pop('promo_code')
+        except KeyError:
+            promo_code = False
+        promo_code_applied = False
+
         subscription = cls(*args, **kwargs)
+
         try:
             subscription.institution
         except ObjectDoesNotExist:
@@ -338,11 +352,17 @@ class Subscription(models.Model):
         else:
             # processing that depends on an institution being set
             # for this subscription:
+
             subscription.reason = subscription._calculate_reason()
+
             (subscription.start_date,
              subscription.end_date) = subscription._calculate_date_range()
 
-        return subscription
+            (subscription.amount_due,
+             promo_code_applied) = subscription.calculate_price(
+                 promo_code=promo_code)
+
+        return subscription, promo_code_applied
 
     def __str__(self):
         return "%s (%s - %s)" % (self.institution.name, self.start_date,
@@ -413,24 +433,28 @@ class Subscription(models.Model):
                 discount = [ promo.amount for promo
                              in discount_manager.get_current()
                              if promo.code == promo_code ][0]
-        return price - discount
+        return (price - discount, discount > 0)
 
     def calculate_price(self, promo_code=None):
         """
-            Returns the price for this STARS subscription.
+            Returns the price for this STARS subscription, and
+            a boolean indicating if a promo code was used in the
+            calculation.
         """
         price = (self.MEMBER_BASE_PRICE if self.institution.is_member
                  else self.NONMEMBER_BASE_PRICE)
 
+        promo_code_applied = False
         if promo_code:
-            price = self._apply_promo_code(price, promo_code)
+            price, promo_code_applied = self._apply_promo_code(price,
+                                                               promo_code)
 
         gets_discount = self._subscription_discounted()
 
         if gets_discount:
             price /=  2
 
-        return price
+        return price, promo_code_applied
 
     def get_available_ratings(self):
         return self.ratings_allocated - self.ratings_used
@@ -444,7 +468,6 @@ class Subscription(models.Model):
                 amount: dollar amount to apply
 
                 user: user making the payment
-                                          get post purchase messages
 
                 form: a form that holds credit card information, if paying now
 
