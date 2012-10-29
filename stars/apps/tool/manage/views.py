@@ -4,39 +4,40 @@ from logging import getLogger
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
-from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect, Http404
-
+from django.shortcuts import get_object_or_404
+from django.views.generic import (CreateView, DeleteView, FormView, ListView,
+                                  TemplateView, UpdateView)
 
 from stars.apps.accounts import xml_rpc
 from stars.apps.credits.models import CreditSet
-from stars.apps.institutions.models import StarsAccount, Subscription, \
-     SubscriptionPayment, SUBSCRIPTION_DURATION, PendingAccount
-from stars.apps.institutions.rules import user_has_access_level
-from stars.apps.payments import credit_card
-from stars.apps.submissions.models import SubmissionSet
-from stars.apps.submissions.tasks import perform_migration, \
-     perform_data_migration
-from stars.apps.third_parties.models import ThirdParty
 from stars.apps.helpers.forms import form_helpers
-
-from stars.apps.tool.manage.forms import (AdminInstitutionForm,
-     ParticipantContactForm, RespondentContactForm, ResponsibleParty,
-     ResponsiblePartyForm, AccountForm, ThirdPartiesForm,
-     InstitutionPreferences, NotifyUsersForm, MigrateSubmissionSetForm)
-
-from stars.apps.registration.forms import (PayNowForm, PaymentOptionsForm,
-                                           PayLaterForm)
-
-# new imports
-from stars.apps.institutions.models import Institution
-from stars.apps.tool.mixins import (InstitutionAdminToolMixin,
-                                    InstitutionToolMixin)
 from stars.apps.helpers.mixins import ValidationMessageFormMixin
 from stars.apps.helpers.queryset_sequence import QuerySetSequence
-
-from django.views.generic import (CreateView, DeleteView, FormView, ListView,
-                                  TemplateView, UpdateView)
+from stars.apps.institutions.models import (StarsAccount, Subscription,
+                                            SubscriptionPayment,
+                                            SUBSCRIPTION_DURATION,
+                                            PendingAccount)
+from stars.apps.institutions.models import Institution
+from stars.apps.institutions.rules import user_has_access_level
+from stars.apps.payments import credit_card
+from stars.apps.registration.forms import (PayNowForm,
+                                           PaymentOptionsForm, PayLaterForm)
+from stars.apps.submissions.models import SubmissionSet
+from stars.apps.submissions.tasks import (perform_migration,
+                                          perform_data_migration)
+from stars.apps.third_parties.models import ThirdParty
+from stars.apps.tool.manage.forms import (AccountForm, AdminInstitutionForm,
+                                          InstitutionPreferences,
+                                          MigrateSubmissionSetForm,
+                                          NotifyUsersForm,
+                                          ParticipantContactForm,
+                                          RespondentContactForm,
+                                          ResponsibleParty,
+                                          ResponsiblePartyForm,
+                                          ThirdPartiesForm)
+from stars.apps.tool.mixins import (InstitutionAdminToolMixin,
+                                    InstitutionToolMixin)
 
 logger = getLogger('stars.request')
 
