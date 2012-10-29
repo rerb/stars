@@ -57,6 +57,19 @@ def _get_current_institution(request):
     else:
         raise Http404
 
+def _update_preferences(request, institution):
+    """
+        Helper method to DRY code around managing institution preferences
+        Returns (preferences, preferences_form)
+    """
+    try:
+        preferences = institution.preferences
+    except InstitutionPreferences.DoesNotExist:
+        preferences = InstitutionPreferences(institution=institution)
+    (notify_form,saved) = form_helpers.basic_save_form(
+        request, preferences, '', NotifyUsersForm, show_message=False)
+    return (preferences, notify_form)
+
 
 class ContactView(InstitutionAdminToolMixin, ValidationMessageFormMixin,
                   UpdateView):
