@@ -15,6 +15,7 @@ from stars.apps.credits.models import CreditSet
 from stars.apps.institutions.models import StarsAccount, Subscription, \
      SubscriptionPayment, SUBSCRIPTION_DURATION, PendingAccount
 from stars.apps.institutions.rules import user_has_access_level
+from stars.apps.payments import credit_card
 from stars.apps.submissions.models import SubmissionSet
 from stars.apps.submissions.tasks import perform_migration, \
      perform_data_migration
@@ -29,11 +30,10 @@ from stars.apps.tool.manage.forms import (AdminInstitutionForm,
      AccountForm, ThirdPartiesForm, InstitutionPreferences,
      NotifyUsersForm, MigrateSubmissionSetForm, BoundaryForm)
 
-from stars.apps.registration.forms import PaymentForm, PayLaterForm
-from stars.apps.registration.views import process_payment, get_payment_dict, \
-     get_registration_price
+from stars.apps.registration.forms import (PaymentForm, PaymentOptionsForm,
+                                           PayLaterForm)
+from stars.apps.registration.views import process_payment, get_payment_dict
 from stars.apps.registration.models import ValueDiscount
-from stars.apps.notifications.models import EmailTemplate
 
 # new imports
 from stars.apps.institutions.models import Institution
@@ -278,6 +278,7 @@ class AccountCreateView(InstitutionAdminToolMixin, ValidationMessageFormMixin,
                           "There is no AASHE user with e-mail: %s. "
                           "STARS Account is pending user's registration "
                           "at www.aashe.org." % user_email)
+            self.valid_message = ''  # So no "Account created." message shows.
             PendingAccount.update_account(
                 self.request.user,
                 self.preferences.notify_users,
@@ -476,6 +477,136 @@ class MigrateVersionView(InstitutionAdminToolMixin,
                                 self.request.user)
         return super(MigrateVersionView, self).form_valid(form)
 
+PAY_WHEN = 'pay_when'
+
+
+class SubscriptionPaymentOptionsView(InstitutionToolMixin,
+                                     ValidationMessageFormMixin,
+                                     FormView):
+    """
+        Provides a form by which a user's preference to pay now
+        (by credit card) or pay later (after being billed) for a
+        new subscription can be specified.
+
+        Redirects to the view that creates a Subscription.
+    """
+    form_class = PaymentOptionsForm
+    success_url_name = 'subscription-create'
+    tab_content_title = 'purchase a subscription: payment options'
+    template_name = 'tool/manage/subscription_payment_options.html'
+    valid_message = ''  # Only want to use invalid_message.
+
+    # @todo - does this rule do anything?
+    def update_logical_rules(self):
+        super(SubscriptionPaymentOptionsView, self).update_logical_rules()
+        self.add_logical_rule({ 'name': 'user_has_tool',
+                                'param_callbacks': [
+                                    ('user', 'get_request_user')] })
+
+    def get_context_data(self, **kwargs):
+        context = super(SubscriptionPaymentOptionsView,
+                        self).get_context_data(**kwargs)
+        context['subscription_start_date'] = self.get_subscription_start_date()
+        context['subscription_end_date'] = (self.get_subscription_start_date() +
+                                            timedelta(SUBSCRIPTION_DURATION))
+        return context
+
+    def get_subscription_start_date(self, institution=None):
+        """
+            Get the start date for a subscription, taking into account
+            any current subscriptions for this institution.
+
+            institution can be passed in for testing.
+        """
+        institution = institution or self.get_institution()
+        start_date = institution.get_last_subscription_end()
+        if start_date and start_date > date.today():
+            start_date += timedelta(days=1)
+        else:
+            start_date = date.today()
+        return start_date
+
+    def form_valid(self, form):
+        # Pass the payment selected on:
+        self.request.session[PAY_WHEN] = form.cleaned_data[PAY_WHEN]
+        return super(SubscriptionPaymentOptionsView, self).form_valid(form)
+
+
+class SubscriptionCreateView(InstitutionToolMixin,
+                             ValidationMessageFormMixin,
+                             FormView):
+    """
+        Creates a Subscription.
+
+        If self.request.session['PAY_WHEN'] == Subscription.PAY_NOW,
+        the form displayed requests credit card info, and an attempt to
+        charge the card is made.
+
+        If self.request.session['PAY_WHEN'] = Subscription.PAY_LATER,
+        the form displayed requests only a promo code.
+
+    """
+    success_url_name = 'tool-summary'
+    template_name = 'tool/manage/subscription_create.html'
+
+    @property
+    def pay_when(self):
+        if not getattr(self, '_pay_when', False):
+            self._pay_when = self.request.session[PAY_WHEN]
+        return self._pay_when
+
+    # @todo - does this rule do anything?
+    def update_logical_rules(self):
+        super(SubscriptionCreateView, self).update_logical_rules()
+        self.add_logical_rule({ 'name': 'user_has_tool',
+                                'param_callbacks': [
+                                    ('user', 'get_request_user')] })
+
+    def form_valid(self, form):
+        self.subscription = Subscription.create(
+            institution=self.get_institution())
+
+        promo_code=form.cleaned_data['promo_code']
+
+        self.subscription.amount_due  = self.subscription.calculate_price(
+            promo_code=promo_code)
+
+        # @todo - why save() here?
+        self.subscription.save()
+
+        try:
+            self.subscription.pay(
+                pay_when=self.pay_when,
+                amount=self.subscription.amount_due,
+                user=self.request.user,
+                form=form)
+        except credit_card.CreditCardProcessingError as ccpe:
+            messages.error(self.request,
+                           "Processing Error: {0}".format(ccpe.message))
+            return self.form_invalid(form)
+
+        if promo_code:
+            messages.info(self.request, "Promo code discount applied!")
+
+        del self.request.session[PAY_WHEN]
+
+        return super(SubscriptionCreateView, self).form_valid(form)
+
+    def get_form_class(self):
+        return { Subscription.PAY_LATER: PayLaterForm,
+                 Subscription.PAY_NOW: PaymentForm }[self.pay_when]
+
+    def get_tab_content_title(self):
+        return { Subscription.PAY_LATER: 'purchase a subscription: pay now',
+                 Subscription.PAY_NOW: 'purchase a subscription: pay later' }[
+                     self.pay_when]
+
+    def get_valid_message(self):
+        return """Thank you!
+                  Your new subscription lasts from
+                  {start} to {finish}.""".format(
+                      start=self.subscription.start_date,
+                      finish=self.subscription.end_date)
 
 
 ##############################################################################
@@ -495,178 +626,6 @@ def _update_preferences(request, institution):
     (notify_form,saved) = form_helpers.basic_save_form(
         request, preferences, '', NotifyUsersForm, show_message=False)
     return (preferences, notify_form)
-
-def _gets_discount(institution, current_date=date.today()):
-    """
-        Institutions get half-off their submission if their renewal
-        within 90 days of their last subscription
-    """
-
-    last_subscription_end = institution.get_last_subscription_end()
-
-    if last_subscription_end:
-
-        # if last subscription end was less than 90 days ago
-        # or it hasn't expired
-        td = timedelta(days=90)
-        if current_date <= last_subscription_end + td:
-            return True
-
-    return False
-
-
-def send_exec_renew_email(institution):
-
-    mail_to = [institution.executive_contact_email,]
-    et = EmailTemplate.objects.get(slug="reg_renewal_exec")
-    et.send_email(mail_to, {'institution': institution,})
-
-@user_has_tool
-def purchase_subscription(request, institution_slug=None):
-    """
-        Provides a view to allow institutions to purchase a new subscription
-    """
-    current_inst = _get_current_institution(request)
-    is_member = current_inst.is_member_institution()
-    amount = get_registration_price(current_inst, new=False)
-    discount = _gets_discount(current_inst)
-    if discount:
-        amount = amount / 2
-
-    if current_inst.subscription_set.all():
-        if is_member:
-            reason = "member_renew"
-        else:
-            reason = "nonmember_renew"
-    else:
-        if is_member:
-            reason = "member_reg"
-        else:
-            reason = "nonmember_reg"
-
-    # calculate start date of subscription
-    start_date = current_inst.get_last_subscription_end()
-    if start_date and start_date > date.today():
-        start_date += timedelta(days=1)
-    else:
-        start_date = date.today()
-
-    pay_form = PaymentForm()
-    later_form = PayLaterForm()
-
-    if request.method == "POST":
-
-        later_form = PayLaterForm(request.POST)
-        if later_form.is_valid() and later_form.cleaned_data['confirm']:
-
-            sub = Subscription(
-                institution=current_inst,
-                start_date=start_date,
-                end_date=start_date + timedelta(SUBSCRIPTION_DURATION),
-                amount_due=amount,
-                paid_in_full=False,
-                reason=reason)
-            sub.save()
-
-            if not current_inst.current_subscription:
-                current_inst.current_subscription = sub
-            current_inst.is_participant = True
-            current_inst.save()
-
-            if request.user.email != current_inst.contact_email:
-                mail_to = [request.user.email, current_inst.contact_email]
-            else:
-                mail_to = [current_inst.contact_email,]
-
-            if reason == "member_renew" or reason == "nonmember_renew":
-                et = EmailTemplate.objects.get(slug="reg_renewal_unpaid")
-            else:
-                et = EmailTemplate.objects.get(slug="welcome_liaison_unpaid")
-
-            email_context = {'institution': current_inst, 'amount': amount}
-            et.send_email(mail_to, email_context)
-
-            return HttpResponseRedirect("/tool/")
-        else:
-            pay_form = PaymentForm(request.POST)
-            if pay_form.is_valid():
-                payment_dict = get_payment_dict(pay_form, current_inst)
-                if pay_form.cleaned_data['discount_code'] != None:
-                        amount = get_registration_price(
-                            current_inst,
-                            discount_code=pay_form.cleaned_data['discount_code'])
-                        messages.info(request, "Discount Code Applied")
-                product_dict = {
-                    'price': amount,
-                    'quantity': 1,
-                    'name': "STARS Subscription Purchase",
-                }
-
-                result = process_payment(payment_dict, [product_dict],
-                                         invoice_num=current_inst.aashe_id)
-                if result.has_key('cleared') and result.has_key('msg'):
-                    if result['cleared'] and result['trans_id']:
-
-                        sub = Subscription(
-                            institution=current_inst,
-                            start_date=start_date,
-                            end_date=(start_date +
-                                      timedelta(SUBSCRIPTION_DURATION)),
-                            amount_due=0,
-                            paid_in_full=True,
-                            reason=reason)
-                        sub.save()
-
-                        p = SubscriptionPayment(
-                                        subscription=sub,
-                                        date=datetime.now(),
-                                        amount=amount,
-                                        user=request.user,
-                                        method='credit',
-                                        confirmation=str(result['trans_id']),
-                                    )
-                        p.save()
-
-                        if request.user.email != current_inst.contact_email:
-                            mail_to = [request.user.email,
-                                       current_inst.contact_email]
-                        else:
-                            mail_to = [current_inst.contact_email,]
-
-                        if (reason == "member_renew" or
-                            reason == "nonmember_renew"):
-                            et = EmailTemplate.objects.get(
-                                slug="reg_renewed_paid")
-                            send_exec_renew_email(current_inst)
-                        else:
-                            et = EmailTemplate.objects.get(
-                                slug="welcome_liaison_paid")
-
-                        email_context = {'payment_dict': payment_dict,
-                                         'institution': current_inst,
-                                         "payment": p}
-                        et.send_email(mail_to, email_context)
-
-                        current_inst.current_subscription = sub
-                        current_inst.is_participant = True
-                        current_inst.save()
-
-                        return HttpResponseRedirect("/tool/")
-                    else:
-                        messages.error(request, "Processing Error: %s" %
-                                       result['msg'])
-            else:
-                messages.error(request, "Please correct the errors below")
-
-    template = 'tool/manage/purchase_subscription.html'
-    context = {
-        "pay_form": pay_form,
-        "later_form": later_form,
-        "amount": amount,
-        'is_member': is_member,
-        'discount': discount,
-    }
-    return respond(request, template, context)
 
 @user_has_tool
 def pay_subscription(request, subscription_id):

@@ -85,7 +85,8 @@
                                         {% if not s.paid_in_full %}
                                             Due: ${{ s.amount_due|floatformat:"-2" }}
                                             <br/>
-                                            <a href='/tool/manage/pay-subscription/{{ s.id }}/'>
+                                            <a
+                                              href="{% url pay-subscription institution.slug s.id %}">
                                                 Pay Now
                                             </a>
                                         {% endif %}
@@ -101,7 +102,7 @@
                 </tbody>
             </table>
             {% testrule user_has_access_level user 'admin' institution %}
-                <a href='{% url purchase-subscription institution.slug %}'
+                <a href='{% url subscription-payment-options institution.slug %}'
                    class='btn btn-primary'>
                     Purchase STARS Participant Subscription
                 </a>

@@ -1,12 +1,15 @@
 from django.conf.urls.defaults import patterns, url
 
-from views import (AccountCreateView, AccountDeleteView, AccountEditView,
-                   AccountListView, ContactView, InstitutionPaymentsView,
-                   MigrateDataView, MigrateOptionsView, MigrateVersionView,
-                   PendingAccountDeleteView, PurchaseSubscriptionView,
+from views import (AccountCreateView, AccountDeleteView,
+                   AccountEditView, AccountListView, ContactView,
+                   InstitutionPaymentsView, MigrateDataView,
+                   MigrateOptionsView, MigrateVersionView,
+                   PendingAccountDeleteView,
                    ResponsiblePartyCreateView,
-                   ResponsiblePartyDeleteView, ResponsiblePartyEditView,
-                   ResponsiblePartyListView, ShareDataView)
+                   ResponsiblePartyDeleteView,
+                   ResponsiblePartyEditView, ResponsiblePartyListView,
+                   ShareDataView, SubscriptionCreateView,
+                   SubscriptionPaymentOptionsView)
 
 urlpatterns = patterns(
     'stars.apps.tool.manage.views',
@@ -65,8 +68,12 @@ urlpatterns = patterns(
         name='migrate-version'),
 
     # Subscription views:
-    url(r'^purchase-subscription/', PurchaseSubscriptionView.as_view(),
-        name='purchase-subscription'),
+    url(r'^purchase-subscription/',
+        SubscriptionPaymentOptionsView.as_view(),
+        name='subscription-payment-options'),
+
+    url(r'^subscription/create/$', SubscriptionCreateView.as_view(),
+        name='subscription-create'),
 
     url(r'^pay-subscription/(?P<subscription_id>\d+)/$', 'pay_subscription',
         name='pay-subscription'),

@@ -1,0 +1,33 @@
+{% extends 'tool/summary.html' %}
+
+{% load bootstrap %}
+
+{% block crumbs-tool %}<li>Purchase Subscription</li>{% endblock %}
+
+{% block institution_content %}
+
+    <form method='post' action='.' class='form-horizontal'>
+
+        {{ form|bootstrap }}
+
+        <div class='form-actions'>
+
+            <button
+                type='submit'
+                id='submit_button'
+                class='btn btn-primary'>
+                    Purchase Subscription
+            </button>
+
+            <button
+                type='button'
+                class='btn'
+                onclick="document.location='{% url tool-summary institution.slug %}'">
+                    Cancel
+            </button>
+
+        </div>
+
+    </form>
+
+{% endblock %}
