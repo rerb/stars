@@ -77,14 +77,14 @@
              {% endfor %}
          </tbody>
      </table>
-     <p style='text-align: center;'>
-         <a href='{% url account-create institution.slug %}'
-            class='btn btn-info'>
-             Add a User
-         </a>
-     </p>
+     <a href='{% url account-create institution.slug %}'
+        class='btn btn-primary'>
+         Add a User
+     </a>
      <p>
          <span class="pending_note">
+             <br/>
+             <br/>
              * - Account pending; user must register at www.aashe.org.
          </span>
      </p>

@@ -1,11 +1,14 @@
 from django.conf.urls.defaults import patterns, url
-from views import (AccountCreateView, AccountDeleteView, AccountEditView,
-                   AccountListView, ContactView, InstitutionPaymentsView,
-                   MigrateDataView, MigrateOptionsView, MigrateVersionView,
-                   PendingAccountDeleteView,
-                   ResponsiblePartyCreateView, ResponsiblePartyDeleteView,
-                   ResponsiblePartyEditView, ResponsiblePartyListView,
-                   ShareDataView)
+
+from views import (AccountCreateView, AccountDeleteView,
+                   AccountEditView, AccountListView, ContactView,
+                   InstitutionPaymentsView, MigrateDataView,
+                   MigrateOptionsView, MigrateVersionView,
+                   PendingAccountDeleteView, ResponsiblePartyCreateView,
+                   ResponsiblePartyDeleteView, ResponsiblePartyEditView,
+                   ResponsiblePartyListView, ShareDataView,
+                   SubscriptionCreateView, SubscriptionPaymentCreateView,
+                   SubscriptionPaymentOptionsView)
 
 urlpatterns = patterns(
     'stars.apps.tool.manage.views',
@@ -49,9 +52,11 @@ urlpatterns = patterns(
         PendingAccountDeleteView.as_view(),
         name='pending-account-delete'),
 
+    # Share Data view:
     url(r'^share-data/$', ShareDataView.as_view(),
         name='share-data'),
 
+    # Migration views:
     url(r'^migrate/$', MigrateOptionsView.as_view(),
         name='migrate-options'),
 
@@ -61,9 +66,15 @@ urlpatterns = patterns(
     url(r'^migrate/version/(?P<pk>\d+)/$', MigrateVersionView.as_view(),
         name='migrate-version'),
 
-    url(r'^purchase-subscription/', 'purchase_subscription',
-        name='purchase-subscription'),
+    # Subscription views:
+    url(r'^purchase-subscription/',
+        SubscriptionPaymentOptionsView.as_view(),
+        name='subscription-payment-options'),
 
-    url(r'^pay-subscription/(?P<subscription_id>\d+)/$', 'pay_subscription',
-        name='pay-subscription'),
+    url(r'^subscription/create/$', SubscriptionCreateView.as_view(),
+        name='subscription-create'),
+
+    url(r'^subscription/(?P<subscription_id>\d+)/payment/$',
+        SubscriptionPaymentCreateView.as_view(),
+        name='subscription-payment-create'),
 )

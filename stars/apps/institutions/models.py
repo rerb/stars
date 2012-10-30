@@ -1,19 +1,26 @@
-from datetime import date
+from datetime import date, timedelta
 from logging import getLogger
 
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.localflavor.us.models import PhoneNumberField
+from django.contrib import messages
 from django.template.defaultfilters import slugify
 from django.db.models import Max
 from django.core.mail import send_mail
 
 from stars.apps.credits.models import CreditSet
-# from stars.apps.notifications.models import EmailTemplate
+from stars.apps.registration.models import DiscountManager
+from stars.apps.notifications.models import EmailTemplate
 
 logger = getLogger('stars')
+
+
+class InvalidPayWhenValue(Exception):
+    pass
 
 
 class ClimateZone(models.Model):
@@ -26,6 +33,7 @@ class ClimateZone(models.Model):
     def __str__(self):
         return self.name
 
+
 class InstitutionManager(models.Manager):
     """
         Adds some custom query functionality to the Institution object
@@ -33,7 +41,9 @@ class InstitutionManager(models.Manager):
 
     def get_rated(self):
         """ All submissionsets that have been rated """
-        return Institution.objects.filter(enabled=True).filter(current_rating__isnull=False)
+        return Institution.objects.filter(enabled=
+                                          True).filter(
+                                              current_rating__isnull=False)
 
 
 class Institution(models.Model):
@@ -294,21 +304,272 @@ class Subscription(models.Model):
     institution = models.ForeignKey(Institution)
     start_date = models.DateField()
     end_date = models.DateField()
-    ratings_allocated = models.SmallIntegerField(default=RATINGS_PER_SUBSCRIPTION)
+    ratings_allocated = models.SmallIntegerField(
+        default=RATINGS_PER_SUBSCRIPTION)
     ratings_used = models.IntegerField(default=0)
     amount_due = models.FloatField()
     reason = models.CharField(max_length='16', blank=True, null=True)
     paid_in_full = models.BooleanField(default=False)
 
+    MEMBER_BASE_PRICE = 900
+    NONMEMBER_BASE_PRICE = 1400
+
+    PAY_NOW = 'now'
+    PAY_LATER = 'later'
+
+    class Meta:
+        ordering = ['-start_date']
+
+    @classmethod
+    def create(cls, *args, **kwargs):
+        """
+            Creates a new Subscription.  If an institution is provided,
+            the Subscription's reason, start_date, and end_date are
+            calculated.
+
+            Returns a tuple of the Subscription created, and a boolean
+            indicating if a promo discount was applied when the amount
+            due was ciphered.
+
+            Doing this via a static factory method rather than in
+            __init__, because tweaking __init__ on a Model causes
+            weird things to happen.
+        """
+        # promo_code is a kwarg we need to pop off kwargs before passing it
+        # to Subscription():
+        try:
+            promo_code = kwargs.pop('promo_code')
+        except KeyError:
+            promo_code = False
+        promo_code_applied = False
+
+        subscription = cls(*args, **kwargs)
+
+        try:
+            subscription.institution
+        except ObjectDoesNotExist:
+            pass
+        else:
+            # processing that depends on an institution being set
+            # for this subscription:
+
+            subscription.reason = subscription._calculate_reason()
+
+            (subscription.start_date,
+             subscription.end_date) = subscription._calculate_date_range()
+
+            (subscription.amount_due,
+             promo_code_applied) = subscription.calculate_price(
+                 promo_code=promo_code)
+
+        return subscription, promo_code_applied
+
     def __str__(self):
-        return "%s (%s - %s)" % (self.institution.name, self.start_date, self.end_date)
+        return "%s (%s - %s)" % (self.institution.name, self.start_date,
+                                 self.end_date)
+    def _calculate_reason(self):
+        """
+            Calculates the reason for a new subscription.
+            It's a renewal or (initial) registration, for a member or
+            a nonmember.
+        """
+        institution_type = ('member'
+                            if self.institution.is_member_institution()
+                            else 'nonmember')
+        subscription_type = ('renewal'
+                             if self.institution.subscription_set.count()
+                             else 'registration')
+        return '_'.join([institution_type, subscription_type])
+
+    def _calculate_start_date(self):
+        """
+            Calculates the start date for a new subscription, taking into
+            account any current subscription.
+        """
+        start_date = self.institution.get_last_subscription_end()
+        if start_date and start_date >= date.today():
+            start_date += timedelta(days=1)
+        else:
+            start_date = date.today()
+        return start_date
+
+    def _calculate_date_range(self):
+        """
+            Calculates the start and end dates for a new subscription.
+            Returns a tuple of start_date and end_date.
+        """
+        start_date = self._calculate_start_date()
+        end_date = start_date + timedelta(days=SUBSCRIPTION_DURATION)
+        return (start_date, end_date)
+
+    def _subscription_discounted(self):
+        """
+            Returns True if this subscription's instituion should get
+            a discount.
+
+            Institutions get half-off their submission if their
+            renewal within 90 days of their last subscription
+        """
+        last_subscription_end = self.institution.get_last_subscription_end()
+
+        if last_subscription_end:
+
+            # if last subscription end was less than 90 days ago
+            # or it hasn't expired
+            td = timedelta(days=90)
+            return date.today() <= last_subscription_end + td
+
+        return False
+
+    def _apply_promo_code(self, price, promo_code=None):
+        """
+            Returns price, after applying any promotional discount
+            tied to promo_code.
+        """
+        discount = 0
+        if promo_code:
+            discount_manager = DiscountManager()
+            if discount_manager.valid_code(promo_code):
+                discount = [ promo.amount for promo
+                             in discount_manager.get_current()
+                             if promo.code == promo_code ][0]
+        return (price - discount, discount > 0)
+
+    def calculate_price(self, promo_code=None):
+        """
+            Returns the price for this STARS subscription, and
+            a boolean indicating if a promo code was used in the
+            calculation.
+        """
+        price = (self.MEMBER_BASE_PRICE if self.institution.is_member
+                 else self.NONMEMBER_BASE_PRICE)
+
+        promo_code_applied = False
+        if promo_code:
+            price, promo_code_applied = self._apply_promo_code(price,
+                                                               promo_code)
+
+        gets_discount = self._subscription_discounted()
+
+        if gets_discount:
+            price /=  2
+
+        return price, promo_code_applied
 
     def get_available_ratings(self):
         return self.ratings_allocated - self.ratings_used
 
-METHOD_CHOICES = (
-                  ('credit', 'credit'),
+    def pay(self, pay_when, amount, user, form=None):
+        """
+            Make a payment on this subscription.
+
+                pay_when: Subscription.[PAY_NOW | PAY_LATER]
+
+                amount: dollar amount to apply
+
+                user: user making the payment
+
+                form: a form that holds credit card information, if paying now
+
+            Any CreditCardProcessingError raised will be propagated.
+        """
+        # Importing credit_card way down here to avoid some weird import
+        # side-effects that I'm just too tired to track down right now.
+        # After importing this in the top level of this module,
+        # Institution.get_latest fails, because within get_latest(),
+        # Institution is None.  Importing here, within pay(), doesn't
+        # cause that unpleasant side-effect.
+        import stars.apps.payments.credit_card as credit_card
+
+        if pay_when == self.PAY_NOW:
+            ccpp = credit_card.CreditCardPaymentProcessor()
+            (subscription_payment,
+             payment_context) = ccpp.process_subscription_payment(
+                 subscription=self,
+                 amount=amount,
+                 user=user,
+                 form=form)
+        elif pay_when == self.PAY_LATER:
+            subscription_payment = payment_context = None
+        else:
+            raise InvalidPayWhenValue(pay_when)
+
+        self._send_post_purchase_email(
+            pay_when=pay_when,
+            additional_email_address=user.email,
+            subscription_payment=subscription_payment,
+            payment_context=payment_context)
+
+        self._update_institution_subscription_related_attrs()
+
+    def _update_institution_subscription_related_attrs(self):
+        """
+            Update the subscription-related attributes of this
+            subscription's institution.
+        """
+        self.institution.current_subscription = (
+            self.institution.current_subscription or self)
+        self.institution.is_participant = True
+        self.institution.save()
+
+    def _send_post_purchase_email(self, pay_when,
+                                  additional_email_address=None,
+                                  subscription_payment=None,
+                                  payment_context=None):
+
+        mail_to = [self.institution.contact_email,]
+
+        if additional_email_address != self.institution.contact_email:
+            mail_to.append(additional_email_address)
+
+        if pay_when == self.PAY_LATER:
+            self._send_post_purchase_pay_later_email(mail_to=mail_to)
+        elif pay_when == self.PAY_NOW:
+            self._send_post_purchase_pay_now_email(
+                mail_to=mail_to,
+                subscription_payment=subscription_payment,
+                payment_context=payment_context)
+        else:
+            raise InvalidPayWhenValue(pay_when)
+
+    def _send_post_purchase_pay_now_email(self, mail_to, subscription_payment,
+                                         payment_context):
+        if self.object.endswith('renew'):
+            slug = 'reg_renewed_paid'
+            self._send_post_purchase_excecutive_renewal_email()
+        else:
+            slug = 'welcome_liaison_paid'
+        email_context = {'payment_dict': payment_context,
+                         'institution': self.institution,
+                         "payment": subscription_payment}
+
+        self._send_email(slug=slug, mail_to=mail_to, context=email_context)
+
+    def _send_post_purchase_pay_later_email(self, mail_to):
+        if self.reason.endswith('renew'):
+            slug = "reg_renewal_unpaid"
+        else:
+            slug = "welcome_liaison_unpaid"
+        email_context = {'institution': self.institution,
+                         'amount': self.amount_due}
+        self._send_email(slug=slug, mail_to=mail_to, context=email_context)
+
+    def _send_email(self, slug, mail_to, context):
+        et = EmailTemplate.objects.get(slug=slug)
+        et.send_email(mail_to, context)
+
+    def _send_post_purchase_excecutive_renewal_email(self):
+
+        exec_mail_to = [self.institution.executive_contact_email,]
+        exec_slug = 'reg_renewal_exec'
+        exec_email_context = { 'institution': self.institution }
+        self._send_email(slug=exec_slug, mail_to=exec_mail_to,
+                         context=exec_email_context)
+
+
+METHOD_CHOICES = (('credit', 'credit'),
                   ('check', 'check'))
+
 
 class SubscriptionPayment(models.Model):
     """
@@ -324,7 +585,8 @@ class SubscriptionPayment(models.Model):
     confirmation = models.CharField(max_length='16', blank=True, null=True)
 
     def __str__(self):
-        return "%s: $%.2f (%s)" % (self.subscription.institution, self.amount, self.date)
+        return "%s: $%.2f (%s)" % (self.subscription.institution,
+                                   self.amount, self.date)
 
 class RegistrationReason(models.Model):
     """

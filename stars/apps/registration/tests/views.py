@@ -78,13 +78,13 @@ class ViewsTest(TestCase):
         self.assertEqual(log.records[0].levelname, 'WARNING')
         self.assertTrue('Payment denied' in log.records[0].msg)
 
-    def test__get_registration_price_logging(self):
-        """Does _get_registration_price log a warning for an invalid coupon?
+    def test_get_registration_price_logging(self):
+        """Does get_registration_price log a warning for an invalid coupon?
         """
         institution = Institution()
         with testfixtures.LogCapture('stars') as log:
-            views._get_registration_price(institution=institution,
-                                          discount_code='bo-o-o-o-gus coupon')
+            views.get_registration_price(institution=institution,
+                                         discount_code='bo-o-o-o-gus coupon')
 
         self.assertEqual(len(log.records), 1)
         self.assertEqual(log.records[0].levelname, 'WARNING')
@@ -164,7 +164,7 @@ class ViewsTest(TestCase):
         with testfixtures.Replacer() as r:
             r.replace('stars.apps.registration.views._get_selected_institution',
                       lambda x: (Institution.objects.create(), None))
-            r.replace('stars.apps.registration.views._get_registration_price',
+            r.replace('stars.apps.registration.views.get_registration_price',
                       lambda x: None)
             response = views.reg_payment(self.request)
         soup = BeautifulSoup(response.content)
@@ -182,7 +182,7 @@ class ViewsTest(TestCase):
         with testfixtures.Replacer() as r:
             r.replace('stars.apps.registration.views._get_selected_institution',
                       lambda x: (Institution.objects.create(), None))
-            r.replace('stars.apps.registration.views._get_registration_price',
+            r.replace('stars.apps.registration.views.get_registration_price',
                       lambda x: None)
             r.replace('stars.apps.registration.views.PaymentForm',
                       MockPaymentForm),
@@ -206,13 +206,11 @@ class ViewsTest(TestCase):
     def test_reg_payment_discount_applied_message(self):
         """Does reg_payment display a message when a discount is applied?
         """
-        def mock__get_registration_price(institution, discount_code=None):
-            return None
         with testfixtures.Replacer() as r:
             r.replace('stars.apps.registration.views._get_selected_institution',
                       lambda x: (self.institution, None))
-            r.replace('stars.apps.registration.views._get_registration_price',
-                      mock__get_registration_price)
+            r.replace('stars.apps.registration.views.get_registration_price',
+                      lambda x, y: None)
             r.replace('stars.apps.registration.views.PaymentForm',
                       MockPaymentDiscountedForm)
             r.replace('stars.apps.registration.views.PayLaterForm',

@@ -10,7 +10,8 @@ class ToolMixin(StarsAccountMixin, RulesMixin):
     def get_success_url(self, institution_slug=None):
         """
             Forms redirect to the named url specified as
-            success_url_name, or stay on the same page.
+            success_url_name, the url specified as success_url,
+            or stay on the same page.
         """
         if getattr(self, 'success_url_name', False):
             institution_slug = (institution_slug or
@@ -22,17 +23,40 @@ class ToolMixin(StarsAccountMixin, RulesMixin):
         else:
             return self.request.path
 
+    def get_context_data(self, **kwargs):
+        """
+            If this ToolMixin has an attribute named 'tab_content_title',
+            pass it along in the form context.
+        """
+        context = super(ToolMixin, self).get_context_data(**kwargs)
+        try:
+            context['tab_content_title'] = self.get_tab_content_title()
+        except AttributeError:
+            pass
+        return context
 
-class InstitutionAdminToolMixin(ToolMixin, InstitutionStructureMixin):
+    def get_tab_content_title(self):
+        """
+            Returns self.tab_content_title.  Provides a hook for
+            subclasses to deduce tab_content_title programmatically.
+        """
+        return self.tab_content_title
+
+
+class InstitutionToolMixin(ToolMixin, InstitutionStructureMixin):
     """
-        A ToolMixin that's available only to institution admins.
+        A ToolMixin with knowledge of the Instituion structure.
+    """
+    pass
+
+
+class InstitutionAdminToolMixin(InstitutionToolMixin):
+    """
+        An InstitutionToolMixin that's available only to institution admins.
     """
     def update_logical_rules(self):
-        super(ToolMixin, self).update_logical_rules()
-        self.add_logical_rule({
-                                'name': 'user_is_institution_admin',
+        super(InstitutionAdminToolMixin, self).update_logical_rules()
+        self.add_logical_rule({ 'name': 'user_is_institution_admin',
                                 'param_callbacks': [
-                                                        ('user', 'get_request_user'),
-                                                        ('institution', 'get_institution')
-                                                    ]
-                               })
+                                    ('user', 'get_request_user'),
+                                    ('institution', 'get_institution')] })
