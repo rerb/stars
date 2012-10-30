@@ -551,7 +551,7 @@ class Subscription(models.Model):
         else:
             slug = "welcome_liaison_unpaid"
         email_context = {'institution': self.institution,
-                         'amount': self.amount_due}
+                         'price': self.amount_due}
         self._send_email(slug=slug, mail_to=mail_to, context=email_context)
 
     def _send_email(self, slug, mail_to, context):
