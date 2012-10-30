@@ -486,6 +486,7 @@ class MigrateVersionView(InstitutionAdminToolMixin,
                                 self.request.user)
         return super(MigrateVersionView, self).form_valid(form)
 
+
 PAY_WHEN = 'pay_when'
 
 
@@ -506,12 +507,12 @@ class SubscriptionPaymentOptionsView(InstitutionToolMixin,
     valid_message = ''  # Only want to use invalid_message.
     invalid_message = 'Please choose to pay now or pay later.'
 
-    # @todo - does this rule do anything?
     def update_logical_rules(self):
         super(SubscriptionPaymentOptionsView, self).update_logical_rules()
-        self.add_logical_rule({ 'name': 'user_has_tool',
+        self.add_logical_rule({ 'name': 'user_has_view_access',
                                 'param_callbacks': [
-                                    ('user', 'get_request_user')] })
+                                    ('user', 'get_request_user'),
+                                    ('institution', 'get_institution')] })
 
     def get_context_data(self, **kwargs):
         context = super(SubscriptionPaymentOptionsView,
@@ -537,7 +538,7 @@ class SubscriptionPaymentOptionsView(InstitutionToolMixin,
         return start_date
 
     def form_valid(self, form):
-        # Pass the payment selected on:
+        # Pass the payment option selected on:
         self.request.session[PAY_WHEN] = form.cleaned_data[PAY_WHEN]
         return super(SubscriptionPaymentOptionsView, self).form_valid(form)
 
@@ -545,21 +546,20 @@ class SubscriptionPaymentOptionsView(InstitutionToolMixin,
 class SubscriptionPaymentCreateBaseView(ValidationMessageFormMixin,
                                         InstitutionToolMixin,
                                         FormView):
-
     """
         Provides a common base for the views that accept credit
         card payments for subscriptions.
     """
     success_url_name = 'tool-summary'
 
-    # @todo - does this rule do anything?
     def update_logical_rules(self):
         super(SubscriptionPaymentCreateBaseView, self).update_logical_rules()
-        self.add_logical_rule({ 'name': 'user_has_tool',
+        self.add_logical_rule({ 'name': 'user_has_view_access',
                                 'param_callbacks': [
-                                    ('user', 'get_request_user')] })
+                                    ('user', 'get_request_user'),
+                                    ('institution', 'get_institution')] })
 
-    def make_credit_card_payment(self, form, save=True):
+    def make_credit_card_payment(self, form):
         """
             Applies a credit card payment to a subscription.
 
