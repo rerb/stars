@@ -283,17 +283,6 @@ class Institution(models.Model):
                          exc_info=True)
             self.slug = iss_institution_id
 
-    def get_last_subscription_end(self):
-        """
-            Gets the end date for the last subscription in
-            all subscriptions for this institution
-        """
-        last_subscription_end = None
-        if self.subscription_set.count() > 0:
-            last_subscription_end = self.subscription_set.all().aggregate(Max('end_date'))['end_date__max']
-
-        return last_subscription_end
-
 RATINGS_PER_SUBSCRIPTION = 1
 SUBSCRIPTION_DURATION = 365
 
@@ -321,15 +310,16 @@ class Subscription(models.Model):
         ordering = ['-start_date']
 
     @classmethod
-    def create(cls, *args, **kwargs):
+    def create(cls, institution, *args, **kwargs):
         """
-            Creates a new Subscription.  If an institution is provided,
-            the Subscription's reason, start_date, and end_date are
-            calculated.
+            Creates a new Subscription. The Subscription's reason,
+            start_date, and end_date are calculated.
 
             Returns a tuple of the Subscription created, and a boolean
             indicating if a promo discount was applied when the amount
             due was ciphered.
+
+            Note that the Subscription created has *not* been save()'d.
 
             Doing this via a static factory method rather than in
             __init__, because tweaking __init__ on a Model causes
@@ -345,24 +335,37 @@ class Subscription(models.Model):
 
         subscription = cls(*args, **kwargs)
 
-        try:
-            subscription.institution
-        except ObjectDoesNotExist:
-            pass
-        else:
-            # processing that depends on an institution being set
-            # for this subscription:
+        subscription.reason = subscription._calculate_reason()
 
-            subscription.reason = subscription._calculate_reason()
+        (subscription.start_date,
+         subscription.end_date) = subscription._calculate_date_range()
 
-            (subscription.start_date,
-             subscription.end_date) = subscription._calculate_date_range()
-
-            (subscription.amount_due,
-             promo_code_applied) = subscription.calculate_price(
-                 promo_code=promo_code)
+        (subscription.amount_due,
+         promo_code_applied) = subscription.calculate_price(
+             promo_code=promo_code)
 
         return subscription, promo_code_applied
+
+    @classmethod
+    def get_date_range_for_new_subscription(cls, institution):
+        """
+           Provides the start and end dates for a new subscription
+           for an institution, without actually creating the subscription.
+           This allows one to, for example, show a user what the dates
+           will be before getting confirmation from them that they want
+           to buy the subscription.
+        """
+        subscription = cls.create(institution=institution)
+        date_range = (subscription.start_date, subscription.end_date)
+        # deleting the subscription here for what the hell maybe
+        # garbage-collection reasons, maybe just because it feels
+        # better; it hasn't been saved to the db yet . . .
+        assert subscription.id is None
+        # . . . so just deleting the reference should . . . oh hell,
+        # I don't know, it just seems explicit and right
+        del subscription
+
+        return date_range
 
     def __str__(self):
         return "%s (%s - %s)" % (self.institution.name, self.start_date,
@@ -386,7 +389,7 @@ class Subscription(models.Model):
             Calculates the start date for a new subscription, taking into
             account any current subscription.
         """
-        start_date = self.institution.get_last_subscription_end()
+        start_date = self._get_latest_subscription_end()
         if start_date and start_date >= date.today():
             start_date += timedelta(days=1)
         else:
@@ -402,22 +405,48 @@ class Subscription(models.Model):
         end_date = start_date + timedelta(days=SUBSCRIPTION_DURATION)
         return (start_date, end_date)
 
+    def _get_latest_subscription(self):
+        """
+           Returns the latest subscription for this institution, ordered
+           by end_date.
+        """
+        subscriptions = Subscription.objects.filter(
+            institution=self.institution).order_by('-end_date')
+        if hasattr(self, 'id'):  # this might not be saved yet, so no id.
+            subscriptions = subscriptions.exclude(id=self.id)
+        try:
+            return subscriptions[0]
+        except IndexError:
+            return None
+
+    def _get_latest_subscription_end(self):
+        """
+           Returns the end date of the latest subscription for this
+           institution.
+        """
+        latest_subscription = self._get_latest_subscription()
+        if latest_subscription:
+            return latest_subscription.end_date
+        else:
+            return None
+
     def _subscription_discounted(self):
         """
             Returns True if this subscription's instituion should get
             a discount.
 
-            Institutions get half-off their submission if their
-            renewal within 90 days of their last subscription
+            Institutions get half-off their submission if they
+            renew before their current subscription ends, or within
+            90 days after their previous subscription ended.
         """
-        last_subscription_end = self.institution.get_last_subscription_end()
+        previous_subscription_end = self._get_latest_subscription_end()
 
-        if last_subscription_end:
+        if previous_subscription_end:
 
             # if last subscription end was less than 90 days ago
             # or it hasn't expired
             td = timedelta(days=90)
-            return date.today() <= last_subscription_end + td
+            return date.today() <= previous_subscription_end + td
 
         return False
 
@@ -426,14 +455,24 @@ class Subscription(models.Model):
             Returns price, after applying any promotional discount
             tied to promo_code.
         """
-        discount = 0
+        promo_discount = 0
         if promo_code:
             discount_manager = DiscountManager()
-            if discount_manager.valid_code(promo_code):
-                discount = [ promo.amount for promo
+            if discount_manager.is_code_current(promo_code):
+                promo_discount = [ promo.amount for promo
                              in discount_manager.get_current()
                              if promo.code == promo_code ][0]
-        return (price - discount, discount > 0)
+        return price - promo_discount
+
+    def _apply_standard_discount(self, price):
+        """
+           Apply the standard discount to a subscription price.
+
+           This is a simple calculation, broken out into its own
+           method to encapsulate it.  So, for instance, test code
+           doesn't need to know the calculation to check pricing.
+        """
+        return price /  2
 
     def calculate_price(self, promo_code=None):
         """
@@ -446,13 +485,14 @@ class Subscription(models.Model):
 
         promo_code_applied = False
         if promo_code:
-            price, promo_code_applied = self._apply_promo_code(price,
-                                                               promo_code)
+            pre_promo_price = price
+            price = self._apply_promo_code(price, promo_code)
+            promo_code_applied = price != pre_promo_price
 
         gets_discount = self._subscription_discounted()
 
         if gets_discount:
-            price /=  2
+            price = self._apply_standard_discount(price)
 
         return price, promo_code_applied
 
