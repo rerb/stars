@@ -517,25 +517,12 @@ class SubscriptionPaymentOptionsView(InstitutionToolMixin,
     def get_context_data(self, **kwargs):
         context = super(SubscriptionPaymentOptionsView,
                         self).get_context_data(**kwargs)
-        context['subscription_start_date'] = self.get_subscription_start_date()
-        context['subscription_end_date'] = (self.get_subscription_start_date() +
-                                            timedelta(SUBSCRIPTION_DURATION))
+        (subscription_start_date, subscription_end_date) = (
+            Subscription.get_date_range_for_next_subscription(
+                self.get_institution()))
+        context['subscription_start_date'] = subscription_start_date
+        context['subscription_end_date'] = subscription_end_date
         return context
-
-    def get_subscription_start_date(self, institution=None):
-        """
-            Get the start date for a subscription, taking into account
-            any current subscriptions for this institution.
-
-            institution can be passed in for testing.
-        """
-        institution = institution or self.get_institution()
-        start_date = institution.get_last_subscription_end()
-        if start_date and start_date > date.today():
-            start_date += timedelta(days=1)
-        else:
-            start_date = date.today()
-        return start_date
 
     def form_valid(self, form):
         # Pass the payment option selected on:
