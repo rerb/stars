@@ -10,10 +10,14 @@ else:
 import testfixtures
 
 from stars.apps.institutions.models import Subscription, SUBSCRIPTION_DURATION
+from stars.apps.payments.credit_card import CreditCardProcessingError
+from stars.apps.registration.forms import PayNowForm
 from stars.apps.registration.models import DiscountManager, ValueDiscount
 from stars.test_factories import (InstitutionFactory, SubscriptionFactory,
-                                  ValueDiscountFactory)
+                                  UserFactory, ValueDiscountFactory)
 
+GOOD_CREDIT_CARD = '4007000000027'  # good test credit card number
+BAD_CREDIT_CARD = '123412341234'
 
 class SubscriptionTest(TestCase):
 
@@ -37,14 +41,14 @@ class SubscriptionTest(TestCase):
         """
         self.subscription.institution = self.member
         self.assertEqual(self.subscription._calculate_reason(),
-                         'member_registration')
+                         'member_reg')
 
     def test__calculate_reason_nonmember_initial(self):
         """Does _calculate_reason work for initial nonmember subscription?
         """
         self.subscription.institution = self.nonmember
         self.assertEqual(self.subscription._calculate_reason(),
-                         'nonmember_registration')
+                         'nonmember_reg')
 
     def test__calculate_reason_member_renewal(self):
         """Does _calculate_reason work for a member renewal?
@@ -394,29 +398,70 @@ class SubscriptionTest(TestCase):
             (new_start_date == date.today() + timedelta(days=1)) and
             (new_end_date == new_start_date + timedelta(SUBSCRIPTION_DURATION)))
 
+    ###################
+    # tests for pay():
+    ###################
+    def _get_pay_now_form(self, subscription, card_number):
+        form_data = {'name_on_card': 'slick johnny',
+                     'card_number': card_number,
+                     'exp_month': '12',
+                     'exp_year': '2022',
+                     'cv_code': '123',
+                     'billing_address': '2341234',
+                     'billing_city': 'asdf',
+                     'billing_state': 'pa',
+                     'billing_zipcode': '12345'}
+        form = PayNowForm(instance=subscription,
+                          data=form_data)
+        form.save()
+        return form
 
-    # def test__calculate_date_range(self):
+    def test_pay_creates_payment_with_good_credit_card_info(self):
+        """Does pay create a payment when it gets good credit card info?"""
+        subscription = SubscriptionFactory(amount_due=500)
+        form = self._get_pay_now_form(subscription=subscription,
+                                      card_number=GOOD_CREDIT_CARD)
+        subscription.pay(amount=subscription.amount_due,
+                         user=UserFactory(),
+                         form=form)
+        self.assertEqual(subscription.subscriptionpayment_set.count(), 1)
+
+    def test_pay_does_not_create_payment_with_bad_credit_card_info(self):
+        """Does pay not create a payment when it gets bad credit card info?"""
+        subscription = SubscriptionFactory(amount_due=500)
+        form = self._get_pay_now_form(subscription=subscription,
+                                      card_number=BAD_CREDIT_CARD)
+        with self.assertRaises(CreditCardProcessingError):
+            subscription.pay(amount=subscription.amount_due,
+                             user=UserFactory(),
+                             form=form)
+        self.assertEqual(subscription.subscriptionpayment_set.count(), 0)
+
+
+    ########################
+    # tests for purchase():
+    ########################
+
+    # def test_purchase_pay_now_creates_payment(self):
+    #     """Does purchase create a payment when user wants to pay now?"""
     #     raise NotImplemented
 
-    # def test__get_latest_subscription(self):
+    # def test_purchase_pay_later_creates_no_payment(self):
+    #     """Does purchase *not* create a payment if user wants to pay later?"""
     #     raise NotImplemented
 
-    # def test__get_latest_subscription_end(self):
+    # def test_purchase_sends_email(self):
+    #     """Does purchase the post-purchase email?"""
     #     raise NotImplemented
 
-    # def test_get_available_ratings(self):
-    #     raise NotImplemented
-
-    # def test_purchase(self):
-    #     raise NotImplemented
-
-    # def test_pay(self):
+    # def test_purchase_institution_updated(self):
+    #     """Does purchase update the subscription's institution?"""
     #     raise NotImplemented
 
     # def test__send_post_purchase_email(self):
     #     raise NotImplemented
 
-    # def test__update_instituion_after_purchase(self):
+    # def test__update_institution_after_purchase(self):
     #     raise NotImplemented
 
     # def test__send_post_purchase_pay_now_email(self):
