@@ -10,7 +10,6 @@ from django.conf import settings
 from django.contrib.auth.models import User
 
 from stars.apps.institutions.models import Subscription
-from stars.apps.tool.manage.views import _gets_discount
 from stars.apps.submissions.models import SubmissionSet, Payment
 from stars.apps.tasks.update_from_iss import run_update
 
@@ -23,50 +22,6 @@ class RenewalTest(TestCase):
     def setUp(self):
         settings.CELERY_ALWAYS_EAGER = True
         run_update()
-
-    def test_gets_discount(self):
-        """
-        Given a subscription that ended on 1/31/11 ...
-        """
-        ss = SubmissionSet.objects.get(pk=1)
-        i = ss.institution
-
-        # If the current date is 3/1/11 (less than 90 days after 1/31/11):
-        current_date = date(year=2011, month=3, day=1)
-
-        # unsubmitted - gets discount
-        self.assertTrue(_gets_discount(i, current_date))
-
-        # date submitted before current_date - gets discount
-        ss.status = 'r'
-        ss.date_submitted = date(year=2011, month=2, day=1)
-        ss.save()
-        self.assertTrue(_gets_discount(i, current_date))
-
-        # If the current date is 5/14/11:
-        current_date = date(year=2011, month=5, day=14)
-
-        # no discount for you
-        self.assertFalse(_gets_discount(i, current_date))
-
-        # If the current date is 5/1/11:
-        current_date = date(year=2011, month=5, day=1)
-
-        # date submitted 30 days before current date - gets discount
-        ss.date_submitted = date(year=2011, month=4, day=1)
-        ss.save()
-        self.assertTrue(_gets_discount(i, current_date))
-
-        # date submitted 100 days before current date - gets discount
-        ss.date_submitted = date(year=2011, month=1, day=1)
-        ss.save()
-        self.assertTrue(_gets_discount(i, current_date))
-
-        # unsubmitted 30 days before current date - gets discount
-        ss.status = 'ps'
-        ss.date_submitted = None
-        ss.save()
-        self.assertTrue(_gets_discount(i, current_date))
 
     def test_purchase_subscription(self):
         """
