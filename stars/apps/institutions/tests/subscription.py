@@ -11,7 +11,8 @@ import testfixtures
 
 from stars.apps.institutions.models import Subscription
 from stars.apps.registration.models import DiscountManager, ValueDiscount
-from stars.test_factories import InstitutionFactory, SubscriptionFactory
+from stars.test_factories import (InstitutionFactory, SubscriptionFactory,
+                                  ValueDiscountFactory)
 
 
 class SubscriptionTest(TestCase):
@@ -287,7 +288,7 @@ class SubscriptionTest(TestCase):
             is_member=True, use_promo=False, gets_discount=False)
 
     def test_calculate_price_nonmember_no_promo_no_discount(self):
-        """Does calculate_price work for nonmember with no promo and no discount?
+        """Does calculate_price work for nonmember with no promo & no discount?
         """
         self._test_calculate_price(
             is_member=False, use_promo=False, gets_discount=False)
@@ -303,3 +304,69 @@ class SubscriptionTest(TestCase):
         """
         self._test_calculate_price(
             is_member=False, use_promo=True, gets_discount=False)
+
+    ######################
+    # tests for create():
+    ######################
+
+    def test_create_subscription_not_saved(self):
+        """Does create() return an unsaved Subscription?"""
+        (subscription, promo_code_applied) = Subscription.create(
+            institution=InstitutionFactory())
+        self.assertEqual(subscription.id, None)
+
+    def test_create_with_promo_code(self):
+        """Does create() work when a promo code is supplied?"""
+        promo = ValueDiscountFactory(
+            start_date=date.today(),
+            end_date=date.today() + timedelta(days=100),
+            amount=10)
+        (subscription, promo_code_applied) = Subscription.create(
+            institution=InstitutionFactory(),
+            promo_code=promo.code)
+        self.assertTrue(promo_code_applied)
+
+    def test_create_without_promo_code(self):
+        """Does create() work when a promo code is not supplied?"""
+        (subscription, promo_code_applied) = Subscription.create(
+            institution=InstitutionFactory())
+        self.assertFalse(promo_code_applied)
+
+    # def test_get_date_range_for_new_subscription(self):
+    #     raise NotImplemented
+
+    # def test__calculate_date_range(self):
+    #     raise NotImplemented
+
+    # def test__get_latest_subscription(self):
+    #     raise NotImplemented
+
+    # def test__get_latest_subscription_end(self):
+    #     raise NotImplemented
+
+    # def test_get_available_ratings(self):
+    #     raise NotImplemented
+
+    # def test_purchase(self):
+    #     raise NotImplemented
+
+    # def test_pay(self):
+    #     raise NotImplemented
+
+    # def test__send_post_purchase_email(self):
+    #     raise NotImplemented
+
+    # def test__update_instituion_after_purchase(self):
+    #     raise NotImplemented
+
+    # def test__send_post_purchase_pay_now_email(self):
+    #     raise NotImplemented
+
+    # def test__send_post_purchase_pay_later_email(self):
+    #     raise NotImplemented
+
+    # def test__send_email(self):
+    #     raise NotImplemented
+
+    # def test__send_post_purchase_executive_renewal_email(self):
+    #     raise NotImplemented
