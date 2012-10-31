@@ -19,7 +19,7 @@ from stars.apps.notifications.models import EmailTemplate
 logger = getLogger('stars')
 
 
-class InvalidPayWhenValue(Exception):
+class SubscriptionPurchaseError(Exception):
     pass
 
 
@@ -499,7 +499,42 @@ class Subscription(models.Model):
     def get_available_ratings(self):
         return self.ratings_allocated - self.ratings_used
 
-    def pay(self, pay_when, amount, user, form=None):
+    def purchase(self, pay_when, user, form=None):
+        """
+           Encapsulates the purchase process
+
+               1. If paying now, a credit card charge is made.
+               2. Post-purchase email is sent.
+               3. The institution related to this subscription is updated.
+
+           Raises a SubscriptionPurchaseError if there's a problem
+           charging a credit card.
+
+           The form argument should contain credit card information, if
+           paying now.
+        """
+        from stars.apps.payments.credit_card import CreditCardProcessingError
+
+        if pay_when == self.PAY_NOW:
+            try:
+                (subscription_payment, payment_context) = self.pay(
+                    amount=self.amount_due,
+                    user=user,
+                    form=form)
+            except CreditCardProcessingError as ccpe:
+                raise SubscriptionPurchaseError(ccpe.message)
+        else:  # pay_when == self.PAY_LATER:
+            subscription_payment = payment_context = None
+
+        self._send_post_purchase_email(
+            pay_when=pay_when,
+            additional_email_address=user.email,
+            subscription_payment=subscription_payment,
+            payment_context=payment_context)
+
+        self._update_institution_after_purchase()
+
+    def pay(self, amount, user, form):
         """
             Make a payment on this subscription.
 
@@ -511,7 +546,10 @@ class Subscription(models.Model):
 
                 form: a form that holds credit card information, if paying now
 
-            Any CreditCardProcessingError raised will be propagated.
+            Returns the SubscriptionPayment created, and the payment_context.
+
+            Any CreditCardProcessingError raised when charging a credit
+            card will be propagated.
         """
         # Importing credit_card way down here to avoid some weird import
         # side-effects that I'm just too tired to track down right now.
@@ -521,30 +559,19 @@ class Subscription(models.Model):
         # cause that unpleasant side-effect.
         import stars.apps.payments.credit_card as credit_card
 
-        if pay_when == self.PAY_NOW:
-            ccpp = credit_card.CreditCardPaymentProcessor()
-            (subscription_payment,
-             payment_context) = ccpp.process_subscription_payment(
-                 subscription=self,
-                 amount=amount,
-                 user=user,
-                 form=form)
-        elif pay_when == self.PAY_LATER:
-            subscription_payment = payment_context = None
-        else:
-            raise InvalidPayWhenValue(pay_when)
+        ccpp = credit_card.CreditCardPaymentProcessor()
+        (subscription_payment,
+         payment_context) = ccpp.process_subscription_payment(
+             subscription=self,
+             amount=amount,
+             user=user,
+             form=form)
 
-        self._send_post_purchase_email(
-            pay_when=pay_when,
-            additional_email_address=user.email,
-            subscription_payment=subscription_payment,
-            payment_context=payment_context)
+        return (subscription_payment, payment_context)
 
-        self._update_institution_subscription_related_attrs()
-
-    def _update_institution_subscription_related_attrs(self):
+    def _update_institution_after_purchase(self):
         """
-            Update the subscription-related attributes of this
+            Updates the subscription-related attributes of this
             subscription's institution.
         """
         self.institution.current_subscription = (
@@ -564,13 +591,11 @@ class Subscription(models.Model):
 
         if pay_when == self.PAY_LATER:
             self._send_post_purchase_pay_later_email(mail_to=mail_to)
-        elif pay_when == self.PAY_NOW:
+        else: # pay_when == self.PAY_NOW:
             self._send_post_purchase_pay_now_email(
                 mail_to=mail_to,
                 subscription_payment=subscription_payment,
                 payment_context=payment_context)
-        else:
-            raise InvalidPayWhenValue(pay_when)
 
     def _send_post_purchase_pay_now_email(self, mail_to, subscription_payment,
                                          payment_context):
