@@ -397,8 +397,6 @@ class Subscription(models.Model):
         """
             Make a payment on this subscription.
 
-                pay_when: Subscription.[PAY_NOW | PAY_LATER]
-
                 amount: dollar amount to apply
 
                 user: user making the payment
@@ -513,7 +511,7 @@ class Subscription(models.Model):
                             else 'nonmember')
         subscription_type = ('renewal'
                              if self.institution.subscription_set.count()
-                             else 'registration')
+                             else 'reg')
         return '_'.join([institution_type, subscription_type])
 
     def _calculate_start_date(self):
