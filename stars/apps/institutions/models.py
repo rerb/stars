@@ -333,7 +333,7 @@ class Subscription(models.Model):
             promo_code = False
         promo_code_applied = False
 
-        subscription = cls(*args, **kwargs)
+        subscription = cls(institution=institution, *args, **kwargs)
 
         subscription.reason = subscription._calculate_reason()
 
