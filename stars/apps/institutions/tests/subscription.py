@@ -9,7 +9,7 @@ else:
 
 import testfixtures
 
-from stars.apps.institutions.models import Subscription
+from stars.apps.institutions.models import Subscription, SUBSCRIPTION_DURATION
 from stars.apps.registration.models import DiscountManager, ValueDiscount
 from stars.test_factories import (InstitutionFactory, SubscriptionFactory,
                                   ValueDiscountFactory)
@@ -332,8 +332,68 @@ class SubscriptionTest(TestCase):
             institution=InstitutionFactory())
         self.assertFalse(promo_code_applied)
 
-    # def test_get_date_range_for_new_subscription(self):
-    #     raise NotImplemented
+    ###################################################
+    # tests for get_date_range_for_new_subscription():
+    ###################################################
+
+    def test_get_date_range_for_new_subscription_current_sub(self):
+        """get_date_range_for_new_subscription ok when inst has current subrx?
+        """
+        institution = InstitutionFactory()
+        current_subscription = SubscriptionFactory(
+            institution=institution,
+            start_date=date.today() - timedelta(days=5),
+            end_date=date.today() + timedelta(days=5))
+        (new_start_date,
+         new_end_date) = Subscription.get_date_range_for_new_subscription(
+            institution=institution)
+        self.assertTrue(
+            (new_start_date == current_subscription.end_date +
+                               timedelta(days=1)) and
+            (new_end_date == new_start_date +
+                             timedelta(SUBSCRIPTION_DURATION)))
+
+    def test_get_date_range_for_new_subscription_lapsed_sub(self):
+        """get_date_range_for_new_subscription ok when inst has lapsed subrx?
+        """
+        institution = InstitutionFactory()
+        _ = SubscriptionFactory(
+            institution=institution,
+            start_date=date.today() - timedelta(days=500),
+            end_date=date.today() - timedelta(days=100))
+        (new_start_date,
+         new_end_date) = Subscription.get_date_range_for_new_subscription(
+            institution=institution)
+        self.assertTrue(
+            (new_start_date == date.today()) and
+            (new_end_date == new_start_date + timedelta(SUBSCRIPTION_DURATION)))
+
+    def test_get_date_range_for_new_subscription_initial_sub(self):
+        """get_date_range_for_new_subscription ok for inst's initial subrx?
+        """
+        institution = InstitutionFactory()
+        (new_start_date,
+         new_end_date) = Subscription.get_date_range_for_new_subscription(
+            institution=institution)
+        self.assertTrue(
+            (new_start_date == date.today()) and
+            (new_end_date == new_start_date + timedelta(SUBSCRIPTION_DURATION)))
+
+    def test_get_date_range_for_new_subscription_current_sub_ends_today(self):
+        """get_date_range_for_new_subscription ok if current subrx ends today?
+        """
+        institution = InstitutionFactory()
+        _ = SubscriptionFactory(
+            institution=institution,
+            start_date=date.today() - timedelta(days=500),
+            end_date=date.today())
+        (new_start_date,
+         new_end_date) = Subscription.get_date_range_for_new_subscription(
+            institution=institution)
+        self.assertTrue(
+            (new_start_date == date.today() + timedelta(days=1)) and
+            (new_end_date == new_start_date + timedelta(SUBSCRIPTION_DURATION)))
+
 
     # def test__calculate_date_range(self):
     #     raise NotImplemented
