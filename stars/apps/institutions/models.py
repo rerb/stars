@@ -355,7 +355,8 @@ class Subscription(models.Model):
            will be before getting confirmation from them that they want
            to buy the subscription.
         """
-        subscription = cls.create(institution=institution)
+        (subscription, promo_code_applied) = cls.create(
+            institution=institution)
         date_range = (subscription.start_date, subscription.end_date)
         # deleting the subscription here for what the hell maybe
         # garbage-collection reasons, maybe just because it feels
