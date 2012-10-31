@@ -13,6 +13,8 @@ from institutions_factories import (InstitutionFactory, PendingAccountFactory,
                                     StarsAccountFactory, SubscriptionFactory,
                                     SubscriptionPaymentFactory)
 
+from registration_factories import ValueDiscountFactory
+
 from misc_factories import UserFactory
 
 __all__ = [ApplicabilityReasonFactory,
@@ -32,4 +34,5 @@ __all__ = [ApplicabilityReasonFactory,
            SubmissionSetFactory,
            SubscriptionFactory,
            SubscriptionPaymentFactory,
-           UserFactory]
+           UserFactory,
+           ValueDiscountFactory]
