@@ -22,6 +22,26 @@ logger.setLevel(CRITICAL)
 GOOD_CREDIT_CARD = '4007000000027'  # good test credit card number
 BAD_CREDIT_CARD = '123412341234'
 
+def get_pay_now_form_data(card_number):
+    form_data = {'name_on_card': 'slick johnny',
+                 'card_number': card_number,
+                 'exp_month': '12',
+                 'exp_year': '2022',
+                 'cv_code': '123',
+                 'billing_address': '2341234',
+                 'billing_city': 'asdf',
+                 'billing_state': 'pa',
+                 'billing_zipcode': '12345'}
+    return form_data
+
+def get_pay_now_form(card_number, subscription=None):
+    form_data = get_pay_now_form_data(card_number)
+    form = PayNowForm(instance=subscription, data=form_data)
+    if subscription:
+        form.save()
+    return form
+
+
 class SubscriptionTest(TestCase):
 
     fixtures = ['email_templates.json']
@@ -407,26 +427,11 @@ class SubscriptionTest(TestCase):
     # tests for pay():
     ###################
 
-    def _get_pay_now_form(self, subscription, card_number):
-        form_data = {'name_on_card': 'slick johnny',
-                     'card_number': card_number,
-                     'exp_month': '12',
-                     'exp_year': '2022',
-                     'cv_code': '123',
-                     'billing_address': '2341234',
-                     'billing_city': 'asdf',
-                     'billing_state': 'pa',
-                     'billing_zipcode': '12345'}
-        form = PayNowForm(instance=subscription,
-                          data=form_data)
-        form.save()
-        return form
-
     def test_pay_creates_payment_with_good_credit_card_info(self):
         """Does pay create a payment when it gets good credit card info?"""
         subscription = SubscriptionFactory(amount_due=500)
-        form = self._get_pay_now_form(subscription=subscription,
-                                      card_number=GOOD_CREDIT_CARD)
+        form = get_pay_now_form(subscription=subscription,
+                                card_number=GOOD_CREDIT_CARD)
         subscription.pay(amount=subscription.amount_due,
                          user=UserFactory(),
                          form=form)
@@ -436,8 +441,8 @@ class SubscriptionTest(TestCase):
         """Does pay create a payment for the correct amount?"""
         SUBSCRIPTION_PRICE = 350
         subscription = SubscriptionFactory(amount_due=SUBSCRIPTION_PRICE)
-        form = self._get_pay_now_form(subscription=subscription,
-                                      card_number=GOOD_CREDIT_CARD)
+        form = get_pay_now_form(subscription=subscription,
+                                card_number=GOOD_CREDIT_CARD)
         (subscription_payment, payment_context) = subscription.pay(
             amount=subscription.amount_due,
             user=UserFactory(),
@@ -448,8 +453,8 @@ class SubscriptionTest(TestCase):
     def test_pay_does_not_create_payment_with_bad_credit_card_info(self):
         """Does pay not create a payment when it gets bad credit card info?"""
         subscription = SubscriptionFactory(amount_due=500)
-        form = self._get_pay_now_form(subscription=subscription,
-                                      card_number=BAD_CREDIT_CARD)
+        form = get_pay_now_form(subscription=subscription,
+                                card_number=BAD_CREDIT_CARD)
         with self.assertRaises(CreditCardProcessingError):
             subscription.pay(amount=subscription.amount_due,
                              user=UserFactory(),
@@ -467,8 +472,8 @@ class SubscriptionTest(TestCase):
         """
         (subscription, _) = Subscription.create(
             institution=InstitutionFactory())
-        form = self._get_pay_now_form(subscription=subscription,
-                                      card_number=GOOD_CREDIT_CARD)
+        form = get_pay_now_form(subscription=subscription,
+                                card_number=GOOD_CREDIT_CARD)
         subscription.purchase(pay_when=Subscription.PAY_NOW,
                               user=UserFactory(),
                               form=form)
@@ -482,8 +487,8 @@ class SubscriptionTest(TestCase):
         (subscription, _) = Subscription.create(
             institution=InstitutionFactory())
         subscription_price = subscription.amount_due
-        form = self._get_pay_now_form(subscription=subscription,
-                                      card_number=GOOD_CREDIT_CARD)
+        form = get_pay_now_form(subscription=subscription,
+                                card_number=GOOD_CREDIT_CARD)
         subscription.purchase(pay_when=Subscription.PAY_NOW,
                               user=UserFactory(),
                               form=form)
@@ -535,8 +540,8 @@ class SubscriptionTest(TestCase):
         initial_outgoing_mails = len(mail.outbox)
         (subscription, _) = Subscription.create(
             institution=InstitutionFactory())
-        form = self._get_pay_now_form(subscription=subscription,
-                                      card_number=BAD_CREDIT_CARD)
+        form = get_pay_now_form(subscription=subscription,
+                                card_number=BAD_CREDIT_CARD)
         with self.assertRaises(CreditCardProcessingError):
             subscription.pay(amount=subscription.amount_due,
                              user=UserFactory(),
@@ -564,8 +569,8 @@ class SubscriptionTest(TestCase):
         institution = InstitutionFactory()
         _ = SubscriptionFactory(institution=institution)
         (subscription, _) = Subscription.create(institution=institution)
-        form = self._get_pay_now_form(subscription=subscription,
-                                      card_number=GOOD_CREDIT_CARD)
+        form = get_pay_now_form(subscription=subscription,
+                                card_number=GOOD_CREDIT_CARD)
         subscription.purchase(pay_when=Subscription.PAY_NOW,
                               user=UserFactory(),
                               form=form)
@@ -579,8 +584,8 @@ class SubscriptionTest(TestCase):
         initial_outgoing_mails = len(mail.outbox)
         (subscription, _) = Subscription.create(
             institution=InstitutionFactory())
-        form = self._get_pay_now_form(subscription=subscription,
-                                      card_number=GOOD_CREDIT_CARD)
+        form = get_pay_now_form(subscription=subscription,
+                                card_number=GOOD_CREDIT_CARD)
         subscription.purchase(pay_when=Subscription.PAY_NOW,
                               user=UserFactory(),
                               form=form)
