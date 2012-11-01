@@ -283,8 +283,10 @@ class Institution(models.Model):
                          exc_info=True)
             self.slug = iss_institution_id
 
+
 RATINGS_PER_SUBSCRIPTION = 1
 SUBSCRIPTION_DURATION = 365
+
 
 class Subscription(models.Model):
     """
@@ -559,7 +561,6 @@ class Subscription(models.Model):
                                   additional_email_address=None,
                                   subscription_payment=None,
                                   payment_context=None):
-
         mail_to = [self.institution.contact_email,]
 
         if additional_email_address != self.institution.contact_email:
@@ -574,7 +575,6 @@ class Subscription(models.Model):
                 payment_context=payment_context)
 
     def _send_post_purchase_excecutive_renewal_email(self):
-
         exec_mail_to = [self.institution.executive_contact_email,]
         exec_slug = 'reg_renewal_exec'
         exec_email_context = { 'institution': self.institution }
@@ -586,20 +586,20 @@ class Subscription(models.Model):
             slug = "reg_renewal_unpaid"
         else:
             slug = "welcome_liaison_unpaid"
-        email_context = {'institution': self.institution,
-                         'amount': self.amount_due}
+        email_context = { 'institution': self.institution,
+                          'amount': self.amount_due }
         self._send_email(slug=slug, mail_to=mail_to, context=email_context)
 
     def _send_post_purchase_pay_now_email(self, mail_to, subscription_payment,
                                          payment_context):
-        if self.object.endswith('renew'):
+        if self.reason.endswith('renew'):
             slug = 'reg_renewed_paid'
             self._send_post_purchase_excecutive_renewal_email()
         else:
             slug = 'welcome_liaison_paid'
-        email_context = {'payment_dict': payment_context,
-                         'institution': self.institution,
-                         "payment": subscription_payment}
+        email_context = { 'payment_dict': payment_context,
+                          'institution': self.institution,
+                          'payment': subscription_payment }
 
         self._send_email(slug=slug, mail_to=mail_to, context=email_context)
 
@@ -654,6 +654,7 @@ class SubscriptionPayment(models.Model):
     def __str__(self):
         return "%s: $%.2f (%s)" % (self.subscription.institution,
                                    self.amount, self.date)
+
 
 class RegistrationReason(models.Model):
     """
