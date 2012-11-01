@@ -13,9 +13,10 @@ class SummaryToolView(InstitutionToolMixin,
 
     def update_logical_rules(self):
         super(SummaryToolView, self).update_logical_rules()
-        self.add_logical_rule({ 'name': 'user_has_tool',
+        self.add_logical_rule({ 'name': 'user_has_view_access',
                                 'param_callbacks': [
-                                    ('user', 'get_request_user')] })
+                                    ('user', 'get_request_user'),
+                                    ('institution', 'get_institution')] })
 
     def get_context_data(self, **kwargs):
         context = super(SummaryToolView, self).get_context_data(**kwargs)
