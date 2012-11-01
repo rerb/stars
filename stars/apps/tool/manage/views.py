@@ -1,4 +1,3 @@
-from datetime import timedelta, date
 from logging import getLogger
 
 from django.contrib import messages
@@ -16,7 +15,7 @@ from stars.apps.helpers.mixins import ValidationMessageFormMixin
 from stars.apps.helpers.queryset_sequence import QuerySetSequence
 from stars.apps.institutions.models import (StarsAccount, Subscription,
                                             SubscriptionPayment,
-                                            SUBSCRIPTION_DURATION,
+                                            SubscriptionPurchaseError,
                                             PendingAccount)
 from stars.apps.institutions.models import Institution
 from stars.apps.institutions.rules import user_has_access_level
@@ -518,7 +517,7 @@ class SubscriptionPaymentOptionsView(InstitutionToolMixin,
         context = super(SubscriptionPaymentOptionsView,
                         self).get_context_data(**kwargs)
         (subscription_start_date, subscription_end_date) = (
-            Subscription.get_date_range_for_next_subscription(
+            Subscription.get_date_range_for_new_subscription(
                 self.get_institution()))
         context['subscription_start_date'] = subscription_start_date
         context['subscription_end_date'] = subscription_end_date
@@ -546,27 +545,11 @@ class SubscriptionPaymentCreateBaseView(ValidationMessageFormMixin,
                                     ('user', 'get_request_user'),
                                     ('institution', 'get_institution')] })
 
-    def make_credit_card_payment(self, form):
-        """
-            Applies a credit card payment to a subscription.
-
-            Takes a subscription and a form containing credit card
-            info as arguments.
-
-            If there's an error processing the credit card,
-            a CreditCardProcessingError is raised.
-
-            One ugly side-effect is that subscription.amount_due
-            is calculated, and overwritten.
-        """
-        try:
-            self.subscription.pay(pay_when=Subscription.PAY_NOW,
-                                  amount=self.subscription.amount_due,
-                                  user=self.request.user,
-                                  form=form)
-        except credit_card.CreditCardProcessingError as ccpe:
-            messages.error(self.request, ccpe.message)
-            raise
+    def get_context_data(self, **kwargs):
+        context = super(SubscriptionPaymentCreateBaseView,
+                        self).get_context_data(**kwargs)
+        context['breadcrumb'] = 'purchase subscription'
+        return context
 
 
 class SubscriptionCreateView(SubscriptionPaymentCreateBaseView):
@@ -580,8 +563,8 @@ class SubscriptionCreateView(SubscriptionPaymentCreateBaseView):
         If self.request.session['PAY_WHEN'] = Subscription.PAY_LATER,
         the form displayed requests only a promo code.
 
-        After creating a Subscription, if the user elects to pay now,
-        a credit card payment is processed.
+        After creating a Subscription, it's purchased, which, if paying
+        now, will trigger a credit card transaction.
     """
     success_url_name = 'tool-summary'
     template_name = 'tool/manage/subscription_payment_create.html'
@@ -594,8 +577,7 @@ class SubscriptionCreateView(SubscriptionPaymentCreateBaseView):
 
     def form_valid(self, form):
         """
-            Creates a Subscription, and if user wants to pay now,
-            tries to process a credit card transaction.
+            Creates a Subscription, and then purchases it.
         """
         self.subscription, promo_code_applied = Subscription.create(
             institution=self.get_institution(),
@@ -604,20 +586,18 @@ class SubscriptionCreateView(SubscriptionPaymentCreateBaseView):
         if promo_code_applied:
             messages.info(self.request, "Promo code discount applied!")
 
-        if self.pay_when == Subscription.PAY_NOW:
-            try:
-                self.make_credit_card_payment(form=form)
-            except credit_card.CreditCardProcessingError:
-                return self.form_invalid(form)
-        elif self.pay_when != Subscription.PAY_LATER:
-            messages.error(self.request,
-                           'Sorry - an internal error has occurred. '
-                           'Your subscription has not been saved. '
-                           'Please try again. '
-                           '(InvalidPayWhenValue: {0})'.self.pay_when)
-            return  # go back to success_url, rather than reload the form.
-
+        # must save subscription before trying to pay it; it's got to have
+        # an id for SubscriptionPayment.subscription_id:
         self.subscription.save()
+
+        try:
+            self.subscription.purchase(pay_when=self.pay_when,
+                                       user=self.request.user,
+                                       form=form)
+        except SubscriptionPurchaseError as spe:
+            messages.error(self.request, spe.message)
+            return self.form_invalid(form)
+
 
         del self.request.session[PAY_WHEN]
 
@@ -629,7 +609,8 @@ class SubscriptionCreateView(SubscriptionPaymentCreateBaseView):
             deletes it.
         """
         if hasattr(self, 'subscription'):
-            self.subscription.delete()
+            if self.subscription.id:
+                self.subscription.delete()
         return super(SubscriptionCreateView, self).form_invalid(form)
 
     def get_form_class(self):
@@ -637,8 +618,8 @@ class SubscriptionCreateView(SubscriptionPaymentCreateBaseView):
                  Subscription.PAY_NOW: PayNowForm }[self.pay_when]
 
     def get_tab_content_title(self):
-        return { Subscription.PAY_LATER: 'purchase a subscription: pay now',
-                 Subscription.PAY_NOW: 'purchase a subscription: pay later' }[
+        return { Subscription.PAY_LATER: 'purchase a subscription: pay later',
+                 Subscription.PAY_NOW: 'purchase a subscription: pay now' }[
                      self.pay_when]
 
     def get_valid_message(self):
@@ -647,12 +628,6 @@ class SubscriptionCreateView(SubscriptionPaymentCreateBaseView):
                   {start} to {finish}.""".format(
                       start=self.subscription.start_date,
                       finish=self.subscription.end_date)
-
-    def get_context_data(self, **kwargs):
-        context = super(SubscriptionCreateView, self).get_context_data(
-            **kwargs)
-        context['breadcrumb'] = 'purchase subscription'
-        return context
 
 
 class SubscriptionPaymentCreateView(SubscriptionPaymentCreateBaseView):
@@ -674,23 +649,19 @@ class SubscriptionPaymentCreateView(SubscriptionPaymentCreateBaseView):
             so if, say, that parameter is renamed in urls.py, this
             will break.
         """
-        self._subscription = Subscription.objects.get(
-            pk=self.kwargs['subscription_id'])
+        self._subscription = Subscription.objects.get(pk=self.kwargs['pk'])
         return self._subscription
 
     def form_valid(self, form):
         try:
-            self.make_credit_card_payment(form=form)
-        except credit_card.CreditCardProcessingError:
+            self.subscription.pay(amount=self.subscription.amount_due,
+                                  user=self.request.user,
+                                  form=form)
+        except credit_card.CreditCardProcessingError as ccpe:
+            messages.error(self.request, ccpe.message)
             return self.form_invalid(form)
 
         return super(SubscriptionPaymentCreateView, self).form_valid(form)
-
-    def get_context_data(self, **kwargs):
-        context = super(SubscriptionPaymentCreateView, self).get_context_data(
-            **kwargs)
-        context['breadcrumb'] = 'purchase subscription'
-        return context
 
     def get_tab_content_title(self):
         return 'pay now; amount due: ${0:.2f}'.format(
