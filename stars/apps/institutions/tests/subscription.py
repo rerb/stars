@@ -503,18 +503,6 @@ class SubscriptionTest(TestCase):
         self.assertEqual(initial_payment_count,
                          SubscriptionPayment.objects.count())
 
-    def test_purchase_sends_email(self):
-        """Does purchase send the post-purchase email?
-
-           Depends on Subscription.create().
-        """
-        initial_outgoing_mails = len(mail.outbox)
-        (subscription, _) = Subscription.create(
-            institution=InstitutionFactory())
-        subscription.purchase(pay_when=Subscription.PAY_LATER,
-                              user=UserFactory())
-        self.assertLess(initial_outgoing_mails, len(mail.outbox))
-
     def test_purchase_institution_updated(self):
         """Does purchase update the subscription's institution?
 
@@ -527,20 +515,91 @@ class SubscriptionTest(TestCase):
         self.assertEqual(institution.current_subscription, subscription)
         self.assertTrue(institution.is_participant)
 
-    # def test__send_post_purchase_email(self):
-    #     raise NotImplemented
+    def test_purchase_sends_email(self):
+        """Does purchase send any post-purchase email?
 
-    # def test__update_institution_after_purchase(self):
-    #     raise NotImplemented
+           Depends on Subscription.create().
+        """
+        initial_outgoing_mails = len(mail.outbox)
+        (subscription, _) = Subscription.create(
+            institution=InstitutionFactory())
+        subscription.purchase(pay_when=Subscription.PAY_LATER,
+                              user=UserFactory())
+        self.assertLess(initial_outgoing_mails, len(mail.outbox))
 
-    # def test__send_post_purchase_pay_now_email(self):
-    #     raise NotImplemented
+    def test_purchase_does_not_send_email_if_credit_card_is_declined(self):
+        """Does purchase send no email if credit card is declined?
 
-    # def test__send_post_purchase_pay_later_email(self):
-    #     raise NotImplemented
+           Depends on Subscription.create().
+        """
+        initial_outgoing_mails = len(mail.outbox)
+        (subscription, _) = Subscription.create(
+            institution=InstitutionFactory())
+        form = self._get_pay_now_form(subscription=subscription,
+                                      card_number=BAD_CREDIT_CARD)
+        with self.assertRaises(CreditCardProcessingError):
+            subscription.pay(amount=subscription.amount_due,
+                             user=UserFactory(),
+                             form=form)
+        self.assertEqual(initial_outgoing_mails, len(mail.outbox))
 
-    # def test__send_email(self):
-    #     raise NotImplemented
+    def test_purchase_pay_later_sends_one_email(self):
+        """Does purchase send one email when user pays later?
 
-    # def test__send_post_purchase_executive_renewal_email(self):
-    #     raise NotImplemented
+           Depends on Subscription.create().
+        """
+        initial_outgoing_mails = len(mail.outbox)
+        (subscription, _) = Subscription.create(
+            institution=InstitutionFactory())
+        subscription.purchase(pay_when=Subscription.PAY_LATER,
+                              user=UserFactory())
+        self.assertEqual(initial_outgoing_mails + 1, len(mail.outbox))
+
+    def test_purchase_pay_now_renewal_sends_two_emails(self):
+        """Does purchase send two emails when user pays now for a renewal?
+
+           Depends on Subscription.create().
+        """
+        initial_outgoing_mails = len(mail.outbox)
+        institution = InstitutionFactory()
+        _ = SubscriptionFactory(institution=institution)
+        (subscription, _) = Subscription.create(institution=institution)
+        form = self._get_pay_now_form(subscription=subscription,
+                                      card_number=GOOD_CREDIT_CARD)
+        subscription.purchase(pay_when=Subscription.PAY_NOW,
+                              user=UserFactory(),
+                              form=form)
+        self.assertEqual(initial_outgoing_mails + 2, len(mail.outbox))
+
+    def test_purchase_pay_now_first_subrx_sends_one_email(self):
+        """Does purchase send one email when user pays now for first subrx?
+
+           Depends on Subscription.create().
+        """
+        initial_outgoing_mails = len(mail.outbox)
+        (subscription, _) = Subscription.create(
+            institution=InstitutionFactory())
+        form = self._get_pay_now_form(subscription=subscription,
+                                      card_number=GOOD_CREDIT_CARD)
+        subscription.purchase(pay_when=Subscription.PAY_NOW,
+                              user=UserFactory(),
+                              form=form)
+        self.assertEqual(initial_outgoing_mails + 1, len(mail.outbox))
+
+    ############################################
+    # test(s?) for _send_post_purchase_email():
+    ############################################
+    def test__send_post_purchase_email_mails_user_if_not_contact_email(self):
+        """Does user get email if he's not institution.contact_email?
+
+           Depends on Subscription.create().
+        """
+        contact_email = 'jim@jonestown.gy'
+        user_email = 'teddy@kozinski.nom'
+        institution = InstitutionFactory(contact_email=contact_email)
+        user = UserFactory(email=user_email)
+        (subscription, _) = Subscription.create(institution=institution)
+        subscription.purchase(pay_when=Subscription.PAY_LATER,
+                              user=user)
+        message = mail.outbox.pop()
+        self.assertEqual(message.to, [contact_email, user_email])
