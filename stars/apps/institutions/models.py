@@ -574,7 +574,7 @@ class Subscription(models.Model):
                 subscription_payment=subscription_payment,
                 payment_context=payment_context)
 
-    def _send_post_purchase_excecutive_renewal_email(self):
+    def _send_post_purchase_exececutive_renewal_email(self):
         exec_mail_to = [self.institution.executive_contact_email,]
         exec_slug = 'reg_renewal_exec'
         exec_email_context = { 'institution': self.institution }
@@ -592,15 +592,14 @@ class Subscription(models.Model):
 
     def _send_post_purchase_pay_now_email(self, mail_to, subscription_payment,
                                          payment_context):
-        if self.reason.endswith('renew'):
+        if self.reason.endswith('renewal'):
             slug = 'reg_renewed_paid'
-            self._send_post_purchase_excecutive_renewal_email()
+            self._send_post_purchase_exececutive_renewal_email()
         else:
             slug = 'welcome_liaison_paid'
         email_context = { 'payment_dict': payment_context,
                           'institution': self.institution,
                           'payment': subscription_payment }
-
         self._send_email(slug=slug, mail_to=mail_to, context=email_context)
 
     def _subscription_discounted(self):
