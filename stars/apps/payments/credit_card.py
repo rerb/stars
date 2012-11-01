@@ -150,7 +150,6 @@ class CreditCardPaymentProcessor(object):
                     'conf': capture_result.approval_code,
                     'trans_id': capture_result.trans_id}
         else:
-            print >> sys.stderr, "Decline: %s" % result.response_reason
             logger.warning("Payment denied for %s %s (%s)" %
                            (payment_context['billing_firstname'],
                             payment_context['billing_lastname'],
