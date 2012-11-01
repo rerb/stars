@@ -1,5 +1,12 @@
 """Tests for apps/tool/manage/views.py.
 """
+from logging import getLogger, CRITICAL
+import sys
+if sys.version < '2.7':
+    from django.utils import unittest
+else:
+    import unittest
+
 from bs4 import BeautifulSoup
 from django.conf import settings
 from django.contrib import messages
@@ -16,9 +23,18 @@ from stars.test_factories import (CreditUserSubmissionFactory,
      InstitutionFactory, PendingAccountFactory, ResponsiblePartyFactory,
      SubmissionSetFactory, StarsAccountFactory, UserFactory)
 from stars.apps.credits.models import CreditSet
-from stars.apps.institutions.models import PendingAccount, StarsAccount
+from stars.apps.institutions.models import (PendingAccount, StarsAccount,
+                                            Subscription, SubscriptionPayment)
+from stars.apps.institutions.tests.subscription import (get_pay_now_form_data,
+                                                        GOOD_CREDIT_CARD,
+                                                        BAD_CREDIT_CARD)
 from stars.apps.submissions.models import ResponsibleParty
 from stars.apps.tool.manage import views
+
+# Don't bother me:
+logger = getLogger('stars')
+logger.setLevel(CRITICAL)
+
 
 def _get_request_ready_for_messages():
     """
@@ -46,21 +62,25 @@ def _make_credits_for_responsible_party(responsible_party):
     return credits
 
 
-class _InstitutionAdminToolMixinTest(TestCase):
+class _InstitutionToolMixinTest(TestCase):
     """
         Provides a base TestCase that checks if a view;
 
-            1. is non GET-able by non-admin users;
+            1. is GET-able by users; specify a user_level if
+               the view is protected by user_level;
 
-            2. is GET-able by admin users, and;
+            2. if the view is protected by a user_level, is it
+               *not* GET-able by a user w/o that user_level;
 
-            3. returns a loadable (by an admin) success_url.
+            3. returns a loadable (optionally, only by a user with
+               a specified user_level) success_url.
     """
-
     view_class = None  # Must be set in subclass.
+    blocked_user_level = None  # user_level that should be blocked
+    blessed_user_level = None  # user_level that should be allowed to GET
 
     def setUp(self):
-        self.institution = InstitutionFactory()
+        self.institution = InstitutionFactory(slug='on-the-beach-soldier')
 
         self.account = StarsAccountFactory(institution=self.institution)
         self.account_to_edit = StarsAccountFactory(institution=self.institution)
@@ -79,17 +99,13 @@ class _InstitutionAdminToolMixinTest(TestCase):
         """
         return self.account.id
 
-    def test_get_by_non_admin(self):
-        self.account.user_level = ''
-        self.account.save()
-        response = self.view_class.as_view()(
-            self.request,
-            institution_slug=self.institution.slug,
-            pk=self._get_pk())
-        self.assertEqual(response.status_code, 403)
+    def test_get_succeeds(self, user_level=''):
+        """Is view.as_view() GET-able?
 
-    def test_get_by_admin(self):
-        self.account.user_level = 'admin'
+            Simple test to see if self.view_class.as_view()
+            is GET-able.
+        """
+        self.account.user_level = user_level or self.blessed_user_level
         self.account.save()
         response = self.view_class.as_view()(
             self.request,
@@ -97,9 +113,32 @@ class _InstitutionAdminToolMixinTest(TestCase):
             pk=self._get_pk())
         self.assertEqual(response.status_code, 200)
 
-    def test_get_success_url_is_loadable(self):
-        """Is the url returned by get_success_url() loadable?"""
-        self.account.user_level = 'admin'
+    def test_get_is_blocked(self, user_level=''):
+        """Is view_class.as_view() blocked by user_level?
+
+           Test to see if self.view_class.as_view() is *not*
+           is GET-able by a user without the appropriate user_level.
+
+           If a view has no user_level protection, pass None as user_level
+           and this test will be skipped.
+        """
+        if user_level is None:
+            return unittest.skip('no user_level specified')
+        self.account.user_level = self.blocked_user_level or ''
+        self.account.save()
+        response = self.view_class.as_view()(
+            self.request,
+            institution_slug=self.institution.slug,
+            pk=self._get_pk())
+        self.assertEqual(response.status_code, 403)
+
+    def test_success_url_is_loadable(self, user_level=''):
+        """Is the url returned by get_success_url() loadable?
+
+           If the success url is protected by a user_level check,
+           specify that in the user_level argument.
+        """
+        self.account.user_level = user_level or self.blessed_user_level
         self.account.save()
         view = self.view_class()
         # Hack a request object onto the view, since it'll be
@@ -113,6 +152,22 @@ class _InstitutionAdminToolMixinTest(TestCase):
         if success_url is not 'SENTINEL':
             response = Client().get(success_url, follow=True)
             self.assertEqual(response.status_code, 200)
+
+
+class _InstitutionAdminToolMixinTest(_InstitutionToolMixinTest):
+    """
+        Provides a base TestCase that checks if a view;
+
+            1. is non GET-able by non-admin users;
+
+            2. is GET-able by admin users, and;
+
+            3. returns a loadable (by an admin) success_url.
+    """
+
+    view_class = None  # Must be set in subclass.
+    blocked_user_level = ''
+    blessed_user_level = 'admin'
 
 
 class InstitutionPaymentsViewTest(_InstitutionAdminToolMixinTest):
@@ -574,3 +629,128 @@ class MigrateVersionViewTest(_MigrateDataVersionViewTest):
             institution_slug=self.institution.slug,
             pk=self._get_pk())
         self.assertEqual(response.status_code, 200)
+
+
+class _InstitutionViewOnlyToolMixinTest(_InstitutionToolMixinTest):
+    """
+       Base class for InstitutionToolMixin views that are accessible
+       by users with at least 'view' access for the institution.
+    """
+    blessed_user_level = 'view'
+    blocked_user_level = ''
+
+
+class SubscriptionPaymentOptionsViewTest(_InstitutionViewOnlyToolMixinTest):
+
+    view_class = views.SubscriptionPaymentOptionsView
+
+
+class SubscriptionCreateViewTest(_InstitutionViewOnlyToolMixinTest):
+
+    fixtures = ['email_templates.json']
+
+    view_class = views.SubscriptionCreateView
+
+    def setUp(self):
+        super(SubscriptionCreateViewTest, self).setUp()
+        self.request.session[views.PAY_WHEN] = Subscription.PAY_LATER
+
+    def test_form_valid_creates_subscription(self):
+        """Does form_valid() create a subscription?"""
+        institution = InstitutionFactory(slug='nancy-man')
+
+        self.request.method = 'POST'
+        self.request.POST = { 'promo_code': '' }
+
+        initial_subscription_count = Subscription.objects.count()
+
+        _ = self.view_class.as_view()(request=self.request,
+                                      institution_slug=institution.slug)
+
+        self.assertEqual(Subscription.objects.count(),
+                         initial_subscription_count + 1)
+
+    def test_form_valid_pay_now_creates_payment(self):
+        """Does form_valid() create a payment when user is paying now?"""
+        institution = InstitutionFactory(slug='fancy-man')
+
+        self.request.session[views.PAY_WHEN] = Subscription.PAY_NOW
+        self.request.method = 'POST'
+        self.request.POST = get_pay_now_form_data(
+            card_number=GOOD_CREDIT_CARD)
+
+        initial_payment_count = SubscriptionPayment.objects.count()
+
+        _ = self.view_class.as_view()(request=self.request,
+                                      institution_slug=institution.slug)
+
+        self.assertEqual(SubscriptionPayment.objects.count(),
+                         initial_payment_count + 1)
+
+    def test_form_valid_no_subrx_created_when_purchase_error(self):
+        """Does form_valid() *not* create a subrx if there's a purchase error?
+        """
+        institution = InstitutionFactory(slug='fancy-man')
+
+        self.request.session[views.PAY_WHEN] = Subscription.PAY_NOW
+        self.request.method = 'POST'
+        self.request.POST = get_pay_now_form_data(card_number=BAD_CREDIT_CARD)
+
+        initial_subscription_count = Subscription.objects.count()
+
+        _ = self.view_class.as_view()(request=self.request,
+                                      institution_slug=institution.slug)
+
+        self.assertEqual(Subscription.objects.count(),
+                         initial_subscription_count)
+
+
+class SubscriptionPaymentCreateViewTest(_InstitutionViewOnlyToolMixinTest):
+
+    view_class = views.SubscriptionPaymentCreateView
+
+    def setUp(self):
+        """Depends on Subscription.create()."""
+        super(SubscriptionPaymentCreateViewTest, self).setUp()
+        # self.request.session[views.PAY_WHEN] = Subscription.PAY_LATER
+        (self.subscription, _) = Subscription.create(
+            institution=self.institution)
+        self.subscription.save()
+
+    def _get_pk(self):
+        return self.subscription.id
+
+    def test_form_valid_creates_payment(self):
+        """Does form_valid() create a payment?"""
+        self.account.user_level = self.blessed_user_level
+        self.account.save()
+        self.request.method = 'POST'
+        self.request.POST = get_pay_now_form_data(
+            card_number=GOOD_CREDIT_CARD)
+
+        initial_payment_count = SubscriptionPayment.objects.count()
+
+        _ = self.view_class.as_view()(request=self.request,
+                                      institution_slug=self.institution.slug,
+                                      pk=self.subscription.id)
+
+        self.assertEqual(SubscriptionPayment.objects.count(),
+                         initial_payment_count + 1)
+
+    def test_form_valid_no_payment_created_when_purchase_error(self):
+        """Does form_valid() *not* create a payment if there's a purchase error?
+        """
+        self.account.user_level = self.blessed_user_level
+        self.account.save()
+        self.request.session[views.PAY_WHEN] = Subscription.PAY_NOW
+        self.request.method = 'POST'
+        self.request.POST = get_pay_now_form_data(card_number=BAD_CREDIT_CARD)
+
+        initial_payment_count = SubscriptionPayment.objects.count()
+
+        _ = self.view_class.as_view()(request=self.request,
+                                      institution_slug=self.institution.slug,
+                                      pk=self.subscription.id)
+
+        self.assertEqual(SubscriptionPayment.objects.count(),
+                         initial_payment_count)
