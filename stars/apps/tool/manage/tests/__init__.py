@@ -8,7 +8,11 @@ from views import (AccountCreateViewTest, AccountDeleteViewTest,
                    ResponsiblePartyCreateViewTest,
                    ResponsiblePartyDeleteViewTest,
                    ResponsiblePartyEditViewTest,
-                   ResponsiblePartyListViewTest, ShareDataViewTest)
+                   ResponsiblePartyListViewTest, ShareDataViewTest,
+                   SubscriptionCreateViewTest,
+                   SubscriptionPaymentCreateBaseViewTest,
+                   SubscriptionPaymentCreateViewTest,
+                   SubscriptionPaymentOptionsViewTest)
 
 __test__ = {
     'RenewalTest': RenewalTest,
@@ -25,5 +29,10 @@ __test__ = {
     'ResponsiblePartyDeleteViewTest': ResponsiblePartyDeleteViewTest,
     'ResponsiblePartyEditViewTest': ResponsiblePartyEditViewTest,
     'ResponsiblePartyListViewTest': ResponsiblePartyListViewTest,
-    'ShareDataViewTest': ShareDataViewTest
+    'ShareDataViewTest': ShareDataViewTest,
+    'SubscriptionPaymentOptionsViewTest': SubscriptionPaymentOptionsViewTest,
+    'SubscriptionPaymentCreateBaseViewTest':
+        SubscriptionPaymentCreateBaseViewTest,
+    'SubscriptionCreateViewTest': SubscriptionCreateViewTest,
+    'SubscriptionPaymentCreateViewTest': SubscriptionPaymentCreateViewTest,
     }
