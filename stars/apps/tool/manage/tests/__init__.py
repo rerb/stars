@@ -2,8 +2,9 @@ from renewal_tests import RenewalTest
 
 from views import (AccountCreateViewTest, AccountDeleteViewTest,
                    AccountEditViewTest, AccountListViewTest,
-                   InstitutionPaymentsViewTest, MigrateDataViewTest,
-                   MigrateOptionsViewTest, MigrateVersionViewTest,
+                   ContactViewTest, InstitutionPaymentsViewTest,
+                   MigrateDataViewTest, MigrateOptionsViewTest,
+                   MigrateVersionViewTest,
                    PendingAccountDeleteViewTest,
                    ResponsiblePartyCreateViewTest,
                    ResponsiblePartyDeleteViewTest,
@@ -12,6 +13,7 @@ from views import (AccountCreateViewTest, AccountDeleteViewTest,
                    SubscriptionCreateViewTest,
                    SubscriptionPaymentCreateViewTest,
                    SubscriptionPaymentOptionsViewTest)
+
 from stars.apps.tool.tests.views import SummaryToolViewTest
 
 __test__ = {
@@ -20,6 +22,7 @@ __test__ = {
     'AccountDeleteViewTest': AccountDeleteViewTest,
     'AccountEditViewTest': AccountEditViewTest,
     'AccountListViewTest': AccountListViewTest,
+    'ContactViewTest': ContactViewTest,
     'InstitutionPaymentsViewTest': InstitutionPaymentsViewTest,
     'MigrateDataViewTest': MigrateDataViewTest,
     'MigrateOptionsViewTest': MigrateOptionsViewTest,

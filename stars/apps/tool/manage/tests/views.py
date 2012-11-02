@@ -28,6 +28,11 @@ logger = getLogger('stars')
 logger.setLevel(CRITICAL)
 
 
+class ContactViewTest(InstitutionAdminToolMixinTest):
+
+    view_class = views.ContactView
+
+
 class InstitutionPaymentsViewTest(InstitutionAdminToolMixinTest):
 
     view_class = views.InstitutionPaymentsView
