@@ -73,3 +73,16 @@ class InstitutionViewOnlyToolMixinTest(InstitutionToolMixinTest):
     """
     blessed_user_level = 'view'
     blocked_user_level = ''
+
+
+class SummaryToolViewTest(InstitutionViewOnlyToolMixinTest):
+    """This test is included in the apps.tool.manage.tests test
+    suite (e.g., it's included in __test__ in
+    apps/tool/manage/tests/__init__.py).  That's the workaround for
+    putting it up here, where it belongs, in apps/tool/views.py,
+    even though there's no app called 'tool' -- putting it into
+    the other test suite makes it easily runnable, e.g., as
+    'manage.py test manage.SummaryToolViewTest'.
+    """
+
+    view_class = SummaryToolView

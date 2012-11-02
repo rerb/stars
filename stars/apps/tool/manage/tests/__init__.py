@@ -12,6 +12,7 @@ from views import (AccountCreateViewTest, AccountDeleteViewTest,
                    SubscriptionCreateViewTest,
                    SubscriptionPaymentCreateViewTest,
                    SubscriptionPaymentOptionsViewTest)
+from stars.apps.tool.tests.views import SummaryToolViewTest
 
 __test__ = {
     'RenewalTest': RenewalTest,
@@ -32,4 +33,5 @@ __test__ = {
     'SubscriptionPaymentOptionsViewTest': SubscriptionPaymentOptionsViewTest,
     'SubscriptionCreateViewTest': SubscriptionCreateViewTest,
     'SubscriptionPaymentCreateViewTest': SubscriptionPaymentCreateViewTest,
+    'SummaryToolViewTest': SummaryToolViewTest
     }
