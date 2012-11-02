@@ -1,27 +1,15 @@
 """Tests for apps/tool/manage/views.py.
 """
 from logging import getLogger, CRITICAL
-import sys
-if sys.version < '2.7':
-    from django.utils import unittest
-else:
-    import unittest
 
 from bs4 import BeautifulSoup
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.messages.middleware import MessageMiddleware
-from django.contrib.sessions.middleware import SessionMiddleware
-from django.http import HttpRequest
 from django.shortcuts import render
-from django.test import TestCase
-from django.test.client import Client, RequestFactory
 import testfixtures
 
 import aashe_rules
-from stars.test_factories import (CreditUserSubmissionFactory,
-     InstitutionFactory, PendingAccountFactory, ResponsiblePartyFactory,
-     SubmissionSetFactory, StarsAccountFactory, UserFactory)
 from stars.apps.credits.models import CreditSet
 from stars.apps.institutions.models import (PendingAccount, StarsAccount,
                                             Subscription, SubscriptionPayment)
@@ -29,157 +17,87 @@ from stars.apps.institutions.tests.subscription import (get_pay_now_form_data,
                                                         GOOD_CREDIT_CARD,
                                                         BAD_CREDIT_CARD)
 from stars.apps.submissions.models import ResponsibleParty
+from stars.apps.tests.views import ProtectedViewTest
 from stars.apps.tool.manage import views
+from stars.test_factories import (CreditUserSubmissionFactory,
+     InstitutionFactory, PendingAccountFactory, ResponsiblePartyFactory,
+     SubmissionSetFactory, StarsAccountFactory, UserFactory)
 
 # Don't bother me:
 logger = getLogger('stars')
 logger.setLevel(CRITICAL)
 
 
-def _get_request_ready_for_messages():
+class InstitutionToolMixinTest(ProtectedViewTest):
     """
-        Returns a request ready to handle messages.
+        Provides a base TestCase for views that inherit from
+        InstitutionToolMixin.
     """
-    def apply_message_middleware(request):
-        request = apply_session_middleware(request)
-        MessageMiddleware().process_request(request)
-        return request
-
-    def apply_session_middleware(request):
-        SessionMiddleware().process_request(request)
-        return request
-
-    request = HttpRequest()
-    request = apply_message_middleware(request)
-    return request
-
-def _make_credits_for_responsible_party(responsible_party):
-    """List some credits with a responsible_party."""
-    credits = list()
-    for credit in xrange(4):
-        credits.append(
-            CreditUserSubmissionFactory(responsible_party=responsible_party))
-    return credits
-
-
-class _InstitutionToolMixinTest(TestCase):
-    """
-        Provides a base TestCase that checks if a view;
-
-            1. is GET-able by users; specify a user_level if
-               the view is protected by user_level;
-
-            2. if the view is protected by a user_level, is it
-               *not* GET-able by a user w/o that user_level;
-
-            3. returns a loadable (optionally, only by a user with
-               a specified user_level) success_url.
-    """
-    view_class = None  # Must be set in subclass.
     blocked_user_level = None  # user_level that should be blocked
     blessed_user_level = None  # user_level that should be allowed to GET
 
+    middleware = ProtectedViewTest.middleware + [MessageMiddleware]
+
     def setUp(self):
+        super(InstitutionToolMixinTest, self).setUp()
         self.institution = InstitutionFactory(slug='on-the-beach-soldier')
-
         self.account = StarsAccountFactory(institution=self.institution)
-
-        self.request = _get_request_ready_for_messages()
         self.request.user = self.account.user
-        self.request.method = 'GET'
+
+    def open_gate(self):
+        self._assign_user_level(self.blessed_user_level)
+
+    def close_gate(self):
+        self._assign_user_level(self.blocked_user_level)
+
+    def _assign_user_level(self, user_level):
+        self.account.user_level = user_level
+        self.account.save()
 
     def _get_pk(self):
         """
             Provides the value for the kwarg named 'pk' that's
-            passed to the view's on_view() product.  Subclasses
-            might need to override this, if, for instance, the
-            view under test expects the id of a ResponsibleParty
-            as the value of the pk kwarg.
+            passed to the view's on_view() product.
         """
-        pass
+        return ''
 
-    def test_get_succeeds(self, user_level=''):
-        """Is view.as_view() GET-able?
-
-            Simple test to see if self.view_class.as_view()
-            is GET-able.
-        """
-        self.account.user_level = user_level or self.blessed_user_level
-        self.account.save()
-        response = self.view_class.as_view()(
-            self.request,
+    def test_success_url_is_loadable(self, **kwargs):
+        super(InstitutionToolMixinTest, self).test_get_succeeds(
             institution_slug=self.institution.slug,
             pk=self._get_pk())
-        self.assertEqual(response.status_code, 200)
 
-    def test_get_is_blocked(self, user_level=''):
-        """Is view_class.as_view() blocked by user_level?
-
-           Test to see if self.view_class.as_view() is *not*
-           is GET-able by a user without the appropriate user_level.
-
-           If a view has no user_level protection, pass None as user_level
-           and this test will be skipped.
-        """
-        if user_level is None:
-            return unittest.skip('no user_level specified')
-        self.account.user_level = self.blocked_user_level or ''
-        self.account.save()
-        response = self.view_class.as_view()(
-            self.request,
+    def test_get_succeeds(self):
+        super(InstitutionToolMixinTest, self).test_get_succeeds(
             institution_slug=self.institution.slug,
             pk=self._get_pk())
-        self.assertEqual(response.status_code, 403)
 
-    def test_success_url_is_loadable(self, user_level=''):
-        """Is the url returned by get_success_url() loadable?
-
-           If the success url is protected by a user_level check,
-           specify that in the user_level argument.
-        """
-        self.account.user_level = user_level or self.blessed_user_level
-        self.account.save()
-        view = self.view_class()
-        # Hack a request object onto the view, since it'll be
-        # referenced if no success_url or success_url_name is specified
-        # in the view:
-        view.request = RequestFactory()
-        # Now set request.path to a sentinel value we can watch for:
-        view.request.path = 'SENTINEL'
-        success_url = view.get_success_url(
-            institution_slug=self.institution.slug)
-        if success_url is not 'SENTINEL':
-            response = Client().get(success_url, follow=True)
-            self.assertEqual(response.status_code, 200)
+    def test_get_is_blocked(self):
+        super(InstitutionToolMixinTest, self).test_get_is_blocked(
+            institution_slug=self.institution.slug,
+            pk=self._get_pk())
 
 
-class _InstitutionAdminToolMixinTest(_InstitutionToolMixinTest):
+class InstitutionAdminToolMixinTest(InstitutionToolMixinTest):
     """
-        Provides a base TestCase that checks if a view;
-
-            1. is non GET-able by non-admin users;
-
-            2. is GET-able by admin users, and;
-
-            3. returns a loadable (by an admin) success_url.
+        Provides a base TestCase for InstitutionToolMixinTests that
+        are protected; only admin users can GET them.
     """
-
     view_class = None  # Must be set in subclass.
     blocked_user_level = ''
     blessed_user_level = 'admin'
 
 
-class InstitutionPaymentsViewTest(_InstitutionAdminToolMixinTest):
+class InstitutionPaymentsViewTest(InstitutionAdminToolMixinTest):
 
     view_class = views.InstitutionPaymentsView
 
 
-class ResponsiblePartyListViewTest(_InstitutionAdminToolMixinTest):
+class ResponsiblePartyListViewTest(InstitutionAdminToolMixinTest):
 
     view_class = views.ResponsiblePartyListView
 
 
-class ResponsiblePartyCreateViewTest(_InstitutionAdminToolMixinTest):
+class ResponsiblePartyCreateViewTest(InstitutionAdminToolMixinTest):
 
     view_class = views.ResponsiblePartyCreateView
 
@@ -228,7 +146,7 @@ class ResponsiblePartyCreateViewTest(_InstitutionAdminToolMixinTest):
                          ResponsibleParty.objects.count())
 
 
-class ResponsiblePartyEditViewTest(_InstitutionAdminToolMixinTest):
+class ResponsiblePartyEditViewTest(InstitutionAdminToolMixinTest):
 
     view_class = views.ResponsiblePartyEditView
 
@@ -241,7 +159,7 @@ class ResponsiblePartyEditViewTest(_InstitutionAdminToolMixinTest):
         return self.responsible_party.id
 
 
-class ResponsiblePartyDeleteViewTest(_InstitutionAdminToolMixinTest):
+class ResponsiblePartyDeleteViewTest(InstitutionAdminToolMixinTest):
 
     view_class = views.ResponsiblePartyDeleteView
 
@@ -275,7 +193,7 @@ class ResponsiblePartyDeleteViewTest(_InstitutionAdminToolMixinTest):
         self.request.method = 'POST'
         self.request.POST = {}
         self.request.FILES = None
-        _ = _make_credits_for_responsible_party(self.responsible_party)
+        self._make_credits_for_responsible_party()
         responsible_party_count_before = ResponsibleParty.objects.count()
         _ = views.ResponsiblePartyDeleteView.as_view()(
             request=self.request,
@@ -311,7 +229,7 @@ class ResponsiblePartyDeleteViewTest(_InstitutionAdminToolMixinTest):
         self.request.method = 'POST'
         self.request.POST = {}
         self.request.FILES = None
-        _ = _make_credits_for_responsible_party(self.responsible_party)
+        self._make_credits_for_responsible_party()
         _ = views.ResponsiblePartyDeleteView.as_view()(
             request=self.request,
             institution_slug=self.institution.slug,
@@ -324,8 +242,15 @@ class ResponsiblePartyDeleteViewTest(_InstitutionAdminToolMixinTest):
         self.assertEqual(len(info_message_divs), 1)
         self.assertTrue('cannot be removed' in info_message_divs[0].text)
 
+    def _make_credits_for_responsible_party(self):
+        """List some credits for this responsible_party."""
+        credits = list()
+        for credit in xrange(4):
+            credits.append(CreditUserSubmissionFactory(
+                responsible_party=self.responsible_party))
 
-class AccountListViewTest(_InstitutionAdminToolMixinTest):
+
+class AccountListViewTest(InstitutionAdminToolMixinTest):
 
     view_class = views.AccountListView
 
@@ -354,7 +279,7 @@ class AccountListViewTest(_InstitutionAdminToolMixinTest):
         self.assertEqual(len(rows), len(accounts) + len(pending_accounts))
 
 
-class AccountCreateViewTest(_InstitutionAdminToolMixinTest):
+class AccountCreateViewTest(InstitutionAdminToolMixinTest):
 
     view_class = views.AccountCreateView
 
@@ -402,7 +327,7 @@ class AccountCreateViewTest(_InstitutionAdminToolMixinTest):
         raise NotImplemented()
 
 
-class AccountEditViewTest(_InstitutionAdminToolMixinTest):
+class AccountEditViewTest(InstitutionAdminToolMixinTest):
 
     view_class = views.AccountEditView
 
@@ -410,7 +335,7 @@ class AccountEditViewTest(_InstitutionAdminToolMixinTest):
         return self.account.id
 
 
-class AccountDeleteViewTest(_InstitutionAdminToolMixinTest):
+class AccountDeleteViewTest(InstitutionAdminToolMixinTest):
 
     view_class = views.AccountDeleteView
 
@@ -437,7 +362,7 @@ class AccountDeleteViewTest(_InstitutionAdminToolMixinTest):
         raise NotImplemented()
 
 
-class PendingAccountDeleteViewTest(_InstitutionAdminToolMixinTest):
+class PendingAccountDeleteViewTest(InstitutionAdminToolMixinTest):
 
     view_class = views.PendingAccountDeleteView
 
@@ -465,12 +390,12 @@ class PendingAccountDeleteViewTest(_InstitutionAdminToolMixinTest):
                          PendingAccount.objects.count())
 
 
-class ShareDataViewTest(_InstitutionAdminToolMixinTest):
+class ShareDataViewTest(InstitutionAdminToolMixinTest):
 
     view_class = views.ShareDataView
 
 
-class MigrateOptionsViewTest(_InstitutionAdminToolMixinTest):
+class MigrateOptionsViewTest(InstitutionAdminToolMixinTest):
 
     view_class = views.MigrateOptionsView
 
@@ -504,21 +429,19 @@ class MigrateOptionsViewTest(_InstitutionAdminToolMixinTest):
                          len(self.f_status_submissionsets))
 
 
-class _MigrateDataVersionViewTest(_InstitutionAdminToolMixinTest):
+class MigrateViewTest(InstitutionAdminToolMixinTest):
     """
         A base class for MigrateDataViewTest and MigrateVersionViewTest.
     """
-
-    # Name of the class to test:
     view_class = None
     # Each subclass protects itself with a rule that must be True before
-    # access is granted.  That's called 'gatekeeper_rule' here:
-    gatekeeper_rule = None
+    # access is granted.  That's called 'gatekeeper_aashe_rule' here:
+    gatekeeper_aashe_rule = None
     # Name of the function that actually starts the migration:
     migration_function_name = None
 
     def setUp(self):
-        super(_MigrateDataVersionViewTest, self).setUp()
+        super(MigrateViewTest, self).setUp()
         self.institution.is_participant = True
         self.submissionset = SubmissionSetFactory(
             institution=self.institution, status='r')
@@ -538,40 +461,14 @@ class _MigrateDataVersionViewTest(_InstitutionAdminToolMixinTest):
                                   lambda *args: returns)
 
     def close_gate(self):
-        """
-            Tweaks the gatekeeper rule to prevent access.
-        """
-        self._stub_out_rule(rule_name=self.gatekeeper_rule, returns=False)
+        super(MigrateViewTest, self).close_gate()
+        self._stub_out_rule(rule_name=self.gatekeeper_aashe_rule,
+                            returns=False)
 
     def open_gate(self):
-        """
-            Tweaks the gatekeeper rule to allow access.
-        """
-        self._stub_out_rule(rule_name=self.gatekeeper_rule, returns=True)
-
-    def test_get_by_non_priveleged_user(self):
-        """Does a GET by a user w/o the appropriate priveleges fail?
-        """
-        self.account.user_level = 'admin'
-        self.account.save()
-        self.close_gate()
-        response = self.view_class.as_view()(
-            self.request,
-            institution_slug=self.institution.slug,
-            pk=self._get_pk())
-        self.assertEqual(response.status_code, 403)
-
-    def test_get_by_priveleged_user(self):
-        """Does a GET by a user w/the appropriate priveleges succeed?
-        """
-        self.account.user_level = 'admin'
-        self.account.save()
-        self.open_gate()
-        response = self.view_class.as_view()(
-            self.request,
-            institution_slug=self.institution.slug,
-            pk=self._get_pk())
-        self.assertEqual(response.status_code, 200)
+        super(MigrateViewTest, self).open_gate()
+        self._stub_out_rule(rule_name=self.gatekeeper_aashe_rule,
+                            returns=True)
 
     def test_form_valid_starts_migration(self):
         """When all is ok, is a migration task started?
@@ -597,17 +494,17 @@ class _MigrateDataVersionViewTest(_InstitutionAdminToolMixinTest):
                               pk=self._get_pk())
 
 
-class MigrateDataViewTest(_MigrateDataVersionViewTest):
+class MigrateDataViewTest(MigrateViewTest):
 
     view_class = views.MigrateDataView
-    gatekeeper_rule = 'user_can_migrate_from_submission'
+    gatekeeper_aashe_rule = 'user_can_migrate_from_submission'
     migration_function_name = 'perform_data_migration.delay'
 
 
-class MigrateVersionViewTest(_MigrateDataVersionViewTest):
+class MigrateVersionViewTest(MigrateViewTest):
 
     view_class = views.MigrateVersionView
-    gatekeeper_rule = 'user_can_migrate_version'
+    gatekeeper_aashe_rule = 'user_can_migrate_version'
     migration_function_name = 'perform_migration.delay'
 
     def test_dispatch_prevents_migration_when_already_at_latest_version(self):
@@ -636,7 +533,7 @@ class MigrateVersionViewTest(_MigrateDataVersionViewTest):
         self.assertEqual(response.status_code, 200)
 
 
-class _InstitutionViewOnlyToolMixinTest(_InstitutionToolMixinTest):
+class InstitutionViewOnlyToolMixinTest(InstitutionToolMixinTest):
     """
        Base class for InstitutionToolMixin views that are accessible
        by users with at least 'view' access for the institution.
@@ -645,12 +542,12 @@ class _InstitutionViewOnlyToolMixinTest(_InstitutionToolMixinTest):
     blocked_user_level = ''
 
 
-class SubscriptionPaymentOptionsViewTest(_InstitutionViewOnlyToolMixinTest):
+class SubscriptionPaymentOptionsViewTest(InstitutionViewOnlyToolMixinTest):
 
     view_class = views.SubscriptionPaymentOptionsView
 
 
-class SubscriptionCreateViewTest(_InstitutionViewOnlyToolMixinTest):
+class SubscriptionCreateViewTest(InstitutionViewOnlyToolMixinTest):
 
     fixtures = ['email_templates.json']
 
@@ -710,7 +607,7 @@ class SubscriptionCreateViewTest(_InstitutionViewOnlyToolMixinTest):
                          initial_subscription_count)
 
 
-class SubscriptionPaymentCreateViewTest(_InstitutionViewOnlyToolMixinTest):
+class SubscriptionPaymentCreateViewTest(InstitutionViewOnlyToolMixinTest):
 
     view_class = views.SubscriptionPaymentCreateView
 
