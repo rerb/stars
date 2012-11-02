@@ -1,7 +1,6 @@
 from logging import getLogger
 
 from django.contrib import messages
-from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404
@@ -18,7 +17,6 @@ from stars.apps.institutions.models import (StarsAccount, Subscription,
                                             SubscriptionPurchaseError,
                                             PendingAccount)
 from stars.apps.institutions.models import Institution
-from stars.apps.institutions.rules import user_has_access_level
 from stars.apps.payments import credit_card
 from stars.apps.registration.forms import (PayNowForm,
                                            PaymentOptionsForm, PayLaterForm)
@@ -39,16 +37,6 @@ from stars.apps.tool.mixins import (InstitutionAdminToolMixin,
                                     InstitutionToolMixin)
 
 logger = getLogger('stars.request')
-
-def _get_current_institution(request):
-    if hasattr(request.user, 'current_inst'):
-        if not user_has_access_level(request.user, 'admin',
-                                     request.user.current_inst):
-            raise PermissionDenied('Sorry, only institution administrators '
-                                   'have access.')
-        return request.user.current_inst
-    else:
-        raise Http404
 
 def _update_preferences(request, institution):
     """
