@@ -83,7 +83,6 @@ class _InstitutionToolMixinTest(TestCase):
         self.institution = InstitutionFactory(slug='on-the-beach-soldier')
 
         self.account = StarsAccountFactory(institution=self.institution)
-        self.account_to_edit = StarsAccountFactory(institution=self.institution)
 
         self.request = _get_request_ready_for_messages()
         self.request.user = self.account.user
@@ -97,7 +96,7 @@ class _InstitutionToolMixinTest(TestCase):
             view under test expects the id of a ResponsibleParty
             as the value of the pk kwarg.
         """
-        return self.account.id
+        pass
 
     def test_get_succeeds(self, user_level=''):
         """Is view.as_view() GET-able?
@@ -407,10 +406,16 @@ class AccountEditViewTest(_InstitutionAdminToolMixinTest):
 
     view_class = views.AccountEditView
 
+    def _get_pk(self):
+        return self.account.id
+
 
 class AccountDeleteViewTest(_InstitutionAdminToolMixinTest):
 
     view_class = views.AccountDeleteView
+
+    def _get_pk(self):
+        return self.account.id
 
     def test_delete_stars_account(self):
         """Does deleting a stars account work?"""
