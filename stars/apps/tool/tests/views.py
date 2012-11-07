@@ -1,6 +1,7 @@
 """Tests for apps.tool.views.
 """
 from django.contrib.messages.middleware import MessageMiddleware
+from django.core.exceptions import PermissionDenied
 
 from stars.apps.tests.views import ProtectedViewTest
 from stars.apps.tool.views import SummaryToolView
@@ -86,3 +87,9 @@ class SummaryToolViewTest(InstitutionViewOnlyToolMixinTest):
     """
 
     view_class = SummaryToolView
+
+    def test_get_with_no_slug_raises_permission_denied(self):
+        """Does a GET w/no institution slug raise a 403?"""
+        with self.assertRaises(PermissionDenied):
+            _ = self.view_class.as_view()(self.request,
+                                          institution_slug='')
