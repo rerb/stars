@@ -8,11 +8,17 @@ from settings import *
 HIDE_REPORTING_TOOL = False
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
-DEBUG_TOOLBAR = False
+DEBUG_TOOLBAR = True
 MAINTENANCE_MODE = False
 CELERY_ALWAYS_EAGER = True
 
 ADMINS = (('Bob Erb', 'bob@aashe.org'),)
+
+TEST_AUTHORIZENET_LOGIN = "6gJ5hF4UAXU"
+TEST_AUTHORIZENET_KEY = "23268nNJfy2ZEq58"
+
+AUTHORIZENET_LOGIN = TEST_AUTHORIZENET_LOGIN
+AUTHORIZENET_KEY = TEST_AUTHORIZENET_KEY
 
 # Send emails to to django.core.mail.outbox rather than the console:
 EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
@@ -117,3 +123,6 @@ AUTHORIZENET_SERVER = TEST_AUTHORIZENET_SERVER
 
 # Thumbnails
 THUMBNAIL_DEBUG = True
+
+TEST_RUNNER = 'hotrunner.HotRunner'
+LOCAL_APP_NAMESPACE = 'stars.apps.'
