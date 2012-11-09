@@ -1,29 +1,26 @@
-from django.views.generic.base import TemplateView, TemplateResponseMixin
+from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView
 from django.conf import settings
 from django.core.cache import cache
-from django.forms.formsets import formset_factory
 from django.http import HttpResponseRedirect
 from django.db.models import Q
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from django.db.models import Count
 
 from stars.apps.submissions.models import SubmissionSet, CreditUserSubmission, DocumentationFieldSubmission, CategorySubmission, SubcategorySubmission
 from stars.apps.institutions.models import Institution, Subscription
-from stars.apps.credits.models import Rating, Credit, Category, Subcategory, DocumentationField
+from stars.apps.credits.models import Rating, Credit, Category, Subcategory
 from stars.apps.institutions.data_displays.utils import FormListWrapper, get_variance
 from stars.apps.institutions.data_displays.forms import *
 from stars.apps.institutions.data_displays.models import AuthorizedUser
 from stars.apps.institutions.data_displays.filters import *
 
-from aashe.issdjango.models import Organizations, TechnicalAdvisor
-
-from sorl.thumbnail import get_thumbnail
+from aashe.issdjango.models import TechnicalAdvisor
 
 from datetime import date, datetime
-import re, sys
+import re
+
 
 class Dashboard(TemplateView):
     """
