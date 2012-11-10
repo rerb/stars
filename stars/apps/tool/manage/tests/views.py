@@ -205,7 +205,7 @@ class AccountListViewTest(InstitutionAdminToolMixinTest):
         self.account.user_level = 'admin'
         self.account.save()
 
-        accounts = list()
+        accounts = [self.account]
         for i in xrange(4):
             accounts.append(StarsAccountFactory(institution=self.institution))
 
@@ -214,11 +214,10 @@ class AccountListViewTest(InstitutionAdminToolMixinTest):
             pending_accounts.append(
                 PendingAccountFactory(institution=self.institution))
 
-        _ = views.AccountListView.as_view()(
+        view = views.AccountListView.as_view()(
             self.request,
             institution_slug=self.institution.slug)
-        response = render(self.request, 'base.html')
-        soup = BeautifulSoup(response.content)
+        soup = BeautifulSoup(view.rendered_content)
         table = soup.find('table')
         tbody = table.findChild('tbody')
         rows = tbody.findChildren('tr')
