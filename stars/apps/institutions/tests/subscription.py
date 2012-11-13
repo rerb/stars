@@ -10,7 +10,7 @@ import testfixtures
 from stars.apps.institutions.models import (Subscription, SubscriptionPayment,
                                             SUBSCRIPTION_DURATION)
 from stars.apps.payments.credit_card import CreditCardProcessingError
-from stars.apps.registration.forms import PayNowForm
+from stars.apps.tool.manage.forms import PayNowForm
 from stars.apps.registration.models import DiscountManager, ValueDiscount
 from stars.test_factories import (InstitutionFactory, SubscriptionFactory,
                                   UserFactory, ValueDiscountFactory)
