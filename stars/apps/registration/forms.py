@@ -1,9 +1,12 @@
 from django import forms
+from django.forms import widgets
 from django.forms import ModelForm
+from django.contrib.localflavor.us.forms import USStateField
 from django.forms.util import ErrorList
 
-from stars.apps.institutions.models import (Institution, RespondentSurvey,
-                                            RegistrationSurvey, Subscription)
+import re
+
+from stars.apps.institutions.models import *
 from stars.apps.registration.utils import is_canadian_zipcode, is_usa_zipcode
 from stars.apps.registration.models import ValueDiscount
 
@@ -128,66 +131,27 @@ PARTICIPATION_CHOICES = (
                         )
 
 class ParticipationLevelForm(forms.Form):
-    level = forms.fields.ChoiceField(widget=forms.widgets.RadioSelect,
-                                     choices=PARTICIPATION_CHOICES)
+    level = forms.fields.ChoiceField(widget=forms.widgets.RadioSelect, choices=PARTICIPATION_CHOICES)
 
-class PaymentOptionsForm(forms.Form):
-    """
-        Youse can pay me now, or youse can pay me later.
-    """
-    pay_when = forms.ChoiceField(
-        choices=[
-            (Subscription.PAY_NOW, 'Pay now, by credit card'),
-            (Subscription.PAY_LATER, 'Pay later (i.e., be billed)')],
-        widget=forms.RadioSelect(),
-        label='')
+class PayLaterForm(forms.Form):
 
-class PromoForm(forms.ModelForm):
-    """
-        A form with a promo code field.
-    """
-    class Meta:
-        model = Subscription
-        fields = ['promo_code']
+    confirm = forms.BooleanField(label="Please bill me and I will pay later.", required=False, widget=forms.CheckboxInput(attrs={'onchange': 'togglePayment(this);',}))
 
-    promo_code = forms.CharField(max_length=16, required=False)
-
-    def clean_promo_code(self):
-        data = self.cleaned_data['promo_code']
-        if data == "":
-            return None
-
-        try:
-            ValueDiscount.objects.get_current().get(code=data)
-        except ValueDiscount.DoesNotExist:
-            raise forms.ValidationError(
-                "Sorry, but that's not a valid promo code.")
-
-        return data
-
-class PayLaterForm(PromoForm):
-    pass
-
-
-class PayNowForm(PromoForm):
+class PaymentForm(forms.Form):
     """
         Credit Card Payment form
     """
     name_on_card = forms.CharField(max_length=64)
-    card_number = forms.CharField(
-        max_length=17, widget=forms.TextInput(attrs={'autocomplete': 'off',}))
+    card_number = forms.CharField(max_length=17, widget=forms.TextInput(attrs={'autocomplete': 'off',}))
     exp_month = forms.CharField(max_length=2, initial='mm')
     exp_year = forms.CharField(max_length=4, initial='yyyy')
-    cv_code = forms.CharField(
-        max_length=3, label='CV Code',
-        help_text='This is the 3-digit code on the back of your card',
-        widget=forms.TextInput(attrs={'autocomplete': 'off',}))
+    cv_code = forms.CharField(max_length=3, label='CV Code', help_text='This is the 3-digit code on the back of your card', widget=forms.TextInput(attrs={'autocomplete': 'off',}))
     billing_address = forms.CharField(max_length=128)
     billing_address_line_2 = forms.CharField(max_length=128, required=False)
     billing_city = forms.CharField(max_length=32)
     billing_state = forms.CharField(max_length=2)
     billing_zipcode = forms.CharField(max_length=7, label='Billing ZIP code')
-    promo_code = forms.CharField(max_length=16, required=False)
+    discount_code = forms.CharField(max_length=16, required=False)
 
     def clean_exp_month(self):
         data = self.cleaned_data['exp_month']
@@ -198,6 +162,18 @@ class PayNowForm(PromoForm):
         month = int(data)
         if month > 12 or month < 0:
             raise forms.ValidationError(error_text)
+
+        return data
+
+    def clean_discount_code(self):
+        data = self.cleaned_data['discount_code']
+        if data == "":
+            return None
+
+        try:
+            discount = ValueDiscount.objects.get_current().get(code=data)
+        except ValueDiscount.DoesNotExist:
+            raise forms.ValidationError("Invalid Discount Code")
 
         return data
 
