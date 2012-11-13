@@ -1,0 +1,37 @@
+{% extends "tool/base.html" %}
+
+{% block crumbs %} 
+    {{ block.super }} >
+    <a href='/tool/submissions/'>{{ active_submission }}</a> >
+    Submit
+{% endblock %}
+
+{% block tool_content %}
+    <h1>Submit for a STARS Rating: Step 1 of 3</h1>
+    {% load help %}
+    {% show_help_context 'submit_for_rating_confirm' 0 %}
+    {% include 'tool/submissions/submission_summary_table.html' %}
+    <div class='greyBox'>
+        {% if credit_list %}
+        {% get_help_context 'submit_for_rating_credits' %}
+        <div style='width: 600px;height: 200px;overflow: auto;border: 1px solid #aaa;padding: 1px;'>
+            <table style='border-collapse: collapse;width: 98%;'>
+                {% for credit in credit_list %}
+                <tr{% ifchanged credit.subcategory_submission %} style='border-top: 1px solid #aaa;'{% endifchanged %}>
+                    <td>
+                        <a href='{{ credit.credit.get_submit_url }}'>{{ credit }}</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        {% endif %}
+        <p>
+            If you are satisfied with the information above, please continue.
+        </p>
+        <div class='button_row'>
+            <button type='button' onclick='document.location="/tool/submissions/";'>&lt;&lt; Back</button>
+            <button type='button' onclick='document.location="/tool/submissions/submit/letter/";'>Next &gt;&gt;</button>
+        </div>
+     </div>
+{% endblock %}

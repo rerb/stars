@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% load bootstrap %}
+
+{% block title %}Log In | {{ block.super }}{% endblock %}
+
+{% block content %}
+    {% if site_status.maintenance_mode %} {% comment %} because login is available for staff while site is in maintenance mode {% endcomment %}
+        {% include 'helpers/temporary_unavailable.html' %}
+    {% endif %}
+        {% if site_status.maintenance_mode %} 
+            <h1> Login is presently restricted to AASHE Staff only.</h1>
+        {% else %}{% if user.is_authenticated %}
+            <h1>You are already logged in</h1>
+            <div class='help_text'><p>Please use the menu to navigate the site.</p></div>
+        {% else %}
+            <h1>Login with your AASHE Account</h1>
+        <div class='row'><div class='span8 offset2'>
+            <form action='.' method='post' class='form-horizontal'>
+                <input type='hidden' name='next' value='{{ next }}' />
+                {{ form|bootstrap }}
+                <div class='form-actions'>
+               		<button class='btn btn-primary' type='submit'>Log in</button>
+                </div>
+            </form>
+   		</div></div>
+    <div class='well'>
+            <div class='help_text'>
+                {% load help %}
+                {% show_help_context 'login_help' 0 %}
+            </div>
+
+        {% endif %}{% endif %}
+    </div>
+    
+{% endblock %}

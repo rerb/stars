@@ -1,0 +1,46 @@
+<ul class="nav nav-tabs nav-stacked">
+	{% if user.can_admin %}
+    	<li{% if active_menu == "summary"%} class='active'{% endif %}>
+            {% comment %}
+                Better to use institution.slug in the call to url() below,
+                rather than user.current_inst.slug, but institution isn't
+                available in all contexts from which this template is
+                invoked.  In particular, the 'My Submissions' view doesn't
+                have it (yet).  When it's available from every tool view,
+                we should change it to institution.slug.
+            {% endcomment %}
+    		<a href='{% url tool-summary user.current_inst.slug %}'>
+    		<i class="icon-home"></i>
+    		My Summary</a>
+    	</li>
+    {% endif %}
+	{% if user.can_submit %}
+           <li{% if active_menu == "submission"%} class='active'{% endif %}>
+           	<a href='/tool/submissions/'>
+           	<i class="icon-folder-close"></i>
+           	My Submission</a>
+           </li>
+           {% block submission_outline %}{% endblock %}
+       {% endif %}
+       <li{% if active_menu == "resources"%} class='active'{% endif %}>
+       	<a href='/tool/my-resources/'>
+       		<i class='icon-briefcase'></i>
+       		My Resources</a></li>
+          {% if user.current_inst.is_participant %}
+            <li{% if active_menu == "reports"%} class='active'{% endif %}>
+            	<a href='/institutions/{{ user.current_inst.slug }}/report/'>
+            		<i class='icon-book'></i>
+            	My Report(s)</a></li>
+          {% endif %}
+	{% if user.is_staff %}
+           <li{% if active_menu == "admin"%} class='active'{% endif %}>
+           	<a href='/tool/admin/'>
+           	<i class='icon-cog'></i>
+           	Administer Site</a></li>
+           <li{% if active_menu == "editor"%} class='active'{% endif %}>
+           	<a href='/tool/credit-editor/'>
+           	<i class='icon-pencil'></i>
+           	Credit Editor</a></li>
+           {% block credit_editor_outline %}{% endblock %}
+       {% endif %}
+</ul>
