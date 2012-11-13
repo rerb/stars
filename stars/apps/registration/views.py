@@ -6,6 +6,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.forms import widgets
 from django.http import HttpResponseRedirect
+from django.template.defaultfilters import slugify
 from zc.authorizedotnet.processing import CcProcessor
 
 from aashe.issdjango.models import Organizations
@@ -19,7 +20,7 @@ from stars.apps.institutions.models import (Institution, StarsAccount,
 from stars.apps.notifications.models import EmailTemplate
 from stars.apps.registration.forms import (DataCollectorRegistrationForm,
                                            ParticipationLevelForm,
-                                           PayLaterForm, PayNowForm,
+                                           PaymentForm, PayLaterForm,
                                            RegistrationForm,
                                            RegistrationSurveyForm,
                                            RegistrationSchoolChoiceForm,
