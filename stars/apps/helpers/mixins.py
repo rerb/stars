@@ -1,6 +1,8 @@
 from django.contrib import messages
 
 
+# @todo - Should this be based on FormView rather than object?
+
 class ValidationMessageFormMixin(object):
     """
         A custom mixin to add a message upon form validation.
