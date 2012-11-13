@@ -18,8 +18,8 @@ from stars.apps.institutions.models import (StarsAccount, Subscription,
                                             PendingAccount)
 from stars.apps.institutions.models import Institution
 from stars.apps.payments import credit_card
-from stars.apps.registration.forms import (PayNowForm,
-                                           PaymentOptionsForm, PayLaterForm)
+from stars.apps.tool.manage.forms import (PayNowForm,
+                                          PaymentOptionsForm, PayLaterForm)
 from stars.apps.submissions.models import SubmissionSet
 from stars.apps.submissions.tasks import (perform_migration,
                                           perform_data_migration)
