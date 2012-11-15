@@ -1,73 +1,27 @@
 """
-    Unittests for the subscription renewal process
+    Functional tests for the subscription renewal process.
 """
 from datetime import date
 
-from django import test
 from django.core import mail
-from selenium.webdriver.firefox import webdriver
 
 from stars.apps.institutions.models import Subscription
-from stars.test_factories import (InstitutionFactory, StarsAccountFactory,
-                                  SubmissionSetFactory, UserFactory)
+from stars.apps.tests.live_server import StarsLiveServerTest
 
 
-class RenewalTest(test.LiveServerTestCase):
+class RenewalTest(StarsLiveServerTest):
 
     fixtures = ['notification_emailtemplate_tests.json']
 
-    @classmethod
-    def setUpClass(cls):
-        cls.selenium = webdriver.WebDriver()
-        super(RenewalTest, cls).setUpClass()
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.selenium.quit()
-        super(RenewalTest, cls).tearDownClass()
-
     def setUp(self):
-        self.userpassword = 'password'
-        self.user = UserFactory(username='username',
-                                password=self.userpassword)
-        self.institution = InstitutionFactory()
-        self.stars_account = StarsAccountFactory(user=self.user,
-                                                 institution=self.institution,
-                                                 user_level='admin')
-        self.submission_set = SubmissionSetFactory(
-            institution=self.institution)
-        self.login()
+        super(RenewalTest, self).setUp()
         self.go_to_reporting_tool()
 
     def tearDown(self):
+        super(RenewalTest, self).tearDown()
         mail_messages_that_are_not_errors = [ msg for msg in mail.outbox if
                                               'ERROR:' not in msg.subject ]
         self.assertEqual(len(mail_messages_that_are_not_errors), 1)
-
-    def login(self):
-        self.selenium.get(self.live_server_url)
-
-        # Login:
-        log_in_link = self.selenium.find_element_by_link_text('Log In')
-        log_in_link.click()
-
-        username_input = self.selenium.find_element_by_id('id_username')
-        username_input.send_keys(self.user.username)
-
-        password_input = self.selenium.find_element_by_id('id_password')
-        password_input.send_keys(self.userpassword)
-
-        login_button = self.selenium.find_element_by_css_selector(
-            'button.btn.btn-primary')
-        login_button.click()
-
-        # Terms of Service page:
-        tos_checkbox = self.selenium.find_element_by_id('id_terms_of_service')
-        tos_checkbox.click()
-
-        tos_submit_button = self.selenium.find_element_by_css_selector(
-            'button[type="submit"]')
-        tos_submit_button.click()
 
     def go_to_reporting_tool(self):
         reporting_tool_tab = self.selenium.find_element_by_link_text(
