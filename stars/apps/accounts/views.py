@@ -2,10 +2,10 @@ from logging import getLogger
 
 from django.conf import settings
 from django.http import HttpResponseRedirect
-from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import login
 from django.contrib.auth import REDIRECT_FIELD_NAME
+from django.http import Http404
 from django.views.decorators.cache import never_cache
 from django.contrib.sites.models import Site, RequestSite
 from django.shortcuts import render_to_response
@@ -66,11 +66,10 @@ def select_school(request, institution_id):
         except Institution.DoesNotExist:
             logger.info("Attempt to select non-existent institution id = %s" %
                         institution_id, extra={'request': request})
+            raise Http404("No such institution.")
         if change_institution(request, institution):
             return HttpResponseRedirect(reverse('tool-summary',
                                                 args=(institution.slug,)))
-        else:
-            raise PermissionDenied("Your request could not be completed.")
     else:
         return HttpResponseRedirect(settings.LOGIN_URL)
 
