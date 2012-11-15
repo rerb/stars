@@ -4,6 +4,7 @@ import sys
 
 from django.conf import settings
 from django.contrib import messages
+from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.http import HttpResponseRedirect, Http404
 from django.template import Context, loader, RequestContext
@@ -44,7 +45,8 @@ def select_institution(request, id):
 
     if auth_utils.change_institution(request, institution):
         redirect_url = request.GET.get('redirect',
-                                       settings.MANAGE_INSTITUTION_URL)
+                                       reverse('tool-summary',
+                                               args=(institution.slug,)))
         response = HttpResponseRedirect(redirect_url)
         # special hack to "remember" current institution for staff
         # between sessions
