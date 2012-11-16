@@ -58,7 +58,7 @@
         {% for institution in object_list %}
           <tr class="{% cycle 'even' 'odd' %}">
             <td style='text-align: left'>
-                <a href='{% url institution-scorecard-list institution.slug %}'
+                <a href='{% url scorecard-list institution.slug %}'
                    id='scorecard-list'>
                     {{ institution }}
                 </a>

@@ -18,7 +18,7 @@ urlpatterns = patterns(
 
     # All scorecards for an Institution
     url(r'^(?P<institution_slug>[^/]+)/report/$',
-        InstitutionScorecards.as_view(), name='institution-scorecard-list'),
+        InstitutionScorecards.as_view(), name='scorecard-list'),
 
     # Specific scorecard summary for an institution
     url(r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/$',
