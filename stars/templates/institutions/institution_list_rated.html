@@ -58,19 +58,22 @@
         {% for institution in object_list %}
           <tr class="{% cycle 'even' 'odd' %}">
             <td style='text-align: left'>
-                <a href='{% url institution-scorecard-list institution.slug %}'>
+                <a href='{% url institution-scorecard-list institution.slug %}'
+                   id='scorecard-list'>
                     {{ institution }}
                 </a>
                 {% include "institutions/inst_property_icons.html" %}
             </td>
             <td>
-                {{ institution.rated_submission.creditset.version }}
+              {{ institution.rated_submission.creditset.version }}
             </td>
             <td>
               {{ institution.current_rating }}
             </td>
             <td>
-              {{ institution.rated_submission.date_submitted }}
+                <a href='{% url scorecard-summary institution.slug institution.rated_submission.date_submitted %}'>
+                    {{ institution.rated_submission.date_submitted }}
+                </a>
             </td>
           </tr>
         {% endfor %}
@@ -81,7 +84,7 @@
     <script>
         jQuery( function($) {
             $('tbody tr').addClass('clickable').click( function() {
-                var href = $(this).find('a').attr('href')
+                var href = $(this).find('#scorecard-list').attr('href')
                 if(href) {
                     window.location = href;
                 }
