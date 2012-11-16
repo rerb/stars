@@ -42,7 +42,9 @@
           <tr class="{% cycle 'even' 'odd' %}">
             <td style='text-align: left'>
                 {% if institution.current_rating %}
-                    <a href='{{ institution.rated_submission.get_scorecard_url }}'>{{ institution }}</a>
+                    <a href='{% url institution-scorecard-list institution.slug %}'>
+                        {{ institution }}
+                    </a>
                 {% else %}
                     {{ institution }}
                 {% endif %}
@@ -63,4 +65,16 @@
         </tbody>
       </table>
 	{% endcache %}
+
+    <script>
+        jQuery( function($) {
+            $('tbody tr').addClass('clickable').click( function() {
+                var href = $(this).find('a').attr('href')
+                if(href) {
+                    window.location = href;
+                }
+            });
+        });
+    </script>
+
 {% endblock %}
