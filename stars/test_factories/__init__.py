@@ -13,6 +13,8 @@ from institutions_factories import (InstitutionFactory, PendingAccountFactory,
                                     StarsAccountFactory, SubscriptionFactory,
                                     SubscriptionPaymentFactory)
 
+from notifications_factories import EmailTemplateFactory, CopyEmailFactory
+
 from registration_factories import ValueDiscountFactory
 
 from misc_factories import UserFactory
@@ -20,9 +22,11 @@ from misc_factories import UserFactory
 __all__ = [ApplicabilityReasonFactory,
            CategoryFactory,
            CategorySubmissionFactory,
+           CopyEmailFactory,
            CreditFactory,
            CreditSetFactory,
            CreditUserSubmissionFactory,
+           EmailTemplateFactory,
            IncrementalFeatureFactory,
            InstitutionFactory,
            PendingAccountFactory,
