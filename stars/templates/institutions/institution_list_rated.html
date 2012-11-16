@@ -13,7 +13,7 @@
 {% endblock %}
 
 {% block tab_content %}
-	
+
     <span class="help_text"> <p>
     The following <b>{{ inst_count }} institutions</b> have achieved a STARS Rating. Of these institutions
     <b>{{ member_count }} are AASHE members</b> (<sup class='symbol'>m</sup>),
@@ -43,7 +43,9 @@
         {% for institution in object_list %}
           <tr class="{% cycle 'even' 'odd' %}">
             <td style='text-align: left'>
-                <a href='{{ institution.rated_submission.get_scorecard_url }}'>{{ institution }}</a>
+                <a href='{% url institution-scorecard-list institution.slug %}'>
+                    {{ institution }}
+                </a>
                 {% include "institutions/inst_property_icons.html" %}
             </td>
             <td>
@@ -55,9 +57,20 @@
             <td>
               {{ institution.rated_submission.date_submitted }}
             </td>
-          </tr>            
+          </tr>
         {% endfor %}
         </tbody>
       </table>
 	{% endcache %}
+
+    <script>
+        jQuery( function($) {
+            $('tbody tr').addClass('clickable').click( function() {
+                var href = $(this).find('a').attr('href')
+                if(href) {
+                    window.location = href;
+                }
+            });
+        });
+    </script>
 {% endblock %}
