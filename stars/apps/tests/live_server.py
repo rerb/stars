@@ -14,7 +14,8 @@ class StarsLiveServerTest(test.LiveServerTestCase):
 
           - takes care of starting and stopping a webdriver;
           - creates a Institution and an admin User for that Institution;
-          - logs the user in.
+          - logs the user in;
+          - provides helper functions (like go_to_reporting_tool()).
     """
     @classmethod
     def setUpClass(cls):
@@ -60,3 +61,8 @@ class StarsLiveServerTest(test.LiveServerTestCase):
         tos_submit_button = self.selenium.find_element_by_css_selector(
             'button[type="submit"]')
         tos_submit_button.click()
+
+    def go_to_reporting_tool(self):
+        reporting_tool_tab = self.selenium.find_element_by_link_text(
+            'Reporting')
+        reporting_tool_tab.click()

@@ -23,11 +23,6 @@ class RenewalTest(StarsLiveServerTest):
                                               'ERROR:' not in msg.subject ]
         self.assertEqual(len(mail_messages_that_are_not_errors), 1)
 
-    def go_to_reporting_tool(self):
-        reporting_tool_tab = self.selenium.find_element_by_link_text(
-            'Reporting')
-        reporting_tool_tab.click()
-
     def test_purchase_subscription_later(self):
         """Is a new Subscription created when I pay later?
         (And is an email sent, too?)"""
