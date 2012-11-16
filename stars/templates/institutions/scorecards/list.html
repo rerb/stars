@@ -22,14 +22,16 @@
             {% for ss in submission_sets %}
                 <tr>
                     <td>
-                        <a href='{{ ss.get_scorecard_url }}'>{{ ss.creditset }}</a>
+                        {{ ss.creditset }}
                     </td>
                     <td>
-                        {% if ss.date_submitted %}
-                            {{ ss.date_submitted }}
-                        {% else %}
-                            Pending Submission
-                        {% endif %}
+                        <a href='{{ ss.get_scorecard_url }}'>
+                            {% if ss.date_submitted %}
+                                {{ ss.date_submitted }}
+                            {% else %}
+                                Pending Submission
+                            {% endif %}
+                        </a>
                     </td>
                     <td>
                         {% if ss.status == 'r' %}
@@ -44,4 +46,15 @@
         </table>
     </div>
     </div>
+
+    <script>
+        jQuery( function($) {
+            $('tbody tr').addClass('clickable').click( function() {
+                var href = $(this).find('a').attr('href')
+                if(href) {
+                    window.location = href;
+                }
+            });
+        });
+    </script>
 {% endblock %}
