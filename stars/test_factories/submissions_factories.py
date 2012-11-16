@@ -1,12 +1,15 @@
 import factory
 
-from credits_factories import ApplicabilityReasonFactory, CategoryFactory, \
-     CreditFactory, CreditSetFactory, RatingFactory, SubcategoryFactory
+from credits_factories import (ApplicabilityReasonFactory, CategoryFactory,
+                               CreditFactory, CreditSetFactory,
+                               RatingFactory, SubcategoryFactory)
 from institutions_factories import InstitutionFactory
 from misc_factories import UserFactory
-from stars.apps.submissions.models import CategorySubmission, \
-     CreditUserSubmission, ResponsibleParty, SubcategorySubmission, \
-     SubmissionSet
+from stars.apps.submissions.models import (CategorySubmission,
+                                           CreditUserSubmission,
+                                           ResponsibleParty,
+                                           SubcategorySubmission,
+                                           SubmissionSet)
 
 
 class ResponsiblePartyFactory(factory.Factory):
@@ -30,6 +33,17 @@ class SubmissionSetFactory(factory.Factory):
     submitting_user = factory.SubFactory(UserFactory)
     rating = factory.SubFactory(RatingFactory)
     date_registered = '1970-01-01'
+
+    @classmethod
+    def _prepare(cls, create, **kwargs):
+        """If this institution doesn't have any other,
+        make this the current submission."""
+        submission_set = super(SubmissionSetFactory, cls)._prepare(
+            create, **kwargs)
+        if not submission_set.institution.current_submission:
+            submission_set.institution.current_submission = submission_set
+            submission_set.institution.save()
+        return submission_set
 
 
 class CategorySubmissionFactory(factory.Factory):
