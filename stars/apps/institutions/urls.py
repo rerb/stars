@@ -8,6 +8,8 @@ urlpatterns = patterns(
 
     # Active Institutions
     (r'^$', ActiveInstitutions.as_view()),
+
+    # Rated institutions
     (r'^rated/$', RatedInstitutions.as_view()),
 
     # Submission Inquiry Form
