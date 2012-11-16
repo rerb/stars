@@ -7,94 +7,100 @@
      - Don't migrate 1.1 to 1.1
 
 """
-from datetime import datetime
+from datetime import datetime, timedelta
 
-from django.test import TestCase
 from django.core import mail
-from django.test.client import Client
-from django.conf import settings
 
-from stars.apps.migrations.utils import migrate_submission
-from stars.apps.submissions.utils import init_credit_submissions
-from stars.apps.submissions.models import *
+from stars.apps.submissions.models import SubmissionSet
+from stars.apps.tests.live_server import StarsLiveServerTest
+from stars.test_factories import (CreditSetFactory,
+                                  EmailTemplateFactory,
+                                  SubmissionSetFactory)
+
+def go_to_migration_options_page(test, webdriver):
+    test.go_to_reporting_tool()
+    migrate_tab = webdriver.find_element_by_link_text('Migrate')
+    migrate_tab.click()
 
 
-
-class VersionMigrationTest(TestCase):
-    fixtures = ['submission_migration_test.json',
-                'notification_emailtemplate_tests.json']
+class VersionMigrationTest(StarsLiveServerTest):
 
     def setUp(self):
+        super(VersionMigrationTest, self).setUp()
+        first_credit_set = CreditSetFactory()
+        second_credit_set = CreditSetFactory(
+             release_date = (first_credit_set.release_date +
+                             timedelta(days=1)))
+        _ = SubmissionSetFactory(institution=self.institution,
+                                 creditset=first_credit_set)
+        _ = EmailTemplateFactory(slug='migration_success')
+        go_to_migration_options_page(self, self.selenium)
 
-        settings.CELERY_ALWAYS_EAGER = True
-
-    def testVersionMigration(self):
+    def test_version_migration(self):
+        """Does migrating to new version make new SubmissionSet and send mail?
         """
-            migrate_submission()
-        """
+        num_submission_sets_before = SubmissionSet.objects.count()
 
-        # Authenticate the user
-        c = Client()
-        c.login(username='tester', password='test')
+        migrate_now_button = self.selenium.find_element_by_link_text(
+            'Migrate Now')
+        migrate_now_button.click()
 
-        # Just check the migration page returns a 200 response
-        response = c.get('/tool/manage/migrate/')
-        self.assertEqual(response.status_code, 200)
+        are_you_sure_checkbox = self.selenium.find_element_by_id(
+            'id_is_locked')
+        are_you_sure_checkbox.click()
 
-        # Now submit for a migration
-        post_dict = {
-            "1-is_locked": "on"
-        }
-        response = c.post('/tool/manage/migrate/version/', post_dict)
-        self.assertEqual(response.status_code, 302)
+        migrate_version_button = self.selenium.find_element_by_css_selector(
+            'button.btn.btn-success')
+        migrate_version_button.click()
 
-        # Check that the data was migrated correctly
-        ## SubmissionSet added
-        self.assertEqual(SubmissionSet.objects.count(), 2)
-
-        ## Documentation field data migrated
-        self.assertEqual(NumericSubmission.objects.count(), 2)
-        ns1 = NumericSubmission.objects.all()[0]
-        ns2 = NumericSubmission.objects.all()[1]
-        self.assertEqual(ns1.value, ns2.value)
+        # SubmissionSet added?
+        self.assertEqual(SubmissionSet.objects.count(),
+                         num_submission_sets_before + 1)
 
         # Check that an email was sent.
-
         mail_messages_that_are_not_errors = [ msg for msg in mail.outbox if
                                               'ERROR:' not in msg.subject ]
         self.assertEqual(len(mail_messages_that_are_not_errors), 1)
 
 
-class MigrationTest(TestCase):
-    fixtures = ['submission_migration_test.json',
-                'notification_emailtemplate_tests.json']
+class DataMigrationTest(StarsLiveServerTest):
 
     def setUp(self):
-        pass
+        super(DataMigrationTest, self).setUp()
+        credit_set = CreditSetFactory()
+        _ = SubmissionSetFactory(creditset=credit_set,
+                                 institution=self.institution,
+                                 date_registered=datetime.now(),
+                                 registering_user=self.user,
+                                 status='r',
+                                 is_locked=False,
+                                 is_visible=True)
+        _ = EmailTemplateFactory(slug='migration_success')
+        go_to_migration_options_page(self, self.selenium)
 
-    def testMigrate(self):
+    def test_data_migration(self):
+        """Does migrating data make a new SubmissionSet and show success msg?
         """
-            Test a migration of data betwen two submissions of the same
-            creditset version
-        """
+        num_submission_sets_before = SubmissionSet.objects.count()
 
-        cs = CreditSet.objects.get(pk=1)
-        old_ss = SubmissionSet.objects.get(pk=1)
-        new_ss = SubmissionSet(
-                            creditset=cs,
-                            institution=Institution.objects.get(pk=1),
-                            date_registered=datetime.now(),
-                            registering_user=User.objects.get(pk=1),
-                            status='ps',
-                            is_locked=False,
-                            is_visible=True)
-        new_ss.save()
-        init_credit_submissions(new_ss)
+        migrate_button = self.selenium.find_element_by_css_selector(
+            'a.btn.btn-mini')
+        migrate_button.click()
 
-        migrate_submission(old_ss, new_ss)
+        confirmation_checkbox = self.selenium.find_element_by_id(
+            'id_is_locked')
+        confirmation_checkbox.click()
+        migrate_my_data_button = self.selenium.find_element_by_id(
+            'migrate-my-data-button')
+        migrate_my_data_button.click()
 
-        self.assertEqual(NumericSubmission.objects.count(), 2)
-        ns1 = NumericSubmission.objects.all()[0]
-        ns2 = NumericSubmission.objects.all()[1]
+        migration_in_progress_message = 'migration is in progress'
+        for alert in self.selenium.find_elements_by_class_name('alert'):
+            if migration_in_progress_message in alert.text:
+                break
+        else:
+            self.assertTrue(False, 'No alert with {msg} found'.format(
+                msg=migration_in_progress_message))
 
-        self.assertEqual(ns1.value, ns2.value)
+        self.assertEqual(SubmissionSet.objects.count(),
+                         num_submission_sets_before + 1)
