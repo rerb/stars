@@ -24,8 +24,9 @@
     			{{ form|bootstrap }}
     			<div class='form-actions'>
     				<button type='submit'
-                            class='btn btn-success'>
-                        Migrate my Data
+                            class='btn btn-success'
+                            id='migrate-my-data-button'>
+                        Migrate My Data
                     </button>
     				<a href='{% url migrate-options institution.slug %}'
                        class='btn'>

@@ -8,6 +8,8 @@ urlpatterns = patterns(
 
     # Active Institutions
     (r'^$', ActiveInstitutions.as_view()),
+
+    # Rated institutions
     (r'^rated/$', RatedInstitutions.as_view()),
 
     # Submission Inquiry Form
@@ -15,10 +17,12 @@ urlpatterns = patterns(
         name='submission-inquiry'),
 
     # All scorecards for an Institution
-    (r'^(?P<institution_slug>[^/]+)/report/$', InstitutionScorecards.as_view()),
+    url(r'^(?P<institution_slug>[^/]+)/report/$',
+        InstitutionScorecards.as_view(), name='scorecard-list'),
 
     # Specific scorecard summary for an institution
-    (r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/$', ScorecardSummary.as_view()),
+    url(r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/$',
+        ScorecardSummary.as_view(), name='scorecard-summary'),
 
     # Specific scorecard summary for an institution
     (r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/inquiry/$', SubmissionInquiryView()),

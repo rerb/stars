@@ -22,10 +22,13 @@ class RequestFilter(logging.Filter):
     """Adds request info to a LogRecord.
     """
     def filter(self, record):
-        record.request_path = record.request.path
-        record.request_host = record.request.host
+        record.request_path = record.request.get_full_path()
+        record.request_host = record.request.get_host()
         record.request_user = record.request.user
-        record.request_referer = record.request.get('referer')
+        if hasattr(record.request, 'get'):
+            record.request_referer = record.request.get('referer')
+        else:
+            record.request_referer = '?'
         return True
 
 

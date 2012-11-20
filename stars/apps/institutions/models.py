@@ -19,7 +19,7 @@ from stars.apps.notifications.models import EmailTemplate
 logger = getLogger('stars')
 
 
-class InvalidPayWhenValue(Exception):
+class SubscriptionPurchaseError(Exception):
     pass
 
 
@@ -283,19 +283,10 @@ class Institution(models.Model):
                          exc_info=True)
             self.slug = iss_institution_id
 
-    def get_last_subscription_end(self):
-        """
-            Gets the end date for the last subscription in
-            all subscriptions for this institution
-        """
-        last_subscription_end = None
-        if self.subscription_set.count() > 0:
-            last_subscription_end = self.subscription_set.all().aggregate(Max('end_date'))['end_date__max']
-
-        return last_subscription_end
 
 RATINGS_PER_SUBSCRIPTION = 1
 SUBSCRIPTION_DURATION = 365
+
 
 class Subscription(models.Model):
     """
@@ -314,22 +305,23 @@ class Subscription(models.Model):
     MEMBER_BASE_PRICE = 900
     NONMEMBER_BASE_PRICE = 1400
 
-    PAY_NOW = 'now'
     PAY_LATER = 'later'
+    PAY_NOW = 'now'
 
     class Meta:
         ordering = ['-start_date']
 
     @classmethod
-    def create(cls, *args, **kwargs):
+    def create(cls, institution, *args, **kwargs):
         """
-            Creates a new Subscription.  If an institution is provided,
-            the Subscription's reason, start_date, and end_date are
-            calculated.
+            Creates a new Subscription. The Subscription's reason,
+            start_date, and end_date are calculated.
 
             Returns a tuple of the Subscription created, and a boolean
             indicating if a promo discount was applied when the amount
             due was ciphered.
+
+            Note that the Subscription created has *not* been save()'d.
 
             Doing this via a static factory method rather than in
             __init__, because tweaking __init__ on a Model causes
@@ -343,97 +335,40 @@ class Subscription(models.Model):
             promo_code = False
         promo_code_applied = False
 
-        subscription = cls(*args, **kwargs)
+        subscription = cls(institution=institution, *args, **kwargs)
 
-        try:
-            subscription.institution
-        except ObjectDoesNotExist:
-            pass
-        else:
-            # processing that depends on an institution being set
-            # for this subscription:
+        subscription.reason = subscription._calculate_reason()
 
-            subscription.reason = subscription._calculate_reason()
+        (subscription.start_date,
+         subscription.end_date) = subscription._calculate_date_range()
 
-            (subscription.start_date,
-             subscription.end_date) = subscription._calculate_date_range()
-
-            (subscription.amount_due,
-             promo_code_applied) = subscription.calculate_price(
-                 promo_code=promo_code)
+        (subscription.amount_due,
+         promo_code_applied) = subscription.calculate_price(
+             promo_code=promo_code)
 
         return subscription, promo_code_applied
 
-    def __str__(self):
-        return "%s (%s - %s)" % (self.institution.name, self.start_date,
-                                 self.end_date)
-    def _calculate_reason(self):
+    @classmethod
+    def get_date_range_for_new_subscription(cls, institution):
         """
-            Calculates the reason for a new subscription.
-            It's a renewal or (initial) registration, for a member or
-            a nonmember.
+           Provides the start and end dates for a new subscription
+           for an institution, without actually creating the subscription.
+           This allows one to, for example, show a user what the dates
+           will be before getting confirmation from them that they want
+           to buy the subscription.
         """
-        institution_type = ('member'
-                            if self.institution.is_member_institution()
-                            else 'nonmember')
-        subscription_type = ('renewal'
-                             if self.institution.subscription_set.count()
-                             else 'registration')
-        return '_'.join([institution_type, subscription_type])
+        (subscription, promo_code_applied) = cls.create(
+            institution=institution)
+        date_range = (subscription.start_date, subscription.end_date)
+        # deleting the subscription here for what the hell maybe
+        # garbage-collection reasons, maybe just because it feels
+        # better; it hasn't been saved to the db yet . . .
+        assert subscription.id is None
+        # . . . so just deleting the reference should . . . oh hell,
+        # I don't know, it just seems explicit and right
+        del subscription
 
-    def _calculate_start_date(self):
-        """
-            Calculates the start date for a new subscription, taking into
-            account any current subscription.
-        """
-        start_date = self.institution.get_last_subscription_end()
-        if start_date and start_date >= date.today():
-            start_date += timedelta(days=1)
-        else:
-            start_date = date.today()
-        return start_date
-
-    def _calculate_date_range(self):
-        """
-            Calculates the start and end dates for a new subscription.
-            Returns a tuple of start_date and end_date.
-        """
-        start_date = self._calculate_start_date()
-        end_date = start_date + timedelta(days=SUBSCRIPTION_DURATION)
-        return (start_date, end_date)
-
-    def _subscription_discounted(self):
-        """
-            Returns True if this subscription's instituion should get
-            a discount.
-
-            Institutions get half-off their submission if their
-            renewal within 90 days of their last subscription
-        """
-        last_subscription_end = self.institution.get_last_subscription_end()
-
-        if last_subscription_end:
-
-            # if last subscription end was less than 90 days ago
-            # or it hasn't expired
-            td = timedelta(days=90)
-            return date.today() <= last_subscription_end + td
-
-        return False
-
-    def _apply_promo_code(self, price, promo_code=None):
-        """
-            Returns price, after applying any promotional discount
-            tied to promo_code.
-        """
-        discount = 0
-        if promo_code:
-            discount_manager = DiscountManager()
-            if discount_manager.valid_code(promo_code):
-                discount = [ promo.amount for promo
-                             in discount_manager.get_current()
-                             if promo.code == promo_code ][0]
-        return (price - discount, discount > 0)
+        return date_range
 
     def calculate_price(self, promo_code=None):
         """
@@ -446,24 +381,23 @@ class Subscription(models.Model):
 
         promo_code_applied = False
         if promo_code:
-            price, promo_code_applied = self._apply_promo_code(price,
-                                                               promo_code)
+            pre_promo_price = price
+            price = self._apply_promo_code(price, promo_code)
+            promo_code_applied = price != pre_promo_price
 
         gets_discount = self._subscription_discounted()
 
         if gets_discount:
-            price /=  2
+            price = self._apply_standard_discount(price)
 
         return price, promo_code_applied
 
     def get_available_ratings(self):
         return self.ratings_allocated - self.ratings_used
 
-    def pay(self, pay_when, amount, user, form=None):
+    def pay(self, amount, user, form):
         """
             Make a payment on this subscription.
-
-                pay_when: Subscription.[PAY_NOW | PAY_LATER]
 
                 amount: dollar amount to apply
 
@@ -471,7 +405,10 @@ class Subscription(models.Model):
 
                 form: a form that holds credit card information, if paying now
 
-            Any CreditCardProcessingError raised will be propagated.
+            Returns the SubscriptionPayment created, and the payment_context.
+
+            Any CreditCardProcessingError raised when charging a credit
+            card will be propagated.
         """
         # Importing credit_card way down here to avoid some weird import
         # side-effects that I'm just too tired to track down right now.
@@ -481,18 +418,44 @@ class Subscription(models.Model):
         # cause that unpleasant side-effect.
         import stars.apps.payments.credit_card as credit_card
 
+        ccpp = credit_card.CreditCardPaymentProcessor()
+        (subscription_payment,
+         payment_context) = ccpp.process_subscription_payment(
+             subscription=self,
+             amount=amount,
+             user=user,
+             form=form)
+
+        return (subscription_payment, payment_context)
+
+    def purchase(self, pay_when, user, form=None):
+        """
+           Encapsulates the purchase process
+
+               1. If paying now, a credit card charge is made.
+               2. Post-purchase email is sent.
+               3. The institution related to this subscription is updated.
+
+           Raises a SubscriptionPurchaseError if there's a problem
+           charging a credit card.
+
+           The form argument should contain credit card information, if
+           paying now.
+        """
+        # See pitiful comment in pay() for why import from credit_card
+        # happens here, rather in the top level.
+        from stars.apps.payments.credit_card import CreditCardProcessingError
+
         if pay_when == self.PAY_NOW:
-            ccpp = credit_card.CreditCardPaymentProcessor()
-            (subscription_payment,
-             payment_context) = ccpp.process_subscription_payment(
-                 subscription=self,
-                 amount=amount,
-                 user=user,
-                 form=form)
-        elif pay_when == self.PAY_LATER:
+            try:
+                (subscription_payment, payment_context) = self.pay(
+                    amount=self.amount_due,
+                    user=user,
+                    form=form)
+            except CreditCardProcessingError as ccpe:
+                raise SubscriptionPurchaseError(ccpe.message)
+        else:  # pay_when == self.PAY_LATER:
             subscription_payment = payment_context = None
-        else:
-            raise InvalidPayWhenValue(pay_when)
 
         self._send_post_purchase_email(
             pay_when=pay_when,
@@ -500,23 +463,104 @@ class Subscription(models.Model):
             subscription_payment=subscription_payment,
             payment_context=payment_context)
 
-        self._update_institution_subscription_related_attrs()
+        self._update_institution_after_purchase()
 
-    def _update_institution_subscription_related_attrs(self):
+    def __str__(self):
+        return "%s (%s - %s)" % (self.institution.name, self.start_date,
+                                 self.end_date)
+
+    def _apply_promo_code(self, price, promo_code=None):
         """
-            Update the subscription-related attributes of this
-            subscription's institution.
+            Returns price, after applying any promotional discount
+            tied to promo_code.
         """
-        self.institution.current_subscription = (
-            self.institution.current_subscription or self)
-        self.institution.is_participant = True
-        self.institution.save()
+        promo_discount = 0
+        if promo_code:
+            discount_manager = DiscountManager()
+            if discount_manager.is_code_current(promo_code):
+                promo_discount = [ promo.amount for promo
+                             in discount_manager.get_current()
+                             if promo.code == promo_code ][0]
+        return price - promo_discount
+
+    def _apply_standard_discount(self, price):
+        """
+           Apply the standard discount to a subscription price.
+
+           This is a simple calculation, broken out into its own
+           method to encapsulate it.  So, for instance, test code
+           doesn't need to know the calculation to check pricing.
+        """
+        return price /  2
+
+    def _calculate_date_range(self):
+        """
+            Calculates the start and end dates for a new subscription.
+            Returns a tuple of start_date and end_date.
+        """
+        start_date = self._calculate_start_date()
+        end_date = start_date + timedelta(days=SUBSCRIPTION_DURATION)
+        return (start_date, end_date)
+
+    def _calculate_reason(self):
+        """
+            Calculates the reason for a new subscription.
+            It's a renewal or (initial) registration, for a member or
+            a nonmember.
+        """
+        institution_type = ('member'
+                            if self.institution.is_member_institution()
+                            else 'nonmember')
+        subscription_type = ('renewal'
+                             if self.institution.subscription_set.count()
+                             else 'reg')
+        return '_'.join([institution_type, subscription_type])
+
+    def _calculate_start_date(self):
+        """
+            Calculates the start date for a new subscription, taking into
+            account any current subscription.
+        """
+        start_date = self._get_latest_subscription_end()
+        if start_date and start_date >= date.today():
+            start_date += timedelta(days=1)
+        else:
+            start_date = date.today()
+        return start_date
+
+    def _get_latest_subscription(self):
+        """
+           Returns the latest subscription for this institution, ordered
+           by end_date.
+        """
+        subscriptions = Subscription.objects.filter(
+            institution=self.institution).order_by('-end_date')
+        if hasattr(self, 'id'):  # this might not be saved yet, so no id.
+            subscriptions = subscriptions.exclude(id=self.id)
+        try:
+            return subscriptions[0]
+        except IndexError:
+            return None
+
+    def _get_latest_subscription_end(self):
+        """
+           Returns the end date of the latest subscription for this
+           institution.
+        """
+        latest_subscription = self._get_latest_subscription()
+        if latest_subscription:
+            return latest_subscription.end_date
+        else:
+            return None
+
+    def _send_email(self, slug, mail_to, context):
+        et = EmailTemplate.objects.get(slug=slug)
+        et.send_email(mail_to, context)
 
     def _send_post_purchase_email(self, pay_when,
                                   additional_email_address=None,
                                   subscription_payment=None,
                                   payment_context=None):
-
         mail_to = [self.institution.contact_email,]
 
         if additional_email_address != self.institution.contact_email:
@@ -524,47 +568,69 @@ class Subscription(models.Model):
 
         if pay_when == self.PAY_LATER:
             self._send_post_purchase_pay_later_email(mail_to=mail_to)
-        elif pay_when == self.PAY_NOW:
+        else: # pay_when == self.PAY_NOW:
             self._send_post_purchase_pay_now_email(
                 mail_to=mail_to,
                 subscription_payment=subscription_payment,
                 payment_context=payment_context)
-        else:
-            raise InvalidPayWhenValue(pay_when)
 
-    def _send_post_purchase_pay_now_email(self, mail_to, subscription_payment,
-                                         payment_context):
-        if self.object.endswith('renew'):
-            slug = 'reg_renewed_paid'
-            self._send_post_purchase_excecutive_renewal_email()
-        else:
-            slug = 'welcome_liaison_paid'
-        email_context = {'payment_dict': payment_context,
-                         'institution': self.institution,
-                         "payment": subscription_payment}
-
-        self._send_email(slug=slug, mail_to=mail_to, context=email_context)
+    def _send_post_purchase_exececutive_renewal_email(self):
+        exec_mail_to = [self.institution.executive_contact_email,]
+        exec_slug = 'reg_renewal_exec'
+        exec_email_context = { 'institution': self.institution }
+        self._send_email(slug=exec_slug, mail_to=exec_mail_to,
+                         context=exec_email_context)
 
     def _send_post_purchase_pay_later_email(self, mail_to):
         if self.reason.endswith('renew'):
             slug = "reg_renewal_unpaid"
         else:
             slug = "welcome_liaison_unpaid"
-        email_context = {'institution': self.institution,
-                         'price': self.amount_due}
+        email_context = { 'institution': self.institution,
+                          'amount': self.amount_due }
         self._send_email(slug=slug, mail_to=mail_to, context=email_context)
 
-    def _send_email(self, slug, mail_to, context):
-        et = EmailTemplate.objects.get(slug=slug)
-        et.send_email(mail_to, context)
+    def _send_post_purchase_pay_now_email(self, mail_to, subscription_payment,
+                                         payment_context):
+        if self.reason.endswith('renewal'):
+            slug = 'reg_renewed_paid'
+            self._send_post_purchase_exececutive_renewal_email()
+        else:
+            slug = 'welcome_liaison_paid'
+        email_context = { 'payment_dict': payment_context,
+                          'institution': self.institution,
+                          'payment': subscription_payment }
+        self._send_email(slug=slug, mail_to=mail_to, context=email_context)
 
-    def _send_post_purchase_excecutive_renewal_email(self):
+    def _subscription_discounted(self):
+        """
+            Returns True if this subscription's instituion should get
+            a discount.
 
-        exec_mail_to = [self.institution.executive_contact_email,]
-        exec_slug = 'reg_renewal_exec'
-        exec_email_context = { 'institution': self.institution }
-        self._send_email(slug=exec_slug, mail_to=exec_mail_to,
-                         context=exec_email_context)
+            Institutions get half-off their submission if they
+            renew before their current subscription ends, or within
+            90 days after their previous subscription ended.
+        """
+        previous_subscription_end = self._get_latest_subscription_end()
+
+        if previous_subscription_end:
+
+            # if last subscription end was less than 90 days ago
+            # or it hasn't expired
+            td = timedelta(days=90)
+            return date.today() <= previous_subscription_end + td
+
+        return False
+
+    def _update_institution_after_purchase(self):
+        """
+            Updates the subscription-related attributes of this
+            subscription's institution.
+        """
+        self.institution.current_subscription = (
+            self.institution.current_subscription or self)
+        self.institution.is_participant = True
+        self.institution.save()
 
 
 METHOD_CHOICES = (('credit', 'credit'),
@@ -587,6 +653,7 @@ class SubscriptionPayment(models.Model):
     def __str__(self):
         return "%s: $%.2f (%s)" % (self.subscription.institution,
                                    self.amount, self.date)
+
 
 class RegistrationReason(models.Model):
     """

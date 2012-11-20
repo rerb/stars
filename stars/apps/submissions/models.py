@@ -1303,7 +1303,7 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
         return None
     get_field_class = staticmethod(get_field_class)
 
-    def save(self):
+    def save(self, *args, **kwargs):
         """ Override models.Model save() method to forstall save if CreditSubmission doesn't persist"""
         # Only save submission fields if the overall submission has been saved.
         if self.credit_submission.persists():

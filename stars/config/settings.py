@@ -105,6 +105,7 @@ TEMPLATE_DIRS = [os.path.join(os.path.dirname(__file__), "..", "templates")]
 TEMPLATE_CONTEXT_PROCESSORS = (
     "stars.apps.accounts.utils.account_context",
     'stars.apps.helpers.utils.settings_context',
+    'stars.apps.helpers.utils.exception_context',
     'django.core.context_processors.static',
     'django.core.context_processors.media',
     'django.contrib.messages.context_processors.messages',
@@ -421,11 +422,8 @@ LOGGING = {
     }
 }
 
-if sys.version[:3] >= '2.7':
-    import logging
+if sys.version >= '2.7':
     logging.captureWarnings(True)
-# disabled until python 2.7
-#logging.captureWarnings(True)
 
 MESSAGE_TAGS = { messages.DEBUG: 'alert fade in alert-debug',
                  messages.INFO : 'alert fade in alert-info',

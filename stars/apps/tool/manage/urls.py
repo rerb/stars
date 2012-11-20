@@ -74,7 +74,7 @@ urlpatterns = patterns(
     url(r'^subscription/create/$', SubscriptionCreateView.as_view(),
         name='subscription-create'),
 
-    url(r'^subscription/(?P<subscription_id>\d+)/payment/$',
+    url(r'^subscription/(?P<pk>\d+)/payment/$',
         SubscriptionPaymentCreateView.as_view(),
         name='subscription-payment-create'),
 )

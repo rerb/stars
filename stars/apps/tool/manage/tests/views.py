@@ -1,309 +1,49 @@
 """Tests for apps/tool/manage/views.py.
 """
+from logging import getLogger, CRITICAL
+
 from bs4 import BeautifulSoup
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.contrib import messages
-from django.contrib.messages.middleware import MessageMiddleware
-from django.contrib.sessions.middleware import SessionMiddleware
-from django.core.exceptions import PermissionDenied
-from django.http import HttpRequest
 from django.shortcuts import render
-from django.test import TestCase
-from django.test.client import Client, RequestFactory
 import testfixtures
 
 import aashe_rules
+from stars.apps.credits.models import CreditSet
+from stars.apps.institutions.models import (PendingAccount, StarsAccount,
+                                            Subscription, SubscriptionPayment)
+from stars.apps.institutions.tests.subscription import (get_pay_now_form_data,
+                                                        GOOD_CREDIT_CARD,
+                                                        BAD_CREDIT_CARD)
+from stars.apps.submissions.models import ResponsibleParty
+from stars.apps.tool.manage import views
+from stars.apps.tool.tests.views import (InstitutionAdminToolMixinTest,
+                                         InstitutionViewOnlyToolMixinTest)
 from stars.test_factories import (CreditUserSubmissionFactory,
      InstitutionFactory, PendingAccountFactory, ResponsiblePartyFactory,
      SubmissionSetFactory, StarsAccountFactory, UserFactory)
-from stars.apps.credits.models import CreditSet
-from stars.apps.institutions.models import (Institution, PendingAccount,
-                                            StarsAccount, Subscription)
-from stars.apps.registration.models import ValueDiscount
-from stars.apps.submissions.models import ResponsibleParty
-from stars.apps.tool.manage import views
 
-def _get_request_ready_for_messages():
-    """
-        Returns a request ready to handle messages.
-    """
-    def apply_message_middleware(request):
-        request = apply_session_middleware(request)
-        MessageMiddleware().process_request(request)
-        return request
-
-    def apply_session_middleware(request):
-        SessionMiddleware().process_request(request)
-        return request
-
-    request = HttpRequest()
-    request = apply_message_middleware(request)
-    return request
-
-def _make_credits_for_responsible_party(responsible_party):
-    """List some credits with a responsible_party."""
-    credits = list()
-    for credit in xrange(4):
-        credits.append(
-            CreditUserSubmissionFactory(responsible_party=responsible_party))
-    return credits
+# Don't bother me:
+logger = getLogger('stars')
+logger.setLevel(CRITICAL)
 
 
-class ViewsTest(TestCase):
+class ContactViewTest(InstitutionAdminToolMixinTest):
 
-    fixtures = ['responsible_party_test_data.json']
-
-    def setUp(self):
-        self.request = _get_request_ready_for_messages()
-
-        self.request.user = User.objects.get(pk=1)
-        self.request.institution = Institution.objects.get(pk=1)
-        self.request.user.current_inst = self.request.institution
-        self.request.user.has_perm = lambda x: True
-        self.request.method = 'POST'
-
-        self.subscription = Subscription(start_date='2000-01-01',
-                                         end_date='3000-01-01',
-                                         amount_due=500.00)
-        self.subscription.institution = self.request.institution
-        self.subscription.save()
-        value_discount = ValueDiscount(
-            code=MockPaymentForm().cleaned_data['discount_code'],
-            amount=100.00, start_date='1000-01-01', end_date='5000-01-01')
-        value_discount.save()
-
-    def test_purchase_subscription_discount_code_applied_message(self):
-        """Does purchase_subscription show a msg when a discount code is used?
-        """
-        with testfixtures.Replacer() as r:
-            r.replace(
-                'stars.apps.tool.manage.views._get_current_institution',
-                lambda x: self.request.institution)
-            r.replace('stars.apps.tool.manage.views.PaymentForm',
-                      MockPaymentForm)
-            r.replace(
-                'stars.apps.tool.manage.views.get_payment_dict',
-                lambda x,y: dict())
-            r.replace(
-                'stars.apps.tool.manage.views.process_payment',
-                lambda x,y,invoice_num: dict())
-            response = views.purchase_subscription(self.request)
-        soup = BeautifulSoup(response.content)
-        info_message_divs = soup.find_all(
-            'div',
-            {'class': settings.MESSAGE_TAGS[messages.INFO]})
-        self.assertEqual(len(info_message_divs), 1)
-        self.assertTrue('Discount Code Applied' in
-                        info_message_divs[0].text)
-
-    def test_purchase_subscription_processing_error_error_message(self):
-        """Does purchase_subscription show an error msg upon a processing error?
-        """
-        with testfixtures.Replacer() as r:
-            r.replace(
-                'stars.apps.tool.manage.views._get_current_institution',
-                lambda x: self.request.institution)
-            r.replace('stars.apps.tool.manage.views.PaymentForm',
-                      MockPaymentForm)
-            r.replace(
-                'stars.apps.tool.manage.views.get_payment_dict',
-                lambda x,y: dict())
-            r.replace(
-                'stars.apps.tool.manage.views.process_payment',
-                lambda x,y,invoice_num: { 'cleared': False,
-                                          'msg': None })
-            response = views.purchase_subscription(self.request)
-        soup = BeautifulSoup(response.content)
-        error_message_divs = soup.find_all(
-            'div',
-            {'class': settings.MESSAGE_TAGS[messages.ERROR]})
-        self.assertEqual(len(error_message_divs), 1)
-        self.assertTrue('rocessing Error' in error_message_divs[0].text)
-
-    def test_purchase_subscription_invalid_payform_error_message(self):
-        """Does purchase_subscription show an error if payment form is invalid?
-        """
-        with testfixtures.Replacer() as r:
-            r.replace(
-                'stars.apps.tool.manage.views._get_current_institution',
-                lambda x: self.request.institution)
-            response = views.purchase_subscription(self.request)
-        soup = BeautifulSoup(response.content)
-        error_message_divs = soup.find_all(
-            'div',
-            {'class': settings.MESSAGE_TAGS[messages.ERROR]})
-        self.assertEqual(len(error_message_divs), 1)
-        self.assertTrue('lease correct the errors' in
-                        error_message_divs[0].text)
-
-    def test_pay_subscription_discount_code_applied_message(self):
-        """Does pay_subscription show a msg when a discount code is used?
-        """
-        with testfixtures.Replacer() as r:
-            r.replace(
-                'stars.apps.tool.manage.views._get_current_institution',
-                lambda x: self.request.institution)
-            r.replace('stars.apps.tool.manage.views.PaymentForm',
-                      MockPaymentForm)
-            r.replace(
-                'stars.apps.tool.manage.views.get_payment_dict',
-                lambda x,y: dict())
-            r.replace(
-                'stars.apps.tool.manage.views.process_payment',
-                lambda x,y,invoice_num: dict())
-            response = views.pay_subscription(self.request,
-                                              self.subscription.id)
-        soup = BeautifulSoup(response.content)
-        info_message_divs = soup.find_all(
-            'div',
-            {'class': settings.MESSAGE_TAGS[messages.INFO]})
-        self.assertEqual(len(info_message_divs), 1)
-        self.assertTrue('Discount Code Applied' in
-                        info_message_divs[0].text)
-
-    def test_pay_subscription_processing_error_error_message(self):
-        """Does pay_subscription show an error msg upon a processing error?
-        """
-        with testfixtures.Replacer() as r:
-            r.replace(
-                'stars.apps.tool.manage.views._get_current_institution',
-                lambda x: self.request.institution)
-            r.replace('stars.apps.tool.manage.views.PaymentForm',
-                      MockPaymentForm)
-            r.replace(
-                'stars.apps.tool.manage.views.get_payment_dict',
-                lambda x,y: dict())
-            r.replace(
-                'stars.apps.tool.manage.views.process_payment',
-                lambda x,y,invoice_num: { 'cleared': False,
-                                          'msg': None })
-            response = views.pay_subscription(self.request,
-                                              self.subscription.id)
-        soup = BeautifulSoup(response.content)
-        error_message_divs = soup.find_all(
-            'div',
-            {'class': settings.MESSAGE_TAGS[messages.ERROR]})
-        self.assertEqual(len(error_message_divs), 1)
-        self.assertTrue('rocessing Error' in error_message_divs[0].text)
-
-    def test_pay_subscription_invalid_payform_error_message(self):
-        """Does pay_subscription show an error when payment form is invalid?
-        """
-        with testfixtures.Replacer() as r:
-            r.replace(
-                'stars.apps.tool.manage.views._get_current_institution',
-                lambda x: self.request.institution)
-            response = views.pay_subscription(self.request,
-                                              self.subscription.id)
-        soup = BeautifulSoup(response.content)
-        error_message_divs = soup.find_all(
-            'div',
-            {'class': settings.MESSAGE_TAGS[messages.ERROR]})
-        self.assertEqual(len(error_message_divs), 1)
-        self.assertTrue('lease correct the errors' in
-                        error_message_divs[0].text)
+    view_class = views.ContactView
 
 
-class MockAccountForm(object):
-
-    def __init__(self, *args, **kwargs):
-        self.cleaned_data = {'email': "doesn't matter",
-                             'userlevel': "doesn't matter"}
-
-    def is_valid(self):
-        return True
-
-
-class MockPaymentForm(object):
-
-    def __init__(self, *args, **kwargs):
-        self.cleaned_data = { 'discount_code': 'ILOVETOSAVEMONEY' }
-
-    def is_valid(self):
-        return True
-
-
-class _InstitutionAdminToolMixinTest(TestCase):
-    """
-        Provides a base TestCase that checks if a view;
-
-            1. is non GET-able by non-admin users;
-
-            2. is GET-able by admin users, and;
-
-            3. returns a loadable (by an admin) success_url.
-    """
-
-    view_class = None  # Must be set in subclass.
-
-    def setUp(self):
-        self.institution = InstitutionFactory()
-
-        self.account = StarsAccountFactory(institution=self.institution)
-        self.account_to_edit = StarsAccountFactory(institution=self.institution)
-
-        self.request = _get_request_ready_for_messages()
-        self.request.user = self.account.user
-        self.request.method = 'GET'
-
-    def _get_pk(self):
-        """
-            Provides the value for the kwarg named 'pk' that's
-            passed to the view's on_view() product.  Subclasses
-            might need to override this, if, for instance, the
-            view under test expects the id of a ResponsibleParty
-            as the value of the pk kwarg.
-        """
-        return self.account.id
-
-    def test_get_by_non_admin(self):
-        self.account.user_level = ''
-        self.account.save()
-        response = self.view_class.as_view()(
-            self.request,
-            institution_slug=self.institution.slug,
-            pk=self._get_pk())
-        self.assertEqual(response.status_code, 403)
-
-    def test_get_by_admin(self):
-        self.account.user_level = 'admin'
-        self.account.save()
-        response = self.view_class.as_view()(
-            self.request,
-            institution_slug=self.institution.slug,
-            pk=self._get_pk())
-        self.assertEqual(response.status_code, 200)
-
-    def test_get_success_url_is_loadable(self):
-        """Is the url returned by get_success_url() loadable?"""
-        self.account.user_level = 'admin'
-        self.account.save()
-        view = self.view_class()
-        # Hack a request object onto the view, since it'll be
-        # referenced if no success_url or success_url_name is specified
-        # in the view:
-        view.request = RequestFactory()
-        # Now set request.path to a sentinel value we can watch for:
-        view.request.path = 'SENTINEL'
-        success_url = view.get_success_url(
-            institution_slug=self.institution.slug)
-        if success_url is not 'SENTINEL':
-            response = Client().get(success_url, follow=True)
-            self.assertEqual(response.status_code, 200)
-
-
-class InstitutionPaymentsViewTest(_InstitutionAdminToolMixinTest):
+class InstitutionPaymentsViewTest(InstitutionAdminToolMixinTest):
 
     view_class = views.InstitutionPaymentsView
 
 
-class ResponsiblePartyListViewTest(_InstitutionAdminToolMixinTest):
+class ResponsiblePartyListViewTest(InstitutionAdminToolMixinTest):
 
     view_class = views.ResponsiblePartyListView
 
 
-class ResponsiblePartyCreateViewTest(_InstitutionAdminToolMixinTest):
+class ResponsiblePartyCreateViewTest(InstitutionAdminToolMixinTest):
 
     view_class = views.ResponsiblePartyCreateView
 
@@ -352,7 +92,7 @@ class ResponsiblePartyCreateViewTest(_InstitutionAdminToolMixinTest):
                          ResponsibleParty.objects.count())
 
 
-class ResponsiblePartyEditViewTest(_InstitutionAdminToolMixinTest):
+class ResponsiblePartyEditViewTest(InstitutionAdminToolMixinTest):
 
     view_class = views.ResponsiblePartyEditView
 
@@ -365,7 +105,7 @@ class ResponsiblePartyEditViewTest(_InstitutionAdminToolMixinTest):
         return self.responsible_party.id
 
 
-class ResponsiblePartyDeleteViewTest(_InstitutionAdminToolMixinTest):
+class ResponsiblePartyDeleteViewTest(InstitutionAdminToolMixinTest):
 
     view_class = views.ResponsiblePartyDeleteView
 
@@ -399,7 +139,7 @@ class ResponsiblePartyDeleteViewTest(_InstitutionAdminToolMixinTest):
         self.request.method = 'POST'
         self.request.POST = {}
         self.request.FILES = None
-        _ = _make_credits_for_responsible_party(self.responsible_party)
+        self._make_credits_for_responsible_party()
         responsible_party_count_before = ResponsibleParty.objects.count()
         _ = views.ResponsiblePartyDeleteView.as_view()(
             request=self.request,
@@ -435,7 +175,7 @@ class ResponsiblePartyDeleteViewTest(_InstitutionAdminToolMixinTest):
         self.request.method = 'POST'
         self.request.POST = {}
         self.request.FILES = None
-        _ = _make_credits_for_responsible_party(self.responsible_party)
+        self._make_credits_for_responsible_party()
         _ = views.ResponsiblePartyDeleteView.as_view()(
             request=self.request,
             institution_slug=self.institution.slug,
@@ -448,8 +188,15 @@ class ResponsiblePartyDeleteViewTest(_InstitutionAdminToolMixinTest):
         self.assertEqual(len(info_message_divs), 1)
         self.assertTrue('cannot be removed' in info_message_divs[0].text)
 
+    def _make_credits_for_responsible_party(self):
+        """List some credits for this responsible_party."""
+        credits = list()
+        for credit in xrange(4):
+            credits.append(CreditUserSubmissionFactory(
+                responsible_party=self.responsible_party))
 
-class AccountListViewTest(_InstitutionAdminToolMixinTest):
+
+class AccountListViewTest(InstitutionAdminToolMixinTest):
 
     view_class = views.AccountListView
 
@@ -458,7 +205,7 @@ class AccountListViewTest(_InstitutionAdminToolMixinTest):
         self.account.user_level = 'admin'
         self.account.save()
 
-        accounts = list()
+        accounts = [self.account]
         for i in xrange(4):
             accounts.append(StarsAccountFactory(institution=self.institution))
 
@@ -467,18 +214,17 @@ class AccountListViewTest(_InstitutionAdminToolMixinTest):
             pending_accounts.append(
                 PendingAccountFactory(institution=self.institution))
 
-        _ = views.AccountListView.as_view()(
+        view = views.AccountListView.as_view()(
             self.request,
             institution_slug=self.institution.slug)
-        response = render(self.request, 'base.html')
-        soup = BeautifulSoup(response.content)
+        soup = BeautifulSoup(view.rendered_content)
         table = soup.find('table')
         tbody = table.findChild('tbody')
         rows = tbody.findChildren('tr')
         self.assertEqual(len(rows), len(accounts) + len(pending_accounts))
 
 
-class AccountCreateViewTest(_InstitutionAdminToolMixinTest):
+class AccountCreateViewTest(InstitutionAdminToolMixinTest):
 
     view_class = views.AccountCreateView
 
@@ -526,14 +272,20 @@ class AccountCreateViewTest(_InstitutionAdminToolMixinTest):
         raise NotImplemented()
 
 
-class AccountEditViewTest(_InstitutionAdminToolMixinTest):
+class AccountEditViewTest(InstitutionAdminToolMixinTest):
 
     view_class = views.AccountEditView
 
+    def _get_pk(self):
+        return self.account.id
 
-class AccountDeleteViewTest(_InstitutionAdminToolMixinTest):
+
+class AccountDeleteViewTest(InstitutionAdminToolMixinTest):
 
     view_class = views.AccountDeleteView
+
+    def _get_pk(self):
+        return self.account.id
 
     def test_delete_stars_account(self):
         """Does deleting a stars account work?"""
@@ -555,7 +307,7 @@ class AccountDeleteViewTest(_InstitutionAdminToolMixinTest):
         raise NotImplemented()
 
 
-class PendingAccountDeleteViewTest(_InstitutionAdminToolMixinTest):
+class PendingAccountDeleteViewTest(InstitutionAdminToolMixinTest):
 
     view_class = views.PendingAccountDeleteView
 
@@ -583,12 +335,12 @@ class PendingAccountDeleteViewTest(_InstitutionAdminToolMixinTest):
                          PendingAccount.objects.count())
 
 
-class ShareDataViewTest(_InstitutionAdminToolMixinTest):
+class ShareDataViewTest(InstitutionAdminToolMixinTest):
 
     view_class = views.ShareDataView
 
 
-class MigrateOptionsViewTest(_InstitutionAdminToolMixinTest):
+class MigrateOptionsViewTest(InstitutionAdminToolMixinTest):
 
     view_class = views.MigrateOptionsView
 
@@ -622,21 +374,19 @@ class MigrateOptionsViewTest(_InstitutionAdminToolMixinTest):
                          len(self.f_status_submissionsets))
 
 
-class _MigrateDataVersionViewTest(_InstitutionAdminToolMixinTest):
+class MigrateViewTest(InstitutionAdminToolMixinTest):
     """
         A base class for MigrateDataViewTest and MigrateVersionViewTest.
     """
-
-    # Name of the class to test:
     view_class = None
     # Each subclass protects itself with a rule that must be True before
-    # access is granted.  That's called 'gatekeeper_rule' here:
-    gatekeeper_rule = None
+    # access is granted.  That's called 'gatekeeper_aashe_rule' here:
+    gatekeeper_aashe_rule = None
     # Name of the function that actually starts the migration:
     migration_function_name = None
 
     def setUp(self):
-        super(_MigrateDataVersionViewTest, self).setUp()
+        super(MigrateViewTest, self).setUp()
         self.institution.is_participant = True
         self.submissionset = SubmissionSetFactory(
             institution=self.institution, status='r')
@@ -656,40 +406,14 @@ class _MigrateDataVersionViewTest(_InstitutionAdminToolMixinTest):
                                   lambda *args: returns)
 
     def close_gate(self):
-        """
-            Tweaks the gatekeeper rule to prevent access.
-        """
-        self._stub_out_rule(rule_name=self.gatekeeper_rule, returns=False)
+        super(MigrateViewTest, self).close_gate()
+        self._stub_out_rule(rule_name=self.gatekeeper_aashe_rule,
+                            returns=False)
 
     def open_gate(self):
-        """
-            Tweaks the gatekeeper rule to allow access.
-        """
-        self._stub_out_rule(rule_name=self.gatekeeper_rule, returns=True)
-
-    def test_get_by_non_priveleged_user(self):
-        """Does a GET by a user w/o the appropriate priveleges fail?
-        """
-        self.account.user_level = 'admin'
-        self.account.save()
-        self.close_gate()
-        response = self.view_class.as_view()(
-            self.request,
-            institution_slug=self.institution.slug,
-            pk=self._get_pk())
-        self.assertEqual(response.status_code, 403)
-
-    def test_get_by_priveleged_user(self):
-        """Does a GET by a user w/the appropriate priveleges succeed?
-        """
-        self.account.user_level = 'admin'
-        self.account.save()
-        self.open_gate()
-        response = self.view_class.as_view()(
-            self.request,
-            institution_slug=self.institution.slug,
-            pk=self._get_pk())
-        self.assertEqual(response.status_code, 200)
+        super(MigrateViewTest, self).open_gate()
+        self._stub_out_rule(rule_name=self.gatekeeper_aashe_rule,
+                            returns=True)
 
     def test_form_valid_starts_migration(self):
         """When all is ok, is a migration task started?
@@ -715,17 +439,17 @@ class _MigrateDataVersionViewTest(_InstitutionAdminToolMixinTest):
                               pk=self._get_pk())
 
 
-class MigrateDataViewTest(_MigrateDataVersionViewTest):
+class MigrateDataViewTest(MigrateViewTest):
 
     view_class = views.MigrateDataView
-    gatekeeper_rule = 'user_can_migrate_from_submission'
+    gatekeeper_aashe_rule = 'user_can_migrate_from_submission'
     migration_function_name = 'perform_data_migration.delay'
 
 
-class MigrateVersionViewTest(_MigrateDataVersionViewTest):
+class MigrateVersionViewTest(MigrateViewTest):
 
     view_class = views.MigrateVersionView
-    gatekeeper_rule = 'user_can_migrate_version'
+    gatekeeper_aashe_rule = 'user_can_migrate_version'
     migration_function_name = 'perform_migration.delay'
 
     def test_dispatch_prevents_migration_when_already_at_latest_version(self):
@@ -752,3 +476,119 @@ class MigrateVersionViewTest(_MigrateDataVersionViewTest):
             institution_slug=self.institution.slug,
             pk=self._get_pk())
         self.assertEqual(response.status_code, 200)
+
+
+class SubscriptionPaymentOptionsViewTest(InstitutionViewOnlyToolMixinTest):
+
+    view_class = views.SubscriptionPaymentOptionsView
+
+
+class SubscriptionCreateViewTest(InstitutionViewOnlyToolMixinTest):
+
+    fixtures = ['email_templates.json']
+
+    view_class = views.SubscriptionCreateView
+
+    def setUp(self):
+        super(SubscriptionCreateViewTest, self).setUp()
+        self.request.session[views.PAY_WHEN] = Subscription.PAY_LATER
+
+    def test_form_valid_creates_subscription(self):
+        """Does form_valid() create a subscription?"""
+        institution = InstitutionFactory(slug='nancy-man')
+
+        self.request.method = 'POST'
+        self.request.POST = { 'promo_code': '' }
+
+        initial_subscription_count = Subscription.objects.count()
+
+        _ = self.view_class.as_view()(request=self.request,
+                                      institution_slug=institution.slug)
+
+        self.assertEqual(Subscription.objects.count(),
+                         initial_subscription_count + 1)
+
+    def test_form_valid_pay_now_creates_payment(self):
+        """Does form_valid() create a payment when user is paying now?"""
+        institution = InstitutionFactory(slug='fancy-man')
+
+        self.request.session[views.PAY_WHEN] = Subscription.PAY_NOW
+        self.request.method = 'POST'
+        self.request.POST = get_pay_now_form_data(
+            card_number=GOOD_CREDIT_CARD)
+
+        initial_payment_count = SubscriptionPayment.objects.count()
+
+        _ = self.view_class.as_view()(request=self.request,
+                                      institution_slug=institution.slug)
+
+        self.assertEqual(SubscriptionPayment.objects.count(),
+                         initial_payment_count + 1)
+
+    def test_form_valid_no_subrx_created_when_purchase_error(self):
+        """Does form_valid() *not* create a subrx if there's a purchase error?
+        """
+        institution = InstitutionFactory(slug='fancy-man')
+
+        self.request.session[views.PAY_WHEN] = Subscription.PAY_NOW
+        self.request.method = 'POST'
+        self.request.POST = get_pay_now_form_data(card_number=BAD_CREDIT_CARD)
+
+        initial_subscription_count = Subscription.objects.count()
+
+        _ = self.view_class.as_view()(request=self.request,
+                                      institution_slug=institution.slug)
+
+        self.assertEqual(Subscription.objects.count(),
+                         initial_subscription_count)
+
+
+class SubscriptionPaymentCreateViewTest(InstitutionViewOnlyToolMixinTest):
+
+    view_class = views.SubscriptionPaymentCreateView
+
+    def setUp(self):
+        """Depends on Subscription.create()."""
+        super(SubscriptionPaymentCreateViewTest, self).setUp()
+        # self.request.session[views.PAY_WHEN] = Subscription.PAY_LATER
+        (self.subscription, _) = Subscription.create(
+            institution=self.institution)
+        self.subscription.save()
+
+    def _get_pk(self):
+        return self.subscription.id
+
+    def test_form_valid_creates_payment(self):
+        """Does form_valid() create a payment?"""
+        self.account.user_level = self.blessed_user_level
+        self.account.save()
+        self.request.method = 'POST'
+        self.request.POST = get_pay_now_form_data(
+            card_number=GOOD_CREDIT_CARD)
+
+        initial_payment_count = SubscriptionPayment.objects.count()
+
+        _ = self.view_class.as_view()(request=self.request,
+                                      institution_slug=self.institution.slug,
+                                      pk=self.subscription.id)
+
+        self.assertEqual(SubscriptionPayment.objects.count(),
+                         initial_payment_count + 1)
+
+    def test_form_valid_no_payment_created_when_purchase_error(self):
+        """Does form_valid() *not* create a payment if there's a purchase error?
+        """
+        self.account.user_level = self.blessed_user_level
+        self.account.save()
+        self.request.session[views.PAY_WHEN] = Subscription.PAY_NOW
+        self.request.method = 'POST'
+        self.request.POST = get_pay_now_form_data(card_number=BAD_CREDIT_CARD)
+
+        initial_payment_count = SubscriptionPayment.objects.count()
+
+        _ = self.view_class.as_view()(request=self.request,
+                                      institution_slug=self.institution.slug,
+                                      pk=self.subscription.id)
+
+        self.assertEqual(SubscriptionPayment.objects.count(),
+                         initial_payment_count)

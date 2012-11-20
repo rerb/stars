@@ -165,7 +165,7 @@ class ViewsTest(TestCase):
             r.replace('stars.apps.registration.views._get_selected_institution',
                       lambda x: (Institution.objects.create(), None))
             r.replace('stars.apps.registration.views.get_registration_price',
-                      lambda x: None)
+                      lambda *args: None)
             response = views.reg_payment(self.request)
         soup = BeautifulSoup(response.content)
         error_message_divs = soup.find_all(
@@ -183,7 +183,7 @@ class ViewsTest(TestCase):
             r.replace('stars.apps.registration.views._get_selected_institution',
                       lambda x: (Institution.objects.create(), None))
             r.replace('stars.apps.registration.views.get_registration_price',
-                      lambda x: None)
+                      lambda *args: None)
             r.replace('stars.apps.registration.views.PaymentForm',
                       MockPaymentForm),
             r.replace('stars.apps.registration.views.PayLaterForm',
@@ -210,7 +210,7 @@ class ViewsTest(TestCase):
             r.replace('stars.apps.registration.views._get_selected_institution',
                       lambda x: (self.institution, None))
             r.replace('stars.apps.registration.views.get_registration_price',
-                      lambda x, y: None)
+                      lambda *args, **kwargs: None)
             r.replace('stars.apps.registration.views.PaymentForm',
                       MockPaymentDiscountedForm)
             r.replace('stars.apps.registration.views.PayLaterForm',
@@ -324,7 +324,8 @@ class MockRequest(HttpRequest):
         self.POST = None
         # path and META are here for logging formatters:
         self.path = '/mock/request/bogus/path'
-        self.META = {}
+        self.META = {'SERVER_NAME': 'joe',
+                     'SERVER_PORT': 10}
         self.environ = {}
         self.user = User(username='jimmy_smits')
         self.host = 'hamlin'

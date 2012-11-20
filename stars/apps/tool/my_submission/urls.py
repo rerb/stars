@@ -1,4 +1,4 @@
-from django.conf.urls.defaults import *
+from django.conf.urls.defaults import patterns, url
 from stars.apps.tool.my_submission.views import EditBoundaryView, SaveSnapshot, ConfirmClassView
 
 urlpatterns = patterns(

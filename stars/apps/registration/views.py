@@ -1,31 +1,38 @@
-from logging import getLogger
 from datetime import datetime, date, timedelta
+from logging import getLogger
 import sys
 
-from django.http import HttpResponseRedirect
+from django.conf import settings
 from django.contrib import messages
 from django.forms import widgets
-from django.conf import settings
+from django.http import HttpResponseRedirect
+from django.template.defaultfilters import slugify
+from zc.authorizedotnet.processing import CcProcessor
 
-from stars.apps.institutions.models import Institution, Subscription, \
-     SubscriptionPayment
-from stars.apps.registration.forms import *
-from stars.apps.registration.utils import is_canadian_zipcode
+from aashe.issdjango.models import Organizations
+from stars.apps.accounts import utils as auth_utils
+from stars.apps.accounts.mixins import AuthenticatedMixin
 from stars.apps.accounts.utils import respond
-from stars.apps.submissions.models import SubmissionSet
 from stars.apps.credits.models import CreditSet
 from stars.apps.helpers.forms.views import FormActionView
-from stars.apps.accounts.mixins import AuthenticatedMixin
-from stars.apps.submissions.utils import init_credit_submissions
-from stars.apps.accounts import utils as auth_utils
+from stars.apps.institutions.models import (Institution, StarsAccount,
+                                            Subscription, SubscriptionPayment)
 from stars.apps.notifications.models import EmailTemplate
+from stars.apps.registration.forms import (DataCollectorRegistrationForm,
+                                           ParticipationLevelForm,
+                                           PaymentForm, PayLaterForm,
+                                           RegistrationForm,
+                                           RegistrationSurveyForm,
+                                           RegistrationSchoolChoiceForm,
+                                           RespondentRegistrationSurveyForm,
+                                           WriteInInstitutionForm)
+from stars.apps.registration.models import ValueDiscount
+from stars.apps.registration.utils import is_canadian_zipcode
+from stars.apps.submissions.models import SubmissionSet
+from stars.apps.submissions.utils import init_credit_submissions
 
-from zc.authorizedotnet.processing import CcProcessor
-from aashe.issdjango.models import Organizations
 
 logger = getLogger('stars')
-
-# @todo - it would be nice to use the WizardView here if possible
 
 def reg_international(request):
     """

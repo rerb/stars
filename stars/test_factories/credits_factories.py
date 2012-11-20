@@ -1,15 +1,17 @@
+import datetime
 import time
 
 import factory
 
-from stars.apps.credits.models import ApplicabilityReason, Category, \
-     Credit, CreditSet, IncrementalFeature, Rating, Subcategory
+from stars.apps.credits.models import (ApplicabilityReason, Category, Credit,
+                                       CreditSet, IncrementalFeature, Rating,
+                                       Subcategory)
 
 
 class CreditSetFactory(factory.Factory):
     FACTORY_FOR = CreditSet
 
-    release_date = '1970-01-01'
+    release_date = datetime.date(1970, 1, 1)
     tier_2_points = 1
 
     @classmethod

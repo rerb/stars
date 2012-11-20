@@ -1,61 +1,42 @@
-from datetime import timedelta, datetime, date
 from logging import getLogger
 
-from django.conf import settings
 from django.contrib import messages
-from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
-import django.forms
-from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect, Http404
-
-
-from stars.apps.accounts.utils import respond
-from stars.apps.accounts.decorators import user_is_inst_admin, user_has_tool
-from stars.apps.accounts import xml_rpc
-from stars.apps.credits.models import CreditSet
-from stars.apps.institutions.models import StarsAccount, Subscription, \
-     SubscriptionPayment, SUBSCRIPTION_DURATION, PendingAccount
-from stars.apps.institutions.rules import user_has_access_level
-from stars.apps.payments import credit_card
-from stars.apps.submissions.models import SubmissionSet
-from stars.apps.submissions.tasks import perform_migration, \
-     perform_data_migration
-from stars.apps.submissions.rules import user_can_migrate_version, \
-     user_can_migrate_from_submission
-from stars.apps.third_parties.models import ThirdParty
-from stars.apps.helpers.forms import form_helpers
-
-from stars.apps.tool.manage.forms import (AdminInstitutionForm,
-     ParticipantContactForm, RespondentContactForm, ResponsibleParty,
-     ResponsiblePartyForm, DisabledAccountForm,
-     AccountForm, ThirdPartiesForm, InstitutionPreferences,
-     NotifyUsersForm, MigrateSubmissionSetForm, BoundaryForm)
-
-from stars.apps.registration.forms import (PayNowForm, PaymentOptionsForm,
-                                           PayLaterForm)
-from stars.apps.registration.views import process_payment, get_payment_dict
-from stars.apps.registration.models import ValueDiscount
-
-# new imports
-from stars.apps.institutions.models import Institution
-from stars.apps.tool.mixins import (InstitutionAdminToolMixin,
-                                    InstitutionToolMixin)
-from stars.apps.helpers.mixins import ValidationMessageFormMixin
-from stars.apps.helpers.queryset_sequence import QuerySetSequence
-
+from django.shortcuts import get_object_or_404
 from django.views.generic import (CreateView, DeleteView, FormView, ListView,
                                   TemplateView, UpdateView)
 
-logger = getLogger('stars.request')
+from stars.apps.accounts import xml_rpc
+from stars.apps.credits.models import CreditSet
+from stars.apps.helpers.forms import form_helpers
+from stars.apps.helpers.mixins import ValidationMessageFormMixin
+from stars.apps.helpers.queryset_sequence import QuerySetSequence
+from stars.apps.institutions.models import (StarsAccount, Subscription,
+                                            SubscriptionPayment,
+                                            SubscriptionPurchaseError,
+                                            PendingAccount)
+from stars.apps.institutions.models import Institution
+from stars.apps.payments import credit_card
+from stars.apps.tool.manage.forms import (PayNowForm,
+                                          PaymentOptionsForm, PayLaterForm)
+from stars.apps.submissions.models import SubmissionSet
+from stars.apps.submissions.tasks import (perform_migration,
+                                          perform_data_migration)
+from stars.apps.third_parties.models import ThirdParty
+from stars.apps.tool.manage.forms import (AccountForm, AdminInstitutionForm,
+                                          InstitutionPreferences,
+                                          MigrateSubmissionSetForm,
+                                          NotifyUsersForm,
+                                          ParticipantContactForm,
+                                          RespondentContactForm,
+                                          ResponsibleParty,
+                                          ResponsiblePartyForm,
+                                          ThirdPartiesForm)
+from stars.apps.tool.mixins import (InstitutionAdminToolMixin,
+                                    InstitutionToolMixin)
 
-def _get_current_institution(request):
-    if hasattr(request.user, 'current_inst'):
-        if not user_has_access_level(request.user, 'admin', request.user.current_inst):
-            raise PermissionDenied('Sorry, only institution administrators have access.')
-        return request.user.current_inst
-    else:
-        raise Http404
+logger = getLogger('stars.request')
 
 def _update_preferences(request, institution):
     """
@@ -410,7 +391,7 @@ class MigrateDataView(InstitutionAdminToolMixin,
     """
     form_class = MigrateSubmissionSetForm
     model = SubmissionSet
-    success_url = '/tool/'
+    success_url_name = 'tool-summary'
     tab_content_title = 'data migration'
     template_name = 'tool/manage/migrate_data.html'
     valid_message = ("Your migration is in progress. Please allow a "
@@ -492,6 +473,7 @@ class MigrateVersionView(InstitutionAdminToolMixin,
                                 self.request.user)
         return super(MigrateVersionView, self).form_valid(form)
 
+
 PAY_WHEN = 'pay_when'
 
 
@@ -512,38 +494,25 @@ class SubscriptionPaymentOptionsView(InstitutionToolMixin,
     valid_message = ''  # Only want to use invalid_message.
     invalid_message = 'Please choose to pay now or pay later.'
 
-    # @todo - does this rule do anything?
     def update_logical_rules(self):
         super(SubscriptionPaymentOptionsView, self).update_logical_rules()
-        self.add_logical_rule({ 'name': 'user_has_tool',
+        self.add_logical_rule({ 'name': 'user_has_view_access',
                                 'param_callbacks': [
-                                    ('user', 'get_request_user')] })
+                                    ('user', 'get_request_user'),
+                                    ('institution', 'get_institution')] })
 
     def get_context_data(self, **kwargs):
         context = super(SubscriptionPaymentOptionsView,
                         self).get_context_data(**kwargs)
-        context['subscription_start_date'] = self.get_subscription_start_date()
-        context['subscription_end_date'] = (self.get_subscription_start_date() +
-                                            timedelta(SUBSCRIPTION_DURATION))
+        (subscription_start_date, subscription_end_date) = (
+            Subscription.get_date_range_for_new_subscription(
+                self.get_institution()))
+        context['subscription_start_date'] = subscription_start_date
+        context['subscription_end_date'] = subscription_end_date
         return context
 
-    def get_subscription_start_date(self, institution=None):
-        """
-            Get the start date for a subscription, taking into account
-            any current subscriptions for this institution.
-
-            institution can be passed in for testing.
-        """
-        institution = institution or self.get_institution()
-        start_date = institution.get_last_subscription_end()
-        if start_date and start_date > date.today():
-            start_date += timedelta(days=1)
-        else:
-            start_date = date.today()
-        return start_date
-
     def form_valid(self, form):
-        # Pass the payment selected on:
+        # Pass the payment option selected on:
         self.request.session[PAY_WHEN] = form.cleaned_data[PAY_WHEN]
         return super(SubscriptionPaymentOptionsView, self).form_valid(form)
 
@@ -551,41 +520,24 @@ class SubscriptionPaymentOptionsView(InstitutionToolMixin,
 class SubscriptionPaymentCreateBaseView(ValidationMessageFormMixin,
                                         InstitutionToolMixin,
                                         FormView):
-
     """
         Provides a common base for the views that accept credit
         card payments for subscriptions.
     """
     success_url_name = 'tool-summary'
 
-    # @todo - does this rule do anything?
     def update_logical_rules(self):
         super(SubscriptionPaymentCreateBaseView, self).update_logical_rules()
-        self.add_logical_rule({ 'name': 'user_has_tool',
+        self.add_logical_rule({ 'name': 'user_has_view_access',
                                 'param_callbacks': [
-                                    ('user', 'get_request_user')] })
+                                    ('user', 'get_request_user'),
+                                    ('institution', 'get_institution')] })
 
-    def make_credit_card_payment(self, form, save=True):
-        """
-            Applies a credit card payment to a subscription.
-
-            Takes a subscription and a form containing credit card
-            info as arguments.
-
-            If there's an error processing the credit card,
-            a CreditCardProcessingError is raised.
-
-            One ugly side-effect is that subscription.amount_due
-            is calculated, and overwritten.
-        """
-        try:
-            self.subscription.pay(pay_when=Subscription.PAY_NOW,
-                                  amount=self.subscription.amount_due,
-                                  user=self.request.user,
-                                  form=form)
-        except credit_card.CreditCardProcessingError as ccpe:
-            messages.error(self.request, ccpe.message)
-            raise
+    def get_context_data(self, **kwargs):
+        context = super(SubscriptionPaymentCreateBaseView,
+                        self).get_context_data(**kwargs)
+        context['breadcrumb'] = 'purchase subscription'
+        return context
 
 
 class SubscriptionCreateView(SubscriptionPaymentCreateBaseView):
@@ -599,8 +551,8 @@ class SubscriptionCreateView(SubscriptionPaymentCreateBaseView):
         If self.request.session['PAY_WHEN'] = Subscription.PAY_LATER,
         the form displayed requests only a promo code.
 
-        After creating a Subscription, if the user elects to pay now,
-        a credit card payment is processed.
+        After creating a Subscription, it's purchased, which, if paying
+        now, will trigger a credit card transaction.
     """
     success_url_name = 'tool-summary'
     template_name = 'tool/manage/subscription_payment_create.html'
@@ -613,8 +565,7 @@ class SubscriptionCreateView(SubscriptionPaymentCreateBaseView):
 
     def form_valid(self, form):
         """
-            Creates a Subscription, and if user wants to pay now,
-            tries to process a credit card transaction.
+            Creates a Subscription, and then purchases it.
         """
         self.subscription, promo_code_applied = Subscription.create(
             institution=self.get_institution(),
@@ -623,20 +574,18 @@ class SubscriptionCreateView(SubscriptionPaymentCreateBaseView):
         if promo_code_applied:
             messages.info(self.request, "Promo code discount applied!")
 
-        if self.pay_when == Subscription.PAY_NOW:
-            try:
-                self.make_credit_card_payment(form=form)
-            except credit_card.CreditCardProcessingError:
-                return self.form_invalid(form)
-        elif self.pay_when != Subscription.PAY_LATER:
-            messages.error(self.request,
-                           'Sorry - an internal error has occurred. '
-                           'Your subscription has not been saved. '
-                           'Please try again. '
-                           '(InvalidPayWhenValue: {0})'.self.pay_when)
-            return  # go back to success_url, rather than reload the form.
-
+        # must save subscription before trying to pay it; it's got to have
+        # an id for SubscriptionPayment.subscription_id:
         self.subscription.save()
+
+        try:
+            self.subscription.purchase(pay_when=self.pay_when,
+                                       user=self.request.user,
+                                       form=form)
+        except SubscriptionPurchaseError as spe:
+            messages.error(self.request, spe.message)
+            return self.form_invalid(form)
+
 
         del self.request.session[PAY_WHEN]
 
@@ -648,7 +597,8 @@ class SubscriptionCreateView(SubscriptionPaymentCreateBaseView):
             deletes it.
         """
         if hasattr(self, 'subscription'):
-            self.subscription.delete()
+            if self.subscription.id:
+                self.subscription.delete()
         return super(SubscriptionCreateView, self).form_invalid(form)
 
     def get_form_class(self):
@@ -656,8 +606,8 @@ class SubscriptionCreateView(SubscriptionPaymentCreateBaseView):
                  Subscription.PAY_NOW: PayNowForm }[self.pay_when]
 
     def get_tab_content_title(self):
-        return { Subscription.PAY_LATER: 'purchase a subscription: pay now',
-                 Subscription.PAY_NOW: 'purchase a subscription: pay later' }[
+        return { Subscription.PAY_LATER: 'purchase a subscription: pay later',
+                 Subscription.PAY_NOW: 'purchase a subscription: pay now' }[
                      self.pay_when]
 
     def get_valid_message(self):
@@ -666,12 +616,6 @@ class SubscriptionCreateView(SubscriptionPaymentCreateBaseView):
                   {start} to {finish}.""".format(
                       start=self.subscription.start_date,
                       finish=self.subscription.end_date)
-
-    def get_context_data(self, **kwargs):
-        context = super(SubscriptionCreateView, self).get_context_data(
-            **kwargs)
-        context['breadcrumb'] = 'purchase subscription'
-        return context
 
 
 class SubscriptionPaymentCreateView(SubscriptionPaymentCreateBaseView):
@@ -693,23 +637,19 @@ class SubscriptionPaymentCreateView(SubscriptionPaymentCreateBaseView):
             so if, say, that parameter is renamed in urls.py, this
             will break.
         """
-        self._subscription = Subscription.objects.get(
-            pk=self.kwargs['subscription_id'])
+        self._subscription = Subscription.objects.get(pk=self.kwargs['pk'])
         return self._subscription
 
     def form_valid(self, form):
         try:
-            self.make_credit_card_payment(form=form)
-        except credit_card.CreditCardProcessingError:
+            self.subscription.pay(amount=self.subscription.amount_due,
+                                  user=self.request.user,
+                                  form=form)
+        except credit_card.CreditCardProcessingError as ccpe:
+            messages.error(self.request, ccpe.message)
             return self.form_invalid(form)
 
         return super(SubscriptionPaymentCreateView, self).form_valid(form)
-
-    def get_context_data(self, **kwargs):
-        context = super(SubscriptionPaymentCreateView, self).get_context_data(
-            **kwargs)
-        context['breadcrumb'] = 'purchase subscription'
-        return context
 
     def get_tab_content_title(self):
         return 'pay now; amount due: ${0:.2f}'.format(

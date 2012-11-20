@@ -1,8 +1,8 @@
 """Tests for stars.apps.accounts.views.
 """
-from unittest import TestCase
-
 from django.contrib.auth.models import User
+from django.http import Http404
+from django.test import TestCase
 import testfixtures
 
 from dummy_request import DummyRequest
@@ -31,7 +31,8 @@ class ViewsTest(TestCase):
                     lambda x: True)
                 r.replace('stars.apps.accounts.views.change_institution',
                           lambda x, y: True)
-                views.select_school(self.request, 999999)
+                with self.assertRaises(Http404):
+                    views.select_school(self.request, 999999)
 
         self.assertEqual(len(log.records), 1)
         for record in log.records:

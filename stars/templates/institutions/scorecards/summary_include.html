@@ -5,7 +5,9 @@
 {% load thumbnail %}
 
 {% block h1 %}
-	{{ institution }}
+    <a href='{% url scorecard-list institution.slug %}'>
+	    {{ institution }}
+    </a>
 {% endblock %}
 
 {% block navHeader %}
@@ -36,7 +38,7 @@
     	</div>
     {% endif %}
     {% include 'institutions/scorecards/submission_summary_table.html' %}
-    
+
     <div class="accordion" id="boundary">
        <div class="accordion-group">
          <div class="accordion-heading">
