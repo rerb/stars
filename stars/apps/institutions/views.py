@@ -175,7 +175,7 @@ class ActiveInstitutions(SortableTableViewWithInstProps):
                     {
                         'key': 'rating',
                         'sort_field': 'current_rating',
-                        'title': 'Rating',
+                        'title': 'Current Rating',
                     },
 #                    {
 #                        'key': 'version',
