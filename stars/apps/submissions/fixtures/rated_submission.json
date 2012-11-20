@@ -130,7 +130,8 @@
             "registering_user": 1,
             "status": "r",
             "rating": 5,
-            "score": 100.0
+            "score": 100.0,
+            "presidents_letter": "prez_letter.pdf"
         }
     },
 
