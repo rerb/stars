@@ -112,6 +112,7 @@ class SortableTableView(TemplateView):
         for col in self.columns:
             if col['key'] == sort_key:
                 queryset = queryset.order_by("%s%s" % (asc, col['sort_field']), self.secondary_order_field)
+                break
 
         return (sort_key, rev, queryset)
 
