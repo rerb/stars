@@ -5,6 +5,7 @@ from unittest import TestCase
 import testfixtures
 
 from stars.apps.institutions.models import Institution
+from stars.test_factories import InstitutionFactory
 
 
 class InstitutionTest(TestCase):
@@ -59,9 +60,61 @@ class InstitutionTest(TestCase):
         self.assertEqual(log.records[0].levelname, 'ERROR')
         self.assertTrue('profile relationship error' in log.records[0].msg)
 
+    def test_get_location_string_no_city(self):
+        """Does get_location_string() work when there's no city?"""
+        with testfixtures.Replacer() as r:
+            r.replace('stars.apps.institutions.models.Institution.profile',
+                      MockProfile(city='', state='ST', country_iso='CO'))
+            institution = InstitutionFactory()
+            self.assertEqual(institution.get_location_string(),
+                             'ST, CO')
+
+
+    def test_get_location_string_no_state(self):
+        """Does get_location_string() work when there's no state?"""
+        with testfixtures.Replacer() as r:
+            r.replace('stars.apps.institutions.models.Institution.profile',
+                      MockProfile(city='CITY', state='', country_iso='CO'))
+            institution = InstitutionFactory()
+            self.assertEqual(institution.get_location_string(),
+                             'CITY, CO')
+
+
+    def test_get_location_string_no_country(self):
+        """Does get_location_string() work when there's no country?"""
+        with testfixtures.Replacer() as r:
+            r.replace('stars.apps.institutions.models.Institution.profile',
+                      MockProfile(city='CITY', state='ST', country_iso=''))
+            institution = InstitutionFactory()
+            self.assertEqual(institution.get_location_string(),
+                             'CITY, ST')
+
+
+    def test_get_location_string_no_city_no_country(self):
+        """Does get_location_string() work when there's no city or country?"""
+        with testfixtures.Replacer() as r:
+            r.replace('stars.apps.institutions.models.Institution.profile',
+                      MockProfile(city='', state='ST', country_iso=''))
+            institution = InstitutionFactory()
+            self.assertEqual(institution.get_location_string(),
+                             'ST')
+
+
+    def test_get_location_string_no_nothing(self):
+        """Does get_location_string() work if there's no city, state or country?
+        """
+        with testfixtures.Replacer() as r:
+            r.replace('stars.apps.institutions.models.Institution.profile',
+                      MockProfile(city='', state='', country_iso=''))
+            institution = InstitutionFactory()
+            self.assertEqual(institution.get_location_string(),
+                             '')
+
 
 class MockProfile(object):
 
-    def __init__(self):
+    def __init__(self, state='', city='', country_iso=''):
         self.org_name = 'MockProfile Org Name'
-        self.state = 'MK'
+        self.state = state
+        self.city = city
+        self.country_iso = country_iso

@@ -195,6 +195,15 @@ class Institution(models.Model):
         except:
             return None
 
+    def get_location_string(self):
+        """Returns a string specifying the location of this institution."""
+        location = self.profile.city
+        for field in (self.profile.state, self.profile.country_iso):
+            if location and field:
+                location += ', '
+            location += field
+        return location
+
     def get_payments(self):
         """ Return the latest payment for this institution """
         payments = []
