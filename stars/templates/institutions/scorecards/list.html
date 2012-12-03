@@ -7,8 +7,12 @@
 {% endblock %}
 
 {% block content %}
-    <div class='inner20'>
+    <div class='row inner20'>
         <h1>{{ institution }} Reports</h1>
+        <h4>
+            {{ institution.get_location_string }}
+        </h4>
+        <br/>
         <div class='inner20'>
         <table class='table'>
         	<thead>

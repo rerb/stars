@@ -8,6 +8,10 @@
     <a href='{% url scorecard-list institution.slug %}'>
 	    {{ institution }}
     </a>
+    <h4>
+        {{ institution.get_location_string }}
+    </h4>
+    <br/>
 {% endblock %}
 
 {% block navHeader %}
