@@ -6,47 +6,47 @@
 {% block title %}Reporting Tool | {{ block.super }}{% endblock %}
 
 {% block main_menu %}
-	{% with selected="mm_tool" %}
-    	{% include 'helpers/main_menu.html' %}
+    {% with selected="mm_tool" %}
+        {% include 'helpers/main_menu.html' %}
     {% endwith %}
 {% endblock %}
 
 {% block crumbs %}
-	<ul class="breadcrumb">
-		<li>
-	    	<a href="/">Home</a> <span class="divider">/</span>
-	  	</li>
-	  <li>
-	    <a href='{% url tool-summary institution.slug %}'>Reporting</a>
-    	<span class="divider">/</span>
-	  </li>
-	  {% block crumbs-tool %}{% endblock %}
-	</ul>
+    <ul class="breadcrumb">
+        <li>
+            <a href="/">Home</a> <span class="divider">/</span>
+        </li>
+      <li>
+        <a href='{% url tool-summary institution.slug %}'>Reporting</a>
+        <span class="divider">/</span>
+      </li>
+      {% block crumbs-tool %}{% endblock %}
+    </ul>
 {% endblock %}
 
 {% block content %}
-	<div class='row'>
+    <div class='row'>
 
-		<div class='span3'>
+        <div class='span3'>
 
-	        <div style='text-align: center'>
-		       {% if user.current_inst.is_participant %}
-		            <span class='label label-success'>STARS Participant</span><br/>
-		      {% else %}
-		        	<span class='label label-important'>Survey Respondent</span>
-		        	<br/>
-		        	What does this mean?
-		          	{% show_help_context 'what-is-respondent' %}
-		      {% endif %}
-		      <br/><br/>
-	        </div>
-	        {% block tool_menu %}
-	        	{% include "tool/menu.html" %}
-			{% endblock %}
-		</div>
-		<div class='span9'>
-			{% block tool_content %}{% endblock %}
-		</div>
-	</div>
+            <div style='text-align: center'>
+               {% if user.current_inst.is_participant %}
+                    <span class='label label-success'>STARS Participant</span><br/>
+              {% else %}
+                    <span class='label label-important'>Survey Respondent</span>
+                    <br/>
+                    What does this mean?
+                    {% show_help_context 'what-is-respondent' %}
+              {% endif %}
+              <br/><br/>
+            </div>
+            {% block tool_menu %}
+                {% include "tool/menu.html" %}
+            {% endblock %}
+        </div>
+        <div class='span9'>
+            {% block tool_content %}{% endblock %}
+        </div>
+    </div>
 
 {% endblock %}
