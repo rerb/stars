@@ -583,7 +583,7 @@ class SubscriptionCreateView(SubscriptionPaymentCreateBaseView):
                                        user=self.request.user,
                                        form=form)
         except SubscriptionPurchaseError as spe:
-            messages.error(self.request, spe.message)
+            messages.error(self.request, str(spe))
             return self.form_invalid(form)
 
 
@@ -646,7 +646,7 @@ class SubscriptionPaymentCreateView(SubscriptionPaymentCreateBaseView):
                                   user=self.request.user,
                                   form=form)
         except credit_card.CreditCardProcessingError as ccpe:
-            messages.error(self.request, ccpe.message)
+            messages.error(self.request, str(ccpe))
             return self.form_invalid(form)
 
         return super(SubscriptionPaymentCreateView, self).form_valid(form)

@@ -462,7 +462,7 @@ class Subscription(models.Model):
                     user=user,
                     form=form)
             except CreditCardProcessingError as ccpe:
-                raise SubscriptionPurchaseError(ccpe.message)
+                raise SubscriptionPurchaseError(str(ccpe))
         else:  # pay_when == self.PAY_LATER:
             subscription_payment = payment_context = None
 
