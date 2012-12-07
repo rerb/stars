@@ -8,11 +8,7 @@ from django.test.client import Client
 
 class ViewTest(TestCase):
     """
-        Provides a base TestCase that checks if a view;
-
-            1. is GET-able, and;
-
-            2. returns a loadable success_url.
+        Provides a base TestCase that checks if a view is GET-able.
     """
     view_class = None  # Must be set in subclass.
 
@@ -24,12 +20,24 @@ class ViewTest(TestCase):
         self.request = self._get_middleworn_request()
         self.request.method = 'GET'
 
-    def test_get_succeeds(self, **kwargs):
+    def test_get_succeeds(self, status_code=200, **kwargs):
         """Is view.as_view() GET-able?
         """
         response = self.view_class.as_view()(self.request, **kwargs)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, status_code)
 
+    def _get_middleworn_request(self):
+        request = HttpRequest()
+        for mw in self.middleware:
+            mw().process_request(request)
+        return request
+
+
+class FormMixinViewTest(ViewTest):
+    """
+        Adds a test to check that a view's success_url is loadable to
+        those defined in ViewTest.
+    """
     def test_success_url_is_loadable(self, **kwargs):
         """Is the url returned by get_success_url() loadable?
         """
@@ -41,12 +49,6 @@ class ViewTest(TestCase):
         success_url = view.get_success_url(**kwargs)
         response = Client().get(success_url, follow=True)
         self.assertEqual(response.status_code, 200)
-
-    def _get_middleworn_request(self):
-        request = HttpRequest()
-        for mw in self.middleware:
-            mw().process_request(request)
-        return request
 
 
 class ProtectedViewTest(ViewTest):
@@ -64,10 +66,7 @@ class ProtectedViewTest(ViewTest):
                satisfied;
 
             2. is *non* GET-able when the gatekeeper rule is
-               not satisfied, and;
-
-            3. returns a loadable success_url when the gatekeeper
-               rule is satisfied.
+               not satisfied.
     """
     def open_gate(self):
         raise NotImplemented
@@ -88,8 +87,16 @@ class ProtectedViewTest(ViewTest):
         response = self.view_class.as_view()(self.request, **kwargs)
         self.assertEqual(response.status_code, 403)
 
+
+class ProtectedFormMixinViewTest(ProtectedViewTest, FormMixinViewTest):
+    """
+        Adds a test to check that a view's success_url is loadable
+        when the gatekeeper rule is satisfied, to those tests defined
+        in ProtectedViewTest.
+    """
     def test_success_url_is_loadable(self, **kwargs):
         """Is the url returned by get_success_url() loadable?
         """
         self.open_gate()
-        super(ProtectedViewTest, self).test_success_url_is_loadable(**kwargs)
+        super(ProtectedFormMixinViewTest,
+              self).test_success_url_is_loadable(**kwargs)
