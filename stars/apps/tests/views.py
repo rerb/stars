@@ -22,6 +22,11 @@ class ViewTest(TestCase):
 
     def test_get_succeeds(self, status_code=200, **kwargs):
         """Is view.as_view() GET-able?
+
+        Checks if the status code of the response is equal to status_code,
+        which defaults to 200.  Maybe your view returns a redirect, though,
+        so a successful GET returns a 301 -- so status_code can be
+        specified.
         """
         response = self.view_class.as_view()(self.request, **kwargs)
         self.assertEqual(response.status_code, status_code)
