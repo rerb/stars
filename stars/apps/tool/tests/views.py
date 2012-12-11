@@ -1,14 +1,16 @@
 """Tests for apps.tool.views.
 """
 from django.contrib.messages.middleware import MessageMiddleware
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, SuspiciousOperation
+from mock import patch
 
-from stars.apps.tests.views import ProtectedViewTest
-from stars.apps.tool.views import SummaryToolView
-from stars.test_factories import InstitutionFactory, StarsAccountFactory
+from stars.apps.tests.views import ProtectedFormMixinViewTest, ViewTest
+from stars.apps.tool.views import ToolLandingPageView, SummaryToolView
+from stars.test_factories import (InstitutionFactory, StarsAccountFactory,
+                                  UserFactory)
 
 
-class InstitutionToolMixinTest(ProtectedViewTest):
+class InstitutionToolMixinTest(ProtectedFormMixinViewTest):
     """
         Provides a base TestCase for views that inherit from
         InstitutionToolMixin.
@@ -16,7 +18,7 @@ class InstitutionToolMixinTest(ProtectedViewTest):
     blocked_user_level = None  # user_level that should be blocked
     blessed_user_level = None  # user_level that should be allowed to GET
 
-    middleware = ProtectedViewTest.middleware + [MessageMiddleware]
+    middleware = ProtectedFormMixinViewTest.middleware + [MessageMiddleware]
 
     def setUp(self):
         super(InstitutionToolMixinTest, self).setUp()
@@ -93,3 +95,48 @@ class SummaryToolViewTest(InstitutionViewOnlyToolMixinTest):
         with self.assertRaises(PermissionDenied):
             _ = self.view_class.as_view()(self.request,
                                           institution_slug='')
+
+
+class ToolLandingPageViewTest(ViewTest):
+    view_class = ToolLandingPageView
+
+    def setUp(self):
+        super(ToolLandingPageViewTest, self).setUp()
+        self.request.user = UserFactory()
+
+    def test_get_succeeds(self):
+        """Is view.as_view() GET-able?
+        """
+        super(ToolLandingPageViewTest, self).test_get_succeeds(
+            status_code=301)
+
+    def test_redirect_when_no_stars_account(self):
+        """Is the redirection when the user has no STARS accounts correct?"""
+        with patch('stars.apps.tool.views.reverse') as reverse_mock:
+            try:
+                self.view_class.as_view()(request=self.request)
+            except SuspiciousOperation:  # Django doesn't like reverse mocked.
+                pass
+            reverse_mock.assert_called_with('no-stars-account')
+
+    def test_redirect_when_one_stars_account(self):
+        """Is the redirection when the user has one STARS account correct?"""
+        stars_account = StarsAccountFactory(user=self.request.user)
+        with patch('stars.apps.tool.views.reverse') as reverse_mock:
+            try:
+                self.view_class.as_view()(request=self.request)
+            except SuspiciousOperation:  # Django doesn't like reverse mocked.
+                pass
+            reverse_mock.assert_called_with('tool-summary',
+                                            stars_account.institution.slug)
+
+    def test_redirect_when_many_stars_accounts(self):
+        """Is the redirection when the user has >1 STARS accounts correct?"""
+        for i in (1, 2):
+            _ = StarsAccountFactory(user=self.request.user)
+        with patch('stars.apps.tool.views.reverse') as reverse_mock:
+            try:
+                self.view_class.as_view()(request=self.request)
+            except SuspiciousOperation:  # Django doesn't like reverse mocked.
+                pass
+            reverse_mock.assert_called_with('select-institution')
