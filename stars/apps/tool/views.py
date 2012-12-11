@@ -59,6 +59,14 @@ class SummaryToolView(InstitutionToolMixin,
 
 
 class ToolLandingPageView(RedirectView):
+    """
+        Redirects user based on the number of STARS accounts he's
+        associated with.  Probably mis-named; not really a landing page,
+        in that no one ever actually lands here.
+
+        Provides a view that can be pointed to by the 'Reporting' link
+        in the menu nav and bread crumbs.
+    """
 
     def get_redirect_url(self, **kwargs):
         """
@@ -76,13 +84,21 @@ class ToolLandingPageView(RedirectView):
 
 
 class NoStarsAccountView(TemplateView):
+    """
+        Explains to a user what it means that he has no STARS account.
 
+        Needed because folks w/AASHE accounts can get to STARS, but
+        are not allowed to access to the reporting tool.
+    """
     template_name = 'tool/no_stars_account.html'
 
 
 class SelectInstitutionView(ListView):
     """
         Displays a list of institutions this user has a STARS account for.
+
+        When a user selects an institution, he's redirected to the
+        tool-summary page for that institution.
     """
     model = StarsAccount
     tab_content_title = 'institutions'
