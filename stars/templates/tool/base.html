@@ -17,7 +17,11 @@
             <a href="/">Home</a> <span class="divider">/</span>
         </li>
       <li>
-        <a href='{% url tool-summary institution.slug %}'>Reporting</a>
+        {% if institution %}
+            <a href='{% url tool-summary institution.slug %}'>Reporting</a>
+        {% else %}
+            <a href='{% url tool-landing-page %}'>Reporting</a>
+        {% endif %}
         <span class="divider">/</span>
       </li>
       {% block crumbs-tool %}{% endblock %}
@@ -31,7 +35,8 @@
 
             <div style='text-align: center'>
                {% if user.current_inst.is_participant %}
-                    <span class='label label-success'>STARS Participant</span><br/>
+                    <span class='label label-success'>STARS Participant</span>
+                    <br/>
               {% else %}
                     <span class='label label-important'>Survey Respondent</span>
                     <br/>
