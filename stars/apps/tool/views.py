@@ -1,6 +1,8 @@
 from django.core.exceptions import PermissionDenied
-from django.views.generic import TemplateView
+from django.core.urlresolvers import reverse
+from django.views.generic import ListView, RedirectView, TemplateView
 
+from stars.apps.institutions.models import StarsAccount
 from stars.apps.tool.mixins import InstitutionToolMixin
 
 
@@ -54,3 +56,38 @@ class SummaryToolView(InstitutionToolMixin,
             raise PermissionDenied(error_msg)
         else:
             return super(SummaryToolView, self).get(request, *args, **kwargs)
+
+
+class ToolLandingPageView(RedirectView):
+
+    def get_redirect_url(self, **kwargs):
+        """
+        Redirect based on the number of STARS accounts associated with
+        this user.
+        """
+        stars_accounts = StarsAccount.objects.filter(user=self.request.user)
+
+        if stars_accounts.count() is 0:
+            return reverse('no-stars-account')
+        elif stars_accounts.count() is 1:
+            return reverse('tool-summary', stars_accounts[0].institution.slug)
+        else:
+            return reverse('select-institution')
+
+
+class NoStarsAccountView(TemplateView):
+
+    template_name = 'tool/no_stars_account.html'
+
+
+class SelectInstitutionView(ListView):
+    """
+        Displays a list of institutions this user has a STARS account for.
+    """
+    model = StarsAccount
+    tab_content_title = 'institutions'
+    template_name = 'tool/select_institution.html'
+
+    def get_queryset(self):
+        return StarsAccount.objects.filter(user=self.request.user).order_by(
+            'institution__name')
