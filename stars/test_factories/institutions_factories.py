@@ -15,7 +15,8 @@ class InstitutionFactory(factory.Factory):
     enabled = True
     slug = factory.Sequence(
         lambda i: 'test-inst-{0}-{1}'.format(i, time.time()))
-
+    name = factory.Sequence(
+        lambda i: 'test institution {0}.{1}'.format(i, time.time()))
 
 class PendingAccountFactory(factory.Factory):
     FACTORY_FOR = PendingAccount
