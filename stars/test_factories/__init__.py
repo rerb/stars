@@ -1,3 +1,5 @@
+from accounts_factories import UserProfileFactory
+
 from submissions_factories import (CategorySubmissionFactory,
                                    CreditUserSubmissionFactory,
                                    ResponsiblePartyFactory,
@@ -39,4 +41,5 @@ __all__ = [ApplicabilityReasonFactory,
            SubscriptionFactory,
            SubscriptionPaymentFactory,
            UserFactory,
+           UserProfileFactory,
            ValueDiscountFactory]
