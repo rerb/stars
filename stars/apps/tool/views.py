@@ -2,7 +2,7 @@ from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.views.generic import ListView, RedirectView, TemplateView
 
-from stars.apps.institutions.models import StarsAccount
+from stars.apps.institutions.models import Institution, StarsAccount
 from stars.apps.tool.mixins import InstitutionToolMixin
 
 
@@ -91,6 +91,90 @@ class NoStarsAccountView(TemplateView):
         are not allowed to access to the reporting tool.
     """
     template_name = 'tool/no_stars_account.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(NoStarsAccountView, self).get_context_data(**kwargs)
+        institution = self.get_institution(user=self.request.user)
+        context['institution'] = institution
+        context['liaison_name'] = self.get_liaison_name(institution)
+        context['liaison_phone'] = self.get_liaison_phone(institution)
+        context['liaison_email'] = (institution.contact_email if institution
+                                    else None)
+        return context
+
+    def get_institution(self, user):
+        """
+            Returns one institution associated with this user.
+
+            Usually this is the only institution associated with
+            this user.  Rarely, more than one institution will be
+            associated with a user; when this happens, the first
+            institution that's a STARS participant will be returned.
+        """
+        if not user.userprofile.profile_instlist:
+            return None
+
+        institution_ids = user.userprofile.profile_instlist.split(',')
+        num_institutions = len(institution_ids)
+
+        # profile_instlist can be empty, so:
+        if num_institutions is 0:
+            institution = None
+        elif num_institutions is 1:
+            try:
+                institution = Institution.objects.get(id=institution_ids[0])
+            except Institution.DoesNotExist:
+                institution = None
+        else:
+            # valid_institution_ids is a list of ids that point to
+            # Institutions; keep track of them so that, in the event that
+            # none of the institution_ids represent an Institution that's
+            # a STARS participant, we don't try to lookup an id that
+            # doesn't point to an Institution.
+            valid_institution_ids = []
+            for institution_id in institution_ids:
+                try:
+                    institution = Institution.objects.get(id=institution_id)
+                    valid_institution_ids.append(institution.id)
+                    if institution.is_participant:
+                        break
+                except Institution.DoesNotExist:
+                    next
+            else:
+                # None are STARS participants? Just return the first one.
+                if valid_institution_ids:
+                    institution = Institution.objects.get(
+                        id=valid_institution_ids[0])
+                else:  # lookup failed for all institution_ids
+                    institution = None
+
+        return institution
+
+    def get_liaison_name(self, institution):
+        if institution:
+            full_name = ''
+            for name in (institution.contact_first_name,
+                         institution.contact_middle_name,
+                         institution.contact_last_name):
+                if name:
+                    full_name += name + ' '
+            return full_name.strip()
+        else:
+            return None
+
+    def get_liaison_phone(self, institution):
+        if institution:
+            if institution.contact_phone:
+                if institution.contact_phone_ext:
+                    return '{phone} x{ext}'.format(
+                        phone=institution.contact_phone,
+                        ext=institution.contact_phone_ext)
+                else:
+                    return institution.contact_phone
+            else:
+                return None
+        else:
+            return None
 
 
 class SelectInstitutionView(ListView):
