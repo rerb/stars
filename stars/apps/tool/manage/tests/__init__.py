@@ -14,7 +14,8 @@ from views import (AccountCreateViewTest, AccountDeleteViewTest,
                    SubscriptionPaymentCreateViewTest,
                    SubscriptionPaymentOptionsViewTest)
 
-from stars.apps.tool.tests.views import (SummaryToolViewTest,
+from stars.apps.tool.tests.views import (NoStarsAccountViewTest,
+                                         SummaryToolViewTest,
                                          ToolLandingPageViewTest)
 
 
@@ -29,6 +30,7 @@ __test__ = {
     'MigrateDataViewTest': MigrateDataViewTest,
     'MigrateOptionsViewTest': MigrateOptionsViewTest,
     'MigrateVersionViewTest': MigrateVersionViewTest,
+    'NoStarsAccountViewTest': NoStarsAccountViewTest,
     'PendingAccountDeleteViewTest': PendingAccountDeleteViewTest,
     'ResponsiblePartyCreateViewTest': ResponsiblePartyCreateViewTest,
     'ResponsiblePartyDeleteViewTest': ResponsiblePartyDeleteViewTest,
