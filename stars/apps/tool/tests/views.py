@@ -10,7 +10,7 @@ from mock import patch
 import stars.apps.accounts.middleware as stars_middleware
 from stars.apps.tests.views import ProtectedFormMixinViewTest, ViewTest
 from stars.apps.tool.views import (NoStarsAccountView, ToolLandingPageView,
-                                   SummaryToolView)
+                                   SelectInstitutionView, SummaryToolView)
 from stars.test_factories import (InstitutionFactory, StarsAccountFactory,
                                   UserFactory, UserProfileFactory)
 
@@ -333,3 +333,21 @@ class NoStarsAccountViewTest(ViewTest):
         response = self.view_class.as_view()(request=self.request)
         self.assertTrue(re.search("isn't currently registered as a STARS",
                                   response.rendered_content))
+
+
+class SelectInstitutionViewTest(ViewTest):
+
+    view_class = SelectInstitutionView
+    middleware = ViewTest.middleware + [AuthenticationMiddleware]
+
+    def setUp(self):
+        """
+            Creates some data to show on the page.
+            Gives ViewTest.test_get_succeeds a little bit
+            more of a work out.
+        """
+        super(SelectInstitutionViewTest, self).setUp()
+        institution = InstitutionFactory()
+        stars_account = StarsAccountFactory(institution=institution,
+                                            user=UserFactory())
+        self.request.user = stars_account.user
