@@ -21,12 +21,12 @@
         {% testrule user_has_access_level user 'admin' user.current_inst %}
 
         <li{% if active_tab == 'users' %} class="active" {% endif %}>
-            <a href="{% url account-list user.current_inst.slug %}">
+            <a href="{% url account-list institution.slug %}">
               Users
             </a>
         </li>
         <li{% if active_tab == 'contact' %} class="active" {% endif %}>
-            <a href="{% url institution-contact user.current_inst.slug %}">
+            <a href="{% url institution-contact institution.slug %}">
               Contact
             </a>
         </li>
@@ -36,15 +36,15 @@
             </a>
         </li>
         <li{% if active_tab == 'rps' %} class="active" {% endif %}>
-            <a href="{% url responsible-party-list user.current_inst.slug %}">
+            <a href="{% url responsible-party-list institution.slug %}">
               Responsible Parties
             </a>
         </li>
         <li{% if active_tab == 'share' %} class="active" {% endif %}>
-            <a href="{% url share-data user.current_inst.slug %}">Share Data</a>
+            <a href="{% url share-data institution.slug %}">Share Data</a>
         </li>
         <li{% if active_tab == 'migrate' %} class="active" {% endif %}>
-            <a href="{% url migrate-options user.current_inst.slug %}">Migrate</a>
+            <a href="{% url migrate-options institution.slug %}">Migrate</a>
         </li>
         {% endtestrule %}
     </ul>
