@@ -4,7 +4,6 @@ from unittest import TestCase
 
 from bs4 import BeautifulSoup
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.messages.middleware import MessageMiddleware
 from django.http import HttpRequest
@@ -16,14 +15,15 @@ from stars.apps.tool.my_submission import views
 from stars.apps.credits.models import Credit
 from stars.apps.submissions.models import CreditSubmission, SubmissionSet
 
+from stars.test_factories import UserFactory
+
 
 class SaveSnapshotTest(TestCase):
 
     def setUp(self):
         self.request = HttpRequest()
         self.request.method = 'POST'
-        self.user = User(username='sophisticate')
-        self.user.save()
+        self.user = UserFactory()
         self.request.user = self.user
         self.request.session = {}
 
@@ -31,9 +31,6 @@ class SaveSnapshotTest(TestCase):
         # to requests
         self.message_middleware = MessageMiddleware()
         self.message_middleware.process_request(self.request)
-
-    def tearDown(self):
-        self.user.delete()
 
     def test_render_to_response_missing_boundary_error_message(self):
         """Does render_to_response display an error if there's no boundary?
@@ -59,8 +56,7 @@ class ConfirmClassViewTest(TestCase):
     def setUp(self):
         self.request = HttpRequest()
         self.request.method = 'POST'
-        self.user = User(username='nososophisticate')
-        self.user.save()
+        self.user = UserFactory()
         self.request.user = self.user
         self.request.session = {}
         self.submissionset = SubmissionSet(creditset_id=-999,
@@ -73,10 +69,6 @@ class ConfirmClassViewTest(TestCase):
         # to requests
         self.message_middleware = MessageMiddleware()
         self.message_middleware.process_request(self.request)
-
-    def tearDown(self):
-        self.user.delete()
-        self.submissionset.delete()
 
     def test_render_to_response_missing_boundary_error_message(self):
         """Does render_to_response display an error if there's no boundary?
@@ -96,13 +88,13 @@ class ConfirmClassViewTest(TestCase):
         self.assertTrue('must complete your Boundary' in
                         response.cookies['messages'].js_output())
 
+
 class TopLevelTest(TestCase):
 
     def setUp(self):
         self.request = HttpRequest()
         self.request.method = 'POST'
-        self.user = User(username='sophisticate')
-        self.user.save()
+        self.user = UserFactory()
         self.request.user = self.user
         self.request.session = {}
 
@@ -111,11 +103,8 @@ class TopLevelTest(TestCase):
         self.message_middleware = MessageMiddleware()
         self.message_middleware.process_request(self.request)
 
-    def tearDown(self):
-        self.user.delete()
-
     def test_credit_detail_warnings(self):
-        """Does credit_detail show warning messages is ...form.has_warnings()?
+        """Does credit_detail show warning messages if ...form.has_warnings()?
         """
         self.request.user = MockUser()
         with testfixtures.Replacer() as r:
