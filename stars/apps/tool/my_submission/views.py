@@ -7,7 +7,7 @@ from django.views.generic.edit import FormView, UpdateView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 
-from datetime import datetime, date
+from datetime import date
 
 from stars.apps.helpers.forms.views import *
 from stars.apps.accounts.utils import respond
@@ -18,8 +18,6 @@ from stars.apps.submissions.tasks import send_certificate_pdf, rollover_submissi
 from stars.apps.submissions.utils import init_credit_submissions
 from stars.apps.submissions.rules import user_can_submit_for_rating, user_can_edit_submission, user_can_submit_snapshot
 from stars.apps.migrations.utils import create_ss_mirror
-from stars.apps.institutions.rules import user_has_access_level
-from stars.apps.cms.xml_rpc import get_article
 from stars.apps.tool.my_submission.forms import *
 from stars.apps.credits.models import *
 from stars.apps.helpers.forms.form_helpers import basic_save_form, basic_save_new_form
