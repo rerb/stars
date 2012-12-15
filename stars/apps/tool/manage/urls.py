@@ -27,7 +27,7 @@ urlpatterns = patterns(
         ResponsiblePartyCreateView.as_view(),
         name='responsible-party-create'),
 
-    url(r'^responsible-party/(?P<pk>\d+)/$',
+    url(r'^responsible-party/(?P<pk>\d+)/edit/$',
         ResponsiblePartyEditView.as_view(),
         name='responsible-party-edit'),
 
@@ -42,13 +42,13 @@ urlpatterns = patterns(
     url(r'^user/create/$', AccountCreateView.as_view(),
         name='account-create'),
 
-    url(r'^user/edit/(?P<pk>\d+)/$', AccountEditView.as_view(),
+    url(r'^user/(?P<pk>\d+)/edit/$', AccountEditView.as_view(),
         name='account-edit'),
 
-    url(r'^user/delete/(?P<pk>\d+)/$', AccountDeleteView.as_view(),
+    url(r'^user/(?P<pk>\d+)/delete/$', AccountDeleteView.as_view(),
         name='account-delete'),
 
-    url(r'^pending-user/delete/(?P<pk>\d+)/$',
+    url(r'^pending-user/(?P<pk>\d+)/delete/$',
         PendingAccountDeleteView.as_view(),
         name='pending-account-delete'),
 
@@ -74,7 +74,7 @@ urlpatterns = patterns(
     url(r'^subscription/create/$', SubscriptionCreateView.as_view(),
         name='subscription-create'),
 
-    url(r'^subscription/(?P<pk>\d+)/payment/$',
+    url(r'^subscription/(?P<pk>\d+)/payment/create/$',
         SubscriptionPaymentCreateView.as_view(),
         name='subscription-payment-create'),
 )
