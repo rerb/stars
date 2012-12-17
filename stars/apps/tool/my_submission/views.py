@@ -1,29 +1,46 @@
-from django.contrib import messages
-from django.shortcuts import get_object_or_404, render_to_response
-from django.http import HttpResponseRedirect, Http404
-from django.core.exceptions import PermissionDenied
-from django.views.generic import TemplateView as GenTemplateView
-from django.views.generic.edit import FormView, UpdateView
-from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
-
 from datetime import date
 
-from stars.apps.helpers.forms.views import *
-from stars.apps.accounts.utils import respond
-from stars.apps.accounts.mixins import SubmissionMixin
+from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
+from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.shortcuts import get_object_or_404, render_to_response
+from django.utils.decorators import method_decorator
+from django.views.generic import TemplateView as GenTemplateView
+from django.views.generic.edit import FormView, UpdateView
+
 from stars.apps.accounts.decorators import user_has_tool
-from stars.apps.submissions.models import *
-from stars.apps.submissions.tasks import send_certificate_pdf, rollover_submission
-from stars.apps.submissions.utils import init_credit_submissions
-from stars.apps.submissions.rules import user_can_submit_for_rating, user_can_edit_submission, user_can_submit_snapshot
-from stars.apps.migrations.utils import create_ss_mirror
-from stars.apps.tool.my_submission.forms import *
-from stars.apps.credits.models import *
-from stars.apps.helpers.forms.form_helpers import basic_save_form, basic_save_new_form
+from stars.apps.accounts.mixins import SubmissionMixin
+from stars.apps.accounts.utils import respond
+from stars.apps.credits.models import Category, Credit, CreditSet, Subcategory
+from stars.apps.helpers.forms.form_helpers import (basic_save_form,
+                                                   basic_save_new_form)
 from stars.apps.helpers.forms.forms import Confirm
-from stars.apps.tool.my_submission.forms import CreditUserSubmissionForm, CreditUserSubmissionNotesForm, ResponsiblePartyForm
+from stars.apps.helpers.forms.views import FormActionView, MultiFormView
+from stars.apps.migrations.utils import create_ss_mirror
 from stars.apps.notifications.models import EmailTemplate
+from stars.apps.submissions.models import (Boundary,
+                                           CategorySubmission,
+                                           CreditUserSubmission,
+                                           ResponsibleParty,
+                                           SubmissionSet,
+                                           SubcategorySubmission,
+                                           UploadSubmission)
+from stars.apps.submissions.rules import (user_can_submit_for_rating,
+                                          user_can_edit_submission,
+                                          user_can_submit_snapshot)
+from stars.apps.submissions.tasks import (send_certificate_pdf,
+                                          rollover_submission)
+from stars.apps.submissions.utils import init_credit_submissions
+from stars.apps.tool.my_submission.forms import (CreditUserSubmissionForm,
+                                                 CreditUserSubmissionNotesForm,
+                                                 ExecContactForm,
+                                                 LetterForm,
+                                                 LetterStatusForm,
+                                                 ResponsiblePartyForm,
+                                                 SubcategorySubmissionForm)
+from stars.apps.tool.my_submission.forms import NewBoundaryForm
 
 def _get_active_submission(request):
 
