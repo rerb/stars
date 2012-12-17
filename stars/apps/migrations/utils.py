@@ -1,6 +1,5 @@
 import copy
 from stars.apps.submissions.models import CreditTestSubmission, CreditUserSubmission, SubcategorySubmission, DocumentationFieldSubmission, SubmissionSet, Boundary
-from stars.apps.submissions.utils import init_credit_submissions
 from stars.apps.credits.models import CreditSet
 
 def migrate_creditset(old_cs, new_version_name, release_date):
@@ -76,8 +75,6 @@ def create_ss_mirror(old_ss, new_cs=None, registering_user=None):
         new_ss.registering_user = old_ss.registering_user
 
     new_ss.save()
-
-    init_credit_submissions(new_ss)
 
     return migrate_submission(old_ss, new_ss)
 

@@ -349,6 +349,51 @@ class SubmissionSet(models.Model, FlaggableModel):
 
         return total
 
+    def init_credit_submissions(self):
+        """
+            Initializes all CreditUserSubmissions in a SubmissionSet
+        """
+        # Build the category list if necessary
+        for category in self.creditset.category_set.all():
+            try:
+                categorysubmission = CategorySubmission.objects.get(
+                    category=category, submissionset=self)
+            except:
+                categorysubmission = CategorySubmission(
+                    category=category, submissionset=self)
+                categorysubmission.save()
+
+            # Create SubcategorySubmissions if necessary
+            for subcategory in categorysubmission.category.subcategory_set.all():
+                try:
+                    subcategorysubmission = SubcategorySubmission.objects.get(
+                        subcategory=subcategory,
+                        category_submission=categorysubmission)
+                except SubcategorySubmission.DoesNotExist:
+                    subcategorysubmission = SubcategorySubmission(
+                        subcategory=subcategory,
+                        category_submission=categorysubmission)
+                    subcategorysubmission.save()
+
+                # Create CreditUserSubmissions if necessary
+                for credit in subcategory.credit_set.all():
+                    try:
+                        creditsubmission = CreditUserSubmission.objects.get(
+                            credit=credit,
+                            subcategory_submission=subcategorysubmission)
+                    except CreditUserSubmission.DoesNotExist:
+                        creditsubmission = CreditUserSubmission(
+                            credit=credit,
+                            subcategory_submission=subcategorysubmission)
+                        creditsubmission.save()
+
+    def save(self, *args, **kwargs):
+        if not self.pk:  # only run on initial save()
+            self.init_credit_submissions()
+        super(SubmissionSet, self).save()
+
+
+
 INSTITUTION_TYPE_CHOICES = (
                                 ("2_year", "Two Year"),
                                 ("4_year", "Four Year"),

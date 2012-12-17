@@ -29,7 +29,6 @@ from stars.apps.registration.forms import (DataCollectorRegistrationForm,
 from stars.apps.registration.models import ValueDiscount
 from stars.apps.registration.utils import is_canadian_zipcode
 from stars.apps.submissions.models import SubmissionSet
-from stars.apps.submissions.utils import init_credit_submissions
 
 
 logger = getLogger('stars')
@@ -394,7 +393,6 @@ def init_submissionset(institution, user, date_callback=date.today):
     # Submission is due in one year
     submissionset = SubmissionSet(creditset=creditset, institution=institution, date_registered=date_callback(), registering_user=user, status='ps')
     submissionset.save()
-    init_credit_submissions(submissionset)
     institution.current_submission = submissionset
     institution.save()
     return submissionset
