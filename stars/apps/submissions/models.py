@@ -3,19 +3,22 @@ from logging import getLogger
 import os, re
 
 from django.conf import settings
-from django.db import models
 from django.contrib.auth.models import User
-from django.contrib.localflavor.us.models import PhoneNumberField
-from django.db.models import Q
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.localflavor.us.models import PhoneNumberField
 from django.core import urlresolvers
 from django.core.files.uploadedfile import InMemoryUploadedFile
+from django.db import models
+from django.db.models import Q
 
-from stars.apps.credits.models import CreditSet, Category, Subcategory, Credit, DocumentationField, Choice, ApplicabilityReason, Rating
+from stars.apps.credits.models import (CreditSet, Category,
+                                       Subcategory, Credit,
+                                       DocumentationField, Choice,
+                                       ApplicabilityReason, Rating)
 from stars.apps.institutions.models import Institution, ClimateZone
-from stars.apps.submissions.pdf.export import build_report_pdf
 from stars.apps.notifications.models import EmailTemplate
+from stars.apps.submissions.pdf.export import build_report_pdf
 
 SUBMISSION_STATUS_CHOICES = (
     ('ps', 'Pending Submission'),
