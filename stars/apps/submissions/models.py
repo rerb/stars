@@ -196,7 +196,10 @@ class SubmissionSet(models.Model, FlaggableModel):
         return "/tool/manage/submissionsets/%d/" % (self.id)
 
     def get_submit_url(self):
-        return "/tool/submissions/submit/"
+        return urlresolvers.reverse(
+            'submission-submit',
+            kwargs={'institution_slug': self.institution.slug,
+                    'submissionset': self.id})
 
     def get_scorecard_url(self):
         if self.date_submitted:
@@ -595,7 +598,9 @@ class CategorySubmission(models.Model):
         return self.submissionset
 
     def get_submit_url(self):
-        return self.category.get_submit_url()
+        return '{submissionset_submit_url}#ec_{category_id}'.format(
+            submissionset_submit_url=self.submissionset.get_submit_url(),
+            category_id = self.id)
 
     def get_scorecard_url(self):
         return '%s%s' % (self.submissionset.get_scorecard_url(), self.category.get_browse_url())
@@ -733,7 +738,7 @@ class SubcategorySubmission(models.Model):
         return self.subcategory.credit_set.count()
 
     def get_submit_url(self):
-        return self.subcategory.get_submit_url()
+        return '_'.join((self.submissionset.get_submit_url(), self.id))
 
     def get_submit_edit_url(self):
         return self.subcategory.get_submit_edit_url()
@@ -1046,7 +1051,15 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
         pass
 
     def get_submit_url(self):
-        return self.credit.get_submit_url()
+        category_submission = self.subcategory_submission.category_submission
+        submissionset = category_submission.submissionset
+        return urlresolvers.reverse(
+            'creditsubmission-submit',
+            kwargs={'institution_slug': submissionset.institution.slug,
+                    'submissionset': submissionset.id,
+                    'category_id': category_submission.id,
+                    'subcategory_id': self.subcategory_submission.id,
+                    'credit_id': self.id})
 
     def get_scorecard_url(self):
         return self.credit.get_scorecard_url(self.subcategory_submission.category_submission.submissionset)
