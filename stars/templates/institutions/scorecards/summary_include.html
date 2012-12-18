@@ -38,7 +38,10 @@
 {% block summaryTable %}
     {% if preview %}
     	<div class="alert">
-    		This is a preview of your report. To continue editing your final report please go to <a href='/tool/submissions/'>My Submission</a>.
+    		This is a preview of your report. To continue editing your
+            final report please go to
+            <a href='{% url submission-summary institution.slug submissionset.id %}'>
+            My Submission</a>.
     	</div>
     {% endif %}
     {% include 'institutions/scorecards/submission_summary_table.html' %}

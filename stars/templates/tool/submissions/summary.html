@@ -1,5 +1,6 @@
 {% extends "tool/submissions/columned_layout.html" %}
 
+
 {% load aashe_rules_tags %}
 
 {% block crumbs-tool %}
@@ -14,18 +15,21 @@
         {% include 'tool/submissions/submission_summary_table.html' %}
         <div class='submissionBoundary'>
             <p style='text-align: center;'>
-              {% testrule user_can_submit_for_rating user institution.current_submission %}
-                <a href='{{ submissionset.get_submit_url }}' class='btn btn-success'>
+              {% testrule user_can_submit_for_rating user submissionset %}
+                <a href='{{ submissionset.get_submit_url }}'
+                   class='btn btn-success'>
                     <i class="icon-check icon-white"></i> Submit for Rating</a>
               {% endtestrule %}
 
               {% testrule user_has_access_level user 'admin' institution %}
-                <a href='/tool/submissions/boundary/' class='btn btn-warning'>
+                <a href='{% url boundary-edit institution.slug submissionset.id %}'
+                   class='btn btn-warning'>
                     <i class="icon-edit icon-white"></i> Edit Boundary</a>
               {% endtestrule %}
 
               {% testrule institution_has_snapshot_feature institution %}
-                <a href='/tool/submissions/snapshot/' class='btn btn-info'>
+                <a href='{% url save-snapshot institution.slug submissionset.id %}'
+                   class='btn btn-info'>
                     <i class="icon-share icon-white"></i> Save Snapshot</a>
               {% endtestrule %}
             </p>
@@ -121,7 +125,7 @@
                                                 <tbody>
                                                 {% for c in sub.creditusersubmission_set.all %}
                                                     <tr class='{% cycle 'even' 'odd' %}' {% ifchanged c.credit.type %}style="border-top-width: 1px;"{% endifchanged %}>
-                                                        <td class='credit'><a href='{{ c.credit.get_submit_url }}'>
+                                                        <td class='credit'><a href='{{ c.get_submit_url }}'>
                                                             {{ c.credit }} <!-- {{ c.id }} -->
                                                         </a></td>
                                                         <td>{% show_status_icon c %}</td>
