@@ -14,7 +14,7 @@ import testfixtures
 from stars.apps.tool.my_submission import views
 from stars.apps.credits.models import Credit
 from stars.apps.submissions.models import CreditSubmission, SubmissionSet
-
+from stars.apps.tool.tests.views import UserCanEditSubmissionMixinTest
 from stars.test_factories import UserFactory
 
 
@@ -143,3 +143,8 @@ class MockUser(object):
 
     def has_perm(self, *args):
         return True
+
+
+class SubmissionSummaryViewTest(UserCanEditSubmissionMixinTest):
+
+    view_class = views.SubmissionSummaryView

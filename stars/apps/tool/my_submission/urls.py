@@ -1,10 +1,18 @@
 from django.conf.urls.defaults import patterns, url
-from stars.apps.tool.my_submission.views import EditBoundaryView, SaveSnapshot, ConfirmClassView
+from stars.apps.tool.my_submission.views import (ConfirmClassView,
+                                                 EditBoundaryView,
+                                                 SaveSnapshot,
+                                                 SubmissionSummaryView)
+
 
 urlpatterns = patterns(
     'stars.apps.tool.my_submission.views',
 
-    (r'^$', 'summary'),
+    url(r'^old-summary/$', 'summary', name='old-submission-summary'),
+
+    url(r'^$', SubmissionSummaryView.as_view(),
+        name='submission-summary'),
+
     (r'^boundary/$', EditBoundaryView.as_view()),
     (r'^add-responsible-party/$', 'add_responsible_party'),
 #    (r'^(?P<category_id>\d+)/$', 'category_detail'),

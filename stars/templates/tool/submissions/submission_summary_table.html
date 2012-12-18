@@ -7,7 +7,7 @@
         <th>
           STARS Version
         </th>
-        {% testrule institution_has_score_feature user.current_inst %}
+        {% testrule institution_has_score_feature institution %}
 	        <th>
 	        	Provisional STARS Rating
 	        	{% show_help_context 'provisional_rating' %}
@@ -20,24 +20,24 @@
     <tbody>
     <tr>
         <td>
-          {{ active_submission.creditset.version }}
-          {% testrule user_can_migrate_version user user.current_inst %}
+          {{ submissionset.creditset.version }}
+          {% testrule user_can_migrate_version user institution %}
               <br/><a href='/tool/manage/migrate/' class='btn btn-mini'>
         		<i class='icon-share-alt'></i >Migrate</a>
           {% endtestrule %}
         </td>
-        {% testrule institution_has_score_feature user.current_inst %}
+        {% testrule institution_has_score_feature institution %}
         <td>
-            {{ active_submission.get_STARS_rating }}
+            {{ submissionset.get_STARS_rating }}
          </td>
         <td>
-            {{ active_submission.get_STARS_score|floatformat:2 }}
+            {{ submissionset.get_STARS_score|floatformat:2 }}
         </td>
         {% endtestrule %}
     	<td>
-          {% testrule institution_has_export active_submission.institution %}
-    		<a href='{{ active_submission.get_scorecard_url }}pdf/'
-    		{% if active_submission.status != 'r' or not active_submission.pdf_report %}
+          {% testrule institution_has_export submissionset.institution %}
+    		<a href='{{ submissionset.get_scorecard_url }}pdf/'
+    		{% if submissionset.status != 'r' or not submissionset.pdf_report %}
     		onclick="return confirm('This export could take a minute or two, please be patient.');"
     		{% endif %}
     		target='_blank'>

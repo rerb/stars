@@ -7,7 +7,7 @@ from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, render_to_response
 from django.utils.decorators import method_decorator
-from django.views.generic import TemplateView as GenTemplateView
+from django.views.generic import TemplateView
 from django.views.generic.edit import FormView, UpdateView
 
 from stars.apps.accounts.decorators import user_has_tool
@@ -32,7 +32,7 @@ from stars.apps.submissions.rules import (user_can_submit_for_rating,
                                           user_can_submit_snapshot)
 from stars.apps.submissions.tasks import (send_certificate_pdf,
                                           rollover_submission)
-from stars.apps.submissions.utils import init_credit_submissions
+from stars.apps.tool.mixins import UserCanEditSubmissionMixin
 from stars.apps.tool.my_submission.forms import (CreditUserSubmissionForm,
                                                  CreditUserSubmissionNotesForm,
                                                  ExecContactForm,
@@ -41,6 +41,7 @@ from stars.apps.tool.my_submission.forms import (CreditUserSubmissionForm,
                                                  ResponsiblePartyForm,
                                                  SubcategorySubmissionForm)
 from stars.apps.tool.my_submission.forms import NewBoundaryForm
+
 
 def _get_active_submission(request):
 
@@ -53,34 +54,30 @@ def _get_active_submission(request):
     if active_submission.is_locked:
         raise PermissionDenied("This submission is locked. It may be in the process of being migrated. Please try again.")
 
-    if active_submission.categorysubmission_set.count() == 0:
+    # if active_submission.categorysubmission_set.count() == 0:
         # This only gets run once. Assumes that the underlying creditset doesn't change
         # @todo: remove after integrating into registration
-        init_credit_submissions(active_submission)
+        # init_credit_submissions(active_submission)
 
     return active_submission
 
-@user_has_tool
-def summary(request):
-    """
-        The entry page showing a grand summary of the submission
-    """
-    active_submission = _get_active_submission(request)
-    category_submission_list = []
-    if active_submission:
-        category_submission_list = active_submission.categorysubmission_set.all().select_related()
 
-    is_admin = request.user.has_perm('admin')
+class SubmissionSummaryView(UserCanEditSubmissionMixin, TemplateView):
+    template_name = 'tool/submissions/summary.html'
 
-    context={
-        'active_submission': active_submission,
-        'category_submission_list': category_submission_list,
-        'latest_creditset': CreditSet.objects.get_latest(),
-        'is_admin': is_admin,
-        'summary': True,
-    }
+    def update_logical_rules(self):
+        super(SubmissionSummaryView, self).update_logical_rules()
+        self.add_logical_rule({ 'name': 'user_has_view_access',
+                                'param_callbacks': [
+                                    ('user', 'get_request_user'),
+                                    ('institution', 'get_institution')] })
 
-    return respond(request, "tool/submissions/summary.html", context)
+    def get_context_data(self, **kwargs):
+        context = super(SubmissionSummaryView, self).get_context_data(**kwargs)
+        context['category_submission_list'] = self.get_submissionset(
+            ).categorysubmission_set.all().select_related()
+        return context
+
 
 class EditBoundaryView(UpdateView):
     """
@@ -163,7 +160,7 @@ class SaveSnapshot(FormView):
                                     date_registered=date.today(),
                                     status='ps')
             new_ss.save()
-            init_credit_submissions(new_ss)
+            # init_credit_submissions(new_ss)
             ss.institution.current_submission = new_ss
             ss.institution.save()
             ss.save()
@@ -212,7 +209,7 @@ class SubmitForRatingMixin(SubmissionMixin):
             return context[self.instance_name]
         return None
 
-class ConfirmClassView(SubmitForRatingMixin, GenTemplateView):
+class ConfirmClassView(SubmitForRatingMixin, TemplateView):
     """
         The first step in the final submission process
     """

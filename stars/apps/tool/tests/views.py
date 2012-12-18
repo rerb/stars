@@ -8,11 +8,13 @@ from django.core.exceptions import PermissionDenied, SuspiciousOperation
 from mock import patch
 
 import stars.apps.accounts.middleware as stars_middleware
-from stars.apps.tests.views import ProtectedFormMixinViewTest, ViewTest
+from stars.apps.tests.views import (ProtectedFormMixinViewTest,
+                                    ProtectedViewTest, ViewTest)
 from stars.apps.tool.views import (NoStarsAccountView, ToolLandingPageView,
                                    SelectInstitutionView, SummaryToolView)
 from stars.test_factories import (InstitutionFactory, StarsAccountFactory,
-                                  UserFactory, UserProfileFactory)
+                                  SubmissionSetFactory, UserFactory,
+                                  UserProfileFactory)
 
 
 class InstitutionToolMixinTest(ProtectedFormMixinViewTest):
@@ -83,6 +85,44 @@ class InstitutionViewOnlyToolMixinTest(InstitutionToolMixinTest):
     blocked_user_level = ''
 
 
+class UserCanEditSubmissionMixinTest(ProtectedViewTest):
+    """
+        Provides a base TestCase for views that inherit from
+        UserCanEditSubmissionMixin.
+    """
+    def setUp(self):
+        super(UserCanEditSubmissionMixinTest, self).setUp()
+        self.institution = InstitutionFactory(slug='on-the-beach-soldier')
+        self.account = StarsAccountFactory(institution=self.institution)
+        self.request.user = self.account.user
+        self.submission = SubmissionSetFactory(institution=self.institution)
+
+    def open_gate(self):
+        self._make_submission_editable()
+        self.account.user_level = 'submit'
+        self.account.save()
+
+    def close_gate(self):
+        self._make_submission_uneditable()
+
+    def _make_submission_editable(self):
+        self.submission.status = 'f'
+        self.institution.current_submission = self.submission
+
+    def _make_submission_uneditable(self):
+        self.submission.status = 'r'
+
+    def test_get_succeeds(self):
+        super(UserCanEditSubmissionMixinTest, self).test_get_succeeds(
+            institution_slug=self.institution.slug,
+            submissionset=str(self.submission.id))
+
+    def test_get_is_blocked(self):
+        super(UserCanEditSubmissionMixinTest, self).test_get_is_blocked(
+            institution_slug=self.institution.slug,
+            submissionset=str(self.submission.id))
+
+
 class SummaryToolViewTest(InstitutionViewOnlyToolMixinTest):
     """This test is included in the apps.tool.manage.tests test
     suite (e.g., it's included in __test__ in
@@ -92,7 +132,6 @@ class SummaryToolViewTest(InstitutionViewOnlyToolMixinTest):
     the other test suite makes it easily runnable, e.g., as
     'manage.py test manage.SummaryToolViewTest'.
     """
-
     view_class = SummaryToolView
 
     def test_get_with_no_slug_raises_permission_denied(self):
