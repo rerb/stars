@@ -391,10 +391,14 @@ class SubmissionSet(models.Model, FlaggableModel):
                         creditsubmission.save()
 
     def save(self, *args, **kwargs):
-        if not self.pk:  # only run on initial save()
+        # is this the first time save() has been called for self?
+        run_init_credit_submissions = not self.pk
+        super(SubmissionSet, self).save()  # assigns self.pk
+        if run_init_credit_submissions:  # only run on initial save()
+            # init_credit_submissions() will fail if self.pk is None,
+            # so we wait until after super(...).save() assigns self.pk
+            # a value:
             self.init_credit_submissions()
-        super(SubmissionSet, self).save()
-
 
 
 INSTITUTION_TYPE_CHOICES = (
