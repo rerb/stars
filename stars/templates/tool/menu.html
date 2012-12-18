@@ -6,37 +6,47 @@
             {% else %}
                 <a href='{% url tool-landing-page %}'>
             {% endif %}
-            <i class="icon-home"></i>
-            My Summary</a>
+                    <i class="icon-home"></i>
+                    My Summary
+                </a>
         </li>
     {% endif %}
     {% if user.can_submit %}
-           <li{% if active_menu == "submission"%} class='active'{% endif %}>
+        <li{% if active_menu == "submission"%} class='active'{% endif %}>
             <a href='/tool/submissions/'>
-            <i class="icon-folder-close"></i>
-            My Submission</a>
-           </li>
-           {% block submission_outline %}{% endblock %}
-       {% endif %}
-       <li{% if active_menu == "resources"%} class='active'{% endif %}>
+                <i class="icon-folder-close"></i>
+                My Submission
+            </a>
+        </li>
+        {% block submission_outline %}{% endblock %}
+    {% endif %}
+    <li{% if active_menu == "resources"%} class='active'{% endif %}>
         <a href='/tool/my-resources/'>
             <i class='icon-briefcase'></i>
-            My Resources</a></li>
-          {% if institution.is_participant %}
-            <li{% if active_menu == "reports"%} class='active'{% endif %}>
-                <a href='/institutions/{{ institution.slug }}/report/'>
-                    <i class='icon-book'></i>
-                My Report(s)</a></li>
-          {% endif %}
+            My Resources
+        </a>
+    </li>
+    {% if institution.is_participant %}
+        <li{% if active_menu == "reports"%} class='active'{% endif %}>
+            <a href='/institutions/{{ institution.slug }}/report/'>
+                <i class='icon-book'></i>
+                My Report(s)
+            </a>
+        </li>
+    {% endif %}
     {% if user.is_staff %}
-           <li{% if active_menu == "admin"%} class='active'{% endif %}>
+        <li{% if active_menu == "admin"%} class='active'{% endif %}>
             <a href='/tool/admin/'>
-            <i class='icon-cog'></i>
-            Administer Site</a></li>
-           <li{% if active_menu == "editor"%} class='active'{% endif %}>
+                <i class='icon-cog'></i>
+                Administer Site
+            </a>
+        </li>
+        <li{% if active_menu == "editor"%} class='active'{% endif %}>
             <a href='/tool/credit-editor/'>
-            <i class='icon-pencil'></i>
-            Credit Editor</a></li>
-           {% block credit_editor_outline %}{% endblock %}
-       {% endif %}
+                <i class='icon-pencil'></i>
+                Credit Editor
+            </a>
+        </li>
+        {% block credit_editor_outline %}{% endblock %}
+    {% endif %}
 </ul>
