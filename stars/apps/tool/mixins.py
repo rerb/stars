@@ -3,9 +3,10 @@ from django.core.urlresolvers import reverse
 from aashe_rules.mixins import RulesMixin
 from stars.apps.accounts.mixins import StarsAccountMixin
 from stars.apps.institutions.views import InstitutionStructureMixin
+from stars.apps.submissions.views import SubmissionStructureMixin
 
 
-class ToolMixin(StarsAccountMixin, RulesMixin):
+class ToolMixin(RulesMixin, StarsAccountMixin):
 
     def get_success_url(self, institution_slug=None):
         """
@@ -60,3 +61,24 @@ class InstitutionAdminToolMixin(InstitutionToolMixin):
                                 'param_callbacks': [
                                     ('user', 'get_request_user'),
                                     ('institution', 'get_institution')] })
+
+
+class SubmissionToolMixin(InstitutionToolMixin,
+                          SubmissionStructureMixin):
+    """
+        A ToolMixin with knowledge of the Submission structure.
+    """
+    pass
+
+
+class UserCanEditSubmissionMixin(SubmissionToolMixin):
+    """
+        A SubmissionToolMixin that's available only to users with
+        permission to edit submissions.
+    """
+    def update_logical_rules(self):
+        super(InstitutionToolMixin, self).update_logical_rules()
+        self.add_logical_rule({ 'name': 'user_can_edit_submission',
+                                'param_callbacks': [
+                                    ('user', 'get_request_user'),
+                                    ('submission', 'get_submissionset')] })
