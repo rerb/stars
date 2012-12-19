@@ -1,4 +1,6 @@
+from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
+from django.utils.decorators import method_decorator
 
 from aashe_rules.mixins import RulesMixin
 from stars.apps.accounts.mixins import StarsAccountMixin
@@ -62,6 +64,10 @@ class InstitutionAdminToolMixin(InstitutionToolMixin):
                                     ('user', 'get_request_user'),
                                     ('institution', 'get_institution')] })
 
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(UserCanEditSubmissionMixin, self).dispatch(*args, **kwargs)
+
 
 class SubmissionToolMixin(InstitutionToolMixin,
                           SubmissionStructureMixin):
@@ -82,3 +88,7 @@ class UserCanEditSubmissionMixin(SubmissionToolMixin):
                                 'param_callbacks': [
                                     ('user', 'get_request_user'),
                                     ('submission', 'get_submissionset')] })
+
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(UserCanEditSubmissionMixin, self).dispatch(*args, **kwargs)
