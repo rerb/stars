@@ -148,3 +148,8 @@ class MockUser(object):
 class SubmissionSummaryViewTest(UserCanEditSubmissionMixinTest):
 
     view_class = views.SubmissionSummaryView
+
+
+class EditBoundaryViewTest(UserCanEditSubmissionMixinTest):
+
+    view_class = views.EditBoundaryView

@@ -91,10 +91,6 @@ class EditBoundaryView(UserCanEditSubmissionMixin, UpdateView):
     form_class = NewBoundaryForm
     model = Boundary
 
-    # @method_decorator(login_required)
-    # def dispatch(self, *args, **kwargs):
-    #     return super(EditBoundaryView, self).dispatch(*args, **kwargs)
-
     def form_valid(self, form):
         if not self.object:
             self.object = form.save(commit=False)
