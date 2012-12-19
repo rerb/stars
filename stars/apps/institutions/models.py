@@ -711,19 +711,6 @@ class RespondentSurvey(models.Model):
     def __unicode__(self):
         return self.institution.__unicode__()
 
-class InstitutionState(models.Model):
-    """
-        Tracks the current state of an institution such as the current submission set
-    """
-    from stars.apps.submissions.models import SubmissionSet
-
-    institution = models.OneToOneField(Institution, related_name='state')
-    active_submission_set = models.ForeignKey(SubmissionSet, related_name='active_submission')
-    latest_rated_submission_set = models.ForeignKey(SubmissionSet, related_name='rated_submission', null=True, blank=True, default=None)
-
-    def __unicode__(self):
-        return unicode(self.institution)
-
 class InstitutionPreferences(models.Model):
     """
         Tracks preferences and site-wide settings for an institution.

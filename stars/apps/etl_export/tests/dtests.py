@@ -95,13 +95,6 @@ class TestETL(TestCase):
 
         i.set_active_submission(ss2)
 
-        i_state = institutions.models.InstitutionState(
-            institution = i,
-            active_submission_set = ss2,
-            latest_rated_submission_set = ss
-            )
-        i_state.save()
-
         # Confirm is_active is populating properly
         etl_ss = etl_export.models.SubmissionSet()
         etl_ss.populate(ss)
