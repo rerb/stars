@@ -8,5 +8,5 @@
 {% endblock %}
 
 {% block submission_outline %}
-    <h5><a href='/tool/submissions/boundary'>Boundary</a></h5>
+    <h5><a href='{% url boundary-edit institution.slug submissionset.id %}'>Boundary</a></h5>
 {% endblock %}

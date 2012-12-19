@@ -63,6 +63,10 @@ def _get_active_submission(request):
 
 
 class SubmissionSummaryView(UserCanEditSubmissionMixin, TemplateView):
+    """
+        Though called a summary view, this actually throws up a template
+        through which a submission can be edited.
+    """
     template_name = 'tool/submissions/summary.html'
 
     def update_logical_rules(self):
@@ -79,38 +83,30 @@ class SubmissionSummaryView(UserCanEditSubmissionMixin, TemplateView):
         return context
 
 
-class EditBoundaryView(UpdateView):
+class EditBoundaryView(UserCanEditSubmissionMixin, UpdateView):
     """
         A basic view to edit the boundary
-
-        @todo: use FormView
     """
     template_name = "tool/submissions/boundary.html"
     form_class = NewBoundaryForm
     model = Boundary
-    success_url = "/tool/submissions/boundary/"
 
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super(EditBoundaryView, self).dispatch(*args, **kwargs)
-
-    def get_object(self):
-        self.active_submission = _get_active_submission(self.request)
-        try:
-            return self.active_submission.boundary
-        except:
-            return None
-
-    def get_context_data(self, **kwargs):
-        _context = super(EditBoundaryView, self).get_context_data(**kwargs)
-        _context['active_submission'] = self.active_submission
-        return _context
+    # @method_decorator(login_required)
+    # def dispatch(self, *args, **kwargs):
+    #     return super(EditBoundaryView, self).dispatch(*args, **kwargs)
 
     def form_valid(self, form):
         if not self.object:
             self.object = form.save(commit=False)
-            self.object.submissionset = self.active_submission
+            self.object.submissionset = self.get_submissionset()
         return super(EditBoundaryView, self).form_valid(form)
+
+    def get_object(self):
+        try:
+            return self.get_submissionset().boundary
+        except Boundary.DoesNotExist:
+            return None
+
 
 class SaveSnapshot(FormView):
     """

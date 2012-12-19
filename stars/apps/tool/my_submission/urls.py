@@ -4,20 +4,22 @@ from stars.apps.tool.my_submission.views import (ConfirmClassView,
                                                  SaveSnapshot,
                                                  SubmissionSummaryView)
 
-
 urlpatterns = patterns(
     'stars.apps.tool.my_submission.views',
-
-    url(r'^old-summary/$', 'summary', name='old-submission-summary'),
 
     url(r'^$', SubmissionSummaryView.as_view(),
         name='submission-summary'),
 
-    (r'^boundary/$', EditBoundaryView.as_view()),
+    url(r'^boundary/$', EditBoundaryView.as_view(),
+        name='boundary-edit'),
+
     (r'^add-responsible-party/$', 'add_responsible_party'),
-#    (r'^(?P<category_id>\d+)/$', 'category_detail'),
     (r'^(?P<category_id>\d+)/(?P<subcategory_id>\d+)/$', 'subcategory_detail'),
-    (r'^(?P<category_id>\d+)/(?P<subcategory_id>\d+)/(?P<credit_id>\d+)/$', 'credit_detail'),
+
+    url(r'^(?P<category_id>\d+)/(?P<subcategory_id>\d+)/(?P<credit_id>\d+)/$',
+        'credit_detail',
+        name='creditsubmission-submit'),
+
     (r'^(?P<category_id>\d+)/(?P<subcategory_id>\d+)/(?P<credit_id>\d+)/documentation/$', 'credit_documentation'),
     (r'^(?P<category_id>\d+)/(?P<subcategory_id>\d+)/(?P<credit_id>\d+)/notes/$', 'credit_notes'),
     # uploaded file access
@@ -26,7 +28,10 @@ urlpatterns = patterns(
     # Submit for Rating
     #(r'^submit/$', 'submit_for_rating'),
     url(r'^snapshot/$', SaveSnapshot.as_view(), name='save-snapshot'),
-    (r'^submit/$', ConfirmClassView.as_view()),
+
+    url(r'^submit/$', ConfirmClassView.as_view(),
+        name='submission-submit'),
+
     # (r'^submit/status/', 'submit_status'),
     (r'^submit/letter/$', 'submit_letter'),
     (r'^submit/finalize/$', 'submit_finalize'),
