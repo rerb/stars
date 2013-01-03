@@ -4,11 +4,12 @@
 
 
 from settings import *
+import dj_database_url
 
 HIDE_REPORTING_TOOL = False
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
-API_TEST_MODE = DEBUG
+API_TEST_MODE = False
 DEBUG_TOOLBAR = False
 MAINTENANCE_MODE = False
 CELERY_ALWAYS_EAGER = True
@@ -22,26 +23,28 @@ ADMINS = ('ben@aashe.org',)
 MANAGERS = ADMINS
 
 DATABASES = {
-    'default': {
-#         'NAME': '/Users/jamstooks/sqlite/pre1.2_test.db',
-#         'ENGINE': 'sqlite3',
-        'NAME': 'stars',
-        'ENGINE': 'django.db.backends.mysql',
-        'STORAGE_ENGINE': 'MyISAM',
-        'USER': 'root',
-        'PASSWORD': '',
-        'HOST': 'localhost',
-        'OPTIONS': {
-                    "connect_timeout": 30,
-                    },
-    },
-    'iss': {
-        'NAME': 'iss',
-        'ENGINE': 'django.db.backends.mysql',
-        'USER': 'root',
-        'PASSWORD': '',
-        'HOST': 'localhost',
-    }
+    'default': dj_database_url.parse("mysql://root@localhost/stars"),
+#       {
+# #         'NAME': '/Users/jamstooks/sqlite/pre1.2_test.db',
+# #         'ENGINE': 'sqlite3',
+#         'NAME': 'stars',
+#         'ENGINE': 'django.db.backends.mysql',
+#         'STORAGE_ENGINE': 'MyISAM',
+#         'USER': 'root',
+#         'PASSWORD': '',
+#         'HOST': 'localhost',
+#         'OPTIONS': {
+#                     "connect_timeout": 30,
+#                     },
+    # },
+    'iss': dj_database_url.parse("mysql://root@localhost/iss")
+    # {
+    #     'NAME': 'iss',
+    #     'ENGINE': 'django.db.backends.mysql',
+    #     'USER': 'root',
+    #     'PASSWORD': '',
+    #     'HOST': 'localhost',
+    # }
 }
 DATABASE_ROUTERS = ('aashe.issdjango.router.ISSRouter',)
 
@@ -98,9 +101,11 @@ if 'test' in sys.argv:
             'LOCATION': '/tmp/stars-cache',
         }
     }
-    DATABASES['default']['ENGINE'] = 'sqlite3'
-    DATABASES['default']['NAME'] = '/Users/jamstooks/sqlite/stars_tests.db'
-    DATABASES['default']['OPTIONS'] = {}
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    # DATABASES['default']['ENGINE'] = 'sqlite3'
+    # DATABASES['default']['NAME'] = '/Users/jamstooks/sqlite/stars_tests.db'
+    # DATABASES['default']['OPTIONS'] = {}
+    DATABASES['default'] = dj_database_url.parse("sqlite:////Users/jamstooks/sqlite/stars_tests.db")
     
 # Thumbnails
 THUMBNAIL_DEBUG = False

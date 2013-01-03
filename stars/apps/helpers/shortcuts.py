@@ -11,6 +11,12 @@ from stars.apps.helpers import exceptions
 
 logger = getLogger('stars')
 
+class CustomObjectDoesNotExist(ObjectDoesNotExist):
+    
+    def __init__(message=None):
+        self.message = message
+        return super(CustomObjectDoesNotExist, self).__init__()
+
 def render_to_any_response(HttpResponseClass, *args, **kwargs):
     """
     This is a version of Django's shortcut that takes the HttpResponse class

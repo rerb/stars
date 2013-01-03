@@ -18,8 +18,8 @@ def lookup_help_context(context_name):
     try:
         c = HelpContext.objects.get(name=context_name)
         return c
-    except:
-        logger.error("HelpContext, '%s', not found." % context_name,
+    except HelpContext.DoesNotExist:
+        logger.warning("HelpContext, '%s', not found." % context_name,
                      exc_info=True)
         return None
 

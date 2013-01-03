@@ -35,7 +35,7 @@ class InstitutionTest(TestCase):
                 institution.profile
 
         self.assertEqual(len(log.records), 1)
-        self.assertEqual(log.records[0].levelname, 'ERROR')
+        self.assertEqual(log.records[0].levelname, 'WARNING')
         self.assertTrue(
             'No ISS institution found for aashe_id' in log.records[0].msg)
 

@@ -29,6 +29,6 @@ class HelpTagsTest(TestCase):
             help.lookup_help_context(context_name='bo-o-o-o-ogus name')
 
         self.assertEqual(len(log.records), 1)
-        self.assertEqual(log.records[0].levelname, 'ERROR')
+        self.assertEqual(log.records[0].levelname, 'WARNING')
         self.assertTrue('HelpContext' in log.records[0].msg)
         self.assertTrue('not found' in log.records[0].msg)

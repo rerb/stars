@@ -44,7 +44,7 @@ class AASHEAuthBackend:
         except User.DoesNotExist:
             return None
 
-    def has_perm(self, user, perm):
+    def has_perm(self, user, perm, obj=None):
         """
             Return True if the user has the given permission Backend
             hook.  Call is routed via contrib.auth.user.has_perm AASHE
