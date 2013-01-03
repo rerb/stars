@@ -7,24 +7,6 @@ from settings import *
 
 DEBUG = False
 
-DATABASES = {
-    'default': {
-        'NAME': 'stars_production',
-        'ENGINE': 'django.db.backends.mysql',
-        'USER': 'starsapp',
-        'PASSWORD': 'J3z4#$szFET--6',
-        'HOST': '10.176.128.183',
-    },
-    'iss': {
-        'NAME': 'iss',
-        'ENGINE': 'django.db.backends.mysql',
-        'USER': 'starsapp',
-        'PASSWORD': 'J3z4#$szFET--6',
-        'HOST': '10.176.128.183',
-    }
-}
-DATABASE_ROUTERS = ('aashe.issdjango.router.ISSRouter',)
-
 # Celery
 CELERY_RESULT_DBURI = "sqlite:///var/www/stars/stars-celery-results.db"
 CELERY_CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
@@ -44,8 +26,6 @@ ANALYTICS_ID = "UA-1056760-7"
 THUMBNAIL_ENGINE = "sorl.thumbnail.engines.pil_engine.Engine"
 THUMBNAIL_FORMAT = 'PNG'
 
-MEDIA_ROOT = '/var/www/stars/media/'
-
 INSTALLED_APPS = INSTALLED_APPS + ('memcache_status',)
 
 SSO_SERVER_URI = WWW_SSO_SERVER_URI
@@ -53,11 +33,6 @@ STARS_DOMAIN = WWW_STARS_DOMAIN
 SSO_API_KEY = WWW_SSO_API_KEY
 
 XMLRPC_VERBOSE = False
-
-# Authorize.Net
-AUTHORIZENET_LOGIN = REAL_AUTHORIZENET_LOGIN
-AUTHORIZENET_KEY = REAL_AUTHORIZENET_KEY
-AUTHORIZENET_SERVER = REAL_AUTHORIZENET_SERVER
 
 #if manage.py test was called, use test settings
 if 'test' in sys.argv:

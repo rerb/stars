@@ -4,7 +4,6 @@
 
 
 from settings import *
-import dj_database_url
 
 HIDE_REPORTING_TOOL = False
 DEBUG = True
@@ -22,38 +21,9 @@ CELERY_ALWAYS_EAGER = True
 ADMINS = ('ben@aashe.org',)
 MANAGERS = ADMINS
 
-DATABASES = {
-    'default': dj_database_url.parse("mysql://root@localhost/stars"),
-#       {
-# #         'NAME': '/Users/jamstooks/sqlite/pre1.2_test.db',
-# #         'ENGINE': 'sqlite3',
-#         'NAME': 'stars',
-#         'ENGINE': 'django.db.backends.mysql',
-#         'STORAGE_ENGINE': 'MyISAM',
-#         'USER': 'root',
-#         'PASSWORD': '',
-#         'HOST': 'localhost',
-#         'OPTIONS': {
-#                     "connect_timeout": 30,
-#                     },
-    # },
-    'iss': dj_database_url.parse("mysql://root@localhost/iss")
-    # {
-    #     'NAME': 'iss',
-    #     'ENGINE': 'django.db.backends.mysql',
-    #     'USER': 'root',
-    #     'PASSWORD': '',
-    #     'HOST': 'localhost',
-    # }
-}
-DATABASE_ROUTERS = ('aashe.issdjango.router.ISSRouter',)
-
 # Stand alone mode indicates that the server will be running using
 # the django dev server so we will need to serve the static files (see urls.py)
 STANDALONE_MODE = True
-
-MEDIA_ROOT = '/Users/jamstooks/aashe/app_media/stars/'
-STATIC_URL = "/media/static/"
 
 SSO_SERVER_URI = WWW_SSO_SERVER_URI
 STARS_DOMAIN = WWW_STARS_DOMAIN
@@ -71,13 +41,6 @@ if DEBUG_TOOLBAR:
         'INTERCEPT_REDIRECTS': False,
     }
 
-# Authorize.Net
-#AUTHORIZENET_LOGIN = REAL_AUTHORIZENET_LOGIN
-#AUTHORIZENET_KEY = REAL_AUTHORIZENET_KEY
-#AUTHORIZENET_SERVER = REAL_AUTHORIZENET_SERVER
-
-#CACHE_BACKEND = "file:///Users/jamstooks/tmp/stars-cache"
-#CACHE_BACKEND = "dummy://"
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
@@ -87,11 +50,6 @@ CACHES = {
 #        'LOCATION': '/Users/jamstooks/tmp/stars-cache',
     }
 }
-
-# Authorize.Net
-AUTHORIZENET_LOGIN = TEST_AUTHORIZENET_LOGIN
-AUTHORIZENET_KEY = TEST_AUTHORIZENET_KEY
-AUTHORIZENET_SERVER = TEST_AUTHORIZENET_SERVER
 
 #if manage.py test was called, use test settings
 if 'test' in sys.argv:
@@ -105,7 +63,7 @@ if 'test' in sys.argv:
     # DATABASES['default']['ENGINE'] = 'sqlite3'
     # DATABASES['default']['NAME'] = '/Users/jamstooks/sqlite/stars_tests.db'
     # DATABASES['default']['OPTIONS'] = {}
-    DATABASES['default'] = dj_database_url.parse("sqlite:////Users/jamstooks/sqlite/stars_tests.db")
+    DATABASES['default'] = dj_database_url.parse(os.environ.get('STARS_TEST_DB', None))
     
 # Thumbnails
 THUMBNAIL_DEBUG = False

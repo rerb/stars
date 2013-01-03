@@ -10,6 +10,16 @@ ADMINS = (
         )
 MANAGERS = ADMINS
 
+import dj_database_url
+DATABASES = {
+    'default': dj_database_url.parse(os.environ.get('STARS_DB_URL', None)),
+    'iss': dj_database_url.parse(os.environ.get('ISS_DB_URL', None))
+}
+if 'test' in sys.argv:
+    DATABASES['default'] = dj_database_url.parse(os.environ.get('STARS_TEST_DB', None))
+    
+DATABASE_ROUTERS = ('aashe.issdjango.router.ISSRouter',)
+
 DEFAULT_CHARSET = 'utf-8'
 
 PROJECT_PATH = os.path.join(os.path.dirname(__file__), '..')
@@ -44,6 +54,7 @@ MEDIA_URL = '/media/'
 
 ADMIN_MEDIA_PREFIX = '/media/admin/'
 STATIC_URL = "/media/static/"
+MEDIA_ROOT = os.environ.get("MEDIA_ROOT", None)
 
 SECRET_KEY = 'omxxweql@m7!@yh5a-)=f^_xo*(m2+gaz#+8dje)e6wv@q$v%@'
 
@@ -161,11 +172,7 @@ STAGE_STARS_DOMAIN = "stars.stage.aashe.org"
 STARS_DOMAIN = WWW_STARS_DOMAIN
 
 # SSO_API_KEY is used to authenticate RPC requests
-WWW_SSO_API_KEY = "8dca728d46c85b3fda4529692a7f7725"
-#WWW_SSO_API_KEY = "e4c8dcfbcb5120ad35b516b04cc35302" # new for localhost
-DEV_SSO_API_KEY = "ed9169978073421561d5e90f89f2050e"
-STAGE_SSO_API_KEY = "4e9e7e53c571bc48260759963a092522"
-SSO_API_KEY = WWW_SSO_API_KEY
+SSO_API_KEY = os.environ.get("SSO_API_KEY", None)
 
 # ARTICLES module
 ARTICLE_PATH_ROOT = "pages"  # defines url / path to articles
@@ -189,17 +196,13 @@ STAGE_SSO_SERVER_URI = "http://%s@%s/%s" % (SSO_AUTHENTICATION, STAGE_IRC_DOMAIN
 
 SSO_SERVER_URI = WWW_SSO_SERVER_URI
 
-AASHE_MYSQL_SERVER = "mysql.aashe.net"
-AASHE_MYSQL_LOGIN = "starsapp"
-AASHE_MYSQL_PASS = "J3z4#$szFET--6"
-
 # Permissions or user levels for STARS users
 STARS_PERMISSIONS = (('admin', 'Administrator'), ('submit', 'Data Entry'), ('view', 'Observer')) # ('review', 'Audit/Review'))
 
 EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'stars_notifier@aashe.org'
-EMAIL_HOST_PASSWORD = 'sustainaashe'
+EMAIL_HOST = os.environ.get("EMAIL_HOST", None)
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", None)
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", None)
 EMAIL_PORT = 587
 DEFAULT_FROM_EMAIL = 'stars_notifier@aashe.org'
 EMAIL_REPLY_TO = "stars@aashe.org"
@@ -217,30 +220,23 @@ CELERY_RESULT_BACKEND = 'database'
 CELERY_RESULT_DBURI = "sqlite:///tmp/stars-celery-results.db"
 CELERY_CACHE_BACKEND = 'dummy'
 
-# Authorize.Net
-REAL_AUTHORIZENET_LOGIN = "9xaJX497HjE"
-REAL_AUTHORIZENET_KEY = "94qx3e7N5h9Xe4WX"
-REAL_AUTHORIZENET_SERVER = 'secure.authorize.net'
+"""
+    Authorize.net credentials
+"""
+AUTHORIZENET_LOGIN = os.environ.get("AUTHORIZENET_LOGIN", None)
+AUTHORIZENET_KEY = os.environ.get("AUTHORIZENET_KEY", None)
+AUTHORIZENET_SERVER = os.environ.get("AUTHORIZENET_SERVER", None)
 
-TEST_AUTHORIZENET_LOGIN = "6t7Jun3QT23"
-TEST_AUTHORIZENET_KEY = "7f6k72kXM9yc9Etx"
-TEST_AUTHORIZENET_SERVER = 'test.authorize.net'
 
-# default is test mode
-AUTHORIZENET_LOGIN = TEST_AUTHORIZENET_LOGIN
-AUTHORIZENET_KEY = TEST_AUTHORIZENET_KEY
-AUTHORIZENET_SERVER = TEST_AUTHORIZENET_SERVER
-
-ANALYTICS_ID = None
+"""
+    Google Analytics
+"""
+ANALYTICS_ID = os.environ.get("ANALYTICS_ID", None)
 
 SKIP_SOUTH_TESTS=True
 
-RECAPTCHA_PUBLIC_KEY = "6LeaEL0SAAAAAMiipP79s-PzlR0qHlH1-E_jYsyW"
-RECAPTCHA_PRIVATE_KEY = "6LeaEL0SAAAAACP5wb3qqxujJc3Cf_qHhVGUr4QV"
-
-GOOGLE_API_KEY = "ABQIAAAA-bTvhmGT1R0ug4p1J_-l4hQWDBNZ3_Sn8d2AByp8vi_J8JN7YxQq-tOQFxf4oNeYJyiW9fXWm-pwNg"
-
-#DATABASE_ROUTERS = ('aashe.issdjango.router.ISSRouter',)
+RECAPTCHA_PUBLIC_KEY = os.environ.get("RECAPTCHA_PUBLIC_KEY", None)
+RECAPTCHA_PRIVATE_KEY = os.environ.get("RECAPTCHA_PRIVATE_KEY", None)
 
 PYTHON_VERSION = None
 m = re.match('[\d\.]+', sys.version)

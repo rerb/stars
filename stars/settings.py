@@ -14,6 +14,7 @@ else:
     # key the configurations off of project path (can have regular expression)
     # (in this case it's path, but you could use computer name or something else)
     configs = {
+        '/var/www/stars/.*': 'starsapp01',
         '/Users/jamstooks/.*': 'ben',
         '/Users/jesse/src/.*': 'jesse',
         '/Users/rerb/src/.*': 'bob',
