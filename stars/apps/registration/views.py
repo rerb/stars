@@ -14,7 +14,7 @@ from stars.apps.institutions.models import Institution, Subscription, \
      SubscriptionPayment
 from stars.apps.registration.forms import *
 from stars.apps.registration.utils import is_canadian_zipcode, is_usa_zipcode
-from stars.apps.accounts.utils import respond, connect_iss
+from stars.apps.accounts.utils import respond
 from stars.apps.tool.my_submission.views import _get_active_submission
 from stars.apps.accounts import xml_rpc
 from stars.apps.submissions.models import SubmissionSet
