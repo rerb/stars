@@ -138,7 +138,7 @@ INSTALLED_APPS = (
     'aashe.issdjango',
     'south',
     'sorl.thumbnail',
-    'django_extensions',
+    # 'django_extensions',
     'djcelery',
     'aashe_rules',
     'tastypie',
