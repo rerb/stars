@@ -28,10 +28,6 @@ THUMBNAIL_FORMAT = 'PNG'
 
 INSTALLED_APPS = INSTALLED_APPS + ('memcache_status',)
 
-SSO_SERVER_URI = WWW_SSO_SERVER_URI
-STARS_DOMAIN = WWW_STARS_DOMAIN
-SSO_API_KEY = WWW_SSO_API_KEY
-
 XMLRPC_VERBOSE = False
 
 #if manage.py test was called, use test settings

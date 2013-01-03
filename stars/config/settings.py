@@ -35,7 +35,7 @@ MAINTENANCE_MODE = False
 #BROADCAST_MESSAGE = "The STARS reporting tool will be unavailable from mm dd yy hh:mm to hh:mm"
 BROADCAST_MESSAGE = None
 
-DEBUG = False
+DEBUG = os.environ.get("DEBUG", False)
 TEMPLATE_DEBUG = DEBUG
 API_TEST_MODE = DEBUG
 # Testing should be true to run test suite - controls other settings and supresses debug output.
