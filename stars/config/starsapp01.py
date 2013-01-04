@@ -5,8 +5,6 @@
 
 from settings import *
 
-DEBUG = False
-
 # Celery
 CELERY_RESULT_DBURI = "sqlite:///var/www/stars/stars-celery-results.db"
 CELERY_CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
