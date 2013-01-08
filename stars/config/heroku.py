@@ -18,7 +18,7 @@ os.environ['MEMCACHE_PASSWORD'] = os.environ.get('MEMCACHIER_PASSWORD', '')
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-        'LOCATION': 'LOCATION': os.environ.get('MEMCACHIER_SERVERS', '').replace(',', ';'),
+        'LOCATION': os.environ.get('MEMCACHIER_SERVERS', '').replace(',', ';'),
         'TIMEOUT': 500,
         'BINARY': True,
     }
