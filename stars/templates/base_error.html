@@ -1,25 +1,35 @@
 {% extends 'base.html' %}
 
 {% block content %}
-      {% block error_message %}
+    {% block error_message %}
         <div class="alert alert-error">
             <h4 class="alert-heading">
-            {% block message_title %}Sorry!  An error occurred while processing your request.{% endblock %}
+                {% block message_title %}
+                    Sorry!  An error occurred while processing your request.
+                {% endblock %}
             </h4>
 
-          {% if user_message %}
-            {% autoescape off %}{% block message_content %}<p>{{ user_message }}</p>{% endblock %}{% endautoescape %}
-
-          {% endif %}
+            {% if user_message %}
+                {% autoescape off %}
+                    {% block message_content %}
+                        <p>{{ user_message }}</p>
+                    {% endblock %}
+                {% endautoescape %}
+            {% endif %}
         </div>
-      {% endblock %}
+    {% endblock %}
 
-      <div class='row'><div class='span12'>
-          <p>Please use the menu system on this page to navigate to the page you were looking for.</p>
+    <div class='row'><div class='span12'>
+        <p>
+            Please use the menu system on this page to navigate to the
+            page you were looking for.
+        </p>
 
-          <p>STARS staff have been notified of the problem, but if this problem persists or you have any questions, please contact the
-             <a href="mailto:stars@aashe.org?subject=STARS Tracking Tool Error">AASHE STARS Team</a>
-                with a detailed description of the problem you encountered.
-          </p>
-      </div></div>
+        <p>
+            STARS staff have been notified of the problem, but if this
+            problem persists or you have any questions, please contact
+            the <a href="mailto:stars@aashe.org?subject=STARS Tracking Tool Error">AASHE STARS Team</a>
+            with a detailed description of the problem you encountered.
+      </p>
+   </div>
 {% endblock %}
