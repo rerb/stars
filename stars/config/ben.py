@@ -37,13 +37,19 @@ if DEBUG_TOOLBAR:
         'INTERCEPT_REDIRECTS': False,
     }
 
+os.environ['MEMCACHE_SERVERS'] = os.environ.get('MEMCACHIER_SERVERS', '').replace(',', ';')
+
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+        # 'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
 #         'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
 #         'LOCATION': 'temp_cache_table',
 #        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
 #        'LOCATION': '/Users/jamstooks/tmp/stars-cache',
+        # 'BACKEND': 'django_pylibmc.memcached.PyLibMCCache',
+        # 'LOCATION': '127.0.0.1:11211',
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': os.environ.get('MEMCACHIER_SERVERS', '').replace(',', ';'),
     }
 }
 
