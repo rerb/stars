@@ -1,6 +1,7 @@
 from django.core.urlresolvers import reverse
 from django.views.generic import ListView, RedirectView, TemplateView
 
+from stars.apps.accounts.mixins import StarsAccountMixin
 from stars.apps.institutions.models import Institution, StarsAccount
 from stars.apps.tool.mixins import InstitutionToolMixin
 
@@ -28,7 +29,7 @@ class SummaryToolView(InstitutionToolMixin,
         return context
 
 
-class ToolLandingPageView(RedirectView):
+class ToolLandingPageView(StarsAccountMixin, RedirectView):
     """
         Redirects user based on the number of STARS accounts he's
         associated with.  Probably mis-named; not really a landing page,
@@ -43,7 +44,7 @@ class ToolLandingPageView(RedirectView):
         Redirect based on the number of STARS accounts associated with
         this user.
         """
-        stars_accounts = StarsAccount.objects.filter(user=self.request.user)
+        stars_accounts = self.get_stars_account_list()
 
         if stars_accounts.count() is 0:
             return reverse('no-stars-account')
