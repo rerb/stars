@@ -25,10 +25,6 @@ MANAGERS = ADMINS
 # the django dev server so we will need to serve the static files (see urls.py)
 STANDALONE_MODE = True
 
-SSO_SERVER_URI = WWW_SSO_SERVER_URI
-STARS_DOMAIN = WWW_STARS_DOMAIN
-SSO_API_KEY = WWW_SSO_API_KEY
-
 XMLRPC_VERBOSE = False
 XMLRPC_USE_HASH = True
 
