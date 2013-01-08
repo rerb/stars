@@ -361,21 +361,25 @@ LOGGING = {
             'level': 'INFO',
             'class': 'logging.StreamHandler',
             'formatter': 'simple_formatter'
+            'stream': sys.stdout
         },
         'stars_console_handler': {
             'level': 'INFO',
             'class': 'logging.StreamHandler',
-            'formatter': 'stars_formatter'
+            'formatter': 'stars_formatter',
+            'stream': sys.stdout
         },
         'stars_request_console_handler': {
             'level': 'INFO',
             'class': 'logging.StreamHandler',
             'formatter': 'stars_request_formatter'
+            'stream': sys.stdout
         },
         'stars_user_console_handler': {
             'level': 'INFO',
             'class': 'logging.StreamHandler',
             'formatter': 'stars_user_formatter'
+            'stream': sys.stdout
         },
         'mail_admins_handler': {
             'level': 'ERROR',
