@@ -2,30 +2,22 @@
 
 This document assumes you have checked out the latest source code to get this file...
 
+== Requirements ==
+
+Python 2.6+
+Virtualenv
+
 == Installation ==
 
-To develop on the STARS application locally, the only requirement is that you have Python 2.6+ installed.
+To set up your environment see the README_VENV document.
 
-To get your buildout environment set up run the bootstrap.py file:
->$ python bootstrap.py
-
-You should now run buildout to install the necessary dependencies:
->$ ./bin/buildout
-
-That's it! Your environment will be set up with local copies of:
- - Django 1.2.1
- - South 0.7
- - Fabric 0.9.0
- - PIL 1.1.7
- - TinyMCE 3.3 (javascript library)
-
-When you want to run any of the standard Django commands, use bin/django instead of manage.py:
->$ ./bin/django runserver
+When you want to run any of the standard Django commands, use manage.py:
+>$ python manage.py runserver
 
 === Note about South ===
 
 If you have an existing version of the db already, you'll need to run sycndb to get integrate south:
->$ ./bin/django sycndb
+>$ python manage.py sycndb
 
 More information: http://south.aeracode.org/
 
@@ -42,23 +34,23 @@ This configuration will use (and create) a sqlite3 db and media directory in you
 STARS can be deployed in a variety of environments. You may want to create your own personal configuration file according to your needs. You can do this easily by copying the default config file and adding another test environment item to the dictionary in stars/settings.py. The dictionary accepts regular expressions, for example:
 
 configs = {
-    '/Users/jamstooks/aashe/STARS/src/.*/stars': 'ben',
+    '/Users/jamstooks/.*': 'ben',
 }
+
+Please read README_VENV to set up your environment to use ENVIRONMENT VARIABLES to handle most sensitive data.
 
 === TinyMCE (WYSIWYG Editor) ===
 
 If you want to use the TinyMCE editor in your development, you will need to create a symlink in your media directory:
 
-~/stars_media/tp/js/tiny_mce -> PATH_TO_SRC/stars/parts/tinyMCE/tinymce/jscripts/tiny_mce
-
-TinyMCE is automatically pulled down by buildout.
+~/stars_media/tp/js/tiny_mce -> PATH_TO_SRC/tinyMCE/tinymce/jscripts/tiny_mce
 
 == Quick STARS (I mean START) ==
 
 ...from the package directory
 
->$ bin/django syncdb    # This initializes the DB
->$ bin/django runserver # Runs the server on http://localhost:8000/
+>$ python manage.py syncdb    # This initializes the DB
+>$ python manage.py runserver # Runs the server on http://localhost:8000/
           
 === Deployment ===
 

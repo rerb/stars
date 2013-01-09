@@ -5,9 +5,7 @@ from django.contrib.messages import constants as messages
 
 sys.path.append('../')
 
-ADMINS = (
-            ('Benjamin Stookey', 'ben@aashe.org'),
-        )
+ADMINS = (('Benjamin Stookey', 'ben@aashe.org'),('Bob Erb', 'bob.erb@aashe.org'))
 MANAGERS = ADMINS
 
 DEFAULT_CHARSET = 'utf-8'
@@ -17,33 +15,32 @@ PROJECT_PATH = os.path.join(os.path.dirname(__file__), '..')
 # Use a dummy Email Backend for anything but production
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-# if True, prevents access by non-staff to any part of the site that is not public.
-HIDE_REPORTING_TOOL = False
-# if True, log-out and re-direct all non-staff requests to standard 503 (Temporarily Unavailable) view.
-MAINTENANCE_MODE = False
-# This message will be broadcast to all users on every response - usually used to warn about site maintenance
-#BROADCAST_MESSAGE = "The STARS reporting tool will be unavailable from mm dd yy hh:mm to hh:mm"
-BROADCAST_MESSAGE = None
-
-DEBUG = False
+DEBUG = os.environ.get("DEBUG", False)
 TEMPLATE_DEBUG = DEBUG
 API_TEST_MODE = DEBUG
-# Testing should be true to run test suite - controls other settings and supresses debug output.
-TESTING = False
 FIXTURE_DIRS = ('fixtures', os.path.join(PROJECT_PATH, 'apps/api/fixtures'),)
 
 TIME_ZONE = 'America/Lima'
-
 LANGUAGE_CODE = 'en-us'
-
 SITE_ID = 1
-
 USE_I18N = False
 
-MEDIA_URL = '/media/'
+# Database
+import dj_database_url
+DATABASES = {
+    'default': dj_database_url.parse(os.environ.get('STARS_DB_URL', None)),
+    'iss': dj_database_url.parse(os.environ.get('ISS_DB_URL', None))
+}
+if 'test' in sys.argv:
+    DATABASES['default'] = dj_database_url.parse(os.environ.get('STARS_TEST_DB', None))
+    DATABASES['default'] = dj_database_url.parse(os.environ.get('ISS_TEST_DB', None))
+DATABASE_ROUTERS = ('aashe.issdjango.router.ISSRouter',)
 
+# Media
+MEDIA_URL = '/media/'
 ADMIN_MEDIA_PREFIX = '/media/admin/'
 STATIC_URL = "/media/static/"
+MEDIA_ROOT = os.environ.get("MEDIA_ROOT", None)
 
 SECRET_KEY = 'omxxweql@m7!@yh5a-)=f^_xo*(m2+gaz#+8dje)e6wv@q$v%@'
 
@@ -60,7 +57,6 @@ MIDDLEWARE_CLASSES = [ # a list so it can be editable during tests (see below)
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'stars.apps.accounts.middleware.AuthenticationMiddleware',  # must come after django.contrib.auth.middleware
     'django.middleware.cache.FetchFromCacheMiddleware',
-    'stars.apps.accounts.maintenancemode.middleware.MaintenanceModeMiddleware',
     'django.contrib.redirects.middleware.RedirectFallbackMiddleware',
     'django.middleware.doc.XViewMiddleware',
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
@@ -68,10 +64,11 @@ MIDDLEWARE_CLASSES = [ # a list so it can be editable during tests (see below)
     'django.contrib.messages.middleware.MessageMiddleware'
 ]
 
-CACHE_BACKEND = "dummy://"
-CACHE_MIDDLEWARE_SECONDS = 60*15
-CACHE_MIDDLEWARE_KEY_PREFIX = "stars"
-CACHE_MIDDLEWARE_ANONYMOUS_ONLY = True
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+    }
+}
 
 AUTH_PROFILE_MODULE = 'accounts.UserProfile'
 AUTHENTICATION_BACKENDS = ('stars.apps.accounts.aashe.AASHEAuthBackend',)
@@ -245,8 +242,6 @@ RECAPTCHA_PUBLIC_KEY = "6LeaEL0SAAAAAMiipP79s-PzlR0qHlH1-E_jYsyW"
 RECAPTCHA_PRIVATE_KEY = "6LeaEL0SAAAAACP5wb3qqxujJc3Cf_qHhVGUr4QV"
 
 GOOGLE_API_KEY = "ABQIAAAA-bTvhmGT1R0ug4p1J_-l4hQWDBNZ3_Sn8d2AByp8vi_J8JN7YxQq-tOQFxf4oNeYJyiW9fXWm-pwNg"
-
-#DATABASE_ROUTERS = ('aashe.issdjango.router.ISSRouter',)
 
 PYTHON_VERSION = None
 m = re.match('[\d\.]+', sys.version)

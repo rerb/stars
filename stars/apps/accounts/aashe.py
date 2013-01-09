@@ -58,11 +58,6 @@ class AASHEAuthBackend:
         if user.is_staff:
             return True     # staff users have all permissions
 
-        if settings.HIDE_REPORTING_TOOL:  # if the site is hidden, no
-                                          # access to any parts that
-                                          # require permissions
-            return False
-
         if not hasattr(user, 'account') or not user.account:
             return False    # only users with an account selected have
                             # permissions
