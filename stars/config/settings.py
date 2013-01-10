@@ -262,64 +262,6 @@ HG_REVISION = None
 
 SOUTH_TESTS_MIGRATE = False
 
-# Notes on logging:
-#
-# 1. Log record formats
-#
-#    The beginning of each log record has this format;
-#
-#    {loglevel} {timestamp} "{message}" location={file}:{function}:{linenumber}
-#
-#    the stars.user logger adds a user element;
-#
-#    {loglevel} {timestamp} "{message}" location={file}:{function}:{linenumber} \
-#        user={user}
-#
-#    and the stars.request logger adds path, host, and referer elements:
-#
-#    {loglevel} {timestamp} "{message}" location={file}:{function}:{linenumber} \
-#        user={user} path={path} host={host} referer={referer}
-#
-#    {location} is where the logger was called.
-#
-#    The {file} part of the location element is usually a path relative to
-#    settings.PROJECT_PATH; if it stars with '/', however, it's an absolute
-#    path.
-#
-# 2. Loggers:
-#
-#    The base logger is named 'stars'.  Use it without any extra context
-#    and the file location will added to the log record.
-#
-#        >>> import logging
-#        >>> logger = logging.getLogger('stars')
-#        >>> logger.setLevel(logging.INFO)
-#        >>> logger.info("Just sayin' hi")
-#        INFO 2012-08-07 15:02:07,411 "Just sayin' hi" \
-#            location=apps/test/logtest.py:test_stars_log:5
-#
-#    Use the logger named 'stars.user' if you have a user available
-#    and want the username to be inserted into the log message:
-#
-#        >>> user = User.objects.create(username='jack')
-#        >>> logger = logger.getLogger('stars.user')
-#        >>> logger.info("Just sayin' hi", extra={'user'=user})
-#        INFO 2012-08-07 15:02:07,411 "Just sayin' hi" \
-#            location=apps/test/logtest.py:test_stars_log:5 user=Jack
-#
-#    Use the logger named 'stars.request' if you have a request available
-#    and want the log record to have request data inserted into it:
-#
-#        >>> request = Request.objects.create(path='/crooked/hill', \
-#                                             host='reimold', \
-#                                             user='Jack', \
-#                                             referer='bodette')
-#        >>> logger = logger.getLogger('stars.request')
-#        >>> logger.info("Just sayin' hi", extra={'request'=request})
-#        INFO 2012-08-07 15:02:07,411 "Just sayin' hi" \
-#            location=apps/test/logtest.py:test_stars_log:5 user=Jack \
-#            path=/crooked/hill host=reimold referer=bodette
-
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,
@@ -374,22 +316,26 @@ LOGGING = {
         'simple_console_handler': {
             'level': 'INFO',
             'class': 'logging.StreamHandler',
-            'formatter': 'simple_formatter'
+            'formatter': 'simple_formatter',
+            'stream': sys.stdout
         },
         'stars_console_handler': {
             'level': 'INFO',
             'class': 'logging.StreamHandler',
-            'formatter': 'stars_formatter'
+            'formatter': 'stars_formatter',
+            'stream': sys.stdout
         },
         'stars_request_console_handler': {
             'level': 'INFO',
             'class': 'logging.StreamHandler',
-            'formatter': 'stars_request_formatter'
+            'formatter': 'stars_request_formatter',
+            'stream': sys.stdout
         },
         'stars_user_console_handler': {
             'level': 'INFO',
             'class': 'logging.StreamHandler',
-            'formatter': 'stars_user_formatter'
+            'formatter': 'stars_user_formatter',
+            'stream': sys.stdout
         },
         'mail_admins_handler': {
             'level': 'ERROR',
