@@ -41,7 +41,7 @@
 								{% if i.current_rating %}
 							      	icon: "{{ i.current_rating.map_icon.url }}"
 						      	{% else %}
-							      	icon: "/media/static/images/map_icons/participant.png"
+							      	icon: "{{ STATIC_URL }}images/map_icons/participant.png"
 						      	{% endif %}
 							}
 							{% if not forloop.last %},{% endif %}

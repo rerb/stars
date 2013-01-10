@@ -262,12 +262,12 @@ class Institution(models.Model):
         try:
             return Organizations.objects.get(account_num=self.aashe_id)
         except Organizations.DoesNotExist as e:
-            logger.warning("No ISS institution found for aashe_id %s: %s" %
-                         (self.aashe_id, e), exc_info=True)
+            # logger.info("No ISS institution found for aashe_id %s: %s" %
+            #              (self.aashe_id, e), exc_info=True)
             return None
         except Organizations.MultipleObjectsReturned as e:
-            logger.warning("Multiple ISS Institutions for aashe_id %s: %s" %
-                         (self.aashe_id, e), exc_info=True)
+            # logger.info("Multiple ISS Institutions for aashe_id %s: %s" %
+            #              (self.aashe_id, e), exc_info=True)
             return None
 
     def is_member_institution(self):
