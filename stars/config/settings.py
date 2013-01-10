@@ -147,7 +147,7 @@ INSTALLED_APPS = (
     'aashe_rules',
     'tastypie',
     'bootstrapform',
-    'memcache_status',
+    # 'memcache_status',
     's3_folder_storage',
 )
 
