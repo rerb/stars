@@ -1,0 +1,47 @@
+{% extends 'tool/base.html' %}
+
+{% block content %}
+
+  <div class='row span9' id='main-text'>
+    <p>
+      Your AASHE Account has not been granted access to the STARS
+      Reporting Tool.
+    </p>
+    <p>
+      {% if institution and institution.is_participant %}
+        The STARS Liaison for
+        {% if liaison_name %}
+          {{ institution.name }}, {{ liaison_name }},
+        {% else %}
+          {{ institution.name }}
+        {% endif %}
+        can grant you can grant you access;  please contact him
+        or her.
+        {% if liaison_phone or liaison_email %}
+          Our records indicate that
+          {% firstof liaison_name "your liaison"%}
+          can be contacted
+          {% if liaison_phone and liaison_email %}
+            by phone at {{ liaison_phone }}
+            and by email at {{ liaison_email }}.
+          {% elif liaison_phone %}
+            by phone at {{ liaison_phone }}.
+          {% else %}
+            by email at {{ liaison_email }}.
+          {% endif %}
+        {% endif %}
+      {% else %}
+        {% if institution and institution.name %}
+          Your institution, {{ institution.name }},
+        {% else %}
+          Your institution
+        {% endif %}
+        isn't currently registered as a STARS
+        participant. Only institutions that are currently registered
+        as STARS Participants are allowed access to the Reporting
+        Tool.
+      {% endif %}
+    </p>
+  </div>
+
+{% endblock %}
