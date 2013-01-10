@@ -4,8 +4,8 @@
 
 {% block extra_head %}
     {{ block.super }}
-    <link href='/media/static/css/listexpander.css' rel='stylesheet' type='text/css' />
-    <script src='/media/static/js/listexpander.js' type='text/javascript'></script>
+    <link href='{{ STATIC_URL }}css/listexpander.css' rel='stylesheet' type='text/css' />
+    <script src='{{ STATIC_URL }}js/listexpander.js' type='text/javascript'></script>
 {% endblock %}
 
 {% block body_onload %}{{ block.super }}listexpander();collapseSummary();{% endblock %}

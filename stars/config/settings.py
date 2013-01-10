@@ -214,7 +214,7 @@ EMAIL_REPLY_TO = "stars@aashe.org"
 #THUMBNAIL_ENGINE = "sorl.thumbnail.engines.pgmagick_engine.Engine"
 THUMBNAIL_ENGINE = "sorl.thumbnail.engines.pil_engine.Engine"
 THUMBNAIL_FORMAT = 'PNG'
-THUMBNAIL_DEBUG = False
+THUMBNAIL_DEBUG = os.environ.get("THUMBNAIL_DEBUG", False)
 
 
 # Celery

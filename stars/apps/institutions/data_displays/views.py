@@ -12,7 +12,7 @@ from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView
 
 from aashe.issdjango.models import TechnicalAdvisor
-from stars.apps.credits.models import Rating, Credit, Category, Subcategory
+from stars.apps.credits.models import CreditSet, Rating, Credit, Category, Subcategory
 from stars.apps.institutions.data_displays.filters import Filter, RangeFilter
 from stars.apps.institutions.data_displays.forms import (
     CharacteristicFilterForm, DelCharacteristicFilterForm, ScoreColumnForm,
