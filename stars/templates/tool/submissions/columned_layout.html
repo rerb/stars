@@ -15,17 +15,20 @@
           color: white;
         }
       </style>
-        <ul
-          class="listexpander" id='credit_menu_{{ credit.id }}'
-          >
-        {% cache 86400 submission_credit_listexpander active_submission.creditset.id %}
-        {% for cat in active_submission.creditset.category_set.all %}
+        <ul class="listexpander" id='credit_menu_{{ credit.id }}'>
+        {% cache 86400 submission_credit_listexpander submissionset.creditset.id %}
+        {% for cat in submissionset.categorysubmission_set.all %}
 	        <li>
-	        	<a href='/tool/submissions/#ec_{{ cat.id }}'>{{ cat }}</a>
+	        	<a href='{{ cat.get_submit_url }}'</a>
                 <ul>
                 	{% for sub in cat.subcategory_set.all %}
                     <li>
-                    	<a href='/tool/submissions/#ec_{{ cat.id }}_{{ sub.id }}' {% if summary %}onclick='jumpToSubcat("{{ cat.id }}", "{{ sub.id }}");'{% endif %}>
+                    	<a href='{{ sub.get_submit_url }}'
+                            {% if summary %}
+                              onclick='jumpToSubcat("{{ cat.id }}",
+                                                    "{{ sub.id }}");'
+                            {% endif %}
+                            >
                     		{{ sub }}
                     	</a>
                     	<ul>
@@ -50,7 +53,7 @@
                     </li>
                     {% endfor %}
                 </ul>
-            </li>  
+            </li>
         {% endfor %}
         {% endcache %}
 		</ul>
