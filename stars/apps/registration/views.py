@@ -130,7 +130,7 @@ def reg_select_institution(request):
             logger.error("The institution select form didn't validate.",
                          extra={'request': request})
 
-    form.fields['aashe_id'].widget = widgets.Select(choices=institution_list)
+    form.fields['aashe_id'].widget.choices = institution_list
 
     template = "registration/select_institution.html"
     context = {'form': form,}

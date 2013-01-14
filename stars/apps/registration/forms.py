@@ -33,6 +33,7 @@ class RegistrationSchoolChoiceForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super(RegistrationSchoolChoiceForm, self).__init__(*args, **kwargs)
         self.fields['aashe_id'].label = "Institution"
+        self.fields['aashe_id'].widget = forms.Select(attrs={'style': 'width: 700px;'})
 
 class RegistrationForm(ModelForm):
     """
