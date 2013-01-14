@@ -99,8 +99,6 @@ DATABASE_ROUTERS = ('aashe.issdjango.router.ISSRouter',)
 STANDALONE_MODE = True
 
 INSTALLED_APPS += ('django_nose',
-                   'fixture_magic',
-                   'debug_template',
                    'template_repl')
 
 if 'TEST_RUNNER' in os.environ: # django_nose.NoseTestSuiteRunner, for example
