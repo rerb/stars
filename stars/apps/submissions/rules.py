@@ -1,9 +1,6 @@
 import aashe_rules
-import sys
 from stars.apps.institutions.rules import institution_can_get_rated, user_has_access_level, institution_has_snapshot_feature
 from stars.apps.credits.models import CreditSet
-
-from datetime import datetime
 
 def submission_is_editable(submission):
     """
@@ -59,7 +56,7 @@ aashe_rules.site.register("user_can_see_internal_notes", user_can_see_internal_n
 def user_can_submit_for_rating(user, submission):
     """
         Rule defines whether a user (and institution) has
-        privileges to submit a SubmissionSet for a rating 
+        privileges to submit a SubmissionSet for a rating
     """
     return user_can_manage_submission(user, submission) and institution_can_get_rated(submission.institution)
 aashe_rules.site.register("user_can_submit_for_rating", user_can_submit_for_rating)
@@ -89,7 +86,7 @@ aashe_rules.site.register("user_can_migrate_data", user_can_migrate_data)
 def user_can_migrate_from_submission(user, submission):
     """
         Only institution admins can migrate a submission
-        
+
         Participants can migrate from Reports or Snapshots
         Respondents can only migrate from Reports
     """
@@ -116,4 +113,3 @@ def submission_has_scores(submission):
     else:
         return submission.institution.is_participant
 aashe_rules.site.register("submission_has_scores", submission_has_scores)
-    
