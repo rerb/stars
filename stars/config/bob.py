@@ -63,7 +63,8 @@ DATABASE_ROUTERS = ('aashe.issdjango.router.ISSRouter',)
 # the django dev server so we will need to serve the static files (see urls.py)
 STANDALONE_MODE = True
 
-INSTALLED_APPS += ('django_nose',
+INSTALLED_APPS += ('django_extensions',
+                   'django_nose',
                    'template_repl')
 
 if 'TEST_RUNNER' in os.environ: # django_nose.NoseTestSuiteRunner, for example
