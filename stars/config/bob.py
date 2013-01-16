@@ -8,22 +8,15 @@ from settings import *
 HIDE_REPORTING_TOOL = False
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
-DEBUG_TOOLBAR = True
+DEBUG_TOOLBAR = False
 MAINTENANCE_MODE = False
 CELERY_ALWAYS_EAGER = True
 
 ADMINS = (('Bob Erb', 'bob@aashe.org'),)
-
-TEST_AUTHORIZENET_LOGIN = "6gJ5hF4UAXU"
-TEST_AUTHORIZENET_KEY = "23268nNJfy2ZEq58"
-
-AUTHORIZENET_LOGIN = TEST_AUTHORIZENET_LOGIN
-AUTHORIZENET_KEY = TEST_AUTHORIZENET_KEY
+MANAGERS = ADMINS
 
 # Send emails to to django.core.mail.outbox rather than the console:
 EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
-
-INSTALLED_APPS += ('template_repl',)
 
 def get_api_test_mode():
     try:
@@ -54,43 +47,15 @@ def use_sqlite_for_tests():
 
 if ((('test' in sys.argv) or ('testserver' in sys.argv)) and
     use_sqlite_for_tests()):
-    DATABASES = {
-        'default': {
-            'NAME': '/Users/rerb/sqlite/stars.db',
-            'ENGINE': 'django.db.backends.sqlite3',
-            'USER': 'root',
-            'PASSWORD': '',
-            'HOST': 'localhost',
-            },
-            'iss': {
-                'NAME': '/Users/rerb/sqlite/iss.db',
-                'ENGINE': 'django.db.backends.sqlite3',
-                'USER': 'root',
-                'PASSWORD': '',
-                'HOST': 'localhost',
-            }
-    }
+    DATABASES['default'] = dj_database_url.parse(
+        os.environ.get('STARS_SQLITE_DB_URL'))
+    DATABASES['iss'] = dj_database_url.parse(
+        os.environ.get('ISS_SQLITE_DB_URL'))
 else:
-    DATABASES = {
-        'default': {
-            'NAME': 'stars',
-            'ENGINE': 'django.db.backends.mysql',
-            'STORAGE_ENGINE': 'MyISAM',
-            'USER': 'root',
-            'PASSWORD': '',
-            'HOST': 'localhost',
-            'OPTIONS': {
-                "connect_timeout": 30,
-                },
-            },
-        'iss': {
-            'NAME': 'iss',
-            'ENGINE': 'django.db.backends.mysql',
-            'USER': 'root',
-            'PASSWORD': '',
-            'HOST': 'localhost',
-            }
-    }
+    DATABASES['default'] = dj_database_url.parse(
+        os.environ.get('STARS_MYSQL_DB_URL'))
+    DATABASES['iss'] = dj_database_url.parse(
+        os.environ.get('ISS_MYSQL_DB_URL'))
 
 DATABASE_ROUTERS = ('aashe.issdjango.router.ISSRouter',)
 
@@ -98,7 +63,8 @@ DATABASE_ROUTERS = ('aashe.issdjango.router.ISSRouter',)
 # the django dev server so we will need to serve the static files (see urls.py)
 STANDALONE_MODE = True
 
-INSTALLED_APPS += ('django_nose',
+INSTALLED_APPS += ('django_extensions',
+                   'django_nose',
                    'template_repl')
 
 if 'TEST_RUNNER' in os.environ: # django_nose.NoseTestSuiteRunner, for example
@@ -107,6 +73,7 @@ if 'TEST_RUNNER' in os.environ: # django_nose.NoseTestSuiteRunner, for example
 
 # Stuff copied from ben.py that I don't know what it is:
 
+WWW_SSO_API_KEY = "8dca728d46c85b3fda4529692a7f7725"
 SSO_SERVER_URI = WWW_SSO_SERVER_URI
 STARS_DOMAIN = WWW_STARS_DOMAIN
 SSO_API_KEY = WWW_SSO_API_KEY
@@ -115,6 +82,10 @@ XMLRPC_VERBOSE = False
 XMLRPC_USE_HASH = True
 
 # Authorize.Net
+TEST_AUTHORIZENET_LOGIN = "6gJ5hF4UAXU"
+TEST_AUTHORIZENET_KEY = "23268nNJfy2ZEq58"
+TEST_AUTHORIZENET_SERVER = 'test.authorize.net'
+
 AUTHORIZENET_LOGIN = TEST_AUTHORIZENET_LOGIN
 AUTHORIZENET_KEY = TEST_AUTHORIZENET_KEY
 AUTHORIZENET_SERVER = TEST_AUTHORIZENET_SERVER
@@ -122,5 +93,12 @@ AUTHORIZENET_SERVER = TEST_AUTHORIZENET_SERVER
 # Thumbnails
 THUMBNAIL_DEBUG = True
 
-TEST_RUNNER = 'hotrunner.HotRunner'
-EXCLUDED_TEST_APPS = ['django_extensions']
+# django toolbar
+if DEBUG_TOOLBAR:
+    MIDDLEWARE_CLASSES = MIDDLEWARE_CLASSES.append(
+        'debug_toolbar.middleware.DebugToolbarMiddleware')
+    INTERNAL_IPS = ('127.0.0.1',)
+    INSTALLED_APPS = INSTALLED_APPS + ('debug_toolbar',)
+    DEBUG_TOOLBAR_CONFIG = {
+        'INTERCEPT_REDIRECTS': False,
+    }
