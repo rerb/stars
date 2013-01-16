@@ -400,6 +400,49 @@ class SubmissionSet(models.Model, FlaggableModel):
             # a value:
             self.init_credit_submissions()
 
+    def take_snapshot(self, user):
+        """
+            Creates a new SubmissionSet, based on this one, for the
+            latest CreditSet.  Sends courtesy emails as well.
+        """
+        # Importing create_ss_mirror within take_snapshot() to avoid the
+        # circular imports created when stars.apps.migrations.utils is
+        # imported at the top level.
+        from stars.apps.migrations.utils import create_ss_mirror
+
+        # Participants keep their existing submission and save a duplicate
+        if self.institution.is_participant:
+            new_ss = create_ss_mirror(self, registering_user=user)
+
+            new_ss.registering_user = user
+            new_ss.date_registered = date.today()
+            new_ss.date_submitted = date.today()
+            new_ss.submitting_user = user
+            new_ss.status = 'f'
+            new_ss.is_visible = True
+            new_ss.is_locked = False
+            new_ss.save()
+
+        # Respondents get a new, empty submissionset
+        else:
+            self.status = "f"
+            self.date_submitted = date.today()
+            self.submitting_user = user
+            new_ss = SubmissionSet(institution=self.institution,
+                                   creditset=CreditSet.objects.get_latest(),
+                                   registering_user=user,
+                                   date_registered=date.today(),
+                                   status='ps')
+            new_ss.save()
+            self.institution.current_submission = new_ss
+            self.institution.save()
+            self.save()
+
+        et = EmailTemplate.objects.get(slug="snapshot_successful")
+        to_mail = [user.email,]
+        if user.email != self.institution.contact_email:
+            to_mail.append(self.institution.contact_email)
+        et.send_email(to_mail, {'ss': self,})
 
 INSTITUTION_TYPE_CHOICES = (
                                 ("2_year", "Two Year"),
