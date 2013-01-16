@@ -33,7 +33,14 @@ urlpatterns = patterns(
         name='submission-submit'),
 
     # (r'^submit/status/', 'submit_status'),
-    (r'^submit/letter/$', 'submit_letter'),
-    (r'^submit/finalize/$', 'submit_finalize'),
+
+    ######################################################################
+    # TODO: Commenting out submit_letter and submit_finalize temporarily #
+    # since their definitions in .../views.py are temporarily            #
+    # unavailable because of a bug in RulesMixin (see comments in        #
+    # .../views.py for details):                                         #
+    ######################################################################
+    # (r'^submit/letter/$', 'submit_letter'),
+    # (r'^submit/finalize/$', 'submit_finalize'),
     (r'^gateway/media/secure/(?P<inst_id>\d+)/(?P<creditset_id>\d+)/(?P<credit_id>\d+)/(?P<field_id>\d+)/(?P<filename>[^/]+)/delete/$', 'delete_uploaded_file_gateway'),
 )

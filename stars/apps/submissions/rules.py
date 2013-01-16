@@ -10,6 +10,13 @@ def submission_is_editable(submission):
     return submission.status != 'r' and submission == submission.institution.current_submission
 aashe_rules.site.register("submission_is_editable", submission_is_editable)
 
+def submission_is_not_locked(submission):
+    """
+        Exposes SubmissionSet.is_locked.
+    """
+    return not submission.is_locked
+aashe_rules.site.register("submission_is_not_locked", submission_is_not_locked)
+
 def publish_credit_data(credit_submission):
     """
         Identifies whether a credit's fields should be published anywhere

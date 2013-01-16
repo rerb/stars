@@ -14,41 +14,23 @@ import testfixtures
 from stars.apps.tool.my_submission import views
 from stars.apps.credits.models import Credit
 from stars.apps.submissions.models import CreditSubmission, SubmissionSet
-from stars.apps.tool.tests.views import UserCanEditSubmissionMixinTest
-from stars.test_factories import UserFactory
+from stars.apps.tool.tests.views import (SubmissionSetIsNotLockedMixinTest,
+                                         UserCanEditSubmissionMixinTest)
+from stars.test_factories import BoundaryFactory, UserFactory
 
 
-class SaveSnapshotTest(TestCase):
+class SaveSnapshotTest(UserCanEditSubmissionMixinTest,
+                       SubmissionSetIsNotLockedMixinTest):
 
-    def setUp(self):
-        self.request = HttpRequest()
-        self.request.method = 'POST'
-        self.user = UserFactory()
-        self.request.user = self.user
-        self.request.session = {}
+    view_class = views.SaveSnapshot
+    middleware = UserCanEditSubmissionMixinTest.middleware + [MessageMiddleware]
 
-        # Need MessageMiddleware to add the _messages storage backend
-        # to requests
-        self.message_middleware = MessageMiddleware()
-        self.message_middleware.process_request(self.request)
+    def open_gate(self):
+        BoundaryFactory(submissionset=self.submission)
+        super(SaveSnapshotTest, self).open_gate()
 
-    def test_render_to_response_missing_boundary_error_message(self):
-        """Does render_to_response display an error if there's no boundary?
-        """
-        save_snapshot = views.SaveSnapshot()
-        save_snapshot.request = self.request
-        context = RequestContext(self.request,
-                                 { 'active_submission': SubmissionSet() })
-        with testfixtures.Replacer() as r:
-            r.replace(
-                'stars.apps.tool.my_submission.views.user_can_submit_snapshot',
-                lambda x,y: True)
-            response = save_snapshot.render_to_response(context)
-        response = self.message_middleware.process_response(self.request,
-                                                            response)
-        self.assertTrue('messages' in response.cookies.keys())
-        self.assertTrue('must complete your Boundary' in
-                        response.cookies['messages'].js_output())
+    def test_get_succeeds(self, **kwargs):
+        super(SaveSnapshotTest, self).test_get_succeeds()
 
 
 class ConfirmClassViewTest(TestCase):
