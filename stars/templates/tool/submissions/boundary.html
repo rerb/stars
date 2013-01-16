@@ -4,7 +4,9 @@
 {% load bootstrap %}
 
 {% block crumbs-tool %}
-    <a href='/tool/submissions/'>Current Submission</a>
+    <a href='{% url submission-summary institution.slug submissionset.id %}'>
+        My Submission
+    </a>
     <span class="divider">/</span>
     Boundary
 {% endblock %}
