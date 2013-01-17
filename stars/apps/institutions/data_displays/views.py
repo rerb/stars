@@ -728,7 +728,6 @@ class ContentFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
         rf = self.get_reporting_field()
         _context['reporting_field'] = rf
         _context['filters'] = filters
-        _context['google_api_key'] = settings.GOOGLE_API_KEY
         _context['top_help_text'] = self.get_description_help_context_name()
 
         if not rf:
