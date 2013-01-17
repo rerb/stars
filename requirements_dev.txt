@@ -1,6 +1,1 @@
-django-debug-toolbar
-django-extensions
 django-template-repl
-factory_boy
-mock
-Werkzeug
