@@ -1,5 +1,8 @@
 from datetime import date, datetime
+from logging import getLogger
 import re
+
+from excel_response import ExcelResponse
 
 from django.conf import settings
 from django.contrib import messages
@@ -8,12 +11,20 @@ from django.core.cache import cache
 from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.utils.decorators import method_decorator
-from django.views.generic.base import TemplateView
-from django.views.generic.edit import FormView
+from django.views.generic import TemplateView, FormView
+
+from aashe_rules.mixins import RulesMixin
+from stars.apps.accounts.mixins import StarsAccountMixin
 
 from aashe.issdjango.models import TechnicalAdvisor
-from stars.apps.credits.models import Rating, Credit, Category, Subcategory
-from stars.apps.institutions.data_displays.filters import Filter, RangeFilter
+from stars.apps.credits.models import (CreditSet,
+                                       Rating,
+                                       Credit,
+                                       Category,
+                                       Subcategory,
+                                       DocumentationField)
+from stars.apps.institutions.data_displays.filters import (
+    Filter, RangeFilter, FilteringMixin, NarrowFilteringMixin)
 from stars.apps.institutions.data_displays.forms import (
     CharacteristicFilterForm, DelCharacteristicFilterForm, ScoreColumnForm,
     ReportingFieldSelectForm)
@@ -26,6 +37,7 @@ from stars.apps.submissions.models import (SubmissionSet, CreditUserSubmission,
                                            CategorySubmission,
                                            SubcategorySubmission)
 
+logger = getLogger('stars.request')
 
 class Dashboard(TemplateView):
     """
@@ -182,222 +194,94 @@ class Dashboard(TemplateView):
         return _context
 
 
+COMMON_FILTERS = [
+                        Filter(
+                                key='institution__org_type',
+                                title='Organization Type',
+                                item_list=[
+                                    ('All Institutions', 'DO_NOT_FILTER'), # value means "don't filter base_qs"
+                                    ('Two Year Institution', 'Two Year Institution'),
+                                    ('Four Year Institution', 'Four Year Institution'),
+                                    ('Graduate Institution', 'Graduate Institution'),
+                                    ('System Office', 'System Office'),
+                                ],
+                                base_qs=SubmissionSet.objects.filter(status='r'),
+                        ),
+                        Filter(
+                               key='institution__country',
+                               title='Country',
+                               item_list=[
+                                    ('United States', "United States of America"),
+                                    ('Canada', 'Canada')
+                               ],
+                               base_qs=SubmissionSet.objects.filter(status='r'),
+                        ),
+                        Filter(
+                              key='institution__is_member',
+                              title='AASHE Membership',
+                              item_list=[
+                                   ('AASHE Member', True),
+                                   ('Not an AASHE Member', False)
+                              ],
+                              base_qs=SubmissionSet.objects.filter(status='r'),
+                        ),
+                        Filter(
+                                key='institution__is_pcc_signatory',
+                                title='ACUPCC Signatory Status',
+                                item_list=[
+                                     ('ACUPCC Signatory', True),
+                                     ('Not an ACUPCC Signatory', False)
+                                ],
+                                base_qs=SubmissionSet.objects.filter(status='r'),
+                        ),
+                        Filter(
+                                key='institution__charter_participant',
+                                title='STARS Charter Participant',
+                                item_list=[
+                                     ('Charter Participant', True),
+                                     ('Not a Charter Participant', False)
+                                ],
+                                base_qs=SubmissionSet.objects.filter(status='r'),
+                        ),
+                        Filter(
+                                key='institution__is_pilot_participant',
+                                title='STARS Pilot Participant',
+                                item_list=[
+                                     ('Pilot Participant', True),
+                                     ('Not a Pilot Participant', False)
+                                ],
+                                base_qs=SubmissionSet.objects.filter(status='r'),
+                        ),
+                        Filter(
+                                key='rating__name',
+                                title='STARS Rating',
+                                item_list=[
+                                    ('Bronze', 'Bronze'),
+                                    ('Silver', 'Silver'),
+                                    ('Gold', 'Gold'),
+                                    ('Platinum', 'Platinum'),
+                                ],
+                                base_qs=SubmissionSet.objects.filter(status='r'),
+                        ),
+                        RangeFilter(
+                                key='institution__fte',
+                                title='FTE Enrollment',
+                                item_list=[
+                                    ('Less than 200', 'u200', None, 200),
+                                    ('200 - 499', 'u500', 200, 500),
+                                    ('500 - 999', 'u1000', 500, 1000),
+                                    ('1,000 - 1,999', 'u2000', 1000, 2000),
+                                    ('2,000 - 4,999', 'u5000', 2000, 5000),
+                                    ('5,000 - 9,999', 'u10000', 5000, 10000),
+                                    ('10,000 - 19,999', 'u20000', 10000, 20000),
+                                    ('Over 20,000', 'o20000', 20000, None),
+                                ],
+                                base_qs=SubmissionSet.objects.filter(status='r'),
+                        ),
+                      ]
 
-class FilteringMixin(object):
-    """
-        A mixin that will save filters (dictionaries) in the session
 
-        Children must define
-            `filter_key` - a key for storing filters associated with this view
-
-        Optionally `available_filters` can be overridden to set the default filters
-    """
-
-    def get_available_filters(self):
-        """
-            Used to poplulate the child select using JavaScript
-        """
-        available_filters = [
-                                Filter(
-                                        key='institution__org_type',
-                                        title='Organization Type',
-                                        item_list=[
-                                            ('All Institutions', 'DO_NOT_FILTER'), # value means "don't filter base_qs"
-                                            ('Two Year Institution', 'Two Year Institution'),
-                                            ('Four Year Institution', 'Four Year Institution'),
-                                            ('Graduate Institution', 'Graduate Institution'),
-                                            ('System Office', 'System Office'),
-                                        ],
-                                        base_qs=SubmissionSet.objects.filter(status='r'),
-                                ),
-                                Filter(
-                                       key='institution__country',
-                                       title='Country',
-                                       item_list=[
-                                            ('United States', "United States of America"),
-                                            ('Canada', 'Canada')
-                                       ],
-                                       base_qs=SubmissionSet.objects.filter(status='r'),
-                                ),
-                                Filter(
-                                      key='institution__is_member',
-                                      title='AASHE Membership',
-                                      item_list=[
-                                           ('AASHE Member', True),
-                                           ('Not an AASHE Member', False)
-                                      ],
-                                      base_qs=SubmissionSet.objects.filter(status='r'),
-                                ),
-                                Filter(
-                                        key='institution__is_pcc_signatory',
-                                        title='ACUPCC Signatory Status',
-                                        item_list=[
-                                             ('ACUPCC Signatory', True),
-                                             ('Not an ACUPCC Signatory', False)
-                                        ],
-                                        base_qs=SubmissionSet.objects.filter(status='r'),
-                                ),
-                                Filter(
-                                        key='institution__charter_participant',
-                                        title='STARS Charter Participant',
-                                        item_list=[
-                                             ('Charter Participant', True),
-                                             ('Not a Charter Participant', False)
-                                        ],
-                                        base_qs=SubmissionSet.objects.filter(status='r'),
-                                ),
-                                Filter(
-                                        key='institution__is_pilot_participant',
-                                        title='STARS Pilot Participant',
-                                        item_list=[
-                                             ('Pilot Participant', True),
-                                             ('Not a Pilot Participant', False)
-                                        ],
-                                        base_qs=SubmissionSet.objects.filter(status='r'),
-                                ),
-                                Filter(
-                                        key='rating__name',
-                                        title='STARS Rating',
-                                        item_list=[
-                                            ('Bronze', 'Bronze'),
-                                            ('Silver', 'Silver'),
-                                            ('Gold', 'Gold'),
-                                            ('Platinum', 'Platinum'),
-                                        ],
-                                        base_qs=SubmissionSet.objects.filter(status='r'),
-                                ),
-                                RangeFilter(
-                                        key='institution__fte',
-                                        title='FTE Enrollment',
-                                        item_list=[
-                                            ('Less than 200', 'u200', None, 200),
-                                            ('200 - 499', 'u500', 200, 500),
-                                            ('500 - 999', 'u1000', 500, 1000),
-                                            ('1,000 - 1,999', 'u2000', 1000, 2000),
-                                            ('2,000 - 4,999', 'u5000', 2000, 5000),
-                                            ('5,000 - 9,999', 'u10000', 5000, 10000),
-                                            ('10,000 - 19,999', 'u20000', 10000, 20000),
-                                            ('Over 20,000', 'o20000', 20000, None),
-                                        ],
-                                        base_qs=SubmissionSet.objects.filter(status='r'),
-                                ),
-                              ]
-        return available_filters
-
-    def get_context_data(self, **kwargs):
-
-        _context = {}
-        _context['available_filters'] = self.get_available_filters()
-        _context.update(super(FilteringMixin, self).get_context_data(**kwargs))
-        return _context
-
-    def get_filters(self):
-        filters = {}
-        filters[self.filter_key] = self.request.session.get(self.filter_key, [])
-        return filters
-
-    def get_filter_group(self, filter_group_key):
-        return self.request.session.get(filter_group_key, [])
-
-    def set_filters(self, filter_list, filter_group_key):
-        self.request.session[filter_group_key] = filter_list
-
-    def add_filter(self, new_filter, filter_group_key):
-        filters = self.get_filter_group(filter_group_key)
-        if new_filter not in filters:
-            filters.append(new_filter)
-        self.set_filters(filters, filter_group_key)
-
-    def drop_filter(self, filter, filter_group_key):
-        filters = self.get_filter_group(filter_group_key)
-        try:
-            filters.remove(filter)
-            self.set_filters(filters, filter_group_key)
-        except:
-            pass
-
-    def get_filter_form(self, filter_group_key, form_class):
-        """
-            Provides two forms:
-                1) formset for deletion of any existing filters
-                2) form for adding a new filter
-        """
-        new_filter_form = None
-        available_filters = self.get_available_filters()
-        if available_filters:
-            new_filter_form = form_class(available_filters, **self.get_form_kwargs())
-
-        delete_forms = {}
-        for f in self.get_filter_group(filter_group_key):
-            kwargs = self.get_form_kwargs()
-            kwargs['instance'] = f
-            kwargs['prefix'] = "filter_%d" % (len(delete_forms) + 1)
-            delete_forms[kwargs['prefix']] = DelCharacteristicFilterForm(**kwargs)
-
-        form_dict = {
-                        'delete_forms': FormListWrapper(delete_forms),
-                        'new_filter_form': new_filter_form,
-                    }
-
-        form = FormListWrapper(form_dict)
-
-        return form
-
-    def save_filters(self, form, filter_group_key):
-
-        if self.request.POST.has_key('type') and self.request.POST.has_key('item'):
-            filter = {'type': self.request.POST['type'], 'item': self.request.POST['item']}
-
-            # add a key value for the column
-            for f in self.get_available_filters():
-                if f.key == filter['type']:
-                    filter['type'] = f.title
-                    filter['key'] = f.key
-                    filter['base_qs'] = f.base_qs
-                    filter['filter_object'] = f
-                    filter['item_title'] = f.get_active_title(filter['item'])
-                    self.add_filter(filter, filter_group_key)
-                    break
-
-        # Delete requested filters
-        for k,v in form.forms['delete_forms'].forms.items():
-            key = '%s-delete' % k
-            if self.request.POST.has_key(key) and self.request.POST[key]:
-                self.drop_filter(v.instance, filter_group_key)
-
-    def get_filtered_queryset(self, filters):
-
-        queryset_list = []
-
-        for f in filters:
-
-            filtered_list = f['filter_object'].get_results(f['item'])
-
-            queryset_list.append(filtered_list)
-
-        if queryset_list:
-            qs = queryset_list.pop()
-            while queryset_list:
-                next_qs = queryset_list.pop()
-                qs = qs.filter(id__in=next_qs.values('id'))
-        else:
-            qs = SubmissionSet.objects.none()
-
-        return qs
-
-class NarrowFilteringMixin(FilteringMixin):
-    """
-        Removes a filter once it's in use
-    """
-    def get_available_filters(self):
-        available_filters = super(NarrowFilteringMixin, self).get_available_filters()
-        for f in self.get_filter_group(self.filter_key):
-            for af in available_filters:
-                if af.key == f['key']:
-                    available_filters.remove(af)
-        return available_filters
-
-class DisplayAccessMixin(object):
+class DisplayAccessMixinOld(object):
     """
         Objects must define two properties:
 
@@ -462,56 +346,52 @@ class DisplayAccessMixin(object):
 
         return super(DisplayAccessMixin, self).post(request, *args, **kwargs)
 
+class DisplayAccessMixin(StarsAccountMixin, RulesMixin):
+    """
+        A basic rule mixin for all Data Displays
+        
+        @todo: temporary access
+    """
+    def access_denied_callback(self):
+        self.template_name = "institutions/data_displays/denied_categories.html"
+        return self.render_to_response({'top_help_text': self.get_description_help_context_name(),})
+    
 
-class AggregateFilter(DisplayAccessMixin, FilteringMixin, FormView):
+class AggregateFilter(DisplayAccessMixin, FilteringMixin, TemplateView):
     """
         Provides a filtering tool for average category scores
 
         Participants and Members Only
     """
-    form_class = CharacteristicFilterForm
     template_name = "institutions/data_displays/categories.html"
-    filter_key = "aggregated_filter_"
-    success_url = "/institutions/data-displays/categories/"
-    denied_template_name = "institutions/data_displays/denied_categories.html"
-    access_list = ['member', 'participant']
+    
+    def update_logical_rules(self):
+        super(DisplayAccessMixin, self).update_logical_rules()
+        self.add_logical_rule({
+                               'name': 'user_is_participant_or_member',
+                               'param_callbacks': [
+                                                    ('user', 'get_request_user'),
+                                                    ],
+                               'response_callback': 'access_denied_callback'                 
+                               })
+    
+    def get_available_filters(self):
+        return COMMON_FILTERS
 
     def get_description_help_context_name(self):
         return "data_display_categories"
 
-    def get_form(self, form_class):
-
-        return self.get_filter_form(self.filter_key, form_class)
-
-    def get_context_data(self, **kwargs):
-
-        _context = super(AggregateFilter, self).get_context_data(**kwargs)
-        filters = self.get_filter_group(self.filter_key)
-        _context['filters'] = filters
-        _context['top_help_text'] = self.get_description_help_context_name()
-
-#        q = None
+    def get_object_list(self):
+        
         object_list = []
         ss_list = None
 
-        for f in filters:
+        for f, v in self.get_selected_filter_objects():
 
-            d = {} # {'title': <filter type:item>, "<cat>": <cat_avg>, "<cat>_list": [], 'total': <total_submissions>}
-            # d['title'] = f['filter_object'].get_active_title(f['item'])
-            d['title'] = f['item_title']
-            # if f['key'] == "rating__name":
-            #     d['title'] = "%s Rated Institutions" % f['item']
-            # else:
-            #     d['title'] = f['item_title']
-            # d['item'] = f['item']
+            d = {}
+            d['title'] = f.get_active_title(v)
 
-            ss_list = f['filter_object'].get_results(f['item']).exclude(rating__publish_score=False)
-            # if f['item'] == 'DO_NOT_FILTER':
-            #     ss_list = f['base_qs'].exclude(rating__publish_score=False)
-            # else:
-            #     filter_args = {f['key']: f['item'],}
-            #     ss_list = f['base_qs'].exclude(rating__publish_score=False).filter(**filter_args)
-
+            ss_list = f.get_results(v).exclude(rating__publish_score=False)
 
             count = 0
             for ss in ss_list:
@@ -534,238 +414,350 @@ class AggregateFilter(DisplayAccessMixin, FilteringMixin, FormView):
                     d['%s_var' % cat_abr] = "Standard Deviation: %.2f | Min: %.2f | Max %.2f" % (std, min, max)
 
             object_list.insert(0, d)
+            
+        return object_list
 
-        _context['object_list'] = object_list
+    def get_context_data(self, **kwargs):
+
+        _context = super(AggregateFilter, self).get_context_data(**kwargs)
+        _context['top_help_text'] = self.get_description_help_context_name()
+        _context['object_list'] = self.get_object_list()
 
         return _context
 
-    def form_valid(self, form):
-
-        # Save the new filter in the session
-        self.save_filters(form, self.filter_key)
-
-        return HttpResponseRedirect(self.get_success_url())
-
-    def form_invalid(self, form):
-        messages.error(self.request, "Please correct the errors below.")
-        return super(AggregateFilter, self).form_invalid(form)
-
-class ScoreFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
+class ScoreFilter(DisplayAccessMixin, NarrowFilteringMixin, TemplateView):
     """
-        Provides a filtering tool for scores
+        Provides a filtering tool for scores by Category, Subcategory, and Credit
 
-        Participants Only
+        Selected Categories/Subcategories/Credits are stored in the GET:
+        
+            ?col1=cat_<category_id>&col2=sub_<subcategory_id>&col3=crd_<credit_id>&col4=
+            
+        Maximum of 4 columns
+        
+        The view has a form that generates the QueryDict
     """
-    form_class = CharacteristicFilterForm
     template_name = "institutions/data_displays/score.html"
-    filter_key = "score_filter_"
-    success_url = "/institutions/data-displays/scores/"
-    denied_template_name = "institutions/data_displays/denied_score.html"
-    access_list = ['participant']
+    _col_keys = ['col1', 'col2', 'col3', 'col4']
+    _obj_mappings = [
+                    ('cat', Category),
+                    ('sub', Subcategory),
+                    ('crd', Credit)]
+    
+    def update_logical_rules(self):
+        super(DisplayAccessMixin, self).update_logical_rules()
+        self.add_logical_rule({
+                               'name': 'user_is_participant',
+                               'param_callbacks': [
+                                                    ('user', 'get_request_user'),
+                                                    ],
+                               'response_callback': 'access_denied_callback'                 
+                               })
 
     def get_description_help_context_name(self):
         return "data_display_scores"
+    
+    def get_available_filters(self):
+        return COMMON_FILTERS
+    
+    
+    """
+        Methods
+        
+            get_selected_columns:
+                gets a dict {<col_key>, <selected_value_as_object>,}
+                
+            get_object_from_string
+                converts a string to an object eg "cat_2" == Category with id=2
+                
+            get_select_form
+                populates the form from `get_selected_columns`
+                
+            get_object_list
+                uses the selected_columns and the current filters to create an object list
+                
+            get_context_data
+                adds the form to the context
+                adds the object_list to context
+                
+        Notes
+            
+            Javascript handles the form submission, but taking the selected values and appending
+            them to the current querydict
+                
+            @todo: add the current list of filters to the context as a querydict (with FilteringMixin)
+    """
+    
+    def get_selected_columns(self):
+        """
+            Get the selected columns from the GET querydict
+            
+            Example:
+                (<col_key>, <selected_value_as_object>,)
+        """
+        if hasattr(self, '_selected_columns'): # a little caching
+            return self._selected_columns
+        
+        get = self.request.GET
+        self._selected_columns = []
+        for key in self._col_keys:
+            if get.has_key(key):
+                self._selected_columns.append((key, self.get_object_from_string(get[key])))
+        
+        return self._selected_columns
+    
+    def get_object_from_string(self, obj_str):
+        """
+            Takes a string like, 'cat_2' and returns the category with id=2
+        """
+        for key, klass in self._obj_mappings:
+            m_re = "%s_(\d+)" % key
+            matches = re.match(m_re, obj_str)
+            if matches and matches.groups():
+                id = matches.groups()[0]
+                try:
+                    return klass.objects.get(pk=id)
+                except klass.DoesNotExist:
+                    logger.error("String-to-object mapping failed for: %s." % obj_str,
+                                extra={'request': self.request})
+                    break
+        
+        return None
+        
 
-    def get_form(self, form_class):
+    def get_select_form(self):
+        """
+            Initializes the form for the user to select the columns
+        """
+        return ScoreColumnForm(initial=self.get_selected_columns())
+    
+    def get_object_list(self):
+        """
+            Returns the list of objects based on the characteristic filters
+            and the selected columns
+        """
+        selected_columns = self.get_selected_columns()
 
-        filter_form = self.get_filter_form(self.filter_key, form_class)
+        if not selected_columns:
+            return None
+        else:
+#            columns = []
+#            for k, col in selected_columns.items():
+#                columns.insert(0, (k, col))
 
-        kwargs = self.get_form_kwargs()
-        kwargs['initial'] = self.get_columns()
-        col_form = ScoreColumnForm(**kwargs)
+            # Get the queryset from the filters
+            queryset = self.get_filtered_queryset()
+            object_list = []
+            
+            if queryset:
+                # get the column values for each submission set in the queryset
+                for ss in queryset.order_by('institution__name').exclude(rating__publish_score=False):
+                    row = {'ss': ss, 'cols': []}
+                    count = 0
+                    # @todo - make sure the dictionaries align
+                    for key, col_obj in selected_columns:
+                        if col_obj != None:
+                            score = "--"
+                            units = ""
+                            
+                            if isinstance(col_obj, Category):
+                                cat = col_obj.get_for_creditset(ss.creditset) # get the related version in this creditset
+                                if cat:
+                                    obj = CategorySubmission.objects.get(submissionset=ss, category=cat)
+                                    score = "%.2f" % obj.get_STARS_score()
+                                    if obj.category.abbreviation != "IN":
+                                        units = "%"
+                                    url = obj.get_scorecard_url()
+                            elif isinstance(col_obj, Subcategory):
+                                sub = col_obj.get_for_creditset(ss.creditset)
+                                if sub:
+                                    obj = SubcategorySubmission.objects.get(category_submission__submissionset=ss, subcategory=sub)
+                                    score = "%.2f / %.2f" % (obj.get_claimed_points(), obj.get_adjusted_available_points())
+                                    url = obj.get_scorecard_url()
+                            elif isinstance(col_obj, Credit):
+                                credit = col_obj.get_for_creditset(ss.creditset)
+                                if credit:
+                                    cred = CreditUserSubmission.objects.get(subcategory_submission__category_submission__submissionset=ss, credit=credit)
+                                    url = cred.get_scorecard_url()
+                                    if ss.rating.publish_score:
+                                        if cred.submission_status == "na":
+                                            score = "Not Applicable"
+                                        else:
+                                            if cred.credit.type == "t1":
+                                                score = "%.2f / %d" % (cred.assessed_points, cred.credit.point_value)
+                                            else:
+                                                score = "%.2f / %.2f" % (cred.assessed_points, ss.creditset.tier_2_points)
+                                    else:
+                                        score = "Reporter"
+    
+                            row['cols'].append({'score': score, 'units': units, 'url': url})
+    
+                    object_list.append(row)
 
-        form_dict = {
-                        'filters': filter_form,
-                        'columns': col_form,
-                    }
-
-        return FormListWrapper(form_dict)
+            return object_list
+        
 
     def get_context_data(self, **kwargs):
 
         _context = super(ScoreFilter, self).get_context_data(**kwargs)
-        filters = self.get_filter_group(self.filter_key)
-        _context['filters'] = filters
         _context['top_help_text'] = self.get_description_help_context_name()
-
-        cols = self.get_columns()
-
-        if not cols:
-            _context['object_list'] = None
-            _context['columns'] = None
-        else:
-
-            columns = []
-            for k, col in cols.items():
-                columns.insert(0, (k, col))
-
-            queryset = self.get_filtered_queryset(filters)
-            object_list = []
-            for ss in queryset.order_by('institution__name').exclude(rating__publish_score=False):
-                row = {'ss': ss, 'cols': []}
-                count = 0
-                for k, col in columns:
-                    if col != None:
-                        score = "--"
-                        units = ""
-                        if isinstance(col, Category):
-                            cat = col.get_for_creditset(ss.creditset)
-                            if cat:
-                                obj = CategorySubmission.objects.get(submissionset=ss, category=cat)
-                                score = "%.2f" % obj.get_STARS_score()
-                                if obj.category.abbreviation != "IN":
-                                    units = "%"
-                                url = obj.get_scorecard_url()
-                        elif isinstance(col, Subcategory):
-                            sub = col.get_for_creditset(ss.creditset)
-                            obj = SubcategorySubmission.objects.get(category_submission__submissionset=ss, subcategory=sub)
-                            score = "%.2f / %.2f" % (obj.get_claimed_points(), obj.get_adjusted_available_points())
-                            url = obj.get_scorecard_url()
-                        elif isinstance(col, Credit):
-                            credit = col.get_for_creditset(ss.creditset)
-                            cred = CreditUserSubmission.objects.get(subcategory_submission__category_submission__submissionset=ss, credit=credit)
-                            url = cred.get_scorecard_url()
-                            if ss.rating.publish_score:
-                                if cred.submission_status == "na":
-                                    score = "Not Applicable"
-                                else:
-                                    if cred.credit.type == "t1":
-                                        score = "%.2f / %d" % (cred.assessed_points, cred.credit.point_value)
-                                    else:
-                                        score = "%.2f / %.2f" % (cred.assessed_points, ss.creditset.tier_2_points)
-                            else:
-                                score = "Reporter"
-
-                        row['cols'].append({'score': score, 'units': units, 'url': url})
-
-                object_list.append(row)
-
-            _context['object_list'] = object_list
-            _context['columns'] = columns
-
+        _context['object_list'] = self.get_object_list()
+        _context['selected_columns'] = self.get_selected_columns()
+        _context['select_form'] = self.get_select_form()
+            
         return _context
 
-    def form_valid(self, form):
-
-        # Save the new filter in the session
-        self.save_filters(form.forms['filters'], self.filter_key)
-        self.save_columns(form)
-
-        return HttpResponseRedirect(self.get_success_url())
-
-    def save_columns(self, form):
-
-        columns = form.forms['columns'].cleaned_data
-
-        self.request.session['columns'] = columns
-
-    def get_columns(self):
-
-        return self.request.session.get('columns', None)
-
-    def form_invalid(self, form):
-        messages.error(self.request, "Please correct the errors below.")
-        return super(ScoreFilter, self).form_invalid(form)
-
-class ContentFilter(DisplayAccessMixin, NarrowFilteringMixin, FormView):
+class ContentFilter(DisplayAccessMixin, NarrowFilteringMixin, TemplateView):
     """
-        Provides a filtering tool for scores
-
-        Participants and Members Only
+        Provides a filtering tool that shows all the values for a selected
+        Reporting Field for the filtered set of institutions
+        
+        The view passes a form to the view that gets initially populated
+        with credit sets. Subsequent subcategories down to reporting fields
+        are populated using ajax.
+        
+        Javascript is used to calculate the new URL based on the selected
+        field and the current querydict;
     """
-    form_class = CharacteristicFilterForm
     template_name = "institutions/data_displays/content.html"
-    filter_key = "content_filter_"
-    success_url = "/institutions/data-displays/content/"
-    denied_template_name = "institutions/data_displays/denied_content.html"
-    access_list = ['member', 'participant']
+    
+    def get_available_filters(self):
+        return COMMON_FILTERS
+    
+    """
+        Methods
+        
+            get_selected_field:
+                gets the selected credit from the querydict
+                
+            get_form:
+                returns the selection form with the inital value from above
+                
+            get_object_list:
+                returns the results of the query
+                
+            get_context_data
+                adds the form to the context
+                adds the selected field
+                adds the object_list to context
+                
+        Notes
+            
+            Javascript handles the form submission, but taking the selected value and appending
+            them to the current querydict
+    """
 
     def get_description_help_context_name(self):
         return "data_display_content"
 
-    def get_form(self, form_class):
+    def get_select_form(self):
+        """
+            Get the form for selecting a reporting field
+        """
+        return ReportingFieldSelectForm(initial={'reporting_field': self.get_selected_field()})
+    
+    def get_selected_field(self):
+        """
+            Get the selected field from the QueryDict
+        """
+        if self.request.GET.has_key('reporting_field'):
+            try:
+                return DocumentationField.objects.get(pk=self.request.GET['reporting_field'])
+            except DocumentationField.DoesNotExist:
+                pass
+        return None
+    
+    def get_object_list(self):
+        """
+            Get a list of objects based on the filters and the selected field
+        """
+        cache_key = self.request.GET.urlencode()
+        object_list = cache.get(cache_key)
+        if object_list:
+            return object_list
+        
+        rf = self.get_selected_field()
+        object_list = []
 
-        filter_form = self.get_filter_form(self.filter_key, form_class)
-
-        kwargs = self.get_form_kwargs()
-        kwargs['initial'] = {'reporting_field': self.get_reporting_field()}
-        reporting_field_form = ReportingFieldSelectForm(**kwargs)
-
-        form_dict = {
-                        'filters': filter_form,
-                        'reporting_field': reporting_field_form,
-                    }
-
-        return FormListWrapper(form_dict)
+        if rf:
+            queryset = self.get_filtered_queryset()
+            if queryset:
+                for ss in queryset.order_by('institution__name'):
+    
+                    field_class = DocumentationFieldSubmission.get_field_class(rf)
+                    cus_lookup = "subcategory_submission__category_submission__submissionset"
+                    # I have to get creditusersubmissions so i can be sure these are actual user submissions and not tests
+                    cus = CreditUserSubmission.objects.get(**{cus_lookup: ss, 'credit': rf.credit.get_for_creditset(ss.creditset)})
+                    try:
+                        df = field_class.objects.get(credit_submission=cus, documentation_field=rf.get_for_creditset(ss.creditset))
+                        cred = CreditUserSubmission.objects.get(pk=df.credit_submission.id)
+                        row = {'field': df, 'ss': ss, 'credit': cred}
+                        if ss.rating.publish_score:
+                            if cred.submission_status == "na":
+                                row['assessed_points'] = "Not Applicable"
+                                row['point_value'] = ""
+                                # set the field to None because they aren't reporting
+                                row['field'] = None
+                            else:
+                                row['assessed_points'] = "%.2f" % cred.assessed_points
+                                row['point_value'] = cred.credit.point_value
+                                if cred.submission_status == 'np' or cred.submission_status == 'ns':
+                                    row['field'] = None
+                        else:
+                            row['assessed_points'] = "Reporter"
+                            row['point_value'] = ""
+    
+                    except:
+                        row = {'field': None, 'ss': ss, 'credit': None, "assessed_points": None, 'point_value': None}
+                    object_list.append(row)
+                
+        cache.set(cache_key, object_list, 60*120) #Cache for 2 hours
+        return object_list
+        
 
     def get_context_data(self, **kwargs):
 
         _context = super(ContentFilter, self).get_context_data(**kwargs)
-        filters = self.get_filter_group(self.filter_key)
-        _context['filters'] = filters
-        _context['google_api_key'] = settings.GOOGLE_API_KEY
         _context['top_help_text'] = self.get_description_help_context_name()
-
-
-        rf = self.get_reporting_field()
-
-        if not rf:
-            _context['object_list'] = None
-            _context['reporting_field'] = None
-        else:
-            queryset = self.get_filtered_queryset(filters)
-            object_list = []
-            for ss in queryset.order_by('institution__name'):
-
-                field_class = DocumentationFieldSubmission.get_field_class(rf)
-                cus_lookup = "subcategory_submission__category_submission__submissionset"
-                # I have to get creditusersubmissions so i can be sure these are actual user submissions and not tests
-                cus = CreditUserSubmission.objects.get(**{cus_lookup: ss, 'credit': rf.credit.get_for_creditset(ss.creditset)})
-                try:
-                    df = field_class.objects.get(credit_submission=cus, documentation_field=rf.get_for_creditset(ss.creditset))
-                    cred = CreditUserSubmission.objects.get(pk=df.credit_submission.id)
-                    row = {'field': df, 'ss': ss, 'credit': cred}
-                    if ss.rating.publish_score:
-                        if cred.submission_status == "na":
-                            row['score'] = "Not Applicable"
-                            # set the field to None because they aren't reporting
-                            row['field'] = None
-                        else:
-                            row['score'] = "%.2f / %d" % (cred.assessed_points, cred.credit.point_value)
-                            if cred.submission_status == 'np' or cred.submission_status == 'ns':
-                                row['field'] = None
-                    else:
-                        row['score'] = "Reporter"
-
-                except:
-                    row = {'field': None, 'ss': ss, 'credit': None, "score": None}
-                object_list.append(row)
-            _context['object_list'] = object_list
-            _context['reporting_field'] = rf
-
+        _context['reporting_field'] = self.get_selected_field()
+        _context['object_list'] = self.get_object_list()
+        _context['select_form'] = self.get_select_form()
+        _context['get_params'] = self.request.GET.urlencode()
+        
         return _context
-
-    def form_valid(self, form):
-
-        # Save the new filter in the session
-        self.save_filters(form.forms['filters'], self.filter_key)
-        self.save_reporting_field(form)
-
-        return HttpResponseRedirect(self.get_success_url())
-
-    def save_reporting_field(self, form):
-
-        field = form.forms['reporting_field'].cleaned_data['reporting_field']
-
-        self.request.session['reporting_field'] = field
-
-    def get_reporting_field(self):
-
-        return self.request.session.get('reporting_field', None)
-
-    def form_invalid(self, form):
-        messages.error(self.request, "Please correct the errors below.")
-        return super(ContentFilter, self).form_invalid(form)
+    
+class ContentExcelFilter(ContentFilter):
+    """
+        An extension of the content filter for export to Excel
+    """
+    def render_to_response(self, context, **response_kwargs):
+        """
+        Returns a response with a template rendered with the given context.
+        """
+        
+        cols = [(
+                'Institution', 'Assessed Points', 'Available Points', context['reporting_field'].title
+                )]
+        
+        
+        for o in context['object_list']:
+            
+            row = ["%s" % o['ss']]
+            if o['assessed_points']:
+                row.append(o['assessed_points'])
+            else:
+                row.append('')
+            if o['point_value']:
+                row.append(o['point_value'])
+            else:
+                row.append('')
+            if o['field']:
+                row.append(o['field'].get_human_value())
+            else:
+                row.append('')
+            cols.append(row)
+        return ExcelResponse(cols)
+    
 
 class CallbackView(TemplateView):
     """

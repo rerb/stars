@@ -77,13 +77,8 @@
 	{% load content %}
     {% display_block_content 'data_display_categories' user %}
     
-    <div class='well'>
-	<form method='POST' action='.' id='filterForm'>
-		{% with new_filter_form=form.forms.new_filter_form %}
-		{% with delete_forms=form.forms.delete_forms %}
-			{% include 'institutions/data_displays/top_level_filters.html' %}
-		{% endwith %}{% endwith %}
-	</form>
+	<div class='well'>
+		{% include 'institutions/data_displays/top_level_filters.html' %}
 	</div>
 	<div class='row displays-down-arrow'><i class='icon-arrow-down'></i></div>
 	<table id='institution_list' class='table'>

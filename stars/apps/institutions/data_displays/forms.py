@@ -69,16 +69,16 @@ class CreditSetElementField(forms.CharField):
                     return Category.objects.get(pk=id)
                 if obj == "sub":
                     return Subcategory.objects.get(pk=id)
-                if obj == "cred":
+                if obj == "crd":
                     return Credit.objects.get(pk=id)
         return None
 
 class ScoreColumnForm(forms.Form):
     
-    column_1 = CreditSetElementField(required=False)
-    column_2 = CreditSetElementField(required=False)
-    column_3 = CreditSetElementField(required=False)
-    column_4 = CreditSetElementField(required=False)
+    col1 = CreditSetElementField(required=False)
+    col2 = CreditSetElementField(required=False)
+    col3 = CreditSetElementField(required=False)
+    col4 = CreditSetElementField(required=False)
     
     def __init__(self, *args, **kwargs):
         
@@ -89,13 +89,13 @@ class ScoreColumnForm(forms.Form):
             new_initial = {}
             count = 0
             if initial:
-                for k, col in initial.items():
+                for k, col in initial:
                     if isinstance(col, Category):
                         new_initial[k] = "cat_%d" % col.id
                     elif isinstance(col, Subcategory):
                         new_initial[k] = "sub_%d" % col.id
                     elif isinstance(col, Credit):
-                        new_initial[k] = "cred_%d" % col.id
+                        new_initial[k] = "crd_%d" % col.id
                     else:
                         new_initial[k] = "select_one"
                     count += 1
@@ -107,7 +107,7 @@ class ScoreColumnForm(forms.Form):
         
         super(ScoreColumnForm, self).__init__(*args, **kwargs)
         
-        choices = [("select_one", "Select One")]
+        choices = [("", "Select One")]
         disabled = []
         
         for cat in CreditSet.objects.get(pk=2).category_set.all():
@@ -124,7 +124,7 @@ class ScoreColumnForm(forms.Form):
                 choices.append(('', ''))
                 
                 for c in sub.get_tier1_credits():
-                    choices.append(("cred_%d" % c.id, mark_safe("&nbsp;&nbsp;&nbsp;%s" % c.title)))
+                    choices.append(("crd_%d" % c.id, mark_safe("&nbsp;&nbsp;&nbsp;%s" % c.title)))
                     
                 t2 = sub.get_tier2_credits()
                 if t2:
@@ -133,7 +133,7 @@ class ScoreColumnForm(forms.Form):
 #                    choices.append(spacer)
 #                    disabled.append(spacer)
                     for c in t2:
-                        choices.append(("cred_%d" % c.id, mark_safe("&nbsp;&nbsp;&nbsp;%s" % c.title)))
+                        choices.append(("crd_%d" % c.id, mark_safe("&nbsp;&nbsp;&nbsp;%s" % c.title)))
                 
 #                spacer = ("sub_%d_spacer2" % sub.id, "")
 #                choices.append(spacer)
@@ -142,10 +142,14 @@ class ScoreColumnForm(forms.Form):
                 
         w = forms.Select(choices=choices)
         
-        self.fields['column_1'].widget = w
-        self.fields['column_2'].widget = w
-        self.fields['column_3'].widget = w
-        self.fields['column_4'].widget = w
+        self.fields['col1'].widget = w
+        self.fields['col2'].widget = w
+        self.fields['col3'].widget = w
+        self.fields['col4'].widget = w
+        self.fields['col1'].label = "Column 1"
+        self.fields['col2'].label = "Column 2"
+        self.fields['col3'].label = "Column 3"
+        self.fields['col4'].label = "Column 4"
     
 class ReportingFieldSelectForm(forms.Form):
     

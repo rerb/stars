@@ -15,10 +15,8 @@
 {% endblock %}
 
 {% block extra_head %}
-	<script type="text/javascript" src="https://www.google.com/jsapi?key={{ google_api_key }}"></script>
 	<script type='text/javascript'>
 	
-		google.load("jquery", "1.5.0");
 		
 		function ajaxFillTarget(url, target) {
 			$(target).load(url);
@@ -42,65 +40,101 @@
 
 {% block tab_content %}
     {% display_block_content 'data_display_content' user %}
-	<form method='POST' action='.' id='filterForm'>
-		<div class='well'>
-			{% with new_filter_form=form.forms.filters.forms.new_filter_form %}
-			{% with delete_forms=form.forms.filters.forms.delete_forms %}
-				{% include 'institutions/data_displays/top_level_filters.html' %}
-			{% endwith %}{% endwith %}
-		</div>
-		
-		<div class='row displays-down-arrow'><i class='icon-arrow-down'></i></div>
-
-		<div class='well'>
-			{% display_block_content 'data_display_content_second_filter' user %}
-			<table style='margin: 0px auto;' class='vertical'>
-				<tr>
-					<th>
-						Category:
-					</th>
-					<td>
-						<select id='category_select' onchange='selectCategory(this);'>
-							<option value=''>-------</option>
-						</select>
-					</td>
-				</tr>
-				<tr>
-					<th>
-						Subcategory:
-					</th>
-					<td>
-						<select id='subcategory_select' onchange='selectSubcategory(this);'>
-							<option value=''>-------</option>
-						</select>
-					</td>
-				</tr>
-				<tr>
-					<th>
-						Credit:
-					</th>
-					<td>
-						<select id='credit_select' onchange='selectCredit(this);'>
-							<option value=''>-------</option>
-						</select>
-					</td>
-				</tr>
-				<tr>
-					<th>
-						Reporting Field:
-					</th>
-					<td>
-						{{ form.forms.reporting_field.reporting_field }}
-					</td>
-				</tr>
-			</table>
-			<div style='text-align: center'>
-				<button type='submit' class='btn'>Apply</button>
-			</div>
-		</div>
-	</form>
+	<div class='well'>
+		{% include 'institutions/data_displays/top_level_filters.html' %}
+	</div>
 	
 	<div class='row displays-down-arrow'><i class='icon-arrow-down'></i></div>
+
+	<div class='well'>
+		{% display_block_content 'data_display_content_second_filter' user %}
+		<table style='margin: 0px auto;' class='vertical'>
+			<tr>
+				<th>
+					Category:
+				</th>
+				<td>
+					<select id='category_select' onchange='selectCategory(this);'>
+						<option value=''>-------</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<th>
+					Subcategory:
+				</th>
+				<td>
+					<select id='subcategory_select' onchange='selectSubcategory(this);'>
+						<option value=''>-------</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<th>
+					Credit:
+				</th>
+				<td>
+					<select id='credit_select' onchange='selectCredit(this);'>
+						<option value=''>-------</option>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<th>
+					Reporting Field:
+				</th>
+				<td>
+					{{ select_form.reporting_field }}
+				</td>
+			</tr>
+		</table>
+		<div style='text-align: center'>
+			<script type='text/javascript'>
+!function ($) {
+	
+	$.fn.selectReportingField = function($prefix){
+		
+		// Bind the click event to the selection populate method
+		this.bind('click.selectReportingField', function(){
+			
+			var $this = $(this);
+			
+			var $new_query = "";
+			// Get the values of the select:
+			if($('#id_reporting_field').val() != "") {
+				$new_query = "reporting_field=" + $('#id_reporting_field').val();
+			}
+			
+			var $url = ""
+			if($prefix.length > 0) {
+				$url = $prefix;
+				if($new_query.length > 0) {
+					$url += "&" + $new_query;
+				}
+			}
+			
+			window.location.replace("?" + $url);
+		});
+	};
+	
+}(window.jQuery);
+			</script>
+			<button type='button' class='btn' id='applyButton'>Apply</button>
+			<script type='text/javascript'>
+				$('#applyButton').selectReportingField("{{ selected_filters_querydict.urlencode|safe }}");
+			</script>
+		</div>
+	</div>
+	
+	<div class='row displays-down-arrow'><i class='icon-arrow-down'></i></div>
+	
+	{% if object_list and get_params %}
+	<div class='row'><div class='span2 offset10'>
+		<a href='excel/?{{ get_params }}' class='btn btn-info'>
+			<i class='icon-th icon-white'></i> Export Results
+		</a>
+	</div></div>
+	{% endif %}
 	
 	<table id='institution_list' class='table'>
        	{% if object_list %}
@@ -125,8 +159,8 @@
 	       			</td>
 	       			<td>
 	       				{% if o.credit %}
-	       					<a href='{{ o.credit.get_scorecard_url }}'>
-		       					{{ o.score }}
+	       					<a href='{{ o.credit.get_scorecard_url }}' style='white-space:nowrap;'>
+		       					{{ o.assessed_points }} {% if o.point_value %}/ {{ o.point_value }}{% endif %}
 		       				</a>
 		       			{% else %}
 		       				--
