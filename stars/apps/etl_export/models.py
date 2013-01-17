@@ -27,7 +27,7 @@ class Institution(models.Model, ETLCompareMixin):
     liaison_first_name = models.CharField(max_length=32)
     liaison_middle_name = models.CharField(max_length=32, blank=True, null=True)
     liaison_last_name = models.CharField(max_length=32)
-    liaison_title = models.CharField(max_length=64)
+    liaison_title = models.CharField(max_length=255)
     liaison_department = models.CharField(max_length=64)
     liaison_phone = PhoneNumberField()
     liaison_email = models.EmailField()
