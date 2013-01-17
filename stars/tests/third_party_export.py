@@ -41,6 +41,7 @@ def export_credit_content(credit, ss_qs=None):
 
     columns = [
                 "Institution",
+                "Liason Email",
 #                "City",
 #                "State",
 #                "Country",
@@ -62,10 +63,11 @@ def export_credit_content(credit, ss_qs=None):
         
         institution = cus.subcategory_submission.category_submission.submissionset.institution
         profile = institution.profile
-        print institution
+#        print institution
         
         row = [
                 institution.name,
+                institution.contact_email,
 #                profile.city,
 #                profile.state,
 #                institution.country,
@@ -107,11 +109,11 @@ def export_credit_content(credit, ss_qs=None):
                                     str_val = "%s [TRUNCATED]" % str_val[:32000]
                             else:
                                 str_val = ""
-                            row.append(str_val)
+                            row.append(smart_str(str_val))
                         
                         else:
-                            row.append(dfs.value)
-        row.append(cus.submission_notes)
+                            row.append(smart_str(dfs.value))
+        row.append(smart_str(cus.submission_notes))
         csvWriter.writerow(row)
 
 from stars.apps.credits.models import CreditSet
@@ -120,9 +122,11 @@ from stars.apps.third_parties.models import ThirdParty
 
 cs = CreditSet.objects.get(pk=5)
 
-tp = ThirdParty.objects.get(pk=2)
+tp = ThirdParty.objects.get(pk=1)
+print "EXPORTING: %s" % tp
+
 snapshot_list = tp.get_snapshots().exclude(institution__id=447)
-print snapshot_list
+# print snapshot_list
 
 for cat in cs.category_set.all():
     for sub in cat.subcategory_set.all():
