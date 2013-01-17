@@ -1,0 +1,14 @@
+from django.conf.urls.defaults import patterns, url
+from stars.apps.custom_forms.views import EligibilityView, \
+     SteeringCommitteeNominationView, TechnicalAdvisorApplicationView
+
+urlpatterns = patterns(
+    'stars.apps.custom_forms.views',
+
+    url(r'ta-app/$', TechnicalAdvisorApplicationView.as_view(),
+        name='technical-advisor-application'),
+    url(r'sc-app/$', SteeringCommitteeNominationView.as_view(),
+        name='steering-committee-nomination'),
+    url(r'eligibility-inquiry/$', EligibilityView.as_view(),
+        name='eligibility-inquiry')
+)

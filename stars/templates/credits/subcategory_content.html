@@ -1,0 +1,31 @@
+{% load submit_tags %}
+{% load aashe_rules_tags %}
+
+<table class='table table-condensed table-striped'>
+	<thead>
+		<tr>
+			<th>Credit</th>
+			{% testrule submission_has_scores submissionset %}
+				<th>Status</th>
+				<th>Points</th>
+			{% endtestrule %}
+		</tr>
+	</thead>
+	<tbody>
+		{% for c in sub.creditusersubmission_set.all %}
+			<tr>
+				<td>
+					<a href='{{ c.get_scorecard_url }}'>{{ c }}</a>
+				</td>
+				{% testrule submission_has_scores submissionset %}
+					<td>
+						{% show_status_icon c %}
+					</td>
+					<td>
+						{{ c.assessed_points|floatformat:2 }} / {% format_available_points c %}
+					</td>
+				{% endtestrule %}
+			</tr>
+		{% endfor %}
+	</tbody>
+</table>
