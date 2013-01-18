@@ -2,8 +2,10 @@ import aashe_rules
 
 from stars.apps.credits.models import CreditSet
 from stars.apps.institutions.rules import (institution_can_get_rated,
-                                           user_has_access_level,
-                                           institution_has_snapshot_feature)
+                                           institution_has_export,
+                                           institution_has_snapshot_feature,
+                                           user_has_access_level)
+
 
 def submission_is_editable(submission):
     """
@@ -53,7 +55,7 @@ def user_can_view_submission(user, submission):
 
 aashe_rules.site.register("user_can_view_submission", user_can_view_submission)
 
-def user_can_view_pdf(user, submisison):
+def user_can_view_pdf(user, submission):
     if (institution_has_export(submission.institution) and
         submission.status != 'r'):
         return False
