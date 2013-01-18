@@ -18,6 +18,7 @@ else:
         '/Users/jesse/src/.*': 'jesse',
         '/Users/rerb/src/.*': 'bob',
         '/Users/kuranes/.*': 'matt',
+        '/app/stars': 'heroku',
     }
 
     # find the first key that matches the ROOT_PATH
