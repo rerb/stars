@@ -165,14 +165,15 @@ XMLRPC_VERBOSE = False
 XMLRPC_USE_HASH = True
 
 # STARS_DOMAIN is used as part of hash key for securing rpc request.
-WWW_STARS_DOMAIN = "stars.aashe.org"
-#WWW_STARS_DOMAIN = "localhost"
-DEV_STARS_DOMAIN = "stars.dev.aashe.org"
-STAGE_STARS_DOMAIN = "stars.stage.aashe.org"
-STARS_DOMAIN = WWW_STARS_DOMAIN
+# WWW_STARS_DOMAIN = "stars.aashe.org"
+# #WWW_STARS_DOMAIN = "localhost"
+# DEV_STARS_DOMAIN = "stars.dev.aashe.org"
+# STAGE_STARS_DOMAIN = "stars.stage.aashe.org"
+# STARS_DOMAIN = WWW_STARS_DOMAIN
 
 # SSO_API_KEY is used to authenticate RPC requests
 SSO_API_KEY = os.environ.get("SSO_API_KEY", None)
+STARS_DOMAIN = os.environ.get("STARS_DOMAIN", "stars.aashe.org")
 
 # ARTICLES module
 ARTICLE_PATH_ROOT = "pages"  # defines url / path to articles
