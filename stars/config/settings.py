@@ -42,6 +42,16 @@ ADMIN_MEDIA_PREFIX = '/media/admin/'
 STATIC_URL = "/media/static/"
 MEDIA_ROOT = os.environ.get("MEDIA_ROOT", None)
 
+STATICFILES_DIRS = (
+    os.path.join(os.path.dirname(__file__), "..", "static"),
+)
+
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
+)
+
 SECRET_KEY = 'omxxweql@m7!@yh5a-)=f^_xo*(m2+gaz#+8dje)e6wv@q$v%@'
 
 TEMPLATE_LOADERS = (

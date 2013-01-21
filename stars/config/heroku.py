@@ -19,16 +19,6 @@ STATIC_ROOT = "/%s/" % STATIC_S3_PATH
 STATIC_URL = '//s3.amazonaws.com/%s/static/' % AWS_STORAGE_BUCKET_NAME
 ADMIN_MEDIA_PREFIX = STATIC_URL + 'admin/'
 
-STATICFILES_DIRS = (
-    os.path.join(os.path.dirname(__file__), "..", "static"),
-)
-
-STATICFILES_FINDERS = (
-    'django.contrib.staticfiles.finders.FileSystemFinder',
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
-)
-
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 import time
