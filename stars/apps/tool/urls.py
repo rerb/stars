@@ -19,6 +19,10 @@ urlpatterns = patterns("",
     (r'^(?P<institution_slug>[^/]*)/submission/(?P<submissionset>\d+)/',
      include('stars.apps.tool.my_submission.urls')),
 
+    # TODO: - s/ToolLandingPageView/SubmissionLockedView/:
+    url(r'^submission-locked/$', ToolLandingPageView.as_view(),
+        name='submission-locked'),
+
     (r'^my-resources/', include('stars.apps.tool.my_resources.urls')),
 
     url(r'^(?P<institution_slug>[^/]*)/$', SummaryToolView.as_view(),

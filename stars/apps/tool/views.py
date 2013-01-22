@@ -148,7 +148,7 @@ class NoStarsAccountView(TemplateView):
             return None
 
 
-class SelectInstitutionView(ListView):
+class SelectInstitutionView(StarsAccountMixin, ListView):
     """
         Displays a list of institutions this user has a STARS account for.
 
@@ -160,5 +160,4 @@ class SelectInstitutionView(ListView):
     template_name = 'tool/select_institution.html'
 
     def get_queryset(self):
-        return StarsAccount.objects.filter(user=self.request.user).order_by(
-            'institution__name')
+        return self.get_stars_account_list().order_by('institution__name')

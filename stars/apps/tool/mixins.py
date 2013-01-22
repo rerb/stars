@@ -46,7 +46,7 @@ class ToolMixin(RulesMixin, StarsAccountMixin):
 
 class InstitutionToolMixin(ToolMixin, InstitutionStructureMixin):
     """
-        A ToolMixin with knowledge of the Instituion structure.
+        A ToolMixin with knowledge of the Institution structure.
     """
     pass
 
@@ -66,7 +66,7 @@ class InstitutionAdminToolMixin(InstitutionToolMixin):
 class SubmissionToolMixin(InstitutionToolMixin,
                           SubmissionStructureMixin):
     """
-        A ToolMixin with knowledge of the Submission structure.
+        An InstitutionToolMixin with knowledge of the Submission structure.
     """
     pass
 
@@ -77,8 +77,21 @@ class UserCanEditSubmissionMixin(SubmissionToolMixin):
         permission to edit submissions.
     """
     def update_logical_rules(self):
-        super(InstitutionToolMixin, self).update_logical_rules()
+        super(UserCanEditSubmissionMixin, self).update_logical_rules()
         self.add_logical_rule({ 'name': 'user_can_edit_submission',
                                 'param_callbacks': [
                                     ('user', 'get_request_user'),
                                     ('submission', 'get_submissionset')] })
+
+
+class SubmissionSetIsNotLockedMixin(SubmissionToolMixin):
+    """
+        A SubmissionToolMixin that's available only if the current
+        submissionset is not locked.
+    """
+    def update_logical_rules(self):
+        super(SubmissionSetIsNotLockedMixin, self).update_logical_rules()
+        self.add_logical_rule({
+            'name': 'submission_is_not_locked',
+            'param_callbacks': [('submission', 'get_submissionset')],
+            'redirect_url': reverse('submission-locked') })

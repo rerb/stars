@@ -3,9 +3,10 @@ import factory
 from credits_factories import (ApplicabilityReasonFactory, CategoryFactory,
                                CreditFactory, CreditSetFactory,
                                RatingFactory, SubcategoryFactory)
-from institutions_factories import InstitutionFactory
+from institutions_factories import ClimateZoneFactory, InstitutionFactory
 from misc_factories import UserFactory
-from stars.apps.submissions.models import (CategorySubmission,
+from stars.apps.submissions.models import (Boundary,
+                                           CategorySubmission,
                                            CreditUserSubmission,
                                            ResponsibleParty,
                                            SubcategorySubmission,
@@ -68,3 +69,10 @@ class CreditUserSubmissionFactory(factory.Factory):
     applicability_reason = factory.SubFactory(ApplicabilityReasonFactory)
     user = factory.SubFactory(UserFactory)
     responsible_party = factory.SubFactory(ResponsiblePartyFactory)
+
+
+class BoundaryFactory(factory.Factory):
+    FACTORY_FOR = Boundary
+
+    submissionset = factory.SubFactory(SubmissionSetFactory)
+    climate_region = factory.SubFactory(ClimateZoneFactory)

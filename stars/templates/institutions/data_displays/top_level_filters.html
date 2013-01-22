@@ -1,5 +1,18 @@
+<script type='text/javascript'>
+	
+	add_filter = function(obj_id) {
+		sel = document.getElementById(obj_id);
+		url = sel.options[sel.selectedIndex].value
+		if (url && url != "") {
+			window.location.replace(url);
+		}
+	}
+
+</script>
+
 <div class='greyBox'>
 	Display results for institutions with the following characteristics:<br/><br/>
+	
 	<table class='table'>
 		<thead>
 		<tr>
@@ -10,18 +23,46 @@
 		</tr>
 		</thead>
 		<tbody>
-		{% for k, f in delete_forms.forms.items %}
+		{% if selected_filters %}
+			{% for f in selected_filters %}
+				<tr>
+					<td style="text-align: center;">
+						<a href='{{ request.path }}?{{ f.del_link }}'>
+							<i class='icon-trash'></i>
+						</a>
+					</td>
+					<td>{{ f.filter_title }}</td>
+					<td>{{ f.selected_item_title }}</td>
+					<td></td>
+				</tr>
+			{% endfor %}
+		{% else %}
+			<tr><td colspan='4'>Select a filter</td></tr>
+		{% endif %}
+		
+		{% if available_filters %}
 			<tr>
-				<td style="text-align: center;">
-					<img src='/media/static/images/delete_grey_x.png' alt='[x]' onclick="deleteFilter('{{ k }}');" style='cursor: pointer;' />
-					{{ f.delete }}
-					{{ f.errors }}
-				</td>
-				<td>{{ f.instance.type }}</td>
-				<td>{{ f.instance.item_title }}</td>
 				<td></td>
-			</tr>
-		{% endfor %}
+				<td>
+					<select name="type" id="filter_type" data-target='filter_options' data-target-options='choicesLookup'>
+						<option value="" selected="selected">-------</option>
+						{% for f in available_filters %}
+							<option value='{{ f.filter_key }}'>{{ f.filter_title }}</option>
+						{% endfor %}
+					</select>
+					<script type='text/javascript'>
+						$('#filter_type').parentChildSelect();
+					</script>
+				</td>
+				<td>
+					<select id='filter_options'>
+					</select>
+				</td>
+				<td>
+					<button type='button' class='btn' onclick="add_filter('filter_options')">Add Filter</button>
+				</td>
+		{% endif %}
+		
 		{% if new_filter_form %}
 		<tr>
 			<td></td>

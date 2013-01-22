@@ -1,6 +1,6 @@
 from accounts_factories import UserProfileFactory
 
-from submissions_factories import (CategorySubmissionFactory,
+from submissions_factories import (BoundaryFactory, CategorySubmissionFactory,
                                    CreditUserSubmissionFactory,
                                    ResponsiblePartyFactory,
                                    SubmissionSetFactory,
@@ -11,8 +11,9 @@ from credits_factories import (ApplicabilityReasonFactory, CategoryFactory,
                                IncrementalFeatureFactory, RatingFactory,
                                SubcategoryFactory)
 
-from institutions_factories import (InstitutionFactory, PendingAccountFactory,
-                                    StarsAccountFactory, SubscriptionFactory,
+from institutions_factories import (ClimateZoneFactory, InstitutionFactory,
+                                    PendingAccountFactory, StarsAccountFactory,
+                                    SubscriptionFactory,
                                     SubscriptionPaymentFactory)
 
 from notifications_factories import EmailTemplateFactory, CopyEmailFactory
@@ -22,8 +23,10 @@ from registration_factories import ValueDiscountFactory
 from misc_factories import UserFactory
 
 __all__ = [ApplicabilityReasonFactory,
+           BoundaryFactory,
            CategoryFactory,
            CategorySubmissionFactory,
+           ClimateZoneFactory,
            CopyEmailFactory,
            CreditFactory,
            CreditSetFactory,

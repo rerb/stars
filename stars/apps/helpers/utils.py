@@ -1,9 +1,9 @@
+import re
+
 from django.conf import settings
 from django.core.cache import cache
 from django.utils.hashcompat import md5_constructor
 from django.utils.http import urlquote
-
-import sys, re
 
 def invalidate_template_cache(fragment_name, *variables):
     joined_vars = u':'.join([urlquote(var) for var in variables])
@@ -30,26 +30,6 @@ def settings_context(request):
             context_dict[s.lower()] = getattr(settings, s)
 
     return {'settings_context': context_dict,}
-
-def exception_context(request):
-    """
-        Adds exception info, if an exception is currently being handled.
-
-        The results of sys.exc_info() are available in a template as
-
-            {{ exc_info.type }}
-            {{ exc_info.value }}
-            {{ exc_info.traceback }}
-
-        See docs for sys.exc_info for details on type, value, and traceback.
-    """
-    context_dict = dict()
-
-    (context_dict['type'],
-     context_dict['value'],
-     context_dict['traceback']) = sys.exc_info()
-
-    return {'exc_info': context_dict}
 
 
 class StripCookieMiddleware(object):

@@ -2,9 +2,11 @@
 
 {% load content %}
 {% load bootstrap %}
- 
-{% block crumbs-tool %} 
-    <a href='/tool/submissions/'>Current Submission</a>
+
+{% block crumbs-tool %}
+    <a href='{% url submission-summary institution.slug submissionset.id %}'>
+        My Submission
+    </a>
     <span class="divider">/</span>
     Boundary
 {% endblock %}
@@ -19,12 +21,12 @@
         {% if fieldset.description %}
           <p>{% display_block_content fieldset.description user %}</p>
         {% endif %}
-        
-        
+
+
         {% for field in fieldset %}
         	{{ field|bootstrap }}
         {% endfor %}
-        
+
         {% comment %}
         {% with fieldset as object_form %}
         	{{ object_form|bootstrap }}
@@ -36,6 +38,11 @@
       {% endfor %}
         <div class='form-actions'>
             <button type='submit' class='btn btn-primary'>Save Boundary</button>
+            <button type='button'
+                    class='btn'
+                    onclick='document.location="{% url submission-summary institution.slug submissionset.id %}";'>
+                Cancel
+            </button>
         </div>
     </form>
 {% endblock %}

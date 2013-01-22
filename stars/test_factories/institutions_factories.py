@@ -4,9 +4,13 @@ import time
 import factory
 
 from misc_factories import UserFactory
-from stars.apps.institutions.models import (Institution, PendingAccount,
-                                            StarsAccount, Subscription,
-                                            SubscriptionPayment)
+from stars.apps.institutions.models import (ClimateZone, Institution,
+                                            PendingAccount, StarsAccount,
+                                            Subscription, SubscriptionPayment)
+
+
+class ClimateZoneFactory(factory.Factory):
+    FACTORY_FOR = ClimateZone
 
 
 class InstitutionFactory(factory.Factory):
@@ -17,6 +21,7 @@ class InstitutionFactory(factory.Factory):
         lambda i: 'test-inst-{0}-{1}'.format(i, time.time()))
     name = factory.Sequence(
         lambda i: 'test institution {0}.{1}'.format(i, time.time()))
+
 
 class PendingAccountFactory(factory.Factory):
     FACTORY_FOR = PendingAccount

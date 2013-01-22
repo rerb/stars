@@ -112,7 +112,6 @@ TEMPLATE_DIRS = [os.path.join(os.path.dirname(__file__), "..", "templates")]
 TEMPLATE_CONTEXT_PROCESSORS = (
     "stars.apps.accounts.utils.account_context",
     'stars.apps.helpers.utils.settings_context',
-    'stars.apps.helpers.utils.exception_context',
     'django.core.context_processors.static',
     'django.core.context_processors.media',
     'django.contrib.messages.context_processors.messages',
@@ -123,6 +122,7 @@ INSTALLED_APPS = (
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
+    'django.contrib.staticfiles',
     'django.contrib.admin',
     'django.contrib.redirects',
     'django.contrib.flatpages',

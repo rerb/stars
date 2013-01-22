@@ -1,1 +1,6 @@
 {% extends 'institutions/base.html' %}
+
+{% block extra_head %}
+	{{ block.super }}
+	<script src="{{ STATIC_URL }}js/parent_child_selects.js" type="text/javascript"></script>
+{% endblock %}

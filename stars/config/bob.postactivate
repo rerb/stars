@@ -1,0 +1,18 @@
+#!/usr/local/bin/zsh
+# This hook is run after this virtualenv is activated.
+
+export MEDIA_ROOT="/Users/rerb/src/aashe/app_media/stars/"
+
+# I like to spec the db's to use by form:
+export STARS_MYSQL_DB_URL="mysql://root@localhost/stars"
+export ISS_MYSQL_DB_URL="mysql://root@localhost/iss"
+export STARS_SQLITE_DB_URL="sqlite:////Users/rerb/sqlite/stars.db"
+export ISS_SQLITE_DB_URL="sqlite:////Users/rerb/sqlite/stars.db"
+
+# stars/settings.py requires these to be set.  stars/config/bob.py
+# ignores/overrides them, but since bob.py imports * from settings.py,
+# these need to be set beforehand.
+export STARS_DB_URL=${STARS_MYSQL_DB_URL}
+export ISS_DB_URL=${ISS_MYSQL_DB_URL}
+export STARS_TEST_DB=${STARS_SQLITE_DB_URL}
+export ISS_TEST_DB=${ISS_SQLITE_DB_URL}

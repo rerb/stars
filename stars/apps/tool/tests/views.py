@@ -22,9 +22,8 @@ class InstitutionToolMixinTest(ProtectedFormMixinViewTest):
         Provides a base TestCase for views that inherit from
         InstitutionToolMixin.
     """
-    blocked_user_level = None  # user_level that should be blocked
     blessed_user_level = None  # user_level that should be allowed to GET
-
+    blocked_user_level = None  # user_level that should be blocked
     middleware = ProtectedFormMixinViewTest.middleware + [MessageMiddleware]
 
     def setUp(self):
@@ -71,9 +70,9 @@ class InstitutionAdminToolMixinTest(InstitutionToolMixinTest):
         Provides a base TestCase for InstitutionToolMixinTests that
         are protected; only admin users can GET them.
     """
-    view_class = None  # Must be set in subclass.
-    blocked_user_level = ''
     blessed_user_level = 'admin'
+    blocked_user_level = ''
+    view_class = None  # Must be set in subclass.
 
 
 class InstitutionViewOnlyToolMixinTest(InstitutionToolMixinTest):
@@ -112,26 +111,53 @@ class UserCanEditSubmissionMixinTest(ProtectedViewTest):
     def _make_submission_uneditable(self):
         self.submission.status = 'r'
 
-    def test_get_succeeds(self):
+    def test_get_succeeds(self, **kwargs):
         super(UserCanEditSubmissionMixinTest, self).test_get_succeeds(
             institution_slug=self.institution.slug,
             submissionset=str(self.submission.id))
 
-    def test_get_is_blocked(self):
+    def test_get_is_blocked(self, **kwargs):
         super(UserCanEditSubmissionMixinTest, self).test_get_is_blocked(
             institution_slug=self.institution.slug,
             submissionset=str(self.submission.id))
 
 
-class SummaryToolViewTest(InstitutionViewOnlyToolMixinTest):
-    """This test is included in the apps.tool.manage.tests test
-    suite (e.g., it's included in __test__ in
-    apps/tool/manage/tests/__init__.py).  That's the workaround for
-    putting it up here, where it belongs, in apps/tool/views.py,
-    even though there's no app called 'tool' -- putting it into
-    the other test suite makes it easily runnable, e.g., as
-    'manage.py test manage.SummaryToolViewTest'.
+class SubmissionSetIsNotLockedMixinTest(ProtectedViewTest):
     """
+        Provides a base TestCase for views that inherit from
+        SubmissionSetIsNotLockedMixin.
+    """
+    def setUp(self):
+        super(SubmissionSetIsNotLockedMixinTest, self).setUp()
+        self.institution = InstitutionFactory(slug='hey-baby-you-look-lonely')
+        self.account = StarsAccountFactory(institution=self.institution)
+        self.request.user = self.account.user
+        self.submission = SubmissionSetFactory(institution=self.institution)
+
+    def open_gate(self):
+        self._unlock_submission()
+
+    def close_gate(self):
+        self._lock_submission()
+
+    def _unlock_submission(self):
+        self.submission.is_locked = False
+
+    def _lock_submission(self):
+        self.submission.is_locked = True
+
+    def test_get_succeeds(self, **kwargs):
+        super(SubmissionSetIsNotLockedMixinTest, self).test_get_succeeds(
+            institution_slug=self.institution.slug,
+            submissionset=str(self.submission.id))
+
+    def test_get_is_blocked(self, **kwargs):
+        super(SubmissionSetIsNotLockedMixinTest, self).test_get_is_blocked(
+            institution_slug=self.institution.slug,
+            submissionset=str(self.submission.id))
+
+
+class SummaryToolViewTest(InstitutionViewOnlyToolMixinTest):
     view_class = SummaryToolView
 
     def test_get_with_no_slug_raises_permission_denied(self):
@@ -188,10 +214,10 @@ class ToolLandingPageViewTest(ViewTest):
 
 class NoStarsAccountViewTest(ViewTest):
 
-    view_class = NoStarsAccountView
     middleware = (ViewTest.middleware +
                   [AuthenticationMiddleware,
                    stars_middleware.AuthenticationMiddleware])
+    view_class = NoStarsAccountView
 
     def setUp(self):
         super(NoStarsAccountViewTest, self).setUp()
@@ -376,8 +402,8 @@ class NoStarsAccountViewTest(ViewTest):
 
 class SelectInstitutionViewTest(ViewTest):
 
-    view_class = SelectInstitutionView
     middleware = ViewTest.middleware + [AuthenticationMiddleware]
+    view_class = SelectInstitutionView
 
     def setUp(self):
         """
