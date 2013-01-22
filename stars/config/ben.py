@@ -9,7 +9,7 @@ HIDE_REPORTING_TOOL = False
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 API_TEST_MODE = False
-DEBUG_TOOLBAR = False
+DEBUG_TOOLBAR = True
 MAINTENANCE_MODE = False
 CELERY_ALWAYS_EAGER = True
 
@@ -37,19 +37,19 @@ if DEBUG_TOOLBAR:
         'INTERCEPT_REDIRECTS': False,
     }
 
-os.environ['MEMCACHE_SERVERS'] = os.environ.get('MEMCACHIER_SERVERS', '').replace(',', ';')
+# os.environ['MEMCACHE_SERVERS'] = os.environ.get('MEMCACHIER_SERVERS', '').replace(',', ';')
 
 CACHES = {
     'default': {
-        # 'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
 #         'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
 #         'LOCATION': 'temp_cache_table',
 #        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
 #        'LOCATION': '/Users/jamstooks/tmp/stars-cache',
         # 'BACKEND': 'django_pylibmc.memcached.PyLibMCCache',
         # 'LOCATION': '127.0.0.1:11211',
-        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-        'LOCATION': os.environ.get('MEMCACHIER_SERVERS', '').replace(',', ';'),
+        # 'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        # 'LOCATION': os.environ.get('MEMCACHIER_SERVERS', '').replace(',', ';'),
     }
 }
 
