@@ -94,6 +94,9 @@ class Institution(models.Model):
     current_submission = models.ForeignKey("submissions.SubmissionSet", blank=True, null=True, related_name="current")
     current_subscription = models.ForeignKey("Subscription", blank=True, null=True, related_name='current')
     rated_submission = models.ForeignKey("submissions.SubmissionSet", blank=True, null=True, related_name='rated')
+    
+    def __unicode__(self):
+        return self.name
 
     def update_status(self):
         """
@@ -128,22 +131,26 @@ class Institution(models.Model):
 
     def update_from_iss(self):
         "Method to update properties from the parent org in the ISS"
-
+        "local_name, iss_name, decode(boolean)"
         field_mappings = (
-                            ("name", "org_name"),
-                            ("aashe_id", "account_num"),
-                            ("org_type", "org_type"),
-                            ("fte", "enrollment_fte"),
-                            ("is_pcc_signatory", "is_signatory"),
-                            ("is_member", "is_member"),
-                            ("is_pilot_participant", "pilot_participant"),
-                            ("country", "country")
+                            ("name", "org_name", True),
+                            ("aashe_id", "account_num", False),
+                            ("org_type", "org_type", True),
+                            ("fte", "enrollment_fte", False),
+                            ("is_pcc_signatory", "is_signatory", False),
+                            ("is_member", "is_member", False),
+                            ("is_pilot_participant", "pilot_participant", False),
+                            ("country", "country", True)
         )
 
         iss_org = self.profile
         if iss_org:
-            for k_self, k_iss in field_mappings:
-                setattr(self, k_self, getattr(iss_org, k_iss))
+            for k_self, k_iss, decode in field_mappings:
+                val = getattr(iss_org, k_iss)
+                if not isinstance(val, unicode) and decode and val:
+                    # decode if necessary from the latin1
+                    val = val.decode('latin1').encode('utf-8')
+                setattr(self, k_self, val)
                 
             # additional membership logic for child members
             if not self.is_member:
@@ -151,9 +158,6 @@ class Institution(models.Model):
                     self.is_member = True
         else:
             logger.error("No ISS institution found %s" % (self.name))
-
-    def __unicode__(self):
-        return self.name.decode('utf8')
 
     def get_admin_url(self):
         """ Returns the base URL for AASHE Staff to administer aspects of this institution """
