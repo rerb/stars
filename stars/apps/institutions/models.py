@@ -144,6 +144,11 @@ class Institution(models.Model):
         if iss_org:
             for k_self, k_iss in field_mappings:
                 setattr(self, k_self, getattr(iss_org, k_iss))
+                
+            # additional membership logic for child members
+            if not self.is_member:
+                if getattr(iss_org, 'member_type') == "Child Member":
+                    self.is_member = True
         else:
             logger.error("No ISS institution found %s" % (self.name))
 
