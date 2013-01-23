@@ -4,7 +4,6 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, render_to_response
 from django.utils.decorators import method_decorator
@@ -33,8 +32,7 @@ from stars.apps.submissions.rules import (user_can_submit_for_rating,
                                           user_can_submit_snapshot)
 from stars.apps.submissions.tasks import (send_certificate_pdf,
                                           rollover_submission)
-from stars.apps.tool.mixins import (SubmissionSetIsNotLockedMixin,
-                                    UserCanEditSubmissionMixin)
+from stars.apps.tool.mixins import UserCanEditSubmissionMixin
 from stars.apps.tool.my_submission.forms import (CreditUserSubmissionForm,
                                                  CreditUserSubmissionNotesForm,
                                                  ExecContactForm,
@@ -44,45 +42,22 @@ from stars.apps.tool.my_submission.forms import (CreditUserSubmissionForm,
                                                  SubcategorySubmissionForm)
 from stars.apps.tool.my_submission.forms import NewBoundaryForm
 
-# def _get_active_submission(request):
-#     """
-#     Returns the active submission for request.user.current_inst if
 
-#       1 - request.user has permission to edit the submission and
-#       2 - the submission is not locked.
-#     """
-#     current_inst = request.user.current_inst
-#     active_submission = current_inst.get_active_submission() if current_inst else None
+def _get_active_submission(request):
 
-#     if not user_can_edit_submission(request.user, active_submission):
-#         raise PermissionDenied("Sorry, but you do not have access to edit this submission")
+    current_inst = request.user.current_inst
+    active_submission = current_inst.get_active_submission() if current_inst else None
 
-#     if active_submission.is_locked:
-#         raise PermissionDenied("This submission is locked. It may be in the process of being migrated. Please try again.")
+    if not user_can_edit_submission(request.user, active_submission):
+        raise PermissionDenied("Sorry, but you do not have access to edit this submission")
 
-#     # if active_submission.categorysubmission_set.count() == 0:
-#         # This only gets run once. Assumes that the underlying creditset doesn't change
-#         # @todo: remove after integrating into registration
-#         # init_credit_submissions(active_submission)
+    if active_submission.is_locked:
+        raise PermissionDenied("This submission is locked. It may be in the process of being migrated. Please try again.")
 
-#     return active_submission
-
-def _get_active_submission(institution, user):
-    """
-    Returns the active submission for `institution` if
-
-      1 - `user` has permission to edit the submission and
-      2 - the submission is not locked.
-    """
-    active_submission = institution.get_active_submission() # if institution else None
-
-    # if not user_can_edit_submission(request.user, active_submission):
-    #     raise PermissionDenied("Sorry, but you do not have access to edit this submission")
-
-    # import pdb; pdb.set_trace()
-
-    #    if active_submission.is_locked:
-    raise PermissionDenied("This submission is locked. It may be in the process of being migrated. Please try again.")
+    # if active_submission.categorysubmission_set.count() == 0:
+        # This only gets run once. Assumes that the underlying creditset doesn't change
+        # @todo: remove after integrating into registration
+        # init_credit_submissions(active_submission)
 
     return active_submission
 
@@ -116,6 +91,10 @@ class EditBoundaryView(UserCanEditSubmissionMixin, UpdateView):
     form_class = NewBoundaryForm
     model = Boundary
 
+    # @method_decorator(login_required)
+    # def dispatch(self, *args, **kwargs):
+    #     return super(EditBoundaryView, self).dispatch(*args, **kwargs)
+
     def form_valid(self, form):
         if not self.object:
             self.object = form.save(commit=False)
@@ -129,87 +108,102 @@ class EditBoundaryView(UserCanEditSubmissionMixin, UpdateView):
             return None
 
 
-class SaveSnapshot(SubmissionSetIsNotLockedMixin,
-                   UserCanEditSubmissionMixin,
-                   FormView):
+class SaveSnapshot(FormView):
+    """
+        First step in the form for submission
 
+        @todo: get current submission mixin
+        @todo: add permission mixin
+    """
     form_class = Confirm
+    success_url = "/tool/manage/share-data/"
     template_name = "tool/submissions/submit_snapshot.html"
 
-    def get_success_url(self):
-        return reverse('share-data',
-                       kwargs={'institution_slug': self.get_institution().slug})
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(SaveSnapshot, self).dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
         _context = super(SaveSnapshot, self).get_context_data(**kwargs)
-        # TODO: submissionset should be availble in context already,
-        # right? then change the template to use that, rather than
-        # 'active_sumission'.
-        _context['active_submission'] = self.get_submissionset()
+        _context['active_submission'] =  _get_active_submission(self.request)
         return _context
 
     def form_valid(self, form):
-        self.get_submissionset().take_snapshot(user=self.request.user)
+        """
+            When the form validates, create a finalized submission
+        """
+        ss = _get_active_submission(self.request)
+        # Participants keep their existing submission and save a duplicate
+        if ss.institution.is_participant:
+            new_ss = create_ss_mirror(ss, registering_user=self.request.user)
+            new_ss.registering_user=self.request.user
+            new_ss.date_registered=date.today()
+            new_ss.date_submitted = date.today()
+            new_ss.submitting_user = self.request.user
+            new_ss.status = 'f'
+            new_ss.is_visible = True
+            new_ss.is_locked = False
+            new_ss.save()
+        # Respondents get a new, empty submissionset
+        else:
+            ss.status = "f"
+            ss.date_submitted = date.today()
+            ss.submitting_user = self.request.user
+            new_ss = SubmissionSet(
+                                    institution=ss.institution,
+                                    creditset=CreditSet.objects.get_latest(),
+                                    registering_user=self.request.user,
+                                    date_registered=date.today(),
+                                    status='ps')
+            new_ss.save()
+            # init_credit_submissions(new_ss)
+            ss.institution.current_submission = new_ss
+            ss.institution.save()
+            ss.save()
+
+        et = EmailTemplate.objects.get(slug="snapshot_successful")
+        to_mail = [self.request.user.email,]
+        if self.request.user.email != ss.institution.contact_email:
+            to_mail.append(ss.institution.contact_email)
+        et.send_email(to_mail, {'ss': ss,})
+
         return super(SaveSnapshot, self).form_valid(form)
 
     def render_to_response(self, context, **response_kwargs):
+
+        if not user_can_submit_snapshot(self.request.user,
+                                        context['active_submission']):
+            raise PermissionDenied("Sorry, you do not have privileges "
+                                   "to submit a snapshot.")
+
         try:
-            boundary = self.get_submissionset().boundary
+            boundary = context['active_submission'].boundary
         except Boundary.DoesNotExist:
             messages.info(self.request,
-                          "You must complete the Institution Boundary before "
-                          "taking a snapshot.")
-            return HttpResponseRedirect(
-                reverse('boundary-edit',
-                        kwargs={'institution_slug': self.get_institution().slug,
-                                'submissionset': self.get_submissionset().id}))
+                          "You must complete your Boundary before submitting.")
+            return HttpResponseRedirect("/tool/submissions/boundary/")
 
         return super(SaveSnapshot, self).render_to_response(
             context, **response_kwargs)
 
-
-class SubmitForRatingMixin(UserCanEditSubmissionMixin,
-                           SubmissionSetIsNotLockedMixin):
+class SubmitForRatingMixin(SubmissionMixin):
     """
         Extends ``FormActionView`` to provide the class with the model instance
-
-        TODO: what does this docstring mean/imply???  Are we losing
-        something by not extending FormActionView?
     """
-    def update_logical_rules(self):
-        super(SubmitForRatingMixin, self).update_logical_rules()
-        self.add_logical_rule({ 'name': 'user_can_submit_for_rating',
-                                'param_callbacks': [
-                                    ('user', 'get_request_user'),
-                                    ('submission', 'get_submissionset')] })
+    def get_extra_context(self, request, *args, **kwargs):
+        """ Extend this method to add any additional items to the context """
+        return {self.instance_name: _get_active_submission(request),}
 
-    #######################################################################
-    # # get_extra_context and get_instance aren't needed anymore,         #
-    # # since submissionset is already availble in the template           #
-    # # context, by way of the SubmissionStructureMixin.                  #
-    # #                                                                   #
-    # # They're commented out here, just as a reminder that the templates #
-    # # affected need to be modified to use context['submissionset'].     #
-    # #                                                                   #
-    # # And maybe get_instance isn't needed, or needs to be redefined,    #
-    # # depending on the types of views that use it below . . .           #
-    # #                                                                   #
-    #######################################################################
-
-    # def get_extra_context(self, request, *args, **kwargs):
-    #     """ Extend this method to add any additional items to the context """
-    #     return {self.instance_name: _get_active_submission(request),}
-
-    # def get_instance(self, request, context, *args, **kwargs):
-    #     """
-    #         Get's the active submission from the request
-    #         and confirms that the user can submit for a rating
-    #     """
-    #     if context.has_key(self.instance_name):
-    #         if not user_can_submit_for_rating(request.user, context[self.instance_name]):
-    #             raise PermissionDenied("Sorry, you cannot submit for a rating either because you are not an administrator or you are not a STARS participant.")
-    #         return context[self.instance_name]
-    #     return None
+    def get_instance(self, request, context, *args, **kwargs):
+        """
+            Get's the active submission from the request
+            and confirms that the user can submit for a rating
+        """
+        if context.has_key(self.instance_name):
+            if not user_can_submit_for_rating(request.user, context[self.instance_name]):
+                raise PermissionDenied("Sorry, you cannot submit for a rating either because you are not an administrator or you are not a STARS participant.")
+            return context[self.instance_name]
+        return None
 
 class ConfirmClassView(SubmitForRatingMixin, TemplateView):
     """
@@ -311,15 +305,8 @@ class LetterClassView(SubmitForRatingMixin, MultiFormView):
         # self.save_form(form, request, context)
         return HttpResponseRedirect("/tool/submissions/submit/finalize/")
 
-##########################################################################
-# TODO: submit_letter = LetterClassView("...") is commented out here,    #
-# temporarily, because I think it exposes a bug in                       #
-# aashe_rules.mixins.RulesMixin.__init__() (namely, that                 #
-# object.__init__() gets called therein with arguments).  Once that gets #
-# ironed out, this can be uncommented and worked on.                     #
-##########################################################################
 # The second view of the submission process
-# submit_letter = LetterClassView("tool/submissions/submit_letter.html")
+submit_letter = LetterClassView("tool/submissions/submit_letter.html")
 
 class FinalizeClassView(SubmitForRatingMixin, FormActionView):
     """
@@ -372,18 +359,11 @@ class FinalizeClassView(SubmitForRatingMixin, FormActionView):
 
         return respond(request, 'tool/submissions/submit_success.html', {})
 
-##########################################################################
-# TODO: submit_finalize = FinalizeClassView("...") is commented out here,#
-# temporarily, because I think it exposes a bug in                       #
-# aashe_rules.mixins.RulesMixin.__init__() (namely, that                 #
-# object.__init__() gets called therein with arguments).  Once that gets #
-# ironed out, this can be uncommented and worked on.                     #
-##########################################################################
 # The final step of the submission process
-# submit_finalize = FinalizeClassView("tool/submissions/submit_finalize.html",
-#                                     Confirm,
-#                                     instance_name='active_submission',
-#                                     form_name='object_form')
+submit_finalize = FinalizeClassView("tool/submissions/submit_finalize.html",
+                                    Confirm,
+                                    instance_name='active_submission',
+                                    form_name='object_form')
 
 def _get_category_submission_context(request, category_id):
     active_submission = _get_active_submission(request)
