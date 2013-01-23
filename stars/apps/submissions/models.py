@@ -173,7 +173,10 @@ class SubmissionSet(models.Model, FlaggableModel):
         return "/tool/manage/submissionsets/%d/" % (self.id)
 
     def get_submit_url(self):
-        return "/tool/submissions/submit/"
+       return urlresolvers.reverse(
+           'submission-submit',
+           kwargs={'institution_slug': self.institution.slug,
+           'submissionset': self.id})
 
     def get_scorecard_url(self):
         if self.date_submitted:
@@ -307,6 +310,98 @@ class SubmissionSet(models.Model, FlaggableModel):
             total += p.amount
 
         return total
+
+    def init_credit_submissions(self):
+        """
+            Initializes all CreditUserSubmissions in a SubmissionSet
+        """
+        # Build the category list if necessary
+        for category in self.creditset.category_set.all():
+            try:
+                categorysubmission = CategorySubmission.objects.get(
+                    category=category, submissionset=self)
+            except:
+                categorysubmission = CategorySubmission(
+                    category=category, submissionset=self)
+                categorysubmission.save()
+
+            # Create SubcategorySubmissions if necessary
+            for subcategory in categorysubmission.category.subcategory_set.all():
+                try:
+                    subcategorysubmission = SubcategorySubmission.objects.get(
+                        subcategory=subcategory,
+                        category_submission=categorysubmission)
+                except SubcategorySubmission.DoesNotExist:
+                    subcategorysubmission = SubcategorySubmission(
+                        subcategory=subcategory,
+                        category_submission=categorysubmission)
+                    subcategorysubmission.save()
+
+                # Create CreditUserSubmissions if necessary
+                for credit in subcategory.credit_set.all():
+                    try:
+                        creditsubmission = CreditUserSubmission.objects.get(
+                            credit=credit,
+                            subcategory_submission=subcategorysubmission)
+                    except CreditUserSubmission.DoesNotExist:
+                        creditsubmission = CreditUserSubmission(
+                            credit=credit,
+                            subcategory_submission=subcategorysubmission)
+                        creditsubmission.save()
+
+    def save(self, *args, **kwargs):
+        # is this the first time save() has been called for self?
+        run_init_credit_submissions = not self.pk
+        super(SubmissionSet, self).save()  # assigns self.pk
+        if run_init_credit_submissions:  # only run on initial save()
+            # init_credit_submissions() will fail if self.pk is None,
+            # so we wait until after super(...).save() assigns self.pk
+            # a value:
+            self.init_credit_submissions()
+
+    def take_snapshot(self, user):
+        """
+            Creates a new SubmissionSet, based on this one, for the
+            latest CreditSet.  Sends courtesy emails as well.
+        """
+        # Importing create_ss_mirror within take_snapshot() to avoid the
+        # circular imports created when stars.apps.migrations.utils is
+        # imported at the top level.
+        from stars.apps.migrations.utils import create_ss_mirror
+
+        # Participants keep their existing submission and save a duplicate
+        if self.institution.is_participant:
+            new_ss = create_ss_mirror(self, registering_user=user)
+
+            new_ss.registering_user = user
+            new_ss.date_registered = date.today()
+            new_ss.date_submitted = date.today()
+            new_ss.submitting_user = user
+            new_ss.status = 'f'
+            new_ss.is_visible = True
+            new_ss.is_locked = False
+            new_ss.save()
+
+        # Respondents get a new, empty submissionset
+        else:
+            self.status = "f"
+            self.date_submitted = date.today()
+            self.submitting_user = user
+            new_ss = SubmissionSet(institution=self.institution,
+                                   creditset=CreditSet.objects.get_latest(),
+                                   registering_user=user,
+                                   date_registered=date.today(),
+                                   status='ps')
+            new_ss.save()
+            self.institution.current_submission = new_ss
+            self.institution.save()
+            self.save()
+
+        et = EmailTemplate.objects.get(slug="snapshot_successful")
+        to_mail = [user.email,]
+        if user.email != self.institution.contact_email:
+            to_mail.append(self.institution.contact_email)
+        et.send_email(to_mail, {'ss': self,})
 
 INSTITUTION_TYPE_CHOICES = (
                                 ("2_year", "Two Year"),
@@ -509,7 +604,9 @@ class CategorySubmission(models.Model):
         return self.submissionset
 
     def get_submit_url(self):
-        return self.category.get_submit_url()
+        return '{submissionset_submit_url}#ec_{category_id}'.format(
+            submissionset_submit_url=self.submissionset.get_submit_url(),
+            category_id = self.id)
 
     def get_scorecard_url(self):
         return '%s%s' % (self.submissionset.get_scorecard_url(), self.category.get_browse_url())
@@ -647,7 +744,7 @@ class SubcategorySubmission(models.Model):
         return self.subcategory.credit_set.count()
 
     def get_submit_url(self):
-        return self.subcategory.get_submit_url()
+        return '_'.join((self.submissionset.get_submit_url(), self.id))
 
     def get_submit_edit_url(self):
         return self.subcategory.get_submit_edit_url()
@@ -960,7 +1057,15 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
         pass
 
     def get_submit_url(self):
-        return self.credit.get_submit_url()
+        category_submission = self.subcategory_submission.category_submission
+        submissionset = category_submission.submissionset
+        return urlresolvers.reverse(
+            'creditsubmission-submit',
+            kwargs={'institution_slug': submissionset.institution.slug,
+                    'submissionset': submissionset.id,
+                    'category_id': category_submission.id,
+                    'subcategory_id': self.subcategory_submission.id,
+                    'credit_id': self.id})
 
     def get_scorecard_url(self):
         return self.credit.get_scorecard_url(self.subcategory_submission.category_submission.submissionset)
@@ -1302,7 +1407,7 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
 
         return None
     get_field_class = staticmethod(get_field_class)
-    
+
     def get_human_value(self):
         """
             Returns a human readable version of the value
@@ -1322,22 +1427,22 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
                     if len(str_val) > 32000:
                         str_val = "%s ... [TRUNCATED]" % str_val[:32000]
                     return str_val
-                
+
                 elif self.documentation_field.type == 'numeric':
-                    
+
                     str_val = "%.2f" % self.value
                     if str_val[-3:] == '.00':
                         str_val = str_val[:-3]
-                    
+
                     units = self.get_units()
                     if units:
                         return "%s %s" % (str_val, units)
-                    
+
                     return str_val
-                    
+
                 else:
                     return self.value
-        
+
 
     def save(self, *args, **kwargs):
         """ Override models.Model save() method to forstall save if CreditSubmission doesn't persist"""
