@@ -238,6 +238,15 @@ AUTHORIZENET_LOGIN = os.environ.get("AUTHORIZENET_LOGIN", None)
 AUTHORIZENET_KEY = os.environ.get("AUTHORIZENET_KEY", None)
 AUTHORIZENET_SERVER = os.environ.get("AUTHORIZENET_SERVER", None)
 
+# Debug Toolbar
+DEBUG_TOOLBAR = os.environ.get("DEBUG_TOOLBAR", False)
+if DEBUG_TOOLBAR:
+    MIDDLEWARE_CLASSES = MIDDLEWARE_CLASSES + ['debug_toolbar.middleware.DebugToolbarMiddleware',]
+    INTERNAL_IPS = ('127.0.0.1',)
+    INSTALLED_APPS = INSTALLED_APPS + ('debug_toolbar',)
+    DEBUG_TOOLBAR_CONFIG = {
+        'INTERCEPT_REDIRECTS': False,
+    }
 
 """
     Google Analytics
