@@ -571,6 +571,7 @@ class CreditUserSubmissionForm(CreditSubmissionForm):
 
     def __init__(self, *args, **kwargs):
         super(CreditUserSubmissionForm, self).__init__(*args, **kwargs)
+        
         # if there are reasons that this might not apply, allow the "not applicable" choice
         if self.instance.credit.applicabilityreason_set.all():
             self.fields['applicability_reason'].queryset=self.instance.credit.applicabilityreason_set.all()
@@ -585,6 +586,9 @@ class CreditUserSubmissionForm(CreditSubmissionForm):
                 field.field.widget.attrs['onchange'] = field.field.widget.attrs['onchange'] + ';field_changed(this);'  # see include.js
             else:
                 field.field.widget.attrs['onchange'] = 'field_changed(this);'
+                
+        
+        self.fields['submission_notes'].widget.attrs['style'] = "width: 600px;"
 
     def clean(self):
         """
@@ -637,7 +641,7 @@ class CreditUserSubmissionNotesForm(ModelForm):
     """
         A Form for storing internal notes about a Credit Submission
     """
-    internal_notes = forms.CharField(widget=forms.Textarea(attrs={'class': 'noMCE','cols':'60', 'rows': '25'}), required=False)
+    internal_notes = forms.CharField(widget=forms.Textarea(attrs={'style': 'width: 600px;',}), required=False)
 
     class Meta:
         model = CreditUserSubmission
