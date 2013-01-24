@@ -194,7 +194,7 @@ class MultiChoiceWithOtherSubmissionForm(AbstractMultiFieldSubmissionForm):
         fields = ['value']
 
 class URLSubmissionForm(SubmissionFieldForm):
-    value = forms.URLField(required=False, verify_exists=False, widget=TextInput(attrs={'size': 60,}))
+    value = forms.URLField(required=False, verify_exists=False, widget=TextInput(attrs={'style': 'width:600px',}))
 
     class Meta:
         model = URLSubmission
@@ -255,7 +255,7 @@ class TextSubmissionForm(SubmissionFieldForm):
     def __init__(self, *args, **kwargs):
         """ If there is an instance with choices, set up the choices. """
         super(TextSubmissionForm, self).__init__(*args, **kwargs)
-        self['value'].field.widget.attrs['size'] = 60
+        self['value'].field.widget.attrs['style'] = "width: 600px;"
         if self.instance:
             max = self.instance.documentation_field.max_range
             if max != None:
@@ -281,7 +281,7 @@ class TextSubmissionForm(SubmissionFieldForm):
 class LongTextSubmissionForm(SubmissionFieldForm):
     value = forms.CharField(
         widget=forms.Textarea(
-            attrs={'class': 'noMCE', 'cols': '60', 'rows': '8',}),
+            attrs={'style': 'width:600px',}),
             required=False)  # don't use MCE for submissions!
 
     class Meta:
