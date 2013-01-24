@@ -9,7 +9,7 @@
 {% block extra_head %}
 	{{ block.super }}
     <script type="text/javascript" src="/media/admin/js/admin/RelatedObjectLookups.js"></script>
-    <script type="text/javascript" src="/media/static/js/ajax.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/ajax.js"></script>
     <script type="text/javascript">
     function load_handler() {
         enable_submit({% if submission_form.errors %}true{% else %}false{% endif %}, false);
