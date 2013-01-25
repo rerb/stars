@@ -323,25 +323,25 @@ LOGGING = {
             'level': 'INFO',
             'class': 'logging.StreamHandler',
             'formatter': 'simple_formatter',
-            'stream': sys.stdout
+            'stream': sys.stderr
         },
         'stars_console_handler': {
             'level': 'INFO',
             'class': 'logging.StreamHandler',
             'formatter': 'stars_formatter',
-            'stream': sys.stdout
+            'stream': sys.stderr
         },
         'stars_request_console_handler': {
             'level': 'INFO',
             'class': 'logging.StreamHandler',
             'formatter': 'stars_request_formatter',
-            'stream': sys.stdout
+            'stream': sys.stderr
         },
         'stars_user_console_handler': {
             'level': 'INFO',
             'class': 'logging.StreamHandler',
             'formatter': 'stars_user_formatter',
-            'stream': sys.stdout
+            'stream': sys.stderr
         },
         'mail_admins_handler': {
             'level': 'ERROR',
@@ -354,6 +354,11 @@ LOGGING = {
         # root logger, for third party log messages:
         '': {
             'handlers':['simple_console_handler', 'mail_admins_handler']
+        },
+        'django.request': {
+            'handlers': ['mail_admins_handler'],
+            'level': 'ERROR',
+            'propagate': True,
         },
         # logger with module_name added to log record:
         'stars': {
