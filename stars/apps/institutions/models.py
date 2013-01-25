@@ -249,15 +249,15 @@ class Institution(models.Model):
     def profile(self):
         from aashe.issdjango.models import Organizations
         try:
-            return Organizations.objects.get(account_num=self.aashe_id)
-        except Organizations.DoesNotExist as e:
-            logger.warning("No ISS institution found for aashe_id %s: %s" %
-                         (self.aashe_id, e), exc_info=True)
-            return None
-        except Organizations.MultipleObjectsReturned as e:
-            logger.error("Multiple ISS Institutions for aashe_id %s: %s" %
-                         (self.aashe_id, e), exc_info=True)
-            return None
+            org = Organizations.objects.get(account_num=self.aashe_id)
+            return org
+        except Organizations.DoesNotExist:
+            logger.warning("No ISS institution found for aashe_id %s" % 
+                           self.aashe_id)
+        except Organizations.MultipleObjectsReturned:
+            logger.error("Multiple ISS Institutions for aashe_id %s" %
+                         self.aashe_id)
+        return None
 
     def is_member_institution(self):
         """
