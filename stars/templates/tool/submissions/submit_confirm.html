@@ -1,9 +1,11 @@
 {% extends "tool/base.html" %}
 
-{% block crumbs %} 
-    {{ block.super }} >
-    <a href='/tool/submissions/'>{{ active_submission }}</a> >
-    Submit
+{% block crumbs-tool %}
+    <a href='{% url submission-summary institution.slug submissionset.id %}'>
+        My Submission
+    </a>
+    <span class="divider">/</span>
+    Submit for Rating
 {% endblock %}
 
 {% block tool_content %}
@@ -19,7 +21,7 @@
                 {% for credit in credit_list %}
                 <tr{% ifchanged credit.subcategory_submission %} style='border-top: 1px solid #aaa;'{% endifchanged %}>
                     <td>
-                        <a href='{{ credit.credit.get_submit_url }}'>{{ credit }}</a>
+                        <a href='{{ credit.credit.get_submit_url }}'>{{ credit.credit.title }}</a>
                     </td>
                 </tr>
                 {% endfor %}
@@ -30,8 +32,10 @@
             If you are satisfied with the information above, please continue.
         </p>
         <div class='button_row'>
-            <button type='button' onclick='document.location="/tool/submissions/";'>&lt;&lt; Back</button>
-            <button type='button' onclick='document.location="/tool/submissions/submit/letter/";'>Next &gt;&gt;</button>
+            <button type='button'
+                    onclick='document.location="{% url submission-summary institution.slug submissionset.id %}";'>&lt;&lt; Back</button>
+            <button type='button'
+                    onclick='document.location="{% url submit-letter institution.slug submissionset.id %}";'>Next &gt;&gt;</button>
         </div>
      </div>
 {% endblock %}
