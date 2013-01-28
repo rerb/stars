@@ -1,9 +1,11 @@
 {% extends "tool/base.html" %}
 
-{% block crumbs %} 
-    {{ block.super }} >
-    <a href='/tool/submissions/'>{{ active_submission }}</a> >
-    Submit
+{% block crumbs-tool %}
+    <a href='{% url submission-summary institution.slug submissionset.id %}'>
+        My Submission
+    </a>
+    <span class="divider">/</span>
+    Submit for Rating
 {% endblock %}
 
 {% block tool_content %}
