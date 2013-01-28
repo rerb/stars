@@ -33,6 +33,8 @@ class InstitutionStructureMixin(StructureMixin):
     """
         Extends the StructureMixin to work with Institutions
     """
+    def __init__(self, *args, **kwargs):
+        super(InstitutionStructureMixin, self).__init__(*args, **kwargs)
 
     def update_context_callbacks(self):
         super(InstitutionStructureMixin, self).update_context_callbacks()
@@ -327,20 +329,22 @@ class ScorecardCredit(ScorecardView):
 class ScorecardCreditDocumentation(ScorecardView):
     template_name = 'institutions/scorecards/credit_documentation.html'
 
-class PDFExportView(RulesMixin, InstitutionStructureMixin, SubmissionStructureMixin, View):
+
+class PDFExportView(RulesMixin, InstitutionStructureMixin,
+                    SubmissionStructureMixin, View):
     """
         Displays an exported PDF version of the selected report
     """
 
     def update_logical_rules(self):
 
-        super(ScorecardView, self).update_logical_rules()
+        super(PDFExportView, self).update_logical_rules()
         self.add_logical_rule({
                     'name': 'user_can_view_pdf',
                     'param_callbacks':
                         [
                             ('user', "get_request_user"),
-                            ('submission', "get_submission")
+                            ('submission', "get_submissionset")
                         ],
                 })
 
@@ -358,8 +362,10 @@ class PDFExportView(RulesMixin, InstitutionStructureMixin, SubmissionStructureMi
 
         pdf = ss.get_pdf(save=save)
         response = HttpResponse(pdf, mimetype='application/pdf')
-        response['Content-Disposition'] = 'attachment; filename=%s' % ss.get_pdf_filename()
+        response['Content-Disposition'] = ('attachment; filename=%s' %
+                                           ss.get_pdf_filename())
         return response
+
 
 class ScorecardInternalNotesView(InstitutionAccessMixin, ScorecardView):
     """
