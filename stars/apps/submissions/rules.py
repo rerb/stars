@@ -56,7 +56,7 @@ def user_can_view_submission(user, submission):
 aashe_rules.site.register("user_can_view_submission", user_can_view_submission)
 
 def user_can_view_pdf(user, submission):
-    if (institution_has_export(submission.institution) and
+    if (not institution_has_export(submission.institution) and
         submission.status != 'r'):
         return False
     return True
