@@ -12,7 +12,8 @@
     <h1>Submit for a STARS Rating: Step 3 of 3</h1>
     {% include 'tool/submissions/submission_summary_table.html' %}
     <div class='required'>
-        <span class="required_note" title="This field is required to complete credit">*</span>
+        <span class="required_note"
+              title="This field is required to complete credit">*</span>
         Required Fields<br/>
     </div>
     <form class='generalForm' method='post' action='.'>
@@ -20,7 +21,8 @@
         {% get_help_context 'submit_for_rating_warning' %}
         {% include "helpers/standard_form.html" %}
         <div class='button_row'>
-            <button type='button' onclick='document.location="/tool/submissions/submit/letter/";'>&lt;&lt; Back</button>
+            <button type='button'
+                    onclick='document.location="{% url submit-letter institution.slug submissionset.id %}";'>&lt;&lt; Back</button>
             <button type='submit'>Submit &gt;&gt;</button>
         </div>
     </form>
