@@ -385,6 +385,7 @@ def _get_category_submission_context(request, submissionset, category_id):
         'creditset': submissionset_obj.creditset,
         'category': category,
         'category_submission': category_submission,
+        'submissionset_id': submissionset
     }
     return context
 
@@ -425,6 +426,7 @@ def subcategory_detail(request, institution_slug, submissionset,
         submissionset=submissionset,
         category_id=category_id,
         subcategory_id=subcategory_id)
+    context['institution_slug'] = institution_slug
     subcategory = context.get('subcategory')
     subcategory_submission = context.get('subcategory_submission')
 
@@ -437,7 +439,8 @@ def subcategory_detail(request, institution_slug, submissionset,
     errors = request.method == "POST" and not saved
 
     if saved:
-        return HttpResponseRedirect(subcategory.category.get_submit_url())
+        return HttpResponseRedirect(
+            subcategory_submission.category_submission.get_submit_url())
 
     context.update({'subcategory': subcategory,
                     'submission_form': submission_form, 'errors': errors})
