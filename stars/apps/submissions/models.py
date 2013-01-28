@@ -1063,9 +1063,9 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
             'creditsubmission-submit',
             kwargs={'institution_slug': submissionset.institution.slug,
                     'submissionset': submissionset.id,
-                    'category_id': category_submission.id,
-                    'subcategory_id': self.subcategory_submission.id,
-                    'credit_id': self.id})
+                    'category_id': category_submission.category.id,
+                    'subcategory_id': self.subcategory_submission.subcategory.id,
+                    'credit_id': self.credit.id})
 
     def get_scorecard_url(self):
         return self.credit.get_scorecard_url(self.subcategory_submission.category_submission.submissionset)
