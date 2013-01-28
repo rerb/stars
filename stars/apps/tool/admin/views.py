@@ -27,7 +27,8 @@ def institutions_search(request):
     """
         Provides a search page for Institutions
     """
-    return respond(request, 'tool/admin/institutions/institution_search.html', {})
+    return respond(request, 'tool/admin/institutions/institution_search.html',
+                   {})
 
 
 @user_is_staff
@@ -179,11 +180,19 @@ def add_subscriptionpayment(request, institution_id, subscription_id):
         Process a form for adding a new payment against the given submission set
     """
     institution = get_object_or_404(Institution, id=institution_id)
-    subscription = get_object_or_404(Subscription, institution__id=institution_id, id=subscription_id)
-    payment = SubscriptionPayment(subscription=subscription, user=request.user, date=datetime.today(), amount=subscription.amount_due)
+    subscription = get_object_or_404(Subscription,
+                                     institution__id=institution_id,
+                                     id=subscription_id)
+    payment = SubscriptionPayment(subscription=subscription,
+                                  user=request.user,
+                                  date=datetime.today(),
+                                  amount=subscription.amount_due)
 
     # Build and process the form for adding the payment...
-    (payment_form,saved) = form_helpers.basic_save_form(request, payment, 'new_payment', PaymentForm)
+    (payment_form,saved) = form_helpers.basic_save_form(request,
+                                                        payment,
+                                                        'new_payment',
+                                                        PaymentForm)
     if saved:
         # update subscription payment status
         if payment.amount == subscription.amount_due:
@@ -194,14 +203,15 @@ def add_subscriptionpayment(request, institution_id, subscription_id):
             subscription.amount_due -= payment.amount
             subscription.save()
 
-        # @todo - fix this - it's a broken url now
-        return HttpResponseRedirect("/tool/manage/payments/")
+        return HttpResponseRedirect(
+            reverse('institution-payments',
+                    kwargs={ 'institution_slug': institution.slug }))
 
     payment_form.add_user(request.user)
 
     context = {'payment': payment, 'object_form':payment_form,
                'title':'New Payment', 'institution': institution}
-    # @todo - fix this - it's a broken url now
+
     return respond(request, 'tool/manage/payment_edit.html', context)
 
 @user_is_staff
@@ -210,17 +220,21 @@ def edit_subscriptionpayment(request, institution_id, payment_id):
         Process a form for editing payment details
     """
     institution = get_object_or_404(Institution, id=institution_id)
-    payment = get_object_or_404(SubscriptionPayment, subscription__institution__id=institution_id, id=payment_id)
-    old_amount = payment.amount
+    payment = get_object_or_404(SubscriptionPayment,
+                                subscription__institution__id=institution_id,
+                                id=payment_id)
 
     # Build and process the form for adding or modifying the payment...
-    (payment_form,saved) = form_helpers.basic_save_form(request, payment, 'payment', PaymentForm)
+    (payment_form,saved) = form_helpers.basic_save_form(request, payment,
+                                                        'payment', PaymentForm)
     if saved:
-        # @todo - fix this - it's a broken url now
-        return HttpResponseRedirect("/tool/manage/payments/")
+        return HttpResponseRedirect(
+            reverse('institution-payments',
+                    kwargs={ 'institution_slug': institution.slug }))
 
     payment_form.add_user(request.user)
 
-    context = {'payment': payment, 'object_form':payment_form, 'title':'Edit Payment Details', 'institution': institution}
-    # @todo - fix this - it's a broken url now
+    context = {'payment': payment, 'object_form':payment_form,
+               'title':'Edit Payment Details', 'institution': institution}
+
     return respond(request, 'tool/manage/payment_edit.html', context)
