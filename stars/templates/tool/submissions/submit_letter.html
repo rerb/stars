@@ -44,7 +44,8 @@
         {% endif %}
 
         <div class='button_row'>
-            <button type='button' onclick='document.location="/tool/submissions/submit/";'>&lt;&lt; Back</button>
+            <button type='button'
+                    onclick='document.location="{% url submission-submit institution.slug submissionset.id %}";'>&lt;&lt; Back</button>
             <button type='submit'>Next &gt;&gt;</button>
         </div>
     </form>
