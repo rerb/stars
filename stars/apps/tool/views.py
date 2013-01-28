@@ -5,6 +5,17 @@ from stars.apps.accounts.mixins import StarsAccountMixin
 from stars.apps.institutions.models import Institution, StarsAccount
 from stars.apps.tool.mixins import InstitutionToolMixin
 
+import aashe_rules
+import stars.apps.accounts
+
+
+class SubmissionLockedView(
+        aashe_rules.mixins.RulesMixin,
+        stars.apps.accounts.mixins.StarsAccountMixin,
+        TemplateView):
+
+    template_name = 'tool/submissions/submission_locked.html'
+
 
 class SummaryToolView(InstitutionToolMixin,
                       TemplateView):
