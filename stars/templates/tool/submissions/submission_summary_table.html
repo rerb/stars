@@ -22,8 +22,12 @@
         <td>
           {{ submissionset.creditset.version }}
           {% testrule user_can_migrate_version user institution %}
-              <br/><a href='/tool/manage/migrate/' class='btn btn-mini'>
-        		<i class='icon-share-alt'></i >Migrate</a>
+              <br/>
+              <a href="{% url migrate-options institution.slug %}"
+                 class='btn btn-mini'>
+        	      <i class='icon-share-alt'></i>
+                  Migrate
+              </a>
           {% endtestrule %}
         </td>
         {% testrule institution_has_score_feature institution %}
