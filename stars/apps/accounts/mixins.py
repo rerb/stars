@@ -105,6 +105,9 @@ class AccountMixin(StarsMixin):
 
         return super(AccountMixin, self).__call__(request, *args, **kwargs)
 
+    def dispatch(self, *args, **kwargs):
+        return super(AccountMixin, self).dispatch(*args, **kwargs)
+
     def get_account_problem_response(self, request):
         """
             Detects any problems with the user/institution's accounts including:
@@ -167,18 +170,24 @@ class AccountMixin(StarsMixin):
 
 class SubmissionMixin(AccountMixin):
     """
-        This class should be used as a mixin to provide the subclass with STARS submission verification.
+        This class should be used as a mixin to provide the subclass
+        with STARS submission verification.
 
         Example:
         class MyClass(SubmissionMixin, BaseClass):
            pass
 
-        If there is an issue with the submission `__call__` will report the error with a Response object
-        or an exception.
+        If there is an issue with the submission `__call__` will
+        report the error with a Response object or an exception.
 
-        Assumes `__call__` returns a response object and has the following declaration:
+        Assumes `__call__` returns a response object and has the
+        following declaration:
+
             def __call__(self, request, *args, **kwargs):
     """
+
+    def __init__(self, *args, **kwargs):
+        super(SubmissionMixin, self).__init__(*args, **kwargs)
 
     def __call__(self, request, *args, **kwargs):
 
@@ -191,6 +200,9 @@ class SubmissionMixin(AccountMixin):
 
         return super(SubmissionMixin, self).__call__(request, *args, **kwargs)
 
+    def dispatch(self, *args, **kwargs):
+        return super(SubmissionMixin, self).dispatch(*args, **kwargs)
+
     def get_active_submission_problem_response(self, request):
         """
             Detects any problems with the institution's submissionset including:
@@ -198,13 +210,16 @@ class SubmissionMixin(AccountMixin):
                 - active submission hasn't been enabled
 
             Assumes:
-                - apps.auth.middleware is adding the following properties to `request.user`:
+
+                - apps.auth.middleware is adding the following
+                  properties to `request.user`:
+
                     - `current_inst`
 
-            NOTE: this is a duplicate of the decorator in `stars.apps.auth.decorators`.
-            Any changes made here, should be duplicated there.
+            NOTE: this is a duplicate of the decorator in
+            `stars.apps.auth.decorators`. Any changes made here,
+            should be duplicated there.
         """
-
         current_inst = request.user.current_inst
         active_submission = current_inst.get_active_submission()
 

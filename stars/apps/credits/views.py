@@ -9,10 +9,11 @@ class StructureMixin(object):
         Adds the values to the context if their callback is in context_callbacks
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, *args, **kwargs):
         self._structure_cache = {}
         self.context_callbacks = []
         self.update_context_callbacks()
+        super(StructureMixin, self).__init__(*args, **kwargs)
 
     def set_structure_object(self, key, value):
         self._structure_cache[key] = value
