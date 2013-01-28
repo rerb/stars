@@ -5,9 +5,9 @@
 {% load submit_tags %}
 {% load bootstrap %}
 
-{% block crumbs-tool %} 
+{% block crumbs-tool %}
     {{ block.super }}
-    {% show_submit_crumbs subcategory %}
+    {% show_submit_crumbs subcategory_submission %}
 {% endblock %}
 
 {% block body_onload %}{{ block.super }}enable_submit({% if submission_form.errors %}true{% else %}false{% endif %}, false);{% endblock %}
@@ -16,7 +16,7 @@
 
 {% block tool_content %}
 	<h1>{{ subcategory }}</h1>
-	
+
 	{% load help %}
 	<p>
 		{% show_help_context 'subcategory_description' 0 %}

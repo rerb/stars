@@ -4,6 +4,7 @@ from datetime import date
 
 from django.db import models
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.utils.encoding import smart_unicode
 from django.conf import settings
@@ -114,8 +115,34 @@ class CreditSet(VersionedModel):
     def get_edit_url(self):
         return "/tool/credit-editor/%d/" % self.id
 
-    def get_submit_url(self):
-        return "/tool/submissions/"
+    def get_submit_url(self, submissionset):
+        # Here's a hack -- now that institution.slug is integrated
+        # into our URLs, models in this credits app need to know what
+        # institution we're dealing with, to divine the correct URLs.
+        # Because the URLs from the models in the credits app are used
+        # for models in the submissions app -- and there is a direct
+        # connection between submissions models and institutions, so
+        # wah.  Setting the default value of `institution_slug` to
+        # None just for what the heck maybe this gets called from
+        # other places (like a credit editor? that would make sense,
+        # and imply no institution) and though I can't imagine how it
+        # would work w/o an institution_slug, my imagination is
+        # constrained by caffeine, l-theanine, modafinil, and a
+        # relative lack of sleep. Yay for focus!
+        #
+        # Right, focus. Same thing for submissionset_id as institution_slug
+        # blabbed about above.
+        #
+        # Why not provide links to the models in the submissions app that
+        # correspond to those in apps.credits.models, rather than links to
+        # the credits models?
+        if submissionset:
+            return(reverse(
+                'submission-summary',
+                kwargs={ 'institution_slug': submissionset.institution.slug,
+                         'submissionset': submissionset.id }))
+        else:
+            return "/tool/submissions/"
 
     def get_report_url(self, submissionset):
         """ This is a bit convoluted - really we want the report URL for the submission objects,
@@ -285,7 +312,10 @@ class Rating(models.Model):
 class Category(VersionedModel):
     creditset = models.ForeignKey(CreditSet)
     title = models.CharField(max_length=64)
-    abbreviation = models.CharField(max_length=6,help_text='Typically a 2 character code for the category. e.g., ER for Education & Research') # TODO validation
+    abbreviation = models.CharField(
+        max_length=6,
+        help_text=('Typically a 2 character code for the category. e.g.,'
+                   'ER for Education & Research')) # TODO validation
     ordinal = models.SmallIntegerField(default=-1)
     max_point_value = models.IntegerField(default=0)
     description = models.TextField()
@@ -297,7 +327,8 @@ class Category(VersionedModel):
         verbose_name_plural = "Categories"
 
     def __unicode__(self):
-        return smart_unicode(self.title, encoding='utf-8', strings_only=False, errors='strict')
+        return smart_unicode(self.title, encoding='utf-8',
+                             strings_only=False, errors='strict')
 
     def __cmp__(self, other):
         """ Used for ordering by ordinal """
@@ -309,8 +340,9 @@ class Category(VersionedModel):
     def get_edit_url(self):
         return "%s%d/" % (self.creditset.get_edit_url(), self.id)
 
-    def get_submit_url(self):
-        return "%s#ec_%d" % (self.creditset.get_submit_url(), self.id)
+    def get_submit_url(self, submissionset=None):
+        return "%s#ec_%d" % (self.creditset.get_submit_url(submissionset),
+                             self.id)
 
     def get_scorecard_url(self, submissionset):
         return '%s%s' % (submissionset.get_scorecard_url(), self.get_browse_url())
@@ -402,7 +434,8 @@ class Subcategory(VersionedModel):
         verbose_name_plural = "Subcategories"
 
     def __unicode__(self):
-        return smart_unicode(self.title, encoding='utf-8', strings_only=False, errors='strict')
+        return smart_unicode(self.title, encoding='utf-8',
+                             strings_only=False, errors='strict')
 
     def __cmp__(self, other):
         """ Used for ordering by ordinal """
@@ -414,14 +447,17 @@ class Subcategory(VersionedModel):
     def get_edit_url(self):
         return "%s%d/" % (self.category.get_edit_url(), self.id)
 
-    def get_submit_url(self):
-        return "%s_%d" % (self.category.get_submit_url(), self.id)
+    def get_submit_url(self, submissionset=None):
+        return "%s_%d" % (self.category.get_submit_url(submissionset),
+                          self.id)
 
     def get_submit_edit_url(self):
-        return "%s%d/%d/" % (self.category.creditset.get_submit_url(), self.category.id, self.id)
+        return "%s%d/%d/" % (self.category.creditset.get_submit_url(),
+                             self.category.id, self.id)
 
     def get_scorecard_url(self, submissionset):
-        return '%s%d' % (submissionset.get_scorecard_url(), self.get_browse_url())
+        return '%s%d' % (submissionset.get_scorecard_url(),
+                         self.get_browse_url())
 
     def get_browse_url(self):
         return "#ec_%d_%d" % (self.category.id, self.id)
@@ -431,7 +467,9 @@ class Subcategory(VersionedModel):
         return self.category
 
     def get_children(self):
-        """ Returns a queryset with child credit model objects - for hierarchy """
+        """ Returns a queryset with child credit model objects - for
+            hierarchy
+        """
         return self.credit_set.all()
 
     def get_tier1_credits(self):
@@ -476,11 +514,11 @@ class Subcategory(VersionedModel):
         """ Returns the URL of the page to confirm deletion of this object """
         return "%sdelete/" % self.get_edit_url()
 
-
 CREDIT_TYPE_CHOICES = (
     ('t1', "Tier 1"),
     ('t2', "Tier 2"),
     )
+
 
 class Credit(VersionedModel):
     subcategory = models.ForeignKey(Subcategory)

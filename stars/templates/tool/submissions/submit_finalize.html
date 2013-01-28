@@ -1,7 +1,7 @@
 {% extends "tool/base.html" %}
 
 {% block crumbs-tool %}
-    <a href='{% url submission-summary institution.slug submissionset.id %}'>
+    <a href='{% url submission-summary institution.slug institution.current_submission.id %}'>
         My Submission
     </a>
     <span class="divider">/</span>
@@ -17,6 +17,7 @@
         Required Fields<br/>
     </div>
     <form class='generalForm' method='post' action='.'>
+        {% csrf_token %}
         {% load help %}
         {% get_help_context 'submit_for_rating_warning' %}
         {% include "helpers/standard_form.html" %}

@@ -161,22 +161,29 @@ class SubmissionSet(models.Model, FlaggableModel):
         return self.date_submitted != None
 
     def get_crumb_label(self):
-        return str(self.institution)
+        return str(self.creditset.version)
+
+    def get_crumb_url(self):
+        return self.get_manage_url()
 
     def get_admin_url(self):
-        return "%ssubmissionsets/%d/" % (self.institution.get_admin_url(), self.id)
+        return "%ssubmissionsets/%d/" % (self.institution.get_admin_url(),
+                                         self.id)
 
     def get_add_payment_url(self):
         return "%sadd-payment/" % self.get_admin_url()
 
     def get_manage_url(self):
-        return "/tool/manage/submissionsets/%d/" % (self.id)
+        return urlresolvers.reverse(
+            'submission-summary',
+            kwargs={ 'institution_slug': self.institution.slug,
+                     'submissionset': self.id })
 
     def get_submit_url(self):
        return urlresolvers.reverse(
            'submission-submit',
-           kwargs={'institution_slug': self.institution.slug,
-           'submissionset': self.id})
+           kwargs={ 'institution_slug': self.institution.slug,
+                    'submissionset': self.id })
 
     def get_scorecard_url(self):
         if self.date_submitted:
@@ -583,11 +590,17 @@ class CategorySubmission(models.Model):
     def get_crumb_label(self):
         return str(self)
 
+    def get_crumb_url(self):
+        return self.get_submit_url()
+
     def get_institution(self):
         return self.submissionset.institution
 
     def get_creditset(self):
         return self.submissionset.creditset
+
+    def get_submit_url(self):
+        return self.category.get_submit_url(submissionset=self.submissionset)
 
     def get_id(self):
         """ Return a valid identifier representing this category """
@@ -603,13 +616,9 @@ class CategorySubmission(models.Model):
         """ Used for building crumbs """
         return self.submissionset
 
-    def get_submit_url(self):
-        return '{submissionset_submit_url}#ec_{category_id}'.format(
-            submissionset_submit_url=self.submissionset.get_submit_url(),
-            category_id = self.id)
-
     def get_scorecard_url(self):
-        return '%s%s' % (self.submissionset.get_scorecard_url(), self.category.get_browse_url())
+        return '%s%s' % (self.submissionset.get_scorecard_url(),
+                         self.category.get_browse_url())
 
     def get_STARS_score(self):
         """
@@ -726,6 +735,9 @@ class SubcategorySubmission(models.Model):
     def get_crumb_label(self):
         return str(self)
 
+    def get_crumb_url(self):
+        return self.get_submit_url()
+
     def get_id(self):
         """ Return a valid identifier representing this subcategory """
         return get_id(self)
@@ -744,7 +756,8 @@ class SubcategorySubmission(models.Model):
         return self.subcategory.credit_set.count()
 
     def get_submit_url(self):
-        return '_'.join((self.submissionset.get_submit_url(), self.id))
+        return self.subcategory.get_submit_url(
+            submissionset=self.category_submission.submissionset)
 
     def get_submit_edit_url(self):
         return self.subcategory.get_submit_edit_url()

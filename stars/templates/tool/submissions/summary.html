@@ -1,11 +1,10 @@
 {% extends "tool/submissions/columned_layout.html" %}
 
-
 {% load aashe_rules_tags %}
 
 {% block crumbs-tool %}
   {% load submit_tags  %}
-  {% show_submit_crumbs submissionset.creditset %}
+  {% show_submit_crumbs submissionset %}
 {% endblock %}
 
 {% block tool_content %}

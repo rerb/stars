@@ -1,9 +1,9 @@
 {% extends 'tool/submissions/columned_layout.html' %}
 
-{% block crumbs %} 
+{% block crumbs %}
     {{ block.super }}
     {% load submit_tags  %}
-    {% show_submit_crumbs category %}
+    {% show_submit_crumbs category_submission %}
 {% endblock %}
 
 {% block header %}{{ category }}{% endblock %}
