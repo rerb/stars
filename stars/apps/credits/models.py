@@ -451,9 +451,10 @@ class Subcategory(VersionedModel):
         return "%s_%d" % (self.category.get_submit_url(submissionset),
                           self.id)
 
-    def get_submit_edit_url(self):
-        return "%s%d/%d/" % (self.category.creditset.get_submit_url(),
-                             self.category.id, self.id)
+    def get_submit_edit_url(self, submissionset=None):
+        return "%s%d/%d/" % (
+            self.category.creditset.get_submit_url(submissionset),
+            self.category.id, self.id)
 
     def get_scorecard_url(self, submissionset):
         return '%s%d' % (submissionset.get_scorecard_url(),

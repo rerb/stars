@@ -760,7 +760,8 @@ class SubcategorySubmission(models.Model):
             submissionset=self.category_submission.submissionset)
 
     def get_submit_edit_url(self):
-        return self.subcategory.get_submit_edit_url()
+        return self.subcategory.get_submit_edit_url(
+            submissionset=self.category_submission.submissionset)
 
     def get_scorecard_url(self):
         return '%s%s'%(self.category_submission.submissionset.get_scorecard_url(),self.subcategory.get_browse_url())
