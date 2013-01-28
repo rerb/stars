@@ -4,7 +4,9 @@
 
 {% block crumbs-tool %}
 	<li>
-		<a href='/tool/manage/payments/'>Payments</a>
+		<a href="{% url institution-payments institution.slug %}">
+            Payments
+        </a>
 		<span class="divider">/</span>
 	</li>
 	<li>
