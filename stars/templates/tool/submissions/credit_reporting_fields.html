@@ -64,7 +64,7 @@
         <span class="required_note"
               title="This field is required to complete credit">*</span>
         {{ submission_form.responsible_party }}
-        <a href="/tool/submissions/add-responsible-party/"
+        <a href="{% url add-responsible-party active_submission.institution.slug active_submission.id %}"
            class="btn btn-info btn-small" id="add_id_responsible_party"
            onclick="return showAddAnotherPopup(this);"
            title='Add New Responsible Party'>
