@@ -13,24 +13,13 @@ import testfixtures
 
 from stars.apps.tool.my_submission import views
 from stars.apps.credits.models import Credit
-from stars.apps.submissions.models import CreditSubmission, SubmissionSet
-from stars.apps.tool.tests.views import (SubmissionSetIsNotLockedMixinTest,
+from stars.apps.submissions.models import CreditSubmission
+from stars.apps.tool.tests.views import (InstitutionViewOnlyToolMixinTest,
                                          UserCanEditSubmissionMixinTest)
-from stars.test_factories import BoundaryFactory, UserFactory
-
-
-class SaveSnapshotTest(UserCanEditSubmissionMixinTest,
-                       SubmissionSetIsNotLockedMixinTest):
-
-    view_class = views.SaveSnapshot
-    middleware = UserCanEditSubmissionMixinTest.middleware + [MessageMiddleware]
-
-    def open_gate(self):
-        BoundaryFactory(submissionset=self.submission)
-        super(SaveSnapshotTest, self).open_gate()
-
-    def test_get_succeeds(self, **kwargs):
-        super(SaveSnapshotTest, self).test_get_succeeds()
+from stars.test_factories import (InstitutionFactory,
+                                  StarsAccountFactory,
+                                  SubmissionSetFactory,
+                                  UserFactory)
 
 
 class ConfirmClassViewTest(TestCase):
@@ -41,12 +30,7 @@ class ConfirmClassViewTest(TestCase):
         self.user = UserFactory()
         self.request.user = self.user
         self.request.session = {}
-        self.submissionset = SubmissionSet(creditset_id=-999,
-                                           institution_id=-999,
-                                           registering_user_id=-999,
-                                           date_registered='1999-01-01')
-        self.submissionset.save()
-
+        self.submissionset = SubmissionSetFactory()
         # Need MessageMiddleware to add the _messages storage backend
         # to requests
         self.message_middleware = MessageMiddleware()
@@ -127,9 +111,26 @@ class MockUser(object):
         return True
 
 
-class SubmissionSummaryViewTest(UserCanEditSubmissionMixinTest):
+class SubmissionSummaryViewTest(InstitutionViewOnlyToolMixinTest):
 
     view_class = views.SubmissionSummaryView
+
+    def setUp(self):
+        super(SubmissionSummaryViewTest, self).setUp()
+        self.institution = InstitutionFactory(slug='on-your-knees-mister')
+        self.account = StarsAccountFactory(institution=self.institution)
+        self.request.user = self.account.user
+        self.submission = SubmissionSetFactory(institution=self.institution)
+
+    def test_get_succeeds(self, **kwargs):
+        super(SubmissionSummaryViewTest, self).test_get_succeeds(
+            institution_slug=self.institution.slug,
+            submissionset=str(self.submission.id))
+
+    def test_get_is_blocked(self, **kwargs):
+        super(SubmissionSummaryViewTest, self).test_get_is_blocked(
+            institution_slug=self.institution.slug,
+            submissionset=str(self.submission.id))
 
 
 class EditBoundaryViewTest(UserCanEditSubmissionMixinTest):

@@ -54,12 +54,12 @@ class InstitutionToolMixinTest(ProtectedFormMixinViewTest):
             institution_slug=self.institution.slug,
             pk=self._get_pk())
 
-    def test_get_succeeds(self):
+    def test_get_succeeds(self, **kwargs):
         super(InstitutionToolMixinTest, self).test_get_succeeds(
             institution_slug=self.institution.slug,
             pk=self._get_pk())
 
-    def test_get_is_blocked(self):
+    def test_get_is_blocked(self, **kwargs):
         super(InstitutionToolMixinTest, self).test_get_is_blocked(
             institution_slug=self.institution.slug,
             pk=self._get_pk())
