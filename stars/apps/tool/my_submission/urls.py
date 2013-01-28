@@ -13,7 +13,8 @@ urlpatterns = patterns(
     url(r'^boundary/$', EditBoundaryView.as_view(),
         name='boundary-edit'),
 
-    (r'^add-responsible-party/$', 'add_responsible_party'),
+    url(r'^add-responsible-party/$', 'add_responsible_party',
+        name='add-responsible-party'),
     (r'^(?P<category_id>\d+)/(?P<subcategory_id>\d+)/$', 'subcategory_detail'),
 
     url(r'^(?P<category_id>\d+)/(?P<subcategory_id>\d+)/(?P<credit_id>\d+)/$',
