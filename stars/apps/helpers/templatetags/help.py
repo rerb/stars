@@ -19,6 +19,7 @@ def lookup_help_context(context_name):
         c = HelpContext.objects.get(name=context_name)
         return c
     except HelpContext.DoesNotExist:
+        logger.info("HelpContext, '%s', not found." % context_name)
         return None
 
 @register.inclusion_tag('helpers/tags/help_text.html')

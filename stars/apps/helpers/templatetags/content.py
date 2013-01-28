@@ -18,7 +18,7 @@ def display_block_content(key, user=None):
         block = BlockContent.objects.get(key=key)
         edit_link = block.get_admin_url()
     except BlockContent.DoesNotExist:
-        logger.warning("BlockContent, '%s', not found." % key,
+        logger.info("BlockContent, '%s', not found." % key,
                        extra={'user': user})
         block = ""
         edit_link = "%s?key=%s" % (
