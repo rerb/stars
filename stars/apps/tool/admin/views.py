@@ -1,14 +1,11 @@
-from datetime import datetime, date
+from datetime import datetime
 from logging import getLogger
-import sys
 
 from django.conf import settings
 from django.contrib import messages
 from django.core.urlresolvers import reverse
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect, Http404
-from django.template import Context, loader, RequestContext
-from django.core.mail import send_mail
 from django.db.models import Min
 from django.utils.decorators import method_decorator
 
@@ -16,12 +13,11 @@ from stars.apps.accounts.utils import respond
 from stars.apps.accounts import utils as auth_utils
 from stars.apps.accounts.decorators import user_is_staff
 from stars.apps.helpers.forms import form_helpers
-from stars.apps.helpers.forms.forms import Confirm as ConfirmForm
-from stars.apps.institutions.models import Institution, Subscription, SubscriptionPayment
+from stars.apps.institutions.models import (Institution, Subscription,
+                                            SubscriptionPayment)
 from stars.apps.institutions.views import SortableTableView
 from stars.apps.submissions.models import SubmissionSet
 from stars.apps.tool.admin.forms import PaymentForm
-from stars.apps.helpers.forms.views import FormActionView
 from stars.apps.third_parties.models import ThirdParty
 
 logger = getLogger('stars.request')
@@ -198,11 +194,14 @@ def add_subscriptionpayment(request, institution_id, subscription_id):
             subscription.amount_due -= payment.amount
             subscription.save()
 
+        # @todo - fix this - it's a broken url now
         return HttpResponseRedirect("/tool/manage/payments/")
 
     payment_form.add_user(request.user)
 
-    context = {'payment': payment, 'object_form':payment_form, 'title':'New Payment', 'institution': institution}
+    context = {'payment': payment, 'object_form':payment_form,
+               'title':'New Payment', 'institution': institution}
+    # @todo - fix this - it's a broken url now
     return respond(request, 'tool/manage/payment_edit.html', context)
 
 @user_is_staff
@@ -217,9 +216,11 @@ def edit_subscriptionpayment(request, institution_id, payment_id):
     # Build and process the form for adding or modifying the payment...
     (payment_form,saved) = form_helpers.basic_save_form(request, payment, 'payment', PaymentForm)
     if saved:
+        # @todo - fix this - it's a broken url now
         return HttpResponseRedirect("/tool/manage/payments/")
 
     payment_form.add_user(request.user)
 
     context = {'payment': payment, 'object_form':payment_form, 'title':'Edit Payment Details', 'institution': institution}
+    # @todo - fix this - it's a broken url now
     return respond(request, 'tool/manage/payment_edit.html', context)
