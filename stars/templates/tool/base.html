@@ -18,9 +18,17 @@
         </li>
       <li>
         {% if institution %}
-            <a href='{% url tool-summary institution.slug %}'>Reporting</a>
+            <a href='{% url tool-summary institution.slug %}'>
+                Reporting
+            </a>
+        {% elif active_submission %}
+            <a href='{% url tool-summary active_submission.institution.slug %}'>
+                Reporting
+            </a>
         {% else %}
-            <a href='{% url tool-landing-page %}'>Reporting</a>
+            <a href='{% url tool-landing-page %}'>
+                Reporting
+            </a>
         {% endif %}
         <span class="divider">/</span>
       </li>
