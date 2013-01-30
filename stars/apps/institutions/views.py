@@ -1,33 +1,24 @@
 from django.contrib import messages
-from django.shortcuts import get_object_or_404
-from django.http import Http404, HttpResponseRedirect, HttpResponse, HttpResponseNotFound
+from django.http import Http404, HttpResponseRedirect, HttpResponse
 from django.views.generic.simple import direct_to_template
-from django.core.exceptions import PermissionDenied
 from django.utils.functional import curry
 from django.forms.models import inlineformset_factory
 from django.views.generic import FormView, CreateView, TemplateView, View
 
-import sys, re
-from datetime import date
 from recaptcha.client import captcha
 
-from stars.apps.accounts.utils import respond
 from stars.apps.accounts.mixins import InstitutionAccessMixin
-from stars.apps.credits.models import CreditSet
 from stars.apps.submissions.models import *
 from stars.apps.submissions.rules import user_can_preview_submission
 from stars.apps.submissions.views import SubmissionStructureMixin
-from stars.apps.institutions.models import Institution, StarsAccount
+from stars.apps.institutions.models import Institution
 from stars.apps.institutions.forms import *
-from stars.apps.institutions.rules import institution_has_export, user_has_access_level
-from stars.apps.helpers.forms.views import FormActionView, MultiFormView
-from stars.apps.credits.views import CreditNavMixin
+from stars.apps.helpers.forms.views import MultiFormView
 from stars.apps.notifications.models import EmailTemplate
 
 from aashe_rules.mixins import RulesMixin
 
 from stars.apps.credits.views import StructureMixin
-from stars.apps.institutions.models import Institution
 
 class InstitutionStructureMixin(StructureMixin):
     """
