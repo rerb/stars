@@ -63,8 +63,6 @@ class Institution(models.Model, ETLCompareMixin):
             An ETL object has to be initialized with an object to populate from
         """
 
-        print institution
-
         self.id = institution.id
         self.aashe_id = institution.aashe_id
         if not self.aashe_id:
