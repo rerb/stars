@@ -880,6 +880,9 @@ class CreditSubmission(models.Model):
         ordering = ("credit__type", "credit__ordinal",)
 
     def __str__(self):
+        return self.credit.title.encode('utf8')
+
+    def __unicode__(self):
         return self.credit.title
 
 #    @staticmethod
