@@ -41,6 +41,13 @@ from stars.apps.submissions.models import (SubmissionSet, CreditUserSubmission,
 
 logger = getLogger('stars.request')
 
+USAGE_TEXT =    "AASHE believes transparency is a key component in communicating" \
+                " sustainability claims.STARS data are made publicly available," \
+                " and can be used in research and publications, provided that" \
+                " certain Data Use Guidelines" \
+                " (http://www.aashe.org/files/documents/STARS/data_use_guidelines.pdf)" \
+                " are met."
+
 class Dashboard(TemplateView):
     """
         Display data in a visual form
@@ -559,14 +566,15 @@ class ScoreFilter(DisplayAccessMixin, NarrowFilteringMixin, TemplateView):
                     # @todo - make sure the dictionaries align
                     for key, col_obj in selected_columns:
                         if col_obj != None:
-                            score = "--"
+                            claimed_points = "--"
+                            available_points = None
                             units = ""
                             
                             if isinstance(col_obj, Category):
                                 cat = col_obj.get_for_creditset(ss.creditset) # get the related version in this creditset
                                 if cat:
                                     obj = CategorySubmission.objects.get(submissionset=ss, category=cat)
-                                    score = "%.2f" % obj.get_STARS_score()
+                                    claimed_points = obj.get_STARS_score()
                                     if obj.category.abbreviation != "IN":
                                         units = "%"
                                     url = obj.get_scorecard_url()
@@ -574,7 +582,8 @@ class ScoreFilter(DisplayAccessMixin, NarrowFilteringMixin, TemplateView):
                                 sub = col_obj.get_for_creditset(ss.creditset)
                                 if sub:
                                     obj = SubcategorySubmission.objects.get(category_submission__submissionset=ss, subcategory=sub)
-                                    score = "%.2f / %.2f" % (obj.get_claimed_points(), obj.get_adjusted_available_points())
+                                    claimed_points = obj.get_claimed_points()
+                                    available_points = obj.get_adjusted_available_points()
                                     url = obj.get_scorecard_url()
                             elif isinstance(col_obj, Credit):
                                 credit = col_obj.get_for_creditset(ss.creditset)
@@ -586,13 +595,15 @@ class ScoreFilter(DisplayAccessMixin, NarrowFilteringMixin, TemplateView):
                                             score = "Not Applicable"
                                         else:
                                             if cred.credit.type == "t1":
-                                                score = "%.2f / %d" % (cred.assessed_points, cred.credit.point_value)
+                                                claimed_points = cred.assessed_points
+                                                available_points = cred.credit.point_value
                                             else:
-                                                score = "%.2f / %.2f" % (cred.assessed_points, ss.creditset.tier_2_points)
+                                                claimed_points = cred.assessed_points
+                                                available_points = ss.creditset.tier_2_points
                                     else:
                                         score = "Reporter"
     
-                            row['cols'].append({'score': score, 'units': units, 'url': url})
+                            row['cols'].append({'claimed_points': claimed_points, "available_points": available_points, 'units': units, 'url': url})
     
                     object_list.append(row)
 
@@ -608,6 +619,48 @@ class ScoreFilter(DisplayAccessMixin, NarrowFilteringMixin, TemplateView):
         _context['select_form'] = self.get_select_form()
             
         return _context
+
+
+class ScoreExcelFilter(ScoreFilter):
+    """
+        An extension of the score filter for export to Excel
+    """
+    def render_to_response(self, context, **response_kwargs):
+        """
+        Returns a response with a template rendered with the given context.
+        """
+        
+        rows = [
+                    (USAGE_TEXT,),
+                ]
+        
+        cols = ["Institution", "STARS Version",]
+        for c in context['selected_columns']:
+            cols.append(c[1])
+            cols.append("") # blank space
+        rows.append(cols)
+        
+        subcols = ["", "",]
+        for c in context['selected_columns']:
+            subcols.append("Claimed Points")
+            subcols.append("Available Points")
+        rows.append(subcols)
+            
+        for o in context['object_list']:
+            row = ["%s" % o['ss'].institution, "%s" % o['ss'].creditset.version]
+            
+            for c in o['cols']:
+                if c['claimed_points']:
+                    row.append("%.2f" % c['claimed_points'])
+                else:
+                    row.append('')
+                if c['available_points']:
+                    row.append("%.2f" % c['available_points'])
+                else:
+                    row.append('')
+                    
+            rows.append(row)
+        return ExcelResponse(rows)
 
 class ContentFilter(DisplayAccessMixin, NarrowFilteringMixin, TemplateView):
     """
@@ -724,7 +777,6 @@ class ContentFilter(DisplayAccessMixin, NarrowFilteringMixin, TemplateView):
         _context['reporting_field'] = self.get_selected_field()
         _context['object_list'] = self.get_object_list()
         _context['select_form'] = self.get_select_form()
-        _context['get_params'] = self.request.GET.urlencode()
         
         return _context
     
@@ -737,14 +789,14 @@ class ContentExcelFilter(ContentFilter):
         Returns a response with a template rendered with the given context.
         """
         
-        cols = [(
-                'Institution', 'Assessed Points', 'Available Points', context['reporting_field'].title
-                )]
-        
+        cols = [
+                    (USAGE_TEXT,),
+                    ('Institution', 'STARS Version', 'Assessed Points', 'Available Points', context['reporting_field'].title),
+                ]
         
         for o in context['object_list']:
             
-            row = ["%s" % o['ss']]
+            row = ["%s" % o['ss'].institution, "%s" % o['ss'].creditset.version]
             if o['assessed_points']:
                 row.append(o['assessed_points'])
             else:

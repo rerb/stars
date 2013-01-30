@@ -78,6 +78,14 @@
 	
 	<div class='row displays-down-arrow'><i class='icon-arrow-down'></i></div>
 	
+	{% if object_list and get_params %}
+		<div class='row'><div class='span2 offset10'>
+			<a href='excel/?{{ get_params }}' class='btn btn-info'>
+				<i class='icon-th icon-white'></i> Export Results
+			</a>
+		</div></div>
+	{% endif %}
+	
 	<table id='institution_list' class='table'>
        	{% if object_list %}
 			<thead>
@@ -101,7 +109,10 @@
 	       			{% for col in o.cols %}
 	       				<td>
 	       					<a href='{{ col.url }}'>
-	       						{{ col.score }}
+	       						{{ col.claimed_points }}
+	       						{% if col.available_points %}
+	       							/ {{ col.available_points }}
+	       						{% endif %}
 	       					</a>
 	       				</td>
 	       			{% endfor %}

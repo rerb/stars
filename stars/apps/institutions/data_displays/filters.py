@@ -157,6 +157,7 @@ class FilteringMixin(object):
         _context['available_filters'] = self.get_available_filters_for_context()
         _context['selected_filters'] = self.get_selected_filters_for_context()
         _context['selected_filters_querydict'] = self.get_selected_filter_querydict()
+        _context['get_params'] = self.request.GET.urlencode()
         return _context
     
     def get_available_filters_for_context(self):

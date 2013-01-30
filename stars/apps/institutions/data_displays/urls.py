@@ -13,6 +13,7 @@ urlpatterns = patterns(
     (r'^dashboard/$', Dashboard.as_view()),
     (r'^categories/$', never_cache(AggregateFilter.as_view())),
     (r'^scores/$', never_cache(ScoreFilter.as_view())),
+    (r'^scores/excel/$', never_cache(ScoreExcelFilter.as_view())),
     (r'^content/$', never_cache(ContentFilter.as_view())),
     (r'^content/excel/$', never_cache(ContentExcelFilter.as_view())),
     (r'^callback/cs/(?P<cs_id>\d+)/$', CategoryInCreditSetCallback.as_view()),
