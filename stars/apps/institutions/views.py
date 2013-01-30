@@ -3,7 +3,7 @@ from django.http import Http404, HttpResponseRedirect, HttpResponse
 from django.views.generic.simple import direct_to_template
 from django.utils.functional import curry
 from django.forms.models import inlineformset_factory
-from django.views.generic import FormView, CreateView, TemplateView, View
+from django.views.generic import FormView, CreateView, TemplateView
 
 from recaptcha.client import captcha
 
@@ -311,22 +311,31 @@ class ScorecardView(RulesMixin, InstitutionStructureMixin, SubmissionStructureMi
         """ The default credit link. """
         return "%s%s" % (url_prefix, credit.get_browse_url())
 
+
 class ScorecardSummary(ScorecardView):
     template_name = 'institutions/scorecards/summary.html'
 
+
 class ScorecardCredit(ScorecardView):
     template_name = 'institutions/scorecards/credit.html'
+
 
 class ScorecardCreditDocumentation(ScorecardView):
     template_name = 'institutions/scorecards/credit_documentation.html'
 
 
-class PDFExportView(RulesMixin, InstitutionStructureMixin,
-                    SubmissionStructureMixin, View):
+class PDFExportView(RulesMixin,
+                    InstitutionStructureMixin,
+                    SubmissionStructureMixin,
+                    TemplateView):
     """
-        Displays an exported PDF version of the selected report
-    """
+        Displays an exported PDF version of the selected report.
 
+        Based on a TemplateView, though there is no template, because
+        TemplateView provides a get() method that View alone does not,
+        as well as passing the results of all get_context_data()
+        methods in the MRO as an argument to render_to_response().
+    """
     def update_logical_rules(self):
 
         super(PDFExportView, self).update_logical_rules()
@@ -342,7 +351,7 @@ class PDFExportView(RulesMixin, InstitutionStructureMixin,
     def render_to_response(self, context, **response_kwargs):
         """ Renders the pdf as a response """
 
-        ss = ss.get_submission()
+        ss = self.get_submissionset()
 
         save = False
         if ss.status == 'r':
@@ -366,6 +375,7 @@ class ScorecardInternalNotesView(InstitutionAccessMixin, ScorecardView):
     # Mixin required properties
     access_level = 'observer'
     template_name = 'institutions/scorecards/internal_notes.html'
+
 
 class DataCorrectionView(RulesMixin, InstitutionStructureMixin, SubmissionStructureMixin, CreateView):
     """
