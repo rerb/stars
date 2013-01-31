@@ -8,7 +8,7 @@
 
 {% block extra_head %}
 	{{ block.super }}
-    <script type="text/javascript" src="/media/admin/js/admin/RelatedObjectLookups.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}admin/js/admin/RelatedObjectLookups.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}js/ajax.js"></script>
     <script type="text/javascript">
     function load_handler() {
