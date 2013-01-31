@@ -143,7 +143,7 @@ class Institution(models.Model):
         field_mappings = (
                             ("name", "org_name"),
                             ("aashe_id", "account_num"),
-                            ("org_type", "org_type"),
+                            ("org_type", "carnegie_class"),
                             ("fte", "enrollment_fte"),
                             ("is_pcc_signatory", "is_signatory"),
                             ("is_member", "is_member"),

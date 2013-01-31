@@ -205,18 +205,6 @@ class Dashboard(TemplateView):
 
 COMMON_FILTERS = [
                         Filter(
-                                key='institution__org_type',
-                                title='Organization Type',
-                                item_list=[
-                                    ('All Institutions', 'DO_NOT_FILTER'), # value means "don't filter base_qs"
-                                    ('Two Year Institution', 'Two Year Institution'),
-                                    ('Four Year Institution', 'Four Year Institution'),
-                                    ('Graduate Institution', 'Graduate Institution'),
-                                    ('System Office', 'System Office'),
-                                ],
-                                base_qs=SubmissionSet.objects.filter(status='r'),
-                        ),
-                        Filter(
                                key='institution__country',
                                title='Country',
                                item_list=[
@@ -364,66 +352,105 @@ class DisplayAccessMixin(StarsAccountMixin, RulesMixin):
     def access_denied_callback(self):
         self.template_name = "institutions/data_displays/denied_categories.html"
         return self.render_to_response({'top_help_text': self.get_description_help_context_name(),})
-    
 
-class AggregateFilter(DisplayAccessMixin, FilteringMixin, TemplateView):
+
+class CommonFilterMixin(object):
+    """
+        This mixin just sets the available filters for all displays
+    """
+
+    def get_available_filters(self):
+
+        filters = cache.get('institution__org_type_filter', None)
+        if filters:
+            return filters
+
+        qs = Institution.objects.get_rated().values('org_type').distinct()
+        org_type_list = []
+        for ot in qs:
+            if ot['org_type'] and ot['org_type'] != '':
+                org_type_list.append((ot['org_type'], ot['org_type']))
+        # value means "don't filter base_qs"
+        org_type_list.insert(0, ('All Institutions', 'DO_NOT_FILTER'))
+
+        filters = [
+                    Filter(
+                           key='institution__org_type',
+                           title='Organization Type',
+                           item_list=org_type_list,
+                           base_qs=SubmissionSet.objects.filter(status='r'),
+                           ),
+                   ] + COMMON_FILTERS
+
+        # Store in the cache for 6 hours
+        cache.set('institution__org_type_filter', filters, 60 * 60 * 6)
+        return filters
+
+
+class AggregateFilter(DisplayAccessMixin, CommonFilterMixin, FilteringMixin,
+                      TemplateView):
     """
         Provides a filtering tool for average category scores
 
         Participants and Members Only
     """
     template_name = "institutions/data_displays/categories.html"
-    
+
     def update_logical_rules(self):
         super(DisplayAccessMixin, self).update_logical_rules()
         self.add_logical_rule({
                                'name': 'user_is_participant_or_member',
                                'param_callbacks': [
-                                                    ('user', 'get_request_user'),
+                                                    (
+                                                        'user',
+                                                        'get_request_user'),
                                                     ],
-                               'response_callback': 'access_denied_callback'                 
+                               'response_callback': 'access_denied_callback'
                                })
-    
-    def get_available_filters(self):
-        return COMMON_FILTERS
 
     def get_description_help_context_name(self):
         return "data_display_categories"
 
     def get_object_list(self):
-        
+
         object_list = []
         ss_list = None
 
         for f, v in self.get_selected_filter_objects():
 
-            d = {}
-            d['title'] = f.get_active_title(v)
+            cache_key = f.get_active_title(v)
+            row = cache.get(cache_key)
 
-            ss_list = f.get_results(v).exclude(rating__publish_score=False)
+            if not row:
+                row = {}
+                row['title'] = f.get_active_title(v)
 
-            count = 0
-            for ss in ss_list:
-                for cat in ss.categorysubmission_set.all():
-                    k_list = "%s_list" % cat.category.abbreviation
-                    if not d.has_key(k_list):
-                        d[k_list] = []
-                    d[k_list].append(cat.get_STARS_score())
-                count += 1
-            d['total'] = count
+                ss_list = f.get_results(v).exclude(rating__publish_score=False)
 
-            for k in d.keys():
-                m = re.match("(\w+)_list", k)
-                if m:
-                    cat_abr = m.groups()[0]
-                    if len(d['%s_list'% cat_abr]) != 0:
-                        d["%s_avg" % cat_abr], std, min, max = get_variance(d['%s_list'% cat_abr])
-                    else:
-                        d["%s_avg" % cat_abr] = std, min, max = None
-                    d['%s_var' % cat_abr] = "Standard Deviation: %.2f | Min: %.2f | Max %.2f" % (std, min, max)
+                count = 0
+                for ss in ss_list:
+                    for cat in ss.categorysubmission_set.all():
+                        k_list = "%s_list" % cat.category.abbreviation
+                        if not k_list in row:
+                            row[k_list] = []
+                        row[k_list].append(cat.get_STARS_score())
+                    count += 1
+                row['total'] = count
 
-            object_list.insert(0, d)
-            
+                for k in row.keys():
+                    m = re.match("(\w+)_list", k)
+                    if m:
+                        cat_abr = m.groups()[0]
+                        if len(row['%s_list' % cat_abr]) != 0:
+                            row["%s_avg" % cat_abr], std, mn, mx = get_variance(row['%s_list' % cat_abr])
+                        else:
+                            row["%s_avg" % cat_abr] = std, mn, mx = None
+                        row['%s_var' % cat_abr] = "Standard Deviation: %.2f | Min: %.2f | Max %.2f" % (std, mn, mx)
+
+                cache.set(cache_key, row, 60 * 60 * 6)  # cache for 6 hours
+
+            object_list.insert(0, row)
+
         return object_list
 
     def get_context_data(self, **kwargs):
@@ -434,7 +461,8 @@ class AggregateFilter(DisplayAccessMixin, FilteringMixin, TemplateView):
 
         return _context
 
-class ScoreFilter(DisplayAccessMixin, NarrowFilteringMixin, TemplateView):
+
+class ScoreFilter(DisplayAccessMixin, CommonFilterMixin, NarrowFilteringMixin, TemplateView):
     """
         Provides a filtering tool for scores by Category, Subcategory, and Credit
 
@@ -465,9 +493,6 @@ class ScoreFilter(DisplayAccessMixin, NarrowFilteringMixin, TemplateView):
 
     def get_description_help_context_name(self):
         return "data_display_scores"
-    
-    def get_available_filters(self):
-        return COMMON_FILTERS
     
     
     """
@@ -662,7 +687,8 @@ class ScoreExcelFilter(ScoreFilter):
             rows.append(row)
         return ExcelResponse(rows)
 
-class ContentFilter(DisplayAccessMixin, NarrowFilteringMixin, TemplateView):
+
+class ContentFilter(DisplayAccessMixin, CommonFilterMixin, NarrowFilteringMixin, TemplateView):
     """
         Provides a filtering tool that shows all the values for a selected
         Reporting Field for the filtered set of institutions
@@ -675,10 +701,7 @@ class ContentFilter(DisplayAccessMixin, NarrowFilteringMixin, TemplateView):
         field and the current querydict;
     """
     template_name = "institutions/data_displays/content.html"
-    
-    def get_available_filters(self):
-        return COMMON_FILTERS
-    
+        
     """
         Methods
         

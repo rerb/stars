@@ -74,11 +74,8 @@ MIDDLEWARE_CLASSES = [ # a list so it can be editable during tests (see below)
     'django.contrib.messages.middleware.MessageMiddleware'
 ]
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
-    }
-}
+import django_cache_url
+CACHES = {'default': django_cache_url.parse(os.environ.get('CACHE_URL', 'dummy://'))}
 
 AUTH_PROFILE_MODULE = 'accounts.UserProfile'
 AUTHENTICATION_BACKENDS = ('stars.apps.accounts.aashe.AASHEAuthBackend',)
