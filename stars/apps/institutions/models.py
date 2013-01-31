@@ -159,7 +159,7 @@ class Institution(models.Model):
             logger.error("No ISS institution found %s" % (self.name))
 
     def __unicode__(self):
-        return self.name.decode('utf8')
+        return self.name
 
     def get_admin_url(self):
         """ Returns the base URL for AASHE Staff to administer aspects of this institution """
