@@ -5,7 +5,7 @@ http://dist.repoze.org/PIL-1.1.6.tar.gz
 PyYAML==3.10
 South==0.7.5
 Werkzeug==0.8.3
--e hg+https://jamstooks:sustainaashe@bitbucket.org/aashe/aashe-python@c3e63f7aac76531e57986f5623fc6a22193596d3#egg=aashe_python-dev
+-e hg+https://jamstooks:sustainaashe@bitbucket.org/aashe/aashe-python@812438d4fdbf7ca671cf0587e6cf9694970cf068#egg=aashe_python-dev
 -e hg+https://jamstooks:sustainaashe@bitbucket.org/aashe/aashe-rules/@bbf3d29fb03a8029f1e5e4aed39f159b8013ea62#egg=aashe_rules-0.1
 -e git+https://github.com/toastdriven/django-tastypie.git@32dae8d2590dde3122289118ac241ab0bd2452e8#egg=django_tastypie-dev
 amqplib==1.0.2
