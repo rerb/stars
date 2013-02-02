@@ -36,15 +36,6 @@ def perm_decorator(perm, error_message=None):
         return _DecoratedClass
     return decorate
 
-def valid_submission(cls):
-    class _DecoratedClass(cls):
-        def __call__(self, request, *args, **kwargs):
-            problem_with_submission = _get_active_submission_problem_response(request)
-            if problem_with_submission:
-                return problem_with_submission
-            return super(_DecoratedClass, self).__call__(request, *args, **kwargs)
-    return _DecoratedClass
-
 # Function decorators
 
 def user_is_staff(f):
@@ -106,23 +97,6 @@ def user_has_tool(f):
             raise PermissionDenied("Access to the tool is restricted.")
     return wrap
 
-def user_is_inst_admin(f):
-    """
-        This decorator tests to see if the User is administrator of the currently selected institution
-        AASHE staff can be admins for all institutions
-    """
-    @wraps(f)
-    def wrap(request, *args, **kwargs):
-        problem_with_account = _get_account_problem_response(request)
-        if problem_with_account:
-            return problem_with_account
-
-        if request.user.has_perm('admin'):
-            return f(request, *args, **kwargs)
-        else:
-            raise PermissionDenied("Admin privileges for %s required."%request.user.current_inst)
-    return wrap
-
 def _get_account_problem_response(request):
     """ Returns a response if there are any problems with the user's
     account, None otherwise """
@@ -168,37 +142,6 @@ def _get_account_problem_response(request):
             raise PermissionDenied("This institution is not enabled.")
 
     # assert user has a valid account with their current institution
-    return None
-
-def _get_active_submission_problem_response(request):
-    """
-        Returns an error response if there are any problems with the user's active submission, None otherwise
-
-        NOTE: this is gradually being replaced by the mixin in `stars.apps.auth.mixins`.
-        Any changes made here, should be duplicated there.
-    """
-    problem_with_account = _get_account_problem_response(request)
-    if problem_with_account:
-       return problem_with_account
-
-    # assert user.is_authenticated() and has a valid instititution selected
-    current_inst = request.user.current_inst
-    active_submission = current_inst.get_active_submission()
-
-#    if not active_submission:
-#        raise PermissionDenied("There doesn't appear to be an available submisison.")
-    #    elif active_submission.status != 'ps' and not request.user.is_staff:
-#        raise PermissionDenied("This submission has been submitted and is no longer available for editing. See it under 'My Report(s).'")
-#    elif active_submission.missed_deadline():
-#        raise PermissionDenied("The submission deadline for this submission has passed. It is no longer available to edit.")
-#    else:
-#        if not active_submission.is_enabled():
-#            raise PermissionDenied("This submission hasn't been enabled. It will be available once AASHE receives payment.")
-
-    assert active_submission, "There doesn't appear to be an available submission"
-    if active_submission.is_locked:
-        raise PermissionDenied("This submission has been locked. This could be because you are migrating to a more recent Credit Set. Please try again later and then contact your STARS Liaison or the STARS Team if you have any questions.")
-
     return None
 
 def _redirect_to_login(request):
