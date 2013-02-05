@@ -59,7 +59,7 @@ class Flag(models.Model):
     def get_admin_url(self):
         return urlresolvers.reverse("admin:submissions_flag_change", args=[self.id])
 
-    def __str__(self):
+    def __unicode__(self):
         return "%s" % self.target
 
 class FlaggableModel():
@@ -127,7 +127,7 @@ class SubmissionSet(models.Model, FlaggableModel):
         ordering = ("date_registered",)
 
     def __unicode__(self):
-        return unicode('%s (%s)' % (self.institution, self.creditset) )
+        return '%s (%s)' % (self.institution.name, self.creditset.version)
 
     def missed_deadline(self):
         return not self.institution.is_participant
@@ -391,8 +391,8 @@ class Boundary(models.Model):
     class Meta:
         verbose_name_plural = "Boundaries"
 
-    def __str__(self):
-        return self.submissionset.institution.name;
+    def __unicode__(self):
+        return self.submissionset;
 
     def get_characteristic_fields_and_values(self):
         """
@@ -767,7 +767,7 @@ class CreditSubmission(models.Model):
     class Meta:
         ordering = ("credit__type", "credit__ordinal",)
 
-    def __str__(self):
+    def __unicode__(self):
         return self.credit.title
 
 #    @staticmethod
@@ -842,7 +842,7 @@ class CreditSubmission(models.Model):
 
     def print_submission_fields(self):
         import sys
-        print >> sys.stderr, "Fields for CreditSubmission: %s"%self.__str__()
+        print >> sys.stderr, "Fields for CreditSubmission: %s" % self
         fields = self.get_submission_fields()
         for field in fields:
             print >> sys.stderr, field
@@ -884,7 +884,7 @@ class CreditSubmission(models.Model):
             if log_error:
                 logger.error(
                     "Error converting formula result (%s) to numeric type: %s" %
-                    (points.__str__(),e), exc_info=True)
+                    (points,e), exc_info=True)
             return (0, "Non-numeric result calculated for points: %s" % points)
 
     def validate_points(self, points, log_error=True):
@@ -905,7 +905,7 @@ class CreditSubmission(models.Model):
 
         if points < 0 or points > self.credit.point_value:  # is it in range?
             range_error = ("Points (%s) are out of range (0 - %s)." %
-                           (points.__str__(), self.credit.point_value))
+                           (points, self.credit.point_value))
             if log_error:
                 logger.error(range_error)
             messages.append(range_error)
@@ -1102,13 +1102,13 @@ class CreditTestSubmission(CreditSubmission):
 
     def parameter_list(self):
         """ Returns a string with this submission's field values formatted as a parameter list """
-        return ', '.join([field.__str__() for field in self.get_submission_fields()])
+        return ', '.join([field.__unicode__() for field in self.get_submission_fields()])
 
     def __unicode__(self):
         return "f( %s ) = %s" % (self.parameter_list(), self.expected_value)
 
-    def __str__(self):
-        return "<CreditTestSubmission: expected=%s  %s>"%(self.expected_value, super(CreditTestSubmission,self).__str__() )
+#    def __str__(self):
+#        return "<CreditTestSubmission: expected=%s  %s>"%(self.expected_value, super(CreditTestSubmission,self) )
 
 """
 DOCUMENTATION_FIELD_TYPES = (
@@ -1263,10 +1263,6 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
         """ return the title of this submission field """
         return self.documentation_field.__unicode__()
 
-    def __str__(self):
-        """ return a string representation of the submission' value """
-        return str(self.get_value())
-
     def get_parent(self):
         """ Used for building crumbs """
         return self.credit_submission
@@ -1340,7 +1336,7 @@ class AbstractChoiceSubmission(DocumentationFieldSubmission):
     class Meta:
         abstract = True
 
-    def __str__(self):
+    def __unicode__(self):
         """ return a string representation of the submission' value """
         choice = self.get_value()
         return self._get_str(choice)
@@ -1472,7 +1468,7 @@ class MultiChoiceSubmission(AbstractChoiceSubmission):
         # got to be careful here - many-to-many is only valid after submission has been saved.
         return self.value.all() if self.persists() else None
 
-    def __str__(self):
+    def __unicode__(self):
         """ return a string representation of the submission' value """
         choices = self.get_value()
         if not choices:

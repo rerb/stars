@@ -20,7 +20,7 @@ class IncrementalFeature(models.Model):
     key = models.SlugField(unique=True)
     description = models.TextField()
 
-    def __str__(self):
+    def __unicode__(self):
         return self.key
 
 class CreditSetManager(models.Manager):
@@ -92,7 +92,7 @@ class CreditSet(VersionedModel):
         self._confirm_unlock_attempt = False  # not required until an attempt to unlock is actually made
 
     def __unicode__(self):
-        return smart_unicode("v%s" % self.version, encoding='utf-8', strings_only=False, errors='strict')
+        return "v%s" % self.version
 
     def __getattr__(self, item):
         """
@@ -296,7 +296,7 @@ class Category(VersionedModel):
         verbose_name_plural = "Categories"
 
     def __unicode__(self):
-        return smart_unicode(self.title, encoding='utf-8', strings_only=False, errors='strict')
+        return self.title
 
     def __cmp__(self, other):
         """ Used for ordering by ordinal """
@@ -400,7 +400,7 @@ class Subcategory(VersionedModel):
         verbose_name_plural = "Subcategories"
 
     def __unicode__(self):
-        return smart_unicode(self.title, encoding='utf-8', strings_only=False, errors='strict')
+        return self.title
 
     def __cmp__(self, other):
         """ Used for ordering by ordinal """
@@ -500,11 +500,7 @@ class Credit(VersionedModel):
 
     def __unicode__(self):
 #        return unicode(self.__str__())
-        return smart_unicode("%s: %s"%(self.identifier, self.title), encoding='utf-8', strings_only=False, errors='strict')
-
-    def __str__(self):  # For DEBUG -  comment out __unicode__ method
         return "%s: %s" % (self.identifier, self.title)
-#        return self.__unicode__()
 
     def __cmp__(self, other):
         """ Used for ordering by ordinal """
@@ -721,7 +717,7 @@ class ApplicabilityReason(VersionedModel):
         ordering = ('ordinal',)
 
     def __unicode__(self):
-        return smart_unicode(self.reason, encoding='utf-8', strings_only=False, errors='strict')
+        return self.reason
 
     def get_absolute_url(self):
         return "%sapplicability/" % self.credit.get_edit_url()
@@ -795,7 +791,7 @@ class Unit(models.Model):
         ordering = ('name',)
 
     def __unicode__(self):
-        return smart_unicode(self.name, encoding='utf-8', strings_only=False, errors='strict')
+        return self.name
 
 class DocumentationField(VersionedModel):
     credit = models.ForeignKey(Credit)
