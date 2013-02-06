@@ -17,7 +17,6 @@ class DecoratorsTest(TestCase):
     def setUp(self):
         self.request = HttpRequest()
         self.request.user = User()
-        self.request.user.current_inst = None  #self.request.institution
         self.request.user.has_perm = lambda x: True
         self.request.user.is_authenticated = lambda : True
         self.request.user.is_staff = True
@@ -32,7 +31,8 @@ class DecoratorsTest(TestCase):
     def test__get_account_problem_response_unselected_inst_message(self):
         """Does _get_account_problem_response show a msg when no inst is picked?
         """
-        _ = decorators._get_account_problem_response(self.request)
+        _ = decorators._get_account_problem_response(self.request,
+                                                     None)
         response = render(self.request, 'base.html')
         soup = BeautifulSoup(response.content)
         info_message_divs = soup.find_all(

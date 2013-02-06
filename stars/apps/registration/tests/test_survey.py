@@ -12,17 +12,15 @@
 from django.test import TestCase
 from django.test.client import Client
 
-from stars.apps.institutions.models import *
+from stars.apps.institutions.models import RegistrationSurvey
 
-from datetime import date
-import sys, os
 
 class TestSurvey(TestCase):
     fixtures = ['submit_for_rating_tests.json','registration_tests.json']
 
     def setUp(self):
         pass
-        
+
     def testSurveyView(self):
         """
             Test the RegistrationSurveyView
@@ -31,13 +29,13 @@ class TestSurvey(TestCase):
                 - Saves survey
         """
         self.assertTrue(RegistrationSurvey.objects.count() == 0)
-        
+
         c = Client()
         c.login(username='test_user', password='test')
         post_dict = {}
         response = c.get('/register/survey/', post_dict)
         self.assertTrue(response.status_code == 200)
-        
+
         post_dict = {
             'institution': 1,
             'user': 5215,
@@ -47,5 +45,6 @@ class TestSurvey(TestCase):
             'primary_reason': 1,
             'enhancements': 'enhance!',
         }
+
         response = c.post('/register/survey/', post_dict, follow=False)
         self.assertTrue(response.status_code == 302)
