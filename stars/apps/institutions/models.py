@@ -308,8 +308,10 @@ class Subscription(models.Model):
     reason = models.CharField(max_length='16', blank=True, null=True)
     paid_in_full = models.BooleanField(default=False)
 
-    def __str__(self):
-        return "%s (%s - %s)" % (self.institution.name, self.start_date, self.end_date)
+    def __unicode__(self):
+        return "%s (%s - %s)" % (self.institution.name,
+                                 self.start_date,
+                                 self.end_date)
 
     def get_available_ratings(self):
         return self.ratings_allocated - self.ratings_used
@@ -317,6 +319,7 @@ class Subscription(models.Model):
 METHOD_CHOICES = (
                   ('credit', 'credit'),
                   ('check', 'check'))
+
 
 class SubscriptionPayment(models.Model):
     """
