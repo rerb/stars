@@ -474,9 +474,9 @@ class Subscription(models.Model):
 
         self._update_institution_after_purchase()
 
-    def __str__(self):
-        return "%s (%s - %s)" % (self.institution.name, self.start_date,
-                                 self.end_date)
+    def __unicode__(self):
+        return u"%s (%s - %s)" % (self.institution.name, self.start_date,
+                                  self.end_date)
 
     def _apply_promo_code(self, price, promo_code=None):
         """
