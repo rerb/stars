@@ -1,0 +1,240 @@
+from datetime import datetime
+from logging import getLogger
+
+from django.conf import settings
+from django.contrib import messages
+from django.core.urlresolvers import reverse
+from django.shortcuts import get_object_or_404
+from django.http import HttpResponseRedirect, Http404
+from django.db.models import Min
+from django.utils.decorators import method_decorator
+
+from stars.apps.accounts.utils import respond
+from stars.apps.accounts import utils as auth_utils
+from stars.apps.accounts.decorators import user_is_staff
+from stars.apps.helpers.forms import form_helpers
+from stars.apps.institutions.models import (Institution, Subscription,
+                                            SubscriptionPayment)
+from stars.apps.institutions.views import SortableTableView
+from stars.apps.submissions.models import SubmissionSet
+from stars.apps.tool.admin.forms import PaymentForm
+from stars.apps.third_parties.models import ThirdParty
+
+logger = getLogger('stars.request')
+
+@user_is_staff
+def institutions_search(request):
+    """
+        Provides a search page for Institutions
+    """
+    return respond(request, 'tool/admin/institutions/institution_search.html',
+                   {})
+
+
+@user_is_staff
+def select_institution(request, id):
+    """
+        The admin tool for selecting a particular institution
+    """
+    institution = Institution.objects.get(id=id)
+    if not institution:
+        raise Http404("No such institution.")
+
+    if auth_utils.change_institution(request, institution):
+        redirect_url = request.GET.get('redirect',
+                                       reverse('tool-summary',
+                                               args=(institution.slug,)))
+        response = HttpResponseRedirect(redirect_url)
+        # special hack to "remember" current institution for staff
+        # between sessions
+        #  - can't store it in session because it gets overwritten on
+        #    login, can's store it with account b/c staff don't have
+        #    accounts.
+        #  - ideally, the cookie path would be LOGIN_URL, but the
+        #    first request we get is from the login redirect url.
+        response.set_cookie("current_inst", institution.id,
+                            path=settings.LOGIN_REDIRECT_URL)
+        return response
+    else:
+        messages.error(request,
+                       "Unable to change institution to %s - check the log?" %
+                       institution)
+        return HttpResponseRedirect(settings.ADMIN_URL)
+
+@user_is_staff
+def latest_payments(request):
+    """
+        A list of institutions with their latest payment
+    """
+    # Select the latest payment for each institution -
+    # The query I want is something like:
+    # SELECT payment, submissionset__institution FROM Payment GROUP BY submissionset__institution__id  HAVING  payment.date = MAX(payment.date)
+    # But I can't figure out how to get Django to do this in single query - closest I can come is:
+    #    institutions = Institution.objects.annotate(latest_payment=Max('submissionset__payment__date'))
+    #  but that annotates each institution with the latest payment DATE - not the Payment object :-(  So...
+    # - First a query to get the id's for latest payment for each institution
+    # - Then a query to get the actual objects - seems like there must be a direct way here....
+    from django.db.models import Max
+#    payment_ids = Payment.objects.values('submissionset__institution').annotate(latest_payment=Max('date')).values('id')
+    payments = Payment.objects.all().order_by('-date').select_related('submissionset', 'submissionset__institution')
+
+    template = "tool/admin/payments/latest.html"
+    return respond(request, template, {'payment_list':payments})
+
+
+@user_is_staff
+def overview_report(request):
+    """
+        Provide a quick summary report
+    """
+
+    context = {
+                "current_participants": Institution.objects.filter(is_participant=True).count(),
+                "current_respondents": Institution.objects.filter(is_participant=False).count(),
+               }
+
+    count = 0
+    for i in Institution.objects.all():
+        if i.subscription_set.count() == 0:
+            count += 1
+
+    context["registered_respondents"] = count
+    context['third_party_list'] = ThirdParty.objects.all()
+
+    context['snapshot_count'] = SubmissionSet.objects.filter(status='f').count()
+
+    c = 0
+    for i in Institution.objects.all():
+        if i.submissionset_set.filter(status='f').count() > 0:
+            c += 1
+    context['institutions_with_snapshots'] = c
+
+    template = "tool/admin/reports/quick_overview.html"
+
+    return respond(request, template, context)
+
+
+class InstitutionList(SortableTableView):
+    """
+        A quick report on registration for Jillian
+
+
+        Institution Name
+        Reg date
+        Renewal Date
+        Submission date
+    """
+    template_name = "tool/admin/institutions/institution_list.html"
+
+    @method_decorator(user_is_staff)
+    def render(self, request, *args, **kwargs):
+        return super(InstitutionList, self).render(request, *args, **kwargs)
+
+    default_key = 'name'
+    default_rev = '-'
+    secondary_order_field = 'name'
+    columns = [
+                    {
+                        'key': 'name',
+                        'sort_field': 'name',
+                        'title': 'Institution',
+                    },
+                    {
+                        'key': 'version',
+                        'sort_field': 'current_submission__creditset__version',
+                        'title': 'Version',
+                    },
+                    {
+                        'key': 'participation',
+                        'sort_field': 'is_participant',
+                        'title': 'Participant?',
+                    },
+                    {
+                        'key': 'reg_date',
+                        'sort_field': 'reg_date',
+                        'title': 'Registered',
+                    },
+                    {
+                        'key': 'rating',
+                        'sort_field': 'current_rating',
+                        'title': 'Rating',
+                    },
+                    {
+                        'key': 'submission',
+                        'sort_field': 'rated_submission__date_submitted',
+                        'title': 'Submission Date',
+                    },
+                    {
+                        'key':'subscription',
+                        'sort_field':'current_subscription__start_date',
+                        'title':'Subscription',
+                    },
+              ]
+
+    def get_queryset(self):
+        return Institution.objects.annotate(reg_date=Min('subscription__start_date')).select_related()
+
+@user_is_staff
+def add_subscriptionpayment(request, institution_id, subscription_id):
+    """
+        Process a form for adding a new payment against the given submission set
+    """
+    institution = get_object_or_404(Institution, id=institution_id)
+    subscription = get_object_or_404(Subscription,
+                                     institution__id=institution_id,
+                                     id=subscription_id)
+    payment = SubscriptionPayment(subscription=subscription,
+                                  user=request.user,
+                                  date=datetime.today(),
+                                  amount=subscription.amount_due)
+
+    # Build and process the form for adding the payment...
+    (payment_form,saved) = form_helpers.basic_save_form(request,
+                                                        payment,
+                                                        'new_payment',
+                                                        PaymentForm)
+    if saved:
+        # update subscription payment status
+        if payment.amount == subscription.amount_due:
+            subscription.paid_in_full = True
+            subscription.amount_due = 0
+            subscription.save()
+        else:
+            subscription.amount_due -= payment.amount
+            subscription.save()
+
+        return HttpResponseRedirect(
+            reverse('institution-payments',
+                    kwargs={ 'institution_slug': institution.slug }))
+
+    payment_form.add_user(request.user)
+
+    context = {'payment': payment, 'object_form':payment_form,
+               'title':'New Payment', 'institution': institution}
+
+    return respond(request, 'tool/manage/payment_edit.html', context)
+
+@user_is_staff
+def edit_subscriptionpayment(request, institution_id, payment_id):
+    """
+        Process a form for editing payment details
+    """
+    institution = get_object_or_404(Institution, id=institution_id)
+    payment = get_object_or_404(SubscriptionPayment,
+                                subscription__institution__id=institution_id,
+                                id=payment_id)
+
+    # Build and process the form for adding or modifying the payment...
+    (payment_form,saved) = form_helpers.basic_save_form(request, payment,
+                                                        'payment', PaymentForm)
+    if saved:
+        return HttpResponseRedirect(
+            reverse('institution-payments',
+                    kwargs={ 'institution_slug': institution.slug }))
+
+    payment_form.add_user(request.user)
+
+    context = {'payment': payment, 'object_form':payment_form,
+               'title':'Edit Payment Details', 'institution': institution}
+
+    return respond(request, 'tool/manage/payment_edit.html', context)
