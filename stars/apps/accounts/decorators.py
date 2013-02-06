@@ -1,12 +1,12 @@
 from functools import wraps
 
+from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect
 from django.utils.http import urlquote
-from django.conf import settings
 
-from datetime import date
+from stars.apps.institutions.models import Institution
 
 # Class decorators
 # Deprecated by Mixins
@@ -86,7 +86,9 @@ def user_has_tool(f):
     """
     @wraps(f)
     def wrap(request, *args, **kwargs):
-        problem_with_account = _get_account_problem_response(request)
+        problem_with_account = _get_account_problem_response(
+            request=request,
+            institution_slug=kwargs['institution_slug'])
         if problem_with_account:
             return problem_with_account
         if request.user.has_perm('tool'):
@@ -97,13 +99,17 @@ def user_has_tool(f):
             raise PermissionDenied("Access to the tool is restricted.")
     return wrap
 
-def _get_account_problem_response(request):
+def _get_account_problem_response(request, institution_slug):
     """ Returns a response if there are any problems with the user's
     account, None otherwise """
+
     if not request.user.is_authenticated():
         return _redirect_to_login(request)
 
-    current_inst = request.user.current_inst
+    try:
+        current_inst = Institution.objects.get(slug=institution_slug)
+    except Institution.DoesNotExist:
+        current_inst = None
 
     if request.user.is_staff and not current_inst:
         messages.info(request, "You need to select an institution.")
