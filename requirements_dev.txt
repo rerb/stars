@@ -1,0 +1,3 @@
+django-extensions
+django-template-repl
+Werkzeug
