@@ -2,6 +2,8 @@ from datetime import datetime
 
 from django.db import models
 from django.contrib.localflavor.us.models import PhoneNumberField
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes import generic
 
 from stars.apps.institutions.models import RATINGS_PER_SUBSCRIPTION
 from stars.apps import submissions
@@ -11,18 +13,17 @@ from stars.apps.etl_export.mixins import ETLCompareMixin
 
 """
     Notes
-     - will add boundary later
      - aashe_id can be "-1"
 """
 
-class Institution(models.Model, ETLCompareMixin):
+
+class Institution(ETLCompareMixin):
     """
         This model houses all the required fields for the
         Salesforce Extract Transform and Load operation for
         Institutions
     """
     aashe_id = models.IntegerField()
-    change_date = models.DateTimeField(auto_now=True)
 
     liaison_first_name = models.CharField(max_length=32)
     liaison_middle_name = models.CharField(max_length=32, blank=True, null=True)
@@ -110,12 +111,11 @@ class Institution(models.Model, ETLCompareMixin):
             self.rated_submission_id = institution.rated_submission.id
 
 
-class Subscription(models.Model, ETLCompareMixin):
+class Subscription(ETLCompareMixin):
     """
         A mirror of the institutions.Subscription model
     """
 
-    change_date = models.DateTimeField(auto_now=True)
     aashe_id = models.IntegerField()
     start_date = models.DateField()
     end_date = models.DateField()
@@ -157,12 +157,11 @@ class Subscription(models.Model, ETLCompareMixin):
             self.price += p.amount
 
 
-class SubscriptionPayment(models.Model, ETLCompareMixin):
+class SubscriptionPayment(ETLCompareMixin):
     """
         A mirror of the institutions.SubscriptionPayment model
     """
 
-    change_date = models.DateTimeField(auto_now=True)
     aashe_id = models.IntegerField()
     subscription = models.ForeignKey("Subscription")
     date = models.DateTimeField()
@@ -192,13 +191,12 @@ class SubscriptionPayment(models.Model, ETLCompareMixin):
         self.confirmation = p.confirmation
 
 
-class SubmissionSet(models.Model, ETLCompareMixin):
+class SubmissionSet(ETLCompareMixin):
     """
         A mirrored version of the submissions.SubmissionSet model
         for export to SF
     """
-
-    change_date = models.DateTimeField(auto_now=True)
+    
     version = models.CharField(max_length=8)
     aashe_id = models.IntegerField()
     date_registered = models.DateField()
@@ -238,13 +236,12 @@ class SubmissionSet(models.Model, ETLCompareMixin):
         self.is_active = ss.institution.get_active_submission() == ss
 
 
-class Boundary(models.Model, ETLCompareMixin):
+class Boundary(ETLCompareMixin):
     """
         A mirrored version of the submissions.Boundary model
         for export to SF
     """
 
-    change_date = models.DateTimeField(auto_now=True)
     aashe_id = models.IntegerField()
     submissionset = models.OneToOneField(SubmissionSet)
 

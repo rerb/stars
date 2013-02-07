@@ -1,6 +1,7 @@
 from django.db import models
-from django.utils.functional import curry
-    
+
+from datetime import datetime
+
 """
 So, I need a way to run something like this:
 
@@ -14,61 +15,70 @@ to curry the etl_run_udpate method with the ``etl_source_class``
 from the model
 """
 
-class ETLCompareMixin(object):
+
+class ETLCompareMixin(models.Model):
     """
         Allows a model to be comparable for changes since a previous sync
-        
+
         models must define an ``etl_exclude_fields`` list property
         models must also define a "etl_source_class" property
-        
+
         Note: using the "etl_" prefix for methods to avoid conflicts
     """
-    
+
+    class Meta:
+        abstract = True
+
+    change_date = models.DateTimeField(auto_now=True)
+    delete_date = models.DateTimeField(blank=True, null=True)
+
     @classmethod
     def etl_run_update(cls):
         """
             Runs an update of all the ETL objects for this class
-            
             Takes the ``source_class`` to populate from
         """
         source_class = getattr(cls, 'etl_source_class')
-        
+
         updates = []
         for obj in source_class.objects.all():
-    
+
             # See if an ETL object exists for this source_class object
             try:
                 old_etl = cls.objects.get(id=obj.id)
             except cls.DoesNotExist:
                 old_etl = None
-    
+
             # Create the new version
             new_etl = cls()
             new_etl.populate(obj)
-    
+
             if not old_etl:
                 # If there wasn't an old_etl, create it
                 new_etl.save()
                 updates.append(obj.id)
-    
-            elif old_etl.etl_update(new_etl):   
-                # Otherwise, update as necessary 
+
+            elif old_etl.etl_update(new_etl):
+                # Otherwise, update as necessary
                 updates.append(obj.id)
-    
+
         drops = []
-        # remove any extraneous institutions in ETL
+        # remove any extraneous objects in ETL
         for etl in cls.objects.all():
             try:
-                i = source_class.objects.get(id=etl.id)
+                __ = source_class.objects.get(id=etl.id)
             except source_class.DoesNotExist:
                 drops.append(etl.id)
-                etl.delete()
-    
+#                etl.delete()
+                etl.delete_date = datetime.now()
+                etl.save()
+
         return (updates, drops)
-            
+
     def etl_has_changed(self, obj):
         """
-            Compares two ETL objects for equality. Compare everything except exclude_comparison_fields
+            Compares two ETL objects for equality. Compare everything except
+            exclude_comparison_fields
             Returns True if equal and False if not
         """
 
