@@ -1,5 +1,7 @@
 {% extends 'institutions/base.html' %}
 
+{% load content %}
+
 {% block title %}Rated {{ block.super }}{% endblock %}
 
 {% block h1 %}Rated STARS Institutions{% endblock %}
@@ -91,4 +93,8 @@
             });
         });
     </script>
+{% endblock %}
+
+{% block tab_footer %}
+  {% display_block_content 'data_use_guidelines_message' %}
 {% endblock %}

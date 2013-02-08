@@ -1,5 +1,7 @@
 {% extends 'tool/admin/institutions/base.html' %}
 
+{% load content %}
+
 {% block institution_content %}
      {% block subsubmenu %}
     {% endblock %}
@@ -56,7 +58,11 @@
                 {{ i.current_subscription.end_date }}
               {% endif %}
             </td>
-          </tr>            
+          </tr>
         {% endfor %}
       </table>
+{% endblock %}
+
+{% block tab_footer %}
+  {% display_block_content 'data_use_guidelines_message' %}
 {% endblock %}

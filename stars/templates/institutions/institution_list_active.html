@@ -1,5 +1,7 @@
 {% extends 'institutions/base.html' %}
 
+{% load content %}
+
 {% block crumb-tab %}
 	<li>Current</li>
 {% endblock %}
@@ -76,4 +78,8 @@
         });
     </script>
 
+{% endblock %}
+
+{% block tab_footer %}
+  {% display_block_content 'data_use_guidelines_message' %}
 {% endblock %}
