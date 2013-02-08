@@ -1,13 +1,13 @@
 {% extends 'institutions/base.html' %}
 
+{% load content %}
+
 {% block extra_head %}
 	{{ block.super }}
-	<script src="{{ STATIC_URL }}js/parent_child_selects.js" type="text/javascript"></script>
+	<script src="{{ STATIC_URL }}js/parent_child_selects.js"
+            type="text/javascript"></script>
 {% endblock %}
 
 {% block tab_footer %}
-	<p style='margin: 0px 130px;'>
-		<em><small>AASHE believes transparency is a key component in communicating sustainability claims. 
-		STARS data are made publicly available, and can be used in research and publications,
-		provided that certain <a href='http://www.aashe.org/files/documents/STARS/data_use_guidelines.pdf'>Data Use Guidelines</a> are met.</small></em> 
+  {% display_block_content 'data_use_guidelines_message' %}
 {% endblock %}
