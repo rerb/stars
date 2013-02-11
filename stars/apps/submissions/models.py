@@ -410,18 +410,18 @@ class SubmissionSet(models.Model, FlaggableModel):
             to_mail.append(self.institution.contact_email)
         et.send_email(to_mail, {'ss': self,})
 
-INSTITUTION_TYPE_CHOICES = (
-                                ("2_year", "Two Year"),
-                                ("4_year", "Four Year"),
-                                ("graduate", "Graduate Institution"),
-                                ("system", "System Office")
-)
+INSTITUTION_TYPE_CHOICES = (("2_year", "Two Year"),
+                            ("4_year", "Four Year"),
+                            ("graduate", "Graduate Institution"),
+                            ("system", "System Office"))
 
-INSTITUTION_CONTROL_CHOICES = (
-                                ("public", "Public"),
-                                ("private_profit", "Private for-profit"),
-                                ("private_nonprofit", "Private non-profit"),
-)
+INSTITUTION_CONTROL_CHOICES = (("public", "Public"),
+                               ("private_profit", "Private for-profit"),
+                               ("private_nonprofit", "Private non-profit"))
+
+FEATURES_CHOICES = ((True, 'Yes'),
+                    (False, 'No'))
+
 
 class Boundary(models.Model):
     """
@@ -449,35 +449,75 @@ class Boundary(models.Model):
     climate_region = models.ForeignKey(ClimateZone, help_text="See the <a href='http://www1.eere.energy.gov/buildings/residential/ba_guides_studies.html'>USDOE</a> site and <a href='http://www.ashrae.org/File%20Library/docLib/Public/20081111_cztables.pdf'>ASHRAE</a>  (international) for more information.", blank=True, null=True)
 
     # Features
-    ag_school_present = models.BooleanField("Agricultural school is present")
-    ag_school_included = models.BooleanField("Agricultural school is included in submission")
-    ag_school_details = models.TextField("Reason for Exclusion", blank=True, null=True)
-    med_school_present = models.BooleanField("Medical school is present")
-    med_school_included = models.BooleanField("Medical school is included in submission")
-    med_school_details = models.TextField("Reason for Exclusion", blank=True, null=True)
-    pharm_school_present = models.BooleanField("Pharmacy school is present")
-    pharm_school_included = models.BooleanField("Pharmacy school is included in submission")
-    pharm_school_details = models.TextField("Reason for Exclusion", blank=True, null=True)
-    pub_health_school_present = models.BooleanField("Public health school is present")
-    pub_health_school_included = models.BooleanField("Public health school is included in submission")
-    pub_health_school_details = models.TextField("Reason for Exclusion", blank=True, null=True)
-    vet_school_present = models.BooleanField("Veterinary school is present")
-    vet_school_included = models.BooleanField(" Veterinary school is included in submission")
-    vet_school_details = models.TextField("Reason for Exclusion", blank=True, null=True)
-    sat_campus_present = models.BooleanField("Satellite campuses are present")
-    sat_campus_included = models.BooleanField("Satellite campuses are included in submission")
-    sat_campus_details = models.TextField("Reason for Exclusion", blank=True, null=True)
-    hospital_present = models.BooleanField("Hospital is present")
-    hospital_included = models.BooleanField("Hospital is included in submission")
-    hospital_details = models.TextField("Reason for Exclusion", blank=True, null=True)
-    farm_present = models.BooleanField("Farm is present", help_text='Larger than 5 acres')
-    farm_included = models.BooleanField("Farm is included in submission")
+    ag_school_present = models.NullBooleanField(
+        "Agricultural school is present", choices=FEATURES_CHOICES, null=True)
+    ag_school_included = models.NullBooleanField(
+        "Agricultural school is included in submission",
+        choices=FEATURES_CHOICES, null=True)
+    ag_school_details = models.TextField("Reason for Exclusion", blank=True,
+                                         null=True)
+    med_school_present = models.NullBooleanField("Medical school is present",
+                                                 choices=FEATURES_CHOICES,
+                                                 null=True)
+    med_school_included = models.NullBooleanField(
+        "Medical school is included in submission", choices=FEATURES_CHOICES,
+        null=True)
+    med_school_details = models.TextField("Reason for Exclusion",
+                                          blank=True, null=True)
+    pharm_school_present = models.NullBooleanField(
+        "Pharmacy school is present", choices=FEATURES_CHOICES, null=True)
+    pharm_school_included = models.NullBooleanField(
+        "Pharmacy school is included in submission", choices=FEATURES_CHOICES,
+        null=True)
+    pharm_school_details = models.TextField("Reason for Exclusion", blank=True,
+                                            null=True)
+    pub_health_school_present = models.NullBooleanField(
+        "Public health school is present", choices=FEATURES_CHOICES, null=True)
+    pub_health_school_included = models.NullBooleanField(
+        "Public health school is included in submission",
+        choices=FEATURES_CHOICES, null=True)
+    pub_health_school_details = models.TextField("Reason for Exclusion",
+                                                 blank=True, null=True)
+    vet_school_present = models.NullBooleanField(
+        "Veterinary school is present", choices=FEATURES_CHOICES, null=True)
+    vet_school_included = models.NullBooleanField(
+        "Veterinary school is included in submission",
+        choices=FEATURES_CHOICES, null=True)
+    vet_school_details = models.TextField("Reason for Exclusion",
+                                          blank=True, null=True)
+    sat_campus_present = models.NullBooleanField(
+        "Satellite campuses are present", choices=FEATURES_CHOICES, null=True)
+    sat_campus_included = models.NullBooleanField(
+        "Satellite campuses are included in submission",
+        choices=FEATURES_CHOICES, null=True)
+    sat_campus_details = models.TextField("Reason for Exclusion",
+                                          blank=True, null=True)
+    hospital_present = models.NullBooleanField("Hospital is present",
+                                               choices=FEATURES_CHOICES,
+                                               null=True)
+    hospital_included = models.NullBooleanField(
+        "Hospital is included in submission", choices=FEATURES_CHOICES,
+        null=True)
+    hospital_details = models.TextField("Reason for Exclusion",
+                                        blank=True, null=True)
+    farm_present = models.NullBooleanField("Farm is present",
+                                           help_text='Larger than 5 acres',
+                                           choices=FEATURES_CHOICES, null=True)
+    farm_included = models.NullBooleanField("Farm is included in submission",
+                                            choices=FEATURES_CHOICES, null=True)
     farm_acres = models.FloatField("Number of acres", blank=True, null=True)
-    farm_details = models.TextField("Reason for Exclusion", blank=True, null=True)
-    agr_exp_present = models.BooleanField("Agricultural experiment station is present", help_text='Larger than 5 acres')
-    agr_exp_included = models.BooleanField("Agricultural experiment station is included in submission")
-    agr_exp_acres = models.IntegerField("Number of acres", blank=True, null=True)
-    agr_exp_details = models.TextField("Reason for Exclusion", blank=True, null=True)
+    farm_details = models.TextField("Reason for Exclusion", blank=True,
+                                    null=True)
+    agr_exp_present = models.NullBooleanField(
+        "Agricultural experiment station is present",
+        help_text='Larger than 5 acres', choices=FEATURES_CHOICES, null=True)
+    agr_exp_included = models.NullBooleanField(
+        "Agricultural experiment station is included in submission",
+        choices=FEATURES_CHOICES, null=True)
+    agr_exp_acres = models.IntegerField("Number of acres", blank=True,
+                                        null=True)
+    agr_exp_details = models.TextField("Reason for Exclusion", blank=True,
+                                       null=True)
 
     # Narrative
     additional_details = models.TextField(blank=True, null=True)
