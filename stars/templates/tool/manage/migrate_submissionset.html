@@ -5,7 +5,7 @@
 
 {% block crumbs-tool %}
 	<li>
-		<a href='/tool/submissions/'>{{ active_submission.creditset.version }}</a>
+		<a href='{% url submission-summary institution.slug institution.current_submission.id %}'>{{ institution.current_submission.creditset.version }}</a>
 		<span class="divider">/</span>
 	</li>
 	<li>Migrate</li>
