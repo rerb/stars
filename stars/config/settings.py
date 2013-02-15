@@ -25,6 +25,10 @@ LANGUAGE_CODE = 'en-us'
 SITE_ID = 1
 USE_I18N = False
 
+USE_I18N = True
+USE_L10N = True
+USE_THOUSAND_SEPARATOR = True
+
 # Database
 import dj_database_url
 DATABASES = {
@@ -71,7 +75,8 @@ MIDDLEWARE_CLASSES = [ # a list so it can be editable during tests (see below)
     'django.middleware.doc.XViewMiddleware',
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
     'stars.apps.helpers.flashMessage.FlashMessageMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware'
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.locale.LocaleMiddleware'
 ]
 
 import django_cache_url

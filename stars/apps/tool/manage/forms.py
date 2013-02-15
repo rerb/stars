@@ -3,6 +3,7 @@ from django.forms import ModelForm
 from django.forms import widgets
 from django.forms.util import ErrorList
 
+from stars.apps.helpers.forms.forms import LocalizedModelFormMixin
 from stars.apps.institutions.models import (Institution,
                                             InstitutionPreferences,
                                             STARS_USERLEVEL_CHOICES,
@@ -14,7 +15,7 @@ from stars.apps.submissions.models import (SubmissionSet, ResponsibleParty,
 from stars.apps.third_parties.models import ThirdParty
 
 
-class AdminInstitutionForm(ModelForm):
+class AdminInstitutionForm(LocalizedModelFormMixin, ModelForm):
     """
         This form allows STARS admins to edit an Institution
     """
@@ -111,7 +112,7 @@ class MigrateSubmissionSetForm(ModelForm):
             'Check here to confirm your wish to migrate.')
 
 
-class AdminSubmissionSetForm(ModelForm):
+class AdminSubmissionSetForm(LocalizedModelFormMixin, ModelForm):
     """
         This form allows for editing of a SubmissionSet
     """
@@ -219,7 +220,7 @@ class DisabledAccountForm(AccountForm):
         self.fields['userlevel'].widget.attrs={"disabled":"disabled"}
 
 
-class BoundaryForm(ModelForm):
+class BoundaryForm(LocalizedModelFormMixin, ModelForm):
     """
         This is a form for the Institutional Boundary
     """
