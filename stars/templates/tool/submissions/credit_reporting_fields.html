@@ -51,7 +51,7 @@
         {% include "tool/submissions/submission_fields_form.html" %}
       <hr/>
       <h3>Notes</h3>
-        <label>Notes about the submission{% if user.current_inst.is_participant %} (public){% endif %}:</label>
+        <label>Notes about the submission{% if active_submission.institution.is_participant %} (public){% endif %}:</label>
         {% if submission_form.submission_notes.errors %}{{ submission_form.errors.submission_notes }}{% endif %}
     	<div class='field-form'>
     	   {{ submission_form.submission_notes }}
