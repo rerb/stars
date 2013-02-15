@@ -292,6 +292,23 @@ class Institution(models.Model):
                          exc_info=True)
             self.slug = iss_institution_id
 
+    def get_liaison_name(self):
+        return ' '.join([self.contact_first_name,
+                         self.contact_middle_name,
+                         self.contact_last_name]).replace('  ', ' ')
+
+    def get_liaison_phone(self):
+        phone = self.contact_phone
+        if self.contact_phone_ext:
+            if phone:
+                phone += ' x' + str(self.contact_phone_ext)
+            else:
+                phone = 'x' + str(self.contact_phone_ext)
+        return phone
+
+    def get_liaison_email(self):
+        return self.contact_email
+
 
 RATINGS_PER_SUBSCRIPTION = 1
 SUBSCRIPTION_DURATION = 365
