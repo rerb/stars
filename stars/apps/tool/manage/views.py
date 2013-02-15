@@ -314,10 +314,10 @@ def migrate_options(request):
     current_submission = current_inst.current_submission
     latest_creditset = CreditSet.objects.get_latest()
 
-    if current_inst.is_participant:
-        available_submission_list = current_inst.submissionset_set.filter(status='r') | current_inst.submissionset_set.filter(status='f')
-    else:
-        available_submission_list = current_inst.submissionset_set.filter(status='r')
+    #if current_inst.is_participant:
+    available_submission_list = current_inst.submissionset_set.filter(status='r') | current_inst.submissionset_set.filter(status='f')
+    #else:
+    #    available_submission_list = current_inst.submissionset_set.filter(status='r')
 
     template = 'tool/manage/migrate_submissionset.html'
     context = {
@@ -326,6 +326,7 @@ def migrate_options(request):
         "available_submission_list": available_submission_list,
     }
     return respond(request, template, context)
+
 
 def migrate_data(request, ss_id):
     """
