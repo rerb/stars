@@ -1,11 +1,65 @@
 {% extends 'base_error.html' %}
 
-{% block title %}Permission Denied | {{ block.super }}{% endblock %}
+{% block title %}
+  Permission Denied | {{ block.super }}
+{% endblock %}
 
-{% block message_title %}You do not have permission to access this page...{% endblock %}
-{% block message_content %}
-	{% if user_message %}
-    	<p>{{ user_message }}</p>
-	{% endif %}
-  	<p>Contact your STARS administrator to ensure you have the right permissions for this institution.</p>
+{% block message_title %}
+  You do not have permission to access this page.
+{% endblock %}
+
+{% block user_message_block %}
+  {% block message_content %}
+    <p>
+      Contact your STARS administrator to ensure you have the right
+      permissions for this institution.
+    </p>
+    {% with starsaccounts=user.starsaccount_set %}
+      {% if starsaccounts.count %}
+        Your STARS
+        {% if starsaccounts.count == 1 %}
+          administrator is
+        {% else %}
+          administrators are:
+          <ul>
+        {% endif %}
+        {% for starsaccount in starsaccounts.all %}
+          {% with inst=starsaccount.institution %}
+            {% if starsaccounts.count == 1 %}
+              {% if inst.get_liaison_phone or inst.get_liaison_email %}
+                {{ inst.get_liaison_name }}, available
+                {% if inst.get_liaison_phone %}
+                  by phone at
+                  {% if inst.get_liaison_email %}
+                    {{ inst.get_liaison_phone }}, and
+                  {% else %}
+                    {{ inst.get_liaison_phone }}.
+                  {% endif %}
+                {% endif %}
+                {% if inst.get_liaison_email %}
+                  via email at
+                <a href="mailto:{{ inst.get_liaison_email }}">
+                  {{ inst.get_liaison_email }}.
+                </a>
+              {% endif %}
+            {% endif %}
+            {% else %}
+              <li>
+                for {{ inst }},
+                {{ inst.get_liaison_name }};
+                phone: {% firstof inst.get_liaison_phone "unknown" %};
+                email:
+                <a href="mailto:{{ inst.get_liaison_email }}">
+                  {% firstof inst.get_liaison_email "unknown" %}
+                </a>
+              </li>
+            {% endif %}
+          {% endwith %}
+        {% endfor %}
+        {% if starsaccounts.count > 1 %}
+          </ul>
+        {% endif %}
+      {% endif %}
+    {% endwith %}
+  {% endblock %}
 {% endblock %}
