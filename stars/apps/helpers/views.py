@@ -1,5 +1,6 @@
+
 from django.template import RequestContext
-from django.http import HttpResponseServerError, HttpResponseForbidden
+from django.http import HttpResponseServerError
 from django.shortcuts import render_to_response
 
 from stars.apps.helpers.shortcuts import render_to_any_response
@@ -39,19 +40,12 @@ def server_error(request):
     info from any exception available via WatchdogEntry.  Not much
     going on here anymore.
     """
-    context = {}
+    context = dict()
 
     return render_to_any_response(HttpResponseServerError,
                                   "500.html",
                                   context,
                                   context_instance=RequestContext(request))
-
-def forbidden(request, user_message):
-    """
-        Permission Denied is handled by custom middleware and re-directed here
-        Django has no native handler for 403, yet... see: http://code.djangoproject.com/ticket/5515
-    """
-    return render_to_any_response(HttpResponseForbidden, "403.html", {"user_message":user_message}, context_instance=RequestContext(request))
 
 # THE VIEWS BELOW ARE FOR TESTING / DEBUG / DATA MIGRATION AND SHOULD
 # NOT NORMALLY BE INCLUDED IN URLS
