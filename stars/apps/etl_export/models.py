@@ -54,7 +54,6 @@ class Institution(ETLCompareMixin):
     is_published = models.BooleanField()
 
     # for ETLCompareMixin
-    etl_exclude_fields = ['change_date',]
     etl_source_class = institutions.models.Institution
 
     def __str__(self):
@@ -129,7 +128,6 @@ class Subscription(ETLCompareMixin):
     close_date = models.DateField(blank=True, null=True)
 
     # for ETLCompareMixin
-    etl_exclude_fields = ['change_date', ]
     etl_source_class = institutions.models.Subscription
 
     def populate(self, sub):
@@ -181,7 +179,6 @@ class SubscriptionPayment(ETLCompareMixin):
     method = models.CharField(max_length='8')
     confirmation = models.CharField(max_length='16', blank=True, null=True)
 
-    etl_exclude_fields = ['change_date',]
     etl_source_class = institutions.models.SubscriptionPayment
 
     def populate(self, p):
@@ -221,7 +218,6 @@ class SubmissionSet(ETLCompareMixin):
     is_active = models.BooleanField()
 
     # for ETLCompareMixin
-    etl_exclude_fields = ['change_date',]
     etl_source_class = submissions.models.SubmissionSet
 
     def populate(self, ss):
@@ -308,7 +304,6 @@ class Boundary(ETLCompareMixin):
     additional_details = models.TextField(blank=True, null=True)
 
     # for ETLCompareMixin
-    etl_exclude_fields = ['change_date',]
     etl_populate_exclude_fields = ['id', 'change_date', 'aashe_id', 'climate_region', 'submissionset']
     etl_source_class = submissions.models.Boundary
 

@@ -32,6 +32,9 @@ class ETLCompareMixin(models.Model):
     change_date = models.DateTimeField(auto_now=True)
     delete_date = models.DateTimeField(blank=True, null=True)
 
+    etl_populate_exclude_fields = []
+    etl_exclude_fields = []
+
     @classmethod
     def etl_run_update(cls):
         """
@@ -114,10 +117,11 @@ class ETLCompareMixin(models.Model):
     def populate_all(self, obj):
         """
             Populate all the fields in this model with the fields from obj
-            
             with the exception of self.etl_populate_exclude_fields
         """
+        excludes = ['change_date', 'delete_date']
+        excludes += self.etl_populate_exclude_fields
 
         for field in self._meta.get_all_field_names():
-            if field not in self.etl_populate_exclude_fields:
+            if field not in excludes:
                 setattr(self, field, getattr(obj, field))
