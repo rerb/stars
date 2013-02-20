@@ -12,6 +12,8 @@ from django.utils.encoding import smart_unicode, smart_str
 
 import csv, string
 
+from unicode_csv_writer import UnicodeWriter
+
 def export_credit_content(credit):
 
     filename = 'export/%s.csv' % string.replace("%s" % credit, "/", "-")
@@ -19,7 +21,7 @@ def export_credit_content(credit):
     filename = string.replace(filename, " ", "_")
     print filename
     csvWriter = csv.writer(open(filename, 'wb'))
-    
+
     # Get the list of submissions for columns
     ss_qs = SubmissionSet.objects.filter(status='r').order_by("institution__name")
     ss_list = []
@@ -28,16 +30,17 @@ def export_credit_content(credit):
         ss_list.append(ss)
         cus = CreditUserSubmission.objects.get(credit=credit.get_for_creditset(ss.creditset), subcategory_submission__category_submission__submissionset=ss)
         cus_list.append(cus)
-    
+
     # Get the list of fields in the credit for rows
     df_list = []
     for df in credit.documentationfield_set.all():
         df_list.append(df)
-        
+
     # Create Columns
 
     columns = [
                 "Institution",
+                "Date Submitted",
                 "City",
                 "State",
                 "Country",
@@ -47,22 +50,24 @@ def export_credit_content(credit):
                 "Status",
                 "Score",
                ]
-                  
+
     for df in df_list:
         columns.append(df)
-        
+
     columns.append('Public Notes')
 
     csvWriter.writerow(columns)
-    
+
     # Create Rows
     for cus in cus_list:
-        
-        institution = cus.subcategory_submission.category_submission.submissionset.institution
+
+        ss = cus.subcategory_submission.category_submission.submissionset
+        institution = ss.institution
         profile = institution.profile
-        
+
         row = [
                 institution.name,
+                ss.date_submitted,
                 profile.city,
                 profile.state,
                 institution.country,
@@ -70,7 +75,7 @@ def export_credit_content(credit):
                 institution.fte,
                 cus.subcategory_submission.category_submission.submissionset.creditset.version
                 ]
-        
+
         # Status and Score
         if cus.subcategory_submission.category_submission.submissionset.rating.publish_score:
             if cus.submission_status == "na":
@@ -85,10 +90,12 @@ def export_credit_content(credit):
         else:
             row.append("Reporter")
             row.append("Reporter")
-        
+
         for df in df_list:
-            
-            if cus.submission_status == "na" or cus.submission_status == 'np' or cus.submission_status == 'ns':
+
+            if (cus.submission_status == "na" or
+                cus.submission_status == 'np' or
+                cus.submission_status == 'ns'):
                 row.append("--")
             else:
                 field_class = DocumentationFieldSubmission.get_field_class(df)
@@ -99,23 +106,26 @@ def export_credit_content(credit):
                 else:
                     if df.type == 'upload':
                         if dfs.value:
-                            row.append("http://stars.aashe.org%s" % dfs.value.url)
+                            row.append("http://stars.aashe.org%s"
+                                       % dfs.value.url)
                         else:
                             row.append("")
                     else:
                         # long text has to be truncated for excel
-                        if dfs.documentation_field.type  == 'long_text':
-                            str_val = dfs.value.replace("\r\n", "\n")
-                            if len(str_val) > 32000:
-                                str_val = "%s [TRUNCATED]" % str_val[:32000]
-                            row.append(str_val)
-                        
+                        if dfs.documentation_field.type == 'long_text':
+                            if dfs.value:
+                                str_val = dfs.value.replace("\r\n", "\n")
+                                if len(str_val) > 32000:
+                                    str_val = ("%s [TRUNCATED]" %
+                                               str_val[:32000])
+                            else:
+                                str_val = ""
+                            row.append(smart_str(str_val))
                         else:
-                            row.append(dfs.value)
-        row.append(cus.submission_notes)
+                            row.append(smart_str(dfs.value))
+        row.append(smart_str(cus.submission_notes))
         csvWriter.writerow(row)
-            
+
 credit = Credit.objects.get(pk=15)
 
 export_credit_content(credit)
-
