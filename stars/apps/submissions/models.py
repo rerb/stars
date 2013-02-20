@@ -392,7 +392,7 @@ class Boundary(models.Model):
         verbose_name_plural = "Boundaries"
 
     def __unicode__(self):
-        return self.submissionset;
+        return unicode(self.submissionset)
 
     def get_characteristic_fields_and_values(self):
         """
