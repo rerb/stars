@@ -1,9 +1,10 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from django.db import models
 from django.contrib.localflavor.us.models import PhoneNumberField
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
+from django.db.models import Max
 
 from stars.apps.institutions.models import RATINGS_PER_SUBSCRIPTION
 from stars.apps import submissions
@@ -125,15 +126,17 @@ class Subscription(ETLCompareMixin):
     amount_due = models.FloatField()
     reason = models.CharField(max_length='16', blank=True, null=True)
     paid_in_full = models.BooleanField(default=False)
+    close_date = models.DateField(blank=True, null=True)
 
     # for ETLCompareMixin
-    etl_exclude_fields = ['change_date',]
+    etl_exclude_fields = ['change_date', ]
     etl_source_class = institutions.models.Subscription
 
     def populate(self, sub):
         """
             Populate this object from the original subscription object
         """
+
         self.id = sub.id
         self.aashe_id = sub.institution.aashe_id
         if not self.aashe_id:
@@ -147,12 +150,20 @@ class Subscription(ETLCompareMixin):
         self.amount_due = sub.amount_due
         self.reason = sub.reason
         self.paid_in_full = sub.paid_in_full
+        self.price = 0
 
-        # calculate the price
+        last_payment_date = sub.subscriptionpayment_set.aggregate(Max('date'))['date__max']
+
         if self.paid_in_full:
             self.price = 0
+            self.close_date = last_payment_date
+            if not last_payment_date:
+                # just in case there were no payments for some reason
+                self.close_date = sub.start_date
         else:
             self.price = self.amount_due
+            self.close_date = self.start_date + timedelta(days=90)
+
         for p in sub.subscriptionpayment_set.all():
             self.price += p.amount
 
