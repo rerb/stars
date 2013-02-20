@@ -58,11 +58,16 @@ def _get_active_submission(request, current_inst):
         raise PermissionDenied()
 
     if active_submission.is_locked:
-        messages.error(request,
-                       "This submission is locked. It may be in the "
-                       "process of being migrated. Please try again.")
+        raise SubmissionLockedError()
 
     return active_submission
+
+
+class SubmissionLockedError(Exception):
+    """
+    An exception that signals a submissionset is locked.
+    """
+    pass
 
 
 class SubmissionSummaryView(UserCanEditSubmissionMixin, TemplateView):
