@@ -5,13 +5,6 @@
 {% block extra_head %}
 	{{ block.super }}
 	<script type="text/javascript" src="http://code.jquery.com/jquery-1.4.2.min.js"></script>
-	<script type="text/javascript" src="http://www.google.com/recaptcha/api/js/recaptcha_ajax.js"></script>
-	<script type="text/javascript">
-         function showRecaptcha(element) {
-           Recaptcha.create("{{ recaptcha_public_key }}", element, {
-             theme: "clean",
-             callback: Recaptcha.focus_response_field});
-         }
       </script>
 {% endblock %}
 
@@ -40,8 +33,9 @@
 			<div class="accordion-group">
               <div class="accordion-heading">
               	<div class="accordion-toggle">
-              	{% get_fieldset anonymous as object_form from inquirer_details %}
-              	{{ object_form|bootstrap }}
+              	{{ form.non_field_errors }}
+              	{% get_fieldset anonymous as fieldset from form %}
+              	{{ fieldset|bootstrap }}
 <!--                 <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseOne">
                   Collapsible Group Item #1
                 </a> -->
@@ -49,42 +43,32 @@
               </div>
               <div id="checkboxCollapse" class="accordion-body collapse in">
                 <div class="accordion-inner">
-                  	{% get_fieldset first_name,last_name,affiliation,city,state,email_address,phone_number as object_form from inquirer_details %}
-					{{ object_form|bootstrap }} 
+                  	{% get_fieldset first_name,last_name,affiliation,city,state,email_address,phone_number as fieldset from form %}
+					{{ fieldset|bootstrap }} 
                 </div>
               </div>
               <div id="checkboxCollapse" class="accordion-body collapse in">
                 <div class="accordion-inner">			
-				{% get_fieldset additional_comments as object_form from inquirer_details %}
-				{{ object_form|bootstrap }} 
+				{% get_fieldset additional_comments,captcha as fieldset from form %}
+				{{ fieldset|bootstrap }}
                 </div>
               </div>
             </div>
          </div>
 	  	<h2>Specific Credit(s) In Question for {{ submissionset.institution }}</h2>
         {% display_block_content 'credit_dispute' user %}
-	  	{{ credit_inquiries.management_form }}
-	  	{% for form in credit_inquiries.forms %}
-	  		<div id='{{ credit_inquiries.prefix }}_table{{ forloop.counter0 }}' class='tbl'>
-	  			{{ form|bootstrap }}
-	  		</div>
-	  	{% endfor %}
-			<a href="javascript:addFormToFormset('{{ credit_inquiries.prefix }}');" class="btn">
+	  	{% for formset in inlines %}
+	  		{{ formset.management_form }}
+	  		{% for f in formset %}
+	  			<div id='{{ formset.prefix }}_table{{ forloop.counter0 }}' class='tbl'>
+	  				{{ f|bootstrap }}
+	  			</div>
+	  		{% endfor %}
+			<a href="javascript:addFormToFormset('{{ formset.prefix }}');" class="btn">
 				<i class='icon-plus-sign'></i> Add Another Credit
 			</a>
+	  	{% endfor %}
 		<hr/>
-		<p style='font-style: italic'>Please verify that you are a living, breathing, human being.</p>
-		{% if recaptcha_error %}
-			<ul class='errorlist'><li>Captcha did not validate. Please try again.</li></ul>
-		{% endif %}
-		<script type="text/javascript">
-		var RecaptchaOptions={theme:'clean',
-			custom_theme_widget:'null'};
-</script>
-
-		<div id='recaptcha'>
-			{{ recaptcha_html }}
-		</div>
 		
 		<div class='form-actions'>
     		<button type='submit' class='btn btn-success'>Submit</button>

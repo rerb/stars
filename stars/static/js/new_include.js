@@ -108,7 +108,7 @@ function addFormToFormset(prefix) {
 	    });
 	    
 	    clone.find('label').each(function() {
-	        var id = $(this).attr('id').replace("id_" + search_string, "id_" + replace_string);
+	        var id = $(this).attr('for').replace("id_" + search_string, "id_" + replace_string);
 	        $(this).attr({'id': id});
 	    });
 	    

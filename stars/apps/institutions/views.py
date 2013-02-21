@@ -1,24 +1,24 @@
-from django.contrib import messages
 from django.http import Http404, HttpResponseRedirect, HttpResponse
 from django.views.generic.simple import direct_to_template
-from django.utils.functional import curry
-from django.forms.models import inlineformset_factory
 from django.views.generic import FormView, CreateView, TemplateView
 
-from recaptcha.client import captcha
+from extra_views import CreateWithInlinesView
 
 from stars.apps.accounts.mixins import InstitutionAccessMixin
-from stars.apps.submissions.models import *
+from stars.apps.submissions.models import (SubmissionInquiry,
+                                           DataCorrectionRequest)
 from stars.apps.submissions.rules import user_can_preview_submission
 from stars.apps.submissions.views import SubmissionStructureMixin
 from stars.apps.institutions.models import Institution
-from stars.apps.institutions.forms import *
-from stars.apps.helpers.forms.views import MultiFormView
+from stars.apps.institutions.forms import (SubmissionSelectForm,
+                                           SubmissionInquiryForm,
+                                           CreditSubmissionInquiryFormSet,
+                                           DataCorrectionRequestForm)
 from stars.apps.notifications.models import EmailTemplate
+from stars.apps.credits.views import StructureMixin
 
 from aashe_rules.mixins import RulesMixin
 
-from stars.apps.credits.views import StructureMixin
 
 class InstitutionStructureMixin(StructureMixin):
     """
@@ -48,17 +48,18 @@ class InstitutionStructureMixin(StructureMixin):
 class SortableTableView(TemplateView):
     """
         A class-based view for displaying a sortable list of objects
-        The extending class should set two property variables: `columns` and `default_key`
+        The extending class should set two property variables:
+            `columns` and `default_key`
         And override the `get_queryset` method
     """
 
-    columns = None # This is coupled to the template :(
-    default_key = None # The default column to sort on
+    columns = None  # This is coupled to the template :(
+    default_key = None  # The default column to sort on
 
     def __init__(self, *args, **kwargs):
 
         # make sure that the extending class has defined the required properties.
-        assert (self.columns and self.default_key), "Must `colums` and `default_key` when extending this class"
+        assert (self.columns and self.default_key), "Must set `colums` and `default_key` when extending this class"
         return super(SortableTableView, self).__init__(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -87,7 +88,7 @@ class SortableTableView(TemplateView):
         rev = ""
         queryset = self.get_queryset()
 
-        if self.request.GET.has_key('sort'):
+        if 'sort' in self.request.GET:
             if self.request.GET['sort'][0] == '-':
                 asc = '-'
                 rev = ''
@@ -104,17 +105,24 @@ class SortableTableView(TemplateView):
 
         for col in self.columns:
             if col['key'] == sort_key:
-                queryset = queryset.order_by("%s%s" % (asc, col['sort_field']), self.secondary_order_field)
+                queryset = queryset.order_by("%s%s" %
+                                             (asc, col['sort_field']),
+                                             self.secondary_order_field)
                 break
 
         return (sort_key, rev, queryset)
 
 
 class SortableTableViewWithInstProps(SortableTableView):
-    """ Extends SortableTableView to include institutional properties from the list"""
+    """
+        Extends SortableTableView to include institutional
+        properties from the list
+    """
 
     def get_context_data(self, **kwargs):
-        """ update the context with the # of members and charter participants """
+        """
+            update the context with the # of members and charter participants
+        """
 
         _context = super(SortableTableViewWithInstProps, self).get_context_data(**kwargs)
 
@@ -147,7 +155,8 @@ class SortableTableViewWithInstProps(SortableTableView):
 
 class ActiveInstitutions(SortableTableViewWithInstProps):
     """
-        Extending SortableTableView to show a sortable list of all active participants
+        Extending SortableTableView to show a sortable list
+        of all active participants
     """
 
     template_name = "institutions/institution_list_active.html"
@@ -196,7 +205,8 @@ class ActiveInstitutions(SortableTableViewWithInstProps):
 
 class RatedInstitutions(SortableTableViewWithInstProps):
     """
-        Extending SortableTableView to show a sortable list of all active submissionsets
+        Extending SortableTableView to show a sortable list
+        of all active submissionsets
     """
 
     template_name = "institutions/institution_list_rated.html"
@@ -244,23 +254,29 @@ class InstitutionScorecards(InstitutionStructureMixin, TemplateView):
         institution = self.get_institution()
 
         submission_sets = []
-        qs = institution.submissionset_set.filter(is_visible=True, is_locked=False)
+        qs = institution.submissionset_set.filter(is_visible=True,
+                                                  is_locked=False)
         if not institution.is_participant:
             # non participants only see rated submissions
             qs = qs.filter(status='r')
 
         for ss in qs:
-            if ss.status == 'r' or user_can_preview_submission(self.request.user, ss):
+            if (ss.status == 'r' or
+                user_can_preview_submission(self.request.user, ss)):
                 submission_sets.append(ss)
 
         if len(submission_sets) < 1 and not institution.is_participant:
             raise Http404
 
-        _context.update({'submission_sets': submission_sets, 'institution': institution})
+        _context.update({'submission_sets': submission_sets,
+                         'institution': institution})
         return _context
 
 
-class ScorecardView(RulesMixin, InstitutionStructureMixin, SubmissionStructureMixin, TemplateView):
+class ScorecardView(RulesMixin,
+                    InstitutionStructureMixin,
+                    SubmissionStructureMixin,
+                    TemplateView):
     """
         Browse credits according to submission in the credit browsing view
     """
@@ -285,7 +301,6 @@ class ScorecardView(RulesMixin, InstitutionStructureMixin, SubmissionStructureMi
 
         url_prefix = ss.get_scorecard_url()
 
-#        _context['outline'] = self.get_creditset_navigation(_context['submissionset'].creditset, url_prefix=url_prefix, current=_context['current'])
         _context['outline'] = self.get_creditset_nav(url_prefix=url_prefix)
 
         _context['score'] = ss.get_STARS_score()
@@ -369,7 +384,8 @@ class PDFExportView(RulesMixin,
 
 class ScorecardInternalNotesView(InstitutionAccessMixin, ScorecardView):
     """
-        An extension of the scorecard view that requires permission on the selected institution.
+        An extension of the scorecard view that requires permission
+        on the selected institution.
     """
 
     # Mixin required properties
@@ -377,7 +393,10 @@ class ScorecardInternalNotesView(InstitutionAccessMixin, ScorecardView):
     template_name = 'institutions/scorecards/internal_notes.html'
 
 
-class DataCorrectionView(RulesMixin, InstitutionStructureMixin, SubmissionStructureMixin, CreateView):
+class DataCorrectionView(RulesMixin,
+                         InstitutionStructureMixin,
+                         SubmissionStructureMixin,
+                         CreateView):
     """
         Provides a form for institutions to request a data correction
     """
@@ -395,7 +414,6 @@ class DataCorrectionView(RulesMixin, InstitutionStructureMixin, SubmissionStruct
                         ],
                 })
 
-
     def form_valid(self, form):
         self.object = form.save()
 
@@ -404,22 +422,26 @@ class DataCorrectionView(RulesMixin, InstitutionStructureMixin, SubmissionStruct
             "correction": self.object,
             "submissionset": self.get_submissionset()
         }
-        et.send_email(["stars@aashe.org",], context)
+        et.send_email(["stars@aashe.org"], context)
 
         _context = self.get_context_data()
         _context.update(context)
 
-        return direct_to_template(self.request, "institutions/data_correction_request/success.html", _context)
+        return direct_to_template(self.request,
+                                  "institutions/data_correction_request/success.html",
+                                  _context)
 
     def get_form_kwargs(self):
         kwargs = super(DataCorrectionView, self).get_form_kwargs()
-        kwargs['instance'] = DataCorrectionRequest(user=self.request.user, reporting_field=self.get_fieldsubmission())
+        kwargs['instance'] = DataCorrectionRequest(user=self.request.user,
+                                                   reporting_field=self.get_fieldsubmission())
         return kwargs
 
 
 class SubmissionInquirySelectView(FormView):
     """
-        Provides a form for people to dispute the submission for a particular institution.
+        Provides a form for people to dispute the submission
+        for a particular institution.
     """
 
     template_name = "institutions/inquiries/select_submission.html"
@@ -430,92 +452,52 @@ class SubmissionInquirySelectView(FormView):
         return HttpResponseRedirect("%sinquiry/" % ss.get_scorecard_url())
 
 
-class SubmissionInquiryView(MultiFormView):
+class SubmissionInquiryView(InstitutionStructureMixin,
+                            SubmissionStructureMixin,
+                            CreateWithInlinesView):
     """
         Allows a visitor to submit disputes for several credits at once
     """
-
-    form_list = []
-    template = "institutions/inquiries/new.html"
+    model = SubmissionInquiry
+    form_class = SubmissionInquiryForm
+    inlines = [CreditSubmissionInquiryFormSet]
+    template_name = "institutions/inquiries/new.html"
 
     def get_context_data(self, **kwargs):
-        """ Expects arguments for category_id/subcategory_id/credit_id """
-        _context = super(self, SubmissionInquiryView).get_context_data(**kwargs)
-        # add the recaptcha key
-        _context['recaptcha_public_key'] = settings.RECAPTCHA_PUBLIC_KEY
+        _c = super(SubmissionInquiryView, self).get_context_data(**kwargs)
+        return _c
 
-        return _context
+    def get_form_kwargs(self):
+        """
+        Returns the keyword arguments for instantiating the form.
+        """
+        kwargs = super(SubmissionInquiryView, self).get_form_kwargs()
+        ss = self.get_submissionset()
+        kwargs.update({'instance': SubmissionInquiry(submissionset=ss)})
+        return kwargs
 
-    def get_form_list(self, request, context):
+    def forms_valid(self, form, inlines):
+        """
+        If the form and formsets are valid, save the associated models.
+        """
+        _context = self.get_context_data()
+        self.object = form.save()
+        for formset in inlines:
+            formset.save()
 
-        form_list, _context = super(SubmissionInquiryView, self).get_form_list(request, context)
-        if not form_list:
-            form_list = {}
+#        Send confirmation email
+        email_to = [_context['institution'].contact_email]
+        if not self.object.anonymous and self.object.email_address:
+            email_to.append(self.object.email_address)
 
-        new_inquiry = SubmissionInquiry(submissionset=_context['submissionset'])
-        if request.method == 'POST':
-            form_list['inquirer_details'] = SubmissionInquiryForm(request.POST, instance=new_inquiry, auto_id='id_for_%s')
-        else:
-            form_list['inquirer_details'] = SubmissionInquiryForm(instance=new_inquiry, auto_id='id_for_%s')
-        _context['inquirer_details'] = form_list['inquirer_details']
+        et = EmailTemplate.objects.get(
+            slug="submission_accuracy_inquiry")
+        email_context = {
+            "inquiry": self.object,
+            "institution": self.object.submissionset.institution
+        }
+        et.send_email(email_to, email_context)
 
-        # Create formset for credit inquiries
-        formset = inlineformset_factory(    SubmissionInquiry,
-                                            CreditSubmissionInquiry,
-                                            can_delete=False,
-                                            extra=1)
-        formset.form = staticmethod(curry(CreditSubmissionInquiryForm, creditset=context['submissionset'].creditset))
-        if request.method == 'POST':
-            form_list['credit_inquiries'] = formset(request.POST, instance=new_inquiry)
-        else:
-            form_list['credit_inquiries'] = formset(instance=new_inquiry)
-        _context['credit_inquiries'] = form_list['credit_inquiries']
-
-        _context['recaptcha_html'] = mark_safe(captcha.displayhtml(public_key=settings.RECAPTCHA_PUBLIC_KEY))
-
-        return form_list, _context
-
-    def process_forms(self, request, context):
-
-        form_list, _context = self.get_form_list(request, context)
-        if request.method == 'POST':
-            captcha_validated = True
-            recaptcha_response = captcha.submit(
-                request.POST.get('recaptcha_challenge_field', None),
-                request.POST.get('recaptcha_response_field', None),
-                settings.RECAPTCHA_PRIVATE_KEY,
-                request.META['REMOTE_ADDR']
-                )
-            if not recaptcha_response.is_valid:
-                context['recaptcha_error'] = recaptcha_response.error_code
-                messages.error(request, "Captcha Message didn't validate.")
-                captcha_validated = False
-
-            if (not form_list['inquirer_details'].is_valid() or
-                not form_list['credit_inquiries'].is_valid()):
-                messages.error(request, "Please correct the errors below.")
-            elif captcha_validated:
-                submission_inquiry = form_list['inquirer_details'].save(
-                    commit=False)
-                submission_inquiry.save()
-                form_list['credit_inquiries'].save()
-
-                # Send confirmation email
-                email_to = [context['institution'].contact_email,
-                            submission_inquiry.email_address]
-                et = EmailTemplate.objects.get(
-                    slug="submission_accuracy_inquiry")
-                email_context = {
-                    "inquiry": submission_inquiry,
-                    "institution": submission_inquiry.submissionset.institution
-                }
-                et.send_email(email_to, email_context)
-
-                return context, self.get_success_response(request, context)
-
-        return context, None
-
-    def get_success_response(self, request, context):
-        r = direct_to_template(request, "institutions/inquiries/success.html",
-                               context)
-        return r
+        return direct_to_template(self.request,
+                                  "institutions/inquiries/success.html",
+                                  context=_context)

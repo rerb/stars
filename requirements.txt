@@ -18,11 +18,13 @@ django-celery==2.3.3
 django-debug-toolbar==0.9.4
 django-excel-response==1.0
 django-extensions==1.0.1
+django-extra-views==0.6.2
 django-form-utils==0.2.0
 django-jsonfield==0.7.1
 django-memcache-status==1.1
 django-nose==1.1
 django-picklefield==0.3.0
+django-recaptcha==0.0.6
 django-storages==1.1.5
 django-s3-folder-storage==0.1
 dj-database-url==0.2.1
@@ -44,7 +46,6 @@ pycrypto==2.6
 python-dateutil==1.5
 python-memcached==1.48
 readline==6.2.4.1
-recaptcha-client==1.0.6
 reportlab==2.4
 selenium==2.26.0
 six==1.2.0

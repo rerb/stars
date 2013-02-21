@@ -25,10 +25,6 @@ LANGUAGE_CODE = 'en-us'
 SITE_ID = 1
 USE_I18N = False
 
-USE_I18N = True
-USE_L10N = True
-USE_THOUSAND_SEPARATOR = True
-
 # Database
 import dj_database_url
 DATABASES = {
@@ -75,9 +71,7 @@ MIDDLEWARE_CLASSES = [ # a list so it can be editable during tests (see below)
     'django.middleware.doc.XViewMiddleware',
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
     'stars.apps.helpers.flashMessage.FlashMessageMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.locale.LocaleMiddleware',
-    'stars.apps.tool.my_submission.middleware.SubmissionLockedErrorMiddleware'
+    'django.contrib.messages.middleware.MessageMiddleware'
 ]
 
 import django_cache_url
@@ -155,6 +149,7 @@ INSTALLED_APPS = (
     'aashe.issdjango',
     'south',
     'sorl.thumbnail',
+    'captcha',
     'django_extensions',
     'djcelery',
     'aashe_rules',
@@ -261,8 +256,9 @@ ANALYTICS_ID = None
 
 SKIP_SOUTH_TESTS=True
 
-RECAPTCHA_PUBLIC_KEY = "6LeaEL0SAAAAAMiipP79s-PzlR0qHlH1-E_jYsyW"
-RECAPTCHA_PRIVATE_KEY = "6LeaEL0SAAAAACP5wb3qqxujJc3Cf_qHhVGUr4QV"
+RECAPTCHA_PUBLIC_KEY = os.environ.get('RECAPTCHA_PUBLIC_KEY', None)
+RECAPTCHA_PRIVATE_KEY = os.environ.get('RECAPTCHA_PRIVATE_KEY', None)
+RECAPTCHA_USE_SSL = True
 
 GOOGLE_API_KEY = "ABQIAAAA-bTvhmGT1R0ug4p1J_-l4hQWDBNZ3_Sn8d2AByp8vi_J8JN7YxQq-tOQFxf4oNeYJyiW9fXWm-pwNg"
 
