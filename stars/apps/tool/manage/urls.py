@@ -8,7 +8,7 @@ from views import (AccountCreateView, AccountDeleteView,
                    ResponsiblePartyDeleteView, ResponsiblePartyEditView,
                    ResponsiblePartyListView, ShareDataView,
                    SubscriptionCreateView, SubscriptionPaymentCreateView,
-                   SubscriptionPaymentOptionsView)
+                   SubscriptionPaymentOptionsView, ShareThirdPartiesView)
 
 urlpatterns = patterns(
     'stars.apps.tool.manage.views',
@@ -52,9 +52,12 @@ urlpatterns = patterns(
         PendingAccountDeleteView.as_view(),
         name='pending-account-delete'),
 
-    # Share Data view:
+    # Share Data views:
     url(r'^share-data/$', ShareDataView.as_view(),
         name='share-data'),
+
+    url(r'^share-data/third-parties/$', ShareThirdPartiesView.as_view(),
+        name='share-third-parties'),
 
     # Migration views:
     url(r'^migrate/$', MigrateOptionsView.as_view(),

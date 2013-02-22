@@ -253,11 +253,12 @@ class ThirdPartiesForm(ModelForm):
 
         # Prepare a 'save_m2m' method for the form,
         old_save_m2m = self.save_m2m
+
         def save_m2m():
-           old_save_m2m()
-           instance.third_parties.clear()
-           for t in self.cleaned_data['third_parties']:
-               instance.third_parties.add(t)
+            old_save_m2m()
+            instance.third_parties.clear()
+            for t in self.cleaned_data['third_parties']:
+                instance.third_parties.add(t)
         self.save_m2m = save_m2m
 
         # Do we need to save all changes now?

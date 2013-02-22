@@ -1,20 +1,29 @@
-{% extends 'tool/manage/base.html' %}
+{% extends 'tool/manage/share_base.html' %}
 
-{% load content %}
-{% load aashe_rules_tags %}
+{{% load content %}
 {% load help %}
 
-{% block crumbs-tool %}<li>Share Data</li>{% endblock %}
+{% block help_content %}
+	{% display_block_content 'third-parties' user %}
+{% endblock %}
 
-{% block tabs %}
-	{% with active_tab="share" %}{{ block.super }}{% endwith %}
+{% block subtabs %}
+	{% with active_tab="third-parties"%}{{ block.super }}{% endwith %}
 {% endblock %}
 
 {% block institution_content %}
-  {% display_block_content 'third-parties' user %}
-
-    <form action='.' method='post'>
+	<form action='.' method='post'>
     {# @todo: Use the iteration tool available in Django 1.4 when it launches #}
+
+	{% if snapshot_count %}
+		<div class="alert alert-success">
+			You are currently sharing {{ snapshot_count }} snapshot(s).
+		</div>
+	{% else %}
+		<div class='alert alert-warning'>
+			<strong>Note:</strong> You don't currently have any snapshots to share.
+		</div>
+	{% endif %}
 
     <table class='table'>
     	<thead>
@@ -60,46 +69,4 @@
 	          <button type='submit' id='submit_button' class='btn btn-primary'>Save</button>
 	      </div>
     </form>
-
-    <h3>Snapshots</h3>
-    {% display_block_content 'third-party_snapshots' user %}
-    <table class='table'>
-    	<thead>
-        <tr>
-            <th>Date of Snapshot</th>
-            <th>STARS Version</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% if snapshot_list %}
-          {% for ss in snapshot_list %}
-            <tr>
-              <td>
-                {{ ss.date_submitted }}
-              </td>
-              <td>
-                {{ ss.creditset.version }}
-              </td>
-            </tr>
-          {% endfor %}
-        {% else %}
-        <tr>
-          <td colspan="2">
-            No current snapshots
-          </td>
-        </tr>
-        {% endif %}
-        </tbody>
-    </table>
-    <p align='center'>
-      {% testrule institution_has_snapshot_feature institution %}
-		<a href='{% url save-snapshot institution.slug institution.current_submission.id %}' class='btn btn'>
-			<i class="icon-share-alt"></i> Take a Snapshot of Your Data Now</a>
-      {% else %}
-        <a href='{% url migrate-options institution.slug  %}' class='btn'>
-        	<i class='icon-share-alt'></i> Migrate</a>
-        	to the latest version of STARS to start taking snapshots.
-
-      {% endtestrule %}
-    </p>
 {% endblock %}

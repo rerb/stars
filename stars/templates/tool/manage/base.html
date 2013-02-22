@@ -49,6 +49,7 @@
         {% endtestrule %}
     </ul>
     {% endblock %}
+    
 
     <div class='tabContent'>
         <p>
@@ -58,9 +59,9 @@
                 {% endblock %}
             </h2>
         </p>
+    	{% block subtabs %}{% endblock %}
         <div class='help_note'>
-            {% block help_content %}
-            {% endblock %}
+            {% block help_content %}{% endblock %}
         </div>
         {% block institution_content %}{% endblock %}
     </div>
