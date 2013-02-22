@@ -21,7 +21,12 @@
       <select onchange="selectSchool(this);">
         <option value='0'>Select your institution</option>
         {% for a in user.account_list %}
-          <option value='{{ a.institution.id }}' {% ifequal a user.account %}selected='selected'{% endifequal %}>{{ a.institution.name|truncchar:40 }}</option>
+          <option value='{{ a.institution.id }}'
+                {% ifequal a user.account %}
+                  selected='selected'
+                {% endifequal %}>
+            {{ a.institution.name|truncchar:40 }}
+          </option>
         {% endfor %}
       </select> |
 
