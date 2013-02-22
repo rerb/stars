@@ -242,9 +242,13 @@ class RatedInstitutions(SortableTableViewWithInstProps):
 
 class InstitutionScorecards(InstitutionStructureMixin, TemplateView):
     """
-        Provides a list of available reports for an institution
+    Provides a list of available reports for an institution
 
-        Unrated SubmissionSets will be displayed to participating users only.
+    Unrated SubmissionSets will be displayed to participating users only.
+
+    If there's only one SubmissionSet to show, we short-circuit to the
+    scorecard for that SubmissionSet, rather than show, and have the user
+    select from, a list of one element.
     """
     template_name = 'institutions/scorecards/list.html'
 
@@ -271,6 +275,19 @@ class InstitutionScorecards(InstitutionStructureMixin, TemplateView):
         _context.update({'submission_sets': submission_sets,
                          'institution': institution})
         return _context
+
+    def render_to_response(self, context, **response_kwargs):
+        """
+        If there's only one submission set to show, just jump
+        to its scorecard rather than show a list with it as
+        the only item in it.
+        """
+        if len(context['submission_sets']) is 1:
+            return HttpResponseRedirect(
+                context['submission_sets'][0].get_scorecard_url())
+        else:
+            return super(InstitutionScorecards, self).render_to_response(
+                context, **response_kwargs)
 
 
 class ScorecardView(RulesMixin,
