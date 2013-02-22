@@ -1,0 +1,29 @@
+{% extends "tool/base.html" %}
+
+{% block crumbs-tool %}
+    <a href='{% url submission-summary institution.slug submissionset.id %}'>
+        My Submission
+    </a>
+    <span class="divider">/</span>
+    Save Snapshot
+{% endblock %}
+
+{% block tool_content %}
+    <h1>Save your Submission as a Snapshot</h1>
+    {% include 'tool/submissions/submission_summary_table.html' %}
+    <div class='required'>
+        <span class="required_note"
+              title="This field is required to complete credit">*</span>
+        Required Fields<br/>
+    </div>
+    <form class='generalForm' method='post' action='.'>
+      {% load content %}
+      {% display_block_content 'save_snapshot' user %}
+      <p align='center'>
+        {{ form }}
+      </p>
+        <div class='button_row'>
+            <button type='submit'>Save Snapshot</button>
+        </div>
+    </form>
+{% endblock %}
