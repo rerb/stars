@@ -6,7 +6,7 @@ from django.template import Context
 from django.template.loader import get_template
 
 from stars.apps.custom_forms.models import EligibilityQuery, \
-     SteeringCommitteeNomination, TAApplication
+     SteeringCommitteeNomination, TAApplication, DataDisplayAccessRequest
 
 from stars.apps.credits.models import Subcategory, CreditSet
 
@@ -15,6 +15,13 @@ class SteeringCommitteeNominationForm(ModelForm):
 
     class Meta:
         model = SteeringCommitteeNomination
+
+
+class DataDisplayAccessRequestForm(ModelForm):
+
+    class Meta:
+        model = DataDisplayAccessRequest
+        exclude = ['date']
 
 
 class TAApplicationForm(ModelForm):

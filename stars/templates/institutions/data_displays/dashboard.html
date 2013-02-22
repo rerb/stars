@@ -12,6 +12,15 @@
 {% block body_onload %}{{ block.super }}initialize();{% endblock %}
 
 {% block extra_head %}
+	<style type='text/css'>
+		#map_canvas img {
+		  max-width: none;
+		}
+		#map_canvas label { 
+		  width: auto; display:inline; 
+		} 
+	</style>
+
 	{{ block.super }}
 	<script type="text/javascript" src="https://maps.google.com/maps/api/js?sensor=false" type="text/javascript"></script>
 	
@@ -28,14 +37,9 @@
 								content: "<b>{{ i.institution.org_name }}</b><p>
 								{% if i.current_rating %}
 									{% thumbnail i.current_rating.image_large "70x70" as im %}
-									    <img src='{{ im.url }}' style='margin: 0px 15px 5px 0px;' align='left' />
+										<a href='{{ i.rated_submission.get_scorecard_url }}'>
+									    	<img src='{{ im.url }}' style='margin: 0px 15px 5px 0px;' align='left' /></a>
 									{% endthumbnail %}
-								{% else %}
-									<img src='{{ i.image_path }}' style='margin: 0px 15px 5px 0px;' align='left' />
-								{% endif %}
-								{% if i.rating %}
-									<span style='white-space: nowrap;'><i>Submission Date:</i><br/>&nbsp;{{ i.ss.date_submitted }}</span><br/>
-									<span style='display: block;margin: 5px 0px 0px 0px;padding: 0px;text-align: center'><a href='{{ i.ss.get_scorecard_url }}'>STARS Report</a></span>
 								{% endif %}
 								</p>",
 								{% if i.current_rating %}

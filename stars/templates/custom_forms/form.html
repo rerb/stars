@@ -1,17 +1,18 @@
 {% extends 'base.html' %}
 
 {% load bootstrap %}
+{% load content %}
 
 {% block title %}{{ block.super }} | {{ form_title }}{% endblock %}
 
 {% block content %}
 	<h1>{{ form_title }}</h1>
-	{% block top_boilerplate %}{% endblock %}
+	{% block top_boilerplate %}
+		{% if block_content_slug %}
+    		{% display_block_content block_content_slug user %}
+    	{% endif %}
+	{% endblock %}
 	{% block required %}
-	<div style="font-size: .9em;padding:10px;">
-	    <span class="required_note" title="This field is required to complete credit">*</span>
-	    Required Fields
-	</div>
 	{% endblock %}
 	<form class='generalForm' method='post' action='.' enctype="multipart/form-data">
 	  	{{ form|bootstrap }}
@@ -19,5 +20,7 @@
 	   		<button type='submit' class='btn btn-success'>Submit</button>
 	   	</div>
 	</form>
-	{% block bottom_boilerplate %}{% endblock %}
+	{% block bottom_boilerplate %}
+		<p style='text-align: center'>Please email <a href='mailto:stars@aashe.org'>stars@aashe.org</a> with questions about this form or the STARS program.</p>
+	{% endblock %}
 {% endblock %}

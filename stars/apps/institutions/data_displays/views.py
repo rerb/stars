@@ -74,7 +74,7 @@ class Dashboard(TemplateView):
                 d = {
                         'institution': i.profile,
                         'current_rating': i.current_rating,
-                        'ss': i.rated_submission,
+                        'rated_submission': i.rated_submission,
                         'subscription': i.current_subscription
                     }
                 if i.charter_participant:
