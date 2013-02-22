@@ -340,20 +340,36 @@ class PendingAccountDeleteView(AccountDeleteView):
 
 class ShareDataView(InstitutionAdminToolMixin,
                     ValidationMessageFormMixin,
-                    FormView):
+                    TemplateView):
     """
-        Allows users to choose which third parties to share data with.
+        Users can view their snapshots
     """
-    form_class = ThirdPartiesForm
     tab_content_title = 'share data'
-    template_name = 'tool/manage/third_parties.html'
+    template_name = 'tool/manage/share_snapshots.html'
 
     def get_context_data(self, **kwargs):
         context = super(ShareDataView, self).get_context_data(**kwargs)
+        context['snapshot_list'] = SubmissionSet.objects.get_snapshots(
+                                                        self.get_institution())
+        return context
+
+
+class ShareThirdPartiesView(InstitutionAdminToolMixin,
+                            ValidationMessageFormMixin,
+                            FormView):
+    """
+        Users chose which third parties to share data with
+    """
+    form_class = ThirdPartiesForm
+    tab_content_title = 'share data'
+    template_name = 'tool/manage/share_third_parties.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ShareThirdPartiesView, self).get_context_data(**kwargs)
         context['help_content_name'] = 'edit_account'
         context['third_party_list'] = ThirdParty.objects.all()
-        context['snapshot_list'] = SubmissionSet.objects.get_snapshots(
-            self.get_institution())
+        context['snapshot_count'] = SubmissionSet.objects.get_snapshots(
+            self.get_institution()).count()
         return context
 
 
