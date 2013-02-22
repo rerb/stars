@@ -8,6 +8,7 @@ from django.forms import widgets
 from django.http import HttpResponseRedirect
 from django.template.defaultfilters import slugify
 from zc.authorizedotnet.processing import CcProcessor
+from django.core.urlresolvers import reverse
 
 from aashe.issdjango.models import Organizations
 from stars.apps.accounts import utils as auth_utils
@@ -103,10 +104,9 @@ def reg_select_institution(request):
             # if the institution already has an account
             try:
                 institution = Institution.objects.get(aashe_id=aashe_id)
-                if (institution != request.user.current_inst or
-                    request.user.is_staff):
-                    auth_utils.change_institution(request, institution)
-                return HttpResponseRedirect('/tool/')
+                url = reverse('tool-summary',
+                              kwargs={'institution_slug': institution.slug})
+                return HttpResponseRedirect(url)
             except Institution.DoesNotExist:
                 institution = Institution(aashe_id=aashe_id, name=name)
                 # If they've already got this institution in their
