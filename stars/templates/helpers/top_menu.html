@@ -32,20 +32,19 @@
 
     {% else %}
 
-      {% if user.current_inst %}
-        <span title='{{ user.current_inst }}'>
-          {{ user.current_inst.name|truncchar:40 }}
+      {% if institution %}
+        <span title='{{ institution }}'>
+          {{ institution.name|truncchar:40 }}
         </span>
         {% if user.is_staff %}
-          <a href='/tool/admin/'>change</a>)
+          (<a href='/tool/admin/'>change</a>)
         {% endif %}
         |
 
       {% else %}
         {% if user.is_staff %}
           <a href='/tool/admin/'>
-            Select Institution
-          </a>
+            Select Institution</a>
           |
         {% endif %}
       {% endif %}
