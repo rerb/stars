@@ -349,6 +349,7 @@ class ShareDataView(InstitutionAdminToolMixin,
 
     def get_context_data(self, **kwargs):
         context = super(ShareDataView, self).get_context_data(**kwargs)
+        context['third_party_sharing_list'] = self.get_institution().third_parties.all()
         context['snapshot_list'] = SubmissionSet.objects.get_snapshots(
                                                         self.get_institution())
         return context

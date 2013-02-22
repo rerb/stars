@@ -15,6 +15,16 @@
 	<form action='.' method='post'>
     {# @todo: Use the iteration tool available in Django 1.4 when it launches #}
 
+	{% if snapshot_count %}
+		<div class="alert alert-success">
+			You are currently sharing {{ snapshot_count }} snapshot(s).
+		</div>
+	{% else %}
+		<div class='alert alert-warning'>
+			<strong>Note:</strong> You don't currently have any snapshots to share.
+		</div>
+	{% endif %}
+
     <table class='table'>
     	<thead>
         <tr>
