@@ -12,10 +12,6 @@
         <a href='/pages/news-events/'>News &amp; Events</a>
     </li>
     <li {% if selected == "mm_tool" %}class='active'{% endif %}>
-        {% if institution %}
-            <a href='{% url tool-summary institution.slug %}'>Reporting</a>
-        {% else %}
-            <a href='{% url tool-landing-page %}'>Reporting</a>
-        {% endif %}
+        <a href='{% url tool-landing-page %}'>Reporting</a>
     </li>
 </ul>
