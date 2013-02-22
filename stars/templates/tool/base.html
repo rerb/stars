@@ -32,15 +32,15 @@
         <div class='span3'>
 
             <div style='text-align: center'>
-               {% if user.current_inst.is_participant %}
+                {% if institution.is_participant %}
                     <span class='label label-success'>STARS Participant</span>
                     <br/>
-              {% else %}
+                {% else %}
                     <span class='label label-important'>Survey Respondent</span>
                     <br/>
                     What does this mean?
                     {% show_help_context 'what-is-respondent' %}
-              {% endif %}
+                {% endif %}
               <br/><br/>
             </div>
             {% block tool_menu %}
