@@ -37,11 +37,25 @@ class TAApplication(models.Model):
     def __str__(self):
         return "%s %s" % (self.first_name, self.last_name)
 
+
+class DataDisplayAccessRequest(models.Model):
+    " a request for temporary access to the Data Displays "
+    first_name = models.CharField(max_length=16)
+    last_name = models.CharField(max_length=16)
+    email = models.EmailField()
+    affiliation = models.CharField("Institution or Affiliation", max_length=128)
+    reason_for_request = models.TextField()
+    date = models.DateField(auto_now_add=True)
+
+    def __unicode__(self):
+        return "%s %s" % (self.first_name, self.last_name)
+
+
 class SteeringCommitteeNomination(models.Model):
     first_name = models.CharField(max_length=16)
     last_name = models.CharField(max_length=16)
     email = models.EmailField()
-    affiliation = models.CharField("Institution or Affiliation", max_length=64)
+    affiliation = models.CharField("Institution or Affiliation", max_length=128)
     phone_number = PhoneNumberField()
     why = models.TextField("Why would you be excited to serve on the STARS Steering Committee?")
     skills = models.TextField("What specific skills or background would you bring to the STARS Steering Committee that would help advance STARS?")
