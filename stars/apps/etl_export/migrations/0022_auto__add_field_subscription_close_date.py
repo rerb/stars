@@ -8,20 +8,16 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
+        # Adding field 'Subscription.close_date'
+        db.add_column('etl_export_subscription', 'close_date',
+                      self.gf('django.db.models.fields.DateField')(null=True, blank=True),
+                      keep_default=False)
 
-        # Changing field 'Institution.liaison_title'
-        db.alter_column('etl_export_institution', 'liaison_title', self.gf('django.db.models.fields.CharField')(max_length=255))
-
-        # Changing field 'Boundary.endowment_size'
-        db.alter_column('etl_export_boundary', 'endowment_size', self.gf('django.db.models.fields.IntegerField')(null=True))
 
     def backwards(self, orm):
+        # Deleting field 'Subscription.close_date'
+        db.delete_column('etl_export_subscription', 'close_date')
 
-        # Changing field 'Institution.liaison_title'
-        db.alter_column('etl_export_institution', 'liaison_title', self.gf('django.db.models.fields.CharField')(max_length=64))
-
-        # Changing field 'Boundary.endowment_size'
-        db.alter_column('etl_export_boundary', 'endowment_size', self.gf('django.db.models.fields.BigIntegerField')(null=True))
 
     models = {
         'etl_export.boundary': {
@@ -38,7 +34,8 @@ class Migration(SchemaMigration):
             'change_date': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
             'climate_region': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True', 'blank': 'True'}),
             'cultivated_grounds_acres': ('django.db.models.fields.FloatField', [], {'null': 'True', 'blank': 'True'}),
-            'endowment_size': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
+            'delete_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
+            'endowment_size': ('django.db.models.fields.BigIntegerField', [], {'null': 'True', 'blank': 'True'}),
             'farm_acres': ('django.db.models.fields.FloatField', [], {'null': 'True', 'blank': 'True'}),
             'farm_details': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'farm_included': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
@@ -86,6 +83,7 @@ class Migration(SchemaMigration):
             'current_stars_version': ('django.db.models.fields.CharField', [], {'max_length': '5'}),
             'current_submission': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'current'", 'null': 'True', 'to': "orm['etl_export.SubmissionSet']"}),
             'current_subscription': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'current'", 'null': 'True', 'to': "orm['etl_export.Subscription']"}),
+            'delete_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'international': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'is_participant': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
@@ -110,6 +108,7 @@ class Migration(SchemaMigration):
             'change_date': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
             'date_registered': ('django.db.models.fields.DateField', [], {}),
             'date_submitted': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
+            'delete_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'rating': ('django.db.models.fields.CharField', [], {'max_length': '16'}),
@@ -125,6 +124,8 @@ class Migration(SchemaMigration):
             'aashe_id': ('django.db.models.fields.IntegerField', [], {}),
             'amount_due': ('django.db.models.fields.FloatField', [], {}),
             'change_date': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
+            'close_date': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
+            'delete_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'end_date': ('django.db.models.fields.DateField', [], {}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'paid_in_full': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
@@ -141,6 +142,7 @@ class Migration(SchemaMigration):
             'change_date': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
             'confirmation': ('django.db.models.fields.CharField', [], {'max_length': "'16'", 'null': 'True', 'blank': 'True'}),
             'date': ('django.db.models.fields.DateTimeField', [], {}),
+            'delete_date': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'method': ('django.db.models.fields.CharField', [], {'max_length': "'8'"}),
             'subscription': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['etl_export.Subscription']"}),
