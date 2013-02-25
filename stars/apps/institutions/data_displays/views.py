@@ -471,75 +471,75 @@ class ScoreFilter(DisplayAccessMixin, CommonFilterMixin, NarrowFilteringMixin, T
             ?col1=cat_<category_id>&col2=sub_<subcategory_id>&col3=crd_<credit_id>&col4=
             
         Maximum of 4 columns
-        
         The view has a form that generates the QueryDict
     """
+        
     template_name = "institutions/data_displays/score.html"
     _col_keys = ['col1', 'col2', 'col3', 'col4']
     _obj_mappings = [
                     ('cat', Category),
                     ('sub', Subcategory),
                     ('crd', Credit)]
-    
+
     def update_logical_rules(self):
         super(DisplayAccessMixin, self).update_logical_rules()
         self.add_logical_rule({
                                'name': 'user_is_participant',
                                'param_callbacks': [
-                                                    ('user', 'get_request_user'),
+                                                    ('user', 'get_request_user')
                                                     ],
-                               'response_callback': 'access_denied_callback'                 
+                               'response_callback': 'access_denied_callback'
                                })
 
     def get_description_help_context_name(self):
         return "data_display_scores"
-    
-    
+
     """
         Methods
-        
+
             get_selected_columns:
                 gets a dict {<col_key>, <selected_value_as_object>,}
-                
+
             get_object_from_string
                 converts a string to an object eg "cat_2" == Category with id=2
-                
+
             get_select_form
                 populates the form from `get_selected_columns`
-                
+
             get_object_list
                 uses the selected_columns and the current filters to create an object list
-                
+
             get_context_data
                 adds the form to the context
                 adds the object_list to context
-                
+
         Notes
-            
+
             Javascript handles the form submission, but taking the selected values and appending
             them to the current querydict
-                
+
             @todo: add the current list of filters to the context as a querydict (with FilteringMixin)
     """
-    
+
     def get_selected_columns(self):
         """
             Get the selected columns from the GET querydict
-            
+
             Example:
                 (<col_key>, <selected_value_as_object>,)
         """
-        if hasattr(self, '_selected_columns'): # a little caching
+        if hasattr(self, '_selected_columns'):  # a little caching
             return self._selected_columns
-        
+
         get = self.request.GET
         self._selected_columns = []
         for key in self._col_keys:
-            if get.has_key(key):
-                self._selected_columns.append((key, self.get_object_from_string(get[key])))
-        
+            if key in get:
+                self._selected_columns.append((key,
+                                        self.get_object_from_string(get[key])))
+
         return self._selected_columns
-    
+
     def get_object_from_string(self, obj_str):
         """
             Takes a string like, 'cat_2' and returns the category with id=2
@@ -548,23 +548,22 @@ class ScoreFilter(DisplayAccessMixin, CommonFilterMixin, NarrowFilteringMixin, T
             m_re = "%s_(\d+)" % key
             matches = re.match(m_re, obj_str)
             if matches and matches.groups():
-                id = matches.groups()[0]
+                obj_id = matches.groups()[0]
                 try:
-                    return klass.objects.get(pk=id)
+                    return klass.objects.get(pk=obj_id)
                 except klass.DoesNotExist:
-                    logger.error("String-to-object mapping failed for: %s." % obj_str,
+                    logger.error("Mapping failed for: %s." % obj_str,
                                 extra={'request': self.request})
                     break
-        
+
         return None
-        
 
     def get_select_form(self):
         """
             Initializes the form for the user to select the columns
         """
         return ScoreColumnForm(initial=self.get_selected_columns())
-    
+
     def get_object_list(self):
         """
             Returns the list of objects based on the characteristic filters
@@ -582,7 +581,7 @@ class ScoreFilter(DisplayAccessMixin, CommonFilterMixin, NarrowFilteringMixin, T
             # Get the queryset from the filters
             queryset = self.get_filtered_queryset()
             object_list = []
-            
+
             if queryset:
                 # get the column values for each submission set in the queryset
                 for ss in queryset.order_by('institution__name').exclude(rating__publish_score=False):
@@ -594,7 +593,7 @@ class ScoreFilter(DisplayAccessMixin, CommonFilterMixin, NarrowFilteringMixin, T
                             claimed_points = "--"
                             available_points = None
                             units = ""
-                            
+
                             if isinstance(col_obj, Category):
                                 cat = col_obj.get_for_creditset(ss.creditset) # get the related version in this creditset
                                 if cat:
@@ -617,7 +616,7 @@ class ScoreFilter(DisplayAccessMixin, CommonFilterMixin, NarrowFilteringMixin, T
                                     url = cred.get_scorecard_url()
                                     if ss.rating.publish_score:
                                         if cred.submission_status == "na":
-                                            score = "Not Applicable"
+                                            claimed_points = "Not Applicable"
                                         else:
                                             if cred.credit.type == "t1":
                                                 claimed_points = cred.assessed_points
@@ -626,14 +625,16 @@ class ScoreFilter(DisplayAccessMixin, CommonFilterMixin, NarrowFilteringMixin, T
                                                 claimed_points = cred.assessed_points
                                                 available_points = ss.creditset.tier_2_points
                                     else:
-                                        score = "Reporter"
-    
-                            row['cols'].append({'claimed_points': claimed_points, "available_points": available_points, 'units': units, 'url': url})
-    
+                                        claimed_points = "Reporter"
+
+                            row['cols'].append({
+                                        'claimed_points': claimed_points,
+                                        "available_points": available_points,
+                                        'units': units, 'url': url})
+
                     object_list.append(row)
 
             return object_list
-        
 
     def get_context_data(self, **kwargs):
 
@@ -642,7 +643,7 @@ class ScoreFilter(DisplayAccessMixin, CommonFilterMixin, NarrowFilteringMixin, T
         _context['object_list'] = self.get_object_list()
         _context['selected_columns'] = self.get_selected_columns()
         _context['select_form'] = self.get_select_form()
-            
+
         return _context
 
 
@@ -654,75 +655,83 @@ class ScoreExcelFilter(ScoreFilter):
         """
         Returns a response with a template rendered with the given context.
         """
-        
+
         rows = [
                     (USAGE_TEXT,),
                 ]
-        
-        cols = ["Institution", "STARS Version",]
+
+        cols = ["Institution", 'Country', 'Carnegie Classification',
+                "STARS Version"]
         for c in context['selected_columns']:
             cols.append(c[1])
-            cols.append("") # blank space
+            cols.append("")  # blank space
         rows.append(cols)
-        
-        subcols = ["", "",]
+
+        subcols = ["", ""]
         for c in context['selected_columns']:
             subcols.append("Claimed Points")
             subcols.append("Available Points")
         rows.append(subcols)
-            
+
         for o in context['object_list']:
-            row = ["%s" % o['ss'].institution, "%s" % o['ss'].creditset.version]
-            
+            row = ["%s" % o['ss'].institution,
+                   "%s" % o['ss'].institution.country,
+                   "%s" % o['ss'].institution.org_type,
+                   "%s" % o['ss'].creditset.version]
+
             for c in o['cols']:
-                if c['claimed_points']:
-                    row.append("%.2f" % c['claimed_points'])
+                if c['claimed_points'] != None:
+                    if isinstance(c['claimed_points'], float):
+                        row.append("%.2f" % c['claimed_points'])
+                    else:
+                        row.append(c['claimed_points'])
                 else:
                     row.append('')
                 if c['available_points']:
                     row.append("%.2f" % c['available_points'])
                 else:
                     row.append('')
-                    
+
             rows.append(row)
         return ExcelResponse(rows)
 
 
-class ContentFilter(DisplayAccessMixin, CommonFilterMixin, NarrowFilteringMixin, TemplateView):
+class ContentFilter(DisplayAccessMixin, CommonFilterMixin,
+                    NarrowFilteringMixin, TemplateView):
     """
         Provides a filtering tool that shows all the values for a selected
         Reporting Field for the filtered set of institutions
-        
+
         The view passes a form to the view that gets initially populated
         with credit sets. Subsequent subcategories down to reporting fields
         are populated using ajax.
-        
+
         Javascript is used to calculate the new URL based on the selected
         field and the current querydict;
     """
     template_name = "institutions/data_displays/content.html"
-        
+
     """
         Methods
-        
+
             get_selected_field:
                 gets the selected credit from the querydict
-                
+
             get_form:
                 returns the selection form with the inital value from above
-                
+
             get_object_list:
                 returns the results of the query
-                
+
             get_context_data
                 adds the form to the context
                 adds the selected field
                 adds the object_list to context
-                
+
         Notes
-            
-            Javascript handles the form submission, but taking the selected value and appending
-            them to the current querydict
+
+            Javascript handles the form submission, but taking the selected
+            value and appending them to the current querydict
     """
 
     def get_description_help_context_name(self):
@@ -732,19 +741,20 @@ class ContentFilter(DisplayAccessMixin, CommonFilterMixin, NarrowFilteringMixin,
         """
             Get the form for selecting a reporting field
         """
-        return ReportingFieldSelectForm(initial={'reporting_field': self.get_selected_field()})
-    
+        return ReportingFieldSelectForm(initial={'reporting_field':
+                                                 self.get_selected_field()})
+
     def get_selected_field(self):
         """
             Get the selected field from the QueryDict
         """
-        if self.request.GET.has_key('reporting_field'):
+        if 'reporting_field' in self.request.GET:
             try:
                 return DocumentationField.objects.get(pk=self.request.GET['reporting_field'])
             except DocumentationField.DoesNotExist:
                 pass
         return None
-    
+
     def get_object_list(self):
         """
             Get a list of objects based on the filters and the selected field
@@ -753,7 +763,7 @@ class ContentFilter(DisplayAccessMixin, CommonFilterMixin, NarrowFilteringMixin,
         object_list = cache.get(cache_key)
         if object_list:
             return object_list
-        
+
         rf = self.get_selected_field()
         object_list = []
 
@@ -761,7 +771,7 @@ class ContentFilter(DisplayAccessMixin, CommonFilterMixin, NarrowFilteringMixin,
             queryset = self.get_filtered_queryset()
             if queryset:
                 for ss in queryset.order_by('institution__name'):
-    
+
                     field_class = DocumentationFieldSubmission.get_field_class(rf)
                     cus_lookup = "subcategory_submission__category_submission__submissionset"
                     # I have to get creditusersubmissions so i can be sure these are actual user submissions and not tests
@@ -784,14 +794,14 @@ class ContentFilter(DisplayAccessMixin, CommonFilterMixin, NarrowFilteringMixin,
                         else:
                             row['assessed_points'] = "Reporter"
                             row['point_value'] = ""
-    
+
                     except:
-                        row = {'field': None, 'ss': ss, 'credit': None, "assessed_points": None, 'point_value': None}
+                        row = {'field': None, 'ss': ss, 'credit': None,
+                               "assessed_points": None, 'point_value': None}
                     object_list.append(row)
-                
-        cache.set(cache_key, object_list, 60*120) #Cache for 2 hours
+
+        cache.set(cache_key, object_list, 60*120)  # Cache for 2 hours
         return object_list
-        
 
     def get_context_data(self, **kwargs):
 
@@ -800,9 +810,10 @@ class ContentFilter(DisplayAccessMixin, CommonFilterMixin, NarrowFilteringMixin,
         _context['reporting_field'] = self.get_selected_field()
         _context['object_list'] = self.get_object_list()
         _context['select_form'] = self.get_select_form()
-        
+
         return _context
-    
+
+
 class ContentExcelFilter(ContentFilter):
     """
         An extension of the content filter for export to Excel
@@ -811,15 +822,20 @@ class ContentExcelFilter(ContentFilter):
         """
         Returns a response with a template rendered with the given context.
         """
-        
+
         cols = [
                     (USAGE_TEXT,),
-                    ('Institution', 'STARS Version', 'Assessed Points', 'Available Points', context['reporting_field'].title),
+                    ('Institution', 'Country', 'Carnegie Classification',
+                     'STARS Version', 'Assessed Points',
+                     'Available Points', context['reporting_field'].title),
                 ]
-        
+
         for o in context['object_list']:
-            
-            row = ["%s" % o['ss'].institution, "%s" % o['ss'].creditset.version]
+
+            row = ["%s" % o['ss'].institution,
+                   "%s" % o['ss'].institution.country,
+                   "%s" % o['ss'].institution.org_type,
+                   "%s" % o['ss'].creditset.version]
             if o['assessed_points']:
                 row.append(o['assessed_points'])
             else:
@@ -834,7 +850,7 @@ class ContentExcelFilter(ContentFilter):
                 row.append('')
             cols.append(row)
         return ExcelResponse(cols)
-    
+
 
 class CallbackView(TemplateView):
     """
@@ -852,6 +868,7 @@ class CallbackView(TemplateView):
         _context['object_list'] = self.get_object_list(**kwargs)
 
         return _context
+
 
 class CategoryInCreditSetCallback(CallbackView):
     """
@@ -874,6 +891,7 @@ class SubcategoryInCategoryCallback(CallbackView):
         cat = Category.objects.get(pk=kwargs['category_id'])
         return cat.subcategory_set.all()
 
+
 class CreditInSubcategoryCallback(CallbackView):
     """
         A callback method that accepts returns a list of
@@ -883,6 +901,7 @@ class CreditInSubcategoryCallback(CallbackView):
 
         sub = Subcategory.objects.get(pk=kwargs['subcategory_id'])
         return sub.credit_set.all()
+
 
 class FieldInCreditCallback(CallbackView):
     """
