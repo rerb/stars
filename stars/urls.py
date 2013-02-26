@@ -10,6 +10,7 @@ aashe_rules.autodiscover()
 
 from stars.apps.helpers.views import OldPathPreserverView
 
+handler403 = 'stars.apps.helpers.views.permission_denied'
 handler500 = 'stars.apps.helpers.views.server_error'
 
 # URLs that were valid in 1.2, but replaced in 1.2.1 are
