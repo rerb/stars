@@ -8,26 +8,17 @@ admin.autodiscover()
 import aashe_rules
 aashe_rules.autodiscover()
 
-from stars.apps.helpers.views import OldPathPreserverView
+from stars.apps.helpers.old_path_preserver import (OldPathPreserverView,
+                                                   OLD_PATHS_TO_PRESERVE)
 
 handler403 = 'stars.apps.helpers.views.permission_denied'
 handler500 = 'stars.apps.helpers.views.server_error'
 
-# URLs that were valid in 1.2, but replaced in 1.2.1 are
-# listed here.  Translation from the old to the new, valid
-# paths is done in apps.helpers.views.OldPathPreserverView.
-old_paths_to_preserve = ['tool/manage/',
-                         'tool/manage/migrate/',
-                         'tool/manage/payments/',
-                         'tool/manage/responsible-parties/',
-                         'tool/manage/share-data/',
-                         'tool/manage/users/',
-                         'tool/submissions/']
 
 urlpatterns = patterns('',
     # catch old paths we need to preserve first:
     url(r'^{old_paths_to_preserve}$'.format(
-            old_paths_to_preserve='|'.join(old_paths_to_preserve)),
+            old_paths_to_preserve='|'.join(OLD_PATHS_TO_PRESERVE)),
         OldPathPreserverView.as_view(), name='old-path-preserver'),
 
     # api:
