@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import datetime, date
 
 from django.conf import settings
 from django.contrib import messages
@@ -10,6 +10,7 @@ from django.shortcuts import get_object_or_404, render_to_response
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView, UpdateView
+from django.db.models import Max
 
 from stars.apps.accounts.decorators import user_has_tool
 from stars.apps.accounts.mixins import SubmissionMixin
@@ -20,7 +21,7 @@ from stars.apps.helpers.forms.form_helpers import (basic_save_form,
 from stars.apps.helpers.forms.forms import Confirm
 from stars.apps.helpers.forms.views import FormActionView, MultiFormView
 from stars.apps.institutions.views import InstitutionStructureMixin
-from stars.apps.institutions.models import Institution
+from stars.apps.institutions.models import Institution, MigrationHistory
 from stars.apps.notifications.models import EmailTemplate
 from stars.apps.submissions.models import (Boundary,
                                            CategorySubmission,
@@ -44,6 +45,7 @@ from stars.apps.tool.my_submission.forms import (CreditUserSubmissionForm,
                                                  ResponsiblePartyForm,
                                                  SubcategorySubmissionForm)
 from stars.apps.tool.my_submission.forms import NewBoundaryForm
+
 
 def _get_active_submission(request, current_inst):
 
@@ -79,15 +81,29 @@ class SubmissionSummaryView(UserCanEditSubmissionMixin, TemplateView):
 
     def update_logical_rules(self):
         super(SubmissionSummaryView, self).update_logical_rules()
-        self.add_logical_rule({ 'name': 'user_has_view_access',
-                                'param_callbacks': [
-                                    ('user', 'get_request_user'),
-                                    ('institution', 'get_institution')] })
+        self.add_logical_rule({'name': 'user_has_view_access',
+                               'param_callbacks': [
+                                           ('user', 'get_request_user'),
+                                           ('institution', 'get_institution')]
+                               })
 
     def get_context_data(self, **kwargs):
         context = super(SubmissionSummaryView, self).get_context_data(**kwargs)
+
         context['category_submission_list'] = self.get_submissionset(
             ).categorysubmission_set.all().select_related()
+
+        # Show the migration message if there was a recent migration
+        # and the score is zero
+        context['show_migration_warning'] = False
+        i = self.get_institution()
+        migration_list = MigrationHistory.objects.filter(institution=i)
+        if migration_list:
+            max_date = migration_list.aggregate(Max('date'))['date__max']
+            time_delta = datetime.now() - max_date
+            if time_delta.days < 30:
+                context['show_migration_warning'] = True
+                context['last_migration_date'] = max_date
         return context
 
 

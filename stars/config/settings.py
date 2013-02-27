@@ -33,6 +33,8 @@ DATABASES = {
     'default': dj_database_url.parse(os.environ.get('STARS_DB_URL', None)),
     'iss': dj_database_url.parse(os.environ.get('ISS_DB_URL', None))
 }
+DATABASES['default']['OPTIONS'] = {'init_command': 'SET storage_engine=MYISAM'}
+
 if 'test' in sys.argv:
     DATABASES['default'] = dj_database_url.parse(os.environ.get('STARS_TEST_DB', None))
     DATABASES['default'] = dj_database_url.parse(os.environ.get('ISS_TEST_DB', None))

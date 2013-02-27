@@ -310,6 +310,20 @@ class Institution(models.Model):
         return self.contact_email
 
 
+class MigrationHistory(models.Model):
+    institution = models.ForeignKey(Institution)
+    date = models.DateTimeField(auto_now_add=True)
+    source_ss = models.ForeignKey("submissions.SubmissionSet",
+                                  related_name="migration_sources")
+    target_ss = models.ForeignKey("submissions.SubmissionSet",
+                                  related_name="migration_targets")
+
+    def __unicode__(self):
+        return "%s - %s (%s)" % (self.source_ss.creditset.version,
+                                 self.target_ss.creditset.version,
+                                 self.date)
+
+
 RATINGS_PER_SUBSCRIPTION = 1
 SUBSCRIPTION_DURATION = 365
 

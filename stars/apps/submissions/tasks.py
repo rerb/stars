@@ -5,13 +5,16 @@ from logging import getLogger
 import sys
 
 from stars.apps.submissions.pdf.export import build_certificate_pdf
-from stars.apps.migrations.utils import migrate_ss_version, migrate_submission, create_ss_mirror
+from stars.apps.migrations.utils import (migrate_ss_version,
+                                         migrate_submission,
+                                         create_ss_mirror)
 from stars.apps.notifications.models import EmailTemplate
 from stars.apps.credits.models import CreditSet
-from stars.apps.submissions.api import SummaryPieChart, CategoryPieChart, SubategoryPieChart
+from stars.apps.submissions.api import (SummaryPieChart,
+                                        CategoryPieChart,
+                                        SubategoryPieChart)
+from stars.apps.institutions.models import MigrationHistory
 
-from django.core.mail import EmailMessage, get_connection
-from django.conf import settings
 from django.core.cache import cache
 
 from celery.decorators import task
@@ -36,6 +39,7 @@ def send_certificate_pdf(ss):
                     attachments=((ss.institution.slug, pdf.getvalue(), 'application/pdf'),),
                     title="New Certificate: %s" % ss)
 
+
 @task()
 def perform_migration(old_ss, new_cs, user):
     """
@@ -59,6 +63,12 @@ def perform_migration(old_ss, new_cs, user):
         logger.error('Migration email template missing',
                      extra={'user': user}, exc_info=True)
 
+    mh = MigrationHistory(institution=new_ss.institution,
+                          source_ss=old_ss,
+                          target_ss=new_ss)
+    mh.save()
+
+
 @task()
 def perform_data_migration(old_ss, user):
     """
@@ -70,6 +80,11 @@ def perform_data_migration(old_ss, user):
 
     old_ss.institution.current_submission = new_ss
     old_ss.institution.save()
+
+    mh = MigrationHistory(institution=new_ss.institution,
+                          source_ss=old_ss,
+                          target_ss=new_ss)
+    mh.save()
 
 
 @task()

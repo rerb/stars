@@ -11,6 +11,14 @@
   {% load submit_tags %}
 
         <h1>{{ institution }}</h1>
+        
+        {% if show_migration_warning %}
+        	<div class='alert alert-warning'>
+    			You recently migrated your submission data ({{ last_migration_date }}).<br/>
+    			As a result, your score was reset and all credits were marked as "In Progress."
+			</div>
+        {% endif %}
+        
         {% include 'tool/submissions/submission_summary_table.html' %}
         <div class='submissionBoundary'>
             <p style='text-align: center;'>
