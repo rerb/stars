@@ -33,8 +33,8 @@ class TestSurvey(TestCase):
         c = Client()
         c.login(username='test_user', password='test')
         post_dict = {}
-        response = c.get('/register/survey/', post_dict)
-        self.assertTrue(response.status_code == 200)
+        response = c.get('/register/survey/', post_dict, follow=True)
+        self.assertEqual(response.status_code, 200)
 
         post_dict = {
             'institution': 1,
@@ -47,4 +47,4 @@ class TestSurvey(TestCase):
         }
 
         response = c.post('/register/survey/', post_dict, follow=False)
-        self.assertTrue(response.status_code == 302)
+        self.assertEqual(response.status_code, 302)
