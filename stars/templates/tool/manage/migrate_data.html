@@ -12,13 +12,17 @@
 				{{ old_submission.date_submitted }}
 				{% if old_submission.rating %}( {{ old_submission.rating }} ){% endif %}
 				<i class='icon-arrow-right icon-white'></i>
-				Current Submission
+				Current Submission Data
 			</div>
 		</div>
 	</div>
 	<div class='row'>
 		<div class='span9'>
     		{% display_block_content 'data_migration_warning' user %}
+    		
+    		<div class='alert alert-warning'>
+    			{% display_block_content 'data_migration_alert' user %}
+			</div>
 
     		<form method='post' action='.'>
     			{{ form|bootstrap }}

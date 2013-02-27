@@ -19,6 +19,10 @@
 		<div class='span9'>
     		{% display_block_content 'version_migration_warning' user %}
 
+			<div class='alert alert-warning'>
+    			{% display_block_content 'data_migration_alert' user %}
+			</div>
+
     		<form method='post' action='.'>
     			{{ form|bootstrap }}
     			<div class='form-actions'>
