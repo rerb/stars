@@ -1,9 +1,9 @@
 from django.core.urlresolvers import reverse
 from django.views.generic import ListView, RedirectView, TemplateView
 
-from stars.urls import old_paths_to_preserve
 from stars.apps.accounts.mixins import StarsAccountMixin
-from stars.apps.helpers.views import new_path_for_old_path
+from stars.apps.helpers.old_path_preserver import (OLD_PATHS_TO_PRESERVE,
+                                                   new_path_for_old_path)
 from stars.apps.institutions.models import Institution, StarsAccount
 from stars.apps.tool.mixins import InstitutionToolMixin
 

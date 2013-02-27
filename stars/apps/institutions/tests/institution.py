@@ -26,20 +26,6 @@ class InstitutionTest(TestCase):
         self.assertEqual(log.records[0].levelname, 'ERROR')
         self.assertTrue('No ISS institution found bob' in log.records[0].msg)
 
-    def test_profile_logging(self):
-        """Does profile log an error if there's no Organization?
-        """
-        institution = Institution()
-        institution.aashe_id = '-99999'
-
-        with testfixtures.LogCapture('stars') as log:
-                institution.profile
-
-        self.assertEqual(len(log.records), 1)
-        self.assertEqual(log.records[0].levelname, 'ERROR')
-        self.assertTrue(
-            'No ISS institution found for aashe_id' in log.records[0].msg)
-
     def test_set_slug_from_iss_institution_logging(self):
         """Does set_slug_from_iss_institution log exceptions (as errors)?
         """

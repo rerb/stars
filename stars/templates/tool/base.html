@@ -16,23 +16,13 @@
         <li>
             <a href="/">Home</a> <span class="divider">/</span>
         </li>
-      <li>
-        {% if institution %}
-            <a href='{% url tool-summary institution.slug %}'>
-                Reporting
-            </a>
-        {% elif active_submission %}
-            <a href='{% url tool-summary active_submission.institution.slug %}'>
-                Reporting
-            </a>
-        {% else %}
+        <li>
             <a href='{% url tool-landing-page %}'>
                 Reporting
             </a>
-        {% endif %}
-        <span class="divider">/</span>
-      </li>
-      {% block crumbs-tool %}{% endblock %}
+            <span class="divider">/</span>
+        </li>
+        {% block crumbs-tool %}{% endblock %}
     </ul>
 {% endblock %}
 
@@ -42,15 +32,15 @@
         <div class='span3'>
 
             <div style='text-align: center'>
-               {% if user.current_inst.is_participant %}
+                {% if institution.is_participant %}
                     <span class='label label-success'>STARS Participant</span>
                     <br/>
-              {% else %}
+                {% else %}
                     <span class='label label-important'>Survey Respondent</span>
                     <br/>
                     What does this mean?
                     {% show_help_context 'what-is-respondent' %}
-              {% endif %}
+                {% endif %}
               <br/><br/>
             </div>
             {% block tool_menu %}

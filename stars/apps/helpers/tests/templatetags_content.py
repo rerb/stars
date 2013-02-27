@@ -15,7 +15,7 @@ class ContentTest(TestCase):
             content.display_block_content(key='bo-o-o-o-ogus key')
 
         self.assertEqual(len(log.records), 1)
-        self.assertEqual(log.records[0].levelname, 'WARNING')
+        self.assertEqual(log.records[0].levelname, 'INFO')
         self.assertTrue('BlockContent' in log.records[0].msg)
         self.assertTrue('not found' in log.records[0].msg)
 
