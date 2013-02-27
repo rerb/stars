@@ -201,7 +201,7 @@ class SelectInstitutionView(StarsAccountMixin, ListView):
     def resolve_url(self, path, stars_account):
         """
         Runs path through new_path_for_old_path if it's one we
-        want to preserve (listed as old_paths_to_preserve in
+        want to preserve (listed as OLD_PATHS_TO_PRESERVE in
         stars.urls).  If it's not in that list, path is returned
         unmodified -- we're not using that now, but I'm slipping
         it in so if we stick a 'next' GET parameter on a link
@@ -212,7 +212,7 @@ class SelectInstitutionView(StarsAccountMixin, ListView):
         # patterns don't want a leading slash, so chop it off here
         # before looking for one in the the other.
         rootless_path = path[1:]
-        if rootless_path in old_paths_to_preserve:
+        if rootless_path in OLD_PATHS_TO_PRESERVE:
             return new_path_for_old_path(path, stars_account.institution)
         else:
             return path
