@@ -120,6 +120,7 @@ def user_can_migrate_data(user, institution):
 
 aashe_rules.site.register("user_can_migrate_data", user_can_migrate_data)
 
+
 def user_can_migrate_from_submission(user, submission):
     """
         Only institution admins can migrate a submission
@@ -128,15 +129,12 @@ def user_can_migrate_from_submission(user, submission):
         Respondents can only migrate from Reports
     """
     if user_has_access_level(user, 'admin', submission.institution):
-        if submission.institution.is_participant:
-            if submission.status == 'r' or submission.status == 'f':
-                return True
-        else:
-            if submission.status == 'r':
+        if submission.status == 'r' or submission.status == 'f':
                 return True
     return False
 aashe_rules.site.register("user_can_migrate_from_submission",
                           user_can_migrate_from_submission)
+
 
 def submission_has_scores(submission):
     """

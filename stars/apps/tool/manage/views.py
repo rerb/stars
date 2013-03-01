@@ -400,10 +400,8 @@ class MigrateOptionsView(InstitutionAdminToolMixin, TemplateView):
 
     @classmethod
     def _get_available_submissions(cls, institution):
-        submissions = institution.submissionset_set.filter(status='r')
-        if institution.is_participant:
-            submissions = (submissions |
-                           institution.submissionset_set.filter(status='f'))
+        submissions = (institution.submissionset_set.filter(status='r') |
+                    institution.submissionset_set.filter(status='f'))
         return submissions
 
 
