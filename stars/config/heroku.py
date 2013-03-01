@@ -19,7 +19,7 @@ STATIC_ROOT = "/%s/" % STATIC_S3_PATH
 STATIC_URL = '//s3.amazonaws.com/%s/static/' % AWS_STORAGE_BUCKET_NAME
 ADMIN_MEDIA_PREFIX = STATIC_URL + 'admin/'
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+#EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 import time
 from django.utils.http import http_date
