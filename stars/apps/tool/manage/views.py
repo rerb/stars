@@ -357,11 +357,12 @@ class ShareDataView(InstitutionAdminToolMixin,
 
 class ShareThirdPartiesView(InstitutionAdminToolMixin,
                             ValidationMessageFormMixin,
-                            FormView):
+                            UpdateView):
     """
         Users chose which third parties to share data with
     """
     form_class = ThirdPartiesForm
+    model = Institution
     tab_content_title = 'share data'
     template_name = 'tool/manage/share_third_parties.html'
 
@@ -372,6 +373,13 @@ class ShareThirdPartiesView(InstitutionAdminToolMixin,
         context['snapshot_count'] = SubmissionSet.objects.get_snapshots(
             self.get_institution()).count()
         return context
+
+    def get_object(self):
+        return self.get_institution()
+
+#    def form_valid(self, form):
+#        form.save()
+#        return super(ShareThirdPartiesView, self).form_valid(form)
 
 
 class MigrateOptionsView(InstitutionAdminToolMixin, TemplateView):
