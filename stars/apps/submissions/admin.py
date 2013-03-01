@@ -3,11 +3,15 @@ from django.contrib import admin
 from models import *
 #from mixins import Flag
 
+
 class SubmissionSetAdmin(admin.ModelAdmin):
-    list_display = ('creditset', 'institution', 'date_registered', 'date_submitted', 'status', 'rating', 'is_locked')
-    list_filter = ('date_registered','status', 'is_locked')
+    list_display = ('creditset', 'institution', 'date_registered',
+                    'date_submitted', 'status', 'rating',
+                    'is_locked', 'is_visible')
+    list_filter = ('date_registered', 'status', 'is_locked')
     search_fields = ('institution__name',)
 admin.site.register(SubmissionSet, SubmissionSetAdmin)
+
 
 class BoundaryAdmin(admin.ModelAdmin):
     list_display = ("submissionset",)
