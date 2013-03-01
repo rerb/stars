@@ -19,6 +19,8 @@ STATIC_ROOT = "/%s/" % STATIC_S3_PATH
 STATIC_URL = '//s3.amazonaws.com/%s/static/' % AWS_STORAGE_BUCKET_NAME
 ADMIN_MEDIA_PREFIX = STATIC_URL + 'admin/'
 
+AWS_QUERYSTRING_AUTH = False
+
 #EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 import time
