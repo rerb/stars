@@ -1,6 +1,7 @@
 from django.db import models
 
 from datetime import datetime
+import sys
 
 """
 So, I need a way to run something like this:
@@ -60,6 +61,7 @@ class ETLCompareMixin(models.Model):
                 # If there wasn't an old_etl, create it
                 new_etl.save()
                 updates.append(obj.id)
+                print >> sys.stdout, "adding: %s" % obj
 
             elif old_etl.etl_update(new_etl):
                 # Otherwise, update as necessary
@@ -71,6 +73,7 @@ class ETLCompareMixin(models.Model):
             try:
                 __ = source_class.objects.get(id=etl.id)
             except source_class.DoesNotExist:
+                print >> sys.stdout, "dropping: %s" % etl.aashe_id
                 drops.append(etl.id)
 #                etl.delete()
                 etl.delete_date = datetime.now()
