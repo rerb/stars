@@ -14,9 +14,10 @@ class InstitutionAdmin(admin.ModelAdmin):
 
     def get_form(self, request, obj=None, **kwargs):
         form = super(InstitutionAdmin, self).get_form(request, obj, **kwargs)
-        form.base_fields['current_submission'].queryset = obj.submissionset_set.all()
-        form.base_fields['rated_submission'].queryset = obj.submissionset_set.all()
-        form.base_fields['current_subscription'].queryset = obj.subscription_set.all()
+        if obj:
+            form.base_fields['current_submission'].queryset = obj.submissionset_set.all()
+            form.base_fields['rated_submission'].queryset = obj.submissionset_set.all()
+            form.base_fields['current_subscription'].queryset = obj.subscription_set.all()
         return form
 admin.site.register(Institution, InstitutionAdmin)
 
