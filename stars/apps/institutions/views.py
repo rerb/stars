@@ -242,7 +242,9 @@ class RatedInstitutions(SortableTableViewWithInstProps):
 
 class InstitutionScorecards(InstitutionStructureMixin, TemplateView):
     """
-    Provides a list of available reports for an institution
+    Provides a list of available reports for an institution.
+
+    Reports with is_visible == False are filtered from the list.
 
     Unrated SubmissionSets will be displayed to participating users only.
 
@@ -258,8 +260,8 @@ class InstitutionScorecards(InstitutionStructureMixin, TemplateView):
         institution = self.get_institution()
 
         submission_sets = []
-        qs = institution.submissionset_set.filter(is_visible=True,
-                                                  is_locked=False)
+        qs = institution.submissionset_set.filter(is_visible=True)
+
         if not institution.is_participant:
             # non participants only see rated submissions
             qs = qs.filter(status='r')
