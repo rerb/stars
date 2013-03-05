@@ -61,7 +61,7 @@ class ETLCompareMixin(models.Model):
                 # If there wasn't an old_etl, create it
                 new_etl.save()
                 updates.append(obj.id)
-                print >> sys.stdout, "adding: %s" % obj
+                print >> sys.stdout, "adding: %s (%s)" % (obj, source_class.__name__)
 
             elif old_etl.etl_update(new_etl):
                 # Otherwise, update as necessary
@@ -73,7 +73,7 @@ class ETLCompareMixin(models.Model):
             try:
                 __ = source_class.objects.get(id=etl.id)
             except source_class.DoesNotExist:
-                print >> sys.stdout, "dropping: %s" % etl.aashe_id
+                print >> sys.stdout, "dropping: %s (%s)" % (etl.id, source_class.__name__)
                 drops.append(etl.id)
 #                etl.delete()
                 etl.delete_date = datetime.now()
