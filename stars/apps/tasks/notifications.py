@@ -134,17 +134,26 @@ def send_renewal_reminder(current_date=date.today()):
 
 def send_post_submission_survey(current_date=None):
     """
-        Gets the submission sets that were submitted 30 days or more ago
+        Gets the submission sets that were submitted 2 weeks or more ago
         current_date is optional for debugging
+
+        Don't send if more than 60 days old
     """
 
     if not current_date:
         current_date = date.today()
 
-    d = current_date - timedelta(days=30)
+    td_14 = current_date - timedelta(days=14)
+    td_60 = current_date - timedelta(days=60)
     message_list = []
 
-    for ss in SubmissionSet.objects.filter(date_submitted__lte=d).filter(status='r'):
+    qs = SubmissionSet.objects.filter(status='r')
+    qs = qs.filter(date_submitted__lte=td_14)
+    qs = qs.filter(date_submitted__gte=td_60)
+
+    for ss in qs:
+
+        print "Sending survey email for: %s (%s)" % (ss, ss.date_submitted)
 
         m = {
                 'mail_to': [ss.institution.contact_email,],
