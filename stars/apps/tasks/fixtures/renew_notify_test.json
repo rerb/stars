@@ -49,7 +49,8 @@
       "contact_title": "",
       "contact_phone": "",
       "contact_middle_name": null,
-      "executive_contact_last_name": ""
+      "executive_contact_last_name": "",
+      "is_participant": false
     }
   },
   {
@@ -72,7 +73,8 @@
       "contact_title": "",
       "contact_phone": "",
       "contact_middle_name": null,
-      "executive_contact_last_name": ""
+      "executive_contact_last_name": "",
+      "is_participant": true
     }
   },
   {
@@ -123,82 +125,35 @@
   },
   {
     "pk": 1,
-    "model": "submissions.submissionset",
+    "model": "institutions.subscription",
     "fields": {
-      "status": "ps",
-      "rating": null,
-      "submission_boundary": "",
-      "submitting_user": null,
-      "date_reviewed": null,
-      "creditset": 1,
-      "presidents_letter": "",
-      "date_submitted": null,
-      "date_registered": "2010-04-30",
-      "reporter_status": false,
-      "registering_user": 5214,
+      "start_date": "2010-04-15",
+      "end_date": "2011-04-15",
       "institution": 1,
-      "is_visible": true,
-      "is_locked": false
+      "amount_due": 0.0,
+      "paid_in_full": true
     }
   },
   {
     "pk": 2,
-    "model": "submissions.submissionset",
+    "model": "institutions.subscription",
     "fields": {
-      "status": "r",
-      "rating": null,
-      "submission_boundary": "",
-      "submitting_user": null,
-      "date_reviewed": null,
-      "creditset": 1,
-      "presidents_letter": "",
-      "date_submitted": "2011-1-10",
-      "date_registered": "2010-05-01",
-      "reporter_status": false,
-      "registering_user": 5214,
+      "start_date": "2010-04-15",
+      "end_date": "2011-04-15",
       "institution": 2,
-      "is_visible": true,
-      "is_locked": false
+      "amount_due": 0.0,
+      "paid_in_full": true
     }
   },
   {
     "pk": 3,
-    "model": "submissions.submissionset",
+    "model": "institutions.subscription",
     "fields": {
-      "status": "r",
-      "rating": null,
-      "submission_boundary": "",
-      "submitting_user": null,
-      "date_reviewed": null,
-      "creditset": 1,
-      "presidents_letter": "",
-      "date_submitted": "2011-3-1",
-      "date_registered": "2010-05-02",
-      "reporter_status": false,
-      "registering_user": 5214,
-      "institution": 3,
-      "is_visible": true,
-      "is_locked": false
-    }
-  },
-  {
-    "pk": 4,
-    "model": "submissions.submissionset",
-    "fields": {
-      "status": "r",
-      "rating": null,
-      "submission_boundary": "",
-      "submitting_user": null,
-      "date_reviewed": null,
-      "creditset": 1,
-      "presidents_letter": "",
-      "date_submitted": "2011-5-1",
-      "date_registered": "2010-05-03",
-      "reporter_status": false,
-      "registering_user": 5214,
-      "institution": 4,
-      "is_visible": true,
-      "is_locked": false
+      "start_date": "2011-04-15",
+      "end_date": "2012-04-15",
+      "institution": 2,
+      "amount_due": 0.0,
+      "paid_in_full": true
     }
   }
 ]
