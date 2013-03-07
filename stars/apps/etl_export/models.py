@@ -44,11 +44,10 @@ class Institution(ETLCompareMixin):
     last_submission_date = models.DateField(blank=True, null=True)
     submission_due_date = models.DateField(blank=True, null=True)
 
-    current_submission = models.ForeignKey("SubmissionSet", blank=True, null=True, related_name="current")
-    current_subscription = models.ForeignKey("Subscription", blank=True, null=True, related_name='current')
-    rated_submission = models.ForeignKey("SubmissionSet", blank=True, null=True, related_name='rated')
+    current_submission_id = models.IntegerField(blank=True, null=True)
+    current_subscription_id = models.IntegerField(blank=True, null=True)
+    rated_submission_id = models.IntegerField(blank=True, null=True)
     current_stars_version = models.CharField(max_length=5)
-    rating_valid_until = models.DateField(blank=True, null=True)
     last_submission_date = models.DateField(blank=True, null=True)
     submission_due_date = models.DateField(blank=True, null=True)
     is_published = models.BooleanField()
@@ -63,7 +62,8 @@ class Institution(ETLCompareMixin):
         """
             An ETL object has to be initialized with an object to populate from
         """
-
+        if institution.id == 54:
+            pass
         self.id = institution.id
         self.aashe_id = institution.aashe_id
         if not self.aashe_id:
@@ -101,6 +101,7 @@ class Institution(ETLCompareMixin):
         self.current_submission = None
         if institution.current_submission:
             self.current_submission_id = institution.current_submission.id
+            self.current_stars_version = institution.current_submission.creditset.version
 
         self.current_subscription = None
         if institution.current_subscription:
@@ -109,6 +110,7 @@ class Institution(ETLCompareMixin):
         self.rated_submission = None
         if institution.rated_submission:
             self.rated_submission_id = institution.rated_submission.id
+            self.last_submission_date = institution.rated_submission.date_submitted
 
 
 class Subscription(ETLCompareMixin):
@@ -172,7 +174,7 @@ class SubscriptionPayment(ETLCompareMixin):
     """
 
     aashe_id = models.IntegerField()
-    subscription = models.ForeignKey("Subscription")
+    subscription_id = models.IntegerField(blank=True, null=True)
     date = models.DateTimeField()
     amount = models.FloatField()
     user = models.EmailField()
@@ -250,7 +252,7 @@ class Boundary(ETLCompareMixin):
     """
 
     aashe_id = models.IntegerField()
-    submissionset = models.OneToOneField(SubmissionSet)
+    submissionset = models.IntegerField(blank=True, null=True)
 
     # Characteristics
     fte_students = models.IntegerField("Full-time Equivalent Enrollment", blank=True, null=True)

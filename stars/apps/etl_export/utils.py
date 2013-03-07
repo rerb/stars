@@ -5,10 +5,12 @@ import sys
 
 def update_etl():
 
-    print >> sys.stdout, "Exporting SubmissionSets"
-    SubmissionSet.etl_run_update()
+    # order is important!
+
     print >> sys.stdout, "Exporting Institutions"
     Institution.etl_run_update()
+    print >> sys.stdout, "Exporting SubmissionSets"
+    SubmissionSet.etl_run_update()
     print >> sys.stdout, "Exporting Subscriptions"
     Subscription.etl_run_update()
     print >> sys.stdout, "Exporting Subscription payments"

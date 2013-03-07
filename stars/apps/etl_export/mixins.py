@@ -97,20 +97,33 @@ class ETLCompareMixin(models.Model):
                     pass
         return False
 
+    def etl_copy_fields(self, source_obj):
+        """
+            Copy all the fields over from the source_obj
+        """
+        for field in self._meta.get_all_field_names():
+            if field not in self.etl_exclude_fields:
+                setattr(self, field, getattr(source_obj, field))
+
     def etl_update(self, new_etl):
         """
             Compares one etl object to a new verison of itself
+
+            if the new version is different then copy the data from
+            that version
 
             return true if updated/created false if no change
         """
 
         if self.etl_has_changed(new_etl):
-            self.delete()
-            new_etl.save()
+            # go through each field and updated it from the new_etl
+            self.etl_copy_fields(new_etl)
+            self.change_date = datetime.now()
+            self.save()
             # print "Updated ETL: %s" % new_etl
             return True
         return False
-    
+
     def populate(self, obj):
         """
             Populate with the contents of another object to be mirrored
