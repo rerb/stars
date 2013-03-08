@@ -1,6 +1,7 @@
 """Base tests for views.
 """
 from django.contrib.sessions.middleware import SessionMiddleware
+from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest
 from django.test import TestCase
 from django.test.client import Client
@@ -89,8 +90,10 @@ class ProtectedViewTest(ViewTest):
         """Is view_class.as_view() blocked when the gate is closed?
         """
         self.close_gate()
-        response = self.view_class.as_view()(self.request, **kwargs)
-        self.assertEqual(response.status_code, 403)
+        self.assertRaises(PermissionDenied,
+                          self.view_class.as_view(),
+                          self.request,
+                          **kwargs)
 
 
 class ProtectedFormMixinViewTest(ProtectedViewTest, FormMixinViewTest):
