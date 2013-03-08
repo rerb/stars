@@ -24,8 +24,10 @@ urlpatterns = patterns(
     url(r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/$',
         ScorecardSummary.as_view(), name='scorecard-summary'),
 
-    # Specific scorecard summary for an institution
-    (r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/inquiry/$', SubmissionInquiryView.as_view()),
+    # Submission inquiry for an institution
+    url(r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/inquiry/$',
+        SubmissionInquiryView.as_view(),
+        name='institution-submission-inquiry'),
 
     # PDF Export of Submission
     (r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/pdf/$', PDFExportView.as_view()),
