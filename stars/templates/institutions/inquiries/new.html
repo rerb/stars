@@ -10,6 +10,10 @@
 
 {% block crumb-tab %}
 	<li>
+		<a href='{% url scorecard-list institution.slug %}'>{{ institution }}</a>
+		<span class="divider">/</span>
+	</li>
+	<li>
 		<a href='{{ submissionset.get_scorecard_url }}'>{{ submissionset.date_submitted }}</a>
 		<span class="divider">/</span>
 	</li>
@@ -22,7 +26,7 @@
 
 {% block content %}
 	<br/>
-	<h1>{{ submissionset.institution }}: Accuracy Inquiry:</h1>
+	<h1>{{ submissionset.institution }}, Accuracy Inquiry:</h1>
 	<form class='generalForm' method='post' action='.' enctype="multipart/form-data" style='margin: 10px 50px;'>
 		{% load content %}
         {% display_block_content 'accuracy_header' user %}

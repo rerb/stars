@@ -15,6 +15,10 @@
 
 {% block crumb-tab %}
 	<li>
+		<a href='{% url scorecard-list institution.slug %}'>{{ institution }}</a>
+		<span class="divider">/</span>
+	</li>
+	<li>
 		<a href='{{ submissionset.get_scorecard_url }}'>{{ submissionset.date_submitted }}</a>
 		<span class="divider">/</span>
 	</li>

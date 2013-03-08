@@ -517,4 +517,4 @@ class SubmissionInquiryView(InstitutionStructureMixin,
 
         return direct_to_template(self.request,
                                   "institutions/inquiries/success.html",
-                                  context=_context)
+                                  extra_context=_context)
