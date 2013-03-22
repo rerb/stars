@@ -42,7 +42,6 @@ DATABASE_ROUTERS = ('aashe.issdjango.router.ISSRouter',)
 
 # Media
 MEDIA_URL = '/media/'
-ADMIN_MEDIA_PREFIX = '/media/admin/'
 STATIC_URL = "/media/static/"
 MEDIA_ROOT = os.environ.get("MEDIA_ROOT", None)
 
@@ -129,7 +128,6 @@ INSTALLED_APPS = (
     'django.contrib.redirects',
     'django.contrib.flatpages',
     'django.contrib.humanize',
-    'django.contrib.staticfiles',
     'stars.apps.credits',
     'stars.apps.tool.credit_editor',
     'stars.apps.tool.my_submission',
