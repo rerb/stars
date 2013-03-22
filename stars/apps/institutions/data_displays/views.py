@@ -41,12 +41,13 @@ from stars.apps.submissions.models import (SubmissionSet, CreditUserSubmission,
 
 logger = getLogger('stars.request')
 
-USAGE_TEXT =    "AASHE believes transparency is a key component in communicating" \
-                " sustainability claims.STARS data are made publicly available," \
-                " and can be used in research and publications, provided that" \
-                " certain Data Use Guidelines" \
-                " (http://www.aashe.org/files/documents/STARS/data_use_guidelines.pdf)" \
-                " are met."
+USAGE_TEXT = ("AASHE believes transparency is a key component in communicating"
+      " sustainability claims.STARS data are made publicly available,"
+      " and can be used in research and publications, provided that"
+      " certain Data Use Guidelines"
+      " (http://www.aashe.org/files/documents/STARS/data_use_guidelines.pdf)"
+      " are met.")
+
 
 class Dashboard(TemplateView):
     """
@@ -647,7 +648,19 @@ class ScoreFilter(DisplayAccessMixin, CommonFilterMixin, NarrowFilteringMixin, T
         return _context
 
 
-class ScoreExcelFilter(ScoreFilter):
+class ExcelMixin(object):
+    """
+        Provides a method that will get the current filters as rows
+    """
+
+    def get_filters_as_rows(self, context):
+        cell = "Selected Filters: "
+        for f in context['selected_filters']:
+            cell += "%s|%s" % (f['filter_title'], f['selected_item_title'])
+        return [(cell,)]
+
+
+class ScoreExcelFilter(ExcelMixin, ScoreFilter):
     """
         An extension of the score filter for export to Excel
     """
@@ -660,7 +673,9 @@ class ScoreExcelFilter(ScoreFilter):
                     (USAGE_TEXT,),
                 ]
 
-        cols = ["Institution", 'Country', 'Carnegie Classification',
+        rows += self.get_filters_as_rows(context)
+
+        cols = ["Institution", 'Country', 'Institution Type',
                 "STARS Version"]
         for c in context['selected_columns']:
             cols.append(c[1])
@@ -669,7 +684,7 @@ class ScoreExcelFilter(ScoreFilter):
 
         subcols = ["", ""]
         for c in context['selected_columns']:
-            subcols.append("Claimed Points")
+            subcols.append("Points Earned")
             subcols.append("Available Points")
         rows.append(subcols)
 
@@ -814,7 +829,7 @@ class ContentFilter(DisplayAccessMixin, CommonFilterMixin,
         return _context
 
 
-class ContentExcelFilter(ContentFilter):
+class ContentExcelFilter(ExcelMixin, ContentFilter):
     """
         An extension of the content filter for export to Excel
     """
@@ -822,11 +837,13 @@ class ContentExcelFilter(ContentFilter):
         """
         Returns a response with a template rendered with the given context.
         """
-
         cols = [
                     (USAGE_TEXT,),
-                    ('Institution', 'Country', 'Carnegie Classification',
-                     'STARS Version', 'Assessed Points',
+                ]
+        cols += self.get_filters_as_rows(context)
+        cols += [
+                    ('Institution', 'Country', 'Institution Type',
+                     'STARS Version', 'Points Earned',
                      'Available Points', context['reporting_field'].title),
                 ]
 
