@@ -410,10 +410,13 @@ class SubmissionSet(models.Model, FlaggableModel):
             to_mail.append(self.institution.contact_email)
         et.send_email(to_mail, {'ss': self,})
 
-INSTITUTION_TYPE_CHOICES = (("2_year", "Two Year"),
-                            ("4_year", "Four Year"),
-                            ("graduate", "Graduate Institution"),
-                            ("system", "System Office"))
+INSTITUTION_TYPE_CHOICES = (("associate", "Associate"),
+                            ("baccalaureate", "Baccalaureate"),
+                            ("master", "Master"),
+                            ("doctorate", "Doctorate"),
+                            ("special_focus", "Special Focus"),
+                            ("tribal", "Tribal")
+                            )
 
 INSTITUTION_CONTROL_CHOICES = (("public", "Public"),
                                ("private_profit", "Private for-profit"),
