@@ -56,9 +56,6 @@ class StructureMixin(object):
         """
             Before getting context, run all the structure update methods
         """
-
-        # This hack is to protect against `ProcessFormView' calling
-        # `get_context_data(form=form)
         if not self.kwargs:
             self.kwargs = kwargs
         else:
