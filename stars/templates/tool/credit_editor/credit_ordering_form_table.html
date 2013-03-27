@@ -1,0 +1,12 @@
+{% extends "tool/credit_editor/base_ordering.html" %}
+
+{% block button_row %}
+    <tr class='button_row' nodrop="true" nodrag="true">
+        <td colspan='2'>
+            <button type='button' onclick="document.location='add-credit/';">Add Credit</button>
+            {% if not t2_ordering %}
+                <button type='button' onclick="document.location='add-t2-credit/';">Add Tier 2 Credit</button>
+            {% endif %}
+        </td>
+    </tr>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends 'registration/base.html' %}
+
+{% load content %}
+{% load bootstrap %}
+
+{% block title %}
+    AASHE: STARS | Registration | Step 1
+{% endblock %}
+
+{% block content %}
+	<h1>{% display_snippet "reg_select_institution_title" user %}</h1>
+	{% display_block_content "reg_select_institution" user %}
+	<form method='POST' class='well'>
+	    <table class='form'>
+	        {{ form|bootstrap }}
+	    </table>
+	    <div class='form-actions'>
+	        <button class='btn btn-primary' type='submit'>Continue &gt;&gt;</button>
+	    </div>
+	</form>
+{% endblock %}
