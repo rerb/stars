@@ -13,6 +13,7 @@ class StructureMixin(object):
         self._structure_cache = {}
         self.context_callbacks = []
         self.update_context_callbacks()
+        self.kwargs = kwargs
         super(StructureMixin, self).__init__(*args, **kwargs)
 
     def set_structure_object(self, key, value):
