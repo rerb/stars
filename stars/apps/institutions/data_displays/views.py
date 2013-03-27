@@ -31,8 +31,7 @@ from stars.apps.institutions.data_displays.forms import (
     CharacteristicFilterForm, DelCharacteristicFilterForm, ScoreColumnForm,
     ReportingFieldSelectForm)
 from stars.apps.institutions.data_displays.models import AuthorizedUser
-from stars.apps.institutions.data_displays.utils import (FormListWrapper,
-                                                         get_variance)
+from stars.apps.institutions.data_displays.utils import get_variance
 from stars.apps.institutions.models import Institution, Subscription
 from stars.apps.submissions.models import (SubmissionSet, CreditUserSubmission,
                                            DocumentationFieldSubmission,
