@@ -15,7 +15,6 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 
 from stars.apps.credits.models import CreditSet, Category, Subcategory, Credit, DocumentationField, Choice, ApplicabilityReason, Rating
 from stars.apps.institutions.models import Institution, ClimateZone
-from stars.apps.helpers import managers
 from stars.apps.submissions.pdf.export import build_report_pdf
 from stars.apps.notifications.models import EmailTemplate
 
@@ -410,10 +409,13 @@ class SubmissionSet(models.Model, FlaggableModel):
             to_mail.append(self.institution.contact_email)
         et.send_email(to_mail, {'ss': self,})
 
-INSTITUTION_TYPE_CHOICES = (("2_year", "Two Year"),
-                            ("4_year", "Four Year"),
-                            ("graduate", "Graduate Institution"),
-                            ("system", "System Office"))
+INSTITUTION_TYPE_CHOICES = (("associate", "Associate"),
+                            ("baccalaureate", "Baccalaureate"),
+                            ("master", "Master"),
+                            ("doctorate", "Doctorate"),
+                            ("special_focus", "Special Focus"),
+                            ("tribal", "Tribal")
+                            )
 
 INSTITUTION_CONTROL_CHOICES = (("public", "Public"),
                                ("private_profit", "Private for-profit"),

@@ -13,6 +13,7 @@ class StructureMixin(object):
         self._structure_cache = {}
         self.context_callbacks = []
         self.update_context_callbacks()
+        self.kwargs = kwargs
         super(StructureMixin, self).__init__(*args, **kwargs)
 
     def set_structure_object(self, key, value):
@@ -57,9 +58,6 @@ class StructureMixin(object):
         """
             Before getting context, run all the structure update methods
         """
-
-        # This hack is to protect against `ProcessFormView' calling
-        # `get_context_data(form=form)
         if not self.kwargs:
             self.kwargs = kwargs
         else:

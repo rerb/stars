@@ -28,5 +28,5 @@ admin.site.register(SteeringCommitteeNomination,
 
 
 class DataDisplayAccessRequestAdmin(admin.ModelAdmin):
-    list_display = ('first_name', 'last_name', 'affiliation', 'email', 'date')
+    list_display = ('name', 'name', 'affiliation', 'email', 'date')
 admin.site.register(DataDisplayAccessRequest, DataDisplayAccessRequestAdmin)

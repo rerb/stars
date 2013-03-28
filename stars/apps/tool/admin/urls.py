@@ -20,7 +20,4 @@ urlpatterns = patterns(
 #    (r'^payments/(?P<payment_id>\d+)/edit/$', 'edit_payment'),
 #    (r'^payments/(?P<payment_id>\d+)/receipt/$', 'send_receipt'),
 #    (r'^payments/(?P<payment_id>\d+)/delete/$', 'delete_payment'),
-
-    # Admin utilities
-    (r'^watchdog/',  include('stars.apps.tool.admin.watchdog.urls')),
 )

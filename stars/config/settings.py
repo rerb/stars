@@ -42,7 +42,6 @@ DATABASE_ROUTERS = ('aashe.issdjango.router.ISSRouter',)
 
 # Media
 MEDIA_URL = '/media/'
-ADMIN_MEDIA_PREFIX = '/media/admin/'
 STATIC_URL = "/media/static/"
 MEDIA_ROOT = os.environ.get("MEDIA_ROOT", None)
 
@@ -74,7 +73,6 @@ MIDDLEWARE_CLASSES = [ # a list so it can be editable during tests (see below)
     'django.contrib.redirects.middleware.RedirectFallbackMiddleware',
     'django.middleware.doc.XViewMiddleware',
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
-    'stars.apps.helpers.flashMessage.FlashMessageMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.locale.LocaleMiddleware']
 

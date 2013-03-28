@@ -42,13 +42,6 @@ def tracking_context(request):
 
     return {'analytics_id': None,}
 
-def connect_iss():
-    """
-        Returns a connection to stars_member_list
-    """
-    return MySQLdb.connect(user=settings.AASHE_MYSQL_LOGIN, db='iss',
-                           passwd=settings.AASHE_MYSQL_PASS,
-                           host=settings.AASHE_MYSQL_SERVER)
 
 def change_institution(request, institution):
     """
