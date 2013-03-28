@@ -31,7 +31,7 @@ class InstitutionStructureMixin(StructureMixin):
         super(InstitutionStructureMixin, self).update_context_callbacks()
         self.add_context_callback("get_institution")
 
-    def get_institution(self):
+    def get_institution(self, use_cache=True):
         """
             Attempts to get an institution.
             Returns None if not in kwargs.
@@ -41,7 +41,8 @@ class InstitutionStructureMixin(StructureMixin):
                                     cache_key='institution',
                                     kwargs_key='institution_slug',
                                     klass=Institution,
-                                    property="slug"
+                                    property="slug",
+                                    use_cache=use_cache
                                     )
 
 

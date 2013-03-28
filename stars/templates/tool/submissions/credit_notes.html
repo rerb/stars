@@ -1,21 +1,19 @@
 {% extends 'tool/submissions/credit_base.html' %}
 
+{% load bootstrap %}
+
 {% block credit_tabs %}{% with active='notes' %}{{ block.super }}{% endwith %}{% endblock %}
 
 {% block tab_content %}
 <div class='creditContent'>
     <h2>Internal Notes</h2>
-    <form method='post' action='.' class='submit_form' name='submission_notes_form' enctype="multipart/form-data">
-        <div class='internal_notes'>
-            <label>This field will <em>not</em> be made public upon submission.</label>
-            {% if notes_form.internal_notes.errors %}{{ notes_form.errors.internal_notes }}{% endif %}
-        	<div class='field-form'>
-        	   {{ notes_form.internal_notes }}
-        	</div>
-        </div>
-        <div class='button_row'>
-            <input type='submit' value='Save' />
-        </div>
+    <form method='post' action='.' class='generalForm' name='submission_form' enctype="multipart/form-data">
+		{{ form.internal_notes|bootstrap }}
+        <div class='form-actions'>
+        	<button type='submit' id='submit_button' class="btn btn-primary">
+            	Save
+        	</button>
+    	</div>
     </form>
 </div>
 {% endblock %}

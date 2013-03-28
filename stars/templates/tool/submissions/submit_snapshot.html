@@ -1,5 +1,7 @@
 {% extends "tool/base.html" %}
 
+{% load bootstrap %}
+
 {% block crumbs-tool %}
     <a href='{% url submission-summary institution.slug submissionset.id %}'>
         My Submission
@@ -19,11 +21,9 @@
     <form class='generalForm' method='post' action='.'>
       {% load content %}
       {% display_block_content 'save_snapshot' user %}
-      <p align='center'>
-        {{ form }}
-      </p>
-        <div class='button_row'>
-            <button type='submit'>Save Snapshot</button>
-        </div>
+        {{ form|bootstrap }}
+		<div class='form-actions'>
+	   		<button type='submit' class='btn btn-success'>Save Snapshot</button>
+	   	</div>
     </form>
 {% endblock %}

@@ -1,11 +1,22 @@
 from django.conf.urls.defaults import patterns, url
-from stars.apps.tool.my_submission.views import (ConfirmClassView,
-                                                 EditBoundaryView,
+from stars.apps.tool.my_submission.views import (EditBoundaryView,
                                                  SaveSnapshot,
-                                                 SubmissionSummaryView)
+                                                 SubmissionSummaryView,
+                                                 RatingCongratulationsView,
+                                                 SubmitForRatingWizard,
+                                                 SubcagegorySubmissionDetailView,
+                                                 CreditSubmissionDetailView,
+                                                 CreditDocumentationView,
+                                                 CreditNotesView,
+                                                 AddResponsiblePartyView)
+from stars.apps.tool.my_submission.forms import StatusForm, LetterForm, ExecContactForm
+from stars.apps.helpers.forms.forms import Confirm
+
+SUBCAT_PATH = "(?P<category_abbreviation>[\w-]+)/(?P<subcategory_slug>[\w-]+)"
+CREDIT_PATH = "%s%s" % (SUBCAT_PATH, "/(?P<credit_identifier>[\w-]+)")
 
 urlpatterns = patterns(
-    'stars.apps.tool.my_submission.views',
+    '',
 
     url(r'^$', SubmissionSummaryView.as_view(),
         name='submission-summary'),
@@ -13,29 +24,37 @@ urlpatterns = patterns(
     url(r'^boundary/$', EditBoundaryView.as_view(),
         name='boundary-edit'),
 
-    url(r'^add-responsible-party/$', 'add_responsible_party',
+    url(r'^add-responsible-party/$', AddResponsiblePartyView.as_view(),
         name='add-responsible-party'),
-    (r'^(?P<category_id>\d+)/(?P<subcategory_id>\d+)/$', 'subcategory_detail'),
 
-    url(r'^(?P<category_id>\d+)/(?P<subcategory_id>\d+)/(?P<credit_id>\d+)/$',
-        'credit_detail',
+    url(r'^%s/$' % SUBCAT_PATH,
+     SubcagegorySubmissionDetailView.as_view(),
+     name='subcategory-submit'),
+
+    url(r'^%s/$' % CREDIT_PATH,
+        CreditSubmissionDetailView.as_view(),
         name='creditsubmission-submit'),
 
-    (r'^(?P<category_id>\d+)/(?P<subcategory_id>\d+)/(?P<credit_id>\d+)/documentation/$', 'credit_documentation'),
-    (r'^(?P<category_id>\d+)/(?P<subcategory_id>\d+)/(?P<credit_id>\d+)/notes/$', 'credit_notes'),
-    # uploaded file access
-    (r'^my_uploads/secure/(?P<inst_id>\d+)/(?P<path>.+)$', 'serve_uploaded_file'),
+    url(r'^%s/documentation/$' % CREDIT_PATH,
+        CreditDocumentationView.as_view(),
+        name='creditdocs-submit'),
 
-    # Submit for Rating
-    #(r'^submit/$', 'submit_for_rating'),
+    url(r'^%s/notes/$' % CREDIT_PATH,
+        CreditNotesView.as_view(),
+        name='creditnotes-submit'),
+
+    # Submit a snaphot
     url(r'^snapshot/$', SaveSnapshot.as_view(), name='save-snapshot'),
 
-    url(r'^submit/$', ConfirmClassView.as_view(),
+    # Submit for rating
+    url(r'^submit/$',
+        SubmitForRatingWizard.as_view([StatusForm,
+                                       LetterForm,
+                                       ExecContactForm,
+                                       Confirm]),
         name='submission-submit'),
 
-    # (r'^submit/status/', 'submit_status'),
+    url(r'^submit/success/$', RatingCongratulationsView.as_view(),
+        name='submit-success'),
 
-    url(r'^submit/letter/$', 'submit_letter', name='submit-letter'),
-    url(r'^submit/finalize/$', 'submit_finalize', name='submit-finalize'),
-    (r'^gateway/media/secure/(?P<inst_id>\d+)/(?P<creditset_id>\d+)/(?P<credit_id>\d+)/(?P<field_id>\d+)/(?P<filename>[^/]+)/delete/$', 'delete_uploaded_file_gateway'),
 )

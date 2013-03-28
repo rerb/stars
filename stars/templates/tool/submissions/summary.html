@@ -9,9 +9,7 @@
 
 {% block tool_content %}
   {% load submit_tags %}
-
-        <h1>{{ institution }}</h1>
-        
+  
         {% if show_migration_warning %}
         	<div class='alert alert-warning'>
     			You recently migrated your submission data ({{ last_migration_date }}).<br/>

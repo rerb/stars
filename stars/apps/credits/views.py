@@ -19,7 +19,7 @@ class StructureMixin(object):
         self._structure_cache[key] = value
 
     def get_structure_object(self, key):
-        if self._structure_cache.has_key(key):
+        if key in self._structure_cache.keys():
             return self._structure_cache[key]
         else:
             return None
@@ -30,7 +30,7 @@ class StructureMixin(object):
     def update_context_callbacks(self):
         pass
 
-    def get_obj_or_call(self, cache_key, kwargs_key, klass, property):
+    def get_obj_or_call(self, cache_key, kwargs_key, klass, property, use_cache=True):
         """
             Looks up a key in the structure, if it's not their
             uses the class and the property to search it
@@ -38,8 +38,10 @@ class StructureMixin(object):
             returns None if not found
             raises 404 if key is in kwargs, but still not found
         """
-        obj = self.get_structure_object(cache_key)
-        if not obj and self.kwargs.has_key(kwargs_key):
+        obj = None
+        if use_cache:
+            obj = self.get_structure_object(cache_key)
+        if not obj and kwargs_key in self.kwargs.keys():
             _kwargs = {property: self.kwargs[kwargs_key]}
             obj = get_object_or_404(klass, **_kwargs)
             self.set_structure_object(cache_key, obj)

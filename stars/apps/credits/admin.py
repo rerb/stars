@@ -67,10 +67,13 @@ class UnitAdmin(admin.ModelAdmin):
     pass
 admin.site.register(Unit, UnitAdmin)
 
+
 class DocumentationFieldAdmin(admin.ModelAdmin):
-    list_display = ('title', 'type', 'credit','required')
-    list_filter = ('credit',)
+    list_display = ('title', 'type', 'credit', 'required')
+    list_filter = ('type',)
+    search_fields = ('title', 'credit',)
 admin.site.register(DocumentationField, DocumentationFieldAdmin)
+
 
 class ChoiceAdmin(admin.ModelAdmin):
     list_display = ('choice', 'documentation_field', 'is_bonafide')
