@@ -4,7 +4,6 @@ from django.views.generic import FormView, CreateView, TemplateView
 
 from extra_views import CreateWithInlinesView
 
-from stars.apps.accounts.mixins import InstitutionAccessMixin
 from stars.apps.submissions.models import (SubmissionInquiry,
                                            DataCorrectionRequest)
 from stars.apps.submissions.rules import user_can_preview_submission
@@ -401,14 +400,24 @@ class PDFExportView(RulesMixin,
         return response
 
 
-class ScorecardInternalNotesView(InstitutionAccessMixin, ScorecardView):
+class ScorecardInternalNotesView(ScorecardView):
     """
         An extension of the scorecard view that requires permission
         on the selected institution.
     """
 
-    # Mixin required properties
-    access_level = 'observer'
+    def update_logical_rules(self):
+
+        super(ScorecardInternalNotesView, self).update_logical_rules()
+        self.add_logical_rule({
+                    'name': 'user_has_view_access',
+                    'param_callbacks':
+                        [
+                            ('user', "get_request_user"),
+                            ('submission', "get_institution")
+                        ],
+                })
+
     template_name = 'institutions/scorecards/internal_notes.html'
 
 
