@@ -76,8 +76,7 @@ MIDDLEWARE_CLASSES = [ # a list so it can be editable during tests (see below)
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
     'stars.apps.helpers.flashMessage.FlashMessageMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.locale.LocaleMiddleware',
-    'stars.apps.tool.my_submission.middleware.SubmissionLockedErrorMiddleware']
+    'django.middleware.locale.LocaleMiddleware']
 
 import django_cache_url
 CACHES = {'default': django_cache_url.parse(os.environ.get('CACHE_URL', 'dummy://'))}

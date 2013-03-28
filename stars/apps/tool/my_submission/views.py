@@ -36,7 +36,8 @@ from stars.apps.submissions.rules import (user_can_submit_for_rating,
 from stars.apps.submissions.tasks import (send_certificate_pdf,
                                           rollover_submission)
 from stars.apps.submissions.views import SubmissionStructureMixin
-from stars.apps.tool.mixins import UserCanEditSubmissionMixin
+from stars.apps.tool.mixins import (UserCanEditSubmissionMixin,
+                                    SubmissionToolMixin)
 from stars.apps.tool.my_submission.forms import (CreditUserSubmissionForm,
                                                  CreditUserSubmissionNotesForm,
                                                  ExecContactForm,
@@ -47,29 +48,22 @@ from stars.apps.tool.my_submission.forms import (CreditUserSubmissionForm,
 from stars.apps.tool.my_submission.forms import NewBoundaryForm
 
 
-def _get_active_submission(request, current_inst):
-
-    active_submission = (current_inst.get_active_submission()
-                         if current_inst
-                         else None)
-
-    if not user_can_edit_submission(request.user, active_submission):
-        messages.error(request,
-                       "Sorry, but you do not have access to edit "
-                       "this submission")
-        raise PermissionDenied()
-
-    if active_submission.is_locked:
-        raise SubmissionLockedError()
-
-    return active_submission
-
-
-class SubmissionLockedError(Exception):
-    """
-    An exception that signals a submissionset is locked.
-    """
-    pass
+#def _get_active_submission(request, current_inst):
+#
+#    active_submission = (current_inst.get_active_submission()
+#                         if current_inst
+#                         else None)
+#
+#    if not user_can_edit_submission(request.user, active_submission):
+#        messages.error(request,
+#                       "Sorry, but you do not have access to edit "
+#                       "this submission")
+#        raise PermissionDenied()
+#
+#    if active_submission.is_locked:
+#        raise SubmissionLockedError()
+#
+#    return active_submission
 
 
 class SubmissionSummaryView(UserCanEditSubmissionMixin, TemplateView):
@@ -78,14 +72,6 @@ class SubmissionSummaryView(UserCanEditSubmissionMixin, TemplateView):
         through which a submission can be edited.
     """
     template_name = 'tool/submissions/summary.html'
-
-    def update_logical_rules(self):
-        super(SubmissionSummaryView, self).update_logical_rules()
-        self.add_logical_rule({'name': 'user_has_view_access',
-                               'param_callbacks': [
-                                           ('user', 'get_request_user'),
-                                           ('institution', 'get_institution')]
-                               })
 
     def get_context_data(self, **kwargs):
         context = super(SubmissionSummaryView, self).get_context_data(**kwargs)
@@ -128,9 +114,7 @@ class EditBoundaryView(UserCanEditSubmissionMixin, UpdateView):
             return None
 
 
-class SaveSnapshot(InstitutionStructureMixin,
-                   SubmissionStructureMixin,
-                   FormView):
+class SaveSnapshot(SubmissionToolMixin, FormView):
     """
         First step in the form for submission
 
@@ -140,36 +124,46 @@ class SaveSnapshot(InstitutionStructureMixin,
     form_class = Confirm
     template_name = "tool/submissions/submit_snapshot.html"
 
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super(SaveSnapshot, self).dispatch(*args, **kwargs)
+    def update_logical_rules(self):
+        super(SaveSnapshot, self).update_logical_rules()
+        self.add_logical_rule({
+                               'name': 'user_can_submit_snapshot',
+                               'param_callbacks': [
+                                                   ('user', 'get_request_user'),
+                                                   ('submission',
+                                                    'get_active_submission')
+                                                   ],
+                               'message': "Sorry, you do not have privileges "
+                                   "to submit a snapshot."
+                               })
+
+    def get_active_submission(self):
+        """ helper function to provide a parameter to the rules """
+        if not self.active_submission:
+            # a little caching
+            self.active_submission = self.get_institution().current_submission
+        return self.active_submission
 
     def get_success_url(self):
         return reverse(
-            'share-data',
-            kwargs={'institution_slug': self.get_institution().slug})
+                       'share-data',
+                       kwargs={'institution_slug': self.get_institution().slug}
+                       )
 
     def get_context_data(self, **kwargs):
         _context = super(SaveSnapshot, self).get_context_data(**kwargs)
-        _context['active_submission'] =  _get_active_submission(
-            self.request, self.get_institution())
+        _context['active_submission'] = self.get_active_submission()
         return _context
 
     def form_valid(self, form):
         """
             When the form validates, create a finalized submission
         """
-        ss = _get_active_submission(self.request,
-                                    self.get_institution())
+        ss = self.get_active_submission()
         ss.take_snapshot(user=self.request.user)
         return super(SaveSnapshot, self).form_valid(form)
 
     def render_to_response(self, context, **response_kwargs):
-
-        if not user_can_submit_snapshot(self.request.user,
-                                        context['active_submission']):
-            raise PermissionDenied("Sorry, you do not have privileges "
-                                   "to submit a snapshot.")
 
         try:
             _ = context['active_submission'].boundary
@@ -178,8 +172,8 @@ class SaveSnapshot(InstitutionStructureMixin,
                           "You must complete your Boundary before submitting.")
             return HttpResponseRedirect(
                 reverse('boundary-edit',
-                        kwargs={'institution_slug': self.get_institution().slug,
-                                'submissionset': self.get_submissionset().id}))
+                    kwargs={'institution_slug': self.get_institution().slug,
+                            'submissionset': self.get_submissionset().id}))
 
         return super(SaveSnapshot, self).render_to_response(
             context, **response_kwargs)
@@ -207,9 +201,7 @@ class SubmitForRatingMixin(InstitutionStructureMixin,
         except AttributeError:
             self.kwargs = kwargs
         return {
-            self.instance_name: _get_active_submission(
-                request,
-                self.get_institution()),
+            self.instance_name: self.get_institution().current_submission,
             'institution': self.get_institution(),
             'submissionset': self.get_submissionset()
             }
