@@ -37,7 +37,7 @@
             {% block submission_outline %}{% endblock %}
         {% endtestrule %}
         <li{% if active_menu == "resources"%} class='active'{% endif %}>
-            <a href='/tool/my-resources/'>
+            <a href='{% url my-resources institution.slug %}'>
                 <i class='icon-briefcase'></i>
                 My Resources
             </a>

@@ -1,27 +1,22 @@
-from django.http import Http404
-from django.core.exceptions import PermissionDenied
+from django.views.generic import TemplateView
 
-from stars.apps.accounts.utils import respond
-from stars.apps.institutions.rules import institution_has_my_resources
 from stars.apps.cms.models import NewArticle as Article
+from stars.apps.tool.mixins import InstitutionToolMixin
 
-def my_resources(request):
+
+class MyResourcesView(InstitutionToolMixin, TemplateView):
     """
-        Shows an article from the resource center
+        Shows the my resources section of the tool
     """
-    if hasattr(request.user, 'current_inst'):
-        current_inst = request.user.current_inst
-        if not institution_has_my_resources(current_inst):
-            raise PermissionDenied("Sorry, only STARS Participants "
-                                   "have access to this resource")
-    else:
-        raise Http404
+    template_name = "tool/submissions/my_resources.html"
 
-    node = Article.objects.get(pk=83)
+    def update_logical_rules(self):
+        super(MyResourcesView, self).update_logical_rules()
+        self.add_logical_rule({'name': 'institution_has_my_resources',
+                                'param_callbacks': [
+                                    ('institution', 'get_institution')]})
 
-    context={
-        'node': node,
-        'institution': current_inst,
-    }
-
-    return respond(request, "tool/submissions/my_resources.html", context)
+    def get_context_data(self, **kwargs):
+        _context = super(MyResourcesView, self).get_context_data(**kwargs)
+        _context['node'] = Article.objects.get(pk=83)
+        return _context
