@@ -1,6 +1,7 @@
 """Base tests for views.
 """
 from django.contrib.sessions.middleware import SessionMiddleware
+from django.contrib.messages.middleware import MessageMiddleware
 from django.core.exceptions import PermissionDenied
 from django.http import HttpRequest
 from django.test import TestCase
@@ -15,7 +16,7 @@ class ViewTest(TestCase):
 
     # List of middlewares that should be applied to the request
     # passed to the view:
-    middleware = [SessionMiddleware]
+    middleware = [SessionMiddleware, MessageMiddleware]
 
     def setUp(self):
         self.request = self._get_middleworn_request()
