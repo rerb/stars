@@ -40,15 +40,30 @@ class TAApplication(models.Model):
 
 class DataDisplayAccessRequest(models.Model):
     " a request for temporary access to the Data Displays "
-    first_name = models.CharField(max_length=16)
-    last_name = models.CharField(max_length=16)
-    email = models.EmailField()
+    name = models.CharField(max_length=64)
+    title = models.CharField(max_length=128)
     affiliation = models.CharField("Institution or Affiliation", max_length=128)
-    reason_for_request = models.TextField()
+    city_state = models.CharField("City/State", max_length=64)
+    email = models.EmailField()
+
+    summary = models.TextField("Summary description of your research")
+    how_data_used = models.TextField("How will STARS data be used in your research?")
+    will_publish = models.BooleanField("Will you be distributing or publishing the data?") 
+    audience = models.TextField("Who is the intended audience for your research?")
+    period = models.DateField("Requesting access starting on this date")
+    end = models.DateField("Access requested until")
+
+    has_instructor = models.BooleanField(
+        "Is there an academic instructor or advisor who will provide guidance"
+        " on how this data will be used?")
+    instructor = models.TextField(
+        "If yes, list name of instructor, title of instructor, and e-mail address.",
+        null=True, blank=True)
+
     date = models.DateField(auto_now_add=True)
 
     def __unicode__(self):
-        return "%s %s" % (self.first_name, self.last_name)
+        return "%s" % (self.name)
 
 
 class SteeringCommitteeNomination(models.Model):
@@ -67,6 +82,7 @@ class SteeringCommitteeNomination(models.Model):
 
     def __str__(self):
         return "%s %s" % (self.first_name, self.last_name)
+
 
 class EligibilityQuery(models.Model):
     name = models.CharField(max_length=64)

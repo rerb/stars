@@ -78,10 +78,26 @@ class UserCanEditSubmissionMixin(SubmissionToolMixin):
     """
     def update_logical_rules(self):
         super(UserCanEditSubmissionMixin, self).update_logical_rules()
-        self.add_logical_rule({ 'name': 'user_can_edit_submission',
+        self.add_logical_rule({
+                               'name': 'submission_is_not_locked',
+                               'param_callbacks': [
+                                                   ('submission',
+                                                    'get_submissionset')
+                                                   ],
+                               'redirect_url': reverse('submission-locked')
+                               })
+
+        self.add_logical_rule({
+                                'name': 'user_can_edit_submission',
                                 'param_callbacks': [
                                     ('user', 'get_request_user'),
-                                    ('submission', 'get_submissionset')] })
+                                    ('submission', 'get_submissionset')
+                                ],
+                               'message': (
+                                            "Sorry, but you do not have access"
+                                            " to edit this submission"
+                                            )
+                               })
 
 
 class SubmissionSetIsNotLockedMixin(SubmissionToolMixin):

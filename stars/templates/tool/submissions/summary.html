@@ -9,9 +9,7 @@
 
 {% block tool_content %}
   {% load submit_tags %}
-
-        <h1>{{ institution }}</h1>
-        
+  
         {% if show_migration_warning %}
         	<div class='alert alert-warning'>
     			You recently migrated your submission data ({{ last_migration_date }}).<br/>
@@ -35,7 +33,7 @@
               {% endtestrule %}
 
               {% testrule institution_has_snapshot_feature institution %}
-                <a href='{% url save-snapshot institution.slug submissionset.id %}'
+                <a href='{% url share-data institution.slug %}'
                    class='btn btn-info'>
                     <i class="icon-share icon-white"></i> Save Snapshot</a>
               {% endtestrule %}

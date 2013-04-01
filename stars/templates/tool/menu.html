@@ -1,4 +1,7 @@
+{% load aashe_rules_tags %}
+
 <ul class="nav nav-tabs nav-stacked">
+
     {% comment %}
         The 'My Summary', 'My Submission', 'My Resources', and 'My Reports(s)'
         menu items are only shown when an instituion is available.  This
@@ -10,8 +13,9 @@
         errors will be raised if '{% url ... instutition.slug %}' is
         called when no institution is available.
     {% endcomment %}
+    
     {% if institution %}
-        {% if user.can_admin %}
+    	{% testrule user_has_access_level user 'admin' institution %}
             <li{% if active_menu == "summary"%} class='active'{% endif %}>
                 {% if institution %}
                     <a href='{% url tool-summary institution.slug %}'>
@@ -22,8 +26,8 @@
                         My Summary
                     </a>
             </li>
-        {% endif %}
-        {% if user.can_submit %}
+        {% endtestrule %}
+        {% testrule user_has_access_level user 'submit' institution %}
             <li{% if active_menu == "submission"%} class='active'{% endif %}>
                    <a href='{% url submission-summary institution.slug institution.current_submission.id %}'>
                     <i class="icon-folder-close"></i>
@@ -31,9 +35,9 @@
                 </a>
             </li>
             {% block submission_outline %}{% endblock %}
-        {% endif %}
+        {% endtestrule %}
         <li{% if active_menu == "resources"%} class='active'{% endif %}>
-            <a href='/tool/my-resources/'>
+            <a href='{% url my-resources institution.slug %}'>
                 <i class='icon-briefcase'></i>
                 My Resources
             </a>

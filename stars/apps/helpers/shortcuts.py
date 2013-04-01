@@ -20,28 +20,6 @@ def render_to_any_response(HttpResponseClass, *args, **kwargs):
     return HttpResponseClass(loader.render_to_string(*args, **kwargs), **httpresponse_kwargs)
 
 
-def get_cmsobject_or_404(klass, *args, **kwargs):
-    """
-    Uses xml-rpc call to return an object, or raises a Http404 exception if the object
-    does not exist.
-
-    klass should be a CMS model (Article, ArticleList, or ArticleMenu). All other
-    arguments and keyword arguments are passed through to the constructor.
-    """
-    try:
-        object = klass(*args, **kwargs)
-        if (object == None):
-            logger.info("Attempt to get %s object (%s, %s) failed" %
-                        (klass.__name__, args, kwargs))
-            raise ObjectDoesNotExist("Requested resource was not found.")
-
-    except Exception, e:
-        logger.exception(e)
-        raise Http404(e)
-
-    return object
-
-
 def render_help_text(help_text, as_tooltip=True):
     """ Use the template tag normally used to render help text in templates to render and return formatted help text """
     from stars.apps.helpers.templatetags.help import show_help_text

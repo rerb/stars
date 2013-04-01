@@ -6,9 +6,39 @@ from django.forms.util import ErrorList
 
 import re
 
-from stars.apps.institutions.models import *
-from stars.apps.registration.utils import is_canadian_zipcode, is_usa_zipcode
+from aashe.issdjango.models import Organizations
+from stars.apps.institutions.models import (Institution,
+                                            RegistrationSurvey,
+                                            RespondentSurvey)
 from stars.apps.registration.models import ValueDiscount
+from stars.apps.payments.forms import PaymentFormWithPayLater
+
+
+class RegistrationPaymentForm(PaymentFormWithPayLater):
+    discount_code = forms.CharField(max_length=16, required=False)
+
+    def get_amount(self):
+
+        if hasattr(self, 'discount') and self.discount != None:
+            return self.amount - self.discount.amount
+        else:
+            return self.amount
+
+    def clean_discount_code(self):
+        data = self.cleaned_data['discount_code']
+        if data == "":
+            return None
+
+        discount = None
+        try:
+            discount = ValueDiscount.objects.get_current().get(code=data)
+        except ValueDiscount.DoesNotExist:
+            raise forms.ValidationError("Invalid Discount Code")
+
+        self.discount = discount
+
+        return data
+
 
 class WriteInInstitutionForm(forms.Form):
     """
@@ -20,28 +50,74 @@ class WriteInInstitutionForm(forms.Form):
         super(WriteInInstitutionForm, self).__init__(*args, **kwargs)
         self.fields['institution_name'].widget.attrs['size'] = 60
 
-class RegistrationSchoolChoiceForm(forms.Form):
+
+class SelectSchoolForm(forms.Form):
     """
         A form for selecting an institution form institutionnames
     """
     aashe_id = forms.IntegerField()
 
-#    class Meta:
-#        model = Institution
-#        fields = ['aashe_id']
-
     def __init__(self, *args, **kwargs):
-        super(RegistrationSchoolChoiceForm, self).__init__(*args, **kwargs)
+        super(SelectSchoolForm, self).__init__(*args, **kwargs)
+        self.update_institution_choices()
         self.fields['aashe_id'].label = "Institution"
+        self.fields['aashe_id'].widget = widgets.Select(
+                                        choices=self.institution_list,
+                                        attrs={'style': "width: 700px"}
+                                        )
 
-class RegistrationForm(ModelForm):
+    def update_institution_choices(self):
+        # Get the list of schools as choices
+        self.institution_list = []
+        org_types = ('I',
+                     'Four Year Institution',
+                     'Two Year Institution',
+                     'Graduate Institution',
+                     'System Office')
+        countries = ('Canada', 'United States of America')
+
+        for inst in Organizations.objects.filter(
+                org_type__in=org_types,
+                country__in=countries).order_by('org_name'):
+            if inst.city and inst.state:
+                self.institution_list.append((inst.account_num, "%s, %s, %s" %
+                                         (inst.org_name,
+                                          inst.city,
+                                          inst.state)))
+            else:
+                self.institution_list.append((inst.account_num, inst.org_name))
+
+
+class ContactForm(ModelForm):
     """
-        Contact Information Form
+        Contact form that takes the option to have show executive contact fields
     """
-    #terms_of_service = forms.BooleanField(label="I agree to the terms of service", required=True)
+    class Meta:
+        model = Institution
+        fields = [
+                  'contact_first_name',
+                  'contact_middle_name',
+                  'contact_last_name',
+                  'contact_title',
+                  'contact_department',
+                  'contact_phone',
+                  'contact_email',
+                  'executive_contact_first_name',
+                  'executive_contact_middle_name',
+                  'executive_contact_last_name',
+                  'executive_contact_title',
+                  'executive_contact_department',
+                  'executive_contact_email',
+                  ]
 
     def __init__(self, *args, **kwargs):
-        super(RegistrationForm, self).__init__(*args, **kwargs)
+        """
+            Sets up the field labels and sets the exec contact fields
+            to required if necessary
+        """
+        self.include_exec = kwargs.pop("include_exec", False)
+
+        super(ContactForm, self).__init__(*args, **kwargs)
         self.fields['contact_first_name'].label = "First Name"
         self.fields['contact_middle_name'].label = "Middle Name"
         self.fields['contact_last_name'].label = "Last Name"
@@ -49,81 +125,44 @@ class RegistrationForm(ModelForm):
         self.fields['contact_department'].label = "Department/Office"
         self.fields['contact_phone'].label = "Phone"
         self.fields['contact_email'].label = "Email"
-        self.fields['executive_contact_first_name'].label = "First Name"
-        self.fields['executive_contact_middle_name'].label = "Middle Name"
-        self.fields['executive_contact_last_name'].label = "Last Name"
-        self.fields['executive_contact_title'].label = "Title"
-        self.fields['executive_contact_department'].label = "Department/Office"
-        self.fields['executive_contact_email'].label = "Email"
 
-        self.fields['executive_contact_first_name'].required = True
-        self.fields['executive_contact_middle_name'].required = False
-        self.fields['executive_contact_last_name'].required = True
-        self.fields['executive_contact_title'].required = True
-        self.fields['executive_contact_department'].required = True
-        self.fields['executive_contact_email'].required = True
+        if self.include_exec:
+            self.fields['executive_contact_first_name'].label = "First Name"
+            self.fields['executive_contact_middle_name'].label = "Middle Name"
+            self.fields['executive_contact_last_name'].label = "Last Name"
+            self.fields['executive_contact_title'].label = "Title"
+            self.fields['executive_contact_department'].label = "Department/Office"
+            self.fields['executive_contact_email'].label = "Email"
 
-    class Meta:
-        model = Institution
-        fields =    [
-                        'contact_first_name',
-                        'contact_middle_name',
-                        'contact_last_name',
-                        'contact_title',
-                        'contact_department',
-                        'contact_phone',
-                        'contact_email',
-                        'executive_contact_first_name',
-                        'executive_contact_middle_name',
-                        'executive_contact_last_name',
-                        'executive_contact_title',
-                        'executive_contact_department',
-                        'executive_contact_email',
-                    ]
+            self.fields['executive_contact_first_name'].required = True
+            self.fields['executive_contact_middle_name'].required = False
+            self.fields['executive_contact_last_name'].required = True
+            self.fields['executive_contact_title'].required = True
+            self.fields['executive_contact_department'].required = True
+            self.fields['executive_contact_email'].required = True
 
     def clean(self):
         cleaned_data = self.cleaned_data
 
-        # confirm that the contact email and the executive email are not the same
-        if cleaned_data.has_key("contact_email") and cleaned_data.has_key("executive_contact_email"):
-            contact = cleaned_data.get("contact_email")
-            executive = cleaned_data.get("executive_contact_email")
+        if self.include_exec:
+            # confirm that the contact and the executive emails are different
+            if ("contact_email" in cleaned_data.keys() and
+                "executive_contact_email" in cleaned_data.keys()):
+                contact = cleaned_data.get("contact_email")
+                executive = cleaned_data.get("executive_contact_email")
 
-            if contact == executive:
-                msg = u"Oops, you've entered the same information for both the primary and executive contact. Please make sure these contacts are two different individuals at your institution."
-                self._errors["executive_contact_email"] = ErrorList([msg])
+                if contact == executive:
+                    msg = ("Oops, you've entered the same information for both"
+                           " the primary and executive contact. Please make"
+                           " sure these contacts are two different individuals"
+                           " at your institution.")
+                    self._errors["executive_contact_email"] = ErrorList([msg])
 
-                # The executive field is no longer valid
-                del cleaned_data["executive_contact_email"]
+                    # The executive field is no longer valid
+                    del cleaned_data["executive_contact_email"]
 
         return cleaned_data
 
-class DataCollectorRegistrationForm(ModelForm):
-    """
-        Contact Information Form with just the liaison
-    """
-
-    def __init__(self, *args, **kwargs):
-        super(DataCollectorRegistrationForm, self).__init__(*args, **kwargs)
-        self.fields['contact_first_name'].label = "First Name"
-        self.fields['contact_middle_name'].label = "Middle Name"
-        self.fields['contact_last_name'].label = "Last Name"
-        self.fields['contact_title'].label = "Title"
-        self.fields['contact_department'].label = "Department/Office"
-        self.fields['contact_phone'].label = "Phone"
-        self.fields['contact_email'].label = "Email"
-
-    class Meta:
-        model = Institution
-        fields =    [
-                        'contact_first_name',
-                        'contact_middle_name',
-                        'contact_last_name',
-                        'contact_title',
-                        'contact_department',
-                        'contact_phone',
-                        'contact_email',
-                    ]
 
 PARTICIPATION_CHOICES = (
                             ("participant", "STARS Participant"),
@@ -133,81 +172,13 @@ PARTICIPATION_CHOICES = (
 class ParticipationLevelForm(forms.Form):
     level = forms.fields.ChoiceField(widget=forms.widgets.RadioSelect, choices=PARTICIPATION_CHOICES)
 
-class PayLaterForm(forms.Form):
-
-    confirm = forms.BooleanField(label="Please bill me and I will pay later.", required=False, widget=forms.CheckboxInput(attrs={'onchange': 'togglePayment(this);',}))
-
-class PaymentForm(forms.Form):
-    """
-        Credit Card Payment form
-    """
-    name_on_card = forms.CharField(max_length=64)
-    card_number = forms.CharField(max_length=17, widget=forms.TextInput(attrs={'autocomplete': 'off',}))
-    exp_month = forms.CharField(max_length=2, initial='mm')
-    exp_year = forms.CharField(max_length=4, initial='yyyy')
-    cv_code = forms.CharField(max_length=3, label='CV Code', help_text='This is the 3-digit code on the back of your card', widget=forms.TextInput(attrs={'autocomplete': 'off',}))
-    billing_address = forms.CharField(max_length=128)
-    billing_address_line_2 = forms.CharField(max_length=128, required=False)
-    billing_city = forms.CharField(max_length=32)
-    billing_state = forms.CharField(max_length=2)
-    billing_zipcode = forms.CharField(max_length=7, label='Billing ZIP code')
-    discount_code = forms.CharField(max_length=16, required=False)
-
-    def clean_exp_month(self):
-        data = self.cleaned_data['exp_month']
-        error_text = "Please enter a number between 1 and 12"
-
-        if not self.is_numeric(data):
-            raise forms.ValidationError(error_text)
-        month = int(data)
-        if month > 12 or month < 0:
-            raise forms.ValidationError(error_text)
-
-        return data
-
-    def clean_discount_code(self):
-        data = self.cleaned_data['discount_code']
-        if data == "":
-            return None
-
-        try:
-            discount = ValueDiscount.objects.get_current().get(code=data)
-        except ValueDiscount.DoesNotExist:
-            raise forms.ValidationError("Invalid Discount Code")
-
-        return data
-
-    def clean_exp_year(self):
-        data = self.cleaned_data['exp_year']
-        error_text = "Please enter a valid year"
-
-        if not self.is_numeric(data):
-            raise forms.ValidationError(error_text)
-
-        return data
-
-    def clean_billing_zipcode(self):
-        data = self.cleaned_data['billing_zipcode']
-        error_text = "Please enter a valid US or Canadian zip code"
-
-        if not is_usa_zipcode(data) and not is_canadian_zipcode(data):
-            raise forms.ValidationError(error_text)
-
-        return data
-
-    def is_numeric(self, data):
-        """ Helper function to indicate if data is numeric. """
-        try:
-            number = int(data)
-        except:
-            return False
-        return True
 
 class RegistrationSurveyForm(ModelForm):
 
     class Meta:
         model = RegistrationSurvey
-        fields = ['source', 'reasons', 'other', 'primary_reason', 'enhancements']
+        fields = ['source', 'reasons', 'other',
+                  'primary_reason', 'enhancements']
 
     def __init__(self, *args, **kwargs):
         from stars.apps.institutions.models import RegistrationReason
@@ -220,6 +191,7 @@ class RegistrationSurveyForm(ModelForm):
         self.fields['reasons'].help_text = "Select all that apply"
         self.fields['reasons'].label = "The reason(s) your institution registered for STARS were to:"
         self.fields['primary_reason'].label = "Which of the above reasons, if any, was the primary reason your institution registered for STARS?"
+
 
 class RespondentRegistrationSurveyForm(ModelForm):
 

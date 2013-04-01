@@ -1,720 +1,252 @@
-from datetime import datetime, date, timedelta
+from datetime import datetime
 from logging import getLogger
 import sys
 
-from django.conf import settings
 from django.contrib import messages
-from django.forms import widgets
+from django.views.generic import CreateView
 from django.http import HttpResponseRedirect
-from django.template.defaultfilters import slugify
-from zc.authorizedotnet.processing import CcProcessor
 from django.core.urlresolvers import reverse
+from django import forms
 
 from aashe.issdjango.models import Organizations
-from stars.apps.accounts import utils as auth_utils
-from stars.apps.accounts.mixins import AuthenticatedMixin
-from stars.apps.accounts.utils import respond
-from stars.apps.credits.models import CreditSet
-from stars.apps.helpers.forms.views import FormActionView
-from stars.apps.institutions.models import (Institution, StarsAccount,
-                                            Subscription, SubscriptionPayment)
-from stars.apps.notifications.models import EmailTemplate
-from stars.apps.registration.forms import (DataCollectorRegistrationForm,
-                                           ParticipationLevelForm,
-                                           PaymentForm, PayLaterForm,
-                                           RegistrationForm,
-                                           RegistrationSurveyForm,
-                                           RegistrationSchoolChoiceForm,
-                                           RespondentRegistrationSurveyForm,
-                                           WriteInInstitutionForm)
-from stars.apps.registration.models import ValueDiscount
-from stars.apps.registration.utils import is_canadian_zipcode
-from stars.apps.submissions.models import SubmissionSet
 
+from stars.apps.helpers.forms.views import FormActionView
+from stars.apps.institutions.models import (Institution, SubscriptionPayment,
+                                            RegistrationSurvey)
+from stars.apps.notifications.models import EmailTemplate
+from stars.apps.registration.forms import (SelectSchoolForm,
+                                           ParticipationLevelForm,
+                                           RegistrationPaymentForm,
+                                           RegistrationSurveyForm,
+                                           RespondentRegistrationSurveyForm,
+                                           ContactForm)
+from stars.apps.registration.models import ValueDiscount
+from stars.apps.tool.mixins import InstitutionAdminToolMixin
+from stars.apps.accounts.mixins import StarsAccountMixin
+from stars.apps.helpers.wizard import BetterWizardView, RevalidationFailure
+
+from utils import init_starsaccount, init_submissionset, init_subscription
+
+from zc.authorizedotnet.processing import CcProcessor
 
 logger = getLogger('stars')
 
-def reg_international(request):
+
+REG_FORMS = [('select', SelectSchoolForm),
+             ('level', ParticipationLevelForm),
+             ('contact', ContactForm),
+             ('payment', RegistrationPaymentForm)]
+
+
+class RegistrationWizard(StarsAccountMixin, BetterWizardView):
     """
-        First step for registering an international institution
+        A wizard that runs a user through the forms
+        required to register as a STARS Participant
     """
-    response = _confirm_login(request)
-    if response: return response
+    def get_template_names(self):
+#        return "registration/wizard_base.html"
+        if self.steps.current == 'contact':
+            if self.picked_participant():
+                return "registration/wizard_contact_participant.html"
+            else:
+                return "registration/wizard_contact_respondent.html"
+        return ("registration/wizard_%s.html" % self.steps.current)
 
-    form = WriteInInstitutionForm()
-    if request.method == 'POST':
-        form = WriteInInstitutionForm(request.POST)
-        if form.is_valid():
+    def get_context_data(self, form, **kwargs):
+        context = super(RegistrationWizard, self).get_context_data(form=form,
+                                                                   **kwargs)
+        if self.steps.current == 'payment':
+            context.update({
+                'institution': self.get_form_instance('contact'),
+                'contact': self.get_cleaned_data_for_step('contact')})
+        return context
 
-            institution = Institution(name=form.cleaned_data['institution_name'], international=True)
-            institution.slug = slugify(institution.name)
-            # If they've already got this institution in their session don't overwrite it
-            # it might have contact info
-            selected_institution = request.session.get('selected_institution')
-            if not selected_institution or selected_institution.name != institution.name:
-                selected_institution = institution
-            request.session['selected_institution'] = selected_institution
-            return HttpResponseRedirect('/register/p/step3/')
+    def get_form_instance(self, step):
+        """
+            Create an instance for the contact form
+            using the name from step 'select'
+        """
+        if step == 'contact':
+            cleaned_data = self.get_cleaned_data_for_step('select') or {}
+            aashe_id = cleaned_data.get('aashe_id', None)
+            org = Organizations.objects.get(account_num=aashe_id)
+            institution = Institution(aashe_id=aashe_id, name=org.org_name)
+            institution.update_from_iss()
+            institution.set_slug_from_iss_institution(institution.aashe_id)
+            return institution
 
-    template = "registration/international.html"
-    context = {'form': form,}
-    return respond(request, template, context)
+        return None
 
-def reg_select_institution(request):
-    """
-        STEP 1: User selects an institution from the pull-down menu
+    def picked_participant(self):
+        """ Checks if the user chose to be a participant """
+        cleaned_data = self.get_cleaned_data_for_step('level') or {}
+        return cleaned_data.get('level', None) == 'participant'
 
-         - store the selected institution in the Session (not the DB),
-           and move on to the next step
-    """
-    response = _confirm_login(request)
-    if response:
-        return response
+    def get_form_kwargs(self, step):
+        """
+            if the school is not going to be a participant then
+            we don't need the executive contact information
+        """
+        kwargs = super(RegistrationWizard, self).get_form_kwargs(step)
 
-    # Get the list of schools as choices
-    institution_list = []
-    institution_list_lookup = {}
-    org_types = ('I',
-                 'Four Year Institution',
-                 'Two Year Institution',
-                 'Graduate Institution',
-                 'System Office')
-    countries = ('Canada', 'United States of America')
+        if step == 'contact':
+            kwargs['include_exec'] = self.picked_participant()
 
-    for inst in Organizations.objects.filter(
-            org_type__in=org_types,
-            country__in=countries).order_by('org_name'):
-        if inst.city and inst.state:
-            institution_list.append((inst.account_num, "%s, %s, %s" %
-                                     (inst.org_name, inst.city, inst.state)))
+        elif step == 'payment':
+            institution = self.get_form_instance('contact')
+            kwargs['amount'] = get_registration_price(institution,
+                                                      new=True,
+                                                      discount_code=None)
+            kwargs['user'] = self.request.user
+            kwargs['contact_info'] = self.get_cleaned_data_for_step('contact')
+            kwargs['invoice_num'] = institution.aashe_id
+
+        return kwargs
+
+    def done(self, form_list, **kwargs):
+
+        payment_form = None
+
+        for form in form_list:
+            # Get the Institution object
+            if isinstance(form, ContactForm):
+                institution = form.save(commit=False)
+
+            # handle payment options
+            if isinstance(form, RegistrationPaymentForm):
+                payment_form = form
+
+        response = self.finalize_registration(institution,
+                                              payment_form,
+                                              **kwargs)
+        if response:
+            return response
+
+        return HttpResponseRedirect(reverse('reg_survey',
+                                    kwargs={'institution_slug': institution.slug}))
+
+    def finalize_registration(self, institution, payment_form, **kwargs):
+        """
+            add_starsaccount
+            init_submissionset
+            init_subscription
+            apply_payment
+            send emails
+
+            returns a response if necessary
+        """
+
+        payment = None
+        amount_due = 0
+        # Set up subscription and payment choice
+        if self.picked_participant():
+            amount_due = payment_form.get_amount()
+
+            if payment_form.cleaned_data['pay_later']:
+                institution.save()
+                subscription = init_subscription(institution,
+                                                 amount_due)
+            else:
+                # try to process the payment
+                try:
+                    confirmation = payment_form.process_payment()
+                except forms.ValidationError, e:
+                    messages.error(self.request,
+                            ("Sorry, but this transaction did not clear."
+                            " Reason: %s") % e)
+                    raise RevalidationFailure("revalidate",
+                                              'payment',
+                                              payment_form,
+                                              **kwargs)
+#                    return self.render_revalidation_failure('payment',
+#                                                            payment_form,
+#                                                            **kwargs)
+                institution.save()
+                init_starsaccount(self.request.user, institution)
+                init_submissionset(institution, self.request.user)
+                subscription = init_subscription(institution, amount_due)
+
+                # add a SubscriptionPayment and process payment
+                payment = SubscriptionPayment(subscription=subscription,
+                                              date=datetime.now(),
+                                              amount=payment_form.get_amount(),
+                                              user=self.request.user,
+                                              method='credit',
+                                              confirmation=confirmation)
+                payment.save()
+
         else:
-            institution_list.append((inst.account_num, inst.org_name))
-        institution_list_lookup[inst.account_num] = inst.org_name
-
-    # Generate the school choice form
-    form = RegistrationSchoolChoiceForm()
-    if request.method == 'POST':
-        form = RegistrationSchoolChoiceForm(request.POST)
-        if form.is_valid():
-            aashe_id = form.cleaned_data['aashe_id']
-            # print >> sys.stderr, institution_list_lookup
-            name = institution_list_lookup[aashe_id]
-
-            # Redirect to "Purchase additional SS view
-            # if the institution already has an account
-            try:
-                institution = Institution.objects.get(aashe_id=aashe_id)
-                url = reverse('tool-summary',
-                              kwargs={'institution_slug': institution.slug})
-                return HttpResponseRedirect(url)
-            except Institution.DoesNotExist:
-                institution = Institution(aashe_id=aashe_id, name=name)
-                # If they've already got this institution in their
-                # session don't overwrite it it might have contact
-                # info
-                selected_institution = request.session.get(
-                    'selected_institution')
-                if (not selected_institution or
-                    selected_institution.aashe_id != institution.aashe_id):
-                    selected_institution = institution
-
-                selected_institution.update_from_iss()
-                selected_institution.set_slug_from_iss_institution(
-                    form.cleaned_data['aashe_id'])
-                request.session['selected_institution'] = selected_institution
-                return HttpResponseRedirect('/register/step2/')
-        else:
-            e = form.errors
-            # Since this is a pull-down menu, there is really no way
-            # for this to happen.
-            logger = getLogger('stars.request')
-            logger.error("The institution select form didn't validate.",
-                         extra={'request': request})
-
-    form.fields['aashe_id'].widget = widgets.Select(choices=institution_list)
-
-    template = "registration/select_institution.html"
-    context = {'form': form,}
-    return respond(request, template, context)
-
-# ------------------------------
-# STEP 2
-# ------------------------------
-
-def select_participation_level(request):
-    """
-        Where institutions decide if they are going to be STARS Participants or
-        simply Survey Respondents
-    """
-    (institution, response) = _get_selected_institution(request)
-    if response: return response
-
-    # Provide the Contact Information Form
-    form = ParticipationLevelForm()
-
-    if request.method == "POST":
-        form = ParticipationLevelForm(request.POST)
-
-        if form.is_valid():
-            level = form.cleaned_data['level']
-            if level == 'participant':
-                return HttpResponseRedirect('/register/p/step3/')
-            if level == "respondent":
-                return HttpResponseRedirect('/register/r/step3/')
-        else:
-            messages.error(request, "Please correct the errors below")
-
-    template = "registration/select_participation_level.html"
-    context = {'form': form, 'institution': institution}
-    return respond(request, template, context)
-
-# ------------------------------
-# STEP 3
-# ------------------------------
-
-def contact_info_step(request, FormClass, success_url, template_name):
-
-    (institution, response) = _get_selected_institution(request)
-    if response: return response
-
-    # Provide the Contact Information Form
-    reg_form = FormClass(instance=institution)
-
-    if request.method == "POST":
-        reg_form = FormClass(request.POST, instance=institution)
-
-        if reg_form.is_valid():
-
-            institution = reg_form.save(commit=False)
-            request.session['selected_institution'] = institution
-
-            # they're done if it's international
-            if institution.international:
-                institution = register_institution(request.user, institution,
-                                                   "credit", 0, None)
-                request.session['selected_institution'] = institution
-                return HttpResponseRedirect("/register/survey/")
-
-            return HttpResponseRedirect(success_url)
-        else:
-            messages.error(request, "Please correct the errors below")
-
-    context = {'reg_form': reg_form, 'institution': institution}
-    return respond(request, template_name, context)
-
-def particpant_contact_info(request):
-    """
-        Displays the contact forms for a participant's registration process
-         - If the institution is registered already they get forwarded
-           to the account page
-         - otherwise, store the contact info with the
-           selected_institution in the session (NOT the DB)
-    """
-    (institution, response) = _get_selected_institution(request)
-    if response: return response
-
-    # Provide the Contact Information Form
-    reg_form = RegistrationForm(instance=institution)
-
-    if request.method == "POST":
-        reg_form = RegistrationForm(request.POST, instance=institution)
-
-        if reg_form.is_valid():
-
-            institution = reg_form.save(commit=False)
-            request.session['selected_institution'] = institution
-
-            # they're done if it's international
-            if institution.international:
-                institution = register_institution(request.user, institution,
-                                                   "credit", 0, None)
-                request.session['selected_institution'] = institution
-
-                # Send confirmation email
-                email_to = [institution.contact_email]
-                if request.user.email != institution.contact_email:
-                    email_to.append(request.user.email)
-
-                return HttpResponseRedirect("/register/survey/")
-
-            return HttpResponseRedirect('/register/p/step4/')
-        else:
-            messages.error(request, "Please correct the errors below")
-
-    context = {'reg_form': reg_form, 'institution': institution}
-    return respond(request, "registration/contact.html", context)
-
-def respondent_contact_info(request):
-    """
-        Displays the contact forms for a respondent's registration process
-         - If the institution is registered already they get forwarded
-           to the account page
-         - otherwise, store the contact info with the
-           selected_institution in the session (NOT the DB)
-    """
-    (institution, response) = _get_selected_institution(request)
-    if response: return response
-
-    # Provide the Contact Information Form
-    reg_form = DataCollectorRegistrationForm(instance=institution)
-
-    if request.method == "POST":
-        reg_form = DataCollectorRegistrationForm(request.POST,
-                                                 instance=institution)
-
-        if reg_form.is_valid():
-
-            institution = reg_form.save(commit=False)
-            institution.enabled = True
             institution.save()
-            ss = init_submissionset(institution, request.user)
-            institution.update_status()
-            account = StarsAccount(user=request.user, institution=institution,
-                                   user_level='admin', is_selected=False,
-                                   terms_of_service=True)
-            account.save()
-            account.select()
-            auth_utils.change_institution(request, institution)
-            # Primary Contact
-            email_to = [institution.contact_email]
+            init_starsaccount(self.request.user, institution)
+            init_submissionset(institution, self.request.user)
 
-            if request.user.email != institution.contact_email:
-                email_to.append(request.user.email)
+        self.send_emails(institution, payment, amount_due)
 
-            et = EmailTemplate.objects.get(slug='welcome_respondent')
+    def send_emails(self, institution, payment, amount_due):
+
+        # Primary Contact
+        email_to = [institution.contact_email]
+
+        if self.request.user.email != institution.contact_email:
+            email_to.append(self.request.user.email)
+
+        # Confirmation Email
+        if institution.international:
+            et = EmailTemplate.objects.get(slug='welcome_international_pilot')
             email_context = {'institution': institution}
+        elif payment == None:
+            et = EmailTemplate.objects.get(slug='welcome_liaison_unpaid')
+            email_context = {'price': amount_due}
+        else:
+            et = EmailTemplate.objects.get(slug='welcome_liaison_paid')
+            email_context = {"institution": institution, 'payment': payment}
+
+        et.send_email(email_to, email_context)
+
+        # Executive Contact
+        if institution.executive_contact_email:
+            email_to = [institution.executive_contact_email]
+            if institution.international:
+                et = EmailTemplate.objects.get(slug='welcome_international_pilot_ec')
+            else:
+                et = EmailTemplate.objects.get(slug="welcome_exec")
+            email_context = {"institution": institution}
             et.send_email(email_to, email_context)
 
-            return HttpResponseRedirect('/register/r/survey/')
+
+def skip_payment_condition(wizard):
+    """
+        determines if the payment option can be skipped
+    """
+    return wizard.picked_participant()
+
+
+participant_reg = RegistrationWizard.as_view(REG_FORMS,
+                                             condition_dict={'payment': skip_payment_condition})
+
+
+class SurveyView(InstitutionAdminToolMixin, CreateView):
+
+    template_name = "registration/survey.html"
+    model = RegistrationSurvey
+
+    def get_form_kwargs(self):
+        kwargs = super(SurveyView, self).get_form_kwargs()
+        kwargs['instance'] = RegistrationSurvey(institution=self.get_institution(),
+                                                user=self.request.user)
+        return kwargs
+
+    def get_form_class(self):
+        if self.get_institution().is_participant:
+            return RegistrationSurveyForm
         else:
-            messages.error(request, "Please correct the errors below")
+            return RespondentRegistrationSurveyForm
 
-    context = {'reg_form': reg_form, 'institution': institution}
-    return respond(request, "registration/contact_respondent.html", context)
+    def get_success_url(self):
+        return reverse('tool-summary',
+                       kwargs={'institution_slug':
+                               self.get_institution().slug})
 
-def reg_payment(request):
-    """
-        STEP 4: Determine the payment price and process payment for
-        this institution's registration
-         - if the institution is registered already they get forwarded
-           to the account page
-         - otherwise, collect payment info and store the
-           selected_institution into the DB
-    """
-
-    (institution, response) = _get_selected_institution(request)
-    if response: return response
-
-    # get price
-    price = get_registration_price(institution)
-
-    pay_form = PaymentForm()
-    pay_later_form = PayLaterForm()
-    result = None # Stores the response from the payment gateway
-
-    if request.method == "POST":
-        pay_later_form = PayLaterForm(request.POST)
-
-        if pay_later_form.is_valid():
-            if not pay_later_form.cleaned_data['confirm']:
-
-                pay_form = PaymentForm(request.POST)
-                if pay_form.is_valid():
-                    if pay_form.cleaned_data['discount_code'] != None:
-                        price = get_registration_price(
-                            institution,
-                            discount_code=pay_form.cleaned_data['discount_code'])
-                        messages.info(request, "Discount Code Applied")
-                    payment_dict = get_payment_dict(pay_form, institution)
-                    product_dict = {
-                        'price': price,
-                        'quantity': 1,
-                        'name': "STARS Participant Registration",
-                    }
-
-                    result = process_payment(payment_dict, [product_dict],
-                                             invoice_num=institution.aashe_id)
-                    if result.has_key('cleared') and result.has_key('msg'):
-                        if result['cleared'] and result['trans_id']:
-                            institution = register_institution(
-                                request.user, institution, "credit", price,
-                                payment_dict)
-                            # Select institution
-                            auth_utils.change_institution(request, institution)
-#                           request.session['selected_institution'] = institution
-                            return HttpResponseRedirect("/register/survey/")
-                        else:
-                            messages.error(
-                                request, "Processing Error: %s" % result['msg'])
-                else:
-                    messages.error(request, "Please correct the errors below")
-
-            else:
-                institution = register_institution(request.user, institution,
-                                                   "later", price, None)
-
-                # They're a participant, for the purposes of registration
-                institution.is_participant = True
-                institution.save()
-                # Select institution
-                auth_utils.change_institution(request, institution)
-                return HttpResponseRedirect("/register/survey/")
-
-    template = "registration/payment.html"
-    context = {'pay_form': pay_form, 'pay_later_form': pay_later_form,
-               'institution': institution, 'is_member': institution.is_member,
-               'price': price}
-    return respond(request, template, context)
-
-"""
-    Registration actions:
-        add_starsaccount
-        init_submissionset
-        init_subscription
-        apply_payment
-"""
-
-def init_starsaccount(user, institution):
-    """
-        Add a StarsAccount to institution for user with the admin permission
-    """
-    account = StarsAccount(user=user, institution=institution, user_level='admin', is_selected=False, terms_of_service=True)
-    account.save()
-    account.select()
-    return account
-
-def init_submissionset(institution, user, date_callback=date.today):
-    """
-        Initializes a submissionset for an institution and user
-        adding the today argument makes this easier to test explicitly
-    """
-    # Get the current CreditSet
-    creditset = CreditSet.objects.get_latest()
-    # Submission is due in one year
-    submissionset = SubmissionSet(creditset=creditset, institution=institution, date_registered=date_callback(), registering_user=user, status='ps')
-    submissionset.save()
-    institution.current_submission = submissionset
-    institution.save()
-    return submissionset
-
-def init_subscription(institution, amount_due, date_callback=date.today):
-    """
-        Initializes a subscription for the institution with the payment
-
-        @todo: use a signal to update the subscription amount_due and paid_in_full
-    """
-    deadline = date_callback() + timedelta(days=365) # Gives them an extra day on leap years :)
-    subscription = Subscription(
-                                institution=institution,
-                                start_date=date_callback(),
-                                end_date=deadline,
-                                amount_due=amount_due,
-                                paid_in_full=(amount_due==0))
-    if institution.international:
-        subscription.reason = "international"
-    elif institution.is_member:
-        subscription.reason = "member_reg"
-    else:
-        subscription.reason = "nonmember_reg"
-    subscription.save()
-    return subscription
-
-def register_institution(user, institution, payment_type, price, payment_dict):
-    """
-        Register an institution for the current credit set:
-         - create and store all the necessary registration information
-         - send confirmation emails
-
-        institution = register_institution(request.user, institution, "credit", price, payment_dict)
-        institution = register_institution(request.user, institution, "later", price, None)
-    """
-
-    # Save Institution
-    institution.enabled = True
-    institution.update_from_iss()
-    institution.save()
-
-    # Create Admin User
-    account = StarsAccount(user=user, institution=institution, user_level='admin', is_selected=False, terms_of_service=True)
-    account.save()
-    account.select()
-
-    # Set up the Subscription
-    if payment_dict:
-        subscription = init_subscription(institution, amount_due=0, date_callback=date.today)
-    else:
-        subscription = init_subscription(institution, amount_due=price, date_callback=date.today)
-
-    # Set up the SubmissionSet
-    submissionset = init_submissionset(institution, user)
-
-    institution.current_subscription = subscription
-    institution.is_participant = True
-    institution.set_active_submission(submissionset)
-    institution.save()
-
-    if payment_dict:
-        payment = SubscriptionPayment(subscription=subscription, date=date.today(), amount=price, user=user, method=payment_type, confirmation="none")
-        payment.save()
-
-    # Primary Contact
-    email_to = [institution.contact_email]
-
-    if user.email != institution.contact_email:
-        email_to.append(user.email)
-
-    # Confirmation Email
-    if institution.international:
-        et = EmailTemplate.objects.get(slug='welcome_international_pilot')
-        email_context = {'institution': institution}
-    elif not payment_dict:
-        et = EmailTemplate.objects.get(slug='welcome_liaison_unpaid')
-        email_context = {'price': price,}
-    else:
-        et = EmailTemplate.objects.get(slug='welcome_liaison_paid')
-        email_context = {"institution": institution, 'payment': payment, 'payment_dict': payment_dict}
-
-    et.send_email(email_to, email_context)
-
-    # Executive Contact
-    email_to = [institution.executive_contact_email,]
-    if institution.international:
-        et = EmailTemplate.objects.get(slug='welcome_international_pilot_ec')
-    else:
-        et = EmailTemplate.objects.get(slug="welcome_exec")
-    email_context = {"institution": institution}
-    et.send_email(email_to, email_context)
-
-    return institution
-
-class RegistrationSurveyView(AuthenticatedMixin, FormActionView):
-    """
-        A survey step after users complete the registration process
-    """
-
-    def render(self, request, *args, **kwargs):
-
-        if not self.get_institution(request):
-            messages.error(request, "No Registered Institution Selected")
-            return HttpResponseRedirect("/register/step1/")
-
-        return super(RegistrationSurveyView, self).render(
-            request, *args, **kwargs)
-
-    def save_form(self, form, request, context):
-        """ Updates the resonse with the user and institution before saving """
-        rr = form.save(commit=False)
-        rr.institution = self.get_institution(request)
-        rr.user = request.user
-        rr.save()
-        # Because I use `commit=False` above, I have to save the m2m separately:
-        # # http://docs.djangoproject.com/en/dev/topics/forms/modelforms/#the-save-method
-        form.save_m2m()
-
-    def get_success_action(self, request, context, form):
-        """
-            On successful submission of the form, redirect to the registration account page
-        """
-        self.save_form(form, request, context)
-
-        return HttpResponseRedirect('/register/account/')
-
-    def get_institution(self, request):
-
-        # Get the user's current account information. First try the registration selected_institution from the session...
-        institution = request.session.get('selected_institution', None)
-
-        if not institution:  # If that's not there, we'll try to get it from the user's accounts (from DB)
-            account = request.user.account
-            if account and account.institution.is_registered():
-                institution = account.institution
-                request.session['selected_institution'] = institution
-
-        return institution
-
-survey = RegistrationSurveyView("registration/survey.html", RegistrationSurveyForm,  form_name='object_form', instance_name='institution')
-respondent_survey = RegistrationSurveyView('registration/survey.html', RespondentRegistrationSurveyForm, form_name='object_form', instance_name='institution')
-
-def reg_account(request):
-    """
-        Displays the user's account page.
-        If a user is associated with multiple institutions provide a
-        selection option
-    """
-    response = _confirm_login(request)
-    if response: return response
-
-    # Get the user's current account information. First try the
-    # registration selected_institution from the session...
-    institution = request.session.get('selected_institution', None)
-
-    if not institution:  # If that's not there, we'll try to get it
-                         # from the user's accounts (from DB)
-        account = request.user.account
-        if account and account.institution.is_registered():
-            institution = account.institution
-            request.session['selected_institution'] = institution
-        else:            # can't find any registered institution for this user...
-            messages.error(request, "No Registered Institution Selected")
-            return HttpResponseRedirect("/register/step1/")
-
-    context = {'institution': institution,}
-
-    if institution.is_participant:
-
-        # Determine the amount due
-        amount_due = 0
-        for s in institution.subscription_set.all():
-            amount_due += s.amount_due
-
-        context['amount_due'] = amount_due
-        template = "registration/account.html"
-    else:
-        template = "registration/account_respondent.html"
-
-    return respond(request, template, context)
-
-def get_payment_dict(pay_form, institution):
-    """ Extracts the payment dictionary for process_payment from a given form and institution """
-
-    cc = pay_form.cleaned_data['card_number']
-    l = len(cc)
-    if l >= 4:
-        last_four = cc[l-4:l]
-    else:
-        last_four = None
-
-    payment_dict = {
-        'name_on_card': pay_form.cleaned_data['name_on_card'],
-        'cc_number': pay_form.cleaned_data['card_number'],
-        'exp_date': pay_form.cleaned_data['exp_month'] + pay_form.cleaned_data['exp_year'],
-        'cv_number': pay_form.cleaned_data['cv_code'],
-        'billing_address': pay_form.cleaned_data['billing_address'],
-        'billing_address_line_2': pay_form.cleaned_data['billing_address_line_2'],
-        'billing_city': pay_form.cleaned_data['billing_city'],
-        'billing_state': pay_form.cleaned_data['billing_state'],
-        'billing_zipcode': pay_form.cleaned_data['billing_zipcode'],
-        'country': "USA",
-        'billing_firstname': institution.contact_first_name,
-        'billing_lastname': institution.contact_last_name,
-        'billing_email': institution.contact_email,
-        'description': "%s STARS Registration (%s)" % (institution.name, datetime.now().isoformat()),
-        'company': institution.name,
-        'last_four': last_four,
-    }
-
-    if is_canadian_zipcode(pay_form.cleaned_data['billing_zipcode']):
-        payment_dict['country'] = "Canada"
-
-    return payment_dict
-
-def process_payment(payment_dict, product_list, invoice_num=None, server=None,
-                    login=None, key=None):
-    """
-        Connects to Authorize.net and processes a payment based on the
-        payment information in payment_dict and the product_dict
-
-        payment_dict: {first_name, last_name, street, city, state,
-        zip, country, email, cc_number, expiration_date}
-
-        product_list: [{'name': '', 'price': #.#, 'quantity': #},]
-
-        server, login, and key: optional parameters for Auth.net
-        connections (for testing)
-
-        returns:
-            {'cleared': cleared, 'reason_code': reason_code, 'msg': msg,
-             'conf': "" }
-    """
-
-    if not server:
-        server = settings.AUTHORIZENET_SERVER
-    if not login:
-        login = settings.AUTHORIZENET_LOGIN
-    if not key:
-        key = settings.AUTHORIZENET_KEY
-
-    cc = CcProcessor(server=server, login=login, key=key)
-
-    total = 0.0
-    for product in product_list:
-        total += product['price'] * product['quantity']
-    result = cc.authorize(
-                            amount=str(total),
-                            card_num=payment_dict['cc_number'],
-                            exp_date=payment_dict['exp_date'],
-                            invoice_num=invoice_num,
-                            address=payment_dict['billing_address'],
-                            city=payment_dict['billing_city'],
-                            state=payment_dict['billing_state'],
-                            zip=payment_dict['billing_zipcode'],
-                            first_name=payment_dict['billing_firstname'],
-                            last_name=payment_dict['billing_lastname'],
-                            card_code=payment_dict['cv_number'],
-                            country=payment_dict['country'],
-                            )
-
-    if result.response == "approved":
-        capture_result = cc.captureAuthorized(trans_id=result.trans_id)
-        return {'cleared': True, 'reason_code': None, 'msg': None,
-                'conf': capture_result.approval_code,
-                'trans_id': capture_result.trans_id}
-    else:
-        print >> sys.stderr, "Decline: %s" % result.response_reason
-        logger.warning("Payment denied for %s %s (%s)" %
-                       (payment_dict['billing_firstname'],
-                        payment_dict['billing_lastname'],
-                        result.response_reason))
-        return {'cleared': False, 'reason_code': None,
-                'msg': result.response_reason, 'conf': None, 'trans_id': None}
-
-def _confirm_login(request):
-    """
-        Confirm that request.user is logged in.
-        If not, return an appropriate response, if so, return None
-    """
-     # Confirm that the user is logged in with their AASHE ID
-    if not request.user.is_authenticated():
-        template = "registration/login_required.html"
-        context = {}
-        return respond(request, template, context)
-
-    return None
-
-def _get_selected_institution(request):
-    """
-        Confirm that requesting user is logged in and get their
-        selected institution from the session, if possible:
-         - If there are any issues (no institution selected, or
-           selected institution already registered), return an
-           appropriate response.
-         - If the user is logged in and has a selected institution,
-           return the institution
-        returns (institution, response), one of which is None.
-    """
-    response = _confirm_login(request)
-    if response:
-        return None, response
-
-    # Confirm that there is an institution in their session
-    institution = request.session.get('selected_institution')
-    if not institution:
-        messages.error(request, "No Institution Selected")
-        return None, HttpResponseRedirect('/register/step1/')
-
-    # if the institution is registered already, take them to the account page
-    try:
-        if institution.aashe_id:
-            inst = Institution.objects.get(aashe_id=institution.aashe_id)
-            if inst.is_registered():   # check for registration in the most
-                                       # recent credit set
-                request.session['selected_institution'] = inst
-                return None, HttpResponseRedirect("/register/account/")
-    except Institution.DoesNotExist:
-        pass  # no problem - this is the usual case, institution is not
-              # registered, proceed with registration.
-
-    return institution, None
 
 def get_registration_price(institution, new=True, discount_code=None):
     """

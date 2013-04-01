@@ -50,14 +50,6 @@ urlpatterns = patterns('',
 
     # custom forms
     (r'^cfm/', include('stars.apps.custom_forms.urls')),
-
-    # rules
-    #(r'^rules/', include('aashe_rules.urls')),
-
-    # testing / debug / data migration scripts - these urls should normally be commented out!
-    #(r'^migrate_required/$', 'stars.apps.helpers.views.migrate_doc_field_required'),
-    #(r'^test/$', 'stars.apps.helpers.views.test'),
-
 )
 
 if settings.STANDALONE_MODE:

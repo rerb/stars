@@ -24,7 +24,8 @@ urlpatterns = patterns("",
     (r'^(?P<institution_slug>[^/]*)/submission/(?P<submissionset>\d+)/',
      include('stars.apps.tool.my_submission.urls')),
 
-    (r'^my-resources/', include('stars.apps.tool.my_resources.urls')),
+    (r'^(?P<institution_slug>[^/]*)/my-resources/',
+     include('stars.apps.tool.my_resources.urls')),
 
     url(r'^(?P<institution_slug>[^/]*)/$', SummaryToolView.as_view(),
         name='tool-summary'),

@@ -18,7 +18,7 @@
             <a href="{% url tool-summary institution.slug %}">Summary</a>
         </li>
 
-        {% testrule user_has_access_level user 'admin' user.current_inst %}
+        {% testrule user_has_access_level user 'admin' institution %}
 
         <li{% if active_tab == 'users' %} class="active" {% endif %}>
             <a href="{% url account-list institution.slug %}">

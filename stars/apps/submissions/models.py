@@ -15,7 +15,6 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 
 from stars.apps.credits.models import CreditSet, Category, Subcategory, Credit, DocumentationField, Choice, ApplicabilityReason, Rating
 from stars.apps.institutions.models import Institution, ClimateZone
-from stars.apps.helpers import managers
 from stars.apps.submissions.pdf.export import build_report_pdf
 from stars.apps.notifications.models import EmailTemplate
 
@@ -410,10 +409,13 @@ class SubmissionSet(models.Model, FlaggableModel):
             to_mail.append(self.institution.contact_email)
         et.send_email(to_mail, {'ss': self,})
 
-INSTITUTION_TYPE_CHOICES = (("2_year", "Two Year"),
-                            ("4_year", "Four Year"),
-                            ("graduate", "Graduate Institution"),
-                            ("system", "System Office"))
+INSTITUTION_TYPE_CHOICES = (("associate", "Associate"),
+                            ("baccalaureate", "Baccalaureate"),
+                            ("master", "Master"),
+                            ("doctorate", "Doctorate"),
+                            ("special_focus", "Special Focus"),
+                            ("tribal", "Tribal")
+                            )
 
 INSTITUTION_CONTROL_CHOICES = (("public", "Public"),
                                ("private_profit", "Private for-profit"),
@@ -1116,13 +1118,14 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
     def get_submit_url(self):
         category_submission = self.subcategory_submission.category_submission
         submissionset = category_submission.submissionset
-        return urlresolvers.reverse(
+        url = urlresolvers.reverse(
             'creditsubmission-submit',
             kwargs={'institution_slug': submissionset.institution.slug,
                     'submissionset': submissionset.id,
-                    'category_id': category_submission.category.id,
-                    'subcategory_id': self.subcategory_submission.subcategory.id,
-                    'credit_id': self.credit.id})
+                    'category_abbreviation': category_submission.category.abbreviation,
+                    'subcategory_slug': self.subcategory_submission.subcategory.slug,
+                    'credit_identifier': self.credit.identifier})
+        return url
 
     def get_scorecard_url(self):
         return self.credit.get_scorecard_url(self.subcategory_submission.category_submission.submissionset)

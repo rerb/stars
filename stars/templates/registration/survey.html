@@ -11,10 +11,11 @@
         <h1>Thank you for your registration!</h1>
         <p>Please fill out the following <i>optional</i> survey to help us learn more about why institutions are registering for STARS.</p>
         <form method='post' action='.'>
-        	{{ object_form|bootstrap }}
+        	{% csrf_token %}
+        	{{ form|bootstrap }}
             <div class='form-actions'>
-                <button type='submit' class='btn btn-primary'>Submit</button>
-                <button type='button' class='btn' onclick='document.location="/register/account/";'>Skip &gt;&gt;</button>
+                <button type='submit' class='btn btn-primary pull-right' style='margin-left: 10px'>Submit</button>
+                <a href="{%url tool-summary institution.slug %}" class='btn pull-right'>Skip &gt;&gt;</a>
             </div>
         </form>
     </div>

@@ -24,10 +24,3 @@ class RpcException(StarsException):
     """
     def __init__(self, message, user_message=None):
         StarsException.__init__(self, "XML-RPC", message, user_message)
-        
-class DbAccessException(StarsException):
-    """
-        A fatal exception specifically for DB type errors
-    """
-    def __init__(self, message, user_message=None):
-        StarsException.__init__(self, "DB Access", message, user_message)

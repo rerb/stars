@@ -3,7 +3,7 @@ import sys
 import string
 
 from django.forms import ModelForm
-from django.forms.widgets import TextInput
+from django.forms.widgets import TextInput, ClearableFileInput
 from django import forms
 from django.forms.extras.widgets import SelectDateWidget
 from django.forms.util import ErrorList
@@ -12,7 +12,6 @@ from stars.apps.helpers.forms import fields as custom_fields
 from stars.apps.helpers.forms.forms import LocalizedModelFormMixin
 from stars.apps.helpers.forms.util import WarningList
 from stars.apps.submissions.models import *
-from stars.apps.tool.my_submission.widgets import UploadFileWidget
 
 from form_utils.forms import BetterModelForm
 
@@ -200,7 +199,7 @@ class MultiChoiceWithOtherSubmissionForm(AbstractMultiFieldSubmissionForm):
 
 class URLSubmissionForm(SubmissionFieldForm):
     value = forms.URLField(required=False, verify_exists=False,
-                           widget=TextInput(attrs={'size': 60,}))
+                           widget=TextInput(attrs={'style': 'width: 600px;',}))
 
     class Meta:
         model = URLSubmission
@@ -266,7 +265,7 @@ class TextSubmissionForm(SubmissionFieldForm):
     def __init__(self, *args, **kwargs):
         """ If there is an instance with choices, set up the choices. """
         super(TextSubmissionForm, self).__init__(*args, **kwargs)
-        self['value'].field.widget.attrs['size'] = 60
+        self['value'].field.widget.attrs['style'] = "width: 600px;"
         if self.instance:
             max = self.instance.documentation_field.max_range
             if max != None:
@@ -293,7 +292,7 @@ class TextSubmissionForm(SubmissionFieldForm):
 class LongTextSubmissionForm(SubmissionFieldForm):
     value = forms.CharField(
         widget=forms.Textarea(
-            attrs={'class': 'noMCE', 'cols': '60', 'rows': '8',}),
+            attrs={'style': 'width: 600px;height:100px;'}),
             required=False)  # don't use MCE for submissions!
 
     class Meta:
@@ -329,7 +328,7 @@ class UploadSubmissionForm(SubmissionFieldForm):
     def __init__(self, *args, **kwargs):
         """ Change the widget """
         super(UploadSubmissionForm, self).__init__(*args, **kwargs)
-        self.fields['value'].widget = UploadFileWidget()
+        self.fields['value'].widget = ClearableFileInput()
 
     def save(self, *args, **kwargs):
         instance = super(UploadSubmissionForm, self).save(*args, **kwargs)
@@ -644,6 +643,8 @@ class CreditUserSubmissionForm(CreditSubmissionForm):
                 choices=CREDIT_SUBMISSION_STATUS_CHOICES_W_NA,
                 attrs={'onchange': 'toggle_applicability_reasons(this);'})
 
+        self.fields['submission_notes'].widget.attrs['style'] = "width: 600px;"
+
         # Select only the responsible parties associated with that institution
         self.fields['responsible_party'].queryset = self.instance.subcategory_submission.category_submission.submissionset.institution.responsibleparty_set.all()
         for field in self:
@@ -714,8 +715,8 @@ class CreditUserSubmissionNotesForm(LocalizedModelFormMixin, ModelForm):
     """
         A Form for storing internal notes about a Credit Submission
     """
-    internal_notes = forms.CharField(widget=forms.Textarea(
-        attrs={'class': 'noMCE','cols':'60', 'rows': '25'}), required=False)
+    internal_notes = forms.CharField(label="Only shared internally", widget=forms.Textarea(
+        attrs={'style': "width: 600px;height: 300px;"}), required=False)
 
     class Meta:
         model = CreditUserSubmission
@@ -780,11 +781,8 @@ class LetterForm(LocalizedModelFormMixin, ModelForm):
 
     def clean_presidents_letter(self):
         data = self.cleaned_data['presidents_letter']
-        # this doesn't test properly because of a bug in django
-        # http://code.djangoproject.com/ticket/11159
-        # @todo update this code after 1.2.2 is released
-        if (self.files.has_key('presidents_letter') and
-            self.files['presidents_letter'].content_type != 'application/pdf'
+        if ('1-presidents_letter' in self.files.keys()
+            and self.files['1-presidents_letter'].content_type != 'application/pdf'
             and not 'test' in sys.argv):
             raise forms.ValidationError("This doesn't seem to be a PDF file")
         return data
@@ -792,15 +790,6 @@ class LetterForm(LocalizedModelFormMixin, ModelForm):
     def __init__(self, *args, **kwargs):
         super(LetterForm, self).__init__(*args, **kwargs)
         self.fields['presidents_letter'].required = True
-
-
-class LetterStatusForm(LetterForm):
-    """
-        A Form to accept the president's letter and optional reporter status
-    """
-    class Meta:
-        model = SubmissionSet
-        fields = ['presidents_letter','reporter_status',]
 
 
 class ExecContactForm(LocalizedModelFormMixin, ModelForm):

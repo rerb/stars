@@ -3,10 +3,12 @@ from logging import getLogger
 import sys
 
 from django.conf import settings
+from django.forms.models import model_to_dict
+
 from zc.authorizedotnet.processing import CcProcessor
 
 import stars.apps.institutions.models
-from stars.apps.registration.utils import is_canadian_zipcode
+from utils import is_canadian_zipcode
 
 logger = getLogger('stars')
 
@@ -20,21 +22,44 @@ class CreditCardPaymentProcessor(object):
         Processes credit card payments.
     """
 
-    def process_subscription_payment(self, subscription, amount, user, form):
+    def process_payment_form(self,
+                             contact_info,
+                             amount,
+                             user,
+                             form,
+                             invoice_num,
+                             product_name=None):
         """
-            Processes a subscription credit card payment.
+            A simple payment processing form for the reg process
         """
         payment_context = self._get_payment_context(
             pay_form=form,
-            institution=subscription.institution)
+            contact_info=contact_info)
 
-        product_dict = { 'price': amount,
-                         'quantity': 1,
-                         'name': "STARS Subscription Purchase" }
+        if not product_name:
+            product_name = "STARS Subscription Purchase"
+
+        product_dict = {'price': amount,
+                        'quantity': 1,
+                        'name':  product_name}
 
         result = self._process_payment(
             payment_context=payment_context,
             product_list=[product_dict],
+            invoice_num=invoice_num)
+
+        return result
+
+    def process_subscription_payment(self, subscription, amount, user, form):
+        """
+            Processes a subscription credit card payment.
+        """
+
+        result = self.process_payment_form(
+            model_to_dict(subscription.institution),
+            amount,
+            user,
+            form,
             invoice_num=subscription.institution.aashe_id)
 
         if result['cleared'] and result['trans_id']:
@@ -56,12 +81,16 @@ class CreditCardPaymentProcessor(object):
         else:
             raise CreditCardProcessingError(result['msg'])
 
-        return payment, payment_context
+        return payment, self._get_payment_context(
+            pay_form=form,
+            contact_info=model_to_dict(subscription.institution))
 
-    def _get_payment_context(self, pay_form, institution):
+    def _get_payment_context(self, pay_form, contact_info):
         """
             Extracts the payment context for process_payment from a
             given form and institution.
+
+            @todo - make this more generic, so it doesn't rely on institution
         """
         cc = pay_form.cleaned_data['card_number']
         l = len(cc)
@@ -83,12 +112,14 @@ class CreditCardPaymentProcessor(object):
             'billing_state': pay_form.cleaned_data['billing_state'],
             'billing_zipcode': pay_form.cleaned_data['billing_zipcode'],
             'country': "USA",
-            'billing_firstname': institution.contact_first_name,
-            'billing_lastname': institution.contact_last_name,
-            'billing_email': institution.contact_email,
+
+            # contact info from the institution
+            'billing_firstname': contact_info['contact_first_name'],
+            'billing_lastname': contact_info['contact_last_name'],
+            'billing_email': contact_info['contact_email'],
             'description': "{inst} STARS Registration ({when})".format(
-                inst=institution.name, when=datetime.now().isoformat()),
-            'company': institution.name,
+                inst=contact_info['contact_last_name'], when=datetime.now().isoformat()),
+#            'company': contact_info['name'],
             'last_four': last_four,
         }
 
@@ -150,7 +181,7 @@ class CreditCardPaymentProcessor(object):
                     'conf': capture_result.approval_code,
                     'trans_id': capture_result.trans_id}
         else:
-            logger.warning("Payment denied for %s %s (%s)" %
+            logger.error("Payment denied for %s %s (%s)" %
                            (payment_context['billing_firstname'],
                             payment_context['billing_lastname'],
                             result.response_reason))

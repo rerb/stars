@@ -23,7 +23,7 @@ class SubmissionStructureMixin(CreditsetStructureMixin):
         self.add_context_callback("get_creditsubmission")
         self.add_context_callback("get_fieldsubmission")
     
-    def get_submissionset(self):
+    def get_submissionset(self, use_cache=True):
         """
             Attempts to get a submissionset using the kwargs.
             Returns None if not in kwargs.
@@ -41,7 +41,8 @@ class SubmissionStructureMixin(CreditsetStructureMixin):
                                         cache_key='submissionset',
                                         kwargs_key='submissionset',
                                         klass=self.get_institution().submissionset_set.all(),
-                                        property=property
+                                        property=property,
+                                        use_cache=use_cache
                                         )
         return obj
             

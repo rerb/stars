@@ -24,7 +24,7 @@
     </ul>
   </li>
 
-  {% testrule institution_has_internal_notes_feature active_submission.institution %}
+  {% testrule institution_has_internal_notes_feature institution %}
      <li{% if active == "notes"%} class='active'{% endif %}>
      	<a href="{{ credit_submission.get_submit_url }}notes/">Internal Notes</a>
      </li>

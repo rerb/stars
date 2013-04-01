@@ -1,0 +1,7 @@
+{% extends "tool/submissions/submit_wizard.html" %}
+
+{% load help %}
+
+{% block above_submit_form %}
+    {% get_help_context 'submit_for_rating_warning' %}
+{% endblock %}
