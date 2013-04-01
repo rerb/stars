@@ -4,50 +4,14 @@
 
 {% if user %}
 
-  {% if user.is_staff and site_status.maintenance_mode %}
-    <div class='notice'>STARS site is Offline</div>
-
-  {% else %}
-    {% if user.is_staff and site_status.hide_reporting_tool %}
-      <div class='notice'>Reporting Tool is Hidden</div>
-    {% endif %}
-  {% endif %}
-
   {% if user.is_authenticated %}
     {% load helpers %}
     {{ user.email|truncchar:25 }} |
 
-    {% if user.account_list %}
-      <select onchange="selectSchool(this);">
-        <option value='0'>Select your institution</option>
-        {% for a in user.account_list %}
-          <option value='{{ a.institution.id }}'
-                {% ifequal a user.account %}
-                  selected='selected'
-                {% endifequal %}>
-            {{ a.institution.name|truncchar:40 }}
-          </option>
-        {% endfor %}
-      </select> |
-
-    {% else %}
-
-      {% if institution %}
-        <span title='{{ institution }}'>
-          {{ institution.name|truncchar:40 }}
-        </span>
-        {% if user.is_staff %}
-          (<a href='/tool/admin/'>change</a>)
-        {% endif %}
-        |
-
-      {% else %}
-        {% if user.is_staff %}
-          <a href='/tool/admin/'>
-            Select Institution</a>
-          |
-        {% endif %}
-      {% endif %}
+    {% if user.is_staff %}
+      <a href='/tool/admin/'>
+        Select Institution</a>
+      |
     {% endif %}
 
     <a href='/pages/help/'>Help</a> |
