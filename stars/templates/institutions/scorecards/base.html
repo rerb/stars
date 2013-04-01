@@ -1,0 +1,25 @@
+{% extends 'institutions/base.html' %}
+
+{% block title %}{{ institution }} | Scorecard | {{ block.super }}{% endblock %}
+
+{% block extra_head %}
+    {{ block.super }}
+    <link href='{{ STATIC_URL }}css/listexpander.css' rel='stylesheet' type='text/css' />
+    <script src='{{ STATIC_URL }}js/listexpander.js' type='text/javascript'></script>
+{% endblock %}
+
+{% block body_onload %}{{ block.super }}listexpander();collapseSummary();{% endblock %}
+
+{% block crumb-tab %}
+    <li>
+    	<a href='/institutions/{{ submissionset.institution.slug }}/report/'>{{ submissionset.institution }}</a>
+    	<span class="divider">/</span>
+    </li>
+    <li>
+    	{% if submissionset.was_submitted %}
+    		{{ submissionset.date_submitted }}
+    	{% else %}
+    		{{ submissionset.creditset }}
+    	{% endif %}
+    </li>
+{% endblock %}
