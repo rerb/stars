@@ -1,0 +1,87 @@
+{% extends 'registration/wizard_base.html' %}
+
+{% load content %}
+{% load bootstrap %}
+{% load fieldsets %}
+
+{% block above_submit_form %}
+	<h1>Participant Registration: <i>{{ institution }}</i></h1>
+    <p>Please review your contact information below.</p>
+{% endblock %}
+
+{% block submit_form_fields %}
+        <table style='margin: 10px auto; width: 700px;' class='table'>
+            <thead>
+            	<tr>
+                	<th>STARS Liaison</th>
+                	<th>Executive Contact</th>
+           		</tr>
+           	</thead>
+           	<tbody>
+	            <tr>
+	                <td>
+	                    {{ contact.contact_first_name }} {{ contact.contact_last_name }}<br/>
+	                    {{ contact.contact_title }}, {{ contact.contact_department }}<br/>
+	                    {{ contact.contact_phone }}<br/>
+	                    {{ contact.contact_email }}<br/>
+	                    <button name="wizard_goto_step" type="submit"
+						class='btn btn-small' value="{{ wizard.steps.prev }}"
+						style='margin-right: 10px;'>Edit</button>
+	                </td>
+	                <td>
+	                    {{ contact.executive_contact_first_name }} {{ contact.executive_contact_last_name }}<br/>
+	                    {{ contact.executive_contact_title }}, {{ contact.executive_contact_department }}<br/>
+	                    {{ contact.executive_contact_phone }}<br/>
+	                    {{ contact.executive_contact_email }}<br/>
+	                    <button name="wizard_goto_step" type="submit"
+						class='btn btn-small' value="{{ wizard.steps.prev }}"
+						style='margin-right: 10px;'>Edit</button>
+	                </td>
+	            </tr>
+	   		</tbody>
+        </table>
+        <h2>Payment</h2>
+        <p>This one-time payment covers registration and submission.</p>
+        <div class='note'>
+            {% if institution.is_member %}
+                {{ institution }} is a member of AASHE! You qualify for the discounted rate of: <b>${{ wizard.form.amount }}</b>.
+            {% else %}
+                {{ institution }} is not a member of AASHE. Your current rate is: <b>${{ wizard.form.amount }}</b>. Members get a discount when registering for STARS. <a href='http://www.aashe.org/membership/description.php'>Become a member</a>.
+                <br/><br/>
+                <i>If you feel this is an error please contact us at <a href='mailto:stars@aashe.org'>stars@aashe.org</a>.</i>
+            {% endif %}
+            <table style='margin: 10px auto; width: 400px;' class='table'>
+                <thead>
+                <tr>
+                    <th>Member Fee</th>
+                    <th>Non-Member Fee</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>
+                    	$900
+                    	{% if not institution.is_member %}
+                    	    <br/>
+                        	<a class='btn btn-success btn-small' href='http://www.aashe.org/membership/description.php'>Become a member</a>
+                        {% endif %}
+                    </td>
+                    <td>
+                    	$1400
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        	{% get_fieldset pay_later as pay_later from wizard.form %}
+        	{{ pay_later|bootstrap }}
+        	{% get_fieldset name_on_card,card_number,exp_month,exp_year,cv_code,billing_address,billing_address,billing_city,billing_state,billing_zipcode,discount_code as cc_fields from wizard.form %}
+            {{ cc_fields|bootstrap }}
+            <div class="alert alert-info">
+                {% if institution.is_member %}
+                    Your member rate is: <b>${{ wizard.form.amount }}</b>.
+                {% else %}
+                    Your non-member rate is: <b>${{ wizard.form.amount }}</b>.
+                {% endif %}
+            </div>
+{% endblock %}

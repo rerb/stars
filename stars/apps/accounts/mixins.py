@@ -15,6 +15,7 @@ from stars.apps.institutions.rules import user_has_access_level, \
 
 logger = getLogger('stars.request')
 
+
 class StarsAccountMixin(object):
     """
         Login Required

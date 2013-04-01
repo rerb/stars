@@ -23,7 +23,7 @@
            </td>
            <td>{{ payment.get_reason_display }}</td>
            <td><strong>${{ payment.amount|floatformat:2 }}</strong></td>
-           <td>{{ payment.user }}</td>
+           <td>{{ payment.user.email }}</td>
            <td>{% show_payment_type_icon payment %}</td>
            <td>{{ payment.date }}</td>
            <td>{{ payment.confirmation }}</td>

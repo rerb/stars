@@ -9,7 +9,7 @@ from stars.apps.institutions.models import (Institution,
                                             STARS_USERLEVEL_CHOICES,
                                             Subscription)
 from stars.apps.registration.models import ValueDiscount
-from stars.apps.registration.utils import is_canadian_zipcode, is_usa_zipcode
+from stars.apps.payments.utils import is_canadian_zipcode, is_usa_zipcode
 from stars.apps.submissions.models import (SubmissionSet, ResponsibleParty,
                                            Boundary)
 from stars.apps.third_parties.models import ThirdParty

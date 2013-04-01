@@ -76,9 +76,9 @@
            	</div>
             <div class='form-actions'>
                 {% if is_member %}
-                    Your member rate is: <b>${{ price }}</b>.
+                    Your member rate is: <b>${{ wizard.form.amount }}</b>.
                 {% else %}
-                    Your non-member rate is: <b>${{ price }}</b>.
+                    Your non-member rate is: <b>${{ wizard.form.amount }}</b>.
                 {% endif %}<br/><br/>
                 <button type='button' class='btn' onclick='document.location="/register/step2/";'>&lt;&lt; Back</button>
                 <button type='submit' class='btn btn-primary'>

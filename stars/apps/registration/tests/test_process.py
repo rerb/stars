@@ -12,7 +12,12 @@ from django.test import TestCase
 from django.core import mail
 from django.test.client import Client
 
-from stars.apps.institutions.models import Institution, SubscriptionPayment
+from datetime import date
+
+from stars.apps.institutions.models import (Institution,
+                                            Subscription,
+                                            SubscriptionPayment)
+from stars.apps.registration.models import ValueDiscount
 
 
 class TestProcess(TestCase):
@@ -23,339 +28,215 @@ class TestProcess(TestCase):
     multi_db = True
 
     def setUp(self):
-        pass
 
-    def regInternational(self, name, slug):
-        """
-            Run the first step for international registration
-        """
-        url = '/register/international/'
+        print "***Testing Registration"
 
-        c = Client()
-        c.login(username='test_user', password='test')
-        post_dict = {}
-        response = c.get(url, post_dict)
-        self.assertTrue(response.status_code == 200)
+        self.test_inst_aashe_id = 24394
+        self.test_inst_slug = 'okanagan-college-bc'
 
-        post_dict = {'institution_name': name,}
-        response = c.post(url, post_dict, follow=False)
-        self.assertTrue(response.status_code == 302)
+        self.url = '/register/'
 
-        self.assertTrue(c.session['selected_institution'].slug == slug)
-        self.assertTrue(c.session['selected_institution'].international)
+        self.liaison_contact_dict = {
+            'contact-contact_first_name': 'ben',
+            'contact-contact_middle_name': 'wood',
+            'contact-contact_last_name': 'stookey',
+            'contact-contact_title': 'title',
+            'contact-contact_department': 'dept.',
+            'contact-contact_phone': '1231231234',
+            'contact-contact_email': 'stars_test_liaison@aashe.org'}
 
-        return c
+        self.exec_contact_dict = {
+            'contact-executive_contact_first_name': 'ben',
+            'contact-executive_contact_middle_name': 'wood',
+            'contact-executive_contact_last_name': 'stookey',
+            'contact-executive_contact_title': 'title',
+            'contact-executive_contact_department': 'dept.',
+            'contact-executive_contact_email': 'stars_test_exec@aashe.org'}
 
-    def regStep1(self, id, slug):
-        """
-            Run the first step of registration
-        """
+        self.payment_dict = {
+            'payment-name_on_card': u'ben',
+            'payment-card_number': u'4007000000027',
+            'payment-exp_month': u'12',
+            'payment-exp_year': unicode(date.today().year + 1),
+            'payment-cv_code': u'123',
+            'payment-billing_address': u'123 Street st.',
+            'payment-billing_city': u'Newport',
+            'payment-billing_state': u'RI',
+            'payment-billing_zipcode': u'02840',
+            'payment-discount_code': u'STARS-TEST'}
 
-        # Select Institution
-
-        url = '/register/'
-
-        c = Client()
-        c.login(username='test_user', password='test')
-        post_dict = {}
-        response = c.get(url, post_dict)
-        self.assertTrue(response.status_code == 200)
-
-        post_dict = {'aashe_id': id,}
-        response = c.post(url, post_dict, follow=False)
-        self.assertTrue(response.status_code == 302)
-
-        self.assertTrue(c.session['selected_institution'].slug == slug)
-
-        return c
-
-    def regStep2_participant(self, c, slug):
-
-        url = '/register/step2/'
-
-        post_dict = {}
-        response = c.get(url, post_dict)
-        self.assertTrue(response.status_code == 200)
-
-        post_dict = {u'level': [u'participant']}
-        response = c.post(url, post_dict, follow=False)
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response._headers['location'][1],
-                         'http://testserver/register/p/step3/')
-
-        self.assertTrue(c.session['selected_institution'].slug == slug)
-
-        return c
-
-    def regStep2_respondent(self, c, slug):
-
-        url = '/register/step2/'
-
-        post_dict = {}
-        response = c.get(url, post_dict)
-        self.assertTrue(response.status_code == 200)
-
-        post_dict = {u'level': [u'respondent']}
-        response = c.post(url, post_dict, follow=False)
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response._headers['location'][1],
-                         'http://testserver/register/r/step3/')
-
-        self.assertTrue(c.session['selected_institution'].slug == slug)
-
-        return c
-
-    def regStep3_participant(self, c, slug):
-        """
-           Run test up to step 3 of the participant registration process:
-               Contact information
-
-           return the client object
-        """
-
-        # Contact Information
-
-        url = '/register/p/step3/'
-
-        # Empty Query
-        post_dict = {}
-        response = c.get(url, post_dict)
-        self.assertTrue(response.status_code == 200)
-
-        # Same Emails
-        post_dict = {
-                    "contact_first_name": 'test',
-                    'contact_last_name': 'test',
-                    'contact_title': 'test',
-                    'contact_department': 'test',
-                    'contact_phone': '123 555 1212',
-                    'contact_email': 'test@aashe.org',
-                    "executive_contact_first_name": 'test',
-                    'executive_contact_last_name': 'test',
-                    'executive_contact_title': 'test',
-                    'executive_contact_department': 'test',
-                    'executive_contact_email': 'test@aashe.org',
-                   }
-        response = c.get(url, post_dict)
-        self.assertTrue(response.status_code == 200)
-
-        post_dict['contact_email'] = 'test2@aashe.org'
-        response = c.post(url, post_dict, follow=False)
-        self.assertTrue(response.status_code == 302)
-
-        self.assertTrue(c.session['selected_institution'].slug == slug)
-
-        return c
-
-    def regStep3_respondent(self, c, slug):
-        """
-           Run test up to step 3 of the respondent registration process:
-               Contact information
-
-           return the client object
-        """
-
-        # Contact Information
-
-        url = '/register/r/step3/'
-
-        # Empty Query
-        post_dict = {}
-        response = c.get(url, post_dict)
-        self.assertTrue(response.status_code == 200)
-
-        # Same Emails
-        post_dict = {
-                    "contact_first_name": 'test',
-                    'contact_last_name': 'test',
-                    'contact_title': 'test',
-                    'contact_department': 'test',
-                    'contact_phone': '123 555 1212',
-                    'contact_email': 'test@aashe.org',
-                   }
-        response = c.post(url, post_dict, follow=False)
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response._headers['location'][1],
-                         'http://testserver/register/r/survey/')
-        self.assertTrue(c.session['selected_institution'].slug == slug)
-
-        return c
-
-    def testPayLater(self):
-        """
-           Test the ConfirmClassView
-               - Handles a basic HTTP request w/out 500
-               - Processes the form and returns a redirect to step 2
-        """
-
-        print "Testing Pay Later"
-
-        c = self.regStep1(24394, 'okanagan-college-bc')
-        c = self.regStep2_participant(c, 'okanagan-college-bc')
-        c = self.regStep3_participant(c, 'okanagan-college-bc')
-
-        # confirm that it hasn't been created yet
-        self.assertTrue(c.session['selected_institution'].id == None)
-
-        # Test Payment
-        url = '/register/p/step4/'
-
-        # Empty Query
-        post_dict = {}
-        response = c.get(url, post_dict)
-        self.assertTrue(response.status_code == 200)
-
-        # Pay Later
-        post_dict = {'confirm': u'on',}
-        response = c.post(url, post_dict)
-
-        self.assertTrue(response.status_code == 302)
-        self.assertTrue(len(mail.outbox) == 2)
-
-        # Check payments
-        institution = Institution.objects.get(aashe_id=24394)
-#        p = Payment.objects.get(submissionset__institution=institution)
-#        self.assertEqual(p.reason, "member_reg")
-
-        self.assertEqual(SubscriptionPayment.objects.filter(
-            subscription__institution=institution).count(), 0)
+        discount = ValueDiscount(code='STARS-TEST', amount=200,
+                           start_date=date.today(), end_date=date.today())
+        discount.save()
 
     def testRespondent(self):
         """
-           Test the ConfirmClassView
-               - Handles a basic HTTP request w/out 500
-               - Processes the form and returns a redirect to step 2
+            Runs through registration as a respondent
+        """
+        print "***Testing Respondent"
+
+        c = Client()
+        c.login(username='test_user', password='test')
+
+        self.assertEqual(0, Institution.objects.count())
+        self.assertEqual(0, Subscription.objects.count())
+        self.assertEqual(0, SubscriptionPayment.objects.count())
+
+        # Step 1: Select institution
+        post_dict = {}
+        response = c.get(self.url, post_dict)
+        self.assertTrue(response.status_code == 200)
+        post_dict = {'registration_wizard-current_step': 'select',
+                     'select-aashe_id': self.test_inst_aashe_id}
+        response = c.post(self.url, post_dict)
+        self.assertTrue(response.status_code == 200)
+
+        # Step 2: Participation level
+        post_dict = {'registration_wizard-current_step': 'level',
+                     'level-level': 'respondent'}
+        response = c.post(self.url, post_dict)
+        self.assertTrue(response.status_code == 200)
+
+        # Step 3: Contact information
+        post_dict = {'registration_wizard-current_step': 'contact'}
+        post_dict.update(self.liaison_contact_dict)
+        response = c.post(self.url, post_dict)
+        # redirected to survey
+        self.assertTrue(response.status_code == 302)
+        self.assertEqual(response._headers['location'][1],
+                         "http://testserver/register/%s/survey/" %
+                         self.test_inst_slug)
+
+        # two emails sent out
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].to, [u'stars_test_liaison@aashe.org',
+                                             'stars_test_user@aashe.org'])
+
+        self.assertEqual(1, Institution.objects.count())
+        self.assertEqual(0, Subscription.objects.count())
+        self.assertEqual(0, SubscriptionPayment.objects.count())
+
+    def participantFirstSteps(self, c):
+        """
+            The first three steps are shared by the pay later
+            and pay now options
         """
 
-        print "Testing Respondent Registration"
+        # Step 1: Select institution
+        post_dict = {}
+        response = c.get(self.url, post_dict)
+        self.assertTrue(response.status_code == 200)
+        post_dict = {'registration_wizard-current_step': 'select',
+                     'select-aashe_id': self.test_inst_aashe_id}
+        response = c.post(self.url, post_dict)
+        self.assertTrue(response.status_code == 200)
 
-        slug = 'florida-national-college-fl'
+        # Step 2: Participation level
+        post_dict = {'registration_wizard-current_step': 'level',
+                     'level-level': 'participant'}
+        response = c.post(self.url, post_dict)
+        self.assertTrue(response.status_code == 200)
 
-        c = self.regStep1(16384, slug)
-        c = self.regStep2_respondent(c, slug)
-        c = self.regStep3_respondent(c, slug)
+        # Step 3: Contact information
+        post_dict = {'registration_wizard-current_step': 'contact'}
+        post_dict.update(self.liaison_contact_dict)
+        post_dict.update(self.exec_contact_dict)
+        response = c.post(self.url, post_dict)
+        self.assertTrue(response.status_code == 200)
 
-        # confirm that the institution has been created
-        self.assertNotEqual(c.session['selected_institution'].id, None)
-
-        # Check payments
-        institution = Institution.objects.get(aashe_id=16384)
-        self.assertEqual(institution.slug, slug)
-#        p = Payment.objects.get(submissionset__institution=institution)
-#        self.assertEqual(p.reason, "member_reg")
-
-    def testPayLaterInternational(self):
+    def testParticipantPayLater(self):
         """
-           Test the ConfirmClassView
-               - Handles a basic HTTP request w/out 500
-               - Processes the form and returns a redirect to step 2
+            participant registering and selecting to pay later
+
+            @todo - this needs to test for required fields
         """
+        print "***Testing ParticipantPayLater"
 
-        print "Testing Pay Later International"
+        c = Client()
+        c.login(username='test_user', password='test')
 
-        c = self.regInternational("Dummy Institution", 'dummy-institution')
-        c = self.regStep3_participant(c, 'dummy-institution')
-        self.assertTrue(c.session['selected_institution'].international)
+        self.assertEqual(0, Institution.objects.count())
+        self.assertEqual(0, Subscription.objects.count())
+        self.assertEqual(0, SubscriptionPayment.objects.count())
 
-        # # Email notifications
-        # self.assertEqual(len(mail.outbox), 2)
+        self.participantFirstSteps(c)
 
-        # # Check payments
-        # institution = Institution.objects.get(name='Dummy Institution')
+        # Step 4: Payment (pay later)
+        post_dict = {'registration_wizard-current_step': 'payment',
+                     'payment-pay_later': u'on'}
+        response = c.post(self.url, post_dict)
 
-    # def testPayWithCard(self):
-    #     """
-    #        Test the ConfirmClassView
-    #            - Handles a basic HTTP request w/out 500
-    #            - Processes the form and returns a redirect to step 2
-    #     """
-    #
-    #     c = self.regStep2(16384, 'florida-national-college-fl')
-    #
-    #     # Test Payment
-    #     url = '/register/step3/'
-    #
-    #     # Empty Query
-    #     post_dict = {}
-    #     response = c.get(url, post_dict)
-    #     self.assertTrue(response.status_code == 200)
-    #
-    #     post_dict = {
-    #                    'name_on_card': 'Test Person',
-    #                    'card_number': '4007000000027',
-    #     #                        'card_number': '4222222222222',
-    #                    'exp_month': str(date.today().month),
-    #                    'exp_year': str(date.today().year + 1),
-    #                    'cv_code': '123',
-    #                    'billing_address': '123 Stree rd',
-    #                    'billing_city': "Providence",
-    #                    'billing_state': 'RI',
-    #                    'billing_zipcode': '01234',
-    #                 }
-    #     response = c.post(url, post_dict)
-    #     self.assertTrue(response.status_code == 302)
-    #     self.assertTrue(len(mail.outbox) == 2)
+        # redirected to survey
+        self.assertTrue(response.status_code == 302)
+        self.assertEqual(response._headers['location'][1],
+                         "http://testserver/register/%s/survey/" %
+                         self.test_inst_slug)
 
-  #   def testPayment(self):
-  #
-  #         login = settings.REAL_AUTHORIZENET_LOGIN
-  #         key = settings.REAL_AUTHORIZENET_KEY
-  #         server = settings.REAL_AUTHORIZENET_SERVER
-  #
-  #         # Test payment
-  #         invoice = random.random()
-  #         today = date.today()
-  #         payment_dict = {
-  # #                            'cc_number': '4007000000027',
-  #                             'cc_number': '4222222222222',
-  #                             'exp_date': "%d%d" % (today.month, (today.year+1)),
-  #                             'cv_number': '123',
-  #                             'billing_address': '123 Street Rd',
-  #                             'billing_address_line_2': '',
-  #                             'billing_city': 'City',
-  #                             'billing_state': 'ST',
-  #                             'billing_zipcode': '12345',
-  #                             'country': "USA",
-  #                             'billing_firstname': "first name",
-  #                             'billing_lastname': 'last name',
-  #                             'description': "%s STARS Registration" % "BOGUS INSTITUTION",
-  #                         }
-  #         product_list = [{'name': 'test', 'price': 1, 'quantity': 1},]
-  #         response = process_payment(
-  #                                    payment_dict,
-  #                                    product_list,
-  #                                    invoice_num=invoice,
-  #                                    server=server,
-  #                                    login=login,
-  #                                    key=key
-  #                                    )
-  #         print >> sys.stderr, response
-  #         self.assertTrue(response['cleared'] == True)
-  #         self.assertTrue(response['trans_id'] != None)
+        # two emails sent out
+        self.assertEqual(len(mail.outbox), 2)
+        self.assertEqual(mail.outbox[0].to, [u'stars_test_liaison@aashe.org',
+                                             'stars_test_user@aashe.org'])
+        self.assertEqual(mail.outbox[1].to, [u'stars_test_exec@aashe.org'])
 
-        # Test duplicate transactions
-        # Duplicate transactions aren't detected in test mode
-#        response = process_payment(
-#                                   payment_dict,
-#                                   product_list,
-#                                   invoice_num=invoice,
-#                                   server=server,
-#                                   login=login,
-#                                   key=key
-#                                   )
-#        print >> sys.stderr, response
-#        self.assertTrue(response['cleared'] == False)
-#        self.assertTrue(response['msg'] == 'A duplicate transaction has been submitted.')
+        self.assertEqual(1, Institution.objects.count())
+        self.assertEqual(1, Subscription.objects.count())
+        self.assertEqual(0, SubscriptionPayment.objects.count())
 
-        # multiple products
-#        product_list = [{'name': 'test', 'price': 1, 'quantity': 2},]
-#        response = process_payment(payment_dict,
-#                                   product_list,
-#                                   invoice_num=invoice,
-#                                   server=server,
-#                                   login=login,
-#                                   key=key
-#                                   )
-#        print >> sys.stderr, response
-#        self.assertTrue(response['cleared'] == True)
-#        self.assertTrue(response['trans_id'] != None)
+    def testParticipantPayNow(self):
+        """
+            participant registering and selecting to pay now
+
+            @todo - this needs to test for required fields
+        """
+        print "***Testing ParticipantPayNow"
+
+        c = Client()
+        c.login(username='test_user', password='test')
+
+        self.assertEqual(0, Institution.objects.count())
+        self.assertEqual(0, Subscription.objects.count())
+        self.assertEqual(0, SubscriptionPayment.objects.count())
+
+        self.participantFirstSteps(c)
+
+        # Step 4: Payment
+        post_dict = {'registration_wizard-current_step': 'payment'}
+        post_dict.update(self.payment_dict)
+
+        # bogus card
+        post_dict['payment-card_number'] = u'1212121212121'
+        response = c.post(self.url, post_dict)
+        self.assertEqual(response.status_code, 200)
+
+        # test card should pass
+        post_dict['payment-card_number'] = u'4007000000027'
+        response = c.post(self.url, post_dict)
+
+        # redirected to survey
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response._headers['location'][1],
+                         "http://testserver/register/%s/survey/" %
+                         self.test_inst_slug)
+
+        # two emails sent out to participants
+        # one email sent out for the errored card #
+        self.assertEqual(len(mail.outbox), 3)
+        self.assertEqual(mail.outbox[1].to, [u'stars_test_liaison@aashe.org',
+                                             'stars_test_user@aashe.org'])
+        self.assertEqual(mail.outbox[2].to, [u'stars_test_exec@aashe.org'])
+
+        self.assertEqual(1, Institution.objects.count())
+        self.assertEqual(1, Subscription.objects.count())
+        self.assertEqual(1, SubscriptionPayment.objects.count())
+
+        # test survey
+        url = ("http://testserver/register/%s/survey/" %
+                         self.test_inst_slug)
+        response = c.get(url)
+        self.assertEqual(response.status_code, 200)
+
+        post_dict = {}
+        response = c.post(url, post_dict)
+        self.assertEqual(response._headers['location'][1],
+                         "http://testserver/tool/%s/" %
+                         self.test_inst_slug)
