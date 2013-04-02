@@ -50,19 +50,28 @@ class InstitutionToolMixinTest(ProtectedFormMixinViewTest):
         return ''
 
     def test_success_url_is_loadable(self, **kwargs):
-        super(InstitutionToolMixinTest, self).test_get_succeeds(
-            institution_slug=self.institution.slug,
-            pk=self._get_pk())
+        if kwargs != {}:
+            super(InstitutionToolMixinTest, self).test_get_succeeds(**kwargs)
+        else:
+            super(InstitutionToolMixinTest, self).test_get_succeeds(
+                institution_slug=self.institution.slug,
+                pk=self._get_pk())
 
     def test_get_succeeds(self, **kwargs):
-        super(InstitutionToolMixinTest, self).test_get_succeeds(
-            institution_slug=self.institution.slug,
-            pk=self._get_pk())
+        if kwargs != {}:
+            super(InstitutionToolMixinTest, self).test_get_succeeds(**kwargs)
+        else:
+            super(InstitutionToolMixinTest, self).test_get_succeeds(
+                institution_slug=self.institution.slug,
+                pk=self._get_pk())
 
     def test_get_is_blocked(self, **kwargs):
-        super(InstitutionToolMixinTest, self).test_get_is_blocked(
-            institution_slug=self.institution.slug,
-            pk=self._get_pk())
+        if kwargs != {}:
+            super(InstitutionToolMixinTest, self).test_get_is_blocked(**kwargs)
+        else:
+            super(InstitutionToolMixinTest, self).test_get_is_blocked(
+                institution_slug=self.institution.slug,
+                pk=self._get_pk())
 
 
 class InstitutionAdminToolMixinTest(InstitutionToolMixinTest):

@@ -56,7 +56,7 @@
         {
             "creditset": 1,
              "image_200": "",
-             "name": "Rating 2",
+             "name": "Reporter",
              "image_large": "",
              "minimal_score": 1
         }
@@ -207,17 +207,6 @@
         "fields":
         {
             "submissionset": 1
-        }
-    },
-
-    {
-        "pk": 1,
-         "model": "institutions.institutionstate",
-         "fields":
-        {
-            "active_submission_set": 1,
-             "latest_rated_submission_set": null,
-             "institution": 1
         }
     },
 

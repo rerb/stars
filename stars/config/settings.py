@@ -68,7 +68,7 @@ MIDDLEWARE_CLASSES = [ # a list so it can be editable during tests (see below)
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'stars.apps.accounts.middleware.AuthenticationMiddleware',  # must come after django.contrib.auth.middleware
+#    'stars.apps.accounts.middleware.AuthenticationMiddleware',  # must come after django.contrib.auth.middleware
     'django.middleware.cache.FetchFromCacheMiddleware',
     'django.contrib.redirects.middleware.RedirectFallbackMiddleware',
     'django.middleware.doc.XViewMiddleware',

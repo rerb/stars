@@ -19,6 +19,8 @@ from stars.test_factories import InstitutionFactory,\
     SubscriptionFactory, RatingFactory, CreditSetFactory, \
     SubmissionSetFactory
 
+from aashe.issdjango.models import Organizations
+
 
 class ActiveInstitutionsViewTest(TestCase):
     """Test the ActiveInstitutionsView
@@ -37,7 +39,8 @@ class ActiveInstitutionsViewTest(TestCase):
             s = SubscriptionFactory(start_date=today, end_date=today+td, institution=i)
             i.current_subscription = s
             i.save()
-         # create 1 non-active Institutions
+
+        # create 1 non-active Institutions
         for _ in range(1):
             i = InstitutionFactory()
             s = SubscriptionFactory(end_date=today-td, institution=i)
@@ -120,11 +123,16 @@ class ScorecardViewTest(TestCase):
         This test is enough to cover the code and bring up any
         500 errors. It is not a complete functionality test.
     """
-    fixtures = ['rated_submission.json',]
+    fixtures = ['rated_submission.json']
 
     def setUp(self):
-
-        pass
+        for i in Institution.objects.all():
+            o = Organizations(account_num=i.aashe_id,
+                              org_name=i.name,
+                              city='city',
+                              state='state',
+                              exclude_from_website=False)
+            o.save()
 
     def test_with_client(self):
         c = Client()

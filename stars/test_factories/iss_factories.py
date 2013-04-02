@@ -3,26 +3,17 @@ import time
 
 import factory
 
-from misc_factories import UserFactory
-from stars.apps.institutions.models import (ClimateZone, Institution,
-                                            PendingAccount, StarsAccount,
-                                            Subscription, SubscriptionPayment)
+from aashe.issdjango.models import Organizations
 
 
-class ClimateZoneFactory(factory.Factory):
-    FACTORY_FOR = ClimateZone
-
-
-class InstitutionFactory(factory.Factory):
-    FACTORY_FOR = Institution
+class OrganizationsFactory(factory.Factory):
+    FACTORY_FOR = Organizations
 
     enabled = True
     slug = factory.Sequence(
         lambda i: 'test-inst-{0}-{1}'.format(i, time.time()))
     name = factory.Sequence(
         lambda i: 'test institution {0}.{1}'.format(i, time.time()))
-    aashe_id = factory.Sequence(
-        lambda i: '%s' % i)
 
 
 class PendingAccountFactory(factory.Factory):
