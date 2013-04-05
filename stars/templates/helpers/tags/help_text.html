@@ -9,7 +9,23 @@
                 <i class='icon-question-sign'></i>
             </a>
             <script type='text/javascript'>
-                $('#{{ id }}').popover();
+                function position_relative_to_center(pop, dom_el) {
+                    /*
+                       When we're to the right of center, return 'left';
+                       when we're to the left of center, return 'right'.
+
+                       When used as the `placement` option of a popover,
+                       this solves the problem of popovers near the right
+                       of the window displaying off screen.
+                     */
+                    var center = window.innerWidth / 2;
+                    var popover_left = $(dom_el).offset().left;
+                    if (popover_left < center)
+                        return 'right';
+                    else
+                        return 'left';
+                }
+                $('#{{ id }}').popover({placement: position_relative_to_center});
             </script>
         {% else %}
             {% if modal %}
