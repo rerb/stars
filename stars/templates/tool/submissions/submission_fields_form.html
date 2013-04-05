@@ -1,0 +1,12 @@
+        {{ form.non_field_errors }}
+        {{ form.non_field_warnings }}
+        {% for submit_field in form.get_submission_fields_and_forms %}
+        	<div class='documentationField'>
+            {% with submit_field.field.documentation_field as documentation_field %}
+            {% with submit_field.form as field_form %}
+                {% include 'tool/submissions/tags/documentation_field_form.html' %}
+            {% endwith %}
+            {% endwith %}
+            </div>
+        {% endfor %}
+        
