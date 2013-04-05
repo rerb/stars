@@ -5,7 +5,7 @@
                rel="popover"
                data-content="{{ help_text }}"
                id="{{ id }}"
-               data-original-title="{% if help_text_title %}{{ help_text_title }}{% else %}{% endif %}">
+               data-original-title="{% firstof help_text_title ' ' %}">
                 <i class='icon-question-sign'></i>
             </a>
             <script type='text/javascript'>
@@ -17,11 +17,7 @@
                     <div class="modal-header">
                         <button class="close">&times;</button>
                         <h3>
-                            {% if help_text_title %}
-                                {{ help_text_title }}
-                            {% else %}
-                                &nbsp;
-                            {% endif %}
+                            {% firstof help_text_title " " %}
                         </h3>
                     </div>
                     <div class="modal-body">
