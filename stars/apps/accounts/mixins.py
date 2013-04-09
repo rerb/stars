@@ -13,6 +13,9 @@ from stars.apps.institutions.models import StarsAccount, Institution
 from stars.apps.institutions.rules import user_has_access_level, \
      institution_has_export
 
+from aashe.aasheauth.middleware import SESSION_USER_DICT_KEY
+from aashe.aasheauth.models import AASHEUser
+
 logger = getLogger('stars.request')
 
 
@@ -28,6 +31,17 @@ class StarsAccountMixin(object):
     def get_stars_account_list(self):
         """ get all STARS Accounts associated with this user """
         return StarsAccount.objects.filter(user=self.request.user)
+
+    def user_is_member(self):
+        """
+            Pulls the member status from the user_dict in the session
+            Logs a user out if they don't have it
+        """
+        user_dict = self.request.user.aasheuser.get_drupal_user_dict()
+        if user_dict:
+            roles = user_dict['roles'].values()
+            return 'Member' in roles
+        return False
 
 
 class StarsMixin(object):

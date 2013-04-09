@@ -68,7 +68,7 @@ MIDDLEWARE_CLASSES = [ # a list so it can be editable during tests (see below)
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-#    'stars.apps.accounts.middleware.AuthenticationMiddleware',  # must come after django.contrib.auth.middleware
+#    'aashe.aasheauth.middleware.AASHEAccountMiddleware',
     'django.middleware.cache.FetchFromCacheMiddleware',
     'django.contrib.redirects.middleware.RedirectFallbackMiddleware',
     'django.middleware.doc.XViewMiddleware',
@@ -149,6 +149,8 @@ INSTALLED_APPS = (
     'stars.apps.third_parties',
     'stars.apps.api',
     'stars.tests',
+
+    'aashe.aasheauth',
     'aashe.issdjango',
     'south',
     'sorl.thumbnail',
@@ -194,6 +196,13 @@ STAGE_IRC_DOMAIN = "stage.aashe.org"
 IRC_DOMAIN = WWW_IRC_DOMAIN
 
 SERVICES_PATH = "services/xmlrpc"
+
+# aasheauth config
+AASHE_DRUPAL_URI = "http://www.aashe.org/services/xmlrpc"
+AASHE_DRUPAL_KEY = "8dca728d46c85b3fda4529692a7f7725"
+AASHE_DRUPAL_KEY_DOMAIN = "stars.aashe.org"
+AASHE_DRUPAL_COOKIE_SESSION = "SESS119812a4f54200aec862c73cf2ee"
+AASHE_DRUPAL_COOKIE_DOMAIN = ".aashe.org"
 
 SSO_AUTHENTICATION = "xmlrpc:s78dhe3Pm2T"
 
