@@ -18,6 +18,7 @@ else:
     # in this case it's path, but you could use computer name or something else
     if not config:
         configs = {
+            '/var/www/stars/.*': 'starsapp01',
     #        '/Users/jamstooks/.*': 'ben',
             '/Users/jesse/src/.*': 'jesse',
             '/Users/rerb/src/.*': 'bob',

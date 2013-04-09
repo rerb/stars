@@ -16,8 +16,7 @@ register = template.Library()
 def lookup_help_context(context_name):
     """ Pulls the help text from the DB if it's available """
     try:
-        c = HelpContext.objects.get(name=context_name)
-        return c
+        return HelpContext.objects.get(name=context_name)
     except HelpContext.DoesNotExist:
         logger.info("HelpContext, '%s', not found." % context_name)
         return None

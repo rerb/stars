@@ -2,7 +2,6 @@ from datetime import date, timedelta
 from logging import getLogger
 
 from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.contrib.auth.models import User
@@ -117,6 +116,9 @@ class Institution(models.Model):
     current_submission = models.ForeignKey("submissions.SubmissionSet", blank=True, null=True, related_name="current")
     current_subscription = models.ForeignKey("Subscription", blank=True, null=True, related_name='current')
     rated_submission = models.ForeignKey("submissions.SubmissionSet", blank=True, null=True, related_name='rated')
+    
+    def __unicode__(self):
+        return self.name
 
     def update_status(self):
         """
@@ -153,25 +155,31 @@ class Institution(models.Model):
         "Method to update properties from the parent org in the ISS"
 
         field_mappings = (
-                            ("name", "org_name"),
-                            ("aashe_id", "account_num"),
-                            ("org_type", "carnegie_class"),
-                            ("fte", "enrollment_fte"),
-                            ("is_pcc_signatory", "is_signatory"),
-                            ("is_member", "is_member"),
-                            ("is_pilot_participant", "pilot_participant"),
-                            ("country", "country")
+                            ("name", "org_name", True),
+                            ("aashe_id", "account_num", False),
+                            ("org_type", "org_type", True),
+                            ("fte", "enrollment_fte", False),
+                            ("is_pcc_signatory", "is_signatory", False),
+                            ("is_member", "is_member", False),
+                            ("is_pilot_participant", "pilot_participant", False),
+                            ("country", "country", True)
         )
 
         iss_org = self.profile
         if iss_org:
-            for k_self, k_iss in field_mappings:
-                setattr(self, k_self, getattr(iss_org, k_iss))
+            for k_self, k_iss, decode in field_mappings:
+                val = getattr(iss_org, k_iss)
+                if not isinstance(val, unicode) and decode and val:
+                    # decode if necessary from the latin1
+                    val = val.decode('latin1').encode('utf-8')
+                setattr(self, k_self, val)
+                
+            # additional membership logic for child members
+            if not self.is_member:
+                if getattr(iss_org, 'member_type') == "Child Member":
+                    self.is_member = True
         else:
             logger.error("No ISS institution found %s" % (self.name))
-
-    def __unicode__(self):
-        return self.name
 
     def get_admin_url(self):
         """ Returns the base URL for AASHE Staff to administer aspects of this institution """
@@ -272,11 +280,15 @@ class Institution(models.Model):
     def profile(self):
         from aashe.issdjango.models import Organizations
         try:
-            return Organizations.objects.get(account_num=self.aashe_id)
-        except Organizations.DoesNotExist as e:
-            return None
-        except Organizations.MultipleObjectsReturned as e:
-            return None
+            org = Organizations.objects.get(account_num=self.aashe_id)
+            return org
+        except Organizations.DoesNotExist:
+            logger.info("No ISS institution found for aashe_id %s" % 
+                           self.aashe_id)
+        except Organizations.MultipleObjectsReturned:
+            logger.warning("Multiple ISS Institutions for aashe_id %s" %
+                         self.aashe_id)
+        return None
 
     def is_member_institution(self):
         """
@@ -300,7 +312,17 @@ class Institution(models.Model):
                          exc_info=True)
             self.slug = iss_institution_id
 
-    def get_liaison_name(self):
+    def get_last_subscription_end(self):
+        """
+            Gets the end date for the last subscription in
+            all subscriptions for this institution
+        """
+        last_subscription_end = None
+        if self.subscription_set.count() > 0:
+            last_subscription_end = self.subscription_set.all().aggregate(Max('end_date'))['end_date__max']
+        return last_subscription_end
+    
+        def get_liaison_name(self):
         return ' '.join([self.contact_first_name,
                          self.contact_middle_name,
                          self.contact_last_name]).replace('  ', ' ')
@@ -331,7 +353,6 @@ class MigrationHistory(models.Model):
                                  self.target_ss.creditset.version,
                                  self.date)
 
-
 RATINGS_PER_SUBSCRIPTION = 1
 SUBSCRIPTION_DURATION = 365
 
@@ -350,6 +371,10 @@ class Subscription(models.Model):
     reason = models.CharField(max_length='16', blank=True, null=True)
     paid_in_full = models.BooleanField(default=False)
 
+    def __unicode__(self):
+        return "%s (%s - %s)" % (self.institution.name,
+                                 self.start_date,
+                                 self.end_date)
     MEMBER_BASE_PRICE = 900
     NONMEMBER_BASE_PRICE = 1400
 
@@ -749,6 +774,19 @@ class RespondentSurvey(models.Model):
 
     def __unicode__(self):
         return self.institution.__unicode__()
+
+class InstitutionState(models.Model):
+    """
+        Tracks the current state of an institution such as the current submission set
+    """
+    from stars.apps.submissions.models import SubmissionSet
+
+    institution = models.OneToOneField(Institution, related_name='state')
+    active_submission_set = models.ForeignKey(SubmissionSet, related_name='active_submission')
+    latest_rated_submission_set = models.ForeignKey(SubmissionSet, related_name='rated_submission', null=True, blank=True, default=None)
+
+    def __unicode__(self):
+        return unicode(self.institution)
 
 class InstitutionPreferences(models.Model):
     """

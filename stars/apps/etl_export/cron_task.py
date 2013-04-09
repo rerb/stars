@@ -8,4 +8,9 @@
 
 from stars.apps.etl_export.utils import update_etl
 
+import sys
+from datetime import datetime
+
+print >> sys.stdout, "Started ETL Export: %s" % datetime.now()
 update_etl()
+print >> sys.stdout, "Completed ETL Export: %s" % datetime.now()

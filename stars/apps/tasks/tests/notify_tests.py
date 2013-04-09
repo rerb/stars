@@ -14,7 +14,8 @@ from stars.apps.notifications.models import EmailTemplate
 from datetime import date, timedelta
 
 class NotificationTest(TestCase):
-    fixtures = ['notification_test.json', 'notification_emailtemplate_tests.json']
+    fixtures = ['notification_test.json',
+                'notification_emailtemplate_tests.json']
 
     def setUp(self):
         et = EmailTemplate(slug='test', description='test', content="testing: {{ val }}")
@@ -24,22 +25,25 @@ class NotificationTest(TestCase):
         """
             send_post_submission_survey
         """
+        mail.outbox = []
+
 
         # 2011-01-01
         # 2011-01-02
 
-        today = date(year=2011, month=1, day=29)
+        today = date(year=2011, month=1, day=14)
         send_post_submission_survey(today)
+        self.assertTrue(len(mail.outbox) == 0)
 
-        today = date(year=2011, month=1, day=31)
+        today = date(year=2011, month=1, day=15)
         send_post_submission_survey(today)
         self.assertTrue(len(mail.outbox) == 1)
 
-        today = date(year=2011, month=2, day=1)
+        today = date(year=2011, month=1, day=16)
         send_post_submission_survey(today)
         self.assertTrue(len(mail.outbox) == 2)
 
-        today = date(year=2011, month=2, day=2)
+        today = date(year=2011, month=1, day=17)
         send_post_submission_survey(today)
         self.assertTrue(len(mail.outbox) == 2)
 
@@ -48,6 +52,8 @@ class NotificationTest(TestCase):
         """
             send_notification_set
         """
+        
+        mail.outbox = []
 
         set = [
                 {'mail_to': ['ben@aashe.org',], 'template_slug': 'test', 'n_type': 'tst', 'identifier': 'tst_1', 'email_context': {"val": "testval",}},
