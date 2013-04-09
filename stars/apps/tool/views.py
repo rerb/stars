@@ -97,10 +97,15 @@ class NoStarsAccountView(TemplateView):
             associated with a user; when this happens, the first
             institution that's a STARS participant will be returned.
         """
-        if not user.userprofile.profile_instlist:
+        inst_list = None
+        if hasattr(user, 'aasheuser'):
+            user_dict = user.aasheuser.get_drupal_user_dict()
+            if user_dict:
+                inst_list = user_dict.get('profile_instlist', None)
+        if not inst_list:
             return None
 
-        institution_ids = user.userprofile.profile_instlist.split(',')
+        institution_ids = inst_list.split(',')
         num_institutions = len(institution_ids)
 
         # profile_instlist can be empty, so:
