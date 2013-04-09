@@ -16,7 +16,7 @@ from views import (AccountCreateViewTest, AccountDeleteViewTest,
 
 from stars.apps.tool.tests.views import (NoStarsAccountViewTest,
                                          SelectInstitutionViewTest,
-                                         SummaryToolViewTest,
+                                         #SummaryToolViewTest,
                                          ToolLandingPageViewTest)
 
 
@@ -42,6 +42,6 @@ __test__ = {
     'SubscriptionPaymentOptionsViewTest': SubscriptionPaymentOptionsViewTest,
     'SubscriptionCreateViewTest': SubscriptionCreateViewTest,
     'SubscriptionPaymentCreateViewTest': SubscriptionPaymentCreateViewTest,
-    'SummaryToolViewTest': SummaryToolViewTest,
+    #'SummaryToolViewTest': SummaryToolViewTest,
     'ToolLandingPageViewTest': ToolLandingPageViewTest
     }

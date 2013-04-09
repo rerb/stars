@@ -9,8 +9,8 @@ DEBUG_TOOLBAR = False
 CELERY_ALWAYS_EAGER = True
 
 # no emails during local dev
-#EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
-#EMAIL_FILE_PATH = '/tmp/stars-email-messages'
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_FILE_PATH = '/tmp/stars-email-messages'
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 ADMINS = ('ben@aashe.org',)

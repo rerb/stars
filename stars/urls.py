@@ -34,7 +34,8 @@ urlpatterns = patterns('',
     (r'^tool/', include('stars.apps.tool.urls')),
 
     # accounts:
-    (r'^accounts/', include('stars.apps.accounts.urls')),
+#    (r'^accounts/', include('stars.apps.accounts.urls')),
+    ('^accounts/', include('aashe.aasheauth.urls')),
 
     # admin
     (r'^_ad/', include(admin.site.urls)),

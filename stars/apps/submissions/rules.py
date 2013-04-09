@@ -1,6 +1,7 @@
 import aashe_rules
 
 from stars.apps.credits.models import CreditSet
+from stars.apps.submissions.models import Boundary
 from stars.apps.institutions.rules import (institution_can_get_rated,
                                            institution_has_export,
                                            institution_has_snapshot_feature,
@@ -138,6 +139,19 @@ def user_can_migrate_from_submission(user, submission):
     return False
 aashe_rules.site.register("user_can_migrate_from_submission",
                           user_can_migrate_from_submission)
+
+
+def submission_has_boundary(submission):
+    """
+        Institutions can't submit for a rating unless they have a boundary
+    """
+    try:
+        __ = submission.boundary
+        return True
+    except Boundary.DoesNotExist:
+        return False
+aashe_rules.site.register("submission_has_boundary",
+                          submission_has_boundary)
 
 
 def submission_has_scores(submission):

@@ -3,7 +3,7 @@ from logging import getLogger
 from django.conf import settings
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
-from django.contrib.auth import login
+#from django.contrib.auth import login
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.http import Http404
 from django.views.decorators.cache import never_cache
@@ -16,10 +16,12 @@ from stars.apps.accounts.utils import change_institution
 from stars.apps.accounts.forms import LoginForm, TOSForm
 from stars.apps.accounts.utils import respond
 
+from aashe.aasheauth.backends import login
+
 logger = getLogger('stars.request')
 
 @never_cache
-def login(request, redirect_field_name=REDIRECT_FIELD_NAME):
+def login_view(request, redirect_field_name=REDIRECT_FIELD_NAME):
     """"
         Displays the login form and handles the login action.
         Copied directly from django.contrib.auth.views.login, but uses LoginForm instead of AuthenticationForm
@@ -35,7 +37,6 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME):
             # Light security check -- make sure redirect_to isn't garbage.
             if not redirect_to or '//' in redirect_to or ' ' in redirect_to:
                 redirect_to = settings.LOGIN_REDIRECT_URL
-            from django.contrib.auth import login
             login(request, form.get_user())
             if request.session.test_cookie_worked():
                 request.session.delete_test_cookie()

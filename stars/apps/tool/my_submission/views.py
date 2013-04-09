@@ -201,6 +201,24 @@ class SubmitForRatingWizard(SubmissionToolMixin, SessionWizardView):
                                'message': "Sorry, you do not have privileges "
                                    "to submit for a rating."
                                })
+        self.add_logical_rule({
+                               'name': 'submission_has_boundary',
+                               'param_callbacks': [('submission',
+                                                    'get_submissionset')],
+                               'response_callback': 'redirect_to_boundary'
+                               })
+
+    def redirect_to_boundary(self):
+        messages.error(self.request,
+                      ("You must complete your Institutional Boundary"
+                      " before submitting for a rating."))
+        return HttpResponseRedirect(reverse('boundary-edit',
+                                            kwargs={
+                                                'institution_slug':
+                                                self.get_institution().slug,
+                                                'submissionset':
+                                                self.get_submissionset().id
+                                                }))
 
     def done(self, form_list, **kwargs):
         for form in form_list:
@@ -252,6 +270,9 @@ class RatingCongratulationsView(SubmissionToolMixin, TemplateView):
         Return a congratulations page on the most recent rating
     """
     template_name = 'tool/submissions/submit_success.html'
+
+    def get(self, *args, **kwargs):
+        return super(RatingCongratulationsView, self).get(*args, **kwargs)
 
 
 class SubcagegorySubmissionDetailView(UserCanEditSubmissionMixin, UpdateView):

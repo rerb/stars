@@ -24,18 +24,6 @@ def user_has_access_level(user, access_level, institution):
     return False
 aashe_rules.site.register("user_has_access_level", user_has_access_level)
 
-def user_is_aashe_member(user):
-    """
-        Tests a user's StarsAccounts for a member institution
-    """
-    if not user.is_authenticated():
-        return False
-    
-    if user.get_profile().is_member or user.is_staff:
-        return True
-    
-    return False
-aashe_rules.site.register("user_is_aashe_member", user_is_aashe_member)
 
 def user_is_participant(user):
     """
@@ -43,22 +31,27 @@ def user_is_participant(user):
     """
     if not user.is_authenticated():
         return False
-    
-    if user.get_profile().is_participant() or user.is_staff:
-        return True
-    
+
+    for account in user.starsaccount_set.all():
+        if account.institution.is_participant:
+            return True
+
     return False
 aashe_rules.site.register("user_is_participant", user_is_participant)
 
-def user_is_participant_or_member(user):
+
+def user_is_participant_or_member(user, is_member):
     """
         Check that the user is either a participant or a member
+
+        is_member is passed in because it's stored in the session
     """
-    if user_is_participant(user) or user_is_member(user):
+    if user_is_participant(user) or is_member:
         return True
-    
+
     return False
-aashe_rules.site.register("user_is_participant_or_member", user_is_participant_or_member)
+aashe_rules.site.register("user_is_participant_or_member",
+                          user_is_participant_or_member)
 
 
 def user_has_view_access(user, institution):

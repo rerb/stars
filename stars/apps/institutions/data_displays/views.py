@@ -343,10 +343,11 @@ class DisplayAccessMixinOld(object):
 
         return super(DisplayAccessMixin, self).post(request, *args, **kwargs)
 
+
 class DisplayAccessMixin(StarsAccountMixin, RulesMixin):
     """
         A basic rule mixin for all Data Displays
-        
+
         @todo: temporary access
     """
     def access_denied_callback(self):
@@ -397,13 +398,12 @@ class AggregateFilter(DisplayAccessMixin, CommonFilterMixin, FilteringMixin,
     template_name = "institutions/data_displays/categories.html"
 
     def update_logical_rules(self):
-        super(DisplayAccessMixin, self).update_logical_rules()
+        super(AggregateFilter, self).update_logical_rules()
         self.add_logical_rule({
                                'name': 'user_is_participant_or_member',
                                'param_callbacks': [
-                                                    (
-                                                        'user',
-                                                        'get_request_user'),
+                                                    ('user', 'get_request_user'),
+                                                    ('is_member', 'user_is_member')
                                                     ],
                                'response_callback': 'access_denied_callback'
                                })
@@ -747,6 +747,17 @@ class ContentFilter(DisplayAccessMixin, CommonFilterMixin,
             Javascript handles the form submission, but taking the selected
             value and appending them to the current querydict
     """
+    
+    def update_logical_rules(self):
+        super(ContentFilter, self).update_logical_rules()
+        self.add_logical_rule({
+                               'name': 'user_is_participant_or_member',
+                               'param_callbacks': [
+                                                    ('user', 'get_request_user'),
+                                                    ('is_member', 'user_is_member')
+                                                    ],
+                               'response_callback': 'access_denied_callback'
+                               })
 
     def get_description_help_context_name(self):
         return "data_display_content"

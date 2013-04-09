@@ -11,12 +11,24 @@ from django.contrib import messages
 from django.template.defaultfilters import slugify
 from django.db.models import Max
 from django.core.mail import send_mail
+from django.contrib.auth.signals import user_logged_in
+from django.dispatch import receiver
 
 from stars.apps.credits.models import CreditSet
 from stars.apps.registration.models import DiscountManager
 from stars.apps.notifications.models import EmailTemplate
 
 logger = getLogger('stars')
+
+
+@receiver(user_logged_in)
+def pending_accounts_callback(sender, **kwargs):
+    """
+        Catch the `user_logged_in` signal and convert any
+        Pending Accounts for the logged in user
+    """
+    user = kwargs['user']
+    PendingAccount.convert_accounts(user)
 
 
 class SubscriptionPurchaseError(Exception):

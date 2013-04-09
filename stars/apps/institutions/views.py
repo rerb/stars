@@ -505,6 +505,9 @@ class SubmissionInquiryView(InstitutionStructureMixin,
         kwargs.update({'instance': SubmissionInquiry(submissionset=ss)})
         return kwargs
 
+    def forms_invalid(self, form, inlines):
+        return super(SubmissionInquiryView, self).forms_invalid(form, inlines)
+
     def forms_valid(self, form, inlines):
         """
         If the form and formsets are valid, save the associated models.

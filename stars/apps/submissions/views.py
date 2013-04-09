@@ -1,9 +1,14 @@
 from django.shortcuts import get_object_or_404
 
 from stars.apps.credits.views import CreditsetStructureMixin
-from stars.apps.submissions.models import SubmissionSet, CategorySubmission, SubcategorySubmission, CreditSubmission, DocumentationFieldSubmission
+from stars.apps.submissions.models import (SubmissionSet,
+                                           CategorySubmission,
+                                           SubcategorySubmission,
+                                           CreditSubmission,
+                                           DocumentationFieldSubmission)
 
 import re
+
 
 class SubmissionStructureMixin(CreditsetStructureMixin):
     """
