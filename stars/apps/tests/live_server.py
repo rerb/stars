@@ -55,12 +55,12 @@ class StarsLiveServerTest(test.LiveServerTestCase):
         login_button.click()
 
         # Terms of Service page:
-        tos_checkbox = self.selenium.find_element_by_id('id_terms_of_service')
-        tos_checkbox.click()
-
-        tos_submit_button = self.selenium.find_element_by_css_selector(
-            'button[type="submit"]')
-        tos_submit_button.click()
+#        tos_checkbox = self.selenium.find_element_by_id('id_terms_of_service')
+#        tos_checkbox.click()
+#
+#        tos_submit_button = self.selenium.find_element_by_css_selector(
+#            'button[type="submit"]')
+#        tos_submit_button.click()
 
     def go_to_reporting_tool(self):
         reporting_tool_tab = self.selenium.find_element_by_link_text(

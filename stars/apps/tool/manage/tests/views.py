@@ -504,6 +504,7 @@ class SubscriptionCreateViewTest(InstitutionViewOnlyToolMixinTest):
 
         initial_subscription_count = Subscription.objects.count()
 
+        self.open_gate()
         _ = self.view_class.as_view()(request=self.request,
                                       institution_slug=self.institution.slug)
 
