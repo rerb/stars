@@ -32,6 +32,9 @@ def user_is_participant(user):
     if not user.is_authenticated():
         return False
 
+    if user.is_staff:
+        return True
+
     for account in user.starsaccount_set.all():
         if account.institution.is_participant:
             return True

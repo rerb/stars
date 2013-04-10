@@ -323,7 +323,7 @@ class Institution(models.Model):
         return last_subscription_end
     
         def get_liaison_name(self):
-        return ' '.join([self.contact_first_name,
+            return ' '.join([self.contact_first_name,
                          self.contact_middle_name,
                          self.contact_last_name]).replace('  ', ' ')
 

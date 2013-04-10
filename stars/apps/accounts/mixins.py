@@ -13,7 +13,6 @@ from stars.apps.institutions.models import StarsAccount, Institution
 from stars.apps.institutions.rules import user_has_access_level, \
      institution_has_export
 
-from aashe.aasheauth.middleware import SESSION_USER_DICT_KEY
 from aashe.aasheauth.models import AASHEUser
 
 logger = getLogger('stars.request')

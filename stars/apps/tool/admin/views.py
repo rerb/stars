@@ -39,27 +39,10 @@ def select_institution(request, id):
     institution = Institution.objects.get(id=id)
     if not institution:
         raise Http404("No such institution.")
-
-    if auth_utils.change_institution(request, institution):
-        redirect_url = request.GET.get('redirect',
-                                       reverse('tool-summary',
-                                               args=(institution.slug,)))
-        response = HttpResponseRedirect(redirect_url)
-        # special hack to "remember" current institution for staff
-        # between sessions
-        #  - can't store it in session because it gets overwritten on
-        #    login, can's store it with account b/c staff don't have
-        #    accounts.
-        #  - ideally, the cookie path would be LOGIN_URL, but the
-        #    first request we get is from the login redirect url.
-        response.set_cookie("current_inst", institution.id,
-                            path=settings.LOGIN_REDIRECT_URL)
-        return response
-    else:
-        messages.error(request,
-                       "Unable to change institution to %s - check the log?" %
-                       institution)
-        return HttpResponseRedirect(settings.ADMIN_URL)
+    redirect_url = request.GET.get('redirect',
+                                    reverse('tool-summary',
+                                    args=(institution.slug,)))
+    return HttpResponseRedirect(redirect_url)
 
 @user_is_staff
 def latest_payments(request):
