@@ -150,18 +150,18 @@ INSTALLED_APPS = (
     'stars.apps.api',
     'stars.tests',
 
+    'aashe_rules',
     'aashe.aasheauth',
     'aashe.issdjango',
-    'south',
-    'sorl.thumbnail',
+    'bootstrapform',
     'captcha',
     'django_extensions',
     'djcelery',
-    'aashe_rules',
-    'tastypie',
-    'bootstrapform',
-    # 'memcache_status',
+    'sorl.thumbnail',
+    'south',
     's3_folder_storage',
+    'tastypie',
+    'gunicorn',
 )
 
 # Is this running on the django dev server?
