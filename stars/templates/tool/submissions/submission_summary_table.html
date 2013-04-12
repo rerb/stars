@@ -1,0 +1,57 @@
+{% load aashe_rules_tags %}
+
+{% load help %}
+
+<table class='table table-striped table-bordered table-condensed'>
+    <thead>
+    <tr>
+        <th>
+          STARS Version
+        </th>
+        {% testrule institution_has_score_feature institution %}
+	        <th>
+	        	Provisional STARS Rating
+	        	{% show_help_context 'provisional_rating' %}
+	        </th>
+	        <th>Provisional Score</th>
+        {% endtestrule %}
+        <th>Export</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>
+          {{ submissionset.creditset.version }}
+          {% testrule user_can_migrate_version user institution %}
+              <br/>
+              <a href="{% url migrate-options institution.slug %}"
+                 class='btn btn-mini'>
+        	      <i class='icon-share-alt'></i>
+                  Migrate
+              </a>
+          {% endtestrule %}
+        </td>
+        {% testrule institution_has_score_feature institution %}
+        <td>
+            {{ submissionset.get_STARS_rating }}
+         </td>
+        <td>
+            {{ submissionset.get_STARS_score|floatformat:2 }}
+        </td>
+        {% endtestrule %}
+    	<td>
+          {% testrule institution_has_export submissionset.institution %}
+    		<a href='{{ submissionset.get_scorecard_url }}pdf/'
+    		{% if submissionset.status != 'r' or not submissionset.pdf_report %}
+    		onclick="return confirm('This export could take a minute or two, please be patient.');"
+    		{% endif %}
+    		target='_blank'>
+    			PDF
+    		</a>
+          {% else %}
+            {% include "tool/participant_only_snippet.html" %}
+          {% endtestrule %}
+    	</td>
+    </tr>
+    </tbody>
+</table>

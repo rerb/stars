@@ -1,0 +1,15 @@
+{% extends 'registration/wizard_base.html' %}
+
+{% load content %}
+{% load bootstrap %}
+{% load fieldsets %}
+
+{% block above_submit_form %}
+	<h1>{% display_snippet "reg_contact_respondent_title" user %}: <i>{{ wizard.form.instance }}</i></h1>
+	{% display_block_content "reg_respondent_contact_intro" user %}
+{% endblock %}
+
+{% block submit_form_fields %}
+                {% get_fieldset contact_first_name,contact_middle_name,contact_last_name,contact_title,contact_department,contact_phone,contact_email as contact_fields from wizard.form %}
+                {{ contact_fields|bootstrap }}
+{% endblock %}

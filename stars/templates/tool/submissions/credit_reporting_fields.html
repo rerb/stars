@@ -1,0 +1,121 @@
+{% extends 'tool/submissions/credit_base.html' %}
+
+{% load bootstrap %}
+{% load help %}
+
+{% block body_onload %}{{ block.super }}load_handler();{% endblock %}
+
+{% block body_beforeunload %}{{ block.super }}return before_unload_credit();{% endblock %}
+
+{% block extra_head %}
+	{{ block.super }}
+    <script type="text/javascript" src="{{ STATIC_URL }}admin/js/admin/RelatedObjectLookups.js"></script>
+    </script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/ajax.js"></script>
+    <script type="text/javascript">
+    function load_handler() {
+        enable_submit({% if form.errors %}true{% else %}false{% endif %}, false);
+        toggle_applicability_reasons(
+            get_selected_button(
+                document.forms.form.submission_status));
+    }
+    </script>
+{% endblock %}
+
+{% block credit_tabs %}{% with active='fields' %}{{ block.super }}{% endwith %}{% endblock %}
+
+{% block tab_content %}
+  {% load fieldsets %}
+  <form method='post' action='.' class='submit_form'
+        name='form' enctype="multipart/form-data"
+        onsubmit='enable_submit(false, true);'>
+
+	  {% if credit.applicabilityreason_set.all %}
+	      <div style='float: right;font-size: .9em;padding:10px;'>
+              Credit doesn't apply to you?
+              <a href='#status' class='classOne noExit' id='clickhere'>
+                  Click here</a>.
+          </div>
+	  {% endif %}
+	  <div style='font-size: .9em;padding:10px;'>
+	      <span class="required_note"
+                title="This field is required to complete credit">*</span>
+	      Required Fields
+	      <span class='conditionally_required_note'
+                title="In some cases, this field will be required to complete credit">*</span>
+	      Conditionally Required Fields
+	  </div>
+
+  <div class='creditContent'>
+  		<h2>Reporting Fields</h2>
+        {% include "tool/submissions/submission_fields_form.html" %}
+      <hr/>
+      <h3>Notes</h3>
+        <label>Notes about the submission{% if institution.is_participant %} (public){% endif %}:</label>
+        {% if form.submission_notes.errors %}{{ form.errors.submission_notes }}{% endif %}
+    	<div class='field-form'>
+    	   {{ form.submission_notes }}
+    	</div>
+      <hr/>
+      <h3>Responsible Party</h3>
+        {% if form.responsible_party.errors %}
+            {{ form.errors.responsible_party }}
+        {% endif %}
+        <span class="required_note"
+              title="This field is required to complete credit">*</span>
+        {{ form.responsible_party|bootstrap }}
+        <a href="{% url add-responsible-party institution.slug submissionset.id %}"
+           class="btn btn-info btn-small" id="add_id_responsible_party"
+           onclick="return showAddAnotherPopup(this);"
+           title='Add New Responsible Party'>
+        	Add
+        </a>
+        {% show_help_context 'responsible_party' %}
+        <br/>
+        {% if form.responsible_party_confirm.errors %}
+            {{ form.errors.responsible_party_confirm }}
+        {% endif %}
+        <span class="required_note"
+              title="This field is required to complete credit">*</span>
+        {{ form.responsible_party_confirm|bootstrap }}
+        <label class="required">By checking this box, I affirm that the information included in the submission for this credit is accurate to the best of my knowledge.</label>
+      <hr/>
+      <a name='status'></a>
+        <table>
+            <tr>
+                <td>
+                	Save with status:
+                	{% show_help_context 'submission_status' %}
+                </td>
+            </tr>
+            <tr>
+                <td class='submission_status'>
+                    {% show_help_context 'submission_status_choices' %}
+                    {% if form.submission_status.errors %}
+                        {{ form.errors.submission_status }}
+                    {% endif %}
+                    {{ form.submission_status|bootstrap }}
+                </td>
+            </tr>
+            {% if credit.applicabilityreason_set.all %}
+            <tr>
+                <td><div id='reason_choices'>
+                    Reason this credit does not apply:<br/>
+                        {% if form.applicability_reason.errors %}
+                          {{ form.errors.applicability_reason }}
+                        {% endif %}
+                        {{ form.applicability_reason }}
+                </div></td>
+            </tr>
+            {% endif %}
+        </table>
+
+    </div>
+    <div class='form-actions'>
+        <button type='submit' id='submit_button'
+                class="btn btn-primary{% if form.errors %} errors{% endif %}">
+            Save
+        </button>
+    </div>
+    </form>
+{% endblock %}

@@ -1,0 +1,98 @@
+STARS has moved from buildout to virtual env and pip. Here's how you set it up:
+
+	1	Using homebrew, be sure to install to the version of python you want to use:
+		(right now the production server is running 2.6.5)
+
+		`$ brew versions python`
+		... run the git checkout command
+		`$ brew switch python 2.x.x`
+
+	2	Create the virtual environment with the python 2.x.x executable (in this case called, stars-current)
+		I like to use virtualenvwrapper, so I only need to create the virtualenv
+		once: http://virtualenvwrapper.readthedocs.org/en/latest/ (see NOTES below)
+
+		`$ mkvirtualenv stars-current --no-site-packages --python=/usr/local/Cellar/python/2.x.x/bin/python`
+
+	3	Start the virtualenv
+		`$ workon stars-current`
+
+	4	Pip install requirements
+		`pip install -r requirements.txt`
+
+	5	Set up your ENV variables in $(WORKON_HOME)/stars-current/bin/postactivate
+		See example in notes
+
+NOTES:
+	I add the following two lines to my .bash_profile:
+
+		export WORKON_HOME=~/Envs
+		source /usr/local/share/python/virtualenvwrapper.sh
+
+	By creating stars-current one time, you can use it with any checkout of the code. Of course, if the requirements.txt
+	file changes then you will need to either re-run `pip install -r requirements.txt` or create another venv specifically
+	for that branch.
+
+	Example postactviate script:
+
+		#!/bin/sh
+		# This hook is sourced after the virtualenv is activated.
+
+		export STARS_DB_URL="mysql://root@localhost/stars"
+		export ISS_DB_URL="mysql://root@localhost/iss"
+		export STARS_TEST_DB="sqlite:////Users/jamstooks/sqlite/stars_tests.db"
+		export MEDIA_ROOT='/Users/jamstooks/aashe/app_media/stars/'
+STARS has moved from buildout to virtual env and pip. Here's how you set it up:
+
+	1	Using homebrew, be sure to install to the version of python you want to use:
+		(right now the production server is running 2.6.5)
+	
+		`$ brew versions python`
+		... run the git checkout command
+		
+	2	Create the virtual environment with the python 2.x.x executable (in this case called, stars-current)
+		I like to use virtualenvwrapper, so I only need to create the virtualenv
+		once: http://virtualenvwrapper.readthedocs.org/en/latest/ (see NOTES below)
+		
+		`$ mkvirtualenv stars-current --no-site-packages --python=/usr/local/Cellar/python/2.x.x/bin/python`
+		
+	3	Start the virtualenv
+		`$ workon stars-current`
+		
+	4	Pip install requirements
+		`pip install -r requirements.txt`
+		
+	5	Set up your ENV variables in $(WORKON_HOME)/stars-current/bin/preactivate
+		See example in notes
+	
+NOTES:
+	I add the following two lines to my .bash_profile:
+	
+		export WORKON_HOME=~/Envs
+		source /usr/local/share/python/virtualenvwrapper.sh
+	
+	By creating stars-current one time, you can use it with any checkout of the code. Of course, if the requirements.txt
+	file changes then you will need to either re-run `pip install -r requirements.txt` or create another venv specifically
+	for that branch.
+	
+	Example preactviate script:
+	
+		#!/bin/sh
+		# This hook is sourced after the virtualenv is activated
+
+		export DEBUG=1
+		export STARS_DB_URL="mysql://root@localhost/stars"
+		export ISS_DB_URL="mysql://root@localhost/iss"
+		export STARS_TEST_DB="sqlite:////Users/jamstooks/sqlite/stars_tests.db"
+		export ISS_TEST_DB="sqlite:////Users/jamstooks/sqlite/iss_tests.db"
+		export MEDIA_ROOT='/Users/jamstooks/aashe/app_media/stars/'
+		
+	A list of environment variables (* = optional):
+	
+		DEBUG*
+		
+		STARS_DB_URL
+		ISS_DB_URL
+		STARS_TEST_DB*
+		ISS_TEST_DB*
+		
+		MEDIA_ROOT
