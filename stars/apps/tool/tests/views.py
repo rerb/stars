@@ -4,7 +4,8 @@ import re
 
 from django.contrib.auth.middleware import AuthenticationMiddleware
 from django.contrib.messages.middleware import MessageMiddleware
-from django.core.exceptions import PermissionDenied, SuspiciousOperation
+from django.core.exceptions import SuspiciousOperation
+from django.http import Http404
 from mock import patch
 
 from stars.apps.tests.views import (ProtectedFormMixinViewTest,
@@ -165,14 +166,14 @@ class SubmissionSetIsNotLockedMixinTest(ProtectedViewTest):
             submissionset=str(self.submission.id))
 
 
-#class SummaryToolViewTest(InstitutionViewOnlyToolMixinTest):
-#    view_class = SummaryToolView
-#
-#    def test_get_with_no_slug_raises_permission_denied(self):
-#        """Does a GET w/no institution slug raise a 403?"""
-#        with self.assertRaises(PermissionDenied):
-#            _ = self.view_class.as_view()(self.request,
-#                                          institution_slug='')
+class SummaryToolViewTest(InstitutionViewOnlyToolMixinTest):
+    view_class = SummaryToolView
+
+    def test_get_with_no_slug_raises_page_not_found(self):
+        """Does a GET w/no institution slug raise a 404?"""
+        with self.assertRaises(Http404):
+            _ = self.view_class.as_view()(self.request,
+                                          institution_slug='')
 
 
 class ToolLandingPageViewTest(ViewTest):
@@ -289,7 +290,7 @@ class NoStarsAccountViewTest(ViewTest):
             self):
         first_institution = InstitutionFactory(is_participant=True)
         second_institution = InstitutionFactory(is_participant=True)
-        
+
         self.user_aashe_account.set_drupal_user_dict({'profile_instlist': ','.join(
             (str(first_institution.id), str(second_institution.id)))})
         self.user_aashe_account.save()
