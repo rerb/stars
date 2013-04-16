@@ -3,7 +3,7 @@ Fabric==1.4.2
 MySQL-python==1.2.4b5
 http://dist.repoze.org/PIL-1.1.6.tar.gz
 PyYAML==3.10
-South==0.7.5
+South==0.7.6
 Werkzeug==0.8.3
 -e hg+https://jamstooks:sustainaashe@bitbucket.org/aashe/aashe-python@812438d4fdbf7ca671cf0587e6cf9694970cf068#egg=aashe_python-dev
 -e hg+https://jamstooks:sustainaashe@bitbucket.org/aashe/aashe-rules/@0.2.1#egg=aashe_rules
