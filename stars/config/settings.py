@@ -164,9 +164,6 @@ INSTALLED_APPS = (
     'gunicorn',
 )
 
-# Is this running on the django dev server?
-STANDALONE_MODE = False
-
 # XML RPC
 XMLRPC_VERBOSE = False
 XMLRPC_USE_HASH = True

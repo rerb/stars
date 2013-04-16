@@ -53,18 +53,6 @@ urlpatterns = patterns('',
     (r'^cfm/', include('stars.apps.custom_forms.urls')),
 )
 
-if settings.STANDALONE_MODE:
-    urlpatterns += patterns('',
-        # static_media
-        (r'^media/static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': os.path.join(os.path.dirname(__file__), "static")}),
-        # tiny_mce
-        (r'^media/tp/js/tiny_mce/(?P<path>.*)$', 'django.views.static.serve', {'document_root': os.path.join(os.path.dirname(__file__), "../parts/tinyMCE/tinymce/jscripts/tiny_mce/")}),
-
-        (r'^media/tp/js/d3/(?P<path>.*)$', 'django.views.static.serve', {'document_root': os.path.join(os.path.dirname(__file__), "../parts/d3.js/mbostock-d3-224acae/")}),
-        # uploads and others
-        (r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT}),
-    )
-
 if settings.DEBUG:
     urlpatterns += patterns('',
         (r'^styles/$', 'django.views.generic.simple.direct_to_template', {'template': 'styles.html'}),
