@@ -7,12 +7,12 @@ from stars.apps.helpers.old_path_preserver import (OLD_PATHS_TO_PRESERVE,
 from stars.apps.institutions.models import Institution, StarsAccount
 from stars.apps.tool.mixins import InstitutionToolMixin
 
-import aashe_rules
+import logical_rules
 import stars.apps.accounts
 
 
 class SubmissionLockedView(
-        aashe_rules.mixins.RulesMixin,
+        logical_rules.mixins.RulesMixin,
         stars.apps.accounts.mixins.StarsAccountMixin,
         TemplateView):
 

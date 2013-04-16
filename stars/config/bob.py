@@ -117,7 +117,7 @@ TEMPLATE_STRING_IF_INVALID = 'INVALID EXPRESSION: %s' if DEBUG else ' '
 #                       'captcha',
 #                       'django_extensions',
 #                       'djcelery',
-#                       'aashe_rules',
+#                       'logical_rules',
 #                       'tastypie',
 #                       'bootstrapform',
 #                       'memcache_status',

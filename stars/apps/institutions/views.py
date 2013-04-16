@@ -16,7 +16,7 @@ from stars.apps.institutions.forms import (SubmissionSelectForm,
 from stars.apps.notifications.models import EmailTemplate
 from stars.apps.credits.views import StructureMixin
 
-from aashe_rules.mixins import RulesMixin
+from logical_rules.mixins import RulesMixin
 
 
 class InstitutionStructureMixin(StructureMixin):

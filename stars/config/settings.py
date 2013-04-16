@@ -150,7 +150,7 @@ INSTALLED_APPS = (
     'stars.apps.api',
     'stars.tests',
 
-    'aashe_rules',
+    'logical_rules',
     'aashe.aasheauth',
     'aashe.issdjango',
     'bootstrapform',

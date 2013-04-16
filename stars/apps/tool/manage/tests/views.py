@@ -8,7 +8,7 @@ from django.contrib import messages
 from django.shortcuts import render
 import testfixtures
 
-import aashe_rules
+import logical_rules
 from stars.apps.credits.models import CreditSet
 from stars.apps.institutions.models import (PendingAccount, StarsAccount,
                                             Subscription, SubscriptionPayment)
@@ -402,8 +402,8 @@ class MigrateViewTest(InstitutionAdminToolMixinTest):
             Deregisters a rule, and replaces it with a function that
             always returns arg named returns.
         """
-        aashe_rules.site.unregister(rule_name)
-        aashe_rules.site.register(rule_name,
+        logical_rules.site.unregister(rule_name)
+        logical_rules.site.register(rule_name,
                                   lambda *args: returns)
 
     def close_gate(self):

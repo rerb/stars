@@ -1,6 +1,6 @@
 from django.core.urlresolvers import reverse
 
-from aashe_rules.mixins import RulesMixin
+from logical_rules.mixins import RulesMixin
 from stars.apps.accounts.mixins import StarsAccountMixin
 from stars.apps.institutions.views import InstitutionStructureMixin
 from stars.apps.submissions.views import SubmissionStructureMixin

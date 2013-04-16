@@ -13,7 +13,7 @@ from django.http import HttpResponseRedirect
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView, FormView
 
-from aashe_rules.mixins import RulesMixin
+from logical_rules.mixins import RulesMixin
 from stars.apps.accounts.mixins import StarsAccountMixin
 
 from aashe.issdjango.models import TechnicalAdvisor

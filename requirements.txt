@@ -6,7 +6,7 @@ PyYAML==3.10
 South==0.7.5
 Werkzeug==0.8.3
 -e hg+https://jamstooks:sustainaashe@bitbucket.org/jamstooks/aashe-python#egg=aashe_python-dev
--e hg+https://jamstooks:sustainaashe@bitbucket.org/aashe/aashe-rules/@0.2.1#egg=aashe_rules
+-e hg+https://bitbucket.org/aashe/django-logical-rules#egg=logical_rules
 -e git+https://github.com/toastdriven/django-tastypie.git@32dae8d2590dde3122289118ac241ab0bd2452e8#egg=django_tastypie-dev
 amqplib==1.0.2
 anyjson==0.3.3

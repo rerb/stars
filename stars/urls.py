@@ -5,8 +5,8 @@ from django.conf import settings
 from django.contrib import admin
 admin.autodiscover()
 
-import aashe_rules
-aashe_rules.autodiscover()
+import logical_rules
+logical_rules.autodiscover()
 
 from stars.apps.helpers.old_path_preserver import (OldPathPreserverView,
                                                    OLD_PATHS_TO_PRESERVE)

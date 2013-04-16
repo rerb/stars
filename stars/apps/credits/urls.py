@@ -5,8 +5,8 @@ from stars.apps.credits.api.urls import api
 
 admin.autodiscover()
 
-import aashe_rules
-aashe_rules.autodiscover()
+import logical_rules
+logical_rules.autodiscover()
 
 urlpatterns = patterns('',
     (r'0.1/credits/', include(api.urls)),

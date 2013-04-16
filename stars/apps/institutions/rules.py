@@ -1,4 +1,4 @@
-import aashe_rules
+import logical_rules
 import sys
 from datetime import datetime, date, timedelta
 
@@ -22,7 +22,7 @@ def user_has_access_level(user, access_level, institution):
     except StarsAccount.DoesNotExist:
         pass
     return False
-aashe_rules.site.register("user_has_access_level", user_has_access_level)
+logical_rules.site.register("user_has_access_level", user_has_access_level)
 
 
 def user_is_participant(user):
@@ -40,7 +40,7 @@ def user_is_participant(user):
             return True
 
     return False
-aashe_rules.site.register("user_is_participant", user_is_participant)
+logical_rules.site.register("user_is_participant", user_is_participant)
 
 
 def user_is_participant_or_member(user, is_member):
@@ -53,7 +53,7 @@ def user_is_participant_or_member(user, is_member):
         return True
 
     return False
-aashe_rules.site.register("user_is_participant_or_member",
+logical_rules.site.register("user_is_participant_or_member",
                           user_is_participant_or_member)
 
 
@@ -62,25 +62,25 @@ def user_has_view_access(user, institution):
         hardcoded version of user_has_access_level for view access
     """
     return user_has_access_level(user, "view", institution)
-aashe_rules.site.register("user_has_view_access", user_has_view_access)
+logical_rules.site.register("user_has_view_access", user_has_view_access)
 
 def user_is_institution_admin(user, institution):
     return user_has_access_level(user, 'admin', institution)
-aashe_rules.site.register("user_is_institution_admin", user_is_institution_admin)
+logical_rules.site.register("user_is_institution_admin", user_is_institution_admin)
 
 def institution_can_get_rated(institution):
     if institution.is_participant and institution.current_subscription.get_available_ratings() > 0 and institution.current_subscription.paid_in_full:
     	return True
     return False
-aashe_rules.site.register("institution_can_get_rated", institution_can_get_rated)
+logical_rules.site.register("institution_can_get_rated", institution_can_get_rated)
 
 def institution_has_score_feature(institution):
     return institution.is_participant
-aashe_rules.site.register("institution_has_score_feature", institution_has_score_feature)
+logical_rules.site.register("institution_has_score_feature", institution_has_score_feature)
 
 def institution_has_internal_notes_feature(institution):
     return institution.is_participant
-aashe_rules.site.register("institution_has_internal_notes_feature", institution_has_internal_notes_feature)
+logical_rules.site.register("institution_has_internal_notes_feature", institution_has_internal_notes_feature)
 
 def institution_has_my_resources(institution):
     """
@@ -101,16 +101,16 @@ def institution_has_my_resources(institution):
             if max_dict['end_date__max'] >= date.today() - td:
                 return True
     return False
-aashe_rules.site.register("institution_has_my_resources", institution_has_my_resources)
+logical_rules.site.register("institution_has_my_resources", institution_has_my_resources)
 
 def institution_has_export(institution):
     return institution.is_participant
-aashe_rules.site.register("institution_has_export", institution_has_export)
+logical_rules.site.register("institution_has_export", institution_has_export)
 
 def institution_has_my_reports(institution):
     return institution.is_participant
-aashe_rules.site.register("institution_has_my_reports", institution_has_my_reports)
+logical_rules.site.register("institution_has_my_reports", institution_has_my_reports)
 
 def institution_has_snapshot_feature(institution):
     return institution.current_submission.creditset.has_feature('snapshot')
-aashe_rules.site.register("institution_has_snapshot_feature", institution_has_snapshot_feature)
+logical_rules.site.register("institution_has_snapshot_feature", institution_has_snapshot_feature)
