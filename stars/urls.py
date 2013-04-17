@@ -69,6 +69,10 @@ if settings.DEBUG:
         (r'^styles/$', 'django.views.generic.simple.direct_to_template', {'template': 'styles.html'}),
     )
 
+if settings.PROFILE:
+    urlpatterns += patterns('',
+                            url(r'^profiler/', include('profiler.urls')))
+
 import logging
 from sorl.thumbnail.log import ThumbnailLogHandler
 

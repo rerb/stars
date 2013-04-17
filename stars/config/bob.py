@@ -11,11 +11,12 @@ urwid.raw_display.Screen.signal_restore = lambda x : None
 from settings import *
 
 HIDE_REPORTING_TOOL = False
-DEBUG = False
+DEBUG = True
 TEMPLATE_DEBUG = DEBUG
-DEBUG_TOOLBAR = False
+DEBUG_TOOLBAR = DEBUG
 MAINTENANCE_MODE = False
 CELERY_ALWAYS_EAGER = True
+PROFILE = False
 
 ADMINS = (('Bob Erb', 'bob@aashe.org'),)
 MANAGERS = ADMINS
@@ -72,6 +73,11 @@ INSTALLED_APPS += ('django_extensions',
                    'django_nose',
                    'template_repl')
 
+if PROFILE:
+    INSTALLED_APPS += ('profiler',)
+    MIDDLEWARE_CLASSES.append('profiler.middleware.ProfilerMiddleware')
+#    MIDDLEWARE_CLASSES.append('profiler.middleware.StatProfMiddleware')
+
 if 'TEST_RUNNER' in os.environ: # django_nose.NoseTestSuiteRunner, for example
     if os.environ['TEST_RUNNER']:  # only use it if there's a value set
         TEST_RUNNER = os.environ['TEST_RUNNER'] or TEST_RUNNER
@@ -100,13 +106,21 @@ THUMBNAIL_DEBUG = True
 
 # django toolbar
 if DEBUG_TOOLBAR:
-    MIDDLEWARE_CLASSES = MIDDLEWARE_CLASSES.append(
+    MIDDLEWARE_CLASSES.append(
         'debug_toolbar.middleware.DebugToolbarMiddleware')
     INTERNAL_IPS = ('127.0.0.1',)
     INSTALLED_APPS = INSTALLED_APPS + ('debug_toolbar',)
-    DEBUG_TOOLBAR_CONFIG = {
-        'INTERCEPT_REDIRECTS': False,
-    }
+    DEBUG_TOOLBAR_PANELS = (
+        'debug_toolbar.panels.version.VersionDebugPanel',
+        'debug_toolbar.panels.timer.TimerDebugPanel',
+        'debug_toolbar.panels.settings_vars.SettingsVarsDebugPanel',
+        'debug_toolbar.panels.headers.HeaderDebugPanel',
+        'debug_toolbar.panels.request_vars.RequestVarsDebugPanel',
+        'debug_toolbar.panels.template.TemplateDebugPanel',
+        'debug_toolbar.panels.sql.SQLDebugPanel',
+        'debug_toolbar.panels.signals.SignalDebugPanel',
+        'debug_toolbar.panels.logger.LoggingPanel',
+    )
 
 TEMPLATE_STRING_IF_INVALID = 'INVALID EXPRESSION: %s' if DEBUG else ' '
 
