@@ -255,17 +255,23 @@ def get_registration_price(institution, new=True, discount_code=None):
         Coupon code should be evaluated beforehand. If the coupon code
         is not valid no discount will be assessed.
     """
-    price = {'member': 900, 'non': 1400}
+    prices = {'member': 900, 'non': 1400}
 
-    discount = 0
+    price = prices['member'] if institution.is_member else prices['non']
+
     if discount_code:
         try:
             discount = ValueDiscount.objects.get(code=discount_code).amount
         except ValueDiscount.DoesNotExist:
-            logger.warning("Invalid Coupon Code", exc_info=True)
-            pass
+            logger.warning("Invalid coupon code", exc_info=True)
+        else:
+            if discount.amount:
+                price = price - discount.amount
+            elif discount.percentage:
+                price = price - (price * (discount.percentage / 100.0))
+            else:
+                logger.warning("Invalid Coupon Code "
+                               "(no amount or percentage): '%s'" %
+                               discount_code)
 
-    if institution.is_member:
-        return price['member'] - discount
-    else:
-        return price['non'] - discount
+    return price

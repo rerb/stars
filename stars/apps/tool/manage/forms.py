@@ -8,7 +8,7 @@ from stars.apps.institutions.models import (Institution,
                                             InstitutionPreferences,
                                             STARS_USERLEVEL_CHOICES,
                                             Subscription)
-from stars.apps.registration.models import ValueDiscount
+from stars.apps.registration.models import ValueDiscount, get_current_discounts
 from stars.apps.payments.utils import is_canadian_zipcode, is_usa_zipcode
 from stars.apps.submissions.models import (SubmissionSet, ResponsibleParty,
                                            Boundary)
@@ -297,7 +297,7 @@ class PromoForm(forms.ModelForm):
             return None
 
         try:
-            ValueDiscount.objects.get_current().get(code=data)
+            get_current_discounts().get(code=data)
         except ValueDiscount.DoesNotExist:
             raise forms.ValidationError(
                 "Sorry, but that's not a valid promo code.")

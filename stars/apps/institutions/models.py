@@ -13,7 +13,7 @@ from django.db.models import Max
 from django.core.mail import send_mail
 
 from stars.apps.credits.models import CreditSet
-from stars.apps.registration.models import DiscountManager
+from stars.apps.registration.models import is_promo_code_current, ValueDiscount
 from stars.apps.notifications.models import EmailTemplate
 
 logger = getLogger('stars')
@@ -511,12 +511,15 @@ class Subscription(models.Model):
             tied to promo_code.
         """
         promo_discount = 0
+
         if promo_code:
-            discount_manager = DiscountManager()
-            if discount_manager.is_code_current(promo_code):
-                promo_discount = [ promo.amount for promo
-                             in discount_manager.get_current()
-                             if promo.code == promo_code ][0]
+            if is_promo_code_current(promo_code):
+                discount = ValueDiscount.objects.get(code=promo_code)
+                if discount.amount:
+                    promo_discount = discount.amount
+                elif discount.percentage:
+                    promo_discount = price * (discount.percentage / 100.0)
+
         return price - promo_discount
 
     def _apply_standard_discount(self, price):
@@ -527,7 +530,7 @@ class Subscription(models.Model):
            method to encapsulate it.  So, for instance, test code
            doesn't need to know the calculation to check pricing.
         """
-        return price /  2
+        return price / 2
 
     def _calculate_date_range(self):
         """

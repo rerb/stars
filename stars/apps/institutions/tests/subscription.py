@@ -11,7 +11,7 @@ from stars.apps.institutions.models import (Subscription, SubscriptionPayment,
                                             SUBSCRIPTION_DURATION)
 from stars.apps.payments.credit_card import CreditCardProcessingError
 from stars.apps.tool.manage.forms import PayNowForm
-from stars.apps.registration.models import DiscountManager, ValueDiscount
+from stars.apps.registration.models import ValueDiscount, is_promo_code_current
 from stars.test_factories import (InstitutionFactory, SubscriptionFactory,
                                   UserFactory, ValueDiscountFactory)
 
@@ -21,6 +21,7 @@ logger.setLevel(CRITICAL)
 
 GOOD_CREDIT_CARD = '4007000000027'  # good test credit card number
 BAD_CREDIT_CARD = '123412341234'
+
 
 def get_pay_now_form_data(card_number):
     form_data = {'name_on_card': 'slick johnny',
@@ -33,6 +34,7 @@ def get_pay_now_form_data(card_number):
                  'billing_state': 'pa',
                  'billing_zipcode': '12345'}
     return form_data
+
 
 def get_pay_now_form(card_number, subscription=None):
     form_data = get_pay_now_form_data(card_number)
@@ -136,7 +138,7 @@ class SubscriptionTest(TestCase):
     ####################################
 
     def test__subscription_discounted_no_previous_subscription(self):
-        """Does _subscription_discounted work when there's no prev subscription?
+        """Does _subscription_discounted work if there's no prev subscription?
         """
         self.assertFalse(self.subscription._subscription_discounted())
 
@@ -174,37 +176,45 @@ class SubscriptionTest(TestCase):
     # _apply_promo_code() tests:
     #############################
 
-    def test__apply_promo_code_valid_promo_code(self):
-        """Does _apply_promo_code work for a valid promo code?
+    def test__apply_promo_code_amount(self):
+        """Does _apply_promo_code work for a promo code with amount specified?
         """
-        promo_code = 'MOTHER-IN-LAW SPECIAL'
         promo_amount = 43
-        value_discount = ValueDiscount(
-            code=promo_code,
+        promo = ValueDiscountFactory(
             amount=promo_amount,
             start_date=date.today() - timedelta(days=1),
             end_date=date.today() + timedelta(days=1))
-        value_discount.save()
         initial_price = 5432
         self.assertEqual(
             self.subscription._apply_promo_code(initial_price,
-                                                promo_code),
+                                                promo.code),
             initial_price - promo_amount)
+
+    def test__apply_promo_code_percentage(self):
+        """Does _apply_promo_code work for percentage off promo code?
+        """
+        promo_percentage = 25
+        promo = ValueDiscountFactory(
+            amount=0,
+            percentage=promo_percentage,
+            start_date=date.today() - timedelta(days=1),
+            end_date=date.today() + timedelta(days=1))
+        self.assertEqual(
+            self.subscription._apply_promo_code(price=1000,
+                                                promo_code=promo.code),
+            750)
 
     def test__apply_promo_code_expired_promo_code(self):
         """Does _apply_promo_code work for an expired promo code?
         """
-        promo_code = 'FEELING LUCKY?'
         promo_amount = 50
-        value_discount = ValueDiscount(
-            code=promo_code,
+        promo = ValueDiscountFactory(
             amount=promo_amount,
             start_date=date.today() - timedelta(days=20),
             end_date=date.today() - timedelta(days=10))
-        value_discount.save()
         initial_price = 1000
         self.assertEqual(self.subscription._apply_promo_code(initial_price,
-                                                             promo_code),
+                                                             promo.code),
                          initial_price)
 
     def test__apply_promo_code_invalid_promo_code(self):
@@ -212,9 +222,10 @@ class SubscriptionTest(TestCase):
         (Where 'invalid' means nonexistant.)
         """
         initial_price = 10
-        self.assertEqual(self.subscription._apply_promo_code(initial_price,
-                                                             'BO-O-O-GUS CODE'),
-                         initial_price)
+        self.assertEqual(
+            self.subscription._apply_promo_code(initial_price,
+                                                'BO-O-O-GUS CODE'),
+            initial_price)
 
     def test__apply_promo_code_no_promo_code(self):
         """Does _apply_promo_code work when no promo code is supplied?
@@ -222,6 +233,17 @@ class SubscriptionTest(TestCase):
         initial_price = 10
         self.assertEqual(self.subscription._apply_promo_code(initial_price),
                          initial_price)
+
+    def test__apply_promo_code_100_percent(self):
+        """Does _apply_promo_code work when the promo is 100% off?
+        """
+        initial_price = 1400.99
+        promo = ValueDiscountFactory(
+            amount=0,
+            percentage=100)
+        self.assertEqual(self.subscription._apply_promo_code(initial_price,
+                                                             promo.code),
+                         0.0)
 
     ###########################
     # calculate_price() tests:
@@ -281,7 +303,7 @@ class SubscriptionTest(TestCase):
 
         self.assertEqual(price, price_check)
 
-        if DiscountManager().is_code_current(promo_code):
+        if is_promo_code_current(promo_code):
             self.assertTrue(promo_discount_applied)
         else:
             self.assertFalse(promo_discount_applied)
