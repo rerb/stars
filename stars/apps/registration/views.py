@@ -1,6 +1,5 @@
 from datetime import datetime
 from logging import getLogger
-import sys
 
 from django.contrib import messages
 from django.views.generic import CreateView
@@ -10,7 +9,6 @@ from django import forms
 
 from aashe.issdjango.models import Organizations
 
-from stars.apps.helpers.forms.views import FormActionView
 from stars.apps.institutions.models import (Institution, SubscriptionPayment,
                                             RegistrationSurvey)
 from stars.apps.notifications.models import EmailTemplate
@@ -20,22 +18,24 @@ from stars.apps.registration.forms import (SelectSchoolForm,
                                            RegistrationSurveyForm,
                                            RespondentRegistrationSurveyForm,
                                            ContactForm)
-from stars.apps.registration.models import ValueDiscount
 from stars.apps.tool.mixins import InstitutionAdminToolMixin
 from stars.apps.accounts.mixins import StarsAccountMixin
 from stars.apps.helpers.wizard import BetterWizardView, RevalidationFailure
 
-from utils import init_starsaccount, init_submissionset, init_subscription
+from .utils import init_starsaccount, init_submissionset, init_subscription
 
 from zc.authorizedotnet.processing import CcProcessor
 
 logger = getLogger('stars')
 
-
 REG_FORMS = [('select', SelectSchoolForm),
              ('level', ParticipationLevelForm),
              ('contact', ContactForm),
              ('payment', RegistrationPaymentForm)]
+
+MEMBER = True
+NON_MEMBER = False
+BASE_REGISTRATION_PRICE = {MEMBER: 900, NON_MEMBER: 1400}
 
 
 class RegistrationWizard(StarsAccountMixin, BetterWizardView):
@@ -94,9 +94,7 @@ class RegistrationWizard(StarsAccountMixin, BetterWizardView):
 
         elif step == 'payment':
             institution = self.get_form_instance('contact')
-            kwargs['amount'] = get_registration_price(institution,
-                                                      new=True,
-                                                      discount_code=None)
+            kwargs['amount'] = BASE_REGISTRATION_PRICE[institution.is_member]
             kwargs['user'] = self.request.user
             kwargs['contact_info'] = self.get_cleaned_data_for_step('contact')
             kwargs['invoice_num'] = institution.aashe_id
@@ -122,8 +120,9 @@ class RegistrationWizard(StarsAccountMixin, BetterWizardView):
         if response:
             return response
 
-        return HttpResponseRedirect(reverse('reg_survey',
-                                    kwargs={'institution_slug': institution.slug}))
+        return HttpResponseRedirect(
+            reverse('reg_survey',
+                    kwargs={'institution_slug': institution.slug}))
 
     def finalize_registration(self, institution, payment_form, **kwargs):
         """
@@ -152,8 +151,8 @@ class RegistrationWizard(StarsAccountMixin, BetterWizardView):
                     confirmation = payment_form.process_payment()
                 except forms.ValidationError, e:
                     messages.error(self.request,
-                            ("Sorry, but this transaction did not clear."
-                            " Reason: %s") % e)
+                                   ("Sorry, but this transaction did not "
+                                    "clear. Reason: %s") % e)
                     raise RevalidationFailure("revalidate",
                                               'payment',
                                               payment_form,
@@ -192,9 +191,10 @@ class RegistrationWizard(StarsAccountMixin, BetterWizardView):
 
         # Confirmation Email
         if institution.international:
-            et = EmailTemplate.objects.get(slug='welcome_international_pilot')
+            et = EmailTemplate.objects.get(
+                slug='welcome_international_pilot')
             email_context = {'institution': institution}
-        elif payment == None:
+        elif payment is None:
             et = EmailTemplate.objects.get(slug='welcome_liaison_unpaid')
             email_context = {'price': amount_due}
         else:
@@ -207,7 +207,8 @@ class RegistrationWizard(StarsAccountMixin, BetterWizardView):
         if institution.executive_contact_email:
             email_to = [institution.executive_contact_email]
             if institution.international:
-                et = EmailTemplate.objects.get(slug='welcome_international_pilot_ec')
+                et = EmailTemplate.objects.get(
+                    slug='welcome_international_pilot_ec')
             else:
                 et = EmailTemplate.objects.get(slug="welcome_exec")
             email_context = {"institution": institution}
@@ -221,8 +222,9 @@ def skip_payment_condition(wizard):
     return wizard.picked_participant()
 
 
-participant_reg = RegistrationWizard.as_view(REG_FORMS,
-                                             condition_dict={'payment': skip_payment_condition})
+participant_reg = RegistrationWizard.as_view(
+    REG_FORMS,
+    condition_dict={'payment': skip_payment_condition})
 
 
 class SurveyView(InstitutionAdminToolMixin, CreateView):
@@ -232,8 +234,9 @@ class SurveyView(InstitutionAdminToolMixin, CreateView):
 
     def get_form_kwargs(self):
         kwargs = super(SurveyView, self).get_form_kwargs()
-        kwargs['instance'] = RegistrationSurvey(institution=self.get_institution(),
-                                                user=self.request.user)
+        kwargs['instance'] = RegistrationSurvey(
+            institution=self.get_institution(),
+            user=self.request.user)
         return kwargs
 
     def get_form_class(self):
@@ -246,32 +249,3 @@ class SurveyView(InstitutionAdminToolMixin, CreateView):
         return reverse('tool-summary',
                        kwargs={'institution_slug':
                                self.get_institution().slug})
-
-
-def get_registration_price(institution, new=True, discount_code=None):
-    """
-        Calculates the registration price based on the institution.
-
-        Coupon code should be evaluated beforehand. If the coupon code
-        is not valid no discount will be assessed.
-    """
-    prices = {'member': 900, 'non': 1400}
-
-    price = prices['member'] if institution.is_member else prices['non']
-
-    if discount_code:
-        try:
-            discount = ValueDiscount.objects.get(code=discount_code).amount
-        except ValueDiscount.DoesNotExist:
-            logger.warning("Invalid coupon code", exc_info=True)
-        else:
-            if discount.amount:
-                price = price - discount.amount
-            elif discount.percentage:
-                price = price - (price * (discount.percentage / 100.0))
-            else:
-                logger.warning("Invalid Coupon Code "
-                               "(no amount or percentage): '%s'" %
-                               discount_code)
-
-    return price
