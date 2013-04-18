@@ -120,21 +120,22 @@ class PaymentForm(forms.Form):
 class PaymentFormWithPayLater(PaymentForm):
 
     pay_later = forms.BooleanField(
-         label="Please bill me and I will pay later.",
-         required=False,
-         widget=forms.CheckboxInput(attrs={'onchange':
-                                           'togglePayment(this);'}))
+        label="Please bill me and I will pay later.",
+        required=False,
+        widget=forms.CheckboxInput(attrs={'onchange':
+                                          'togglePayment(this);'}))
 
     def clean(self):
-        """
-            No errors if pay_later was selected
-        """
-        cleaned_data = self.cleaned_data
 
-        if cleaned_data['pay_later'] == True:
-            self._errors = None
-            return cleaned_data
+        if self.cleaned_data['pay_later']:
+            # When pay_later is selected, the only error we care about
+            # is discount_code.
+            for error in self._errors.keys():
+                if error != 'discount_code':
+                    del self._errors[error]
 
-        # run the PaymentForm clean in case we are
-        # processing the payment
-        return PaymentForm.clean(self)
+            return self.cleaned_data
+
+        else:  # pay now
+            # PaymentForm.clean is where the payment is processed:
+            return super(PaymentFormWithPayLater, self).clean()
