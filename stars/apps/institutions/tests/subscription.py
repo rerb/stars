@@ -11,7 +11,7 @@ from stars.apps.institutions.models import (Subscription, SubscriptionPayment,
                                             SUBSCRIPTION_DURATION)
 from stars.apps.payments.credit_card import CreditCardProcessingError
 from stars.apps.tool.manage.forms import PayNowForm
-from stars.apps.registration.models import ValueDiscount, is_promo_code_current
+from stars.apps.registration.models import ValueDiscount, get_current_discount
 from stars.test_factories import (InstitutionFactory, SubscriptionFactory,
                                   UserFactory, ValueDiscountFactory)
 
@@ -303,7 +303,9 @@ class SubscriptionTest(TestCase):
 
         self.assertEqual(price, price_check)
 
-        if is_promo_code_current(promo_code):
+        discount = get_current_discount(code=promo_code)
+
+        if discount:
             self.assertTrue(promo_discount_applied)
         else:
             self.assertFalse(promo_discount_applied)

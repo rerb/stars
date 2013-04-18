@@ -13,7 +13,7 @@ from django.db.models import Max
 from django.core.mail import send_mail
 
 from stars.apps.credits.models import CreditSet
-from stars.apps.registration.models import is_promo_code_current, ValueDiscount
+from stars.apps.registration.models import get_current_discount
 from stars.apps.notifications.models import EmailTemplate
 
 logger = getLogger('stars')
@@ -510,17 +510,12 @@ class Subscription(models.Model):
             Returns price, after applying any promotional discount
             tied to promo_code.
         """
-        promo_discount = 0
-
         if promo_code:
-            if is_promo_code_current(promo_code):
-                discount = ValueDiscount.objects.get(code=promo_code)
-                if discount.amount:
-                    promo_discount = discount.amount
-                elif discount.percentage:
-                    promo_discount = price * (discount.percentage / 100.0)
+            discount = get_current_discount(code=promo_code)
+            if discount:
+                price = discount.apply(price)
 
-        return price - promo_discount
+        return price
 
     def _apply_standard_discount(self, price):
         """

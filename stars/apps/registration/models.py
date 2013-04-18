@@ -5,21 +5,23 @@ from django.core.validators import MaxValueValidator
 from django.db import models
 
 
-def get_current_discounts():
+def get_current_discount(code):
     """
-    Only current discounts.
-    Can raise ValueDiscount.DoesNotExist exception.
-    """
-    return ValueDiscount.objects.filter(
-        start_date__lte=date.today()).filter(end_date__gte=date.today())
+    Returns the ValueDiscount with code == `code` if it's currently
+    applicable.
 
+    Returns None if there's no match on `code` or the discount has
+    expired.
+    """
+    try:
+        discount = ValueDiscount.objects.get(code=code)
+    except ValueDiscount.DoesNotExist:
+        return None
 
-def is_promo_code_current(code):
-    """
-    Checks if `code` matches a current discount.
-    """
-    return bool(code in [value_discount.code for value_discount
-                         in get_current_discounts()])
+    if discount.current:
+        return discount
+    else:
+        return None
 
 
 class ValueDiscount(models.Model):
@@ -67,6 +69,20 @@ class ValueDiscount(models.Model):
         return (self._amount_or_percentage_required() and
                 self._amount_and_percentage_disallowed() and
                 self._start_date_before_end_date())
+
+    def apply(self, price):
+        """Apply this discount, and return the discounted price."""
+        if self.amount:
+            return price - self.amount
+        elif self.percentage:
+            return price - (price * (self.percentage / 100.0))
+
+    @property
+    def current(self):
+        """Is this discount effective today?"""
+        today = date.today()
+        return (self.start_date <= today and
+                self.end_date >= today)
 
     def save(self, *args, **kwargs):
         self.full_clean()
