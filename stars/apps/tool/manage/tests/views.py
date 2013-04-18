@@ -256,10 +256,13 @@ class AccountCreateViewTest(InstitutionAdminToolMixinTest):
         self.request.POST = form_input
         with testfixtures.Replacer() as r:
             r.replace(
-                'stars.apps.tool.manage.views.xml_rpc.get_user_by_email',
-                lambda x : ['replaced',])
+                'aashe.aasheauth.services.AASHEUserService.get_by_email',
+                lambda s, e : [{
+                                'replaced': 'replaced',
+                                'mollom': {'session_id': 'replaced'}
+                                }])
             r.replace(
-                'stars.apps.tool.manage.views.xml_rpc.get_user_from_user_dict',
+                'aashe.aasheauth.backends.AASHEBackend.get_user_from_user_dict',
                 lambda x, y: UserFactory())
             _ = views.AccountCreateView.as_view()(
                 request=self.request,
