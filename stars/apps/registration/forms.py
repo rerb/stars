@@ -7,34 +7,32 @@ from aashe.issdjango.models import Organizations
 from stars.apps.institutions.models import (Institution,
                                             RegistrationSurvey,
                                             RespondentSurvey)
-from stars.apps.registration.models import ValueDiscount
+from stars.apps.registration.models import get_current_discount
 from stars.apps.payments.forms import PaymentFormWithPayLater
 
 
 class RegistrationPaymentForm(PaymentFormWithPayLater):
     discount_code = forms.CharField(max_length=16, required=False)
 
-    def get_amount(self):
+    def __init__(self, *args, **kwargs):
+        self.discount = None
+        super(RegistrationPaymentForm, self).__init__(*args, **kwargs)
 
-        if hasattr(self, 'discount') and self.discount is not None:
-            return self.amount - self.discount.amount
+    def get_amount(self):
+        if self.discount:
+            return self.discount.apply(self.amount)
         else:
             return self.amount
 
     def clean_discount_code(self):
-        data = self.cleaned_data['discount_code']
-        if data == "":
-            return None
+        discount_code = self.cleaned_data['discount_code']
 
-        discount = None
-        try:
-            discount = ValueDiscount.objects.get_current().get(code=data)
-        except ValueDiscount.DoesNotExist:
-            raise forms.ValidationError("Invalid Discount Code")
+        if discount_code:
+            self.discount = get_current_discount(code=discount_code)
+            if not self.discount:
+                raise forms.ValidationError("Invalid Discount Code")
 
-        self.discount = discount
-
-        return data
+        return discount_code
 
 
 class WriteInInstitutionForm(forms.Form):
@@ -50,17 +48,31 @@ class WriteInInstitutionForm(forms.Form):
 
 class SelectSchoolForm(forms.Form):
     """
-        A form for selecting an institution form institutionnames
+    A form for selecting an Organization from Organization names.
+
+    The list of names is limited to those institutions that are not
+    registered as STARS Institutions.
     """
     aashe_id = forms.IntegerField()
 
     def __init__(self, *args, **kwargs):
         super(SelectSchoolForm, self).__init__(*args, **kwargs)
-        self.update_institution_choices()
-        self.fields['aashe_id'].label = "Institution"
-        self.fields['aashe_id'].widget = widgets.Select(
-            choices=self.institution_list,
-            attrs={'style': "width: 700px"})
+        if not kwargs['data']:
+            # only do these things for GETs (update_institution_choices()
+            # is expensive):
+            self.update_institution_choices()
+            self.fields['aashe_id'].label = "Institution"
+            self.fields['aashe_id'].widget = widgets.Select(
+                choices=self.institution_list,
+                attrs={'style': "width: 700px"})
+
+    def get_ids_of_registered_institutions(self):
+        """Return the set of `aashe_id`s for all Institutions."""
+        return set([
+            institution['aashe_id'] for
+            institution in
+            Institution.objects.values('aashe_id')
+        ])
 
     def update_institution_choices(self):
         # Get the list of schools as choices
@@ -72,9 +84,17 @@ class SelectSchoolForm(forms.Form):
                      'System Office')
         countries = ('Canada', 'United States of America')
 
+        ids_of_registered_institutions = (
+            self.get_ids_of_registered_institutions())
+
         for inst in Organizations.objects.filter(
                 org_type__in=org_types,
                 country__in=countries).order_by('org_name'):
+
+            # skip institutions that are already registered:
+            if inst.pk in ids_of_registered_institutions:
+                continue
+
             if inst.city and inst.state:
                 self.institution_list.append((inst.account_num, "%s, %s, %s" %
                                               (inst.org_name,
