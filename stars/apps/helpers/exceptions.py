@@ -17,10 +17,3 @@ class StarsException(Exception):
         Exception.__init__(self, message)
         self.who = who
         self.user_message=user_message
-        
-class RpcException(StarsException):
-    """
-        A fatal exception specifically for XML-RPC type errors
-    """
-    def __init__(self, message, user_message=None):
-        StarsException.__init__(self, "XML-RPC", message, user_message)
