@@ -10,7 +10,6 @@ from django import forms
 
 from aashe.issdjango.models import Organizations
 
-from stars.apps.helpers.forms.views import FormActionView
 from stars.apps.institutions.models import (Institution, SubscriptionPayment,
                                             RegistrationSurvey)
 from stars.apps.notifications.models import EmailTemplate
