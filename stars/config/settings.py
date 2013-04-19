@@ -80,13 +80,7 @@ import django_cache_url
 CACHES = {'default': django_cache_url.parse(os.environ.get('CACHE_URL', 'dummy://'))}
 
 AUTH_PROFILE_MODULE = 'accounts.UserProfile'
-AUTHENTICATION_BACKENDS = ('aashe.aasheauth.backends.AASHEBackend',)
-if 'test' in sys.argv:
-    AUTHENTICATION_BACKENDS = (
-                               'django.contrib.auth.backends.ModelBackend',
-                               'aashe.aasheauth.backends.AASHEBackend',
-                               # 'stars.apps.accounts.aashe.AASHEAuthBackend',
-                               )
+AUTHENTICATION_BACKENDS = ('django.contrib.auth.backends.ModelBackend',)
 
 DASHBOARD_URL = "/tool/"
 LOGIN_URL = "/accounts/login/"
@@ -145,8 +139,6 @@ INSTALLED_APPS = (
     'stars.tests',
 
     'logical_rules',
-    'aashe.aasheauth',
-    'aashe.issdjango',
     'bootstrapform',
     'captcha',
     'django_extensions',
