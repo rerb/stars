@@ -27,8 +27,9 @@ urlpatterns = patterns('',
     # tool:
     #(r'^$', 'stars.apps.tool.views.stars_home_page'),
     (r'^$', 'django.views.generic.simple.direct_to_template', {'template': 'home.html'}),
+
     # articles (cms):
-    (r'^'+settings.ARTICLE_PATH_ROOT+'/', include('stars.apps.cms.urls')),
+    (r'^pages/', include('stars.apps.cms.urls')),
 
     # tool
     (r'^tool/', include('stars.apps.tool.urls')),
