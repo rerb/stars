@@ -171,7 +171,9 @@ class CategoryPieChart(Resource, SliceMixin):
             cache.set(key, obj, 60 * 60 * 24)
             return obj
         except Category.DoesNotExist:
-            raise NotFound("Object not found")
+            logger.error("Category, %s, not found." % pk,
+                         extra={'request': request})
+            return None
 
     def obj_get_list(self, request=None, **kwargs):
         """
@@ -281,8 +283,10 @@ class SubategoryPieChart(Resource, SliceMixin):
             obj = self.build_chart_from_subcategory(Subcategory.objects.get(pk=pk))
             cache.set(key, obj, 60 * 60 * 24)
             return obj
-        except Category.DoesNotExist:
-            raise NotFound("Object not found")
+        except Subcategory.DoesNotExist:
+            logger.error("Subcategory, %s, not found." % pk,
+                         extra={'request': request})
+            return None
 
     def obj_get_list(self, request=None, **kwargs):
         """
