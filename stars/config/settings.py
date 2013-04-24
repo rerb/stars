@@ -365,5 +365,10 @@ if 'test' in sys.argv:
                        "sqlite:////tmp/iss_tests.db"))
 
     CACHES = {'default': django_cache_url.parse(os.environ.get('CACHE_TEST_URL', 'file:///tmp/stars-cache'))}
-    
+
     API_TEST_MODE = False
+
+    AUTHORIZENET_LOGIN = os.environ.get('AUTHORIZENET_TEST_LOGIN', None)
+    AUTHORIZENET_KEY = os.environ.get('AUTHORIZENET_TEST_KEY', None)
+    AUTHORIZENET_SERVER = os.environ.get('AUTHORIZENET_TEST_SERVER', None)
+
