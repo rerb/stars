@@ -192,16 +192,16 @@ BROKER_USER = "guest"
 BROKER_PASSWORD = "guest"
 BROKER_VHOST = "/"
 
-CELERY_RESULT_BACKEND = 'database'
-CELERY_RESULT_DBURI = "sqlite:///tmp/stars-celery-results.db"
-CELERY_CACHE_BACKEND = 'dummy'
+CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'database')
+CELERY_RESULT_DBURI = os.environ.get('CELERY_RESULT_DBURI', "sqlite:///tmp/stars-celery-results.db")
+CELERY_CACHE_BACKEND = os.environ.get('CELERY_CACHE_BACKEND', 'dummy')
 
 # default is test mode
 AUTHORIZENET_LOGIN = os.environ.get('AUTHORIZENET_LOGIN', None)
 AUTHORIZENET_KEY = os.environ.get('AUTHORIZENET_KEY', None)
 AUTHORIZENET_SERVER = os.environ.get('AUTHORIZENET_SERVER', None)
 
-ANALYTICS_ID = None
+ANALYTICS_ID = os.environ.get('ANALYTICS_ID', None)
 
 SKIP_SOUTH_TESTS=True
 
