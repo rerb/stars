@@ -8,7 +8,7 @@ from models import (Institution, StarsAccount,
 
 
 class InstitutionAdmin(admin.ModelAdmin):
-    list_display = ('name', 'enabled', 'charter_participant')
+    list_display = ('name', 'aashe_id', 'enabled', 'charter_participant')
     list_filter = ('charter_participant', 'enabled')
     search_fields = ('name',)
 
