@@ -2,7 +2,8 @@ import logical_rules
 
 from stars.apps.institutions.rules import (institution_can_get_rated,
                                            user_has_access_level,
-                                           institution_has_snapshot_feature)
+                                           institution_has_snapshot_feature,
+                                           institution_has_export)
 from stars.apps.credits.models import CreditSet
 from stars.apps.submissions.models import Boundary
 
