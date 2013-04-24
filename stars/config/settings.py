@@ -364,4 +364,6 @@ if 'test' in sys.argv:
         os.environ.get('ISS_TEST_DB',
                        "sqlite:////tmp/iss_tests.db"))
 
-    CACHES = {'default': django_cache_url.parse(os.environ.get('CACHE_TEST_URL', 'dummy://'))}
+    CACHES = {'default': django_cache_url.parse(os.environ.get('CACHE_TEST_URL', 'file:///tmp/stars-cache'))}
+    
+    API_TEST_MODE = False
