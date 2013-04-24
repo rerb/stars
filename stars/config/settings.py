@@ -12,12 +12,9 @@ DEFAULT_CHARSET = 'utf-8'
 
 PROJECT_PATH = os.path.join(os.path.dirname(__file__), '..')
 
-# Use a dummy Email Backend for anything but production
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
 DEBUG = os.environ.get("DEBUG", False)
 TEMPLATE_DEBUG = DEBUG
-API_TEST_MODE = DEBUG
+API_TEST_MODE = os.environ.get("API_TEST_MODE", DEBUG)
 FIXTURE_DIRS = ('fixtures', os.path.join(PROJECT_PATH, 'apps/api/fixtures'),)
 
 TIME_ZONE = 'America/Lima'
@@ -34,10 +31,6 @@ DATABASES = {
     'iss': dj_database_url.parse(os.environ.get('ISS_DB_URL', None))
 }
 DATABASES['default']['OPTIONS'] = {'init_command': 'SET storage_engine=MYISAM'}
-
-if 'test' in sys.argv:
-    DATABASES['default'] = dj_database_url.parse(os.environ.get('STARS_TEST_DB', None))
-    DATABASES['default'] = dj_database_url.parse(os.environ.get('ISS_TEST_DB', None))
 DATABASE_ROUTERS = ('aashe.issdjango.router.ISSRouter',)
 
 # Media
@@ -169,6 +162,8 @@ AASHE_AUTH_VERBOSE = os.environ.get('AASHE_AUTH_VERBOSE', False)
 # Permissions or user levels for STARS users
 STARS_PERMISSIONS = (('admin', 'Administrator'), ('submit', 'Data Entry'), ('view', 'Observer')) # ('review', 'Audit/Review'))
 
+# Email
+EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
 EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', True)
 EMAIL_HOST = os.environ.get('EMAIL_HOST', None)
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', None)
@@ -176,6 +171,7 @@ EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', None)
 EMAIL_PORT = os.environ.get('EMAIL_PORT', None)
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', None)
 EMAIL_REPLY_TO = os.environ.get('EMAIL_REPLY_TO', None)
+EMAIL_FILE_PATH = os.environ.get('EMAIL_REPLY_TO', '/tmp/stars-email-messages')
 
 # sorl thumbnail
 #THUMBNAIL_ENGINE = "sorl.thumbnail.engines.pgmagick_engine.Engine"
@@ -191,6 +187,7 @@ BROKER_PORT = 5672
 BROKER_USER = "guest"
 BROKER_PASSWORD = "guest"
 BROKER_VHOST = "/"
+CELERY_ALWAYS_EAGER = os.environ.get('CELERY_ALWAYS_EAGER', False)
 
 CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'database')
 CELERY_RESULT_DBURI = os.environ.get('CELERY_RESULT_DBURI', "sqlite:///tmp/stars-celery-results.db")
@@ -344,7 +341,23 @@ if os.path.exists(os.path.join(os.path.dirname(__file__), 'hg_info.py')):
     from hg_info import revision
     HG_REVISION = revision
 
+# django toolbar
+DEBUG_TOOLBAR = os.environ.get('DEBUG_TOOLBAR', False)
+if DEBUG_TOOLBAR:
+    MIDDLEWARE_CLASSES = MIDDLEWARE_CLASSES + ['debug_toolbar.middleware.DebugToolbarMiddleware',]
+    INTERNAL_IPS = ('127.0.0.1',)
+    INSTALLED_APPS = INSTALLED_APPS + ('debug_toolbar',)
+    DEBUG_TOOLBAR_CONFIG = {
+        'INTERCEPT_REDIRECTS': False,
+    }
+
+# Test backends
 if 'test' in sys.argv:
     # until fix for http://code.djangoproject.com/ticket/14105
     MIDDLEWARE_CLASSES.remove('django.middleware.cache.FetchFromCacheMiddleware')
     MIDDLEWARE_CLASSES.remove('django.middleware.cache.UpdateCacheMiddleware')
+
+    DATABASES['default'] = dj_database_url.parse(os.environ.get('STARS_TEST_DB', None))
+    DATABASES['default'] = dj_database_url.parse(os.environ.get('ISS_TEST_DB', None))
+    
+    CACHES = {'default': django_cache_url.parse(os.environ.get('CACHE_TEST_URL', 'dummy://'))}
