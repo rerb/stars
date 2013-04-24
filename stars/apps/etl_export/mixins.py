@@ -1,6 +1,6 @@
 from django.db import models
 
-from datetime import datetime
+from datetime import datetime, timedelta
 import sys
 
 """
@@ -76,7 +76,8 @@ class ETLCompareMixin(models.Model):
 #                print >> sys.stdout, "dropping: %s (%s)" % (etl.id, source_class.__name__)
                 drops.append(etl.id)
 #                etl.delete()
-                etl.delete_date = datetime.now()
+                td = timedelta(minutes=45)
+                etl.delete_date = datetime.now() + td
                 etl.save()
 
         return (updates, drops)
