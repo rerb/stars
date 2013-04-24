@@ -243,7 +243,7 @@ class AccountCreateView(InstitutionAdminToolMixin, ValidationMessageFormMixin,
         if user_list:
             # a hack to make these compatible
             user_dict = {'user': user_list[0],
-                         'sessid': user_list[0]['mollom']['session_id']}
+                         'sessid': "no-session-key"}
             return backend.get_user_from_user_dict(user_dict)
         else:
             return None
