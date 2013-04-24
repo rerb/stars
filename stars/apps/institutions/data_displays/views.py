@@ -1,6 +1,7 @@
 from datetime import date, datetime
 from logging import getLogger
 import re
+import hashlib
 
 from excel_response import ExcelResponse
 
@@ -278,72 +279,6 @@ COMMON_FILTERS = [
                       ]
 
 
-class DisplayAccessMixinOld(object):
-    """
-        Objects must define two properties:
-
-            denied_template_name = ""
-            access_list = ['', ''] valid strings are 'member' and 'participant'
-
-        if either access level is fulfilled then they pass
-        if access_list is empty no access levels are required
-
-        users must be authenticated
-    """
-    def deny_action(self, request):
-        """
-            @todo - I should turn this into some sort of (class?) decorator
-        """
-
-        try:
-            au = AuthorizedUser.objects.get(email=request.user.email, start_date__lte=datetime.now(), end_date__gte=datetime.now())
-        except AuthorizedUser.DoesNotExist:
-            au = None
-
-        ta_access = False
-        ta_qs = TechnicalAdvisor.objects.filter(email=request.user.email)
-        ta = next(iter(ta_qs), None)
-        if ta:
-            ta_access= True
-
-        if self.access_list:
-            denied = True
-            profile = request.user.get_profile()
-            if 'member' in self.access_list or ta_access:
-                if profile.is_member or profile.is_aashe_staff:
-                    denied = False
-                elif au and au.member_level: # check the authorized users
-                    denied = False
-
-            if 'participant' in self.access_list:
-                if profile.is_participant() or profile.is_aashe_staff or ta_access:
-                    denied = False
-                elif au and au.participant_level: # check the authorized users
-                    denied = False
-            if denied:
-                self.template_name = self.denied_template_name
-                return self.render_to_response({'top_help_text': self.get_description_help_context_name(),})
-        return None
-
-    @method_decorator(login_required)
-    def get(self, request, *args, **kwargs):
-
-        deny_action = self.deny_action(request)
-        if deny_action:
-            return deny_action
-
-        return super(DisplayAccessMixin, self).get(request, *args, **kwargs)
-
-    @method_decorator(login_required)
-    def post(self, request, *args, **kwargs):
-
-        deny_action = self.deny_action(request)
-        if deny_action:
-            return deny_action
-
-        return super(DisplayAccessMixin, self).post(request, *args, **kwargs)
-
-
 class DisplayAccessMixin(StarsAccountMixin, RulesMixin):
     """
         A basic rule mixin for all Data Displays
@@ -387,6 +322,13 @@ class CommonFilterMixin(object):
         cache.set('institution__org_type_filter', filters, 60 * 60 * 6)
         return filters
 
+    def convertCacheKey(self, key):
+        """
+            Convert a key to a hash, because memcached
+            can't accept certain characters
+        """
+        return hashlib.sha1("%s-%s" % (self.__class__.__name__, key)).hexdigest()
+
 
 class AggregateFilter(DisplayAccessMixin, CommonFilterMixin, FilteringMixin,
                       TemplateView):
@@ -418,7 +360,7 @@ class AggregateFilter(DisplayAccessMixin, CommonFilterMixin, FilteringMixin,
 
         for f, v in self.get_selected_filter_objects():
 
-            cache_key = f.get_active_title(v)
+            cache_key = self.convertCacheKey(f.get_active_title(v))
             row = cache.get(cache_key)
 
             if not row:
@@ -784,7 +726,7 @@ class ContentFilter(DisplayAccessMixin, CommonFilterMixin,
         """
             Get a list of objects based on the filters and the selected field
         """
-        cache_key = self.request.GET.urlencode()
+        cache_key = self.convertCacheKey(self.request.GET.urlencode())
         object_list = cache.get(cache_key)
         if object_list:
             return object_list
