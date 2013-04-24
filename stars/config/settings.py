@@ -151,7 +151,7 @@ INSTALLED_APPS = (
     'gunicorn',
 )
 
-# aasheauth config
+# auth config
 AASHE_DRUPAL_URI = os.environ.get('AASHE_DRUPAL_URI', None)
 AASHE_DRUPAL_KEY = os.environ.get('AASHE_DRUPAL_KEY', None)
 AASHE_DRUPAL_KEY_DOMAIN = os.environ.get('AASHE_DRUPAL_KEY_DOMAIN', None)
