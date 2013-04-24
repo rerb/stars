@@ -32,7 +32,7 @@ class SubmissionStructureMixin(CreditsetStructureMixin):
         """
             Returns a list of objects to use as filters for get_obj_or_call
         """
-        self.get_institution().submissionset_set.all()
+        return self.get_institution().submissionset_set.all()
 
     def get_submissionset(self, use_cache=True):
         """
