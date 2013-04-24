@@ -299,6 +299,12 @@ class ScorecardView(RulesMixin,
     """
         Browse credits according to submission in the credit browsing view
     """
+    def get_object_list(self):
+        """
+            Previews are only shown for pending and rated submissions
+        """
+        return (self.get_institution().submissionset_set.filter(status='ps') |
+                self.get_institution().submissionset_set.filter(status='r'))
 
     def update_logical_rules(self):
 

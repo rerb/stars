@@ -33,7 +33,7 @@ class StructureMixin(object):
 
     def get_obj_or_call(self, cache_key, kwargs_key, klass, property, use_cache=True):
         """
-            Looks up a key in the structure, if it's not their
+            Looks up a key in the structure, if it's not there
             uses the class and the property to search it
 
             returns None if not found
