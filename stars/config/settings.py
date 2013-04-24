@@ -305,6 +305,11 @@ LOGGING = {
         '': {
             'handlers':['simple_console_handler', 'mail_admins_handler']
         },
+        'django.request': {
+            'handlers': ['mail_admins_handler'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
         # logger with module_name added to log record:
         'stars': {
             'handlers': ['stars_console_handler', 'mail_admins_handler'],
