@@ -24,11 +24,9 @@
 {% block railAboveMenu %}
     <div style='text-align: center;'>
     {% if preview %}
-    	{% with STATIC_URL|add:"images/seals/Stars_Seal_Participant_RGB_300.png" as img_path %}
-	    	{% thumbnail img_path "300x300" as im %}
-	    		<img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" />
-			{% endthumbnail %}
-		{% endwith %}
+    	{% thumbnail "seals/Stars_Seal_Participant_RGB_300.png" "300x300" as im %}
+    		<img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" />
+		{% endthumbnail %}
     {% else %}
     	{% thumbnail submissionset.rating.image_large "300x300" as im %}
     		<img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt='{{ submissionset.rating }}' />
