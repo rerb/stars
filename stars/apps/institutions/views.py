@@ -1,22 +1,24 @@
+from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponseRedirect, HttpResponse
+from django.views.generic import (FormView, CreateView, TemplateView,
+                                  RedirectView)
 from django.views.generic.simple import direct_to_template
-from django.views.generic import FormView, CreateView, TemplateView
 
 from extra_views import CreateWithInlinesView
+from logical_rules.mixins import RulesMixin
 
-from stars.apps.submissions.models import (SubmissionInquiry,
-                                           DataCorrectionRequest)
-from stars.apps.submissions.rules import user_can_preview_submission
-from stars.apps.submissions.views import SubmissionStructureMixin
-from stars.apps.institutions.models import Institution
+from stars.apps.credits.models import Category, Subcategory, Credit
+from stars.apps.credits.views import StructureMixin
 from stars.apps.institutions.forms import (SubmissionSelectForm,
                                            SubmissionInquiryForm,
                                            CreditSubmissionInquiryFormSet,
                                            DataCorrectionRequestForm)
+from stars.apps.institutions.models import Institution
 from stars.apps.notifications.models import EmailTemplate
-from stars.apps.credits.views import StructureMixin
-
-from logical_rules.mixins import RulesMixin
+from stars.apps.submissions.models import (SubmissionInquiry,
+                                           DataCorrectionRequest)
+from stars.apps.submissions.rules import user_can_preview_submission
+from stars.apps.submissions.views import SubmissionStructureMixin
 
 
 class InstitutionStructureMixin(StructureMixin):
@@ -290,6 +292,46 @@ class InstitutionScorecards(InstitutionStructureMixin, TemplateView):
         else:
             return super(InstitutionScorecards, self).render_to_response(
                 context, **response_kwargs)
+
+
+class RedirectOldScorecardCreditURLsView(InstitutionStructureMixin,
+                                         SubmissionStructureMixin,
+                                         RedirectView):
+    """
+    Redirects old Scorecard Credit URLs to their new equivalent.
+
+    Old Scorecard Credit URLs are made like this:
+
+        /<institution.slug>
+        /<submissionset.[date_submitted|id]>
+        /<category.id>
+        /<subcategory.id>
+        /<credit.id>
+
+    New Scorecard Credit URLs look like this:
+
+        /<institution.slug>
+        /<submissionset.[date_submitted|id]>
+        /<category.abbreviation>
+        /<subcategory.slug>
+        /<credit.identifier>
+    """
+    def get_redirect_url(self, **kwargs):
+        institution = self.get_institution()
+        submissionset = self.get_submissionset()
+        category = Category.objects.get(id=kwargs['category_id'])
+        subcategory = Subcategory.objects.get(id=kwargs['subcategory_id'])
+        credit = Credit.objects.get(id=kwargs['credit_id'])
+        return reverse(
+            'scorecard-credit',
+            kwargs={
+                'institution_slug': institution.slug,
+                'submissionset': submissionset.date_submitted,
+                'category_abbreviation': category.abbreviation,
+                'subcategory_slug': subcategory.slug,
+                'credit_identifier': credit.identifier
+            }
+        )
 
 
 class ScorecardView(RulesMixin,
