@@ -10,6 +10,8 @@ urwid.raw_display.Screen.signal_restore = lambda x : None
 
 from settings import *
 
+MEDIA_ROOT = os.environ.get('MEDIA_ROOT')
+
 HIDE_REPORTING_TOOL = False
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
