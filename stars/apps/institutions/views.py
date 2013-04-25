@@ -1,4 +1,5 @@
 from django.core.urlresolvers import reverse
+from django.shortcuts import get_object_or_404
 from django.http import Http404, HttpResponseRedirect, HttpResponse
 from django.views.generic import (FormView, CreateView, TemplateView,
                                   RedirectView)
@@ -319,9 +320,10 @@ class RedirectOldScorecardCreditURLsView(InstitutionStructureMixin,
     def get_redirect_url(self, **kwargs):
         institution = self.get_institution()
         submissionset = self.get_submissionset()
-        category = Category.objects.get(id=kwargs['category_id'])
-        subcategory = Subcategory.objects.get(id=kwargs['subcategory_id'])
-        credit = Credit.objects.get(id=kwargs['credit_id'])
+        category = get_object_or_404(Category, id=kwargs['category_id'])
+        subcategory = get_object_or_404(Subcategory,
+                                        id=kwargs['subcategory_id'])
+        credit = get_object_or_404(Credit, id=kwargs['credit_id'])
         return reverse(
             'scorecard-credit',
             kwargs={
