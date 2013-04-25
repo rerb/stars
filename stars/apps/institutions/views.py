@@ -16,7 +16,8 @@ from stars.apps.institutions.forms import (SubmissionSelectForm,
                                            DataCorrectionRequestForm)
 from stars.apps.institutions.models import Institution
 from stars.apps.notifications.models import EmailTemplate
-from stars.apps.submissions.models import (SubmissionInquiry,
+from stars.apps.submissions.models import (SubmissionSet,
+                                           SubmissionInquiry,
                                            DataCorrectionRequest)
 from stars.apps.submissions.rules import user_can_preview_submission
 from stars.apps.submissions.views import SubmissionStructureMixin
@@ -319,7 +320,11 @@ class RedirectOldScorecardCreditURLsView(InstitutionStructureMixin,
     """
     def get_redirect_url(self, **kwargs):
         institution = self.get_institution()
-        submissionset = self.get_submissionset()
+        submissionset = get_object_or_404(institution.submissionset_set.all(),
+                                          status='r',
+                                          date_submitted=kwargs[
+                                                            'submissionset']
+                                          )
         category = get_object_or_404(Category, id=kwargs['category_id'])
         subcategory = get_object_or_404(Subcategory,
                                         id=kwargs['subcategory_id'])
