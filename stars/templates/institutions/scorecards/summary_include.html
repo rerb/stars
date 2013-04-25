@@ -24,7 +24,7 @@
 {% block railAboveMenu %}
     <div style='text-align: center;'>
     {% if preview %}
-    	{% thumbnail "{{ STATIC_URL }}images/seals/Stars_Seal_Participant_RGB_300.png" "300x300" as im %}
+    	{% thumbnail "seals/Stars_Seal_Participant_RGB_300.png" "300x300" as im %}
     		<img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" />
 		{% endthumbnail %}
     {% else %}
