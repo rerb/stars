@@ -296,6 +296,14 @@ class InstitutionScorecards(InstitutionStructureMixin, TemplateView):
                 context, **response_kwargs)
 
 
+def get_submissions_for_scorecards(institution):
+    """
+    Scorecards are only shown for pending and rated submissions.
+    """
+    return (institution.submissionset_set.filter(status='ps') |
+            institution.submissionset_set.filter(status='r'))
+
+
 class RedirectOldScorecardCreditURLsView(InstitutionStructureMixin,
                                          SubmissionStructureMixin,
                                          RedirectView):
@@ -320,11 +328,7 @@ class RedirectOldScorecardCreditURLsView(InstitutionStructureMixin,
     """
     def get_redirect_url(self, **kwargs):
         institution = self.get_institution()
-        submissionset = get_object_or_404(institution.submissionset_set.all(),
-                                          status='r',
-                                          date_submitted=kwargs[
-                                                            'submissionset']
-                                          )
+        submissionset = self.get_submissionset()
         category = get_object_or_404(Category, id=kwargs['category_id'])
         subcategory = get_object_or_404(Subcategory,
                                         id=kwargs['subcategory_id'])
@@ -340,6 +344,10 @@ class RedirectOldScorecardCreditURLsView(InstitutionStructureMixin,
             }
         )
 
+    def get_object_list(self):
+        return get_submissions_for_scorecards(
+            institution=self.get_institution())
+
 
 class ScorecardView(RulesMixin,
                     InstitutionStructureMixin,
@@ -349,23 +357,20 @@ class ScorecardView(RulesMixin,
         Browse credits according to submission in the credit browsing view
     """
     def get_object_list(self):
-        """
-            Previews are only shown for pending and rated submissions
-        """
-        return (self.get_institution().submissionset_set.filter(status='ps') |
-                self.get_institution().submissionset_set.filter(status='r'))
+        return get_submissions_for_scorecards(
+            institution=self.get_institution())
 
     def update_logical_rules(self):
 
         super(ScorecardView, self).update_logical_rules()
         self.add_logical_rule({
-                    'name': 'user_can_view_submission',
-                    'param_callbacks':
-                        [
-                            ('user', "get_request_user"),
-                            ('submission', "get_submissionset")
-                        ],
-                })
+            'name': 'user_can_view_submission',
+            'param_callbacks':
+            [
+                ('user', "get_request_user"),
+                ('submission', "get_submissionset")
+            ],
+        })
 
     def get_context_data(self, **kwargs):
         """ Expects arguments for category_id/subcategory_id/credit_id """
