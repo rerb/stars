@@ -53,7 +53,8 @@ def permission_denied(request):
     # Only show liaison contact info if user has a StarsAccount for this
     # institution:
     liaison_contact_info = ''
-    if request.user.starsaccount_set.filter(institution=institution_in_url):
+    if (request.user.is_authenticated() and
+        request.user.starsaccount_set.filter(institution=institution_in_url)):
         liaison_phone = institution_in_url.get_liaison_phone()
         liaison_email = institution_in_url.get_liaison_email()
         if liaison_phone or liaison_email:
