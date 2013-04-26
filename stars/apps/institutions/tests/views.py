@@ -1,25 +1,17 @@
 """Tests for apps.institutions.views.
 """
-
-from django.test import TestCase
-import testfixtures
 import datetime
 
-from bs4 import BeautifulSoup
-from django.conf import settings
-from django.contrib.auth.models import User
-from django.contrib import messages
-from django.contrib.messages.middleware import MessageMiddleware
-from django.http import HttpRequest
+from django.test import TestCase
 from django.test.client import Client
 
-from stars.apps.institutions.models import Institution
+from aashe.issdjango.models import Organizations
+
 from stars.apps.institutions import views
+from stars.apps.institutions.models import Institution
 from stars.test_factories import InstitutionFactory,\
     SubscriptionFactory, RatingFactory, CreditSetFactory, \
     SubmissionSetFactory
-
-from aashe.issdjango.models import Organizations
 
 
 class ActiveInstitutionsViewTest(TestCase):
@@ -36,14 +28,16 @@ class ActiveInstitutionsViewTest(TestCase):
         # create 3 active Institutions
         for _ in range(3):
             i = InstitutionFactory(is_participant=True)
-            s = SubscriptionFactory(start_date=today, end_date=today+td, institution=i)
+            s = SubscriptionFactory(start_date=today,
+                                    end_date=today+td,
+                                    institution=i)
             i.current_subscription = s
             i.save()
 
         # create 1 non-active Institutions
         for _ in range(1):
             i = InstitutionFactory()
-            s = SubscriptionFactory(end_date=today-td, institution=i)
+            s = SubscriptionFactory(end_date=today - td, institution=i)
             i.current_subscription = s
             i.save()
 
@@ -72,7 +66,9 @@ class ActiveInstitutionsViewTest(TestCase):
 class RatedInstitutionsViewTest(TestCase):
     """
         Test the RatedInstitutionsView
-            this should also test SortableTableView and SortableTableViewWithInstProps
+
+        This should also test SortableTableView and
+        SortableTableViewWithInstProps.
     """
     def setUp(self):
 
@@ -86,11 +82,13 @@ class RatedInstitutionsViewTest(TestCase):
             count += 1
             r = RatingFactory(minimal_score=count, name=l, creditset=cs)
             ss = SubmissionSetFactory(creditset=cs, status='r', rating=r)
-            i = InstitutionFactory(is_participant=True, rated_submission=ss, current_rating=r)
+            i = InstitutionFactory(is_participant=True,
+                                   rated_submission=ss,
+                                   current_rating=r)
          # create 1 non-rated Institutions
         for _ in range(1):
             i = InstitutionFactory()
-            s = SubscriptionFactory(end_date=today-td)
+            s = SubscriptionFactory(end_date=today - td)
             i.current_subscription = s
             i.save()
 

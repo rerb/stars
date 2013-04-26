@@ -9,45 +9,72 @@ class CMSView(TemplateView):
     """
         A base context for all CMS views
     """
+    def __init__(self, *args, **kwargs):
+        super(CMSView, self).__init__(*args, **kwargs)
+        self.category = None  # so we can suss category in get() and
+                              # access it in get_context_data()
+
+    def _get_slugged_obj(self, slug):
+        """Returns the Category or Subcategory whose slug matches `slug`.
+
+        Returns None if `slug` doesn't match any Category or Subcategory.
+        """
+        try:
+            obj = Category.objects.get(slug=slug, published=True)
+        except Category.DoesNotExist:
+            try:
+                obj = Subcategory.objects.get(slug=slug, published=True)
+            except Subcategory.DoesNotExist:
+                obj = None
+        return obj
+
+    def get(self, request, *args, **kwargs):
+        """
+        kwargs['category_slug'] can specify a Category.slug or a
+        Subcategory.slug.  If it doesn't match a Category.slug, but
+        does match a Subcategory.slug, we redirect to the Subcategory
+        URL.
+        """
+        slugged_obj = self._get_slugged_obj(slug=kwargs['category_slug'])
+        if isinstance(slugged_obj, Category):
+            self.category = slugged_obj
+        elif isinstance(slugged_obj, Subcategory):
+            return HttpResponseRedirect(slugged_obj.get_absolute_url())
+        else:
+            raise Http404
+
+        return super(CMSView, self).get(request, *args, **kwargs)
+
     def get_context_data(self, *args, **kwargs):
         """ Add/update any context variables """
 
+        context = super(CMSView, self).get_context_data(*args, **kwargs)
+
         # Creating inital values for each of these so that
         # I can use them as cache keys in the template
-        _context = {'category': None, 'subcategory': None, 'article': None}
+        context.update({'category': self.category,
+                        'subcategory': None,
+                        'article': None})
 
-        if kwargs.has_key('category_slug'):
-            try:
-                category = Category.objects.get(slug=kwargs['category_slug'],
-                                                published=True)
-            except Category.DoesNotExist:
-                try:
-                    subcategory = Subcategory.objects.get(
-                        slug=kwargs['category_slug'], published=True)
-                    return HttpResponseRedirect(subcategory.get_absolute_url())
-                except Subcategory.DoesNotExist:
-                    raise Http404
-
-            _context['category'] = category
-
-            if kwargs.has_key('subcategory_slug'):
-                subcategory = get_object_or_404(Subcategory,
-                                                slug=kwargs['subcategory_slug'],
-                                                parent=category, published=True)
-                _context['subcategory'] = subcategory
-            else:
-                subcategory = None
-
-            if kwargs.has_key('article_slug'):
-                article = get_object_or_404(NewArticle,
-                                            slug=kwargs['article_slug'],
+        if 'subcategory_slug' in kwargs:
+            subcategory = get_object_or_404(Subcategory,
+                                            slug=kwargs['subcategory_slug'],
+                                            parent=self.category,
                                             published=True)
-                if (category not in article.categories.all() and
-                    subcategory not in article.subcategories.all()):
-                    raise Http404
-                _context['article'] = article
+            context['subcategory'] = subcategory
+        else:
+            subcategory = None
 
-        return _context
+        if 'article_slug' in kwargs:
+            article = get_object_or_404(NewArticle,
+                                        slug=kwargs['article_slug'],
+                                        published=True)
+            if (self.category not in article.categories.all() and
+                subcategory not in article.subcategories.all()):
+                raise Http404
+            context['article'] = article
+
+        return context
 
 
 class ArticleDetailView(CMSView):
