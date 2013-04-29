@@ -131,11 +131,40 @@ class ScorecardViewTest(TestCase):
                               state='state',
                               exclude_from_website=False)
             o.save()
+        self.client = Client()
 
     def test_with_client(self):
-        c = Client()
-
         # confirm we get a 200
         url = "/institutions/rated-college-test/report/2011-01-01/"
-        response = c.get(url)
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
+
+    def test_submission_date_without_day_returns_404(self):
+        """Does a submission date (in the URL) without a day return a 404?"""
+        url = "/institutions/rated-college-test/report/2011-01-/"
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
+
+    def test_submission_date_without_month_returns_404(self):
+        """Does a submission date (in the URL) without a month return a 404?"""
+        url = "/institutions/rated-college-test/report/2011--01/"
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
+
+    def test_submission_date_without_year_returns_404(self):
+        """Does a submission date (in the URL) without a year return a 404?"""
+        url = "/institutions/rated-college-test/report/-01-01/"
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
+
+    def test_empty_submission_date_returns_404(self):
+        """Does an empty submission date (in the URL) return a 404?"""
+        url = "/institutions/rated-college-test/report/--/"
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
+
+    def test_submission_date_without_dashes_returns_404(self):
+        """Does a submission date (in the URL) without dashes return a 404?"""
+        url = "/institutions/rated-college-test/report/20110101/"
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
