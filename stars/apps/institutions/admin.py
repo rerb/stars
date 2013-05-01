@@ -5,6 +5,7 @@ from models import (Institution, StarsAccount,
                     SubscriptionPayment, RegistrationReason,
                     RegistrationSurvey, RespondentRegistrationReason,
                     RespondentSurvey, ClimateZone)
+from stars.apps.submissions.models import RATED_SUBMISSION_STATUS
 
 
 class InstitutionAdmin(admin.ModelAdmin):
@@ -16,7 +17,7 @@ class InstitutionAdmin(admin.ModelAdmin):
         form = super(InstitutionAdmin, self).get_form(request, obj, **kwargs)
         if obj:
             form.base_fields['current_submission'].queryset = obj.submissionset_set.all()
-            form.base_fields['rated_submission'].queryset = obj.submissionset_set.all()
+            form.base_fields['rated_submission'].queryset = obj.submissionset_set.filter(status=RATED_SUBMISSION_STATUS)
             form.base_fields['current_subscription'].queryset = obj.subscription_set.all()
         return form
 admin.site.register(Institution, InstitutionAdmin)
