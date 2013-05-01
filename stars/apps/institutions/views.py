@@ -18,7 +18,9 @@ from stars.apps.institutions.models import Institution
 from stars.apps.notifications.models import EmailTemplate
 from stars.apps.submissions.models import (SubmissionSet,
                                            SubmissionInquiry,
-                                           DataCorrectionRequest)
+                                           DataCorrectionRequest,
+                                           PENDING_SUBMISSION_STATUS,
+                                           RATED_SUBMISSION_STATUS)
 from stars.apps.submissions.rules import user_can_preview_submission
 from stars.apps.submissions.views import SubmissionStructureMixin
 
@@ -300,8 +302,13 @@ def get_submissions_for_scorecards(institution):
     """
     Scorecards are only shown for pending and rated submissions.
     """
-    return (institution.submissionset_set.filter(status='ps') |
-            institution.submissionset_set.filter(status='r'))
+    return (
+        institution.submissionset_set.filter(
+            status=PENDING_SUBMISSION_STATUS)
+        |
+        institution.submissionset_set.filter(
+            status=RATED_SUBMISSION_STATUS)
+    )
 
 
 class RedirectOldScorecardCreditURLsView(InstitutionStructureMixin,

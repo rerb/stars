@@ -9,6 +9,10 @@ from aashe.issdjango.models import Organizations
 
 from stars.apps.institutions import views
 from stars.apps.institutions.models import Institution
+from stars.apps.submissions.models import (FINALIZED_SUBMISSION_STATUS,
+                                           PENDING_SUBMISSION_STATUS,
+                                           PROCESSSING_SUBMISSION_STATUS,
+                                           RATED_SUBMISSION_STATUS)
 from stars.test_factories import InstitutionFactory,\
     SubscriptionFactory, RatingFactory, CreditSetFactory, \
     SubmissionSetFactory
@@ -116,10 +120,7 @@ class RatedInstitutionsViewTest(TestCase):
 
 class ScorecardViewTest(TestCase):
     """
-        Test the ScorecardView
-
-        This test is enough to cover the code and bring up any
-        500 errors. It is not a complete functionality test.
+        Test the ScorecardView.
     """
     fixtures = ['rated_submission.json']
 
@@ -131,11 +132,84 @@ class ScorecardViewTest(TestCase):
                               state='state',
                               exclude_from_website=False)
             o.save()
+        self.client = Client()
 
-    def test_with_client(self):
-        c = Client()
-
-        # confirm we get a 200
+    def test_GET_returns_200(self):
+        """Does a GET return a 200 status code?"""
         url = "/institutions/rated-college-test/report/2011-01-01/"
-        response = c.get(url)
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
+
+    def test_submission_date_without_day_returns_404(self):
+        """Does a submission date (in the URL) without a day return a 404?"""
+        url = "/institutions/rated-college-test/report/2011-01-/"
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
+
+    def test_submission_date_without_month_returns_404(self):
+        """Does a submission date (in the URL) without a month return a 404?"""
+        url = "/institutions/rated-college-test/report/2011--01/"
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
+
+    def test_submission_date_without_year_returns_404(self):
+        """Does a submission date (in the URL) without a year return a 404?"""
+        url = "/institutions/rated-college-test/report/-01-01/"
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
+
+    def test_empty_submission_date_returns_404(self):
+        """Does an empty submission date (in the URL) return a 404?"""
+        url = "/institutions/rated-college-test/report/--/"
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
+
+    def test_submission_date_without_dashes_returns_404(self):
+        """Does a submission date (in the URL) without dashes return a 404?"""
+        url = "/institutions/rated-college-test/report/20110101/"
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
+
+
+class TopLevelTest(TestCase):
+
+    def setUp(self):
+        institution = InstitutionFactory()
+        self.pending_submission = SubmissionSetFactory(
+            institution=institution,
+            status=PENDING_SUBMISSION_STATUS)
+        self.processing_submission = SubmissionSetFactory(
+            institution=institution,
+            status=PROCESSSING_SUBMISSION_STATUS)
+        self.finalized_submission = SubmissionSetFactory(
+            institution=institution,
+            status=FINALIZED_SUBMISSION_STATUS)
+        self.rated_submission = SubmissionSetFactory(
+            institution=institution,
+            status=RATED_SUBMISSION_STATUS)
+        self.submissions_for_scorecards = views.get_submissions_for_scorecards(
+            institution=institution)
+
+    def test_get_submissions_for_scorecards_includes_pending_subs(self):
+        """Does get_submissions_for_scorecards() include pending subs?
+        """
+        self.assertIn(self.pending_submission,
+                      self.submissions_for_scorecards)
+
+    def test_get_submissions_for_scorecards_includes_rated_subs(self):
+        """Does get_submissions_for_scorecards() include rated subs?
+        """
+        self.assertIn(self.rated_submission,
+                      self.submissions_for_scorecards)
+
+    def test_get_submissions_for_scorecards_filters_processing_subs(self):
+        """Does get_submissions_for_scorecards() filter processing subs?
+        """
+        self.assertNotIn(self.processing_submission,
+                         self.submissions_for_scorecards,)
+
+    def test_get_submissions_for_scorecards_filters_finalized_subs(self):
+        """Does get_submissions_for_scorecards() filter finalized subs?
+        """
+        self.assertNotIn(self.finalized_submission,
+                         self.submissions_for_scorecards)

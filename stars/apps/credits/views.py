@@ -1,3 +1,4 @@
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 
 from stars.apps.credits.models import *
@@ -51,7 +52,10 @@ class StructureMixin(object):
             obj = self.get_structure_object(cache_key)
         if not obj and kwargs_key in self.kwargs.keys():
             _kwargs = {property: self.kwargs[kwargs_key]}
-            obj = get_object_or_404(klass, **_kwargs)
+            try:
+                obj = get_object_or_404(klass, **_kwargs)
+            except ValueError:
+                raise Http404
             self.set_structure_object(cache_key, obj)
         return obj
 

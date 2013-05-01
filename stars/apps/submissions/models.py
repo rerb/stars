@@ -1,6 +1,8 @@
 from datetime import datetime, date, timedelta
 from logging import getLogger
-import os, re, sys
+import os
+import re
+import sys
 
 from django.conf import settings
 from django.db import models
@@ -14,16 +16,23 @@ from django.core import urlresolvers
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.cache import cache
 
-from stars.apps.credits.models import CreditSet, Category, Subcategory, Credit, DocumentationField, Choice, ApplicabilityReason, Rating
+from stars.apps.credits.models import (CreditSet, Category, Subcategory,
+                                       Credit, DocumentationField, Choice,
+                                       ApplicabilityReason, Rating)
 from stars.apps.institutions.models import Institution, ClimateZone
 from stars.apps.submissions.pdf.export import build_report_pdf
 from stars.apps.notifications.models import EmailTemplate
 
+PENDING_SUBMISSION_STATUS = 'ps'
+PROCESSSING_SUBMISSION_STATUS = 'pr'
+RATED_SUBMISSION_STATUS = 'r'
+FINALIZED_SUBMISSION_STATUS = 'f'
+
 SUBMISSION_STATUS_CHOICES = (
-    ('ps', 'Pending Submission'),
-    ('pr', 'Processing Submission'), # was "Pending Review"
-    ('r', 'Rated'),
-    ('f', 'Finalized'),
+    (PENDING_SUBMISSION_STATUS, 'Pending Submission'),
+    (PROCESSSING_SUBMISSION_STATUS, 'Processing Submission'),
+    (RATED_SUBMISSION_STATUS, 'Rated'),
+    (FINALIZED_SUBMISSION_STATUS, 'Finalized'),
 )
 
 # Max # of extensions allowed per submission set
@@ -1010,7 +1019,6 @@ class CreditSubmission(models.Model):
         return key
 
     def print_submission_fields(self):
-        import sys
         print >> sys.stderr, "Fields for CreditSubmission: %s" % self
         fields = self.get_submission_fields()
         for field in fields:
