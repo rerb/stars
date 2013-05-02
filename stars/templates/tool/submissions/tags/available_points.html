@@ -1,0 +1,5 @@
+{% ifnotequal adjusted_points None %}
+    {{ adjusted_points|floatformat:2 }} (<del style='cursor: help' title='Total adjusted for non-applicable credits'>{{ available_points|floatformat:2 }}</del>)
+{% else %}
+    {{ available_points|floatformat:2 }}
+{% endifnotequal %}
