@@ -204,7 +204,7 @@ class AccountListView(InstitutionAdminToolMixin, ListView):
         stars_accounts = StarsAccount.objects.filter(institution=institution)
         pending_accounts = PendingAccount.objects.filter(institution=institution)
         return QuerySetSequence(stars_accounts, pending_accounts).order_by(
-            'user.email')
+            'user')
 
 
 class AccountCreateView(InstitutionAdminToolMixin, ValidationMessageFormMixin,

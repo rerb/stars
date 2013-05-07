@@ -6,8 +6,8 @@ source aashe.common.postactivate
 export MEDIA_ROOT="/Users/rerb/src/aashe/app_media/stars/"
 
 # I like to spec the db's to use by form:
-export STARS_MYSQL_DB_URL="mysql://root@localhost/stars20130416"
-export ISS_MYSQL_DB_URL="mysql://root@localhost/iss20130416"
+export STARS_MYSQL_DB_URL="mysql://root@localhost/stars20130430"
+export ISS_MYSQL_DB_URL="mysql://root@localhost/iss20130430"
 export STARS_SQLITE_DB_URL="sqlite:////Users/rerb/sqlite/stars.db"
 export ISS_SQLITE_DB_URL="sqlite:////Users/rerb/sqlite/iss.db"
 

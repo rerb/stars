@@ -392,6 +392,8 @@ class ScorecardView(RulesMixin,
     """
         Browse credits according to submission in the credit browsing view
     """
+    http_method_names = ['get']
+
     def get_object_list(self):
         return get_submissions_for_scorecards(
             institution=self.get_institution())
