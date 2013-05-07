@@ -57,13 +57,15 @@ class InstitutionStructureMixin(StructureMixin):
             Returns None if not in kwargs.
             Raises 404 if key in kwargs and not found.
         """
-        return self.get_obj_or_call(
+        if self.get_institution():
+            return self.get_obj_or_call(
                                     cache_key='subscription',
                                     kwargs_key='subscription_id',
                                     klass=self.get_institution().subscription_set.all(),
                                     property="id",
                                     use_cache=use_cache
                                     )
+        return None
 
     def get_payment(self, use_cache=True):
         """
@@ -71,13 +73,15 @@ class InstitutionStructureMixin(StructureMixin):
             Returns None if not in kwargs.
             Raises 404 if key in kwargs and not found.
         """
-        return self.get_obj_or_call(
+        if self.get_subscription():
+            return self.get_obj_or_call(
                                     cache_key='payment',
                                     kwargs_key='payment_id',
                                     klass=self.get_subscription().subscriptionpayment_set.all(),
                                     property="id",
                                     use_cache=use_cache
                                     )
+        return None
 
 
 class SortableTableView(TemplateView):
