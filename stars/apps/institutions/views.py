@@ -16,8 +16,7 @@ from stars.apps.institutions.forms import (SubmissionSelectForm,
                                            DataCorrectionRequestForm)
 from stars.apps.institutions.models import Institution
 from stars.apps.notifications.models import EmailTemplate
-from stars.apps.submissions.models import (SubmissionSet,
-                                           SubmissionInquiry,
+from stars.apps.submissions.models import (SubmissionInquiry,
                                            DataCorrectionRequest,
                                            PENDING_SUBMISSION_STATUS,
                                            RATED_SUBMISSION_STATUS)
@@ -35,6 +34,8 @@ class InstitutionStructureMixin(StructureMixin):
     def update_context_callbacks(self):
         super(InstitutionStructureMixin, self).update_context_callbacks()
         self.add_context_callback("get_institution")
+        self.add_context_callback("get_subscription")
+        self.add_context_callback("get_payment")
 
     def get_institution(self, use_cache=True):
         """
@@ -47,6 +48,34 @@ class InstitutionStructureMixin(StructureMixin):
                                     kwargs_key='institution_slug',
                                     klass=Institution,
                                     property="slug",
+                                    use_cache=use_cache
+                                    )
+
+    def get_subscription(self, use_cache=True):
+        """
+            Attempts to get an institution's subscription.
+            Returns None if not in kwargs.
+            Raises 404 if key in kwargs and not found.
+        """
+        return self.get_obj_or_call(
+                                    cache_key='subscription',
+                                    kwargs_key='subscription_id',
+                                    klass=self.get_institution().subscription_set.all(),
+                                    property="id",
+                                    use_cache=use_cache
+                                    )
+
+    def get_payment(self, use_cache=True):
+        """
+            Attempts to get an institution's subscription.
+            Returns None if not in kwargs.
+            Raises 404 if key in kwargs and not found.
+        """
+        return self.get_obj_or_call(
+                                    cache_key='payment',
+                                    kwargs_key='payment_id',
+                                    klass=self.get_subscription().subscriptionpayment_set.all(),
+                                    property="id",
                                     use_cache=use_cache
                                     )
 
