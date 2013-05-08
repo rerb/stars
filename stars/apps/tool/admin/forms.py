@@ -30,7 +30,7 @@ class PaymentForm(LocalizedModelFormMixin, ModelForm):
              in institution.starsaccount_set.all()])
 
         # ensure the original payee is in the list
-        if self.instance.user:
+        if self.instance and self.instance.user_id:
             self._add_user(self.instance.user)
 
         # also ensure that the current user is in the list
