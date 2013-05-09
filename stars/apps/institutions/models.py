@@ -655,7 +655,7 @@ class Subscription(models.Model):
                          context=exec_email_context)
 
     def _send_post_purchase_pay_later_email(self, mail_to):
-        if self.reason.endswith('renew'):
+        if self.reason.endswith('renewal'):
             slug = "reg_renewal_unpaid"
         else:
             slug = "welcome_liaison_unpaid"
