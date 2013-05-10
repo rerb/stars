@@ -6,13 +6,14 @@ from django.db.models import Max
 
 from stars.apps.institutions.models import StarsAccount
 
+
 def user_has_access_level(user, access_level, institution):
     """
         Access levels are "admin", "submit", "view"
     """
     if not user.is_authenticated():
         return False
-    
+
     if user.is_staff:
         return True
     try:
@@ -64,33 +65,44 @@ def user_has_view_access(user, institution):
     return user_has_access_level(user, "view", institution)
 logical_rules.site.register("user_has_view_access", user_has_view_access)
 
+
 def user_is_institution_admin(user, institution):
     return user_has_access_level(user, 'admin', institution)
-logical_rules.site.register("user_is_institution_admin", user_is_institution_admin)
+logical_rules.site.register("user_is_institution_admin",
+                            user_is_institution_admin)
+
 
 def institution_can_get_rated(institution):
-    if institution.is_participant and institution.current_subscription.get_available_ratings() > 0 and institution.current_subscription.paid_in_full:
-    	return True
+    if(institution.is_participant and
+       institution.current_subscription.get_available_ratings() > 0 and
+       institution.current_subscription.paid_in_full):
+        return True
     return False
-logical_rules.site.register("institution_can_get_rated", institution_can_get_rated)
+logical_rules.site.register("institution_can_get_rated",
+                            institution_can_get_rated)
+
 
 def institution_has_score_feature(institution):
     return institution.is_participant
-logical_rules.site.register("institution_has_score_feature", institution_has_score_feature)
+logical_rules.site.register("institution_has_score_feature",
+                            institution_has_score_feature)
+
 
 def institution_has_internal_notes_feature(institution):
     return institution.is_participant
-logical_rules.site.register("institution_has_internal_notes_feature", institution_has_internal_notes_feature)
+logical_rules.site.register("institution_has_internal_notes_feature",
+                            institution_has_internal_notes_feature)
+
 
 def institution_has_my_resources(institution):
     """
-        If they're a participant, or if their most recent subscription ended less
-        60 days prior or it is before september 2012
+        If they're a participant, or if their most recent subscription ended
+        less than 60 days prior or it is before september 2012
     """
     sept = date(year=2012, day=1, month=9)
-    
+
     return True
-    
+
     if institution.is_participant or date.today() < sept:
         return True
     else:
@@ -101,16 +113,24 @@ def institution_has_my_resources(institution):
             if max_dict['end_date__max'] >= date.today() - td:
                 return True
     return False
-logical_rules.site.register("institution_has_my_resources", institution_has_my_resources)
+logical_rules.site.register("institution_has_my_resources",
+                            institution_has_my_resources)
+
 
 def institution_has_export(institution):
     return institution.is_participant
 logical_rules.site.register("institution_has_export", institution_has_export)
 
+
 def institution_has_my_reports(institution):
     return institution.is_participant
-logical_rules.site.register("institution_has_my_reports", institution_has_my_reports)
+logical_rules.site.register("institution_has_my_reports",
+                            institution_has_my_reports)
+
 
 def institution_has_snapshot_feature(institution):
     return institution.current_submission.creditset.has_feature('snapshot')
-logical_rules.site.register("institution_has_snapshot_feature", institution_has_snapshot_feature)
+logical_rules.site.register("institution_has_snapshot_feature",
+                            institution_has_snapshot_feature)
+
+# Data Displays
