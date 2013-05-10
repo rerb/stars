@@ -237,7 +237,7 @@ class SubmissionSet(models.Model, FlaggableModel):
             Return the STARS rating (potentially provisional) for this submission
             @todo: this is inefficient - need to store or at least cache the STARS score.
         """
-        if self.reporter_status or self.status == 'f':
+        if self.reporter_status or self.status == 'f' or self.institution.international:
             return self.creditset.rating_set.get(name='Reporter')
 
         if self.is_rated() and not recalculate:

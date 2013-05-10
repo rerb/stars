@@ -22,7 +22,7 @@
 {% block institution_content %}
     <h2>{{ title }}</h2>
     <form method='post' action='.' class='form'>
-    	{{ object_form|bootstrap }}
+    	{{ form|bootstrap }}
 		<div class='form-actions'>
                 <button type='submit' class='btn btn-primary'>Save Payment</button>
                 <!-- <button type='button' class='btn' onclick='document.location="{{ object_form.instance.get_delete_url }}";'>Delete</button> -->

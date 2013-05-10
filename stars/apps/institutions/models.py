@@ -370,11 +370,7 @@ class Subscription(models.Model):
     amount_due = models.FloatField()
     reason = models.CharField(max_length='16', blank=True, null=True)
     paid_in_full = models.BooleanField(default=False)
-
-    def __unicode__(self):
-        return "%s (%s - %s)" % (self.institution.name,
-                                 self.start_date,
-                                 self.end_date)
+    
     MEMBER_BASE_PRICE = 900
     NONMEMBER_BASE_PRICE = 1400
 
@@ -539,8 +535,9 @@ class Subscription(models.Model):
         self._update_institution_after_purchase()
 
     def __unicode__(self):
-        return u"%s (%s - %s)" % (self.institution.name, self.start_date,
-                                  self.end_date)
+        return "%s (%s - %s)" % (self.institution.name,
+                                 self.start_date,
+                                 self.end_date)
 
     def _apply_promo_code(self, price, promo_code=None):
         """
@@ -657,7 +654,7 @@ class Subscription(models.Model):
                              context=exec_email_context)
 
     def _send_post_purchase_pay_later_email(self, mail_to):
-        if self.reason.endswith('renew'):
+        if self.reason.endswith('renewal'):
             slug = "reg_renewal_unpaid"
         else:
             slug = "welcome_liaison_unpaid"

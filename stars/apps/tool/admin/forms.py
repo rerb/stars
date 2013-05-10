@@ -17,25 +17,33 @@ class PaymentForm(LocalizedModelFormMixin, ModelForm):
         exclude = ('subscription',)
 
     def __init__(self, *args, **kwargs):
+        """
+            Accepts the current user, to be sure that it's
+            included in the pull-down list
+        """
+        current_user = kwargs.pop('current_user', None)
         super(PaymentForm, self).__init__(*args, **kwargs)
         institution = self.instance.subscription.institution
         self.fields['user'].choices = (
             [('', '----------')] +
-            [(account.user.id, account.user.username) for account
+            [(account.user.id, account.user.email) for account
              in institution.starsaccount_set.all()])
 
-        if self.instance.user: # ensure the original payee is in the
-                               # list, no matter what...
-            self.add_user(self.instance.user)
+        # ensure the original payee is in the list
+        if self.instance and self.instance.user_id:
+            self._add_user(self.instance.user)
 
-    def add_user(self, user):
+        # also ensure that the current user is in the list
+        self._add_user(current_user)
+
+    def _add_user(self, user):
         """ Add the user to the list of users available as payees """
         # Only add the user if they are not already there...
-        for id, name in self.fields['user'].choices:
-            if id == user.id:
+        for uid, __ in self.fields['user'].choices:
+            if uid == user.id:
                 return
         # assert:  user is not yet listed in the choices.
-        self.fields['user'].choices.append((user.id, user.username))
+        self.fields['user'].choices.append((user.id, user.email))
 
     def clean_amount(self):
         """
