@@ -10,4 +10,4 @@ class AuthorizedUser(models.Model):
     participant_level = models.BooleanField()
 
     class Meta:
-        ordering = ('-start_date','-end_date')
+        ordering = ('-start_date', '-end_date')

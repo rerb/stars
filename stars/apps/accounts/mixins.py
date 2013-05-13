@@ -31,17 +31,6 @@ class StarsAccountMixin(object):
         """ get all STARS Accounts associated with this user """
         return StarsAccount.objects.filter(user=self.request.user)
 
-    def user_is_member(self):
-        """
-            Pulls the member status from the user_dict in the session
-            Logs a user out if they don't have it
-        """
-        user_dict = self.request.user.aasheuser.get_drupal_user_dict()
-        if user_dict:
-            roles = user_dict['roles'].values()
-            return 'Member' in roles
-        return False
-
 
 class StarsMixin(object):
     """

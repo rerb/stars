@@ -44,20 +44,6 @@ def user_is_participant(user):
 logical_rules.site.register("user_is_participant", user_is_participant)
 
 
-def user_is_participant_or_member(user, is_member):
-    """
-        Check that the user is either a participant or a member
-
-        is_member is passed in because it's stored in the session
-    """
-    if user_is_participant(user) or is_member:
-        return True
-
-    return False
-logical_rules.site.register("user_is_participant_or_member",
-                          user_is_participant_or_member)
-
-
 def user_has_view_access(user, institution):
     """
         hardcoded version of user_has_access_level for view access
@@ -132,5 +118,3 @@ def institution_has_snapshot_feature(institution):
     return institution.current_submission.creditset.has_feature('snapshot')
 logical_rules.site.register("institution_has_snapshot_feature",
                             institution_has_snapshot_feature)
-
-# Data Displays
