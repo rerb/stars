@@ -286,7 +286,7 @@ class DisplayAccessMixin(StarsAccountMixin, RulesMixin):
         @todo: temporary access
     """
     def access_denied_callback(self):
-        self.template_name = "institutions/data_displays/denied_categories.html"
+        self.template_name = self.denied_template_name
         return self.render_to_response({'top_help_text': self.get_description_help_context_name(),})
 
 
@@ -338,14 +338,14 @@ class AggregateFilter(DisplayAccessMixin, CommonFilterMixin, FilteringMixin,
         Participants and Members Only
     """
     template_name = "institutions/data_displays/categories.html"
+    denied_template_name = "institutions/data_displays/denied_categories.html"
 
     def update_logical_rules(self):
         super(AggregateFilter, self).update_logical_rules()
         self.add_logical_rule({
-                               'name': 'user_is_participant_or_member',
+                               'name': 'user_has_member_displays',
                                'param_callbacks': [
                                                     ('user', 'get_request_user'),
-                                                    ('is_member', 'user_is_member')
                                                     ],
                                'response_callback': 'access_denied_callback'
                                })
@@ -417,6 +417,7 @@ class ScoreFilter(DisplayAccessMixin, CommonFilterMixin, NarrowFilteringMixin, T
     """
         
     template_name = "institutions/data_displays/score.html"
+    denied_template_name = "institutions/data_displays/denied_score.html"
     _col_keys = ['col1', 'col2', 'col3', 'col4']
     _obj_mappings = [
                     ('cat', Category),
@@ -426,10 +427,10 @@ class ScoreFilter(DisplayAccessMixin, CommonFilterMixin, NarrowFilteringMixin, T
     def update_logical_rules(self):
         super(DisplayAccessMixin, self).update_logical_rules()
         self.add_logical_rule({
-                               'name': 'user_is_participant',
+                               'name': 'user_has_participant_displays',
                                'param_callbacks': [
-                                                    ('user', 'get_request_user')
-                                                    ],
+                                                   ('user', 'get_request_user')
+                                                   ],
                                'response_callback': 'access_denied_callback'
                                })
 
@@ -666,6 +667,7 @@ class ContentFilter(DisplayAccessMixin, CommonFilterMixin,
         field and the current querydict;
     """
     template_name = "institutions/data_displays/content.html"
+    denied_template_name = "institutions/data_displays/denied_content.html"
 
     """
         Methods
@@ -693,10 +695,9 @@ class ContentFilter(DisplayAccessMixin, CommonFilterMixin,
     def update_logical_rules(self):
         super(ContentFilter, self).update_logical_rules()
         self.add_logical_rule({
-                               'name': 'user_is_participant_or_member',
+                               'name': 'user_has_member_displays',
                                'param_callbacks': [
                                                     ('user', 'get_request_user'),
-                                                    ('is_member', 'user_is_member')
                                                     ],
                                'response_callback': 'access_denied_callback'
                                })
