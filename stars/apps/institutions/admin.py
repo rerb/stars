@@ -6,6 +6,7 @@ from models import (Institution, StarsAccount,
                     RegistrationSurvey, RespondentRegistrationReason,
                     RespondentSurvey, ClimateZone)
 from stars.apps.submissions.models import RATED_SUBMISSION_STATUS
+from stars.apps.credits.models import Rating
 
 
 class InstitutionAdmin(admin.ModelAdmin):
@@ -19,6 +20,8 @@ class InstitutionAdmin(admin.ModelAdmin):
             form.base_fields['current_submission'].queryset = obj.submissionset_set.all()
             form.base_fields['rated_submission'].queryset = obj.submissionset_set.filter(status=RATED_SUBMISSION_STATUS)
             form.base_fields['current_subscription'].queryset = obj.subscription_set.all()
+        rating_choices = [(r.id, "%s (%s)" % (r.name, r.creditset.version)) for r in Rating.objects.all()]
+        form.base_fields['current_rating'].choices = rating_choices
         return form
 admin.site.register(Institution, InstitutionAdmin)
 
