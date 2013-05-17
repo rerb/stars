@@ -1,6 +1,8 @@
 from datetime import datetime, date, timedelta
 from logging import getLogger
-import os, re, sys
+import os
+import re
+import sys
 
 from django.conf import settings
 from django.db import models
@@ -12,17 +14,25 @@ from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
 from django.core import urlresolvers
 from django.core.files.uploadedfile import InMemoryUploadedFile
+from django.core.cache import cache
 
-from stars.apps.credits.models import CreditSet, Category, Subcategory, Credit, DocumentationField, Choice, ApplicabilityReason, Rating
+from stars.apps.credits.models import (CreditSet, Category, Subcategory,
+                                       Credit, DocumentationField, Choice,
+                                       ApplicabilityReason, Rating)
 from stars.apps.institutions.models import Institution, ClimateZone
 from stars.apps.submissions.pdf.export import build_report_pdf
 from stars.apps.notifications.models import EmailTemplate
 
+PENDING_SUBMISSION_STATUS = 'ps'
+PROCESSSING_SUBMISSION_STATUS = 'pr'
+RATED_SUBMISSION_STATUS = 'r'
+FINALIZED_SUBMISSION_STATUS = 'f'
+
 SUBMISSION_STATUS_CHOICES = (
-    ('ps', 'Pending Submission'),
-    ('pr', 'Processing Submission'), # was "Pending Review"
-    ('r', 'Rated'),
-    ('f', 'Finalized'),
+    (PENDING_SUBMISSION_STATUS, 'Pending Submission'),
+    (PROCESSSING_SUBMISSION_STATUS, 'Processing Submission'),
+    (RATED_SUBMISSION_STATUS, 'Rated'),
+    (FINALIZED_SUBMISSION_STATUS, 'Finalized'),
 )
 
 # Max # of extensions allowed per submission set
@@ -57,7 +67,7 @@ class Flag(models.Model):
     def get_admin_url(self):
         return urlresolvers.reverse("admin:submissions_flag_change", args=[self.id])
 
-    def __str__(self):
+    def __unicode__(self):
         return "%s" % self.target
 
 class FlaggableModel():
@@ -125,7 +135,7 @@ class SubmissionSet(models.Model, FlaggableModel):
         ordering = ("date_registered",)
 
     def __unicode__(self):
-        return unicode('%s (%s)' % (self.institution, self.creditset) )
+        return '%s (%s)' % (self.institution.name, self.creditset.version)
 
     def missed_deadline(self):
         return not self.institution.is_participant
@@ -185,10 +195,17 @@ class SubmissionSet(models.Model, FlaggableModel):
                     'submissionset': self.id })
 
     def get_scorecard_url(self):
-        if self.date_submitted:
-            return '/institutions/%s/report/%s/'% (self.institution.slug, self.date_submitted)
+        cache_key = "submission_%d_scorecard_url" % self.id
+        url = cache.get(cache_key)
+        if url:
+            return url
         else:
-            return '/institutions/%s/report/%s/'% (self.institution.slug, self.id)
+            if self.date_submitted:
+                url = '/institutions/%s/report/%s/'% (self.institution.slug, self.date_submitted)
+            else:
+                url = '/institutions/%s/report/%s/'% (self.institution.slug, self.id)
+            cache.set(cache_key, url, 60*60*24) # cache for 24 hours
+            return url
 
     def get_parent(self):
         """ Used for building crumbs """
@@ -220,7 +237,7 @@ class SubmissionSet(models.Model, FlaggableModel):
             Return the STARS rating (potentially provisional) for this submission
             @todo: this is inefficient - need to store or at least cache the STARS score.
         """
-        if self.reporter_status or self.status == 'f':
+        if self.reporter_status or self.status == 'f' or self.institution.international:
             return self.creditset.rating_set.get(name='Reporter')
 
         if self.is_rated() and not recalculate:
@@ -448,7 +465,7 @@ class Boundary(models.Model):
     gsf_lab_space = models.FloatField("Gross square feet of laboratory space", help_text='Scientific research labs and other high performance facilities eligible for <a href="http://www.labs21century.gov/index.htm" target="_blank">Labs21 Environmental Performance Criteria</a> (EPC).', blank=True, null=True)
     cultivated_grounds_acres = models.FloatField("Acres of cultivated grounds", help_text="Areas that are landscaped, planted, and maintained (including athletic fields). If less than 5 acres, data not necessary.", blank=True, null=True)
     undeveloped_land_acres = models.FloatField("Acres of undeveloped land", help_text="Areas without any buildings or development. If less than 5 acres, data not necessary", blank=True, null=True)
-    climate_region = models.ForeignKey(ClimateZone, help_text="See the <a href='http://www1.eere.energy.gov/buildings/residential/ba_guides_studies.html'>USDOE</a> site and <a href='http://www.ashrae.org/File%20Library/docLib/Public/20081111_cztables.pdf'>ASHRAE</a>  (international) for more information.", blank=True, null=True)
+    climate_region = models.ForeignKey(ClimateZone, help_text="See the <a href='http://www1.eere.energy.gov/buildings/building_america/climate_zones.html'>USDOE</a> site and <a href='http://www.ashrae.org/File%20Library/docLib/Public/20081111_cztables.pdf'>ASHRAE</a>  (international) for more information.", blank=True, null=True)
 
     # Features
     ag_school_present = models.NullBooleanField(
@@ -527,8 +544,8 @@ class Boundary(models.Model):
     class Meta:
         verbose_name_plural = "Boundaries"
 
-    def __str__(self):
-        return self.submissionset.institution.name;
+    def __unicode__(self):
+        return unicode(self.submissionset)
 
     def get_characteristic_fields_and_values(self):
         """
@@ -659,8 +676,15 @@ class CategorySubmission(models.Model):
         return self.submissionset
 
     def get_scorecard_url(self):
-        return '%s%s' % (self.submissionset.get_scorecard_url(),
-                         self.category.get_browse_url())
+        cache_key = "category_%d_scorecard_url" % self.id
+        url = cache.get(cache_key)
+        if url:
+            return url
+        else:
+            url = '%s%s' % (self.submissionset.get_scorecard_url(),
+                            self.category.get_browse_url())
+            cache.set(cache_key, url, 60*60*24) # cache for 24 hours
+            return url
 
     def get_STARS_score(self):
         """
@@ -921,9 +945,6 @@ class CreditSubmission(models.Model):
     class Meta:
         ordering = ("credit__type", "credit__ordinal",)
 
-    def __str__(self):
-        return self.credit.title.encode('utf8')
-
     def __unicode__(self):
         return self.credit.title
 
@@ -998,8 +1019,7 @@ class CreditSubmission(models.Model):
         return key
 
     def print_submission_fields(self):
-        import sys
-        print >> sys.stderr, "Fields for CreditSubmission: %s"%self.__str__()
+        print >> sys.stderr, "Fields for CreditSubmission: %s" % self
         fields = self.get_submission_fields()
         for field in fields:
             print >> sys.stderr, field
@@ -1041,7 +1061,7 @@ class CreditSubmission(models.Model):
             if log_error:
                 logger.error(
                     "Error converting formula result (%s) to numeric type: %s" %
-                    (points.__str__(),e), exc_info=True)
+                    (points,e), exc_info=True)
             return (0, "Non-numeric result calculated for points: %s" % points)
 
     def validate_points(self, points, log_error=True):
@@ -1062,7 +1082,7 @@ class CreditSubmission(models.Model):
 
         if points < 0 or points > self.credit.point_value:  # is it in range?
             range_error = ("Points (%s) are out of range (0 - %s)." %
-                           (points.__str__(), self.credit.point_value))
+                           (points, self.credit.point_value))
             if log_error:
                 logger.error(range_error)
             messages.append(range_error)
@@ -1128,7 +1148,14 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
         return url
 
     def get_scorecard_url(self):
-        return self.credit.get_scorecard_url(self.subcategory_submission.category_submission.submissionset)
+        cache_key = "cus_%d_scorecard_url" % self.id
+        url = cache.get(cache_key)
+        if url:
+            return url
+        else:
+            url = self.credit.get_scorecard_url(self.subcategory_submission.category_submission.submissionset)
+            cache.set(cache_key, url, 60*60*24) # cache for 24 hours
+            return url
 
     def get_parent(self):
         """ Used for building crumbs """
@@ -1261,13 +1288,10 @@ class CreditTestSubmission(CreditSubmission):
 
     def parameter_list(self):
         """ Returns a string with this submission's field values formatted as a parameter list """
-        return ', '.join([field.__str__() for field in self.get_submission_fields()])
+        return ', '.join([field.__unicode__() for field in self.get_submission_fields()])
 
     def __unicode__(self):
         return "f( %s ) = %s" % (self.parameter_list(), self.expected_value)
-
-    def __str__(self):
-        return "<CreditTestSubmission: expected=%s  %s>"%(self.expected_value, super(CreditTestSubmission,self).__str__() )
 
 """
 DOCUMENTATION_FIELD_TYPES = (
@@ -1422,10 +1446,6 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
         """ return the title of this submission field """
         return self.documentation_field.__unicode__()
 
-    def __str__(self):
-        """ return a string representation of the submission' value """
-        return str(self.get_value())
-
     def get_parent(self):
         """ Used for building crumbs """
         return self.credit_submission
@@ -1529,11 +1549,12 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
     def get_correction_url(self):
         return "%s%d/" % (self.credit_submission.get_scorecard_url(), self.documentation_field.id)
 
+
 class AbstractChoiceSubmission(DocumentationFieldSubmission):
     class Meta:
         abstract = True
 
-    def __str__(self):
+    def __unicode__(self):
         """ return a string representation of the submission' value """
         choice = self.get_value()
         return self._get_str(choice)
@@ -1665,7 +1686,7 @@ class MultiChoiceSubmission(AbstractChoiceSubmission):
         # got to be careful here - many-to-many is only valid after submission has been saved.
         return self.value.all() if self.persists() else None
 
-    def __str__(self):
+    def __unicode__(self):
         """ return a string representation of the submission' value """
         choices = self.get_value()
         if not choices:

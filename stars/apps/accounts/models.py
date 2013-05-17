@@ -4,6 +4,9 @@ from django.contrib.auth.models import User
 from stars.apps.institutions.models import Institution, StarsAccount
 
 class UserProfile(models.Model):
+    """
+        @todo - this can be removed now that we're using aasheauth
+    """
     
     user = models.OneToOneField(User)
     is_member = models.BooleanField(default=False)

@@ -17,6 +17,7 @@
             <h1>Login with your AASHE Account</h1>
         <div class='row'><div class='span8 offset2'>
             <form action='.' method='post' class='form-horizontal'>
+            	{% csrf_token %}
                 <input type='hidden' name='next' value='{{ next }}' />
                 {{ form|bootstrap }}
                 <div class='form-actions'>

@@ -32,8 +32,20 @@ urlpatterns = patterns(
     # PDF Export of Submission
     (r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/pdf/$', PDFExportView.as_view()),
 
+    # Old Credit Scorecard - all ints for category_id, subcategory_id, and
+    # credit_id; redirects to new Credit Scorecard url below:
+    (r'^(?P<institution_slug>[^/]+)'
+     '/report'
+     '/(?P<submissionset>[^/]+)'
+     '/(?P<category_id>\d+)'
+     '/(?P<subcategory_id>\d+)'
+     '/(?P<credit_id>\d+)/$',
+     RedirectOldScorecardCreditURLsView.as_view()),
+
     # Credit Scorecard
-     (r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/(?P<category_abbreviation>[^/]+)/(?P<subcategory_slug>[^/]+)/(?P<credit_identifier>[^/]+)/$', ScorecardCredit.as_view()),
+    url(r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/(?P<category_abbreviation>[^/]+)/(?P<subcategory_slug>[^/]+)/(?P<credit_identifier>[^/]+)/$',
+        ScorecardCredit.as_view(),
+        name='scorecard-credit'),
 
     # Data correction request
     (r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/(?P<category_abbreviation>[^/]+)/(?P<subcategory_slug>[^/]+)/(?P<credit_identifier>[^/]+)/(?P<field_id>\d+)/$', DataCorrectionView.as_view()),

@@ -2,17 +2,9 @@
 
 This document assumes you have checked out the latest source code to get this file...
 
-== Requirements ==
-
-Python 2.6+
-Virtualenv
-
 == Installation ==
 
-To set up your environment see the README_VENV document.
-
-When you want to run any of the standard Django commands, use manage.py:
->$ python manage.py runserver
+See README_VENV for setting up your local working environment
 
 === Note about South ===
 
@@ -44,6 +36,8 @@ Please read README_VENV to set up your environment to use ENVIRONMENT VARIABLES 
 If you want to use the TinyMCE editor in your development, you will need to create a symlink in your media directory:
 
 ~/stars_media/tp/js/tiny_mce -> PATH_TO_SRC/tinyMCE/tinymce/jscripts/tiny_mce
+
+TinyMCE is automatically pulled down by buildout.
 
 == Quick STARS (I mean START) ==
 

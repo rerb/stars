@@ -12,12 +12,9 @@ DEFAULT_CHARSET = 'utf-8'
 
 PROJECT_PATH = os.path.join(os.path.dirname(__file__), '..')
 
-# Use a dummy Email Backend for anything but production
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
 DEBUG = os.environ.get("DEBUG", False)
 TEMPLATE_DEBUG = DEBUG
-API_TEST_MODE = DEBUG
+API_TEST_MODE = os.environ.get("API_TEST_MODE", DEBUG)
 FIXTURE_DIRS = ('fixtures', os.path.join(PROJECT_PATH, 'apps/api/fixtures'),)
 
 TIME_ZONE = 'America/Lima'
@@ -34,10 +31,6 @@ DATABASES = {
     'iss': dj_database_url.parse(os.environ.get('ISS_DB_URL', None))
 }
 DATABASES['default']['OPTIONS'] = {'init_command': 'SET storage_engine=MYISAM'}
-
-if 'test' in sys.argv:
-    DATABASES['default'] = dj_database_url.parse(os.environ.get('STARS_TEST_DB', None))
-    DATABASES['default'] = dj_database_url.parse(os.environ.get('ISS_TEST_DB', None))
 DATABASE_ROUTERS = ('aashe.issdjango.router.ISSRouter',)
 
 # Media
@@ -68,7 +61,7 @@ MIDDLEWARE_CLASSES = [ # a list so it can be editable during tests (see below)
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'stars.apps.accounts.middleware.AuthenticationMiddleware',  # must come after django.contrib.auth.middleware
+#    'aashe.aasheauth.middleware.AASHEAccountMiddleware',
     'django.middleware.cache.FetchFromCacheMiddleware',
     'django.contrib.redirects.middleware.RedirectFallbackMiddleware',
     'django.middleware.doc.XViewMiddleware',
@@ -80,19 +73,13 @@ import django_cache_url
 CACHES = {'default': django_cache_url.parse(os.environ.get('CACHE_URL', 'dummy://'))}
 
 AUTH_PROFILE_MODULE = 'accounts.UserProfile'
-AUTHENTICATION_BACKENDS = ('stars.apps.accounts.aashe.AASHEAuthBackend',)
+AUTHENTICATION_BACKENDS = ('aashe.aasheauth.backends.AASHEBackend',)
 if 'test' in sys.argv:
     AUTHENTICATION_BACKENDS = (
                                'django.contrib.auth.backends.ModelBackend',
                                'aashe.aasheauth.backends.AASHEBackend',
                                # 'stars.apps.accounts.aashe.AASHEAuthBackend',
                                )
-
-AASHE_DRUPAL_URI = "http://www.aashe.org/services/xmlrpc"
-AASHE_DRUPAL_KEY = "15cf217790e3d45199aeb862f73ab2ff"
-AASHE_DRUPAL_KEY_DOMAIN = "acupcc.aashe.org"
-AASHE_DRUPAL_COOKIE_SESSION = "SESS0e65dd9c18edb0e7e84759989a5ca2d3"
-AASHE_DRUPAL_COOKIE_DOMAIN = ".aashe.org"
 
 DASHBOARD_URL = "/tool/"
 LOGIN_URL = "/accounts/login/"
@@ -149,84 +136,48 @@ INSTALLED_APPS = (
     'stars.apps.third_parties',
     'stars.apps.api',
     'stars.tests',
+
+    'logical_rules',
+    'aashe.aasheauth',
     'aashe.issdjango',
-    'south',
-    'sorl.thumbnail',
+    'bootstrapform',
     'captcha',
     'django_extensions',
     'djcelery',
-    'aashe_rules',
-    'tastypie',
-    'bootstrapform',
-    # 'memcache_status',
+    'sorl.thumbnail',
+    'south',
     's3_folder_storage',
+    'tastypie',
+    'gunicorn',
 )
 
-# Is this running on the django dev server?
-STANDALONE_MODE = False
-
-# XML RPC
-XMLRPC_VERBOSE = False
-XMLRPC_USE_HASH = True
-
-# STARS_DOMAIN is used as part of hash key for securing rpc request.
-WWW_STARS_DOMAIN = "stars.aashe.org"
-#WWW_STARS_DOMAIN = "localhost"
-DEV_STARS_DOMAIN = "stars.dev.aashe.org"
-STAGE_STARS_DOMAIN = "stars.stage.aashe.org"
-STARS_DOMAIN = WWW_STARS_DOMAIN
-
-# SSO_API_KEY is used to authenticate RPC requests
-WWW_SSO_API_KEY = "8dca728d46c85b3fda4529692a7f7725"
-#WWW_SSO_API_KEY = "e4c8dcfbcb5120ad35b516b04cc35302" # new for localhost
-DEV_SSO_API_KEY = "ed9169978073421561d5e90f89f2050e"
-STAGE_SSO_API_KEY = "4e9e7e53c571bc48260759963a092522"
-SSO_API_KEY = WWW_SSO_API_KEY
-
-# ARTICLES module
-ARTICLE_PATH_ROOT = "pages"  # defines url / path to articles
-ARTICLE_BASE_TERM_ID = 163 # 197 on dev   # tid for base term in Articles taxonomy on IRC
-
-# IRC_DOMAIN is used for 'edit' re-directs on CMS articles
-WWW_IRC_DOMAIN = "www.aashe.org"
-DEV_IRC_DOMAIN = "dev.aashe.org"
-STAGE_IRC_DOMAIN = "stage.aashe.org"
-IRC_DOMAIN = WWW_IRC_DOMAIN
-
-SERVICES_PATH = "services/xmlrpc"
-
-SSO_AUTHENTICATION = "xmlrpc:s78dhe3Pm2T"
-
-# Is it possible we may want a different SSO server from the article 'edit' server??
-# If not, we should rationalize these two settings.
-WWW_SSO_SERVER_URI = "http://%s/%s" % (WWW_IRC_DOMAIN, SERVICES_PATH)
-DEV_SSO_SERVER_URI = "http://%s@%s/%s" % (SSO_AUTHENTICATION, DEV_IRC_DOMAIN, SERVICES_PATH)
-STAGE_SSO_SERVER_URI = "http://%s@%s/%s" % (SSO_AUTHENTICATION, STAGE_IRC_DOMAIN, SERVICES_PATH)
-
-SSO_SERVER_URI = WWW_SSO_SERVER_URI
-
-AASHE_MYSQL_SERVER = "mysql.aashe.net"
-AASHE_MYSQL_LOGIN = "starsapp"
-AASHE_MYSQL_PASS = "J3z4#$szFET--6"
+# auth config
+AASHE_DRUPAL_URI = os.environ.get('AASHE_DRUPAL_URI', None)
+AASHE_DRUPAL_KEY = os.environ.get('AASHE_DRUPAL_KEY', None)
+AASHE_DRUPAL_KEY_DOMAIN = os.environ.get('AASHE_DRUPAL_KEY_DOMAIN', None)
+AASHE_DRUPAL_COOKIE_SESSION = os.environ.get('AASHE_DRUPAL_COOKIE_SESSION', None)
+AASHE_DRUPAL_COOKIE_DOMAIN = os.environ.get('AASHE_DRUPAL_COOKIE_DOMAIN', None)
+AASHE_AUTH_VERBOSE = os.environ.get('AASHE_AUTH_VERBOSE', False)
 
 # Permissions or user levels for STARS users
 STARS_PERMISSIONS = (('admin', 'Administrator'), ('submit', 'Data Entry'), ('view', 'Observer')) # ('review', 'Audit/Review'))
 
-EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'stars_notifier@aashe.org'
-EMAIL_HOST_PASSWORD = 'sustainaashe'
-EMAIL_PORT = 587
-DEFAULT_FROM_EMAIL = 'stars_notifier@aashe.org'
-EMAIL_REPLY_TO = "stars@aashe.org"
+# Email
+EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
+EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', True)
+EMAIL_HOST = os.environ.get('EMAIL_HOST', None)
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', None)
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', None)
+EMAIL_PORT = os.environ.get('EMAIL_PORT', None)
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', None)
+EMAIL_REPLY_TO = os.environ.get('EMAIL_REPLY_TO', None)
+EMAIL_FILE_PATH = os.environ.get('EMAIL_REPLY_TO', '/tmp/stars-email-messages')
 
 # sorl thumbnail
-
 #THUMBNAIL_ENGINE = "sorl.thumbnail.engines.pgmagick_engine.Engine"
 THUMBNAIL_ENGINE = "sorl.thumbnail.engines.pil_engine.Engine"
 THUMBNAIL_FORMAT = 'PNG'
 THUMBNAIL_DEBUG = os.environ.get("THUMBNAIL_DEBUG", False)
-
 
 # Celery
 import djcelery
@@ -236,26 +187,18 @@ BROKER_PORT = 5672
 BROKER_USER = "guest"
 BROKER_PASSWORD = "guest"
 BROKER_VHOST = "/"
+CELERY_ALWAYS_EAGER = os.environ.get('CELERY_ALWAYS_EAGER', False)
 
-CELERY_RESULT_BACKEND = 'database'
-CELERY_RESULT_DBURI = "sqlite:///tmp/stars-celery-results.db"
-CELERY_CACHE_BACKEND = 'dummy'
-
-# Authorize.Net
-REAL_AUTHORIZENET_LOGIN = "9xaJX497HjE"
-REAL_AUTHORIZENET_KEY = "94qx3e7N5h9Xe4WX"
-REAL_AUTHORIZENET_SERVER = 'secure.authorize.net'
-
-TEST_AUTHORIZENET_LOGIN = "6t7Jun3QT23"
-TEST_AUTHORIZENET_KEY = "7f6k72kXM9yc9Etx"
-TEST_AUTHORIZENET_SERVER = 'test.authorize.net'
+CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'database')
+CELERY_RESULT_DBURI = os.environ.get('CELERY_RESULT_DBURI', "sqlite:///tmp/stars-celery-results.db")
+CELERY_CACHE_BACKEND = os.environ.get('CELERY_CACHE_BACKEND', 'dummy')
 
 # default is test mode
-AUTHORIZENET_LOGIN = TEST_AUTHORIZENET_LOGIN
-AUTHORIZENET_KEY = TEST_AUTHORIZENET_KEY
-AUTHORIZENET_SERVER = TEST_AUTHORIZENET_SERVER
+AUTHORIZENET_LOGIN = os.environ.get('AUTHORIZENET_LOGIN', None)
+AUTHORIZENET_KEY = os.environ.get('AUTHORIZENET_KEY', None)
+AUTHORIZENET_SERVER = os.environ.get('AUTHORIZENET_SERVER', None)
 
-ANALYTICS_ID = None
+ANALYTICS_ID = os.environ.get('ANALYTICS_ID', None)
 
 SKIP_SOUTH_TESTS=True
 
@@ -263,7 +206,7 @@ RECAPTCHA_PUBLIC_KEY = os.environ.get('RECAPTCHA_PUBLIC_KEY', None)
 RECAPTCHA_PRIVATE_KEY = os.environ.get('RECAPTCHA_PRIVATE_KEY', None)
 RECAPTCHA_USE_SSL = True
 
-GOOGLE_API_KEY = "ABQIAAAA-bTvhmGT1R0ug4p1J_-l4hQWDBNZ3_Sn8d2AByp8vi_J8JN7YxQq-tOQFxf4oNeYJyiW9fXWm-pwNg"
+GOOGLE_API_KEY = os.environ.get('GOOGLE_API_KEY', None)
 
 PYTHON_VERSION = None
 m = re.match('[\d\.]+', sys.version)
@@ -362,6 +305,11 @@ LOGGING = {
         '': {
             'handlers':['simple_console_handler', 'mail_admins_handler']
         },
+        'django.request': {
+            'handlers': ['mail_admins_handler'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
         # logger with module_name added to log record:
         'stars': {
             'handlers': ['stars_console_handler', 'mail_admins_handler'],
@@ -398,7 +346,34 @@ if os.path.exists(os.path.join(os.path.dirname(__file__), 'hg_info.py')):
     from hg_info import revision
     HG_REVISION = revision
 
+# django toolbar
+DEBUG_TOOLBAR = os.environ.get('DEBUG_TOOLBAR', False)
+if DEBUG_TOOLBAR:
+    MIDDLEWARE_CLASSES = MIDDLEWARE_CLASSES + ['debug_toolbar.middleware.DebugToolbarMiddleware',]
+    INTERNAL_IPS = ('127.0.0.1',)
+    INSTALLED_APPS = INSTALLED_APPS + ('debug_toolbar',)
+    DEBUG_TOOLBAR_CONFIG = {
+        'INTERCEPT_REDIRECTS': False,
+    }
+
+# Test backends
 if 'test' in sys.argv:
     # until fix for http://code.djangoproject.com/ticket/14105
     MIDDLEWARE_CLASSES.remove('django.middleware.cache.FetchFromCacheMiddleware')
     MIDDLEWARE_CLASSES.remove('django.middleware.cache.UpdateCacheMiddleware')
+
+    DATABASES['default'] = dj_database_url.parse(
+        os.environ.get('STARS_TEST_DB',
+                       "sqlite:////tmp/stars_tests.db"))
+    DATABASES['default'] = dj_database_url.parse(
+        os.environ.get('ISS_TEST_DB',
+                       "sqlite:////tmp/iss_tests.db"))
+
+    CACHES = {'default': django_cache_url.parse(os.environ.get('CACHE_TEST_URL', 'file:///tmp/stars-cache'))}
+
+    API_TEST_MODE = False
+
+    AUTHORIZENET_LOGIN = os.environ.get('AUTHORIZENET_TEST_LOGIN', None)
+    AUTHORIZENET_KEY = os.environ.get('AUTHORIZENET_TEST_KEY', None)
+    AUTHORIZENET_SERVER = os.environ.get('AUTHORIZENET_TEST_SERVER', None)
+

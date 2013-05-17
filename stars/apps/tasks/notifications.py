@@ -96,66 +96,64 @@ def send_overdue_notifications(current_time=datetime.now()):
                 email_context=email_context
                 )
 
+
 def send_renewal_reminder(current_date=date.today()):
     """
-        Remind institutions that they have 30 days to renew keep their registration discounts
+        Send one reminder immediately after a subscription expires
+        and then another 60 days later (30 days before the discount expires)
 
-        Institutions have 90 days to renew
-
-        Limit institutions:
-
-            - Submitted more than 60 days ago and less than 90 (expired)
-            OR
-            - Submitted before 1/31/11 after 4/1/11
+        Don't send the email if they have renewed. This uses the is_participant
+        field, which assumes that the subscription monitor is working
     """
 
-    # submissions more than 60 days old and less than 90
-    jan_thirty_one = date(year=2011, month=1, day=31)
-    sixty_days_ago = current_date - timedelta(days=60)
-    ninety_days_ago = current_date - timedelta(days=90)
+    sub_list = Subscription.objects.filter(institution__is_participant=False)
+    sub_list = sub_list.filter(institution__international=False)
 
-    ss_list = SubmissionSet.objects.filter(status='r')
-    ss_list = ss_list.filter(date_submitted__gte=jan_thirty_one) # exclude early submissions
-    ss_list = ss_list.filter(date_submitted__lte=sixty_days_ago)
-    ss_list = ss_list.filter(date_submitted__gte=ninety_days_ago)
-
-    # submission before 1/31/11
-    # if it's after 4/1/11 and before 5/1/11
-    # (the end date isn't super significant, since it only gets sent once)
-    if current_date > date(year=2011, month=4, day=1) and current_date < date(year=2011, month=5, day=1):
-        ss_list = ss_list |  SubmissionSet.objects.filter(status='r').filter(date_submitted__lte=jan_thirty_one)
-
-    n_type = '30renew'
-    identifier = '30renew'
+    n_type = '30r'
 
     message_list = []
 
-    for ss in ss_list:
+    for sub in sub_list:
 
-        m = {
-                'mail_to': [ss.institution.contact_email,],
-                'template_slug': "renewal_thirty_days",
-                'email_context': {'ss': ss,},
-                'n_type': 'rn',
-                'identifier': 'rn-%d' % ss.id,
-             }
-        message_list.append(m)
+        days_ago = current_date - sub.end_date
+
+        if days_ago.days < 90 and days_ago.days >= 60:
+            exp_date = sub.end_date + timedelta(days=90)
+            m = {
+                    'mail_to': [sub.institution.contact_email],
+                    'template_slug': "renewal_thirty_days",
+                    'email_context': {'sub': sub,
+                                      'exp_date': exp_date},
+                    'n_type': n_type,
+                    'identifier': '%s-%d' % (n_type, sub.id)
+                 }
+            message_list.append(m)
 
     send_notification_set(message_list)
 
+
 def send_post_submission_survey(current_date=None):
     """
-        Gets the submission sets that were submitted 30 days or more ago
+        Gets the submission sets that were submitted 2 weeks or more ago
         current_date is optional for debugging
+
+        Don't send if more than 60 days old
     """
 
     if not current_date:
         current_date = date.today()
 
-    d = current_date - timedelta(days=30)
+    td_14 = current_date - timedelta(days=14)
+    td_60 = current_date - timedelta(days=60)
     message_list = []
 
-    for ss in SubmissionSet.objects.filter(date_submitted__lte=d).filter(status='r'):
+    qs = SubmissionSet.objects.filter(status='r')
+    qs = qs.filter(date_submitted__lte=td_14)
+    qs = qs.filter(date_submitted__gte=td_60)
+
+    for ss in qs:
+
+        print "Sending survey email for: %s (%s)" % (ss, ss.date_submitted)
 
         m = {
                 'mail_to': [ss.institution.contact_email,],

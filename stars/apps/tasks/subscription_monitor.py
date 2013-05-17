@@ -4,6 +4,7 @@ import sys
 from django.db import DatabaseError
 
 from stars.apps.institutions.models import Institution
+from stars.apps.notifications.models import EmailTemplate
 
 def eval_participant_status(i):
     """
@@ -77,6 +78,8 @@ def update_institution_properties():
                 i.current_subscription = None
                 print >> sys.stdout, "%s subscription expired" % i
                 #@todo email institution
+                et = EmailTemplate.objects.get(slug='stars_subscription_expired')
+                et.send_email([i.contact_email], {'institution': i})
             i.save()
 
         else:

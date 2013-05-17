@@ -1,7 +1,18 @@
 from django.contrib import admin
 
-from models import *
-#from mixins import Flag
+from models import (SubmissionSet,
+                    Boundary,
+                    CategorySubmission,
+                    DataCorrectionRequest,
+                    SubcategorySubmission,
+                    CreditUserSubmission,
+                    UploadSubmission,
+                    ResponsibleParty,
+                    CreditSubmissionInquiry,
+                    Flag,
+                    SubmissionInquiry,
+                    ExtensionRequest)
+from stars.apps.credits.models import Rating
 
 
 class SubmissionSetAdmin(admin.ModelAdmin):
@@ -10,6 +21,24 @@ class SubmissionSetAdmin(admin.ModelAdmin):
                     'is_locked', 'is_visible')
     list_filter = ('date_registered', 'status', 'is_locked')
     search_fields = ('institution__name',)
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super(SubmissionSetAdmin, self).get_form(request, obj, **kwargs)
+        if obj:
+            user_list = []
+            for a in obj.institution.starsaccount_set.all():
+                user_list.append(a.user)
+            if obj.registering_user and obj.registering_user not in user_list:
+                user_list.append(obj.registering_user)
+            if obj.submitting_user and obj.submitting_user not in user_list:
+                user_list.append(obj.submitting_user)
+            choices = [(u.id, u.email) for u in user_list]
+            form.base_fields['registering_user'].choices = choices
+            form.base_fields['submitting_user'].choices = choices
+        rating_choices = [(r.id, "%s (%s)" % (r.name, r.creditset.version)) for r in Rating.objects.all()]
+        form.base_fields['rating'].choices = rating_choices
+        return form
+
 admin.site.register(SubmissionSet, SubmissionSetAdmin)
 
 

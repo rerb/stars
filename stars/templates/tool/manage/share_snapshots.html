@@ -1,7 +1,7 @@
 {% extends 'tool/manage/share_base.html' %}
 
 {% load content %}
-{% load aashe_rules_tags %}
+{% load logical_rules_tags %}
 
 {% block subtabs %}
 	{% with active_tab="snapshots"%}{{ block.super }}{% endwith %}
@@ -25,7 +25,7 @@
 		</div>
 	{% else %}
 		<div class='alert alert-warning'>
-			<strong>Note:</strong> You aren't currently sharing these snapshots.
+			<strong>Note:</strong> You are <em>not</em> currently sharing these snapshots.
 		</div>
 	{% endif %}
     

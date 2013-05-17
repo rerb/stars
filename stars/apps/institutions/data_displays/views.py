@@ -1,6 +1,7 @@
 from datetime import date, datetime
 from logging import getLogger
 import re
+import hashlib
 
 from excel_response import ExcelResponse
 
@@ -13,7 +14,7 @@ from django.http import HttpResponseRedirect
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView, FormView
 
-from aashe_rules.mixins import RulesMixin
+from logical_rules.mixins import RulesMixin
 from stars.apps.accounts.mixins import StarsAccountMixin
 
 from aashe.issdjango.models import TechnicalAdvisor
@@ -278,79 +279,14 @@ COMMON_FILTERS = [
                       ]
 
 
-class DisplayAccessMixinOld(object):
-    """
-        Objects must define two properties:
-
-            denied_template_name = ""
-            access_list = ['', ''] valid strings are 'member' and 'participant'
-
-        if either access level is fulfilled then they pass
-        if access_list is empty no access levels are required
-
-        users must be authenticated
-    """
-    def deny_action(self, request):
-        """
-            @todo - I should turn this into some sort of (class?) decorator
-        """
-
-        try:
-            au = AuthorizedUser.objects.get(email=request.user.email, start_date__lte=datetime.now(), end_date__gte=datetime.now())
-        except AuthorizedUser.DoesNotExist:
-            au = None
-
-        ta_access = False
-        ta_qs = TechnicalAdvisor.objects.filter(email=request.user.email)
-        ta = next(iter(ta_qs), None)
-        if ta:
-            ta_access= True
-
-        if self.access_list:
-            denied = True
-            profile = request.user.get_profile()
-            if 'member' in self.access_list or ta_access:
-                if profile.is_member or profile.is_aashe_staff:
-                    denied = False
-                elif au and au.member_level: # check the authorized users
-                    denied = False
-
-            if 'participant' in self.access_list:
-                if profile.is_participant() or profile.is_aashe_staff or ta_access:
-                    denied = False
-                elif au and au.participant_level: # check the authorized users
-                    denied = False
-            if denied:
-                self.template_name = self.denied_template_name
-                return self.render_to_response({'top_help_text': self.get_description_help_context_name(),})
-        return None
-
-    @method_decorator(login_required)
-    def get(self, request, *args, **kwargs):
-
-        deny_action = self.deny_action(request)
-        if deny_action:
-            return deny_action
-
-        return super(DisplayAccessMixin, self).get(request, *args, **kwargs)
-
-    @method_decorator(login_required)
-    def post(self, request, *args, **kwargs):
-
-        deny_action = self.deny_action(request)
-        if deny_action:
-            return deny_action
-
-        return super(DisplayAccessMixin, self).post(request, *args, **kwargs)
-
 class DisplayAccessMixin(StarsAccountMixin, RulesMixin):
     """
         A basic rule mixin for all Data Displays
-        
+
         @todo: temporary access
     """
     def access_denied_callback(self):
-        self.template_name = "institutions/data_displays/denied_categories.html"
+        self.template_name = self.denied_template_name
         return self.render_to_response({'top_help_text': self.get_description_help_context_name(),})
 
 
@@ -386,6 +322,13 @@ class CommonFilterMixin(object):
         cache.set('institution__org_type_filter', filters, 60 * 60 * 6)
         return filters
 
+    def convertCacheKey(self, key):
+        """
+            Convert a key to a hash, because memcached
+            can't accept certain characters
+        """
+        return hashlib.sha1("%s-%s" % (self.__class__.__name__, key)).hexdigest()
+
 
 class AggregateFilter(DisplayAccessMixin, CommonFilterMixin, FilteringMixin,
                       TemplateView):
@@ -395,15 +338,14 @@ class AggregateFilter(DisplayAccessMixin, CommonFilterMixin, FilteringMixin,
         Participants and Members Only
     """
     template_name = "institutions/data_displays/categories.html"
+    denied_template_name = "institutions/data_displays/denied_categories.html"
 
     def update_logical_rules(self):
-        super(DisplayAccessMixin, self).update_logical_rules()
+        super(AggregateFilter, self).update_logical_rules()
         self.add_logical_rule({
-                               'name': 'user_is_participant_or_member',
+                               'name': 'user_has_member_displays',
                                'param_callbacks': [
-                                                    (
-                                                        'user',
-                                                        'get_request_user'),
+                                                    ('user', 'get_request_user'),
                                                     ],
                                'response_callback': 'access_denied_callback'
                                })
@@ -418,7 +360,7 @@ class AggregateFilter(DisplayAccessMixin, CommonFilterMixin, FilteringMixin,
 
         for f, v in self.get_selected_filter_objects():
 
-            cache_key = f.get_active_title(v)
+            cache_key = self.convertCacheKey(f.get_active_title(v))
             row = cache.get(cache_key)
 
             if not row:
@@ -475,6 +417,7 @@ class ScoreFilter(DisplayAccessMixin, CommonFilterMixin, NarrowFilteringMixin, T
     """
         
     template_name = "institutions/data_displays/score.html"
+    denied_template_name = "institutions/data_displays/denied_score.html"
     _col_keys = ['col1', 'col2', 'col3', 'col4']
     _obj_mappings = [
                     ('cat', Category),
@@ -484,10 +427,10 @@ class ScoreFilter(DisplayAccessMixin, CommonFilterMixin, NarrowFilteringMixin, T
     def update_logical_rules(self):
         super(DisplayAccessMixin, self).update_logical_rules()
         self.add_logical_rule({
-                               'name': 'user_is_participant',
+                               'name': 'user_has_participant_displays',
                                'param_callbacks': [
-                                                    ('user', 'get_request_user')
-                                                    ],
+                                                   ('user', 'get_request_user')
+                                                   ],
                                'response_callback': 'access_denied_callback'
                                })
 
@@ -724,6 +667,7 @@ class ContentFilter(DisplayAccessMixin, CommonFilterMixin,
         field and the current querydict;
     """
     template_name = "institutions/data_displays/content.html"
+    denied_template_name = "institutions/data_displays/denied_content.html"
 
     """
         Methods
@@ -747,6 +691,16 @@ class ContentFilter(DisplayAccessMixin, CommonFilterMixin,
             Javascript handles the form submission, but taking the selected
             value and appending them to the current querydict
     """
+    
+    def update_logical_rules(self):
+        super(ContentFilter, self).update_logical_rules()
+        self.add_logical_rule({
+                               'name': 'user_has_member_displays',
+                               'param_callbacks': [
+                                                    ('user', 'get_request_user'),
+                                                    ],
+                               'response_callback': 'access_denied_callback'
+                               })
 
     def get_description_help_context_name(self):
         return "data_display_content"
@@ -773,7 +727,7 @@ class ContentFilter(DisplayAccessMixin, CommonFilterMixin,
         """
             Get a list of objects based on the filters and the selected field
         """
-        cache_key = self.request.GET.urlencode()
+        cache_key = self.convertCacheKey(self.request.GET.urlencode())
         object_list = cache.get(cache_key)
         if object_list:
             return object_list

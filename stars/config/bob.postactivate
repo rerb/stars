@@ -4,8 +4,8 @@
 export MEDIA_ROOT="/Users/rerb/src/aashe/app_media/stars/"
 
 # I like to spec the db's to use by form:
-export STARS_MYSQL_DB_URL="mysql://root@localhost/stars20130416"
-export ISS_MYSQL_DB_URL="mysql://root@localhost/iss20130416"
+export STARS_MYSQL_DB_URL="mysql://root@localhost/stars20130430"
+export ISS_MYSQL_DB_URL="mysql://root@localhost/iss20130430"
 export STARS_SQLITE_DB_URL="sqlite:////Users/rerb/sqlite/stars.db"
 export ISS_SQLITE_DB_URL="sqlite:////Users/rerb/sqlite/iss.db"
 
@@ -16,3 +16,7 @@ export STARS_DB_URL=${STARS_MYSQL_DB_URL}
 export ISS_DB_URL=${ISS_MYSQL_DB_URL}
 export STARS_TEST_DB=${STARS_SQLITE_DB_URL}
 export ISS_TEST_DB=${ISS_SQLITE_DB_URL}
+
+export AUTHORIZENET_LOGIN="6gJ5hF4UAXU"
+export AUTHORIZENET_KEY="23268nNJfy2ZEq58"
+export AUTHORIZENET_SERVER='test.authorize.net'

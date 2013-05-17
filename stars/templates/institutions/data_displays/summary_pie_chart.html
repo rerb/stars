@@ -10,8 +10,8 @@
 
 {% block extra_head %}
    <title>Pie Chart</title>
-   <script src="/media/tp/js/d3/d3.v2.js?2.8.0"></script>
-   <script type="text/javascript" src="/media/static/js/stars_d3.js"></script>
+   <script src="{{ STATIC_URL }}js/d3.v3.min.js"></script>
+   <script type="text/javascript" src="{{ STATIC_URL }}js/stars_d3.js"></script>
    <style type="text/css">
 
 #viz {
@@ -51,6 +51,7 @@
   {% display_block_content 'pie_viz_summary' user %}
    <div class="well"><div id="viz"></div></div>
    <p align='center'>Built using <a href='http://mbostock.github.com/d3/'>d3.js</a>.</p>
+   <p align='center'>Special thanks to Anna Mika for some pie chart <a href='http://www.uvm.edu/sustain/aashe-stars'>inspiration.</a></p>
 
    <script type="text/javascript">
 

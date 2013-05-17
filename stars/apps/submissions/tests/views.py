@@ -8,6 +8,7 @@ from django.views.generic import TemplateView
 
 from stars.apps.submissions.views import SubmissionStructureMixin
 from stars.apps.submissions.models import CreditUserSubmission, CreditSubmission
+from stars.apps.institutions.views import InstitutionStructureMixin
 
 import sys
 
@@ -21,7 +22,7 @@ class TestSubmissionStructureMixin(TestCase):
         """
         
         """
-        class TestView(SubmissionStructureMixin, TemplateView):
+        class TestView(InstitutionStructureMixin, SubmissionStructureMixin, TemplateView):
             pass
         
         view = TestView()
@@ -33,7 +34,7 @@ class TestSubmissionStructureMixin(TestCase):
         """
         kwargs = {}
         kwargs['institution_slug'] = "test-institution"
-        kwargs['submissionset_id'] = 1
+        kwargs['submissionset'] = '1'
         
         _context = view.get_context_data(**kwargs)
         
@@ -64,12 +65,12 @@ class TestSubmissionStructureMixin(TestCase):
         self.assertEqual(cat.id, 1)
         
         kwargs['subcategory_slug'] = 'test-subcategory'
-        kwargs['credit_number'] = 1
+        kwargs['credit_identifier'] = "C1"
         
         _context = view.get_context_data(**kwargs)
         
         sub = view.get_subcategorysubmission()
         self.assertEqual(sub.id, 1)
         
-        credit = view.get_creditusersubmission()
+        credit = view.get_creditsubmission()
         self.assertEqual(credit.id, 1)

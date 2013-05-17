@@ -4,7 +4,7 @@ To deploy to Heroku:
 $ heroku create <app_name>
 
 # Add the environment variables
-heroku config:add --app <app_name> ISS_DB_URL=mysql://aasheit:sustainaashe@aasheheroku.csl4c2c6dzyx.us-east-1.rds.amazonaws.com/iss
+heroku config:add --app <app_name> ISS_DB_URL=mysql://aasheit:*****@aasheheroku.csl4c2c6dzyx.us-east-1.rds.amazonaws.com/iss
 ...
 ...
 

@@ -8,6 +8,7 @@ from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect, Http404
 from django.db.models import Min
 from django.utils.decorators import method_decorator
+from django.views.generic import CreateView, UpdateView
 
 from stars.apps.accounts.utils import respond
 from stars.apps.accounts import utils as auth_utils
@@ -18,6 +19,7 @@ from stars.apps.institutions.models import (Institution, Subscription,
 from stars.apps.institutions.views import SortableTableView
 from stars.apps.submissions.models import SubmissionSet
 from stars.apps.tool.admin.forms import PaymentForm
+from stars.apps.tool.mixins import InstitutionToolMixin
 from stars.apps.third_parties.models import ThirdParty
 
 logger = getLogger('stars.request')
@@ -39,47 +41,30 @@ def select_institution(request, id):
     institution = Institution.objects.get(id=id)
     if not institution:
         raise Http404("No such institution.")
+    redirect_url = request.GET.get('redirect',
+                                    reverse('tool-summary',
+                                    args=(institution.slug,)))
+    return HttpResponseRedirect(redirect_url)
 
-    if auth_utils.change_institution(request, institution):
-        redirect_url = request.GET.get('redirect',
-                                       reverse('tool-summary',
-                                               args=(institution.slug,)))
-        response = HttpResponseRedirect(redirect_url)
-        # special hack to "remember" current institution for staff
-        # between sessions
-        #  - can't store it in session because it gets overwritten on
-        #    login, can's store it with account b/c staff don't have
-        #    accounts.
-        #  - ideally, the cookie path would be LOGIN_URL, but the
-        #    first request we get is from the login redirect url.
-        response.set_cookie("current_inst", institution.id,
-                            path=settings.LOGIN_REDIRECT_URL)
-        return response
-    else:
-        messages.error(request,
-                       "Unable to change institution to %s - check the log?" %
-                       institution)
-        return HttpResponseRedirect(settings.ADMIN_URL)
-
-@user_is_staff
-def latest_payments(request):
-    """
-        A list of institutions with their latest payment
-    """
-    # Select the latest payment for each institution -
-    # The query I want is something like:
-    # SELECT payment, submissionset__institution FROM Payment GROUP BY submissionset__institution__id  HAVING  payment.date = MAX(payment.date)
-    # But I can't figure out how to get Django to do this in single query - closest I can come is:
-    #    institutions = Institution.objects.annotate(latest_payment=Max('submissionset__payment__date'))
-    #  but that annotates each institution with the latest payment DATE - not the Payment object :-(  So...
-    # - First a query to get the id's for latest payment for each institution
-    # - Then a query to get the actual objects - seems like there must be a direct way here....
-    from django.db.models import Max
-#    payment_ids = Payment.objects.values('submissionset__institution').annotate(latest_payment=Max('date')).values('id')
-    payments = Payment.objects.all().order_by('-date').select_related('submissionset', 'submissionset__institution')
-
-    template = "tool/admin/payments/latest.html"
-    return respond(request, template, {'payment_list':payments})
+# @user_is_staff
+# def latest_payments(request):
+#     """
+#         A list of institutions with their latest payment
+#     """
+#     # Select the latest payment for each institution -
+#     # The query I want is something like:
+#     # SELECT payment, submissionset__institution FROM Payment GROUP BY submissionset__institution__id  HAVING  payment.date = MAX(payment.date)
+#     # But I can't figure out how to get Django to do this in single query - closest I can come is:
+#     #    institutions = Institution.objects.annotate(latest_payment=Max('submissionset__payment__date'))
+#     #  but that annotates each institution with the latest payment DATE - not the Payment object :-(  So...
+#     # - First a query to get the id's for latest payment for each institution
+#     # - Then a query to get the actual objects - seems like there must be a direct way here....
+#     from django.db.models import Max
+# #    payment_ids = Payment.objects.values('submissionset__institution').annotate(latest_payment=Max('date')).values('id')
+#     payments = Payment.objects.all().order_by('-date').select_related('submissionset', 'submissionset__institution')
+# 
+#     template = "tool/admin/payments/latest.html"
+#     return respond(request, template, {'payment_list':payments})
 
 
 @user_is_staff
@@ -174,67 +159,52 @@ class InstitutionList(SortableTableView):
     def get_queryset(self):
         return Institution.objects.annotate(reg_date=Min('subscription__start_date')).select_related()
 
-@user_is_staff
-def add_subscriptionpayment(request, institution_id, subscription_id):
-    """
-        Process a form for adding a new payment against the given submission set
-    """
-    institution = get_object_or_404(Institution, id=institution_id)
-    subscription = get_object_or_404(Subscription,
-                                     institution__id=institution_id,
-                                     id=subscription_id)
-    payment = SubscriptionPayment(subscription=subscription,
-                                  user=request.user,
-                                  date=datetime.today(),
-                                  amount=subscription.amount_due)
 
-    # Build and process the form for adding the payment...
-    (payment_form,saved) = form_helpers.basic_save_form(request,
-                                                        payment,
-                                                        'new_payment',
-                                                        PaymentForm)
-    if saved:
-        # update subscription payment status
-        if payment.amount == subscription.amount_due:
-            subscription.paid_in_full = True
-            subscription.amount_due = 0
-            subscription.save()
-        else:
-            subscription.amount_due -= payment.amount
-            subscription.save()
+class SubscriptionPaymentBaseMixin(InstitutionToolMixin):
 
-        return HttpResponseRedirect(
-            reverse('institution-payments',
-                    kwargs={ 'institution_slug': institution.slug }))
+    model = SubscriptionPayment
+    form_class = PaymentForm
+    template_name = 'tool/manage/payment_edit.html'
 
-    payment_form.add_user(request.user)
+    def update_logical_rules(self):
+        super(SubscriptionPaymentBaseMixin, self).update_logical_rules()
+        self.add_logical_rule({
+                'name': 'user_is_staff',
+                'param_callbacks': [('user', 'get_request_user')],
+        })
 
-    context = {'payment': payment, 'object_form':payment_form,
-               'title':'New Payment', 'institution': institution}
+    def get_form_kwargs(self):
+        """
+        Returns the keyword arguments for instantiating the form.
+        """
+        kwargs = super(SubscriptionPaymentBaseMixin, self).get_form_kwargs()
+        kwargs.update({
+                        'current_user':
+                            self.request.user
+                        })
+        return kwargs
 
-    return respond(request, 'tool/manage/payment_edit.html', context)
+    def get_success_url(self):
+        return reverse('institution-payments',
+                kwargs={'institution_slug': self.get_institution().slug})
 
-@user_is_staff
-def edit_subscriptionpayment(request, institution_id, payment_id):
-    """
-        Process a form for editing payment details
-    """
-    institution = get_object_or_404(Institution, id=institution_id)
-    payment = get_object_or_404(SubscriptionPayment,
-                                subscription__institution__id=institution_id,
-                                id=payment_id)
 
-    # Build and process the form for adding or modifying the payment...
-    (payment_form,saved) = form_helpers.basic_save_form(request, payment,
-                                                        'payment', PaymentForm)
-    if saved:
-        return HttpResponseRedirect(
-            reverse('institution-payments',
-                    kwargs={ 'institution_slug': institution.slug }))
+class AddSubscriptionPayment(SubscriptionPaymentBaseMixin, CreateView):
 
-    payment_form.add_user(request.user)
+    def get_form_kwargs(self):
+        """
+        Returns the keyword arguments for instantiating the form.
+        """
+        kwargs = super(AddSubscriptionPayment, self).get_form_kwargs()
+        kwargs.update({
+                        'instance':
+                            SubscriptionPayment(subscription=self.get_subscription())
+                        })
+        return kwargs
 
-    context = {'payment': payment, 'object_form':payment_form,
-               'title':'Edit Payment Details', 'institution': institution}
 
-    return respond(request, 'tool/manage/payment_edit.html', context)
+class EditSubscriptionPayment(SubscriptionPaymentBaseMixin, UpdateView):
+
+    def get_object(self):
+        return self.get_payment()
+

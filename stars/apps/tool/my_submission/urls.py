@@ -21,6 +21,20 @@ urlpatterns = patterns(
     url(r'^$', SubmissionSummaryView.as_view(),
         name='submission-summary'),
 
+    # Submit a snaphot
+    url(r'^snapshot/$', SaveSnapshot.as_view(), name='save-snapshot'),
+
+    # Submit for rating
+    url(r'^submit/$',
+        SubmitForRatingWizard.as_view([StatusForm,
+                                       LetterForm,
+                                       ExecContactForm,
+                                       Confirm]),
+        name='submission-submit'),
+
+    url(r'^submit/success/$', RatingCongratulationsView.as_view(),
+        name='submit-success'),
+
     url(r'^boundary/$', EditBoundaryView.as_view(),
         name='boundary-edit'),
 
@@ -42,19 +56,5 @@ urlpatterns = patterns(
     url(r'^%s/notes/$' % CREDIT_PATH,
         CreditNotesView.as_view(),
         name='creditnotes-submit'),
-
-    # Submit a snaphot
-    url(r'^snapshot/$', SaveSnapshot.as_view(), name='save-snapshot'),
-
-    # Submit for rating
-    url(r'^submit/$',
-        SubmitForRatingWizard.as_view([StatusForm,
-                                       LetterForm,
-                                       ExecContactForm,
-                                       Confirm]),
-        name='submission-submit'),
-
-    url(r'^submit/success/$', RatingCongratulationsView.as_view(),
-        name='submit-success'),
 
 )

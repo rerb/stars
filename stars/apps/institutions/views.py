@@ -1,22 +1,27 @@
+from django.core.urlresolvers import reverse
+from django.shortcuts import get_object_or_404
 from django.http import Http404, HttpResponseRedirect, HttpResponse
+from django.views.generic import (FormView, CreateView, TemplateView,
+                                  RedirectView)
 from django.views.generic.simple import direct_to_template
-from django.views.generic import FormView, CreateView, TemplateView
 
 from extra_views import CreateWithInlinesView
+from logical_rules.mixins import RulesMixin
 
-from stars.apps.submissions.models import (SubmissionInquiry,
-                                           DataCorrectionRequest)
-from stars.apps.submissions.rules import user_can_preview_submission
-from stars.apps.submissions.views import SubmissionStructureMixin
-from stars.apps.institutions.models import Institution
+from stars.apps.credits.models import Category, Subcategory, Credit
+from stars.apps.credits.views import StructureMixin
 from stars.apps.institutions.forms import (SubmissionSelectForm,
                                            SubmissionInquiryForm,
                                            CreditSubmissionInquiryFormSet,
                                            DataCorrectionRequestForm)
+from stars.apps.institutions.models import Institution
 from stars.apps.notifications.models import EmailTemplate
-from stars.apps.credits.views import StructureMixin
-
-from aashe_rules.mixins import RulesMixin
+from stars.apps.submissions.models import (SubmissionInquiry,
+                                           DataCorrectionRequest,
+                                           PENDING_SUBMISSION_STATUS,
+                                           RATED_SUBMISSION_STATUS)
+from stars.apps.submissions.rules import user_can_preview_submission
+from stars.apps.submissions.views import SubmissionStructureMixin
 
 
 class InstitutionStructureMixin(StructureMixin):
@@ -29,6 +34,8 @@ class InstitutionStructureMixin(StructureMixin):
     def update_context_callbacks(self):
         super(InstitutionStructureMixin, self).update_context_callbacks()
         self.add_context_callback("get_institution")
+        self.add_context_callback("get_subscription")
+        self.add_context_callback("get_payment")
 
     def get_institution(self, use_cache=True):
         """
@@ -43,6 +50,38 @@ class InstitutionStructureMixin(StructureMixin):
                                     property="slug",
                                     use_cache=use_cache
                                     )
+
+    def get_subscription(self, use_cache=True):
+        """
+            Attempts to get an institution's subscription.
+            Returns None if not in kwargs.
+            Raises 404 if key in kwargs and not found.
+        """
+        if self.get_institution():
+            return self.get_obj_or_call(
+                                    cache_key='subscription',
+                                    kwargs_key='subscription_id',
+                                    klass=self.get_institution().subscription_set.all(),
+                                    property="id",
+                                    use_cache=use_cache
+                                    )
+        return None
+
+    def get_payment(self, use_cache=True):
+        """
+            Attempts to get an institution's subscription.
+            Returns None if not in kwargs.
+            Raises 404 if key in kwargs and not found.
+        """
+        if self.get_subscription():
+            return self.get_obj_or_call(
+                                    cache_key='payment',
+                                    kwargs_key='payment_id',
+                                    klass=self.get_subscription().subscriptionpayment_set.all(),
+                                    property="id",
+                                    use_cache=use_cache
+                                    )
+        return None
 
 
 class SortableTableView(TemplateView):
@@ -292,6 +331,64 @@ class InstitutionScorecards(InstitutionStructureMixin, TemplateView):
                 context, **response_kwargs)
 
 
+def get_submissions_for_scorecards(institution):
+    """
+    Scorecards are only shown for pending and rated submissions.
+    """
+    return (
+        institution.submissionset_set.filter(
+            status=PENDING_SUBMISSION_STATUS)
+        |
+        institution.submissionset_set.filter(
+            status=RATED_SUBMISSION_STATUS)
+    )
+
+
+class RedirectOldScorecardCreditURLsView(InstitutionStructureMixin,
+                                         SubmissionStructureMixin,
+                                         RedirectView):
+    """
+    Redirects old Scorecard Credit URLs to their new equivalent.
+
+    Old Scorecard Credit URLs are made like this:
+
+        /<institution.slug>
+        /<submissionset.[date_submitted|id]>
+        /<category.id>
+        /<subcategory.id>
+        /<credit.id>
+
+    New Scorecard Credit URLs look like this:
+
+        /<institution.slug>
+        /<submissionset.[date_submitted|id]>
+        /<category.abbreviation>
+        /<subcategory.slug>
+        /<credit.identifier>
+    """
+    def get_redirect_url(self, **kwargs):
+        institution = self.get_institution()
+        submissionset = self.get_submissionset()
+        category = get_object_or_404(Category, id=kwargs['category_id'])
+        subcategory = get_object_or_404(Subcategory,
+                                        id=kwargs['subcategory_id'])
+        credit = get_object_or_404(Credit, id=kwargs['credit_id'])
+        return reverse(
+            'scorecard-credit',
+            kwargs={
+                'institution_slug': institution.slug,
+                'submissionset': submissionset.date_submitted,
+                'category_abbreviation': category.abbreviation,
+                'subcategory_slug': subcategory.slug,
+                'credit_identifier': credit.identifier
+            }
+        )
+
+    def get_object_list(self):
+        return get_submissions_for_scorecards(
+            institution=self.get_institution())
+
+
 class ScorecardView(RulesMixin,
                     InstitutionStructureMixin,
                     SubmissionStructureMixin,
@@ -299,18 +396,23 @@ class ScorecardView(RulesMixin,
     """
         Browse credits according to submission in the credit browsing view
     """
+    http_method_names = ['get']
+
+    def get_object_list(self):
+        return get_submissions_for_scorecards(
+            institution=self.get_institution())
 
     def update_logical_rules(self):
 
         super(ScorecardView, self).update_logical_rules()
         self.add_logical_rule({
-                    'name': 'user_can_view_submission',
-                    'param_callbacks':
-                        [
-                            ('user', "get_request_user"),
-                            ('submission', "get_submissionset")
-                        ],
-                })
+            'name': 'user_can_view_submission',
+            'param_callbacks':
+            [
+                ('user', "get_request_user"),
+                ('submission', "get_submissionset")
+            ],
+        })
 
     def get_context_data(self, **kwargs):
         """ Expects arguments for category_id/subcategory_id/credit_id """
@@ -504,6 +606,9 @@ class SubmissionInquiryView(InstitutionStructureMixin,
         ss = self.get_submissionset()
         kwargs.update({'instance': SubmissionInquiry(submissionset=ss)})
         return kwargs
+
+    def forms_invalid(self, form, inlines):
+        return super(SubmissionInquiryView, self).forms_invalid(form, inlines)
 
     def forms_valid(self, form, inlines):
         """

@@ -48,7 +48,9 @@
 
   <div class='creditContent'>
   		<h2>Reporting Fields</h2>
+  		{% with form as submission_form %}
         {% include "tool/submissions/submission_fields_form.html" %}
+        {% endwith %}
       <hr/>
       <h3>Notes</h3>
         <label>Notes about the submission{% if institution.is_participant %} (public){% endif %}:</label>

@@ -1,5 +1,4 @@
-import zipcodes
-from test_survey import TestSurvey
+import zipcodes 
 from test_process import TestProcess
 from views import ViewsTest, RegistrationSurveyViewTest
 from .models import ModelsTopLevelTest, ValueDiscountTest

@@ -22,6 +22,8 @@ from registration_factories import ValueDiscountFactory
 
 from misc_factories import UserFactory
 
+from auth_factories import AASHEAccountFactory
+
 __all__ = [ApplicabilityReasonFactory,
            BoundaryFactory,
            CategoryFactory,

@@ -1,7 +1,10 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from django.db import models
 from django.contrib.localflavor.us.models import PhoneNumberField
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes import generic
+from django.db.models import Max
 
 from stars.apps.institutions.models import RATINGS_PER_SUBSCRIPTION
 from stars.apps import submissions
@@ -11,18 +14,17 @@ from stars.apps.etl_export.mixins import ETLCompareMixin
 
 """
     Notes
-     - will add boundary later
      - aashe_id can be "-1"
 """
 
-class Institution(models.Model, ETLCompareMixin):
+
+class Institution(ETLCompareMixin):
     """
         This model houses all the required fields for the
         Salesforce Extract Transform and Load operation for
         Institutions
     """
     aashe_id = models.IntegerField()
-    change_date = models.DateTimeField(auto_now=True)
 
     liaison_first_name = models.CharField(max_length=32)
     liaison_middle_name = models.CharField(max_length=32, blank=True, null=True)
@@ -42,17 +44,15 @@ class Institution(models.Model, ETLCompareMixin):
     last_submission_date = models.DateField(blank=True, null=True)
     submission_due_date = models.DateField(blank=True, null=True)
 
-    current_submission = models.ForeignKey("SubmissionSet", blank=True, null=True, related_name="current")
-    current_subscription = models.ForeignKey("Subscription", blank=True, null=True, related_name='current')
-    rated_submission = models.ForeignKey("SubmissionSet", blank=True, null=True, related_name='rated')
+    current_submission_id = models.IntegerField(blank=True, null=True)
+    current_subscription_id = models.IntegerField(blank=True, null=True)
+    rated_submission_id = models.IntegerField(blank=True, null=True)
     current_stars_version = models.CharField(max_length=5)
-    rating_valid_until = models.DateField(blank=True, null=True)
     last_submission_date = models.DateField(blank=True, null=True)
     submission_due_date = models.DateField(blank=True, null=True)
     is_published = models.BooleanField()
 
     # for ETLCompareMixin
-    etl_exclude_fields = ['change_date',]
     etl_source_class = institutions.models.Institution
 
     def __str__(self):
@@ -62,9 +62,8 @@ class Institution(models.Model, ETLCompareMixin):
         """
             An ETL object has to be initialized with an object to populate from
         """
-
-        print institution
-
+        if institution.id == 54:
+            pass
         self.id = institution.id
         self.aashe_id = institution.aashe_id
         if not self.aashe_id:
@@ -102,6 +101,7 @@ class Institution(models.Model, ETLCompareMixin):
         self.current_submission = None
         if institution.current_submission:
             self.current_submission_id = institution.current_submission.id
+            self.current_stars_version = institution.current_submission.creditset.version
 
         self.current_subscription = None
         if institution.current_subscription:
@@ -110,14 +110,14 @@ class Institution(models.Model, ETLCompareMixin):
         self.rated_submission = None
         if institution.rated_submission:
             self.rated_submission_id = institution.rated_submission.id
+            self.last_submission_date = institution.rated_submission.date_submitted
 
 
-class Subscription(models.Model, ETLCompareMixin):
+class Subscription(ETLCompareMixin):
     """
         A mirror of the institutions.Subscription model
     """
 
-    change_date = models.DateTimeField(auto_now=True)
     aashe_id = models.IntegerField()
     start_date = models.DateField()
     end_date = models.DateField()
@@ -127,15 +127,16 @@ class Subscription(models.Model, ETLCompareMixin):
     amount_due = models.FloatField()
     reason = models.CharField(max_length='16', blank=True, null=True)
     paid_in_full = models.BooleanField(default=False)
+    close_date = models.DateField(blank=True, null=True)
 
     # for ETLCompareMixin
-    etl_exclude_fields = ['change_date',]
     etl_source_class = institutions.models.Subscription
 
     def populate(self, sub):
         """
             Populate this object from the original subscription object
         """
+
         self.id = sub.id
         self.aashe_id = sub.institution.aashe_id
         if not self.aashe_id:
@@ -149,31 +150,37 @@ class Subscription(models.Model, ETLCompareMixin):
         self.amount_due = sub.amount_due
         self.reason = sub.reason
         self.paid_in_full = sub.paid_in_full
+        self.price = 0
 
-        # calculate the price
+        last_payment_date = sub.subscriptionpayment_set.aggregate(Max('date'))['date__max']
+
         if self.paid_in_full:
             self.price = 0
+            self.close_date = last_payment_date
+            if not last_payment_date:
+                # just in case there were no payments for some reason
+                self.close_date = sub.start_date
         else:
             self.price = self.amount_due
+            self.close_date = self.start_date + timedelta(days=90)
+
         for p in sub.subscriptionpayment_set.all():
             self.price += p.amount
 
 
-class SubscriptionPayment(models.Model, ETLCompareMixin):
+class SubscriptionPayment(ETLCompareMixin):
     """
         A mirror of the institutions.SubscriptionPayment model
     """
 
-    change_date = models.DateTimeField(auto_now=True)
     aashe_id = models.IntegerField()
-    subscription = models.ForeignKey("Subscription")
+    subscription_id = models.IntegerField(blank=True, null=True)
     date = models.DateTimeField()
     amount = models.FloatField()
     user = models.EmailField()
     method = models.CharField(max_length='8')
     confirmation = models.CharField(max_length='16', blank=True, null=True)
 
-    etl_exclude_fields = ['change_date',]
     etl_source_class = institutions.models.SubscriptionPayment
 
     def populate(self, p):
@@ -194,13 +201,12 @@ class SubscriptionPayment(models.Model, ETLCompareMixin):
         self.confirmation = p.confirmation
 
 
-class SubmissionSet(models.Model, ETLCompareMixin):
+class SubmissionSet(ETLCompareMixin):
     """
         A mirrored version of the submissions.SubmissionSet model
         for export to SF
     """
-
-    change_date = models.DateTimeField(auto_now=True)
+    
     version = models.CharField(max_length=8)
     aashe_id = models.IntegerField()
     date_registered = models.DateField()
@@ -214,7 +220,6 @@ class SubmissionSet(models.Model, ETLCompareMixin):
     is_active = models.BooleanField()
 
     # for ETLCompareMixin
-    etl_exclude_fields = ['change_date',]
     etl_source_class = submissions.models.SubmissionSet
 
     def populate(self, ss):
@@ -240,15 +245,14 @@ class SubmissionSet(models.Model, ETLCompareMixin):
         self.is_active = ss.institution.get_active_submission() == ss
 
 
-class Boundary(models.Model, ETLCompareMixin):
+class Boundary(ETLCompareMixin):
     """
         A mirrored version of the submissions.Boundary model
         for export to SF
     """
 
-    change_date = models.DateTimeField(auto_now=True)
     aashe_id = models.IntegerField()
-    submissionset = models.OneToOneField(SubmissionSet)
+    submissionset = models.IntegerField(blank=True, null=True)
 
     # Characteristics
     fte_students = models.IntegerField("Full-time Equivalent Enrollment", blank=True, null=True)
@@ -257,7 +261,7 @@ class Boundary(models.Model, ETLCompareMixin):
     fte_employmees = models.IntegerField("Full-time Equivalent Employees", blank=True, null=True)
     institution_type = models.CharField(max_length=32, blank=True, null=True)
     institutional_control = models.CharField(max_length=32, blank=True, null=True)
-    endowment_size = models.IntegerField(blank=True, null=True)
+    endowment_size = models.BigIntegerField(blank=True, null=True)
     student_residential_percent = models.FloatField('Percentage of students that are Residential', blank=True, null=True)
     student_ftc_percent = models.FloatField('Percentage of students that are Full-time commuter', blank=True, null=True)
     student_ptc_percent = models.FloatField('Percentage of students that are Part-time commuter', blank=True, null=True)
@@ -302,7 +306,6 @@ class Boundary(models.Model, ETLCompareMixin):
     additional_details = models.TextField(blank=True, null=True)
 
     # for ETLCompareMixin
-    etl_exclude_fields = ['change_date',]
     etl_populate_exclude_fields = ['id', 'change_date', 'aashe_id', 'climate_region', 'submissionset']
     etl_source_class = submissions.models.Boundary
 

@@ -13,7 +13,12 @@ from stars.apps.submissions.models import (SubmissionInquiry,
 
 class SubmissionSelectForm(Form):
 
-    institution = forms.ModelChoiceField(queryset=SubmissionSet.objects.get_rated().order_by('institution__name'), empty_label="Please Select an Institution's Submission")
+    institution = forms.ModelChoiceField(queryset=SubmissionSet.objects.get_rated().order_by('institution__name'),
+                                         empty_label="Please Select an Institution's Submission")
+
+    def __init__(self, *args, **kwargs):
+        super(SubmissionSelectForm, self).__init__(*args, **kwargs)
+        self.fields['institution'].widget.attrs['style'] = "width: 600px;"
 
 
 class SubmissionInquiryForm(ModelForm):
@@ -26,8 +31,10 @@ class SubmissionInquiryForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(SubmissionInquiryForm, self).__init__(*args, **kwargs)
-        self.fields['anonymous'].widget = forms.CheckboxInput(attrs={'onchange': 'toggleFormCollapse(this);',})
+        self.fields['anonymous'].widget = forms.CheckboxInput(attrs={
+            'onchange': 'toggleFormCollapse(this);'})
         self.fields['anonymous'].required = False
+        self.fields['additional_comments'].widget.attrs['style'] = "width: 600px;"
 
 
 class CreditSubmissionInquiryForm(ModelForm):
@@ -42,6 +49,8 @@ class CreditSubmissionInquiryForm(ModelForm):
         super(CreditSubmissionInquiryForm, self).__init__(*args, **kwargs)
 
         self.fields['credit'].choices = creditset.get_pulldown_credit_choices()
+        self.fields['credit'].widget.attrs['style'] = "width: 600px;"
+        self.fields['explanation'].widget.attrs['style'] = "width: 600px;"
 
 
 class CreditSubmissionInquiryFormSet(InlineFormSet):

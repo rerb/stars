@@ -59,7 +59,27 @@ class RegistrationWizard(StarsAccountMixin, BetterWizardView):
             context.update({
                 'institution': self.get_form_instance('contact'),
                 'contact': self.get_cleaned_data_for_step('contact')})
+        if self.steps.current == 'level':
+            # redirect if they're already in the tool
+            aashe_id = self.get_cleaned_data_for_step('select')['aashe_id']
+            try:
+                inst = Institution.objects.get(aashe_id=aashe_id)
+                context['redirect'] = reverse('tool-summary',
+                    kwargs={'institution_slug':
+                            inst.slug})
+            except:
+                pass
         return context
+
+    def render(self, form=None, **kwargs):
+        """
+        Returns a ``HttpResponse`` containing all needed context data.
+        """
+        form = form or self.get_form()
+        context = self.get_context_data(form=form, **kwargs)
+        if 'redirect' in context:
+            return HttpResponseRedirect(context['redirect'])
+        return self.render_to_response(context)
 
     def get_form_instance(self, step):
         """

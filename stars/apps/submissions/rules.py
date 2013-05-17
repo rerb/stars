@@ -1,10 +1,11 @@
-import aashe_rules
+import logical_rules
 
-from stars.apps.credits.models import CreditSet
 from stars.apps.institutions.rules import (institution_can_get_rated,
-                                           institution_has_export,
+                                           user_has_access_level,
                                            institution_has_snapshot_feature,
-                                           user_has_access_level)
+                                           institution_has_export)
+from stars.apps.credits.models import CreditSet
+from stars.apps.submissions.models import Boundary
 
 
 def submission_is_editable(submission):
@@ -15,7 +16,8 @@ def submission_is_editable(submission):
     return (submission.status != 'r' and submission.status != 'f' and
             submission == submission.institution.current_submission)
 
-aashe_rules.site.register("submission_is_editable", submission_is_editable)
+logical_rules.site.register("submission_is_editable", submission_is_editable)
+
 
 def submission_is_not_locked(submission):
     """
@@ -23,7 +25,7 @@ def submission_is_not_locked(submission):
     """
     return not submission.is_locked
 
-aashe_rules.site.register("submission_is_not_locked", submission_is_not_locked)
+logical_rules.site.register("submission_is_not_locked", submission_is_not_locked)
 
 def publish_credit_data(credit_submission):
     """
@@ -40,9 +42,9 @@ def user_can_preview_submission(user, submission):
             submission == submission.institution.current_submission):
             return True
     return False
-
-aashe_rules.site.register("user_can_preview_submission",
+logical_rules.site.register("user_can_preview_submission",
                           user_can_preview_submission)
+
 
 def user_can_view_submission(user, submission):
     """
@@ -53,7 +55,7 @@ def user_can_view_submission(user, submission):
         return True
     return user_can_preview_submission(user, submission)
 
-aashe_rules.site.register("user_can_view_submission", user_can_view_submission)
+logical_rules.site.register("user_can_view_submission", user_can_view_submission)
 
 def user_can_view_pdf(user, submission):
     if (not institution_has_export(submission.institution) and
@@ -61,25 +63,23 @@ def user_can_view_pdf(user, submission):
         return False
     return True
 
-aashe_rules.site.register("user_can_view_pdf", user_can_view_pdf)
+logical_rules.site.register("user_can_view_pdf", user_can_view_pdf)
 
 def user_can_edit_submission(user, submission):
     return (submission_is_editable(submission) and
             user_has_access_level(user, 'submit', submission.institution))
-
-aashe_rules.site.register("user_can_edit_submission", user_can_edit_submission)
+logical_rules.site.register("user_can_edit_submission", user_can_edit_submission)
 
 def user_can_manage_submission(user, submission):
     return (submission_is_editable(submission) and
             user_has_access_level(user, 'admin', submission.institution))
-
-aashe_rules.site.register("user_can_manage_submission",
+logical_rules.site.register("user_can_manage_submission",
                           user_can_manage_submission)
+
 
 def user_can_see_internal_notes(user, submission):
     return user_has_access_level(user, 'view', submission.institution)
-
-aashe_rules.site.register("user_can_see_internal_notes",
+logical_rules.site.register("user_can_see_internal_notes",
                           user_can_see_internal_notes)
 
 
@@ -91,8 +91,7 @@ def user_can_submit_for_rating(user, submission):
     return (submission == submission.institution.current_submission and
             user_can_manage_submission(user, submission) and
             institution_can_get_rated(submission.institution))
-
-aashe_rules.site.register("user_can_submit_for_rating",
+logical_rules.site.register("user_can_submit_for_rating",
                           user_can_submit_for_rating)
 
 
@@ -101,7 +100,7 @@ def user_can_submit_snapshot(user, submission):
             user_can_manage_submission(user, submission) and
             institution_has_snapshot_feature(submission.institution))
 
-aashe_rules.site.register("user_can_submit_snapshot", user_can_submit_snapshot)
+logical_rules.site.register("user_can_submit_snapshot", user_can_submit_snapshot)
 
 def user_can_migrate_version(user, institution):
     """
@@ -112,8 +111,7 @@ def user_can_migrate_version(user, institution):
         return user_has_access_level(user, 'admin', institution)
     else:
         return False
-
-aashe_rules.site.register("user_can_migrate_version", user_can_migrate_version)
+logical_rules.site.register("user_can_migrate_version", user_can_migrate_version)
 
 def user_can_migrate_data(user, institution):
     """
@@ -121,8 +119,7 @@ def user_can_migrate_data(user, institution):
         Only institution admins can migrate a submission
     """
     return user_has_access_level(user, 'admin', institution)
-
-aashe_rules.site.register("user_can_migrate_data", user_can_migrate_data)
+logical_rules.site.register("user_can_migrate_data", user_can_migrate_data)
 
 
 def user_can_migrate_from_submission(user, submission):
@@ -136,9 +133,21 @@ def user_can_migrate_from_submission(user, submission):
         if submission.status == 'r' or submission.status == 'f':
                 return True
     return False
-aashe_rules.site.register("user_can_migrate_from_submission",
+logical_rules.site.register("user_can_migrate_from_submission",
                           user_can_migrate_from_submission)
 
+
+def submission_has_boundary(submission):
+    """
+        Institutions can't submit for a rating unless they have a boundary
+    """
+    try:
+        __ = submission.boundary
+        return True
+    except Boundary.DoesNotExist:
+        return False
+logical_rules.site.register("submission_has_boundary",
+                          submission_has_boundary)
 
 def submission_has_scores(submission):
     """
@@ -152,5 +161,4 @@ def submission_has_scores(submission):
         return False
     else:
         return submission.institution.is_participant
-
-aashe_rules.site.register("submission_has_scores", submission_has_scores)
+logical_rules.site.register("submission_has_scores", submission_has_scores)

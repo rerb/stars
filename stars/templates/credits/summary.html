@@ -13,17 +13,17 @@
 						{% include "credits/category_heading.html" %}
 	                </a>
 	              </div>
-	              <div id="{{ cat.id }}" class="accordion-body collapse">
+	              <div id="{{ cat.id }}" class="accordion-body collapse in">
 					<div class="accordion-inner">
 						<div class="accordion subcategory_accordion" id="{{ cat.id }}_subcategories">
 							{% for sub in cat.subcategorysubmission_set.all %}
-								<div class="accordion-group">
+								<div class="accordion-group collapse in">
 									<div class="accordion-heading">
 										<a class="accordion-toggle" data-toggle="collapse" data-parent="#{{ cat.id }}_subcategories" href="#{{ sub.id }}">
 											{% include "credits/subcategory_heading.html" %}
 										</a>
 									</div>
-									<div id="{{ sub.id }}" class="accordion-body collapse">
+									<div id="{{ sub.id }}" class="accordion-body collapse in">
 										<div class="accordion-inner">
 											{% block subcategory_description %}{% endblock %}
 											{% include "credits/subcategory_content.html" %}

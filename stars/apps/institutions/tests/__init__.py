@@ -6,8 +6,8 @@ from stars.apps.institutions.tests.accuracy_inquiry import AccuracyInquiryTest
 from stars.apps.institutions.tests.subscription import SubscriptionTest
 from stars.apps.institutions.tests.views import (ActiveInstitutionsViewTest,
                                                  RatedInstitutionsViewTest,
-                                                 ScorecardViewTest)
-
+                                                 ScorecardViewTest,
+                                                 TopLevelTest)
 
 __test__ = {
     'permissions': permissions,
@@ -20,5 +20,6 @@ __test__ = {
     'RatedInstitutionsViewTest': RatedInstitutionsViewTest,
     'ScorecardViewTest': ScorecardViewTest,
     'SubscriptionTest': SubscriptionTest,
+    'TopLevelTest': TopLevelTest,
     'InstitutionResourceTestCase': InstitutionResourceTestCase,
 }

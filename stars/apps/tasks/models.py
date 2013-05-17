@@ -12,9 +12,9 @@ class EmailNotification(models.Model):
     
     sent_date = models.DateTimeField(auto_now_add=True)
     sent_to = models.CharField(max_length=128)
-    subject = models.CharField(max_length=64)
+    subject = models.CharField(max_length=128)
     notification_type = models.CharField(max_length=7, choices=EMAIL_TYPES)
-    identifier = models.CharField(max_length=8)
+    identifier = models.CharField(max_length=16)
 
 #TASK_STATUS = (
 #                ('p', 'pending'),

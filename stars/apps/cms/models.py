@@ -4,7 +4,6 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models.signals import post_save
 
-from stars.apps.cms import xml_rpc
 from stars.apps.helpers.utils import invalidate_template_cache
 
 

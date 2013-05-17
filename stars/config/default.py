@@ -7,10 +7,6 @@ import os
 
 homedir = os.path.expanduser('~')
 
-HIDE_REPORTING_TOOL = False
-DEBUG = True
-TEMPLATE_DEBUG = DEBUG
-
 # no emails during local dev
 ADMINS = None
 MANAGERS = ADMINS

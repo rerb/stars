@@ -5,8 +5,8 @@ from django.conf import settings
 from django.contrib import admin
 admin.autodiscover()
 
-import aashe_rules
-aashe_rules.autodiscover()
+import logical_rules
+logical_rules.autodiscover()
 
 from stars.apps.helpers.old_path_preserver import (OldPathPreserverView,
                                                    OLD_PATHS_TO_PRESERVE)
@@ -27,14 +27,16 @@ urlpatterns = patterns('',
     # tool:
     #(r'^$', 'stars.apps.tool.views.stars_home_page'),
     (r'^$', 'django.views.generic.simple.direct_to_template', {'template': 'home.html'}),
+
     # articles (cms):
-    (r'^'+settings.ARTICLE_PATH_ROOT+'/', include('stars.apps.cms.urls')),
+    (r'^pages/', include('stars.apps.cms.urls')),
 
     # tool
     (r'^tool/', include('stars.apps.tool.urls')),
 
     # accounts:
-    (r'^accounts/', include('stars.apps.accounts.urls')),
+#    (r'^accounts/', include('stars.apps.accounts.urls')),
+    ('^accounts/', include('aashe.aasheauth.urls')),
 
     # admin
     (r'^_ad/', include(admin.site.urls)),
@@ -51,18 +53,6 @@ urlpatterns = patterns('',
     # custom forms
     (r'^cfm/', include('stars.apps.custom_forms.urls')),
 )
-
-if settings.STANDALONE_MODE:
-    urlpatterns += patterns('',
-        # static_media
-        (r'^media/static/(?P<path>.*)$', 'django.views.static.serve', {'document_root': os.path.join(os.path.dirname(__file__), "static")}),
-        # tiny_mce
-        (r'^media/tp/js/tiny_mce/(?P<path>.*)$', 'django.views.static.serve', {'document_root': os.path.join(os.path.dirname(__file__), "../parts/tinyMCE/tinymce/jscripts/tiny_mce/")}),
-
-        (r'^media/tp/js/d3/(?P<path>.*)$', 'django.views.static.serve', {'document_root': os.path.join(os.path.dirname(__file__), "../parts/d3.js/mbostock-d3-224acae/")}),
-        # uploads and others
-        (r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT}),
-    )
 
 if settings.DEBUG:
     urlpatterns += patterns('',

@@ -150,10 +150,13 @@ class CreditCardPaymentProcessor(object):
         """
         if not server:
             server = settings.AUTHORIZENET_SERVER
+            assert server is not None, "server is required"
         if not login:
             login = settings.AUTHORIZENET_LOGIN
+            assert login is not None, "login is required"
         if not key:
             key = settings.AUTHORIZENET_KEY
+            assert key is not None, "key is required"
 
         cc = CcProcessor(server=server, login=login, key=key)
 

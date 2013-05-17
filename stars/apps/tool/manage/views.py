@@ -7,7 +7,10 @@ from django.shortcuts import get_object_or_404
 from django.views.generic import (CreateView, DeleteView, FormView, ListView,
                                   TemplateView, UpdateView)
 
-from stars.apps.accounts import xml_rpc
+from aashe.aasheauth.services import AASHEUserService
+from aashe.aasheauth.backends import AASHEBackend
+
+# from stars.apps.accounts import xml_rpc
 from stars.apps.credits.models import CreditSet
 from stars.apps.helpers.forms import form_helpers
 from stars.apps.helpers.mixins import ValidationMessageFormMixin
@@ -201,7 +204,7 @@ class AccountListView(InstitutionAdminToolMixin, ListView):
         stars_accounts = StarsAccount.objects.filter(institution=institution)
         pending_accounts = PendingAccount.objects.filter(institution=institution)
         return QuerySetSequence(stars_accounts, pending_accounts).order_by(
-            'user.email')
+            'user')
 
 
 class AccountCreateView(InstitutionAdminToolMixin, ValidationMessageFormMixin,
@@ -234,9 +237,14 @@ class AccountCreateView(InstitutionAdminToolMixin, ValidationMessageFormMixin,
             and an AASHE (Drupal) account.  If there's no matching AASHE
             account, None is returned.
         """
-        user_list = xml_rpc.get_user_by_email(email)
+        service = AASHEUserService()
+        backend = AASHEBackend()
+        user_list = service.get_by_email(email)
         if user_list:
-            return xml_rpc.get_user_from_user_dict(user_list[0], None)
+            # a hack to make these compatible
+            user_dict = {'user': user_list[0],
+                         'sessid': "no-session-key"}
+            return backend.get_user_from_user_dict(user_dict)
         else:
             return None
 

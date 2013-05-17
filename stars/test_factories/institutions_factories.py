@@ -21,6 +21,8 @@ class InstitutionFactory(factory.Factory):
         lambda i: 'test-inst-{0}-{1}'.format(i, time.time()))
     name = factory.Sequence(
         lambda i: 'test institution {0}.{1}'.format(i, time.time()))
+    aashe_id = factory.Sequence(
+        lambda i: '%s' % i)
 
 
 class PendingAccountFactory(factory.Factory):

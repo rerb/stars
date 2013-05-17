@@ -4,11 +4,16 @@
 import os
 
 # monkey patches for pudb:
-import urwid.raw_display
-urwid.raw_display.Screen.signal_init = lambda x : None
-urwid.raw_display.Screen.signal_restore = lambda x : None
+try:
+    import urwid.raw_display
+    urwid.raw_display.Screen.signal_init = lambda x : None
+    urwid.raw_display.Screen.signal_restore = lambda x : None
+except ImportError:
+    print 'no urwid . . . pudb ain\'t gonna work'
 
 from settings import *
+
+MEDIA_ROOT = os.environ.get('MEDIA_ROOT')
 
 HIDE_REPORTING_TOOL = False
 DEBUG = True
@@ -78,28 +83,20 @@ if PROFILE:
     MIDDLEWARE_CLASSES.append('profiler.middleware.ProfilerMiddleware')
 #    MIDDLEWARE_CLASSES.append('profiler.middleware.StatProfMiddleware')
 
-if 'TEST_RUNNER' in os.environ: # django_nose.NoseTestSuiteRunner, for example
+if 'TEST_RUNNER' in os.environ:  # django_nose.NoseTestSuiteRunner, for example
     if os.environ['TEST_RUNNER']:  # only use it if there's a value set
         TEST_RUNNER = os.environ['TEST_RUNNER'] or TEST_RUNNER
 
 # Stuff copied from ben.py that I don't know what it is:
 
-WWW_SSO_API_KEY = "8dca728d46c85b3fda4529692a7f7725"
-SSO_SERVER_URI = WWW_SSO_SERVER_URI
-STARS_DOMAIN = WWW_STARS_DOMAIN
-SSO_API_KEY = WWW_SSO_API_KEY
+SSO_API_KEY = "8dca728d46c85b3fda4529692a7f7725"
+SSO_SERVER_URI = "http://www.aashe.org/services/xmlrpc"
+STARS_DOMAIN = "localhost"
+SSO_API_KEY = "e4c8dcfbcb5120ad35b516b04cc35302"
 
 XMLRPC_VERBOSE = False
 XMLRPC_USE_HASH = True
 
-# Authorize.Net
-TEST_AUTHORIZENET_LOGIN = "6gJ5hF4UAXU"
-TEST_AUTHORIZENET_KEY = "23268nNJfy2ZEq58"
-TEST_AUTHORIZENET_SERVER = 'test.authorize.net'
-
-AUTHORIZENET_LOGIN = TEST_AUTHORIZENET_LOGIN
-AUTHORIZENET_KEY = TEST_AUTHORIZENET_KEY
-AUTHORIZENET_SERVER = TEST_AUTHORIZENET_SERVER
 
 # Thumbnails
 THUMBNAIL_DEBUG = True
@@ -131,7 +128,7 @@ TEMPLATE_STRING_IF_INVALID = 'INVALID EXPRESSION: %s' if DEBUG else ' '
 #                       'captcha',
 #                       'django_extensions',
 #                       'djcelery',
-#                       'aashe_rules',
+#                       'logical_rules',
 #                       'tastypie',
 #                       'bootstrapform',
 #                       'memcache_status',
