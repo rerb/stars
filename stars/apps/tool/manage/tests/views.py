@@ -20,8 +20,11 @@ from stars.apps.tool.manage import views
 from stars.apps.tool.tests.views import (InstitutionAdminToolMixinTest,
                                          InstitutionViewOnlyToolMixinTest)
 from stars.test_factories import (CreditUserSubmissionFactory,
-     InstitutionFactory, PendingAccountFactory, ResponsiblePartyFactory,
-     SubmissionSetFactory, StarsAccountFactory, UserFactory)
+                                  PendingAccountFactory,
+                                  ResponsiblePartyFactory,
+                                  SubmissionSetFactory,
+                                  StarsAccountFactory,
+                                  UserFactory)
 
 # Don't bother me:
 logger = getLogger('stars')
@@ -200,11 +203,13 @@ class AccountListViewTest(InstitutionAdminToolMixinTest):
 
     view_class = views.AccountListView
 
-    def test_lists_stars_and_pending_accounts(self):
-        """Are both StarsAccounts and PendingAccounts listed?"""
+    def setUp(self):
+        super(InstitutionAdminToolMixinTest, self).setUp()
         self.account.user_level = 'admin'
         self.account.save()
 
+    def test_lists_stars_and_pending_accounts(self):
+        """Are both StarsAccounts and PendingAccounts listed?"""
         accounts = [self.account]
         for i in xrange(4):
             accounts.append(StarsAccountFactory(institution=self.institution))
@@ -222,6 +227,43 @@ class AccountListViewTest(InstitutionAdminToolMixinTest):
         tbody = table.findChild('tbody')
         rows = tbody.findChildren('tr')
         self.assertEqual(len(rows), len(accounts) + len(pending_accounts))
+
+    def test_sorting(self):
+        """Are accounts sorted correctly (by email address)?"""
+        def make_account(pending, email):
+            if pending:
+                return PendingAccountFactory(user_email=email,
+                                             institution=self.institution)
+            else:
+                return StarsAccountFactory(user=UserFactory(email=email),
+                                           institution=self.institution)
+
+        def get_email(account):
+            try:
+                return account.user.email
+            except KeyError:
+                return account.user_email
+
+        accounts = [make_account(pending=False, email='m@sa.com'),
+                    make_account(pending=True, email='f@pa.com'),
+                    make_account(pending=False, email='b@sa.com'),
+                    make_account(pending=True, email='a@pa.com'),
+                    make_account(pending=False, email='z@sa.com'),
+                    make_account(pending=True, email='b@pa.com'),
+                    self.account]
+
+        view = views.AccountListView.as_view()(
+            self.request,
+            institution_slug=self.institution.slug)
+        soup = BeautifulSoup(view.rendered_content)
+        table = soup.find('table')
+        tbody = table.findChild('tbody')
+        rows = tbody.findChildren('tr')
+
+        accounts_on_page = [ row.td.text.split()[0].strip() for row in rows ]
+
+        self.assertListEqual(accounts_on_page,
+                             sorted([ get_email(acct) for acct in accounts ]))
 
 
 class AccountCreateViewTest(InstitutionAdminToolMixinTest):

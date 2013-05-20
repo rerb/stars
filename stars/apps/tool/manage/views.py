@@ -218,8 +218,17 @@ class AccountListView(InstitutionAdminToolMixin, ListView):
             institution=institution)
         pending_accounts = PendingAccount.objects.filter(
             institution=institution)
-        return QuerySetSequence(stars_accounts, pending_accounts).order_by(
-            'user')
+        qs = QuerySetSequence(stars_accounts, pending_accounts)
+        # StarsAccount has a `userq attribute, and that has an `email`
+        # attribute;  PendingAccount doesn't have a user, but has
+        # a `user_email` attribute.  Since we want to sort the heterogenous
+        # list, we have to do it manually (i.e., not via order_by()).
+        for account in qs:
+            try:
+                account.email = account.user_email
+            except AttributeError:
+                account.email = account.user.email
+        return qs.order_by('email')
 
     def get_context_data(self, **kwargs):
         context = super(AccountListView, self).get_context_data(**kwargs)

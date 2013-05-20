@@ -28,7 +28,7 @@
                       title="Account pending; user must register at www.aashe.org."
                     {% endif %}>
                     <td>
-                         {{ account.user.email }}
+                         {{ account.email }}
                          {% if account.is_pending %}
                              <span class="pending_note">*</span>
                          {% endif %}
