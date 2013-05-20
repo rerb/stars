@@ -6,7 +6,7 @@ class HelpContext(models.Model):
     """
         Help text context tool to store commonly used help contexts.
     """
-    name = models.CharField(max_length=32)
+    name = models.CharField(max_length=64)
     title = models.CharField(max_length=64, blank=True, null=True)
     help_text = models.TextField()
 
