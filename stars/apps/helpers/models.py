@@ -15,7 +15,7 @@ class HelpContext(models.Model):
 
     def get_admin_url(self):
         return urlresolvers.reverse('admin:helpers_helpcontext_change',
-                                    args=(self.id,))
+                                    args=(self.pk,))
 
 
 class BlockContent(models.Model):
@@ -30,7 +30,7 @@ class BlockContent(models.Model):
 
     def get_admin_url(self):
         return urlresolvers.reverse('admin:helpers_blockcontent_change',
-                                    args=(self.id,))
+                                    args=(self.pk,))
 
 
 class SnippetContent(models.Model):
@@ -45,4 +45,4 @@ class SnippetContent(models.Model):
 
     def get_admin_url(self):
         return urlresolvers.reverse('admin:helpers_snippetcontent_change',
-                                    args=(self.id,))
+                                    args=(self.pk,))
