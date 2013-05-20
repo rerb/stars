@@ -83,35 +83,82 @@
         <label class="required">By checking this box, I affirm that the information included in the submission for this credit is accurate to the best of my knowledge.</label>
       <hr/>
       <a name='status'></a>
-        <table>
-            <tr>
-                <td>
-                	Save with status:
-                	{% show_help_context 'submission_status' %}
-                </td>
-            </tr>
-            <tr>
-                <td class='submission_status'>
-                    {% show_help_context 'submission_status_choices' %}
-                    {% if form.submission_status.errors %}
-                        {{ form.errors.submission_status }}
+      <div class="control-group{% if form.submission_status.errors %} error{% endif %}">
+          <div class="controls">
+              <span class="help-inline">
+                  <table>
+                    <tr>
+                        <td>
+                            {% comment %}
+                                This label is like the others, an h3, big
+                                and blue, most of the time.  If there's an
+                                error with this field, though, we want it
+                                to be big and red.  Since the blue of an
+                                h3 overrides any other color we might set,
+                                when there's an error, we make the text
+                                big (and big) and strong, which approximates
+                                the h3 typeface and allows the red of text
+                                in a "control-group error" class to show.
+                            {% endcomment %}
+                            {% if form.submission_status.errors %}
+                                <big><big><strong>
+                            {% else %}
+                                <h3>
+                            {% endif %}
+                                    Submission Status
+                            {% show_help_context 'submission_status' %}
+                            {% if form.submission_status.errors %}
+                                </strong></big></big>
+                                <br/>
+                            {% else %}
+                                </h3>
+                            {% endif %}
+                            <span class="required_note">*</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class='submission_status'>
+                            <ul>
+                                {% for status in form.submission_status %}
+                                    {% comment %}
+                                        We're looking for magically-named help contexts,
+                                        here, named "submission-status-choice-{CHOICE-NAME}",
+                                        where CHOICE-NAME is the slugified label for the
+                                        particular choice value (e.g., "in-process").  Yes,
+                                        I know it stinks to rely on such a thing.
+                                    {% endcomment %}
+                                    {% with 'submission-status-choice-'|add:status.choice_label|slugify as help_text_name %}
+                                        <li>
+                                            <label>
+                                                <span {% if form.submission_status.errors %}class='help-inline'{% endif %}>
+                                                    {{ status.tag }}
+                                                    {{ status.choice_label }}
+                                                    {% show_help_context help_text_name %}
+                                                </span>
+                                            </label>
+                                        </li>
+                                    {% endwith %}
+                                {% endfor %}
+                            </ul>
+                            {% if form.submission_status.errors %}
+                                {{ form.errors.submission_status }}
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% if credit.applicabilityreason_set.all %}
+                        <tr>
+                            <td><div id='reason_choices'>
+                                Reason this credit does not apply:<br/>
+                                    {% if form.applicability_reason.errors %}
+                                      {{ form.errors.applicability_reason }}
+                                    {% endif %}
+                                    {{ form.applicability_reason }}
+                            </div></td>
+                        </tr>
                     {% endif %}
-                    {{ form.submission_status|bootstrap }}
-                </td>
-            </tr>
-            {% if credit.applicabilityreason_set.all %}
-            <tr>
-                <td><div id='reason_choices'>
-                    Reason this credit does not apply:<br/>
-                        {% if form.applicability_reason.errors %}
-                          {{ form.errors.applicability_reason }}
-                        {% endif %}
-                        {{ form.applicability_reason }}
-                </div></td>
-            </tr>
-            {% endif %}
-        </table>
-
+                </table>
+            </span>
+        </div>
     </div>
     <div class='form-actions'>
         <button type='submit' id='submit_button'
