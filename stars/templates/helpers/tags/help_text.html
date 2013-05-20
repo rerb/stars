@@ -25,7 +25,30 @@
                     else
                         return 'left';
                 }
-                $('#{{ id }}').popover({placement: position_relative_to_center});
+                $('#{{ id }}').popover({placement: position_relative_to_center,
+                                        trigger: 'manual'
+                                       }).click(function(e) {
+                                           // preventDefault() prevents the
+                                           // browser from scrolling to the
+                                           // top of the page after popping
+                                           // up the help text.
+                                           e.preventDefault();
+                                           $(this).popover('toggle');
+                                           return true;
+                                       });
+                // This bit closes this popover when the user clicks
+                // anywhere outside it.  Thanks to mattdlockyer and
+                // StackOverflow (http://bit.ly/12Nedlz).
+                $('body').on('click', function (e) {
+                    $('#{{ id }}').each(function () {
+                        if (!$(this).is(e.target) &&
+                             $(this).has(e.target).length === 0 &&
+                             $('.popover').has(e.target).length === 0) {
+                            $(this).popover('hide');
+                            return;
+                        }
+                    });
+                });
             </script>
         {% else %}
             {% if modal %}
