@@ -140,19 +140,42 @@
                                     {% endwith %}
                                 {% endfor %}
                             </ul>
+
                             {% if form.submission_status.errors %}
                                 {{ form.errors.submission_status }}
                             {% endif %}
                         </td>
                     </tr>
+                </table>
+            </span>
+        </div>
+    </div>
+      <div class="control-group{% if form.applicability_reason.errors %} error{% endif %}">
+          <div class="controls">
+              <span class="help-inline">
+                  <table>
+                    <tr>
                     {% if credit.applicabilityreason_set.all %}
                         <tr>
                             <td><div id='reason_choices'>
-                                Reason this credit does not apply:<br/>
+                                <strong>Reason this credit does not apply:</strong><br/>
+                                <span class="required_note">
+                                    *
+                                </span>
+                                <br/>
+                                <span {% if form.applicability_reason.errors %}class='help-inline'{% endif %}>
+                                    <ul>
+                                        {% for reason in form.applicability_reason %}
+                                            <li>
+                                                {{ reason.tag }}
+                                                {{ reason.choice_label }}
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
                                     {% if form.applicability_reason.errors %}
-                                      {{ form.errors.applicability_reason }}
+                                        {{ form.errors.applicability_reason }}
                                     {% endif %}
-                                    {{ form.applicability_reason }}
+                                </span>
                             </div></td>
                         </tr>
                     {% endif %}
