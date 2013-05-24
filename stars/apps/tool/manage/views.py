@@ -58,7 +58,7 @@ def _update_preferences(request, institution):
     return (preferences, notify_form)
 
 
-def get_user_level_description(user_level):
+def _get_user_level_description(user_level):
     """Returns the description for a user level."""
     permissions = dict(settings.STARS_PERMISSIONS)
     try:
@@ -66,7 +66,9 @@ def get_user_level_description(user_level):
     except KeyError:
         return user_level
 
-memoize(get_user_level_description, cache=[], num_args=1)
+get_user_level_description = memoize(_get_user_level_description,
+                                     cache={},
+                                     num_args=1)
 
 
 class ContactView(InstitutionAdminToolMixin, ValidationMessageFormMixin,
