@@ -159,9 +159,9 @@ class RegistrationWizard(StarsAccountMixin, BetterWizardView):
         amount_due = 0
         # Set up subscription and payment choice
         if self.picked_participant():
-            amount_due = payment_form.get_amount()
 
             if payment_form.cleaned_data['pay_later']:
+                amount_due = payment_form.get_amount()
                 institution.save()
                 subscription = init_subscription(institution,
                                                  amount_due)
