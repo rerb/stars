@@ -41,6 +41,7 @@ from stars.apps.tool.mixins import (InstitutionAdminToolMixin,
 
 logger = getLogger('stars.request')
 
+
 def _update_preferences(request, institution):
     """
         Helper method to DRY code around managing institution preferences
@@ -50,7 +51,7 @@ def _update_preferences(request, institution):
         preferences = institution.preferences
     except InstitutionPreferences.DoesNotExist:
         preferences = InstitutionPreferences(institution=institution)
-    (notify_form,saved) = form_helpers.basic_save_form(
+    (notify_form, saved) = form_helpers.basic_save_form(
         request, preferences, '', NotifyUsersForm, show_message=False)
     return (preferences, notify_form)
 
@@ -158,7 +159,7 @@ class ResponsiblePartyDeleteView(InstitutionAdminToolMixin,
             return HttpResponseRedirect(
                 reverse(
                     'responsible-party-list',
-                    kwargs={ 'institution_slug': self.get_institution().slug }))
+                    kwargs={'institution_slug': self.get_institution().slug}))
 
         else:
             messages.info(self.request,
@@ -202,7 +203,8 @@ class AccountListView(InstitutionAdminToolMixin, ListView):
     def get_queryset(self):
         institution = self.get_institution()
         stars_accounts = StarsAccount.objects.filter(institution=institution)
-        pending_accounts = PendingAccount.objects.filter(institution=institution)
+        pending_accounts = PendingAccount.objects.filter(
+            institution=institution)
         return QuerySetSequence(stars_accounts, pending_accounts).order_by(
             'user')
 
@@ -312,8 +314,8 @@ class AccountEditView(AccountCreateView):
             account = get_object_or_404(StarsAccount, id=self.kwargs['pk'])
         except Http404:
             account = get_object_or_404(PendingAccount, id=self.kwargs['pk'])
-        return { 'userlevel': account.user_level,
-                 'email': account.user.email }
+        return {'userlevel': account.user_level,
+                'email': account.user.email}
 
 
 class AccountDeleteView(InstitutionAdminToolMixin,
@@ -329,8 +331,9 @@ class AccountDeleteView(InstitutionAdminToolMixin,
 
     def delete(self, request, *args, **kwargs):
 
-        (preferences, notify_form) = _update_preferences(request,
-                                                         self.get_institution())
+        (preferences, notify_form) = _update_preferences(
+            request,
+            self.get_institution())
         logger.info("Account: %s deleted." % self.get_object(),
                     extra={'request': request})
         if preferences.notify_users:
@@ -357,7 +360,8 @@ class ShareDataView(InstitutionAdminToolMixin,
 
     def get_context_data(self, **kwargs):
         context = super(ShareDataView, self).get_context_data(**kwargs)
-        context['third_party_sharing_list'] = self.get_institution().third_parties.all()
+        context['third_party_sharing_list'] = (
+            self.get_institution().third_parties.all())
         context['snapshot_list'] = SubmissionSet.objects.get_snapshots(
                                                         self.get_institution())
         return context
@@ -400,7 +404,8 @@ class MigrateOptionsView(InstitutionAdminToolMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(MigrateOptionsView, self).get_context_data(**kwargs)
-        context['active_submission'] = self.get_institution().current_submission
+        context['active_submission'] = (
+            self.get_institution().current_submission)
         context['latest_creditset'] = CreditSet.objects.get_latest()
         context['available_submission_list'] = self._get_available_submissions(
             institution=self.get_institution())
@@ -434,10 +439,10 @@ class MigrateDataView(InstitutionAdminToolMixin,
 
     def update_logical_rules(self):
         super(MigrateDataView, self).update_logical_rules()
-        self.add_logical_rule({ 'name': 'user_can_migrate_from_submission',
-                                'param_callbacks': [
-                                    ('user', 'get_request_user'),
-                                    ('submission', '_get_old_submission')] })
+        self.add_logical_rule({'name': 'user_can_migrate_from_submission',
+                               'param_callbacks': [
+                                   ('user', 'get_request_user'),
+                                   ('submission', '_get_old_submission')]})
 
     def _get_old_submission(self):
         return get_object_or_404(
@@ -446,7 +451,8 @@ class MigrateDataView(InstitutionAdminToolMixin,
 
     def get_context_data(self, **kwargs):
         context = super(MigrateDataView, self).get_context_data(**kwargs)
-        context['active_submission'] = self.get_institution().current_submission
+        context['active_submission'] = (
+            self.get_institution().current_submission)
         context['old_submission'] = self._get_old_submission()
         return context
 
@@ -481,11 +487,10 @@ class MigrateVersionView(InstitutionAdminToolMixin,
 
     def update_logical_rules(self):
         super(MigrateVersionView, self).update_logical_rules()
-        self.add_logical_rule({ 'name': 'user_can_migrate_version',
-                                'param_callbacks': [
-                                    ('user', 'get_request_user'),
-                                    ('current_inst', 'get_institution')] })
-
+        self.add_logical_rule({'name': 'user_can_migrate_version',
+                               'param_callbacks': [
+                                   ('user', 'get_request_user'),
+                                   ('current_inst', 'get_institution')]})
 
     def get_context_data(self, **kwargs):
         context = super(MigrateVersionView, self).get_context_data(**kwargs)
@@ -527,10 +532,10 @@ class SubscriptionPaymentOptionsView(InstitutionToolMixin,
 
     def update_logical_rules(self):
         super(SubscriptionPaymentOptionsView, self).update_logical_rules()
-        self.add_logical_rule({ 'name': 'user_has_view_access',
-                                'param_callbacks': [
-                                    ('user', 'get_request_user'),
-                                    ('institution', 'get_institution')] })
+        self.add_logical_rule({'name': 'user_has_view_access',
+                               'param_callbacks': [
+                                   ('user', 'get_request_user'),
+                                   ('institution', 'get_institution')]})
 
     def get_context_data(self, **kwargs):
         context = super(SubscriptionPaymentOptionsView,
@@ -559,10 +564,10 @@ class SubscriptionPaymentCreateBaseView(ValidationMessageFormMixin,
 
     def update_logical_rules(self):
         super(SubscriptionPaymentCreateBaseView, self).update_logical_rules()
-        self.add_logical_rule({ 'name': 'user_has_view_access',
-                                'param_callbacks': [
-                                    ('user', 'get_request_user'),
-                                    ('institution', 'get_institution')] })
+        self.add_logical_rule({'name': 'user_has_view_access',
+                               'param_callbacks': [
+                                   ('user', 'get_request_user'),
+                                   ('institution', 'get_institution')]})
 
     def get_context_data(self, **kwargs):
         context = super(SubscriptionPaymentCreateBaseView,
@@ -617,7 +622,6 @@ class SubscriptionCreateView(SubscriptionPaymentCreateBaseView):
             messages.error(self.request, str(spe))
             return self.form_invalid(form)
 
-
         del self.request.session[PAY_WHEN]
 
         return super(SubscriptionCreateView, self).form_valid(form)
@@ -633,13 +637,13 @@ class SubscriptionCreateView(SubscriptionPaymentCreateBaseView):
         return super(SubscriptionCreateView, self).form_invalid(form)
 
     def get_form_class(self):
-        return { Subscription.PAY_LATER: PayLaterForm,
-                 Subscription.PAY_NOW: PayNowForm }[self.pay_when]
+        return {Subscription.PAY_LATER: PayLaterForm,
+                Subscription.PAY_NOW: PayNowForm}[self.pay_when]
 
     def get_tab_content_title(self):
-        return { Subscription.PAY_LATER: 'purchase a subscription: pay later',
-                 Subscription.PAY_NOW: 'purchase a subscription: pay now' }[
-                     self.pay_when]
+        return {Subscription.PAY_LATER: 'purchase a subscription: pay later',
+                Subscription.PAY_NOW: 'purchase a subscription: pay now'}[
+                    self.pay_when]
 
     def get_valid_message(self):
         return """Thank you!
