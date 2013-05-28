@@ -1,9 +1,11 @@
 from logging import getLogger
 
+from django.conf import settings
 from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404
+from django.utils.functional import memoize
 from django.views.generic import (CreateView, DeleteView, FormView, ListView,
                                   TemplateView, UpdateView)
 
@@ -54,6 +56,19 @@ def _update_preferences(request, institution):
     (notify_form, saved) = form_helpers.basic_save_form(
         request, preferences, '', NotifyUsersForm, show_message=False)
     return (preferences, notify_form)
+
+
+def _get_user_level_description(user_level):
+    """Returns the description for a user level."""
+    permissions = dict(settings.STARS_PERMISSIONS)
+    try:
+        return permissions[user_level]
+    except KeyError:
+        return user_level
+
+get_user_level_description = memoize(_get_user_level_description,
+                                     cache={},
+                                     num_args=1)
 
 
 class ContactView(InstitutionAdminToolMixin, ValidationMessageFormMixin,
@@ -130,8 +145,8 @@ class ResponsiblePartyEditView(InstitutionAdminToolMixin,
     def get_context_data(self, **kwargs):
         context = super(ResponsiblePartyEditView, self).get_context_data(
             **kwargs)
-        context['credit_list'] = \
-          self.get_object().get_creditusersubmissions().all()
+        context['credit_list'] = (
+            self.get_object().get_creditusersubmissions().all())
         return context
 
 
@@ -202,11 +217,29 @@ class AccountListView(InstitutionAdminToolMixin, ListView):
 
     def get_queryset(self):
         institution = self.get_institution()
-        stars_accounts = StarsAccount.objects.filter(institution=institution)
+        stars_accounts = StarsAccount.objects.filter(
+            institution=institution)
         pending_accounts = PendingAccount.objects.filter(
             institution=institution)
-        return QuerySetSequence(stars_accounts, pending_accounts).order_by(
-            'user')
+        qs = QuerySetSequence(stars_accounts, pending_accounts)
+        # StarsAccount has a `userq attribute, and that has an `email`
+        # attribute;  PendingAccount doesn't have a user, but has
+        # a `user_email` attribute.  Since we want to sort the heterogenous
+        # list, we have to do it manually (i.e., not via order_by()).
+        for account in qs:
+            try:
+                account.email = account.user_email
+            except AttributeError:
+                account.email = account.user.email
+        return qs.order_by('email')
+
+    def get_context_data(self, **kwargs):
+        context = super(AccountListView, self).get_context_data(**kwargs)
+        # Tuck the description of the users' roles into the context:
+        for account in self.object_list:
+            account.user_level_description = get_user_level_description(
+                account.user_level)
+        return context
 
 
 class AccountCreateView(InstitutionAdminToolMixin, ValidationMessageFormMixin,
@@ -363,7 +396,7 @@ class ShareDataView(InstitutionAdminToolMixin,
         context['third_party_sharing_list'] = (
             self.get_institution().third_parties.all())
         context['snapshot_list'] = SubmissionSet.objects.get_snapshots(
-                                                        self.get_institution())
+            self.get_institution())
         return context
 
 
@@ -414,7 +447,7 @@ class MigrateOptionsView(InstitutionAdminToolMixin, TemplateView):
     @classmethod
     def _get_available_submissions(cls, institution):
         submissions = (institution.submissionset_set.filter(status='r') |
-                    institution.submissionset_set.filter(status='f'))
+                       institution.submissionset_set.filter(status='f'))
         return submissions
 
 
@@ -548,7 +581,7 @@ class SubscriptionPaymentOptionsView(InstitutionToolMixin,
         return context
 
     def form_valid(self, form):
-        # Pass the payment option selected on:
+        # Pass on the payment option selected:
         self.request.session[PAY_WHEN] = form.cleaned_data[PAY_WHEN]
         return super(SubscriptionPaymentOptionsView, self).form_valid(form)
 
@@ -597,9 +630,8 @@ class SubscriptionCreateView(SubscriptionPaymentCreateBaseView):
 
     @property
     def pay_when(self):
-        if not getattr(self, '_pay_when', False):
-            self._pay_when = self.request.session[PAY_WHEN]
-        return self._pay_when
+        """Just a shorthand for self.request.session[PAY_WHEN]."""
+        return self.request.session[PAY_WHEN]
 
     def form_valid(self, form):
         """
@@ -624,8 +656,6 @@ class SubscriptionCreateView(SubscriptionPaymentCreateBaseView):
             messages.error(self.request, str(spe))
             return self.form_invalid(form)
 
-        del self.request.session[PAY_WHEN]
-
         return super(SubscriptionCreateView, self).form_valid(form)
 
     def form_invalid(self, form):
@@ -634,7 +664,7 @@ class SubscriptionCreateView(SubscriptionPaymentCreateBaseView):
             deletes it.
         """
         if hasattr(self, 'subscription'):
-            if self.subscription.id:
+            if self.subscription.pk:
                 self.subscription.delete()
         return super(SubscriptionCreateView, self).form_invalid(form)
 

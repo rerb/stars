@@ -63,6 +63,7 @@ def build_report_pdf(submission_set, template=None):
                 'institution': submission_set.institution,
                 'host': "stars.aashe.org",
                 'about_text': Category.objects.get(slug='about').content,
+                'pdf': True
             }
     if submission_set.status != 'r':
         context['preview'] = True

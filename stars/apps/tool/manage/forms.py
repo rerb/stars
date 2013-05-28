@@ -37,21 +37,20 @@ class ParticipantContactForm(AdminInstitutionForm):
         institution admins to edit their Contact info.
     """
     class Meta(AdminInstitutionForm.Meta):
-        fields = [  'contact_first_name',
-                    'contact_middle_name',
-                    'contact_last_name',
-                    'contact_title',
-                    'contact_department',
-                    'contact_phone',
-                    'contact_phone_ext',
-                    'contact_email',
-                    'executive_contact_first_name',
-                    'executive_contact_middle_name',
-                    'executive_contact_last_name',
-                    'executive_contact_title',
-                    'executive_contact_department',
-                    'executive_contact_email',
-                ]
+        fields = ['contact_first_name',
+                  'contact_middle_name',
+                  'contact_last_name',
+                  'contact_title',
+                  'contact_department',
+                  'contact_phone',
+                  'contact_phone_ext',
+                  'contact_email',
+                  'executive_contact_first_name',
+                  'executive_contact_middle_name',
+                  'executive_contact_last_name',
+                  'executive_contact_title',
+                  'executive_contact_department',
+                  'executive_contact_email']
 
     def __init__(self, *args, **kwargs):
         super(ParticipantContactForm, self).__init__(*args, **kwargs)
@@ -69,15 +68,14 @@ class RespondentContactForm(AdminInstitutionForm):
         institution admins to edit their Contact info.
     """
     class Meta(AdminInstitutionForm.Meta):
-        fields = [  'contact_first_name',
-                    'contact_middle_name',
-                    'contact_last_name',
-                    'contact_title',
-                    'contact_department',
-                    'contact_phone',
-                    'contact_phone_ext',
-                    'contact_email',
-                ]
+        fields = ['contact_first_name',
+                  'contact_middle_name',
+                  'contact_last_name',
+                  'contact_title',
+                  'contact_department',
+                  'contact_phone',
+                  'contact_phone_ext',
+                  'contact_email']
 
 
 class AdminEnableInstitutionForm(ModelForm):
@@ -93,7 +91,7 @@ class ResponsiblePartyForm(ModelForm):
 
     class Meta:
         model = ResponsibleParty
-        exclude = ['institution',]
+        exclude = ['institution']
 
 
 class MigrateSubmissionSetForm(ModelForm):
@@ -103,7 +101,7 @@ class MigrateSubmissionSetForm(ModelForm):
     """
     class Meta:
         model = SubmissionSet
-        fields = ['is_locked',]
+        fields = ['is_locked']
 
     def __init__(self, *args, **kwargs):
         super(MigrateSubmissionSetForm, self).__init__(*args, **kwargs)
@@ -146,20 +144,20 @@ class AdminSubmissionSetForm(LocalizedModelFormMixin, ModelForm):
         submitted = cleaned_data.get('date_submitted')
         reviewed = cleaned_data.get('date_reviewed')
 
-        if not registered : # this check is handled by normal
+        if not registered:  # this check is handled by normal
                             # validation... but to be sure
             msg = u"Registration date is required."
             self._errors['date_registered'] = ErrorList([msg])
         else:
-            if submitted :
-                if submitted <= registered :
+            if submitted:
+                if submitted <= registered:
                     msg = (u"Submission date must be later than "
                            u"registration date.")
                     self._errors['date_submitted'] = ErrorList([msg])
-                if reviewed and reviewed < submitted :
+                if reviewed and reviewed < submitted:
                     msg = u"Review can't be before submission date."
                     self._errors['date_reviewed'] = ErrorList([msg])
-            elif reviewed : # and not submitted
+            elif reviewed:  # and not submitted
                 msg = (u"Cannot specify a Review date without a "
                        u"Submission date.")
                 self._errors['date_reviewed'] = ErrorList([msg])
@@ -190,7 +188,7 @@ class AccountForm(forms.Form):
 
         When editing an account, the email field is readonly.
     """
-    email = forms.EmailField(widget=widgets.TextInput(attrs={'size': 40,}))
+    email = forms.EmailField(widget=widgets.TextInput(attrs={'size': 40}))
     userlevel = forms.CharField(
         label="Role",
         widget=widgets.Select(choices=STARS_USERLEVEL_CHOICES))
@@ -216,8 +214,8 @@ class DisabledAccountForm(AccountForm):
     """
     def __init__(self, *args, **kwargs):
         super(DisabledAccountForm, self).__init__(*args, **kwargs)
-        self.fields['email'].widget.attrs.update({"disabled":"disabled"})
-        self.fields['userlevel'].widget.attrs={"disabled":"disabled"}
+        self.fields['email'].widget.attrs.update({"disabled": "disabled"})
+        self.fields['userlevel'].widget.attrs = {"disabled": "disabled"}
 
 
 class BoundaryForm(LocalizedModelFormMixin, ModelForm):
@@ -226,7 +224,7 @@ class BoundaryForm(LocalizedModelFormMixin, ModelForm):
     """
     class Meta:
         model = Boundary
-        exclude = ['submissionset',]
+        exclude = ['submissionset']
 
 
 class ThirdPartiesForm(ModelForm):
@@ -235,7 +233,8 @@ class ThirdPartiesForm(ModelForm):
     """
     third_parties = forms.ModelMultipleChoiceField(
         widget=forms.CheckboxSelectMultiple(),
-        queryset=ThirdParty.objects.all(), required=False)
+        queryset=ThirdParty.objects.all(),
+        required=False)
 
     class Meta:
         model = Institution
@@ -315,13 +314,13 @@ class PayNowForm(PromoForm):
     """
     name_on_card = forms.CharField(max_length=64)
     card_number = forms.CharField(
-        max_length=17, widget=forms.TextInput(attrs={'autocomplete': 'off',}))
+        max_length=17, widget=forms.TextInput(attrs={'autocomplete': 'off'}))
     exp_month = forms.CharField(max_length=2, initial='mm')
     exp_year = forms.CharField(max_length=4, initial='yyyy')
     cv_code = forms.CharField(
         max_length=3, label='CV Code',
         help_text='This is the 3-digit code on the back of your card',
-        widget=forms.TextInput(attrs={'autocomplete': 'off',}))
+        widget=forms.TextInput(attrs={'autocomplete': 'off'}))
     billing_address = forms.CharField(max_length=128)
     billing_address_line_2 = forms.CharField(max_length=128, required=False)
     billing_city = forms.CharField(max_length=32)
@@ -362,7 +361,7 @@ class PayNowForm(PromoForm):
     def is_numeric(self, data):
         """ Helper function to indicate if data is numeric. """
         try:
-            number = int(data)
+            _ = int(data)
         except:
             return False
         return True

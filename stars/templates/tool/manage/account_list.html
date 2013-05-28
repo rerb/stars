@@ -28,14 +28,13 @@
                       title="Account pending; user must register at www.aashe.org."
                     {% endif %}>
                     <td>
-                         {{ account.user.email }}
+                         {{ account.email }}
                          {% if account.is_pending %}
                              <span class="pending_note">*</span>
                          {% endif %}
-                         {{ account.email }}
                     </td>
                     <td>
-                        {{ account.user_level }}
+                        {{ account.user_level_description }}
                     </td>
                     <td>
                         {% if account.last_access %}

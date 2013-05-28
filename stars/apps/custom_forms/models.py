@@ -50,8 +50,8 @@ class DataDisplayAccessRequest(models.Model):
     how_data_used = models.TextField("How will STARS data be used in your research?")
     will_publish = models.BooleanField("Will you be distributing or publishing the data?") 
     audience = models.TextField("Who is the intended audience for your research?")
-    period = models.DateField("Requesting access starting on this date")
-    end = models.DateField("Access requested until")
+    period = models.DateField("Requesting access starting on this date (mm/dd/yyyy)")
+    end = models.DateField("Access requested until (mm/dd/yyyy)")
 
     has_instructor = models.BooleanField(
         "Is there an academic instructor or advisor who will provide guidance"
