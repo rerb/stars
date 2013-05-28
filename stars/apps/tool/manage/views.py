@@ -628,9 +628,8 @@ class SubscriptionCreateView(SubscriptionPaymentCreateBaseView):
 
     @property
     def pay_when(self):
-        if not getattr(self, '_pay_when', False):
-            self._pay_when = self.request.session[PAY_WHEN]
-        return self._pay_when
+        """Just a shorthand for self.request.session[PAY_WHEN]."""
+        return self.request.session[PAY_WHEN]
 
     def form_valid(self, form):
         """
@@ -654,8 +653,6 @@ class SubscriptionCreateView(SubscriptionPaymentCreateBaseView):
         except SubscriptionPurchaseError as spe:
             messages.error(self.request, str(spe))
             return self.form_invalid(form)
-
-        del self.request.session[PAY_WHEN]
 
         return super(SubscriptionCreateView, self).form_valid(form)
 
