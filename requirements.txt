@@ -5,7 +5,7 @@ Pillow==2.0.0
 PyYAML==3.10
 South==0.7.5
 Werkzeug==0.8.3
--e hg+https://jamstooks:sustainaashe@bitbucket.org/jamstooks/aashe-python#egg=aashe_python-dev
+-e hg+ssh://hg@bitbucket.org/jamstooks/aashe-python#egg=aashe_python-dev
 -e git+https://github.com/toastdriven/django-tastypie.git@32dae8d2590dde3122289118ac241ab0bd2452e8#egg=django_tastypie-dev
 amqplib==1.0.2
 anyjson==0.3.3
@@ -47,6 +47,7 @@ pyPdf==1.13
 pycrypto==2.6
 python-dateutil==1.5
 python-memcached==1.48
+raven==3.3.7
 readline==6.2.4.1
 reportlab==2.4
 selenium==2.26.0
