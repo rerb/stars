@@ -106,7 +106,8 @@ if DEBUG_TOOLBAR:
     MIDDLEWARE_CLASSES.append(
         'debug_toolbar.middleware.DebugToolbarMiddleware')
     INTERNAL_IPS = ('127.0.0.1',)
-    INSTALLED_APPS = INSTALLED_APPS + ('debug_toolbar',)
+    INSTALLED_APPS = INSTALLED_APPS + ('debug_toolbar',
+                                       'template_timings_panel')
     DEBUG_TOOLBAR_PANELS = (
         'debug_toolbar.panels.version.VersionDebugPanel',
         'debug_toolbar.panels.timer.TimerDebugPanel',
@@ -117,7 +118,9 @@ if DEBUG_TOOLBAR:
         'debug_toolbar.panels.sql.SQLDebugPanel',
         'debug_toolbar.panels.signals.SignalDebugPanel',
         'debug_toolbar.panels.logger.LoggingPanel',
+        'template_timings_panel.panels.TemplateTimings.TemplateTimings'
     )
+    DEBUG_TOOLBAR_CONFIG = {'INTERCEPT_REDIRECTS': False}
 
 TEMPLATE_STRING_IF_INVALID = 'INVALID EXPRESSION: %s' if DEBUG else ' '
 
