@@ -558,7 +558,9 @@ class SubscriptionPaymentCreateBaseView(ValidationMessageFormMixin,
                                         FormView):
     """
         Provides a common base for the views that accept credit
-        card payments for subscriptions.
+        card payments for subscriptions [i.e., the view that
+        creates a subscription and the view the creates a payment
+        for an existing subscription].
     """
     success_url_name = 'tool-summary'
 
