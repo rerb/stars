@@ -144,6 +144,7 @@ INSTALLED_APPS = (
     'captcha',
     'django_extensions',
     'djcelery',
+    'raven.contrib.django.raven_compat',
     'sorl.thumbnail',
     'south',
     's3_folder_storage',
@@ -217,6 +218,11 @@ DJANGO_VERSION = django.get_version()
 HG_REVISION = None
 
 SOUTH_TESTS_MIGRATE = False
+
+# Sentry Logging: getsentry.com
+RAVEN_CONFIG = {
+    'dsn': os.environ.get('RAVEN_CONFIG_DSN', None),
+}
 
 LOGGING = {
     'version': 1,
