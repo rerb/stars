@@ -48,7 +48,7 @@ class DataDisplayAccessRequest(models.Model):
 
     summary = models.TextField("Summary description of your research")
     how_data_used = models.TextField("How will STARS data be used in your research?")
-    will_publish = models.BooleanField("Will you be distributing or publishing the data?") 
+    will_publish = models.BooleanField("Click here if you will be distributing or publishing the data?") 
     audience = models.TextField("Who is the intended audience for your research?")
     period = models.DateField("Requesting access starting on this date (mm/dd/yyyy)")
     end = models.DateField("Access requested until (mm/dd/yyyy)")
