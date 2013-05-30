@@ -583,7 +583,7 @@ class Subscription(models.Model):
         institution_type = ('member'
                             if self.institution.is_member_institution()
                             else 'nonmember')
-        subscription_type = ('renewal'
+        subscription_type = ('renew'
                              if self.institution.subscription_set.count()
                              else 'reg')
         return '_'.join([institution_type, subscription_type])

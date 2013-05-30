@@ -92,7 +92,7 @@ class SubscriptionTest(TestCase):
         self.subscription.save()
         new_subscription = SubscriptionFactory(institution=self.member)
         self.assertEqual(new_subscription._calculate_reason(),
-                         'member_renewal')
+                         'member_renew')
 
     def test__calculate_reason_nonmember_renewal(self):
         """Does _calculate_reason work for a nonmember renewal?
@@ -101,7 +101,7 @@ class SubscriptionTest(TestCase):
         self.subscription.save()
         new_subscription = SubscriptionFactory(institution=self.nonmember)
         self.assertEqual(new_subscription._calculate_reason(),
-                         'nonmember_renewal')
+                         'nonmember_renew')
 
     ################################
     # calculate_start_date() tests:
