@@ -9,7 +9,8 @@ import testfixtures
 
 from stars.apps.institutions.models import (Subscription, SubscriptionPayment,
                                             SUBSCRIPTION_DURATION)
-from stars.apps.payments.credit_card import CreditCardProcessingError
+from stars.apps.payments.credit_card import (CreditCardPaymentProcessor,
+                                             CreditCardProcessingError)
 from stars.apps.tool.manage.forms import PayNowForm
 from stars.apps.registration.models import ValueDiscount, get_current_discount
 from stars.test_factories import (InstitutionFactory, SubscriptionFactory,
@@ -42,6 +43,13 @@ def get_pay_now_form(card_number, subscription=None):
     if subscription:
         form.save()
     return form
+
+
+class MockCreditCardPaymentProcessor(CreditCardPaymentProcessor):
+    """For mocking the actual credit card payment processing."""
+
+    def process_subscription_payment(self, *args, **kwargs):
+        return (None, None)
 
 
 class SubscriptionTest(TestCase):
@@ -484,6 +492,49 @@ class SubscriptionTest(TestCase):
                              user=UserFactory(),
                              form=form)
         self.assertEqual(subscription.subscriptionpayment_set.count(), 0)
+
+    def test_pay_updates_amount_due(self):
+        """Does a payment decrease the amount due?"""
+        unpaid_amount = 100
+        subscription = SubscriptionFactory(amount_due=500.75)
+        form = get_pay_now_form(subscription=subscription,
+                                card_number=GOOD_CREDIT_CARD)
+        with testfixtures.Replacer() as r:
+            r.replace('stars.apps.payments.credit_card.'
+                      'CreditCardPaymentProcessor',
+                      MockCreditCardPaymentProcessor)
+            subscription.pay(amount=subscription.amount_due - unpaid_amount,
+                             user=UserFactory(),
+                             form=form)
+        self.assertEqual(subscription.amount_due, unpaid_amount)
+
+    def test_pay_full_amount_due_updates_paid_in_full(self):
+        """Does a full payment turn paid_in_full on?"""
+        subscription = SubscriptionFactory(amount_due=500.99)
+        form = get_pay_now_form(subscription=subscription,
+                                card_number=GOOD_CREDIT_CARD)
+        with testfixtures.Replacer() as r:
+            r.replace('stars.apps.payments.credit_card.'
+                      'CreditCardPaymentProcessor',
+                      MockCreditCardPaymentProcessor)
+            subscription.pay(amount=subscription.amount_due,
+                             user=UserFactory(),
+                             form=form)
+        self.assertTrue(subscription.paid_in_full)
+
+    def test_pay_partial_amount_due_does_not_update_paid_in_full(self):
+        """Does a full payment turn paid_in_full on?"""
+        subscription = SubscriptionFactory(amount_due=500.99)
+        form = get_pay_now_form(subscription=subscription,
+                                card_number=GOOD_CREDIT_CARD)
+        with testfixtures.Replacer() as r:
+            r.replace('stars.apps.payments.credit_card.'
+                      'CreditCardPaymentProcessor',
+                      MockCreditCardPaymentProcessor)
+            subscription.pay(amount=subscription.amount_due - .10,
+                             user=UserFactory(),
+                             form=form)
+        self.assertFalse(subscription.paid_in_full)
 
     ########################
     # tests for purchase():
