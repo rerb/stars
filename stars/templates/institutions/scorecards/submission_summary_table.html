@@ -1,0 +1,72 @@
+<table class='table table-striped table-bordered table-condensed' cellspacing='0'>
+    <thead>
+    <tr>
+        <th>
+            Rating
+        </th>
+        <th>Score</th>
+        <th>Liaison</th>
+        <th>Submission Date</th>
+        <th>President's Letter</th>
+        {% if user_tied_to_institution %}
+            <th>Download</th>
+        {% endif %}
+    </tr>
+    </thead>
+    <tdata>
+    <tr>
+        <td>
+            {{ rating }}
+            {% if user.is_staff %}
+                <a href="{{ submissionset.get_flag_url }}" class='btn btn-warning btn-mini'><i class='icon-flag icon-white'></i></a>
+            {% endif %}
+            {% if submissionset.flags %}
+                {% for f in submissionset.flags %}
+                    <a  href="{% if user.is_staff %}{{ f.get_admin_url }}{% else %}#{% endif %}"
+                        rel="popover"
+                        id="flag_{{ f.id }}"
+                        data-content="{{ f.description }}"
+                        data-original-title="Flagged Field">
+                        <i class='icon-flag'> </i></a>
+                    <script type='text/javascript'>$('#flag_{{ f.id }}').popover();</script>
+                {% endfor %}
+            {% endif %}
+        </td>
+        <td>
+            {% if rating.publish_score %}
+                {{ score|floatformat:2 }}
+            {% else %}
+                {% load help %}
+                {% show_help_context "reporter_status" %}
+            {% endif %}
+        </td>
+        <td>
+      {{ submissionset.institution.contact_first_name }}
+      {{ submissionset.institution.contact_last_name }}
+    </td>
+        <td>
+            {% if preview %}
+                <span class="label label-warning">Preview</span>
+            {% else %}
+                {{ submissionset.date_submitted }}
+            {% endif %}
+        </td>
+        <td>
+            {% if not preview %}
+                <a href='{{ submissionset.presidents_letter.url }}'>Download</a>
+            {% endif %}
+        </td>
+        {% if user_tied_to_institution %}
+            <td>
+                <a href='{{ submissionset.get_scorecard_url }}pdf/'
+                {% if submissionset.status != 'r' or not submissionset.pdf_report %}
+                onclick="return confirm('This export could take a minute or two, please be patient.');"
+                {% endif %}
+                target='_blank'>
+                    PDF
+                </a>
+            </td>
+        {% endif %}
+    </tr>
+    </tdata>
+</table>

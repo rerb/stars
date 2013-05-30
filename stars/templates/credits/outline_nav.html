@@ -1,0 +1,52 @@
+{% if outline %}
+
+<script>
+    $(document).ready(function () {
+        $('label.tree-toggler').click(function () {
+            $(this).parent().children('ul.tree').toggle(300);
+        });
+    });
+</script>
+
+<div class="well" style="width:300px; padding: 8px 0;">
+<ul class="nav nav-list">
+	
+{% for cat in outline %}
+    <li><label class="tree-toggler nav-header"{% if cat.selected %} id='currentSelection'{% endif %}>
+            {{ cat.title }}
+		</label>
+        <ul class="nav nav-list tree">
+            {% for sub in cat.subcategories %}
+            <li><label class="tree-toggler nav-header"{% if sub.selected %} id='currentSelection'{% endif %}>
+				{{ sub.title }}</label>
+                <ul class="nav nav-list tree" style='font-size: .9em;'>
+                    {% for c in sub.credits %}
+                        <li>
+                            <a
+								{% if c.selected %}class='active'{% endif %}
+								href='{{ c.url }}'>{{ c.title }}</a>
+                        </li>
+                    {% endfor %}
+                    {% if sub.tier2 %}
+                        <li>
+                            <label class="tree-toggler nav-header">Tier 2 Credits</label>
+							<ul class="nav nav-list tree" style='font-size: .9em;'>
+                                {% for c in sub.tier2 %}
+                                    <li>
+										<a
+											{% if c.selected %}class='active'{% endif %}
+											href='{{ c.url }}'>{{ c.title }}</a>
+									</li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                    {% endif %}
+                </ul>
+            </li>
+            {% endfor %}
+        </ul>
+    </li>  
+{% endfor %}
+</ul>
+</div>
+{% endif %}
