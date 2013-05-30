@@ -3,7 +3,7 @@
 {% load content %}
 
 {% block institution_content %}
-     {% block subsubmenu %}
+    {% block subsubmenu %}
     {% endblock %}
     {% load help %}
     {% load submit_tags %}
@@ -28,7 +28,11 @@
                 <a href='{{ i.get_masquerade_url }}'>{{ i }}</a>
             </td>
             <td>
+              {% if i.current_submission %}
                 {{ i.current_submission.creditset.version }}
+              {% else %}
+                no current submission
+              {% endif %}
             </td>
             <td>
               {% if i.is_participant %}

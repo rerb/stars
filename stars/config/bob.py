@@ -97,7 +97,6 @@ SSO_API_KEY = "e4c8dcfbcb5120ad35b516b04cc35302"
 XMLRPC_VERBOSE = False
 XMLRPC_USE_HASH = True
 
-
 # Thumbnails
 THUMBNAIL_DEBUG = True
 

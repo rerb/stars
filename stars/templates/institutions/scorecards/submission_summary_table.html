@@ -1,3 +1,5 @@
+{% load logical_rules_tags %}
+
 <table class='table table-striped table-bordered table-condensed' cellspacing='0'>
     <thead>
     <tr>
@@ -56,7 +58,7 @@
                 <a href='{{ submissionset.presidents_letter.url }}'>Download</a>
             {% endif %}
         </td>
-        {% if user_tied_to_institution %}
+        {% testrule user_has_view_access user institution %}
             <td>
                 <a href='{{ submissionset.get_scorecard_url }}pdf/'
                 {% if submissionset.status != 'r' or not submissionset.pdf_report %}
@@ -66,7 +68,7 @@
                     PDF
                 </a>
             </td>
-        {% endif %}
+        {% endtestrule %}
     </tr>
     </tdata>
 </table>

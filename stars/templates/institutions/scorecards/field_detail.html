@@ -18,7 +18,7 @@
     	{% endfor %}
     {% endif %}
     {{ field.documentation_field.title }}
-    {% if not preview %}
+    {% if not pdf and not preview %}
 	    {% testrule user_is_institution_admin user institution %}
 		    <a 	href="{{ field.get_correction_url }}"
 		    	rel="popover"

@@ -370,7 +370,7 @@ class Subscription(models.Model):
     amount_due = models.FloatField()
     reason = models.CharField(max_length='16', blank=True, null=True)
     paid_in_full = models.BooleanField(default=False)
-    
+
     MEMBER_BASE_PRICE = 900
     NONMEMBER_BASE_PRICE = 1400
 
@@ -495,6 +495,10 @@ class Subscription(models.Model):
              user=user,
              form=form)
 
+        self.amount_due -= amount
+
+        self.paid_in_full = self.amount_due == 0.00
+
         return (subscription_payment, payment_context)
 
     def purchase(self, pay_when, user, form=None):
@@ -579,7 +583,7 @@ class Subscription(models.Model):
         institution_type = ('member'
                             if self.institution.is_member_institution()
                             else 'nonmember')
-        subscription_type = ('renewal'
+        subscription_type = ('renew'
                              if self.institution.subscription_set.count()
                              else 'reg')
         return '_'.join([institution_type, subscription_type])
