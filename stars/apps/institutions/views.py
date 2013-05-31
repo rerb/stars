@@ -315,6 +315,7 @@ class InstitutionScorecards(InstitutionStructureMixin, TemplateView):
 
         _context.update({'submission_sets': submission_sets,
                          'institution': institution})
+
         return _context
 
     def render_to_response(self, context, **response_kwargs):
@@ -432,7 +433,7 @@ class ScorecardView(RulesMixin,
         _context['preview'] = False
         if not ss.status == 'r':
             _context['preview'] = True
-
+            
         return _context
 
     def get_category_url(self, category, url_prefix):

@@ -136,19 +136,20 @@ INSTALLED_APPS = (
     'stars.apps.third_parties',
     'stars.apps.api',
     'stars.tests',
-
-    'logical_rules',
+    
     'aashe.aasheauth',
     'aashe.issdjango',
     'bootstrapform',
     'captcha',
+    'collapsing_menu',
     'django_extensions',
     'djcelery',
+    'gunicorn',
+    'logical_rules',
     'sorl.thumbnail',
     'south',
     's3_folder_storage',
     'tastypie',
-    'gunicorn',
 )
 
 # I don't know what this is... BOB?
