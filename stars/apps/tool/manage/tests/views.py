@@ -526,9 +526,13 @@ class MigrateVersionViewTest(MigrateViewTest):
         self.assertEqual(response.status_code, 200)
 
 
-class SubscriptionPaymentOptionsViewTest(InstitutionViewOnlyToolMixinTest):
+class SubscriptionPriceViewTest(InstitutionViewOnlyToolMixinTest):
 
-    view_class = views.SubscriptionPaymentOptionsView
+    view_class = views.SubscriptionPriceView
+
+    def test_amount_due_gets_commas(self):
+        """Does amount due show commas if > $999?"""
+        raise NotImplemented
 
 
 class SubscriptionCreateViewTest(InstitutionViewOnlyToolMixinTest):
@@ -540,6 +544,8 @@ class SubscriptionCreateViewTest(InstitutionViewOnlyToolMixinTest):
     def setUp(self):
         super(SubscriptionCreateViewTest, self).setUp()
         self.request.session[views.PAY_WHEN] = Subscription.PAY_LATER
+        self.request.session['promo_code'] = ''
+        self.request.session['amount_due'] = 1400
 
     def test_form_valid_creates_subscription(self):
         """Does form_valid() create a subscription?"""
@@ -597,8 +603,7 @@ class SubscriptionPaymentCreateViewTest(InstitutionViewOnlyToolMixinTest):
         """Depends on Subscription.create()."""
         super(SubscriptionPaymentCreateViewTest, self).setUp()
         # self.request.session[views.PAY_WHEN] = Subscription.PAY_LATER
-        (self.subscription, _) = Subscription.create(
-            institution=self.institution)
+        self.subscription = Subscription.create(institution=self.institution)
         self.subscription.save()
 
     def _get_pk(self):
