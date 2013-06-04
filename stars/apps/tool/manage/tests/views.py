@@ -535,6 +535,16 @@ class SubscriptionPriceViewTest(InstitutionViewOnlyToolMixinTest):
         raise NotImplemented
 
 
+class SubscriptionPaymentOptionsViewTest(InstitutionViewOnlyToolMixinTest):
+
+    view_class = views.SubscriptionPaymentOptionsView
+
+    def setUp(self):
+        super(SubscriptionPaymentOptionsViewTest, self).setUp()
+        self.request.session['promo_code'] = ''
+        self.request.session['amount_due'] = 1400
+
+
 class SubscriptionCreateViewTest(InstitutionViewOnlyToolMixinTest):
 
     fixtures = ['email_templates.json']

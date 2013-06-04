@@ -12,7 +12,8 @@ from views import (AccountCreateViewTest, AccountDeleteViewTest,
                    ResponsiblePartyListViewTest, ShareDataViewTest,
                    SubscriptionCreateViewTest,
                    SubscriptionPaymentCreateViewTest,
-                   SubscriptionPaymentOptionsViewTest)
+                   SubscriptionPaymentOptionsViewTest,
+                   SubscriptionPriceViewTest)
 
 from stars.apps.tool.tests.views import (NoStarsAccountViewTest,
                                          SelectInstitutionViewTest,
@@ -42,6 +43,7 @@ __test__ = {
     'SubscriptionPaymentOptionsViewTest': SubscriptionPaymentOptionsViewTest,
     'SubscriptionCreateViewTest': SubscriptionCreateViewTest,
     'SubscriptionPaymentCreateViewTest': SubscriptionPaymentCreateViewTest,
+    'SubscriptionPriceViewTest': SubscriptionPriceViewTest,
     'SummaryToolViewTest': SummaryToolViewTest,
     'ToolLandingPageViewTest': ToolLandingPageViewTest
     }
