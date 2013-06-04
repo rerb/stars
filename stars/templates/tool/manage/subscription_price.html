@@ -20,9 +20,6 @@
     }
     function decimalToDollarString(decimal) {
         dollar_string = "$" + addThousandsComma(decimal.toString());
-        if (decimal < 0.00) {
-            dollar_string = "- " + dollar_string;
-        }
         return dollar_string;
     }
     function updateAmountDue(amt) {
@@ -47,7 +44,7 @@
                 var amount_subtracted = parseFloat(data.promo_discount);
                 amount_subtracted = amount_subtracted.toFixed(2);
                 $("#id_promo_code_amount").text(
-                    decimalToDollarString(amount_subtracted));
+                    "-" + decimalToDollarString(amount_subtracted));
                 var discount_description = ("Promo code " +
                                             $("#id_promo_code").val());
                 if (parseFloat(data.discount_percentage) > 0.0) {
