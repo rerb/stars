@@ -8,7 +8,8 @@ from views import (AccountCreateView, AccountDeleteView,
                    ResponsiblePartyDeleteView, ResponsiblePartyEditView,
                    ResponsiblePartyListView, ShareDataView,
                    SubscriptionCreateView, SubscriptionPaymentCreateView,
-                   SubscriptionPaymentOptionsView, ShareThirdPartiesView)
+                   SubscriptionPaymentOptionsView, SubscriptionPriceView,
+                   ShareThirdPartiesView)
 
 urlpatterns = patterns(
     'stars.apps.tool.manage.views',
@@ -71,6 +72,10 @@ urlpatterns = patterns(
 
     # Subscription views:
     url(r'^purchase-subscription/',
+        SubscriptionPriceView.as_view(),
+        name='subscription-price'),
+
+    url(r'^subscription-payment-options/$',
         SubscriptionPaymentOptionsView.as_view(),
         name='subscription-payment-options'),
 

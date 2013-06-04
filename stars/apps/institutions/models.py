@@ -402,7 +402,6 @@ class Subscription(models.Model):
             promo_code = kwargs.pop('promo_code')
         except KeyError:
             promo_code = False
-        promo_code_applied = False
 
         subscription = cls(institution=institution, *args, **kwargs)
 
@@ -411,11 +410,10 @@ class Subscription(models.Model):
         (subscription.start_date,
          subscription.end_date) = subscription._calculate_date_range()
 
-        (subscription.amount_due,
-         promo_code_applied) = subscription.calculate_price(
-             promo_code=promo_code)
+        prices = subscription.calculate_prices(promo_code=promo_code)
+        subscription.amount_due = prices['total']
 
-        return subscription, promo_code_applied
+        return subscription
 
     @classmethod
     def get_date_range_for_new_subscription(cls, institution):
@@ -426,8 +424,7 @@ class Subscription(models.Model):
            will be before getting confirmation from them that they want
            to buy the subscription.
         """
-        (subscription, promo_code_applied) = cls.create(
-            institution=institution)
+        subscription = cls.create(institution=institution)
         date_range = (subscription.start_date, subscription.end_date)
         # deleting the subscription here for what the hell maybe
         # garbage-collection reasons, maybe just because it feels
@@ -439,27 +436,75 @@ class Subscription(models.Model):
 
         return date_range
 
-    def calculate_price(self, promo_code=None):
+    @classmethod
+    def get_prices_for_new_subscription(cls, institution, promo_code=False):
         """
-            Returns the price for this STARS subscription, and
-            a boolean indicating if a promo code was used in the
-            calculation.
-        """
-        price = (self.MEMBER_BASE_PRICE if self.institution.is_member
-                 else self.NONMEMBER_BASE_PRICE)
+           Provides the price for a new subscription for an institution,
+           without actually creating the subscription.  This allows
+           one to, for example, show a user what the price will be
+           before getting confirmation from them that they want to buy
+           the subscription.
 
-        promo_code_applied = False
+           Returns a dictionary containing the price, the
+           amount discounted for a promo code, and the amount
+           discounted by applying the early renewal discount.
+        """
+        subscription = cls.create(institution=institution,
+                                  promo_code=promo_code)
+        prices = subscription.calculate_prices(promo_code=promo_code)
+        # deleting the subscription here for what the hell maybe
+        # garbage-collection reasons, maybe just because it feels
+        # better; it hasn't been saved to the db yet . . .
+        assert subscription.id is None
+        # . . . so just deleting the reference should . . . oh hell,
+        # I don't know, it just seems explicit and right
+        del subscription
+
+        return prices
+
+    def calculate_prices(self, promo_code=None):
+        """
+            Calculates the prices for this subscription.
+
+            Returns a dictionary containing the price, and the
+            constituent elements used to arrive at the price;
+            the base price, amount discounted for a promo code,
+            and the amount discounted by applying the early
+            renewal discount.
+        """
+        base_price = self.NONMEMBER_BASE_PRICE
+
+        running_total = base_price
+
+        if self.institution.is_member:
+            member_discount = (self.NONMEMBER_BASE_PRICE -
+                               self.MEMBER_BASE_PRICE)
+            running_total -= member_discount
+        else:
+            member_discount = 0
+
+        gets_early_renewal_discount = (
+            self._qualifies_for_early_renewal_discount())
+
+        if gets_early_renewal_discount:
+            pre_discount_price = running_total
+            running_total = self._apply_early_renewal_discount(running_total)
+            early_renewal_discount = pre_discount_price - running_total
+        else:
+            early_renewal_discount = 0
+
         if promo_code:
-            pre_promo_price = price
-            price = self._apply_promo_code(price, promo_code)
-            promo_code_applied = price != pre_promo_price
+            pre_promo_price = running_total
+            running_total = self._apply_promo_code(running_total, promo_code)
+            promo_discount = pre_promo_price - running_total
+        else:
+            promo_discount = 0
 
-        gets_discount = self._subscription_discounted()
-
-        if gets_discount:
-            price = self._apply_standard_discount(price)
-
-        return price, promo_code_applied
+        return {'total': running_total,
+                'base_price': base_price,
+                'member_discount': member_discount,
+                'promo_discount': promo_discount,
+                'early_renewal_discount': early_renewal_discount}
 
     def get_available_ratings(self):
         return self.ratings_allocated - self.ratings_used
@@ -499,6 +544,8 @@ class Subscription(models.Model):
 
         self.paid_in_full = self.amount_due == 0.00
 
+        self.save()
+
         return (subscription_payment, payment_context)
 
     def purchase(self, pay_when, user, form=None):
@@ -528,6 +575,11 @@ class Subscription(models.Model):
             except CreditCardProcessingError as ccpe:
                 raise SubscriptionPurchaseError(str(ccpe))
         else:  # pay_when == self.PAY_LATER:
+            # Update self.paid_in_full in the special case
+            # where the subscription is free.
+            if self.amount_due == 0.00:
+                self.paid_in_full = True
+                self.save()
             subscription_payment = payment_context = None
 
         self._send_post_purchase_email(
@@ -555,9 +607,9 @@ class Subscription(models.Model):
 
         return price
 
-    def _apply_standard_discount(self, price):
+    def _apply_early_renewal_discount(self, price):
         """
-           Apply the standard discount to a subscription price.
+           Apply the early renewal discount to a subscription price.
 
            This is a simple calculation, broken out into its own
            method to encapsulate it.  So, for instance, test code
@@ -676,10 +728,10 @@ class Subscription(models.Model):
                           'payment': subscription_payment }
         self._send_email(slug=slug, mail_to=mail_to, context=email_context)
 
-    def _subscription_discounted(self):
+    def _qualifies_for_early_renewal_discount(self):
         """
-            Returns True if this subscription's instituion should get
-            a discount.
+            Returns True if this subscription's institution should get
+            a discount for renewing early-ish.
 
             Institutions get half-off their submission if they
             renew before their current subscription ends, or within
