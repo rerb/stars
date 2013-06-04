@@ -709,6 +709,7 @@ class SubscriptionPaymentCreateBaseView(ValidationMessageFormMixin,
         context = super(SubscriptionPaymentCreateBaseView,
                         self).get_context_data(**kwargs)
         context['breadcrumb'] = 'purchase subscription'
+        context['new_subscription'] = True
         return context
 
 
