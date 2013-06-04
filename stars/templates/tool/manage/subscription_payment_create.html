@@ -36,7 +36,11 @@
           id='submit_button'
           class='btn btn-primary'>
               <i class='icon-lock icon-white'></i>
-              Purchase Subscription
+              {% if new_subscription %}
+                Purchase Subscription
+              {% else %}
+                Submit Payment
+              {% endif %}
       </button>
 
       <button

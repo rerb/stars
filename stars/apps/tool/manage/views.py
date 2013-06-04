@@ -846,14 +846,15 @@ class SubscriptionPaymentCreateView(SubscriptionPaymentCreateBaseView):
     def get_context_data(self, **kwargs):
         context = super(SubscriptionPaymentCreateView,
                         self).get_context_data(**kwargs)
+
         # Template is shared between the "pay now" and the "pay later"
-        # scenarios, and depends on context['pay_when'] for some bits.
-        # When creating a subscription, context['pay_when'] is
-        # set according to the user's preference, but when applying
-        # a payment to an existing subscription, we need to set it
-        # here, in this view that only ever is used when the user
-        # wants to pay now.
+        # scenarios, and depends on some context variables for some
+        # stuff. When creating a subscription, these are set earlier in
+        # the workflow, but when applying a payment to an existing
+        # subscription, we need to set them here, in this view that only
+        # ever is used when the user wants to pay now.
         context['pay_when'] = Subscription.PAY_NOW
         if 'amount_due' not in context:
             context['amount_due'] = self.amount_due
+            context['new_subscription'] = False
         return context
