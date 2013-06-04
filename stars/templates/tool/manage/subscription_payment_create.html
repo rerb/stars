@@ -6,6 +6,25 @@
 
 {% block institution_content %}
 
+  <p>
+
+    {% if pay_when = "later" %}
+      You will be billed ${{ amount_due|floatformat:2 }} for your new
+      STARS subscription.
+    {% else %}
+      Your credit card will be charged ${{ amount_due|floatformat:2 }}
+      for your
+      {% comment %}
+        This form is used to apply payments to existing subscriptions,
+        as well as new ones.
+      {% endcomment %}
+      {% if new_subscription %}
+        new
+      {% endif %}
+      STARS subscription.
+    {% endif %}
+  </p>
+
   <form method='post' action='.' class='form-horizontal'>
 
     {{ form|bootstrap }}
