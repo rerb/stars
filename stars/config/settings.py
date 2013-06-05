@@ -152,9 +152,6 @@ INSTALLED_APPS = (
     'tastypie',
 )
 
-# I don't know what this is... BOB?
-PROFILE = False
-
 # auth config
 AASHE_DRUPAL_URI = os.environ.get('AASHE_DRUPAL_URI', None)
 AASHE_DRUPAL_KEY = os.environ.get('AASHE_DRUPAL_KEY', None)

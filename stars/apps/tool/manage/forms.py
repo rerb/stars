@@ -268,26 +268,12 @@ class ThirdPartiesForm(ModelForm):
         return instance
 
 
-class PaymentOptionsForm(forms.Form):
+class SubscriptionPriceForm(forms.Form):
     """
-        Youse can pay me now, or youse can pay me later.
+        Displays price for a subscription, and allows user to enter a promo
+        code.  Promo code is validated and price discounted accordingly in
+        template.
     """
-    pay_when = forms.ChoiceField(
-        choices=[
-            (Subscription.PAY_NOW, 'Pay now, by credit card'),
-            (Subscription.PAY_LATER, 'Pay later (i.e., be billed)')],
-        widget=forms.RadioSelect(),
-        label='')
-
-
-class PromoForm(forms.ModelForm):
-    """
-        A form with a promo code field.
-    """
-    class Meta:
-        model = Subscription
-        fields = ['promo_code']
-
     promo_code = forms.CharField(max_length=16, required=False)
 
     def clean_promo_code(self):
@@ -304,11 +290,24 @@ class PromoForm(forms.ModelForm):
         return data
 
 
-class PayLaterForm(PromoForm):
+
+class PaymentOptionsForm(forms.Form):
+    """
+        Youse can pay me now, or youse can pay me later.
+    """
+    pay_when = forms.ChoiceField(
+        choices=[
+            (Subscription.PAY_NOW, 'Pay now, by credit card'),
+            (Subscription.PAY_LATER, 'Pay later (i.e., be billed)')],
+        widget=forms.RadioSelect(),
+        label='')
+
+
+class PayLaterForm(forms.Form):
     pass
 
 
-class PayNowForm(PromoForm):
+class PayNowForm(forms.Form):
     """
         Credit Card Payment form
     """
@@ -326,7 +325,6 @@ class PayNowForm(PromoForm):
     billing_city = forms.CharField(max_length=32)
     billing_state = forms.CharField(max_length=2)
     billing_zipcode = forms.CharField(max_length=7, label='Billing ZIP code')
-    promo_code = forms.CharField(max_length=16, required=False)
 
     def clean_exp_month(self):
         data = self.cleaned_data['exp_month']
