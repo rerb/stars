@@ -623,8 +623,7 @@ class SubscriptionPriceView(InstitutionToolMixin,
                                               mimetype='application/json')
         else:
             self.request.session['promo_code'] = self.request.POST.get(
-                key='promo_code',
-                default='')
+                'promo_code', '')
             return super(SubscriptionPriceView, self).form_valid(form)
 
 
@@ -650,7 +649,7 @@ class SubscriptionPaymentOptionsView(InstitutionToolMixin,
 
     def get(self, request, *args, **kwargs):
         # A promo code might discount a subscription by 100%.  If
-        # the amount due is 0, we'll short-circuit thie payment
+        # the amount due is 0, we'll short-circuit the payment
         # options view and go straight to 'subscription-create'.
         promo_code = self.request.session['promo_code']
         amount_due = Subscription.get_prices_for_new_subscription(
