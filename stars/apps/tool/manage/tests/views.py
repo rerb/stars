@@ -24,8 +24,8 @@ from stars.test_factories import (CreditUserSubmissionFactory,
                                   ResponsiblePartyFactory,
                                   SubmissionSetFactory,
                                   StarsAccountFactory,
-                                  UserFactory)
-
+                                  UserFactory,
+                                  ValueDiscountFactory)
 # Don't bother me:
 logger = getLogger('stars')
 logger.setLevel(CRITICAL)
@@ -530,13 +530,56 @@ class SubscriptionPriceViewTest(InstitutionViewOnlyToolMixinTest):
 
     view_class = views.SubscriptionPriceView
 
+    def setUp(self):
+        super(SubscriptionPriceViewTest, self).setUp()
+        self.account.user_level = 'admin'
+        self.account.save()
+
+    def _get_view(self):
+        return self.view_class.as_view()(
+            self.request,
+            institution_slug=self.institution.slug)
+
+    def _get_soup(self, view=None):
+        view = view or self._get_view()
+        soup = BeautifulSoup(view.rendered_content)
+        return soup
+
+    def _get_amount_due_element(self, soup=None, view=None):
+        soup = soup or self._get_soup(view)
+        amount_due_element = soup.find(id="amount-due")
+        return amount_due_element
+
+    def _get_amount_due_text(self, soup=None, view=None):
+        """Returns amount due as text."""
+        amount_due_element = self._get_amount_due_element(soup=soup, view=view)
+        return amount_due_element.text.strip()
+
+    def _get_amount_due(self, soup=None, view=None):
+        """Returns amount due as a float."""
+        amount_due_text = self._get_amount_due_text(soup=soup, view=view)
+        number_text = ''.join(
+            (c for c in amount_due_text if (c.isdigit() or c in ['.', '-'])))
+        amount_due_float = float(number_text)
+        return amount_due_float
+
     def test_amount_due_gets_commas(self):
         """Does amount due show commas if > $999?"""
-        raise NotImplemented
+        self.institution.is_member = False  # no member discount
+        self.institution.save()
+        amount_due_text = self._get_amount_due_text()
+        self.assertIn(',', amount_due_text)
 
     def test_membership_discount_applied(self):
         """Is the membership discount applied?"""
-        raise NotImplemented
+        self.institution.is_member = False
+        self.institution.save()
+        amount_due_for_nonmember = self._get_amount_due()
+        self.institution.is_member = True
+        self.institution.save()
+        amount_due_for_member = self._get_amount_due()
+        self.assertLess(amount_due_for_member, amount_due_for_nonmember)
+
 
     def test_early_renewal_discount_applied(self):
         """Is the early renewal discount applied?"""
@@ -554,6 +597,22 @@ class SubscriptionPriceViewTest(InstitutionViewOnlyToolMixinTest):
         """Are the payment forms skipped for 100% discounted subs?
         Payment forms include the 'payment options' and 'enter your
         credit card info' forms."""
+        raise NotImplemented
+
+    def test_applying_blank_promo_code_clears_errors(self):
+        """Are errors cleared by applying a blank promo code?"""
+        raise NotImplemented
+
+    def test_invalid_promo_code_displays_errors(self):
+        """Does an invalid promo code display error messages?"""
+        raise NotImplemented
+
+    def test_submit_valid_promo_code_without_applying_it(self):
+        """Does submitting the form w/a valid code w/o applying it work?"""
+        raise NotImplemented
+
+    def test_submit_invalid_promo_code_without_applying_it(self):
+        """Does submitting the form w/an invalid code w/o applying it work?"""
         raise NotImplemented
 
 
