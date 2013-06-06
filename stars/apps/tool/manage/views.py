@@ -773,9 +773,12 @@ class SubscriptionCreateView(SubscriptionPaymentCreateBaseView):
                 Subscription.PAY_NOW: PayNowForm}[self.pay_when]
 
     def get_tab_content_title(self):
-        return {Subscription.PAY_LATER: 'purchase a subscription: pay later',
-                Subscription.PAY_NOW: 'purchase a subscription: pay now'}[
-                    self.pay_when]
+        tab_content_title = 'purchase a subscription'
+        if float(self.request.session['amount_due']):  # amount due can be $0.00
+            tab_content_title += {
+                Subscription.PAY_LATER: ': pay later',
+                Subscription.PAY_NOW: ': pay now'}[self.pay_when]
+        return tab_content_title
 
     def get_valid_message(self):
         return """Thank you!
