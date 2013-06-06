@@ -5,6 +5,7 @@ from logging import getLogger, CRITICAL
 from bs4 import BeautifulSoup
 from django.conf import settings
 from django.contrib import messages
+from django.core.urlresolvers import reverse
 from django.shortcuts import render
 import testfixtures
 
@@ -22,6 +23,7 @@ from stars.apps.tool.tests.views import (InstitutionAdminToolMixinTest,
 from stars.test_factories import (CreditUserSubmissionFactory,
                                   PendingAccountFactory,
                                   ResponsiblePartyFactory,
+                                  SubscriptionFactory,
                                   SubmissionSetFactory,
                                   StarsAccountFactory,
                                   UserFactory,
@@ -534,6 +536,9 @@ class SubscriptionPriceViewTest(InstitutionViewOnlyToolMixinTest):
         super(SubscriptionPriceViewTest, self).setUp()
         self.account.user_level = 'admin'
         self.account.save()
+        self.PROMO_DISCOUNT_AMOUNT = 17
+        self.promo_discount = ValueDiscountFactory(
+            amount=self.PROMO_DISCOUNT_AMOUNT)
 
     def _get_view(self):
         return self.view_class.as_view()(
@@ -580,40 +585,68 @@ class SubscriptionPriceViewTest(InstitutionViewOnlyToolMixinTest):
         amount_due_for_member = self._get_amount_due()
         self.assertLess(amount_due_for_member, amount_due_for_nonmember)
 
-
     def test_early_renewal_discount_applied(self):
         """Is the early renewal discount applied?"""
-        raise NotImplemented
+        amount_due_without_renewal_discount = self._get_amount_due()
+        _ = SubscriptionFactory(institution=self.institution)
+        amount_due_with_renewal_discount = self._get_amount_due()
+        self.assertLess(amount_due_with_renewal_discount,
+                        amount_due_without_renewal_discount)
 
-    def test_promo_discount_applied(self):
-        """Is a promo discount applied?"""
-        raise NotImplemented
+    def test_applying_valid_promo_code_updates_amount_due(self):
+        """Does a valid promo code display error messages?
 
-    def test_invalid_promo_code_handled(self):
-        """Is an invalid promo code handled correctly?"""
-        raise NotImplemented
+        Where "applying ... promo code" means clicking the "Apply
+        Promo Code" button.
+        """
+        raise ShouldBeLiveServerTest
 
-    def test_free_subscription_bypasses_payment_forms(self):
-        """Are the payment forms skipped for 100% discounted subs?
-        Payment forms include the 'payment options' and 'enter your
-        credit card info' forms."""
-        raise NotImplemented
+    def test_applying_invalid_promo_code_displays_errors(self):
+        """Does an invalid promo code display error messages?
+
+        Where "applying ... promo code" means clicking the "Apply
+        Promo Code" button.
+        """
+        raise ShouldBeLiveServerTest
 
     def test_applying_blank_promo_code_clears_errors(self):
-        """Are errors cleared by applying a blank promo code?"""
-        raise NotImplemented
+        """Are errors cleared by applying a blank promo code?
 
-    def test_invalid_promo_code_displays_errors(self):
-        """Does an invalid promo code display error messages?"""
-        raise NotImplemented
+        Where "applying ... a promo code" means clicking the "Apply
+        Promo Code" button.
+        """
+        raise ShouldBeLiveServerTest
 
-    def test_submit_valid_promo_code_without_applying_it(self):
-        """Does submitting the form w/a valid code w/o applying it work?"""
-        raise NotImplemented
+    def test_submit_valid_promo_code_without_applying_it_first(self):
+        """Does submitting the form w/a valid code w/o applying it work?
 
-    def test_submit_invalid_promo_code_without_applying_it(self):
-        """Does submitting the form w/an invalid code w/o applying it work?"""
-        raise NotImplemented
+        I.e., if a valid code is entered, and the form is submitted
+        without clicking the "Apply Promo Code" button, is the promo
+        discount accepted?
+
+        And by "accepted", I mean, is the promo code stashed in the
+        request session, for the next view.
+        """
+        self.request.method = 'POST'
+        self.request.POST = {'promo_code': self.promo_discount.code}
+        _ = self._get_view()
+        self.assertEqual(self.request.session['promo_code'],
+                         self.promo_discount.code)
+
+    def test_submit_invalid_promo_code_without_applying_it_first(self):
+        """Does submitting the form w/an invalid code w/o applying it work?
+
+        I.e., if an invalid code is entered, and the form is submitted
+        without clicking the "Apply Promo Code" button, is the error
+        displayed?
+        """
+        self.request.method = 'POST'
+        self.request.POST = {'promo_code': 'BO-O-O-O-GUS!'}
+        soup = self._get_soup()
+        promo_code_element = soup.find(id='id_promo_code')
+        parent = promo_code_element.find_parent()
+        inline_helps = parent.findChildren(class_='help-inline')
+        self.assertGreater(len(inline_helps), 0)
 
 
 class SubscriptionPaymentOptionsViewTest(InstitutionViewOnlyToolMixinTest):
@@ -624,6 +657,23 @@ class SubscriptionPaymentOptionsViewTest(InstitutionViewOnlyToolMixinTest):
         super(SubscriptionPaymentOptionsViewTest, self).setUp()
         self.request.session['promo_code'] = ''
         self.request.session['amount_due'] = 1400
+
+    def test_free_subscription_bypasses_payment_forms(self):
+        """Are the payment forms skipped for 100% discounted subs?
+        Payment forms include the 'payment options' and 'enter your
+        credit card info' forms."""
+        promo_discount = ValueDiscountFactory(amount=0,
+                                              percentage=100)
+
+        self.request.session['promo_code'] = promo_discount.code
+
+        response = self.view_class.as_view()(
+            self.request,
+            institution_slug=self.institution.slug)
+
+        self.assertEquals(response.get('Location'),
+                          reverse('subscription-create',
+                                  args=[self.institution.slug]))
 
 
 class SubscriptionCreateViewTest(InstitutionViewOnlyToolMixinTest):
