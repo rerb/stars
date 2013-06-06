@@ -270,9 +270,9 @@ class ThirdPartiesForm(ModelForm):
 
 class SubscriptionPriceForm(forms.Form):
     """
-        Displays price for a subscription, and allows user to enter a promo
-        code.  Promo code is validated and price discounted accordingly in
-        template.
+        Allows user to enter a promo code.
+
+        Template handles displaying prices and applying any promo code.
     """
     promo_code = forms.CharField(max_length=16, required=False)
 
@@ -288,7 +288,6 @@ class SubscriptionPriceForm(forms.Form):
                 "Sorry, but that's not a valid promo code.")
 
         return data
-
 
 
 class PaymentOptionsForm(forms.Form):
