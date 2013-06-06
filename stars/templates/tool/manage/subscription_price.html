@@ -26,9 +26,23 @@
         fixed_amt = amt.toFixed(2);
         $("#amount-due").contents().text(decimalToDollarString(fixed_amt));
     }
+    function applyFormFieldError(fieldname, error) {
+        var input = $("#id_" + fieldname);
+        var container = input.closest(".control-group");
+        var error_msg = $("<span/>").addClass(
+            "help-inline error").text(error[0]);
 
-    function applyPromoCode() {
+        container.addClass("error");
+        error_msg.insertAfter(input);
+    }
+    function clearError(element) {
+        var container = element.closest(".control-group");
+        element.next(".help-inline", container).remove();
+        container.removeClass("error");
+    }
+    function applyPromoCode(event) {
         var promo_code = $("#id_promo_code");
+        clearError(promo_code);
         var promo_code_text = promo_code.val();
         if (promo_code_text.length == 0) {
             return;
@@ -37,6 +51,7 @@
             type: "POST",
             data: {
                 "promo_code": promo_code_text,
+                "async": false
             },
             success: function(data, textStatus, jqXHR) {
                 // fill in the description and amount in the
@@ -63,18 +78,16 @@
                 // hide the promo code row:
                 $("#id_promo_code_row").hide();
 
-                // pop up a "sorry, I don't like that" modal:
-                $("#id_promo_code_in_modal").text("\"" +
-                                                  $("#id_promo_code").val() +
-                                                  "\"");
-                $("#id_invalid_promo_code_modal").modal();
+                var responseDict = $.parseJSON(data.responseText);
 
-                // reset the promo code field
-                $("#id_promo_code").val("");
+                var errors = responseDict['form-errors'];
+                $.each(errors, function(index, value) {
+                    applyFormFieldError(index, value);
+                })
 
                 // update the amount due (the previous amount due might
                 // have reflected a valid promo discount):
-                responseDict = $.parseJSON(data.responseText);
+
                 updateAmountDue(responseDict["total"]);
             }
         });
@@ -86,7 +99,7 @@
 
 {% block institution_content %}
 
-  <form method='post' action='.' class='form-horizontal'>
+  <form id='promo-code-form' method='post' action='.' class='form-horizontal'>
     <table class="table">
       <tbody>
         <tr id="subscription-base-price">
@@ -142,13 +155,16 @@
       </tbody>
     </table>
 
-    <div class='form-inline'>
-      <label>Have a promo code?  Enter it here:</label>
-      {{ form.promo_code }}
-      <button id="apply-promo-code-button" type="button"
+
+    {{ form.promo_code|bootstrap }}
+
+    <div class="controls">
+
+      <button id="apply-promo-code-button" type="button" class="btn"
               onclick="applyPromoCode();">
         Apply Promo Code
       </button>
+
     </div>
 
     <div class='form-actions'>
@@ -156,7 +172,8 @@
       <button
           type='submit'
           id='submit_button'
-          class='btn btn-primary'>
+          class='btn btn-primary'
+          onclick='clearError($("#id_promo_code")); this.submit();'>
               Continue
       </button>
 
@@ -168,28 +185,6 @@
       </button>
 
     </div>
-
   </form>
-
-  <div class="modal hide fade" id="id_invalid_promo_code_modal">
-    <div class="modal-header">
-      <button type="button" class="close" data-dismiss="modal">
-        &times;
-      </button>
-      <h3>Sorry</h3>
-    </div>
-    <div class="modal-body">
-      <p>
-        <span id="id_promo_code_in_modal"></span>
-        isn't a valid promo code.
-      </p>
-    </div>
-    <div class="modal-footer">
-      <button type="button" class="close" data-dismiss="modal"
-              aria-hidden="true">
-        Close
-      </button>
-    </div>
-  </div>
 
 {% endblock %}
