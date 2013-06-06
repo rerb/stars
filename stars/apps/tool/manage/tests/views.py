@@ -534,6 +534,28 @@ class SubscriptionPriceViewTest(InstitutionViewOnlyToolMixinTest):
         """Does amount due show commas if > $999?"""
         raise NotImplemented
 
+    def test_membership_discount_applied(self):
+        """Is the membership discount applied?"""
+        raise NotImplemented
+
+    def test_early_renewal_discount_applied(self):
+        """Is the early renewal discount applied?"""
+        raise NotImplemented
+
+    def test_promo_discount_applied(self):
+        """Is a promo discount applied?"""
+        raise NotImplemented
+
+    def test_invalid_promo_code_handled(self):
+        """Is an invalid promo code handled correctly?"""
+        raise NotImplemented
+
+    def test_free_subscription_bypasses_payment_forms(self):
+        """Are the payment forms skipped for 100% discounted subs?
+        Payment forms include the 'payment options' and 'enter your
+        credit card info' forms."""
+        raise NotImplemented
+
 
 class SubscriptionPaymentOptionsViewTest(InstitutionViewOnlyToolMixinTest):
 
