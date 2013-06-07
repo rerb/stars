@@ -565,9 +565,6 @@ class SubscriptionPriceView(InstitutionToolMixin,
     template_name = 'tool/manage/subscription_price.html'
 
     def form_invalid(self, form):
-        # TODO: form.errors gets set, but isn't handled correctly
-        # by the template;  the error message isn't displayed, and
-        # the promo_code widgets aren't rendered in red.
         if self.request.is_ajax():
             prices = Subscription.get_prices_for_new_subscription(
                 institution=self.get_institution())
@@ -638,7 +635,13 @@ class SubscriptionPaymentOptionsView(InstitutionToolMixin,
         (by credit card) or pay later (after being billed) for a
         new subscription can be specified.
 
-        Redirects to the view that creates a Subscription.
+        Success URL is the view that creates a Subscription.
+
+        Will redirect to 'subscription-create' view if amount due for
+        this subscription is 0.00, so the user won't even see this
+        view.
+
+        Depends on request.session['promo_code'].
     """
     form_class = PaymentOptionsForm
     success_url_name = 'subscription-create'
@@ -649,8 +652,8 @@ class SubscriptionPaymentOptionsView(InstitutionToolMixin,
 
     def get(self, request, *args, **kwargs):
         # A promo code might discount a subscription by 100%.  If
-        # the amount due is 0, we'll short-circuit the payment
-        # options view and go straight to 'subscription-create'.
+        # the amount due is 0, we'll short-circuit this payment
+        # options view and redirect to 'subscription-create'.
         promo_code = self.request.session['promo_code']
         amount_due = Subscription.get_prices_for_new_subscription(
             institution=self.get_institution(),
@@ -797,8 +800,8 @@ class SubscriptionCreateView(SubscriptionPaymentCreateBaseView):
 class SubscriptionPaymentCreateView(SubscriptionPaymentCreateBaseView):
     """
         Allows user to make a credit card payment toward a
-        subscription.  Accepts full amount due only (no partial
-        payments).
+        subscription.  Accepts full amount due only (i.e., no
+        partial payments).
     """
     form_class = PayNowForm
     success_url_name = 'tool-summary'
@@ -848,13 +851,12 @@ class SubscriptionPaymentCreateView(SubscriptionPaymentCreateBaseView):
     def get_context_data(self, **kwargs):
         context = super(SubscriptionPaymentCreateView,
                         self).get_context_data(**kwargs)
-
         # Template is shared between the "pay now" and the "pay later"
         # scenarios, and depends on some context variables for some
         # stuff. When creating a subscription, these are set earlier in
         # the workflow, but when applying a payment to an existing
         # subscription, we need to set them here, in this view that only
-        # ever is used when the user wants to pay now.
+        # ever is used when the user wants to pay now (i.e. by credit card).
         context['pay_when'] = Subscription.PAY_NOW
         if 'amount_due' not in context:
             context['amount_due'] = self.amount_due
