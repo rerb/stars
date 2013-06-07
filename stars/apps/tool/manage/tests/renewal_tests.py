@@ -4,6 +4,7 @@
 from datetime import date
 
 from django.core import mail
+from selenium.webdriver.common.by import By
 
 from stars.apps.institutions.models import Subscription
 from stars.apps.tests.live_server import StarsLiveServerTest
@@ -17,15 +18,8 @@ class RenewalTest(StarsLiveServerTest):
         super(RenewalTest, self).setUp()
         self.go_to_reporting_tool()
 
-    def tearDown(self):
-        super(RenewalTest, self).tearDown()
-        mail_messages_that_are_not_errors = [ msg for msg in mail.outbox if
-                                              'ERROR:' not in msg.subject ]
-        self.assertEqual(len(mail_messages_that_are_not_errors), 1)
-
     def test_purchase_subscription_later(self):
-        """Is a new Subscription created when I pay later?
-        (And is an email sent, too?)"""
+        """Is a new Subscription created when I pay later?"""
         # Remember how many Subscriptions there are before purchase:
         num_submission_sets_before_purchase = Subscription.objects.count()
 
@@ -33,28 +27,32 @@ class RenewalTest(StarsLiveServerTest):
         purchase_subscription_button = self.selenium.find_element_by_link_text(
             'Purchase STARS Participant Subscription')
         purchase_subscription_button.click()
+
+        # Subscription Price View -- just click through it.
+        submit_button = self.patiently_find(look_for='submit_button',
+                                            by=By.ID)
+        submit_button.click()
 
         # Pay later:
         pay_later_checkbox = self.selenium.find_element_by_xpath(
             "(//input[@name='pay_when'])[2]")
         pay_later_checkbox.click()
 
+        continue_submit_button = self.selenium.find_element_by_id(
+            'submit_button')
+        continue_submit_button.click()
+
+        # Purchase it!
         purchase_submit_button = self.selenium.find_element_by_id(
             'submit_button')
         purchase_submit_button.click()
-
-        # Promo code page:
-        promo_code_submit_button = self.selenium.find_element_by_id(
-            'submit_button')
-        promo_code_submit_button.click()
 
         # Was a Subscription created?
         self.assertEqual(Subscription.objects.count(),
                          num_submission_sets_before_purchase + 1)
 
     def test_purchase_subscription_now(self):
-        """Is a new Subscription created when I pay now?
-        (And is an email sent, too?)"""
+        """Is a new Subscription created when I pay now?"""
         # Remember how many Subscriptions there are before purchase:
         num_submission_sets_before_purchase = Subscription.objects.count()
 
@@ -63,8 +61,14 @@ class RenewalTest(StarsLiveServerTest):
             'Purchase STARS Participant Subscription')
         purchase_subscription_button.click()
 
+        # Subscription Price View -- just click through it.
+        submit_button = self.patiently_find(look_for='submit_button',
+                                            by=By.ID)
+        submit_button.click()
+
         # Pay now:
-        pay_now_checkbox = self.selenium.find_element_by_name('pay_when')
+        pay_now_checkbox = self.selenium.find_element_by_xpath(
+            "(//input[@name='pay_when'])[1]")
         pay_now_checkbox.click()
 
         purchase_submit_button = self.selenium.find_element_by_id(
