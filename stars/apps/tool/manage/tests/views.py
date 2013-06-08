@@ -7,6 +7,8 @@ from django.conf import settings
 from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.shortcuts import render
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import TimeoutException
 import testfixtures
 
 import logical_rules
@@ -17,6 +19,7 @@ from stars.apps.institutions.tests.subscription import (get_pay_now_form_data,
                                                         GOOD_CREDIT_CARD,
                                                         BAD_CREDIT_CARD)
 from stars.apps.submissions.models import ResponsibleParty
+from stars.apps.tests.live_server import StarsLiveServerTest
 from stars.apps.tool.manage import views
 from stars.apps.tool.tests.views import (InstitutionAdminToolMixinTest,
                                          InstitutionViewOnlyToolMixinTest)
@@ -575,6 +578,13 @@ class SubscriptionPriceViewTest(InstitutionViewOnlyToolMixinTest):
         amount_due_text = self._get_amount_due_text()
         self.assertIn(',', amount_due_text)
 
+    def test_amount_due_gets_dollar_sign(self):
+        """Does amount due have a dollar sign in front of it?"""
+        self.institution.is_member = False  # no member discount
+        self.institution.save()
+        amount_due_text = self._get_amount_due_text()
+        self.assertIn('$', amount_due_text)
+
     def test_membership_discount_applied(self):
         """Is the membership discount applied?"""
         self.institution.is_member = False
@@ -592,30 +602,6 @@ class SubscriptionPriceViewTest(InstitutionViewOnlyToolMixinTest):
         amount_due_with_renewal_discount = self._get_amount_due()
         self.assertLess(amount_due_with_renewal_discount,
                         amount_due_without_renewal_discount)
-
-    def test_applying_valid_promo_code_updates_amount_due(self):
-        """Does a valid promo code display error messages?
-
-        Where "applying ... promo code" means clicking the "Apply
-        Promo Code" button.
-        """
-        raise ShouldBeLiveServerTest
-
-    def test_applying_invalid_promo_code_displays_errors(self):
-        """Does an invalid promo code display error messages?
-
-        Where "applying ... promo code" means clicking the "Apply
-        Promo Code" button.
-        """
-        raise ShouldBeLiveServerTest
-
-    def test_applying_blank_promo_code_clears_errors(self):
-        """Are errors cleared by applying a blank promo code?
-
-        Where "applying ... a promo code" means clicking the "Apply
-        Promo Code" button.
-        """
-        raise ShouldBeLiveServerTest
 
     def test_submit_valid_promo_code_without_applying_it_first(self):
         """Does submitting the form w/a valid code w/o applying it work?
@@ -647,6 +633,167 @@ class SubscriptionPriceViewTest(InstitutionViewOnlyToolMixinTest):
         parent = promo_code_element.find_parent()
         inline_helps = parent.findChildren(class_='help-inline')
         self.assertGreater(len(inline_helps), 0)
+
+
+class SubscriptionPriceViewLiveServerTest(StarsLiveServerTest):
+
+    def setUp(self):
+        super(SubscriptionPriceViewLiveServerTest, self).setUp()
+        self.promo_discount = ValueDiscountFactory(amount=37.50)
+        self.go_to_reporting_tool()
+        purchase_subscription_button = self.patiently_find(
+            look_for='Purchase STARS Participant Subscription',
+            by=By.LINK_TEXT)
+        purchase_subscription_button.click()
+
+    @property
+    def promo_code_input(self):
+        promo_code_input = self.patiently_find(look_for='id_promo_code',
+                                               by=By.ID)
+        return promo_code_input
+
+    @property
+    def amount_due_text(self):
+        amount_due_element = self.patiently_find(look_for='amount-due',
+                                                 by=By.ID)
+        return amount_due_element.text
+
+    @property
+    def amount_due(self):
+        text_without_commas_and_dollar_sign = ''.join(
+            char for char in self.amount_due_text if char not in [',', '$'])
+        amount_due_float = float(text_without_commas_and_dollar_sign)
+        return amount_due_float
+
+    @property
+    def apply_promo_code_button(self):
+        apply_promo_code_button = self.patiently_find(
+            look_for='apply-promo-code-button', by=By.ID)
+        return apply_promo_code_button
+
+    def test_applying_valid_promo_code_updates_amount_due(self):
+        """Does applying a valid promo code update the amount due?
+
+        Where "applying ... promo code" means clicking the "Apply
+        Promo Code" button.
+        """
+        initial_amount_due = self.amount_due
+
+        self.promo_code_input.send_keys(self.promo_discount.code)
+
+        self.apply_promo_code_button.click()
+
+        discounted_amount_due = self.amount_due
+
+        self.assertEqual(initial_amount_due,
+                         discounted_amount_due + self.promo_discount.amount)
+
+    def test_applying_invalid_promo_code_displays_field_error(self):
+        """Does an invalid promo code display a field error messages?
+
+        Where "applying ... promo code" means clicking the "Apply
+        Promo Code" button.
+        """
+        self.promo_code_input.send_keys('BO-O-O-G-U-U-S!')
+
+        self.apply_promo_code_button.click()
+
+        error_div = self.patiently_find(look_for='error',
+                                        by=By.CLASS_NAME)
+
+        error_div_class = error_div.get_attribute('class')
+
+        self.assertEqual(error_div_class,
+                         'control-group error')
+
+    def test_applying_invalid_promo_code_displays_alert(self):
+        """Does an invalid promo code display an alert error message?
+
+        Where "applying ... promo code" means clicking the "Apply
+        Promo Code" button.
+        """
+        self.promo_code_input.send_keys('BO-O-O-G-U-U-S!')
+
+        self.apply_promo_code_button.click()
+
+        error_div = self.patiently_find(look_for='alert',
+                                        by=By.CLASS_NAME)
+
+        error_div_class = error_div.get_attribute('class')
+
+        self.assertEqual(error_div_class,
+                         'alert fade in alert-error')
+
+    def test_applying_blank_promo_code_clears_field_errors(self):
+        """Are field errors cleared by applying a blank promo code?
+
+        Where "applying ... a promo code" means clicking the "Apply
+        Promo Code" button.
+        """
+        self.promo_code_input.send_keys('BO-O-O-G-U-U-S!')
+
+        self.apply_promo_code_button.click()
+
+        # make sure there are some errors to clear:
+        error_div = self.patiently_find(look_for='error',
+                                        by=By.CLASS_NAME)
+        error_div_class = error_div.get_attribute('class')
+        self.assertEqual(error_div_class, 'control-group error')
+
+        self.promo_code_input.clear()
+
+        self.apply_promo_code_button.click()
+
+        with self.assertRaises(TimeoutException):
+            error_div = self.patiently_find(look_for='error',
+                                            by=By.CLASS_NAME,
+                                            wait_for=1)
+
+    def test_applying_blank_promo_code_clears_alerts(self):
+        """Are alert messages cleared by applying a blank promo code?
+
+        Where "applying ... a promo code" means clicking the "Apply
+        Promo Code" button.
+        """
+        self.promo_code_input.send_keys('BO-O-O-G-U-U-S!')
+
+        self.apply_promo_code_button.click()
+
+        # make sure there are some errors to clear:
+        error_div = self.patiently_find(look_for='alert',
+                                        by=By.CLASS_NAME)
+        error_div_class = error_div.get_attribute('class')
+        self.assertEqual(error_div_class,
+                         'alert fade in alert-error')
+
+        self.promo_code_input.clear()
+
+        self.apply_promo_code_button.click()
+
+        with self.assertRaises(TimeoutException):
+            error_div = self.patiently_find(look_for='alert',
+                                            by=By.CLASS_NAME,
+                                            wait_for=1)
+
+    def test_amount_due_gets_commas_after_applying_discount(self):
+        """Does amount due show commas if > $999 after applying discount?"""
+        self.promo_code_input.send_keys(self.promo_discount.code)
+
+        self.apply_promo_code_button.click()
+
+        discounted_amount_due_text = self.amount_due_text
+
+        self.assertIn(',', discounted_amount_due_text)
+
+    def test_amount_due_gets_dollar_sign_after_applying_discount(self):
+        """Does amount due have a dollar sign in front of it after discount??"""
+        self.promo_code_input.send_keys(self.promo_discount.code)
+
+        self.apply_promo_code_button.click()
+
+        discounted_amount_due_text = self.amount_due_text
+
+        self.assertIn('$', discounted_amount_due_text)
 
 
 class SubscriptionPaymentOptionsViewTest(InstitutionViewOnlyToolMixinTest):
