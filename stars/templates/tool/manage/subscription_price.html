@@ -5,21 +5,30 @@
 {% block extra_head %}
   {{ block.super }}
   <script type="text/javascript">
-    function addThousandsComma(text_amount) {
-        // This will work until we get really expensive (and not for
-        // international users, either):
-        number_parts = text_amount.split('.')[0]
-        whole_number_part = number_parts[0]
-        decimal_part = number_parts[1]
-        if (whole_number_part.length > 3) {
-            text_amount = (whole_number_part.substr(0,2) + "," +
-                           whole_number_part.substr(3) + "." +
-                           decimal_part);
+    function addThousandsCommas(text_amount) {
+        var number_parts;
+        var integer_part;
+        var decimal_part = "";
+
+        number_parts = text_amount.split('.');
+
+        integer_part = number_parts[0];
+
+        if (number_parts.length > 1) {
+            decimal_part = number_parts[1];
         }
-        return text_amount;
+
+        formatted_number = integer_part.replace(/(\d)(?=(\d{3})+$)/g,
+                                                "$1,");
+
+        if (decimal_part) {
+            formatted_number += "." + decimal_part;
+        }
+
+        return formatted_number;
     }
     function decimalToDollarString(decimal) {
-        dollar_string = "$" + addThousandsComma(decimal.toString());
+        dollar_string = "$" + addThousandsCommas(decimal.toString());
         return dollar_string;
     }
     function updateAmountDue(amt) {
