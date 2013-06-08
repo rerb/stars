@@ -6,6 +6,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox import webdriver
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support.wait import TimeoutException
 
 from stars.test_factories import (InstitutionFactory, StarsAccountFactory,
                                   UserFactory)
@@ -46,8 +47,14 @@ class StarsLiveServerTest(test.LiveServerTestCase):
         `look_for` is the element identifier, and `by` is the type
         of search to perform.
         """
-        result = WebDriverWait(self.selenium, wait_for).until(
-            expected_conditions.presence_of_element_located((by, look_for)))
+        try:
+            result = WebDriverWait(self.selenium, wait_for).until(
+                expected_conditions.presence_of_element_located((by,
+                                                                 look_for)))
+        except TimeoutException as toe:
+            raise TimeoutException(
+                'Timed out looking for "{look_for}" by {by}.'.format(
+                    look_for=look_for, by=by))
         return result
 
     def login(self):
