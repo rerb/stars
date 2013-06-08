@@ -509,6 +509,9 @@ class Subscription(models.Model):
     def get_available_ratings(self):
         return self.ratings_allocated - self.ratings_used
 
+    def is_renewal(self):
+        return 'renew' in self.reason
+
     def pay(self, amount, user, form):
         """
             Make a payment on this subscription.
@@ -708,7 +711,7 @@ class Subscription(models.Model):
                              context=exec_email_context)
 
     def _send_post_purchase_pay_later_email(self, mail_to):
-        if self.reason.endswith('renewal'):
+        if self.is_renewal:
             slug = "reg_renewal_unpaid"
         else:
             slug = "welcome_liaison_unpaid"
@@ -718,7 +721,7 @@ class Subscription(models.Model):
 
     def _send_post_purchase_pay_now_email(self, mail_to, subscription_payment,
                                          payment_context):
-        if self.reason.endswith('renewal'):
+        if self.is_renewal:
             slug = 'reg_renewed_paid'
             self._send_post_purchase_executive_renewal_email()
         else:
