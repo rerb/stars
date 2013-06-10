@@ -143,8 +143,9 @@ class RegistrationWizard(StarsAccountMixin, BetterWizardView):
         if response:
             return response
 
-        return HttpResponseRedirect(reverse('reg_survey',
-                                    kwargs={'institution_slug': institution.slug}))
+        return HttpResponseRedirect(
+            reverse('reg_survey',
+                    kwargs={'institution_slug': institution.slug}))
 
     def finalize_registration(self, institution, payment_form, **kwargs):
         """
@@ -215,12 +216,17 @@ class RegistrationWizard(StarsAccountMixin, BetterWizardView):
         if institution.international:
             et = EmailTemplate.objects.get(slug='welcome_international_pilot')
             email_context = {'institution': institution}
-        elif payment == None:
-            et = EmailTemplate.objects.get(slug='welcome_liaison_unpaid')
-            email_context = {'price': amount_due}
+        elif self.picked_participant():
+            if payment == None:
+                et = EmailTemplate.objects.get(slug='welcome_liaison_unpaid')
+                email_context = {'price': amount_due}
+            else:
+                et = EmailTemplate.objects.get(slug='welcome_liaison_paid')
+                email_context = {"institution": institution,
+                                 'payment': payment}
         else:
-            et = EmailTemplate.objects.get(slug='welcome_liaison_paid')
-            email_context = {"institution": institution, 'payment': payment}
+            et = EmailTemplate.objects.get(slug='welcome_respondent')
+            email_context = {"institution": institution}
 
         et.send_email(email_to, email_context)
 
@@ -228,7 +234,8 @@ class RegistrationWizard(StarsAccountMixin, BetterWizardView):
         if institution.executive_contact_email:
             email_to = [institution.executive_contact_email]
             if institution.international:
-                et = EmailTemplate.objects.get(slug='welcome_international_pilot_ec')
+                et = EmailTemplate.objects.get(
+                    slug='welcome_international_pilot_ec')
             else:
                 et = EmailTemplate.objects.get(slug="welcome_exec")
             email_context = {"institution": institution}
@@ -242,8 +249,9 @@ def skip_payment_condition(wizard):
     return wizard.picked_participant()
 
 
-participant_reg = RegistrationWizard.as_view(REG_FORMS,
-                                             condition_dict={'payment': skip_payment_condition})
+participant_reg = RegistrationWizard.as_view(
+    REG_FORMS,
+    condition_dict={'payment': skip_payment_condition})
 
 
 class SurveyView(InstitutionAdminToolMixin, CreateView):
