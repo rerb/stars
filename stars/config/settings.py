@@ -136,7 +136,6 @@ INSTALLED_APPS = (
     'stars.apps.third_parties',
     'stars.apps.api',
     'stars.tests',
-    
     'aashe.aasheauth',
     'aashe.issdjango',
     'bootstrapform',
@@ -144,12 +143,13 @@ INSTALLED_APPS = (
     'collapsing_menu',
     'django_extensions',
     'djcelery',
-    'gunicorn',
+    'raven.contrib.django.raven_compat',
     'logical_rules',
     'sorl.thumbnail',
     'south',
     's3_folder_storage',
     'tastypie',
+    'gunicorn',
 )
 
 # auth config
@@ -218,6 +218,11 @@ DJANGO_VERSION = django.get_version()
 HG_REVISION = None
 
 SOUTH_TESTS_MIGRATE = False
+
+# Sentry Logging: getsentry.com
+RAVEN_CONFIG = {
+    'dsn': os.environ.get('RAVEN_CONFIG_DSN', None),
+}
 
 LOGGING = {
     'version': 1,
@@ -377,4 +382,3 @@ if 'test' in sys.argv:
     AUTHORIZENET_LOGIN = os.environ.get('AUTHORIZENET_TEST_LOGIN', None)
     AUTHORIZENET_KEY = os.environ.get('AUTHORIZENET_TEST_KEY', None)
     AUTHORIZENET_SERVER = os.environ.get('AUTHORIZENET_TEST_SERVER', None)
-
