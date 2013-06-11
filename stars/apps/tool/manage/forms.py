@@ -310,20 +310,10 @@ class PayNowForm(forms.Form):
     """
         Credit Card Payment form
     """
-    name_on_card = forms.CharField(max_length=64)
     card_number = forms.CharField(
         max_length=17, widget=forms.TextInput(attrs={'autocomplete': 'off'}))
     exp_month = forms.CharField(max_length=2, initial='mm')
     exp_year = forms.CharField(max_length=4, initial='yyyy')
-    cv_code = forms.CharField(
-        max_length=3, label='CV Code',
-        help_text='This is the 3-digit code on the back of your card',
-        widget=forms.TextInput(attrs={'autocomplete': 'off'}))
-    billing_address = forms.CharField(max_length=128)
-    billing_address_line_2 = forms.CharField(max_length=128, required=False)
-    billing_city = forms.CharField(max_length=32)
-    billing_state = forms.CharField(max_length=2)
-    billing_zipcode = forms.CharField(max_length=7, label='Billing ZIP code')
 
     def clean_exp_month(self):
         data = self.cleaned_data['exp_month']
@@ -342,15 +332,6 @@ class PayNowForm(forms.Form):
         error_text = "Please enter a valid year"
 
         if not self.is_numeric(data):
-            raise forms.ValidationError(error_text)
-
-        return data
-
-    def clean_billing_zipcode(self):
-        data = self.cleaned_data['billing_zipcode']
-        error_text = "Please enter a valid US or Canadian zip code"
-
-        if not is_usa_zipcode(data) and not is_canadian_zipcode(data):
             raise forms.ValidationError(error_text)
 
         return data

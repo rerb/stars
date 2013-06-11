@@ -15,9 +15,9 @@ import logical_rules
 from stars.apps.credits.models import CreditSet
 from stars.apps.institutions.models import (PendingAccount, StarsAccount,
                                             Subscription, SubscriptionPayment)
-from stars.apps.institutions.tests.subscription import (get_pay_now_form_data,
-                                                        GOOD_CREDIT_CARD,
+from stars.apps.institutions.tests.subscription import (GOOD_CREDIT_CARD,
                                                         BAD_CREDIT_CARD)
+from stars.apps.payments.simple_credit_card import CreditCardProcessingError
 from stars.apps.submissions.models import ResponsibleParty
 from stars.apps.tests.live_server import StarsLiveServerTest
 from stars.apps.tool.manage import views
@@ -831,15 +831,15 @@ class SubscriptionCreateViewTest(InstitutionViewOnlyToolMixinTest):
 
     def setUp(self):
         super(SubscriptionCreateViewTest, self).setUp()
-        self.request.session[views.PAY_WHEN] = Subscription.PAY_LATER
         self.request.session['promo_code'] = ''
         self.request.session['amount_due'] = 1400
+        self.request.session[views.PAY_WHEN] = Subscription.PAY_NOW
 
-    def test_form_valid_creates_subscription(self):
-        """Does form_valid() create a subscription?"""
+    def test_pay_later_creates_subscription(self):
+        """Is a subscription created when user wants to pay later?"""
 
+        self.request.session[views.PAY_WHEN] = Subscription.PAY_LATER
         self.request.method = 'POST'
-        self.request.POST = { 'promo_code': '' }
 
         initial_subscription_count = Subscription.objects.count()
 
@@ -850,13 +850,30 @@ class SubscriptionCreateViewTest(InstitutionViewOnlyToolMixinTest):
         self.assertEqual(Subscription.objects.count(),
                          initial_subscription_count + 1)
 
-    def test_form_valid_pay_now_creates_payment(self):
-        """Does form_valid() create a payment when user is paying now?"""
+    def test_pay_now_creates_subscription(self):
+        """Is a subscription created when user wants to pay now?"""
 
-        self.request.session[views.PAY_WHEN] = Subscription.PAY_NOW
         self.request.method = 'POST'
-        self.request.POST = get_pay_now_form_data(
-            card_number=GOOD_CREDIT_CARD)
+        self.request.POST = {'card_number': GOOD_CREDIT_CARD,
+                             'exp_month': '12',
+                             'exp_year': '2022'}
+
+        initial_subscription_count = Subscription.objects.count()
+
+        self.open_gate()
+        _ = self.view_class.as_view()(request=self.request,
+                                      institution_slug=self.institution.slug)
+
+        self.assertEqual(Subscription.objects.count(),
+                         initial_subscription_count + 1)
+
+    def test_pay_now_creates_payment(self):
+        """Is a payment created when a user wants to pay now?"""
+
+        self.request.method = 'POST'
+        self.request.POST = {'card_number': GOOD_CREDIT_CARD,
+                             'exp_month': '12',
+                             'exp_year': '2022'}
 
         initial_payment_count = SubscriptionPayment.objects.count()
         self.open_gate()
@@ -866,13 +883,13 @@ class SubscriptionCreateViewTest(InstitutionViewOnlyToolMixinTest):
         self.assertEqual(SubscriptionPayment.objects.count(),
                          initial_payment_count + 1)
 
-    def test_form_valid_no_subrx_created_when_purchase_error(self):
-        """Does form_valid() *not* create a subrx if there's a purchase error?
-        """
+    def test_subscription_created_when_purchase_error(self):
+        """Is a subscription *not* created when there's a purchase error?"""
 
-        self.request.session[views.PAY_WHEN] = Subscription.PAY_NOW
         self.request.method = 'POST'
-        self.request.POST = get_pay_now_form_data(card_number=BAD_CREDIT_CARD)
+        self.request.POST = {'card_number': BAD_CREDIT_CARD,
+                             'exp_month': '12',
+                             'exp_year': '2022'}
 
         initial_subscription_count = Subscription.objects.count()
         self.open_gate()
@@ -902,8 +919,9 @@ class SubscriptionPaymentCreateViewTest(InstitutionViewOnlyToolMixinTest):
         self.account.user_level = self.blessed_user_level
         self.account.save()
         self.request.method = 'POST'
-        self.request.POST = get_pay_now_form_data(
-            card_number=GOOD_CREDIT_CARD)
+        self.request.POST = {'card_number': GOOD_CREDIT_CARD,
+                             'exp_month': '10',
+                             'exp_year': '2020'}
 
         initial_payment_count = SubscriptionPayment.objects.count()
 
@@ -921,13 +939,17 @@ class SubscriptionPaymentCreateViewTest(InstitutionViewOnlyToolMixinTest):
         self.account.save()
         self.request.session[views.PAY_WHEN] = Subscription.PAY_NOW
         self.request.method = 'POST'
-        self.request.POST = get_pay_now_form_data(card_number=BAD_CREDIT_CARD)
+        self.request.POST = {'card_number': BAD_CREDIT_CARD,
+                             'exp_month': '10',
+                             'exp_year': '2020'}
 
         initial_payment_count = SubscriptionPayment.objects.count()
 
-        _ = self.view_class.as_view()(request=self.request,
-                                      institution_slug=self.institution.slug,
-                                      pk=self.subscription.id)
+        with self.assertRaises(CreditCardProcessingError):
+            _ = self.view_class.as_view()(
+                request=self.request,
+                institution_slug=self.institution.slug,
+                pk=self.subscription.id)
 
         self.assertEqual(SubscriptionPayment.objects.count(),
                          initial_payment_count)

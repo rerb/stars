@@ -512,17 +512,19 @@ class Subscription(models.Model):
     def is_renewal(self):
         return 'renew' in self.reason
 
-    def pay(self, amount, user, form):
+    def pay(self, user, amount, card_num, exp_date):
         """
             Make a payment on this subscription.
 
-                amount: dollar amount to apply
-
                 user: user making the payment
 
-                form: a form that holds credit card information, if paying now
+                amount: dollar amount to apply
 
-            Returns the SubscriptionPayment created, and the payment_context.
+                card_num: credit card number as string
+
+                exp_date: credit card expiration date as string, "MMYYYY"
+
+            Returns the SubscriptionPayment created.
 
             Any CreditCardProcessingError raised when charging a credit
             card will be propagated.
@@ -533,15 +535,15 @@ class Subscription(models.Model):
         # Institution.get_latest fails, because within get_latest(),
         # Institution is None.  Importing here, within pay(), doesn't
         # cause that unpleasant side-effect.
-        import stars.apps.payments.credit_card as credit_card
+        import stars.apps.payments.simple_credit_card as credit_card
 
         ccpp = credit_card.CreditCardPaymentProcessor()
-        (subscription_payment,
-         payment_context) = ccpp.process_subscription_payment(
-             subscription=self,
-             amount=amount,
-             user=user,
-             form=form)
+        subscription_payment = ccpp.process_subscription_payment(
+            subscription=self,
+            user=user,
+            amount=amount,
+            card_num=card_num,
+            exp_date=exp_date)
 
         self.amount_due -= amount
 
@@ -549,9 +551,9 @@ class Subscription(models.Model):
 
         self.save()
 
-        return (subscription_payment, payment_context)
+        return subscription_payment
 
-    def purchase(self, pay_when, user, form=None):
+    def purchase(self, pay_when, user, card_num=None, exp_date=None):
         """
            Encapsulates the purchase process
 
@@ -559,22 +561,30 @@ class Subscription(models.Model):
                2. Post-purchase email is sent.
                3. The institution related to this subscription is updated.
 
+             pay_when: either self.PAY_NOW or self.PAY_LATER
+
+             user: user making the payment
+
+             card_num: credit card number as string
+
+             exp_date: credit card expiration date as string, "MMYYYY"
+
            Raises a SubscriptionPurchaseError if there's a problem
            charging a credit card.
 
-           The form argument should contain credit card information, if
-           paying now.
+           card_num and exp_date are required if pay_when == self.PAY_NOW.
         """
         # See pitiful comment in pay() for why import from credit_card
         # happens here, rather in the top level.
-        from stars.apps.payments.credit_card import CreditCardProcessingError
+        from stars.apps.payments.simple_credit_card import (
+            CreditCardProcessingError)
 
         if pay_when == self.PAY_NOW:
             try:
-                (subscription_payment, payment_context) = self.pay(
-                    amount=self.amount_due,
-                    user=user,
-                    form=form)
+                subscription_payment = self.pay(user=user,
+                                                amount=self.amount_due,
+                                                card_num=card_num,
+                                                exp_date=exp_date)
             except CreditCardProcessingError as ccpe:
                 raise SubscriptionPurchaseError(str(ccpe))
         else:  # pay_when == self.PAY_LATER:
@@ -583,13 +593,12 @@ class Subscription(models.Model):
             if self.amount_due == 0.00:
                 self.paid_in_full = True
                 self.save()
-            subscription_payment = payment_context = None
+            subscription_payment = None
 
         self._send_post_purchase_email(
             pay_when=pay_when,
             additional_email_address=user.email,
-            subscription_payment=subscription_payment,
-            payment_context=payment_context)
+            subscription_payment=subscription_payment)
 
         self._update_institution_after_purchase()
 
@@ -686,9 +695,8 @@ class Subscription(models.Model):
 
     def _send_post_purchase_email(self, pay_when,
                                   additional_email_address=None,
-                                  subscription_payment=None,
-                                  payment_context=None):
-        mail_to = [self.institution.contact_email,]
+                                  subscription_payment=None):
+        mail_to = [self.institution.contact_email]
 
         if (additional_email_address and
             additional_email_address != self.institution.contact_email):
@@ -699,8 +707,7 @@ class Subscription(models.Model):
         else: # pay_when == self.PAY_NOW:
             self._send_post_purchase_pay_now_email(
                 mail_to=mail_to,
-                subscription_payment=subscription_payment,
-                payment_context=payment_context)
+                subscription_payment=subscription_payment)
 
     def _send_post_purchase_executive_renewal_email(self):
         if self.institution.executive_contact_email:
@@ -711,7 +718,7 @@ class Subscription(models.Model):
                              context=exec_email_context)
 
     def _send_post_purchase_pay_later_email(self, mail_to):
-        if self.is_renewal:
+        if self.is_renewal():
             slug = "reg_renewal_unpaid"
         else:
             slug = "welcome_liaison_unpaid"
@@ -719,16 +726,14 @@ class Subscription(models.Model):
                           'amount': self.amount_due }
         self._send_email(slug=slug, mail_to=mail_to, context=email_context)
 
-    def _send_post_purchase_pay_now_email(self, mail_to, subscription_payment,
-                                         payment_context):
-        if self.is_renewal:
+    def _send_post_purchase_pay_now_email(self, mail_to, subscription_payment):
+        if self.is_renewal():
             slug = 'reg_renewed_paid'
             self._send_post_purchase_executive_renewal_email()
         else:
             slug = 'welcome_liaison_paid'
-        email_context = { 'payment_dict': payment_context,
-                          'institution': self.institution,
-                          'payment': subscription_payment }
+        email_context = {'institution': self.institution,
+                         'payment': subscription_payment}
         self._send_email(slug=slug, mail_to=mail_to, context=email_context)
 
     def _qualifies_for_early_renewal_discount(self):

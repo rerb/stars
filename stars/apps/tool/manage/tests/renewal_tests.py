@@ -76,15 +76,9 @@ class RenewalTest(StarsLiveServerTest):
         purchase_submit_button.click()
 
         # Credit card info:
-        text_inputs = {'id_name_on_card': 'asdf',
-                       'id_card_number': '4007000000027',
+        text_inputs = {'id_card_number': '4007000000027',
                        'id_exp_month': str(date.today().month),
-                       'id_exp_year': str(date.today().year + 1),
-                       'id_cv_code': '123',
-                       'id_billing_address': 'asdf',
-                       'id_billing_city': 'asdf',
-                       'id_billing_state': 'pa',
-                       'id_billing_zipcode': '12345'}
+                       'id_exp_year': str(date.today().year + 1)}
 
         for id, text in text_inputs.items():
             input = self.selenium.find_element_by_id(id)

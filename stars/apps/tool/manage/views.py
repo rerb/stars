@@ -714,6 +714,23 @@ class SubscriptionPaymentCreateBaseView(ValidationMessageFormMixin,
         context['new_subscription'] = True
         return context
 
+    def get_card_num(self, form):
+        """
+            Returns the credit card number from `form`.
+        """
+        card_num = form.cleaned_data['card_number']
+        return card_num
+
+    def get_exp_date(self, form):
+        """
+            Returns the expiration date from `form`, in the format
+            the credit card processor expects, a string of 'MMYYYY'.
+        """
+        exp_date_month = form.cleaned_data['exp_month']
+        exp_date_year = form.cleaned_data['exp_year']
+        exp_date = exp_date_month + exp_date_year
+        return exp_date
+
 
 class SubscriptionCreateView(SubscriptionPaymentCreateBaseView):
     """
@@ -727,7 +744,9 @@ class SubscriptionCreateView(SubscriptionPaymentCreateBaseView):
         requests only a promo code.
 
         After creating a Subscription, it's purchased, which, if paying
-        now, will trigger a credit card transaction.
+        now, will trigger a credit card transaction.  Not that purchasing
+        and paying for a subscription are distinct operations.  Subscriptions
+        can be purchased without being paid.
     """
     success_url_name = 'tool-summary'
     template_name = 'tool/manage/subscription_payment_create.html'
@@ -750,10 +769,18 @@ class SubscriptionCreateView(SubscriptionPaymentCreateBaseView):
         # an id for SubscriptionPayment.subscription_id:
         self.subscription.save()
 
+        if self.pay_when == Subscription.PAY_NOW:
+            card_num = self.get_card_num(form)
+            exp_date = self.get_exp_date(form)
+        else:
+            card_num = None
+            exp_date = None
+
         try:
             self.subscription.purchase(pay_when=self.pay_when,
                                        user=self.request.user,
-                                       form=form)
+                                       card_num=card_num,
+                                       exp_date=exp_date)
         except SubscriptionPurchaseError as spe:
             messages.error(self.request, str(spe))
             return self.form_invalid(form)
@@ -835,9 +862,12 @@ class SubscriptionPaymentCreateView(SubscriptionPaymentCreateBaseView):
 
     def form_valid(self, form):
         try:
+            card_num = self.get_card_num(form)
+            exp_date = self.get_exp_date(form)
             self.subscription.pay(amount=self.amount_due,
                                   user=self.request.user,
-                                  form=form)
+                                  card_num=card_num,
+                                  exp_date=exp_date)
         except credit_card.CreditCardProcessingError as ccpe:
             messages.error(self.request, str(ccpe))
             return self.form_invalid(form)

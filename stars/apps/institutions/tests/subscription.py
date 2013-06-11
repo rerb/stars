@@ -9,8 +9,8 @@ import testfixtures
 
 from stars.apps.institutions.models import (Subscription, SubscriptionPayment,
                                             SUBSCRIPTION_DURATION)
-from stars.apps.payments.credit_card import (CreditCardPaymentProcessor,
-                                             CreditCardProcessingError)
+from stars.apps.payments.simple_credit_card import (CreditCardPaymentProcessor,
+                                                    CreditCardProcessingError)
 from stars.apps.tool.manage.forms import PayNowForm
 from stars.apps.registration.models import ValueDiscount, get_current_discount
 from stars.test_factories import (InstitutionFactory, SubscriptionFactory,
@@ -22,28 +22,6 @@ logger.setLevel(CRITICAL)
 
 GOOD_CREDIT_CARD = '4007000000027'  # good test credit card number
 BAD_CREDIT_CARD = '123412341234'
-
-
-def get_pay_now_form_data(card_number):
-    form_data = {'name_on_card': 'slick johnny',
-                 'card_number': card_number,
-                 'exp_month': '12',
-                 'exp_year': '2022',
-                 'cv_code': '123',
-                 'billing_address': '2341234',
-                 'billing_city': 'asdf',
-                 'billing_state': 'pa',
-                 'billing_zipcode': '12345'}
-    return form_data
-
-
-def get_pay_now_form(card_number, subscription=None):
-    form_data = get_pay_now_form_data(card_number)
-    form = PayNowForm(data=form_data)
-    if subscription:
-        subscription.save()
-    form.full_clean()
-    return form
 
 
 class MockCreditCardPaymentProcessor(CreditCardPaymentProcessor):
@@ -467,78 +445,78 @@ class SubscriptionTest(TestCase):
     def test_pay_creates_payment_with_good_credit_card_info(self):
         """Does pay create a payment when it gets good credit card info?"""
         subscription = SubscriptionFactory(amount_due=500)
-        form = get_pay_now_form(subscription=subscription,
-                                card_number=GOOD_CREDIT_CARD)
-        subscription.pay(amount=subscription.amount_due,
-                         user=UserFactory(),
-                         form=form)
+        subscription.pay(user=UserFactory(),
+                         amount=subscription.amount_due,
+                         card_num=GOOD_CREDIT_CARD,
+                         exp_date='102020')
         self.assertEqual(subscription.subscriptionpayment_set.count(), 1)
 
     def test_pay_creates_payment_for_correct_amount(self):
         """Does pay create a payment for the correct amount?"""
         SUBSCRIPTION_PRICE = 350
         subscription = SubscriptionFactory(amount_due=SUBSCRIPTION_PRICE)
-        form = get_pay_now_form(subscription=subscription,
-                                card_number=GOOD_CREDIT_CARD)
-        (subscription_payment, payment_context) = subscription.pay(
-            amount=subscription.amount_due,
+        subscription_payment = subscription.pay(
             user=UserFactory(),
-            form=form)
+            amount=subscription.amount_due,
+            card_num=GOOD_CREDIT_CARD,
+            exp_date='102020')
         self.assertEqual(subscription_payment.amount,
                          SUBSCRIPTION_PRICE)
 
     def test_pay_does_not_create_payment_with_bad_credit_card_info(self):
         """Does pay not create a payment when it gets bad credit card info?"""
         subscription = SubscriptionFactory(amount_due=500)
-        form = get_pay_now_form(subscription=subscription,
-                                card_number=BAD_CREDIT_CARD)
-        with self.assertRaises(CreditCardProcessingError):
-            subscription.pay(amount=subscription.amount_due,
-                             user=UserFactory(),
-                             form=form)
-        self.assertEqual(subscription.subscriptionpayment_set.count(), 0)
+        try:
+            subscription.pay(user=UserFactory(),
+                             amount=subscription.amount_due,
+                             card_num=BAD_CREDIT_CARD,
+                             exp_date='102020')
+        except CreditCardProcessingError:
+            self.assertEqual(subscription.subscriptionpayment_set.count(), 0)
+        except Exception as ex:
+            import pdb; pdb.set_trace()
+
+        else:
+            self.fail('credit card transaction should have failed')
 
     def test_pay_updates_amount_due(self):
         """Does a payment decrease the amount due?"""
         unpaid_amount = 100
         subscription = SubscriptionFactory(amount_due=500.75)
-        form = get_pay_now_form(subscription=subscription,
-                                card_number=GOOD_CREDIT_CARD)
         with testfixtures.Replacer() as r:
             r.replace('stars.apps.payments.credit_card.'
                       'CreditCardPaymentProcessor',
                       MockCreditCardPaymentProcessor)
-            subscription.pay(amount=subscription.amount_due - unpaid_amount,
-                             user=UserFactory(),
-                             form=form)
+            subscription.pay(user=UserFactory(),
+                             amount=subscription.amount_due - unpaid_amount,
+                             card_num=GOOD_CREDIT_CARD,
+                             exp_date='102020')
         self.assertEqual(subscription.amount_due, unpaid_amount)
 
     def test_pay_full_amount_due_updates_paid_in_full(self):
         """Does a full payment turn paid_in_full on?"""
         subscription = SubscriptionFactory(amount_due=500.99)
-        form = get_pay_now_form(subscription=subscription,
-                                card_number=GOOD_CREDIT_CARD)
         with testfixtures.Replacer() as r:
             r.replace('stars.apps.payments.credit_card.'
                       'CreditCardPaymentProcessor',
                       MockCreditCardPaymentProcessor)
-            subscription.pay(amount=subscription.amount_due,
-                             user=UserFactory(),
-                             form=form)
+            subscription.pay(user=UserFactory(),
+                             amount=subscription.amount_due,
+                             card_num=GOOD_CREDIT_CARD,
+                             exp_date='102020')
         self.assertTrue(subscription.paid_in_full)
 
     def test_pay_partial_amount_due_does_not_update_paid_in_full(self):
         """Does a full payment turn paid_in_full on?"""
         subscription = SubscriptionFactory(amount_due=500.99)
-        form = get_pay_now_form(subscription=subscription,
-                                card_number=GOOD_CREDIT_CARD)
         with testfixtures.Replacer() as r:
             r.replace('stars.apps.payments.credit_card.'
                       'CreditCardPaymentProcessor',
                       MockCreditCardPaymentProcessor)
-            subscription.pay(amount=subscription.amount_due - .10,
-                             user=UserFactory(),
-                             form=form)
+            subscription.pay(user=UserFactory(),
+                             amount=subscription.amount_due - .10,
+                             card_num=GOOD_CREDIT_CARD,
+                             exp_date='102020')
         self.assertFalse(subscription.paid_in_full)
 
     ########################
@@ -550,13 +528,12 @@ class SubscriptionTest(TestCase):
 
            Depends on Subscription.create().
         """
-        subscription = Subscription.create(
-            institution=InstitutionFactory())
-        form = get_pay_now_form(subscription=subscription,
-                                card_number=GOOD_CREDIT_CARD)
+        subscription = Subscription.create(institution=InstitutionFactory())
+        subscription.save()
         subscription.purchase(pay_when=Subscription.PAY_NOW,
                               user=UserFactory(),
-                              form=form)
+                              card_num=GOOD_CREDIT_CARD,
+                              exp_date='102020')
         self.assertEqual(subscription.subscriptionpayment_set.count(), 1)
 
     def test_purchase_pay_now_creates_payment_for_correct_amount(self):
@@ -564,14 +541,13 @@ class SubscriptionTest(TestCase):
 
            Depends on Subscription.create().
         """
-        subscription = Subscription.create(
-            institution=InstitutionFactory())
+        subscription = Subscription.create(institution=InstitutionFactory())
+        subscription.save()
         subscription_price = subscription.amount_due
-        form = get_pay_now_form(subscription=subscription,
-                                card_number=GOOD_CREDIT_CARD)
         subscription.purchase(pay_when=Subscription.PAY_NOW,
                               user=UserFactory(),
-                              form=form)
+                              card_num=GOOD_CREDIT_CARD,
+                              exp_date='102020')
         self.assertEqual(SubscriptionPayment.objects.reverse()[0].amount,
                          subscription_price)
 
@@ -581,8 +557,8 @@ class SubscriptionTest(TestCase):
            Depends on Subscription.create().
         """
         initial_payment_count = SubscriptionPayment.objects.count()
-        subscription = Subscription.create(
-            institution=InstitutionFactory())
+        subscription = Subscription.create(institution=InstitutionFactory())
+        subscription.save()
         subscription.purchase(pay_when=Subscription.PAY_LATER,
                               user=UserFactory())
         self.assertEqual(initial_payment_count,
@@ -595,6 +571,7 @@ class SubscriptionTest(TestCase):
         """
         institution = InstitutionFactory()
         subscription = Subscription.create(institution=institution)
+        subscription.save()
         subscription.purchase(pay_when=Subscription.PAY_LATER,
                               user=UserFactory())
         self.assertEqual(institution.current_subscription, subscription)
@@ -606,8 +583,8 @@ class SubscriptionTest(TestCase):
            Depends on Subscription.create().
         """
         initial_outgoing_mails = len(mail.outbox)
-        subscription = Subscription.create(
-            institution=InstitutionFactory())
+        subscription = Subscription.create(institution=InstitutionFactory())
+        subscription.save()
         subscription.purchase(pay_when=Subscription.PAY_LATER,
                               user=UserFactory())
         self.assertLess(initial_outgoing_mails, len(mail.outbox))
@@ -618,15 +595,18 @@ class SubscriptionTest(TestCase):
            Depends on Subscription.create().
         """
         initial_outgoing_mails = len(mail.outbox)
-        subscription = Subscription.create(
-            institution=InstitutionFactory())
-        form = get_pay_now_form(subscription=subscription,
-                                card_number=BAD_CREDIT_CARD)
-        with self.assertRaises(CreditCardProcessingError):
+        subscription = Subscription.create(institution=InstitutionFactory())
+        subscription.save()
+        try:
             subscription.pay(amount=subscription.amount_due,
                              user=UserFactory(),
-                             form=form)
-        self.assertEqual(initial_outgoing_mails, len(mail.outbox))
+                             card_num=BAD_CREDIT_CARD,
+                             exp_date='102020')
+        except CreditCardProcessingError:
+            self.assertEqual(initial_outgoing_mails, len(mail.outbox))
+        else:
+            self.fail('credit card transaction should have failed')
+
 
     def test_purchase_pay_later_sends_one_email(self):
         """Does purchase send one email when user pays later?
@@ -634,14 +614,14 @@ class SubscriptionTest(TestCase):
            Depends on Subscription.create().
         """
         initial_outgoing_mails = len(mail.outbox)
-        subscription = Subscription.create(
-            institution=InstitutionFactory())
+        subscription = Subscription.create(institution=InstitutionFactory())
+        subscription.save()
         subscription.purchase(pay_when=Subscription.PAY_LATER,
                               user=UserFactory())
         self.assertEqual(initial_outgoing_mails + 1, len(mail.outbox))
 
-    def test_purchase_pay_now_renewal_sends_two_emails(self):
-        """Does purchase send two emails when user pays now for a renewal?
+    def test_purchase_pay_now_renewal_sends_an_email(self):
+        """Does purchase send an email when a user pays now for a renewal?
 
            Depends on Subscription.create().
         """
@@ -649,12 +629,12 @@ class SubscriptionTest(TestCase):
         institution = InstitutionFactory()
         _ = SubscriptionFactory(institution=institution)
         subscription = Subscription.create(institution=institution)
-        form = get_pay_now_form(subscription=subscription,
-                                card_number=GOOD_CREDIT_CARD)
+        subscription.save()
         subscription.purchase(pay_when=Subscription.PAY_NOW,
                               user=UserFactory(),
-                              form=form)
-        self.assertEqual(initial_outgoing_mails + 2, len(mail.outbox))
+                              card_num=GOOD_CREDIT_CARD,
+                              exp_date='102020')
+        self.assertEqual(initial_outgoing_mails + 1, len(mail.outbox))
 
     def test_purchase_pay_now_first_subrx_sends_one_email(self):
         """Does purchase send one email when user pays now for first subrx?
@@ -662,13 +642,12 @@ class SubscriptionTest(TestCase):
            Depends on Subscription.create().
         """
         initial_outgoing_mails = len(mail.outbox)
-        subscription = Subscription.create(
-            institution=InstitutionFactory())
-        form = get_pay_now_form(subscription=subscription,
-                                card_number=GOOD_CREDIT_CARD)
+        subscription = Subscription.create(institution=InstitutionFactory())
+        subscription.save()
         subscription.purchase(pay_when=Subscription.PAY_NOW,
                               user=UserFactory(),
-                              form=form)
+                              card_num=GOOD_CREDIT_CARD,
+                              exp_date='102020')
         self.assertEqual(initial_outgoing_mails + 1, len(mail.outbox))
 
     ############################################
