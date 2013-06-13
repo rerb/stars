@@ -551,6 +551,12 @@ class Subscription(models.Model):
 
         self.save()
 
+        # Tack last 4 digits from credit card onto subscription payment,
+        # so they're available in the post payment email template.  Note
+        # the digits aren't saved to the database, and they'll be forgotten
+        # when this subscription_payment object gets garbage collected.
+        subscription_payment.last_four = card_num[-4:]
+
         return subscription_payment
 
     def purchase(self, pay_when, user, card_num=None, exp_date=None):
@@ -722,8 +728,7 @@ class Subscription(models.Model):
             slug = "reg_renewal_unpaid"
         else:
             slug = "welcome_liaison_unpaid"
-        email_context = { 'institution': self.institution,
-                          'amount': self.amount_due }
+        email_context = {'price': self.amount_due}
         self._send_email(slug=slug, mail_to=mail_to, context=email_context)
 
     def _send_post_purchase_pay_now_email(self, mail_to, subscription_payment):

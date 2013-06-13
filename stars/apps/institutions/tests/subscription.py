@@ -1,8 +1,11 @@
 """Tests for apps.institutions.models.Subscription.
 """
 from datetime import date, timedelta
+from functools import wraps
 from logging import getLogger, CRITICAL
+import re
 
+from django.conf import settings
 from django.core import mail
 from django.test import TestCase
 import testfixtures
@@ -473,9 +476,6 @@ class SubscriptionTest(TestCase):
                              exp_date='102020')
         except CreditCardProcessingError:
             self.assertEqual(subscription.subscriptionpayment_set.count(), 0)
-        except Exception as ex:
-            import pdb; pdb.set_trace()
-
         else:
             self.fail('credit card transaction should have failed')
 
@@ -607,7 +607,6 @@ class SubscriptionTest(TestCase):
         else:
             self.fail('credit card transaction should have failed')
 
-
     def test_purchase_pay_later_sends_one_email(self):
         """Does purchase send one email when user pays later?
 
@@ -663,7 +662,85 @@ class SubscriptionTest(TestCase):
         institution = InstitutionFactory(contact_email=contact_email)
         user = UserFactory(email=user_email)
         subscription = Subscription.create(institution=institution)
+        subscription.save()
         subscription.purchase(pay_when=Subscription.PAY_LATER,
                               user=user)
         message = mail.outbox.pop()
         self.assertEqual(message.to, [contact_email, user_email])
+
+    ###################################################################
+    # test that the email templates get the context they're expecting:
+    ###################################################################
+
+    def _invalid_template_strings(self, text, marker=None):
+        marker = marker or settings.TEMPLATE_STRING_IF_INVALID
+        invalid_strings = []
+        for match in re.finditer(marker.replace('%s', '(.*)'),
+                                 text):
+            invalid_strings.append(match.groups()[0])
+        return invalid_strings or None
+
+    def _test_email_templates_ok(actual_test):
+        @wraps(actual_test)
+        def _test(self):
+            settings.TEMPLATE_STRING_IF_INVALID = (
+                'INVALID TEMPLATE STRING %s /INVALID TEMPLATE STRING')
+
+            actual_test(self)
+
+            for message in mail.outbox:
+                invalid_strings = self._invalid_template_strings(message.body)
+                self.assertIsNone(invalid_strings,
+                                  msg=("invalid template string(s): " +
+                                       str(invalid_strings)))
+        return _test
+
+    @_test_email_templates_ok
+    def test_purchase_pay_now_registration_email_templates_ok(self):
+        """Are the email templates used when paying now for registration ok?
+
+           Where "ok" means they get the context they're expecting.
+        """
+        subscription = Subscription.create(institution=InstitutionFactory())
+        subscription.save()
+        subscription.purchase(pay_when=Subscription.PAY_NOW,
+                              user=UserFactory(),
+                              card_num=GOOD_CREDIT_CARD,
+                              exp_date='102020')
+
+    @_test_email_templates_ok
+    def test_purchase_pay_later_registration_email_templates_ok(self):
+        """Are the email templates used when paying later for registration ok?
+
+           Where "ok" means they get the context they're expecting.
+        """
+        subscription = Subscription.create(institution=InstitutionFactory())
+        subscription.save()
+        subscription.purchase(pay_when=Subscription.PAY_LATER,
+                              user=UserFactory())
+
+    @_test_email_templates_ok
+    def test_purchase_pay_now_renewal_email_templates_ok(self):
+        """Are the email templates used when paying later for registration ok?
+
+           Where "ok" means they get the context they're expecting.
+        """
+        institution = self.subscription.institution
+        subscription = Subscription.create(institution=institution)
+        subscription.save()
+        subscription.purchase(pay_when=Subscription.PAY_NOW,
+                              user=UserFactory(),
+                              card_num=GOOD_CREDIT_CARD,
+                              exp_date='102020')
+
+    @_test_email_templates_ok
+    def test_purchase_pay_later_renewal_email_templates_ok(self):
+        """Are the email templates used when paying later for registration ok?
+
+           Where "ok" means they get the context they're expecting.
+        """
+        institution = self.subscription.institution
+        subscription = Subscription.create(institution=institution)
+        subscription.save()
+        subscription.purchase(pay_when=Subscription.PAY_LATER,
+                              user=UserFactory())
