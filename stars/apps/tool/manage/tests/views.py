@@ -512,7 +512,7 @@ class MigrateVersionViewTest(MigrateViewTest):
         self.submissionset.creditset = latest_creditset
         self.submissionset.save()
         try:
-            response = self.view_class().dispatch(
+            _ = self.view_class().dispatch(
                 self.request,
                 institution_slug=self.institution.slug,
                 pk=self._get_pk())

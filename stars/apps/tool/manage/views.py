@@ -758,17 +758,8 @@ class SubscriptionCreateView(SubscriptionPaymentCreateBaseView):
 
     def form_valid(self, form):
         """
-            Creates a Subscription, and then purchases it.
+            Purchases a subscription.
         """
-        promo_code = self.request.session['promo_code']
-        self.subscription = Subscription.create(
-            institution=self.get_institution(),
-            promo_code=promo_code)
-
-        # must save subscription before trying to pay it; it's got to have
-        # an id for SubscriptionPayment.subscription_id:
-        self.subscription.save()
-
         if self.pay_when == Subscription.PAY_NOW:
             card_num = self.get_card_num(form)
             exp_date = self.get_exp_date(form)
@@ -776,26 +767,21 @@ class SubscriptionCreateView(SubscriptionPaymentCreateBaseView):
             card_num = None
             exp_date = None
 
+        promo_code = self.request.session['promo_code']
+
         try:
-            self.subscription.purchase(pay_when=self.pay_when,
-                                       user=self.request.user,
-                                       card_num=card_num,
-                                       exp_date=exp_date)
+            self.subscription = Subscription.purchase(
+                institution=self.get_institution(),
+                pay_when=self.pay_when,
+                user=self.request.user,
+                promo_code=promo_code,
+                card_num=card_num,
+                exp_date=exp_date)
         except SubscriptionPurchaseError as spe:
             messages.error(self.request, str(spe))
             return self.form_invalid(form)
 
         return super(SubscriptionCreateView, self).form_valid(form)
-
-    def form_invalid(self, form):
-        """
-            If a Subscription was created in form_valid(), this
-            deletes it.
-        """
-        if hasattr(self, 'subscription'):
-            if self.subscription.pk:
-                self.subscription.delete()
-        return super(SubscriptionCreateView, self).form_invalid(form)
 
     def get_form_class(self):
         return {Subscription.PAY_LATER: PayLaterForm,

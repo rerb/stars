@@ -462,6 +462,72 @@ class Subscription(models.Model):
 
         return prices
 
+    @classmethod
+    def purchase(cls, institution, pay_when, user,
+                 promo_code=None, card_num=None, exp_date=None):
+        """
+           Encapsulates the purchase process.
+
+               1. If paying now, a credit card charge is made.
+               2. Post-purchase email is sent.
+               3. The institution related to this subscription is updated.
+
+           Returns the subscription purchased.
+
+             institution: institution that's purchasing the subscription
+
+             pay_when: either self.PAY_NOW or self.PAY_LATER
+
+             user: user making the payment
+
+             promo_code: discount code
+
+             card_num: credit card number as string
+
+             exp_date: credit card expiration date as string, "MMYYYY"
+
+           Raises a SubscriptionPurchaseError if there's a problem
+           charging a credit card.
+
+           card_num and exp_date are required if pay_when == self.PAY_NOW.
+        """
+        # See pitiful comment in pay() for why import from credit_card
+        # happens here, rather in the top level.
+        from stars.apps.payments.simple_credit_card import (
+            CreditCardProcessingError)
+
+        subscription = cls.create(institution=institution,
+                                  promo_code=promo_code)
+
+        subscription.save()
+
+        if pay_when == cls.PAY_NOW:
+            try:
+                subscription_payment = subscription.pay(
+                    user=user,
+                    amount=subscription.amount_due,
+                    card_num=card_num,
+                    exp_date=exp_date)
+            except CreditCardProcessingError as ccpe:
+                subscription.delete()
+                raise SubscriptionPurchaseError(str(ccpe))
+        else:  # pay_when == self.PAY_LATER:
+            # Update self.paid_in_full in the special case
+            # where the subscription is free:
+            if subscription.amount_due == 0.00:
+                subscription.paid_in_full = True
+                subscription.save()
+            subscription_payment = None
+
+        subscription._send_post_purchase_email(
+            pay_when=pay_when,
+            additional_email_address=user.email,
+            subscription_payment=subscription_payment)
+
+        subscription._update_institution_after_purchase()
+
+        return subscription
+
     def calculate_prices(self, promo_code=None):
         """
             Calculates the prices for this subscription.
@@ -558,55 +624,6 @@ class Subscription(models.Model):
         subscription_payment.last_four = card_num[-4:]
 
         return subscription_payment
-
-    def purchase(self, pay_when, user, card_num=None, exp_date=None):
-        """
-           Encapsulates the purchase process
-
-               1. If paying now, a credit card charge is made.
-               2. Post-purchase email is sent.
-               3. The institution related to this subscription is updated.
-
-             pay_when: either self.PAY_NOW or self.PAY_LATER
-
-             user: user making the payment
-
-             card_num: credit card number as string
-
-             exp_date: credit card expiration date as string, "MMYYYY"
-
-           Raises a SubscriptionPurchaseError if there's a problem
-           charging a credit card.
-
-           card_num and exp_date are required if pay_when == self.PAY_NOW.
-        """
-        # See pitiful comment in pay() for why import from credit_card
-        # happens here, rather in the top level.
-        from stars.apps.payments.simple_credit_card import (
-            CreditCardProcessingError)
-
-        if pay_when == self.PAY_NOW:
-            try:
-                subscription_payment = self.pay(user=user,
-                                                amount=self.amount_due,
-                                                card_num=card_num,
-                                                exp_date=exp_date)
-            except CreditCardProcessingError as ccpe:
-                raise SubscriptionPurchaseError(str(ccpe))
-        else:  # pay_when == self.PAY_LATER:
-            # Update self.paid_in_full in the special case
-            # where the subscription is free.
-            if self.amount_due == 0.00:
-                self.paid_in_full = True
-                self.save()
-            subscription_payment = None
-
-        self._send_post_purchase_email(
-            pay_when=pay_when,
-            additional_email_address=user.email,
-            subscription_payment=subscription_payment)
-
-        self._update_institution_after_purchase()
 
     def __unicode__(self):
         return "%s (%s - %s)" % (self.institution.name,
