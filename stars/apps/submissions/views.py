@@ -24,11 +24,11 @@ class SubmissionStructureMixin(CreditsetStructureMixin):
         self.add_context_callback("get_creditsubmission")
         self.add_context_callback("get_fieldsubmission")
 
-    def get_object_list(self):
+    def get_object_list(self, use_cache=True):
         """
             Returns a list of objects to use as filters for get_obj_or_call
         """
-        return self.get_institution().submissionset_set.all()
+        return self.get_institution(use_cache=use_cache).submissionset_set.all()
 
     def get_submissionset(self, use_cache=True):
         """
@@ -36,22 +36,18 @@ class SubmissionStructureMixin(CreditsetStructureMixin):
             Returns None if not in kwargs.
             Raises 404 if key in kwargs and not found.
         """
-        obj = self.get_structure_object('submissionset')
-        if not obj and self.get_institution():
-            property = 'pk'
-            pattern = "\d{4}-\d{2}-\d{2}"
-            if re.match(pattern, self.kwargs['submissionset']):
-                #if self.kwargs.has_key('submissionset_date'):
-                property = 'date_submitted'
+        property = 'pk'
+        pattern = "\d{4}-\d{2}-\d{2}"
+        if re.match(pattern, self.kwargs['submissionset']):
+            property = 'date_submitted'
 
-            return self.get_obj_or_call(
-                cache_key='submissionset',
-                kwargs_key='submissionset',
-                klass=self.get_object_list(),
-                property=property,
-                use_cache=use_cache
-            )
-        return obj
+        return self.get_obj_or_call(
+            cache_key='submissionset',
+            kwargs_key='submissionset',
+            klass=self.get_object_list(use_cache=use_cache),
+            property=property,
+            use_cache=use_cache
+        )
 
     def get_creditset(self):
         """

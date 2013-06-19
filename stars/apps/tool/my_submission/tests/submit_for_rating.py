@@ -16,7 +16,8 @@ from django.core import mail
 from django.test.client import Client
 from django.conf import settings
 
-from stars.apps.submissions.models import SubmissionSet, Boundary
+from stars.apps.submissions.models import SubmissionSet
+from stars.apps.institutions.models import Institution
 
 
 class RatingTest(TestCase):
@@ -120,6 +121,7 @@ class RatingTest(TestCase):
                 - Handles a basic HTTP request w/out 500
                 - Processes the form and saves the SubmissionSet object
                 - Sends emails to liason, user and stars staff
+                - updates institution object
         """
 
         post_dict = {
@@ -139,4 +141,7 @@ class RatingTest(TestCase):
         # send_certificate_pdf.delay():
         mail_messages_that_are_not_errors = [msg for msg in mail.outbox if
                                             'ERROR:' not in msg.subject]
-        self.assertEqual(len(mail_messages_that_are_not_errors), 2)
+        self.assertEqual(len(mail_messages_that_are_not_errors), 1)
+
+        i = Institution.objects.get(pk=ss.institution.id)
+        self.assertEqual(i.rated_submission, ss)

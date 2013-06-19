@@ -41,6 +41,9 @@ MAX_EXTENSIONS = 1
 # Extension period
 EXTENSION_PERIOD = timedelta(days=366/2)
 
+# Rating valid for
+RATING_VALID_PERIOD = timedelta(days=365 * 3)
+
 # Institutions that registered before May 29th, but haven't paid are still published
 REGISTRATION_PUBLISH_DEADLINE = date(2010, 5, 29)
 
