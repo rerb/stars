@@ -30,7 +30,8 @@ urlpatterns = patterns(
         name='institution-submission-inquiry'),
 
     # PDF Export of Submission
-    (r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/pdf/$', PDFExportView.as_view()),
+    (r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/pdf/$',
+        never_cache(PDFExportView.as_view())),
 
     # Old Credit Scorecard - all ints for category_id, subcategory_id, and
     # credit_id; redirects to new Credit Scorecard url below:

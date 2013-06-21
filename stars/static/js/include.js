@@ -1,5 +1,5 @@
 function initCategory(current) {
-	url = "/institutions/data-displays/callback/cs/2/";
+	url = "/institutions/data-displays/callback/cs/5/";
 	if( current != null ) {
 		get_params = "?current=" + current;
 	}
