@@ -6,10 +6,7 @@ from django.forms.util import ErrorList
 from stars.apps.helpers.forms.forms import LocalizedModelFormMixin
 from stars.apps.institutions.models import (Institution,
                                             InstitutionPreferences,
-                                            STARS_USERLEVEL_CHOICES,
-                                            Subscription)
-from stars.apps.registration.models import get_current_discount
-from stars.apps.payments.utils import is_canadian_zipcode, is_usa_zipcode
+                                            STARS_USERLEVEL_CHOICES)
 from stars.apps.submissions.models import (SubmissionSet, ResponsibleParty,
                                            Boundary)
 from stars.apps.third_parties.models import ThirdParty
@@ -266,80 +263,3 @@ class ThirdPartiesForm(ModelForm):
             self.save_m2m()
 
         return instance
-
-
-class SubscriptionPriceForm(forms.Form):
-    """
-        Allows user to enter a promo code.
-
-        Template handles displaying prices and applying any promo code.
-    """
-    promo_code = forms.CharField(max_length=16, required=False)
-
-    def clean_promo_code(self):
-        data = self.cleaned_data['promo_code']
-        if data == "":
-            return None
-
-        discount = get_current_discount(code=data)
-
-        if not discount:
-            raise forms.ValidationError(
-                "Sorry, but that's not a valid promo code.")
-
-        return data
-
-
-class PaymentOptionsForm(forms.Form):
-    """
-        Youse can pay me now, or youse can pay me later.
-    """
-    pay_when = forms.ChoiceField(
-        choices=[
-            (Subscription.PAY_NOW, 'Pay now, by credit card'),
-            (Subscription.PAY_LATER, 'Pay later (i.e., be billed)')],
-        widget=forms.RadioSelect(),
-        label='')
-
-
-class PayLaterForm(forms.Form):
-    pass
-
-
-class PayNowForm(forms.Form):
-    """
-        Credit Card Payment form
-    """
-    card_number = forms.CharField(
-        max_length=17, widget=forms.TextInput(attrs={'autocomplete': 'off'}))
-    exp_month = forms.CharField(max_length=2, initial='mm')
-    exp_year = forms.CharField(max_length=4, initial='yyyy')
-
-    def clean_exp_month(self):
-        data = self.cleaned_data['exp_month']
-        error_text = "Please enter a number between 1 and 12"
-
-        if not self.is_numeric(data):
-            raise forms.ValidationError(error_text)
-        month = int(data)
-        if month > 12 or month < 0:
-            raise forms.ValidationError(error_text)
-
-        return data
-
-    def clean_exp_year(self):
-        data = self.cleaned_data['exp_year']
-        error_text = "Please enter a valid year"
-
-        if not self.is_numeric(data):
-            raise forms.ValidationError(error_text)
-
-        return data
-
-    def is_numeric(self, data):
-        """ Helper function to indicate if data is numeric. """
-        try:
-            _ = int(data)
-        except:
-            return False
-        return True

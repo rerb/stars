@@ -1,15 +1,15 @@
 from django.conf.urls.defaults import patterns, url
 
-from views import (AccountCreateView, AccountDeleteView,
-                   AccountEditView, AccountListView, ContactView,
-                   InstitutionPaymentsView, MigrateDataView,
-                   MigrateOptionsView, MigrateVersionView,
-                   PendingAccountDeleteView, ResponsiblePartyCreateView,
-                   ResponsiblePartyDeleteView, ResponsiblePartyEditView,
-                   ResponsiblePartyListView, ShareDataView,
-                   SubscriptionCreateView, SubscriptionPaymentCreateView,
-                   SubscriptionPaymentOptionsView, SubscriptionPriceView,
-                   ShareThirdPartiesView)
+from .views import (AccountCreateView, AccountDeleteView,
+                    AccountEditView, AccountListView, ContactView,
+                    InstitutionPaymentsView, MigrateDataView,
+                    MigrateOptionsView, MigrateVersionView,
+                    PendingAccountDeleteView, ResponsiblePartyCreateView,
+                    ResponsiblePartyDeleteView, ResponsiblePartyEditView,
+                    ResponsiblePartyListView, ShareDataView,
+                    SubscriptionCreateWizard, SubscriptionPaymentCreateView,
+                    ShareThirdPartiesView)
+from stars.apps.payments.views import amount_due_more_than_zero
 
 urlpatterns = patterns(
     'stars.apps.tool.manage.views',
@@ -71,15 +71,12 @@ urlpatterns = patterns(
         name='migrate-version'),
 
     # Subscription views:
-    url(r'^purchase-subscription/',
-        SubscriptionPriceView.as_view(),
-        name='subscription-price'),
-
-    url(r'^subscription-payment-options/$',
-        SubscriptionPaymentOptionsView.as_view(),
-        name='subscription-payment-options'),
-
-    url(r'^subscription/create/$', SubscriptionCreateView.as_view(),
+    url(r'^purchase-subscription-wiz/',
+        SubscriptionCreateWizard.as_view(
+            SubscriptionCreateWizard.FORM_LIST,
+            condition_dict={
+                str(SubscriptionCreateWizard.PAYMENT_OPTIONS):
+                amount_due_more_than_zero}),
         name='subscription-create'),
 
     url(r'^subscription/(?P<pk>\d+)/payment/create/$',
