@@ -18,6 +18,7 @@ from stars.apps.helpers.forms import form_helpers
 from stars.apps.helpers.mixins import ValidationMessageFormMixin
 from stars.apps.institutions.models import (StarsAccount, Subscription,
                                             SubscriptionPayment,
+                                            SubscriptionPurchaseError,
                                             PendingAccount)
 from stars.apps.institutions.models import Institution
 from stars.apps.payments import credit_card
@@ -206,41 +207,51 @@ class ResponsiblePartyCreateView(InstitutionAdminToolMixin,
         return super(ResponsiblePartyCreateView, self).form_valid(form)
 
 
-class AccountListView(InstitutionAdminToolMixin, ListView):
+class AccountListView(InstitutionAdminToolMixin, TemplateView):
     """
         Displays a list of user accounts for an institution.
     """
     tab_content_title = 'users'
     template_name = 'tool/manage/account_list.html'
 
-    def get_queryset(self):
+    def _get_accounts(self):
         institution = self.get_institution()
         querysets = [StarsAccount.objects.filter(institution=institution),
                      PendingAccount.objects.filter(institution=institution)]
-        # StarsAccount has a `user attribute, and that has an `email`
-        # attribute;  PendingAccount doesn't have a user, but has
-        # a `user_email` attribute.  Since we want to sort the heterogenous
-        # list, we have to do it manually (i.e., not via order_by()).
-        fake_queryset = []
+
+        # I want to sort the accounts by email address.  StarsAccount
+        # has a `user` attribute, and that has an `email` attribute;
+        # PendingAccount doesn't have a user, but has a `user_email`
+        # attribute.  Since we want to sort the heterogenous list, we
+        # have to do it manually (i.e., not via order_by()).
+
+        accounts = []
         for queryset in querysets:
             for account in queryset:
                 try:
                     account.email = account.user_email
                 except AttributeError:
                     account.email = account.user.email
-                fake_queryset.append(account)
+                accounts.append(account)
 
-        sorted_fake_queryset = sorted(fake_queryset,
-                                      key=lambda account: account.email)
+        sorted_accounts = sorted(accounts, key=lambda account: account.email)
 
-        return sorted_fake_queryset
+        return sorted_accounts
 
     def get_context_data(self, **kwargs):
         context = super(AccountListView, self).get_context_data(**kwargs)
-        # Tuck the description of the users' roles into the context:
-        for account in self.object_list:
+        accounts = self._get_accounts()
+        # Tuck the description of the user's role and the user's name
+        # into the context:
+        for account in accounts:
             account.user_level_description = get_user_level_description(
                 account.user_level)
+            try:
+                account.user_name = ' '.join((account.user.first_name,
+                                              account.user.last_name))
+            except AttributeError:
+                account.user_name = ''
+        context['accounts'] = accounts
         return context
 
 
@@ -548,11 +559,13 @@ class MigrateVersionView(InstitutionAdminToolMixin,
 class SubscriptionCreateWizard(InstitutionToolMixin,
                                SubscriptionPaymentWizard):
 
+class SubscriptionPaymentOptionsView(InstitutionToolMixin,
     @property
     def success_url(self):
         return reverse(
             'tool-summary',
             kwargs={'institution_slug': self.get_institution().slug})
+        new subscription can be specified.
 
     def get_template_names(self):
         if int(self.steps.current) == self.PRICE:
@@ -573,7 +586,11 @@ class SubscriptionCreateWizard(InstitutionToolMixin,
     def _get_context_data_price(self, form, **kwargs):
         context = super(SubscriptionCreateWizard,
                         self)._get_context_data_price(form, **kwargs)
+        (subscription_start_date, subscription_end_date) = (
+            Subscription.get_date_range_for_new_subscription(
+                self.get_institution()))
         context['tab_content_title'] = 'purchase a subscription: price'
+        context['subscription_end_date'] = subscription_end_date
         return context
 
     def _get_context_data_payment_options(self, form, **kwargs):
@@ -633,12 +650,53 @@ class SubscriptionPaymentCreateBaseView(ValidationMessageFormMixin,
         context['new_subscription'] = True
         return context
 
+
+class SubscriptionCreateView(SubscriptionPaymentCreateBaseView):
+    """
+        Creates a Subscription.
+
+        If self.request.session['PAY_WHEN'] == Subscription.PAY_NOW,
+        the form displayed requests credit card info, and an attempt to
+        charge the card is made.
+
+        If self.request.session['PAY_WHEN'] = Subscription.PAY_LATER,
+        the form displayed requests only a promo code.
+
+        After creating a Subscription, it's purchased, which, if paying
+        now, will trigger a credit card transaction.
+    """
+    success_url_name = 'tool-summary'
+    template_name = 'tool/manage/subscription_payment_create.html'
+
+    @property
+    def pay_when(self):
+        """Just a shorthand for self.request.session[PAY_WHEN]."""
+        return self.request.session[PAY_WHEN]
+
     def get_card_num(self, form):
         """
             Returns the credit card number from `form`.
         """
+        self.subscription, promo_code_applied = Subscription.create(
+            institution=self.get_institution(),
         card_num = form.cleaned_data['card_number']
+
+        if promo_code_applied:
+            messages.info(self.request, "Promo code discount applied!")
+
+        # must save subscription before trying to pay it; it's got to have
+        # an id for SubscriptionPayment.subscription_id:
+        self.subscription.save()
+
+        try:
+            self.subscription.purchase(pay_when=self.pay_when,
         return card_num
+                                       form=form)
+        except SubscriptionPurchaseError as spe:
+            messages.error(self.request, str(spe))
+            return self.form_invalid(form)
+
+        return super(SubscriptionCreateView, self).form_valid(form)
 
     def get_exp_date(self, form):
         """
@@ -646,8 +704,24 @@ class SubscriptionPaymentCreateBaseView(ValidationMessageFormMixin,
             the credit card processor expects, a string of 'MMYYYY'.
         """
         exp_date_month = form.cleaned_data['exp_month']
+            if self.subscription.pk:
+                self.subscription.delete()
+        return super(SubscriptionCreateView, self).form_invalid(form)
+
+    def get_form_class(self):
+        return {Subscription.PAY_LATER: PayLaterForm,
+                Subscription.PAY_NOW: PayNowForm}[self.pay_when]
+
+    def get_tab_content_title(self):
+        return {Subscription.PAY_LATER: 'purchase a subscription: pay later',
         exp_date_year = form.cleaned_data['exp_year']
+                    self.pay_when]
+
+    def get_valid_message(self):
         exp_date = exp_date_month + exp_date_year
+                  Your new subscription lasts from
+                  {start} to {finish}.""".format(
+                      start=self.subscription.start_date,
         return exp_date
 
 

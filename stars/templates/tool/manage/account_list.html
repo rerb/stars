@@ -16,18 +16,22 @@
     <table class='table'>
     	<thead>
             <tr>
-                <th>User's e-mail</th>
+                <th></th>
+                <th>Email</th>
                 <th>Role</th>
                 <th>Last Login</th>
             </tr>
         </thead>
         <tbody>
-            {% for account in object_list %}
+            {% for account in accounts %}
                 <tr {% if account.is_pending %}
                       class='pending'
                       title="Account pending; user must register at www.aashe.org."
                     {% endif %}>
                     <td>
+                        {{ account.user_name }}
+                    </td>
+                    <td class='account-email-address'>
                          {{ account.email }}
                          {% if account.is_pending %}
                              <span class="pending_note">*</span>
