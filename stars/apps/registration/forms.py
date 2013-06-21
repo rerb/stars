@@ -7,7 +7,9 @@ from aashe.issdjango.models import Organizations
 from stars.apps.institutions.models import (Institution,
                                             RegistrationSurvey,
                                             RespondentSurvey)
-from stars.apps.registration.models import get_current_discount
+from stars.apps.registration.models import (ExpiredDiscountCodeError,
+                                            InvalidDiscountCodeError,
+                                            get_current_discount)
 from stars.apps.payments.forms import PaymentFormWithPayLater
 
 
@@ -28,9 +30,12 @@ class RegistrationPaymentForm(PaymentFormWithPayLater):
         discount_code = self.cleaned_data['discount_code']
 
         if discount_code:
-            self.discount = get_current_discount(code=discount_code)
-            if not self.discount:
+            try:
+                self.discount = get_current_discount(code=discount_code)
+            except InvalidDiscountCodeError:
                 raise forms.ValidationError("Invalid Discount Code")
+            except ExpiredDiscountCodeError:
+                raise forms.ValidationError("Expired Discount Code")
 
         return discount_code
 
