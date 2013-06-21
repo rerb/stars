@@ -120,6 +120,9 @@ if DEBUG_TOOLBAR:
         'template_timings_panel.panels.TemplateTimings.TemplateTimings'
     )
     DEBUG_TOOLBAR_CONFIG = {'INTERCEPT_REDIRECTS': False}
+    TEMPLATE_TIMINGS_SETTINGS = {
+        'PRINT_TIMINGS': False,
+    }
 
 TEMPLATE_STRING_IF_INVALID = 'INVALID EXPRESSION: %s' if DEBUG else ' '
 

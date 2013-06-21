@@ -5,27 +5,32 @@ from logging import getLogger, CRITICAL
 from bs4 import BeautifulSoup
 from django.conf import settings
 from django.contrib import messages
+from django.core.urlresolvers import reverse
 from django.shortcuts import render
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import TimeoutException
 import testfixtures
 
 import logical_rules
 from stars.apps.credits.models import CreditSet
 from stars.apps.institutions.models import (PendingAccount, StarsAccount,
                                             Subscription, SubscriptionPayment)
-from stars.apps.institutions.tests.subscription import (get_pay_now_form_data,
-                                                        GOOD_CREDIT_CARD,
+from stars.apps.institutions.tests.subscription import (GOOD_CREDIT_CARD,
                                                         BAD_CREDIT_CARD)
+from stars.apps.payments.simple_credit_card import CreditCardProcessingError
 from stars.apps.submissions.models import ResponsibleParty
+from stars.apps.tests.live_server import StarsLiveServerTest
 from stars.apps.tool.manage import views
 from stars.apps.tool.tests.views import (InstitutionAdminToolMixinTest,
                                          InstitutionViewOnlyToolMixinTest)
 from stars.test_factories import (CreditUserSubmissionFactory,
                                   PendingAccountFactory,
                                   ResponsiblePartyFactory,
+                                  SubscriptionFactory,
                                   SubmissionSetFactory,
                                   StarsAccountFactory,
-                                  UserFactory)
-
+                                  UserFactory,
+                                  ValueDiscountFactory)
 # Don't bother me:
 logger = getLogger('stars')
 logger.setLevel(CRITICAL)
@@ -507,7 +512,7 @@ class MigrateVersionViewTest(MigrateViewTest):
         self.submissionset.creditset = latest_creditset
         self.submissionset.save()
         try:
-            response = self.view_class().dispatch(
+            _ = self.view_class().dispatch(
                 self.request,
                 institution_slug=self.institution.slug,
                 pk=self._get_pk())
@@ -530,9 +535,265 @@ class SubscriptionPriceViewTest(InstitutionViewOnlyToolMixinTest):
 
     view_class = views.SubscriptionPriceView
 
+    def setUp(self):
+        super(SubscriptionPriceViewTest, self).setUp()
+        self.account.user_level = 'admin'
+        self.account.save()
+        self.PROMO_DISCOUNT_AMOUNT = 17
+        self.promo_discount = ValueDiscountFactory(
+            amount=self.PROMO_DISCOUNT_AMOUNT)
+
+    def _get_view(self):
+        return self.view_class.as_view()(
+            self.request,
+            institution_slug=self.institution.slug)
+
+    def _get_soup(self, view=None):
+        view = view or self._get_view()
+        soup = BeautifulSoup(view.rendered_content)
+        return soup
+
+    def _get_amount_due_element(self, soup=None, view=None):
+        soup = soup or self._get_soup(view)
+        amount_due_element = soup.find(id="amount-due")
+        return amount_due_element
+
+    def _get_amount_due_text(self, soup=None, view=None):
+        """Returns amount due as text."""
+        amount_due_element = self._get_amount_due_element(soup=soup, view=view)
+        return amount_due_element.text.strip()
+
+    def _get_amount_due(self, soup=None, view=None):
+        """Returns amount due as a float."""
+        amount_due_text = self._get_amount_due_text(soup=soup, view=view)
+        number_text = ''.join(
+            (c for c in amount_due_text if (c.isdigit() or c in ['.', '-'])))
+        amount_due_float = float(number_text)
+        return amount_due_float
+
     def test_amount_due_gets_commas(self):
         """Does amount due show commas if > $999?"""
-        raise NotImplemented
+        self.institution.is_member = False  # no member discount
+        self.institution.save()
+        amount_due_text = self._get_amount_due_text()
+        self.assertIn(',', amount_due_text)
+
+    def test_amount_due_gets_dollar_sign(self):
+        """Does amount due have a dollar sign in front of it?"""
+        self.institution.is_member = False  # no member discount
+        self.institution.save()
+        amount_due_text = self._get_amount_due_text()
+        self.assertIn('$', amount_due_text)
+
+    def test_membership_discount_applied(self):
+        """Is the membership discount applied?"""
+        self.institution.is_member = False
+        self.institution.save()
+        amount_due_for_nonmember = self._get_amount_due()
+        self.institution.is_member = True
+        self.institution.save()
+        amount_due_for_member = self._get_amount_due()
+        self.assertLess(amount_due_for_member, amount_due_for_nonmember)
+
+    def test_early_renewal_discount_applied(self):
+        """Is the early renewal discount applied?"""
+        amount_due_without_renewal_discount = self._get_amount_due()
+        _ = SubscriptionFactory(institution=self.institution)
+        amount_due_with_renewal_discount = self._get_amount_due()
+        self.assertLess(amount_due_with_renewal_discount,
+                        amount_due_without_renewal_discount)
+
+    def test_submit_valid_promo_code_without_applying_it_first(self):
+        """Does submitting the form w/a valid code w/o applying it work?
+
+        I.e., if a valid code is entered, and the form is submitted
+        without clicking the "Apply Promo Code" button, is the promo
+        discount accepted?
+
+        And by "accepted", I mean, is the promo code stashed in the
+        request session, for the next view.
+        """
+        self.request.method = 'POST'
+        self.request.POST = {'promo_code': self.promo_discount.code}
+        _ = self._get_view()
+        self.assertEqual(self.request.session['promo_code'],
+                         self.promo_discount.code)
+
+    def test_submit_invalid_promo_code_without_applying_it_first(self):
+        """Does submitting the form w/an invalid code w/o applying it work?
+
+        I.e., if an invalid code is entered, and the form is submitted
+        without clicking the "Apply Promo Code" button, is the error
+        displayed?
+        """
+        self.request.method = 'POST'
+        self.request.POST = {'promo_code': 'BO-O-O-O-GUS!'}
+        soup = self._get_soup()
+        promo_code_element = soup.find(id='id_promo_code')
+        parent = promo_code_element.find_parent()
+        inline_helps = parent.findChildren(class_='help-inline')
+        self.assertGreater(len(inline_helps), 0)
+
+
+class SubscriptionPriceViewLiveServerTest(StarsLiveServerTest):
+
+    def setUp(self):
+        super(SubscriptionPriceViewLiveServerTest, self).setUp()
+        self.promo_discount = ValueDiscountFactory(amount=37.50)
+        self.go_to_reporting_tool()
+        purchase_subscription_button = self.patiently_find(
+            look_for='Purchase STARS Participant Subscription',
+            by=By.LINK_TEXT)
+        purchase_subscription_button.click()
+
+    @property
+    def promo_code_input(self):
+        promo_code_input = self.patiently_find(look_for='id_promo_code',
+                                               by=By.ID)
+        return promo_code_input
+
+    @property
+    def amount_due_text(self):
+        amount_due_element = self.patiently_find(look_for='amount-due',
+                                                 by=By.ID)
+        return amount_due_element.text
+
+    @property
+    def amount_due(self):
+        text_without_commas_and_dollar_sign = ''.join(
+            char for char in self.amount_due_text if char not in [',', '$'])
+        amount_due_float = float(text_without_commas_and_dollar_sign)
+        return amount_due_float
+
+    @property
+    def apply_promo_code_button(self):
+        apply_promo_code_button = self.patiently_find(
+            look_for='apply-promo-code-button', by=By.ID)
+        return apply_promo_code_button
+
+    def test_applying_valid_promo_code_updates_amount_due(self):
+        """Does applying a valid promo code update the amount due?
+
+        Where "applying ... promo code" means clicking the "Apply
+        Promo Code" button.
+        """
+        initial_amount_due = self.amount_due
+
+        self.promo_code_input.send_keys(self.promo_discount.code)
+
+        self.apply_promo_code_button.click()
+
+        discounted_amount_due = self.amount_due
+
+        self.assertEqual(initial_amount_due,
+                         discounted_amount_due + self.promo_discount.amount)
+
+    def test_applying_invalid_promo_code_displays_field_error(self):
+        """Does an invalid promo code display a field error messages?
+
+        Where "applying ... promo code" means clicking the "Apply
+        Promo Code" button.
+        """
+        self.promo_code_input.send_keys('BO-O-O-G-U-U-S!')
+
+        self.apply_promo_code_button.click()
+
+        error_div = self.patiently_find(look_for='error',
+                                        by=By.CLASS_NAME)
+
+        error_div_class = error_div.get_attribute('class')
+
+        self.assertEqual(error_div_class,
+                         'control-group error')
+
+    def test_applying_invalid_promo_code_displays_alert(self):
+        """Does an invalid promo code display an alert error message?
+
+        Where "applying ... promo code" means clicking the "Apply
+        Promo Code" button.
+        """
+        self.promo_code_input.send_keys('BO-O-O-G-U-U-S!')
+
+        self.apply_promo_code_button.click()
+
+        error_div = self.patiently_find(look_for='alert',
+                                        by=By.CLASS_NAME)
+
+        error_div_class = error_div.get_attribute('class')
+
+        self.assertEqual(error_div_class,
+                         'alert fade in alert-error')
+
+    def test_applying_blank_promo_code_clears_field_errors(self):
+        """Are field errors cleared by applying a blank promo code?
+
+        Where "applying ... a promo code" means clicking the "Apply
+        Promo Code" button.
+        """
+        self.promo_code_input.send_keys('BO-O-O-G-U-U-S!')
+
+        self.apply_promo_code_button.click()
+
+        # make sure there are some errors to clear:
+        error_div = self.patiently_find(look_for='error',
+                                        by=By.CLASS_NAME)
+        error_div_class = error_div.get_attribute('class')
+        self.assertEqual(error_div_class, 'control-group error')
+
+        self.promo_code_input.clear()
+
+        self.apply_promo_code_button.click()
+
+        with self.assertRaises(TimeoutException):
+            error_div = self.patiently_find(look_for='error',
+                                            by=By.CLASS_NAME,
+                                            wait_for=1)
+
+    def test_applying_blank_promo_code_clears_alerts(self):
+        """Are alert messages cleared by applying a blank promo code?
+
+        Where "applying ... a promo code" means clicking the "Apply
+        Promo Code" button.
+        """
+        self.promo_code_input.send_keys('BO-O-O-G-U-U-S!')
+
+        self.apply_promo_code_button.click()
+
+        # make sure there are some errors to clear:
+        error_div = self.patiently_find(look_for='alert',
+                                        by=By.CLASS_NAME)
+        error_div_class = error_div.get_attribute('class')
+        self.assertEqual(error_div_class,
+                         'alert fade in alert-error')
+
+        self.promo_code_input.clear()
+
+        self.apply_promo_code_button.click()
+
+        with self.assertRaises(TimeoutException):
+            error_div = self.patiently_find(look_for='alert',
+                                            by=By.CLASS_NAME,
+                                            wait_for=1)
+
+    def test_amount_due_gets_commas_after_applying_discount(self):
+        """Does amount due show commas if > $999 after applying discount?"""
+        self.promo_code_input.send_keys(self.promo_discount.code)
+
+        self.apply_promo_code_button.click()
+
+        discounted_amount_due_text = self.amount_due_text
+
+        self.assertIn(',', discounted_amount_due_text)
+
+    def test_amount_due_gets_dollar_sign_after_applying_discount(self):
+        """Does amount due have a dollar sign in front of it after discount??"""
+        self.promo_code_input.send_keys(self.promo_discount.code)
+
+        self.apply_promo_code_button.click()
+
+        discounted_amount_due_text = self.amount_due_text
+
+        self.assertIn('$', discounted_amount_due_text)
 
 
 class SubscriptionPaymentOptionsViewTest(InstitutionViewOnlyToolMixinTest):
@@ -544,6 +805,23 @@ class SubscriptionPaymentOptionsViewTest(InstitutionViewOnlyToolMixinTest):
         self.request.session['promo_code'] = ''
         self.request.session['amount_due'] = 1400
 
+    def test_free_subscription_bypasses_payment_forms(self):
+        """Are the payment forms skipped for 100% discounted subs?
+        Payment forms include the 'payment options' and 'enter your
+        credit card info' forms."""
+        promo_discount = ValueDiscountFactory(amount=0,
+                                              percentage=100)
+
+        self.request.session['promo_code'] = promo_discount.code
+
+        response = self.view_class.as_view()(
+            self.request,
+            institution_slug=self.institution.slug)
+
+        self.assertEquals(response.get('Location'),
+                          reverse('subscription-create',
+                                  args=[self.institution.slug]))
+
 
 class SubscriptionCreateViewTest(InstitutionViewOnlyToolMixinTest):
 
@@ -553,15 +831,15 @@ class SubscriptionCreateViewTest(InstitutionViewOnlyToolMixinTest):
 
     def setUp(self):
         super(SubscriptionCreateViewTest, self).setUp()
-        self.request.session[views.PAY_WHEN] = Subscription.PAY_LATER
         self.request.session['promo_code'] = ''
         self.request.session['amount_due'] = 1400
+        self.request.session[views.PAY_WHEN] = Subscription.PAY_NOW
 
-    def test_form_valid_creates_subscription(self):
-        """Does form_valid() create a subscription?"""
+    def test_pay_later_creates_subscription(self):
+        """Is a subscription created when user wants to pay later?"""
 
+        self.request.session[views.PAY_WHEN] = Subscription.PAY_LATER
         self.request.method = 'POST'
-        self.request.POST = { 'promo_code': '' }
 
         initial_subscription_count = Subscription.objects.count()
 
@@ -572,13 +850,30 @@ class SubscriptionCreateViewTest(InstitutionViewOnlyToolMixinTest):
         self.assertEqual(Subscription.objects.count(),
                          initial_subscription_count + 1)
 
-    def test_form_valid_pay_now_creates_payment(self):
-        """Does form_valid() create a payment when user is paying now?"""
+    def test_pay_now_creates_subscription(self):
+        """Is a subscription created when user wants to pay now?"""
 
-        self.request.session[views.PAY_WHEN] = Subscription.PAY_NOW
         self.request.method = 'POST'
-        self.request.POST = get_pay_now_form_data(
-            card_number=GOOD_CREDIT_CARD)
+        self.request.POST = {'card_number': GOOD_CREDIT_CARD,
+                             'exp_month': '12',
+                             'exp_year': '2022'}
+
+        initial_subscription_count = Subscription.objects.count()
+
+        self.open_gate()
+        _ = self.view_class.as_view()(request=self.request,
+                                      institution_slug=self.institution.slug)
+
+        self.assertEqual(Subscription.objects.count(),
+                         initial_subscription_count + 1)
+
+    def test_pay_now_creates_payment(self):
+        """Is a payment created when a user wants to pay now?"""
+
+        self.request.method = 'POST'
+        self.request.POST = {'card_number': GOOD_CREDIT_CARD,
+                             'exp_month': '12',
+                             'exp_year': '2022'}
 
         initial_payment_count = SubscriptionPayment.objects.count()
         self.open_gate()
@@ -588,13 +883,13 @@ class SubscriptionCreateViewTest(InstitutionViewOnlyToolMixinTest):
         self.assertEqual(SubscriptionPayment.objects.count(),
                          initial_payment_count + 1)
 
-    def test_form_valid_no_subrx_created_when_purchase_error(self):
-        """Does form_valid() *not* create a subrx if there's a purchase error?
-        """
+    def test_subscription_created_when_purchase_error(self):
+        """Is a subscription *not* created when there's a purchase error?"""
 
-        self.request.session[views.PAY_WHEN] = Subscription.PAY_NOW
         self.request.method = 'POST'
-        self.request.POST = get_pay_now_form_data(card_number=BAD_CREDIT_CARD)
+        self.request.POST = {'card_number': BAD_CREDIT_CARD,
+                             'exp_month': '12',
+                             'exp_year': '2022'}
 
         initial_subscription_count = Subscription.objects.count()
         self.open_gate()
@@ -624,8 +919,9 @@ class SubscriptionPaymentCreateViewTest(InstitutionViewOnlyToolMixinTest):
         self.account.user_level = self.blessed_user_level
         self.account.save()
         self.request.method = 'POST'
-        self.request.POST = get_pay_now_form_data(
-            card_number=GOOD_CREDIT_CARD)
+        self.request.POST = {'card_number': GOOD_CREDIT_CARD,
+                             'exp_month': '10',
+                             'exp_year': '2020'}
 
         initial_payment_count = SubscriptionPayment.objects.count()
 
@@ -643,13 +939,17 @@ class SubscriptionPaymentCreateViewTest(InstitutionViewOnlyToolMixinTest):
         self.account.save()
         self.request.session[views.PAY_WHEN] = Subscription.PAY_NOW
         self.request.method = 'POST'
-        self.request.POST = get_pay_now_form_data(card_number=BAD_CREDIT_CARD)
+        self.request.POST = {'card_number': BAD_CREDIT_CARD,
+                             'exp_month': '10',
+                             'exp_year': '2020'}
 
         initial_payment_count = SubscriptionPayment.objects.count()
 
-        _ = self.view_class.as_view()(request=self.request,
-                                      institution_slug=self.institution.slug,
-                                      pk=self.subscription.id)
+        with self.assertRaises(CreditCardProcessingError):
+            _ = self.view_class.as_view()(
+                request=self.request,
+                institution_slug=self.institution.slug,
+                pk=self.subscription.id)
 
         self.assertEqual(SubscriptionPayment.objects.count(),
                          initial_payment_count)

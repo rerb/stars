@@ -2,7 +2,11 @@
     Base LiveServerTestCase customized for STARS tests.
 """
 from django import test
+from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox import webdriver
+from selenium.webdriver.support import expected_conditions
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support.wait import TimeoutException
 
 from stars.test_factories import (InstitutionFactory, StarsAccountFactory,
                                   UserFactory)
@@ -37,14 +41,31 @@ class StarsLiveServerTest(test.LiveServerTestCase):
                                                  user_level='admin')
         self.login()
 
+    def patiently_find(self, look_for, by=By.ID, wait_for=10):
+        """Find an element, only timing out after `wait_for` seconds.
+
+        `look_for` is the element identifier, and `by` is the type
+        of search to perform.
+        """
+        try:
+            result = WebDriverWait(self.selenium, wait_for).until(
+                expected_conditions.presence_of_element_located((by,
+                                                                 look_for)))
+        except TimeoutException as toe:
+            raise TimeoutException(
+                'Timed out looking for "{look_for}" by {by}.'.format(
+                    look_for=look_for, by=by))
+        return result
+
     def login(self):
         self.selenium.get(self.live_server_url)
 
         # Login:
-        log_in_link = self.selenium.find_element_by_link_text('Log In')
+        log_in_link = self.patiently_find(look_for='Log In', by=By.LINK_TEXT)
         log_in_link.click()
 
-        username_input = self.selenium.find_element_by_id('id_username')
+        username_input = self.patiently_find(look_for='id_username',
+                                             by=By.ID)
         username_input.send_keys(self.user.username)
 
         password_input = self.selenium.find_element_by_id('id_password')
@@ -54,15 +75,7 @@ class StarsLiveServerTest(test.LiveServerTestCase):
             'button.btn.btn-primary')
         login_button.click()
 
-        # Terms of Service page:
-#        tos_checkbox = self.selenium.find_element_by_id('id_terms_of_service')
-#        tos_checkbox.click()
-#
-#        tos_submit_button = self.selenium.find_element_by_css_selector(
-#            'button[type="submit"]')
-#        tos_submit_button.click()
-
     def go_to_reporting_tool(self):
-        reporting_tool_tab = self.selenium.find_element_by_link_text(
-            'Reporting')
+        reporting_tool_tab = self.patiently_find(look_for='Reporting',
+                                                 by=By.LINK_TEXT)
         reporting_tool_tab.click()

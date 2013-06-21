@@ -16,7 +16,8 @@ OLD_PATHS_TO_PRESERVE = ['tool/manage/',
                          'tool/manage/responsible-parties/',
                          'tool/manage/share-data/',
                          'tool/manage/users/',
-                         'tool/submissions/']
+                         'tool/submissions/',
+                         'tool/submissions/boundary/']
 
 
 def new_path_for_old_path(old_path, institution):
@@ -33,9 +34,7 @@ def new_path_for_old_path(old_path, institution):
     substitutions = [Substitution(old='/manage/responsible-parties/',
                                   new='/manage/responsible-party/'),
                      Substitution(old='/manage/users/',
-                                  new='/manage/user/'),
-                     Substitution(old='/submissions/',
-                                  new='/submission/')]
+                                  new='/manage/user/')]
 
     def insert_institution_slug(path, institution):
         # institution_slug always goes after '/tool/' for now:
@@ -61,11 +60,13 @@ def new_path_for_old_path(old_path, institution):
     if old_path == '/tool/manage/':
         return path_with_substitutions + 'contact/'
 
-    elif old_path == '/tool/submissions/':
+    elif(old_path == '/tool/submissions/' or
+         old_path == '/tool/submissions/boundary/'):
         # add the id of the institution's current submission to the path:
-        return (path_with_substitutions +
-                unicode(institution.current_submission.id) +
-                '/')
+        sub_id = unicode(institution.current_submission.id)
+        new_path = path_with_substitutions.replace("/submissions/",
+                                        "/submission/%s/" % sub_id)
+        return new_path
 
     else:
         return path_with_substitutions

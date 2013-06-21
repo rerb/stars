@@ -49,9 +49,10 @@ pyPdf==1.13
 pycrypto==2.6
 python-dateutil==1.5
 python-memcached==1.48
+raven==3.3.7
 readline==6.2.4.1
 reportlab==2.4
-selenium==2.26.0
+selenium==2.33.0
 six==1.2.0
 sorl-thumbnail==11.12
 ssh==1.8.0

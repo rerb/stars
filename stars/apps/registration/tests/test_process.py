@@ -220,10 +220,11 @@ class TestProcess(TestCase):
 
         # two emails sent out to participants
         # one email sent out for the errored card #
-        self.assertEqual(len(mail.outbox), 2)
-        self.assertEqual(mail.outbox[0].to, [u'stars_test_liaison@aashe.org',
+        self.assertEqual(len(mail.outbox), 3)
+        self.assertIn('ERROR', mail.outbox[0].subject)
+        self.assertEqual(mail.outbox[1].to, [u'stars_test_liaison@aashe.org',
                                              'stars_test_user@aashe.org'])
-        self.assertEqual(mail.outbox[1].to, [u'stars_test_exec@aashe.org'])
+        self.assertEqual(mail.outbox[2].to, [u'stars_test_exec@aashe.org'])
 
         self.assertEqual(1, Institution.objects.count())
         self.assertEqual(1, Subscription.objects.count())

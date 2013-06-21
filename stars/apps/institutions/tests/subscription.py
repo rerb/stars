@@ -1,18 +1,22 @@
 """Tests for apps.institutions.models.Subscription.
 """
 from datetime import date, timedelta
+from functools import wraps
 from logging import getLogger, CRITICAL
+import re
 
+from django.conf import settings
 from django.core import mail
 from django.test import TestCase
 import testfixtures
 
-from stars.apps.institutions.models import (Subscription, SubscriptionPayment,
+from stars.apps.institutions.models import (Subscription,
+                                            SubscriptionPayment,
+                                            SubscriptionPurchaseError,
                                             SUBSCRIPTION_DURATION)
-from stars.apps.payments.credit_card import (CreditCardPaymentProcessor,
-                                             CreditCardProcessingError)
-from stars.apps.tool.manage.forms import PayNowForm
-from stars.apps.registration.models import ValueDiscount, get_current_discount
+from stars.apps.payments.simple_credit_card import (CreditCardPaymentProcessor,
+                                                    CreditCardProcessingError)
+from stars.apps.registration.models import ValueDiscount
 from stars.test_factories import (InstitutionFactory, SubscriptionFactory,
                                   UserFactory, ValueDiscountFactory)
 
@@ -22,27 +26,6 @@ logger.setLevel(CRITICAL)
 
 GOOD_CREDIT_CARD = '4007000000027'  # good test credit card number
 BAD_CREDIT_CARD = '123412341234'
-
-
-def get_pay_now_form_data(card_number):
-    form_data = {'name_on_card': 'slick johnny',
-                 'card_number': card_number,
-                 'exp_month': '12',
-                 'exp_year': '2022',
-                 'cv_code': '123',
-                 'billing_address': '2341234',
-                 'billing_city': 'asdf',
-                 'billing_state': 'pa',
-                 'billing_zipcode': '12345'}
-    return form_data
-
-
-def get_pay_now_form(card_number, subscription=None):
-    form_data = get_pay_now_form_data(card_number)
-    form = PayNowForm(instance=subscription, data=form_data)
-    if subscription:
-        form.save()
-    return form
 
 
 class MockCreditCardPaymentProcessor(CreditCardPaymentProcessor):
@@ -62,9 +45,9 @@ class SubscriptionTest(TestCase):
         self.member = InstitutionFactory(is_member=True)
         self.nonmember = InstitutionFactory(is_member=False)
 
-    def test__apply_standard_discount(self):
+    def test__apply_early_renewal_discount(self):
         price = 10000
-        self.assertLess(self.subscription._apply_standard_discount(price),
+        self.assertLess(self.subscription._apply_early_renewal_discount(price),
                         price)
 
     #################################
@@ -142,43 +125,54 @@ class SubscriptionTest(TestCase):
         self.assertEqual(start_date, date.today() + timedelta(1))
 
     ####################################
-    # _subscription_discounted() tests:
+    # _qualifies_for_early_renewal_discount() tests:
     ####################################
 
-    def test__subscription_discounted_no_previous_subscription(self):
-        """Does _subscription_discounted work if there's no prev subscription?
+    def test__qualifies_for_early_renewal_discount_no_previous_subscription(
+            self):
+        """Does _qualifies_for_early_renewal_discount work if there's no
+        prev subscription?
         """
-        self.assertFalse(self.subscription._subscription_discounted())
+        self.assertFalse(
+            self.subscription._qualifies_for_early_renewal_discount())
 
-    def test__subscription_discounted_current_subscription(self):
-        """Does _subscription_discounted work when a subscription is current?
+    def test__qualifies_for_early_renewal_discount_current_subscription(self):
+        """Does _qualifies_for_early_renewal_discount work when a
+        subscription is current?
         """
         current_start_date = date.today() - timedelta(days=5)
         current_end_date = date.today() + timedelta(days=5)
         SubscriptionFactory(institution=self.subscription.institution,
                             start_date=current_start_date,
                             end_date=current_end_date)
-        self.assertTrue(self.subscription._subscription_discounted())
+        self.assertTrue(
+            self.subscription._qualifies_for_early_renewal_discount())
 
-    def test__subscription_discounted_recently_lapsed_subscription(self):
-        """Does _subscription_discounted work when subs is recently lapsed?
+    def test__qualifies_for_early_renewal_discount_recently_lapsed_subscription(
+            self):
+        """Does _qualifies_for_early_renewal_discount work when subs is
+        recently lapsed?
         """
         lapsed_start_date = date.today() - timedelta(days=100)
         lapsed_end_date = date.today() - timedelta(days=5)
         SubscriptionFactory(institution=self.subscription.institution,
                             start_date=lapsed_start_date,
                             end_date=lapsed_end_date)
-        self.assertTrue(self.subscription._subscription_discounted())
+        self.assertTrue(
+            self.subscription._qualifies_for_early_renewal_discount())
 
-    def test__subscription_discounted_long_time_lapsed_subscription(self):
-        """Does _subscription_discounted work when a subs lapsed long time ago?
+    def test__qualifies_for_early_renewal_discount_long_time_lapsed_subscription(
+            self):
+        """Does _qualifies_for_early_renewal_discount work when a subs lapsed
+        long time ago?
         """
         lapsed_start_date = date.today() - timedelta(days=1000)
         lapsed_end_date = date.today() - timedelta(days=900)
         SubscriptionFactory(institution=self.subscription.institution,
                             start_date=lapsed_start_date,
                             end_date=lapsed_end_date)
-        self.assertFalse(self.subscription._subscription_discounted())
+        self.assertFalse(
+            self.subscription._qualifies_for_early_renewal_discount())
 
     #############################
     # _apply_promo_code() tests:
@@ -293,30 +287,22 @@ class SubscriptionTest(TestCase):
         else:
             promo_code = None
 
-        self.subscription._subscription_discounted = (
+        self.subscription._qualifies_for_early_renewal_discount = (
             lambda *args : gets_discount)
 
-        price, promo_discount_applied = self.subscription.calculate_price(
-            promo_code=promo_code)
+        prices = self.subscription.calculate_prices(promo_code=promo_code)
 
         price_check = (Subscription.MEMBER_BASE_PRICE if is_member else
                        Subscription.NONMEMBER_BASE_PRICE)
 
+        if gets_discount:
+            price_check = self.subscription._apply_early_renewal_discount(
+                price_check)
+
         if promo_code:
             price_check -= promo_amount
 
-        if gets_discount:
-            price_check = self.subscription._apply_standard_discount(
-                price_check)
-
-        self.assertEqual(price, price_check)
-
-        discount = get_current_discount(code=promo_code)
-
-        if discount:
-            self.assertTrue(promo_discount_applied)
-        else:
-            self.assertFalse(promo_discount_applied)
+        self.assertEqual(prices['total'], price_check)
 
     def test_calculate_price_member_promo_discount(self):
         """Does calculate_price work for member with promo and discount?
@@ -372,8 +358,7 @@ class SubscriptionTest(TestCase):
 
     def test_create_subscription_not_saved(self):
         """Does create() return an unsaved Subscription?"""
-        (subscription, promo_code_applied) = Subscription.create(
-            institution=InstitutionFactory())
+        subscription = Subscription.create(institution=InstitutionFactory())
         self.assertEqual(subscription.id, None)
 
     def test_create_with_promo_code(self):
@@ -382,16 +367,18 @@ class SubscriptionTest(TestCase):
             start_date=date.today(),
             end_date=date.today() + timedelta(days=100),
             amount=10)
-        (subscription, promo_code_applied) = Subscription.create(
+        subscription = None
+        subscription = Subscription.create(
             institution=InstitutionFactory(),
             promo_code=promo.code)
-        self.assertTrue(promo_code_applied)
+        self.assertIsNotNone(subscription)
 
     def test_create_without_promo_code(self):
         """Does create() work when a promo code is not supplied?"""
-        (subscription, promo_code_applied) = Subscription.create(
+        subscription = None
+        subscription = Subscription.create(
             institution=InstitutionFactory())
-        self.assertFalse(promo_code_applied)
+        self.assertIsNotNone(subscription)
 
     ###################################################
     # tests for get_date_range_for_new_subscription():
@@ -462,78 +449,75 @@ class SubscriptionTest(TestCase):
     def test_pay_creates_payment_with_good_credit_card_info(self):
         """Does pay create a payment when it gets good credit card info?"""
         subscription = SubscriptionFactory(amount_due=500)
-        form = get_pay_now_form(subscription=subscription,
-                                card_number=GOOD_CREDIT_CARD)
-        subscription.pay(amount=subscription.amount_due,
-                         user=UserFactory(),
-                         form=form)
+        subscription.pay(user=UserFactory(),
+                         amount=subscription.amount_due,
+                         card_num=GOOD_CREDIT_CARD,
+                         exp_date='102020')
         self.assertEqual(subscription.subscriptionpayment_set.count(), 1)
 
     def test_pay_creates_payment_for_correct_amount(self):
         """Does pay create a payment for the correct amount?"""
         SUBSCRIPTION_PRICE = 350
         subscription = SubscriptionFactory(amount_due=SUBSCRIPTION_PRICE)
-        form = get_pay_now_form(subscription=subscription,
-                                card_number=GOOD_CREDIT_CARD)
-        (subscription_payment, payment_context) = subscription.pay(
-            amount=subscription.amount_due,
+        subscription_payment = subscription.pay(
             user=UserFactory(),
-            form=form)
+            amount=subscription.amount_due,
+            card_num=GOOD_CREDIT_CARD,
+            exp_date='102020')
         self.assertEqual(subscription_payment.amount,
                          SUBSCRIPTION_PRICE)
 
     def test_pay_does_not_create_payment_with_bad_credit_card_info(self):
         """Does pay not create a payment when it gets bad credit card info?"""
         subscription = SubscriptionFactory(amount_due=500)
-        form = get_pay_now_form(subscription=subscription,
-                                card_number=BAD_CREDIT_CARD)
-        with self.assertRaises(CreditCardProcessingError):
-            subscription.pay(amount=subscription.amount_due,
-                             user=UserFactory(),
-                             form=form)
-        self.assertEqual(subscription.subscriptionpayment_set.count(), 0)
+        try:
+            subscription.pay(user=UserFactory(),
+                             amount=subscription.amount_due,
+                             card_num=BAD_CREDIT_CARD,
+                             exp_date='102020')
+        except CreditCardProcessingError:
+            self.assertEqual(subscription.subscriptionpayment_set.count(), 0)
+        else:
+            self.fail('credit card transaction should have failed')
 
     def test_pay_updates_amount_due(self):
         """Does a payment decrease the amount due?"""
         unpaid_amount = 100
         subscription = SubscriptionFactory(amount_due=500.75)
-        form = get_pay_now_form(subscription=subscription,
-                                card_number=GOOD_CREDIT_CARD)
         with testfixtures.Replacer() as r:
             r.replace('stars.apps.payments.credit_card.'
                       'CreditCardPaymentProcessor',
                       MockCreditCardPaymentProcessor)
-            subscription.pay(amount=subscription.amount_due - unpaid_amount,
-                             user=UserFactory(),
-                             form=form)
+            subscription.pay(user=UserFactory(),
+                             amount=subscription.amount_due - unpaid_amount,
+                             card_num=GOOD_CREDIT_CARD,
+                             exp_date='102020')
         self.assertEqual(subscription.amount_due, unpaid_amount)
 
     def test_pay_full_amount_due_updates_paid_in_full(self):
         """Does a full payment turn paid_in_full on?"""
         subscription = SubscriptionFactory(amount_due=500.99)
-        form = get_pay_now_form(subscription=subscription,
-                                card_number=GOOD_CREDIT_CARD)
         with testfixtures.Replacer() as r:
             r.replace('stars.apps.payments.credit_card.'
                       'CreditCardPaymentProcessor',
                       MockCreditCardPaymentProcessor)
-            subscription.pay(amount=subscription.amount_due,
-                             user=UserFactory(),
-                             form=form)
+            subscription.pay(user=UserFactory(),
+                             amount=subscription.amount_due,
+                             card_num=GOOD_CREDIT_CARD,
+                             exp_date='102020')
         self.assertTrue(subscription.paid_in_full)
 
     def test_pay_partial_amount_due_does_not_update_paid_in_full(self):
         """Does a full payment turn paid_in_full on?"""
         subscription = SubscriptionFactory(amount_due=500.99)
-        form = get_pay_now_form(subscription=subscription,
-                                card_number=GOOD_CREDIT_CARD)
         with testfixtures.Replacer() as r:
             r.replace('stars.apps.payments.credit_card.'
                       'CreditCardPaymentProcessor',
                       MockCreditCardPaymentProcessor)
-            subscription.pay(amount=subscription.amount_due - .10,
-                             user=UserFactory(),
-                             form=form)
+            subscription.pay(user=UserFactory(),
+                             amount=subscription.amount_due - .10,
+                             card_num=GOOD_CREDIT_CARD,
+                             exp_date='102020')
         self.assertFalse(subscription.paid_in_full)
 
     ########################
@@ -542,68 +526,56 @@ class SubscriptionTest(TestCase):
 
     def test_purchase_pay_now_creates_payment(self):
         """Does purchase create a payment when user wants to pay now?
-
-           Depends on Subscription.create().
         """
-        (subscription, _) = Subscription.create(
-            institution=InstitutionFactory())
-        form = get_pay_now_form(subscription=subscription,
-                                card_number=GOOD_CREDIT_CARD)
-        subscription.purchase(pay_when=Subscription.PAY_NOW,
-                              user=UserFactory(),
-                              form=form)
+        subscription = Subscription.purchase(
+            institution=self.subscription.institution,
+            pay_when=Subscription.PAY_NOW,
+            user=UserFactory(),
+            card_num=GOOD_CREDIT_CARD,
+            exp_date='102020')
         self.assertEqual(subscription.subscriptionpayment_set.count(), 1)
 
     def test_purchase_pay_now_creates_payment_for_correct_amount(self):
         """Does purchase create a payment for the correct amount?
 
-           Depends on Subscription.create().
+        Depends on Subscription.get_prices_for_new_subscription().
         """
-        (subscription, _) = Subscription.create(
-            institution=InstitutionFactory())
-        subscription_price = subscription.amount_due
-        form = get_pay_now_form(subscription=subscription,
-                                card_number=GOOD_CREDIT_CARD)
-        subscription.purchase(pay_when=Subscription.PAY_NOW,
+        prices = Subscription.get_prices_for_new_subscription(
+            institution=self.subscription.institution)
+        Subscription.purchase(institution=self.subscription.institution,
+                              pay_when=Subscription.PAY_NOW,
                               user=UserFactory(),
-                              form=form)
+                              card_num=GOOD_CREDIT_CARD,
+                              exp_date='102020')
         self.assertEqual(SubscriptionPayment.objects.reverse()[0].amount,
-                         subscription_price)
+                         prices['total'])
 
     def test_purchase_pay_later_creates_no_payment(self):
         """Does purchase *not* create a payment if user wants to pay later?
-
-           Depends on Subscription.create().
         """
         initial_payment_count = SubscriptionPayment.objects.count()
-        (subscription, _) = Subscription.create(
-            institution=InstitutionFactory())
-        subscription.purchase(pay_when=Subscription.PAY_LATER,
+        Subscription.purchase(institution=self.subscription.institution,
+                              pay_when=Subscription.PAY_LATER,
                               user=UserFactory())
         self.assertEqual(initial_payment_count,
                          SubscriptionPayment.objects.count())
 
     def test_purchase_institution_updated(self):
         """Does purchase update the subscription's institution?
-
-           Depends on Subscription.create().
         """
         institution = InstitutionFactory()
-        (subscription, _) = Subscription.create(institution=institution)
-        subscription.purchase(pay_when=Subscription.PAY_LATER,
-                              user=UserFactory())
+        subscription = Subscription.purchase(institution=institution,
+                                             pay_when=Subscription.PAY_LATER,
+                                             user=UserFactory())
         self.assertEqual(institution.current_subscription, subscription)
         self.assertTrue(institution.is_participant)
 
     def test_purchase_sends_email(self):
         """Does purchase send any post-purchase email?
-
-           Depends on Subscription.create().
         """
         initial_outgoing_mails = len(mail.outbox)
-        (subscription, _) = Subscription.create(
-            institution=InstitutionFactory())
-        subscription.purchase(pay_when=Subscription.PAY_LATER,
+        Subscription.purchase(institution=self.subscription.institution,
+                              pay_when=Subscription.PAY_LATER,
                               user=UserFactory())
         self.assertLess(initial_outgoing_mails, len(mail.outbox))
 
@@ -613,43 +585,36 @@ class SubscriptionTest(TestCase):
            Depends on Subscription.create().
         """
         initial_outgoing_mails = len(mail.outbox)
-        (subscription, _) = Subscription.create(
-            institution=InstitutionFactory())
-        form = get_pay_now_form(subscription=subscription,
-                                card_number=BAD_CREDIT_CARD)
-        with self.assertRaises(CreditCardProcessingError):
-            subscription.pay(amount=subscription.amount_due,
-                             user=UserFactory(),
-                             form=form)
-        self.assertEqual(initial_outgoing_mails, len(mail.outbox))
+        try:
+            Subscription.purchase(institution=self.subscription.institution,
+                                  pay_when=Subscription.PAY_NOW,
+                                  user=UserFactory(),
+                                  card_num=BAD_CREDIT_CARD,
+                                  exp_date='102020')
+        except SubscriptionPurchaseError:
+            self.assertEqual(initial_outgoing_mails, len(mail.outbox))
+        else:
+            self.fail('credit card transaction should have failed')
 
     def test_purchase_pay_later_sends_one_email(self):
         """Does purchase send one email when user pays later?
-
-           Depends on Subscription.create().
         """
         initial_outgoing_mails = len(mail.outbox)
-        (subscription, _) = Subscription.create(
-            institution=InstitutionFactory())
-        subscription.purchase(pay_when=Subscription.PAY_LATER,
+        Subscription.purchase(institution=self.subscription.institution,
+                              pay_when=Subscription.PAY_LATER,
                               user=UserFactory())
         self.assertEqual(initial_outgoing_mails + 1, len(mail.outbox))
 
-    def test_purchase_pay_now_renewal_sends_two_emails(self):
-        """Does purchase send two emails when user pays now for a renewal?
-
-           Depends on Subscription.create().
+    def test_purchase_pay_now_renewal_sends_an_email(self):
+        """Does purchase send an email when a user pays now for a renewal?
         """
         initial_outgoing_mails = len(mail.outbox)
-        institution = InstitutionFactory()
-        _ = SubscriptionFactory(institution=institution)
-        (subscription, _) = Subscription.create(institution=institution)
-        form = get_pay_now_form(subscription=subscription,
-                                card_number=GOOD_CREDIT_CARD)
-        subscription.purchase(pay_when=Subscription.PAY_NOW,
+        Subscription.purchase(institution=self.subscription.institution,
+                              pay_when=Subscription.PAY_NOW,
                               user=UserFactory(),
-                              form=form)
-        self.assertEqual(initial_outgoing_mails + 2, len(mail.outbox))
+                              card_num=GOOD_CREDIT_CARD,
+                              exp_date='102020')
+        self.assertEqual(initial_outgoing_mails + 1, len(mail.outbox))
 
     def test_purchase_pay_now_first_subrx_sends_one_email(self):
         """Does purchase send one email when user pays now for first subrx?
@@ -657,29 +622,95 @@ class SubscriptionTest(TestCase):
            Depends on Subscription.create().
         """
         initial_outgoing_mails = len(mail.outbox)
-        (subscription, _) = Subscription.create(
-            institution=InstitutionFactory())
-        form = get_pay_now_form(subscription=subscription,
-                                card_number=GOOD_CREDIT_CARD)
-        subscription.purchase(pay_when=Subscription.PAY_NOW,
+        institution = InstitutionFactory()
+        Subscription.purchase(institution=institution,
+                              pay_when=Subscription.PAY_NOW,
                               user=UserFactory(),
-                              form=form)
+                              card_num=GOOD_CREDIT_CARD,
+                              exp_date='102020')
         self.assertEqual(initial_outgoing_mails + 1, len(mail.outbox))
 
-    ############################################
-    # test(s?) for _send_post_purchase_email():
-    ############################################
-    def test__send_post_purchase_email_mails_user_if_not_contact_email(self):
+    def test_purchase_mails_user_if_not_contact_email(self):
         """Does user get email if he's not institution.contact_email?
-
-           Depends on Subscription.create().
         """
         contact_email = 'jim@jonestown.gy'
         user_email = 'teddy@kozinski.nom'
         institution = InstitutionFactory(contact_email=contact_email)
         user = UserFactory(email=user_email)
-        (subscription, _) = Subscription.create(institution=institution)
-        subscription.purchase(pay_when=Subscription.PAY_LATER,
+        Subscription.purchase(institution=institution,
+                              pay_when=Subscription.PAY_LATER,
                               user=user)
         message = mail.outbox.pop()
         self.assertEqual(message.to, [contact_email, user_email])
+
+    ###################################################################
+    # test that the email templates get the context they're expecting:
+    ###################################################################
+
+    def _invalid_template_strings(self, text, marker=None):
+        marker = marker or settings.TEMPLATE_STRING_IF_INVALID
+        invalid_strings = []
+        for match in re.finditer(marker.replace('%s', '(.*)'),
+                                 text):
+            invalid_strings.append(match.groups()[0])
+        return invalid_strings or None
+
+    def _test_email_templates_ok(actual_test):
+        @wraps(actual_test)
+        def _test(self):
+            settings.TEMPLATE_STRING_IF_INVALID = (
+                'INVALID TEMPLATE STRING %s /INVALID TEMPLATE STRING')
+
+            actual_test(self)
+
+            for message in mail.outbox:
+                invalid_strings = self._invalid_template_strings(message.body)
+                self.assertIsNone(invalid_strings,
+                                  msg=("invalid template string(s): " +
+                                       str(invalid_strings)))
+        return _test
+
+    @_test_email_templates_ok
+    def test_purchase_pay_now_registration_email_templates_ok(self):
+        """Are the email templates used when paying now for registration ok?
+
+           Where "ok" means they get the context they're expecting.
+        """
+        institution = InstitutionFactory()
+        Subscription.purchase(institution=institution,
+                              pay_when=Subscription.PAY_NOW,
+                              user=UserFactory(),
+                              card_num=GOOD_CREDIT_CARD,
+                              exp_date='102020')
+
+    @_test_email_templates_ok
+    def test_purchase_pay_later_registration_email_templates_ok(self):
+        """Are the email templates used when paying later for registration ok?
+
+           Where "ok" means they get the context they're expecting.
+        """
+        Subscription.purchase(institution=self.subscription.institution,
+                              pay_when=Subscription.PAY_LATER,
+                              user=UserFactory())
+
+    @_test_email_templates_ok
+    def test_purchase_pay_now_renewal_email_templates_ok(self):
+        """Are the email templates used when paying later for registration ok?
+
+           Where "ok" means they get the context they're expecting.
+        """
+        Subscription.purchase(institution=self.subscription.institution,
+                              pay_when=Subscription.PAY_NOW,
+                              user=UserFactory(),
+                              card_num=GOOD_CREDIT_CARD,
+                              exp_date='102020')
+
+    @_test_email_templates_ok
+    def test_purchase_pay_later_renewal_email_templates_ok(self):
+        """Are the email templates used when paying later for registration ok?
+
+           Where "ok" means they get the context they're expecting.
+        """
+        Subscription.purchase(institution=self.subscription.institution,
+                              pay_when=Subscription.PAY_LATER,
+                              user=UserFactory())

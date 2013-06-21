@@ -9,8 +9,10 @@ from django import forms
 
 from aashe.issdjango.models import Organizations
 
-from stars.apps.institutions.models import (Institution, SubscriptionPayment,
-                                            RegistrationSurvey)
+from stars.apps.institutions.models import (Institution,
+                                            SubscriptionPayment,
+                                            RegistrationSurvey,
+                                            RespondentSurvey)
 from stars.apps.notifications.models import EmailTemplate
 from stars.apps.registration.forms import (SelectSchoolForm,
                                            ParticipationLevelForm,
@@ -18,6 +20,7 @@ from stars.apps.registration.forms import (SelectSchoolForm,
                                            RegistrationSurveyForm,
                                            RespondentRegistrationSurveyForm,
                                            ContactForm)
+from stars.apps.registration.models import ValueDiscount
 from stars.apps.tool.mixins import InstitutionAdminToolMixin
 from stars.apps.accounts.mixins import StarsAccountMixin
 from stars.apps.helpers.wizard import BetterWizardView, RevalidationFailure
@@ -27,6 +30,7 @@ from .utils import init_starsaccount, init_submissionset, init_subscription
 from zc.authorizedotnet.processing import CcProcessor
 
 logger = getLogger('stars')
+
 
 REG_FORMS = [('select', SelectSchoolForm),
              ('level', ParticipationLevelForm),
@@ -159,9 +163,9 @@ class RegistrationWizard(StarsAccountMixin, BetterWizardView):
         amount_due = 0
         # Set up subscription and payment choice
         if self.picked_participant():
-            amount_due = payment_form.get_amount()
 
             if payment_form.cleaned_data['pay_later']:
+                amount_due = payment_form.get_amount()
                 institution.save()
                 subscription = init_subscription(institution,
                                                  amount_due)
@@ -214,12 +218,17 @@ class RegistrationWizard(StarsAccountMixin, BetterWizardView):
             et = EmailTemplate.objects.get(
                 slug='welcome_international_pilot')
             email_context = {'institution': institution}
-        elif payment is None:
-            et = EmailTemplate.objects.get(slug='welcome_liaison_unpaid')
-            email_context = {'price': amount_due}
+        elif self.picked_participant():
+            if payment == None:
+                et = EmailTemplate.objects.get(slug='welcome_liaison_unpaid')
+                email_context = {'price': amount_due}
+            else:
+                et = EmailTemplate.objects.get(slug='welcome_liaison_paid')
+                email_context = {"institution": institution,
+                                 'payment': payment}
         else:
-            et = EmailTemplate.objects.get(slug='welcome_liaison_paid')
-            email_context = {"institution": institution, 'payment': payment}
+            et = EmailTemplate.objects.get(slug='welcome_respondent')
+            email_context = {"institution": institution}
 
         et.send_email(email_to, email_context)
 
@@ -250,13 +259,18 @@ participant_reg = RegistrationWizard.as_view(
 class SurveyView(InstitutionAdminToolMixin, CreateView):
 
     template_name = "registration/survey.html"
-    model = RegistrationSurvey
+
+    @property
+    def model(self):
+        if self.get_institution().is_participant:
+            return RegistrationSurvey
+        else:
+            return RespondentSurvey
 
     def get_form_kwargs(self):
         kwargs = super(SurveyView, self).get_form_kwargs()
-        kwargs['instance'] = RegistrationSurvey(
-            institution=self.get_institution(),
-            user=self.request.user)
+        kwargs['instance'] = self.model(institution=self.get_institution(),
+                                        user=self.request.user)
         return kwargs
 
     def get_form_class(self):

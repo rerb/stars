@@ -5,7 +5,8 @@ from django.contrib.messages import constants as messages
 
 sys.path.append('../')
 
-ADMINS = (('Benjamin Stookey', 'ben@aashe.org'),('Bob Erb', 'bob.erb@aashe.org'))
+ADMINS = (('Benjamin Stookey', 'ben@aashe.org'),
+          ('Bob Erb', 'bob.erb@aashe.org'))
 MANAGERS = ADMINS
 
 DEFAULT_CHARSET = 'utf-8'
@@ -17,6 +18,8 @@ TEMPLATE_DEBUG = DEBUG
 API_TEST_MODE = os.environ.get("API_TEST_MODE", DEBUG)
 FIXTURE_DIRS = ('fixtures', os.path.join(PROJECT_PATH, 'apps/api/fixtures'),)
 PROFILE = os.environ.get("PROFILE", False)
+
+PROFILE = False
 
 TIME_ZONE = 'America/Lima'
 LANGUAGE_CODE = 'en-us'
@@ -71,7 +74,8 @@ MIDDLEWARE_CLASSES = [ # a list so it can be editable during tests (see below)
     'django.middleware.locale.LocaleMiddleware']
 
 import django_cache_url
-CACHES = {'default': django_cache_url.parse(os.environ.get('CACHE_URL', 'dummy://'))}
+CACHES = {'default': django_cache_url.parse(os.environ.get('CACHE_URL',
+                                                           'dummy://'))}
 
 AUTH_PROFILE_MODULE = 'accounts.UserProfile'
 AUTHENTICATION_BACKENDS = ('aashe.aasheauth.backends.AASHEBackend',)
@@ -137,7 +141,6 @@ INSTALLED_APPS = (
     'stars.apps.third_parties',
     'stars.apps.api',
     'stars.tests',
-    
     'aashe.aasheauth',
     'aashe.issdjango',
     'bootstrapform',
@@ -145,27 +148,34 @@ INSTALLED_APPS = (
     'collapsing_menu',
     'django_extensions',
     'djcelery',
-    'gunicorn',
+    'raven.contrib.django.raven_compat',
     'logical_rules',
     'sorl.thumbnail',
     'south',
     's3_folder_storage',
     'tastypie',
+    'gunicorn',
 )
 
 # auth config
 AASHE_DRUPAL_URI = os.environ.get('AASHE_DRUPAL_URI', None)
 AASHE_DRUPAL_KEY = os.environ.get('AASHE_DRUPAL_KEY', None)
 AASHE_DRUPAL_KEY_DOMAIN = os.environ.get('AASHE_DRUPAL_KEY_DOMAIN', None)
-AASHE_DRUPAL_COOKIE_SESSION = os.environ.get('AASHE_DRUPAL_COOKIE_SESSION', None)
-AASHE_DRUPAL_COOKIE_DOMAIN = os.environ.get('AASHE_DRUPAL_COOKIE_DOMAIN', None)
+AASHE_DRUPAL_COOKIE_SESSION = os.environ.get('AASHE_DRUPAL_COOKIE_SESSION',
+                                             None)
+AASHE_DRUPAL_COOKIE_DOMAIN = os.environ.get('AASHE_DRUPAL_COOKIE_DOMAIN',
+                                            None)
 AASHE_AUTH_VERBOSE = os.environ.get('AASHE_AUTH_VERBOSE', False)
 
 # Permissions or user levels for STARS users
-STARS_PERMISSIONS = (('admin', 'Administrator'), ('submit', 'Data Entry'), ('view', 'Observer')) # ('review', 'Audit/Review'))
+STARS_PERMISSIONS = (('admin', 'Administrator'),
+                     ('submit', 'Data Entry'),
+                     ('view', 'Observer'))
+                   # ('review', 'Audit/Review'))
 
 # Email
-EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
+EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND',
+                               'django.core.mail.backends.console.EmailBackend')
 EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', True)
 EMAIL_HOST = os.environ.get('EMAIL_HOST', None)
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', None)
@@ -188,7 +198,8 @@ djcelery.setup_loader()
 BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'amqp://guest:guest@localhost:5672/')
 CELERY_ALWAYS_EAGER = os.environ.get('CELERY_ALWAYS_EAGER', False)
 CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'database')
-CELERY_RESULT_DBURI = os.environ.get('CELERY_RESULT_DBURI', "sqlite:///tmp/stars-celery-results.db")
+CELERY_RESULT_DBURI = os.environ.get('CELERY_RESULT_DBURI',
+                                     "sqlite:///tmp/stars-celery-results.db")
 CELERY_CACHE_BACKEND = os.environ.get('CELERY_CACHE_BACKEND', 'dummy')
 
 # default is test mode
@@ -215,6 +226,11 @@ DJANGO_VERSION = django.get_version()
 HG_REVISION = None
 
 SOUTH_TESTS_MIGRATE = False
+
+# Sentry Logging: getsentry.com
+RAVEN_CONFIG = {
+    'dsn': os.environ.get('RAVEN_CONFIG_DSN', None),
+}
 
 LOGGING = {
     'version': 1,
@@ -347,7 +363,8 @@ if os.path.exists(os.path.join(os.path.dirname(__file__), 'hg_info.py')):
 # django toolbar
 DEBUG_TOOLBAR = os.environ.get('DEBUG_TOOLBAR', False)
 if DEBUG_TOOLBAR:
-    MIDDLEWARE_CLASSES = MIDDLEWARE_CLASSES + ['debug_toolbar.middleware.DebugToolbarMiddleware',]
+    MIDDLEWARE_CLASSES = MIDDLEWARE_CLASSES + [
+        'debug_toolbar.middleware.DebugToolbarMiddleware']
     INTERNAL_IPS = ('127.0.0.1',)
     INSTALLED_APPS = INSTALLED_APPS + ('debug_toolbar',)
     DEBUG_TOOLBAR_CONFIG = {
@@ -357,7 +374,8 @@ if DEBUG_TOOLBAR:
 # Test backends
 if 'test' in sys.argv:
     # until fix for http://code.djangoproject.com/ticket/14105
-    MIDDLEWARE_CLASSES.remove('django.middleware.cache.FetchFromCacheMiddleware')
+    MIDDLEWARE_CLASSES.remove(
+        'django.middleware.cache.FetchFromCacheMiddleware')
     MIDDLEWARE_CLASSES.remove('django.middleware.cache.UpdateCacheMiddleware')
 
     DATABASES['default'] = dj_database_url.parse(
@@ -367,11 +385,11 @@ if 'test' in sys.argv:
         os.environ.get('ISS_TEST_DB',
                        "sqlite:////tmp/iss_tests.db"))
 
-    CACHES = {'default': django_cache_url.parse(os.environ.get('CACHE_TEST_URL', 'file:///tmp/stars-cache'))}
+    CACHES = {'default': django_cache_url.parse(os.environ.get(
+        'CACHE_TEST_URL', 'file:///tmp/stars-cache'))}
 
     API_TEST_MODE = False
 
     AUTHORIZENET_LOGIN = os.environ.get('AUTHORIZENET_TEST_LOGIN', None)
     AUTHORIZENET_KEY = os.environ.get('AUTHORIZENET_TEST_KEY', None)
     AUTHORIZENET_SERVER = os.environ.get('AUTHORIZENET_TEST_SERVER', None)
-
