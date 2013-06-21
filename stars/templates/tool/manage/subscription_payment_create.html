@@ -1,57 +1,11 @@
 {% extends 'tool/summary.html' %}
 
-{% load bootstrap %}
-
-{% block crumbs-tool %}<li>{{ breadcrumb|title }}</li>{% endblock %}
+{% block crumbs-tool %}
+  <li>
+    {{ breadcrumb|title }}
+  </li>
+{% endblock %}
 
 {% block institution_content %}
-
-  <p>
-
-    {% if pay_when = "later" %}
-      You will be billed ${{ amount_due|floatformat:2 }} for your new
-      STARS subscription.
-    {% else %}
-      Your credit card will be charged ${{ amount_due|floatformat:2 }}
-      for your
-      {% comment %}
-        This form is used to apply payments to existing subscriptions,
-        as well as new ones.
-      {% endcomment %}
-      {% if new_subscription %}
-        new
-      {% endif %}
-      STARS subscription.
-    {% endif %}
-  </p>
-
-  <form method='post' action='.' class='form-horizontal'>
-
-    {{ form|bootstrap }}
-
-    <div class='form-actions'>
-
-      <button
-          type='submit'
-          id='submit_button'
-          class='btn btn-primary'>
-              <i class='icon-lock icon-white'></i>
-              {% if new_subscription %}
-                Purchase Subscription
-              {% else %}
-                Submit Payment
-              {% endif %}
-      </button>
-
-      <button
-          type='button'
-          class='btn'
-          onclick="document.location='{% url tool-summary institution.slug %}'">
-              Cancel
-      </button>
-
-    </div>
-
-  </form>
-
+  {% include 'payments/subscription_payment_create.html' %}
 {% endblock %}

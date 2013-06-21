@@ -3,12 +3,8 @@ from logging import getLogger
 from django.conf import settings
 from django.contrib import messages
 from django.core.urlresolvers import reverse
-from django.http import (HttpResponse,
-                         HttpResponseBadRequest,
-                         HttpResponseRedirect,
-                         Http404)
+from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404
-from django.utils import simplejson as json
 from django.utils.functional import memoize
 from django.views.generic import (CreateView, DeleteView, FormView, ListView,
                                   TemplateView, UpdateView)
@@ -20,18 +16,13 @@ from aashe.aasheauth.backends import AASHEBackend
 from stars.apps.credits.models import CreditSet
 from stars.apps.helpers.forms import form_helpers
 from stars.apps.helpers.mixins import ValidationMessageFormMixin
-from stars.apps.helpers.queryset_sequence import QuerySetSequence
 from stars.apps.institutions.models import (StarsAccount, Subscription,
                                             SubscriptionPayment,
-                                            SubscriptionPurchaseError,
                                             PendingAccount)
 from stars.apps.institutions.models import Institution
 from stars.apps.payments import credit_card
-from stars.apps.registration.models import get_current_discount
-from stars.apps.tool.manage.forms import (PayNowForm,
-                                          PaymentOptionsForm,
-                                          PayLaterForm,
-                                          SubscriptionPriceForm)
+from stars.apps.payments.forms import SubscriptionPayNowForm
+from stars.apps.payments.views import SubscriptionPaymentWizard
 from stars.apps.submissions.models import SubmissionSet
 from stars.apps.submissions.tasks import (perform_migration,
                                           perform_data_migration)
@@ -224,21 +215,25 @@ class AccountListView(InstitutionAdminToolMixin, ListView):
 
     def get_queryset(self):
         institution = self.get_institution()
-        stars_accounts = StarsAccount.objects.filter(
-            institution=institution)
-        pending_accounts = PendingAccount.objects.filter(
-            institution=institution)
-        qs = QuerySetSequence(stars_accounts, pending_accounts)
-        # StarsAccount has a `userq attribute, and that has an `email`
+        querysets = [StarsAccount.objects.filter(institution=institution),
+                     PendingAccount.objects.filter(institution=institution)]
+        # StarsAccount has a `user attribute, and that has an `email`
         # attribute;  PendingAccount doesn't have a user, but has
         # a `user_email` attribute.  Since we want to sort the heterogenous
         # list, we have to do it manually (i.e., not via order_by()).
-        for account in qs:
-            try:
-                account.email = account.user_email
-            except AttributeError:
-                account.email = account.user.email
-        return qs.order_by('email')
+        fake_queryset = []
+        for queryset in querysets:
+            for account in queryset:
+                try:
+                    account.email = account.user_email
+                except AttributeError:
+                    account.email = account.user.email
+                fake_queryset.append(account)
+
+        sorted_fake_queryset = sorted(fake_queryset,
+                                      key=lambda account: account.email)
+
+        return sorted_fake_queryset
 
     def get_context_data(self, **kwargs):
         context = super(AccountListView, self).get_context_data(**kwargs)
@@ -550,143 +545,67 @@ class MigrateVersionView(InstitutionAdminToolMixin,
         return super(MigrateVersionView, self).form_valid(form)
 
 
-class SubscriptionPriceView(InstitutionToolMixin,
-                            FormView):
-    """
-        Displays price for a subscription, and allows user
-        to enter a promo code.
+class SubscriptionCreateWizard(InstitutionToolMixin,
+                               SubscriptionPaymentWizard):
 
-        Promo code verification and subsequent price change
-        is handled in SubscriptionPriceForm via JavaScript.
-    """
-    form_class = SubscriptionPriceForm
-    success_url_name = 'subscription-payment-options'
-    tab_content_title = 'purchase a subscription: price'
-    template_name = 'tool/manage/subscription_price.html'
+    @property
+    def success_url(self):
+        return reverse(
+            'tool-summary',
+            kwargs={'institution_slug': self.get_institution().slug})
 
-    def form_invalid(self, form):
-        if self.request.is_ajax():
-            prices = Subscription.get_prices_for_new_subscription(
-                institution=self.get_institution())
-            data = prices
-            data['form-errors'] = form.errors
-            return HttpResponseBadRequest(json.dumps(data),
-                                          mimetype='application/json')
-        else:
-            return super(SubscriptionPriceView, self).form_invalid(form)
+    def get_template_names(self):
+        if int(self.steps.current) == self.PRICE:
+            return 'tool/manage/subscription_price.html'
+        elif int(self.steps.current) == self.PAYMENT_OPTIONS:
+            return 'tool/manage/subscription_payment_options.html'
+        elif int(self.steps.current) == self.SUBSCRIPTION_CREATE:
+            return 'tool/manage/subscription_payment_create.html'
+        return super(SubscriptionCreateWizard, self).get_template_names()
 
     def update_logical_rules(self):
-        super(SubscriptionPriceView, self).update_logical_rules()
+        super(SubscriptionCreateWizard, self).update_logical_rules()
         self.add_logical_rule({'name': 'user_has_view_access',
                                'param_callbacks': [
                                    ('user', 'get_request_user'),
                                    ('institution', 'get_institution')]})
 
-    def get_context_data(self, **kwargs):
-        context = super(SubscriptionPriceView,
-                        self).get_context_data(**kwargs)
-
-        (subscription_start_date, subscription_end_date) = (
-            Subscription.get_date_range_for_new_subscription(
-                self.get_institution()))
-
-        context['subscription_start_date'] = subscription_start_date
-        context['subscription_end_date'] = subscription_end_date
-
-        prices = Subscription.get_prices_for_new_subscription(
-            institution=self.get_institution())
-
-        context['prices'] = prices
-
+    def _get_context_data_price(self, form, **kwargs):
+        context = super(SubscriptionCreateWizard,
+                        self)._get_context_data_price(form, **kwargs)
+        context['tab_content_title'] = 'purchase a subscription: price'
         return context
 
-    def form_valid(self, form):
-        if self.request.is_ajax():
-            promo_code = self.request.POST['promo_code']
-            prices = Subscription.get_prices_for_new_subscription(
-                institution=self.get_institution(),
-                promo_code=promo_code)
-            data = prices
-            discount = get_current_discount(promo_code)
-            if discount:
-                data.update({'discount_amount': discount.amount,
-                             'discount_percentage': discount.percentage})
-                return HttpResponse(json.dumps(data),
-                                    mimetype='application/json')
-            else:
-                # If form.promo_code is validated by the form,
-                # we shouldn't ever get here.  Still . . .
-                return HttpResponseBadRequest(json.dumps(data),
-                                              mimetype='application/json')
-        else:
-            self.request.session['promo_code'] = self.request.POST.get(
-                'promo_code', '')
-            return super(SubscriptionPriceView, self).form_valid(form)
-
-
-PAY_WHEN = 'pay_when'
-
-
-class SubscriptionPaymentOptionsView(InstitutionToolMixin,
-                                     ValidationMessageFormMixin,
-                                     FormView):
-    """
-        Provides a form by which a user's preference to pay now
-        (by credit card) or pay later (after being billed) for a
-        new subscription can be specified.
-
-        Success URL is the view that creates a Subscription.
-
-        Will redirect to 'subscription-create' view if amount due for
-        this subscription is 0.00, so the user won't even see this
-        view.
-
-        Depends on request.session['promo_code'].
-    """
-    form_class = PaymentOptionsForm
-    success_url_name = 'subscription-create'
-    tab_content_title = 'purchase a subscription: payment options'
-    template_name = 'tool/manage/subscription_payment_options.html'
-    valid_message = ''  # Only want to use invalid_message.
-    invalid_message = 'Please choose to pay now or pay later.'
-
-    def get(self, request, *args, **kwargs):
-        # A promo code might discount a subscription by 100%.  If
-        # the amount due is 0, we'll short-circuit this payment
-        # options view and redirect to 'subscription-create'.
-        promo_code = self.request.session['promo_code']
-        amount_due = Subscription.get_prices_for_new_subscription(
-            institution=self.get_institution(),
-            promo_code=promo_code)['total']
-        self.request.session['amount_due'] = amount_due
-        if amount_due == 0.0:
-            self.request.session[PAY_WHEN] = Subscription.PAY_LATER
-            return HttpResponseRedirect(
-                reverse(self.success_url_name,
-                        kwargs={
-                            'institution_slug': self.get_institution().slug}))
-        else:
-            return super(SubscriptionPaymentOptionsView, self).get(request,
-                                                                   *args,
-                                                                   **kwargs)
-
-    def update_logical_rules(self):
-        super(SubscriptionPaymentOptionsView, self).update_logical_rules()
-        self.add_logical_rule({'name': 'user_has_view_access',
-                               'param_callbacks': [
-                                   ('user', 'get_request_user'),
-                                   ('institution', 'get_institution')]})
-
-    def get_context_data(self, **kwargs):
-        context = super(SubscriptionPaymentOptionsView,
-                        self).get_context_data(**kwargs)
-        context['amount_due'] = self.request.session['amount_due']
+    def _get_context_data_payment_options(self, form, **kwargs):
+        context = super(SubscriptionCreateWizard,
+                        self)._get_context_data_payment_options(form,
+                                                                **kwargs)
+        context.update({
+            'tab_content_title': 'purchase a subscription: payment options',
+            'success_url_name': 'subscription-create',
+            'valid_message': '',  # Only want to use invalid_message.
+            'invalid_message': 'Please choose to pay now or pay later.'})
         return context
 
-    def form_valid(self, form):
-        # Pass on the payment option selected:
-        self.request.session[PAY_WHEN] = form.cleaned_data[PAY_WHEN]
-        return super(SubscriptionPaymentOptionsView, self).form_valid(form)
+    def _get_context_data_subscription_create(self, form, **kwargs):
+        def get_tab_content_title():
+            tab_content_title = 'purchase a subscription'
+            if float(self.request.session['amount_due']):
+                # amount due can be $0.00
+                tab_content_title += {
+                    Subscription.PAY_LATER: ': pay later',
+                    Subscription.PAY_NOW: ': pay now'}[self.pay_when]
+            return tab_content_title
+
+        context = super(SubscriptionCreateWizard,
+                        self)._get_context_data_subscription_create(form,
+                                                                    **kwargs)
+
+        context.update({'tab_content_title': get_tab_content_title(),
+                        'breadcrumb': 'purchase subscription',
+                        'new_subscription': True})
+
+        return context
 
 
 class SubscriptionPaymentCreateBaseView(ValidationMessageFormMixin,
@@ -732,91 +651,13 @@ class SubscriptionPaymentCreateBaseView(ValidationMessageFormMixin,
         return exp_date
 
 
-class SubscriptionCreateView(SubscriptionPaymentCreateBaseView):
-    """
-        Creates a Subscription.
-
-        If self.pay_when == Subscription.PAY_NOW, the form displayed
-        requests credit card info, and an attempt to charge the card
-        is made.
-
-        If self.pay_when = Subscription.PAY_LATER, the form displayed
-        requests only a promo code.
-
-        After creating a Subscription, it's purchased, which, if paying
-        now, will trigger a credit card transaction.  Not that purchasing
-        and paying for a subscription are distinct operations.  Subscriptions
-        can be purchased without being paid.
-    """
-    success_url_name = 'tool-summary'
-    template_name = 'tool/manage/subscription_payment_create.html'
-
-    @property
-    def pay_when(self):
-        """Just a shorthand for self.request.session[PAY_WHEN]."""
-        return self.request.session[PAY_WHEN]
-
-    def form_valid(self, form):
-        """
-            Purchases a subscription.
-        """
-        if self.pay_when == Subscription.PAY_NOW:
-            card_num = self.get_card_num(form)
-            exp_date = self.get_exp_date(form)
-        else:
-            card_num = None
-            exp_date = None
-
-        promo_code = self.request.session['promo_code']
-
-        try:
-            self.subscription = Subscription.purchase(
-                institution=self.get_institution(),
-                pay_when=self.pay_when,
-                user=self.request.user,
-                promo_code=promo_code,
-                card_num=card_num,
-                exp_date=exp_date)
-        except SubscriptionPurchaseError as spe:
-            messages.error(self.request, str(spe))
-            return self.form_invalid(form)
-
-        return super(SubscriptionCreateView, self).form_valid(form)
-
-    def get_form_class(self):
-        return {Subscription.PAY_LATER: PayLaterForm,
-                Subscription.PAY_NOW: PayNowForm}[self.pay_when]
-
-    def get_tab_content_title(self):
-        tab_content_title = 'purchase a subscription'
-        if float(self.request.session['amount_due']):  # amount due can be $0.00
-            tab_content_title += {
-                Subscription.PAY_LATER: ': pay later',
-                Subscription.PAY_NOW: ': pay now'}[self.pay_when]
-        return tab_content_title
-
-    def get_valid_message(self):
-        return """Thank you!
-                  Your new subscription lasts from
-                  {start} to {finish}.""".format(
-                      start=self.subscription.start_date,
-                      finish=self.subscription.end_date)
-
-    def get_context_data(self, **kwargs):
-        context = super(SubscriptionCreateView,
-                        self).get_context_data(**kwargs)
-        context['amount_due'] = self.request.session['amount_due']
-        context['pay_when'] = self.request.session[PAY_WHEN]
-        return context
-
-
 class SubscriptionPaymentCreateView(SubscriptionPaymentCreateBaseView):
     """
         Allows user to make a credit card payment toward a
         subscription.  Accepts full amount due only (i.e., no
         partial payments).
     """
-    form_class = PayNowForm
+    form_class = SubscriptionPayNowForm
     success_url_name = 'tool-summary'
     template_name = 'tool/manage/subscription_payment_create.html'
     valid_message = 'Thank you! Your payment has been processed.'
