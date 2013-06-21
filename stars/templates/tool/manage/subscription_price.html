@@ -1,0 +1,195 @@
+{% extends 'tool/summary.html' %}
+
+{% load bootstrap %}
+
+{% block extra_head %}
+  {{ block.super }}
+  <script type="text/javascript">
+    function addThousandsComma(text_amount) {
+        // This will work until we get really expensive (and not for
+        // international users, either):
+        number_parts = text_amount.split('.')[0]
+        whole_number_part = number_parts[0]
+        decimal_part = number_parts[1]
+        if (whole_number_part.length > 3) {
+            text_amount = (whole_number_part.substr(0,2) + "," +
+                           whole_number_part.substr(3) + "." +
+                           decimal_part);
+        }
+        return text_amount;
+    }
+    function decimalToDollarString(decimal) {
+        dollar_string = "$" + addThousandsComma(decimal.toString());
+        return dollar_string;
+    }
+    function updateAmountDue(amt) {
+        fixed_amt = amt.toFixed(2);
+        $("#amount-due").contents().text(decimalToDollarString(fixed_amt));
+    }
+
+    function applyPromoCode() {
+        var promo_code = $("#id_promo_code");
+        var promo_code_text = promo_code.val();
+        if (promo_code_text.length == 0) {
+            return;
+        }
+        var ajax_request = $.ajax({
+            type: "POST",
+            data: {
+                "promo_code": promo_code_text,
+            },
+            success: function(data, textStatus, jqXHR) {
+                // fill in the description and amount in the
+                // promo code row of the pricing table:
+                var amount_subtracted = parseFloat(data.promo_discount);
+                amount_subtracted = amount_subtracted.toFixed(2);
+                $("#id_promo_code_amount").text(
+                    "-" + decimalToDollarString(amount_subtracted));
+                var discount_description = ("Promo code " +
+                                            $("#id_promo_code").val());
+                if (parseFloat(data.discount_percentage) > 0.0) {
+                    discount_description += (", " +
+                                             data.discount_percentage +
+                                             "% off");
+                }
+                $("#id_promo_code_description").text(discount_description);
+
+                // show it:
+                $("#id_promo_code_row").show()
+
+                updateAmountDue(data.total);
+            },
+            error: function(data, textStatus, jqXHR) {
+                // hide the promo code row:
+                $("#id_promo_code_row").hide();
+
+                // pop up a "sorry, I don't like that" modal:
+                $("#id_promo_code_in_modal").text("\"" +
+                                                  $("#id_promo_code").val() +
+                                                  "\"");
+                $("#id_invalid_promo_code_modal").modal();
+
+                // reset the promo code field
+                $("#id_promo_code").val("");
+
+                // update the amount due (the previous amount due might
+                // have reflected a valid promo discount):
+                responseDict = $.parseJSON(data.responseText);
+                updateAmountDue(responseDict["total"]);
+            }
+        });
+    }
+  </script>
+{% endblock %}
+
+{% block crumbs-tool %}<li>Purchase Subscription</li>{% endblock %}
+
+{% block institution_content %}
+
+  <form method='post' action='.' class='form-horizontal'>
+    <table class="table">
+      <tbody>
+        <tr id="subscription-base-price">
+          <td class="amount" style="text-align:right">
+            ${{ prices.base_price|floatformat:2 }}
+          </td>
+          <td>
+            STARS subscription, from {{ subscription_start_date }}
+            to {{ subscription_end_date }}
+          </td>
+        </tr>
+        {% if prices.member_discount %}
+          <tr>
+            <td class="amount" style="text-align:right;color:red">
+                - ${{ prices.member_discount|floatformat:2 }}
+              </span>
+            </td>
+            <td>
+                Discount for AASHE members
+            </td>
+          </tr>
+        {% endif %}
+        {% if prices.early_renewal_discount %}
+          <tr>
+            <td class="amount" style="text-align:right;color:red">
+                - ${{ prices.early_renewal_discount|floatformat:2 }}
+              </span>
+            </td>
+            <td>
+                Discount for renewing your subscription early
+            </td>
+          </tr>
+        {% endif %}
+        <tr id="id_promo_code_row" style="display:none;">
+          <td id="id_promo_code_amount" class="amount"
+              style="text-align:right;color:red">
+          </td>
+          <td id="id_promo_code_description">
+          </td>
+        </tr>
+        <tr>
+          <td id="amount-due" style="text-align:right">
+            <h4>
+              {{ prices.total|floatformat:2 }}
+            </h4>
+          </td>
+          <td>
+            <h4>
+              Amount due
+            </h4>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class='form-inline'>
+      <label>Have a promo code?  Enter it here:</label>
+      {{ form.promo_code }}
+      <button id="apply-promo-code-button" type="button"
+              onclick="applyPromoCode();">
+        Apply Promo Code
+      </button>
+    </div>
+
+    <div class='form-actions'>
+
+      <button
+          type='submit'
+          id='submit_button'
+          class='btn btn-primary'>
+              Continue
+      </button>
+
+      <button
+          type='button'
+          class='btn'
+          onclick="document.location='{% url tool-summary institution.slug %}'">
+              Cancel
+      </button>
+
+    </div>
+
+  </form>
+
+  <div class="modal hide fade" id="id_invalid_promo_code_modal">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal">
+        &times;
+      </button>
+      <h3>Sorry</h3>
+    </div>
+    <div class="modal-body">
+      <p>
+        <span id="id_promo_code_in_modal"></span>
+        isn't a valid promo code.
+      </p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="close" data-dismiss="modal"
+              aria-hidden="true">
+        Close
+      </button>
+    </div>
+  </div>
+
+{% endblock %}
