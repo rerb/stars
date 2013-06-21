@@ -6,7 +6,6 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.localflavor.us.models import PhoneNumberField
-from django.contrib import messages
 from django.template.defaultfilters import slugify
 from django.db.models import Max
 from django.core.mail import send_mail
@@ -395,6 +394,9 @@ class Subscription(models.Model):
             Doing this via a static factory method rather than in
             __init__, because tweaking __init__ on a Model causes
             weird things to happen.
+
+            Will propagate any errors raised if an invalid or
+            expired promo_code is provided.
         """
         # promo_code is a kwarg we need to pop off kwargs before passing it
         # to Subscription():
@@ -411,6 +413,7 @@ class Subscription(models.Model):
          subscription.end_date) = subscription._calculate_date_range()
 
         prices = subscription.calculate_prices(promo_code=promo_code)
+
         subscription.amount_due = prices['total']
 
         return subscription
@@ -537,6 +540,10 @@ class Subscription(models.Model):
             the base price, amount discounted for a promo code,
             and the amount discounted by applying the early
             renewal discount.
+
+            If the promo_code is invalid or expired, an exception
+            from registration.models.get_current_discount() will
+            arise; it's not caught here, so beware.
         """
         base_price = self.NONMEMBER_BASE_PRICE
 
@@ -634,6 +641,9 @@ class Subscription(models.Model):
         """
             Returns price, after applying any promotional discount
             tied to promo_code.
+
+            Any exceptions raised in get_current_discount() are
+            propagated.
         """
         if promo_code:
             discount = get_current_discount(code=promo_code)

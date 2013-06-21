@@ -1,6 +1,7 @@
 {% extends 'institutions/data_displays/base.html' %}
 
 {% load content %}
+{% load l10n %}
 
 {% block crumb-tab %}
 	<li>Content Display</li>
@@ -16,6 +17,7 @@
 
 {% block extra_head %}
 	{{ block.super }}
+	{% localize off %}
 	<script type='text/javascript'>
 	
 		
@@ -34,6 +36,7 @@
 			{% endif %}
 		}
 	</script>
+	{% endlocalize %}
 	{% include "institutions/data_displays/filter_js.html" %}
 {% endblock %}
 

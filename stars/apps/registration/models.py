@@ -5,23 +5,33 @@ from django.core.validators import MaxValueValidator
 from django.db import models
 
 
+class InvalidDiscountCodeError(Exception):
+    pass
+
+
+class ExpiredDiscountCodeError(Exception):
+    pass
+
+
 def get_current_discount(code):
     """
     Returns the ValueDiscount with code == `code` if it's currently
     applicable.
 
-    Returns None if there's no match on `code` or the discount has
-    expired.
+    Raises InvalidDiscountCodeErrorf if there's no match on `code`,
+    and ExpiredDiscountCodeError if the discount has expired.
     """
     try:
         discount = ValueDiscount.objects.get(code=code)
     except ValueDiscount.DoesNotExist:
-        return None
+        raise InvalidDiscountCodeError(
+            '{code} is not a valid discount code'.format(code=code))
 
     if discount.current:
         return discount
     else:
-        return None
+        raise ExpiredDiscountCodeError(
+            'Discount code {code} has expired'.format(code=code))
 
 
 class ValueDiscount(models.Model):

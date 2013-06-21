@@ -263,11 +263,15 @@ class AccountListViewTest(InstitutionAdminToolMixinTest):
         soup = BeautifulSoup(view.rendered_content)
         table = soup.find('table')
         tbody = table.findChild('tbody')
-        rows = tbody.findChildren('tr')
 
-        accounts_on_page = [ row.td.text.split()[0].strip() for row in rows ]
+        email_tds = tbody.findChildren('td',
+                                       {'class': 'account-email-address'})
 
-        self.assertListEqual(accounts_on_page,
+        account_emails_on_page = [
+            email_td.text.split()[0].strip() for email_td in email_tds
+        ]
+
+        self.assertListEqual(account_emails_on_page,
                              sorted([ get_email(acct) for acct in accounts ]))
 
 

@@ -41,6 +41,9 @@ MAX_EXTENSIONS = 1
 # Extension period
 EXTENSION_PERIOD = timedelta(days=366/2)
 
+# Rating valid for
+RATING_VALID_PERIOD = timedelta(days=365 * 3)
+
 # Institutions that registered before May 29th, but haven't paid are still published
 REGISTRATION_PUBLISH_DEADLINE = date(2010, 5, 29)
 
@@ -480,7 +483,7 @@ class Boundary(models.Model):
     gsf_lab_space = models.FloatField("Gross square feet of laboratory space", help_text='Scientific research labs and other high performance facilities eligible for <a href="http://www.labs21century.gov/index.htm" target="_blank">Labs21 Environmental Performance Criteria</a> (EPC).', blank=True, null=True)
     cultivated_grounds_acres = models.FloatField("Acres of cultivated grounds", help_text="Areas that are landscaped, planted, and maintained (including athletic fields). If less than 5 acres, data not necessary.", blank=True, null=True)
     undeveloped_land_acres = models.FloatField("Acres of undeveloped land", help_text="Areas without any buildings or development. If less than 5 acres, data not necessary", blank=True, null=True)
-    climate_region = models.ForeignKey(ClimateZone, help_text="See the <a href='http://www1.eere.energy.gov/buildings/building_america/climate_zones.html'>USDOE</a> site and <a href='http://www.ashrae.org/File%20Library/docLib/Public/20081111_cztables.pdf'>ASHRAE</a>  (international) for more information.", blank=True, null=True)
+    climate_region = models.ForeignKey(ClimateZone, help_text="See the <a href='http://apps1.eere.energy.gov/buildings/publications/pdfs/building_america/ba_climateguide_7_1.pdf'>USDOE</a> site and <a href='http://www.ashrae.org/File%20Library/docLib/Public/20081111_cztables.pdf'>ASHRAE</a>  (international) for more information.", blank=True, null=True)
 
     # Features
     ag_school_present = models.NullBooleanField(

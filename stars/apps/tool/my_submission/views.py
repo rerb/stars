@@ -17,7 +17,8 @@ from stars.apps.notifications.models import EmailTemplate
 from stars.apps.submissions.models import (Boundary,
                                            CreditUserSubmission,
                                            ResponsibleParty,
-                                           SubcategorySubmission)
+                                           SubcategorySubmission,
+                                           RATING_VALID_PERIOD)
 from stars.apps.submissions.tasks import (send_certificate_pdf,
                                           rollover_submission)
 from stars.apps.tool.mixins import (UserCanEditSubmissionMixin,
@@ -237,7 +238,7 @@ class SubmitForRatingWizard(SubmissionToolMixin, SessionWizardView):
     def finalize_rating(self):
 
         ss = self.get_submissionset(use_cache=False)
-        institution = self.get_institution(use_cache=False)
+        institution = ss.institution
 
         # Save the submission
         ss.date_submitted = date.today()
@@ -256,10 +257,11 @@ class SubmitForRatingWizard(SubmissionToolMixin, SessionWizardView):
 
         institution.current_rating = ss.rating
         institution.rated_submission = ss
+        institution.rating_expires = date.today() + RATING_VALID_PERIOD
         institution.save()
 
         # Send certificate to Marnie
-        send_certificate_pdf.delay(ss)
+#         send_certificate_pdf.delay(ss)
 
         # update their current submission
         rollover_submission.delay(ss)
