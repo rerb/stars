@@ -19,8 +19,6 @@ API_TEST_MODE = os.environ.get("API_TEST_MODE", DEBUG)
 FIXTURE_DIRS = ('fixtures', os.path.join(PROJECT_PATH, 'apps/api/fixtures'),)
 PROFILE = os.environ.get("PROFILE", False)
 
-PROFILE = False
-
 TIME_ZONE = 'America/Lima'
 LANGUAGE_CODE = 'en-us'
 SITE_ID = 1
