@@ -559,13 +559,11 @@ class MigrateVersionView(InstitutionAdminToolMixin,
 class SubscriptionCreateWizard(InstitutionToolMixin,
                                SubscriptionPaymentWizard):
 
-class SubscriptionPaymentOptionsView(InstitutionToolMixin,
     @property
     def success_url(self):
         return reverse(
             'tool-summary',
             kwargs={'institution_slug': self.get_institution().slug})
-        new subscription can be specified.
 
     def get_template_names(self):
         if int(self.steps.current) == self.PRICE:
@@ -625,107 +623,9 @@ class SubscriptionPaymentOptionsView(InstitutionToolMixin,
         return context
 
 
-class SubscriptionPaymentCreateBaseView(ValidationMessageFormMixin,
-                                        InstitutionToolMixin,
-                                        FormView):
-    """
-        Provides a common base for the views that accept credit
-        card payments for subscriptions [i.e., the view that
-        creates a subscription and the view the creates a payment
-        for an existing subscription].
-    """
-    success_url_name = 'tool-summary'
-
-    def update_logical_rules(self):
-        super(SubscriptionPaymentCreateBaseView, self).update_logical_rules()
-        self.add_logical_rule({'name': 'user_has_view_access',
-                               'param_callbacks': [
-                                   ('user', 'get_request_user'),
-                                   ('institution', 'get_institution')]})
-
-    def get_context_data(self, **kwargs):
-        context = super(SubscriptionPaymentCreateBaseView,
-                        self).get_context_data(**kwargs)
-        context['breadcrumb'] = 'purchase subscription'
-        context['new_subscription'] = True
-        return context
-
-
-class SubscriptionCreateView(SubscriptionPaymentCreateBaseView):
-    """
-        Creates a Subscription.
-
-        If self.request.session['PAY_WHEN'] == Subscription.PAY_NOW,
-        the form displayed requests credit card info, and an attempt to
-        charge the card is made.
-
-        If self.request.session['PAY_WHEN'] = Subscription.PAY_LATER,
-        the form displayed requests only a promo code.
-
-        After creating a Subscription, it's purchased, which, if paying
-        now, will trigger a credit card transaction.
-    """
-    success_url_name = 'tool-summary'
-    template_name = 'tool/manage/subscription_payment_create.html'
-
-    @property
-    def pay_when(self):
-        """Just a shorthand for self.request.session[PAY_WHEN]."""
-        return self.request.session[PAY_WHEN]
-
-    def get_card_num(self, form):
-        """
-            Returns the credit card number from `form`.
-        """
-        self.subscription, promo_code_applied = Subscription.create(
-            institution=self.get_institution(),
-        card_num = form.cleaned_data['card_number']
-
-        if promo_code_applied:
-            messages.info(self.request, "Promo code discount applied!")
-
-        # must save subscription before trying to pay it; it's got to have
-        # an id for SubscriptionPayment.subscription_id:
-        self.subscription.save()
-
-        try:
-            self.subscription.purchase(pay_when=self.pay_when,
-        return card_num
-                                       form=form)
-        except SubscriptionPurchaseError as spe:
-            messages.error(self.request, str(spe))
-            return self.form_invalid(form)
-
-        return super(SubscriptionCreateView, self).form_valid(form)
-
-    def get_exp_date(self, form):
-        """
-            Returns the expiration date from `form`, in the format
-            the credit card processor expects, a string of 'MMYYYY'.
-        """
-        exp_date_month = form.cleaned_data['exp_month']
-            if self.subscription.pk:
-                self.subscription.delete()
-        return super(SubscriptionCreateView, self).form_invalid(form)
-
-    def get_form_class(self):
-        return {Subscription.PAY_LATER: PayLaterForm,
-                Subscription.PAY_NOW: PayNowForm}[self.pay_when]
-
-    def get_tab_content_title(self):
-        return {Subscription.PAY_LATER: 'purchase a subscription: pay later',
-        exp_date_year = form.cleaned_data['exp_year']
-                    self.pay_when]
-
-    def get_valid_message(self):
-        exp_date = exp_date_month + exp_date_year
-                  Your new subscription lasts from
-                  {start} to {finish}.""".format(
-                      start=self.subscription.start_date,
-        return exp_date
-
-
-class SubscriptionPaymentCreateView(SubscriptionPaymentCreateBaseView):
+class SubscriptionPaymentCreateView(ValidationMessageFormMixin,
+                                    InstitutionToolMixin,
+                                    FormView):
     """
         Allows user to make a credit card payment toward a
         subscription.  Accepts full amount due only (i.e., no
@@ -735,6 +635,7 @@ class SubscriptionPaymentCreateView(SubscriptionPaymentCreateBaseView):
     success_url_name = 'tool-summary'
     template_name = 'tool/manage/subscription_payment_create.html'
     valid_message = 'Thank you! Your payment has been processed.'
+    success_url_name = 'tool-summary'
 
     def __init__(self, *args, **kwargs):
         self._amount_due = None
@@ -761,10 +662,17 @@ class SubscriptionPaymentCreateView(SubscriptionPaymentCreateBaseView):
             self._amount_due = self.subscription.amount_due
         return self._amount_due
 
+    def update_logical_rules(self):
+        super(SubscriptionPaymentCreateView, self).update_logical_rules()
+        self.add_logical_rule({'name': 'user_has_view_access',
+                               'param_callbacks': [
+                                   ('user', 'get_request_user'),
+                                   ('institution', 'get_institution')]})
+
     def form_valid(self, form):
         try:
-            card_num = self.get_card_num(form)
-            exp_date = self.get_exp_date(form)
+            card_num = form.cleaned_data.get('card_number')
+            exp_date = form.get_exp_date()
             self.subscription.pay(amount=self.amount_due,
                                   user=self.request.user,
                                   card_num=card_num,
@@ -782,14 +690,8 @@ class SubscriptionPaymentCreateView(SubscriptionPaymentCreateBaseView):
     def get_context_data(self, **kwargs):
         context = super(SubscriptionPaymentCreateView,
                         self).get_context_data(**kwargs)
-        # Template is shared between the "pay now" and the "pay later"
-        # scenarios, and depends on some context variables for some
-        # stuff. When creating a subscription, these are set earlier in
-        # the workflow, but when applying a payment to an existing
-        # subscription, we need to set them here, in this view that only
-        # ever is used when the user wants to pay now (i.e. by credit card).
+        context['breadcrumb'] = 'purchase subscription'
         context['pay_when'] = Subscription.PAY_NOW
-        if 'amount_due' not in context:
-            context['amount_due'] = self.amount_due
-            context['new_subscription'] = False
+        context['amount_due'] = self.amount_due
+        context['new_subscription'] = False
         return context

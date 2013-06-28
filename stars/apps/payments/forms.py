@@ -211,6 +211,15 @@ class SubscriptionPayNowForm(forms.Form):
 
         return data
 
+    def get_exp_date(self):
+        """Return the expiration month and year formatted as the overlords
+        prefer.  MMYYYY"""
+        month_str = str(self.cleaned_data['exp_month'])
+        if len(month_str) < 2:
+            month_str = '0' + month_str
+        year_str = str(self.cleaned_data['exp_year'])
+        return month_str + year_str
+
     def is_numeric(self, data):
         """ Helper function to indicate if data is numeric. """
         try:
