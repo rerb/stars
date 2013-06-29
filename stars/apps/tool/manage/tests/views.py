@@ -63,12 +63,12 @@ class ResponsiblePartyCreateViewTest(InstitutionAdminToolMixinTest):
         responsible_party_count_before = ResponsibleParty.objects.count()
         new_responsible_party = ResponsiblePartyFactory.build(
             institution=self.institution)
-        form_input = { 'first_name': new_responsible_party.first_name,
-                       'last_name': new_responsible_party.last_name,
-                       'title': new_responsible_party.title,
-                       'department': new_responsible_party.department,
-                       'email': new_responsible_party.email,
-                       'phone': new_responsible_party.phone }
+        form_input = {'first_name': new_responsible_party.first_name,
+                      'last_name': new_responsible_party.last_name,
+                      'title': new_responsible_party.title,
+                      'department': new_responsible_party.department,
+                      'email': new_responsible_party.email,
+                      'phone': new_responsible_party.phone}
         self.request.POST = form_input
         self.request.FILES = None
         _ = views.ResponsiblePartyCreateView.as_view()(
@@ -85,12 +85,12 @@ class ResponsiblePartyCreateViewTest(InstitutionAdminToolMixinTest):
         responsible_party_count_before = ResponsibleParty.objects.count()
         new_responsible_party = ResponsiblePartyFactory.build(
             institution=self.institution)
-        form_input = { 'first_name': '',
-                       'last_name': new_responsible_party.last_name,
-                       'title': new_responsible_party.title,
-                       'department': new_responsible_party.department,
-                       'email': new_responsible_party.email,
-                       'phone': new_responsible_party.phone }
+        form_input = {'first_name': '',
+                      'last_name': new_responsible_party.last_name,
+                      'title': new_responsible_party.title,
+                      'department': new_responsible_party.department,
+                      'email': new_responsible_party.email,
+                      'phone': new_responsible_party.phone}
         self.request.POST = form_input
         self.request.FILES = None
         _ = views.ResponsiblePartyCreateView.as_view()(
@@ -272,7 +272,7 @@ class AccountListViewTest(InstitutionAdminToolMixinTest):
         ]
 
         self.assertListEqual(account_emails_on_page,
-                             sorted([ get_email(acct) for acct in accounts ]))
+                             sorted([get_email(acct) for acct in accounts]))
 
 
 class AccountCreateViewTest(InstitutionAdminToolMixinTest):
@@ -280,14 +280,14 @@ class AccountCreateViewTest(InstitutionAdminToolMixinTest):
     view_class = views.AccountCreateView
 
     def test_form_valid_no_aashe_user_account_creates_pendingaccount(self):
-        """Does form_valid() create a PendingAccount if no ASSHE account exists?
+        """Does form_valid() create a PendingAccount if no ASSHE acct exists?
         """
         self.account.user_level = 'admin'
         self.account.save()
         self.request.method = 'POST'
         pending_account_count_before = PendingAccount.objects.count()
-        form_input = { 'email': 'joe.hump@fixityourself.com',
-                       'userlevel': 'bystander' }
+        form_input = {'email': 'joe.hump@fixityourself.com',
+                      'userlevel': 'bystander'}
         self.request.POST = form_input
         _ = views.AccountCreateView.as_view()(
             request=self.request,
@@ -302,18 +302,20 @@ class AccountCreateViewTest(InstitutionAdminToolMixinTest):
         self.account.save()
         self.request.method = 'POST'
         stars_account_count_before = StarsAccount.objects.count()
-        form_input = { 'email': 'joe.hump@fixityourself.com',
-                       'userlevel': 'bystander' }
+        form_input = {'email': 'joe.hump@fixityourself.com',
+                      'userlevel': 'bystander'}
         self.request.POST = form_input
         with testfixtures.Replacer() as r:
             r.replace(
                 'aashe.aasheauth.services.AASHEUserService.get_by_email',
-                lambda s, e : [{
-                                'replaced': 'replaced',
-                                'mollom': {'session_id': 'replaced'}
-                                }])
+                lambda s, e: [
+                    {'replaced': 'replaced',
+                     'mollom': {'session_id': 'replaced'}}
+                ]
+            )
             r.replace(
-                'aashe.aasheauth.backends.AASHEBackend.get_user_from_user_dict',
+                'aashe.aasheauth.backends.AASHEBackend.'
+                'get_user_from_user_dict',
                 lambda x, y: UserFactory())
             _ = views.AccountCreateView.as_view()(
                 request=self.request,
@@ -458,7 +460,7 @@ class MigrateViewTest(InstitutionAdminToolMixinTest):
         """
         logical_rules.site.unregister(rule_name)
         logical_rules.site.register(rule_name,
-                                  lambda *args: returns)
+                                    lambda *args: returns)
 
     def close_gate(self):
         super(MigrateViewTest, self).close_gate()
@@ -476,7 +478,7 @@ class MigrateViewTest(InstitutionAdminToolMixinTest):
         self.account.user_level = 'admin'
         self.account.save()
         self.request.method = 'POST'
-        self.request.POST = { 'is_locked': True }
+        self.request.POST = {'is_locked': True}
 
         with testfixtures.Replacer() as r:
             self.open_gate()
@@ -523,8 +525,9 @@ class MigrateVersionViewTest(MigrateViewTest):
         except Exception, e:
             self.assertEqual(e.__class__.__name__, "PermissionDenied")
 
-    def test_dispatch_allows_migration_when_not_already_at_latest_version(self):
-        """Does dispatch allow migration if current sub isn't at latest version?
+    def test_dispatch_allows_migration_when_not_already_at_latest_version(
+            self):
+        """Does dispatch allow migration if current sub isn't latest version?
         """
         self.account.user_level = 'admin'
         self.account.save()
@@ -790,7 +793,8 @@ class SubscriptionPriceViewLiveServerTest(StarsLiveServerTest):
         self.assertIn(',', discounted_amount_due_text)
 
     def test_amount_due_gets_dollar_sign_after_applying_discount(self):
-        """Does amount due have a dollar sign in front of it after discount??"""
+        """Does amount due have a dollar sign in front of it after discount?
+        """
         self.promo_code_input.send_keys(self.promo_discount.code)
 
         self.apply_promo_code_button.click()
@@ -937,7 +941,7 @@ class SubscriptionPaymentCreateViewTest(InstitutionViewOnlyToolMixinTest):
                          initial_payment_count + 1)
 
     def test_form_valid_no_payment_created_when_purchase_error(self):
-        """Does form_valid() *not* create a payment if there's a purchase error?
+        """Does form_valid *not* create a payment if there's a purchase error?
         """
         self.account.user_level = self.blessed_user_level
         self.account.save()
