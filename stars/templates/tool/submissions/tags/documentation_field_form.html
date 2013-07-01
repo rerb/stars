@@ -1,0 +1,61 @@
+{% load help %}
+{% autoescape off %}
+
+<div class="control-group{% if field_form.value.errors %} error{% else %}{% if field_form.warnings %} warning{% endif %}{% endif %}">
+      <label class="control-label">
+      	{% if documentation_field.is_required %}
+	        <span class='required_note' title="This field is required to complete credit">*</span>
+	    {% endif %}
+	    {% if documentation_field.is_conditionally_required %}
+	        <span class='conditionally_required_note' title="In some cases, this field will be required to complete credit">*</span>
+	    {% endif %}
+	    <strong>{{ documentation_field.title }}</strong>
+	    {% with documentation_field.get_escaped_tooltip_help_text as help_text %}
+	    {% with "true" as modal %}
+	    {% with documentation_field.id as id %}
+	    	{% include "helpers/tags/help_text.html" %}
+	    {% endwith %}{% endwith %}{% endwith %}
+      </label>
+      <div class="controls">
+        {{ field_form.value }}
+        {% if not field_form.field_includes_units and documentation_field.units %}
+            <span class="help-inline">{{ documentation_field.units }}</span>
+        {% endif %}
+        {% if field_form.value.errors %}
+        	<span class="help-inline">{{ field_form.errors.value }}</span>
+        {% endif %}
+	    {% if field_form.warnings %}
+	    	<span class="help-inline">{{ field_form.warnings }}</span>
+	    {% endif %}
+        <p class="help-block"><em>{{ documentation_field.inline_help_text }}</em></p>
+      </div>
+      	{% if documentation_field.type == "url"%}
+			<em>Please note that additional URLs may be entered into the description fields or the public note section of STARS credits.  These additional URLs will be accessible in the live report.</em>}
+	    {% endif %}
+    </div>
+{% endautoescape %}
+
+{% comment %}
+    {% if documentation_field.is_required %}
+        <span class='required_note' title="This field is required to complete credit">*</span>
+    {% endif %}
+    {% if documentation_field.is_conditionally_required %}
+        <span class='conditionally_required_note' title="In some cases, this field will be required to complete credit">*</span>
+    {% endif %}
+	<label{% if documentation_field.is_required %} class='required' title='Required'{% endif %}>
+	{{ documentation_field.title }}</label>
+    {% show_help_text documentation_field.tooltip_help_text 1 %}
+	<br/>
+	{% if field_form.value.errors %}{{ field_form.errors.value }}{% endif %}
+    {% if field_form.warnings %}{{ field_form.warnings }}{% endif %}
+	<div class='field-form'>
+        {{ field_form.value }}
+        {% if not field_form.field_includes_units and documentation_field.units %}
+            <label class='units'>{{ documentation_field.units }}</label>
+        {% endif %}
+	</div>
+    {% show_help_text documentation_field.inline_help_text 0 %}
+    {% if documentation_field.type == "url"%}
+		{% show_help_text "Please note that additional URLs may be entered into the description fields or the public note section of STARS credits.  These additional URLs will be accessible in the live report." 0 %}
+    {% endif %}
+{% endcomment %}
