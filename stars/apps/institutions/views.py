@@ -484,6 +484,12 @@ class PDFExportView(RulesMixin,
                         ],
                 })
 
+    def get_object_list(self):
+        """
+            Returns a list of objects to use as filters for get_obj_or_call
+        """
+        return self.get_institution().submissionset_set.exclude(status='f')
+
     def render_to_response(self, context, **response_kwargs):
         """ Renders the pdf as a response """
 
