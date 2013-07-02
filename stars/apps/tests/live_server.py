@@ -41,21 +41,30 @@ class StarsLiveServerTest(test.LiveServerTestCase):
                                                  user_level='admin')
         self.login()
 
-    def patiently_find(self, look_for, by=By.ID, wait_for=10):
-        """Find an element, only timing out after `wait_for` seconds.
+    def patiently_find(self, look_for, by=By.ID, timeout=10):
+        """Find an element, only timing out after `timeout` seconds.
 
         `look_for` is the element identifier, and `by` is the type
         of search to perform.
         """
         try:
-            result = WebDriverWait(self.selenium, wait_for).until(
+            result = WebDriverWait(self.selenium, timeout).until(
                 expected_conditions.presence_of_element_located((by,
                                                                  look_for)))
-        except TimeoutException as toe:
+        except TimeoutException:
             raise TimeoutException(
                 'Timed out looking for "{look_for}" by {by}.'.format(
                     look_for=look_for, by=by))
         return result
+
+    def wait(self, tag_name="body", timeout=10):
+        # Wait until the response is received
+        WebDriverWait(self.selenium, timeout).until(
+            lambda driver: driver.find_element_by_tag_name(tag_name))
+
+    def type(self, element, value):
+        element.clear()
+        element.send_keys(value)
 
     def login(self):
         self.selenium.get(self.live_server_url)

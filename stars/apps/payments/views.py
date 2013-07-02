@@ -18,33 +18,6 @@ PAY_WHEN = 'pay_when'
 SUCCESS, FAILURE = True, False
 
 
-def amount_due_more_than_zero(wizard):
-    """Pulls the amount due from the request session, if it's there, and
-    returns True if it's greater than 0.00.  Otherwise, returns False.
-
-    For use in SubscriptionPaymentWizard constructor, in the
-    condition_dict argument, to determine if the payment options
-    form should be shown.  (Don't want to show it if the amount
-    due is 0.00).
-
-    Usage:
-
-        from django.conf.urls import patterns
-
-        from payments.views import (amount_due_more_than_zero,
-                                    SubscriptionPaymentWizard)
-
-        urlpatterns = patterns('',
-            (r'^contact/$', SubscriptionPaymentWizard.as_view(
-                SubscriptionPaymentWizard.FORM_LIST,
-                condition_dict={
-                    str(SubscriptionPaymentWizard.PAYMENT_OPTIONS):
-                    amount_due_more_than_zero})))
-
-    """
-    return bool(wizard.request.session.get('amount_due', 0.00))
-
-
 class SubscriptionPaymentWizard(SessionWizardView):
 
     __metaclass__ = ABCMeta
@@ -60,7 +33,9 @@ class SubscriptionPaymentWizard(SessionWizardView):
              (PAYMENT_OPTIONS, forms.SubscriptionPaymentOptionsForm),
              (SUBSCRIPTION_CREATE, forms.DummySubscriptionCreateForm)]
 
-    FORM_LIST = [form[1] for form in FORMS]
+    @classmethod
+    def get_class_form_list(cls):
+        return [form[1] for form in cls.FORMS]
 
     subscription_purchase_outcome = FAILURE  # safety in pessimism
 
@@ -86,11 +61,16 @@ class SubscriptionPaymentWizard(SessionWizardView):
                                                                **kwargs)
 
     def process_step(self, form):
-        {self.PRICE: self._process_step_price,
-         self.PAYMENT_OPTIONS: self._process_step_payment_options,
-         self.SUBSCRIPTION_CREATE: self._process_step_subscription_create}[
-             int(self.steps.current)](form)
-
+        try:
+            f = {self.PRICE: self._process_step_price,
+                 self.PAYMENT_OPTIONS: self._process_step_payment_options,
+                 self.SUBSCRIPTION_CREATE:
+                 self._process_step_subscription_create}[
+                     int(self.steps.current)]
+        except KeyError:
+            pass
+        else:
+            f(form)
         return super(SubscriptionPaymentWizard, self).process_step(form)
 
     def get_context_data(self, form, **kwargs):
@@ -103,8 +83,13 @@ class SubscriptionPaymentWizard(SessionWizardView):
                 self._get_context_data_subscription_create}
 
         current_step = int(self.steps.current)
-        extra_context = extra_context_methods[current_step](form, **kwargs)
-        context.update(extra_context)
+        try:
+            extra_context = extra_context_methods[current_step](form,
+                                                                **kwargs)
+        except KeyError:
+            pass
+        else:
+            context.update(extra_context)
 
         return context
 
@@ -159,6 +144,8 @@ class SubscriptionPaymentWizard(SessionWizardView):
                 institution=self.get_institution())
             if self.request.is_ajax():
                 # send the error back to the caller:
+                # TODO: isn't promo_code_id already calculated above?
+                # why recalculate it here?
                 promo_code_id = 'id_{step}-promo_code'.format(
                     step=self.steps.current)
                 ajax_data['form-errors'] = {promo_code_id: ex.message}
@@ -204,9 +191,16 @@ class SubscriptionPaymentWizard(SessionWizardView):
 
         promo_code = self.request.session.get('promo_code')
 
+        just_created_an_institution = False
+
+        institution = self.get_institution()
+        if not institution.pk:
+            just_created_an_institution = True
+            institution.save()
+
         try:
             subscription = Subscription.purchase(
-                institution=self.get_institution(),
+                institution=institution,
                 pay_when=self.pay_when,
                 user=self.request.user,
                 promo_code=promo_code,
@@ -215,9 +209,12 @@ class SubscriptionPaymentWizard(SessionWizardView):
         except SubscriptionPurchaseError as spe:
             messages.error(self.request, str(spe))
             self.subscription_purchase_outcome = FAILURE
-            # return self.render_revalidation_failure(
-            #     step=str(SUBSCRIPTION_CREATE),
-            #     form=form)
+            if just_created_an_institution:
+                institution.delete()
+        except Exception:
+            if just_created_an_institution:
+                institution.delete()
+            raise
         else:
             self.subscription_purchase_outcome = SUCCESS
             messages.info(self.request,
@@ -243,18 +240,32 @@ class SubscriptionPaymentWizard(SessionWizardView):
         return self.request.session[PAY_WHEN]
 
     def render_done(self, form, **kwargs):
-        if self.subscription_purchase_outcome == SUCCESS:
+        """Oh, this is ugly, but we don't know for sure which form
+        is the last one when we get here.  self.forms_list is conditioned
+        by get_form_conditions, and the list could get manually poked
+        elsewhere, so though the last form of this wizard is *probably*
+        *usually* the one that creates a subscription, it might not be.
+
+        When it is, we want to move along if it a Subscription was purchased
+        successfully, and bounce back if there was an error.
+
+        When the last form isn't the subscription create form, we'll
+        just pass along.  (This happens in the RegistrationWizard when
+        registrants choose to be survey responders rather than paying
+        STARS participants.)
+        """
+        if isinstance(form, self.form_list[str(self.SUBSCRIPTION_CREATE)]):
+            if self.subscription_purchase_outcome == SUCCESS:
+                return super(SubscriptionPaymentWizard, self).render_done(
+                    form, **kwargs)
+            else:
+                return self.render(
+                    form,
+                    initial_dict={
+                        str(self.SUBSCRIPTION_CREATE): form.cleaned_data})
+        else:
             return super(SubscriptionPaymentWizard, self).render_done(
                 form, **kwargs)
-        else:
-            # return self.render_revalidation_failure(
-            #     step=str(SUBSCRIPTION_CREATE),
-            #     form=self.form_list[str(SUBSCRIPTION_CREATE)],
-            #     initial_dict={str(SUBSCRIPTION_CREATE): form.cleaned_data})
-            return self.render(
-                form,
-                initial_dict={
-                    str(self.SUBSCRIPTION_CREATE): form.cleaned_data})
 
     def done(self, forms, **kwargs):
         return HttpResponseRedirect(self.success_url)
@@ -272,3 +283,47 @@ class SubscriptionPaymentWizard(SessionWizardView):
         return super(SubscriptionPaymentWizard, self).get_form(step,
                                                                data,
                                                                files)
+
+    @classmethod
+    def insert_forms_into_form_list(cls, forms):
+        # TODO: this method should increase PRICE, PAYMENT_OPTIONS, and
+        # SUBSCRIPTION_CREATE by len(forms), too.
+        return forms + cls.FORMS
+
+    @classmethod
+    def get_form_conditions(cls):
+        return {str(cls.PAYMENT_OPTIONS): amount_due_more_than_zero}
+
+
+def amount_due_more_than_zero(wizard):
+    """Pulls the amount due from the request session, if it's there, and
+    returns True if it's greater than 0.00.  Otherwise, returns False.
+
+    For use in SubscriptionPaymentWizard constructor, in the
+    condition_dict argument, to determine if the payment options
+    form should be shown.  (Don't want to show it if the amount
+    due is 0.00).
+
+    Usage:
+
+        from django.conf.urls import patterns
+
+        from payments.views import (amount_due_more_than_zero,
+                                    SubscriptionPaymentWizard)
+
+        urlpatterns = patterns('',
+            (r'^contact/$', SubscriptionPaymentWizard.as_view(
+                SubscriptionPaymentWizard.FORM_LIST,
+                condition_dict={
+                    str(SubscriptionPaymentWizard.PAYMENT_OPTIONS):
+                    amount_due_more_than_zero})))
+
+    Or, use get_form_conditions() defined above:
+
+        urlpatterns = patterns('',
+            (r'^contact/$', SubscriptionPaymentWizard.as_view(
+                SubscriptionPaymentWizard.FORM_LIST,
+                condition_dict=SubscriptionPaymentWizard.get_form_conditions()
+         )))
+    """
+    return wizard.request.session.get('amount_due', 0.00) > 0.00

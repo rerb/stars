@@ -37,7 +37,9 @@
           </button>
         {% else %}
           <button type='submit' class='btn btn-success pull-right'>
-            {% if new_subscription %}
+            {% if new_registration %}
+              Register
+            {% elif new_subscription %}
               Purchase Subscription
             {% else %}
               Submit Payment

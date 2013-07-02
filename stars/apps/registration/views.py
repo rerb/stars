@@ -1,78 +1,127 @@
-from datetime import datetime
 from logging import getLogger
 
-from django.contrib import messages
 from django.views.generic import CreateView
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
-from django import forms
 
 from aashe.issdjango.models import Organizations
 
 from stars.apps.institutions.models import (Institution,
-                                            SubscriptionPayment,
                                             RegistrationSurvey,
                                             RespondentSurvey)
 from stars.apps.notifications.models import EmailTemplate
 from stars.apps.registration.forms import (SelectSchoolForm,
                                            ParticipationLevelForm,
-                                           RegistrationPaymentForm,
                                            RegistrationSurveyForm,
                                            RespondentRegistrationSurveyForm,
                                            ContactForm)
-from stars.apps.registration.models import ValueDiscount
 from stars.apps.tool.mixins import InstitutionAdminToolMixin
 from stars.apps.accounts.mixins import StarsAccountMixin
-from stars.apps.helpers.wizard import BetterWizardView, RevalidationFailure
 
-from .utils import init_starsaccount, init_submissionset, init_subscription
+from .utils import init_starsaccount, init_submissionset
+from ..payments.views import (SubscriptionPaymentWizard,
+                              amount_due_more_than_zero)
 
-from zc.authorizedotnet.processing import CcProcessor
 
 logger = getLogger('stars')
 
-
-REG_FORMS = [('select', SelectSchoolForm),
-             ('level', ParticipationLevelForm),
-             ('contact', ContactForm),
-             ('payment', RegistrationPaymentForm)]
 
 MEMBER = True
 NON_MEMBER = False
 BASE_REGISTRATION_PRICE = {MEMBER: 900, NON_MEMBER: 1400}
 
 
-class RegistrationWizard(StarsAccountMixin, BetterWizardView):
+class RegistrationWizard(StarsAccountMixin, SubscriptionPaymentWizard):
     """
         A wizard that runs a user through the forms
         required to register as a STARS Participant
     """
+
+    SELECT, LEVEL, CONTACT = 0, 1, 2
+
+    PRICE, PAYMENT_OPTIONS, SUBSCRIPTION_CREATE = 3, 4, 5
+
+    REGISTRATION_FORMS = [(SELECT, SelectSchoolForm),
+                          (LEVEL, ParticipationLevelForm),
+                          (CONTACT, ContactForm)]
+
+    FORMS = SubscriptionPaymentWizard.insert_forms_into_form_list(
+        REGISTRATION_FORMS)
+
+    TEMPLATES = {SELECT: 'registration/wizard_select.html',
+                 LEVEL: 'registration/wizard_level.html',
+                 PRICE: 'registration/wizard_price.html'}
+
+    for (key, value) in SubscriptionPaymentWizard.TEMPLATES.items():
+        TEMPLATES[key + len(REGISTRATION_FORMS)] = value
+
+    def __init__(self, *args, **kwargs):
+        self._institution = None
+        super(RegistrationWizard, self).__init__(*args, **kwargs)
+
+    @property
+    def success_url(self):
+        institution = self.get_institution()
+        return reverse('reg_survey',
+                       kwargs={'institution_slug': institution.slug})
+
+    def get_institution(self):
+        if not self._institution:
+            self._institution = self.get_form_instance(str(self.CONTACT))
+        return self._institution
+
     def get_template_names(self):
-#        return "registration/wizard_base.html"
-        if self.steps.current == 'contact':
+        if self.steps.current == str(self.CONTACT):
             if self.picked_participant():
                 return "registration/wizard_contact_participant.html"
             else:
                 return "registration/wizard_contact_respondent.html"
-        return ("registration/wizard_%s.html" % self.steps.current)
+        elif self.steps.current == str(self.PRICE):
+            return "registration/wizard_price.html"
+        elif self.steps.current == str(self.PAYMENT_OPTIONS):
+            return "registration/wizard_payment_options.html"
+        elif self.steps.current == str(self.SUBSCRIPTION_CREATE):
+            return "registration/wizard_subscription_create.html"
+        return super(RegistrationWizard, self).get_template_names()
 
     def get_context_data(self, form, **kwargs):
+        # First, something that has nothing to do with the context
+        # data for the price step . . . here because it needs to be
+        # called before the form is displayed . . .
+        #
+        # If the amount due is $0.00, we skip the payment steps.
+        # Since amount_due_is_more_than_zero() checks the request.session
+        # for the amount due, we'll clear it if it's already set.
+        # It'll be set in _process_step_price() below.
+        if self.steps.current == str(self.SELECT):
+            try:
+                del(self.request.session['amount_due'])
+            except KeyError:
+                pass
+
         context = super(RegistrationWizard, self).get_context_data(form=form,
                                                                    **kwargs)
-        if self.steps.current == 'payment':
+        if self.steps.current == str(self.SUBSCRIPTION_CREATE):
             context.update({
-                'institution': self.get_form_instance('contact'),
-                'contact': self.get_cleaned_data_for_step('contact')})
-        if self.steps.current == 'level':
-            # redirect if they're already in the tool
-            aashe_id = self.get_cleaned_data_for_step('select')['aashe_id']
+                'institution': self.get_form_instance(str(self.CONTACT)),
+                'contact': self.get_cleaned_data_for_step(str(self.CONTACT)),
+                'new_registration': True})
+        elif self.steps.current == str(self.LEVEL):
+            # If the selected institution is already registered,
+            # redirect to the tool summary page.  Then the user can be
+            # surprised, maybe he didn't realize his institution as
+            # already registered, or if he wants to purchase a
+            # subscription, he can do that there, too.
+            aashe_id = self.get_cleaned_data_for_step(
+                str(self.SELECT))['aashe_id']
             try:
                 inst = Institution.objects.get(aashe_id=aashe_id)
-                context['redirect'] = reverse('tool-summary',
-                    kwargs={'institution_slug':
-                            inst.slug})
-            except:
+            except Institution.DoesNotExist:
                 pass
+            else:
+                context['redirect'] = reverse(
+                    'tool-summary',
+                    kwargs={'institution_slug': inst.slug})
         return context
 
     def render(self, form=None, **kwargs):
@@ -90,8 +139,9 @@ class RegistrationWizard(StarsAccountMixin, BetterWizardView):
             Create an instance for the contact form
             using the name from step 'select'
         """
-        if step == 'contact':
-            cleaned_data = self.get_cleaned_data_for_step('select') or {}
+        if step == str(self.CONTACT):
+            cleaned_data = (self.get_cleaned_data_for_step(str(self.SELECT))
+                            or {})
             aashe_id = cleaned_data.get('aashe_id', None)
             org = Organizations.objects.get(account_num=aashe_id)
             institution = Institution(aashe_id=aashe_id, name=org.org_name)
@@ -101,9 +151,16 @@ class RegistrationWizard(StarsAccountMixin, BetterWizardView):
 
         return None
 
+    def process_step(self, form):
+        if self.steps.current == self.LEVEL:
+            self.request.session['is_participant'] = self.picked_participant()
+            # if not self.picked_participant():
+            #     self.request.session[PAY_WHEN] = Subscription.PAY_LATER
+        return super(RegistrationWizard, self).process_step(form)
+
     def picked_participant(self):
         """ Checks if the user chose to be a participant """
-        cleaned_data = self.get_cleaned_data_for_step('level') or {}
+        cleaned_data = self.get_cleaned_data_for_step(str(self.LEVEL)) or {}
         return cleaned_data.get('level', None) == 'participant'
 
     def get_form_kwargs(self, step):
@@ -113,99 +170,25 @@ class RegistrationWizard(StarsAccountMixin, BetterWizardView):
         """
         kwargs = super(RegistrationWizard, self).get_form_kwargs(step)
 
-        if step == 'contact':
+        if step == str(self.CONTACT):
             kwargs['include_exec'] = self.picked_participant()
-
-        elif step == 'payment':
-            institution = self.get_form_instance('contact')
-            kwargs['amount'] = BASE_REGISTRATION_PRICE[institution.is_member]
-            kwargs['user'] = self.request.user
-            kwargs['contact_info'] = self.get_cleaned_data_for_step('contact')
-            kwargs['invoice_num'] = institution.aashe_id
 
         return kwargs
 
     def done(self, form_list, **kwargs):
+        institution = self.get_institution()
 
-        payment_form = None
-
-        for form in form_list:
-            # Get the Institution object
-            if isinstance(form, ContactForm):
-                institution = form.save(commit=False)
-
-            # handle payment options
-            if isinstance(form, RegistrationPaymentForm):
-                payment_form = form
-
-        response = self.finalize_registration(institution,
-                                              payment_form,
-                                              **kwargs)
-        if response:
-            return response
-
-        return HttpResponseRedirect(
-            reverse('reg_survey',
-                    kwargs={'institution_slug': institution.slug}))
-
-    def finalize_registration(self, institution, payment_form, **kwargs):
-        """
-            add_starsaccount
-            init_submissionset
-            init_subscription
-            apply_payment
-            send emails
-
-            returns a response if necessary
-        """
-
-        payment = None
-        amount_due = 0
-        # Set up subscription and payment choice
-        if self.picked_participant():
-
-            if payment_form.cleaned_data['pay_later']:
-                amount_due = payment_form.get_amount()
-                institution.save()
-                subscription = init_subscription(institution,
-                                                 amount_due)
-            else:
-                # try to process the payment
-                try:
-                    confirmation = payment_form.process_payment()
-                except forms.ValidationError, e:
-                    messages.error(self.request,
-                                   ("Sorry, but this transaction did not "
-                                    "clear. Reason: %s") % e)
-                    raise RevalidationFailure("revalidate",
-                                              'payment',
-                                              payment_form,
-                                              **kwargs)
-#                    return self.render_revalidation_failure('payment',
-#                                                            payment_form,
-#                                                            **kwargs)
-                institution.save()
-                init_starsaccount(self.request.user, institution)
-                init_submissionset(institution, self.request.user)
-                subscription = init_subscription(institution, amount_due)
-
-                # add a SubscriptionPayment and process payment
-                payment = SubscriptionPayment(subscription=subscription,
-                                              date=datetime.now(),
-                                              amount=payment_form.get_amount(),
-                                              user=self.request.user,
-                                              method='credit',
-                                              confirmation=confirmation)
-                payment.save()
-
-        else:
+        if not institution.pk:
             institution.save()
-            init_starsaccount(self.request.user, institution)
-            init_submissionset(institution, self.request.user)
 
-        self.send_emails(institution, payment, amount_due)
+        init_starsaccount(self.request.user, institution)
+        init_submissionset(institution, self.request.user)
 
-    def send_emails(self, institution, payment, amount_due):
+        self.send_emails(institution)
+
+        return super(RegistrationWizard, self).done(form_list, **kwargs)
+
+    def send_emails(self, institution):
 
         # Primary Contact
         email_to = [institution.contact_email]
@@ -218,14 +201,6 @@ class RegistrationWizard(StarsAccountMixin, BetterWizardView):
             et = EmailTemplate.objects.get(
                 slug='welcome_international_pilot')
             email_context = {'institution': institution}
-        elif self.picked_participant():
-            if payment == None:
-                et = EmailTemplate.objects.get(slug='welcome_liaison_unpaid')
-                email_context = {'price': amount_due}
-            else:
-                et = EmailTemplate.objects.get(slug='welcome_liaison_paid')
-                email_context = {"institution": institution,
-                                 'payment': payment}
         else:
             et = EmailTemplate.objects.get(slug='welcome_respondent')
             email_context = {"institution": institution}
@@ -243,17 +218,21 @@ class RegistrationWizard(StarsAccountMixin, BetterWizardView):
             email_context = {"institution": institution}
             et.send_email(email_to, email_context)
 
+    @classmethod
+    def get_form_conditions(cls):
+        form_conditions = {
+            str(cls.PRICE): registerant_is_participant,
+            str(cls.PAYMENT_OPTIONS): amount_due_more_than_zero,
+            str(cls.SUBSCRIPTION_CREATE): registerant_is_participant}
+        return form_conditions
 
-def skip_payment_condition(wizard):
+
+def registerant_is_participant(wizard):
     """
-        determines if the payment option can be skipped
+    Under what condition should the payment forms be shown?  Why, when
+    the user has chosen to be a participant, of course.  La la la.
     """
     return wizard.picked_participant()
-
-
-participant_reg = RegistrationWizard.as_view(
-    REG_FORMS,
-    condition_dict={'payment': skip_payment_condition})
 
 
 class SurveyView(InstitutionAdminToolMixin, CreateView):

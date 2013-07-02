@@ -9,7 +9,6 @@ from .views import (AccountCreateView, AccountDeleteView,
                     ResponsiblePartyListView, ShareDataView,
                     SubscriptionCreateWizard, SubscriptionPaymentCreateView,
                     ShareThirdPartiesView)
-from stars.apps.payments.views import amount_due_more_than_zero
 
 urlpatterns = patterns(
     'stars.apps.tool.manage.views',
@@ -73,10 +72,8 @@ urlpatterns = patterns(
     # Subscription views:
     url(r'^purchase-subscription-wiz/',
         SubscriptionCreateWizard.as_view(
-            SubscriptionCreateWizard.FORM_LIST,
-            condition_dict={
-                str(SubscriptionCreateWizard.PAYMENT_OPTIONS):
-                amount_due_more_than_zero}),
+            SubscriptionCreateWizard.get_class_form_list(),
+            condition_dict=SubscriptionCreateWizard.get_form_conditions()),
         name='subscription-create'),
 
     url(r'^subscription/(?P<pk>\d+)/payment/create/$',

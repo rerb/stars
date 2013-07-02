@@ -55,58 +55,41 @@ class SelectSchoolForm(forms.Form):
     """
     A form for selecting an Organization from Organization names.
 
-    The list of names is limited to those institutions that are not
-    registered as STARS Institutions.
+    Organizations limited to ORG_TYPES and COUNTRIES listed.
     """
     aashe_id = forms.IntegerField()
 
+    ORG_TYPES = ('I',
+                 'Four Year Institution',
+                 'Two Year Institution',
+                 'Graduate Institution',
+                 'System Office')
+    COUNTRIES = ('Canada', 'United States of America')
+
     def __init__(self, *args, **kwargs):
         super(SelectSchoolForm, self).__init__(*args, **kwargs)
-        if not kwargs['data']:
-            # only do these things for GETs (update_institution_choices()
-            # is expensive):
-            self.update_institution_choices()
-            self.fields['aashe_id'].label = "Institution"
-            self.fields['aashe_id'].widget = widgets.Select(
-                choices=self.institution_list,
-                attrs={'style': "width: 700px"})
+        self.institution_list = self.get_institution_choices()
+        self.fields['aashe_id'].label = "Institution"
+        self.fields['aashe_id'].widget = widgets.Select(
+            choices=self.institution_list,
+            attrs={
+                'style': "width: 700px",
+                'id': "school_select"})
 
-    def get_ids_of_registered_institutions(self):
-        """Return the set of `aashe_id`s for all Institutions."""
-        return set([
-            institution['aashe_id'] for
-            institution in
-            Institution.objects.values('aashe_id')
-        ])
+    def get_institution_choices(self):
+        institution_choices = []
 
-    def update_institution_choices(self):
-        # Get the list of schools as choices
-        self.institution_list = []
-        org_types = ('I',
-                     'Four Year Institution',
-                     'Two Year Institution',
-                     'Graduate Institution',
-                     'System Office')
-        countries = ('Canada', 'United States of America')
+        for org in Organizations.objects.filter(
+                org_type__in=self.ORG_TYPES,
+                country__in=self.COUNTRIES).order_by('org_name'):
 
-        ids_of_registered_institutions = (
-            self.get_ids_of_registered_institutions())
+            choice_label = org.org_name
+            if org.city and org.state:
+                choice_label = ", ".join((choice_label, org.city, org.state))
 
-        for inst in Organizations.objects.filter(
-                org_type__in=org_types,
-                country__in=countries).order_by('org_name'):
+            institution_choices.append((org.account_num, choice_label))
 
-            # skip institutions that are already registered:
-            if inst.pk in ids_of_registered_institutions:
-                continue
-
-            if inst.city and inst.state:
-                self.institution_list.append((inst.account_num, "%s, %s, %s" %
-                                              (inst.org_name,
-                                               inst.city,
-                                               inst.state)))
-            else:
-                self.institution_list.append((inst.account_num, inst.org_name))
+        return institution_choices
 
 
 class ContactForm(ModelForm):

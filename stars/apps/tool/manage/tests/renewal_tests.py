@@ -18,6 +18,24 @@ class RenewalTest(StarsLiveServerTest):
         super(RenewalTest, self).setUp()
         self.go_to_reporting_tool()
 
+    @property
+    def next_button(self):
+        """Returns the Next button."""
+        buttons = self.selenium.find_elements_by_tag_name('button')
+        for button in buttons:
+            if button.text == 'Next':
+                return button
+        raise Exception('no Next button?')
+
+    @property
+    def final_purchase_subscription_button(self):
+        """Returns the final Purchase Subscription button."""
+        buttons = self.selenium.find_elements_by_tag_name('button')
+        for button in buttons:
+            if button.text == 'Purchase Subscription':
+                return button
+        raise Exception('no Purchase Subscription button?')
+
     def test_purchase_subscription_later(self):
         """Is a new Subscription created when I pay later?"""
         # Remember how many Subscriptions there are before purchase:
@@ -29,23 +47,16 @@ class RenewalTest(StarsLiveServerTest):
         purchase_subscription_button.click()
 
         # Subscription Price View -- just click through it.
-        submit_button = self.patiently_find(look_for='submit_button',
-                                            by=By.ID)
-        submit_button.click()
+        self.next_button.click()
 
         # Pay later:
         pay_later_checkbox = self.selenium.find_element_by_xpath(
             "(//input[@name='pay_when'])[2]")
         pay_later_checkbox.click()
-
-        continue_submit_button = self.selenium.find_element_by_id(
-            'submit_button')
-        continue_submit_button.click()
+        self.next_button.click()
 
         # Purchase it!
-        purchase_submit_button = self.selenium.find_element_by_id(
-            'submit_button')
-        purchase_submit_button.click()
+        self.final_purchase_subscription_button.click()
 
         # Was a Subscription created?
         self.assertEqual(Subscription.objects.count(),
@@ -62,18 +73,13 @@ class RenewalTest(StarsLiveServerTest):
         purchase_subscription_button.click()
 
         # Subscription Price View -- just click through it.
-        submit_button = self.patiently_find(look_for='submit_button',
-                                            by=By.ID)
-        submit_button.click()
+        self.next_button.click()
 
         # Pay now:
         pay_now_checkbox = self.selenium.find_element_by_xpath(
             "(//input[@name='pay_when'])[1]")
         pay_now_checkbox.click()
-
-        purchase_submit_button = self.selenium.find_element_by_id(
-            'submit_button')
-        purchase_submit_button.click()
+        self.next_button.click()
 
         # Credit card info:
         text_inputs = {'id_card_number': '4007000000027',
@@ -85,9 +91,7 @@ class RenewalTest(StarsLiveServerTest):
             input.clear()
             input.send_keys(text)
 
-        credit_card_submit_button = self.selenium.find_element_by_id(
-            'submit_button')
-        credit_card_submit_button.click()
+        self.final_purchase_subscription_button.click()
 
         # Was a Subscription created?
         self.assertEqual(Subscription.objects.count(),

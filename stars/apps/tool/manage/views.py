@@ -18,10 +18,9 @@ from stars.apps.helpers.forms import form_helpers
 from stars.apps.helpers.mixins import ValidationMessageFormMixin
 from stars.apps.institutions.models import (StarsAccount, Subscription,
                                             SubscriptionPayment,
-                                            SubscriptionPurchaseError,
                                             PendingAccount)
 from stars.apps.institutions.models import Institution
-from stars.apps.payments import credit_card
+from stars.apps.payments import simple_credit_card
 from stars.apps.payments.forms import SubscriptionPayNowForm
 from stars.apps.payments.views import SubscriptionPaymentWizard
 from stars.apps.submissions.models import SubmissionSet
@@ -677,7 +676,7 @@ class SubscriptionPaymentCreateView(ValidationMessageFormMixin,
                                   user=self.request.user,
                                   card_num=card_num,
                                   exp_date=exp_date)
-        except credit_card.CreditCardProcessingError as ccpe:
+        except simple_credit_card.CreditCardProcessingError as ccpe:
             messages.error(self.request, str(ccpe))
             return self.form_invalid(form)
 

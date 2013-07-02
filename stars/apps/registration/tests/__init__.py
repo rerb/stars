@@ -1,8 +1,8 @@
-from test_process import TestProcess
 from .models import ModelsTopLevelTest, ValueDiscountTest
+from .views import RegistrationWizardLiveServerTest
 
 __test__ = {
     'ModelsTopLevelTest': ModelsTopLevelTest,
-    'TestProcess': TestProcess,
+    'RegistrationWizardLiveServerTest': RegistrationWizardLiveServerTest,
     'ValueDiscountTest': ValueDiscountTest
 }
