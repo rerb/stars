@@ -16,7 +16,9 @@ from stars.apps.institutions.models import (Subscription,
                                             SUBSCRIPTION_DURATION)
 from stars.apps.payments.simple_credit_card import (CreditCardPaymentProcessor,
                                                     CreditCardProcessingError)
-from stars.apps.registration.models import ValueDiscount
+from stars.apps.registration.models import (ExpiredDiscountCodeError,
+                                            InvalidDiscountCodeError,
+                                            ValueDiscount)
 from stars.test_factories import (InstitutionFactory, SubscriptionFactory,
                                   UserFactory, ValueDiscountFactory)
 
@@ -96,7 +98,7 @@ class SubscriptionTest(TestCase):
         with testfixtures.Replacer() as r:
             r.replace('stars.apps.institutions.models.Subscription.'
                       '_get_latest_subscription_end',
-                      lambda x : date.today() - timedelta(days=200))
+                      lambda x: date.today() - timedelta(days=200))
             start_date = self.subscription._calculate_start_date()
         self.assertEqual(start_date, date.today())
 
@@ -108,7 +110,7 @@ class SubscriptionTest(TestCase):
             r.replace(
                 'stars.apps.institutions.models.Subscription.'
                 '_get_latest_subscription_end',
-                lambda x : date.today() + timedelta(days=DAYS_UNTIL_SUB_EXPIRES))
+                lambda x: date.today() + timedelta(days=DAYS_UNTIL_SUB_EXPIRES))
             start_date = self.subscription._calculate_start_date()
         self.assertEqual(
             start_date,
@@ -120,7 +122,7 @@ class SubscriptionTest(TestCase):
         with testfixtures.Replacer() as r:
             r.replace('stars.apps.institutions.models.Subscription.'
                       '_get_latest_subscription_end',
-                      lambda x : date.today())
+                      lambda x: date.today())
             start_date = self.subscription._calculate_start_date()
         self.assertEqual(start_date, date.today() + timedelta(1))
 
@@ -215,19 +217,18 @@ class SubscriptionTest(TestCase):
             start_date=date.today() - timedelta(days=20),
             end_date=date.today() - timedelta(days=10))
         initial_price = 1000
-        self.assertEqual(self.subscription._apply_promo_code(initial_price,
-                                                             promo.code),
-                         initial_price)
+        with self.assertRaises(ExpiredDiscountCodeError):
+            self.subscription._apply_promo_code(initial_price,
+                                                promo.code)
 
     def test__apply_promo_code_invalid_promo_code(self):
         """Does _apply_promo_code work for an invalid promo code?
         (Where 'invalid' means nonexistant.)
         """
         initial_price = 10
-        self.assertEqual(
+        with self.assertRaises(InvalidDiscountCodeError):
             self.subscription._apply_promo_code(initial_price,
                                                 'BO-O-O-GUS CODE'),
-            initial_price)
 
     def test__apply_promo_code_no_promo_code(self):
         """Does _apply_promo_code work when no promo code is supplied?
