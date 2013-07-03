@@ -159,12 +159,15 @@ class DocumentationFieldForm(ModelForm):
     
     class Meta:
         model = DocumentationField
-        exclude = ('credit', 'ordinal', 'identifier', 'type', 'last_choice_is_other', 'previous_version')
+        exclude = ('ordinal', 'identifier', 'type', 'last_choice_is_other', 'previous_version')
         
     def __init__(self, *args, **kwargs):
         super(DocumentationFieldForm, self).__init__(*args, **kwargs)
         
         self.fields['title'].widget.attrs["size"] = 60
+
+        cs = self.instance.credit.get_creditset()
+        self.fields['credit'].choices = cs.get_pulldown_credit_choices()
 
     def clean(self):
         cleaned_data = self.cleaned_data
@@ -191,7 +194,7 @@ class DocumentationFieldForm(ModelForm):
 
 class NewDocumentationFieldForm(DocumentationFieldForm):
     class Meta(DocumentationFieldForm.Meta):
-        exclude = ('credit', 'ordinal', 'identifier','last_choice_is_other','min_range','max_range', 'previous_version')
+        exclude = ('ordinal', 'identifier','last_choice_is_other','min_range','max_range', 'previous_version')
         
 class DocumentationFieldOrderingForm(ModelForm):
     ordinal = forms.IntegerField(widget=widgets.HiddenInput(attrs={'size': '3', 'class': 'ordinal',}))

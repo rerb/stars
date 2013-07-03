@@ -335,7 +335,7 @@ class CreditReportingFields(CreditEditorFormView):
         form_list.update({'object_ordering': self.generate_form_set(request, DocumentationField, DocumentationFieldOrderingForm, credit.documentationfield_set.all()),})
 
         # Add a new category form to the context
-        _context['new_field_form'] = NewDocumentationFieldForm()
+        _context['new_field_form'] = NewDocumentationFieldForm(instance=DocumentationField(credit=_context['credit']))
 
         return form_list, _context
         
@@ -361,7 +361,7 @@ class AddReportingField(AddObject):
         return form_list, _context
     
     def get_success_response(self, request, context):
-        return HttpResponseRedirect("%sfields/" % context['credit'].get_edit_url())
+        return HttpResponseRedirect("%sfields/" % context['field'].credit.get_edit_url())
         
 class EditReportingField(CreditEditorFormView):
     """
@@ -374,7 +374,7 @@ class EditReportingField(CreditEditorFormView):
     ]
     
     def get_success_response(self, request, context):
-        return HttpResponseRedirect("%sfields/" % context['credit'].get_edit_url())
+        return HttpResponseRedirect("%sfields/" % context['field'].credit.get_edit_url())
             
 class ApplicabilityReasons(CreditEditorFormView):
     """
