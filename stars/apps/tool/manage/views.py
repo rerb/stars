@@ -557,7 +557,19 @@ class MigrateVersionView(InstitutionAdminToolMixin,
 
 class SubscriptionCreateWizard(InstitutionToolMixin,
                                SubscriptionPaymentWizard):
+    """A subclass of payments.views.SubscriptionPaymentWizard;
 
+        - with custom templates;
+
+        - that forwards to 'tool-summary' when it's done;
+
+        - and is protected by logical rules.
+
+    payments.views.SubscriptionPaymentWizard requires subclasses to
+    provide an implementation of get_institution().  That's not
+    included below since InstitutionToolMixin provides
+    get_institution().
+    """
     @property
     def success_url(self):
         return reverse(

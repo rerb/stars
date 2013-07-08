@@ -52,6 +52,7 @@ class RegistrationWizard(StarsAccountMixin, SubscriptionPaymentWizard):
                  LEVEL: 'registration/wizard_level.html',
                  PRICE: 'registration/wizard_price.html'}
 
+    # Tack TEMPLATES from SubscriptionPaymentWizard on the the end:
     for (key, value) in SubscriptionPaymentWizard.TEMPLATES.items():
         TEMPLATES[key + len(REGISTRATION_FORMS)] = value
 

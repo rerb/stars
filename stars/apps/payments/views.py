@@ -19,7 +19,31 @@ SUCCESS, FAILURE = True, False
 
 
 class SubscriptionPaymentWizard(SessionWizardView):
+    """SubscriptionPaymentWizard walks the user through the process of
+    paying for a subscription.
 
+    Should be called SubscriptionCreateWizard.  Next changeset . . .
+
+    There are three steps;
+
+      0 - a view that displays the price of a subscription, and
+          allows the user to enter a promo code;
+
+      1 - a view that allows the user to specify payment options (now
+          or later)
+
+      2 - a view that creates a Subscription upon submission, and, if
+          paying now, prompts the user for credit card info and
+          processes a payment.
+
+    Subclasses must provide implentations of two abstract methods;
+    success_url() and get_institution().
+
+    Base templates are provided in the TEMPLATES dict.  Copy, include,
+    or extend them as the needs of your subclass dictate, then
+    override get_template_names() accordingly.  Note that
+    TEMPLATES[PRICE] is where the AJAX to apply promo codes lives.
+    """
     __metaclass__ = ABCMeta
 
     PRICE, PAYMENT_OPTIONS, SUBSCRIPTION_CREATE = 0, 1, 2
@@ -42,11 +66,14 @@ class SubscriptionPaymentWizard(SessionWizardView):
     @property
     @abstractmethod
     def success_url(self):
+        """Where to go at the end, after everything's OK!?"""
         raise NotImplementedError('subclass of SubscriptionPaymentWizard '
                                   'must define success_url')
 
     @abstractmethod
     def get_institution(self):
+        """Returns the institution in question (TIIQ) that we're talking about.
+        """
         pass
 
     def get_template_names(self):
