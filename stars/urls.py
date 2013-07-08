@@ -52,12 +52,19 @@ urlpatterns = patterns('',
 
     # custom forms
     (r'^cfm/', include('stars.apps.custom_forms.urls')),
+
+    # djcelery
+    url('^tasks/', include('djcelery.urls')),
 )
 
 if settings.DEBUG:
     urlpatterns += patterns('',
         (r'^styles/$', 'django.views.generic.simple.direct_to_template', {'template': 'styles.html'}),
     )
+
+if settings.PROFILE:
+    urlpatterns += patterns('',
+                            url(r'^profiler/', include('profiler.urls')))
 
 import logging
 from sorl.thumbnail.log import ThumbnailLogHandler

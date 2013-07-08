@@ -20,7 +20,7 @@ from stars.apps.credits.models import (CreditSet, Category, Subcategory,
                                        Credit, DocumentationField, Choice,
                                        ApplicabilityReason, Rating)
 from stars.apps.institutions.models import Institution, ClimateZone
-from stars.apps.submissions.pdf.export import build_report_pdf
+from stars.apps.submissions.export.pdf import build_report_pdf
 from stars.apps.notifications.models import EmailTemplate
 
 PENDING_SUBMISSION_STATUS = 'ps'
@@ -146,17 +146,32 @@ class SubmissionSet(models.Model, FlaggableModel):
     def get_upload_path(self):
         return 'secure/%d/submission-%d/' % (self.institution.id, self.id)
 
-    def get_pdf(self, save=False, template=None):
+    def get_pdf(self, template=None, refresh=False):
+        """
+            Generates a PDF file from the report
+
+            If the submission is rated the report can be saved in the
+            model (unless refresh is set)
+        """
+        if self.status == 'r' and not refresh:
+            if self.pdf_report:
+                return self.pdf_report.file
 
         pdf_result = build_report_pdf(self, template)
 
-        if save:
+        # Rated institutions can have their pdf saved
+        if self.status == 'r':
             name = self.get_pdf_filename()
-            file = InMemoryUploadedFile(pdf_result, "pdf", name, None, pdf_result.tell(), None)
-            self.pdf_report.save(name, file)
-            return file
+            f = InMemoryUploadedFile(pdf_result, "pdf", name, None, pdf_result.tell(), None)
+            self.pdf_report.save(name, f)
+            return self.pdf_report.file
 
-        return pdf_result.getvalue()
+        from django.core.files.temp import NamedTemporaryFile
+        tempfile = NamedTemporaryFile(suffix='.pdf', delete=False)
+        tempfile.write(pdf_result.getvalue())
+        tempfile.close()
+#         return pdf_result.getvalue()
+        return tempfile.name
 
     def get_pdf_filename(self):
         return '%s.pdf' % self.institution.slug[:64]

@@ -2,7 +2,11 @@
     Base LiveServerTestCase customized for STARS tests.
 """
 from django import test
+from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox import webdriver
+from selenium.webdriver.support import expected_conditions
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support.wait import TimeoutException
 
 from stars.test_factories import (InstitutionFactory, StarsAccountFactory,
                                   UserFactory)
@@ -20,6 +24,7 @@ class StarsLiveServerTest(test.LiveServerTestCase):
     @classmethod
     def setUpClass(cls):
         cls.selenium = webdriver.WebDriver()
+        cls.logged_in = False
         super(StarsLiveServerTest, cls).setUpClass()
 
     @classmethod
@@ -28,6 +33,7 @@ class StarsLiveServerTest(test.LiveServerTestCase):
         super(StarsLiveServerTest, cls).tearDownClass()
 
     def setUp(self):
+        super(StarsLiveServerTest, self).setUp()
         self.plain_text_password = 'password'
         self.user = UserFactory(username='username',
                                 password=self.plain_text_password)
@@ -37,14 +43,46 @@ class StarsLiveServerTest(test.LiveServerTestCase):
                                                  user_level='admin')
         self.login()
 
-    def login(self):
+    def patiently_find(self, look_for, by=By.ID, timeout=10):
+        """Find an element, only timing out after `timeout` seconds.
+
+        `look_for` is the element identifier, and `by` is the type
+        of search to perform.
+        """
+        try:
+            result = WebDriverWait(self.selenium, timeout).until(
+                expected_conditions.presence_of_element_located((by,
+                                                                 look_for)))
+        except TimeoutException:
+            raise TimeoutException(
+                'Timed out looking for "{look_for}" by {by}.'.format(
+                    look_for=look_for, by=by))
+        return result
+
+    def wait(self, tag_name="body", timeout=10):
+        # Wait until the response is received
+        WebDriverWait(self.selenium, timeout).until(
+            lambda driver: driver.find_element_by_tag_name(tag_name))
+
+    def type(self, element, value):
+        element.clear()
+        element.send_keys(value)
+
+    def login(self, force_new=True):
+        if self.logged_in:
+            if not force_new:
+                return
+            else:
+                self.logout()
+
         self.selenium.get(self.live_server_url)
 
         # Login:
-        log_in_link = self.selenium.find_element_by_link_text('Log In')
+        log_in_link = self.patiently_find(look_for='Log In', by=By.LINK_TEXT)
         log_in_link.click()
 
-        username_input = self.selenium.find_element_by_id('id_username')
+        username_input = self.patiently_find(look_for='id_username',
+                                             by=By.ID)
         username_input.send_keys(self.user.username)
 
         password_input = self.selenium.find_element_by_id('id_password')
@@ -54,15 +92,13 @@ class StarsLiveServerTest(test.LiveServerTestCase):
             'button.btn.btn-primary')
         login_button.click()
 
-        # Terms of Service page:
-#        tos_checkbox = self.selenium.find_element_by_id('id_terms_of_service')
-#        tos_checkbox.click()
-#
-#        tos_submit_button = self.selenium.find_element_by_css_selector(
-#            'button[type="submit"]')
-#        tos_submit_button.click()
+        self.logged_in = True
+
+    def logout(self):
+        log_out_link = self.patiently_find(look_for='Log Out', by=By.LINK_TEXT)
+        log_out_link.click()
 
     def go_to_reporting_tool(self):
-        reporting_tool_tab = self.selenium.find_element_by_link_text(
-            'Reporting')
+        reporting_tool_tab = self.patiently_find(look_for='Reporting',
+                                                 by=By.LINK_TEXT)
         reporting_tool_tab.click()

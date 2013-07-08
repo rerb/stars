@@ -187,75 +187,71 @@ class CreditsetStructureMixin(StructureMixin):
                         current = self.get_credit()
         self.set_structure_object(key, current)
         return current
-
+        
     def get_creditset_nav(self, url_prefix="/"):
         """
-            provide the outline for the left nav menu for the CreditSet
-            /creditset_version/category_abbreviation/subcategory_slug/credit_number/field_id/
-
-            Provides a list of categories for a given `creditset`,
-            each with a subcategory dict containing a list of subcategories,
-            each with credits and tier2 credits dicts containing lists
-            of credits
-
-            Category:
-                {'title': title, 'url': url, 'subcategories': subcategory_list}
-            Subcategory:
-                {'title': title, 'url': url, 'credits': credit_list,
-                 'tier2': credit_list}
-            Credit:
-                {'title': title, 'url': url}
+            Generates the outline list for the django-collapsing-menu
         """
         current = self.get_current_selection()
         outline = []
+        
         # Top Level: Categories
         for cat in self.get_creditset().category_set.all():
-
-            subcategories = []
+            cat_item = {
+                'title': cat.title,
+                'bookmark': self.get_category_url(cat, url_prefix),
+                'children': [],
+                'attrs': {'id': cat.id}
+            }    
+            if current == cat:
+                cat_item['attrs']['class'] = 'active'
 
             # Second Level: Subcategories
             for sub in cat.subcategory_set.all():
-                credits = []
-                tier2 = []
+                sub_item = {
+                    'title': sub.title,
+                    'bookmark': self.get_subcategory_url(sub, url_prefix),
+                    'children': [],
+                    'attrs': {'id': sub.id}
+                }    
+                if current == sub:
+                    sub_item['attrs']['class'] = 'active'
 
-                # Third Level: Credits
-                for credit in sub.credit_set.all():
-                    c = {
+                # Third Level: T1 Credits
+                for credit in sub.credit_set.all().filter(type='t1'):
+                    c_item = {
                         'title': credit.__unicode__(),
                         'url': self.get_credit_url(credit, url_prefix),
-                        'id': credit.id,
-                        'selected': False,
+                        'attrs': {'id': credit.id}
                     }
                     if current == credit:
-                        c['selected'] = True
-                    if credit.type == 't1':
-                        credits.append(c)
-                    elif credit.type == 't2':
-                        tier2.append(c)
+                        c_item['attrs']['class'] = "active"
+                    
+                    sub_item['children'].append(c_item)
+                        
+                # Fourth Level: T2 Credits
+                t2_qs = sub.credit_set.all().filter(type='t2')
+                if t2_qs.count() > 0:
+                    t2_header_item = {
+                        'title': "Tier 2 Credits",
+                        'children': []
+                    }
+                    for t2 in t2_qs:
+                        t2_item = {
+                            'title': t2.__unicode__(),
+                            'url': self.get_credit_url(t2, url_prefix),
+                            'attrs': {'id': t2.id}
+                        }
+                        if current == t2:
+                            t2_item['attrs']['class'] = "active"
+                    
+                        t2_header_item['children'].append(t2_item)
+                
+                    sub_item['children'].append(t2_header_item)
 
-                temp_sc = {
-                    'title': sub.title,
-                    'url': self.get_subcategory_url(sub, url_prefix),
-                    'credits': credits,
-                    'tier2': tier2,
-                    'id': sub.id,
-                    'selected': False,
-                }
-                if current == sub:
-                    temp_sc['selected'] = True
-
-                subcategories.append(temp_sc)
-
-            temp_c = {
-                'title': cat.title,
-                'url': self.get_category_url(cat, url_prefix),
-                'subcategories': subcategories,
-                'id': cat.id,
-                'selected': False,
-            }
-            if current == cat:
-                temp_c['selected'] = True
-            outline.append(temp_c)
+                cat_item['children'].append(sub_item)
+                
+            outline.append(cat_item)
 
         return outline
 

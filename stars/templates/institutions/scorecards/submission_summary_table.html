@@ -10,9 +10,9 @@
         <th>Liaison</th>
         <th>Submission Date</th>
         <th>President's Letter</th>
-        {% if user_tied_to_institution %}
-            <th>Download</th>
-        {% endif %}
+        {% testrule user_has_view_access user institution %}
+        	<th>Export</th>
+        {% endtestrule %}
     </tr>
     </thead>
     <tdata>
@@ -59,15 +59,21 @@
             {% endif %}
         </td>
         {% testrule user_has_view_access user institution %}
-            <td>
-                <a href='{{ submissionset.get_scorecard_url }}pdf/'
-                {% if submissionset.status != 'r' or not submissionset.pdf_report %}
-                onclick="return confirm('This export could take a minute or two, please be patient.');"
-                {% endif %}
-                target='_blank'>
-                    PDF
-                </a>
-            </td>
+         <td>
+        	<div class="btn-group">
+			  <a class="btn dropdown-toggle btn-small" data-toggle="dropdown" href="#">
+			    Download <span class="caret"></span>
+			  </a>
+			  <ul class="dropdown-menu">
+				<li><a href='{{ submissionset.get_scorecard_url }}pdf/' target='_blank'>
+					<i class='icon-download-alt'></i> PDF
+				</a></li>
+				<li><a href='{{ submissionset.get_scorecard_url }}excel/' target='_blank'>
+					<i class='icon-download-alt'></i> Excel
+				</a></li>
+			  </ul>
+			</div>
+		</td>
         {% endtestrule %}
     </tr>
     </tdata>
