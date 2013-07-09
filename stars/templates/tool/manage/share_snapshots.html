@@ -1,0 +1,71 @@
+{% extends 'tool/manage/share_base.html' %}
+
+{% load content %}
+{% load logical_rules_tags %}
+
+{% block subtabs %}
+	{% with active_tab="snapshots"%}{{ block.super }}{% endwith %}
+{% endblock %}
+
+{% block help_content %}
+	{% display_block_content 'third-party_snapshots' user %}
+{% endblock %}
+
+{% block institution_content %}
+    <h3>Snapshots</h3>
+    
+	{% if third_party_sharing_list %}
+		<div class="alert alert-success">
+			You are currently sharing any snapshots with the following third parties:
+			<ul>
+				{% for tp in third_party_sharing_list %}
+					<li>{{ tp.name }}</li>
+				{% endfor %}
+			</ul>
+		</div>
+	{% else %}
+		<div class='alert alert-warning'>
+			<strong>Note:</strong> You are <em>not</em> currently sharing these snapshots.
+		</div>
+	{% endif %}
+    
+    <table class='table'>
+    	<thead>
+        <tr>
+            <th>Date of Snapshot</th>
+            <th>STARS Version</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% if snapshot_list %}
+          {% for ss in snapshot_list %}
+            <tr>
+              <td>
+                {{ ss.date_submitted }}
+              </td>
+              <td>
+                {{ ss.creditset.version }}
+              </td>
+            </tr>
+          {% endfor %}
+        {% else %}
+        <tr>
+          <td colspan="2">
+            No current snapshots
+          </td>
+        </tr>
+        {% endif %}
+        </tbody>
+    </table>
+    <p align='center'>
+      {% testrule institution_has_snapshot_feature institution %}
+		<a href='{% url save-snapshot institution.slug institution.current_submission.id %}' class='btn btn'>
+			<i class="icon-share-alt"></i> Take a Snapshot of Your Data Now</a>
+      {% else %}
+        <a href='{% url migrate-options institution.slug  %}' class='btn'>
+        	<i class='icon-share-alt'></i> Migrate</a>
+        	to the latest version of STARS to start taking snapshots.
+
+      {% endtestrule %}
+    </p>
+{% endblock %}
