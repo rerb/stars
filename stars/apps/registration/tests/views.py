@@ -449,9 +449,7 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
         self.participation_level = PARTICIPANT
 
         # contact info page:
-        self.enter_contact_info()
-        self.enter_executive_contact_info()
-        self.next_button.click()
+        self.submit_contact_info(participation_level=PARTICIPANT)
 
         # subscription price page:
         self.promo_code = self.freebie_code.code
@@ -478,9 +476,7 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
         # Participation level page:
         self.participation_level = PARTICIPANT
         # Contact info page:
-        self.enter_contact_info()
-        self.enter_executive_contact_info()
-        self.next_button.click()
+        self.submit_contact_info(participation_level=PARTICIPANT)
         # Subscription price page:
         self.next_button.click()
         # Payment options page:
@@ -495,9 +491,7 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
         # Participation level page:
         self.participation_level = PARTICIPANT
         # Contact info page:
-        self.enter_contact_info()
-        self.enter_executive_contact_info()
-        self.next_button.click()
+        self.submit_contact_info(participation_level=PARTICIPANT)
         # Subscription price page:
         self.next_button.click()
         # Payment options page:
