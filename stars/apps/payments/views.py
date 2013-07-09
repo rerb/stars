@@ -130,10 +130,17 @@ class SubscriptionPurchaseWizard(SessionWizardView):
         context['subscription_start_date'] = subscription_start_date
         context['subscription_end_date'] = subscription_end_date
 
+        institution = self.get_institution()
+
         prices = Subscription.get_prices_for_new_subscription(
-            institution=self.get_institution())
+            institution=institution)
 
         context['prices'] = prices
+
+        context['institution_is_member'] = institution.is_member
+        context['institution_name'] = institution.name
+
+        context['join_aashe_url'] = 'http://www.aashe.org/membership'
 
         return context
 

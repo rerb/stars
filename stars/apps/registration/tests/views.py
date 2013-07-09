@@ -5,6 +5,7 @@ from django.core import mail
 from django.core.urlresolvers import reverse
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.select import Select
+from selenium.webdriver.support.wait import TimeoutException
 
 from stars.apps.institutions.models import (Institution,
                                             StarsAccount,
@@ -409,6 +410,30 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
         self.select_school()
         self.participation_level = RESPONDENT
         self.assertTrue(self.current_page_is_final_confirmation_page())
+
+    def test_nonmember_sees_please_join_us_message_on_price_form(self):
+        """Do non member institutions see the Please Join AASHE! message
+        on the price form?"""
+        self.school.is_member = False
+        self.school.save()
+        self.select_school(school=self.school)
+        self.participation_level = PARTICIPANT
+        self.submit_contact_info(participation_level=PARTICIPANT)
+        nonmember_message = self.patiently_find(
+            look_for='message-for-nonmembers', by=By.ID)
+        self.assertIsNotNone(nonmember_message)
+
+    def test_member_does_not_see_please_join_us_message_on_price_form(self):
+        """Do member institutions see the Please Join AASHE! message
+        on the price form?"""
+        self.school.is_member = True
+        self.school.save()
+        self.select_school(school=self.school)
+        self.participation_level = PARTICIPANT
+        self.submit_contact_info(participation_level=PARTICIPANT)
+        with self.assertRaises(TimeoutException):
+            _ = self.patiently_find(look_for='message-for-nonmembers',
+                                    by=By.ID)
 
     def _test_no_amount_due_skips_payment_steps(self, pay_when):
         """Are payment steps skipped if amount due is 0?
