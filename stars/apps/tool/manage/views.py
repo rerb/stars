@@ -22,7 +22,7 @@ from stars.apps.institutions.models import (StarsAccount, Subscription,
 from stars.apps.institutions.models import Institution
 from stars.apps.payments import simple_credit_card
 from stars.apps.payments.forms import SubscriptionPayNowForm
-from stars.apps.payments.views import SubscriptionPaymentWizard
+from stars.apps.payments.views import SubscriptionPurchaseWizard
 from stars.apps.submissions.models import SubmissionSet
 from stars.apps.submissions.tasks import (perform_migration,
                                           perform_data_migration)
@@ -556,8 +556,8 @@ class MigrateVersionView(InstitutionAdminToolMixin,
 
 
 class SubscriptionCreateWizard(InstitutionToolMixin,
-                               SubscriptionPaymentWizard):
-    """A subclass of payments.views.SubscriptionPaymentWizard;
+                               SubscriptionPurchaseWizard):
+    """A subclass of payments.views.SubscriptionPurchaseWizard;
 
         - with custom templates;
 
@@ -565,7 +565,7 @@ class SubscriptionCreateWizard(InstitutionToolMixin,
 
         - and is protected by logical rules.
 
-    payments.views.SubscriptionPaymentWizard requires subclasses to
+    payments.views.SubscriptionPurchaseWizard requires subclasses to
     provide an implementation of get_institution().  That's not
     included below since InstitutionToolMixin provides
     get_institution().

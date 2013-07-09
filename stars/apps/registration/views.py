@@ -19,7 +19,7 @@ from stars.apps.tool.mixins import InstitutionAdminToolMixin
 from stars.apps.accounts.mixins import StarsAccountMixin
 
 from .utils import init_starsaccount, init_submissionset
-from ..payments.views import (SubscriptionPaymentWizard,
+from ..payments.views import (SubscriptionPurchaseWizard,
                               amount_due_more_than_zero)
 
 
@@ -31,7 +31,7 @@ NON_MEMBER = False
 BASE_REGISTRATION_PRICE = {MEMBER: 900, NON_MEMBER: 1400}
 
 
-class RegistrationWizard(StarsAccountMixin, SubscriptionPaymentWizard):
+class RegistrationWizard(StarsAccountMixin, SubscriptionPurchaseWizard):
     """
         A wizard that runs a user through the forms
         required to register as a STARS Participant
@@ -45,15 +45,15 @@ class RegistrationWizard(StarsAccountMixin, SubscriptionPaymentWizard):
                           (LEVEL, ParticipationLevelForm),
                           (CONTACT, ContactForm)]
 
-    FORMS = SubscriptionPaymentWizard.insert_forms_into_form_list(
+    FORMS = SubscriptionPurchaseWizard.insert_forms_into_form_list(
         REGISTRATION_FORMS)
 
     TEMPLATES = {SELECT: 'registration/wizard_select.html',
                  LEVEL: 'registration/wizard_level.html',
                  PRICE: 'registration/wizard_price.html'}
 
-    # Tack TEMPLATES from SubscriptionPaymentWizard on the the end:
-    for (key, value) in SubscriptionPaymentWizard.TEMPLATES.items():
+    # Tack TEMPLATES from SubscriptionPurchaseWizard on the the end:
+    for (key, value) in SubscriptionPurchaseWizard.TEMPLATES.items():
         TEMPLATES[key + len(REGISTRATION_FORMS)] = value
 
     def __init__(self, *args, **kwargs):

@@ -18,8 +18,8 @@ PAY_WHEN = 'pay_when'
 SUCCESS, FAILURE = True, False
 
 
-class SubscriptionPaymentWizard(SessionWizardView):
-    """SubscriptionPaymentWizard walks the user through the process of
+class SubscriptionPurchaseWizard(SessionWizardView):
+    """SubscriptionPurchaseWizard walks the user through the process of
     paying for a subscription.
 
     Should be called SubscriptionCreateWizard.  Next changeset . . .
@@ -67,7 +67,7 @@ class SubscriptionPaymentWizard(SessionWizardView):
     @abstractmethod
     def success_url(self):
         """Where to go at the end, after everything's OK!?"""
-        raise NotImplementedError('subclass of SubscriptionPaymentWizard '
+        raise NotImplementedError('subclass of SubscriptionPurchaseWizard '
                                   'must define success_url')
 
     @abstractmethod
@@ -84,7 +84,7 @@ class SubscriptionPaymentWizard(SessionWizardView):
             form = self.get_form(data=self.request.POST)
             return self._process_step_price(form=form)
         else:
-            return super(SubscriptionPaymentWizard, self).post(*args,
+            return super(SubscriptionPurchaseWizard, self).post(*args,
                                                                **kwargs)
 
     def process_step(self, form):
@@ -98,10 +98,10 @@ class SubscriptionPaymentWizard(SessionWizardView):
             pass
         else:
             f(form)
-        return super(SubscriptionPaymentWizard, self).process_step(form)
+        return super(SubscriptionPurchaseWizard, self).process_step(form)
 
     def get_context_data(self, form, **kwargs):
-        context = super(SubscriptionPaymentWizard, self).get_context_data(
+        context = super(SubscriptionPurchaseWizard, self).get_context_data(
             form, **kwargs)
         extra_context_methods = {
             self.PRICE: self._get_context_data_price,
@@ -283,7 +283,7 @@ class SubscriptionPaymentWizard(SessionWizardView):
         """
         if isinstance(form, self.form_list[str(self.SUBSCRIPTION_CREATE)]):
             if self.subscription_purchase_outcome == SUCCESS:
-                return super(SubscriptionPaymentWizard, self).render_done(
+                return super(SubscriptionPurchaseWizard, self).render_done(
                     form, **kwargs)
             else:
                 return self.render(
@@ -291,7 +291,7 @@ class SubscriptionPaymentWizard(SessionWizardView):
                     initial_dict={
                         str(self.SUBSCRIPTION_CREATE): form.cleaned_data})
         else:
-            return super(SubscriptionPaymentWizard, self).render_done(
+            return super(SubscriptionPurchaseWizard, self).render_done(
                 form, **kwargs)
 
     def done(self, forms, **kwargs):
@@ -307,7 +307,7 @@ class SubscriptionPaymentWizard(SessionWizardView):
                     self.pay_when]
             self.form_list[str(self.SUBSCRIPTION_CREATE)] = (
                 correct_pay_when_form)
-        return super(SubscriptionPaymentWizard, self).get_form(step,
+        return super(SubscriptionPurchaseWizard, self).get_form(step,
                                                                data,
                                                                files)
 
@@ -326,7 +326,7 @@ def amount_due_more_than_zero(wizard):
     """Pulls the amount due from the request session, if it's there, and
     returns True if it's greater than 0.00.  Otherwise, returns False.
 
-    For use in SubscriptionPaymentWizard constructor, in the
+    For use in SubscriptionPurchaseWizard constructor, in the
     condition_dict argument, to determine if the payment options
     form should be shown.  (Don't want to show it if the amount
     due is 0.00).
@@ -336,21 +336,21 @@ def amount_due_more_than_zero(wizard):
         from django.conf.urls import patterns
 
         from payments.views import (amount_due_more_than_zero,
-                                    SubscriptionPaymentWizard)
+                                    SubscriptionPurchaseWizard)
 
         urlpatterns = patterns('',
-            (r'^contact/$', SubscriptionPaymentWizard.as_view(
-                SubscriptionPaymentWizard.FORM_LIST,
+            (r'^contact/$', SubscriptionPurchaseWizard.as_view(
+                SubscriptionPurchaseWizard.FORM_LIST,
                 condition_dict={
-                    str(SubscriptionPaymentWizard.PAYMENT_OPTIONS):
+                    str(SubscriptionPurchaseWizard.PAYMENT_OPTIONS):
                     amount_due_more_than_zero})))
 
     Or, use get_form_conditions() defined above:
 
         urlpatterns = patterns('',
-            (r'^contact/$', SubscriptionPaymentWizard.as_view(
-                SubscriptionPaymentWizard.FORM_LIST,
-                condition_dict=SubscriptionPaymentWizard.get_form_conditions()
+            (r'^contact/$', SubscriptionPurchaseWizard.as_view(
+                SubscriptionPurchaseWizard.FORM_LIST,
+                condition_dict=SubscriptionPurchaseWizard.get_form_conditions()
          )))
     """
     return wizard.request.session.get('amount_due', 0.00) > 0.00
