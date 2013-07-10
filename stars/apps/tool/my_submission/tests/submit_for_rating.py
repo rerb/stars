@@ -137,6 +137,11 @@ class RatingTest(TestCase):
 
         ss = SubmissionSet.objects.get(pk=1)
         self.assertEqual(ss.status, 'r')
+
+        # confirm the president's info was saved
+        self.assertEqual(ss.institution.president_first_name, "First")
+        self.assertEqual(ss.institution.president_title, "Title")
+
         # one email to institution, and another as a side effect of
         # send_certificate_pdf.delay():
         mail_messages_that_are_not_errors = [msg for msg in mail.outbox if
