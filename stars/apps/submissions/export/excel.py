@@ -1,9 +1,8 @@
 import xlwt
 
-from django.template.defaultfilters import slugify
 from django.core.files.temp import NamedTemporaryFile
 
-from django.conf import settings
+from PIL import Image
 
 
 def get_width(num_characters):
@@ -50,6 +49,21 @@ def get_summary_sheet(submission, sheet):
 
     sheet.col(c).width = min_width
 
+    # Image
+    sheet.write(17, 0, "http://stars.aashe.org")
+    sheet.col(2).width = 1000
+    sheet.col(3).width = (256 * 40)
+
+    if submission.rating:
+        rating_png = submission.rating.image_large.path
+        img = Image.open(rating_png)
+        red, g, b, __a = img.split()
+        img = Image.merge("RGB", (red, g, b))
+        rating_bmp = NamedTemporaryFile(suffix='.bmp')
+        img.thumbnail([256, 256], Image.ANTIALIAS)
+        img.save(rating_bmp.name)
+        sheet.insert_bitmap(rating_bmp.name, 1, 3)
+
 
 def build_category_summary_sheet(category, sheet):
     """
@@ -70,7 +84,8 @@ def build_category_summary_sheet(category, sheet):
     sheet.write(r, c + 1, "Points Earned")
     sheet.write(r, c + 2, "Available Points")
     sheet.write(r, c + 3, "Status")
-    r += 2
+
+    r += 1
 
     for sub in category.subcategorysubmission_set.all():
         if min_width < get_width(len(sub.subcategory.title)):
@@ -138,7 +153,7 @@ def build_category_data_sheet(category, sheet):
     sheet.write(r, c + 3, "Response", boldBorderedStyle)
 
     r += 1
-    for ss in category.subcategorysubmission_set.all()[:1]:
+    for ss in category.subcategorysubmission_set.all():
         for cs in ss.creditusersubmission_set.all():
 
             responses = cs.get_submission_fields()

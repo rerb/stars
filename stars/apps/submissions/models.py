@@ -1538,6 +1538,9 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
 
                     return str_val
 
+                elif self.documentation_field.type == "choice":
+                    return self.value.choice
+
                 else:
                     return self.value
 
