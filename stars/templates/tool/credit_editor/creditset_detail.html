@@ -35,9 +35,7 @@
                     Add Category
                 </span>
                 <div class='form'>
-                    {% with new_category_form as object_form %}
-                        {{ object_form|bootstrap }}
-                    {% endwith %}
+                    {{ new_category_form|bootstrap }}
                     <div class='button_row'>
                         <button type='submit' id='submit_button'>Add Category</button>
                     </div>
