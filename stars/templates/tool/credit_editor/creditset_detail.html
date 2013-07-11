@@ -23,8 +23,9 @@
             </table>
             {% endif %}
 
-            <div class='button_row'>
-                <button type='submit' id='submit_button'>Save</button>
+            <div class="form-actions">
+                <input type="submit" class="btn btn-primary"
+                       value="Save" id="submit_button"/>
             </div>
         </form>
 
@@ -36,8 +37,10 @@
                 </span>
                 <div class='form'>
                     {{ new_category_form|bootstrap }}
-                    <div class='button_row'>
-                        <button type='submit' id='submit_button'>Add Category</button>
+                    <div class="form-actions">
+                        <input type="submit" class="btn btn-primary"
+                               value="Add Category"
+                               id="add_category_submit_button"/>
                     </div>
                 </div>
             </form>

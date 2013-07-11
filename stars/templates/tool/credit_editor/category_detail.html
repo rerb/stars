@@ -13,7 +13,6 @@
     <div class='creditContent'>
         <form class='generalForm' method='POST' action='.'>
             {{ object_form|bootstrap }}
-
             {% if object_ordering %}
             <table class='orderingTable' id='dndtable'>
                 <tr nodrop="true" nodrag="true">
@@ -23,8 +22,9 @@
             </table>
             {% endif %}
 
-            <div class='button_row'>
-                <button type='submit' id='submit_button'>Save</button>
+            <div class="form-actions">
+                <input type="submit" class="btn btn-primary"
+                       value="Save" id="submit_button"/>
             </div>
         </form>
 
@@ -36,8 +36,10 @@
                 </span>
                 <div class='form'>
                     {{ new_subcategory_form|bootstrap }}
-                    <div class='button_row'>
-                        <button type='submit' id='submit_button'>Add Subcategory</button>
+                    <div class="form-actions">
+                        <input type="submit" class="btn btn-primary"
+                               value="Add Suburbacategory"
+                               id="add_subcategory_submit_button"/>
                     </div>
                 </div>
             </form>
