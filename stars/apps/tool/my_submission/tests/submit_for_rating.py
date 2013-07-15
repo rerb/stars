@@ -150,3 +150,6 @@ class RatingTest(TestCase):
 
         i = Institution.objects.get(pk=ss.institution.id)
         self.assertEqual(i.rated_submission, ss)
+
+        self.assertTrue(ss.is_visible)
+        self.assertFalse(ss.is_locked)
