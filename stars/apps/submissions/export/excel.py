@@ -199,6 +199,6 @@ def build_report_export(submission):
     wb.save(tempfile.name)
     return tempfile.name
 
-from stars.apps.submissions.models import SubmissionSet
-ss = SubmissionSet.objects.get(pk=1157)
-build_report_export(ss)
+# from stars.apps.submissions.models import SubmissionSet
+# ss = SubmissionSet.objects.get(pk=1157)
+# build_report_export(ss)
