@@ -1,5 +1,7 @@
 {% extends "tool/credit_editor/credits/base.html" %}
 
+{% load bootstrap %}
+
 {% block tabclass %}class='tab4'{% endblock %}
 
 {% block credit_content %}
@@ -7,24 +9,24 @@
     {% include "tool/credit_editor/credits/formula_legend.html" %}
 
     <form class='generalForm' method='POST' action='.'>
-        <table class='form'>
-            {% include "helpers/standard_form.html" %}
-        </table>
-        
-        <div class='button_row'>
-            <button type='submit' id='submit_button'>Save</button>
+        {{ object_form|bootstrap }}
+
+        <div class="form-actions">
+            <input type="submit" class="btn btn-primary"
+                   value="Save formula" id="submit_button"/>
         </div>
     </form>
-    
+
     <h2>Test Cases</h2>
     <p>
-        Test cases verify the formula works as you expect.
-        Each test case provides a submission data set for the credit
-        along with the "excpected value" for the points calculated from these data values. 
-        (The "expected value" is the value you expect the formula to compute for the given inputs, if it is correct.) 
+        Test cases verify the formula works as you expect.  Each test
+        case provides a submission data set for the credit along with
+        the "expected value" for the points calculated from these data
+        values.  (The "expected value" is the value you expect the
+        formula to compute for the given inputs, if it is correct.)
     </p>
-    
-    <table class='greyTable'>
+
+    <table class="table table-condensed">
         <tr>
             <th>Test Inputs</th>
             <th>Expected Value</th>
@@ -36,28 +38,46 @@
             {% include "tool/credit_editor/credits/test_case_edit_list.html" %}
         {% endwith %}
     </table>
-    
-    <div class='new_form collapsed'>
-        <form action='{{ credit.get_edit_url }}formula/add-test-case/' method='POST' class='generalForm'>                
-            <span style='cursor: pointer' onclick='expand_collapse_parent_parent(this);' title='Add Test Case'>
-                <img src='/media/static/images/expand.png' title='Add Test Case' alt='+' />
-                Add Test Case
-            </span>
-            <div class='form'>
-                {% with new_test_case_form as submission_form %}
-                   	{% with submission_form as object_form %}
-                   		<div class='documentationField'>
-                   		{% include "helpers/standard_form.html" %}
-                   		</div>
-                   	{% endwith %}
-                    {% include "tool/submissions/submission_fields_form.html" %}
-                {% endwith %}
-                <div class='button_row'>
-                    <button type='submit' id='submit_button'>Add</button>
-                </div>
+
+    <div class="accordion" id="add-test-case-accordion">
+        <div class="accordion-group">
+            <div class="accordion-heading">
+                <a class="accordion-toggle"
+                   href="#add-test-case-form"
+                   data-toggle="collapse"
+                   data-parent="#add-test-case-accordion">
+                    Add test case
+                <a>
             </div>
-        </form>
+            <div id="add-test-case-form"
+              class="accordion-body collapse">
+                <form action='{{ credit.get_edit_url }}formula/add-test-case/'
+                      method='POST'
+                      style="padding: 20px;">
+                    {% with new_test_case_form as submission_form %}
+                        <div class='documentationField'>
+                            {{ submission_form|bootstrap }}
+                        </div>
+                        {% include "tool/submissions/submission_fields_form.html" %}
+                    {% endwith %}
+                    <div class="form-actions">
+                        <input
+                           type="submit"
+                           class="btn btn-primary"
+                           value="Save test case"/>
+                        <input
+                           type="button" class="btn"
+                           value="Cancel"
+                           data-toggle="collapse"
+                           data-parent="#add-test-case-accordion"
+                           href="#add-test-case-form"/>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
+
 {% endblock %}
 
 {% block extra_footer %}{% endblock %}

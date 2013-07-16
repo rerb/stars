@@ -1,16 +1,17 @@
 {% extends "tool/credit_editor/credits/fields.html" %}
 
+{% load bootstrap %}
+
 {% block tabclass %}class='tab2'{% endblock %}
 
 {% block credit_content %}
     <a href='{{ credit.get_edit_url }}fields/'>&lt;&lt; back to all fields</a>
     <form class='generalForm' method='POST' action='.'>
-        <table class='form'>
-            {% include "helpers/standard_form.html" %}
-        </table>
-    
-        <div class='button_row'>
-            <button type='submit' id='submit_button'>Save</button>
+        {{ object_form|bootstrap }}
+
+        <div class="form-actions">
+            <input type="submit" class="btn btn-primary"
+                   value="Save field" id="submit_button"/>
         </div>
     </form>
 {% endblock %}

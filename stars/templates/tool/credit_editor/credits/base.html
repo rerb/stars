@@ -8,15 +8,29 @@
 {% block h1 %}{{ credit }}{% endblock %}
 
 {% block editor_content %}
-<ul id="tabnav" {% block tabclass %}class='tab1'{% endblock %}>
-    <li class="tab1">
-        <a href="{{ credit.get_edit_url }}">Credit Summary</a>
-    </li>
-    <li class="tab2"><a href="{{ credit.get_edit_url }}fields/">Reporting Fields</a></li>
-    <li class="tab3"><a href="{{ credit.get_edit_url }}applicability/">Applicability</a></li>
-    <li class="tab4"><a href="{{ credit.get_edit_url }}formula/">Formula &amp; Validation</a></li>
-</ul>
-    <div class='tabContent'>
+    <ul id="tabnav" class="nav nav-tabs">
+        <li>
+            <a href="{{ credit.get_edit_url }}">
+                Credit Summary
+            </a>
+        </li>
+        <li>
+            <a href="{{ credit.get_edit_url }}fields/">
+                Reporting Fields
+            </a>
+        </li>
+        <li>
+            <a href="{{ credit.get_edit_url }}applicability/">
+                Applicability
+            </a>
+        </li>
+        <li>
+            <a href="{{ credit.get_edit_url }}formula/">
+                Formula &amp; Validation
+            </a>
+        </li>
+    </ul>
+    <div class='tab-content'>
         {% block credit_content %}{% endblock %}
     </div>
 {% endblock %}

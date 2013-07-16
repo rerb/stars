@@ -1,5 +1,7 @@
 {% extends "tool/credit_editor/base.html" %}
 
+{% load bootstrap %}
+
 {% block crumbs %}
     {% load ce_tags %}
     {% show_editor_crumbs subcategory %}
@@ -10,32 +12,35 @@
 {% block editor_content %}
     <div class='creditContent'>
         <form class='generalForm' method='POST' action='.'>
-            <table class='form'>
-                {% include "helpers/standard_form.html" %}
-            </table>
-            
-            <table class='orderingTable' id='dndtable'>
+            {{ object_form|bootstrap }}
+            <table class='table table-condensed' id='dndtable'>
                 <tr nodrop="true" nodrag="true">
-                    <th colspan='2'>{% if t1_ordering or t2_ordering %}Tier 1 {% endif %}Credits</th>
+                    <th colspan="2">
+                        {% if t1_ordering or t2_ordering %}
+                            Tier 1
+                        {% endif %}
+                        Credits
+                    </th>
                 </tr>
                 {% with t1_ordering as object_ordering %}
                     {% include 'tool/credit_editor/credit_ordering_form_table.html' %}
                 {% endwith %}
             </table>
-            
+
             {% if t2_ordering %}
-                <table class='orderingTable' id='dndtable2'>
+                <table class='table table-condensed' id='dndtable2'>
                     <tr nodrop="true" nodrag="true">
-                        <th colspan='2'>Tier 2 Credits</th>
+                        <th colspan="2">Tier 2 Credits</th>
                     </tr>
                     {% with t2_ordering as object_ordering %}
                         {% include 'tool/credit_editor/credit_tier2_ordering_form_table.html' %}
                     {% endwith %}
                 </table>
             {% endif %}
-            
-            <div class='button_row'>
-                <button type='submit' id='submit_button'>Save</button>
+
+            <div class="form-actions">
+                <input type="submit" class="btn btn-primary"
+                       value="Save subcategory" id="submit_button"/>
             </div>
         </form>
     </div>
