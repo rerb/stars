@@ -10,9 +10,6 @@ from stars.apps.submissions.models import CreditTestSubmission
 from stars.apps.tool.my_submission.forms import CreditSubmissionForm
 
 
-# from pagedown.widgets import PagedownWidget
-
-
 class CreditSetForm(ModelForm):
     release_date = forms.DateField(widget=extra_widgets.SelectDateWidget())
 
@@ -43,8 +40,6 @@ class CreditSetRatingForm(ModelForm):
 
 
 class CategoryForm(ModelForm):
-    # description = forms.CharField(widget=PagedownWidget())
-
     class Meta:
         model = Category
         exclude = ('creditset', 'ordinal', 'max_point_value',
