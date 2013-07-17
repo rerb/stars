@@ -1,13 +1,16 @@
 {% extends 'tool/base.html' %}
 
-{% block title %}{{ creditset }} | Credit Editor | {{ block.super }}{% endblock %}
+{% block title %}
+    {{ creditset }} | Credit Editor | {{ block.super }}
+{% endblock %}
 
 {% block extra_head %}
     {{ block.super }}
     <script type="text/javascript"
-            src="{{ STATIC_URL }}tp/js/tiny_mce/tiny_mce.js"></script>
-    <script type="text/javascript"
-            src="{{ STATIC_URL }}js/textarea_credit_editor.js"></script>
+            src="{{ STATIC_URL }}tp/tinymce/js/tinymce/tinymce.min.js"></script>
+    <script type="text/javascript">
+        tinymce.init({selector: "textarea"});
+    </script>
     <script type="text/javascript"
             src="{{ STATIC_URL }}js/tablednd.js"></script>
     <link href='{{ STATIC_URL }}css/listexpander.css' rel='stylesheet'
@@ -16,7 +19,10 @@
             type='text/javascript'></script>
 {% endblock %}
 
-{% block body_onload %}{{ block.super }}listexpander();collapseSummary();{% endblock %}
+{% block body_onload %}
+    {{ block.super }}
+    listexpander();collapseSummary();
+{% endblock %}
 
 {% block crumbs %}
     <a href='/tool/'>Reporting Tool</a> &gt;

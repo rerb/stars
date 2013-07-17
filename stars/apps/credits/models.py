@@ -18,9 +18,16 @@ RATING_DURATION = 365*3
 logger = getLogger('stars')
 
 
+# from pagedown.widgets import AdminPagedownWidget
+
+
 class IncrementalFeature(models.Model):
     key = models.SlugField(unique=True)
     description = models.TextField()
+
+    # formfield_overrides = {
+    #     models.TextField: {'widget': AdminPagedownWidget}
+    # }
 
     def __unicode__(self):
         return self.key

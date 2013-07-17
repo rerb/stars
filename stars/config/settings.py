@@ -382,4 +382,3 @@ if 'test' in sys.argv:
     AUTHORIZENET_LOGIN = os.environ.get('AUTHORIZENET_TEST_LOGIN', None)
     AUTHORIZENET_KEY = os.environ.get('AUTHORIZENET_TEST_KEY', None)
     AUTHORIZENET_SERVER = os.environ.get('AUTHORIZENET_TEST_SERVER', None)
-
