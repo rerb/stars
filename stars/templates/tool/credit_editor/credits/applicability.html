@@ -2,25 +2,11 @@
 
 {% load bootstrap %}
 
-{% comment %}
-{% block extra_head %}
-    {{ block.super }}
-    <script type="text/javascript">
-        $(function() {
-            $("#add-reason-button").click(function(e) {
-                e.preventDefault();
-                $.post("{{ credit.get_edit_url }}add-reason/",
-                       $("#add-reason-form-form").serialize(),
-                       function(data, status, xhr) {
-                           alert(data);
-                       });
-            });
-        });
-    </script>
+{% block editor_content %}
+    {% with active_tab="applicability" %}
+        {{ block.super }}
+    {% endwith %}
 {% endblock %}
-{% endcomment %}
-
-{% block tabclass %}class='tab3'{% endblock %}
 
 {% block credit_content %}
     {% if object_ordering %}

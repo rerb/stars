@@ -2,10 +2,14 @@
 
 {% load bootstrap %}
 
-{% block tabclass %}class='tab4'{% endblock %}
+{% block editor_content %}
+    {% with active_tab="formula-and-validation" %}
+        {{ block.super }}
+    {% endwith %}
+{% endblock %}
 
 {% block credit_content %}
-
+<div class="tab-pane active">
     {% include "tool/credit_editor/credits/formula_legend.html" %}
 
     <form class='generalForm' method='POST' action='.'>
@@ -77,7 +81,7 @@
             </div>
         </div>
     </div>
-
+</div>
 {% endblock %}
 
 {% block extra_footer %}{% endblock %}

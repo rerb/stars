@@ -1,6 +1,10 @@
 {% extends "tool/credit_editor/credits/base.html" %}
 
-{% block tabclass %}class='tab4'{% endblock %}
+{% block editor_content %}
+    {% with active_tab="formula-and-validation" %}
+        {{ block.super }}
+    {% endwith %}
+{% endblock %}
 
 {% block credit_content %}
    <form action='.' method='POST' class='generalForm'>

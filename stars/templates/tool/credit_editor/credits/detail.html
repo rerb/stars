@@ -2,6 +2,12 @@
 
 {% load bootstrap %}
 
+{% block editor_content %}
+    {% with active_tab="credit-summary" %}
+        {{ block.super }}
+    {% endwith %}
+{% endblock %}
+
 {% block credit_content %}
     <form class='generalForm' method='POST' action='.'>
         {{ object_form|bootstrap }}
