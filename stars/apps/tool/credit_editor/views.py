@@ -295,7 +295,7 @@ class AddSubcategory(AddObject):
 
 class SubcategoryDetail(CreditReorderMixin, CreditEditorFormView):
     """
-        A view for editing a specific category
+        A view for editing a specific subcategory
     """
 
     template = 'tool/credit_editor/subcategory_detail.html'
@@ -507,7 +507,7 @@ class ApplicabilityReasons(CreditEditorFormView):
 
 class AddApplicabilityReason(AddObject):
     """
-        A view for adding a new Reporting Field
+        A view for adding a new Applicability Reason
     """
     template = 'tool/credit_editor/credits/add_reason.html'
     form_class_list = []
@@ -526,6 +526,37 @@ class AddApplicabilityReason(AddObject):
         form_list['object_form'] = form
 
         return form_list, _context
+
+    def get_success_response(self, request, context):
+        return HttpResponseRedirect("%sapplicability/" %
+                                    context['credit'].get_edit_url())
+
+
+class EditApplicabilityReason(CreditEditorFormView):
+    """
+        A view for editing a specific applicability reason
+    """
+
+    template = 'tool/credit_editor/credits/applicability_detail.html'
+    form_class_list = [
+        {'form_name': 'object_form',
+         'form_class': ApplicabilityReasonForm,
+         'instance_name': 'applicability_reason',
+         'has_upload': False}
+    ]
+
+    def get_extra_context(self, request, context, **kwargs):
+        """ Expects arguments for
+            /creditset_id/category_id/subcategory_id/credit_id """
+
+        _context = super(EditApplicabilityReason,
+                         self).get_extra_context(request, context, **kwargs)
+
+        _context['applicability_reason'] = get_object_or_404(
+            ApplicabilityReason,
+            pk=kwargs['reason_id'])
+
+        return _context
 
     def get_success_response(self, request, context):
         return HttpResponseRedirect("%sapplicability/" %

@@ -289,7 +289,7 @@ class ApplicabilityReasonForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(ApplicabilityReasonForm, self).__init__(*args, **kwargs)
-        self.fields['reason'].widget.attrs.update({'size': 50})
+        self.fields['reason'].widget.attrs['class'] = 'input-xxlarge'
 
 
 class ApplicabilityReasonOrderingForm(ModelForm):
