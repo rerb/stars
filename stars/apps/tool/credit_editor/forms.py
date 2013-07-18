@@ -101,7 +101,7 @@ class CreditForm(ModelForm):
     class Meta:
         model = Credit
         exclude = ('ordinal', 'formula', 'validation_rules', 'number',
-                   'type', 'previous_version')
+                   'type', 'previous_version', 'identifier')
 
     def __init__(self, *args, **kwargs):
         super(CreditForm, self).__init__(*args, **kwargs)
