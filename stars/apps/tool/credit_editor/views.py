@@ -1,5 +1,3 @@
-import sys
-
 from django.shortcuts import get_object_or_404
 from django.forms.models import modelformset_factory
 from django.http import HttpResponseRedirect
@@ -10,6 +8,7 @@ from stars.apps.credits.models import CreditSet
 from stars.apps.accounts.mixins import IsStaffMixin
 from stars.apps.tool.credit_editor.forms import *
 
+
 def home(request):
     """
         Forwards the user to the latest version.
@@ -17,6 +16,7 @@ def home(request):
     # simply forward the visitor to the latest version
     latest_version = CreditSet.objects.order_by('-release_date')[0]
     return HttpResponseRedirect(latest_version.get_edit_url())
+
 
 class CreditEditorNavMixin(CreditNavMixin):
 
@@ -32,10 +32,12 @@ class CreditEditorNavMixin(CreditNavMixin):
         """ The default credit link. """
         return credit.get_edit_url()
 
+
 class CreditEditorFormView(IsStaffMixin, MultiFormView, CreditEditorNavMixin):
     """
         The base class for all Credit Editor Views
-        It inherits from MultiFormView, but mixes in IsStaffMixin and CreditNavMixin
+        It inherits from MultiFormView, but mixes in IsStaffMixin and
+        CreditNavMixin
     """
 
     @property
@@ -43,31 +45,42 @@ class CreditEditorFormView(IsStaffMixin, MultiFormView, CreditEditorNavMixin):
         return self.__class__.__name__
 
     def get_extra_context(self, request, context, **kwargs):
-        """ Expects arguments for /creditset_id/category_id/subcategory_id/credit_id """
+        """ Expects arguments for
+            /creditset_id/category_id/subcategory_id/credit_id """
 
-        context = super(CreditEditorFormView, self).get_extra_context(request, context, **kwargs)
+        context = super(CreditEditorFormView,
+                        self).get_extra_context(request, context, **kwargs)
 
         if kwargs.has_key('creditset_id'):
-            context['creditset'] = get_object_or_404(CreditSet, pk=kwargs['creditset_id'])
+            context['creditset'] = get_object_or_404(
+                CreditSet,
+                pk=kwargs['creditset_id'])
 
             keys = ['category', 'subcategory', 'credit']
 
-            values = self.get_creditset_selection(request, context['creditset'], **kwargs)
+            values = self.get_creditset_selection(request,
+                                                  context['creditset'],
+                                                  **kwargs)
 
-            context.update(dict(zip(keys,values)))
+            context.update(dict(zip(keys, values)))
 
             # Add the selected field to the context
             if kwargs.has_key('field_id'):
-                context['field'] = get_object_or_404(DocumentationField, pk=kwargs['field_id'], credit=context['credit'])
+                context['field'] = get_object_or_404(
+                    DocumentationField,
+                    pk=kwargs['field_id'],
+                    credit=context['credit'])
                 context['current'] = context['field']
 
             context['current'] = context['creditset']
             for key in reversed(keys):
-                if context[key] != None:
+                if context[key] is not None:
                     context['current'] = context[key]
                     break
 
-            context['outline'] = self.get_creditset_navigation(context['creditset'], current=context['current'])
+            context['outline'] = self.get_creditset_navigation(
+                context['creditset'],
+                current=context['current'])
 
         context['available_sets'] = CreditSet.objects.all()
 
@@ -76,20 +89,24 @@ class CreditEditorFormView(IsStaffMixin, MultiFormView, CreditEditorNavMixin):
     def get_success_response(self, request, context):
         """
             Overriding to use the get_edit_url() method
-            The only reason to use this is to ensure that the ordering form reloads
+            The only reason to use this is to ensure that the ordering form
+            reloads
         """
         if context.has_key('current'):
             return HttpResponseRedirect(context['current'].get_edit_url())
         else:
             return None
 
-    def generate_form_set(self, request, modelClass, modelFormClass, queryset, prefix='object-ordering'):
+    def generate_form_set(self, request, modelClass, modelFormClass, queryset,
+                          prefix='object-ordering'):
         """
             Returns a formSet for ordering child items
         """
 
         if queryset.count() > 0:
-            ObjectFormSet = modelformset_factory(modelClass, form=modelFormClass, extra=0)
+            ObjectFormSet = modelformset_factory(modelClass,
+                                                 form=modelFormClass,
+                                                 extra=0)
             kwargs = {'queryset': queryset, 'prefix': prefix}
 
             if request.method == 'POST':
@@ -98,6 +115,7 @@ class CreditEditorFormView(IsStaffMixin, MultiFormView, CreditEditorNavMixin):
             return ObjectFormSet(**kwargs)
         else:
             return None
+
 
 class CreditReorderMixin(object):
     """
@@ -109,6 +127,7 @@ class CreditReorderMixin(object):
 
         context['category'].update_ordering()
         return context
+
 
 class AddObject(CreditEditorFormView):
     """
@@ -136,6 +155,7 @@ class AddObject(CreditEditorFormView):
         form = formKlass(**kwargs)
         return form
 
+
 class DeleteObject(CreditEditorFormView):
     """
         A basic confirmation for for deleting the current field
@@ -144,6 +164,7 @@ class DeleteObject(CreditEditorFormView):
     def get_success_response(self, request, context):
         pass
 
+
 class AddCreditset(AddObject):
     """
         A view for editing a specific creditset
@@ -151,8 +172,12 @@ class AddCreditset(AddObject):
 
     template = 'tool/credit_editor/add_creditset.html'
     form_class_list = [
-        {'form_name': 'object_form', 'form_class': NewCreditSetForm, 'instance_name': None, 'has_upload': False,}
+        {'form_name': 'object_form',
+         'form_class': NewCreditSetForm,
+         'instance_name': None,
+         'has_upload': False}
     ]
+
 
 class CreditsetDetail(CreditEditorFormView):
     """
@@ -161,23 +186,32 @@ class CreditsetDetail(CreditEditorFormView):
 
     template = 'tool/credit_editor/creditset_detail.html'
     form_class_list = [
-        {'form_name': 'object_form', 'form_class': CreditSetForm, 'instance_name': 'creditset', 'has_upload': False,}
+        {'form_name': 'object_form',
+         'form_class': CreditSetForm,
+         'instance_name': 'creditset',
+         'has_upload': False}
     ]
 
     def get_form_list(self, request, context):
         """
             Extends the form list to include a formset of Categories to order
         """
-        form_list, _context = super(CreditsetDetail, self).get_form_list(request, context)
+        form_list, _context = super(CreditsetDetail,
+                                    self).get_form_list(request, context)
 
         # Create the Category forms to order the categories
         creditset = context['creditset']
-        form_list['object_ordering'] = self.generate_form_set(request, Category, CategoryOrderForm, creditset.category_set.all())
+        form_list['object_ordering'] = self.generate_form_set(
+            request,
+            Category,
+            CategoryOrderForm,
+            creditset.category_set.all())
 
         # Add a new category form to the context
         _context['new_category_form'] = CategoryForm()
 
         return form_list, _context
+
 
 class AddCategory(AddObject):
     """
@@ -190,8 +224,12 @@ class AddCategory(AddObject):
         """
             Adds some init data to the form.
         """
-        form_list, _context = super(AddCategory, self).get_form_list(request, context)
-        form = self.add_form_from_request(CategoryForm, Category(creditset=_context['creditset']), request)
+        form_list, _context = super(AddCategory,
+                                    self).get_form_list(request, context)
+        form = self.add_form_from_request(
+            CategoryForm,
+            Category(creditset=_context['creditset']),
+            request)
 
         form_list['object_form'] = form
 
@@ -205,23 +243,32 @@ class CategoryDetail(CreditEditorFormView):
 
     template = 'tool/credit_editor/category_detail.html'
     form_class_list = [
-        {'form_name': 'object_form', 'form_class': CategoryForm, 'instance_name': 'category', 'has_upload': False,}
+        {'form_name': 'object_form',
+         'form_class': CategoryForm,
+         'instance_name': 'category',
+         'has_upload': False}
     ]
 
     def get_form_list(self, request, context):
         """
             Extends the form list to include a formset of Categories to order
         """
-        form_list, _context = super(CategoryDetail, self).get_form_list(request, context)
+        form_list, _context = super(CategoryDetail,
+                                    self).get_form_list(request, context)
 
         # Create the Category forms to order the categories
         category = context['category']
-        form_list.update({'object_ordering': self.generate_form_set(request, Subcategory, SubcategoryOrderForm, category.subcategory_set.all()),})
+        form_list.update({'object_ordering': self.generate_form_set(
+            request,
+            Subcategory,
+            SubcategoryOrderForm,
+            category.subcategory_set.all())})
 
         # Add a new category form to the context
         _context['new_subcategory_form'] = NewSubcategoryForm()
 
         return form_list, _context
+
 
 class AddSubcategory(AddObject):
     """
@@ -234,12 +281,17 @@ class AddSubcategory(AddObject):
         """
             Adds some init data to the form.
         """
-        form_list, _context = super(AddSubcategory, self).get_form_list(request, context)
-        form = self.add_form_from_request(NewSubcategoryForm, Subcategory(category=_context['category']), request)
+        form_list, _context = super(AddSubcategory,
+                                    self).get_form_list(request, context)
+        form = self.add_form_from_request(
+            NewSubcategoryForm,
+            Subcategory(category=_context['category']),
+            request)
 
         form_list['object_form'] = form
 
         return form_list, _context
+
 
 class SubcategoryDetail(CreditReorderMixin, CreditEditorFormView):
     """
@@ -248,24 +300,39 @@ class SubcategoryDetail(CreditReorderMixin, CreditEditorFormView):
 
     template = 'tool/credit_editor/subcategory_detail.html'
     form_class_list = [
-        {'form_name': 'object_form', 'form_class': SubcategoryForm, 'instance_name': 'subcategory', 'has_upload': False,}
+        {'form_name': 'object_form',
+         'form_class': SubcategoryForm,
+         'instance_name': 'subcategory',
+         'has_upload': False}
     ]
 
     def get_form_list(self, request, context):
         """
             Extends the form list to include a formset of Categories to order
         """
-        form_list, _context = super(SubcategoryDetail, self).get_form_list(request, context)
+        form_list, _context = super(SubcategoryDetail,
+                                    self).get_form_list(request, context)
 
         # Create the forms to order the credits
         subcategory = context['subcategory']
         if subcategory.credit_set.filter(type='t1').count() > 0:
-            form_list['t1_ordering'] = self.generate_form_set(request, Credit, CreditOrderForm, subcategory.credit_set.filter(type='t1'), prefix='t1_ordering')
+            form_list['t1_ordering'] = self.generate_form_set(
+                request,
+                Credit,
+                CreditOrderForm,
+                subcategory.credit_set.filter(type='t1'),
+                prefix='t1_ordering')
 
         if subcategory.credit_set.filter(type='t2').count() > 0:
-            form_list['t2_ordering'] = self.generate_form_set(request, Credit, CreditOrderForm, subcategory.credit_set.filter(type='t2'), prefix='t2_ordering')
+            form_list['t2_ordering'] = self.generate_form_set(
+                request,
+                Credit,
+                CreditOrderForm,
+                subcategory.credit_set.filter(type='t2'),
+                prefix='t2_ordering')
 
         return form_list, _context
+
 
 class AddT1Credit(CreditReorderMixin, AddObject):
     """
@@ -278,13 +345,15 @@ class AddT1Credit(CreditReorderMixin, AddObject):
         """
             Adds some init data to the form.
         """
-        form_list, _context = super(AddT1Credit, self).get_form_list(request, context)
+        form_list, _context = super(AddT1Credit,
+                                    self).get_form_list(request, context)
         instance = Credit(subcategory=_context['subcategory'], type='t1')
         form = self.add_form_from_request(NewCreditForm, instance, request)
 
         form_list['object_form'] = form
 
         return form_list, _context
+
 
 class AddT2Credit(CreditReorderMixin, AddObject):
     """
@@ -298,13 +367,15 @@ class AddT2Credit(CreditReorderMixin, AddObject):
         """
             Adds some init data to the form.
         """
-        form_list, _context = super(AddT2Credit, self).get_form_list(request, context)
+        form_list, _context = super(AddT2Credit,
+                                    self).get_form_list(request, context)
         instance = Credit(subcategory=_context['subcategory'], type='t2')
         form = self.add_form_from_request(NewT2CreditForm, instance, request)
 
         form_list['object_form'] = form
 
         return form_list, _context
+
 
 class CreditDetail(CreditReorderMixin, CreditEditorFormView):
     """
@@ -313,8 +384,12 @@ class CreditDetail(CreditReorderMixin, CreditEditorFormView):
 
     template = 'tool/credit_editor/credits/detail.html'
     form_class_list = [
-        {'form_name': 'object_form', 'form_class': CreditForm, 'instance_name': 'credit', 'has_upload': False,}
+        {'form_name': 'object_form',
+         'form_class': CreditForm,
+         'instance_name': 'credit',
+         'has_upload': False}
     ]
+
 
 class CreditReportingFields(CreditEditorFormView):
     """
@@ -328,20 +403,28 @@ class CreditReportingFields(CreditEditorFormView):
         """
             Extends the form list to include a formset DocumentationFields
         """
-        form_list, _context = super(CreditReportingFields, self).get_form_list(request, context)
+        form_list, _context = super(CreditReportingFields,
+                                    self).get_form_list(request, context)
 
         # Create the DocumentationField forms
         credit = context['credit']
-        form_list.update({'object_ordering': self.generate_form_set(request, DocumentationField, DocumentationFieldOrderingForm, credit.documentationfield_set.all()),})
+        form_list.update({'object_ordering': self.generate_form_set(
+            request,
+            DocumentationField,
+            DocumentationFieldOrderingForm,
+            credit.documentationfield_set.all())})
 
         # Add a new category form to the context
-        _context['new_field_form'] = NewDocumentationFieldForm(instance=DocumentationField(credit=_context['credit']))
+        _context['new_field_form'] = NewDocumentationFieldForm(
+            instance=DocumentationField(credit=_context['credit']))
         _context['show_edit_button'] = True
 
         return form_list, _context
 
     def get_success_response(self, request, context):
-        return HttpResponseRedirect("%sfields/" % context['credit'].get_edit_url())
+        return HttpResponseRedirect("%sfields/" %
+                                    context['credit'].get_edit_url())
+
 
 class AddReportingField(AddObject):
     """
@@ -354,8 +437,12 @@ class AddReportingField(AddObject):
         """
             Adds some init data to the form.
         """
-        form_list, _context = super(AddReportingField, self).get_form_list(request, context)
-        form = self.add_form_from_request(NewDocumentationFieldForm, DocumentationField(credit=_context['credit']), request)
+        form_list, _context = super(AddReportingField,
+                                    self).get_form_list(request, context)
+        form = self.add_form_from_request(
+            NewDocumentationFieldForm,
+            DocumentationField(credit=_context['credit']),
+            request)
 
         form_list['object_form'] = form
 
@@ -365,6 +452,7 @@ class AddReportingField(AddObject):
         return HttpResponseRedirect("%sfields/" %
                                     context['credit'].get_edit_url())
 
+
 class EditReportingField(CreditEditorFormView):
     """
         A view for editing a specific reporting field
@@ -372,11 +460,16 @@ class EditReportingField(CreditEditorFormView):
 
     template = 'tool/credit_editor/credits/field_detail.html'
     form_class_list = [
-        {'form_name': 'object_form', 'form_class': DocumentationFieldForm, 'instance_name': 'field', 'has_upload': False,}
+        {'form_name': 'object_form',
+         'form_class': DocumentationFieldForm,
+         'instance_name': 'field',
+         'has_upload': False}
     ]
 
     def get_success_response(self, request, context):
-        return HttpResponseRedirect("%sfields/" % context['field'].credit.get_edit_url())
+        return HttpResponseRedirect("%sfields/" %
+                                    context['field'].credit.get_edit_url())
+
 
 class ApplicabilityReasons(CreditEditorFormView):
     """
@@ -388,13 +481,19 @@ class ApplicabilityReasons(CreditEditorFormView):
 
     def get_form_list(self, request, context):
         """
-            Extends the form list to include a formset of Applicability Reasons
+            Extends the form list to include a formset of Applicability
+            Reasons
         """
-        form_list, _context = super(ApplicabilityReasons, self).get_form_list(request, context)
+        form_list, _context = super(ApplicabilityReasons,
+                                    self).get_form_list(request, context)
 
         # Create the Category forms to order the categories
         credit = context['credit']
-        form_list.update({'object_ordering': self.generate_form_set(request, ApplicabilityReason, ApplicabilityReasonOrderingForm, credit.applicabilityreason_set.all()),})
+        form_list.update({'object_ordering': self.generate_form_set(
+            request,
+            ApplicabilityReason,
+            ApplicabilityReasonOrderingForm,
+            credit.applicabilityreason_set.all())})
 
         # Add a new category form to the context
         _context['new_reason_form'] = ApplicabilityReasonForm()
@@ -402,7 +501,9 @@ class ApplicabilityReasons(CreditEditorFormView):
         return form_list, _context
 
     def get_success_response(self, request, context):
-        return HttpResponseRedirect("%sapplicability/" % context['credit'].get_edit_url())
+        return HttpResponseRedirect("%sapplicability/" %
+                                    context['credit'].get_edit_url())
+
 
 class AddApplicabilityReason(AddObject):
     """
@@ -415,31 +516,43 @@ class AddApplicabilityReason(AddObject):
         """
             Adds some init data to the form.
         """
-        form_list, _context = super(AddApplicabilityReason, self).get_form_list(request, context)
-        form = self.add_form_from_request(ApplicabilityReasonForm, ApplicabilityReason(credit=_context['credit'], ordinal=-1), request)
+        form_list, _context = super(AddApplicabilityReason,
+                                    self).get_form_list(request, context)
+        form = self.add_form_from_request(
+            ApplicabilityReasonForm,
+            ApplicabilityReason(credit=_context['credit'], ordinal=-1),
+            request)
 
         form_list['object_form'] = form
 
         return form_list, _context
 
     def get_success_response(self, request, context):
-        return HttpResponseRedirect("%sapplicability/" % context['credit'].get_edit_url())
+        return HttpResponseRedirect("%sapplicability/" %
+                                    context['credit'].get_edit_url())
+
 
 class FormulaAndValidation(CreditEditorFormView):
     """
-        A view for editing a Credit's Scoring Formula and add custom Validation
+        A view for editing a Credit's Scoring Formula and add custom
+        Validation
     """
 
     template = 'tool/credit_editor/credits/formula.html'
     form_class_list = [
-        {'form_name': 'object_form', 'form_class': CreditFormulaForm, 'instance_name': 'credit', 'has_upload': False,}
+        {'form_name': 'object_form',
+         'form_class': CreditFormulaForm,
+         'instance_name': 'credit',
+         'has_upload': False}
     ]
 
     def get_extra_context(self, request, context, **kwargs):
 
-        _context = super(FormulaAndValidation, self).get_extra_context(request, context, **kwargs)
+        _context = super(FormulaAndValidation,
+                         self).get_extra_context(request, context, **kwargs)
         _context['show_delete_button'] = True
-        _context['test_case_list'] = CreditTestSubmission.objects.filter(credit=_context['credit'])
+        _context['test_case_list'] = CreditTestSubmission.objects.filter(
+            credit=_context['credit'])
         for case in _context['test_case_list']:
             case.run_test()
         return _context
@@ -449,7 +562,8 @@ class FormulaAndValidation(CreditEditorFormView):
             Re-run the test cases after the form is processed
         """
 
-        context['test_case_list'] = CreditTestSubmission.objects.filter(credit=context['credit'])
+        context['test_case_list'] = CreditTestSubmission.objects.filter(
+            credit=context['credit'])
         for case in context['test_case_list']:
             case.run_test()
 
@@ -459,15 +573,18 @@ class FormulaAndValidation(CreditEditorFormView):
         """
             Adds some init data to the form.
         """
-        form_list, _context = super(FormulaAndValidation, self).get_form_list(request, context)
+        form_list, _context = super(FormulaAndValidation,
+                                    self).get_form_list(request, context)
 
         cts = CreditTestSubmission(credit=_context['credit'])
-        _context['new_test_case_form'] = CreditTestSubmissionForm(instance=cts)
+        _context['new_test_case_form'] = CreditTestSubmissionForm(
+            instance=cts)
 
         return form_list, _context
 
     def get_success_response(self, request, context):
-        return None # will return to self.
+        return None  # will return to self.
+
 
 class AddTestCase(AddObject):
     """
@@ -480,15 +597,21 @@ class AddTestCase(AddObject):
         """
             Adds some init data to the form.
         """
-        form_list, _context = super(AddTestCase, self).get_form_list(request, context)
-        form = self.add_form_from_request(CreditTestSubmissionForm, CreditTestSubmission(credit=_context['credit']), request)
+        form_list, _context = super(AddTestCase,
+                                    self).get_form_list(request, context)
+        form = self.add_form_from_request(
+            CreditTestSubmissionForm,
+            CreditTestSubmission(credit=_context['credit']),
+            request)
 
         form_list['object_form'] = form
 
         return form_list, _context
 
     def get_success_response(self, request, context):
-        return HttpResponseRedirect("%sformula/" % context['credit'].get_edit_url())
+        return HttpResponseRedirect("%sformula/" %
+                                    context['credit'].get_edit_url())
+
 
 class EditTestCase(CreditEditorFormView):
     """
@@ -497,17 +620,25 @@ class EditTestCase(CreditEditorFormView):
 
     template = 'tool/credit_editor/credits/add_test_case.html'
     form_class_list = [
-        {'form_name': 'object_form', 'form_class': CreditTestSubmissionForm, 'instance_name': 'test_case', 'has_upload': False,}
+        {'form_name': 'object_form',
+         'form_class': CreditTestSubmissionForm,
+         'instance_name': 'test_case',
+         'has_upload': False}
     ]
 
     def get_extra_context(self, request, context, **kwargs):
-        """ Expects arguments for /creditset_id/category_id/subcategory_id/credit_id """
+        """ Expects arguments for
+            /creditset_id/category_id/subcategory_id/credit_id """
 
-        _context = super(EditTestCase, self).get_extra_context(request, context, **kwargs)
+        _context = super(EditTestCase,
+                         self).get_extra_context(request, context, **kwargs)
 
-        _context['test_case'] = get_object_or_404(CreditTestSubmission, pk=kwargs['test_id'])
+        _context['test_case'] = get_object_or_404(
+            CreditTestSubmission,
+            pk=kwargs['test_id'])
 
         return _context
 
     def get_success_response(self, request, context):
-        return HttpResponseRedirect("%sformula/" % context['credit'].get_edit_url())
+        return HttpResponseRedirect("%sformula/" %
+                                    context['credit'].get_edit_url())
