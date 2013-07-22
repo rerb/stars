@@ -14,10 +14,3 @@
         {% endif %}
     </td>
 {% endblock %}
-
-{% block delete_button %}
-    <img src='/media/static/images/delete.png' alt='Delete'
-         title='Delete Test Case'
-         onclick="confirm_action('Are you sure?', '{{  obj.get_delete_url  }}');"
-         style='cursor: pointer'/>
-{% endblock %}

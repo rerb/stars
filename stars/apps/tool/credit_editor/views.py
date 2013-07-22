@@ -1,6 +1,7 @@
-from django.shortcuts import get_object_or_404
 from django.forms.models import modelformset_factory
 from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404
+from django.views.generic import DeleteView
 
 from stars.apps.helpers.forms.views import MultiFormView
 from stars.apps.credits.views import CreditNavMixin
@@ -664,12 +665,26 @@ class EditTestCase(CreditEditorFormView):
         _context = super(EditTestCase,
                          self).get_extra_context(request, context, **kwargs)
 
-        _context['test_case'] = get_object_or_404(
-            CreditTestSubmission,
-            pk=kwargs['test_id'])
+        _context['test_case'] = get_object_or_404(CreditTestSubmission,
+                                                  pk=kwargs['test_id'])
 
         return _context
 
     def get_success_response(self, request, context):
         return HttpResponseRedirect("%sformula/" %
                                     context['credit'].get_edit_url())
+
+
+class DeleteTestCase(DeleteView, CreditNavMixin, IsStaffMixin):
+    model = CreditTestSubmission
+    template_name = 'tool/credit_editor/credits/delete_test_case.html'
+
+    def get_success_url(self):
+        return self.context['credit'].get_formula_url()
+
+    def get_context_data(self, **kwargs):
+        context = super(DeleteTestCase, self).get_context_data(**kwargs)
+        context['credit'] = get_object_or_404(Credit,
+                                              pk=self.kwargs['credit_id'])
+        # Does that stink?  Using self.kwargs like that, way out here?
+        return context
