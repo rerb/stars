@@ -679,12 +679,15 @@ class DeleteTestCase(DeleteView, CreditNavMixin, IsStaffMixin):
     model = CreditTestSubmission
     template_name = 'tool/credit_editor/credits/delete_test_case.html'
 
+    @property
+    def credit(self):
+        return get_object_or_404(Credit,
+                                 pk=self.kwargs['credit_id'])
+
     def get_success_url(self):
-        return self.context['credit'].get_formula_url()
+        return self.credit.get_formula_url()
 
     def get_context_data(self, **kwargs):
         context = super(DeleteTestCase, self).get_context_data(**kwargs)
-        context['credit'] = get_object_or_404(Credit,
-                                              pk=self.kwargs['credit_id'])
-        # Does that stink?  Using self.kwargs like that, way out here?
+        context['credit'] = self.credit
         return context

@@ -1,13 +1,15 @@
-from django.conf.urls.defaults import *
+from django.conf.urls.defaults import patterns, url
 
 from stars.apps.tool.credit_editor.views import *
 # from stars.apps.tool.credit_editor.forms import *
+
 
 # Define some prefixes here to keep the clutter down.
 cs_prefix = "(?P<creditset_id>\d+)/"
 ct_prefix = cs_prefix + "(?P<category_id>\d+)/"
 sb_prefix = ct_prefix + "(?P<subcategory_id>\d+)/"
 cr_prefix = sb_prefix + "(?P<credit_id>\d+)/"
+
 
 urlpatterns = patterns(
     'stars.apps.tool.credit_editor.views',
@@ -46,8 +48,9 @@ urlpatterns = patterns(
     (r'^%sformula/$' % cr_prefix, FormulaAndValidation()),
     (r'^%sformula/add-test-case/$' % cr_prefix, AddTestCase()),
     (r'^%sformula/(?P<test_id>\d+)/$' % cr_prefix, EditTestCase()),
-    (r'^%sformula/(?P<pk>\d+)/delete/$' % cr_prefix,
-     DeleteTestCase.as_view()),
+    url(r'^%sformula/(?P<pk>\d+)/delete/$' % cr_prefix,
+        DeleteTestCase.as_view(),
+        name="test-case-delete"),
 
   #     (r'^add-units/$', 'add_units'),
   #
