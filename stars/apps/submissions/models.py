@@ -112,6 +112,7 @@ class SubmissionManager(models.Manager):
     def get_snapshots(self, institution):
         return SubmissionSet.objects.filter(institution=institution).filter(is_locked=False).filter(status='f').order_by('-date_submitted')
 
+
 class SubmissionSet(models.Model, FlaggableModel):
     """
         A creditset (ex: 1.0) that is being submitted
@@ -122,16 +123,42 @@ class SubmissionSet(models.Model, FlaggableModel):
     date_registered = models.DateField()
     date_submitted = models.DateField(blank=True, null=True)
     date_reviewed = models.DateField(blank=True, null=True)
-    registering_user = models.ForeignKey(User, related_name='registered_submissions')
-    submitting_user = models.ForeignKey(User, related_name='submitted_submissions', blank=True, null=True)
+    registering_user = models.ForeignKey(
+        User,
+        related_name='registered_submissions')
+    submitting_user = models.ForeignKey(User,
+                                        related_name='submitted_submissions',
+                                        blank=True,
+                                        null=True)
     rating = models.ForeignKey(Rating, blank=True, null=True)
     status = models.CharField(max_length=8, choices=SUBMISSION_STATUS_CHOICES)
-    submission_boundary = models.TextField(blank=True, null=True, help_text="The following is an example institutional boundary: This submission includes all of the the University's main campus as well as the downtown satellite campus. The University hospital and campus farm are excluded.")
-    presidents_letter = models.FileField("President's Letter", upload_to=upload_path_callback, blank=True, null=True, help_text="AASHE requires that every submission be vouched for by that institution's president. Please upload a PDF or scan of a letter from your president.")
-    reporter_status = models.BooleanField(help_text="Check this box if you would like to be given reporter status and not receive a STARS rating from AASHE.")
-    pdf_report = models.FileField(upload_to=upload_path_callback, blank=True, null=True)
+    submission_boundary = models.TextField(
+        blank=True,
+        null=True,
+        help_text=("The following is an example institutional boundary: "
+                   "This submission includes all of the the University's "
+                   "main campus as well as the downtown satellite campus. "
+                   "The University hospital and campus farm are excluded."))
+    presidents_letter = models.FileField(
+        "President's Letter",
+        upload_to=upload_path_callback,
+        blank=True,
+        null=True,
+        help_text=("AASHE requires that every submission be vouched "
+                   "for by that institution's president. Please upload "
+                   "a PDF or scan of a letter from your president."))
+    reporter_status = models.BooleanField(
+        help_text=("Check this box if you would like to be given "
+                   "reporter status and not receive a STARS rating "
+                   "from AASHE."))
+    pdf_report = models.FileField(upload_to=upload_path_callback,
+                                  blank=True,
+                                  null=True)
     is_locked = models.BooleanField(default=False)
-    is_visible = models.BooleanField(default=True, help_text='Is this submission visible to the institution? Often used with migrations.')
+    is_visible = models.BooleanField(
+        default=True,
+        help_text=("Is this submission visible to the institution? "
+                   "Often used with migrations."))
     score = models.FloatField(blank=True, null=True)
 
     class Meta:
@@ -152,7 +179,8 @@ class SubmissionSet(models.Model, FlaggableModel):
 
         if save:
             name = self.get_pdf_filename()
-            file = InMemoryUploadedFile(pdf_result, "pdf", name, None, pdf_result.tell(), None)
+            file = InMemoryUploadedFile(pdf_result, "pdf", name, None,
+                                        pdf_result.tell(), None)
             self.pdf_report.save(name, file)
             return file
 
@@ -204,9 +232,11 @@ class SubmissionSet(models.Model, FlaggableModel):
             return url
         else:
             if self.date_submitted:
-                url = '/institutions/%s/report/%s/'% (self.institution.slug, self.date_submitted)
+                url = '/institutions/%s/report/%s/'% (self.institution.slug,
+                                                      self.date_submitted)
             else:
-                url = '/institutions/%s/report/%s/'% (self.institution.slug, self.id)
+                url = '/institutions/%s/report/%s/'% (self.institution.slug,
+                                                      self.id)
             cache.set(cache_key, url, 60*60*24) # cache for 24 hours
             return url
 
@@ -215,7 +245,8 @@ class SubmissionSet(models.Model, FlaggableModel):
         return None
 
     def get_status(self):
-        """ Returns a status display string showing current status or rating for this submission """
+        """ Returns a status display string showing current status or rating
+            for this submission """
         if self.is_rated():
             return unicode(self.rating)
         return self.get_status_display()
@@ -237,10 +268,15 @@ class SubmissionSet(models.Model, FlaggableModel):
 
     def get_STARS_rating(self, recalculate=False):
         """
-            Return the STARS rating (potentially provisional) for this submission
-            @todo: this is inefficient - need to store or at least cache the STARS score.
+            Return the STARS rating (potentially provisional) for this
+            submission
+
+            @todo: this is inefficient - need to store or at least cache
+            the STARS score.
         """
-        if self.reporter_status or self.status == 'f' or self.institution.international:
+        if (self.reporter_status or
+            self.status == 'f' or
+            self.institution.international):
             return self.creditset.rating_set.get(name='Reporter')
 
         if self.is_rated() and not recalculate:
@@ -283,7 +319,7 @@ class SubmissionSet(models.Model, FlaggableModel):
                 score += cat.get_STARS_v1_0_score()
                 non_inno_cats += 1
 
-        score = (score / non_inno_cats) if non_inno_cats>0 else 0   # average score
+        score = (score / non_inno_cats) if non_inno_cats>0 else 0   # average
 
         score += innovation_score  # plus any innovation points
 
@@ -306,31 +342,37 @@ class SubmissionSet(models.Model, FlaggableModel):
         return score
 
     def get_adjusted_available_points(self):
-        """ Gets only the points for credits that have not been labelled as Not Applicable """
+        """ Gets only the points for credits that have not been labelled as
+            Not Applicable """
         score = 0
         for cat in self.categorysubmission_set.all():
             score += cat.get_adjusted_available_points()
         return score
 
     def get_finished_credit_count(self):
-        """ Get the number of credits that have been marked complete, not pursuing, or not applicable """
+        """ Get the number of credits that have been marked complete,
+            not pursuing, or not applicable """
         count = 0
         for cat in self.categorysubmission_set.all():
             count += cat.get_finished_credit_count()
         return count
 
     def get_percent_complete(self):
-        """ Return the percentage of credits completed in the entire set: 0 - 100 """
+        """ Return the percentage of credits completed in the entire
+            set: 0 - 100 """
         total_credits = self.get_total_credits()
         if total_credits == 0: return 0
-        return int((self.get_finished_credit_count() / float(total_credits)) * 100)
+        return int(
+            (self.get_finished_credit_count() / float(total_credits)) * 100)
 
     def get_progress_title(self):
         """ Returns a title for progress on the entire submission set """
-        return "Complete" if self.get_percent_complete() == 100 else "Reporting Status"
+        return "Complete" if (
+            self.get_percent_complete() == 100) else "Reporting Status"
 
     def get_amount_due(self):
-        """ Returns the amount of the total # of "later" payments tied to this submission """
+        """ Returns the amount of the total # of "later" payments tied to
+            this submission """
         total = 0.0
         for p in self.payment_set.filter(type='later'):
             total += p.amount
@@ -352,7 +394,8 @@ class SubmissionSet(models.Model, FlaggableModel):
                 categorysubmission.save()
 
             # Create SubcategorySubmissions if necessary
-            for subcategory in categorysubmission.category.subcategory_set.all():
+            for subcategory in (
+                    categorysubmission.category.subcategory_set.all()):
                 try:
                     subcategorysubmission = SubcategorySubmission.objects.get(
                         subcategory=subcategory,
@@ -428,6 +471,7 @@ class SubmissionSet(models.Model, FlaggableModel):
         if user.email != self.institution.contact_email:
             to_mail.append(self.institution.contact_email)
         et.send_email(to_mail, {'ss': self,})
+
 
 INSTITUTION_TYPE_CHOICES = (("associate", "Associate"),
                             ("baccalaureate", "Baccalaureate"),
