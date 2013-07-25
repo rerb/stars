@@ -677,7 +677,6 @@ class EditTestCase(CreditEditorFormView):
 
 class DeleteTestCase(DeleteView, CreditNavMixin, IsStaffMixin):
     model = CreditTestSubmission
-    template_name = 'tool/credit_editor/credits/delete_test_case.html'
 
     @property
     def credit(self):
