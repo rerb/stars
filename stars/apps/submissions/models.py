@@ -985,8 +985,12 @@ class CreditSubmission(models.Model):
     """
         A complete submission data set for a credit
         This is really an abstract base class for two types of submissions:
-         - a User Submission (normal submission for an institutions STARS submission set)
-         - a Test Submission (a test case used to validate formulae in the Credit Editor)
+
+         - a User Submission (normal submission for an institutions
+           STARS submission set)
+
+         - a Test Submission (a test case used to validate formulae in
+           the Credit Editor)
     """
     credit = models.ForeignKey(Credit)
 
@@ -996,7 +1000,6 @@ class CreditSubmission(models.Model):
     def __unicode__(self):
         return self.credit.title
 
-#    @staticmethod
     def model_name():
         return u"Credit Submission"
     model_name = staticmethod(model_name)
@@ -1009,26 +1012,38 @@ class CreditSubmission(models.Model):
         return str(self)
 
     def get_scorecard_url(self):
-        return self.subcategory.get_scorecard_url(self.category_submission.submissionset)
+        return self.subcategory.get_scorecard_url(
+            self.category_submission.submissionset)
 
     def get_institution(self):
         return self.subcategory_submission.get_institution()
 
     def get_submission_fields(self):
         """
-            Returns the list of documentation field submission objects for this credit submission
-            You can't simply ask self.documentationfieldsubmission_set.all() because each field may have a different type.
-            If this CreditSubmission persists in DB, this method also saves empty submission field records for any that are missing.
-            @return the complete list of DocumentationFieldSubmission sub-class objects related to this CreditSubmission
+            Returns the list of documentation field submission objects for
+            this credit submission
+
+            You can't simply ask
+            self.documentationfieldsubmission_set.all() because each
+            field may have a different type.
+
+            If this CreditSubmission persists in DB, this method also
+            saves empty submission field records for any that are
+            missing.
+
+            @return the complete list of DocumentationFieldSubmission
+            sub-class objects related to this CreditSubmission
         """
         if (self.submission_fields):  # lazy init.
             return self.submission_fields
 
-        return self._fields_for_field_list(self.credit.documentationfield_set.all())
+        return self._fields_for_field_list(
+            self.credit.documentationfield_set.all())
 
     def get_public_submission_fields(self):
 
-        return self._fields_for_field_list(self.credit.documentationfield_set.filter(is_published=True))
+        return self._fields_for_field_list(
+            self.credit.documentationfield_set.filter(is_published=True))
 
     def _fields_for_field_list(self, documentation_field_list):
 
@@ -1037,17 +1052,25 @@ class CreditSubmission(models.Model):
 
         submission_field_list = []
         for field in documentation_field_list:
-            SubmissionFieldModelClass = DocumentationFieldSubmission.get_field_class(field)
+            SubmissionFieldModelClass = (
+                DocumentationFieldSubmission.get_field_class(field))
             if SubmissionFieldModelClass:
                 try:
-                    submission_field = SubmissionFieldModelClass.objects.get(documentation_field=field, credit_submission=self)
+                    submission_field = SubmissionFieldModelClass.objects.get(
+                        documentation_field=field, credit_submission=self)
                     # ORM / Model Inheritance issue:
-                    #   DocumentationFieldSubmission has a foreign key to CreditSubmission, but object may have reference to a sub-class!
-                    #   Hack: (Joseph)  update the reference in the field we just loaded.
+                    #
+                    #   DocumentationFieldSubmission has a foreign key to
+                    #   CreditSubmission, but object may have reference to
+                    #   a sub-class!
+                    #
+                    #   Hack: (Joseph)  update the reference in the field
+                    #   we just loaded.
                     submission_field.credit_submission = self
 
                 except SubmissionFieldModelClass.DoesNotExist:
-                    submission_field = SubmissionFieldModelClass(documentation_field=field, credit_submission=self)
+                    submission_field = SubmissionFieldModelClass(
+                        documentation_field=field, credit_submission=self)
                     submission_field.save()
                 submission_field_list.append(submission_field)
 
@@ -1055,11 +1078,15 @@ class CreditSubmission(models.Model):
         return self.submission_fields
 
     def get_submission_field_values(self):
-        """ Returns the list of documentation field values for this submission """
+        """ Returns the list of documentation field values for this
+            submission
+        """
         return [field.get_value() for field in self.get_submission_fields()]
 
     def get_submission_field_key(self):
-        """ Returns a dictionary with identifier:value for each submission field """
+        """ Returns a dictionary with identifier:value for each submission
+            field
+        """
         fields = self.get_submission_fields()
         key = {}
         for field in fields:
@@ -1072,16 +1099,17 @@ class CreditSubmission(models.Model):
         for field in fields:
             print >> sys.stderr, field
 
-    # @todo: rename or remove this - potential confusion b/c name conflict with CreditUserSubmission!!
+    # @todo: rename or remove this - potential confusion b/c name conflict
+    #        with CreditUserSubmission!!
     #        I don't think this one is actually called anywhere.
     def is_complete(self):
         """ Return True if the Credit Submission is complete."""
-        if not self.persists(): # New submissions are incomplete - don't try to access fields yet!
+        if not self.persists():
+            # New submissions are incomplete - don't try to access fields yet!
             return False
         for field in self.get_submission_fields():
             if field.documentation_field.is_required() and not field.value:
                 return False
-        # assert: all required fields contain a value.
         return True
 
     def persists(self):
@@ -1108,9 +1136,10 @@ class CreditSubmission(models.Model):
         except Exception, e:
             if log_error:
                 logger.error(
-                    "Error converting formula result (%s) to numeric type: %s" %
-                    (points,e), exc_info=True)
-            return (0, "Non-numeric result calculated for points: %s" % points)
+                    "Error converting formula result (%s) to numeric type: %s"
+                    % (points,e), exc_info=True)
+            return (0,
+                    "Non-numeric result calculated for points: %s" % points)
 
     def validate_points(self, points, log_error=True):
         """
@@ -1141,7 +1170,8 @@ class CreditSubmission(models.Model):
 #    def __str__(self):  #  For DEBUG - comment out __unicode__ method above
 #        if self.persists(): persists="persists"
 #        else: persists="not saved"
-#        return "<CreditSubmission %s credit_id=%s  %s>"%(self.id, self.credit.id, persists)
+#        return "<CreditSubmission %s credit_id=%s  %s>"%(
+#                self.id, self.credit.id, persists)
 
 
 CREDIT_SUBMISSION_STATUS_CHOICES_LIMITED = [
