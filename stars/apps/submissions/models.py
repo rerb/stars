@@ -1018,6 +1018,16 @@ class CreditSubmission(models.Model):
     def get_institution(self):
         return self.subcategory_submission.get_institution()
 
+    def get_submissionset(self):
+        """Returns the SubmissionSet related to this CreditSubmission.
+
+        Hides implementation.  More importantly, saves thinking.
+
+        Extra thinking is bad.  SRSLY.  Who knows where the next
+        thought might lead?
+        """
+        return self.subcategory_submission.category_submission.submissionset
+
     def get_submission_fields(self):
         """
             Returns the list of documentation field submission objects for
@@ -1534,6 +1544,12 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
 
     def get_creditset(self):
         return self.credit_submission.get_creditset()
+
+    def get_submissionset(self):
+        """Returns the SubmissionSet related to this
+        DocumentationFieldSubmission.
+        """
+        return self.credit_submission.get_submissionset()
 
     def persists(self):
         """Does this Submission object persist in the DB?"""
