@@ -36,8 +36,13 @@
 #step1, #step1 .slide-text, #step7 {
   text-align: center;
 }
-#step7 .slide-text {
+#get-started {
   padding-top: 50px;
+}
+#get-started button {
+  font-size: 30px;
+  line-height: 35px;
+  padding: 10px;
 }
 </style>
 {% endblock %}
@@ -93,7 +98,9 @@
     </div>
         <div class="item" id="step7">
       <div class="slide-text">
+        <div id="get-started">
         <a href="/register"><button class="btn btn-success" type="button">Get Started</button></a>
+      </div>
       </div>
     </div>
   </div>
@@ -131,5 +138,12 @@
 
       </div><!-- end row -->
 
+<script>
+  $(document).ready(function(){
+    $('.carousel').carousel({
+      interval: 0
+    });
+  });
+</script>
 
 {% endblock %}
