@@ -1,17 +1,17 @@
 <ul class="nav main-menu">
-    {% for cat in categories %}
-    <li class='dropdown{% if selected == cat.title %}active{% endif %}'>
-        <a data-toggle="dropdown" class="dropdown-toggle" href="#">{{ cat.title }}<b class="caret"></b></a>
-        <ul class="dropdown-menu">
-        {% for a in cat.get_articles %}
-        <li {% if article and a == article %}class="active"{% endif %}>
-            <a href='{{ a.get_absolute_url }}'>
-                {{ a.title }}
-            </a>
-        </li>
-    {% endfor %}
-</ul>
-    </li>
-    {% endfor %}
+  {% for cat in categories %}
+  <li class='dropdown{% if selected == cat.title %}active{% endif %}'>
+    <a data-toggle="dropdown" class="dropdown-toggle" href="#">{{ cat.title }}<b class="caret"></b></a>
+    <ul class="dropdown-menu">
+      {% for a in cat.get_articles %}
+      <li {% if article and a == article %}class="active"{% endif %}>
+        <a href='{{ a.get_absolute_url }}'>
+          {{ a.title }}
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </li>
+  {% endfor %}
 </ul>
 
