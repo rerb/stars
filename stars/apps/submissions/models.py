@@ -1190,37 +1190,59 @@ CREDIT_SUBMISSION_STATUS_CHOICES_LIMITED = [
     ('np', 'Not Pursuing'),
 ]
 
-# The 'ns' option isn't accessible in forms and 'na' only sometimes, so we 3 different lists.
-CREDIT_SUBMISSION_STATUS_CHOICES_W_NA = list(CREDIT_SUBMISSION_STATUS_CHOICES_LIMITED)
+# The 'ns' option isn't accessible in forms and 'na' only sometimes, so
+# we 3 different lists.
+CREDIT_SUBMISSION_STATUS_CHOICES_W_NA = list(
+    CREDIT_SUBMISSION_STATUS_CHOICES_LIMITED)
 CREDIT_SUBMISSION_STATUS_CHOICES_W_NA.append(('na', 'Not Applicable'))
 CREDIT_SUBMISSION_STATUS_CHOICES = list(CREDIT_SUBMISSION_STATUS_CHOICES_W_NA)
 CREDIT_SUBMISSION_STATUS_CHOICES.append(('ns', 'Not Started'))
 
-CREDIT_SUBMISSION_STATUS_ICONS = {   # used by template tag to create iconic representation of status
+# used by template tag to create iconic representation of status:
+CREDIT_SUBMISSION_STATUS_ICONS = {
     'c'  : ('icon-ok', 'c'),
     'p'  : ('icon-pencil', '...'),
     'np' : ('icon-remove', '-'),
     'na' : ('icon-tag', '-'),
 }
 
+
 class CreditUserSubmission(CreditSubmission, FlaggableModel):
     """
-        An individual submitted credit for an institutions STARS submission set
+        An individual submitted credit for an institutions STARS submission
+        set
     """
     subcategory_submission = models.ForeignKey(SubcategorySubmission)
     assessed_points = models.FloatField(blank=True, null=True)
     last_updated = models.DateTimeField(blank=True, null=True)
-    submission_status = models.CharField(max_length=8, choices=CREDIT_SUBMISSION_STATUS_CHOICES, default='ns')
-    applicability_reason = models.ForeignKey(ApplicabilityReason, blank=True, null=True)
+    submission_status = models.CharField(
+        max_length=8,
+        choices=CREDIT_SUBMISSION_STATUS_CHOICES,
+        default='ns')
+    applicability_reason = models.ForeignKey(ApplicabilityReason,
+                                             blank=True,
+                                             null=True)
     user = models.ForeignKey(User, blank=True, null=True)
-    internal_notes = models.TextField(help_text='This field is useful if you want to store notes for other people in your organization regarding this credit. They will not be published.', blank=True, null=True)
-    submission_notes = models.TextField(help_text='Use this space to add any additional information you may have about this credit. This will be published along with your submission.', blank=True, null=True)
+    internal_notes = models.TextField(
+        help_text=('This field is useful if you want to store notes for '
+                   'other people in your organization regarding this credit. '
+                   'They will not be published.'),
+        blank=True,
+        null=True)
+    submission_notes = models.TextField(
+        help_text=('Use this space to add any additional information '
+                   'you may have about this credit. This will be published '
+                   'along with your submission.'),
+        blank=True,
+        null=True)
     responsible_party_confirm = models.BooleanField()
-    responsible_party = models.ForeignKey(ResponsibleParty, blank=True, null=True)
+    responsible_party = models.ForeignKey(ResponsibleParty,
+                                          blank=True,
+                                          null=True)
 
     class Meta:
         # @todo: the unique clause needs to be added at the DB level now :-(
-#        unique_together = ("subcategory_submission", "credit")
+        # unique_together = ("subcategory_submission", "credit")
         pass
 
     def get_submit_url(self):
@@ -1228,11 +1250,12 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
         submissionset = category_submission.submissionset
         url = urlresolvers.reverse(
             'creditsubmission-submit',
-            kwargs={'institution_slug': submissionset.institution.slug,
-                    'submissionset': submissionset.id,
-                    'category_abbreviation': category_submission.category.abbreviation,
-                    'subcategory_slug': self.subcategory_submission.subcategory.slug,
-                    'credit_identifier': self.credit.identifier})
+            kwargs={
+                'institution_slug': submissionset.institution.slug,
+                'submissionset': submissionset.id,
+                'category_abbreviation': category_submission.category.abbreviation,
+                'subcategory_slug': self.subcategory_submission.subcategory.slug,
+                'credit_identifier': self.credit.identifier})
         return url
 
     def get_scorecard_url(self):
@@ -1241,7 +1264,8 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
         if url:
             return url
         else:
-            url = self.credit.get_scorecard_url(self.subcategory_submission.category_submission.submissionset)
+            url = self.credit.get_scorecard_url(
+                self.subcategory_submission.category_submission.submissionset)
             cache.set(cache_key, url, 60*60*24) # cache for 24 hours
             return url
 
@@ -1253,8 +1277,12 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
         return self.subcategory_submission.get_creditset()
 
     def is_finished(self):
-        """ Indicate if this credit has been marked anything other than pending or not started """
-        return self.submission_status != 'p' and self.submission_status != 'ns' and self.submission_status != None
+        """ Indicate if this credit has been marked anything other than
+            pending or not started
+        """
+        return (self.submission_status != 'p' and
+                self.submission_status != 'ns' and
+                self.submission_status != None)
 
     def save(self, *args, **kwargs):
         """ Override model.Model save() method to update credit status"""
@@ -1271,16 +1299,20 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
 
     def is_pursued(self):
         """ Returns False if this credit is marked 'na' or 'np'  """
-        return self.submission_status != 'na' and self.submission_status != 'np'
+        return (self.submission_status != 'na' and
+                self.submission_status != 'np')
 
     def mark_as_in_progress(self):
         self.submission_status = 'p'
 
-#    def __str__(self):  # For DEBUG - comment out __unicode__ method above
-#        return "<CreditUserSubmission:  %s>"%super(CreditUserSubmission,self).__str__()
+    # def __str__(self):  # For DEBUG - comment out __unicode__ method above
+    #     return ("<CreditUserSubmission:  %s>" %
+    #             super(CreditUserSubmission,self).__str__())
 
     def get_adjusted_available_points(self):
-        """ Gets only the points for credits that have not been labelled as Not Applicable """
+        """ Gets only the points for credits that have not been labelled as
+            Not Applicable
+        """
         if self.submission_status == "na":
             return 0
         return self.credit.point_value
@@ -1288,8 +1320,9 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
     def _calculate_points(self):
         """ Helper: returns the number of points calculated for this
         submission"""
-        # Somewhat complex logic is required here so that i something goes wrong,
-        # we log a detailed message, but only show the user meaningful messages.
+        # Somewhat complex logic is required here so that i something goes
+        # wrong, we log a detailed message, but only show the user meaningful
+        # messages.
         if not self.is_complete(): # no points for incomplete submission
             return 0
         assessed_points = 0  # default is zero - now re-calculate points...
