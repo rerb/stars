@@ -95,21 +95,21 @@ class ArticleDetailView(CMSView):
     """
         Detail page for one CMS article.
     """
-    template_name = 'cms/article_detail.html'
+    template_name = 'old_cms/article_detail.html'
 
 
 class CategoryDetailView(CMSView):
     """
         Detail page for a CMS category.
     """
-    template_name = 'cms/category_detail.html'
+    template_name = 'old_cms/category_detail.html'
 
 
 class SubcategoryDetailView(CMSView):
     """
         Detail page for a CMS subcategory.
     """
-    template_name = 'cms/subcategory_detail.html'
+    template_name = 'old_cms/subcategory_detail.html'
 
 
 class OldPathRedirectView(RedirectView):

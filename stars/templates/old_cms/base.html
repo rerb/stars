@@ -17,7 +17,7 @@
 {% endblock %}
 
 {% block crumbs %}
-	{% include "cms/crumbs.html" %}
+	{% include "old_cms/crumbs.html" %}
 {% endblock %}
 
 {% block content %}
@@ -26,7 +26,7 @@
 		<div class='span4'>
 			{% if user.is_staff %}
 				<p style='text-align: center' />
-					<a href='/_ad/cms/' target='_blank'>
+					<a href='/_ad/old_cms/' target='_blank'>
 						<i class="icon-plus"></i>
 						Add Content
 					</a>
@@ -34,7 +34,7 @@
 			{% endif %}
 			{% load cache %}
 			{% cache 86400 cms_left_menu article subcategory category category.timestamp %}
-				{% include 'cms/left_menu.html' %}
+				{% include 'old_cms/left_menu.html' %}
 			{% endcache %}
 		</div>
 		<div class='span8'>

@@ -1,11 +1,11 @@
-{% extends 'cms/base.html' %}
+{% extends 'old_cms/base.html' %}
 
 {% block center %}
 	{% load cache %}
 	{% cache 86400 cms_subcategory subcategory subcategory.timestamp user.is_staff %}
       <div class='inner'>
       	{% with subcategory as category %}
-        	{% include 'cms/category_content.html' %}
+        	{% include 'old_cms/category_content.html' %}
         {% endwith %}
       </div>
     {% endcache %}
