@@ -33,16 +33,18 @@
     <div class="container">
 
       <div class="row top-nav">
-        <div class="span8 aashe-tabs">
+        <div class="span7 aashe-tabs">
           <a href='http://www.aashe.org/' class='left'><strong>aashe</strong></a>
           <a href='http://stars.aashe.org/' class='left'><strong>stars</strong></a>
           <a href='http://www.aashe.org/conference' class='left'><strong>conference</strong></a>
           <a href='http://commons.aashe.org' class='left'><strong>commons</strong></a>
         </div>
 
+        <div class="span5">
         {% block top_menu %}
         {% include 'helpers/top_menu.html' %}
         {% endblock %}
+      </div>
       </div>
 
       <div class="row header">

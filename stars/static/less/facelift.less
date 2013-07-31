@@ -9,12 +9,12 @@
   margin: 0 auto;
   text-align: left;
 }
-.slide-text {
+.story-slide-text {
   color: white;
   background: transparent;
   background-color: rgba(0, 129, 209, 0.8);
-  -ms-filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#CC0081D1,endColorstr=#CC0081D1);
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#CC0081D1,endColorstr=#CC0081D1);
+  -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#CC0081D1,endColorstr=#CC0081D1)";
+  filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#CC0081D1,endColorstr=#CC0081D1)";
   zoom: 1;
   opacity: .9;
   font-weight: bold;
@@ -45,9 +45,17 @@ div.tweets-pulled-listing ul {
   margin: 0;
 }
 
+#regCarousel .item {
+  text-align: center;
+}
+
 div.tweets-pulled-listing div.tweet-authorphoto {
   margin: 0 5px 0 0;
   float: left;
+}
+
+.frontblock {
+  height: 280px;
 }
 
 div.tweets-pulled-listing div.tweet-authorphoto img {
@@ -105,7 +113,7 @@ border-bottom-color: #F2F2F2;
   position: absolute;
   width: 100%;
   height: 37px;
-  top: -37px;
+  top: 25px;
   left: 0px;
   text-align: center;
   z-index: 100;
@@ -125,7 +133,7 @@ ul.tab-nav {
 }
 
 .tab-wrap.social-tabs .tab-nav a {
-  background-image: url('../images/social-icons.png');
+  background-image: url('/media/static/images/social-icons.png');
   background-repeat: no-repeat;
   display: block;
   height: 37px;
