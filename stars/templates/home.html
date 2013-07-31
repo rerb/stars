@@ -1,0 +1,246 @@
+{% extends "base.html" %}
+
+{% block extra_style %}
+<style type='text/css'>
+.header {
+  padding-bottom: 0px;
+}
+
+.hero-unit {
+  padding: 130px 0 0 0;
+}
+.item {
+  margin: 0 auto;
+  text-align: left;
+}
+.slide-text {
+  color: white;
+  background: transparent;
+  background-color: rgba(0, 129, 209, 0.8);
+  -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#CC0081D1,endColorstr=#CC0081D1)";
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#CC0081D1,endColorstr=#CC0081D1);
+  zoom: 1;
+  opacity: .9;
+  font-weight: bold;
+  font-size: 16px;
+  line-height: 20px;
+  height: 130px;
+  padding: 15px 100px 10px;
+}
+.carousel-inner, .carousel-inner h2 {
+  font-family: 'DejaVuSans', Helvetica, Arial, sans-serif;
+}
+.carousel-inner h2 {
+  color: white;
+}
+#step1, #step1 .slide-text, #step7 {
+  text-align: center;
+}
+#get-started {
+  padding-top: 50px;
+}
+#get-started button {
+  font-size: 30px;
+  line-height: 35px;
+  padding: 10px;
+}
+div.tweets-pulled-listing ul {
+  list-style: none;
+  margin: 0;
+}
+
+div.tweets-pulled-listing div.tweet-authorphoto {
+  margin: 0 5px 0 0;
+  float: left;
+}
+
+div.tweets-pulled-listing div.tweet-authorphoto img {
+  max-height: 40px;
+  max-width: 40px;
+}
+
+div.tweets-pulled-listing .tweet-author a {
+  font-weight: bold;
+}
+
+div.tweets-pulled-listing  div.tweet-divider {
+  clear: left;
+  border-bottom: 1px solid #efefef;
+  margin: 5px 0 5px 0;
+}
+
+div.tweet-author-wrapper .twitter-follow-button {
+  float:right;
+}
+
+div.tweet-author-wrapper .tweet-author-info {
+  float:left;
+  width:75%;
+  min-width: 175px;
+}
+
+div.tweet-footer {
+  font-size: 0.75em;
+}
+
+div.tweet-footer .tweet-time {
+  float:left;
+}
+
+div.tweet-footer .tweet-actions {
+  float:right;
+}
+
+.caret {
+border-top-color: #F2F2F2;
+border-bottom-color: #F2F2F2;
+}
+
+</style>
+
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+  <div class="span12">
+    <div class="hero-unit">
+      <div id="myCarousel" class="carousel slide">
+  <!-- Carousel items -->
+  <div class="carousel-inner">
+    <div class="active item" id="step1">
+      <div class="slide-text">
+        <h2>STARS in 5 Steps<h2>
+        <a href="#myCarousel" data-slide="next"><button class="btn btn-success" type="button">Learn More ></button></a>
+        </div>
+    </div>
+    <div class="item" id="step2">
+      <div class="slide-text">
+        <h2>Register</h2>
+        <p>Create a baseline for continuous improvement while showcasing your campus's sustainability efforts.</p>
+        <a href="#myCarousel" data-slide="next"><button class="btn btn-success" type="button">Continue ></button></a>
+      </div>
+    </div>
+    <div class="item" id="step3">
+      <div class="slide-text">
+        <h2>Organize</h2>
+        <p>Foster cross-campus sustainability collaboration by gathering a diverse data collection team.</p>
+        <a href="#myCarousel" data-slide="next"><button class="btn btn-success" type="button">Continue ></button></a>
+      </div>
+    </div>
+    <div class="item" id="step4">
+      <div class="slide-text">
+        <h2>Report</h2>
+        <p>See what you're doing right and what you can improve on.</p>
+        <a href="#myCarousel" data-slide="next"><button class="btn btn-success" type="button">Continue ></button></a>
+      </div>
+    </div>
+        <div class="item" id="step5">
+      <div class="slide-text">
+        <h2>Submit</h2>
+        <p>You did it! You earned an official STARS rating and established a sustainability baseline.</p>
+        <a href="#myCarousel" data-slide="next"><button class="btn btn-success" type="button">Continue ></button></a>
+      </div>
+    </div>
+        <div class="item" id="step6">
+      <div class="slide-text">
+        <h2>Celebrate</h2>
+        <p>Show off that STARS seal and let everyone know about your good work.</p>
+        <a href="#myCarousel" data-slide="next"><button class="btn btn-success" type="button">Continue ></button></a>
+      </div>
+    </div>
+        <div class="item" id="step7">
+      <div class="slide-text">
+        <div id="get-started">
+        <a href="/register"><button class="btn btn-success" type="button">Get Started</button></a>
+      </div>
+      </div>
+    </div>
+  </div>
+  <!-- Carousel nav -->
+  <a class="carousel-control left" href="#myCarousel" data-slide="prev">‹</a>
+  <a class="carousel-control right" href="#myCarousel" data-slide="next">›</a>
+</div>
+
+    </div>
+  </div>
+</div>
+
+      <div class="row">
+
+        <div class="span4">
+          <div class="frontblock boxleft">
+          <h2>Latest Updates</h2>
+          </div>
+          <a href="/registration-information"><button class="btn btn-success" type="button">More Info</button></a>
+        </div>
+
+        <div class="span4">
+          <div class="frontblock boxleft">
+            <h2>Latest Registrations</h2>
+          </div>
+          <a href="/connect"><button class="btn btn-success" type="button">Social Media Center</button></a>
+       </div>
+
+               <div class="span4">
+          <div class="frontblock boxleft">
+                    <h2>Connect With Us</h2>
+
+<div class="tweets-pulled-listing">
+
+
+
+    <ul class="tweets-pulled-listing">
+          <li>
+        <div class="tweet-author-wrapper clearfix">
+          <div class="tweet-author-info clearfix">
+            <div class="tweet-authorphoto">
+              <a href="https://twitter.com/AASHESTARS"><img src="http://a0.twimg.com/profile_images/3079241460/0a6e53bcb3509db9206309650c060b28_normal.png" alt="AASHESTARS" /></a>            </div>
+            <div class="tweet-author"><a href="https://twitter.com/AASHESTARS">AASHESTARS</a></div>
+            <div class="tweet-screenname"><a href="https://twitter.com/AASHESTARS">@AASHESTARS</a></div>
+          </div>
+          <a href="https://twitter.com/AASHESTARS" class="twitter-follow-button" data-show-count="false" data-lang="en" data-width="75px">Follow @AASHESTARS</a>        </div>
+        <div class="tweet-text">Cool tweet about STARS.<a href="http://t.co/FKZaI2qcvb" rel="nofollow" title="http://t.co/FKZaI2qcvb">t.co/FKZaI2qcvb</a></div>
+        <div class="tweet-footer">
+          <div class="tweet-time"><a href="http://twitter.com/AASHESTARS/status/357911211028914176">1 week 5 days ago.</a></div>
+          <div class="tweet-actions">
+            <a href="https://twitter.com/intent/tweet?in_reply_to=357911211028914176" class="twitter-reply">Reply</a>            <a href="https://twitter.com/intent/retweet?tweet_id=357911211028914176" class="twitter-retweet">Retweet</a>            <a href="https://twitter.com/intent/favorite?tweet_id=357911211028914176" class="twitter-favorite">Favorite</a>          </div>
+        </div>
+                  <div class="tweet-divider"></div>
+
+      </li>
+          <li>
+        <div class="tweet-author-wrapper clearfix">
+          <div class="tweet-author-info clearfix">
+            <div class="tweet-authorphoto">
+              <a href="https://twitter.com/AASHESTARS"><img src="http://a0.twimg.com/profile_images/3079241460/0a6e53bcb3509db9206309650c060b28_normal.png" alt="AASHESTARS" /></a>            </div>
+            <div class="tweet-author"><a href="https://twitter.com/AASHESTARS">AASHESTARS</a></div>
+            <div class="tweet-screenname"><a href="https://twitter.com/AASHESTARS">@AASHESTARS</a></div>
+          </div>
+          <a href="https://twitter.com/AASHESTARS" class="twitter-follow-button" data-show-count="false" data-lang="en" data-width="75px">Follow @AASHESTARS</a>        </div>
+        <div class="tweet-text">Another cool tweet! #awesome</div>
+        <div class="tweet-footer">
+          <div class="tweet-time"><a href="http://twitter.com/AASHESTARS/status/357571379249430528">1 week 6 days ago.</a></div>
+          <div class="tweet-actions">
+            <a href="https://twitter.com/intent/tweet?in_reply_to=357571379249430528" class="twitter-reply">Reply</a>            <a href="https://twitter.com/intent/retweet?tweet_id=357571379249430528" class="twitter-retweet">Retweet</a>            <a href="https://twitter.com/intent/favorite?tweet_id=357571379249430528" class="twitter-favorite">Favorite</a>          </div>
+        </div>
+
+      </li>
+        </ul>
+  </div>
+
+          </div>
+          <a href="/connect"><button class="btn btn-success" type="button">Social Media Center</button></a>
+       </div>
+
+      </div><!-- end row -->
+
+<script>
+  $(document).ready(function(){
+    $('.carousel').carousel({
+      interval: 0
+    });
+  });
+</script>
+
+{% endblock %}
