@@ -13,7 +13,7 @@ from django.http import HttpResponse
 from django.utils.encoding import smart_str, smart_unicode
 
 from stars.apps.institutions.models import * # required for execfile management func
-from stars.apps.cms.models import Category
+from stars.apps.old_cms.models import Category
 
 logger = getLogger('stars')
 

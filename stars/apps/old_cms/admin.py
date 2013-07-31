@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from stars.apps.cms.models import *
+from models import *
 
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ('title','published', )
