@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 from django.http import Http404, HttpResponseRedirect
 from django.views.generic.base import RedirectView, TemplateView
 
-from models import Category, NewArticle, Subcategory
+from stars.apps.cms.models import Category, NewArticle, Subcategory
 
 class HomePageView(TemplateView):
     template_name = 'home.html'
