@@ -29,7 +29,7 @@ urlpatterns = patterns('',
     (r'^$', 'django.views.generic.simple.direct_to_template', {'template': 'home.html'}),
 
     # articles (cms):
-    (r'^pages/', include('stars.apps.cms.urls')),
+    (r'^pages/', include('stars.apps.old_cms.urls')),
 
     # tool
     (r'^tool/', include('stars.apps.tool.urls')),
