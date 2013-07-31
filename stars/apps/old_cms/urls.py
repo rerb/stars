@@ -1,9 +1,9 @@
 from django.conf.urls.defaults import patterns, url
 
-from stars.apps.cms.views import (ArticleDetailView, CategoryDetailView,
-                                  OldPathRedirectView, SubcategoryDetailView)
+from views import (ArticleDetailView, CategoryDetailView,
+                   OldPathRedirectView, SubcategoryDetailView)
 
-urlpatterns = patterns('stars.apps.cms.views',
+urlpatterns = patterns('',
 
     url(r'^(?P<category_slug>[^\/]+)/$',
         CategoryDetailView.as_view(),

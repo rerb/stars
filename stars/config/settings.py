@@ -132,7 +132,7 @@ INSTALLED_APPS = (
     'stars.apps.accounts',
     'stars.apps.helpers',
     'stars.apps.helpers.forms', # included here for testing
-    'stars.apps.cms',
+    'stars.apps.old_cms',
     'stars.apps.etl_export',
     'stars.apps.custom_forms',
     'stars.apps.tasks',

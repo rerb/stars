@@ -31,7 +31,7 @@ urlpatterns = patterns('',
     (r'^$', HomePageView.as_view(), {'template_name': 'home.html'}),
 
     # articles (cms):
-    (r'^pages/', include('stars.apps.cms.urls')),
+    (r'^pages/', include('stars.apps.old_cms.urls')),
 
     # tool
     (r'^tool/', include('stars.apps.tool.urls')),
