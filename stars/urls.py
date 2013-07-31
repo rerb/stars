@@ -11,7 +11,7 @@ logical_rules.autodiscover()
 from stars.apps.helpers.old_path_preserver import (OldPathPreserverView,
                                                    OLD_PATHS_TO_PRESERVE)
 
-from stars.apps.cms.views import (HomePageView)
+from stars.apps.old_cms.views import (HomePageView)
 
 handler403 = 'stars.apps.helpers.views.permission_denied'
 handler500 = 'stars.apps.helpers.views.server_error'
