@@ -9,6 +9,17 @@
 
 {% block content %}
 
+<div id="starsModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-body" style="text-align: center;">
+    <h1>You asked.</h1>
+    <h1>We listened.</h1><br />
+    <p><a class="btn btn-large btn-success" href="" target="_blank"><strong>STARS 2.0</strong></a></p>
+  </div>
+  <div class="modal-footer">
+    <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+  </div>
+</div>
+
 <div class="row">
   <div class="span12">
     <div class="hero-unit">
@@ -90,19 +101,19 @@
           <div class="carousel-inner">
             <div class="active item">
               <div class="slide-text">
-                <img src="/media/static/images/seals/Stars_Seal_Bronze_RGB_300.png" width="150px"/><br />
+                <img src="{{ STATIC_URL }}/images/seals/Stars_Seal_Bronze_RGB_300.png" width="150px"/><br />
                 <strong>University of Whatever at Where-ever</strong>
               </div>
             </div>
             <div class="item">
               <div class="slide-text">
-                <img src="/media/static/images/seals/Stars_Seal_Gold_RGB_300.png" width="150px"/><br />
+                <img src="{{ STATIC_URL }}/images/seals/Stars_Seal_Gold_RGB_300.png" width="150px"/><br />
                 <strong>Another University</strong>
               </div>
             </div>
             <div class="item">
               <div class="slide-text">
-                <img src="/media/static/images/seals/Stars_Seal_Gold_RGB_300.png" width="150px"/><br />
+                <img src="{{ STATIC_URL }}/images/seals/Stars_Seal_Gold_RGB_300.png" width="150px"/><br />
                 <strong>Another University</strong>
               </div>
             </div>
@@ -170,6 +181,7 @@
                 $('.carousel').carousel({
                   interval: 0
                 });
+                $('#starsModal').modal();
               });
               </script>
 
