@@ -40,7 +40,7 @@
           <a href='http://commons.aashe.org' class='left'><strong>commons</strong></a>
         </div>
 
-        <div class="span5">
+        <div style="float: right;">
         {% block top_menu %}
         {% include 'helpers/top_menu.html' %}
         {% endblock %}
@@ -49,7 +49,7 @@
 
       <div class="row header">
 
-        <div class="span6">
+        <div class="span3">
           <ul class="thumbnails">
             <li>
               <a href='/'><img src="{{ STATIC_URL }}images/stars_logo.png" width='180px' /></a>
@@ -57,8 +57,12 @@
           </ul>
         </div>
 
+      <div class="span5 message" style="padding: 125px 0 0 0; font-family: aller, arial;">
+        The Sustainability Tracking, Assessment &amp; Rating System™ (STARS) is a transparent, self-reporting framework for colleges and universities to measure their sustainability performance.
+      </div>
 
-        <div class="span2 offset4">
+
+        <div class="span2 offset2">
           <div class="tab-wrap social-tabs">
             <ul class="tab-nav">
               <li id="tweet-tab"><a href="http://www.twitter.com/aasheconference">Twitter</a></li>
