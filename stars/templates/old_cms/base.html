@@ -7,7 +7,7 @@
 	{{ block.super }}
 {% endblock %}
 
-{% block main_menu %} 
+{% block main_menu %}
 	{% load cache %}
 	{% cache 86400 main_menu category %}
 		{% with selected=category.slug %}
@@ -21,9 +21,9 @@
 {% endblock %}
 
 {% block content %}
-	
+
 	<div class='row'>
-		<div class='span4'>
+		<div class='span2'>
 			{% if user.is_staff %}
 				<p style='text-align: center' />
 					<a href='/_ad/old_cms/' target='_blank'>
@@ -32,14 +32,10 @@
 					</a>
 				</p>
 			{% endif %}
-			{% load cache %}
-			{% cache 86400 cms_left_menu article subcategory category category.timestamp %}
-				{% include 'old_cms/left_menu.html' %}
-			{% endcache %}
 		</div>
-		<div class='span8'>
+		<div class='span12'>
 			{% block center %}{% endblock %}
 		</div>
 	</div>
-	
+
 {% endblock %}
