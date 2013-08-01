@@ -12,7 +12,7 @@ class HomePageView(TemplateView):
 
         context = super(HomePageView, self).get_context_data(*args, **kwargs)
 
-        context['categories'] = Category.objects.filter(published=True)
+        context['categories'] = Category.objects.filter(published=True).order_by('ordinal')
 
         return context
 
@@ -62,7 +62,7 @@ class CMSView(TemplateView):
 
         context = super(CMSView, self).get_context_data(*args, **kwargs)
 
-        context['categories'] = Category.objects.filter(published=True)
+        context['categories'] = Category.objects.filter(published=True).order_by('ordinal')
 
         # Creating inital values for each of these so that
         # I can use them as cache keys in the template
