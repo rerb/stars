@@ -3,6 +3,7 @@ from django import template
 #from django.forms import widgets
 #from django.utils.html import strip_spaces_between_tags, escape
 
+from stars.apps.credits.models import DocumentationField
 from stars.apps.submissions.models import DocumentationFieldSubmission
 from stars.apps.tool.my_submission.forms import SubmissionFieldForm
 #import re
@@ -19,6 +20,19 @@ def show_field_form(doc_field):
     form = SubmissionFieldFormClass(None, instance=submission_field)
     form.fields['value'].widget.attrs={'class': 'noMCE', 'disabled':'disabled'} # BUG!  If you take noMCE out here, things get weird!
     return{"documentation_field":doc_field, "field_form":form }
+
+@register.inclusion_tag('tool/submissions/tags/documentation_field_control.html')
+def show_field_control_from_id(doc_field_id):
+    """ Displays the submission form controls for a single documentation field """
+    doc_field = DocumentationField.objects.get(pk=doc_field_id)
+    SubmissionFieldModelClass = DocumentationFieldSubmission.get_field_class(doc_field)
+    submission_field = SubmissionFieldModelClass(documentation_field=doc_field) if SubmissionFieldModelClass else None
+
+    SubmissionFieldFormClass = SubmissionFieldForm.get_form_class(submission_field)
+    form = SubmissionFieldFormClass(None, instance=submission_field)
+    form.fields['value'].widget.attrs={'class': 'noMCE', 'disabled':'disabled'} # BUG!  If you take noMCE out here, things get weird!
+    return{"documentation_field":doc_field, "field_form":form }
+
 
 
 @register.inclusion_tag('tool/credit_editor/tags/crumbs.html')

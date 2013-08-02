@@ -8,6 +8,7 @@ from django.forms.extras import widgets as extra_widgets
 from stars.apps.credits.models import *
 from stars.apps.submissions.models import CreditTestSubmission
 from stars.apps.tool.my_submission.forms import CreditSubmissionForm
+from widgets import TabularFieldEdit
 
 
 class CreditSetForm(ModelForm):
@@ -213,6 +214,9 @@ class DocumentationFieldForm(ModelForm):
 
         cs = self.instance.credit.get_creditset()
         self.fields['credit'].choices = cs.get_pulldown_credit_choices()
+        fields = self.instance.credit.documentationfield_set.exclude(type='tabular')
+        self.fields['tabular_fields'].widget = TabularFieldEdit(
+                                             fields_in_credit=fields)
 
     def clean(self):
         cleaned_data = self.cleaned_data
