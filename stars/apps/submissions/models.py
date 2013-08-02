@@ -106,11 +106,19 @@ class SubmissionManager(models.Manager):
         return qs2.distinct()
 
     def get_rated(self):
-        """ All submissionsets that have been rated """
-        return SubmissionSet.objects.filter(institution__enabled=True).filter(is_visible=True).filter(is_locked=False).filter(status='r')
+        """ All submissionsets that have been rated (and are visible) """
+        return SubmissionSet.objects.filter(
+            institution__enabled=True).filter(
+                is_visible=True).filter(
+                    status='r')
 
     def get_snapshots(self, institution):
-        return SubmissionSet.objects.filter(institution=institution).filter(is_locked=False).filter(status='f').order_by('-date_submitted')
+        return SubmissionSet.objects.filter(
+            institution=institution).filter(
+                is_locked=False).filter(
+                    status='f').order_by(
+                        '-date_submitted')
+
 
 class SubmissionSet(models.Model, FlaggableModel):
     """
