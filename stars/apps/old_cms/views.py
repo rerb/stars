@@ -47,13 +47,16 @@ class CMSView(TemplateView):
         does match a Subcategory.slug, we redirect to the Subcategory
         URL.
         """
-        slugged_obj = self._get_slugged_obj(slug=kwargs['category_slug'])
-        if isinstance(slugged_obj, Category):
-            self.category = slugged_obj
-        elif isinstance(slugged_obj, Subcategory):
-            return HttpResponseRedirect(slugged_obj.get_absolute_url())
-        else:
-            raise Http404
+        try:
+            slugged_obj = self._get_slugged_obj(slug=kwargs['category_slug'])
+            if isinstance(slugged_obj, Category):
+                self.category = slugged_obj
+            elif isinstance(slugged_obj, Subcategory):
+                return HttpResponseRedirect(slugged_obj.get_absolute_url())
+            else:
+                raise Http404
+        except:
+            pass
 
         return super(CMSView, self).get(request, *args, **kwargs)
 
@@ -67,25 +70,12 @@ class CMSView(TemplateView):
         # Creating inital values for each of these so that
         # I can use them as cache keys in the template
         context.update({'category': self.category,
-                        'subcategory': None,
                         'article': None})
-
-        if 'subcategory_slug' in kwargs:
-            subcategory = get_object_or_404(Subcategory,
-                                            slug=kwargs['subcategory_slug'],
-                                            parent=self.category,
-                                            published=True)
-            context['subcategory'] = subcategory
-        else:
-            subcategory = None
 
         if 'article_slug' in kwargs:
             article = get_object_or_404(NewArticle,
                                         slug=kwargs['article_slug'],
                                         published=True)
-            if (self.category not in article.categories.all() and
-                subcategory not in article.subcategories.all()):
-                raise Http404
             context['article'] = article
 
         return context
@@ -98,18 +88,18 @@ class ArticleDetailView(CMSView):
     template_name = 'old_cms/article_detail.html'
 
 
-class CategoryDetailView(CMSView):
-    """
-        Detail page for a CMS category.
-    """
-    template_name = 'old_cms/category_detail.html'
+# class CategoryDetailView(CMSView):
+#     """
+#         Detail page for a CMS category.
+#     """
+#     template_name = 'old_cms/category_detail.html'
 
 
-class SubcategoryDetailView(CMSView):
-    """
-        Detail page for a CMS subcategory.
-    """
-    template_name = 'old_cms/subcategory_detail.html'
+# class SubcategoryDetailView(CMSView):
+#     """
+#         Detail page for a CMS subcategory.
+#     """
+#     template_name = 'old_cms/subcategory_detail.html'
 
 
 class OldPathRedirectView(RedirectView):
