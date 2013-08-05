@@ -97,9 +97,9 @@ class NewArticle(AbstractContent):
         verbose_name_plural = "Articles"
 
     def get_absolute_url(self):
-        if self.subcategories.count() > 0:
-            return "%s%s.html" % (self.subcategories.all()[0].get_absolute_url(), self.slug)
-        elif self.categories.count() > 0:
+        # if self.subcategories.count() > 0:
+        #     return "%s%s.html" % (self.subcategories.all()[0].get_absolute_url(), self.slug)
+        if self.categories.count() > 0:
             return "%s%s.html" % (self.categories.all()[0].get_absolute_url(), self.slug)
         return "#"
 
@@ -111,8 +111,8 @@ class NewArticle(AbstractContent):
             Of course, I could if I wrote a custom form for the admin,
             but that's not the only place these could be saved
         """
-        for sub in Subcategory.objects.all():
-            sub.save()
+        # for sub in Subcategory.objects.all():
+        #     sub.save()
         for cat in Category.objects.all():
             cat.save()
 
