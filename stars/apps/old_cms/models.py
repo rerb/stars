@@ -48,7 +48,7 @@ class Category(CategoryMixin, AbstractContent):
 
     def get_absolute_url(self):
         return "/pages/%s/" % self.slug
-        
+
     def get_published_subcategories(self):
         return self.subcategory_set.filter(published=True).order_by('ordinal')
 
@@ -74,7 +74,7 @@ class Subcategory(CategoryMixin, AbstractContent):
         """
         for cat in Category.objects.all():
             cat.save()
-            
+
     def get_published_articles(self):
         return self.newarticle_set.filter(published=True).order_by('ordinal')
 
@@ -87,7 +87,7 @@ class NewArticle(AbstractContent):
     content = models.TextField()
     teaser = models.TextField(blank=True, null=True)
     categories = models.ManyToManyField(Category, blank=True, null=True)
-    subcategories = models.ManyToManyField(Subcategory, blank=True, null=True)
+    # subcategories = models.ManyToManyField(Subcategory, blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
     irc_id = models.IntegerField(blank=True, null=True, help_text='Only necessary for pages that used to exist in the IRC. New pages will not need this.')
 

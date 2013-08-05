@@ -10,14 +10,14 @@ class CategoryAdmin(admin.ModelAdmin):
               '/media/static/js/textarea_admin.js',)
 admin.site.register(Category, CategoryAdmin)
 
-class SubcategoryAdmin(admin.ModelAdmin):
-    list_display = ('title', 'published', 'parent')
-    prepopulated_fields = {'slug': ('title',)}
-    list_filter = ('parent',)
-    class Media:
-        js = ('/media/tp/js/tiny_mce/tiny_mce.js',
-              '/media/static/js/textarea_admin.js',)
-admin.site.register(Subcategory, SubcategoryAdmin)
+# class SubcategoryAdmin(admin.ModelAdmin):
+#     list_display = ('title', 'published', 'parent')
+#     prepopulated_fields = {'slug': ('title',)}
+#     list_filter = ('parent',)
+#     class Media:
+#         js = ('/media/tp/js/tiny_mce/tiny_mce.js',
+#               '/media/static/js/textarea_admin.js',)
+# admin.site.register(Subcategory, SubcategoryAdmin)
 
 class NewArticleAdmin(admin.ModelAdmin):
     list_display = ('title', 'published', 'timestamp',)
