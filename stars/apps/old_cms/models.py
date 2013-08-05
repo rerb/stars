@@ -97,8 +97,6 @@ class NewArticle(AbstractContent):
         verbose_name_plural = "Articles"
 
     def get_absolute_url(self):
-        # if self.subcategories.count() > 0:
-        #     return "%s%s.html" % (self.subcategories.all()[0].get_absolute_url(), self.slug)
         if self.categories.count() > 0:
             return "%s%s.html" % (self.categories.all()[0].get_absolute_url(), self.slug)
         return "#"
