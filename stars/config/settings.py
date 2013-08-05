@@ -18,11 +18,13 @@ API_TEST_MODE = os.environ.get("API_TEST_MODE", DEBUG)
 FIXTURE_DIRS = ('fixtures', os.path.join(PROJECT_PATH, 'apps/api/fixtures'),)
 
 TIME_ZONE = 'America/Lima'
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'en'
 SITE_ID = 1
 USE_I18N = True
 USE_L10N = True
 USE_THOUSAND_SEPARATOR = True
+
+
 
 # Database
 import dj_database_url
@@ -55,6 +57,14 @@ TEMPLATE_LOADERS = (
     'django.template.loaders.app_directories.Loader',
 )
 
+LANGUAGES = [
+    ('en', 'English'),
+]
+
+CMS_TEMPLATES = (
+    ('cms/article_detail.html', 'Article Detail'),
+)
+
 MIDDLEWARE_CLASSES = [ # a list so it can be editable during tests (see below)
     'stars.apps.helpers.utils.StripCookieMiddleware',
     'django.middleware.cache.UpdateCacheMiddleware',
@@ -67,9 +77,11 @@ MIDDLEWARE_CLASSES = [ # a list so it can be editable during tests (see below)
     'django.middleware.doc.XViewMiddleware',
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'cms.middleware.page.CurrentPageMiddleware',
-    'cms.middleware.user.CurrentUserMiddleware',
-    'cms.middleware.toolbar.ToolbarMiddleware']
+    # 'cms.middleware.page.CurrentPageMiddleware',
+    # 'cms.middleware.user.CurrentUserMiddleware',
+    # 'cms.middleware.toolbar.ToolbarMiddleware',
+    # 'cms.middleware.language.LanguageCookieMiddleware',
+    ]
 
 import django_cache_url
 CACHES = {'default': django_cache_url.parse(os.environ.get('CACHE_URL', 'dummy://'))}
@@ -105,8 +117,9 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.messages.context_processors.messages',
     "django.contrib.auth.context_processors.auth",
     'django.core.context_processors.request',
-    'cms.context_processors.media',
-    'sekizai.context_processors.sekizai',)
+    # 'cms.context_processors.media',
+    # 'sekizai.context_processors.sekizai',
+    )
 
 INSTALLED_APPS = (
     'django.contrib.auth',
@@ -154,10 +167,20 @@ INSTALLED_APPS = (
     's3_folder_storage',
     'tastypie',
     'gunicorn',
-    'cms',
-    'mptt',
-    'menus',
-    'sekizai'
+    # 'cms',
+    # 'cms.plugins.file',
+    # 'cms.plugins.flash',
+    # 'cms.plugins.googlemap',
+    # 'cms.plugins.link',
+    # 'cms.plugins.picture',
+    # 'cms.plugins.snippet',
+    # 'cms.plugins.teaser',
+    # 'cms.plugins.text',
+    # 'cms.plugins.video',
+    # 'cms.plugins.twitter',
+    # 'mptt',
+    # 'menus',
+    # 'sekizai'
 )
 
 # auth config

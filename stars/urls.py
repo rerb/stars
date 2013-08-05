@@ -55,7 +55,7 @@ urlpatterns = patterns('',
     # custom forms
     (r'^cfm/', include('stars.apps.custom_forms.urls')),
 
-    url(r'^', include('cms.urls')),
+    # url(r'^new-pages/', include('cms.urls')),
 )
 
 if settings.DEBUG:
