@@ -96,31 +96,10 @@
     <div class="span4">
       <div class="frontblock boxleft">
         <h2>Newly Rated</h2>
-        <div id="regCarousel" class="span3 carousel slide">
-          <!-- Carousel items -->
-          <div class="carousel-inner">
-            <div class="active item">
-              <div class="slide-text">
-                <img src="{{ STATIC_URL }}/images/seals/Stars_Seal_Bronze_RGB_300.png" width="150px"/><br />
-                <strong>University of Whatever at Where-ever</strong>
-              </div>
-            </div>
-            <div class="item">
-              <div class="slide-text">
-                <img src="{{ STATIC_URL }}/images/seals/Stars_Seal_Gold_RGB_300.png" width="150px"/><br />
-                <strong>Another University</strong>
-              </div>
-            </div>
-            <div class="item">
-              <div class="slide-text">
-                <img src="{{ STATIC_URL }}/images/seals/Stars_Seal_Gold_RGB_300.png" width="150px"/><br />
-                <strong>Another University</strong>
-              </div>
-            </div>
-          </div>
-        </div>
+        {% load institution_lists %}
+        {% show_rated_registrants %}
       </div>
-      <a href="#"><button class="btn btn-success" type="button">See More Registrants</button></a>
+      <a href="/institutions/rated/"><button class="btn btn-success" type="button">See More Registrants</button></a>
     </div>
 
     <div class="span4">
