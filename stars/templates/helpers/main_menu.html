@@ -1,4 +1,7 @@
 <ul class="nav main-menu">
+  <li>
+    <a href="/pages/register/register-stars.html" style="background-color: none;"><button class="btn btn-success" type="button">Register</button></a>
+  <li>
   {% for cat in categories %}
   <li class='dropdown{% if selected == cat.title %}active{% endif %}'>
     <a data-toggle="dropdown" class="dropdown-toggle" href="#">{{ cat.title }}<b class="caret"></b></a>
