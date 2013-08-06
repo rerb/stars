@@ -21,4 +21,4 @@ rabbitmq-server
 Running Celery Worker
 =====================
 
-bin/django celeryd -l info
+./manage.py celery worker --loglevel=info

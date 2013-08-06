@@ -11,12 +11,8 @@ from django.shortcuts import render
 from django.test import TestCase
 import testfixtures
 
-from stars.apps.credits.models import CreditSet
-from stars.apps.institutions.models import Institution, PendingAccount, \
-     Subscription
-from stars.apps.registration.models import ValueDiscount
-from stars.apps.submissions.models import SubmissionSet
 from stars.apps.helpers.forms import form_helpers
+
 
 class FormHelpersTest(TestCase):
 
@@ -271,6 +267,7 @@ class MockObject(object):
     def unlock(self):
         pass
 
+
 class MockForm(models.Model):
     # Based on models.Model because tested code wants klass._meta.
 
@@ -292,7 +289,7 @@ class MockInvalidForm(MockForm):
 
     def __init__(self, *args, **kwargs):
         self._is_valid = False
-        self.errors = { 'counter': self.COUNTER_MESSAGE }
+        self.errors = {'counter': self.COUNTER_MESSAGE}
 
 
 class MockValidForm(MockForm):
@@ -304,7 +301,7 @@ class MockValidForm(MockForm):
         self.ordinal = 1
         self.id = 1
         self.errors = self.SAVE_ERROR_MESSAGE
-        self.cleaned_data = { 'counter': 1 }
+        self.cleaned_data = {'counter': 1}
 
     def save(self, *args, **kwargs):
         self.ordinal += 1

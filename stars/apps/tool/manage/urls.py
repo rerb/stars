@@ -1,14 +1,14 @@
 from django.conf.urls.defaults import patterns, url
 
-from views import (AccountCreateView, AccountDeleteView,
-                   AccountEditView, AccountListView, ContactView,
-                   InstitutionPaymentsView, MigrateDataView,
-                   MigrateOptionsView, MigrateVersionView,
-                   PendingAccountDeleteView, ResponsiblePartyCreateView,
-                   ResponsiblePartyDeleteView, ResponsiblePartyEditView,
-                   ResponsiblePartyListView, ShareDataView,
-                   SubscriptionCreateView, SubscriptionPaymentCreateView,
-                   SubscriptionPaymentOptionsView, ShareThirdPartiesView)
+from .views import (AccountCreateView, AccountDeleteView,
+                    AccountEditView, AccountListView, ContactView,
+                    InstitutionPaymentsView, MigrateDataView,
+                    MigrateOptionsView, MigrateVersionView,
+                    PendingAccountDeleteView, ResponsiblePartyCreateView,
+                    ResponsiblePartyDeleteView, ResponsiblePartyEditView,
+                    ResponsiblePartyListView, ShareDataView,
+                    SubscriptionCreateWizard, SubscriptionPaymentCreateView,
+                    ShareThirdPartiesView)
 
 urlpatterns = patterns(
     'stars.apps.tool.manage.views',
@@ -70,11 +70,10 @@ urlpatterns = patterns(
         name='migrate-version'),
 
     # Subscription views:
-    url(r'^purchase-subscription/',
-        SubscriptionPaymentOptionsView.as_view(),
-        name='subscription-payment-options'),
-
-    url(r'^subscription/create/$', SubscriptionCreateView.as_view(),
+    url(r'^purchase-subscription-wiz/',
+        SubscriptionCreateWizard.as_view(
+            SubscriptionCreateWizard.get_class_form_list(),
+            condition_dict=SubscriptionCreateWizard.get_form_conditions()),
         name='subscription-create'),
 
     url(r'^subscription/(?P<pk>\d+)/payment/create/$',

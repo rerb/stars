@@ -20,3 +20,10 @@ export ISS_TEST_DB=${ISS_SQLITE_DB_URL}
 export AUTHORIZENET_LOGIN="6gJ5hF4UAXU"
 export AUTHORIZENET_KEY="23268nNJfy2ZEq58"
 export AUTHORIZENET_SERVER='test.authorize.net'
+
+# settings.py uses different AUTHORIZENET params for testing, has something
+# to do with getting tests to run on the production server;  if not set here,
+# tests which try to process credit card transactions will fail, so . . .
+export AUTHORIZENET_TEST_LOGIN=${AUTHORIZENET_LOGIN}
+export AUTHORIZENET_TEST_KEY=${AUTHORIZENET_KEY}
+export AUTHORIZENET_TEST_SERVER=${AUTHORIZENET_SERVER}
