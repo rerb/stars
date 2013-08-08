@@ -5,17 +5,22 @@ Pillow==2.1.0
 PyYAML==3.10
 South==0.7.5
 Werkzeug==0.8.3
--e hg+ssh://hg@bitbucket.org/jamstooks/aashe-python#egg=aashe_python-dev
--e git+https://github.com/toastdriven/django-tastypie.git@32dae8d2590dde3122289118ac241ab0bd2452e8#egg=django_tastypie-dev
+-e hg+https://kuranes@bitbucket.org/jamstooks/aashe-python@f85da5e23443c60375a8befca00afd61dc04b569#egg=aashe_python-dev
 amqplib==1.0.2
 anyjson==0.3.3
+beatbox==0.92
 beautifulsoup4==4.1.3
+boto==2.9.5
+celery==2.5.5
 coverage==3.6
 distribute==0.6.34
+dj-database-url==0.2.1
 django-bootstrap-form==2.0.5
 django-cache-url==0.3.2
-django-celery==3.0.21
+django-celery==2.3.3
+django-classy-tags==0.4
 django-cms==2.4.2
+-e hg+ssh://hg@bitbucket.org/aashe/django-collapsing-menu@e1eaae6eae90abddfc2012db8c12f039e8689fc0#egg=django_collapsing_menu-dev
 django-debug-toolbar==0.9.4
 django-excel-response==1.0
 django-extensions==1.1.1
@@ -24,25 +29,33 @@ django-form-utils==0.2.0
 django-jsonfield==0.7.1
 django-logical-rules==0.1.1
 django-memcache-status==1.1
+django-mptt==0.5.2
 django-nose==1.1
 django-picklefield==0.3.0
 django-recaptcha==0.0.6
-django-storages==1.1.5
 django-s3-folder-storage==0.1
-dj-database-url==0.2.1
+django-sekizai==0.7
+django-storages==1.1.5
+-e git+https://github.com/toastdriven/django-tastypie.git@32dae8d2590dde3122289118ac241ab0bd2452e8#egg=django_tastypie-dev
+dulwich==0.9.0
 factory-boy==1.2.0
+globetrotter==0.1.1-mt
 gunicorn==0.17.0
 hg-git==0.3.4
 html5lib==0.90
+httplib2==0.8
 ipython==0.13.1
+kombu==2.1.8
 lxml==3.1beta1
 mercurial==2.6.3
 mimeparse==0.1.3
 mock==1.0.1
 nose==1.2.1
+oauth2==1.5.211
 ordereddict==1.1
 pisa==3.0.32
 pyPdf==1.13
+pycountry==0.14.8-mt
 pycrypto==2.6
 python-dateutil==1.5
 python-memcached==1.48
@@ -50,10 +63,12 @@ raven==3.3.7
 readline==6.2.4.1
 reportlab==2.4
 selenium==2.33.0
+simplejson==3.3.0
 six==1.2.0
 sorl-thumbnail==11.12
 ssh==1.8.0
 testfixtures==2.3.5
+-e git+https://github.com/sixohsix/twitter.git@c3a3fb3276938b053df0aec8421586497415e6ec#egg=twitter
 wsgiref==0.1.2
 zc.authorizedotnet==1.3.1
 zc.creditcard==1.0

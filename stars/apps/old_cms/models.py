@@ -121,3 +121,16 @@ post_save.connect(post_save_article_rec, sender=NewArticle)
 def post_save_sub_rec(sender, instance, **kwargs):
     instance.update_timestamps()
 post_save.connect(post_save_sub_rec, sender=Subcategory)
+
+class HomepageUpdate(AbstractContent):
+    """
+        Update that appears on homepage feed.
+    """
+    title = models.CharField(max_length=255)
+    link = models.URLField()
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ('ordinal', 'title', 'timestamp',)
+        verbose_name = "Homepage Update"
+        verbose_name_plural = "Homepage Updates"

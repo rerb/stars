@@ -370,6 +370,12 @@ LOGGING = {
     }
 }
 
+# Twitter settings
+OAUTH_TOKEN = '1022657755-JZf8ELufzotuIQLRcFud5Yma8AdLQoNIpfgIGAe'
+OAUTH_SECRET = 'KYa5e5KmSvueKKAaayKYWw7RNBBGz7EDcQxTEs5ggOw'
+CONSUMER_KEY = 'yUIhK70Fd4YGwBccC0QIfg'
+CONSUMER_SECRET = 'XDgsAa6AXoGM7TETZyijPRZtvqausyvTA4Gulg'
+
 if sys.version >= '2.7':
     logging.captureWarnings(True)
 
