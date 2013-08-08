@@ -182,6 +182,13 @@ class RegistrationWizard(StarsAccountMixin, SubscriptionPurchaseWizard):
         if not institution.pk:
             institution.save()
 
+        contact_form = form_list[self.CONTACT]
+
+        self.update_institution_contact_info(institution,
+                                             contact_form)
+        self.update_institution_executive_contact_info(institution,
+                                                       contact_form)
+
         init_starsaccount(self.request.user, institution)
         init_submissionset(institution, self.request.user)
 
@@ -189,8 +196,51 @@ class RegistrationWizard(StarsAccountMixin, SubscriptionPurchaseWizard):
 
         return super(RegistrationWizard, self).done(form_list, **kwargs)
 
-    def send_emails(self, institution):
+    def update_institution_contact_info(self, institution, contact_form):
+        """Updates the contact info stored on Institution `institution`
+        with info in form `contact_form`."""
+        contact_field_names = ['contact_department',
+                               'contact_email',
+                               'contact_first_name',
+                               'contact_last_name',
+                               'contact_middle_name',
+                               'contact_phone',
+                               'contact_title']
+        self._update_institution_contact_info(
+            institution=institution,
+            contact_field_names=contact_field_names,
+            contact_form=contact_form)
 
+    def update_institution_executive_contact_info(self,
+                                                  institution,
+                                                  contact_form):
+        """Updates the exeutive contact info stored on Institution
+        `institution` with info in form `contact_form`."""
+        executive_contact_field_names = ['executive_contact_first_name',
+                                         'executive_contact_last_name',
+                                         'executive_contact_title',
+                                         'executive_contact_department',
+                                         'executive_contact_email']
+        self._update_institution_contact_info(
+            institution=institution,
+            contact_field_names=executive_contact_field_names,
+            contact_form=contact_form)
+
+    def _update_institution_contact_info(self,
+                                         institution,
+                                         contact_field_names,
+                                         contact_form):
+        """Updates the fields with names in `contact_field_names` on
+        Institution `institution` with input on form `contact_form`.
+        """
+        clean_form_info = contact_form.clean()
+        for field_name in contact_field_names:
+            setattr(institution,
+                    field_name,
+                    clean_form_info[field_name])
+        institution.save()
+
+    def send_emails(self, institution):
         # Primary Contact
         email_to = [institution.contact_email]
 

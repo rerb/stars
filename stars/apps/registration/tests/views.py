@@ -25,6 +25,20 @@ RESPONDENT = 'respondent'
 LATER = 'later'
 NOW = 'now'
 
+CONTACT_INFO = {'contact_first_name': u'Jimmy',
+                'contact_last_name': u'Jonesy',
+                'contact_title': u'Humble Servant',
+                'contact_department': u'Refreshments',
+                'contact_phone': u'123-123-1234',
+                'contact_email': u'jimmy@jonestown.gy'}
+
+EXECUTIVE_CONTACT_INFO = {
+    'executive_contact_first_name': u'Jackie',
+    'executive_contact_last_name': u'Mercer',
+    'executive_contact_title': u'Master Blaster',
+    'executive_contact_department': u'Combustibles',
+    'executive_contact_email': u'haha@mercer.nom'}
+
 # Don't bother me:
 logger = getLogger('stars')
 logger.setLevel(CRITICAL)
@@ -337,22 +351,10 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
             self.type(element=element, value=value)
 
     def enter_contact_info(self):
-        contact_info = {'contact_first_name': 'Jimmy',
-                        'contact_last_name': 'Jonesy',
-                        'contact_title': 'Humble Servant',
-                        'contact_department': 'Refreshments',
-                        'contact_phone': '1231231234',
-                        'contact_email': 'jimmy@jonestown.gy'}
-        self._enter_contact_info(contact_info=contact_info)
+        self._enter_contact_info(contact_info=CONTACT_INFO)
 
     def enter_executive_contact_info(self):
-        executive_contact_info = {
-            'executive_contact_first_name': 'Jackie',
-            'executive_contact_last_name': 'Mercer',
-            'executive_contact_title': 'Master Blaster',
-            'executive_contact_department': 'Combustibles',
-            'executive_contact_email': 'haha@mercer.nom'}
-        self._enter_contact_info(contact_info=executive_contact_info)
+        self._enter_contact_info(contact_info=EXECUTIVE_CONTACT_INFO)
 
     def submit_contact_info(self, participation_level):
         """Enters contact info, then submits the contact info form."""
@@ -577,18 +579,18 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
         # remember args in case next call wants to reuse this registration:
         self._previous_register_args = self._register_args
 
-    def _test_registration_model_mutation (self,
-                                           participation_level,
-                                           model,
-                                           difference,
-                                           school=None,
-                                           payment_option=None):
+    def _test_registration_model_mutation(self,
+                                          participation_level,
+                                          model,
+                                          difference,
+                                          school=None,
+                                          payment_option=None):
         """
-        _test_registration_(participation_level=PARTICIPANT,
-                            model=Subscription,
-                            difference=1,
-                            school=OrganizationFactory(),
-                            payment_option=NOW)
+        _test_registration_model_mutation(participation_level=PARTICIPANT,
+                                          model=Subscription,
+                                          difference=1,
+                                          school=OrganizationFactory(),
+                                          payment_option=NOW)
 
         is True if after a participant paying now registers,
         there's one more Subscription.
@@ -598,6 +600,35 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
                       school=school,
                       payment_option=payment_option)
         return initial_count + difference == model.objects.count()
+
+    def _test_registration_updates_contact_info(self, contact_info):
+        # clear the contact info from the Institution:
+        school = self.school_factory()
+
+        for contact_field in contact_info.keys():
+            setattr(self.institution, contact_field, '')
+        self.institution.save()
+
+        self.register(participation_level=PARTICIPANT,
+                      school=school,
+                      payment_option=LATER,
+                      new_registration=True)
+
+        institution = Institution.objects.get(aashe_id=school.account_num)
+        contact_info_from_institution = {}
+
+        for contact_field in contact_info.keys():
+            contact_info_from_institution[contact_field] = (
+                getattr(institution, contact_field))
+
+        self.assertDictEqual(contact_info_from_institution, contact_info)
+
+    def test_registration_updates_institution_contact_info(self):
+        self._test_registration_updates_contact_info(CONTACT_INFO)
+
+    def test_registration_updates_institution_executive_contact_info(self):
+        self.maxDiff = None
+        self._test_registration_updates_contact_info(EXECUTIVE_CONTACT_INFO)
 
     ##############################
     # participant pays now tests #
@@ -707,13 +738,25 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
 
         self.assertEqual(len(mail.outbox),
                          initial_num_outbound_mails + 2)
+        import ipdb; ipdb.set_trace()
         self.assertTrue(u'stars_test_liaison@aashe.org' in mail.outbox[0].to)
         self.assertTrue(u'stars_test_user@aashe.org' in mail.outbox[0].to)
+
+
         self.assertEqual(mail.outbox[1].to, [u'stars_test_exec@aashe.org'])
 
     ####################
     # respondent tests #
     ####################
+
+# ======================================================================
+# FAIL: test_emails_sent_for_respondent_registration (stars.apps.registration.tests.views.RegistrationWizardLiveServerTest)
+# ----------------------------------------------------------------------
+# Traceback (most recent call last):
+#   File "/Users/rerb/src/aashe/stars/default/stars/apps/registration/tests/views.py", line 723, in test_emails_sent_for_respondent_registration
+#     initial_num_outbound_mails + 2)
+# AssertionError: 1 != 2
+
     def test_emails_sent_for_respondent_registration(self):
         initial_num_outbound_mails = len(mail.outbox)
 
