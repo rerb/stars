@@ -108,7 +108,10 @@
       <div class="frontblock boxleft">
         <h2>Connect With Us</h2>
         {% load content %}
+        {% load cache %}
+        {% cache 7200 twitter-feed %}
         {% display_twitter_feed %}
+        {% endcache %}
 
                   </div>
                   <a href="/connect"><button class="btn btn-success" type="button">Social Media Center</button></a>
