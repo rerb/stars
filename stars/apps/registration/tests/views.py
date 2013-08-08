@@ -732,41 +732,37 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
 
     def test_emails_sent_for_participant_paying_later(self):
         initial_num_outbound_mails = len(mail.outbox)
-        self.initial_num_outbound_mails = len(mail.outbox)
+
         self.register(participation_level=PARTICIPANT,
                       payment_option=LATER)
 
         self.assertEqual(len(mail.outbox),
-                         initial_num_outbound_mails + 2)
-        import ipdb; ipdb.set_trace()
-        self.assertTrue(u'stars_test_liaison@aashe.org' in mail.outbox[0].to)
-        self.assertTrue(u'stars_test_user@aashe.org' in mail.outbox[0].to)
+                         initial_num_outbound_mails + 3)
 
+        self.assertItemsEqual(
+            mail.outbox[1].to,
+            [CONTACT_INFO['contact_email'], self.user.email])
 
-        self.assertEqual(mail.outbox[1].to, [u'stars_test_exec@aashe.org'])
+        self.assertItemsEqual(
+            mail.outbox[2].to,
+            [EXECUTIVE_CONTACT_INFO['executive_contact_email']])
 
     ####################
     # respondent tests #
     ####################
-
-# ======================================================================
-# FAIL: test_emails_sent_for_respondent_registration (stars.apps.registration.tests.views.RegistrationWizardLiveServerTest)
-# ----------------------------------------------------------------------
-# Traceback (most recent call last):
-#   File "/Users/rerb/src/aashe/stars/default/stars/apps/registration/tests/views.py", line 723, in test_emails_sent_for_respondent_registration
-#     initial_num_outbound_mails + 2)
-# AssertionError: 1 != 2
 
     def test_emails_sent_for_respondent_registration(self):
         initial_num_outbound_mails = len(mail.outbox)
 
         self.register(participation_level=RESPONDENT,
                       new_registration=False)
+
         self.assertEqual(len(mail.outbox),
-                         initial_num_outbound_mails + 2)
-        self.assertTrue(u'stars_test_liaison@aashe.org' in mail.outbox[0].to)
-        self.assertTrue(u'stars_test_user@aashe.org' in mail.outbox[0].to)
-        self.assertEqual(mail.outbox[1].to, [u'stars_test_exec@aashe.org'])
+                         initial_num_outbound_mails + 1)
+
+        self.assertItemsEqual(
+            mail.outbox[0].to,
+            [CONTACT_INFO['contact_email'], self.user.email])
 
 
 class SurveyViewTest(InstitutionAdminToolMixinTest):
