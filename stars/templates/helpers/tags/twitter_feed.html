@@ -15,7 +15,7 @@
           <a href="https://twitter.com/{{ tweet.user.screen_name }}" class="twitter-follow-button" data-show-count="false" data-lang="en" data-width="75px">Follow @{{ tweet.user.screen_name }}</a>        </div>
           <div class="tweet-text">{{ tweet.text }}<a href="{{ tweet.entities.urls.url }}" rel="nofollow" title="{{ tweet.entities.urls.url }}">{{ tweet.entities.urls.display_url }}</a></div>
           <div class="tweet-footer">
-            <div class="tweet-time"><a href="http://twitter.com/{{ tweet.user.screen_name }}/status/{{ tweet.id|safe }}">{{ tweet.created_at|naturaltime|capfirst }}</a></div>
+            <div class="tweet-time"><a href="http://twitter.com/{{ tweet.user.screen_name }}/status/{{ tweet.id|safe }}">{{ tweet.timestamp|naturaltime|capfirst }}</a></div>
             <div class="tweet-actions">
               <a href="https://twitter.com/intent/tweet?in_reply_to={{ tweet.id|safe }}" class="twitter-reply">Reply</a>            <a href="https://twitter.com/intent/retweet?tweet_id={{ tweet.id|safe }}" class="twitter-retweet">Retweet</a>            <a href="https://twitter.com/intent/favorite?tweet_id={{ tweet.id|safe }}" class="twitter-favorite">Favorite</a>          </div>
             </div>
