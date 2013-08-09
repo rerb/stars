@@ -2,8 +2,7 @@
 
 {% block title %}
 	{% if article %}{{ article }} |{% endif %}
-	{% if subcategory %}{{ subcategory }} |{% endif %}
-	{{ category }} |
+	{% if category %}{{ category }} |{% endif %}
 	{{ block.super }}
 {% endblock %}
 
