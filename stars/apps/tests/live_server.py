@@ -1,6 +1,9 @@
 """
     Base LiveServerTestCase customized for STARS tests.
 """
+import sys
+import unittest
+
 from django import test
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox import webdriver
@@ -12,27 +15,44 @@ from stars.test_factories import (InstitutionFactory, StarsAccountFactory,
                                   UserFactory)
 
 
+def skip_live_server_tests():
+    return '--liveserver=' in sys.argv
+
+
 class StarsLiveServerTest(test.LiveServerTestCase):
-    """
-        Base test case that:
+    """Base test case that:
 
           - takes care of starting and stopping a webdriver;
           - creates a Institution and an admin User for that Institution;
           - logs the user in;
-          - provides helper functions (like go_to_reporting_tool()).
+          - provides helper functions (like go_to_reporting_tool());
+          - is skipped if the argument '--liveserver=' is provided on
+            the command line.
+
+       Skipping is more efficiently done by raising
+       unittest.SkipTest() in setUpClass, but then the number of tests
+       skipped is reported as 1, regardless of how many subclassed
+       tests are actually skipped.  The tests of
+       skip_live_server_tests() in setUpClass(), tearDownClass(), and
+       setUp() allow for skipping, while preserving the number of
+       skips.
     """
     @classmethod
     def setUpClass(cls):
-        cls.selenium = webdriver.WebDriver()
-        cls.logged_in = False
-        super(StarsLiveServerTest, cls).setUpClass()
+        if not skip_live_server_tests():
+            cls.selenium = webdriver.WebDriver()
+            cls.logged_in = False
+            super(StarsLiveServerTest, cls).setUpClass()
 
     @classmethod
     def tearDownClass(cls):
-        cls.selenium.quit()
-        super(StarsLiveServerTest, cls).tearDownClass()
+        if not skip_live_server_tests():
+            cls.selenium.quit()
+            super(StarsLiveServerTest, cls).tearDownClass()
 
     def setUp(self):
+        if skip_live_server_tests():
+            raise unittest.SkipTest()
         super(StarsLiveServerTest, self).setUp()
         self.plain_text_password = 'password'
         self.user = UserFactory(username='username',
