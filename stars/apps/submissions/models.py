@@ -106,11 +106,18 @@ class SubmissionManager(models.Manager):
         return qs2.distinct()
 
     def get_rated(self):
-        """ All submissionsets that have been rated """
-        return SubmissionSet.objects.filter(institution__enabled=True).filter(is_visible=True).filter(is_locked=False).filter(status='r')
+        """ All submissionsets that have been rated (and are visible) """
+        return SubmissionSet.objects.filter(
+            institution__enabled=True).filter(
+                is_visible=True).filter(
+                    status='r')
 
     def get_snapshots(self, institution):
-        return SubmissionSet.objects.filter(institution=institution).filter(is_locked=False).filter(status='f').order_by('-date_submitted')
+        return SubmissionSet.objects.filter(
+            institution=institution).filter(
+                is_locked=False).filter(
+                    status='f').order_by(
+                        '-date_submitted')
 
 
 class SubmissionSet(models.Model, FlaggableModel):
@@ -1047,15 +1054,16 @@ class CreditSubmission(models.Model):
         if (self.submission_fields):  # lazy init.
             return self.submission_fields
 
-        return self._fields_for_field_list(
+        return self._submission_fields_for_documentation_fields(
             self.credit.documentationfield_set.all())
 
     def get_public_submission_fields(self):
 
-        return self._fields_for_field_list(
+        return self._submission_fields_for_documentation_fields(
             self.credit.documentationfield_set.filter(is_published=True))
 
-    def _fields_for_field_list(self, documentation_field_list):
+    def _submission_fields_for_documentation_fields(self,
+                                                    documentation_field_list):
 
         # Create the list of submission fields.
         errors = False
@@ -1317,6 +1325,50 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
             return 0
         return self.credit.point_value
 
+    def get_documentation_fields(self):
+        """Returns the DocumentationFields related to this CreditSubmission.
+        """
+        return [documentation_field_submission.documentation_field for
+                documentation_field_submission in
+                self.get_submission_fields()]
+
+    def get_documentation_field_submissions(self):
+        """Returns the DocumentationFieldSubmissions for all versions of all
+        the DocumentationFields of this CreditSubmission.
+        """
+        documentation_field_submissions = []
+
+        for documentation_field in self.get_documentation_fields():
+
+            for version_of_documentation_field in (
+                    documentation_field.get_all_versions()):
+
+                documentation_field_submissions_for_this_version = (
+                    DocumentationFieldSubmission.objects.for_documentation_field(
+                        documentation_field,
+                        institution=self.get_institution()))
+
+                for documentation_field_submission in (
+                        documentation_field_submissions_for_this_version):
+                    documentation_field_submissions.append(
+                        documentation_field_submission)
+
+        return documentation_field_submissions
+
+    def get_rated_documentation_field_submissions(self):
+        """Returns the rated DocumentationFieldSubmissions for all
+           versions of all the DocumentationFields of this
+           CreditSubmission.
+        """
+        documentation_field_submissions = (
+            self.get_documentation_field_submissions())
+
+        rated_documentation_field_submissions = [
+            dfs for dfs in documentation_field_submissions if
+            dfs.get_submissionset().status == RATED_SUBMISSION_STATUS ]
+
+        return rated_documentation_field_submissions
+
     def _calculate_points(self):
         """ Helper: returns the number of points calculated for this
         submission"""
@@ -1551,6 +1603,53 @@ class ReportingFieldDataCorrection(models.Model):
     reporting_field = generic.GenericForeignKey('content_type', 'object_id')
     explanation = models.TextField(blank=True, null=True)
 
+
+class DocumentationFieldSubmissionManager(models.Manager):
+
+    def for_documentation_field(self,
+                                documentation_field,
+                                institution=None):
+        """Returns the DocumentationFieldSubmissions for
+        DocumentationField `documentation_field`, optionally
+        filtered by Institution `institution`.
+        """
+        target_credit = documentation_field.credit
+        target_subcategory = target_credit.subcategory
+        target_category = target_subcategory.category
+        target_creditset = target_category.creditset
+
+        submission_sets = SubmissionSet.objects.filter(
+            creditset=target_creditset)
+        if institution:
+            submission_sets = submission_sets.filter(institution=institution)
+
+        if not submission_sets.exists():
+            return None
+
+        submission_set = submission_sets.reverse()[0]
+
+        category_submission = submission_set.categorysubmission_set.get(
+            category=target_category)
+        subcategory_submission = (
+            category_submission.subcategorysubmission_set.get(
+                subcategory=target_subcategory))
+        credit_submission = subcategory_submission.creditusersubmission_set.get(
+            credit=target_credit)
+
+        documentation_field_submissions = []
+
+        for documentation_field_submission in (
+                credit_submission.get_submission_fields()):
+
+            if (documentation_field_submission.documentation_field ==
+                documentation_field):
+
+                documentation_field_submissions.append(
+                    documentation_field_submission)
+
+        return documentation_field_submissions
+
+
 class DocumentationFieldSubmission(models.Model, FlaggableModel):
     """
         The submitted value for a documentation field (abstract).
@@ -1558,6 +1657,7 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
     documentation_field = models.ForeignKey(DocumentationField, related_name="%(class)s_set")
     credit_submission = models.ForeignKey(CreditSubmission)
     corrections = generic.GenericRelation(ReportingFieldDataCorrection, content_type_field='content_type', object_id_field='object_id')
+    objects = DocumentationFieldSubmissionManager()
 
     class Meta:
         abstract = True

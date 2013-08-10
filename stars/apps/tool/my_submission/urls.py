@@ -1,16 +1,22 @@
 from django.conf.urls.defaults import patterns, url
-from stars.apps.tool.my_submission.views import (EditBoundaryView,
-                                                 SaveSnapshot,
-                                                 SubmissionSummaryView,
-                                                 RatingCongratulationsView,
-                                                 SubmitForRatingWizard,
-                                                 SubcagegorySubmissionDetailView,
-                                                 CreditSubmissionDetailView,
-                                                 CreditDocumentationView,
-                                                 CreditNotesView,
-                                                 AddResponsiblePartyView)
-from stars.apps.tool.my_submission.forms import StatusForm, LetterForm, ExecContactForm
+
 from stars.apps.helpers.forms.forms import Confirm
+from stars.apps.tool.my_submission.forms import (ExecContactForm,
+                                                 LetterForm,
+                                                 StatusForm)
+from stars.apps.tool.my_submission.views import (
+    AddResponsiblePartyView,
+    CreditDocumentationView,
+    CreditHistoryView,
+    CreditNotesView,
+    CreditSubmissionDetailView,
+    EditBoundaryView,
+    RatingCongratulationsView,
+    SaveSnapshot,
+    SubcagegorySubmissionDetailView,
+    SubmissionSummaryView,
+    SubmitForRatingWizard)
+
 
 SUBCAT_PATH = "(?P<category_abbreviation>[\w-]+)/(?P<subcategory_slug>[\w-]+)"
 CREDIT_PATH = "%s%s" % (SUBCAT_PATH, "/(?P<credit_identifier>[\w-]+)")
@@ -57,4 +63,7 @@ urlpatterns = patterns(
         CreditNotesView.as_view(),
         name='creditnotes-submit'),
 
+    url(r'^%s/history/$' % CREDIT_PATH,
+        CreditHistoryView.as_view(),
+        name='credit-history')
 )

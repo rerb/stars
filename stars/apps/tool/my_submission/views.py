@@ -1,4 +1,5 @@
 from datetime import datetime, date
+import collections
 import os
 
 from django.conf import settings
@@ -16,9 +17,11 @@ from stars.apps.institutions.models import MigrationHistory
 from stars.apps.notifications.models import EmailTemplate
 from stars.apps.submissions.models import (Boundary,
                                            CreditUserSubmission,
+                                           RATED_SUBMISSION_STATUS,
+                                           RATING_VALID_PERIOD,
                                            ResponsibleParty,
                                            SubcategorySubmission,
-                                           RATING_VALID_PERIOD)
+                                           SubmissionSet)
 from stars.apps.submissions.tasks import (send_certificate_pdf,
                                           rollover_submission)
 from stars.apps.tool.mixins import (UserCanEditSubmissionMixin,
@@ -338,6 +341,56 @@ class CreditNotesView(UserCanEditSubmissionMixin, UpdateView):
 
     def get_object(self):
         return self.get_creditsubmission()
+
+
+class CreditHistoryView(UserCanEditSubmissionMixin, TemplateView):
+
+    template_name = "tool/submissions/credit_history.html"
+    model = CreditUserSubmission
+
+    def get_object(self):
+        return self.get_creditsubmission()
+
+    def get_context_data(self, **kwargs):
+        import ipdb; ipdb.set_trace()
+        context = super(CreditHistoryView, self).get_context_data(**kwargs)
+
+        context['doc_fields'] = self.get_documentation_field_submissions()
+
+        return context
+
+    def get_documentation_field_submissions(self):
+        """Returns a dictionary containing the DocumentFieldSubmissions
+        for all versions of all DocumentFields related to this
+        CreditUserSubmission.
+
+        The dictionary key is a DocumentationField, the dictionary
+        values are lists of DocumentationFieldSubmissions of the key.
+        """
+        credit_submission = self.get_creditsubmission()
+
+        rated_documentation_field_submissions = (
+            credit_submission.get_rated_documentation_field_submissions())
+
+        sorted_documentation_field_submissions = sorted(
+            rated_documentation_field_submissions,
+            key=lambda dfs: dfs.documentation_field.get_creditset().version)
+
+        documentation_field_submissions = collections.OrderedDict()
+
+        for documentation_field_submission in reversed(
+                sorted_documentation_field_submissions):
+            latest_version_of_documentation_field = (
+                documentation_field_submission.documentation_field.get_latest_version())
+            if (latest_version_of_documentation_field not in
+                documentation_field_submissions):
+                documentation_field_submissions[
+                    latest_version_of_documentation_field] = []
+            documentation_field_submissions[
+                latest_version_of_documentation_field].append(
+                    documentation_field_submission)
+
+        return documentation_field_submissions
 
 
 class AddResponsiblePartyView(UserCanEditSubmissionMixin, CreateView):
