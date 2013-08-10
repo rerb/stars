@@ -73,30 +73,42 @@ def migrate_creditset(old_cs, new_version_name, release_date):
 
 def create_ss_mirror(old_ss, new_cs=None, registering_user=None):
     """
-        creates a new submissionset using the latest creditset
+
         and migrates the data from old_ss leaving it unchanged
 
         takes an optional creditset to use
     """
-    if new_cs == None:
-        new_cs = CreditSet.objects.get_latest()
+    new_ss = _new_submissionset_for_old_submissionset(old_ss,
+                                                      new_cs,
+                                                      registering_user)
+    return migrate_submission(old_ss, new_ss)
 
-    new_ss = SubmissionSet(
-                            creditset=new_cs,
-                            institution=old_ss.institution,
-                            date_registered=old_ss.date_registered,
-                            status='ps',
-                            is_locked=True,
-                            is_visible=False)
+def _new_submissionset_for_old_submissionset(old_ss,
+                                             new_cs=None,
+                                             registering_user=None):
+    """
+        Returns a new SubmissionSet based on existing submissionset
+        `old_ss`, using CreditSet `new_cs` or, if not specified, the
+        latest CreditSet.
 
-    if registering_user:
-        new_ss.registering_user = registering_user
-    else:
-        new_ss.registering_user = old_ss.registering_user
+        If `registering_user` is provided, it's tacked on to the
+        new SubmissionSet, otherwise, the registering_user from
+        `old_ss` is copied.
+    """
+    new_cs = new_cs or CreditSet.objects.get_latest()
+
+    new_ss = SubmissionSet(creditset=new_cs,
+                           institution=old_ss.institution,
+                           date_registered=old_ss.date_registered,
+                           status='ps',
+                           is_locked=True,
+                           is_visible=False)
+
+    new_ss.registering_user = registering_user or old_ss.registering_user
 
     new_ss.save()
 
-    return migrate_submission(old_ss, new_ss)
+    return new_ss
 
 def migrate_ss_version(old_ss, new_cs):
     """
@@ -109,7 +121,6 @@ def migrate_ss_version(old_ss, new_cs):
         - Unhides the new one and makes it active
         - Returns the new submissionset
     """
-
     if not old_ss.is_locked:
         old_ss.is_locked = True
         old_ss.save()
@@ -139,11 +150,12 @@ def migrate_submission(old_ss, new_ss, keep_status=False):
 
         Note: don't migrate IN data if the previous submission was rated
     """
+    new_ss.migrated_from = old_ss
+    new_ss.save()
 
     # if the old SubmissionSet hasn't been initialized we don't have
     # to do anything
     if old_ss.categorysubmission_set.count() == 0:
-        new_ss.save()
         return new_ss
 
     # check if we can migrate innovation data
