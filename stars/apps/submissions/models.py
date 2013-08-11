@@ -1,4 +1,4 @@
-from datetime import datetime, date, timedelta
+)from datetime import datetime, date, timedelta
 from logging import getLogger
 import os
 import re
@@ -1654,9 +1654,12 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
     """
         The submitted value for a documentation field (abstract).
     """
-    documentation_field = models.ForeignKey(DocumentationField, related_name="%(class)s_set")
+    documentation_field = models.ForeignKey(DocumentationField,
+                                            related_name="%(class)s_set")
     credit_submission = models.ForeignKey(CreditSubmission)
-    corrections = generic.GenericRelation(ReportingFieldDataCorrection, content_type_field='content_type', object_id_field='object_id')
+    corrections = generic.GenericRelation(ReportingFieldDataCorrection,
+                                          content_type_field='content_type',
+                                          object_id_field='object_id')
     objects = DocumentationFieldSubmissionManager()
 
     class Meta:
@@ -1672,7 +1675,8 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
         return self.credit_submission
 
     def get_institution(self):
-        parent = CreditUserSubmission.objects.get(pk=self.credit_submission.id)
+        parent = CreditUserSubmission.objects.get(
+            pk=self.credit_submission.id)
         return parent.get_institution()
 
     def get_creditset(self):
@@ -1688,10 +1692,10 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
         """Does this Submission object persist in the DB?"""
         return (not self.pk == None)
 
-#    @staticmethod
     def get_field_class(field):
         """
-            Returns the related DocumentationFieldSubmission model class for a particular documentation field
+           Returns the related DocumentationFieldSubmission model class for a
+           particular documentation field
         """
         if field.type == 'text':
             return TextSubmission
@@ -1700,9 +1704,13 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
         if field.type == 'numeric':
             return NumericSubmission
         if field.type == 'choice':
-            return ChoiceWithOtherSubmission if field.has_other_choice() else ChoiceSubmission
+            return (ChoiceWithOtherSubmission
+                    if field.has_other_choice()
+                    else ChoiceSubmission)
         if field.type == 'multichoice':
-            return MultiChoiceWithOtherSubmission if field.has_other_choice() else MultiChoiceSubmission
+            return (MultiChoiceWithOtherSubmission
+                    if field.has_other_choice()
+                    else MultiChoiceSubmission)
         if field.type == 'boolean':
             return BooleanSubmission
         if field.type == 'url':
@@ -1750,15 +1758,16 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
                 else:
                     return self.value
 
-
     def save(self, *args, **kwargs):
-        """ Override models.Model save() method to forstall save if CreditSubmission doesn't persist"""
+        """ Override models.Model save() method to forstall save if
+            CreditSubmission doesn't persist """
         # Only save submission fields if the overall submission has been saved.
         if self.credit_submission.persists():
             super(DocumentationFieldSubmission, self).save()
 
     def get_value(self):
-        """ Use this accessor to get this submission's value - rather than accessing .value directly """
+        """ Use this accessor to get this submission's value - rather than
+            accessing .value directly """
         return self.value
 
     def get_units(self):
@@ -1774,7 +1783,8 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
         return False
 
     def get_correction_url(self):
-        return "%s%d/" % (self.credit_submission.get_scorecard_url(), self.documentation_field.id)
+        return "%s%d/" % (self.credit_submission.get_scorecard_url(),
+                          self.documentation_field.id)
 
 
 class AbstractChoiceSubmission(DocumentationFieldSubmission):
