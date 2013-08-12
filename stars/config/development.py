@@ -1,0 +1,56 @@
+"""
+    This file configures the development environment on the aashe server.
+    Apache bypasses settings.py and calls this file explicitly for setup.
+"""
+
+from settings import *
+
+DEBUG = True
+
+DATABASES = {
+    'default': {
+        'NAME': 'stars_dev',
+        'ENGINE': 'django.db.backends.mysql',
+        'STORAGE_ENGINE': 'MyISAM',
+        'USER': 'starsapp',
+        'PASSWORD': 'J3z4#$szFET--6',
+        'HOST': '10.176.128.183',
+    },
+    'iss': {
+        'NAME': 'iss',
+        'ENGINE': 'django.db.backends.mysql',
+        'USER': 'starsapp',
+        'PASSWORD': 'J3z4#$szFET--6',
+        'HOST': '10.176.128.183',
+    }
+}
+DATABASE_ROUTERS = ('aashe.issdjango.router.ISSRouter',)
+
+#CACHE_BACKEND = 'memcached://127.0.0.1:11211/'
+CACHE_BACKEND = "dummy://"
+#CACHE_BACKEND = "db://temp_cache_table"
+
+# Thumbnails
+
+#THUMBNAIL_ENGINE = "sorl.thumbnail.engines.pgmagick_engine.Engine"
+THUMBNAIL_DEBUG = True
+
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_FILE_PATH = '/tmp/stars_emails'
+
+MEDIA_ROOT = '/var/www/stars/media/'
+
+SSO_SERVER_URI = WWW_SSO_SERVER_URI
+STARS_DOMAIN = WWW_STARS_DOMAIN
+SSO_API_KEY = WWW_SSO_API_KEY
+
+XMLRPC_VERBOSE = False
+
+#if manage.py test was called, use test settings
+if 'test' in sys.argv:
+    
+    CACHE_BACKEND = "file:///tmp/stars-cache"
+    # Authorize.Net
+    AUTHORIZENET_LOGIN = REAL_AUTHORIZENET_LOGIN
+    AUTHORIZENET_KEY = REAL_AUTHORIZENET_KEY
+    AUTHORIZENET_SERVER = REAL_AUTHORIZENET_SERVER
