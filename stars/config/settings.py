@@ -121,7 +121,7 @@ INSTALLED_APPS = (
     'stars.apps.credits',
     'stars.apps.tool.credit_editor',
     'stars.apps.tool.my_submission',
-    'stars.apps.tool.admin',
+    'stars.apps.tool.staff_tool',
     'stars.apps.tool.manage',
     'stars.apps.institutions',
     "stars.apps.institutions.data_displays",
