@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 from logging import getLogger
 
 from django.conf import settings
@@ -198,9 +198,31 @@ class AddSubscriptionPayment(SubscriptionPaymentBaseMixin, CreateView):
         kwargs = super(AddSubscriptionPayment, self).get_form_kwargs()
         kwargs.update({
                         'instance':
-                            SubscriptionPayment(subscription=self.get_subscription())
+                            SubscriptionPayment(subscription=self.get_subscription(),
+                                                date=date.today())
                         })
         return kwargs
+
+    def form_valid(self, form):
+        """
+            Update the subscription before responding
+        """
+        self.object = form.save()
+        subscription = self.get_subscription()
+        amount_paid = self.object.amount
+        if subscription.amount_due < amount_paid:
+            logger.error("Payment is greater than amount due for: %s"
+                           % subscription)
+        if subscription.amount_due >= amount_paid:
+            if subscription.amount_due > amount_paid:
+                logger.info("Payment is less than amount due for: %s"
+                               % subscription)
+            subscription.amount_due -= amount_paid
+            if subscription.amount_due == 0:
+                subscription.paid_in_full = True
+            subscription.save()
+
+        return super(AddSubscriptionPayment, self).form_valid(form)
 
 
 class EditSubscriptionPayment(SubscriptionPaymentBaseMixin, UpdateView):

@@ -18,7 +18,7 @@ urlpatterns = patterns(
         EditSubscriptionPayment.as_view(),
         name="edit_payment"),
 
-    url(r'^payments(?P<institution_slug>[^/]+)/(?P<subscription_id>\d+)/add/$',
+    url(r'^payments/(?P<institution_slug>[^/]+)/(?P<subscription_id>\d+)/add/$',
         AddSubscriptionPayment.as_view(),
         name="add_payment"),
 

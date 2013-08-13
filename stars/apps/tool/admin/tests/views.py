@@ -9,13 +9,13 @@ from django.contrib.auth.models import User
 from django.contrib.messages.middleware import MessageMiddleware
 from django.http import HttpRequest
 from django.shortcuts import render
-import testfixtures
 
-from stars.apps.institutions.models import Institution
-from stars.apps.tool.admin import views
+import testfixtures
 
 
 class ViewsTest(TestCase):
+
+    fixtures = ['subscription_payment_testdata']
 
     def setUp(self):
         self.request = HttpRequest()
