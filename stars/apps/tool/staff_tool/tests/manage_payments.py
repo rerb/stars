@@ -1,4 +1,4 @@
-"""Tests for stars.apps.tool.admin.views.
+"""Tests for stars.apps.tool.staff_tool.views.
 """
 from django.test import TestCase
 from django.test.client import Client

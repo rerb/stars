@@ -1,4 +1,4 @@
-"""Tests for stars.apps.tool.admin.views.
+"""Tests for stars.apps.tool.staff_tool.views.
 """
 from unittest import TestCase
 
@@ -9,6 +9,8 @@ from django.contrib.auth.models import User
 from django.contrib.messages.middleware import MessageMiddleware
 from django.http import HttpRequest
 from django.shortcuts import render
+
+from stars.apps.institutions.models import Institution
 
 import testfixtures
 
@@ -37,7 +39,7 @@ class ViewsTest(TestCase):
         """
         with testfixtures.Replacer() as r:
             r.replace(
-                'stars.apps.tool.admin.views.auth_utils.change_institution',
+                'stars.apps.tool.staff_tool.views.auth_utils.change_institution',
                 lambda x,y: False)
             views.select_institution(self.request, self.institution.id)
         response = render(self.request, 'base.html')

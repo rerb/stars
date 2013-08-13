@@ -2,7 +2,7 @@ from django.conf.urls.defaults import patterns, url
 from views import InstitutionList, AddSubscriptionPayment, EditSubscriptionPayment
 
 urlpatterns = patterns(
-    'stars.apps.tool.admin.views',
+    'stars.apps.tool.staff_tool.views',
 
     # Institutional Admin
     (r'^$', InstitutionList.as_view()),

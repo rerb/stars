@@ -18,7 +18,7 @@ from stars.apps.institutions.models import (Institution, Subscription,
                                             SubscriptionPayment)
 from stars.apps.institutions.views import SortableTableView
 from stars.apps.submissions.models import SubmissionSet
-from stars.apps.tool.admin.forms import PaymentForm
+from stars.apps.tool.staff_tool.forms import PaymentForm
 from stars.apps.tool.mixins import InstitutionToolMixin
 from stars.apps.third_parties.models import ThirdParty
 
