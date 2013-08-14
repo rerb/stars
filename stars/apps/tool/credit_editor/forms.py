@@ -222,6 +222,11 @@ class DocumentationFieldForm(ModelForm):
         cleaned_data = self.cleaned_data
         type = cleaned_data.get("type")
 
+        # detect if we are moving between credits
+        if self.instance.credit and self.instance.credit != cleaned_data['credit']:
+            self.instance.identifier = None
+            self.instance.ordinal = -1
+
         #@todo: validate that choice-type fields actually specify choices
 
         # Code for cleaning numberic choices, if we ever implement those again...
