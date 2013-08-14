@@ -60,6 +60,7 @@ class RightSizeInputModelForm(ModelForm):
             return self.get_default_size(field)
 
     def get_default_size(self, field):
+        """Returns the default size for field.widget."""
         for widget in self.DEFAULT_WIDGET_SIZES:
             if isinstance(field.widget, widget):
                 return self.DEFAULT_WIDGET_SIZES[widget]
@@ -308,12 +309,16 @@ class DocumentationFieldOrderingForm(RightSizeInputModelForm):
         model = DocumentationField
         fields = ('ordinal',)
 
+    DEFAULT_WIDGET_SIZES = {widgets.TextInput: 'input-xxlarge',
+                            widgets.Textarea: 'input-xxlarge'}
+
     def __init__(self, *args, **kwargs):
         super(DocumentationFieldOrderingForm, self).__init__(*args, **kwargs)
-
-        wKlass = self.instance.get_widget()
-        self.fields['value'].widget = wKlass(
-            attrs={'disabled': 'disabled', 'class': 'noMCE'})
+        
+        self.fields['value'].widget.attrs['disabled'] = 'disabled'
+        self.fields['value'].widget.attrs['class'] = (
+            self.fields['value'].widget.attrs.get('class', '') +
+            ' noMCE').strip()
         self.fields['value'].required = False
         if self.instance.type == 'choice':
             self.fields['value'].widget.choices = (
