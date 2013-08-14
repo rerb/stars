@@ -30,7 +30,7 @@ class RightSizeInputModelForm(ModelForm):
                     (25, sys.maxint): 'input-xxlarge'}
 
     DEFAULT_WIDGET_SIZES = {widgets.TextInput: 'input-xlarge',
-                            widgets.Textarea: 'input-xlarge'}
+                            widgets.Textarea: 'input-xxlarge'}
 
     def __init__(self, *args, **kwargs):
         super(ModelForm, self).__init__(*args, **kwargs)
