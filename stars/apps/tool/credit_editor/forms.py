@@ -11,9 +11,62 @@ from stars.apps.tool.my_submission.forms import CreditSubmissionForm
 from widgets import TabularFieldEdit
 
 
-class CreditSetForm(ModelForm):
-    release_date = forms.DateField(widget=extra_widgets.SelectDateWidget())
+class RightSizeInputModelForm(ModelForm):
+    """A ModelForm upon which every TextInput and Textarea widget
+    is sized according to its max_length.
 
+    Asks Bootstrap to do the super sizing by adding 'input-xxlarge'
+    to the class attribute of the widgets.
+    """
+    WIDGETS_TO_RIGHTSIZE = [widgets.TextInput,
+                            widgets.Textarea]
+
+    # Bootstrap input size classes
+    WIDGET_SIZES = {(0, 6): 'input-mini',
+                    (7, 9): 'input-small',
+                    (10, 13): 'input-medium',
+                    (14, 19): 'input-large',
+                    (20, 24): 'input-xlarge',
+                    (25, sys.maxint): 'input-xxlarge'}
+
+    DEFAULT_WIDGET_SIZES = {widgets.TextInput: 'input-xlarge',
+                            widgets.Textarea: 'input-xlarge'}
+
+    def __init__(self, *args, **kwargs):
+        super(ModelForm, self).__init__(*args, **kwargs)
+        self.rightsize_widgets()
+
+    def rightsize_widgets(self):
+        """Adjusts the size of all widgets in WIDGETS_TO_RIGHTSIZE.
+        """
+        for field in self.fields.values():
+            if any([isinstance(field.widget, widget_to_rightsize)
+                    for widget_to_rightsize in self.WIDGETS_TO_RIGHTSIZE]):
+                self.rightsize(field)
+
+    def rightsize(self, field):
+        """Adjust the size of `field`.widget."""
+        size = self.get_right_size(field)
+        field.widget.attrs['class'] = (field.widget.attrs.get('class', '') +
+                                       size).strip()
+
+    def get_right_size(self, field):
+        """Returns the Bootstrap input class name appropriate for `field`."""
+        if getattr(field, 'max_length', None):
+            for range_, class_name in self.WIDGET_SIZES.items():
+                if range_[0] <= field.max_length <= range_[1]:
+                    return class_name
+        else:
+            return self.get_default_size(field)
+
+    def get_default_size(self, field):
+        for widget in self.DEFAULT_WIDGET_SIZES:
+            if isinstance(field.widget, widget):
+                return self.DEFAULT_WIDGET_SIZES[widget]
+
+
+class CreditSetForm(RightSizeInputModelForm):
+    release_date = forms.DateField(widget=extra_widgets.SelectDateWidget())
 
     class Meta:
         model = CreditSet
@@ -25,14 +78,14 @@ class NewCreditSetForm(CreditSetForm):
         model = CreditSet
 
 
-class CreditSetScoringForm(ModelForm):
+class CreditSetScoringForm(RightSizeInputModelForm):
     class Meta:
         model = CreditSet
         fields = ('scoring_method', 'tier_2_points')
         # exactly the fields excluded on CreditSetForm
 
 
-class CreditSetRatingForm(ModelForm):
+class CreditSetRatingForm(RightSizeInputModelForm):
     minimal_score = forms.IntegerField(min_value=0, max_value=100)
 
     class Meta:
@@ -40,7 +93,7 @@ class CreditSetRatingForm(ModelForm):
         exclude = ('creditset', 'previous_version')
 
 
-class CategoryForm(ModelForm):
+class CategoryForm(RightSizeInputModelForm):
     class Meta:
         model = Category
         exclude = ('creditset', 'ordinal', 'max_point_value',
@@ -51,7 +104,7 @@ class CategoryForm(ModelForm):
         self.fields['title'].widget.attrs.update({'size': 50})
 
 
-class CategoryOrderForm(ModelForm):
+class CategoryOrderForm(RightSizeInputModelForm):
 
     ordinal = forms.IntegerField(widget=widgets.HiddenInput(
         attrs={'class': 'ordinal'}))
@@ -62,16 +115,15 @@ class CategoryOrderForm(ModelForm):
         fields = ('ordinal', 'id')
 
 
-class SubcategoryForm(ModelForm):
+class SubcategoryForm(RightSizeInputModelForm):
 
     class Meta:
         model = Subcategory
-        exclude = ('ordinal', 'max_point_value', 'previous_version', 'slug')
+        exclude = ('ordinal', 'max_point_value', 'previous_version')
 
     def __init__(self, *args, **kwargs):
         """ Only allow categories from the same creditset """
         super(SubcategoryForm, self).__init__(*args, **kwargs)
-        print >> sys.stderr, "instance: %s" % self.instance
         self.fields['category'].choices = [
             (cat.id, cat.title) for cat in
             self.instance.category.creditset.category_set.all()
@@ -79,7 +131,7 @@ class SubcategoryForm(ModelForm):
         self.fields['title'].widget.attrs.update({'size': 50})
 
 
-class NewSubcategoryForm(ModelForm):
+class NewSubcategoryForm(RightSizeInputModelForm):
 
     class Meta:
         model = Subcategory
@@ -87,7 +139,7 @@ class NewSubcategoryForm(ModelForm):
                    'previous_version')
 
 
-class SubcategoryOrderForm(ModelForm):
+class SubcategoryOrderForm(RightSizeInputModelForm):
     ordinal = forms.IntegerField(widget=widgets.HiddenInput(
         attrs={'class': 'ordinal'}))
 
@@ -96,7 +148,7 @@ class SubcategoryOrderForm(ModelForm):
         fields = ('ordinal',)
 
 
-class CreditForm(ModelForm):
+class CreditForm(RightSizeInputModelForm):
     title = forms.CharField(widget=widgets.TextInput(attrs={'size': '32'}))
 
     class Meta:
@@ -113,7 +165,7 @@ class CreditForm(ModelForm):
             category__creditset=cs)
 
 
-class T2CreditForm(ModelForm):
+class T2CreditForm(RightSizeInputModelForm):
 
     class Meta:
         model = Credit
@@ -146,7 +198,7 @@ class NewT2CreditForm(NewCreditForm):
                    'previous_version', 'identifier')
 
 
-class CreditFormulaForm(ModelForm):
+class CreditFormulaForm(RightSizeInputModelForm):
     formula = forms.CharField(
         widget=widgets.Textarea(attrs={'class': 'noMCE',
                                        'cols': '70',
@@ -185,7 +237,7 @@ class CreditTestSubmissionForm(CreditSubmissionForm):
         fields = ['expected_value']
 
 
-class CreditOrderForm(ModelForm):
+class CreditOrderForm(RightSizeInputModelForm):
     ordinal = forms.IntegerField(widget=widgets.HiddenInput(
         attrs={'class': 'ordinal'}))
 
@@ -194,7 +246,7 @@ class CreditOrderForm(ModelForm):
         fields = ('ordinal',)
 
 
-class DocumentationFieldForm(ModelForm):
+class DocumentationFieldForm(RightSizeInputModelForm):
     tooltip_help_text = forms.CharField(
         widget=widgets.Textarea(attrs={'rows': '2'}),
         required=False)
@@ -247,7 +299,7 @@ class NewDocumentationFieldForm(DocumentationFieldForm):
                    'min_range', 'max_range', 'previous_version')
 
 
-class DocumentationFieldOrderingForm(ModelForm):
+class DocumentationFieldOrderingForm(RightSizeInputModelForm):
     ordinal = forms.IntegerField(widget=widgets.HiddenInput(
         attrs={'size': '3', 'class': 'ordinal'}))
     value = forms.CharField()
@@ -264,19 +316,18 @@ class DocumentationFieldOrderingForm(ModelForm):
             attrs={'disabled': 'disabled', 'class': 'noMCE'})
         self.fields['value'].required = False
         if self.instance.type == 'choice':
-            print >> sys.stderr, "CHOICES!!!"
             self.fields['value'].widget.choices = (
                 (r.id, r.choice) for r in self.instance.choice_set.all()
             )
 
 
-class ChoiceForm(ModelForm):
+class ChoiceForm(RightSizeInputModelForm):
     class Meta:
         model = Choice
         fields = ('choice',)
 
 
-class ChoiceOrderingForm(ModelForm):
+class ChoiceOrderingForm(RightSizeInputModelForm):
     ordinal = forms.IntegerField(widget=widgets.HiddenInput(
         attrs={'size': '3', 'class': 'ordinal'}))
 
@@ -285,7 +336,7 @@ class ChoiceOrderingForm(ModelForm):
         fields = ('ordinal', 'choice')
 
 
-class ApplicabilityReasonForm(ModelForm):
+class ApplicabilityReasonForm(RightSizeInputModelForm):
 
     class Meta:
         model = ApplicabilityReason
@@ -296,7 +347,7 @@ class ApplicabilityReasonForm(ModelForm):
         self.fields['reason'].widget.attrs['class'] = 'input-xxlarge'
 
 
-class ApplicabilityReasonOrderingForm(ModelForm):
+class ApplicabilityReasonOrderingForm(RightSizeInputModelForm):
     ordinal = forms.IntegerField(widget=widgets.HiddenInput(
         attrs={'size': '3', 'class': 'ordinal'}))
 
@@ -305,7 +356,7 @@ class ApplicabilityReasonOrderingForm(ModelForm):
         fields = ('ordinal',)
 
 
-class UnitForm(ModelForm):
+class UnitForm(RightSizeInputModelForm):
     """
         When adding a new Credit Field Unit
     """
