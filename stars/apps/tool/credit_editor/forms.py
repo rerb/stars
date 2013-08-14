@@ -66,7 +66,7 @@ class SubcategoryForm(ModelForm):
 
     class Meta:
         model = Subcategory
-        exclude = ('ordinal', 'max_point_value', 'previous_version')
+        exclude = ('ordinal', 'max_point_value', 'previous_version', 'slug')
 
     def __init__(self, *args, **kwargs):
         """ Only allow categories from the same creditset """
