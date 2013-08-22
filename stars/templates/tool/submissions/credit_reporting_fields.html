@@ -59,12 +59,14 @@
                  {{ form.submission_notes }}
             </div>
             <hr/>
-            <h3>Responsible Party</h3>
+            <h3>
+              <span class="required_note"
+                    title="This field is required to complete credit">*</span>
+              Responsible Party
+            </h3>
             {% if form.responsible_party.errors %}
                 {{ form.errors.responsible_party }}
             {% endif %}
-            <span class="required_note"
-                  title="This field is required to complete credit">*</span>
             {{ form.responsible_party|bootstrap }}
             <a href="{% url add-responsible-party institution.slug submissionset.id %}"
                class="btn btn-info btn-small" id="add_id_responsible_party"
@@ -77,10 +79,7 @@
             {% if form.responsible_party_confirm.errors %}
                 {{ form.errors.responsible_party_confirm }}
             {% endif %}
-            <span class="required_note"
-                  title="This field is required to complete credit">*</span>
             {{ form.responsible_party_confirm|bootstrap }}
-            <label class="required">By checking this box, I affirm that the information included in the submission for this credit is accurate to the best of my knowledge.</label>
             <hr/>
             <a name='status'></a>
             <div class="control-group{% if form.submission_status.errors %} error{% endif %}">
@@ -105,6 +104,7 @@
                                     {% else %}
                                         <h3>
                                     {% endif %}
+                                            <span class="required_note">*</span>
                                             Submission Status
                                     {% show_help_context 'submission_status' %}
                                     {% if form.submission_status.errors %}
@@ -113,7 +113,6 @@
                                     {% else %}
                                         </h3>
                                     {% endif %}
-                                    <span class="required_note">*</span>
                                 </td>
                             </tr>
                             <tr>
@@ -156,10 +155,10 @@
                             {% if credit.applicabilityreason_set.all %}
                                 <tr>
                                     <td><div id='reason_choices'>
-                                        <strong>Reason this credit does not apply:</strong><br/>
                                         <span class="required_note">
                                             *
                                         </span>
+                                        <strong>Reason this credit does not apply:</strong><br/>
                                         <br/>
                                         {{ form.applicability_reason }}
                                     </div></td>
