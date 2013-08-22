@@ -161,19 +161,7 @@
                                             *
                                         </span>
                                         <br/>
-                                        <span {% if form.applicability_reason.errors %}class='help-inline'{% endif %}>
-                                            <ul>
-                                                {% for reason in form.applicability_reason %}
-                                                    <li>
-                                                        {{ reason.tag }}
-                                                        {{ reason.choice_label }}
-                                                    </li>
-                                                {% endfor %}
-                                            </ul>
-                                            {% if form.applicability_reason.errors %}
-                                                {{ form.errors.applicability_reason }}
-                                            {% endif %}
-                                        </span>
+                                        {{ form.applicability_reason }}
                                     </div></td>
                                 </tr>
                             {% endif %}
