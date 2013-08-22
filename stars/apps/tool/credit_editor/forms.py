@@ -8,6 +8,7 @@ from django.forms.extras import widgets as extra_widgets
 from stars.apps.credits.models import *
 from stars.apps.submissions.models import CreditTestSubmission
 from stars.apps.tool.my_submission.forms import CreditSubmissionForm
+from widgets import TabularFieldEdit
 
 
 class CreditSetForm(ModelForm):
@@ -32,6 +33,7 @@ class CreditSetScoringForm(ModelForm):
 
 class CreditSetRatingForm(ModelForm):
     minimal_score = forms.IntegerField(min_value=0, max_value=100)
+
     class Meta:
         model = Rating
         exclude = ('creditset', 'previous_version')
@@ -68,10 +70,10 @@ class SubcategoryForm(ModelForm):
     def __init__(self, *args, **kwargs):
         """ Only allow categories from the same creditset """
         super(SubcategoryForm, self).__init__(*args, **kwargs)
-        print >> sys.stderr, "instance: %s" % self.instance
         self.fields['category'].choices = [
-            (cat.id, cat.title) for cat
-            in self.instance.category.creditset.category_set.all()]
+            (cat.id, cat.title) for cat in
+            self.instance.category.creditset.category_set.all()
+        ]
         self.fields['title'].widget.attrs.update({'size': 50})
 
 
@@ -79,7 +81,8 @@ class NewSubcategoryForm(ModelForm):
 
     class Meta:
         model = Subcategory
-        exclude = ('ordinal', 'max_point_value', 'category', 'previous_version')
+        exclude = ('ordinal', 'max_point_value', 'category',
+                   'previous_version')
 
 
 class SubcategoryOrderForm(ModelForm):
@@ -96,8 +99,8 @@ class CreditForm(ModelForm):
 
     class Meta:
         model = Credit
-        exclude = ('ordinal', 'formula', 'validation_rules', 'number', 'type',
-                   'previous_version')
+        exclude = ('ordinal', 'formula', 'validation_rules', 'number',
+                   'type', 'previous_version', 'identifier')
 
     def __init__(self, *args, **kwargs):
         super(CreditForm, self).__init__(*args, **kwargs)
@@ -140,11 +143,16 @@ class NewT2CreditForm(NewCreditForm):
                    'previous_version', 'identifier')
 
 
-class CreditFormulaForm(ModelForm):
-    formula = forms.CharField(widget=widgets.Textarea(
-        attrs={'class': 'noMCE','cols':'70', 'rows': '16'}), required=True)
-    validation_rules = forms.CharField(widget=widgets.Textarea(
-        attrs={'class': 'noMCE', 'cols':'70', 'rows': '16'}), required=False)
+class CreditFormulaForm(RightSizeInputModelForm):
+    formula = forms.CharField(
+        widget=widgets.Textarea(attrs={'class': 'noMCE',
+                                       'cols': '70',
+                                       'rows': '16'}),
+        required=True)
+    validation_rules = forms.CharField(
+        widget=widgets.Textarea(
+            attrs={'class': 'noMCE', 'cols': '70', 'rows': '16'}),
+        required=False)
 
     class Meta:
         model = Credit
@@ -199,9 +207,20 @@ class DocumentationFieldForm(ModelForm):
 
         self.fields['title'].widget.attrs["size"] = 60
 
+        cs = self.instance.credit.get_creditset()
+        self.fields['credit'].choices = cs.get_pulldown_credit_choices()
+        fields = self.instance.credit.documentationfield_set.exclude(type='tabular')
+        self.fields['tabular_fields'].widget = TabularFieldEdit(
+                                             fields_in_credit=fields)
+
     def clean(self):
         cleaned_data = self.cleaned_data
         type = cleaned_data.get("type")
+
+        # detect if we are moving between credits
+        if self.instance.credit and self.instance.credit != cleaned_data['credit']:
+            self.instance.identifier = None
+            self.instance.ordinal = -1
 
         #@todo: validate that choice-type fields actually specify choices
 
@@ -239,15 +258,16 @@ class DocumentationFieldOrderingForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(DocumentationFieldOrderingForm, self).__init__(*args, **kwargs)
-
-        wKlass = self.instance.get_widget()
-        self.fields['value'].widget = wKlass(attrs={'disabled': 'disabled',
-                                                    'class': 'noMCE'})
+        
+        self.fields['value'].widget.attrs['disabled'] = 'disabled'
+        self.fields['value'].widget.attrs['class'] = (
+            self.fields['value'].widget.attrs.get('class', '') +
+            ' noMCE').strip()
         self.fields['value'].required = False
         if self.instance.type == 'choice':
-            print >> sys.stderr, "CHOICES!!!"
             self.fields['value'].widget.choices = (
-                (r.id, r.choice) for r in self.instance.choice_set.all())
+                (r.id, r.choice) for r in self.instance.choice_set.all()
+            )
 
 
 class ChoiceForm(ModelForm):
@@ -262,7 +282,7 @@ class ChoiceOrderingForm(ModelForm):
 
     class Meta:
         model = Choice
-        fields = ('ordinal','choice')
+        fields = ('ordinal', 'choice')
 
 
 class ApplicabilityReasonForm(ModelForm):
