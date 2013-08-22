@@ -258,7 +258,7 @@ class DocumentationFieldForm(RightSizeInputModelForm):
 
     class Meta:
         model = DocumentationField
-        exclude = ('credit', 'ordinal', 'identifier', 'type',
+        exclude = ('ordinal', 'identifier', 'type',
                    'last_choice_is_other', 'previous_version')
 
     def __init__(self, *args, **kwargs):
@@ -302,7 +302,7 @@ class DocumentationFieldForm(RightSizeInputModelForm):
 
 class NewDocumentationFieldForm(DocumentationFieldForm):
     class Meta(DocumentationFieldForm.Meta):
-        exclude = ('credit', 'ordinal', 'identifier', 'last_choice_is_other',
+        exclude = ('ordinal', 'identifier', 'last_choice_is_other',
                    'min_range', 'max_range', 'previous_version')
 
 
@@ -320,7 +320,7 @@ class DocumentationFieldOrderingForm(RightSizeInputModelForm):
 
     def __init__(self, *args, **kwargs):
         super(DocumentationFieldOrderingForm, self).__init__(*args, **kwargs)
-        
+
         self.fields['value'].widget.attrs['disabled'] = 'disabled'
         self.fields['value'].widget.attrs['class'] = (
             self.fields['value'].widget.attrs.get('class', '') +
