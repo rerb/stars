@@ -25,6 +25,8 @@
 	<option value="3">3</option>
 	<option value="4">4</option>
 	<option value="5">5</option>
+	<option value="6">6</option>
+	<option value="7">7</option>
 </select>
 </div>
 
@@ -51,7 +53,7 @@
 			'fields': [],
 		};
 	{% endif %}
-	
+
 	/*
 		Field array structure:
 			[
@@ -59,34 +61,34 @@
 			 [c1r0, c1r1, c1r2]
 			]
 		..inverted. Sorry. Sue me. ;)
-		
+
 		how it should be
 			[
 			 [r0c0, r0c1],
 			 [r1c0, r1c1]
 			 ]
 	*/
-	
+
 	var initTable = function() {
 		$('#tabular_widget_columns').val(tw.numCols);
 		$('#tabular_widget_rows').val(tw.numRows);
 		updateTable();
 	}
-	
+
 	// Added helper methods
 	var updateTable = function() {
-		
+
 		// Step 1: reset table
-		
+
 		tw.numCols = parseInt($('#tabular_widget_columns').val());
 		tw.numRows = parseInt($('#tabular_widget_rows').val());
-		
+
 		// emtpy container
 		$("#tabular_widget_container").empty();
-		
+
 		// rebuild table
 		var rows = [];
-		
+
 		// headings
 		var row = '<thead><tr><th>Row Title</th>';
 		for(var ci=0; ci<tw.numCols; ci++) {
@@ -94,14 +96,14 @@
 		}
 		row += '</thead>';
 		rows.push(row);
-		
+
 		// rows
 		rows.push('<tbody>');
 		for(var r=0; r<tw.numRows; r++) {
 			row = "<tr>";
 			row += '<td><input type="text" id="row_heading_' + r + '" onchange="updateJSON();"/></td>';
 			for(var c=0; c<tw.numCols; c++) {
-				
+
 				// fields
 				row += '<td><select id="tab_field_' + r + '_' + c + '" onchange="updateJSON();">';
 				row += '<option value="">Select Field</option>';
@@ -116,7 +118,7 @@
 		rows.push("</tbody>");
 		console.debug(rows);
 		$('<table class="table table-bordered" style="width: 700px;"></table>').append(rows.join('')).appendTo('#tabular_widget_container');
-		
+
 		// Step 2: Populate table
 		for(r=0; r<tw.numRows; r++) {
 			if(tw.rowHeadings.length > r)
@@ -125,7 +127,7 @@
 			for(c=0; c<tw.numCols; c++) {
 				if(tw.colHeadings.length > c && r == 0)
 					$("#col_heading_" + c).val(tw.colHeadings[c]);
-					
+
 				if(tw.fields.length > r) {
 					if(tw.fields[r].length > c) {
 						$("#tab_field_" + r + "_" + c).val(tw.fields[r][c]);
@@ -135,18 +137,18 @@
 		}
 		updateJSON();
 	};
-	
+
 	// Copy config into textarea as JSON
 	var updateJSON = function() {
 		tw.colHeadings = [],
 		tw.rowHeadings = [],
 		tw.fields = []
-		
+
 		// rows
 		for(var r=0; r<tw.numRows; r++) {
 			tw.rowHeadings.push($("#row_heading_" + r).val())
 			var fieldRow = []
-			
+
 			// columns
 			for(var c=0; c<tw.numCols; c++) {
 				if(r == 0) {
@@ -159,7 +161,7 @@
 		}
 		$("#id_{{ name }}").val(JSON.stringify(tw));
 	};
-	
+
 	initTable();
 </script>
 
