@@ -10,6 +10,8 @@ from django.utils.encoding import smart_unicode
 from django.conf import settings
 from django.template.defaultfilters import slugify
 
+from jsonfield import JSONField
+
 from stars.apps.credits.utils import get_next_variable_name
 from mixins import VersionedModel
 
@@ -18,9 +20,16 @@ RATING_DURATION = 365*3
 logger = getLogger('stars')
 
 
+# from pagedown.widgets import AdminPagedownWidget
+
+
 class IncrementalFeature(models.Model):
     key = models.SlugField(unique=True)
     description = models.TextField()
+
+    # formfield_overrides = {
+    #     models.TextField: {'widget': AdminPagedownWidget}
+    # }
 
     def __unicode__(self):
         return self.key
@@ -801,6 +810,7 @@ DOCUMENTATION_FIELD_TYPES = (
     ('url', 'url'),
     ('date', 'date'),
     ('upload', 'upload'),
+    ('tabular', 'tabular'),
 #    ('multiple_upload', 'multiple upload'),
 )
 
@@ -820,6 +830,7 @@ TYPE_TO_WIDGET = {
     'date': forms.TextInput,
     'upload': forms.FileInput,
     'choice': forms.Select,
+    'tabular': forms.Textarea #@todo - custom 
 }
 
 class Unit(models.Model):
@@ -845,6 +856,7 @@ class DocumentationField(VersionedModel):
     required = models.CharField(max_length=8, choices=REQUIRED_TYPES, default='req', help_text='If a field is conditionally required it is important to note that in the help-text and to define a custom validation rule.')
     identifier = models.CharField(max_length=2) # editable=False) # Field identifier for the Formula editor - auto-generated.
     is_published = models.BooleanField(default=True, help_text='This documentation field will be displayed in the public report. Applies to 99.99% of fields.')
+    tabular_fields = JSONField(blank=True, null=True)
 
     class Meta:
         ordering = ('ordinal',)

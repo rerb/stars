@@ -1,3 +1,5 @@
+from celery.result import AsyncResult
+
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
 from django.http import Http404, HttpResponseRedirect, HttpResponse
@@ -22,6 +24,7 @@ from stars.apps.submissions.models import (SubmissionInquiry,
                                            RATED_SUBMISSION_STATUS)
 from stars.apps.submissions.rules import user_can_preview_submission
 from stars.apps.submissions.views import SubmissionStructureMixin
+from stars.apps.submissions.tasks import build_excel_export, build_pdf_export
 
 
 class InstitutionStructureMixin(StructureMixin):
@@ -315,6 +318,7 @@ class InstitutionScorecards(InstitutionStructureMixin, TemplateView):
 
         _context.update({'submission_sets': submission_sets,
                          'institution': institution})
+
         return _context
 
     def render_to_response(self, context, **response_kwargs):
@@ -432,7 +436,7 @@ class ScorecardView(RulesMixin,
         _context['preview'] = False
         if not ss.status == 'r':
             _context['preview'] = True
-
+            
         return _context
 
     def get_category_url(self, category, url_prefix):
@@ -460,23 +464,13 @@ class ScorecardCreditDocumentation(ScorecardView):
     template_name = 'institutions/scorecards/credit_documentation.html'
 
 
-class PDFExportView(RulesMixin,
-                    InstitutionStructureMixin,
-                    SubmissionStructureMixin,
-                    TemplateView):
-    """
-        Displays an exported PDF version of the selected report.
+class ExportRules(RulesMixin):
 
-        Based on a TemplateView, though there is no template, because
-        TemplateView provides a get() method that View alone does not,
-        as well as passing the results of all get_context_data()
-        methods in the MRO as an argument to render_to_response().
-    """
     def update_logical_rules(self):
 
-        super(PDFExportView, self).update_logical_rules()
+        super(ExportRules, self).update_logical_rules()
         self.add_logical_rule({
-                    'name': 'user_can_view_pdf',
+                    'name': 'user_can_view_export',
                     'param_callbacks':
                         [
                             ('user', "get_request_user"),
@@ -486,27 +480,83 @@ class PDFExportView(RulesMixin,
 
     def get_object_list(self):
         """
-            Returns a list of objects to use as filters for get_obj_or_call
+            Prevents snapshots from being returned
         """
         return self.get_institution().submissionset_set.exclude(status='f')
 
+
+class StartExportView(TemplateView):
+    """
+        Triggers the task for creating an excel export and provides
+        a waiting page that polls for completion
+        requires self.export_method
+    """
+    template_name = "institutions/scorecards/export_download.html"
+    url_prefix = ""
+
+    def get_context_data(self, **kwargs):
+        _c = super(StartExportView, self).get_context_data(**kwargs)
+        _c['url_prefix'] = self.url_prefix
+        _c['task'] = self.export_method.delay(self.get_submissionset())
+        return _c
+
+
+class DownloadExportView(TemplateView):
+    """
+        Extend and define mimetype and extension
+
+        The generic View class doesn't have a get method, so this is it.
+    """
+
     def render_to_response(self, context, **response_kwargs):
-        """ Renders the pdf as a response """
+        """ Renders the excel file as a response """
 
         ss = self.get_submissionset()
-
-        save = False
-        if ss.status == 'r':
-            if ss.pdf_report:
-                return HttpResponseRedirect(ss.pdf_report.url)
-            else:
-                save = True
-
-        pdf = ss.get_pdf(save=save)
-        response = HttpResponse(pdf, mimetype='application/pdf')
-        response['Content-Disposition'] = ('attachment; filename=%s' %
-                                           ss.get_pdf_filename())
+        task_id = self.kwargs['task']
+        result = AsyncResult(task_id)
+        f = open(result.result, 'r')
+        response = HttpResponse(f, mimetype=self.mimetype)
+        response['Content-Disposition'] = ('attachment; filename=%s.%s' %
+                                           (ss.institution.slug[:64],
+                                           self.extension))
         return response
+
+
+class ExcelExportView(ExportRules,
+                      InstitutionStructureMixin,
+                      SubmissionStructureMixin,
+                      StartExportView):
+
+    export_method = build_excel_export
+    url_prefix = "excel/"
+
+
+class ExcelDownloadView(ExportRules,
+                        InstitutionStructureMixin,
+                        SubmissionStructureMixin,
+                        DownloadExportView):
+    mimetype = 'application/vnd.ms-excel'
+    extension = "xls"
+
+
+class PDFExportView(ExportRules,
+                    InstitutionStructureMixin,
+                    SubmissionStructureMixin,
+                    StartExportView):
+    """
+        Displays an exported PDF version of the selected report.
+    """
+
+    export_method = build_pdf_export
+    url_prefix = "pdf/"
+
+
+class PDFDownloadView(ExportRules,
+                      InstitutionStructureMixin,
+                      SubmissionStructureMixin,
+                      DownloadExportView):
+    mimetype = 'application/pdf'
+    extension = "pdf"
 
 
 class ScorecardInternalNotesView(ScorecardView):

@@ -17,8 +17,8 @@ MEDIA_ROOT = os.environ.get('MEDIA_ROOT')
 
 HIDE_REPORTING_TOOL = False
 DEBUG = True
-TEMPLATE_DEBUG = DEBUG
-DEBUG_TOOLBAR = DEBUG
+TEMPLATE_DEBUG = False
+DEBUG_TOOLBAR = False
 MAINTENANCE_MODE = False
 CELERY_ALWAYS_EAGER = True
 PROFILE = False
@@ -98,14 +98,15 @@ XMLRPC_VERBOSE = False
 XMLRPC_USE_HASH = True
 
 # Thumbnails
-THUMBNAIL_DEBUG = True
+THUMBNAIL_DEBUG = DEBUG
 
 # django toolbar
 if DEBUG_TOOLBAR:
     MIDDLEWARE_CLASSES.append(
         'debug_toolbar.middleware.DebugToolbarMiddleware')
     INTERNAL_IPS = ('127.0.0.1',)
-    INSTALLED_APPS = INSTALLED_APPS + ('debug_toolbar',)
+    INSTALLED_APPS = INSTALLED_APPS + ('debug_toolbar',
+                                       'template_timings_panel')
     DEBUG_TOOLBAR_PANELS = (
         'debug_toolbar.panels.version.VersionDebugPanel',
         'debug_toolbar.panels.timer.TimerDebugPanel',
@@ -116,10 +117,14 @@ if DEBUG_TOOLBAR:
         'debug_toolbar.panels.sql.SQLDebugPanel',
         'debug_toolbar.panels.signals.SignalDebugPanel',
         'debug_toolbar.panels.logger.LoggingPanel',
+        'template_timings_panel.panels.TemplateTimings.TemplateTimings'
     )
     DEBUG_TOOLBAR_CONFIG = {'INTERCEPT_REDIRECTS': False}
+    TEMPLATE_TIMINGS_SETTINGS = {
+        'PRINT_TIMINGS': False,
+    }
 
-TEMPLATE_STRING_IF_INVALID = 'INVALID EXPRESSION: %s' if DEBUG else ' '
+TEMPLATE_STRING_IF_INVALID = 'INVALID EXPRESSION: %s'
 
 # TEST_RUNNER = 'hotrunner.HotRunner'
 # EXCLUDED_TEST_APPS = ['aashe.issdjango',

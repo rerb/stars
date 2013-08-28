@@ -3,9 +3,13 @@ Fabric==1.4.2
 MySQL-python==1.2.4b5
 Pillow==2.1.0
 PyYAML==3.10
-South==0.7.5
+South==0.8.1
 Werkzeug==0.8.3
--e hg+https://kuranes@bitbucket.org/jamstooks/aashe-python@f85da5e23443c60375a8befca00afd61dc04b569#egg=aashe_python-dev
+-e hg+ssh://hg@bitbucket.org/jamstooks/aashe-python#egg=aashe_python-dev
+#-e hg+ssh://hg@bitbucket.org/aashe/django-collapsing-menu#egg=django-collapsing-menu-dev
+-e git+https://github.com/toastdriven/django-tastypie.git@32dae8d2590dde3122289118ac241ab0bd2452e8#egg=django_tastypie-dev
+-e git+https://github.com/python-excel/xlwt.git#egg=xlwt-dev
+amqp==1.0.11
 amqplib==1.0.2
 anyjson==0.3.3
 beatbox==0.92
@@ -36,16 +40,15 @@ django-recaptcha==0.0.6
 django-s3-folder-storage==0.1
 django-sekizai==0.7
 django-storages==1.1.5
--e git+https://github.com/toastdriven/django-tastypie.git@32dae8d2590dde3122289118ac241ab0bd2452e8#egg=django_tastypie-dev
 dulwich==0.9.0
 factory-boy==1.2.0
-globetrotter==0.1.1-mt
+-e git+https://bitbucket.org/kuranes/globetrotter-provinces.git#egg=globetrotter
 gunicorn==0.17.0
 hg-git==0.3.4
 html5lib==0.90
 httplib2==0.8
 ipython==0.13.1
-kombu==2.1.8
+kombu==2.5.10
 lxml==3.1beta1
 mercurial==2.6.3
 mimeparse==0.1.3
