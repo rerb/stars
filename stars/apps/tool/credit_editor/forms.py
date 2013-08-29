@@ -30,7 +30,7 @@ class RightSizeInputModelForm(ModelForm):
                     (25, sys.maxint): 'input-xxlarge'}
 
     DEFAULT_WIDGET_SIZES = {widgets.TextInput: 'input-xlarge',
-                            widgets.Textarea: 'input-xlarge'}
+                            widgets.Textarea: 'input-xxlarge'}
 
     def __init__(self, *args, **kwargs):
         super(ModelForm, self).__init__(*args, **kwargs)
@@ -48,6 +48,7 @@ class RightSizeInputModelForm(ModelForm):
         """Adjust the size of `field`.widget."""
         size = self.get_right_size(field)
         field.widget.attrs['class'] = (field.widget.attrs.get('class', '') +
+                                       ' ' +
                                        size).strip()
 
     def get_right_size(self, field):
@@ -82,8 +83,8 @@ class NewCreditSetForm(CreditSetForm):
 class CreditSetScoringForm(RightSizeInputModelForm):
     class Meta:
         model = CreditSet
+        # exactly the fields excluded on CreditSetForm:
         fields = ('scoring_method', 'tier_2_points')
-        # exactly the fields excluded on CreditSetForm
 
 
 class CreditSetRatingForm(RightSizeInputModelForm):
@@ -257,8 +258,8 @@ class DocumentationFieldForm(RightSizeInputModelForm):
 
     class Meta:
         model = DocumentationField
-        exclude = ('ordinal', 'identifier', 'type', 'last_choice_is_other',
-                   'previous_version')
+        exclude = ('ordinal', 'identifier', 'type',
+                   'last_choice_is_other', 'previous_version')
 
     def __init__(self, *args, **kwargs):
         super(DocumentationFieldForm, self).__init__(*args, **kwargs)
@@ -319,7 +320,7 @@ class DocumentationFieldOrderingForm(RightSizeInputModelForm):
 
     def __init__(self, *args, **kwargs):
         super(DocumentationFieldOrderingForm, self).__init__(*args, **kwargs)
-        
+
         self.fields['value'].widget.attrs['disabled'] = 'disabled'
         self.fields['value'].widget.attrs['class'] = (
             self.fields['value'].widget.attrs.get('class', '') +

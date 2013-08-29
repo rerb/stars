@@ -9,8 +9,9 @@
     <script type="text/javascript"
             src="{{ STATIC_URL }}tp/tinymce/js/tinymce/tinymce.min.js"></script>
     <script type="text/javascript">
-        tinymce.init({selector: "textarea:not(.noMCE)",
-                      menubar: false});
+        tinymce.init({plugins: "link paste table,",
+                      tools: "inserttable",
+                      selector: "textarea:not(.noMCE)"});
     </script>
     <script type="text/javascript"
             src="{{ STATIC_URL }}js/tablednd.js"></script>

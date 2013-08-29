@@ -24,6 +24,8 @@ def show_field_form(doc_field):
 @register.inclusion_tag('tool/submissions/tags/documentation_field_control.html')
 def show_field_control_from_id(doc_field_id):
     """ Displays the submission form controls for a single documentation field """
+    if not doc_field_id:
+        return
     doc_field = DocumentationField.objects.get(pk=doc_field_id)
     SubmissionFieldModelClass = DocumentationFieldSubmission.get_field_class(doc_field)
     submission_field = SubmissionFieldModelClass(documentation_field=doc_field) if SubmissionFieldModelClass else None

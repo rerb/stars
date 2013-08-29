@@ -19,7 +19,7 @@ urlpatterns = patterns("",
 
     (r'^credit-editor/', include('stars.apps.tool.credit_editor.urls')),
 
-    (r'^admin/', include('stars.apps.tool.admin.urls')),
+    (r'^admin/', include('stars.apps.tool.staff_tool.urls')),
 
     (r'^(?P<institution_slug>[^/]*)/submission/(?P<submissionset>\d+)/',
      include('stars.apps.tool.my_submission.urls')),

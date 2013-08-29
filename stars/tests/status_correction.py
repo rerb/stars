@@ -8,21 +8,22 @@ print """
     Use quotes for the new status, like 'np' in your input.
 """
 
-credit_id = input('Credit ID: ')
+cus_id = input('CreditUserSubmission ID: ')
 submissionset_id = input('SubmissionSet ID: ')
 new_status = str(input('New Status: '))
 
 ss = SubmissionSet.objects.get(pk=submissionset_id)
-credit = Credit.objects.get(pk=credit_id)
+# credit = Credit.objects.get(pk=credit_id)
 
-cus = CreditUserSubmission.objects.get(credit=credit, subcategory_submission__category_submission__submissionset=ss)
+cus = CreditUserSubmission.objects.get(pk=cus_id)
 
 print ss
 print "Changing Status for %s from %s to %s" % (cus, cus.submission_status, new_status)
 
 cus.submission_status = new_status
+cus.save()
 
-if cus.assessed_points != cus._calculate_points():
+if cus.assessed_points != cus._calculate_points() or new_status == 'c':
     cus.assessed_points = cus._calculate_points()
     cus.save()
     

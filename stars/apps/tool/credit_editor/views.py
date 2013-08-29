@@ -412,11 +412,10 @@ class CreditReportingFields(CreditEditorFormView):
 
         # get documentation field set w/out those in tabular fields
         df_excludes = []
-        for df in credit.documentationfield_set.all():
-            if df.type == 'tabular':
-                for row in df.tabular_fields['fields']:
-                    for cell in row:
-                        df_excludes.append(int(cell))
+        for df in credit.documentationfield_set.all().filter(type='tabular'):
+            for row in df.tabular_fields['fields']:
+                for cell in [cell for cell in row if cell != '']:
+                    df_excludes.append(int(cell))
 
         credit_list = credit.documentationfield_set.exclude(id__in=df_excludes)
 

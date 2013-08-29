@@ -4,7 +4,8 @@
 from logging import getLogger
 import sys
 
-from stars.apps.submissions.pdf.export import build_certificate_pdf
+from stars.apps.submissions.export.pdf import build_certificate_pdf
+from stars.apps.submissions.export.excel import build_report_export
 from stars.apps.migrations.utils import (migrate_ss_version,
                                          migrate_submission,
                                          create_ss_mirror)
@@ -27,14 +28,40 @@ def hello_world():
     print >> sys.stdout, "Hello World"
 
 @task()
+def build_pdf_export(ss):
+    print "starting pdf export"
+#     s = False
+#     if ss.pdf_report:
+#         print "existing report %s" % ss.pdf_report)
+#         return str(ss.pdf_report)
+#     s = True
+    pdf = ss.get_pdf()
+#     pdf = build_certificate_pdf(ss)
+#     from django.core.files.temp import NamedTemporaryFile
+#     tempfile = NamedTemporaryFile(suffix='.pdf', delete=False)
+#     tempfile.write(pdf.getvalue())
+#     tempfile.close()
+# 
+#     print tempfile.name
+    print "export done"
+    return str(pdf)
+
+@task()
+def build_excel_export(ss):
+    print "starting excel export"
+    report = build_report_export(ss)
+    print "export done"
+    return report
+
+@task()
 def send_certificate_pdf(ss):
 
     pdf = build_certificate_pdf(ss)
 
-    et = EmailTemplate.objects.get(slug='certificate_to_marnie')
+    et = EmailTemplate.objects.get(slug='certificate_to_staff')
     email_context = {"ss": ss}
     et.send_email(
-                    mail_to=['marnie@aashe.org',],
+                    mail_to=['monika.urbanski@aashe.org'],
                     context=email_context,
                     attachments=((ss.institution.slug, pdf.getvalue(), 'application/pdf'),),
                     title="New Certificate: %s" % ss)

@@ -409,13 +409,13 @@ class ScoreFilter(DisplayAccessMixin, CommonFilterMixin, NarrowFilteringMixin, T
         Provides a filtering tool for scores by Category, Subcategory, and Credit
 
         Selected Categories/Subcategories/Credits are stored in the GET:
-        
+
             ?col1=cat_<category_id>&col2=sub_<subcategory_id>&col3=crd_<credit_id>&col4=
-            
+
         Maximum of 4 columns
         The view has a form that generates the QueryDict
     """
-        
+
     template_name = "institutions/data_displays/score.html"
     denied_template_name = "institutions/data_displays/denied_score.html"
     _col_keys = ['col1', 'col2', 'col3', 'col4']
@@ -619,8 +619,10 @@ class ScoreExcelFilter(ExcelMixin, ScoreFilter):
 
         cols = ["Institution", 'Country', 'Institution Type',
                 "STARS Version"]
-        for c in context['selected_columns']:
-            cols.append(c[1])
+
+        for column in context['selected_columns']:
+            column_name = str(column[1])
+            cols.append(column_name)
             cols.append("")  # blank space
         rows.append(cols)
 
@@ -648,8 +650,8 @@ class ScoreExcelFilter(ExcelMixin, ScoreFilter):
                     row.append("%.2f" % c['available_points'])
                 else:
                     row.append('')
-
             rows.append(row)
+
         return ExcelResponse(rows)
 
 
@@ -691,7 +693,7 @@ class ContentFilter(DisplayAccessMixin, CommonFilterMixin,
             Javascript handles the form submission, but taking the selected
             value and appending them to the current querydict
     """
-    
+
     def update_logical_rules(self):
         super(ContentFilter, self).update_logical_rules()
         self.add_logical_rule({

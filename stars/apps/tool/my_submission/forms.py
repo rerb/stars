@@ -7,6 +7,7 @@ from django.forms.widgets import TextInput, ClearableFileInput
 from django import forms
 from django.forms.extras.widgets import SelectDateWidget
 from django.forms.util import ErrorList
+from django.utils.safestring import mark_safe
 
 from stars.apps.helpers.forms import fields as custom_fields
 from stars.apps.helpers.forms.forms import LocalizedModelFormMixin
@@ -647,6 +648,15 @@ class CreditUserSubmissionForm(CreditSubmissionForm):
 
         # Select only the responsible parties associated with that institution
         self.fields['responsible_party'].queryset = self.instance.subcategory_submission.category_submission.submissionset.institution.responsibleparty_set.all()
+
+        self.fields['responsible_party_confirm'].label = mark_safe(
+            '<span class="required_note" '
+            '      title="This field is required to complete credit"> '
+            '  * '
+            '</span> '
+            'The information included in the submission for this credit '
+            'is accurate to the best of my knowledge.')
+
         for field in self:
             # add the onchange field_changed handler to inform users
             # of lost changes if a field already has an onchange
