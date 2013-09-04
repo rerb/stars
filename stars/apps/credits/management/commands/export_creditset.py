@@ -1,7 +1,9 @@
 from django.core.management.base import BaseCommand
 from django.core.serializers import serialize
 
-from stars.apps.credits.models import CreditSet, Unit
+from stars.apps.credits.models import CreditSet, Unit, IncrementalFeature
+
+from optparse import make_option
 
 import re
 
@@ -10,7 +12,14 @@ NK = True
 
 class Command(BaseCommand):
     args = '<creditset_id>'
-    help = 'Exports a specific Creditset as JSON'
+    help = ('Exports a specific Creditset as JSON from the id.')
+    option_list = BaseCommand.option_list + (
+            make_option('--exclude-previous',
+                action='store_true',
+                dest='exclude-previous',
+                default=False,
+                help='Nullify links to previous versions'),
+            )
     
     def handle(self, *args, **options):
         try:
@@ -19,6 +28,7 @@ class Command(BaseCommand):
             raise CommandError('CreditSet "%s" does not exist' % args[0])
             
         json = "["
+        json += serialize("json", IncrementalFeature.objects.all(), use_natural_keys=NK, indent=IND)[1:-1] + ","
         json += serialize("json", Unit.objects.all(), use_natural_keys=NK, indent=IND)[1:-1] + ","
         json += serialize("json", [cs], use_natural_keys=NK, indent=IND)[1:-1] + ","
         json += serialize("json", cs.category_set.all(), use_natural_keys=NK, indent=IND)[1:-1] + ","
@@ -32,8 +42,17 @@ class Command(BaseCommand):
                         if df.choice_set.count() > 0:
                             json += serialize("json", df.choice_set.all(), use_natural_keys=NK, indent=IND)[1:-1] + ","
                     json += serialize("json", credit.applicabilityreason_set.all(), use_natural_keys=NK, indent=IND)[1:-1] + ","
+
+        # fix django export issue with trailing space
         json = re.sub(r', \n', ',\n', json)
+        
+        # remove previous versions
+        if options['exclude-previous']:
+            json = re.sub(r'"previous_version": \d+', '"previous_version": null', json)
+        
+        # remove duplicate commas
         json = json.replace(',,', ',')
+        
         if json.endswith(','):
             json = json[:-1]
         json += "]"
