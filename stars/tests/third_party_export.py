@@ -31,6 +31,7 @@ def export_credit_content(credit, ss_qs=None):
     ss_list = []
     cus_list = []
     for ss in ss_qs:
+        print ss.id
         ss_list.append(ss)
         cus = CreditUserSubmission.objects.get(credit=credit.get_for_creditset(ss.creditset), subcategory_submission__category_submission__submissionset=ss)
         cus_list.append(cus)
@@ -130,26 +131,28 @@ def export_credit_content(credit, ss_qs=None):
 
 cs = CreditSet.objects.get(pk=5)
 
-tp = ThirdParty.objects.get(pk=2)
+tp = ThirdParty.objects.get(slug="sierra")
 print "EXPORTING: %s" % tp
 
 deadline = datetime.date(year=2013, month=4, day=15)
 
-snapshot_list = tp.get_snapshots().exclude(institution__id=447).order_by("institution__name")
-snapshot_list = snapshot_list.filter(date_submitted__gt=deadline)
-snapshot_list = snapshot_list | tp.get_snapshots().filter(id='1528')
+# snapshot_list = tp.get_snapshots().exclude(institution__id=447).order_by("institution__name")
+# snapshot_list = snapshot_list.filter(date_submitted__gt=deadline)
+# snapshot_list = snapshot_list | tp.get_snapshots().filter(id='1528')
 
-inst_list = []
-latest_snapshot_list = [] # only use the latest snapshot
-for ss in snapshot_list:
-    if ss.institution.id not in inst_list:
-        inst_list.append(ss.institution.id)
-        i_ss_list = ss.institution.submissionset_set.filter(status='f').order_by('-date_submitted', '-id')
-        print "Available snapshots for %s" % ss.institution
-        for __ss in i_ss_list:
-            print "%s, %d" % (__ss.date_submitted, __ss.id)
-        latest_snapshot_list.append(i_ss_list[0])
-        print "Selected snapshot: %s, %d" % (i_ss_list[0].date_submitted, i_ss_list[0].id)
+latest_snapshot_list = tp.get_snapshots().filter(institution__id=267)
+
+# inst_list = []
+# latest_snapshot_list = [] # only use the latest snapshot
+# for ss in snapshot_list:
+#     if ss.institution.id not in inst_list:
+#         inst_list.append(ss.institution.id)
+#         i_ss_list = ss.institution.submissionset_set.filter(status='f').order_by('-date_submitted', '-id')
+#         print "Available snapshots for %s" % ss.institution
+#         for __ss in i_ss_list:
+#             print "%s, %d" % (__ss.date_submitted, __ss.id)
+#         latest_snapshot_list.append(i_ss_list[0])
+#         print "Selected snapshot: %s, %d" % (i_ss_list[0].date_submitted, i_ss_list[0].id)
 # print snapshot_list
 
 for cat in cs.category_set.all():
