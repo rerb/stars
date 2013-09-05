@@ -63,13 +63,15 @@ def user_can_view_export(user, submission):
         can export their current working submission and any rated ones
     """
     if (
-        user_has_access_level(user, 'view', submission.institution) and
-        institution_has_export(submission.institution)
+        submission.status == 'r' or
+        submission.institution.current_submission == submission
         ):
         return (
-                    submission.status == 'r' or
-                    submission.institution.current_submission == submission
+                user_has_access_level(user, 'view', submission.institution) and
+                institution_has_export(submission.institution)
                 )
+    elif submission.status == 'f':
+        return user.is_staff
     return False
 logical_rules.site.register("user_can_view_export",
                             user_can_view_export)

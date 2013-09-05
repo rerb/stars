@@ -1,5 +1,6 @@
 {% extends 'tool/manage/share_base.html' %}
 
+{% load l10n %}
 {% load content %}
 {% load logical_rules_tags %}
 
@@ -12,6 +13,8 @@
 {% endblock %}
 
 {% block institution_content %}
+	{% include "download_async_task/modal_container.html" %}
+
     <h3>Snapshots</h3>
     
 	{% if third_party_sharing_list %}
@@ -34,6 +37,7 @@
         <tr>
             <th>Date of Snapshot</th>
             <th>STARS Version</th>
+            <th></th>
         </tr>
         </thead>
         <tbody>
@@ -46,6 +50,20 @@
               <td>
                 {{ ss.creditset.version }}
               </td>
+			  {% testrule user_can_view_export user ss %}
+	            <td>
+	            	<a 
+						class='modal-link'
+						href='{{ ss.id|unlocalize }}/csv/'>
+						<i class='icon-download-alt'></i> CSV
+					</a><br/>
+					<a
+						class='modal-link'
+						href="{{ ss.id|unlocalize }}/pdf/">
+						<i class='icon-download-alt'></i> PDF
+					</a>
+	            </td>
+	          {% endtestrule %}
             </tr>
           {% endfor %}
         {% else %}
@@ -68,4 +86,7 @@
 
       {% endtestrule %}
     </p>
+    
+	{% include "download_async_task/modal_js.html" %}
+    
 {% endblock %}

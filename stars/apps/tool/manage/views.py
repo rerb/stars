@@ -26,6 +26,7 @@ from stars.apps.payments.views import SubscriptionPurchaseWizard
 from stars.apps.submissions.models import SubmissionSet
 from stars.apps.submissions.tasks import (perform_migration,
                                           perform_data_migration)
+from stars.apps.third_parties.tasks import build_csv_export, build_pdf_export
 from stars.apps.third_parties.models import ThirdParty
 from stars.apps.tool.manage.forms import (AccountForm, AdminInstitutionForm,
                                           InstitutionPreferences,
@@ -38,6 +39,8 @@ from stars.apps.tool.manage.forms import (AccountForm, AdminInstitutionForm,
                                           ThirdPartiesForm)
 from stars.apps.tool.mixins import (InstitutionAdminToolMixin,
                                     InstitutionToolMixin)
+from stars.apps.download_async_task.views import (StartExportView,
+                                                  DownloadExportView)
 
 logger = getLogger('stars.request')
 
@@ -410,6 +413,68 @@ class ShareDataView(InstitutionAdminToolMixin,
         context['snapshot_list'] = SubmissionSet.objects.get_snapshots(
             self.get_institution())
         return context
+
+
+class SnapshotPDFExportView(StartExportView,
+                            InstitutionAdminToolMixin,
+                            ValidationMessageFormMixin,
+                            TemplateView):
+    """
+        Shows the download modal and triggers task
+    """
+    export_method = build_pdf_export
+
+    def get_url_prefix(self):
+        return "%s/pdf/" % self.kwargs['submissionset']
+
+    def get_task_params(self):
+        return self.get_institution().submissionset_set.get(pk=self.kwargs['submissionset'])
+
+
+class SnapshotPDFDownloadView(DownloadExportView,
+                              InstitutionAdminToolMixin,
+                              ValidationMessageFormMixin,
+                              TemplateView):
+    """
+        Returns the result of the task (hopefully an excel export)
+    """
+    mimetype = 'application/pdf'
+    extension = "pdf"
+
+    def get_filename(self):
+        return self.get_institution().slug[:64]
+
+
+class SnapshotCSVExportView(StartExportView,
+                              InstitutionAdminToolMixin,
+                              ValidationMessageFormMixin,
+                              TemplateView):
+    """
+        Shows the download modal and triggers task
+    """
+    export_method = build_csv_export
+
+    def get_url_prefix(self):
+        return "%s/csv/" % self.kwargs['submissionset']
+
+    def get_task_params(self):
+        return self.get_institution().submissionset_set.get(pk=self.kwargs['submissionset'])
+
+
+class SnapshotCSVDownloadView(DownloadExportView,
+                                InstitutionAdminToolMixin,
+                                ValidationMessageFormMixin,
+                                TemplateView):
+    """
+        Returns the result of the task (hopefully an excel export)
+    """
+#     mimetype = 'application/vnd.ms-excel'
+#     extension = "xls"
+    mimetype = "application/octet-stream"
+    extension = "zip"
+
+    def get_filename(self):
+        return self.get_institution().slug[:64]
 
 
 class ShareThirdPartiesView(InstitutionAdminToolMixin,

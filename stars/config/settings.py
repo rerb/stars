@@ -118,6 +118,7 @@ INSTALLED_APPS = (
     'django.contrib.formtools',
     'django.contrib.humanize',
     'django.contrib.staticfiles',
+
     'stars.apps.credits',
     'stars.apps.tool.credit_editor',
     'stars.apps.tool.my_submission',
@@ -138,7 +139,9 @@ INSTALLED_APPS = (
     'stars.apps.migrations',
     'stars.apps.third_parties',
     'stars.apps.api',
+    'stars.apps.download_async_task',
     'stars.tests',
+
     'aashe.aasheauth',
     'aashe.issdjango',
     'bootstrapform',
