@@ -12,6 +12,10 @@ from stars.apps.tool.my_submission.views import (EditBoundaryView,
 from stars.apps.tool.my_submission.forms import StatusForm, LetterForm, ExecContactForm
 from stars.apps.helpers.forms.forms import Confirm
 
+from django.views.decorators.cache import never_cache
+
+from stars.apps.institutions.views import PDFDownloadView, ExcelDownloadView
+
 SUBCAT_PATH = "(?P<category_abbreviation>[\w-]+)/(?P<subcategory_slug>[\w-]+)"
 CREDIT_PATH = "%s%s" % (SUBCAT_PATH, "/(?P<credit_identifier>[\w-]+)")
 
@@ -20,6 +24,14 @@ urlpatterns = patterns(
 
     url(r'^$', SubmissionSummaryView.as_view(),
         name='submission-summary'),
+
+    # Export retrieval view
+    url(r'^pdf/download/(?P<task>[^/]+)/$',
+     never_cache(PDFDownloadView.as_view())),
+
+    # Export retrieval view
+    url(r'^excel/download/(?P<task>[^/]+)/$',
+     never_cache(ExcelDownloadView.as_view())),
 
     # Submit a snaphot
     url(r'^snapshot/$', SaveSnapshot.as_view(), name='save-snapshot'),
