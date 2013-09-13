@@ -35,7 +35,7 @@ class NestedCategoryResource(CategoryResource):
         Shows fewer fields, disallows all HTTP methods.
     """
     class Meta(CategoryResource.Meta):
-        fields = ['title']
+        fields = ['title', 'id']
         allowed_methods = None
 
 
@@ -70,7 +70,7 @@ class NestedCreditResource(CreditResource):
         resources.
     """
     class Meta(CreditResource.Meta):
-        fields = ['title']
+        fields = ['title', 'id', 'identifier']
         allowed_methods = None
 
 
@@ -123,7 +123,7 @@ class NestedDocumentationFieldResource(DocumentationFieldResource):
         Shows fewer fields, disallows all HTTP methods.
     """
     class Meta(DocumentationFieldResource.Meta):
-        fields = ['title']
+        fields = ['title', 'id']
         allowed_methods = None
 
 
@@ -151,5 +151,5 @@ class NestedSubcategoryResource(SubcategoryResource):
         Shows fewer fields, disallows all HTTP methods.
     """
     class Meta(SubcategoryResource.Meta):
-        fields = ['title']
+        fields = ['title', 'id']
         allowed_methods = None
