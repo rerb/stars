@@ -1,18 +1,19 @@
 from __future__ import with_statement
+import os
 from fabric.api import *
 from fabric.contrib.files import exists
 from fabric.colors import red, green
+from fabric.context_managers import shell_env
 from contextlib import contextmanager as _contextmanager
 
 
 env.project_name = 'stars'
-env.project_root = "/var/www/%s/" % env.project_name
-env.path = "%ssrc/" % env.project_root
 env.repos = "ssh://hg@bitbucket.org/aashe/stars"
 env.upstart_service_name = 'stars'
 env.current_symlink_name = 'current'
 env.previous_symlink_name = 'previous'
 env.virtualenv_name = 'env'
+env.remote_vars = {}
 
 @_contextmanager
 def virtualenv():
@@ -26,9 +27,10 @@ def virtualenv():
     with(virtualenv()):
     run("python manage.py syncdb")
     '''
-    with cd(env.path):
-        with prefix(env.activate):
-            yield
+    with cd(env.remote_path):
+        with shell_env(**env.remote_vars):
+            with prefix(env.activate):
+                yield
 
 def dev():
     '''
@@ -36,10 +38,13 @@ def dev():
     '''
     env.user = 'releaser'
     env.hosts = ['stars-facelift.dev.aashe.org']
-    env.path = '/var/www/django_projects/stars-facelift'
-    env.django_settings = 'commons.settings.dev'
-    env.activate = 'source %s/%s/bin/activate' % (env.path, env.virtualenv_name)
+    env.remote_path = '/var/www/django_projects/stars-facelift'
+    env.django_settings = 'stars.settings'    
+    env.activate = 'source %s/%s/bin/activate' % (env.remote_path,
+                                                  env.virtualenv_name)
     env.upstart_service_name = 'stars-facelift'
+    if os.environ.has_key('FABRIC_DEV_PASSWORD'):
+        env.password = os.environ['FABRIC_DEV_PASSWORD']
     env.requirements_txt = 'requirements.txt'
 
 def deploy():
@@ -75,13 +80,13 @@ def export():
     tarfile = '%s.tar.gz' % export_path
     local('hg archive -r %(branch)s -t tgz %(tarfile)s' %
           {'branch': env.branch_name, 'tarfile': tarfile})
-    put(tarfile, env.path)
+    put(tarfile, env.remote_path)
     local("rm %s" % tarfile)
-    with cd(env.path):
+    with cd(env.remote_path):
         # extract tarfile to export path
         run('tar xvzf %s' % tarfile)
         run('rm -rf %s' % tarfile)
-        env.release_path = '%s/%s' % (env.path, export_path)
+        env.release_path = '%s/%s' % (env.remote_path, export_path)
 
 def requirements():
     '''
@@ -91,7 +96,7 @@ def requirements():
     with virtualenv():
         print("Updating virtualenv via requirements...")
         if not hasattr(env, 'release_path'):
-            env.release_path = '%s/current' % env.path
+            env.release_path = '%s/current' % env.remote_path
         run('pip install -r %s/%s' % (env.release_path, env.requirements_txt))
 
 def test(): 
@@ -104,7 +109,7 @@ def test():
     return result.succeeded
 
 def update_symlinks():
-    with cd(env.path):
+    with cd(env.remote_path):
         if exists('%s' % env.previous_symlink_name):
             previous_path = run('readlink %s' % env.previous_symlink_name)
             run('rm %s' % env.previous_symlink_name)
@@ -131,15 +136,15 @@ def config():
 
 def restart():
     '''
-    Reboot uwsgi server.
+    Restart upstart process
     '''
-    sudo("service %s restart" % env.uwsgi_service_name)
+    sudo("service %s restart" % env.upstart_service_name)
 
 def syncdb():
     '''
     Run "manage.py syncdb".
     '''
     with virtualenv():
-        with cd("%s/current" % env.path):
+        with cd("%s/current" % env.remote_path):
             run('python manage.py syncdb --noinput --settings=%s' %
                 env.django_settings)
