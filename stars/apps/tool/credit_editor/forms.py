@@ -87,11 +87,9 @@ class CreditSetForm(RightSizeInputModelForm):
     class Meta:
         model = CreditSet
         exclude = ('scoring_method', 'tier_2_points')
-        
+
     def __init__(self, *args, **kwargs):
         super(CreditSetForm, self).__init__(*args, **kwargs)
-        
-        self.fields["previous_version"].widget = CreditSelectTree()
 
 
 class NewCreditSetForm(CreditSetForm):
