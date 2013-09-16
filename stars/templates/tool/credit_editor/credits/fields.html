@@ -17,7 +17,9 @@
                     Reporting Fields
                 </th>
             </tr>
-            {% include "tool/credit_editor/credits/ordering_row.html" %}
+            {% with 1 as editing %}
+            	{% include "tool/credit_editor/credits/ordering_row.html" %}
+            {% endwith %}
         </table>
 
         <div class="form-actions">
