@@ -1,8 +1,6 @@
-from celery.result import AsyncResult
-
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
-from django.http import Http404, HttpResponseRedirect, HttpResponse
+from django.http import Http404, HttpResponseRedirect
 from django.views.generic import (FormView, CreateView, TemplateView,
                                   RedirectView)
 from django.views.generic.simple import direct_to_template
@@ -25,6 +23,8 @@ from stars.apps.submissions.models import (SubmissionInquiry,
 from stars.apps.submissions.rules import user_can_preview_submission
 from stars.apps.submissions.views import SubmissionStructureMixin
 from stars.apps.submissions.tasks import build_excel_export, build_pdf_export
+from stars.apps.download_async_task.views import (StartExportView,
+                                                  DownloadExportView)
 
 
 class InstitutionStructureMixin(StructureMixin):
@@ -485,43 +485,6 @@ class ExportRules(RulesMixin):
         return self.get_institution().submissionset_set.exclude(status='f')
 
 
-class StartExportView(TemplateView):
-    """
-        Triggers the task for creating an excel export and provides
-        a waiting page that polls for completion
-        requires self.export_method
-    """
-    template_name = "institutions/scorecards/export_download.html"
-    url_prefix = ""
-
-    def get_context_data(self, **kwargs):
-        _c = super(StartExportView, self).get_context_data(**kwargs)
-        _c['url_prefix'] = self.url_prefix
-        _c['task'] = self.export_method.delay(self.get_submissionset())
-        return _c
-
-
-class DownloadExportView(TemplateView):
-    """
-        Extend and define mimetype and extension
-
-        The generic View class doesn't have a get method, so this is it.
-    """
-
-    def render_to_response(self, context, **response_kwargs):
-        """ Renders the excel file as a response """
-
-        ss = self.get_submissionset()
-        task_id = self.kwargs['task']
-        result = AsyncResult(task_id)
-        f = open(result.result, 'r')
-        response = HttpResponse(f, mimetype=self.mimetype)
-        response['Content-Disposition'] = ('attachment; filename=%s.%s' %
-                                           (ss.institution.slug[:64],
-                                           self.extension))
-        return response
-
-
 class ExcelExportView(ExportRules,
                       InstitutionStructureMixin,
                       SubmissionStructureMixin,
@@ -530,6 +493,9 @@ class ExcelExportView(ExportRules,
     export_method = build_excel_export
     url_prefix = "excel/"
 
+    def get_task_params(self):
+        return self.get_submissionset()
+
 
 class ExcelDownloadView(ExportRules,
                         InstitutionStructureMixin,
@@ -537,6 +503,9 @@ class ExcelDownloadView(ExportRules,
                         DownloadExportView):
     mimetype = 'application/vnd.ms-excel'
     extension = "xls"
+
+    def get_filename(self):
+        return self.get_submissionset().institution.slug[:64]
 
 
 class PDFExportView(ExportRules,
@@ -550,6 +519,9 @@ class PDFExportView(ExportRules,
     export_method = build_pdf_export
     url_prefix = "pdf/"
 
+    def get_task_params(self):
+        return self.get_submissionset()
+
 
 class PDFDownloadView(ExportRules,
                       InstitutionStructureMixin,
@@ -557,6 +529,9 @@ class PDFDownloadView(ExportRules,
                       DownloadExportView):
     mimetype = 'application/pdf'
     extension = "pdf"
+
+    def get_filename(self):
+        return self.get_submissionset().institution.slug[:64]
 
 
 class ScorecardInternalNotesView(ScorecardView):

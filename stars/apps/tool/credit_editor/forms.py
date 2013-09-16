@@ -5,7 +5,21 @@ from django import forms
 from django.forms import widgets
 from django.forms.extras import widgets as extra_widgets
 
-from stars.apps.credits.models import *
+from stars.apps.credits.models import (CreditSet,
+                                       Category,
+                                       Subcategory,
+                                       Credit,
+                                       DocumentationField,
+                                       ApplicabilityReason,
+                                       Rating,
+                                       compile_formula,
+                                       Choice,
+                                       Unit
+                                       )
+from stars.apps.credits.widgets import (CategorySelectTree,
+                                        SubcategorySelectTree,
+                                        CreditSelectTree,
+                                        DocumentationFieldSelectTree)
 from stars.apps.submissions.models import CreditTestSubmission
 from stars.apps.tool.my_submission.forms import CreditSubmissionForm
 from widgets import TabularFieldEdit
@@ -72,7 +86,10 @@ class CreditSetForm(RightSizeInputModelForm):
 
     class Meta:
         model = CreditSet
-        exclude = ('scoring_method', 'tier_2_points', 'previous_version')
+        exclude = ('scoring_method', 'tier_2_points')
+
+    def __init__(self, *args, **kwargs):
+        super(CreditSetForm, self).__init__(*args, **kwargs)
 
 
 class NewCreditSetForm(CreditSetForm):
@@ -98,12 +115,12 @@ class CreditSetRatingForm(RightSizeInputModelForm):
 class CategoryForm(RightSizeInputModelForm):
     class Meta:
         model = Category
-        exclude = ('creditset', 'ordinal', 'max_point_value',
-                   'previous_version')
+        exclude = ('creditset', 'ordinal', 'max_point_value')
 
     def __init__(self, *args, **kwargs):
         super(CategoryForm, self).__init__(*args, **kwargs)
         self.fields['title'].widget.attrs.update({'size': 50})
+        self.fields['previous_version'].widget = CategorySelectTree()
 
 
 class CategoryOrderForm(RightSizeInputModelForm):
@@ -121,7 +138,7 @@ class SubcategoryForm(RightSizeInputModelForm):
 
     class Meta:
         model = Subcategory
-        exclude = ('ordinal', 'max_point_value', 'previous_version')
+        exclude = ('ordinal', 'max_point_value')
 
     def __init__(self, *args, **kwargs):
         """ Only allow categories from the same creditset """
@@ -131,6 +148,7 @@ class SubcategoryForm(RightSizeInputModelForm):
             self.instance.category.creditset.category_set.all()
         ]
         self.fields['title'].widget.attrs.update({'size': 50})
+        self.fields['previous_version'].widget = SubcategorySelectTree()
 
 
 class NewSubcategoryForm(RightSizeInputModelForm):
@@ -156,11 +174,12 @@ class CreditForm(RightSizeInputModelForm):
     class Meta:
         model = Credit
         exclude = ('ordinal', 'formula', 'validation_rules', 'number',
-                   'type', 'previous_version', 'identifier')
+                   'type', 'identifier')
 
     def __init__(self, *args, **kwargs):
         super(CreditForm, self).__init__(*args, **kwargs)
         self.fields['title'].widget.attrs.update({'size': 50})
+        self.fields['previous_version'].widget = CreditSelectTree()
 
         cs = self.instance.subcategory.category.creditset
         self.fields['subcategory'].queryset = Subcategory.objects.filter(
@@ -259,7 +278,7 @@ class DocumentationFieldForm(RightSizeInputModelForm):
     class Meta:
         model = DocumentationField
         exclude = ('ordinal', 'identifier', 'type',
-                   'last_choice_is_other', 'previous_version')
+                   'last_choice_is_other')
 
     def __init__(self, *args, **kwargs):
         super(DocumentationFieldForm, self).__init__(*args, **kwargs)
@@ -271,6 +290,7 @@ class DocumentationFieldForm(RightSizeInputModelForm):
         fields = self.instance.credit.documentationfield_set.exclude(type='tabular')
         self.fields['tabular_fields'].widget = TabularFieldEdit(
                                              fields_in_credit=fields)
+        self.fields['previous_version'].widget = DocumentationFieldSelectTree()
 
     def clean(self):
         cleaned_data = self.cleaned_data
@@ -303,7 +323,7 @@ class DocumentationFieldForm(RightSizeInputModelForm):
 class NewDocumentationFieldForm(DocumentationFieldForm):
     class Meta(DocumentationFieldForm.Meta):
         exclude = ('ordinal', 'identifier', 'last_choice_is_other',
-                   'min_range', 'max_range', 'previous_version')
+                   'min_range', 'max_range')
 
 
 class DocumentationFieldOrderingForm(RightSizeInputModelForm):

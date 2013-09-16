@@ -2,6 +2,7 @@
     STARS Credit API.
 """
 from tastypie import fields
+from tastypie.authentication import Authentication
 
 import stars.apps.credits.models as credits_models
 from stars.apps.api.resources import StarsApiResource
@@ -20,6 +21,7 @@ class CategoryResource(StarsApiResource):
         'subcategory_set', related_name='category', full=True)
 
     class Meta(StarsApiResource.Meta):
+        authentication = Authentication()
         queryset = credits_models.Category.objects.all()
         resource_name = 'credits/category'
         allowed_methods = ['get']
@@ -35,7 +37,8 @@ class NestedCategoryResource(CategoryResource):
         Shows fewer fields, disallows all HTTP methods.
     """
     class Meta(CategoryResource.Meta):
-        fields = ['title']
+        authentication = Authentication()
+        fields = ['title', 'id']
         allowed_methods = None
 
 
@@ -51,6 +54,7 @@ class CreditResource(StarsApiResource):
         'documentationfield_set', related_name='credit', full=True)
 
     class Meta(StarsApiResource.Meta):
+        authentication = Authentication()
         queryset = credits_models.Credit.objects.all()
         resource_name = 'credits/credit'
         allowed_methods = ['get']
@@ -70,7 +74,8 @@ class NestedCreditResource(CreditResource):
         resources.
     """
     class Meta(CreditResource.Meta):
-        fields = ['title']
+        authentication = Authentication()
+        fields = ['title', 'id', 'identifier']
         allowed_methods = None
 
 
@@ -83,6 +88,7 @@ class CreditSetResource(StarsApiResource):
         'category_set', related_name='creditset', full=True)
 
     class Meta(StarsApiResource.Meta):
+        authentication = Authentication()
         queryset = credits_models.CreditSet.objects.filter(version__gte='1.0')
         resource_name = 'credits/creditset'
         fields = ['id', 'release_date', 'version', 'supported_features']
@@ -95,6 +101,7 @@ class NestedCreditSetResource(CreditSetResource):
         resources.
     """
     class Meta(CreditSetResource.Meta):
+        authentication = Authentication()
         fields = ['version']
         allowed_methods = None
 
@@ -108,6 +115,7 @@ class DocumentationFieldResource(StarsApiResource):
         'credit', full=True)
 
     class Meta(StarsApiResource.Meta):
+        authentication = Authentication()
         queryset = credits_models.DocumentationField.objects.all()
         resource_name = 'credits/field'
         allowed_methods = ['get']
@@ -123,7 +131,8 @@ class NestedDocumentationFieldResource(DocumentationFieldResource):
         Shows fewer fields, disallows all HTTP methods.
     """
     class Meta(DocumentationFieldResource.Meta):
-        fields = ['title']
+        authentication = Authentication()
+        fields = ['title', 'id']
         allowed_methods = None
 
 
@@ -139,6 +148,7 @@ class SubcategoryResource(StarsApiResource):
         related_name='subcategory', full=True)
 
     class Meta(StarsApiResource.Meta):
+        authentication = Authentication()
         queryset = credits_models.Subcategory.objects.all()
         resource_name = 'credits/subcategory'
         allowed_methods = ['get']
@@ -151,5 +161,6 @@ class NestedSubcategoryResource(SubcategoryResource):
         Shows fewer fields, disallows all HTTP methods.
     """
     class Meta(SubcategoryResource.Meta):
-        fields = ['title']
+        authentication = Authentication()
+        fields = ['title', 'id']
         allowed_methods = None

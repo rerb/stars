@@ -12,7 +12,10 @@
             <span class='conditionally_required_note'
                   title="In some cases, this field will be required to complete credit">*</span>
 	{% endif %}
-	<strong>{{ documentation_field.title }}</strong>
+	<strong>
+		{% if show_identifier %}({{ documentation_field.identifier }}){% endif %}
+		{{ documentation_field.title }}
+	</strong>
 	{% with documentation_field.get_escaped_tooltip_help_text as help_text %}
 	    {% with "true" as modal %}
 	        {% with documentation_field.id as id %}
