@@ -22,7 +22,7 @@ def show_field_form(doc_field):
     return{"documentation_field":doc_field, "field_form":form }
 
 @register.inclusion_tag('tool/submissions/tags/documentation_field_control.html')
-def show_field_control_from_id(doc_field_id):
+def show_field_control_from_id(doc_field_id, editing):
     """ Displays the submission form controls for a single documentation field """
     if not doc_field_id:
         return
@@ -33,7 +33,7 @@ def show_field_control_from_id(doc_field_id):
     SubmissionFieldFormClass = SubmissionFieldForm.get_form_class(submission_field)
     form = SubmissionFieldFormClass(None, instance=submission_field)
     form.fields['value'].widget.attrs={'class': 'noMCE', 'disabled':'disabled'} # BUG!  If you take noMCE out here, things get weird!
-    return{"documentation_field":doc_field, "field_form":form }
+    return{"documentation_field":doc_field, "field_form":form, "tabular": True, "editing": editing}
 
 
 
