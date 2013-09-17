@@ -1,46 +1,7 @@
 {% extends 'tool/summary.html' %}
 
-{% load bootstrap %}
-
 {% block crumbs-tool %}<li>Purchase Subscription</li>{% endblock %}
 
 {% block institution_content %}
-
-  <p>
-      Excellent! Your new STARS subscription will run from
-      {{ subscription_start_date }}
-      to {{ subscription_end_date }}.
-  </p>
-  <p>
-      Choose one of the payment options below to continue.
-  </p>
-
-  <form method='post' action='.' class='form-horizontal'>
-
-    {% for radio in form.pay_when %}
-      <div class='radio'>
-        {{ radio }}
-      </div>
-    {% endfor %}
-
-    <div class='form-actions'>
-
-      <button
-          type='submit'
-          id='submit_button'
-          class='btn btn-primary'>
-              Continue
-      </button>
-
-      <button
-          type='button'
-          class='btn'
-          onclick="document.location='{% url tool-summary institution.slug %}'">
-              Cancel
-      </button>
-
-    </div>
-
-  </form>
-
+  {% include 'payments/subscription_payment_options.html' %}
 {% endblock %}

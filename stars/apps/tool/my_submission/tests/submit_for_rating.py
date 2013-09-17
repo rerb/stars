@@ -137,11 +137,19 @@ class RatingTest(TestCase):
 
         ss = SubmissionSet.objects.get(pk=1)
         self.assertEqual(ss.status, 'r')
+
+        # confirm the president's info was saved
+        self.assertEqual(ss.institution.president_first_name, "First")
+        self.assertEqual(ss.institution.president_title, "Title")
+
         # one email to institution, and another as a side effect of
         # send_certificate_pdf.delay():
         mail_messages_that_are_not_errors = [msg for msg in mail.outbox if
                                             'ERROR:' not in msg.subject]
-        self.assertEqual(len(mail_messages_that_are_not_errors), 1)
+        self.assertEqual(len(mail_messages_that_are_not_errors), 2)
 
         i = Institution.objects.get(pk=ss.institution.id)
         self.assertEqual(i.rated_submission, ss)
+
+        self.assertTrue(ss.is_visible)
+        self.assertFalse(ss.is_locked)

@@ -1,7 +1,18 @@
 {% extends "tool/credit_editor/base_edit_list.html" %}
 
+{% load l10n %}
+
 {% block display_object %}
-    <td>{{ obj.parameter_list }}</td>
+    <td>
+    	<div style="overflow: auto;height: 100px; padding-left: 10px;">
+	    	{% for f in obj.get_submission_fields %}
+	    		<a href="#" data-toggle="tooltip" title="{{ f.documentation_field }}" id='{{ f.id|unlocalize }}_'>
+	    		{{ f.documentation_field.identifier }}</a>:
+	    		{{ f.value }}<br/>
+	    		<script>$('#{{ f.id|unlocalize }}_').tooltip('hide');</script>
+	    	{% endfor %}
+    	</div>
+    </td>
     <td>{{ obj.expected_value }}</td>
     <td>{{ obj.computed_value }}</td>
     <td>

@@ -34,26 +34,3 @@ def init_submissionset(institution, user, date_callback=date.today):
     institution.current_submission = submissionset
     institution.save()
     return submissionset
-
-
-def init_subscription(institution, amount_due, date_callback=date.today):
-    """
-        Initializes a subscription for the institution with the payment
-
-        @todo: use a signal to update the subscription amount_due and paid_in_full
-    """
-    deadline = date_callback() + timedelta(days=365) # Gives them an extra day on leap years :)
-    subscription = Subscription(
-                                institution=institution,
-                                start_date=date_callback(),
-                                end_date=deadline,
-                                amount_due=amount_due,
-                                paid_in_full=(amount_due==0))
-    if institution.international:
-        subscription.reason = "international"
-    elif institution.is_member:
-        subscription.reason = "member_reg"
-    else:
-        subscription.reason = "nonmember_reg"
-    subscription.save()
-    return subscription

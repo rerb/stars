@@ -1,14 +1,17 @@
 from django.conf.urls.defaults import patterns, url
+from django.views.decorators.cache import never_cache
 
-from views import (AccountCreateView, AccountDeleteView,
-                   AccountEditView, AccountListView, ContactView,
-                   InstitutionPaymentsView, MigrateDataView,
-                   MigrateOptionsView, MigrateVersionView,
-                   PendingAccountDeleteView, ResponsiblePartyCreateView,
-                   ResponsiblePartyDeleteView, ResponsiblePartyEditView,
-                   ResponsiblePartyListView, ShareDataView,
-                   SubscriptionCreateView, SubscriptionPaymentCreateView,
-                   SubscriptionPaymentOptionsView, ShareThirdPartiesView)
+from .views import (AccountCreateView, AccountDeleteView,
+                    AccountEditView, AccountListView, ContactView,
+                    InstitutionPaymentsView, MigrateDataView,
+                    MigrateOptionsView, MigrateVersionView,
+                    PendingAccountDeleteView, ResponsiblePartyCreateView,
+                    ResponsiblePartyDeleteView, ResponsiblePartyEditView,
+                    ResponsiblePartyListView, ShareDataView,
+                    SubscriptionCreateWizard, SubscriptionPaymentCreateView,
+                    ShareThirdPartiesView, SnapshotCSVExportView,
+                    SnapshotCSVDownloadView, SnapshotPDFExportView,
+                    SnapshotPDFDownloadView)
 
 urlpatterns = patterns(
     'stars.apps.tool.manage.views',
@@ -56,6 +59,24 @@ urlpatterns = patterns(
     url(r'^share-data/$', ShareDataView.as_view(),
         name='share-data'),
 
+    url(r'^share-data/(?P<submissionset>[^/]+)/csv/$',
+        never_cache(SnapshotCSVExportView.as_view()),
+        name='snapshot-export-csv'),
+    url(r'^share-data/(?P<submissionset>[^/]+)/csv/download/(?P<task>[^/]+)/$',
+        never_cache(SnapshotCSVDownloadView.as_view()),
+        name='snapshot-download-csv'),
+
+    url(r'^share-data/(?P<submissionset>[^/]+)/pdf/$',
+        never_cache(SnapshotPDFExportView.as_view()),
+        name='snapshot-export-pdf'),
+    url(r'^share-data/(?P<submissionset>[^/]+)/pdf/download/(?P<task>[^/]+)/$',
+        never_cache(SnapshotPDFDownloadView.as_view()),
+        name='snapshot-download-pdf'),
+
+#     url(r'^share-data/(?P<submissionset>[^/]+)/pdf/$',
+#         never_cache(SnapshotPDFExportView.as_view()),
+#         name='snapshot-export-pdf'),
+
     url(r'^share-data/third-parties/$', ShareThirdPartiesView.as_view(),
         name='share-third-parties'),
 
@@ -70,11 +91,10 @@ urlpatterns = patterns(
         name='migrate-version'),
 
     # Subscription views:
-    url(r'^purchase-subscription/',
-        SubscriptionPaymentOptionsView.as_view(),
-        name='subscription-payment-options'),
-
-    url(r'^subscription/create/$', SubscriptionCreateView.as_view(),
+    url(r'^purchase-subscription-wiz/',
+        SubscriptionCreateWizard.as_view(
+            SubscriptionCreateWizard.get_class_form_list(),
+            condition_dict=SubscriptionCreateWizard.get_form_conditions()),
         name='subscription-create'),
 
     url(r'^subscription/(?P<pk>\d+)/payment/create/$',

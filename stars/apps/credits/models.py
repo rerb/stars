@@ -10,6 +10,8 @@ from django.utils.encoding import smart_unicode
 from django.conf import settings
 from django.template.defaultfilters import slugify
 
+from jsonfield import JSONField
+
 from stars.apps.credits.utils import get_next_variable_name
 from mixins import VersionedModel
 
@@ -949,6 +951,7 @@ DOCUMENTATION_FIELD_TYPES = (
     ('url', 'url'),
     ('date', 'date'),
     ('upload', 'upload'),
+    ('tabular', 'tabular'),
 #    ('multiple_upload', 'multiple upload'),
 )
 
@@ -968,6 +971,7 @@ TYPE_TO_WIDGET = {
     'date': forms.TextInput,
     'upload': forms.FileInput,
     'choice': forms.Select,
+    'tabular': forms.Textarea #@todo - custom 
 }
 
 
@@ -1013,6 +1017,7 @@ class DocumentationField(VersionedModel):
         default=True,
         help_text='This documentation field will be displayed in the '
                   'public report. Applies to 99.99% of fields.')
+    tabular_fields = JSONField(blank=True, null=True)
 
     class Meta:
         ordering = ('ordinal',)

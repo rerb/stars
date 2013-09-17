@@ -5,17 +5,16 @@ from stars.apps.submissions.tasks import send_certificate_pdf
 
 from django.conf import settings
 
+from datetime import date
 import sys
 
-ss_id_list = [
-    283, 430
-]
+ss_list = SubmissionSet.objects.filter(date_submitted__gte=date(year=2013, month=4, day=15), status='r').order_by('date_submitted')
 
 settings.EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 settings.CELERY_ALWAYS_EAGER = True
 
-for ss_id in ss_id_list:
-    ss = SubmissionSet.objects.get(pk=ss_id)
-    print >> sys.stdout, "Running cert for %s" % ss
+for ss in ss_list:
+    print >> sys.stdout, ss
+    print >> sys.stdout, "%s - %s" % (ss.date_submitted, ss.rating)
     send_certificate_pdf.delay(ss)
-    print >> sys.stdout, "Done"
+#     print >> sys.stdout, "Done"

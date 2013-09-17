@@ -54,16 +54,28 @@ def user_can_view_submission(user, submission):
     if submission.status == 'r':
         return True
     return user_can_preview_submission(user, submission)
-
 logical_rules.site.register("user_can_view_submission", user_can_view_submission)
 
-def user_can_view_pdf(user, submission):
-    if (not institution_has_export(submission.institution) and
-        submission.status != 'r'):
-        return False
-    return True
 
-logical_rules.site.register("user_can_view_pdf", user_can_view_pdf)
+def user_can_view_export(user, submission):
+    """
+        As long as a user can view an institution's submissions they
+        can export their current working submission and any rated ones
+    """
+    if (
+        submission.status == 'r' or
+        submission.institution.current_submission == submission
+        ):
+        return (
+                user_has_access_level(user, 'view', submission.institution) and
+                institution_has_export(submission.institution)
+                )
+    elif submission.status == 'f':
+        return user.is_staff
+    return False
+logical_rules.site.register("user_can_view_export",
+                            user_can_view_export)
+
 
 def user_can_edit_submission(user, submission):
     return (submission_is_editable(submission) and

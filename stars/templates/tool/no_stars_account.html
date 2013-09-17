@@ -4,8 +4,8 @@
 
   <div class='row span9' id='main-text'>
     <p>
-      Your AASHE Account has not been granted access to the STARS
-      Reporting Tool.
+      Your AASHE Account has not been granted access to any institution
+      using the STARS Reporting Tool.
     </p>
     <p>
       {% if institution and institution.is_participant %}
@@ -31,15 +31,17 @@
           {% endif %}
         {% endif %}
       {% else %}
-        {% if institution and institution.name %}
-          Your institution, {{ institution.name }},
-        {% else %}
-          Your institution
-        {% endif %}
-        isn't currently registered as a STARS
-        participant. Only institutions that are currently registered
-        as STARS Participants are allowed access to the Reporting
-        Tool.
+        {% if institution %}
+			Your institution{% if institution.name %}, {{ institution.name }},{% endif %}
+        	isn't currently registered as a STARS
+        	participant. Only institutions that are currently registered
+			as STARS Participants are allowed access to the Reporting
+			Tool.
+		{% else %}
+			Please contact your STARS Liaison to request access, or contact
+			<a href="mailto:stars@aashe.org">stars@aashe.org</a> for more
+			information.
+		{% endif %}
       {% endif %}
     </p>
   </div>

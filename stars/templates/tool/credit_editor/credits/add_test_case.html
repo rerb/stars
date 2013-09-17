@@ -15,7 +15,9 @@
                 {{ object_form|bootstrap }}
             </div>
             {% with object_form as submission_form %}
+            {% with 1 as show_identifier %}
                 {% include "tool/submissions/submission_fields_form.html" %}
+            {% endwith %}
             {% endwith %}
             <div class="form-actions">
               <input type="submit"

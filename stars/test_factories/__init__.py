@@ -25,6 +25,8 @@ from institutions_factories import (ClimateZoneFactory,
 
 from notifications_factories import EmailTemplateFactory, CopyEmailFactory
 
+from organizations_factories import OrganizationFactory
+
 from registration_factories import ValueDiscountFactory
 
 from misc_factories import UserFactory
@@ -45,6 +47,7 @@ __all__ = [ApplicabilityReasonFactory,
            EmailTemplateFactory,
            IncrementalFeatureFactory,
            InstitutionFactory,
+           OrganizationFactory,
            PendingAccountFactory,
            RatingFactory,
            ResponsiblePartyFactory,

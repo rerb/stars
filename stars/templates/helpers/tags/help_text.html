@@ -1,27 +1,83 @@
+{% load l10n %}
+
+{% localize off %}
+
 {% autoescape off %}
     {% if help_text %}
         {% if tooltip %}
-        	<a 	href="#"
-        		rel="popover"
-        		data-content="{{ help_text }}"
-        		id="{{ id }}"
-        		data-original-title="{% if help_text_title %}{{ help_text_title }}{% else %}{% endif %}"><i class='icon-question-sign'></i></a>
-        		
-    		<script type='text/javascript'>$('#{{ id }}').popover();</script>
-        {% else %}{% if modal %}
-        	<div class="modal hide fade" id="{{ id }}">
-				  <div class="modal-header">
-				    <button class="close" data-dismiss="modal">&times;</button>
-				    <h3>{% if help_text_title %}{{ help_text_title }}{% else %}&nbsp;{% endif %}</h3>
-				  </div>
-			  <div class="modal-body">
-			    <p>{{ help_text }}</p>
-			  </div>
-			</div>
-			<a data-toggle="modal" href="#{{ id }}" ><i class='icon-question-sign'></i></a>
-			
+            <a href="#"
+               rel="popover"
+               data-content="{{ help_text }}"
+               id="{{ id }}"
+               data-original-title="{{ help_text_title|default_if_none:'' }}">
+                <i class='icon-question-sign'></i>
+            </a>
+            <script type='text/javascript'>
+                function position_relative_to_center(pop, dom_el) {
+                    /*
+                       When we're to the right of center, return 'left';
+                       when we're to the left of center, return 'right'.
+
+                       When used as the `placement` option of a popover,
+                       this solves the problem of popovers near the right
+                       of the window displaying off screen.
+                     */
+                    var center = window.innerWidth / 2;
+                    var popover_left = $(dom_el).offset().left;
+                    if (popover_left < center)
+                        return 'right';
+                    else
+                        return 'left';
+                }
+                $('#{{ id }}').popover({placement: position_relative_to_center,
+                                        trigger: 'manual'
+                                       }).click(function(e) {
+                                           // preventDefault() prevents the
+                                           // browser from scrolling to the
+                                           // top of the page after popping
+                                           // up the help text.
+                                           e.preventDefault();
+                                           $(this).popover('toggle');
+                                           return true;
+                                       });
+                // This bit closes this popover when the user clicks
+                // anywhere outside it.  Thanks to mattdlockyer and
+                // StackOverflow (http://bit.ly/12Nedlz).
+                $('body').on('click', function (e) {
+                    $('#{{ id }}').each(function () {
+                        if (!$(this).is(e.target) &&
+                             $(this).has(e.target).length === 0 &&
+                             $('.popover').has(e.target).length === 0) {
+                            $(this).popover('hide');
+                            return;
+                        }
+                    });
+                });
+            </script>
         {% else %}
-            <span class='help_text'> {{ help_text }} </span>
-        {% endif %}{% endif %}
+            {% if modal %}
+                <div class="modal hide fade" id="{{ id }}">
+                	{% if help_text_title %}
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h3>
+                            {{ help_text_title }}
+                        </h3>
+                    </div>
+                    {% endif %}
+                    <div class="modal-body">
+                        <p>{{ help_text }}</p>
+                    </div>
+                    <div class="modal-footer">
+						<a href="#" class="btn" data-dismiss="modal">Close</a>
+					</div>
+                </div>
+                <a data-toggle="modal" href="#{{ id }}" ><i class='icon-question-sign'></i></a>
+            {% else %}
+                <span class='help_text'> {{ help_text }} </span>
+            {% endif %}
+        {% endif %}
     {% endif %}
 {% endautoescape %}
+
+{% endlocalize %}
