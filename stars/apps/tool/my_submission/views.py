@@ -17,13 +17,10 @@ from stars.apps.institutions.models import MigrationHistory
 from stars.apps.notifications.models import EmailTemplate
 from stars.apps.submissions.models import (Boundary,
                                            CreditUserSubmission,
-                                           RATED_SUBMISSION_STATUS,
                                            RATING_VALID_PERIOD,
                                            ResponsibleParty,
-                                           SubcategorySubmission,
-                                           SubmissionSet)
-from stars.apps.submissions.tasks import (send_certificate_pdf,
-                                          rollover_submission)
+                                           SubcategorySubmission)
+from stars.apps.submissions.tasks import rollover_submission
 from stars.apps.tool.mixins import (UserCanEditSubmissionMixin,
                                     SubmissionToolMixin,)
 from stars.apps.tool.my_submission.forms import (CreditUserSubmissionForm,
@@ -352,9 +349,8 @@ class CreditHistoryView(UserCanEditSubmissionMixin, TemplateView):
         return self.get_creditsubmission()
 
     def get_context_data(self, **kwargs):
-        import ipdb; ipdb.set_trace()
         context = super(CreditHistoryView, self).get_context_data(**kwargs)
-
+        
         context['doc_fields'] = self.get_documentation_field_submissions()
 
         return context
