@@ -38,7 +38,7 @@ class SubmissionSummaryViewTest(InstitutionToolMixinTest):
             submissionset=str(self.submission.id))
 
     def test_success_url_is_loadable(self, **kwargs):
-        super(InstitutionToolMixinTest, self).test_get_is_blocked(
+        super(InstitutionToolMixinTest, self).test_success_url_is_loadable(
             institution_slug=self.institution.slug,
             submissionset=str(self.submission.id))
 
