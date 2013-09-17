@@ -30,7 +30,7 @@ django-recaptcha==0.0.6
 django-storages==1.1.5
 django-s3-folder-storage==0.1
 dj-database-url==0.2.1
-factory-boy==2.1.1
+factory-boy==2.1.2
 gunicorn==0.17.0
 hg-git==0.3.4
 html5lib==0.90
