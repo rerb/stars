@@ -17,7 +17,7 @@ emacs.desktop
 ^docs/api/_build
 ^src$
 ^api-coverage-report$
-
+^selenium-profile$
 
 syntax: glob
 *.pyc
@@ -29,3 +29,5 @@ ta_apps
 secure
 .idea
 stars/.ropeproject
+*.orig
+*\#*\#
