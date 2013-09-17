@@ -1,2 +1,4 @@
 django-template-repl
 django-hotrunner
+elpy
+rope
