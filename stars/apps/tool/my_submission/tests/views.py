@@ -1,16 +1,5 @@
 """Tests for apps.tool.my_submission.views.
 """
-from django.utils.unittest import TestCase
-
-from bs4 import BeautifulSoup
-from django.conf import settings
-from django.contrib import messages
-from django.contrib.messages.middleware import MessageMiddleware
-from django.http import HttpRequest
-from django.shortcuts import render
-from django.template import RequestContext
-import testfixtures
-
 from stars.apps.tool.my_submission import views
 from stars.apps.tool.tests.views import (InstitutionToolMixinTest,
                                          UserCanEditSubmissionMixinTest)
