@@ -121,19 +121,23 @@ if DEBUG_TOOLBAR:
 
 TEMPLATE_STRING_IF_INVALID = 'INVALID EXPRESSION: %s'
 
-# TEST_RUNNER = 'hotrunner.HotRunner'
-# EXCLUDED_TEST_APPS = ['aashe.issdjango',
-#                       'south',
-#                       'sorl.thumbnail',
-#                       'captcha',
-#                       'django_extensions',
-#                       'djcelery',
-#                       'logical_rules',
-#                       'tastypie',
-#                       'bootstrapform',
-#                       'memcache_status',
-#                       's3_folder_storage',
-#                       'stars.apps',
-#                       'django_extensions',
-#                       'django_nose',
-#                       'template_repl']
+TEST_RUNNER = 'hotrunner.HotRunner'
+EXCLUDED_TEST_APPS = ['aashe.issdjango',
+                      'stars.apps.accounts',
+                      'stars.apps.api',
+                      'stars.tests',
+                      'gunicorn',
+                      'south',
+                      'sorl.thumbnail',
+                      'captcha',
+                      'django_extensions',
+                      'djcelery',
+                      'logical_rules',
+                      'tastypie',
+                      'bootstrapform',
+                      'memcache_status',
+                      's3_folder_storage',
+                      'stars.apps',
+                      'django_extensions',
+                      'django_nose',
+                      'template_repl']
