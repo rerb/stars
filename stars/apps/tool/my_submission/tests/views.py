@@ -57,26 +57,22 @@ class CreditHistoryViewTest(UserCanEditSubmissionMixinTest):
 
     view_class = views.CreditHistoryView
 
-    def setUp(self):
-        super(CreditHistoryViewTest, self).setUp()
+    def setUp(self, *args, **kwargs):
+        super(CreditHistoryViewTest, self).setUp(*args, **kwargs)
         self.category_submission = (
-            CategorySubmissionFactory(submissionset=self.submission))
+            self.submission.categorysubmission_set.all()[0])
+        self.category_abbreviation = (
+            self.category_submission.category.abbreviation)
         self.subcategory_submission = (
-            SubcategorySubmissionFactory(
-                category_submission=self.category_submission))
+            self.category_submission.subcategorysubmission_set.all()[0])
         self.credit_user_submission = (
-            CreditUserSubmissionFactory(
-                subcategory_submission=self.subcategory_submission))
-        self.documentation_field_submission = (
-            DocumentationFieldSubmissionFactory(
-                credit_submission=self.credit_user_submission))
+            self.subcategory_submission.creditusersubmission_set.all()[0])
 
     def test_get_succeeds(self, **kwargs):
         super(UserCanEditSubmissionMixinTest, self).test_get_succeeds(
             institution_slug=self.institution.slug,
             submissionset=str(self.submission.id),
-            category_abbreviation=(
-                self.category_submission.category.abbreviation),
+            category_abbreviation=self.category_abbreviation,
             subcategory_slug=self.subcategory_submission.subcategory.slug,
             credit_identifier=self.credit_user_submission.credit.identifier)
 

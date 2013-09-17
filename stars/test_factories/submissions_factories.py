@@ -1,8 +1,10 @@
 import factory
 
-from credits_factories import (ApplicabilityReasonFactory, CategoryFactory,
-                               CreditFactory, CreditSetFactory,
-                               DocumentationFieldFactory, RatingFactory,
+from credits_factories import (ApplicabilityReasonFactory,
+                               CategoryFactory,
+                               CreditFactory,
+                               CreditSetFactory,
+                               DocumentationFieldFactory,
                                SubcategoryFactory)
 from institutions_factories import ClimateZoneFactory, InstitutionFactory
 from misc_factories import UserFactory
@@ -34,7 +36,6 @@ class SubmissionSetFactory(factory.DjangoModelFactory):
     institution = factory.SubFactory(InstitutionFactory)
     registering_user = factory.SubFactory(UserFactory)
     submitting_user = factory.SubFactory(UserFactory)
-    rating = factory.SubFactory(RatingFactory)
     date_registered = '1970-01-01'
 
     @classmethod
