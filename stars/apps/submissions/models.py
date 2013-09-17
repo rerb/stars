@@ -1,4 +1,4 @@
-)from datetime import datetime, date, timedelta
+from datetime import datetime, date, timedelta
 from logging import getLogger
 import os
 import re
@@ -7,7 +7,6 @@ import sys
 from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User
-from django.utils.safestring import mark_safe
 from django.contrib.localflavor.us.models import PhoneNumberField
 from django.db.models import Q
 from django.contrib.contenttypes import generic
@@ -876,6 +875,9 @@ class SubcategorySubmission(models.Model):
     def get_total_credits(self):
         return self.subcategory.credit_set.count()
 
+    def get_submissionset(self):
+        return self.category_submission.submissionset
+
     def get_submit_url(self):
         return self.subcategory.get_submit_url(
             submissionset=self.category_submission.submissionset)
@@ -1024,16 +1026,6 @@ class CreditSubmission(models.Model):
 
     def get_institution(self):
         return self.subcategory_submission.get_institution()
-
-    def get_submissionset(self):
-        """Returns the SubmissionSet related to this CreditSubmission.
-
-        Hides implementation.  More importantly, saves thinking.
-
-        Extra thinking is bad.  SRSLY.  Who knows where the next
-        thought might lead?
-        """
-        return self.subcategory_submission.category_submission.submissionset
 
     def get_submission_fields(self):
         """
@@ -1283,6 +1275,9 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
 
     def get_creditset(self):
         return self.subcategory_submission.get_creditset()
+
+    def get_submissionset(self):
+        return self.subcategory_submission.get_submissionset()
 
     def is_finished(self):
         """ Indicate if this credit has been marked anything other than
@@ -1785,6 +1780,26 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
     def get_correction_url(self):
         return "%s%d/" % (self.credit_submission.get_scorecard_url(),
                           self.documentation_field.id)
+
+    def get_migrated_value(self):
+        """ Returns the value that was copied into this
+            DocumentFieldSubmission when this SubmissionSet
+            was migrated -- if that happened.
+        """
+        import ipdb; ipdb.set_trace()
+        previous_documentation_field = (
+            self.documentation_field.previous_version)
+        if previous_documentation_field:
+            submissionset = self.get_submissionset()            
+            institution = submissionset.institution
+            previous_documentation_field_submissions = (
+                self.objects.for_documentation_field(
+                    documentation_field=previous_documentation_field,
+                    institution=instituion))
+            for prev_doc_fld_sub in previous_documentation_field_submissions:
+                if prev_doc_field_sub.documentation_field == prev_doc_fld_sub:
+                    return prev_doc_fld_sub.get_value()
+        return None
 
 
 class AbstractChoiceSubmission(DocumentationFieldSubmission):
