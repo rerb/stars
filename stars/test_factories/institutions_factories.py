@@ -9,11 +9,11 @@ from stars.apps.institutions.models import (ClimateZone, Institution,
                                             Subscription, SubscriptionPayment)
 
 
-class ClimateZoneFactory(factory.Factory):
+class ClimateZoneFactory(factory.DjangoModelFactory):
     FACTORY_FOR = ClimateZone
 
 
-class InstitutionFactory(factory.Factory):
+class InstitutionFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Institution
 
     enabled = True
@@ -25,7 +25,7 @@ class InstitutionFactory(factory.Factory):
         lambda i: '%s' % i)
 
 
-class PendingAccountFactory(factory.Factory):
+class PendingAccountFactory(factory.DjangoModelFactory):
     FACTORY_FOR = PendingAccount
 
     institution = factory.SubFactory(InstitutionFactory)
@@ -33,14 +33,14 @@ class PendingAccountFactory(factory.Factory):
         lambda i: 'testuser{0}{1}@example.com'.format(i, time.time()))
 
 
-class StarsAccountFactory(factory.Factory):
+class StarsAccountFactory(factory.DjangoModelFactory):
     FACTORY_FOR = StarsAccount
 
     institution = factory.SubFactory(InstitutionFactory)
     user = factory.SubFactory(UserFactory)
 
 
-class SubscriptionFactory(factory.Factory):
+class SubscriptionFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Subscription
 
     institution = factory.SubFactory(InstitutionFactory)
@@ -49,7 +49,7 @@ class SubscriptionFactory(factory.Factory):
     amount_due = 1000.00
 
 
-class SubscriptionPaymentFactory(factory.Factory):
+class SubscriptionPaymentFactory(factory.DjangoModelFactory):
     FACTORY_FOR = SubscriptionPayment
 
     subscription = factory.SubFactory(SubscriptionFactory)

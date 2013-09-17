@@ -4,11 +4,12 @@ import time
 import factory
 
 from stars.apps.credits.models import (ApplicabilityReason, Category, Credit,
-                                       CreditSet, IncrementalFeature, Rating,
+                                       CreditSet, DocumentationField,
+                                       IncrementalFeature, Rating,
                                        Subcategory)
 
 
-class CreditSetFactory(factory.Factory):
+class CreditSetFactory(factory.DjangoModelFactory):
     FACTORY_FOR = CreditSet
 
     release_date = datetime.date(1970, 1, 1)
@@ -26,48 +27,57 @@ class CreditSetFactory(factory.Factory):
         credit_set = super(CreditSetFactory, cls)._prepare(create, **kwargs)
         return credit_set
 
-    @factory.post_generation(extract_prefix='supported_features')
-    def add_supported_features(self, create, extracted, **kwargs):
-        # allow something like CreditSetFactory(
-        #     supported_features=IncrementalFeature.objects.filter(...))
-        if extracted:
-            self.supported_features = extracted
 
-
-class CategoryFactory(factory.Factory):
+class CategoryFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Category
 
     creditset = factory.SubFactory(CreditSetFactory)
+    id = factory.Sequence(int)
+    abbreviation = factory.Sequence(lambda i: int(str(i), 36))
 
 
-class IncrementalFeatureFactory(factory.Factory):
+class IncrementalFeatureFactory(factory.DjangoModelFactory):
     FACTORY_FOR = IncrementalFeature
 
     key = factory.Sequence(
         lambda i: 'factory-made-incr-feature-{0}-{1}'.format(i, time.time()))
 
 
-class RatingFactory(factory.Factory):
+class RatingFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Rating
 
     creditset = factory.SubFactory(CreditSetFactory)
     minimal_score = 1
 
 
-class SubcategoryFactory(factory.Factory):
+class SubcategoryFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Subcategory
 
     category = factory.SubFactory(CategoryFactory)
+    id = factory.Sequence(int)
+    title = factory.Sequence(lambda i: 'SUBCAT TITLE {0}'.format(i))
 
 
-class CreditFactory(factory.Factory):
+class CreditFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Credit
 
-    subcategory = factory.SubFactory(SubcategoryFactory)
+    id = factory.Sequence(int)
+    identifier = factory.Sequence(lambda i: 'CREDIT-ID-{0}'.format(i))
     point_value = 1
+    subcategory = factory.SubFactory(SubcategoryFactory)
 
 
-class ApplicabilityReasonFactory(factory.Factory):
+class TextDocumentationFieldFactory(factory.DjangoModelFactory):
+    FACTORY_FOR = DocumentationField
+
+    credit = factory.SubFactory(CreditFactory)
+    type = 'text'
+
+
+DocumentationFieldFactory = TextDocumentationFieldFactory
+
+
+class ApplicabilityReasonFactory(factory.DjangoModelFactory):
     FACTORY_FOR = ApplicabilityReason
 
     credit = factory.SubFactory(CreditFactory)

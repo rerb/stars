@@ -1,18 +1,25 @@
 from accounts_factories import UserProfileFactory
 
-from submissions_factories import (BoundaryFactory, CategorySubmissionFactory,
+from submissions_factories import (BoundaryFactory,
+                                   CategorySubmissionFactory,
                                    CreditUserSubmissionFactory,
+                                   DocumentationFieldSubmissionFactory,
                                    ResponsiblePartyFactory,
                                    SubmissionSetFactory,
-                                   SubcategorySubmissionFactory)
+                                   SubcategorySubmissionFactory,
+                                   TextSubmissionFactory)
 
-from credits_factories import (ApplicabilityReasonFactory, CategoryFactory,
-                               CreditFactory, CreditSetFactory,
-                               IncrementalFeatureFactory, RatingFactory,
-                               SubcategoryFactory)
+from credits_factories import (ApplicabilityReasonFactory,
+                               CategoryFactory, CreditFactory,
+                               CreditSetFactory,
+                               DocumentationFieldFactory,
+                               IncrementalFeatureFactory,
+                               RatingFactory, SubcategoryFactory)
 
-from institutions_factories import (ClimateZoneFactory, InstitutionFactory,
-                                    PendingAccountFactory, StarsAccountFactory,
+from institutions_factories import (ClimateZoneFactory,
+                                    InstitutionFactory,
+                                    PendingAccountFactory,
+                                    StarsAccountFactory,
                                     SubscriptionFactory,
                                     SubscriptionPaymentFactory)
 
@@ -33,6 +40,8 @@ __all__ = [ApplicabilityReasonFactory,
            CreditFactory,
            CreditSetFactory,
            CreditUserSubmissionFactory,
+           DocumentationFieldFactory,
+           DocumentationFieldSubmissionFactory,
            EmailTemplateFactory,
            IncrementalFeatureFactory,
            InstitutionFactory,
@@ -45,6 +54,7 @@ __all__ = [ApplicabilityReasonFactory,
            SubmissionSetFactory,
            SubscriptionFactory,
            SubscriptionPaymentFactory,
+           TextSubmissionFactory,
            UserFactory,
            UserProfileFactory,
            ValueDiscountFactory]
