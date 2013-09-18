@@ -236,6 +236,9 @@ RAVEN_CONFIG = {
     'dsn': os.environ.get('RAVEN_CONFIG_DSN', None),
 }
 
+# django-terms
+TERMS_REPLACE_FIRST_ONLY = False
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,

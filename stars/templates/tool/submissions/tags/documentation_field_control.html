@@ -1,5 +1,6 @@
 {% load list_access %}
 {% load ce_tags %}
+{% load terms %}
 
 {% if field_form.instance.type == 'tabular' %}
 	<table class="table table-bordered">
@@ -56,5 +57,5 @@
 	
 {% endif %}
 <p class="help-block">
-	<em>{{ documentation_field.inline_help_text }}</em>
+	<em>{{ documentation_field.inline_help_text|replace_terms }}</em>
 </p>

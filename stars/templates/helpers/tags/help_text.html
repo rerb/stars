@@ -1,4 +1,5 @@
 {% load l10n %}
+{% load terms %}
 
 {% localize off %}
 
@@ -74,7 +75,7 @@
                 </div>
                 <a data-toggle="modal" href="#{{ id }}" ><i class='icon-question-sign'></i></a>
             {% else %}
-                <span class='help_text'> {{ help_text }} </span>
+                <span class='help_text'> {{ help_text|replace_terms }} </span>
             {% endif %}
         {% endif %}
     {% endif %}
