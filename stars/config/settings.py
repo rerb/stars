@@ -119,11 +119,14 @@ INSTALLED_APPS = (
     'django.contrib.humanize',
     'django.contrib.staticfiles',
 
+    'terms', # must come before stars.apps.tool, which overrides the admin
+
     'stars.apps.credits',
     'stars.apps.tool.credit_editor',
     'stars.apps.tool.my_submission',
     'stars.apps.tool.staff_tool',
     'stars.apps.tool.manage',
+    'stars.apps.tool',
     'stars.apps.institutions',
     "stars.apps.institutions.data_displays",
     'stars.apps.registration',
@@ -155,7 +158,6 @@ INSTALLED_APPS = (
     'south',
     's3_folder_storage',
     'tastypie',
-    'terms',
     'gunicorn',
 )
 
