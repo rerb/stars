@@ -32,6 +32,7 @@ django-picklefield==0.3.0
 django-recaptcha==0.0.6
 django-storages==1.1.5
 django-s3-folder-storage==0.1
+django-terms==1.0.4
 dj-database-url==0.2.1
 factory-boy==2.1.2
 gunicorn==0.17.0

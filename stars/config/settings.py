@@ -155,6 +155,7 @@ INSTALLED_APPS = (
     'south',
     's3_folder_storage',
     'tastypie',
+    'terms',
     'gunicorn',
 )
 

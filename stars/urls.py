@@ -55,6 +55,9 @@ urlpatterns = patterns('',
 
     # djcelery
     url('^tasks/', include('djcelery.urls')),
+    
+    # django-terms
+    url(r'^terms/', include('terms.urls')),
 )
 
 if settings.DEBUG:

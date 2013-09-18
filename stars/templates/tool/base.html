@@ -27,6 +27,7 @@
 {% endblock %}
 
 {% block content %}
+	{% include "terms/modal_container.html" %}
     <div class='row'>
         <div class='span3'>
             {% if institution %}
@@ -56,4 +57,8 @@
             {% block tool_content %}{% endblock %}
         </div>
     </div>
+{% endblock %}
+
+{% block extra_footer %}
+	{% include "terms/modal_js.html" %}
 {% endblock %}
