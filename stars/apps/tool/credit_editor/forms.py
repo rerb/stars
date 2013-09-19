@@ -29,7 +29,7 @@ class RightSizeInputModelForm(ModelForm):
     """A ModelForm upon which every TextInput and Textarea widget
     is sized according to its max_length.
 
-    Asks Bootstrap to do the super sizing by adding 'input-xxlarge'
+    Asks Bootstrap to do the right-sizing by adding 'input-{size}'
     to the class attribute of the widgets.
     """
     WIDGETS_TO_RIGHTSIZE = [widgets.TextInput,
