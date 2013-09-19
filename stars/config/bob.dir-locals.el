@@ -17,11 +17,11 @@
   (python-shell-virtualenv-path . "/Users/rerb/.virtualenvs/stars")
   (python-shell-process-environment
    "MEDIA_ROOT=/Users/rerb/src/aashe/app_media/stars/"
-   "STARS_MYSQL_DB_URL=mysql://root@localhost/stars20130416"
-   "ISS_MYSQL_DB_URL=mysql://root@localhost/iss20130416"
+   "STARS_MYSQL_DB_URL=mysql://root@localhost/stars20130816"
+   "ISS_MYSQL_DB_URL=mysql://root@localhost/iss20130816"
    "STARS_SQLITE_DB_URL=sqlite:////Users/rerb/sqlite/stars.db"
    "ISS_SQLITE_DB_URL=sqlite:////Users/rerb/sqlite/iss.db"
-   "STARS_DB_URL=mysql://root@localhost/stars20130416"
-   "ISS_DB_URL=mysql://root@localhost/iss20130416"
+   "STARS_DB_URL=mysql://root@localhost/stars20130816"
+   "ISS_DB_URL=mysql://root@localhost/iss20130816"
    "STARS_TEST_DB=sqlite:////Users/rerb/sqlite/stars.db"
    "ISS_TEST_DB=sqlite:////Users/rerb/sqlite/iss.db")))

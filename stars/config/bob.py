@@ -126,7 +126,7 @@ if DEBUG_TOOLBAR:
 
 TEMPLATE_STRING_IF_INVALID = 'INVALID EXPRESSION: %s'
 
-TEST_RUNNER = 'hotrunner.HotRunner'
+#TEST_RUNNER = 'hotrunner.HotRunner'
 EXCLUDED_TEST_APPS = ['aashe.issdjango',
                       'stars.apps.accounts',
                       'stars.apps.api',
