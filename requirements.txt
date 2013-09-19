@@ -51,6 +51,8 @@ pyPdf==1.13
 pycrypto==2.6
 python-dateutil==1.5
 python-memcached==1.48
+pytz>=2013b  # because pip doesn't like version numbers that end in 'b'; 
+             # see http://goo.gl/beZ4bG
 raven==3.3.7
 readline==6.2.4.1
 reportlab==2.4
