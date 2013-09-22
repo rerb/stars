@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 import factory
 
 
-class UserFactory(factory.DjangoModelFactory):
+class UserFactory(factory.Factory):
     FACTORY_FOR = User
 
     username = factory.Sequence(

@@ -4,7 +4,7 @@ from aashe.aasheauth.models import AASHEUser
 from stars.test_factories.misc_factories import UserFactory
 
 
-class AASHEAccountFactory(factory.DjangoModelFactory):
+class AASHEAccountFactory(factory.Factory):
     FACTORY_FOR = AASHEUser
 
     drupal_id = factory.Sequence(

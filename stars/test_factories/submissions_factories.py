@@ -1,11 +1,8 @@
 import factory
 
-from credits_factories import (ApplicabilityReasonFactory,
-                               CategoryFactory,
-                               CreditFactory,
-                               CreditSetFactory,
-                               DocumentationFieldFactory,
-                               SubcategoryFactory)
+from credits_factories import (ApplicabilityReasonFactory, CategoryFactory,
+                               CreditFactory, CreditSetFactory,
+                               RatingFactory, SubcategoryFactory)
 from institutions_factories import ClimateZoneFactory, InstitutionFactory
 from misc_factories import UserFactory
 from stars.apps.submissions.models import (Boundary,
@@ -13,11 +10,10 @@ from stars.apps.submissions.models import (Boundary,
                                            CreditUserSubmission,
                                            ResponsibleParty,
                                            SubcategorySubmission,
-                                           SubmissionSet,
-                                           TextSubmission)
+                                           SubmissionSet)
 
 
-class ResponsiblePartyFactory(factory.DjangoModelFactory):
+class ResponsiblePartyFactory(factory.Factory):
     FACTORY_FOR = ResponsibleParty
 
     institution = factory.SubFactory(InstitutionFactory)
@@ -29,13 +25,14 @@ class ResponsiblePartyFactory(factory.DjangoModelFactory):
     phone = '1234567890'
 
 
-class SubmissionSetFactory(factory.DjangoModelFactory):
+class SubmissionSetFactory(factory.Factory):
     FACTORY_FOR = SubmissionSet
 
     creditset = factory.SubFactory(CreditSetFactory)
     institution = factory.SubFactory(InstitutionFactory)
     registering_user = factory.SubFactory(UserFactory)
     submitting_user = factory.SubFactory(UserFactory)
+    rating = factory.SubFactory(RatingFactory)
     date_registered = '1970-01-01'
 
     @classmethod
@@ -50,21 +47,21 @@ class SubmissionSetFactory(factory.DjangoModelFactory):
         return submission_set
 
 
-class CategorySubmissionFactory(factory.DjangoModelFactory):
+class CategorySubmissionFactory(factory.Factory):
     FACTORY_FOR = CategorySubmission
 
     submissionset = factory.SubFactory(SubmissionSetFactory)
     category = factory.SubFactory(CategoryFactory)
 
 
-class SubcategorySubmissionFactory(factory.DjangoModelFactory):
+class SubcategorySubmissionFactory(factory.Factory):
     FACTORY_FOR = SubcategorySubmission
 
     category_submission = factory.SubFactory(CategorySubmissionFactory)
     subcategory = factory.SubFactory(SubcategoryFactory)
 
 
-class CreditUserSubmissionFactory(factory.DjangoModelFactory):
+class CreditUserSubmissionFactory(factory.Factory):
     FACTORY_FOR = CreditUserSubmission
 
     credit = factory.SubFactory(CreditFactory)
@@ -74,17 +71,7 @@ class CreditUserSubmissionFactory(factory.DjangoModelFactory):
     responsible_party = factory.SubFactory(ResponsiblePartyFactory)
 
 
-class TextSubmissionFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = TextSubmission
-
-    documentation_field = factory.SubFactory(DocumentationFieldFactory)
-    credit_submission = factory.SubFactory(CreditUserSubmissionFactory)
-
-
-DocumentationFieldSubmissionFactory = TextSubmissionFactory
-
-
-class BoundaryFactory(factory.DjangoModelFactory):
+class BoundaryFactory(factory.Factory):
     FACTORY_FOR = Boundary
 
     submissionset = factory.SubFactory(SubmissionSetFactory)

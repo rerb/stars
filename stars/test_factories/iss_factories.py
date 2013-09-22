@@ -6,7 +6,7 @@ import factory
 from aashe.issdjango.models import Organizations
 
 
-class OrganizationsFactory(factory.DjangoModelFactory):
+class OrganizationsFactory(factory.Factory):
     FACTORY_FOR = Organizations
 
     enabled = True
@@ -16,7 +16,7 @@ class OrganizationsFactory(factory.DjangoModelFactory):
         lambda i: 'test institution {0}.{1}'.format(i, time.time()))
 
 
-class PendingAccountFactory(factory.DjangoModelFactory):
+class PendingAccountFactory(factory.Factory):
     FACTORY_FOR = PendingAccount
 
     institution = factory.SubFactory(InstitutionFactory)
@@ -24,14 +24,14 @@ class PendingAccountFactory(factory.DjangoModelFactory):
         lambda i: 'testuser{0}{1}@example.com'.format(i, time.time()))
 
 
-class StarsAccountFactory(factory.DjangoModelFactory):
+class StarsAccountFactory(factory.Factory):
     FACTORY_FOR = StarsAccount
 
     institution = factory.SubFactory(InstitutionFactory)
     user = factory.SubFactory(UserFactory)
 
 
-class SubscriptionFactory(factory.DjangoModelFactory):
+class SubscriptionFactory(factory.Factory):
     FACTORY_FOR = Subscription
 
     institution = factory.SubFactory(InstitutionFactory)
@@ -40,7 +40,7 @@ class SubscriptionFactory(factory.DjangoModelFactory):
     amount_due = 1000.00
 
 
-class SubscriptionPaymentFactory(factory.DjangoModelFactory):
+class SubscriptionPaymentFactory(factory.Factory):
     FACTORY_FOR = SubscriptionPayment
 
     subscription = factory.SubFactory(SubscriptionFactory)

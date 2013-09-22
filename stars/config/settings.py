@@ -143,6 +143,7 @@ INSTALLED_APPS = (
     'stars.apps.third_parties',
     'stars.apps.api',
     'stars.apps.download_async_task',
+    'stars.test_factories',
     'stars.tests',
 
     'aashe.aasheauth',
