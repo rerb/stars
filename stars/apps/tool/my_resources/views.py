@@ -1,6 +1,6 @@
 from django.views.generic import TemplateView
 
-from stars.apps.cms.models import NewArticle as Article
+from stars.apps.old_cms.models import NewArticle as Article
 from stars.apps.tool.mixins import InstitutionToolMixin
 
 
