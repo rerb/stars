@@ -1,14 +1,37 @@
-<div id="regCarousel" class="span3 carousel slide">
+<div id="ratingCarousel" class="carousel slide" data-interval="1000">
   <!-- Carousel items -->
   <div class="carousel-inner">
     {% for ss in ss_list %}
     <div class="{% if forloop.first %}active{% endif %} item">
+      <ul class="thumbnails">
+        <li class="">
+          <div class="thumbnail">
+            <a href="{{ ss.get_scorecard_url">
+              <!-- <img src="{{ STATIC_URL }}images/{{ ss.rating.image_large }}" />-->
+              <img class="badge" src="http://placehold.it/140x100" />
+            <h4>{{ ss.institution }}</h4>
+            </a>
+            
+          </div>
+        </li>
+      </ul>
+    </div>
+    {% endfor %}
+<!--    <div class="{% if forloop.first %}active{% endif %} item">
+      <ul class="thumbnails slide-text">
+        <li>
+          <a href="{{ ss.get_scorecard_url" class="thumbnail">
+            <img data-src="{{ STATIC_URL }}images/{{ ss.rating.image_large }}" />
+          </a>
+        </li>
+      </ul>
+
       <div class="slide-text">
         <a href='{{ ss.get_scorecard_url }}'>
         <img src="{{ STATIC_URL }}images/{{ ss.rating.image_large }}" width="150px"/><br />
         <strong>{{ ss.institution }}</strong></a>
       </div>
     </div>
-    {% endfor %}
-  </div>
-</div>
+    -->
+  </div><!-- /.carousel-inner -->
+</div><!-- /#regCarousel -->

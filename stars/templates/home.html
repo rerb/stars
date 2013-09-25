@@ -118,19 +118,21 @@
         {% display_twitter_feed %}
         {% endcache %}
 
-                  </div>
-                  <a href="/connect"><button class="btn btn-success" type="button">Social Media Center</button></a>
-                </div>
-
-              </div><!-- end row -->
-
-              <script>
-              $(document).ready(function(){
-                $('.carousel').carousel({
-                  interval: 0
-                });
-                $('#starsModal').modal();
-              });
-              </script>
-
-              {% endblock %}
+      </div>
+      <a href="/connect"><button class="btn btn-success" type="button">Social Media Center</button></a>
+    </div>
+    
+  </div><!-- end row -->
+  
+  <script>
+    $(document).ready(function(){
+      $('#storyCarousel').carousel({
+        interval: 0
+       });
+      $('#ratingCarousel').carousel();
+    /* $('#starsModal').modal(); */
+    });
+  </script>
+  
+  {% endblock %}
+ 
