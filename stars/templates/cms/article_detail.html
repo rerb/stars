@@ -1,7 +1,10 @@
-{% extends 'cms/base.html' %}
+{% extends "cms/base.html" %}
+{% load cms_tags %}
+
+{% load cache %}
 
 {% block center %}
-	{% load cache %}
+
 	{% cache 86400 cms_article article article.timestamp user.is_staff %}
     {% block innertabcontent %}
       <div class='inner'>
@@ -17,4 +20,5 @@
       </div>
     {% endblock %}
     {% endcache %}
+	
 {% endblock %}

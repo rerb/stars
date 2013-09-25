@@ -20,11 +20,13 @@ FIXTURE_DIRS = ('fixtures', os.path.join(PROJECT_PATH, 'apps/api/fixtures'),)
 PROFILE = os.environ.get("PROFILE", False)
 
 TIME_ZONE = 'America/Lima'
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'en'
 SITE_ID = 1
 USE_I18N = True
 USE_L10N = True
 USE_THOUSAND_SEPARATOR = True
+
+
 
 # Database
 import dj_database_url
@@ -57,6 +59,14 @@ TEMPLATE_LOADERS = (
     'django.template.loaders.app_directories.Loader',
 )
 
+LANGUAGES = [
+    ('en', 'English'),
+]
+
+CMS_TEMPLATES = (
+    ('cms/article_detail.html', 'Article Detail'),
+)
+
 MIDDLEWARE_CLASSES = [ # a list so it can be editable during tests (see below)
     'stars.apps.helpers.utils.StripCookieMiddleware',
     'django.middleware.cache.UpdateCacheMiddleware',
@@ -69,7 +79,11 @@ MIDDLEWARE_CLASSES = [ # a list so it can be editable during tests (see below)
     'django.middleware.doc.XViewMiddleware',
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.locale.LocaleMiddleware']
+    # 'cms.middleware.page.CurrentPageMiddleware',
+    # 'cms.middleware.user.CurrentUserMiddleware',
+    # 'cms.middleware.toolbar.ToolbarMiddleware',
+    # 'cms.middleware.language.LanguageCookieMiddleware',
+    ]
 
 import django_cache_url
 CACHES = {'default': django_cache_url.parse(os.environ.get('CACHE_URL',
@@ -104,7 +118,11 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.static',
     'django.core.context_processors.media',
     'django.contrib.messages.context_processors.messages',
-    "django.contrib.auth.context_processors.auth")
+    "django.contrib.auth.context_processors.auth",
+    'django.core.context_processors.request',
+    # 'cms.context_processors.media',
+    # 'sekizai.context_processors.sekizai',
+    )
 
 INSTALLED_APPS = (
     'django.contrib.auth',
@@ -118,11 +136,15 @@ INSTALLED_APPS = (
     'django.contrib.formtools',
     'django.contrib.humanize',
     'django.contrib.staticfiles',
+
+    'terms', # must come before stars.apps.tool, which overrides the admin
+
     'stars.apps.credits',
     'stars.apps.tool.credit_editor',
     'stars.apps.tool.my_submission',
     'stars.apps.tool.staff_tool',
     'stars.apps.tool.manage',
+    'stars.apps.tool',
     'stars.apps.institutions',
     "stars.apps.institutions.data_displays",
     'stars.apps.registration',
@@ -130,7 +152,7 @@ INSTALLED_APPS = (
     'stars.apps.accounts',
     'stars.apps.helpers',
     'stars.apps.helpers.forms', # included here for testing
-    'stars.apps.cms',
+    'stars.apps.old_cms',
     'stars.apps.etl_export',
     'stars.apps.custom_forms',
     'stars.apps.tasks',
@@ -138,7 +160,10 @@ INSTALLED_APPS = (
     'stars.apps.migrations',
     'stars.apps.third_parties',
     'stars.apps.api',
+    'stars.apps.download_async_task',
+    'stars.test_factories',
     'stars.tests',
+
     'aashe.aasheauth',
     'aashe.issdjango',
     'bootstrapform',
@@ -153,6 +178,20 @@ INSTALLED_APPS = (
     's3_folder_storage',
     'tastypie',
     'gunicorn',
+    # 'cms',
+    # 'cms.plugins.file',
+    # 'cms.plugins.flash',
+    # 'cms.plugins.googlemap',
+    # 'cms.plugins.link',
+    # 'cms.plugins.picture',
+    # 'cms.plugins.snippet',
+    # 'cms.plugins.teaser',
+    # 'cms.plugins.text',
+    # 'cms.plugins.video',
+    # 'cms.plugins.twitter',
+    # 'mptt',
+    # 'menus',
+    # 'sekizai'
 )
 
 # auth config
@@ -229,6 +268,9 @@ SOUTH_TESTS_MIGRATE = False
 RAVEN_CONFIG = {
     'dsn': os.environ.get('RAVEN_CONFIG_DSN', None),
 }
+
+# django-terms
+TERMS_REPLACE_FIRST_ONLY = False
 
 LOGGING = {
     'version': 1,
@@ -344,6 +386,12 @@ LOGGING = {
         }
     }
 }
+
+# Twitter settings
+OAUTH_TOKEN = '1022657755-JZf8ELufzotuIQLRcFud5Yma8AdLQoNIpfgIGAe'
+OAUTH_SECRET = 'KYa5e5KmSvueKKAaayKYWw7RNBBGz7EDcQxTEs5ggOw'
+CONSUMER_KEY = 'yUIhK70Fd4YGwBccC0QIfg'
+CONSUMER_SECRET = 'XDgsAa6AXoGM7TETZyijPRZtvqausyvTA4Gulg'
 
 if sys.version >= '2.7':
     logging.captureWarnings(True)

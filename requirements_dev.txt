@@ -1,3 +1,6 @@
 django-template-repl
 django-hotrunner
+elpy
 ipdb
+pyflakes
+rope

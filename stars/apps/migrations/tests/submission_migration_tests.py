@@ -10,12 +10,15 @@
 from datetime import datetime, timedelta
 
 from django.core import mail
+from django.test import TestCase
 
+from stars.apps.migrations import utils
 from stars.apps.submissions.models import SubmissionSet
 from stars.apps.tests.live_server import StarsLiveServerTest
 from stars.test_factories import (CreditSetFactory,
                                   EmailTemplateFactory,
                                   SubmissionSetFactory)
+
 
 def go_to_migration_options_page(test, webdriver):
     test.go_to_reporting_tool()
@@ -23,16 +26,46 @@ def go_to_migration_options_page(test, webdriver):
     migrate_tab.click()
 
 
-class VersionMigrationTest(StarsLiveServerTest):
+def make_two_creditsets():
+    return (CreditSetFactory(release_date='1970-01-01'),
+            CreditSetFactory(release_date='1971-10-07'))
+
+
+class VersionMigrationTest(TestCase):
 
     def setUp(self):
         super(VersionMigrationTest, self).setUp()
-        first_credit_set = CreditSetFactory()
-        second_credit_set = CreditSetFactory(
-             release_date = (first_credit_set.release_date +
-                             timedelta(days=1)))
+        self.first_creditset, self.second_creditset = make_two_creditsets()
+        self._submissionset = None
+
+    @property
+    def submissionset(self):
+        if not self._submissionset:
+            self._submissionset = SubmissionSetFactory(
+                creditset=self.first_creditset)
+        return self._submissionset
+
+    def test_migrate_submission_sets_migrated_from(self):
+        """Does migrate_submission() set SubmissionSet.migrated_from?"""
+
+        new_submissionset = SubmissionSetFactory(
+            institution=self.submissionset.institution,
+            creditset=self.second_creditset)
+
+        _ = utils.migrate_submission(old_ss=self.submissionset,
+                                     new_ss=new_submissionset)
+
+        self.assertEqual(new_submissionset.migrated_from,
+                         self.submissionset)
+
+
+class VersionMigrationLiveServerTest(StarsLiveServerTest):
+
+    def setUp(self):
+        super(VersionMigrationLiveServerTest, self).setUp()
+        first_creditset, _ = make_two_creditsets()
         _ = SubmissionSetFactory(institution=self.institution,
-                                 creditset=first_credit_set)
+                                 creditset=first_creditset)
         _ = EmailTemplateFactory(slug='migration_success')
         go_to_migration_options_page(self, self.selenium)
 
@@ -63,12 +96,12 @@ class VersionMigrationTest(StarsLiveServerTest):
         self.assertEqual(len(mail_messages_that_are_not_errors), 1)
 
 
-class DataMigrationTest(StarsLiveServerTest):
+class DataMigrationLiveServerTest(StarsLiveServerTest):
 
     def setUp(self):
-        super(DataMigrationTest, self).setUp()
-        credit_set = CreditSetFactory()
-        _ = SubmissionSetFactory(creditset=credit_set,
+        super(DataMigrationLiveServerTest, self).setUp()
+        creditset = CreditSetFactory()
+        _ = SubmissionSetFactory(creditset=creditset,
                                  institution=self.institution,
                                  date_registered=datetime.now(),
                                  registering_user=self.user,
@@ -87,11 +120,10 @@ class DataMigrationTest(StarsLiveServerTest):
             'a.btn.btn-mini')
         migrate_button.click()
 
-        confirmation_checkbox = self.selenium.find_element_by_id(
-            'id_is_locked')
+        confirmation_checkbox = self.patiently_find('id_is_locked')
         confirmation_checkbox.click()
-        migrate_my_data_button = self.selenium.find_element_by_id(
-            'migrate-my-data-button')
+
+        migrate_my_data_button = self.patiently_find('migrate-my-data-button')
         migrate_my_data_button.click()
 
         migration_in_progress_message = 'migration is in progress'

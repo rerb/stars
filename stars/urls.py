@@ -11,6 +11,8 @@ logical_rules.autodiscover()
 from stars.apps.helpers.old_path_preserver import (OldPathPreserverView,
                                                    OLD_PATHS_TO_PRESERVE)
 
+from stars.apps.old_cms.views import (HomePageView)
+
 handler403 = 'stars.apps.helpers.views.permission_denied'
 handler500 = 'stars.apps.helpers.views.server_error'
 
@@ -26,10 +28,10 @@ urlpatterns = patterns('',
     (r'^api/', include('stars.apps.submissions.urls')),
     # tool:
     #(r'^$', 'stars.apps.tool.views.stars_home_page'),
-    (r'^$', 'django.views.generic.simple.direct_to_template', {'template': 'home.html'}),
+    (r'^$', HomePageView.as_view(), {'template_name': 'home.html'}),
 
     # articles (cms):
-    (r'^pages/', include('stars.apps.cms.urls')),
+    (r'^pages/', include('stars.apps.old_cms.urls')),
 
     # tool
     (r'^tool/', include('stars.apps.tool.urls')),
@@ -53,8 +55,13 @@ urlpatterns = patterns('',
     # custom forms
     (r'^cfm/', include('stars.apps.custom_forms.urls')),
 
+    # url(r'^new-pages/', include('cms.urls')),
+
     # djcelery
     url('^tasks/', include('djcelery.urls')),
+    
+    # django-terms
+    url(r'^terms/', include('terms.urls')),
 )
 
 if settings.DEBUG:

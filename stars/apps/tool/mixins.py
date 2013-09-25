@@ -8,7 +8,7 @@ from stars.apps.submissions.views import SubmissionStructureMixin
 
 class ToolMixin(RulesMixin, StarsAccountMixin):
 
-    def get_success_url(self, institution_slug=None):
+    def get_success_url(self, institution_slug=None, **kwargs):
         """
             Forms redirect to the named url specified as
             success_url_name, the url specified as success_url,

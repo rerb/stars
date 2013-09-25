@@ -1,20 +1,22 @@
 from accounts_factories import UserProfileFactory
 
-from submissions_factories import (BoundaryFactory, CategorySubmissionFactory,
-                                   CreditUserSubmissionFactory,
-                                   ResponsiblePartyFactory,
-                                   SubmissionSetFactory,
-                                   SubcategorySubmissionFactory)
+from auth_factories import AASHEAccountFactory
 
-from credits_factories import (ApplicabilityReasonFactory, CategoryFactory,
-                               CreditFactory, CreditSetFactory,
-                               IncrementalFeatureFactory, RatingFactory,
+from credits_factories import (ApplicabilityReasonFactory,
+                               CategoryFactory,
+                               CreditFactory,
+                               CreditSetFactory,
+                               RatingFactory,
                                SubcategoryFactory)
 
-from institutions_factories import (ClimateZoneFactory, InstitutionFactory,
-                                    PendingAccountFactory, StarsAccountFactory,
+from institutions_factories import (ClimateZoneFactory,
+                                    InstitutionFactory,
+                                    PendingAccountFactory,
+                                    StarsAccountFactory,
                                     SubscriptionFactory,
                                     SubscriptionPaymentFactory)
+
+from misc_factories import UserFactory
 
 from notifications_factories import EmailTemplateFactory, CopyEmailFactory
 
@@ -22,11 +24,16 @@ from organizations_factories import OrganizationFactory
 
 from registration_factories import ValueDiscountFactory
 
-from misc_factories import UserFactory
+from submissions_factories import (BoundaryFactory, 
+                                   CategorySubmissionFactory,
+                                   CreditUserSubmissionFactory,
+                                   ResponsiblePartyFactory,
+                                   SubmissionSetFactory,
+                                   SubcategorySubmissionFactory)
 
-from auth_factories import AASHEAccountFactory
 
 __all__ = [ApplicabilityReasonFactory,
+           AASHEAccountFactory,
            BoundaryFactory,
            CategoryFactory,
            CategorySubmissionFactory,
@@ -36,7 +43,6 @@ __all__ = [ApplicabilityReasonFactory,
            CreditSetFactory,
            CreditUserSubmissionFactory,
            EmailTemplateFactory,
-           IncrementalFeatureFactory,
            InstitutionFactory,
            OrganizationFactory,
            PendingAccountFactory,

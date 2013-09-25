@@ -71,7 +71,9 @@
     </table>
      {% endblock %}
     <form action='.' method='POST' enctype="multipart/form-data">
-        {% include "tool/submissions/submission_fields_form.html" %}
+    	{% with 1 as show_identifier %}
+        	{% include "tool/submissions/submission_fields_form.html" %}
+        {% endwith %}
         <hr>
         {% with submission_form.expected_value as field %}
           {% include "tool/form_field.html" %}

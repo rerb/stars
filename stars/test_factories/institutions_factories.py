@@ -13,7 +13,7 @@ class ClimateZoneFactory(factory.Factory):
     FACTORY_FOR = ClimateZone
 
 
-class InstitutionFactory(factory.Factory):
+class InstitutionFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Institution
 
     enabled = True

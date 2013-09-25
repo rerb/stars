@@ -1,4 +1,5 @@
 from django.conf.urls.defaults import patterns, url
+from django.views.decorators.cache import never_cache
 
 from .views import (AccountCreateView, AccountDeleteView,
                     AccountEditView, AccountListView, ContactView,
@@ -8,7 +9,9 @@ from .views import (AccountCreateView, AccountDeleteView,
                     ResponsiblePartyDeleteView, ResponsiblePartyEditView,
                     ResponsiblePartyListView, ShareDataView,
                     SubscriptionCreateWizard, SubscriptionPaymentCreateView,
-                    ShareThirdPartiesView)
+                    ShareThirdPartiesView, SnapshotCSVExportView,
+                    SnapshotCSVDownloadView, SnapshotPDFExportView,
+                    SnapshotPDFDownloadView)
 
 urlpatterns = patterns(
     'stars.apps.tool.manage.views',
@@ -55,6 +58,24 @@ urlpatterns = patterns(
     # Share Data views:
     url(r'^share-data/$', ShareDataView.as_view(),
         name='share-data'),
+
+    url(r'^share-data/(?P<submissionset>[^/]+)/csv/$',
+        never_cache(SnapshotCSVExportView.as_view()),
+        name='snapshot-export-csv'),
+    url(r'^share-data/(?P<submissionset>[^/]+)/csv/download/(?P<task>[^/]+)/$',
+        never_cache(SnapshotCSVDownloadView.as_view()),
+        name='snapshot-download-csv'),
+
+    url(r'^share-data/(?P<submissionset>[^/]+)/pdf/$',
+        never_cache(SnapshotPDFExportView.as_view()),
+        name='snapshot-export-pdf'),
+    url(r'^share-data/(?P<submissionset>[^/]+)/pdf/download/(?P<task>[^/]+)/$',
+        never_cache(SnapshotPDFDownloadView.as_view()),
+        name='snapshot-download-pdf'),
+
+#     url(r'^share-data/(?P<submissionset>[^/]+)/pdf/$',
+#         never_cache(SnapshotPDFExportView.as_view()),
+#         name='snapshot-export-pdf'),
 
     url(r'^share-data/third-parties/$', ShareThirdPartiesView.as_view(),
         name='share-third-parties'),

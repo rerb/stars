@@ -14,44 +14,28 @@ class CreditSetFactory(factory.Factory):
     release_date = datetime.date(1970, 1, 1)
     tier_2_points = 1
 
+    _highest_version = 0
+
     @classmethod
     def _prepare(cls, create, **kwargs):
         """
             Assigns a (hopefully) unique version if no version is provided.
         """
-        if ('version' not in kwargs and
-            CreditSet.objects.count()):
-            highest_version = CreditSet.objects.all().order_by('-id')[0].id
-            kwargs['version'] = int(highest_version) + 1
+        if 'version' not in kwargs:
+            if CreditSet.objects.count():
+                CreditSetFactory._highest_version = (
+                    CreditSet.objects.all().order_by('-id')[0].id)
+            else:
+                CreditSetFactory._highest_version += 1
+            kwargs['version'] = CreditSetFactory._highest_version
         credit_set = super(CreditSetFactory, cls)._prepare(create, **kwargs)
         return credit_set
-
-    @factory.post_generation(extract_prefix='supported_features')
-    def add_supported_features(self, create, extracted, **kwargs):
-        # allow something like CreditSetFactory(
-        #     supported_features=IncrementalFeature.objects.filter(...))
-        if extracted:
-            self.supported_features = extracted
 
 
 class CategoryFactory(factory.Factory):
     FACTORY_FOR = Category
 
     creditset = factory.SubFactory(CreditSetFactory)
-
-
-class IncrementalFeatureFactory(factory.Factory):
-    FACTORY_FOR = IncrementalFeature
-
-    key = factory.Sequence(
-        lambda i: 'factory-made-incr-feature-{0}-{1}'.format(i, time.time()))
-
-
-class RatingFactory(factory.Factory):
-    FACTORY_FOR = Rating
-
-    creditset = factory.SubFactory(CreditSetFactory)
-    minimal_score = 1
 
 
 class SubcategoryFactory(factory.Factory):
@@ -72,3 +56,12 @@ class ApplicabilityReasonFactory(factory.Factory):
 
     credit = factory.SubFactory(CreditFactory)
     ordinal = factory.Sequence(lambda i: i)
+
+
+class RatingFactory(factory.Factory):
+    FACTORY_FOR = Rating
+
+    creditset = factory.SubFactory(CreditSetFactory)
+    minimal_score = 1
+
+
