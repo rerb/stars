@@ -132,11 +132,10 @@ class SubscriptionPurchaseWizard(SessionWizardView):
             try:
                 self._automatic_discount = get_automatic_discount(
                     {'institution': self.get_institution(),
-                     'subscription': Subscription})
+                     'Subscription': Subscription})
             except NoActiveAutomaticDiscountError:
                 self._automatic_discount = None
         return self._automatic_discount
-
 
     def _get_context_data_price(self, form, **kwargs):
         context = {}
@@ -196,6 +195,14 @@ class SubscriptionPurchaseWizard(SessionWizardView):
     #                                                                 #
     # If an automatic discount should be applied, the template hides  #
     # the promo code widgets, and applies the discount code.          #
+    #                                                                 #
+    # Here's an example applicability filter that is true only        #
+    # for those institutions that do not qualify for the              #
+    # early renewal discount:                                         #
+    #                                                                 #
+    #   not globals()['Subscription'].create(                         #
+    #       institution=globals(                                      #
+    #       )['institution']).qualifies_for_early_renewal_discount()  #
     ###################################################################
     
     def _get_context_data_payment_options(self, form, **kwargs):
