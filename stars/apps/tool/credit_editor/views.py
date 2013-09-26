@@ -417,13 +417,13 @@ class CreditReportingFields(CreditEditorFormView):
                 for cell in [cell for cell in row if cell != '']:
                     df_excludes.append(int(cell))
 
-        credit_list = credit.documentationfield_set.exclude(id__in=df_excludes)
+        df_list = credit.documentationfield_set.exclude(id__in=df_excludes)
 
         form_list.update({'object_ordering': self.generate_form_set(
             request,
             DocumentationField,
             DocumentationFieldOrderingForm,
-            credit_list)})
+            df_list)})
 
         # Add a new category form to the context
         _context['new_field_form'] = NewDocumentationFieldForm(
