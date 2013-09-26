@@ -93,7 +93,6 @@ class RegistrationWizard(StarsAccountMixin, SubscriptionPurchaseWizard):
         # If the amount due is $0.00, we skip the payment steps.
         # Since amount_due_is_more_than_zero() checks the request.session
         # for the amount due, we'll clear it if it's already set.
-        # It'll be set in _process_step_price() below.
         if self.steps.current == str(self.SELECT):
             try:
                 del(self.request.session['amount_due'])

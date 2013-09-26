@@ -3,11 +3,11 @@ import uuid
 
 import factory
 
-from stars.apps.registration.models import ValueDiscount
+import stars.apps.registration.models
 
 
 class ValueDiscountFactory(factory.Factory):
-    FACTORY_FOR = ValueDiscount
+    FACTORY_FOR = stars.apps.registration.models.ValueDiscount
 
     code = factory.LazyAttribute(lambda *args: str(uuid.uuid1())[:16])
 

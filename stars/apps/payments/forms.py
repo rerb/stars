@@ -109,7 +109,7 @@ class PaymentForm(forms.Form):
     def is_numeric(self, data):
         """ Helper function to indicate if data is numeric. """
         try:
-            __ = int(data)
+            int(data)
         except:
             return False
         return True
@@ -148,19 +148,19 @@ class SubscriptionPriceForm(forms.Form):
         promo code.
     """
     promo_code = forms.CharField(
-        max_length=16, required=False,
-        widget=forms.TextInput(attrs={'class': 'promo_code'}))
-
+        max_length=16, 
+        required=False,
+        widget=forms.TextInput(
+            attrs={'class': 'promo_code'}))
+    
     def clean_promo_code(self):
         data = self.cleaned_data['promo_code']
         if data == "":
             return None
-
         try:
-            _ = get_current_discount(code=data)
+            get_current_discount(code=data)
         except (InvalidDiscountCodeError, ExpiredDiscountCodeError) as ex:
             raise forms.ValidationError(ex.message)
-
         return data
 
 
@@ -223,7 +223,7 @@ class SubscriptionPayNowForm(forms.Form):
     def is_numeric(self, data):
         """ Helper function to indicate if data is numeric. """
         try:
-            _ = int(data)
+            int(data)
         except:
             return False
         return True

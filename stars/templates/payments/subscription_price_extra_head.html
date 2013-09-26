@@ -95,14 +95,8 @@
                 amount_subtracted = amount_subtracted.toFixed(2);
                 $("#id_promo_code_amount").text(
                     "-" + decimalToDollarString(amount_subtracted));
-                var discount_description = ("Promo code " +
-                                            $(".promo_code").val());
-                if (parseFloat(data.discount_percentage) > 0.0) {
-                    discount_description += (", " +
-                                             data.discount_percentage +
-                                             "% off");
-                }
-                $("#id_promo_code_description").text(discount_description);
+                $("#id_promo_code_description").text(
+                    data.discount_description);
 
                 // show it:
                 $("#id_promo_code_row").show()
@@ -128,5 +122,24 @@
             }
         });
     }
+    function hidePromoCodeWidgets() {
+        promo_code = getPromoCode();
+        control_group_div = promo_code.closest("div .control-group");
+        control_group_div.hide("fast");
+        apply_promo_code_button = $("#apply-promo-code-button");
+        controls_div = apply_promo_code_button.closest("div .controls");
+        controls_div.hide("fast");
+    }
+    function getAutomaticDiscountCode() {
+        return $("#automatic-discount-code");
+    }
+    $(document).ready(function applyAutomaticDiscount() {
+        // If there's an automatic discount in effect, apply it.  
+        if (Boolean(getAutomaticDiscountCode().val())) {
+            hidePromoCodeWidgets();
+            getPromoCode().val(getAutomaticDiscountCode().val());
+            applyPromoCode();
+        }
+    });
   </script>
 {% endblock %}

@@ -1,17 +1,20 @@
 <ul class="nav main-menu">
-    <li {% if selected == "about" %}class='active'{% endif %}>
-        <a href='/pages/about/'>About</a>
-    </li>
-    <li {% if selected == "get-involved" %}class='active'{% endif %}>
-        <a href='/pages/get-involved/'>Get Involved</a>
-        </li>
-    <li {% if selected == "mm_institutions" %}class='active'{% endif %}>
-        <a href='/institutions/data-displays/dashboard/'>STARS Institutions</a>
-        </li>
-    <li {% if selected == "news-events" %}class='active'{% endif %}>
-        <a href='/pages/news-events/'>News &amp; Events</a>
-    </li>
-    <li {% if selected == "mm_tool" %}class='active'{% endif %}>
-        <a href='{% url tool-landing-page %}'>Reporting</a>
-    </li>
+  <li>
+    <a href="/pages/register/register-stars.html" style="background-color: none;"><button class="btn btn-success" type="button">Register</button></a>
+  <li>
+  {% for cat in categories %}
+  <li class='dropdown{% if selected == cat.title %}active{% endif %}'>
+    <a data-toggle="dropdown" class="dropdown-toggle" href="#">{{ cat.title }}<b class="caret"></b></a>
+    <ul class="dropdown-menu">
+      {% for a in cat.get_articles %}
+      <li {% if article and a == article %}class="active"{% endif %}>
+        <a href='{{ a.get_absolute_url }}'>
+          {{ a.title }}
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </li>
+  {% endfor %}
 </ul>
+

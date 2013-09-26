@@ -32,8 +32,8 @@ from submissions_factories import (BoundaryFactory,
                                    SubcategorySubmissionFactory)
 
 
-__all__ = [ApplicabilityReasonFactory,
-           AASHEAccountFactory,
+__all__ = [AASHEAccountFactory,
+           ApplicabilityReasonFactory,
            BoundaryFactory,
            CategoryFactory,
            CategorySubmissionFactory,
