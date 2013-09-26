@@ -1,5 +1,5 @@
 """
-Personal config file for development in Jesse's local environment.
+    Personal config file for development in Jesse's local environment.
 """
 
 from settings import *
@@ -20,15 +20,15 @@ DATABASES = {
         'USER': 'root',
         'PASSWORD': '',
         'HOST': 'localhost',
-        },
+    },
     'iss': {
         'NAME': 'iss',
         'ENGINE': 'django.db.backends.mysql',
         'USER': 'root',
         'PASSWORD': '',
         'HOST': 'localhost',
-        }
     }
+}
 
 INSTALLED_APPS = INSTALLED_APPS + ('aashe.issdjango',)
 DATABASE_ROUTERS = ('aashe.issdjango.router.ISSRouter',)

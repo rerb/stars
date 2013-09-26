@@ -1,197 +1,145 @@
 from __future__ import with_statement
 from fabric.api import *
-from fabric.contrib.console import confirm
-from fabric.decorators import runs_once
-from fabric.utils import abort
 from fabric.contrib.files import exists
-from fabric.contrib import project, files
+from fabric.colors import red, green
+from contextlib import contextmanager as _contextmanager
 
-from datetime import datetime
-
-from mercurial import ui, hg
-from mercurial import commands
 
 env.project_name = 'stars'
 env.project_root = "/var/www/%s/" % env.project_name
 env.path = "%ssrc/" % env.project_root
-env.repo = "ssh://hg@bitbucket.org/aashe/stars"
+env.repos = "ssh://hg@bitbucket.org/aashe/stars"
+env.upstart_service_name = 'stars'
+env.current_symlink_name = 'current'
+env.previous_symlink_name = 'previous'
+env.virtualenv_name = 'env'
 
-def vagrant():
-    """
-        Initializes a release to the vagrant VM host
-    """
-    env.hosts = ['ben-aashe-web1']
-    env.user = 'vagrant'
-    env.key_filename = '/Library/Ruby/Gems/1.8/gems/vagrant-0.7.3/keys/vagrant'
-    env.config_file = "vagrant"
-    env.repo = "https://%s:%s@bitbucket.org/ben_aashe/stars"
-    user = prompt("Bitbucket user name:")
-    passwd = prompt("Bitbucket password:")
-    env.repo = env.repo % (user, passwd)
-    
-def starsapp01():
-    """
-        Initializes a release to the production server
-    """
-    env.hosts = ['starsapp01']
-    env.user = 'jamstooks'
-    env.config_file = "starsapp01"
-    
-def devenv():
-    """
-        Initializes a release to a dev environment
-        typically a temporary rackspace node
-    """
-    host = prompt("Dev host:")
-    env.hosts = [host]
-    env.user = 'jamstooks'
-    env.config_file = 'development'
-    
-def setup():
-    """
-        Initialize the app's environment.
-        Chef handles the server config.
-    """
-    sudo("mkdir -p %s" % env.path)
-    sudo('mkdir -p %smedia/' % env.project_root)
-    sudo('mkdir -p %slogs/' % env.project_root)
-    sudo("ln -s %scurrent/stars/static %smedia/static" % (env.path, env.project_root))
+@_contextmanager
+def virtualenv():
+    '''
+    Custom fabric contextmanager that lets you run fabric
+    commands (via sudo(), run(), etc.) with a virtualenv
+    activated. Uses the `activate` fabric env attribute
+    as the virtualenv activation command.
+
+    Usage:
+    with(virtualenv()):
+    run("python manage.py syncdb")
+    '''
+    with cd(env.path):
+        with prefix(env.activate):
+            yield
+
+def dev():
+    '''
+    Configure the fabric environment for the dev server(s)
+    '''
+    env.user = 'releaser'
+    env.hosts = ['stars-facelift.dev.aashe.org']
+    env.path = '/var/www/django_projects/stars-facelift'
+    env.django_settings = 'commons.settings.dev'
+    env.activate = 'source %s/%s/bin/activate' % (env.path, env.virtualenv_name)
+    env.upstart_service_name = 'stars-facelift'
+    env.requirements_txt = 'requirements.txt'
 
 def deploy():
-    """
-        Deploy code to server, buildout environment and launch
-    """
-    pull()
-    config()
-    stop_celery()
-    
-    with cd(env.project_path):
-        buildout()
-        test()
-        migrate()
-        
-    launch()
-    start_celery()
+    '''
+    Generic deploy function to deploy a release to the configured
+    server. Servers are configured via other functions (like dev).
 
-def pull():
-    """
-      Pulls code from repo into new folder
-    """
+    For example, to deploy to the dev server, use the fabric command:
 
-    branch_name = prompt("Branch or Tag Name (blank for HEAD): ")
-  
-    if not branch_name:
-      branch_name = "default"
-    env.project_path = "%s%s/" % (env.path, branch_name)
-    env.hg_update_commands = [
-                              "hg update %s" % branch_name,
-                              "echo \"revision = '%s'\" > stars/config/hg_info.py" % branch_name,
-                              ]
-    env.checkout_cmd = 'hg clone --noninteractive %s %s' % (env.repo, env.project_path)
-
-    export = None
-    if exists(env.project_path):
-      while export not in ['y', 'n', 'q', '']:
-          export = prompt("The code has already been exported. Overwrite? ([y]/n/q):")
-      
-          if export == 'y' or export == '':
-              with cd(env.project_path):
-                  sudo('hg pull %s' % env.repo)
-                  for cmd in env.hg_update_commands:
-                      sudo(cmd)
-          elif export == 'n':
-              pass
-          elif export == 'q':
-              abort('User terminated session.')
+    $ fab dev deploy
+    ''' 
+    env.branch_name = prompt("Revision, branch or tag name (blank for default): ")
+    if not env.branch_name:
+        env.branch_name = 'default'
+    env.changeset_id = local('hg id -r %s -i' % env.branch_name, capture=True)
+    export()
+    requirements()
+    if not test():
+        print(red("[ ERROR: Deployment failed to pass test() on remote. Exiting. ]"))
     else:
-      sudo(env.checkout_cmd)
+        print(green("[ PASS: Deployment passed test() on remote. Continuing... ]"))
+    config()
+    restart()
+    
+def export():
+    '''
+    Export the designated revision, branch or tag and then upload
+    and extract the tarfile to the server. Create a code archive
+    locally instead of a server-side checkout of the repository.
+    '''
+    export_path = '%s_%s' % (env.branch_name,
+                             env.changeset_id)
+    tarfile = '%s.tar.gz' % export_path
+    local('hg archive -r %(branch)s -t tgz %(tarfile)s' %
+          {'branch': env.branch_name, 'tarfile': tarfile})
+    put(tarfile, env.path)
+    local("rm %s" % tarfile)
+    with cd(env.path):
+        # extract tarfile to export path
+        run('tar xvzf %s' % tarfile)
+        run('rm -rf %s' % tarfile)
+        env.release_path = '%s/%s' % (env.path, export_path)
 
-      with cd(env.project_path):
-          for cmd in env.hg_update_commands:
-              sudo(cmd)
+def requirements():
+    '''
+    Refresh or create the remote virtualenv site-packages using
+    the project's requirements.txt file.
+    '''
+    with virtualenv():
+        print("Updating virtualenv via requirements...")
+        if not hasattr(env, 'release_path'):
+            env.release_path = '%s/current' % env.path
+        run('pip install -r %s/%s' % (env.release_path, env.requirements_txt))
+
+def test(): 
+    '''
+    Test our installation in a few ways.
+    '''
+    with virtualenv():
+        with cd(env.release_path):
+            result = run('python manage.py validate --settings=%s' % env.django_settings)
+    return result.succeeded
+
+def update_symlinks():
+    with cd(env.path):
+        if exists('%s' % env.previous_symlink_name):
+            previous_path = run('readlink %s' % env.previous_symlink_name)
+            run('rm %s' % env.previous_symlink_name)
+            run('rm -rf %s' % previous_path)
+        if exists('%s' % env.current_symlink_name):
+            # get the real directory pointed to by current
+            current_path = run('readlink %s' % env.current_symlink_name)
+            # make current the new previous
+            run('ln -s %s %s' % (current_path, env.previous_symlink_name))
+            run('rm %s' % env.current_symlink_name)
+        # update "current" symbolic link to new code path            
+        run('ln -s %s %s' % (env.release_path, env.current_symlink_name))
 
 def config():
-    "symlink the local config file"
-    
-    config_file_path = "%sstars/config/%s.py" % (env.project_path, env.config_file)
-    config_local_path = "%sstars/config/local.py" % (env.project_path)
-    
-    rm_cmd = "rm %s" % config_local_path
-    ln_cmd = "ln -s %s %s" % (config_file_path, config_local_path)
-    
-    if exists(config_local_path):
-        sudo(rm_cmd)
-    sudo(ln_cmd)
+    '''
+    Configure the exported and uploaded code archive.
+    '''
+    update_symlinks()
+    # enter new code location, activate virtualenv and collectstatic    
+    with virtualenv():
+        with cd(env.release_path):
+            run('python manage.py collectstatic --settings=%s --noinput' %
+                env.django_settings)
 
-def buildout():
-    " runs buildout "
-    
-    bootstrap = prompt("Run Buildout? ([y]/n):")
-    
-    if not bootstrap or bootstrap == 'y':
-        print "Bootstrapping"
-        bootstrap_cmd = "python bootstrap.py"
-        sudo(bootstrap_cmd)
+def restart():
+    '''
+    Reboot uwsgi server.
+    '''
+    sudo("service %s restart" % env.uwsgi_service_name)
 
-        print "Running Buildout"
-        buildout_cmd = "bin/buildout"
-        sudo(buildout_cmd)
-        
-@runs_once   
-def test():
-    "Run tests"
-    
-    test = prompt("Run Tests? ([y]/n):")
-    
-    if not test or test == 'y':
-        print "Running Test Suite"
-        test_cmd = "bin/django test"
-        with settings(warn_only=True):
-            result = sudo(test_cmd)
-            if result.failed:
-                abort("Test suite FAILED. Aborting.")
-
-def migrate():
-    "Run syncdb and South migrations"
-    
-    print "Migrate DB"
-    migrate_cmd = "bin/django migrate --delete-ghost-migrations"
-    sudo(migrate_cmd)
-    
-    # Apps should just use South migrations, but some
-    # third party apps may not, so I syncdb second
-    print "Sync DB"
-    syncdb_cmd = "bin/django syncdb"
-    sudo(syncdb_cmd)
-    
-def launch():
-    "Finalize the deployment by creating a symlink"
-    with cd(env.path):
-        print "Updating Symlink"
-        symlink_cmd1 = "rm -rf current"
-        symlink_cmd2 = "ln -s %s current" % env.project_path
-        if exists("current"):
-            sudo(symlink_cmd1)
-        sudo(symlink_cmd2)
-    
-    print "Restarting Apache"
-    restart_cmd = "apache2ctl graceful"
-    sudo(restart_cmd)
-    
-def stop_celery():
-    " Stop the celery upstart service "
-    print "Stopping Celery"
-    sudo('stop stars-celery')
-    
-def start_celery():
-    " Start the celery upstart service "
-    print "Restarting Celery"
-    sudo('start stars-celery')
-
-def run_chef():
-    """
-    Run Chef-solo on the remote server
-    """
-    project.rsync_project(local_dir='chef', remote_dir='/tmp', delete=True)
-    sudo('rsync -ar --delete /tmp/chef/ /etc/chef/')
-    # sudo('chef-solo')
+def syncdb():
+    '''
+    Run "manage.py syncdb".
+    '''
+    with virtualenv():
+        with cd("%s/current" % env.path):
+            run('python manage.py syncdb --noinput --settings=%s' %
+                env.django_settings)
