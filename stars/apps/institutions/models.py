@@ -559,7 +559,7 @@ class Subscription(models.Model):
             member_discount = 0
 
         gets_early_renewal_discount = (
-            self._qualifies_for_early_renewal_discount())
+            self.qualifies_for_early_renewal_discount())
 
         if gets_early_renewal_discount:
             pre_discount_price = running_total
@@ -770,7 +770,7 @@ class Subscription(models.Model):
                          'payment': subscription_payment}
         self._send_email(slug=slug, mail_to=mail_to, context=email_context)
 
-    def _qualifies_for_early_renewal_discount(self):
+    def qualifies_for_early_renewal_discount(self):
         """
             Returns True if this subscription's institution should get
             a discount for renewing early-ish.

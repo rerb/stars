@@ -1,6 +1,16 @@
 {% load bootstrap %}
 
 {% block subscription_price_form %}
+
+  {% if automatic_discount_code %}
+    <form>
+      <input id="automatic-discount-code"
+             type="hidden" 
+             value="{{ automatic_discount_code }}">
+    </form>
+  {% endif %}
+
+
   {% if not institution_is_member %}
     <div id="please-come-back-modal" class="modal hide fade">
       <div class="modal-header">
@@ -103,33 +113,34 @@
       </tbody>
     </table>
 
-    {{ wizard.form.promo_code|bootstrap }}
+    <div id="promo-code-input-widgets">
+      {{ wizard.form.promo_code|bootstrap }}
 
-    <div class="controls">
-      <button id="apply-promo-code-button" type="button" class="btn"
-              onclick="applyPromoCode();">
-        Apply Promo Code
-      </button>
-    </div>
-
-    <div class='form-actions'>
-      {% if wizard.steps.next %}
-        <button type='submit' class='btn btn-primary pull-right'
-                onclick='clearErrors(); this.form.submit();'>
-	  Next <i class='icon-step-forward icon-white'></i>
+      <div class="controls">
+        <button id="apply-promo-code-button" type="button" class="btn"
+                onclick="applyPromoCode();">
+          Apply Promo Code
         </button>
-      {% else %}
-	<button type='submit' class='btn btn-success pull-right'>
-          Purchase Subscription
-        </button>
-      {% endif %}
-      {% if wizard.steps.prev %}
-	<button name="wizard_goto_step" type="submit"
-		class='btn pull-right' value="{{ wizard.steps.prev }}"
-		style='margin-right: 10px;'>
-	  <i class='icon-step-backward'></i> Previous
-        </button>
-      {% endif %}
+      </div>
+      <div class='form-actions'>
+        {% if wizard.steps.next %}
+          <button type='submit' class='btn btn-primary pull-right'
+                  onclick='clearErrors(); this.form.submit();'>
+            Next <i class='icon-step-forward icon-white'></i>
+          </button>
+        {% else %}
+          <button type='submit' class='btn btn-success pull-right'>
+            Purchase Subscription
+          </button>
+        {% endif %}
+        {% if wizard.steps.prev %}
+          <button name="wizard_goto_step" type="submit"
+                  class='btn pull-right' value="{{ wizard.steps.prev }}"
+                  style='margin-right: 10px;'>
+            <i class='icon-step-backward'></i> Previous
+          </button>
+        {% endif %}
+      </div>
     </div>
   </form>
 {% endblock %}

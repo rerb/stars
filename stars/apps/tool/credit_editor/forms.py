@@ -5,6 +5,8 @@ from django import forms
 from django.forms import widgets
 from django.forms.extras import widgets as extra_widgets  # +1 A+
 
+from codemirror.widgets import CodeMirrorTextarea
+
 from stars.apps.credits.models import (CreditSet,
                                        Category,
                                        Subcategory,
@@ -218,24 +220,32 @@ class NewT2CreditForm(NewCreditForm):
 
 class CreditFormulaForm(RightSizeInputModelForm):
     formula = forms.CharField(
-        widget=widgets.Textarea(attrs={'class': 'noMCE',
-                                       'rows': '16'}),
-        required=True)
+        widget=CodeMirrorTextarea(mode='python',
+                                  config={'lineNumbers': True},),
+        required=False,
+        help_text='Must set <em>points</em><br/>AVAILABLE_POINTS has a value if this varies')
     validation_rules = forms.CharField(
-        widget=widgets.Textarea(
-            attrs={'class': 'noMCE',
-                   'rows': '16'}),
+        widget=CodeMirrorTextarea(mode='python',
+                                  config={'lineNumbers': True},),
         required=False)
+    point_value_formula = forms.CharField(
+        widget=CodeMirrorTextarea(mode='python',
+                                  config={'lineNumbers': True},),
+        required=False,
+        help_text='Must set <em>available_points</em><br/>MIN_POINTS and MAX_POINTS variables are available if this varies')
 
     class Meta:
         model = Credit
-        fields = ('formula', 'validation_rules',)
+        fields = ('formula', 'validation_rules', 'point_value_formula')
 
     def clean_formula(self):
         return self._clean_code_field('formula')
 
     def clean_validation_rules(self):
         return self._clean_code_field('validation_rules')
+
+    def clean_point_value_formula(self):
+        return self._clean_code_field('point_value_formula')
 
     def _clean_code_field(self, key):
         code = self.cleaned_data[key]

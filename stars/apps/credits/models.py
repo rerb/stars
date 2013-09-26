@@ -615,6 +615,14 @@ class Credit(VersionedModel):
         default=-1)
     point_value = models.FloatField(
         help_text='The maximum points awarded for this credit.')
+    point_minimum = models.FloatField(blank=True, null=True,
+         help_text="If not blank, then this is the minimum value in the max available point range.")
+    point_variation_reason = models.TextField(blank=True, null=True,
+          help_text="An explanation of why the available points vary for this credit")
+    point_value_formula = models.TextField("Max point value formula",
+       blank=True,
+       null=True,
+       help_text="Formula to compute the maximum available points for a credit")
     formula = models.TextField(
         'Points Calculation Formula',
         blank=True,
@@ -623,7 +631,7 @@ class Credit(VersionedModel):
         help_text='Formula to compute credit points from values of the '
                   'reporting fields')
     validation_rules = models.TextField(
-        'Custom Validation', 
+        'Custom Validation',
         blank=True,
         null=True,
         help_text='A Python script that provides custom validation for '
@@ -788,12 +796,13 @@ else:
         """
         # get the key that relates field identifiers to their values
         field_key = submission.get_submission_field_key()
+        available_points = submission.get_available_points(use_cache=False)
         points = 0
         try:
             if (self.formula):
                 # exec formula in restricted namespace
                 globals = {}  # __builtins__ gets added automatically
-                locals = {"points": points}
+                locals = {"points": points, "AVAILABLE_POINTS": available_points}
                 locals.update(field_key)
                 exec self.formula in globals, locals
                 points = locals['points']
@@ -849,6 +858,49 @@ else:
                              "AASHE has noted the error and will work to "
                              "resolve the issue.")
         return errors, warnings
+
+    def execute_point_value_formula(self, submission):
+        """
+            Execute the point value formula for this credit for the given submission data
+
+            @param submission: a CreditSubmission for this credit containing
+                               data values to evaluate formula against
+
+            @return: (Boolean, String/None, Exception/None, Type) = (success,
+                                                                     message,
+                                                                     exception,
+                                                                     points)
+                - success: True if formula executed without exception
+                - message: suitable to report the result to the user or None
+                - exception: if not success or None
+                - points: the results of the formula execution (may not
+                  be numeric!!)
+        """
+        if self.point_value_formula == None:
+            logger.error("Point Formula Executed without Formula for %s" % self)
+            return (True, "Formula failed to run", None, point_value)
+
+        # get the key that relates field identifiers to their values
+        field_key = submission.get_submission_field_key()
+        available_points = self.point_value #default
+        try:
+            # exec formula in restricted namespace
+            globals = {}  # __builtins__ gets added automatically
+            locals = {"MAX_POINTS": self.point_value, "MIN_POINTS": self.point_minimum}
+            locals.update(field_key)
+            exec self.point_value_formula in globals, locals
+            available_points = locals['available_points']
+        # Assertions may be used in formula for extra validation -
+        # assume assertion text is intended for user
+        except AssertionError, e:  
+            return(False, "%s" % e, e, available_points)
+        except Exception, e:
+            logger.exception("Formula Exception: %s" % e)
+            return(False,
+                   "There was an error processing this credit. AASHE "
+                   "has noted the error and will work to resolve the issue.",
+                   e, available_points)
+        return (True, "Formula executed successfully", None, available_points)
 
     def compile_formula(self):
         """ See global compile_formula function... """

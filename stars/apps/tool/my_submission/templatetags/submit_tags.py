@@ -2,17 +2,26 @@ from django.utils.html import strip_spaces_between_tags, escape
 from django import template
 register = template.Library()
 
+
 @register.inclusion_tag('tool/submissions/tags/available_points.html')
-def format_available_points(object):
+def format_available_points(creditsubmission, use_cache=False):
     """
-        Displays the Available points in a readable format
-        this prevents mulitple quieries to the DB
+        Displays the Available points in a readable formats
     """
-    available_points = object.get_available_points()
-    adjusted_points = object.get_adjusted_available_points()
-    if available_points == adjusted_points:
-        adjusted_points = None
-    return {'available_points': available_points, 'adjusted_points': adjusted_points}
+    value = creditsubmission.get_available_points(use_cache=use_cache)
+    adjusted_points = creditsubmission.get_adjusted_available_points()
+    popup_text = None
+
+    if adjusted_points == 0:
+        value = None
+        popup_text = "Total adjusted for non-applicable credits"
+
+    elif creditsubmission.credit.point_variation_reason:
+        popup_text = creditsubmission.credit.point_variation_reason
+
+    return {'value': value,
+            'popup_text': popup_text,
+            "id": "%s_point_variation" % creditsubmission.id}
 
 
 @register.inclusion_tag('tool/submissions/tags/crumbs.html')

@@ -1016,6 +1016,7 @@ class CreditSubmission(models.Model):
            the Credit Editor)
     """
     credit = models.ForeignKey(Credit)
+    available_point_cache = models.FloatField(blank=True, null=True)
 
     class Meta:
         ordering = ("credit__type", "credit__ordinal",)
@@ -1140,8 +1141,18 @@ class CreditSubmission(models.Model):
         """Does this CreditSubmission persist in the DB?"""
         return (not self.pk == None)
 
-    def get_available_points(self):
-        return self.credit.point_value
+    def get_available_points(self, use_cache=False):
+        if use_cache and self.available_point_cache != None:
+            return self.available_point_cache
+        # in most cases there's a fixed point value
+        if self.credit.point_minimum == None:
+            self.available_point_cache = self.credit.point_value
+            return self.credit.point_value
+        # but if there's not then we need to execute the formula
+        else:
+            (ran, message, exception, available_points) = self.credit.execute_point_value_formula(self)
+            self.available_point_cache = available_points
+            return available_points
 
     @staticmethod
     def round_points(points, log_error=True):
@@ -1332,7 +1343,7 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
         """
         if self.submission_status == "na":
             return 0
-        return self.credit.point_value
+        return self.get_available_points()
 
     def get_documentation_fields(self):
         """Returns the DocumentationFields related to this CreditSubmission.

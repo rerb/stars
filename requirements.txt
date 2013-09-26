@@ -22,6 +22,7 @@ django-cache-url==0.3.2
 django-celery==3.0.17
 django-classy-tags==0.4
 django-cms==2.4.2
+django-codemirror-widget==0.3.0
 -e hg+ssh://hg@bitbucket.org/aashe/django-collapsing-menu@e1eaae6eae90abddfc2012db8c12f039e8689fc0#egg=django_collapsing_menu-dev
 django-debug-toolbar==0.9.4
 django-excel-response==1.0

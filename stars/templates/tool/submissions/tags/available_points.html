@@ -1,5 +1,9 @@
-{% ifnotequal adjusted_points None %}
-    {{ adjusted_points|floatformat:2 }} (<del style='cursor: help' title='Total adjusted for non-applicable credits'>{{ available_points|floatformat:2 }}</del>)
-{% else %}
-    {{ available_points|floatformat:2 }}
-{% endifnotequal %}
+{{ value|floatformat:2 }}
+
+{% if popup_text %}
+	{% with 1 as modal %}
+	{% with popup_text as help_text %}
+		{% include "helpers/tags/help_text.html" %}
+	{% endwith %}
+	{% endwith %}
+{% endif %}
