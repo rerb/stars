@@ -17,7 +17,6 @@ boto==2.9.5
 celery==3.0.19
 coverage==3.6
 distribute==0.6.34
-dj-database-url==0.2.1
 django-bootstrap-form==2.0.5
 django-cache-url==0.3.2
 django-celery==3.0.17
