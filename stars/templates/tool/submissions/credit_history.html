@@ -1,0 +1,49 @@
+{% extends 'tool/submissions/credit_base.html' %}
+
+{% load bootstrap %}
+
+{% block credit_tabs %}
+    {% with active='history' %}
+        {{ block.super }}
+    {% endwith %}
+{% endblock %}
+
+{% block tab_content %}
+    <div class='creditContent'>
+        <h2>History</h2>
+        {% for doc_field, doc_field_submissions in doc_fields.items %}
+            <div class="documentationField">
+                <div class="control-group">
+                    <label class="control-label">
+                        <strong>
+                            {{ doc_field.title }}
+                        </strong>
+                    </label>
+                    {% for doc_field_submission in doc_field_submissions %}
+                        <table class="controls table">
+                            <tr>
+                                <td class="span1">
+                                    v{{ doc_field_submission.get_creditset.version }}
+                                </td>
+                                <td class="span2">
+                                    {% with submissionset=doc_field_submission.get_submissionset %}
+                                        {% if submissionset.date_submitted %}
+                                            {{ submissionset.date_submitted }}
+                                        {% endif %}
+                                    {% endwith %}
+                                </td>
+                                <td>
+                                    {% with value=doc_field_submission.get_value %}
+                                        {% if value != None %}
+                                            {{ value }}
+                                        {% endif %}
+                                    {% endwith %}
+                                </td>
+                            </tr>
+                        </table>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
