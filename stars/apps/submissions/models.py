@@ -1389,6 +1389,25 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
 
         return rated_documentation_field_submissions
 
+    def get_rated_historical_documentation_field_submissions(self):
+        """Returns a set of rated DocumentationFieldSubmissions for all
+           versions of all the DocumentationFields of this CreditSubmission
+           that were submitted before the DocumentationFieldSubmissions
+           attached to this CreditSubmission.
+
+           Assumes this CreditSubmission is the latest one, e.g., that
+           all DocumentFieldSubmissions for this CreditSubmission
+           other than ones for this CreditSubmission are history.
+        """
+        rated_documentation_field_submissions = set(
+            self.get_rated_documentation_field_submissions())
+        documentation_fields_for_this_credit_submission = set(
+            self.get_documentation_fields())
+        return [ documentation_field_submission
+                 for document_field_submission
+                 in rated_documentation_field_submissions 
+                 if document_field_submission.credit_submission is not self ]
+
     def _calculate_points(self):
         """ Helper: returns the number of points calculated for this
         submission"""
