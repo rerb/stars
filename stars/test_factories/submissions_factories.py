@@ -1,13 +1,18 @@
 import factory
 
-from credits_factories import (ApplicabilityReasonFactory, CategoryFactory,
-                               CreditFactory, CreditSetFactory,
-                               RatingFactory, SubcategoryFactory)
+from credits_factories import (ApplicabilityReasonFactory,
+                               CategoryFactory,
+                               CreditFactory,
+                               CreditSetFactory,
+                               DocumentationFieldFactory,
+                               RatingFactory,
+                               SubcategoryFactory)
 from institutions_factories import ClimateZoneFactory, InstitutionFactory
 from misc_factories import UserFactory
 from stars.apps.submissions.models import (Boundary,
                                            CategorySubmission,
                                            CreditUserSubmission,
+                                           DocumentationFieldSubmission,
                                            ResponsibleParty,
                                            SubcategorySubmission,
                                            SubmissionSet)
@@ -69,6 +74,13 @@ class CreditUserSubmissionFactory(factory.Factory):
     applicability_reason = factory.SubFactory(ApplicabilityReasonFactory)
     user = factory.SubFactory(UserFactory)
     responsible_party = factory.SubFactory(ResponsiblePartyFactory)
+
+
+class DocumentationFieldSubmissionFactory(factory.Factory):
+    FACTORY_FOR = DocumentationFieldSubmission
+
+    documentation_field = factory.SubFactory(DocumentationFieldFactory)
+    credit_submission = factory.SubFactory(CreditUserSubmissionFactory)
 
 
 class BoundaryFactory(factory.Factory):

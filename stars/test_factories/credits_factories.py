@@ -3,9 +3,15 @@ import time
 
 import factory
 
-from stars.apps.credits.models import (ApplicabilityReason, Category, Credit,
-                                       CreditSet, IncrementalFeature, Rating,
-                                       Subcategory)
+from stars.apps.credits.models import (ApplicabilityReason,
+                                       Category,
+                                       Credit,
+                                       CreditSet,
+                                       DocumentationField,
+                                       IncrementalFeature,
+                                       Rating,
+                                       Subcategory,
+                                       Unit)
 
 
 class CreditSetFactory(factory.Factory):
@@ -49,6 +55,21 @@ class CreditFactory(factory.Factory):
 
     subcategory = factory.SubFactory(SubcategoryFactory)
     point_value = 1
+
+
+class UnitFactory(factory.Factory):
+    FACTORY_FOR = Unit
+
+
+class TextDocumentationFieldFactory(factory.Factory):
+    FACTORY_FOR = DocumentationField
+
+    credit = factory.SubFactory(CreditFactory)
+    units = factory.SubFactory(UnitFactory)
+    type = 'text'
+
+
+DocumentationFieldFactory = TextDocumentationFieldFactory
 
 
 class ApplicabilityReasonFactory(factory.Factory):

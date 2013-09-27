@@ -8,8 +8,7 @@ from stars.test_factories import (InstitutionFactory,
                                   SubmissionSetFactory,
                                   CategorySubmissionFactory,
                                   SubcategorySubmissionFactory,
-                                  CreditUserSubmissionFactory,
-                                  DocumentationFieldSubmissionFactory)
+                                  CreditUserSubmissionFactory)
 
 
 # @TODO - we definitely need tests here for all the form submission tools
