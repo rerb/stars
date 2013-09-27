@@ -16,7 +16,7 @@ from settings import *
 MEDIA_ROOT = os.environ.get('MEDIA_ROOT')
 
 HIDE_REPORTING_TOOL = False
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = False
 DEBUG_TOOLBAR = False
 MAINTENANCE_MODE = False
@@ -124,23 +124,25 @@ if DEBUG_TOOLBAR:
 
 TEMPLATE_STRING_IF_INVALID = 'INVALID EXPRESSION: %s'
 
-#TEST_RUNNER = 'hotrunner.HotRunner'
+TEST_RUNNER = 'hotrunner.HotRunner'
 EXCLUDED_TEST_APPS = ['aashe.issdjango',
+                      'bootstrapform',
+                      'captcha',
+                      'collapsing_menu',
+                      'django_extensions',
+                      'django_extensions',
+                      'django_nose',
+                      'djcelery',
+                      'gunicorn',
+                      'logical_rules',
+                      'memcache_status',
+                      's3_folder_storage',
+                      'sorl.thumbnail',
+                      'south',
+                      'stars.apps',
                       'stars.apps.accounts',
                       'stars.apps.api',
                       'stars.tests',
-                      'gunicorn',
-                      'south',
-                      'sorl.thumbnail',
-                      'captcha',
-                      'django_extensions',
-                      'djcelery',
-                      'logical_rules',
                       'tastypie',
-                      'bootstrapform',
-                      'memcache_status',
-                      's3_folder_storage',
-                      'stars.apps',
-                      'django_extensions',
-                      'django_nose',
                       'template_repl']
+
