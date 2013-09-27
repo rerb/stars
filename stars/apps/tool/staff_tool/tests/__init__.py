@@ -1,0 +1,1 @@
+from manage_payments import PaymentsTest
