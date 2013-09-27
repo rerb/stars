@@ -6,7 +6,7 @@ import factory
 import stars.apps.registration.models
 
 
-class ValueDiscountFactory(factory.Factory):
+class ValueDiscountFactory(factory.DjangoModelFactory):
     FACTORY_FOR = stars.apps.registration.models.ValueDiscount
 
     code = factory.LazyAttribute(lambda *args: str(uuid.uuid1())[:16])

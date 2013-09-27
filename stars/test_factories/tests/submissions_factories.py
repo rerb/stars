@@ -55,12 +55,12 @@ class SubmissionSetFactoryTest(unittest.TestCase):
                          submission_set.institution.current_submission)
 
     def test_second_submissionset_is_not_set_to_current_submission(self):
-        """Is the first SubmissionSet for an Inst set to current_submission?
+        """Is the second SubmissionSet for an Inst set to current_submission?
         """
         first_submission_set = submissions_factories.SubmissionSetFactory()
         second_submission_set = submissions_factories.SubmissionSetFactory(
             institution=first_submission_set.institution)
-        self.assertEqual(
+        self.assertNotEqual(
             second_submission_set,
             second_submission_set.institution.current_submission)
         self.assertIsNotNone(
