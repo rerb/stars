@@ -12,10 +12,10 @@ from misc_factories import UserFactory
 from stars.apps.submissions.models import (Boundary,
                                            CategorySubmission,
                                            CreditUserSubmission,
-                                           DocumentationFieldSubmission,
                                            ResponsibleParty,
                                            SubcategorySubmission,
-                                           SubmissionSet)
+                                           SubmissionSet,
+                                           TextSubmission)
 
 
 class ResponsiblePartyFactory(factory.DjangoModelFactory):
@@ -76,11 +76,14 @@ class CreditUserSubmissionFactory(factory.DjangoModelFactory):
     responsible_party = factory.SubFactory(ResponsiblePartyFactory)
 
 
-class DocumentationFieldSubmissionFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = DocumentationFieldSubmission
+class TextDocumentationFieldSubmissionFactory(factory.DjangoModelFactory):
+    FACTORY_FOR = TextSubmission
 
     documentation_field = factory.SubFactory(DocumentationFieldFactory)
     credit_submission = factory.SubFactory(CreditUserSubmissionFactory)
+
+
+DocumentationFieldSubmissionFactory = TextDocumentationFieldSubmissionFactory
 
 
 class BoundaryFactory(factory.DjangoModelFactory):
