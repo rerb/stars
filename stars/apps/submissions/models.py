@@ -1725,7 +1725,7 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
         """Returns the SubmissionSet related to this
         DocumentationFieldSubmission.
         """
-        return self.credit_submission.get_submissionset()
+        return self.credit_submission.creditusersubmission.get_submissionset()
 
     def persists(self):
         """Does this Submission object persist in the DB?"""
@@ -1833,7 +1833,6 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
             DocumentFieldSubmission when this SubmissionSet
             was migrated -- if that happened.
         """
-        import ipdb; ipdb.set_trace()
         previous_documentation_field = (
             self.documentation_field.previous_version)
         if previous_documentation_field:
