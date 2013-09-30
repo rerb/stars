@@ -4,27 +4,12 @@
     {% for ss in ss_list %}
     <div class="{% if forloop.first %}active{% endif %} item">
         <!-- <img src="{{ STATIC_URL }}images/{{ ss.rating.image_large }}" />-->
-        <img class="badge" src="{{ STATIC_URL }}images/{{ ss.rating.image_200 }}" />
-        <h4>{{ ss.institution }}</h4>
+        <a href="{{ ss.get_scorecard_url }}">
+          <img class="badge" src="{{ STATIC_URL }}images/{{ ss.rating.image_200 }}" />
+          <h4>{{ ss.institution }}</h4>
+        </a>
         <p class="small">Submitted {{ ss.date_submitted|date:"F Y" }}</p>
-        <a class="btn btn-primary" href="{{ ss.get_scorecard_url }}">View Submission</a>
     </div>
     {% endfor %}
-<!--    <div class="{% if forloop.first %}active{% endif %} item">
-      <ul class="thumbnails slide-text">
-        <li>
-          <a href="{{ ss.get_scorecard_url" class="thumbnail">
-            <img data-src="{{ STATIC_URL }}images/{{ ss.rating.image_large }}" />
-          </a>
-        </li>
-      </ul>
-
-      <div class="slide-text">
-        <a href='{{ ss.get_scorecard_url }}'>
-        <img src="{{ STATIC_URL }}images/{{ ss.rating.image_large }}" width="150px"/><br />
-        <strong>{{ ss.institution }}</strong></a>
-      </div>
-    </div>
-    -->
   </div><!-- /.carousel-inner -->
 </div><!-- /#regCarousel -->
