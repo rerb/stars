@@ -26,12 +26,17 @@
                                 <td class="span1">
                                     v{{ doc_field_submission.get_creditset.version }}
                                 </td>
-                                <td class="span2">
+                                <td class="span1">
                                     {% with submissionset=doc_field_submission.get_submissionset %}
                                         {% if submissionset.date_submitted %}
-                                            {{ submissionset.date_submitted }}
+                                            {{ submissionset.date_submitted|date:"Y" }}
+                                        {% else %}
+                                            {{ submissionset.date_registered|date:"Y" }}
                                         {% endif %}
                                     {% endwith %}
+                                </td>
+                                <td class="span1">
+                                  <!-- don't use tables for layout! -->
                                 </td>
                                 <td>
                                     {% with value=doc_field_submission.get_value %}
