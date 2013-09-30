@@ -32,8 +32,11 @@ def get_doc_field_submission_for_doc_field(documentation_field,
         documentation_field=documentation_field)
 
     for doc_field_submission in all_doc_field_submissions:
-        credit_user_submission = (
-            doc_field_submission.credit_submission.creditusersubmission)
+        credit_submission = doc_field_submission.credit_submission
+        # Skip tests:
+        if credit_submission.is_test():
+            continue
+        credit_user_submission = credit_submission.creditusersubmission
         if (credit_user_submission.get_submissionset().institution ==
             institution):
             return doc_field_submission
