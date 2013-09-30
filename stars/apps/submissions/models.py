@@ -1137,7 +1137,12 @@ class CreditSubmission(models.Model):
             if field.documentation_field.is_required() and not field.value:
                 return False
         return True
+ 
+    def is_test(self):
+        """Returns True if this is a test submission."""
+        return hasattr(self, 'credittestsubmission')
 
+     def persists(self):
     def persists(self):
         """Does this CreditSubmission persist in the DB?"""
         return (not self.pk == None)
