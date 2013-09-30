@@ -16,7 +16,7 @@ from settings import *
 MEDIA_ROOT = os.environ.get('MEDIA_ROOT')
 
 HIDE_REPORTING_TOOL = False
-DEBUG = False
+DEBUG = True
 TEMPLATE_DEBUG = False
 DEBUG_TOOLBAR = False
 MAINTENANCE_MODE = False
