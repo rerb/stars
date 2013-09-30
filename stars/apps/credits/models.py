@@ -415,7 +415,7 @@ class Category(VersionedModel):
 
     def get_delete_url(self):
         """ Returns the URL of the page to confirm deletion of this object """
-        return "%sdelete/" % self.get_edit_url()
+        return reverse("admin:credits_category_delete", args=(self.id,))
 
     def get_parent(self):
         """ Returns the parent element for crumbs """
@@ -595,7 +595,7 @@ class Subcategory(VersionedModel):
 
     def get_delete_url(self):
         """ Returns the URL of the page to confirm deletion of this object """
-        return "%sdelete/" % self.get_edit_url()
+        return reverse("admin:credits_subcategory_delete", args=(self.id,))
 
 
 CREDIT_TYPE_CHOICES = (
@@ -759,7 +759,7 @@ else:
 
     def get_delete_url(self):
         """ Returns the URL of the page to confirm deletion of this object """
-        return "%sdelete/" % self.get_edit_url()
+        return reverse("admin:credits_credit_delete", args=(self.id,))
 
     def get_formula_url(self):
         """ Returns the URL of the page to edit the forumula for
@@ -964,7 +964,7 @@ class ApplicabilityReason(VersionedModel):
 
     def get_delete_url(self):
         """ Returns the URL of the page to confirm deletion of this object """
-        return "%sdelete/" % self.get_edit_url()
+        return reverse("admin:credits_applicabilityreason_delete", args=(self.id,))
 
     def get_parent(self):
         """ Returns the parent element for crumbs """
@@ -1116,7 +1116,7 @@ class DocumentationField(VersionedModel):
 
     def get_delete_url(self):
         """ Returns the URL of the page to confirm deletion of this object """
-        return "%sdelete/" % self.get_edit_url()
+        return reverse("admin:credits_documentationfield_delete", args=(self.id,))
 
     def is_required(self):
         """ Return true if this field is required to complete a submission """
