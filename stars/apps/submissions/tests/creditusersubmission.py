@@ -12,67 +12,54 @@ import testfixtures
 
 class CreditUserSubmissionTest(TestCase):
 
-    fixtures = ['creditusersubmission.json']
+    def ten_documentation_fields(self,
+                                  credit):
+        documentation_fields = []
+        for i in xrange(10):
+            documentation_field = DocumentationFieldFactory(
+                credit=credit)
+            documentation_field.save()
+            documentation_fields.append(
+                documentation_field)
+            documentation_field.save()  # so pk is set
+        return documentation_fields
 
     def test_get_documentation_fields(self):
         credit_user_submission = CreditUserSubmissionFactory()
 
-        # make 10 DocumentationFields:
-        test_documentation_fields = [
-            DocumentationFieldFactory(credit=credit_user_submission.credit)
-            for i in xrange(10)
-        ]
-
-        # make a DocumentationFieldSubmission for 5 of those:
-        test_documentation_field_submissions = [
-            DocumentationFieldSubmissionFactory(
-                credit_submission=credit_user_submission,
-                documentation_field=test_documentation_fields[i])
-            for i in xrange(10)
-            if i % 2 == 0
-        ]
-
-        # only submissions from rated submissionsets are shown, so
-        # we'll mark this one rated:
-        submissionset = credit_user_submission.get_submissionset()
-        submissionset.status = RATED_SUBMISSION_STATUS
-        submissionset.save()
-
-        expected_documentation_fields = [
-            documentation_field_submission.documentation_field for
-            documentation_field_submission in
-            test_documentation_field_submissions
-        ]
-        import ipdb; ipdb.set_trace()
+        documentation_fields = self.ten_documentation_fields(
+            credit=credit_user_submission.credit)
+        
+        # # only submissions from rated submissionsets are shown, so
+        # # we'll mark this one rated:
+        # submissionset = credit_user_submission.get_submissionset()
+        # submissionset.status = RATED_SUBMISSION_STATUS
 
         self.assertItemsEqual(
-            expected_documentation_fields,
+            documentation_fields,
             credit_user_submission.get_documentation_fields())
 
-
-    def test_get_submission_fields(self):
-        """get_submission_fields return correct DocumentationFieldSubmissions?
-        """
+    def test_get_documentation_field_submissionss(self):
         credit_user_submission = CreditUserSubmissionFactory()
 
         # make 10 DocumentationFields:
-        test_documentation_fields = [
-            DocumentationFieldFactory(credit=credit_user_submission.credit)
-            for i in xrange(10)
-        ]
+        documentation_fields = self.ten_documentation_fields(
+            credit=credit_user_submission.credit)
 
         # make a DocumentationFieldSubmission for 5 of those:
-        test_documentation_field_submissions = [
-            DocumentationFieldSubmissionFactory(
-                credit_submission=credit_user_submission,
-                documentation_field=test_documentation_fields[i])
-            for i in xrange(10)
-            if i % 2 == 0
-        ]
+        documentation_field_submissions = []
+        for i in xrange(len(documentation_fields)):
+            if i % 2:
+                documentation_field_submission = (
+                    DocumentationFieldSubmissionFactory(
+                        credit_submission=credit_user_submission,
+                        documentation_field=documentation_fields[i]))
+                documentation_field_submissions.append(
+                    documentation_field_submission)
 
         self.assertItemsEqual(
-            test_documentation_field_submissions,
-            credit_user_submission.get_submission_fields())
+            documentation_field_submissions,
+            credit_user_submission.get_documentation_field_submissions())
 
 
 class MockCredit(object):
