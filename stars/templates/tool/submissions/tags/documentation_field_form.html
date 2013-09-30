@@ -1,0 +1,39 @@
+{% load help %}
+{% load terms %}
+
+{% autoescape off %}
+<div class="control-group{% if field_form.value.errors %} error{% else %}{% if field_form.warnings %} warning{% endif %}{% endif %}">
+    <label class="control-label">
+      	{% if documentation_field.is_required %}
+	    <span class='required_note'
+                  title="This field is required to complete credit">*</span>
+	{% endif %}
+	{% if documentation_field.is_conditionally_required %}
+            <span class='conditionally_required_note'
+                  title="In some cases, this field will be required to complete credit">*</span>
+	{% endif %}
+	<strong>
+		{% if show_identifier %}({{ documentation_field.identifier }}){% endif %}
+		{{ documentation_field.title|replace_terms }}
+	</strong>
+	{% with documentation_field.get_escaped_tooltip_help_text as help_text %}
+	    {% with "true" as modal %}
+	        {% with documentation_field.id as id %}
+	            {% include "helpers/tags/help_text.html" %}
+	        {% endwith %}
+        {% endwith %}
+    {% endwith %}
+    </label>
+    <div class="controls">
+		{% include "tool/submissions/tags/documentation_field_control.html" %}
+    </div>
+    {% if documentation_field.type == "url"%}
+        <em>
+            Please note that additional URLs may be entered into the
+	    description fields or the public note section of STARS
+	    credits.  These additional URLs will be accessible in the
+	    live report.
+        </em>
+    {% endif %}
+</div>
+{% endautoescape %}

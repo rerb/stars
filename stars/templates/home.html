@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block extra_style %}
+<style type='text/css'>
+.stars-hero {
+	background-image: url('{{ STATIC_URL }}images/home/tree_shine.jpg');
+}
+.sub-hero {
+        width: 580px;
+}
+</style>
+
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="span12">
+    <img src="{{ STATIC_URL }}images/stickies.jpg"></img>
+    <div class="hero-unit">
+      <div id="storyCarousel" class="carousel slide">
+        <!-- Carousel items -->
+        <div class="carousel-inner">
+
+          <div class="active item" id="step1">
+            <div class="story-slide-text">
+              <h2>STARS 2.0 Is Here!</h2>
+              <p>Click the arrows to learn how STARS participation works or click below to register.</p>
+              <a href="/register"><button class="btn btn-success" type="button">Get Started</button></a>
+            </div>
+          </div><!-- /.item -->
+
+          <div class="item" id="step2">
+            <div class="story-slide-text">
+              <h2>Register</h2>
+              <p>Set the wheel in motion to work through STARS while also learning about the history of the system.</p>
+            </div>
+          </div><!-- /.item -->
+
+          <div class="item" id="step3">
+            <div class="story-slide-text">
+              <h2>Engage</h2>
+              <p>Access valuable data collection tips and resources while gaining insight into how the STARS credits are developed.</p>
+            </div>
+          </div><!-- /.item -->
+
+          <div class="item" id="step4">
+            <div class="story-slide-text">
+              <h2>Report</h2>
+              <p>Download the STARS Technical Manual and begin the data entry process in the STARS Reporting Tool.</p>
+            </div>
+          </div><!-- /.item -->
+
+          <div class="item" id="step5">
+            <div class="story-slide-text">
+              <h2>Submit</h2>
+              <p>Finalize your STARS Report and submit for a STARS Rating.</p>
+            </div>
+          </div><!-- /.item -->
+
+          <div class="item" id="step6">
+            <div class="story-slide-text">
+              <h2>Celebrate</h2>
+              <p>Share your story to gain recognition for your success.</p>
+            </div>
+          </div><!-- /.item -->
+
+          <div class="item" id="step7">
+            <div class="story-slide-text">
+              <h2>Evaluate</h2>
+              <p>Learn from the STARS Data and begin to implement projects and programs to further enhance sustainability on your campus.</p>
+            </div>
+          </div><!-- /.item -->
+        </div>
+
+          <!-- Carousel nav -->
+          <a class="carousel-control left" href="#storyCarousel" data-slide="prev">‹</a>
+          <a class="carousel-control right" href="#storyCarousel" data-slide="next">›</a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+
+    <div class="span4">
+      <div class="frontblock boxleft">
+        <h2>Latest Updates</h2>
+        {% load old_cms_tags %}
+        {% show_homepage_updates %}
+      </div>
+      <a href="/registration-information"><button class="btn btn-success" type="button">More Info</button></a>
+    </div>
+
+    <div class="span4">
+      <div class="frontblock boxleft">
+        <h2>Newly Rated</h2>
+        {% load institution_lists %}
+        {% show_rated_registrants %}
+      </div>
+      <a href="/institutions/rated/"><button class="btn btn-success" type="button">See More Registrants</button></a>
+    </div>
+
+    <div class="span4">
+      <div class="frontblock boxleft">
+        <h2>Connect With Us</h2>
+        {% load content %}
+        {% load cache %}
+        {% cache 7200 twitter-feed %}
+        {% display_twitter_feed %}
+        {% endcache %}
+
+      </div>
+      <a href="/connect"><button class="btn btn-success" type="button">Social Media Center</button></a>
+    </div>
+    
+  </div><!-- end row -->
+  
+  <script>
+    $(document).ready(function(){
+      $('#storyCarousel').carousel({
+        interval: 0
+       });
+      $('#ratingCarousel').carousel();
+    });
+  </script>
+  
+  {% endblock %}
+ 
