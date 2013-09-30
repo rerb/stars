@@ -11,12 +11,13 @@
 {% block tab_content %}
     <div class='creditContent'>
         <h2>History</h2>
-        {% for doc_field, doc_field_submissions in doc_fields.items %}
+        {% for doc_field, doc_field_submissions in history.items %}
+          {% if doc_field_submissions %}
             <div class="documentationField">
                 <div class="control-group">
                     <label class="control-label">
                         <strong>
-                            {{ doc_field.title }}
+                            {{ doc_field }} 
                         </strong>
                     </label>
                     {% for doc_field_submission in doc_field_submissions %}
@@ -44,6 +45,7 @@
                     {% endfor %}
                 </div>
             </div>
+          {% endif %}
         {% endfor %}
     </div>
 {% endblock %}
