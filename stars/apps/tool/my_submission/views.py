@@ -23,6 +23,7 @@ from stars.apps.submissions.models import (Boundary,
 from stars.apps.submissions.tasks import rollover_submission
 from stars.apps.tool.mixins import (UserCanEditSubmissionMixin,
                                     SubmissionToolMixin,)
+from stars.apps.tool.my_submission import credit_history
 from stars.apps.tool.my_submission.forms import (CreditUserSubmissionForm,
                                                  CreditUserSubmissionNotesForm,
                                                  ExecContactForm,
@@ -340,53 +341,66 @@ class CreditNotesView(UserCanEditSubmissionMixin, UpdateView):
         return self.get_creditsubmission()
 
 
-class CreditHistoryView(UserCanEditSubmissionMixin, TemplateView):
-
+class CreditHistoryView(UserCanEditSubmissionMixin,
+                        TemplateView):
+    """
+        Displays a list of submission history for a credit
+        (i.e., info based on DocumentationFieldSubmissions).
+    """
+    tab_content_title = 'history'
     template_name = "tool/submissions/credit_history.html"
-    model = CreditUserSubmission
 
-    def get_object(self):
-        return self.get_creditsubmission()
+    def get_history(self):
+        credit = self.get_credit()
+        institution = self.get_institution()
+        history = credit_history.get_doc_field_submission_history_for_credit(
+            credit=credit,
+            institution=institution)
+        return history or []
 
-    def get_context_data(self, **kwargs):
-        context = super(CreditHistoryView, self).get_context_data(**kwargs)
-        
-        context['doc_fields'] = self.get_documentation_field_submissions()
-
+    def get_context_data(self, *args, **kwargs):
+        context = super(CreditHistoryView, self).get_context_data(
+            *args, **kwargs)
+        context['history'] = self.get_history()
         return context
 
-    def get_documentation_field_submissions(self):
-        """Returns a dictionary containing the DocumentFieldSubmissions
-        for all versions of all DocumentFields related to this
-        CreditUserSubmission.
+    # Hate to commit commented-out code, but this credit history
+    # stuff is still very fluxable, and this other, confusing,
+    # seemingly misdirected way of building the credit history
+    # view might come in handy real soon.
+    #
+    # def get_documentation_field_submissions(self):
+    #     """Returns a dictionary containing the DocumentFieldSubmissions
+    #     for all versions of all DocumentFields related to this
+    #     CreditUserSubmission.
 
-        The dictionary key is a DocumentationField, the dictionary
-        values are lists of DocumentationFieldSubmissions of the key.
-        """
-        credit_submission = self.get_creditsubmission()
+    #     The dictionary key is a DocumentationField, the dictionary
+    #     values are lists of DocumentationFieldSubmissions of the key.
+    #     """
+    #     credit_submission = self.get_creditsubmission()
 
-        rated_documentation_field_submissions = (
-            credit_submission.get_rated_documentation_field_submissions())
+    #     rated_documentation_field_submissions = (
+    #         credit_submission.get_rated_documentation_field_submissions())
 
-        sorted_documentation_field_submissions = sorted(
-            rated_documentation_field_submissions,
-            key=lambda dfs: dfs.documentation_field.get_creditset().version)
+    #     sorted_documentation_field_submissions = sorted(
+    #         rated_documentation_field_submissions,
+    #         key=lambda dfs: dfs.documentation_field.get_creditset().version)
 
-        documentation_field_submissions = collections.OrderedDict()
+    #     documentation_field_submissions = collections.OrderedDict()
 
-        for documentation_field_submission in reversed(
-                sorted_documentation_field_submissions):
-            latest_version_of_documentation_field = (
-                documentation_field_submission.documentation_field.get_latest_version())
-            if (latest_version_of_documentation_field not in
-                documentation_field_submissions):
-                documentation_field_submissions[
-                    latest_version_of_documentation_field] = []
-            documentation_field_submissions[
-                latest_version_of_documentation_field].append(
-                    documentation_field_submission)
+    #     for documentation_field_submission in reversed(
+    #             sorted_documentation_field_submissions):
+    #         latest_version_of_documentation_field = (
+    #             documentation_field_submission.documentation_field.get_latest_version())
+    #         if (latest_version_of_documentation_field not in
+    #             documentation_field_submissions):
+    #             documentation_field_submissions[
+    #                 latest_version_of_documentation_field] = []
+    #         documentation_field_submissions[
+    #             latest_version_of_documentation_field].append(
+    #                 documentation_field_submission)
 
-        return documentation_field_submissions
+    #     return documentation_field_submissions
 
 
 class AddResponsiblePartyView(UserCanEditSubmissionMixin, CreateView):

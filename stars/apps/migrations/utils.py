@@ -150,6 +150,9 @@ def migrate_submission(old_ss, new_ss, keep_status=False):
 
         Note: don't migrate IN data if the previous submission was rated
     """
+    old_ss.migrated_to = new_ss
+    old_ss.save()
+
     new_ss.migrated_from = old_ss
     new_ss.save()
 

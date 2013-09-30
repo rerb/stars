@@ -1,15 +1,20 @@
 """Tests for apps.tool.my_submission.views.
 """
+from stars.apps.submissions import models as submissions_models
 from stars.apps.tool.my_submission import views
 from stars.apps.tool.tests.views import (InstitutionToolMixinTest,
                                          UserCanEditSubmissionMixinTest)
-from stars.test_factories import (InstitutionFactory,
-                                  StarsAccountFactory,
-                                  SubmissionSetFactory,
+from stars.test_factories import (CategoryFactory,
                                   CategorySubmissionFactory,
+                                  CreditFactory,
+                                  CreditUserSubmissionFactory,
+                                  DocumentationFieldFactory,
+                                  DocumentationFieldSubmissionFactory,
+                                  InstitutionFactory,
+                                  StarsAccountFactory,
+                                  SubcategoryFactory,
                                   SubcategorySubmissionFactory,
-                                  CreditUserSubmissionFactory)
-
+                                  SubmissionSetFactory)
 
 # @TODO - we definitely need tests here for all the form submission tools
 
@@ -58,28 +63,52 @@ class CreditHistoryViewTest(UserCanEditSubmissionMixinTest):
 
     def setUp(self, *args, **kwargs):
         super(CreditHistoryViewTest, self).setUp(*args, **kwargs)
-        self.category_submission = (
-            self.submission.categorysubmission_set.all()[0])
-        self.category_abbreviation = (
-            self.category_submission.category.abbreviation)
-        self.subcategory_submission = (
-            self.category_submission.subcategorysubmission_set.all()[0])
-        self.credit_user_submission = (
-            self.subcategory_submission.creditusersubmission_set.all()[0])
+        
+        self.institution_slug = self.institution.slug
+
+        submissionset = SubmissionSetFactory(
+            institution=self.institution,
+            status=submissions_models.RATED_SUBMISSION_STATUS)
+
+        self.submissionset_id = str(submissionset.id)
+
+        category = CategoryFactory()
+        category_submission = CategorySubmissionFactory(
+            category=category,
+            submissionset=submissionset)
+        self.category_abbreviation = category.abbreviation
+
+        subcategory = SubcategoryFactory()
+        subcategory_submission = SubcategorySubmissionFactory(
+            subcategory=subcategory,
+            category_submission=category_submission)
+        self.subcategory_slug = subcategory.slug
+
+        credit = CreditFactory()
+        credit_submission = CreditUserSubmissionFactory(
+            credit=credit,
+            subcategory_submission=subcategory_submission)
+        self.credit_identifier = credit.identifier
+
+        # Some history to show:
+        documentation_field = DocumentationFieldFactory(
+            credit=credit)
+        documentation_field_submission = DocumentationFieldSubmissionFactory(
+            documentation_field=documentation_field,
+            credit_submission=credit_submission)
 
     def test_get_succeeds(self, **kwargs):
         super(UserCanEditSubmissionMixinTest, self).test_get_succeeds(
-            institution_slug=self.institution.slug,
-            submissionset=str(self.submission.id),
+            institution_slug=self.institution_slug,
+            submissionset=self.submissionset_id,
             category_abbreviation=self.category_abbreviation,
-            subcategory_slug=self.subcategory_submission.subcategory.slug,
-            credit_identifier=self.credit_user_submission.credit.identifier)
+            subcategory_slug=self.subcategory_slug,
+            credit_identifier=self.credit_identifier)
 
     def test_get_is_blocked(self, **kwargs):
         super(UserCanEditSubmissionMixinTest, self).test_get_is_blocked(
-            institution_slug=self.institution.slug,
-            submissionset=str(self.submission.id),
-            category_abbreviation=(
-                self.category_submission.category.abbreviation),
-            subcategory_slug=self.subcategory_submission.subcategory.slug,
-            credit_identifier=self.credit_user_submission.credit.identifier)
+            institution_slug=self.institution_slug,
+            submissionset=self.submissionset_id,
+            category_abbreviation=self.category_abbreviation,
+            subcategory_slug=self.subcategory_slug,
+            credit_identifier=self.credit_identifier)

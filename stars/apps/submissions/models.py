@@ -166,7 +166,8 @@ class SubmissionSet(models.Model, FlaggableModel):
         help_text=("Is this submission visible to the institution? "
                    "Often used with migrations."))
     score = models.FloatField(blank=True, null=True)
-    migrated_from = models.ForeignKey('self', null=True)
+    migrated_from = models.ForeignKey('self', null=True, related_name='+')
+    migrated_to = models.ForeignKey('self', null=True, related_name='+')
 
     class Meta:
         ordering = ("date_registered",)
@@ -1136,7 +1137,12 @@ class CreditSubmission(models.Model):
             if field.documentation_field.is_required() and not field.value:
                 return False
         return True
+ 
+    def is_test(self):
+        """Returns True if this is a test submission."""
+        return hasattr(self, 'credittestsubmission')
 
+     def persists(self):
     def persists(self):
         """Does this CreditSubmission persist in the DB?"""
         return (not self.pk == None)
@@ -1719,7 +1725,7 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
         return parent.get_institution()
 
     def get_creditset(self):
-        return self.credit_submission.get_creditset()
+        return self.credit_submission.creditusersubmission.get_creditset()
 
     def get_submissionset(self):
         """Returns the SubmissionSet related to this
