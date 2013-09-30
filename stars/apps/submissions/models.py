@@ -331,6 +331,9 @@ class SubmissionSet(models.Model, FlaggableModel):
             return 0
 
     def get_STARS_v1_0_score(self):
+        """
+            Averages of each category average
+        """
         score = 0
         non_inno_cats = 0
         innovation_score = 0
@@ -342,6 +345,28 @@ class SubmissionSet(models.Model, FlaggableModel):
                 non_inno_cats += 1
 
         score = (score / non_inno_cats) if non_inno_cats>0 else 0   # average
+
+        score += innovation_score  # plus any innovation points
+
+        return score if score <= 100 else 100
+
+    def get_STARS_v2_0_score(self):
+        """
+            Percentage of total achieved out of total available
+        """
+        innovation_score = 0
+        total_available = self.get_adjusted_available_points()
+        total_achieved = 0
+
+        for cat in self.categorysubmission_set.all().select_related():
+            if cat.category.is_innovation():
+                innovation_score = cat.get_STARS_v2_0_score()
+            elif cat.category.include_in_score:
+                _score, _avail = cat.get_score_ratio()
+                total_achieved += _score
+                total_available += _avail
+
+        score = total_achieved / total_available
 
         score += innovation_score  # plus any innovation points
 
@@ -788,6 +813,12 @@ class CategorySubmission(models.Model):
         if not self.category.is_innovation():
             score = ((100.0 * score) / avail) if avail>0 else 0   # percentage of points earned, 0 - 100
         return score
+
+    def get_STARS_v2_0_score(self):
+        """
+            returns the available and achieved points
+        """
+        return self.get_score_ratio()
 
     def get_claimed_points(self):
         score = 0

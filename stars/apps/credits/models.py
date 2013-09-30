@@ -89,6 +89,7 @@ def _get_next_ordinal(objects):
 # Method names stored in the DB have a maximum length of 25 characters
 SCORING_METHOD_CHOICES = (
     ('get_STARS_v1_0_score', 'STARS 1.0 Scoring'),
+    ('get_STARS_v2_0_score', 'STARS 2.0 Scoring'),
 )
 
 IDENTIFIER_CHOICES = (('get_1_0_identifier', '1.0'),
