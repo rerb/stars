@@ -17,24 +17,9 @@ from stars.apps.credits.models import (ApplicabilityReason,
 class CreditSetFactory(factory.DjangoModelFactory):
     FACTORY_FOR = CreditSet
 
+    version = factory.Sequence(lambda i: i)
     release_date = datetime.date(1970, 1, 1)
     tier_2_points = 1
-
-    _highest_version = 0
-
-    @classmethod
-    def _prepare(cls, create, **kwargs):
-        """
-            Assigns a (hopefully) unique version if no version is provided.
-        """
-        if 'version' not in kwargs:
-            if CreditSet.objects.count():
-                CreditSetFactory._highest_version = (
-                    CreditSet.objects.all().order_by('-id')[0].id)
-            CreditSetFactory._highest_version += 1
-            kwargs['version'] = CreditSetFactory._highest_version
-        credit_set = super(CreditSetFactory, cls)._prepare(create, **kwargs)
-        return credit_set
 
 
 class CategoryFactory(factory.DjangoModelFactory):
