@@ -139,6 +139,11 @@ INSTALLED_APPS = (
 
     'terms', # must come before stars.apps.tool, which overrides the admin
 
+    # etl_export should come before other stars apps so the etl_export
+    # models don't shadow the "real" models (e.g., Institution,
+    # SubmissionSet) when one runs `manage.py shell_plus`.
+    'stars.apps.etl_export',  
+
     'stars.apps.credits',
     'stars.apps.tool.credit_editor',
     'stars.apps.tool.my_submission',
@@ -153,7 +158,7 @@ INSTALLED_APPS = (
     'stars.apps.helpers',
     'stars.apps.helpers.forms', # included here for testing
     'stars.apps.old_cms',
-    'stars.apps.etl_export',
+
     'stars.apps.custom_forms',
     'stars.apps.tasks',
     'stars.apps.notifications',
