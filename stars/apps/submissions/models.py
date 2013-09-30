@@ -1720,7 +1720,7 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
         return parent.get_institution()
 
     def get_creditset(self):
-        return self.credit_submission.get_creditset()
+        return self.credit_submission.creditusersubmission.get_creditset()
 
     def get_submissionset(self):
         """Returns the SubmissionSet related to this
