@@ -22,6 +22,7 @@ def get_doc_field_history(documentation_field):
     return sorted(history,
                   key=lambda df: df.get_creditset().version)
 
+
 def get_doc_field_submission_for_doc_field(documentation_field,
                                            institution):
     """Returns the DocumentationFieldSubmission for `documentation_field`
@@ -48,8 +49,27 @@ def get_doc_field_submission_for_doc_field(documentation_field,
 
     return None
 
+
+def should_this_submissionset_be_shown(submissionset):
+    """Decides if the credit history associated with `submissionset`
+    should be shown.
+    """
+    return (submissionset.status == submissions_models.RATED_SUBMISSION_STATUS
+            or
+            submissionset.migrated_from)
+                
+
 def get_doc_field_submission_history(documentation_field,
                                      institution):
+    """Returns the DocumentationFieldSubmission history for 
+    `documentation_field`, for `institution`.
+
+    A DocumentationFieldSubmissions qualifies as history if it
+    has a value other than None or '' (an empty string), and
+    if its SubmissionSet passes the should_this_submissionset_be_shown()
+    filter.
+    """
+    
     history = ordered_set.OrderedSet()
 
     # Candidates for display in history tab:
@@ -68,12 +88,13 @@ def get_doc_field_submission_history(documentation_field,
                 institution))
 
         if documentation_field_submission:
+            documentation_field_submission_value = (
+                documentation_field_submission.get_value())
+            if documentation_field_submission_value in (None, ''):
+                continue
+
             submissionset = documentation_field_submission.get_submissionset()
-        
-            if (submissionset.status ==
-                submissions_models.RATED_SUBMISSION_STATUS
-                or submissionset.migrated_from):
-                
+            if should_this_submissionset_be_shown(submissionset):
                 history.add(documentation_field_submission)
                 
     return history
