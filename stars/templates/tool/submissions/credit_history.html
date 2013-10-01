@@ -1,0 +1,52 @@
+{% extends 'tool/submissions/credit_base.html' %}
+
+{% load bootstrap %}
+
+{% block credit_tabs %}
+    {% with active='history' %}
+        {{ block.super }}
+    {% endwith %}
+{% endblock %}
+
+{% block tab_content %}
+    <div class='creditContent'>
+        <h2>History</h2>
+        {% for doc_field, doc_field_submissions in history.items %}
+          {% if doc_field_submissions %}
+            <div class="documentationField">
+                <div class="control-group">
+                    <label class="control-label">
+                        <strong>
+                            {{ doc_field }} 
+                        </strong>
+                    </label>
+                    {% for doc_field_submission in doc_field_submissions %}
+                        <table class="controls table">
+                            <tr>
+                                <td class="span1">
+                                    v{{ doc_field_submission.get_creditset.version }}
+                                </td>
+                                <td class="span1">
+                                    {% with submissionset=doc_field_submission.get_submissionset %}
+                                        {% if submissionset.date_submitted %}
+                                            {{ submissionset.date_submitted|date:"Y" }}
+                                        {% else %}
+                                            {{ submissionset.date_registered|date:"Y" }}
+                                        {% endif %}
+                                    {% endwith %}
+                                </td>
+                                <td class="span1">
+                                  <!-- don't use tables for layout! -->
+                                </td>
+                                <td>
+                                    {{ doc_field_submission.get_value }}
+                                </td>
+                            </tr>
+                        </table>
+                    {% endfor %}
+                </div>
+            </div>
+          {% endif %}
+        {% endfor %}
+    </div>
+{% endblock %}
