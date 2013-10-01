@@ -1,0 +1,21 @@
+{% extends "institutions/scorecards/base.html" %}
+
+{% load cache %}
+{% load logical_rules_tags %}
+
+{% block body_onload %}expandTo = 0;{{ block.super }}{% endblock %}
+
+{% block content %}
+
+	{# cache for those who have the export functionality #}
+	
+	{% testrule user_can_view_export user submissionset %}
+		{% cache 21600 submission_summary submissionset.id preview "EXPORT" %}
+	    	{% include 'institutions/scorecards/summary_include.html' %}
+		{% endcache %}
+	{% else %}
+		{% cache 21600 submission_summary submissionset.id preview "NO_EXPORT" %}
+	    	{% include 'institutions/scorecards/summary_include.html' %}
+		{% endcache %}
+	{% endtestrule %}
+{% endblock %}
