@@ -1,0 +1,180 @@
+{% comment %}
+<!--
+<ul class="nav main-menu">
+  <li>
+    <a href="/pages/register/register-stars.html" style="background-color: none;"><button class="btn btn-success" type="button">Register</button></a>
+  <li>
+  {% for cat in categories %}
+  <li class='dropdown{% if selected == cat.title %}active{% endif %}'>
+    <a data-toggle="dropdown" class="dropdown-toggle" href="#">{{ cat.title }}<b class="caret"></b></a>
+    <ul class="dropdown-menu">
+      {% for a in cat.get_articles %}
+      <li {% if article and a == article %}class="active"{% endif %}>
+        <a href='{{ a.get_absolute_url }}'>
+          {{ a.title }}
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </li>
+  {% endfor %}
+</ul>
+-->
+{% endcomment %}
+
+<ul class="nav main-menu">
+  <li>
+    <a href="/pages/register/register-stars.html" style="background-color: none;"><button class="btn btn-success" type="button">Register</button></a>
+  </li><li>
+    
+  </li><li class="dropdown">
+    <a data-toggle="dropdown" class="dropdown-toggle" href="#">Engage<b class="caret"></b></a>
+    <ul class="dropdown-menu">
+      
+      <li>
+        <a href="/pages/engage/stars-overview.html">
+          STARS Overview
+        </a>
+      </li>
+      
+      <li>
+        <a href="/pages/engage/getting-started.html">
+          Getting Started
+        </a>
+      </li>
+      
+      <li>
+        <a href="/pages/engage/governance.html">
+          Governance
+        </a>
+      </li>
+      
+      <li>
+        <a href="/pages/engage/timeline.html">
+          Timeline
+        </a>
+      </li>
+      
+    </ul>
+  </li>
+  
+  <li class="dropdown">
+    <a data-toggle="dropdown" class="dropdown-toggle" href="#">Report<b class="caret"></b></a>
+    <ul class="dropdown-menu">
+      
+      <li>
+        <a href="/pages/report/reporting-process.html">
+          Reporting Process
+        </a>
+      </li>
+      
+      <li>
+        <a href="/pages/report/technical-manual.html">
+          Technical Manual
+        </a>
+      </li>
+      
+      <li>
+        <a href="/pages/report/stars-report-accuracy.html">
+          Data Accuracy
+        </a>
+      </li>
+      
+      <li>
+        <a href="/tool/">
+          STARS Reporting Tool
+        </a>
+      </li>
+      
+    </ul>
+  </li>
+  
+  <li class="dropdown">
+    <a data-toggle="dropdown" class="dropdown-toggle" href="#">Submit<b class="caret"></b></a>
+    <ul class="dropdown-menu">
+      
+      <li>
+        <a href="/pages/submit/submission-process.html">
+          Submission Process
+        </a>
+      </li>
+      
+      <li>
+        <a href="/pages/submit/recognition-scoring.html">
+          Recognition &amp; Scoring
+        </a>
+      </li>
+      
+      <li>
+        <a href="/pages/submit/correcting-mistakes.html">
+          Correcting Mistakes
+        </a>
+      </li>
+      
+    </ul>
+  </li>
+  
+  <li class="dropdown">
+    <a data-toggle="dropdown" class="dropdown-toggle" href="#">Celebrate<b class="caret"></b></a>
+    <ul class="dropdown-menu">
+      
+      <li>
+        <a href="/pages/celebrate/share-your-story.html">
+          Share Your Story
+        </a>
+      </li>
+      
+      {% comment %}
+      <li>
+        <a href="/pages/celebrate/participants-reports.html">
+          Participants &amp; Reports
+        </a>
+      </li>
+      {% endcomment %}
+      <li>
+        <a href="/institutions/">
+          Current Participants
+        </a>
+      </li>
+
+      <li>
+        <a href="/institutions/rated/">
+          Rated Institutions
+        </a>
+      </li>
+      
+      <li>
+        <a href="/pages/celebrate/media-coverage.html">
+          Media Coverage
+        </a>
+      </li>
+      
+      <li>
+        <a href="/pages/celebrate/publications.html">
+          Publications
+        </a>
+      </li>
+      
+    </ul>
+  </li>
+  
+  <li class="dropdown">
+    <a data-toggle="dropdown" class="dropdown-toggle" href="#">Evaluate<b class="caret"></b></a>
+    <ul class="dropdown-menu">
+      
+      <li>
+        <a href="/pages/evaluate/using-stars-data.html">
+          Using STARS Data
+        </a>
+      </li>
+      
+      <li>
+        <a href="/institutions/data-displays/dashboard/">
+          Access STARS Data
+        </a>
+      </li>
+      
+    </ul>
+  </li>
+  
+</ul>
