@@ -1,0 +1,21 @@
+#!/bin/sh
+# virtualenv postactivate script for operations common to AASHE
+# installations of STARS.
+
+# aasheauth config
+export AASHE_DRUPAL_URI="http://www.aashe.org/services/xmlrpc"
+export AASHE_DRUPAL_KEY="8dca728d46c85b3fda4529692a7f7725"
+export AASHE_DRUPAL_KEY_DOMAIN="stars.aashe.org"
+export AASHE_DRUPAL_COOKIE_SESSION="SESS119812a4f54200aec862c73cf2ee"
+export AASHE_DRUPAL_COOKIE_DOMAIN=".aashe.org"
+export AASHE_AUTH_VERBOSE=True
+
+export EMAIL_USE_TLS=True
+export EMAIL_HOST='smtp.gmail.com'
+export EMAIL_HOST_USER='stars_notifier@aashe.org'
+export EMAIL_HOST_PASSWORD='sustainaashe'
+export EMAIL_PORT=587
+export DEFAULT_FROM_EMAIL='stars_notifier@aashe.org'
+export EMAIL_REPLY_TO="stars@aashe.org"
+
+export GOOGLE_API_KEY="ABQIAAAA-bTvhmGT1R0ug4p1J_-l4hQWDBNZ3_Sn8d2AByp8vi_J8JN7YxQq-tOQFxf4oNeYJyiW9fXWm-pwNg"
