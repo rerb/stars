@@ -1,26 +1,36 @@
 {% load list_access %}
 {% load ce_tags %}
+{% load submit_tags %}
 {% load terms %}
 
-{% if field_form.instance.type == 'tabular' %}
+{% if documentation_field.type == 'tabular' %}
+	{% if field_form.errors %}
+		<div class="alert alert-error">
+			Please correct the errors in this table.
+		</div>
+	{% endif %}
 	<table class="table table-bordered">
 		<thead>
 			<tr>
 				<th></th>
-				{% for c in field_form.instance.tabular_fields.colHeadings %}
+				{% for c in documentation_field.tabular_fields.colHeadings %}
 					<th>{{ c }}</th>
 				{% endfor %}
 			</tr>
 		</thead>
 		<tbody>
-			{% for row in field_form.instance.tabular_fields.fields %}
+			{% for row in documentation_field.tabular_fields.fields %}
 				<tr>
 					{% with forloop.counter0 as i %}
-						<th>{% get_list_index field_form.instance.tabular_fields.rowHeadings i as heading %}{{ heading }}</th>
+						<th>{% get_list_index documentation_field.tabular_fields.rowHeadings i as heading %}{{ heading }}</th>
 					{% endwith %}
 					{% for col in row %}
 						<td>
-							{% show_field_control_from_id col editing %}
+							{% if field_form.subforms %}
+								{% show_submission_field_control field_form.subforms col %}
+							{% else %}
+								{% show_field_control_from_id col editing %}
+							{% endif %}
 						</td>
 					{% endfor %}
 				</tr>
