@@ -39,11 +39,7 @@
                                   <!-- don't use tables for layout! -->
                                 </td>
                                 <td>
-                                    {% with value=doc_field_submission.get_value %}
-                                        {% if value != None %}
-                                            {{ value }}
-                                        {% endif %}
-                                    {% endwith %}
+                                    {{ doc_field_submission.get_value }}
                                 </td>
                             </tr>
                         </table>
