@@ -22,7 +22,7 @@ def lookup_help_context(context_name):
         return None
 
 @register.inclusion_tag('helpers/tags/help_text.html')
-def show_help_context(context_name, as_tooltip=True):
+def show_help_context(context_name, as_tooltip=True, icon='icon-question-sign'):
     """ Displays a tool-tip for the help text for the given context. """
     help_context = lookup_help_context(context_name)
 
@@ -31,7 +31,8 @@ def show_help_context(context_name, as_tooltip=True):
                 'help_text': help_context.help_text.replace("\"", "'"), #_clean(help_context.help_text, as_tooltip),
                 "tooltip": as_tooltip,
                 "id": context_name,
-                "help_text_title": help_context.title
+                "help_text_title": help_context.title,
+                'icon': icon
                 }
     else:
         return {
@@ -49,9 +50,12 @@ def get_help_context(context_name):
     return help_context.help_text
 
 @register.inclusion_tag('helpers/tags/help_text.html')
-def show_help_text(help_text, as_tooltip=True, id=None):
+def show_help_text(help_text, as_tooltip=True, id=None, icon='icon-question-sign'):
     """ Displays a tool-tip for the given help text with quotes properly escaped. """
-    return {'help_text': _clean(help_text, as_tooltip), "tooltip": as_tooltip, "id": id}
+    return {'help_text': _clean(help_text, as_tooltip),
+            "tooltip": as_tooltip,
+            "id": id,
+            'icon': icon}
 
 def _clean(text, as_tooltip):
     """ Helper to prepare the help text """
