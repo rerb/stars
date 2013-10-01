@@ -57,7 +57,7 @@ class GetDocFieldSubmissionForDocFieldTest(TestCase):
     def setUpClass(cls):
         # One DocumentationFieldSubmission:
         cls.documentation_field_submission = (
-            DocumentationFieldSubmissionFactory())
+            DocumentationFieldSubmissionFactory(value="test"))
         cls.documentation_field = (
             cls.documentation_field_submission.documentation_field)
 
@@ -83,7 +83,7 @@ class GetDocFieldSubmissionForDocFieldTest(TestCase):
         # Another DocumentationFieldSubmission, unrelated to 
         # self.documentation_field:
         another_documentation_field_submission = (
-            DocumentationFieldSubmissionFactory())
+            DocumentationFieldSubmissionFactory(value="anothertest"))
         
         doc_field_submission = get_doc_field_submission_for_doc_field(
             documentation_field=self.documentation_field,
@@ -99,7 +99,7 @@ class GetDocFieldSubmissionHistoryTest(TestCase):
     def setUpClass(cls):
         # One DocumentationFieldSubmission:
         cls.documentation_field_submission = (
-            DocumentationFieldSubmissionFactory())
+            DocumentationFieldSubmissionFactory(value="Mr. Green Jeans"))
         cls.documentation_field = (
             cls.documentation_field_submission.documentation_field)
 
@@ -113,7 +113,7 @@ class GetDocFieldSubmissionHistoryTest(TestCase):
 
     def test_no_history(self):
         """Is empty set returned when there's no history?"""
-        self.assertSetEqual(
+        self.assertEqual(
             get_doc_field_submission_history(
                 documentation_field=self.documentation_field,
                 institution=self.institution),
@@ -127,7 +127,8 @@ class GetDocFieldSubmissionHistoryTest(TestCase):
 
         second_documentation_field_submission = (
             DocumentationFieldSubmissionFactory(
-                documentation_field=second_documentation_field))
+                documentation_field=second_documentation_field,
+                value="Cap'n Kangaroo"))
         submission_set = (
             second_documentation_field_submission.get_submissionset())
         submission_set.institution = self.institution
@@ -138,7 +139,7 @@ class GetDocFieldSubmissionHistoryTest(TestCase):
             submissions_models.RATED_SUBMISSION_STATUS)
         self.submission_set.save()
         
-        self.assertSetEqual(
+        self.assertEqual(
             get_doc_field_submission_history(
                 documentation_field=second_documentation_field,
                 institution=self.institution),
@@ -152,7 +153,8 @@ class GetDocFieldSubmissionHistoryTest(TestCase):
 
         second_documentation_field_submission = (
             DocumentationFieldSubmissionFactory(
-                documentation_field=second_documentation_field))
+                documentation_field=second_documentation_field,
+                value="Mr. Rogers"))
         submission_set = (
             second_documentation_field_submission.get_submissionset())
         submission_set.institution = self.institution
@@ -163,7 +165,7 @@ class GetDocFieldSubmissionHistoryTest(TestCase):
             submissions_models.RATED_SUBMISSION_STATUS)
         self.submission_set.save()
         
-        self.assertSetEqual(
+        self.assertEqual(
             get_doc_field_submission_history(
                 documentation_field=second_documentation_field,
                 institution=self.institution),
@@ -177,13 +179,14 @@ class GetDocFieldSubmissionHistoryTest(TestCase):
 
         second_documentation_field_submission = (
             DocumentationFieldSubmissionFactory(
-                documentation_field=second_documentation_field))
+                documentation_field=second_documentation_field,
+                value="Miss Ann"))
         submission_set = (
             second_documentation_field_submission.get_submissionset())
         submission_set.institution = self.institution
         submission_set.save()
 
-        self.assertSetEqual(
+        self.assertEqual(
             get_doc_field_submission_history(
                 documentation_field=second_documentation_field,
                 institution=self.institution),
@@ -200,7 +203,8 @@ class GetDocFieldSubmissionHistoryTest(TestCase):
 
         second_documentation_field_submission = (
             DocumentationFieldSubmissionFactory(
-                documentation_field=second_documentation_field))
+                documentation_field=second_documentation_field,
+                value="Barney Bean"))
         submission_set = (
             second_documentation_field_submission.get_submissionset())
         submission_set.institution = self.institution
@@ -212,7 +216,7 @@ class GetDocFieldSubmissionHistoryTest(TestCase):
             submissions_models.RATED_SUBMISSION_STATUS)
         self.submission_set.save()
 
-        self.assertSetEqual(
+        self.assertEqual(
             get_doc_field_submission_history(
                 documentation_field=third_documentation_field,
                 institution=self.institution),
@@ -237,7 +241,8 @@ class GetDocFieldSubmissionHistoryTest(TestCase):
         # doc_field_sub for 2nd doc field:
         second_documentation_field_submission = (
             DocumentationFieldSubmissionFactory(
-                documentation_field=second_documentation_field))
+                documentation_field=second_documentation_field,
+                value="Carol Burnett"))
 
         # 3rd doc field with 2nd as previous version
         third_documentation_field = DocumentationFieldFactory(
@@ -247,7 +252,8 @@ class GetDocFieldSubmissionHistoryTest(TestCase):
         # doc_field_sub for 3rd doc field:
         third_documentation_field_submission = (
             DocumentationFieldSubmissionFactory(
-                documentation_field=third_documentation_field))
+                documentation_field=third_documentation_field,
+                value="Bob Newhart"))
 
         # first submissionset is rated:
         self.submission_set.status = (
@@ -274,7 +280,7 @@ class GetDocFieldSubmissionHistoryTest(TestCase):
             documentation_field=third_documentation_field,
             institution=self.institution)
         
-        self.assertSetEqual(
+        self.assertEqual(
             history,
             set([self.documentation_field_submission,
                  second_documentation_field_submission]))
@@ -315,7 +321,8 @@ class GetDocFieldSubmissionHistoryForCreditTest(TestCase):
         # doc_field_sub for first doc field:
         self.first_documentation_field_submission = (
             DocumentationFieldSubmissionFactory(
-                documentation_field=self.first_documentation_field))
+                documentation_field=self.first_documentation_field,
+                value="Laura Petrie"))
         
         # first submission set is rated:
         first_submission_set = (
@@ -328,7 +335,8 @@ class GetDocFieldSubmissionHistoryForCreditTest(TestCase):
         # doc_field_sub for 2nd doc field:
         self.second_documentation_field_submission = (
             DocumentationFieldSubmissionFactory(
-                documentation_field=self.second_documentation_field))
+                documentation_field=self.second_documentation_field,
+                value="Walnut Eyes"))
 
         # second submission set is migrated from first:
         second_submission_set = (
@@ -340,7 +348,8 @@ class GetDocFieldSubmissionHistoryForCreditTest(TestCase):
         # doc_field_sub for 3rd doc field:
         self.third_documentation_field_submission = (
             DocumentationFieldSubmissionFactory(
-                documentation_field=self.third_documentation_field))
+                documentation_field=self.third_documentation_field,
+                value="Dick Van Dyke"))
 
         # third submission set is rated:
         third_submission_set = (
