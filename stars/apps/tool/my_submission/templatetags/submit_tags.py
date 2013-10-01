@@ -93,4 +93,10 @@ def show_payment_type_icon(payment, size_class=''):
     icon.file, icon.title = PAYMENT_TYPE_ICONS.get(payment.method, (None, None))
     return {'icon': icon}
 
+@register.inclusion_tag('tool/submissions/tags/documentation_field_inside_table.html')
+def show_submission_field_control(form_list, id):
+    """ Displays the submission form for a documentation field """
+    form = form_list[id]
+    return{"documentation_field":form.instance.documentation_field, "field_form":form }
+
 

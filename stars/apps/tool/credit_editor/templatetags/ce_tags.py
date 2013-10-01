@@ -22,7 +22,7 @@ def show_field_form(doc_field):
     return{"documentation_field":doc_field, "field_form":form }
 
 @register.inclusion_tag('tool/submissions/tags/documentation_field_control.html')
-def show_field_control_from_id(doc_field_id, editing):
+def show_field_control_from_id(doc_field_id, editing=False):
     """ Displays the submission form controls for a single documentation field """
     if not doc_field_id:
         return

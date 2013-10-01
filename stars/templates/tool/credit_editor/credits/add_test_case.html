@@ -11,9 +11,8 @@
 {% block credit_content %}
    <form action='.' method='POST' class='generalForm'>
         <div class='form'>
-            <div class='documentationField'>
-                {{ object_form|bootstrap }}
-            </div>
+			{{ form.expected_value|bootstrap }}
+            
             {% with object_form as submission_form %}
             {% with 1 as show_identifier %}
                 {% include "tool/submissions/submission_fields_form.html" %}
