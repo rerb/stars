@@ -20,10 +20,10 @@
 	   {% endwith %}
 	
 	{% if field_form.value.errors %}
-		{% show_help_text field_form.errors.value|striptags 1 documentation_field.id 'icon-warning-sign' %}
+		<div class="alert alert-error">{{ field_form.errors.value }}</div>
 	{% endif %}
 	{% if field_form.warnings %}
-		<span class="help-inline">{{ field_form.warnings }}</span>
+		<div class="alert alert-warning">{{ field_form.warnings }}</div>
 	{% endif %}
 </div>
 
