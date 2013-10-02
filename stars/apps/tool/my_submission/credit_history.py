@@ -1,124 +1,139 @@
 import collections
+import functools
 
 import ordered_set
 
-import stars.apps.credits.models as credits_models
-import stars.apps.submissions.models as submissions_models
+from stars.apps.submissions.models import (RATED_SUBMISSION_STATUS,
+                                           SubmissionSet)
 
+"""
+Ben's psuedocode:
 
-def get_doc_field_history(documentation_field):
-    """Returns the set of DocumentationFields made up of 
-    `documentation_field` and all previous versions of
-    `documentation_field`.
+previousSubmissionGroup = Rated submissions and MigratedFromSubmission
+
+for each documentationFieldSubmission in currentSubmissionSet:
+	for each previousSubmissionSet in previousSubmissionGroup:
+		follow documentationFieldSubmission.documentation_field.previous_version tree to an olddocumentationfield that is in previousSubmissionSet.creditset
+		find oldDocumentationFieldSubmission with previousSubmissionSet as parent and olddocumentationfield as documentation_field:
+			print oldDocumentationField value
+"""
+
+def get_submissionsets_to_include_in_history(institution):
+    """Returns the list of SubmissionSets for `institution` that
+    should be included in CreditUserSubmission history reports.
+
+    SubmissionSets are included if they're rated or if they were
+    migrated to a new SubmissionSet.
     """
-    # could be get_versionsed_model_field_history.
-    # or VersionedModel.get_history()
-    history = [documentation_field]
-    
-    if documentation_field.previous_version:
-        history += (get_doc_field_history(
-            documentation_field.previous_version))
-                       
-    return sorted(history,
-                  key=lambda df: df.get_creditset().version)
-
-
-def get_doc_field_submission_for_doc_field(documentation_field,
-                                           institution):
-    """Returns the DocumentationFieldSubmission for `documentation_field`
-    and `institution`.
-
-    Returns None if there is no matching DocumentationFieldSubmission.
-    """
-    doc_field_submission_class = (
-        submissions_models.DocumentationFieldSubmission.get_field_class(
-            documentation_field))
-
-    all_doc_field_submissions = doc_field_submission_class.objects.filter(
-        documentation_field=documentation_field)
-
-    for doc_field_submission in all_doc_field_submissions:
-        credit_submission = doc_field_submission.credit_submission
-        # Skip tests:
-        if credit_submission.is_test():
-            continue
-        credit_user_submission = credit_submission.creditusersubmission
-        if (credit_user_submission.get_submissionset().institution ==
-            institution):
-            return doc_field_submission
-
-    return None
-
-
-def should_this_submissionset_be_shown(submissionset):
-    """Decides if the credit history associated with `submissionset`
-    should be shown.
-    """
-    return (submissionset.status == submissions_models.RATED_SUBMISSION_STATUS
+    submissionsets = ordered_set.OrderedSet()
+    for submissionset in SubmissionSet.objects.filter(
+            institution=institution):
+        if ((submissionset.status ==
+             RATED_SUBMISSION_STATUS)
             or
-            submissionset.migrated_from)
-                
+            submissionset.migrated_to):
+            submissionsets.add(submissionset)
+        # Shouldn't need to add migrated_from SubmissionSets, since
+        # we should have picked them up via migrated_to above, but
+        # sometimes -- at least, maybe only, once? -- migrated_from
+        # got set but migrated_to didn't during a migration; so ...
+        if submissionset.migrated_from:  
+            submissionsets.add(submissionset.migrated_from)
+    return submissionsets
 
-def get_doc_field_submission_history(documentation_field,
-                                     institution):
-    """Returns the DocumentationFieldSubmission history for 
-    `documentation_field`, for `institution`.
-
-    A DocumentationFieldSubmissions qualifies as history if it
-    has a value other than None or '' (an empty string), and
-    if its SubmissionSet passes the should_this_submissionset_be_shown()
-    filter.
+def get_previous_doc_field_versions(doc_field):
+    """Returns previous versions of a DocumentationField in a 
+    dictionary keyed by CreditSet.
     """
-    
-    history = ordered_set.OrderedSet()
-
-    # Candidates for display in history tab:
-    documentation_field_history = get_doc_field_history(
-        documentation_field=documentation_field)
-
-    for historical_documentation_field in documentation_field_history:
-
-        # Don't include this DocumentationField in the history:
-        if historical_documentation_field is documentation_field:
+    previous_versions = {}
+    for version in doc_field.get_all_versions():
+        if version == doc_field:
             continue
+        previous_versions[version.get_creditset()] = version
+    return previous_versions
 
-        documentation_field_submission = (
-            get_doc_field_submission_for_doc_field(
-                historical_documentation_field,
-                institution))
+# memoize from https://wiki.python.org/moin/PythonDecoratorLibrary#Memoize:
+def memoize(obj):
+    cache = obj.cache = {}
 
-        if documentation_field_submission:
-            documentation_field_submission_value = (
-                documentation_field_submission.get_value())
-            if documentation_field_submission_value in (None, ''):
-                continue
+    @functools.wraps(obj)
+    def memoizer(*args, **kwargs):
+        key = str(args) + str(kwargs)
+        if key not in cache:
+            cache[key] = obj(*args, **kwargs)
+        return cache[key]
+    return memoizer
 
-            submissionset = documentation_field_submission.get_submissionset()
-            if should_this_submissionset_be_shown(submissionset):
-                history.add(documentation_field_submission)
-                
-    return history
+@memoize
+def get_all_doc_field_subs_in_submissionset(submissionset):
+    """Returns all DocumentationFieldSubmissions for `submissionset`
+    as a dictionary keyed by related DocumentationFields.
+    """
+    doc_field_subs = {}
+    
+    for cat_sub in submissionset.categorysubmission_set.all():
+        for subcat_sub in cat_sub.subcategorysubmission_set.all():
+            for credituser_sub in subcat_sub.creditusersubmission_set.all():
+                for doc_field_sub in credituser_sub.get_submission_fields():
+                    doc_field_subs[doc_field_sub.documentation_field] = (
+                        doc_field_sub)
+    return doc_field_subs
 
-def get_doc_field_submission_history_for_credit(credit,
-                                                institution):
-    """Return the DocumentationFieldSubmission history for this
-    `credit` and `institution`.
+def get_credit_submission_history(credit_submission):
+    """Returns historical DocumentationFieldSubmissions for
+    `credit_submission` as a dictionary, keyed by the related
+    DocumentationField.
 
-    History is represented as a dictionary; keys are DocumentationFields
-    of `credit`, and values are data as returned by
-    get_doc_field_submission_history().
+    Only DocumentationFieldSubmissions in SubmissionSets that
+    pass the get_submissionsets_to_include_in_history() filter
+    are included.
     """
     history = collections.OrderedDict()
+    
+    historical_submissionsets = get_submissionsets_to_include_in_history(
+        institution=credit_submission.get_submissionset().institution)
 
-    for documentation_field in credit.documentationfield_set.all():
-        history[documentation_field] = get_doc_field_submission_history(
-            documentation_field=documentation_field,
-            institution=institution)
+    for doc_field_submission in credit_submission.get_submission_fields():
+
+        # Previous versions of the DocumentationField for this
+        # DocumentationFieldSubmission:
+        previous_doc_fields = get_previous_doc_field_versions(
+            doc_field_submission.documentation_field)
+        
+        if previous_doc_fields:
+            
+            for submissionset in historical_submissionsets:
+                # A previous version of the DocumentationField for this
+                # DocumentationFieldSubmission in this submissionset:
+                try:
+                    previous_doc_field = (
+                        previous_doc_fields[submissionset.creditset])
+                except KeyError:
+                    continue
+
+                # Find DocumentationFieldSubmission in submissionset,
+                # for previous_doc_field:
+                all_doc_field_subs_in_submissionset = (
+                    get_all_doc_field_subs_in_submissionset(submissionset))
+
+                # Filter submissions with a value of None or The
+                # Empty String.
+                for doc_field, doc_field_sub in \
+                    all_doc_field_subs_in_submissionset.items():
+
+                    if doc_field_sub.value in (None, ""):
+                        del(all_doc_field_subs_in_submissionset[doc_field])
+
+                if previous_doc_field in all_doc_field_subs_in_submissionset:
+                    try:
+                        history[
+                            doc_field_submission.documentation_field].append(
+                                all_doc_field_subs_in_submissionset[
+                                    previous_doc_field])
+                    except KeyError:
+                        history[doc_field_submission.documentation_field] = [
+                            all_doc_field_subs_in_submissionset[
+                                previous_doc_field]]
 
     return history
-            
-                
-            
 
-    
-                    
