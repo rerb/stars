@@ -464,8 +464,8 @@ class CreditSubmissionForm(LocalizedModelFormMixin, ModelForm):
                     # remove from new list, in case they are out of order
                     for f in form_field_list_with_tables:
                         if type(f) != dict and f.instance.documentation_field.id == sub_id:
-                            table_wrapper['subforms']["%d" % sub_id] = f['form']
-                            if f['form'].errors:
+                            table_wrapper['subforms']["%d" % sub_id] = f
+                            if f.errors:
                                 table_wrapper['errors'] = True
                             form_field_list_with_tables.remove(f)
 
