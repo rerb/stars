@@ -63,7 +63,7 @@
             <td style='text-align: left'>
                 {% if is_admin and not set.missed_deadline %}
                 	{% if set == active_set and not set.was_submitted and set.is_enabled %}
-                		<a href='{{ set.get_submit_url }}' class='button'>Submit for Rating</a>
+                		<a href='{{ set.get_submit_url }}' class='button'>Submit Report</a>
                         <a href='{{ set.get_manage_url }}boundary/' class='button'>Edit Boundary</a>
 		                {% if set.can_apply_for_extension %}
 		                    <a href='{{ set.get_manage_url }}extension/' class='button'>Extend Deadline</a>
