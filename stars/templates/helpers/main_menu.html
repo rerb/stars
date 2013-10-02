@@ -1,0 +1,17 @@
+<ul class="nav main-menu">
+    <li {% if selected == "about" %}class='active'{% endif %}>
+        <a href='/pages/about/'>About</a>
+    </li>
+    <li {% if selected == "get-involved" %}class='active'{% endif %}>
+        <a href='/pages/get-involved/'>Get Involved</a>
+        </li>
+    <li {% if selected == "mm_institutions" %}class='active'{% endif %}>
+        <a href='/institutions/data-displays/dashboard/'>STARS Institutions</a>
+        </li>
+    <li {% if selected == "news-events" %}class='active'{% endif %}>
+        <a href='/pages/news-events/'>News &amp; Events</a>
+    </li>
+    <li {% if selected == "mm_tool" %}class='active'{% endif %}>
+        <a href='{% url tool-landing-page %}'>Reporting</a>
+    </li>
+</ul>

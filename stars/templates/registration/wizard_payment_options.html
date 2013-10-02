@@ -1,0 +1,10 @@
+{% extends 'registration/wizard_base.html' %}
+
+{% block extra_head %}
+  {{ block.super }}
+  {% include 'payments/subscription_price_extra_head.html' %}
+{% endblock %}
+
+{% block form %}
+  {% include 'payments/subscription_payment_options.html' %}
+{% endblock %}
