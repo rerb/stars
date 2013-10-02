@@ -221,6 +221,8 @@ def migrate_submission(old_ss, new_ss, keep_status=False):
                 old_c = CreditUserSubmission.objects.get(
                     subcategory_submission__category_submission__submissionset=old_ss,
                     credit=prev_credit)
+            except CreditUserSubmission.DoesNotExist:
+                continue
                 c.last_updated = old_c.last_updated
                 try:
                     c.user = old_c.user
@@ -243,33 +245,27 @@ def migrate_submission(old_ss, new_ss, keep_status=False):
                     if old_c.submission_status != 'ns':
                         c.submission_status = 'p'
 
-            except CreditUserSubmission.DoesNotExist:
-                continue
+        # get all the fields in this credit
+        for f in c.get_submission_fields():
 
-            # get all the fields in this credit
-            for f in c.get_submission_fields():
+            prev_df = f.documentation_field.get_for_creditset(
+                old_ss.creditset)
 
-                prev_df = f.documentation_field.get_for_creditset(
-                    old_ss.creditset)
-
-                if prev_df:
-                    field_class = f.__class__
-                    try:
-                        old_f = field_class.objects.get(
-                            documentation_field=prev_df,
-                            credit_submission=old_c)
-                        f.value = old_f.value
-                        f.save()
-                    except field_class.DoesNotExist:
-                        continue
-
-                else:
+            if prev_df:
+                field_class = f.__class__
+                try:
+                    prev_cus = CreditUserSubmission.objects.get(credit=prev_df.credit,
+                                                                subcategory_submission__category_submission__submissionset=old_ss)
+                    old_f = field_class.objects.get(
+                        documentation_field=prev_df,
+                        credit_submission=prev_cus)
+                    f.value = old_f.value
+                    f.save()
+                except field_class.DoesNotExist:
                     continue
 
-            # don't save until all the fields are updated
-            c.save()
-        else:
-            continue
+        # don't save until all the fields are updated
+        c.save()
 
     try:
         new_boundary = copy.copy(old_ss.boundary)
