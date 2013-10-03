@@ -8,11 +8,11 @@
 		<a href='{% url submission-summary institution.slug institution.current_submission.id %}'>{{ institution.current_submission.creditset.version }}</a>
 		<span class="divider">/</span>
 	</li>
-	<li>Migrate</li>
+	<li>Manage Data</li>
 {% endblock %}
 
 {% block tabs %}
-	{% with active_tab="migrate" %}{{ block.super }}{% endwith %}
+	{% with active_tab="manage_data" %}{{ block.super }}{% endwith %}
 {% endblock %}
 
 {% block institution_content %}
