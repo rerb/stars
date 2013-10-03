@@ -1,20 +1,15 @@
-from datetime import datetime, date
+from datetime import date
 from logging import getLogger
 
-from django.conf import settings
-from django.contrib import messages
 from django.core.urlresolvers import reverse
-from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect, Http404
 from django.db.models import Min
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, UpdateView
 
 from stars.apps.accounts.utils import respond
-from stars.apps.accounts import utils as auth_utils
 from stars.apps.accounts.decorators import user_is_staff
-from stars.apps.helpers.forms import form_helpers
-from stars.apps.institutions.models import (Institution, Subscription,
+from stars.apps.institutions.models import (Institution,
                                             SubscriptionPayment)
 from stars.apps.institutions.views import SortableTableView
 from stars.apps.submissions.models import SubmissionSet
