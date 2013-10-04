@@ -614,7 +614,7 @@ class MigrateVersionView(InstitutionAdminToolMixin,
         if not form.cleaned_data['is_locked']:
             return self.form_invalid(form)
         # . . . otherwise, start a migration task
-        perform_migration(self.get_institution().current_submission,
+        perform_migration.delay(self.get_institution().current_submission,
                                 CreditSet.objects.get_latest(),
                                 self.request.user)
         return super(MigrateVersionView, self).form_valid(form)
