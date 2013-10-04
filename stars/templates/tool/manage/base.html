@@ -43,8 +43,8 @@
         <li{% if active_tab == 'share' %} class="active" {% endif %}>
             <a href="{% url share-data institution.slug %}">Share Data</a>
         </li>
-        <li{% if active_tab == 'migrate' %} class="active" {% endif %}>
-            <a href="{% url migrate-options institution.slug %}">Migrate</a>
+        <li{% if active_tab == 'manage_data' %} class="active" {% endif %}>
+            <a href="{% url migrate-options institution.slug %}">Manage Data</a>
         </li>
         {% endtestrule %}
     </ul>

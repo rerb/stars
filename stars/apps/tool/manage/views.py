@@ -509,7 +509,7 @@ class MigrateOptionsView(InstitutionAdminToolMixin, TemplateView):
         Provides a user with migration options (i.e., migrate some data or
         migrate a submission).
     """
-    tab_content_title = 'migrate'
+    tab_content_title = 'manage data'
     template_name = 'tool/manage/migrate_submissionset.html'
 
     def get_context_data(self, **kwargs):

@@ -8,11 +8,11 @@
 		<a href='{% url submission-summary institution.slug institution.current_submission.id %}'>{{ institution.current_submission.creditset.version }}</a>
 		<span class="divider">/</span>
 	</li>
-	<li>Migrate</li>
+	<li>Manage Data</li>
 {% endblock %}
 
 {% block tabs %}
-	{% with active_tab="migrate" %}{{ block.super }}{% endwith %}
+	{% with active_tab="manage_data" %}{{ block.super }}{% endwith %}
 {% endblock %}
 
 {% block institution_content %}
@@ -22,11 +22,11 @@
 			{% display_block_content 'migrate_base' user %}
 		</div>
 		<div class='span4'>
-			<h3>Version Migration</h3>
-			<p>Migrate Submission to <strong>{{ latest_creditset }}</strong>.</p>
+			<h3>Version Upgrade</h3>
+			<p>Upgrade Submission to <strong>{{ latest_creditset }}</strong>.</p>
 			{% if active_submission.creditset != latest_creditset %}
 				{% testrule user_can_migrate_version user institution %}
-					<a href="{% url migrate-version institution.slug active_submission.id %}" class='btn btn-primary'>Migrate Now</a>
+					<a href="{% url migrate-version institution.slug active_submission.id %}" class='btn btn-primary'>Upgrade Now</a>
 				{% else %}
 					<div class="alert">Sorry, you do not have permission to migrate versions. Please contact your STARS liaison to get admin privileges.</div>
 				{% endtestrule %}

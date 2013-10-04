@@ -30,7 +30,7 @@
                 <thead>
                     <tr>
                         <th>Institution Name</th>
-                        <th>Participation Level</th>
+                        <th>Access Level</th>
                         {% if institution.current_rating %}
                             <th>Current Rating</th>
                         {% endif %}
@@ -42,12 +42,12 @@
                         <td>
                             {% if institution.is_participant %}
                                 <span class='label label-success'>
-                                    STARS Participant
+                                    Full
                                 </span>
                                 <br/>
                             {% else %}
                                 <span class='label label-important'>
-                                    Survey Respondent
+                                    Basic
                                 </span>
                             {% endif %}
                         </td>
