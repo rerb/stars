@@ -507,6 +507,8 @@ class Subcategory(VersionedModel):
     ordinal = models.SmallIntegerField(default=-1)
     max_point_value = models.IntegerField(default=0)
     description = models.TextField()
+    passthrough = models.BooleanField(default=False,
+        help_text="makes the subcategory sorta invisible, for use with Inst. Characteristics")
 
     class Meta:
         ordering = ('category', 'ordinal',)
@@ -644,6 +646,8 @@ class Credit(VersionedModel):
     measurement = models.TextField(blank=True, null=True)
     staff_notes = models.TextField('AASHE Staff Notes', blank=True, null=True)
     identifier = models.CharField(max_length=16, default="ID?")
+    show_info = models.BooleanField(default=True,
+       help_text="Indicates if this credit will have the 'info' tab")
 
     class Meta:
         ordering = ('ordinal',)

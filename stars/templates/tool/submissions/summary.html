@@ -20,11 +20,14 @@
         {% include 'tool/submissions/submission_summary_table.html' %}
         <div class='submissionBoundary'>
             <p style='text-align: center;'>
+            
+            {% if submissionset.creditset.has_boundary_feature %}
               {% testrule user_has_access_level user 'admin' institution %}
                 <a href='{% url boundary-edit institution.slug submissionset.id %}'
                    class='btn btn-warning'>
                     <i class="icon-edit icon-white"></i> Edit Boundary</a>
               {% endtestrule %}
+             {% endif %}
 
               {% testrule institution_has_snapshot_feature institution %}
                 <a href='{% url share-data institution.slug %}'
@@ -75,6 +78,7 @@
                             <div class="accordion subcategory_accordion" id="accordion_{{ sub.subcategory.id }}">
                                 <div class="accordion-group">
                                     <div class="accordion-heading">
+                                    	{% if not sub.subcategory.passthrough %}
                                         <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion_{{ sub.subcategory.id }}" href="#ec_{{ cat.category.id }}_{{ sub.subcategory.id }}">
                                             {{ sub }}
                                             {% testrule institution_has_score_feature institution %}
@@ -97,9 +101,11 @@
                                                 </td>
                                             </tr>
                                         </table>
+                                    	{% endif %}
                                     </div>
                                     <div id="ec_{{ cat.category.id }}_{{ sub.subcategory.id }}" class="accordion-body in">
                                         <div class="accordion-inner">
+                                            {% if not sub.subcategory.passthrough %}
                                             {% if submissionset.creditset.has_submission_summary_feature %}
                                                 <div class='well' style='text-align: center'>
                                                     {% if sub.description %}
@@ -114,6 +120,7 @@
                                                         {% endif %}
                                                     </a>
                                                 </div>
+                                            {% endif %}
                                             {% endif %}
                                             <table class='table table-condensed table-striped'>
                                                 <thead>

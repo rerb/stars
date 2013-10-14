@@ -59,10 +59,10 @@ def show_progress_icon(category, size_class=''):
         
         if z == "CategorySubmission":
             content = "%.0f / %.0f" % (numerator, denominator)
-            caption = "Credits Completed"
+            caption = "Progress"
         elif z == "SubcategorySubmission":
             content = ""
-            caption = "%.0f / %.0f Credits Completed" % (numerator, denominator)
+            caption = "%.0f / %.0f Progress" % (numerator, denominator)
     return {
         'percentage': percentage, 
         'numerator': numerator,
