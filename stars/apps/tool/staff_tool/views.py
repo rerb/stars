@@ -127,7 +127,7 @@ class InstitutionList(SortableTableView):
                     {
                         'key': 'participation',
                         'sort_field': 'is_participant',
-                        'title': 'Participant?',
+                        'title': 'Access Level',
                     },
                     {
                         'key': 'reg_date',
