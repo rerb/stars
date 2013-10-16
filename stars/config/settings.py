@@ -388,10 +388,20 @@ LOGGING = {
 }
 
 # Twitter settings
-OAUTH_TOKEN = '1022657755-JZf8ELufzotuIQLRcFud5Yma8AdLQoNIpfgIGAe'
-OAUTH_SECRET = 'KYa5e5KmSvueKKAaayKYWw7RNBBGz7EDcQxTEs5ggOw'
-CONSUMER_KEY = 'yUIhK70Fd4YGwBccC0QIfg'
-CONSUMER_SECRET = 'XDgsAa6AXoGM7TETZyijPRZtvqausyvTA4Gulg'
+
+####
+# For AASHEConference Account:
+# OAUTH_TOKEN = '1022657755-JZf8ELufzotuIQLRcFud5Yma8AdLQoNIpfgIGAe'
+# OAUTH_SECRET = 'KYa5e5KmSvueKKAaayKYWw7RNBBGz7EDcQxTEs5ggOw'
+# CONSUMER_KEY = 'yUIhK70Fd4YGwBccC0QIfg'
+# CONSUMER_SECRET = 'XDgsAa6AXoGM7TETZyijPRZtvqausyvTA4Gulg'
+
+####
+# For AASHENews Account:
+OAUTH_TOKEN = '56789085-UeceFRK4gXmPORn8xSXEMl0huvTzvAu7V20vXxuVA'
+OAUTH_SECRET = 'PuYN5kEDD5s1orK8Xk65v6pWZTzEzw1ny5vgiKU'
+CONSUMER_KEY = 'clTv8jtn1Pq4oKtucPxmMg'
+CONSUMER_SECRET = 's9aIjWEgy4EkbDgK14CkBlDwuAySykYZrtquQiTg'
 
 if sys.version >= '2.7':
     logging.captureWarnings(True)

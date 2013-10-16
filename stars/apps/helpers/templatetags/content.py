@@ -32,7 +32,7 @@ def display_block_content(key, user=None):
     return {'block': block, 'user': user, 'edit_link': edit_link}
 
 @register.inclusion_tag('helpers/tags/twitter_feed.html')
-def display_twitter_feed(account="aasheconference", count=2):
+def display_twitter_feed(account="aashenews", count=2):
     """ Gets a list of tweets for an account. """
     t = Twitter(
             auth=OAuth(settings.OAUTH_TOKEN, settings.OAUTH_SECRET,
