@@ -1,4 +1,5 @@
 from datetime import datetime, date
+from itertools import chain
 import os
 
 from django.conf import settings
@@ -12,7 +13,7 @@ from django.contrib.formtools.wizard.views import SessionWizardView
 from django.core.files.storage import FileSystemStorage
 
 from stars.apps.helpers.forms.forms import Confirm
-from stars.apps.institutions.models import MigrationHistory
+from stars.apps.institutions.models import FULL_ACCESS, MigrationHistory
 from stars.apps.notifications.models import EmailTemplate
 from stars.apps.submissions.models import (Boundary,
                                            CreditUserSubmission,
@@ -357,7 +358,16 @@ class CreditHistoryView(UserCanEditSubmissionMixin,
     def get_context_data(self, *args, **kwargs):
         context = super(CreditHistoryView, self).get_context_data(
             *args, **kwargs)
-        context['history'] = self.get_history()
+        history = self.get_history()
+        context['history'] = history
+        all_documentation_field_submissions = reduce(chain,
+                                                     history.values())
+        context['exportable_submissionsets'] = set(
+            [ dfs.get_submissionset() for dfs
+              in all_documentation_field_submissions ])
+        context['institution_has_full_access'] = (
+            context['institution'].access_level == FULL_ACCESS)
+                
         return context
 
 
