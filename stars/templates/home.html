@@ -9,8 +9,11 @@
         width: 580px;
 }
 </style>
-
 {% endblock %}
+
+{% block header-tabs %}
+<a class="btn btn-danger btn-large tool-btn"><i class="icon-edit icon-white"></i> Reporting Tool</a>
+{% endblock header-tabs %}
 
 {% block content %}
 <div class="row">
@@ -25,7 +28,6 @@
             <div class="story-slide-text">
               <h2>STARS 2.0 is here!</h2>
               <p>Where do you stand in the higher education sustainability landscape? Click the arrows to get started.</p>
-              <a href="/pages/register/register-stars.html"><button class="btn btn-success" type="button">Register</button></a>
             </div>
           </div><!-- /.item -->
 
@@ -109,7 +111,7 @@
         {% cache 7200 twitter-feed %}
         {% display_twitter_feed %}
         {% endcache %}
-
+	<a href=""><button class="btn btn-success" type="button">Contact Us</button></a>
       </div>
     </div>
     
@@ -131,15 +133,17 @@
       <div class="row">
         <!-- partnership block -->
         {% block partners-list %}
-        <div class="span12 partners">
-          <h5>Partner Organizations</h5>
-            <a href="http://www.acuho-i.org/?tabid=125"><img src="{{ STATIC_URL }}images/partners/acuhoi_horiz_0.jpg"></img></a>
+        <div class="span12 partners partners-start">
+          <h4>STARS Partner Organizations</h4>
+            <a href="http://www.acuho-i.org/?tabid=125"><img src="{{ STATIC_URL }}images/partners/acuho-logo.png"></img></a>
             <a href="http://www2.aashe.org/heasc/"><img src="{{ STATIC_URL }}images/partners/HEASClogo_green_WEB.jpg"></img></a>
             <a href="http://www.naepnet.org/iMIS15_PROD/"><img src="{{ STATIC_URL }}images/partners/NAEP_0.jpg"></img></a>
             <a href="http://www.secondnature.org/"><img src="{{ STATIC_URL }}images/partners/second-nature.jpg"></img></a>
             <a href="http://www.nacufs.org/i4a/pages/index.cfm?pageid=1"><img src="{{ STATIC_URL }}images/partners/NACUFS.jpg"></img></a>
             <a href="http://www.nwf.org/Global-Warming/Campus-Solutions.aspx"><img src="{{ STATIC_URL }}images/partners/campus-ecology.jpg"></img></a>
-            <a href="http://www.scup.org/page/index"><img src="{{ STATIC_URL }}images/partners/SCUPLogo.jpg"></img></a>
+	</div>
+        <div class="span12 partners">
+            <a href="http://www.scup.org/page/index"><img src="{{ STATIC_URL }}images/partners/scup-logo.jpg"></img></a>
             <a href="http://www.graduationpledge.org/"><img src="{{ STATIC_URL }}images/partners/gpa_logo.jpg"></img></a>
             <a href="http://www.endowmentethics.org/"><img src="{{ STATIC_URL }}images/partners/REC.JPG"></img></a>
             <a href="http://www2.myacpa.org/"><img src="{{ STATIC_URL }}images/partners/acpa_wtag.jpg"></img></a>
