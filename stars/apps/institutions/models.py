@@ -58,6 +58,14 @@ class InstitutionManager(models.Manager):
                                               current_rating__isnull=False)
 
 
+class InvalidAccessLevelError(Exception):
+    pass
+
+
+BASIC_ACCESS = 0
+FULL_ACCESS = 1
+
+
 class Institution(models.Model):
     """
         This model represents a STARS institution. The institution name
@@ -121,9 +129,25 @@ class Institution(models.Model):
     def __unicode__(self):
         return self.name
 
+    @property
+    def access_level(self):
+        """Shadows is_participant, now that we don't have participants
+        and respondents, but institutions with full or basic access."""
+        if self.is_participant:
+            return FULL_ACCESS
+        else:
+            return BASIC_ACCESS
+
+    @access_level.setter
+    def access_level(self, level):
+        if level not in [BASIC_ACCESS, FULL_ACCESS]:
+            raise InvalidAccessLevelError(level)
+        self.is_participant = (level == FULL_ACCESS)
+
     def update_status(self):
         """
-            Update the status of this institution, based on subscriptions and submissions
+            Update the status of this institution, based on subscriptions and
+            submissions
 
             NOTE: does not save the institution
         """
