@@ -103,7 +103,7 @@
       <a href="/institutions/rated/"><button class="btn btn-success" type="button">See More Registrants</button></a>
     </div>
 
-    <div class="span4">
+    <div class="span4 social-tabs">
       <div class="frontblock boxleft">
         <h2>Connect With Us</h2>
         {% load content %}
@@ -111,8 +111,8 @@
         {% cache 7200 twitter-feed %}
         {% display_twitter_feed %}
         {% endcache %}
-	<a href=""><button class="btn btn-success" type="button">Contact Us</button></a>
       </div>
+      <a href="mailto:stars@aashe.org"><button class="btn btn-success contact-btn" type="button">Contact Us</button></a>
     </div>
     
   </div><!-- end row -->

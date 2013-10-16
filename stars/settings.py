@@ -20,7 +20,7 @@ else:
         configs = {
             '/var/www/stars/.*': 'starsapp01',
     #        '/Users/jamstooks/.*': 'ben',
-            '/Users/jesse/src/.*': 'jesse',
+            '/Users/jesse/Documents/src/.*': 'jesse',
             '/Users/rerb/src/.*': 'bob',
             '/Users/kuranes/.*': 'matt',
             '/app/stars': 'heroku',
