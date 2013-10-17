@@ -28,6 +28,23 @@
                                 <td class="span1">
                                     v{{ doc_field_submission.get_creditset.version }}
                                 </td>
+                                <td class="span4">
+                                  {% with ss=doc_field_submission.get_submissionset %}
+                                    {% if ss == ss.institution.current_submission %}
+                                      Current -
+                                    {% endif %}
+                                    {% if ss.migrated_from %}
+                                      Migrated
+                                      {{ ss.date_created }}
+                                    {% elif ss.date_submitted %}
+                                      Submitted
+                                      {{ ss.date_submitted }}
+                                    {% else %}
+                                      Registered
+                                      {{ ss.date_registered }}
+                                    {% endif %}
+                                  {% endwith %}
+                                </td>
                                 <td>
                                     {{ doc_field_submission.get_value }}
                                 </td>
@@ -94,6 +111,9 @@
         {% endif %}
     </div>
 
+    {% comment %}
+      Links to download SubmissionSet exports:
+    {% endcomment %}
     <div id="userHasInsufficientPermissions"
          class="modal hide fade"
          aria-hidden="true">
