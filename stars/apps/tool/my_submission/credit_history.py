@@ -1,4 +1,5 @@
 import collections
+import itertools
 import functools
 
 import ordered_set
@@ -22,8 +23,13 @@ def get_submissionsets_to_include_in_history(institution):
     """Returns the list of SubmissionSets for `institution` that
     should be included in CreditUserSubmission history reports.
 
-    SubmissionSets are included if they're rated or if they were
-    migrated to a new SubmissionSet.
+    SubmissionSets are included if 
+
+      1. they're rated, or 
+
+      2. they were migrated to a new SubmissionSet, or
+
+      3. they are the current SubmissionSet for `institution`.
     """
     submissionsets = ordered_set.OrderedSet()
     for submissionset in SubmissionSet.objects.filter(
@@ -31,26 +37,19 @@ def get_submissionsets_to_include_in_history(institution):
         if ((submissionset.status ==
              RATED_SUBMISSION_STATUS)
             or
-            submissionset.migrated_to):
+            submissionset.migrated_from):
             submissionsets.add(submissionset)
-        # Shouldn't need to add migrated_from SubmissionSets, since
-        # we should have picked them up via migrated_to above, but
-        # sometimes -- at least, maybe only, once? -- migrated_from
-        # got set but migrated_to didn't during a migration; so ...
-        if submissionset.migrated_from:  
-            submissionsets.add(submissionset.migrated_from)
+    submissionsets.add(institution.current_submission)
     return submissionsets
 
-def get_previous_doc_field_versions(doc_field):
-    """Returns previous versions of a DocumentationField in a 
+def get_all_doc_field_versions(doc_field):
+    """Returns all versions of a DocumentationField in a 
     dictionary keyed by CreditSet.
     """
-    previous_versions = {}
+    versions = {}
     for version in doc_field.get_all_versions():
-        if version == doc_field:
-            continue
-        previous_versions[version.get_creditset()] = version
-    return previous_versions
+        versions[version.get_creditset()] = version
+    return versions
 
 # memoize from https://wiki.python.org/moin/PythonDecoratorLibrary#Memoize:
 def memoize(obj):
@@ -95,45 +94,37 @@ def get_credit_submission_history(credit_submission):
 
     for doc_field_submission in credit_submission.get_submission_fields():
 
-        # Previous versions of the DocumentationField for this
+        # All versions of the DocumentationField for this
         # DocumentationFieldSubmission:
-        previous_doc_fields = get_previous_doc_field_versions(
+        all_doc_fields = get_all_doc_field_versions(
             doc_field_submission.documentation_field)
         
-        if previous_doc_fields:
+        if all_doc_fields:
             
             for submissionset in historical_submissionsets:
-                # A previous version of the DocumentationField for this
+                # A version of the DocumentationField for this
                 # DocumentationFieldSubmission in this submissionset:
                 try:
-                    previous_doc_field = (
-                        previous_doc_fields[submissionset.creditset])
+                    all_doc_field = (
+                        all_doc_fields[submissionset.creditset])
                 except KeyError:
                     continue
 
                 # Find DocumentationFieldSubmission in submissionset,
-                # for previous_doc_field:
+                # for all_doc_field:
                 all_doc_field_subs_in_submissionset = (
                     get_all_doc_field_subs_in_submissionset(submissionset))
 
-                # Filter submissions with a value of None or The
-                # Empty String.
-                for doc_field, doc_field_sub in \
-                    all_doc_field_subs_in_submissionset.items():
-
-                    if doc_field_sub.value in (None, ""):
-                        del(all_doc_field_subs_in_submissionset[doc_field])
-
-                if previous_doc_field in all_doc_field_subs_in_submissionset:
+                if all_doc_field in all_doc_field_subs_in_submissionset:
                     try:
                         history[
                             doc_field_submission.documentation_field].append(
                                 all_doc_field_subs_in_submissionset[
-                                    previous_doc_field])
+                                    all_doc_field])
                     except KeyError:
                         history[doc_field_submission.documentation_field] = [
                             all_doc_field_subs_in_submissionset[
-                                previous_doc_field]]
+                                all_doc_field]]
 
     return history
 
