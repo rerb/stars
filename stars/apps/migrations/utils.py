@@ -1,4 +1,5 @@
 import copy
+import datetime
 
 from stars.apps.credits.models import CreditSet
 from stars.apps.submissions.models import (Boundary,
@@ -102,7 +103,8 @@ def _new_submissionset_for_old_submissionset(old_ss,
                            date_registered=old_ss.date_registered,
                            status='ps',
                            is_locked=True,
-                           is_visible=False)
+                           is_visible=False,
+                           date_created=datetime.date.today())
 
     new_ss.registering_user = registering_user or old_ss.registering_user
 
@@ -129,7 +131,7 @@ def migrate_ss_version(old_ss, new_cs):
 
     new_ss.is_locked = False
     new_ss.is_visible = True
-
+    new_ss.migrated_from = old_ss
     new_ss.save()
 
     # make active submission set
@@ -150,12 +152,6 @@ def migrate_submission(old_ss, new_ss, keep_status=False):
 
         Note: don't migrate IN data if the previous submission was rated
     """
-    old_ss.migrated_to = new_ss
-    old_ss.save()
-
-    new_ss.migrated_from = old_ss
-    new_ss.save()
-
     # if the old SubmissionSet hasn't been initialized we don't have
     # to do anything
     if old_ss.categorysubmission_set.count() == 0:
