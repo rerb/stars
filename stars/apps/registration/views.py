@@ -1,3 +1,4 @@
+import abc
 from logging import getLogger
 
 from django.views.generic import CreateView
@@ -11,7 +12,6 @@ from stars.apps.institutions.models import (Institution,
                                             RespondentSurvey)
 from stars.apps.notifications.models import EmailTemplate
 from stars.apps.registration.forms import (SelectSchoolForm,
-                                           ParticipationLevelForm,
                                            RegistrationSurveyForm,
                                            RespondentRegistrationSurveyForm,
                                            ContactForm)
@@ -33,23 +33,33 @@ BASE_REGISTRATION_PRICE = {MEMBER: 900, NON_MEMBER: 1400}
 
 class RegistrationWizard(StarsAccountMixin, SubscriptionPurchaseWizard):
     """
-        A wizard that runs a user through the forms
-        required to register as a STARS Participant
+        A wizard that runs a user through the forms required to register
+        as a STARS Participant.
+
+        This is an abstract class, by virtue of its abstract method
+        picked_participant().
+
+        Now that we're basing access on access levels (i.e., basic
+        and full) rather than particpant status (participant or
+        registerant), this code should be cleaned up to reflect
+        the new terminology.  'picked_participant()', e.g., might
+        better be replaced with 'access_level() == FULL'.  This cleanup
+        is a post-2.0 launch task . . . typed 1.5 working days before
+        launch of STARS 2.0.
     """
+    __metaclass__ = abc.ABCMeta
 
-    SELECT, LEVEL, CONTACT = 0, 1, 2
+    SELECT, CONTACT = 0, 1
 
-    PRICE, PAYMENT_OPTIONS, SUBSCRIPTION_CREATE = 3, 4, 5
+    PRICE, PAYMENT_OPTIONS, SUBSCRIPTION_CREATE = 2, 3, 4
 
     REGISTRATION_FORMS = [(SELECT, SelectSchoolForm),
-                          (LEVEL, ParticipationLevelForm),
                           (CONTACT, ContactForm)]
 
     FORMS = SubscriptionPurchaseWizard.insert_forms_into_form_list(
         REGISTRATION_FORMS)
 
     TEMPLATES = {SELECT: 'registration/wizard_select.html',
-                 LEVEL: 'registration/wizard_level.html',
                  PRICE: 'registration/wizard_price.html'}
 
     # Tack TEMPLATES from SubscriptionPurchaseWizard on the the end:
@@ -106,7 +116,7 @@ class RegistrationWizard(StarsAccountMixin, SubscriptionPurchaseWizard):
                 'institution': self.get_form_instance(str(self.CONTACT)),
                 'contact': self.get_cleaned_data_for_step(str(self.CONTACT)),
                 'new_registration': True})
-        elif self.steps.current == str(self.LEVEL):
+        elif self.steps.current == str(self.SELECT + 1):
             # If the selected institution is already registered,
             # redirect to the tool summary page.  Then the user can be
             # surprised, maybe he didn't realize his institution as
@@ -152,16 +162,14 @@ class RegistrationWizard(StarsAccountMixin, SubscriptionPurchaseWizard):
         return None
 
     def process_step(self, form):
-        if self.steps.current == self.LEVEL:
+        if self.steps.current == self.PRICE:
             self.request.session['is_participant'] = self.picked_participant()
-            # if not self.picked_participant():
-            #     self.request.session[PAY_WHEN] = Subscription.PAY_LATER
         return super(RegistrationWizard, self).process_step(form)
-
+    
+    @abc.abstractmethod
     def picked_participant(self):
         """ Checks if the user chose to be a participant """
-        cleaned_data = self.get_cleaned_data_for_step(str(self.LEVEL)) or {}
-        return cleaned_data.get('level', None) == 'participant'
+        pass
 
     def get_form_kwargs(self, step):
         """
@@ -283,6 +291,18 @@ def registerant_is_participant(wizard):
     the user has chosen to be a participant, of course.  La la la.
     """
     return wizard.picked_participant()
+
+
+class FullAccessRegistrationWizard(RegistrationWizard):
+
+    def picked_participant(self):
+        return True
+
+
+class BasicAccessRegistrationWizard(RegistrationWizard):
+
+    def picked_participant(self):
+        return False
 
 
 class SurveyView(InstitutionAdminToolMixin, CreateView):
