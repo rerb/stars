@@ -72,6 +72,12 @@
 
                 <div id="ec_{{ cat.category.id }}" class="accordion-body in">
                     <div class="accordion-inner">
+                    
+                    	{% if cat.category.description %}
+                    	<div class='well'>
+                    		{% autoescape off %}{{ cat.category.description }}{% endautoescape %}
+                    	</div>
+                    	{% endif %}
 
                         {% for sub in cat.subcategorysubmission_set.all %}
 

@@ -28,7 +28,7 @@ def show_help_context(context_name, as_tooltip=True, icon='icon-question-sign'):
 
     if help_context:
         return {
-                'help_text': help_context.help_text.replace("\"", "'"), #_clean(help_context.help_text, as_tooltip),
+                'help_text': re.sub(r'\r\n|\r|\n', ' ', help_context.help_text.replace("\"", "'")), #_clean(help_context.help_text, as_tooltip),
                 "tooltip": as_tooltip,
                 "id": context_name,
                 "help_text_title": help_context.title,
@@ -65,5 +65,6 @@ def _clean(text, as_tooltip):
     if as_tooltip:
         js_encoded = escape(js_encoded)
         js_encoded = re.sub(r'\r\n|\r|\n', '', js_encoded)
+        js_encoded = re.sub(r'\"', "'", js_encoded)
         js_encoded = js_encoded.replace('&quot;', '\&quot;').replace("&amp;", '\&amp;').replace("&#39;", '\&#39;')
     return mark_safe(js_encoded)

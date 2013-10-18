@@ -649,6 +649,9 @@ class Credit(VersionedModel):
     show_info = models.BooleanField(default=True,
        help_text="Indicates if this credit will have the 'info' tab")
 
+    is_required = models.BooleanField(default=False)
+    requires_responsible_party = models.BooleanField(default=True)
+
     class Meta:
         ordering = ('ordinal',)
 
