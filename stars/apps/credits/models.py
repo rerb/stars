@@ -382,7 +382,7 @@ class Category(VersionedModel):
                    'ER for Education & Research'))  # TODO validation
     ordinal = models.SmallIntegerField(default=-1)
     max_point_value = models.IntegerField(default=0)
-    description = models.TextField()
+    description = models.TextField(blank=True, null=True)
     include_in_report = models.BooleanField(default=True)
     include_in_score = models.BooleanField(default=True)
 
