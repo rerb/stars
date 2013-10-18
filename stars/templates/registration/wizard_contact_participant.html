@@ -5,7 +5,9 @@
 {% load fieldsets %}
 
 {% block above_submit_form %}
-	<h1>{% display_snippet "reg_contact_participant_title" user %}: <i>{{ wizard.form.instance }}</i></h1>
+    <h2>
+      STARS Registration: Step {{ wizard.steps.step1 }}
+    </h2>
     {% display_block_content "reg_participant_contact_intro" user %}
 {% endblock %}
 
