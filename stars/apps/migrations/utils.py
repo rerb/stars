@@ -217,8 +217,7 @@ def migrate_submission(old_ss, new_ss, keep_status=False):
                 old_c = CreditUserSubmission.objects.get(
                     subcategory_submission__category_submission__submissionset=old_ss,
                     credit=prev_credit)
-            except CreditUserSubmission.DoesNotExist:
-                continue
+
                 c.last_updated = old_c.last_updated
                 try:
                     c.user = old_c.user
@@ -241,6 +240,9 @@ def migrate_submission(old_ss, new_ss, keep_status=False):
                     if old_c.submission_status != 'ns':
                         c.submission_status = 'p'
 
+            except CreditUserSubmission.DoesNotExist:
+                continue
+
         # get all the fields in this credit
         for f in c.get_submission_fields():
 
@@ -258,7 +260,7 @@ def migrate_submission(old_ss, new_ss, keep_status=False):
                     f.value = old_f.value
                     f.save()
                 except field_class.DoesNotExist:
-                    continue
+                    pass
 
         # don't save until all the fields are updated
         c.save()
