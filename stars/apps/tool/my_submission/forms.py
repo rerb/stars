@@ -3,7 +3,7 @@ import sys
 import string
 
 from django.forms import ModelForm
-from django.forms.widgets import TextInput, ClearableFileInput
+from django.forms.widgets import TextInput, ClearableFileInput, HiddenInput
 from django import forms
 from django.forms.extras.widgets import SelectDateWidget
 from django.forms.util import ErrorList
@@ -673,10 +673,12 @@ class CreditUserSubmissionForm(CreditSubmissionForm):
     """
         A Credit Submission Form for a user submission, with Submission Status
     """
-    submission_status = forms.CharField(widget=forms.RadioSelect(
-        choices=CREDIT_SUBMISSION_STATUS_CHOICES_LIMITED))
-    applicability_reason = custom_fields.ModelChoiceWithHelpField(
-        queryset=None, empty_label=None, required=False)
+    submission_status = forms.CharField(widget=HiddenInput())
+    applicability_reason = forms.IntegerField(widget=HiddenInput(), required=False)
+                                        #forms.RadioSelect(
+        #choices=CREDIT_SUBMISSION_STATUS_CHOICES_LIMITED))
+#     applicability_reason = custom_fields.ModelChoiceWithHelpField(
+#         queryset=None, empty_label=None, required=False)
 
     class Meta:
         model = CreditUserSubmission
@@ -689,11 +691,13 @@ class CreditUserSubmissionForm(CreditSubmissionForm):
         # if there are reasons that this might not apply, allow the
         # "not applicable" choice
         if self.instance.credit.applicabilityreason_set.all():
-            self.fields['applicability_reason'].queryset = (
-                self.instance.credit.applicabilityreason_set.all())
-            self.fields['submission_status'].widget = forms.RadioSelect(
+#             self.fields['applicability_reason'].queryset = (
+#                 self.instance.credit.applicabilityreason_set.all())
+#             self.fields['applicability_reason'].widget = HiddenInput()
+#             self.fields['submission_status'].widget = HiddenInput()
+            """forms.RadioSelect(
                 choices=CREDIT_SUBMISSION_STATUS_CHOICES_W_NA,
-                attrs={'onchange': 'toggle_applicability_reasons(this);'})
+                attrs={'onchange': 'toggle_applicability_reasons(this);'})"""
 
         self.fields['submission_notes'].widget.attrs['style'] = "width: 600px;"
 
@@ -745,7 +749,7 @@ class CreditUserSubmissionForm(CreditSubmissionForm):
 
         # responsible party and responsible party confirm are required
         # if marked complete
-        if marked_complete:
+        if marked_complete and self.instance.credit.requires_responsible_party:
             rp = cleaned_data.get("responsible_party")
             if rp == None or rp == "":
                 msg = u"This field is required to mark this credit complete."

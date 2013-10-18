@@ -6,15 +6,18 @@
 {% autoescape off %}
     {% if help_text %}
         {% if tooltip %}
-        	<a href="#"
-        		data-toggle="tooltip"
-        		id="{{ id }}"
-        		data-original-title="{{ help_text }}"
-        		data-placement="bottom">
-        		<i class='{{ icon }}'></i>
-        	</a>
+        	<a href="#bm{{ id }}" name="#bm{{ id }}"
+        		id="{{ id }}">
+        		<i class='{{ icon }}'></i></a>
         	<script type='text/javascript'>
-        		$("#{{ id }}").tooltip({});
+        		var options = {
+        				"title": "{{ help_text_title }}",
+        				"content": "{{ help_text }}",
+        				"html": true,
+        				"trigger": 'click',
+        				"position": 'top'
+        			}
+        		$("#{{ id }}").popover(options);
         	</script>
         {% else %}
             {% if modal %}
