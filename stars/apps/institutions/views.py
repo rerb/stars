@@ -281,6 +281,42 @@ class RatedInstitutions(SortableTableViewWithInstProps):
     def get_queryset(self):
         return Institution.objects.get_rated().select_related('rated_submission').select_related('rated_submission__creditset')
 
+class ParticipantReportsView(SortableTableViewWithInstProps):
+    """
+        Extending SortableTableView to show a sortable list
+        of all participants and reports.
+    """
+
+    template_name = "institutions/institution_participant_reports_list.html"
+    default_key = 'name'
+    default_rev = '-'
+    secondary_order_field = 'name'
+    columns = [
+                    {
+                        'key': 'name',
+                        'sort_field': 'name',
+                        'title': 'Institution',
+                    },
+                    {
+                        'key': 'version',
+                        'sort_field': 'current_submission__creditset__version',
+                        'title': 'Version',
+                    },
+                    {
+                        'key': 'rating',
+                        'sort_field': 'current_rating',
+                        'title': 'Rating',
+                    },
+                    {
+                        'key':'date_submitted',
+                        'sort_field':'current_submission__date_submitted',
+                        'title':'Submission Date',
+                    },
+              ]
+
+    def get_queryset(self):
+        return Institution.objects.get_participants_and_reports().select_related(
+            'current_submission').select_related('current_submission__creditset')
 
 class InstitutionScorecards(InstitutionStructureMixin, TemplateView):
     """

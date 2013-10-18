@@ -57,6 +57,11 @@ class InstitutionManager(models.Manager):
                                           True).filter(
                                               current_rating__isnull=False)
 
+    def get_participants_and_reports(self):
+        return Institution.objects.filter(
+            enabled=True,
+            current_submission__isnull=False).exclude(current_submission__status='ps')
+
 
 class InvalidAccessLevelError(Exception):
     pass

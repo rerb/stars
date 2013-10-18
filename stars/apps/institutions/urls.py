@@ -12,6 +12,9 @@ urlpatterns = patterns(
     # Rated institutions
     (r'^rated/$', RatedInstitutions.as_view()),
 
+    # Rated institutions
+    (r'^participants-and-reports/$', ParticipantReportsView.as_view()),
+
     # Submission Inquiry Form
     url(r'^inquiry/$', SubmissionInquirySelectView.as_view(),
         name='submission-inquiry'),

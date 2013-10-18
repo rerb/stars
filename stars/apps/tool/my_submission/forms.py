@@ -674,7 +674,10 @@ class CreditUserSubmissionForm(CreditSubmissionForm):
         A Credit Submission Form for a user submission, with Submission Status
     """
     submission_status = forms.CharField(widget=HiddenInput())
-    applicability_reason = forms.IntegerField(widget=HiddenInput(), required=False)
+#     applicability_reason = forms.ModelChoiceField(
+#         queryset=,
+#         widget=HiddenInput()
+#     )
                                         #forms.RadioSelect(
         #choices=CREDIT_SUBMISSION_STATUS_CHOICES_LIMITED))
 #     applicability_reason = custom_fields.ModelChoiceWithHelpField(
@@ -688,16 +691,19 @@ class CreditUserSubmissionForm(CreditSubmissionForm):
 
     def __init__(self, *args, **kwargs):
         super(CreditUserSubmissionForm, self).__init__(*args, **kwargs)
+
+        self.fields['applicability_reason'].queryset = self.instance.credit.applicabilityreason_set.all()
+        self.fields['applicability_reason'].widget = HiddenInput()
         # if there are reasons that this might not apply, allow the
         # "not applicable" choice
-        if self.instance.credit.applicabilityreason_set.all():
-#             self.fields['applicability_reason'].queryset = (
-#                 self.instance.credit.applicabilityreason_set.all())
-#             self.fields['applicability_reason'].widget = HiddenInput()
-#             self.fields['submission_status'].widget = HiddenInput()
-            """forms.RadioSelect(
-                choices=CREDIT_SUBMISSION_STATUS_CHOICES_W_NA,
-                attrs={'onchange': 'toggle_applicability_reasons(this);'})"""
+#         if self.instance.credit.applicabilityreason_set.all():
+# #             self.fields['applicability_reason'].queryset = (
+# #                 self.instance.credit.applicabilityreason_set.all())
+# #             self.fields['applicability_reason'].widget = HiddenInput()
+# #             self.fields['submission_status'].widget = HiddenInput()
+#             """forms.RadioSelect(
+#                 choices=CREDIT_SUBMISSION_STATUS_CHOICES_W_NA,
+#                 attrs={'onchange': 'toggle_applicability_reasons(this);'})"""
 
         self.fields['submission_notes'].widget.attrs['style'] = "width: 600px;"
 
@@ -733,7 +739,7 @@ class CreditUserSubmissionForm(CreditSubmissionForm):
         cleaned_data = self.cleaned_data
         status = cleaned_data.get("submission_status")
         reason = cleaned_data.get("applicability_reason")
-        marked_complete = (status=='c')
+        marked_complete = (status == 'c')
         error = False
 
         if not status :
