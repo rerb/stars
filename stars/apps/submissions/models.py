@@ -1246,7 +1246,7 @@ class CreditSubmission(models.Model):
 
 
 CREDIT_SUBMISSION_STATUS_CHOICES_LIMITED = [
-    ('c', 'Pursuing'),
+    ('c', 'Complete'),
     ('p', 'In Progress'),
     ('np', 'Not Pursuing'),
 ]
