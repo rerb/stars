@@ -587,12 +587,12 @@ class MigrateVersionView(InstitutionAdminToolMixin,
     model = SubmissionSet
     success_url_name = 'migrate-options'
     template_name = 'tool/manage/migrate_version.html'
-    tab_content_title = 'migrate version'
-    valid_message = ("Your migration is in progress. Please allow a "
+    tab_content_title = 'version upgrade'
+    valid_message = ("Your upgrade is in progress. Please allow a "
                      "few minutes before you can access your submission.")
-    invalid_message = ("Before the migration can begin, you need to "
+    invalid_message = ("Before the upgrade can begin, you need to "
                        "confirm your intention by checking that little "
-                       "check box down there above the Migrate My Data "
+                       "check box down there above the Migrate Version "
                        "button.")
 
     def update_logical_rules(self):
