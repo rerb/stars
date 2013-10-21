@@ -12,7 +12,7 @@
 {% endblock %}
 
 {% block header-tabs %}
-<a class="btn btn-danger btn-large tool-btn"><i class="icon-edit icon-white"></i> Reporting Tool</a>
+<a class="btn btn-success btn-large tool-btn"><i class="icon-edit icon-white"></i> Reporting Tool</a>
 {% endblock header-tabs %}
 
 {% block content %}
@@ -100,7 +100,7 @@
         {% load institution_lists %}
         {% show_rated_registrants %}
       </div>
-      <a href="/institutions/rated/"><button class="btn btn-success" type="button">See More Registrants</button></a>
+      <a href="{% url participants-reports %}"><button class="btn btn-success" type="button">See More Participants</button></a>
     </div>
 
     <div class="span4 social-tabs">
@@ -140,13 +140,15 @@
             <a href="http://www.naepnet.org/iMIS15_PROD/"><img src="{{ STATIC_URL }}images/partners/NAEP_0.jpg"></img></a>
             <a href="http://www.secondnature.org/"><img src="{{ STATIC_URL }}images/partners/second-nature.jpg"></img></a>
             <a href="http://www.nacufs.org/i4a/pages/index.cfm?pageid=1"><img src="{{ STATIC_URL }}images/partners/NACUFS.jpg"></img></a>
-            <a href="http://www.nwf.org/Global-Warming/Campus-Solutions.aspx"><img src="{{ STATIC_URL }}images/partners/campus-ecology.jpg"></img></a>
 	</div>
-        <div class="span12 partners">
+	<div class="span12 partners">
+            <a href="http://www.nwf.org/Global-Warming/Campus-Solutions.aspx"><img src="{{ STATIC_URL }}images/partners/campus-ecology.jpg"></img></a>
             <a href="http://www.scup.org/page/index"><img src="{{ STATIC_URL }}images/partners/SCUP-logo.jpg"></img></a>
             <a href="http://www.graduationpledge.org/"><img src="{{ STATIC_URL }}images/partners/gpa_logo.jpg"></img></a>
             <a href="http://www.endowmentethics.org/"><img src="{{ STATIC_URL }}images/partners/REC.JPG"></img></a>
             <a href="http://www2.myacpa.org/"><img src="{{ STATIC_URL }}images/partners/acpa_wtag.jpg"></img></a>
+	</div>
+        <div class="span12 partners pull-left">
             <a href="http://www.leafme.ca/"><img src="{{ STATIC_URL }}images/partners/leaf_logo.jpg"></img></a>
             <a href="http://syc-cjs.org/"><img src="{{ STATIC_URL }}images/partners/syc_2008.jpg"></img></a>
             <a href="http://www.focusthenation.org/"><img src="{{ STATIC_URL }}images/partners/ftn_text_logo_vert.jpg"></img></a>

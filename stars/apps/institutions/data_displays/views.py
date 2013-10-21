@@ -98,15 +98,16 @@ class Dashboard(TemplateView):
 
                 if i.current_rating.publish_score:
                     ss = i.rated_submission
-                    for cs in ss.categorysubmission_set.all():
-                        if cs.category.include_in_score and cs.category.abbreviation != "IN":
-                            if bar_chart.has_key(cs.category.abbreviation):
-                                bar_chart[cs.category.abbreviation]['list'].append(cs.get_STARS_score())
-                            else:
-                                bar_chart[cs.category.abbreviation] = {}
-                                bar_chart[cs.category.abbreviation]['title'] = "%s (%s)" % (cs.category.title, cs.category.abbreviation)
-                                bar_chart[cs.category.abbreviation]['ord'] = cs.category.ordinal
-                                bar_chart[cs.category.abbreviation]['list'] = [cs.get_STARS_score()]
+                    if i.rated_submission.creditset.version != '2.0':                        
+                        for cs in ss.categorysubmission_set.all():
+                            if cs.category.include_in_score and cs.category.abbreviation != "IN":
+                                if bar_chart.has_key(cs.category.abbreviation):
+                                    bar_chart[cs.category.abbreviation]['list'].append(cs.get_STARS_score())
+                                else:
+                                    bar_chart[cs.category.abbreviation] = {}
+                                    bar_chart[cs.category.abbreviation]['title'] = "%s (%s)" % (cs.category.title, cs.category.abbreviation)
+                                    bar_chart[cs.category.abbreviation]['ord'] = cs.category.ordinal
+                                    bar_chart[cs.category.abbreviation]['list'] = [cs.get_STARS_score()]
 
             _context['ratings'] = ratings
 
