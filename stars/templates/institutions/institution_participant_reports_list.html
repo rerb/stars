@@ -59,7 +59,7 @@
 	{% if institution.rated_submission %}
         <a href='{% url scorecard-list institution.slug %}'
            id='scorecard-list'>
-          {{ institution }}
+          {{ institution.name }}
         </a>
 	{% else %}
 	{{ institution.name }}
