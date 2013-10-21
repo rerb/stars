@@ -83,10 +83,7 @@ class RegistrationWizard(StarsAccountMixin, SubscriptionPurchaseWizard):
 
     def get_template_names(self):
         if self.steps.current == str(self.CONTACT):
-            if self.picked_participant():
-                return "registration/wizard_contact_participant.html"
-            else:
-                return "registration/wizard_contact_respondent.html"
+            return "registration/wizard_contact.html"
         elif self.steps.current == str(self.PRICE):
             return "registration/wizard_price.html"
         elif self.steps.current == str(self.PAYMENT_OPTIONS):
@@ -170,18 +167,6 @@ class RegistrationWizard(StarsAccountMixin, SubscriptionPurchaseWizard):
     def picked_participant(self):
         """ Checks if the user chose to be a participant """
         pass
-
-    def get_form_kwargs(self, step):
-        """
-            if the school is not going to be a participant then
-            we don't need the executive contact information
-        """
-        kwargs = super(RegistrationWizard, self).get_form_kwargs(step)
-
-        if step == str(self.CONTACT):
-            kwargs['include_exec'] = self.picked_participant()
-
-        return kwargs
 
     def done(self, form_list, **kwargs):
         institution = self.get_institution()
