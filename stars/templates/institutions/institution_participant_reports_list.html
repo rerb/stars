@@ -56,10 +56,14 @@
     {% for institution in object_list %}
     <tr class="{% cycle 'even' 'odd' %}">
       <td style='text-align: left'>
+	{% if institution.rated_submission %}
         <a href='{% url scorecard-list institution.slug %}'
            id='scorecard-list'>
           {{ institution }}
         </a>
+	{% else %}
+	{{ institution.name }}
+	{% endif %}
         {% include "institutions/inst_property_icons.html" %}
       </td>
       <td>
@@ -71,11 +75,13 @@
 	{% endif %}
       </td>
       <td>
-	{% if institution.current_submission %}
-        <a href='{% url scorecard-summary institution.slug institution.current_submission.date_submitted %}'>
-          {{ institution.current_submission.date_submitted }}
+	{% with institution.rated_submission as latest_submission %}
+	{% if latest_submission.date_submitted %}
+        <a href='{% url scorecard-summary institution.slug latest_submission.date_submitted %}'>
+          {{ latest_submission.date_submitted }}
         </a>
 	{% endif %}
+	{% endwith %}
       </td>
     </tr>
     {% endfor %}
