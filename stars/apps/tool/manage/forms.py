@@ -104,7 +104,7 @@ class MigrateSubmissionSetForm(ModelForm):
         super(MigrateSubmissionSetForm, self).__init__(*args, **kwargs)
 
         self.fields['is_locked'].label = (
-            'Check here to confirm your wish to upgrade.')
+            'Please, check here to confirm.')
 
 
 class AdminSubmissionSetForm(LocalizedModelFormMixin, ModelForm):
