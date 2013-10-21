@@ -1,8 +1,5 @@
 import collections
-import itertools
 import functools
-
-import ordered_set
 
 from stars.apps.submissions.models import (RATED_SUBMISSION_STATUS,
                                            SubmissionSet)
@@ -23,23 +20,35 @@ def get_submissionsets_to_include_in_history(institution):
     """Returns the list of SubmissionSets for `institution` that
     should be included in CreditUserSubmission history reports.
 
+    SubmissionSets are provided as a list of named tuples, consisting
+    of a SubmissionSet and an explaination of the historical
+    significance of them.  E.g., "this one was submitted on April 1,"
+    and "this one was migrated."
+
     SubmissionSets are included if 
 
       1. they're rated, or 
 
-      2. they were migrated to a new SubmissionSet, or
-
-      3. they are the current SubmissionSet for `institution`.
+      2. they were migrated to a new SubmissionSet.
     """
-    submissionsets = ordered_set.OrderedSet()
+    HistoricalSubmissionSet = collections.namedtuple(
+        'HistoricalSubmissionSet',
+        ['submissionset', 'historical_significance'])
+    submissionsets = []
     for submissionset in SubmissionSet.objects.filter(
             institution=institution):
-        if ((submissionset.status ==
-             RATED_SUBMISSION_STATUS)
-            or
-            submissionset.migrated_from):
-            submissionsets.add(submissionset)
-    submissionsets.add(institution.current_submission)
+        if submissionset.migrated_from:
+            submissionsets.append(
+                HistoricalSubmissionSet(
+                    submissionset.migrated_from,
+                    "migrated on {date}".format(
+                        date=submissionset.date_created.isoformat())))
+        if submissionset.status == RATED_SUBMISSION_STATUS:
+            submissionsets.append(
+                HistoricalSubmissionSet(
+                    submissionset,
+                    "submitted on {date}".format(
+                        date=submissionset.date_submitted.isoformat())))
     return submissionsets
 
 def get_all_doc_field_versions(doc_field):
@@ -83,11 +92,21 @@ def get_credit_submission_history(credit_submission):
     `credit_submission` as a dictionary, keyed by the related
     DocumentationField.
 
+    DocumentationFieldSubmissions (the values in the dictionary
+    returned by this function) are represented by a namedtuple that
+    contains the DocumentationFieldSubmission and the reason for its
+    historical significance (copied from the related historical
+    SubmissionSet).
+
     Only DocumentationFieldSubmissions in SubmissionSets that
     pass the get_submissionsets_to_include_in_history() filter
     are included.
     """
     history = collections.OrderedDict()
+
+    HistoricalDocFieldSub = collections.namedtuple('HistoricalDocFieldSub',
+                                                   ['doc_field_sub',
+                                                    'historical_significance'])
     
     historical_submissionsets = get_submissionsets_to_include_in_history(
         institution=credit_submission.get_submissionset().institution)
@@ -101,7 +120,8 @@ def get_credit_submission_history(credit_submission):
         
         if all_doc_fields:
             
-            for submissionset in historical_submissionsets:
+            for historical_submissionset in historical_submissionsets:
+                submissionset = historical_submissionset.submissionset
                 # A version of the DocumentationField for this
                 # DocumentationFieldSubmission in this submissionset:
                 try:
@@ -116,15 +136,17 @@ def get_credit_submission_history(credit_submission):
                     get_all_doc_field_subs_in_submissionset(submissionset))
 
                 if all_doc_field in all_doc_field_subs_in_submissionset:
+                    historical_doc_field_sub = HistoricalDocFieldSub(
+                        all_doc_field_subs_in_submissionset[all_doc_field],
+                        historical_submissionset.historical_significance)
+
                     try:
                         history[
                             doc_field_submission.documentation_field].append(
-                                all_doc_field_subs_in_submissionset[
-                                    all_doc_field])
+                                historical_doc_field_sub)
                     except KeyError:
                         history[doc_field_submission.documentation_field] = [
-                            all_doc_field_subs_in_submissionset[
-                                all_doc_field]]
+                            historical_doc_field_sub]
 
     return history
 

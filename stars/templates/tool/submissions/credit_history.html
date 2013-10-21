@@ -13,8 +13,8 @@
 {% block tab_content %}
     <div class='creditContent'>
         <h2>History</h2>
-        {% for doc_field, doc_field_submissions in history.items %}
-          {% if doc_field_submissions %}
+        {% for doc_field, doc_field_sub_histories in history.items %}
+          {% if doc_field_sub_histories %}
             <div class="documentationField">
                 <div class="control-group">
                     <label class="control-label">
@@ -22,31 +22,17 @@
                             {{ doc_field }} 
                         </strong>
                     </label>
-                    {% for doc_field_submission in doc_field_submissions %}
+                    {% for doc_field_history in doc_field_sub_histories %}
                         <table class="controls table">
                             <tr>
                                 <td class="span1">
-                                    v{{ doc_field_submission.get_creditset.version }}
+                                    v{{ doc_field_history.doc_field_sub.get_creditset.version }}
                                 </td>
                                 <td class="span4">
-                                  {% with ss=doc_field_submission.get_submissionset %}
-                                    {% if ss == ss.institution.current_submission %}
-                                      Current -
-                                    {% endif %}
-                                    {% if ss.migrated_from %}
-                                      Migrated
-                                      {{ ss.date_created }}
-                                    {% elif ss.date_submitted %}
-                                      Submitted
-                                      {{ ss.date_submitted }}
-                                    {% else %}
-                                      Registered
-                                      {{ ss.date_registered }}
-                                    {% endif %}
-                                  {% endwith %}
+                                  {{ doc_field_history.historical_significance }}
                                 </td>
                                 <td>
-                                    {{ doc_field_submission.get_value }}
+                                  {{ doc_field_history.doc_field_sub.get_value }}
                                 </td>
                             </tr>
                         </table>
