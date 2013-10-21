@@ -49,6 +49,7 @@
                 <div class="accordion-heading">
                     <a class="accordion-toggle" data-toggle="collapse" data-parent="#categories" href="#ec_{{ cat.category.id }}">
                         <strong>{{ cat }}</strong>
+						{% if creditset.has_category_scoring_feature %}
                         {% testrule institution_has_score_feature institution %}
                             <div style='float: right;'>
                                 {% if cat.category.include_in_score %}
@@ -60,6 +61,7 @@
                                 {% endif %}
                             </div>
                         {% endtestrule %}
+                        {% endif %}
                     </a>
                     <table class='table' style='margin-bottom: 0px;'>
                         <tr>
