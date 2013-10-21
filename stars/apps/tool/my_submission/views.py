@@ -363,7 +363,7 @@ class CreditHistoryView(UserCanEditSubmissionMixin,
         all_documentation_field_submissions = reduce(chain,
                                                      history.values())
         context['exportable_submissionsets'] = set(
-            [ dfs.get_submissionset() for dfs
+            [ history_.doc_field_sub.get_submissionset() for history_
               in all_documentation_field_submissions ])
         context['institution_has_full_access'] = (
             context['institution'].access_level == FULL_ACCESS)
