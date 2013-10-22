@@ -61,18 +61,21 @@ logical_rules.site.register("user_can_view_submission", user_can_view_submission
 def user_can_view_export(user, submission):
     """
         As long as a user can view an institution's submissions they
-        can export their current working submission and any rated ones
+        can export their rated submissions
+
+        Only Full-Access users can export their current submissions
+
+        All users can export their snapshots
     """
-    if (
-        submission.status == 'r' or
-        submission.institution.current_submission == submission
-        ):
-        return (
-                user_has_access_level(user, 'view', submission.institution) and
-                institution_has_export(submission.institution)
-                )
+    if user_has_access_level(user, 'view', submission.institution):
+        if submission.status == 'r':
+            return True
+            # all institutions have access to exports for their own reports
+        elif (submission.institution.current_submission == submission and
+              institution_has_export(submission.institution)):
+            return True
     elif submission.status == 'f':
-        return user.is_staff
+        return True
     return False
 logical_rules.site.register("user_can_view_export",
                             user_can_view_export)
