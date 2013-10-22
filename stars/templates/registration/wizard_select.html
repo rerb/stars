@@ -1,0 +1,12 @@
+{% extends 'registration/wizard_base.html' %}
+
+{% load content %}
+{% load bootstrap %}
+
+{% block above_submit_form %}
+    <h2>
+      STARS Registration: Step {{ wizard.steps.step1 }}
+    </h2>
+    <h3>{% display_snippet "reg_select_institution_title" user %}</h3>
+    {% display_block_content "reg_select_institution" user %}
+{% endblock %}
