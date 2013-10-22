@@ -3,9 +3,8 @@
   <div class="carousel-inner">
     {% for ss in ss_list %}
     <div class="{% if forloop.first %}active{% endif %} item">
-        <!-- <img src="{{ STATIC_URL }}images/{{ ss.rating.image_large }}" />-->
         <a href="{{ ss.get_scorecard_url }}">
-          <img class="badge" src="{{ STATIC_URL }}images/{{ ss.rating.image_200 }}" />
+          <img class="badge" src="{{ ss.rating.image_200.url }}" />
           <h4>{{ ss.institution }}</h4>
         </a>
         <p class="small">Submitted {{ ss.date_submitted|date:"F Y" }}</p>
