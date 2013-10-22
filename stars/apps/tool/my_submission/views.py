@@ -172,7 +172,7 @@ class SubmitForRatingWizard(SubmissionToolMixin, SessionWizardView):
     def update_logical_rules(self):
         super(SubmitForRatingWizard, self).update_logical_rules()
         self.add_logical_rule({
-                               'name': 'user_can_submit_rating',
+                               'name': 'user_can_submit_report',
                                'param_callbacks': [
                                            ('user', 'get_request_user'),
                                            ('submission', 'get_submissionset')
