@@ -42,14 +42,12 @@
                 My Resources
             </a>
         </li>
-        {% if institution.is_participant %}
-            <li{% if active_menu == "reports"%} class='active'{% endif %}>
-                <a href='/institutions/{{ institution.slug }}/report/'>
-                    <i class='icon-book'></i>
-                    My Report(s)
-                </a>
-            </li>
-        {% endif %}
+        <li{% if active_menu == "reports"%} class='active'{% endif %}>
+            <a href='/institutions/{{ institution.slug }}/report/'>
+                <i class='icon-book'></i>
+                My Report(s)
+            </a>
+        </li>
     {% endif %}
     {% if user.is_staff %}
         <li{% if active_menu == "admin"%} class='active'{% endif %}>

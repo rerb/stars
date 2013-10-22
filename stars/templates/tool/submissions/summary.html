@@ -12,7 +12,7 @@
 
         {% if show_migration_warning %}
         	<div class='alert alert-warning'>
-    			You recently migrated your submission data ({{ last_migration_date }}).<br/>
+    			You recently upgraded your submission data ({{ last_migration_date }}).<br/>
     			As a result, your score was reset and all credits were marked as "In Progress."
 			</div>
         {% endif %}
@@ -20,11 +20,14 @@
         {% include 'tool/submissions/submission_summary_table.html' %}
         <div class='submissionBoundary'>
             <p style='text-align: center;'>
+            
+            {% if submissionset.creditset.has_boundary_feature %}
               {% testrule user_has_access_level user 'admin' institution %}
                 <a href='{% url boundary-edit institution.slug submissionset.id %}'
                    class='btn btn-warning'>
                     <i class="icon-edit icon-white"></i> Edit Boundary</a>
               {% endtestrule %}
+             {% endif %}
 
               {% testrule institution_has_snapshot_feature institution %}
                 <a href='{% url share-data institution.slug %}'
@@ -32,7 +35,7 @@
                     <i class="icon-share icon-white"></i> Save Snapshot</a>
               {% endtestrule %}
 
-              {% testrule user_can_submit_for_rating user submissionset %}
+              {% testrule user_can_submit_report user submissionset %}
                 <a href='{{ submissionset.get_submit_url }}'
                    class='btn btn-success'>
                     <i class="icon-check icon-white"></i> Submit Report</a>
@@ -46,6 +49,7 @@
                 <div class="accordion-heading">
                     <a class="accordion-toggle" data-toggle="collapse" data-parent="#categories" href="#ec_{{ cat.category.id }}">
                         <strong>{{ cat }}</strong>
+						{% if creditset.has_category_scoring_feature %}
                         {% testrule institution_has_score_feature institution %}
                             <div style='float: right;'>
                                 {% if cat.category.include_in_score %}
@@ -57,6 +61,7 @@
                                 {% endif %}
                             </div>
                         {% endtestrule %}
+                        {% endif %}
                     </a>
                     <table class='table' style='margin-bottom: 0px;'>
                         <tr>
@@ -69,12 +74,19 @@
 
                 <div id="ec_{{ cat.category.id }}" class="accordion-body in">
                     <div class="accordion-inner">
+                    
+                    	{% if cat.category.description %}
+                    	<div class='well'>
+                    		{% autoescape off %}{{ cat.category.description }}{% endautoescape %}
+                    	</div>
+                    	{% endif %}
 
                         {% for sub in cat.subcategorysubmission_set.all %}
 
                             <div class="accordion subcategory_accordion" id="accordion_{{ sub.subcategory.id }}">
                                 <div class="accordion-group">
                                     <div class="accordion-heading">
+                                    	{% if not sub.subcategory.passthrough %}
                                         <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion_{{ sub.subcategory.id }}" href="#ec_{{ cat.category.id }}_{{ sub.subcategory.id }}">
                                             {{ sub }}
                                             {% testrule institution_has_score_feature institution %}
@@ -97,9 +109,11 @@
                                                 </td>
                                             </tr>
                                         </table>
+                                    	{% endif %}
                                     </div>
                                     <div id="ec_{{ cat.category.id }}_{{ sub.subcategory.id }}" class="accordion-body in">
                                         <div class="accordion-inner">
+                                            {% if not sub.subcategory.passthrough %}
                                             {% if submissionset.creditset.has_submission_summary_feature %}
                                                 <div class='well' style='text-align: center'>
                                                     {% if sub.description %}
@@ -114,6 +128,7 @@
                                                         {% endif %}
                                                     </a>
                                                 </div>
+                                            {% endif %}
                                             {% endif %}
                                             <table class='table table-condensed table-striped'>
                                                 <thead>

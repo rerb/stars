@@ -51,7 +51,7 @@ class CreditAdmin(admin.ModelAdmin):
     inlines = [
             DocumentationFieldInline,
         ]
-    
+
     class Media:
         js = (
             '/media/tp/js/tiny_mce/tiny_mce.js',
@@ -59,23 +59,29 @@ class CreditAdmin(admin.ModelAdmin):
           )
 admin.site.register(Credit, CreditAdmin)
 
+
 class ApplicabilityReasonAdmin(admin.ModelAdmin):
     list_display = ('reason', 'credit')
 admin.site.register(ApplicabilityReason, ApplicabilityReasonAdmin)
+
 
 class UnitAdmin(admin.ModelAdmin):
     pass
 admin.site.register(Unit, UnitAdmin)
 
 
+class ChoiceInline(admin.TabularInline):
+    model = Choice
+
+
 class DocumentationFieldAdmin(admin.ModelAdmin):
     list_display = ('title', 'type', 'credit', 'required')
     list_filter = ('type',)
     search_fields = ('title', 'credit',)
+    inlines = [ChoiceInline]
 admin.site.register(DocumentationField, DocumentationFieldAdmin)
 
-
-class ChoiceAdmin(admin.ModelAdmin):
-    list_display = ('choice', 'documentation_field', 'is_bonafide')
-    list_filter = ('documentation_field',)
-admin.site.register(Choice, ChoiceAdmin)
+# class ChoiceAdmin(admin.ModelAdmin):
+#     list_display = ('choice', 'documentation_field', 'is_bonafide')
+#     list_filter = ('documentation_field',)
+# admin.site.register(Choice, ChoiceAdmin)

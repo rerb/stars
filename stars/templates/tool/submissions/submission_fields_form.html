@@ -1,23 +1,18 @@
         {% if submission_form.non_field_errors %}
 		    <div class="alert alert-error">
-		        <a class="close" data-dismiss="alert">&times;</a></a>
-		        {% for non_field_error in submission_form.non_field_errors %}
-		             {{ non_field_error }}
-		        {% endfor %}
+		        {{ submission_form.non_field_errors }}
 		    </div>
 		{% endif %}
 		{% if submission_form.non_field_warnings %}
 		    <div class="alert alert-warning">
 		        <a class="close" data-dismiss="alert">&times;</a></a>
-		        {% for non_field_warning in submission_form.non_field_warnings %}
-		             {{ non_field_warning }}
-		        {% endfor %}
+		        {{ submission_form.non_field_warnings }}
 		    </div>
 		{% endif %}
-        {% for submit_field in submission_form.get_submission_fields_and_forms %}
+        {% for submit_field in submission_form.get_forms_with_tables %}
         	<div class='documentationField'>
-            {% with submit_field.field.documentation_field as documentation_field %}
-            {% with submit_field.form as field_form %}
+            {% with submit_field.instance.documentation_field as documentation_field %}
+            {% with submit_field as field_form %}
                 {% include 'tool/submissions/tags/documentation_field_form.html' %}
             {% endwith %}
             {% endwith %}

@@ -98,7 +98,7 @@ XMLRPC_VERBOSE = False
 XMLRPC_USE_HASH = True
 
 # Thumbnails
-THUMBNAIL_DEBUG = True
+THUMBNAIL_DEBUG = DEBUG
 
 # django toolbar
 if DEBUG_TOOLBAR:
@@ -122,21 +122,27 @@ if DEBUG_TOOLBAR:
         'PRINT_TIMINGS': False,
     }
 
-TEMPLATE_STRING_IF_INVALID = 'INVALID EXPRESSION: %s' if DEBUG else ' '
+TEMPLATE_STRING_IF_INVALID = 'INVALID EXPRESSION: %s'
 
-# TEST_RUNNER = 'hotrunner.HotRunner'
-# EXCLUDED_TEST_APPS = ['aashe.issdjango',
-#                       'south',
-#                       'sorl.thumbnail',
-#                       'captcha',
-#                       'django_extensions',
-#                       'djcelery',
-#                       'logical_rules',
-#                       'tastypie',
-#                       'bootstrapform',
-#                       'memcache_status',
-#                       's3_folder_storage',
-#                       'stars.apps',
-#                       'django_extensions',
-#                       'django_nose',
-#                       'template_repl']
+TEST_RUNNER = 'hotrunner.HotRunner'
+EXCLUDED_TEST_APPS = ['aashe.issdjango',
+                      'bootstrapform',
+                      'captcha',
+                      'collapsing_menu',
+                      'django_extensions',
+                      'django_extensions',
+                      'django_nose',
+                      'djcelery',
+                      'gunicorn',
+                      'logical_rules',
+                      'memcache_status',
+                      's3_folder_storage',
+                      'sorl.thumbnail',
+                      'south',
+                      'stars.apps',
+                      'stars.apps.accounts',
+                      'stars.apps.api',
+                      'stars.tests',
+                      'tastypie',
+                      'template_repl']
+

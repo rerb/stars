@@ -1,12 +1,16 @@
 """
     Base LiveServerTestCase customized for STARS tests.
 """
+import collections
+import os
 import sys
 import unittest
 
-from django import test
+import django
+from selenium.webdriver import chrome
+from selenium.webdriver import firefox
+from selenium.webdriver import phantomjs
 from selenium.webdriver.common.by import By
-from selenium.webdriver.firefox import webdriver
 from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support.wait import TimeoutException
@@ -15,11 +19,99 @@ from stars.test_factories import (InstitutionFactory, StarsAccountFactory,
                                   UserFactory)
 
 
+class NoWebdriverForPlatformError(Exception):
+    pass
+
+
+Browser = collections.namedtuple(
+    'Browser',
+    ['platform',  # as returned by sys.platform
+     'name',
+     'sentinels', # list of files that, when present, indicate the browser
+                  # is installed
+     'implementation'  # the webdriver implementation
+ ])
+
+
+WEBDRIVERS = [Browser(platform='darwin',
+                      name='phantomjs',
+                      sentinels=['/usr/local/bin/phantomjs'],
+                      implementation=phantomjs.webdriver),
+              Browser(platform='darwin',
+                      name='firefox',
+                      sentinels=['/Applications/Firefox.app'],
+                      implementation=firefox.webdriver),
+              Browser(platform='darwin',
+                      name='chrome',
+                      sentinels=['/Applications/Google Chrome.app',
+                       '/usr/local/bin/chromedriver'],
+                      implementation=chrome.webdriver),
+              #TODO: test on linux . . . 
+              Browser(platform='linux2',
+                      name='firefox',
+                      sentinels=['/usr/bin/firefox'],
+                      implementation=firefox.webdriver),
+              Browser(platform='linux2',
+                      name='chrome', 
+                      sentinels=['/usr/bin/chromium-browser'],
+                      implementation=chrome.webdriver),
+              Browser(platform='linux2',
+                      name='phantomjs',
+                      sentinels=['/usr/bin/phantomjs'],
+                      implementation=phantomjs.webdriver)]
+
+
 def skip_live_server_tests():
     return '--liveserver=' in sys.argv
 
 
-class StarsLiveServerTest(test.LiveServerTestCase):
+class LiveServerTestCase(django.test.LiveServerTestCase):
+    """
+    A test.LiveServerTestCase that handles the webdriver implementation
+    used.  Picks one from WEBDRIVERS, instantiates it, and quits it
+    in tearDownClass().
+
+    So, for instance, we don't specify a specific implementation that
+    isn't installed on the test machine, and then are mystified by
+    the resulting error.
+    """
+    @classmethod
+    def setUpClass(cls):
+        if not skip_live_server_tests():
+            super(LiveServerTestCase, cls).setUpClass()
+            webdriver = cls.get_webdriver()
+            cls.selenium = webdriver.WebDriver()
+
+    @classmethod
+    def tearDownClass(cls):
+        if not skip_live_server_tests():
+            cls.selenium.quit()
+            super(LiveServerTestCase, cls).tearDownClass()
+
+    @classmethod
+    def get_webdriver(cls):
+        """Returns a webdriver implementation appropriate for this
+        sys.platform.  Looks through WEBDRIVERS, in order, and returns
+        the first it finds that's installed."""
+        for webdriver in [implementation for implementation in WEBDRIVERS
+                          if implementation.platform == sys.platform]:
+            for sentinel in webdriver.sentinels:
+                try:
+                    os.stat(sentinel)
+                except OSError as e:
+                    print 'cannot stat', sentinel, ': ', e
+                else:
+                    return webdriver.implementation
+        raise NoWebdriverForPlatformError(sys.platform)
+
+    def runTest(self):
+        """Need runTest() so we can instantiate LiveServerTestCase
+        itself.  For, like, testing and stuff.
+        """
+        pass
+
+
+class StarsLiveServerTest(LiveServerTestCase):
     """Base test case that:
 
           - takes care of starting and stopping a webdriver;
@@ -40,15 +132,8 @@ class StarsLiveServerTest(test.LiveServerTestCase):
     @classmethod
     def setUpClass(cls):
         if not skip_live_server_tests():
-            cls.selenium = webdriver.WebDriver()
-            cls.logged_in = False
             super(StarsLiveServerTest, cls).setUpClass()
-
-    @classmethod
-    def tearDownClass(cls):
-        if not skip_live_server_tests():
-            cls.selenium.quit()
-            super(StarsLiveServerTest, cls).tearDownClass()
+            cls.logged_in = False
 
     def setUp(self):
         if skip_live_server_tests():

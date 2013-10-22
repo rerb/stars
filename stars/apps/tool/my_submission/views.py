@@ -1,4 +1,5 @@
 from datetime import datetime, date
+from itertools import chain
 import os
 
 from django.conf import settings
@@ -12,17 +13,18 @@ from django.contrib.formtools.wizard.views import SessionWizardView
 from django.core.files.storage import FileSystemStorage
 
 from stars.apps.helpers.forms.forms import Confirm
-from stars.apps.institutions.models import MigrationHistory
+from stars.apps.institutions.models import FULL_ACCESS, MigrationHistory
 from stars.apps.notifications.models import EmailTemplate
 from stars.apps.submissions.models import (Boundary,
                                            CreditUserSubmission,
+                                           RATING_VALID_PERIOD,
                                            ResponsibleParty,
-                                           SubcategorySubmission,
-                                           RATING_VALID_PERIOD)
+                                           SubcategorySubmission)
 from stars.apps.submissions.tasks import (send_certificate_pdf,
                                           rollover_submission)
 from stars.apps.tool.mixins import (UserCanEditSubmissionMixin,
                                     SubmissionToolMixin,)
+from stars.apps.tool.my_submission import credit_history
 from stars.apps.tool.my_submission.forms import (CreditUserSubmissionForm,
                                                  CreditUserSubmissionNotesForm,
                                                  ExecContactForm,
@@ -167,6 +169,24 @@ class SubmitForRatingWizard(SubmissionToolMixin, SessionWizardView):
     file_storage = FileSystemStorage(location=os.path.join(settings.MEDIA_ROOT,
                                                            'temp'))
 
+    def update_logical_rules(self):
+        super(SubmitForRatingWizard, self).update_logical_rules()
+        self.add_logical_rule({
+                               'name': 'user_can_submit_report',
+                               'param_callbacks': [
+                                           ('user', 'get_request_user'),
+                                           ('submission', 'get_submissionset')
+                                                   ],
+                               'message': "Sorry, you do not have privileges "
+                                   "to submit a report."
+                               })
+        self.add_logical_rule({
+            'name': 'submission_is_not_missing_required_boundary',
+            'param_callbacks': [('submission',
+                                 'get_submissionset')],
+            'response_callback': 'redirect_to_boundary'
+        })
+
     def get_template_names(self):
         return ("tool/submissions/submit_wizard_%s.html" %
                 SUBMISSION_STEPS[int(self.steps.current)]['template'])
@@ -190,24 +210,6 @@ class SubmitForRatingWizard(SubmissionToolMixin, SessionWizardView):
             _context['credit_list'] = qs
             _context['reporter_rating'] = self.get_submissionset().creditset.rating_set.get(name='Reporter')
         return _context
-
-    def update_logical_rules(self):
-        super(SubmitForRatingWizard, self).update_logical_rules()
-        self.add_logical_rule({
-                               'name': 'user_can_submit_for_rating',
-                               'param_callbacks': [
-                                           ('user', 'get_request_user'),
-                                           ('submission', 'get_submissionset')
-                                                   ],
-                               'message': "Sorry, you do not have privileges "
-                                   "to submit for a rating."
-                               })
-        self.add_logical_rule({
-                               'name': 'submission_has_boundary',
-                               'param_callbacks': [('submission',
-                                                    'get_submissionset')],
-                               'response_callback': 'redirect_to_boundary'
-                               })
 
     def redirect_to_boundary(self):
         messages.error(self.request,
@@ -338,6 +340,36 @@ class CreditNotesView(UserCanEditSubmissionMixin, UpdateView):
 
     def get_object(self):
         return self.get_creditsubmission()
+
+
+class CreditHistoryView(UserCanEditSubmissionMixin,
+                        TemplateView):
+    """
+        Displays a list of submission history for a credit
+        (based on DocumentationFieldSubmissions).
+    """
+    tab_content_title = 'history'
+    template_name = "tool/submissions/credit_history.html"
+
+    def get_history(self):
+        history = credit_history.get_credit_submission_history(
+            credit_submission=self.get_creditsubmission())
+        return history or []
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(CreditHistoryView, self).get_context_data(
+            *args, **kwargs)
+        history = self.get_history()
+        context['history'] = history
+        all_documentation_field_submissions = reduce(chain,
+                                                     history.values())
+        context['exportable_submissionsets'] = set(
+            [ history_.doc_field_sub.get_submissionset() for history_
+              in all_documentation_field_submissions ])
+        context['institution_has_full_access'] = (
+            context['institution'].access_level == FULL_ACCESS)
+                
+        return context
 
 
 class AddResponsiblePartyView(UserCanEditSubmissionMixin, CreateView):

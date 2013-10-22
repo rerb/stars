@@ -4,10 +4,10 @@
 export MEDIA_ROOT="/Users/rerb/src/aashe/app_media/stars/"
 
 # I like to spec the db's to use by form:
-export STARS_MYSQL_DB_URL="mysql://root@localhost/stars20130816"
-export ISS_MYSQL_DB_URL="mysql://root@localhost/iss20130816"
-export STARS_SQLITE_DB_URL="sqlite:////Users/rerb/sqlite/stars.db"
-export ISS_SQLITE_DB_URL="sqlite:////Users/rerb/sqlite/iss.db"
+export STARS_MYSQL_DB_URL="mysql://root@localhost/${STARSDB}"
+export ISS_MYSQL_DB_URL="mysql://root@localhost/${ISSDB}"
+export STARS_SQLITE_DB_URL="sqlite:////Users/rerb/Databases/sqlite/stars.db"
+export ISS_SQLITE_DB_URL="sqlite:////Users/rerb/Databases/sqlite/iss.db"
 
 # stars/settings.py requires these to be set.  stars/config/bob.py
 # ignores/overrides them, but since bob.py imports * from settings.py,

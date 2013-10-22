@@ -3,7 +3,7 @@ import sys
 import string
 
 from django.forms import ModelForm
-from django.forms.widgets import TextInput, ClearableFileInput
+from django.forms.widgets import TextInput, ClearableFileInput, HiddenInput
 from django import forms
 from django.forms.extras.widgets import SelectDateWidget
 from django.forms.util import ErrorList
@@ -428,6 +428,57 @@ class CreditSubmissionForm(LocalizedModelFormMixin, ModelForm):
 
         return self._form_fields
 
+    def get_forms_with_tables(self):
+        """
+            Breaks up the forms into forms and subforms (in tables)
+        """
+        form_fields = self.get_submission_fields_and_forms()
+        form_field_list_with_tables = []
+
+        # go through all documentation fields for this credit
+        for df in self.instance.credit.documentationfield_set.all():
+
+            # create a table wrapper if it's a table
+            if df.type == 'tabular':
+                table_wrapper = {'tabular': True,
+                                 'instance': {'documentation_field': df},
+                                 'errors': False,
+                                 'subforms': {}} # subforms are a dict for lookup purposes
+
+                subfield_id_list = []
+                for row in df.tabular_fields['fields']:
+                    for cell in [cell for cell in row if cell != '']:
+                        subfield_id_list.append(int(cell))
+
+                # populate subforms and remove from all form_fields
+                for sub_id in subfield_id_list:
+                    # remove from base list
+                    for f in form_fields:
+                        if f['form'].errors:
+                            pass
+                        if f['field'].documentation_field_id == sub_id:
+                            table_wrapper['subforms']["%d" % sub_id] = f['form']
+                            if f['form'].errors:
+                                table_wrapper['errors'] = True
+                            form_fields.remove(f)
+                    # remove from new list, in case they are out of order
+                    for f in form_field_list_with_tables:
+                        if type(f) != dict and f.instance.documentation_field.id == sub_id:
+                            table_wrapper['subforms']["%d" % sub_id] = f
+                            if f.errors:
+                                table_wrapper['errors'] = True
+                            form_field_list_with_tables.remove(f)
+
+                form_field_list_with_tables.append(table_wrapper)
+
+            else:
+                for f in form_fields:
+                    if f['field'].documentation_field_id == df.id:
+                        form_field_list_with_tables.append(f['form'])
+                        break
+
+        return form_field_list_with_tables
+
     def save(self, commit=True):
         """
             Save the data in this form (update instance or create a
@@ -561,13 +612,13 @@ class CreditSubmissionForm(LocalizedModelFormMixin, ModelForm):
         cleaned_data = self.cleaned_data
         error_message = "This credit cannot be submitted as complete."
 
-        self._validate_required_fields()
         has_error = self._has_errors()
 
         # only perform custom validation if the form had no basic
         # validation errors.  this is important because custom
         # validation_rules assume data is clean and complete.
         if not has_error:
+            self._validate_required_fields()
             validation_errors, validation_warnings = (
                 self.instance.credit.execute_validation_rules(self))
             has_error = self._load_errors(validation_errors)
@@ -622,10 +673,15 @@ class CreditUserSubmissionForm(CreditSubmissionForm):
     """
         A Credit Submission Form for a user submission, with Submission Status
     """
-    submission_status = forms.CharField(widget=forms.RadioSelect(
-        choices=CREDIT_SUBMISSION_STATUS_CHOICES_LIMITED))
-    applicability_reason = custom_fields.ModelChoiceWithHelpField(
-        queryset=None, empty_label=None, required=False)
+    submission_status = forms.CharField(widget=HiddenInput())
+#     applicability_reason = forms.ModelChoiceField(
+#         queryset=,
+#         widget=HiddenInput()
+#     )
+                                        #forms.RadioSelect(
+        #choices=CREDIT_SUBMISSION_STATUS_CHOICES_LIMITED))
+#     applicability_reason = custom_fields.ModelChoiceWithHelpField(
+#         queryset=None, empty_label=None, required=False)
 
     class Meta:
         model = CreditUserSubmission
@@ -635,14 +691,19 @@ class CreditUserSubmissionForm(CreditSubmissionForm):
 
     def __init__(self, *args, **kwargs):
         super(CreditUserSubmissionForm, self).__init__(*args, **kwargs)
+
+        self.fields['applicability_reason'].queryset = self.instance.credit.applicabilityreason_set.all()
+        self.fields['applicability_reason'].widget = HiddenInput()
         # if there are reasons that this might not apply, allow the
         # "not applicable" choice
-        if self.instance.credit.applicabilityreason_set.all():
-            self.fields['applicability_reason'].queryset = (
-                self.instance.credit.applicabilityreason_set.all())
-            self.fields['submission_status'].widget = forms.RadioSelect(
-                choices=CREDIT_SUBMISSION_STATUS_CHOICES_W_NA,
-                attrs={'onchange': 'toggle_applicability_reasons(this);'})
+#         if self.instance.credit.applicabilityreason_set.all():
+# #             self.fields['applicability_reason'].queryset = (
+# #                 self.instance.credit.applicabilityreason_set.all())
+# #             self.fields['applicability_reason'].widget = HiddenInput()
+# #             self.fields['submission_status'].widget = HiddenInput()
+#             """forms.RadioSelect(
+#                 choices=CREDIT_SUBMISSION_STATUS_CHOICES_W_NA,
+#                 attrs={'onchange': 'toggle_applicability_reasons(this);'})"""
 
         self.fields['submission_notes'].widget.attrs['style'] = "width: 600px;"
 
@@ -678,7 +739,7 @@ class CreditUserSubmissionForm(CreditSubmissionForm):
         cleaned_data = self.cleaned_data
         status = cleaned_data.get("submission_status")
         reason = cleaned_data.get("applicability_reason")
-        marked_complete = (status=='c')
+        marked_complete = (status == 'c')
         error = False
 
         if not status :
@@ -694,7 +755,7 @@ class CreditUserSubmissionForm(CreditSubmissionForm):
 
         # responsible party and responsible party confirm are required
         # if marked complete
-        if marked_complete:
+        if marked_complete and self.instance.credit.requires_responsible_party:
             rp = cleaned_data.get("responsible_party")
             if rp == None or rp == "":
                 msg = u"This field is required to mark this credit complete."

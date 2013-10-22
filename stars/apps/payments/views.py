@@ -11,6 +11,8 @@ from . import forms
 from ..institutions.models import Subscription, SubscriptionPurchaseError
 from ..registration.models import (ExpiredDiscountCodeError,
                                    InvalidDiscountCodeError,
+                                   NoActiveAutomaticDiscountError,
+                                   get_automatic_discount,
                                    get_current_discount)
 
 PAY_WHEN = 'pay_when'
@@ -85,7 +87,7 @@ class SubscriptionPurchaseWizard(SessionWizardView):
             return self._process_step_price(form=form)
         else:
             return super(SubscriptionPurchaseWizard, self).post(*args,
-                                                               **kwargs)
+                                                                **kwargs)
 
     def process_step(self, form):
         try:
@@ -120,6 +122,21 @@ class SubscriptionPurchaseWizard(SessionWizardView):
 
         return context
 
+    def _get_automatic_discount(self):
+        """Return the automatic ValueDiscount for this institution,
+        if one is in effect.
+        """
+        try:
+            return self._automatic_discount
+        except AttributeError:
+            try:
+                self._automatic_discount = get_automatic_discount(
+                    {'institution': self.get_institution(),
+                     'Subscription': Subscription})
+            except NoActiveAutomaticDiscountError:
+                self._automatic_discount = None
+        return self._automatic_discount
+
     def _get_context_data_price(self, form, **kwargs):
         context = {}
 
@@ -139,11 +156,55 @@ class SubscriptionPurchaseWizard(SessionWizardView):
 
         context['institution_is_member'] = institution.is_member
         context['institution_name'] = institution.name
-
+        
         context['join_aashe_url'] = 'http://www.aashe.org/membership'
+
+        automatic_discount = self._get_automatic_discount()
+        if automatic_discount:
+            context['automatic_discount_code'] = automatic_discount.code
 
         return context
 
+    ###################################################################
+    # Automatic Discounts                                             #
+    #                                                                 #
+    # Effective date ranges of automatic discounts can't overlap,     #
+    # so only one automatic ValueDiscount can be applicable at any    #
+    # time.                                                           #
+    #                                                                 #
+    # Each automatic discount is applicable if today is in its        #
+    # effective range, and its applicability filter is True.  An      #
+    # applicability is a Python expression.  It can be as simple      #
+    # as "True" so that the discount applies to all subscribers,      #
+    # or more complicated, such as a discount that applies only       #
+    # if a subscriber doesn't qualify for the early renewal           #
+    # discount.                                                       #
+    #                                                                 #
+    # Applicability filters take two optional arguments, both         #
+    # dictionaries.  The environment in which the filter expression   #
+    # is evaluated is defined by adding `extra_globals` to globals(), #
+    # and `extra_locals` to locals().  This allows you to provide     #
+    # any objects the filter expression requires.                     #
+    #                                                                 #
+    # The pricing view determines if there's an automatic discount    #
+    # that should be applied, and passes this determination to the    #
+    # pricing template                                                #
+    #                                                                 #
+    # When an automatic discount is in effect, no other promo code    #
+    # can be applied.                                                 #
+    #                                                                 #
+    # If an automatic discount should be applied, the template hides  #
+    # the promo code widgets, and applies the discount code.          #
+    #                                                                 #
+    # Here's an example applicability filter that is true only        #
+    # for those institutions that do not qualify for the              #
+    # early renewal discount:                                         #
+    #                                                                 #
+    #   not globals()['Subscription'].create(                         #
+    #       institution=globals(                                      #
+    #       )['institution']).qualifies_for_early_renewal_discount()  #
+    ###################################################################
+    
     def _get_context_data_payment_options(self, form, **kwargs):
         context = {}
         context['amount_due'] = self.request.session['amount_due']
@@ -169,7 +230,7 @@ class SubscriptionPurchaseWizard(SessionWizardView):
             ajax_data['prices'] = Subscription.get_prices_for_new_subscription(
                 institution=self.get_institution(),
                 promo_code=promo_code)
-        except (ExpiredDiscountCodeError, InvalidDiscountCodeError) as ex:
+        except (ExpiredDiscountCodeError, InvalidDiscountCodeError) as exc:
             # promo code provided is invalid or expired, so throw it
             # away:
             promo_code = None
@@ -182,7 +243,7 @@ class SubscriptionPurchaseWizard(SessionWizardView):
                 # why recalculate it here?
                 promo_code_id = 'id_{step}-promo_code'.format(
                     step=self.steps.current)
-                ajax_data['form-errors'] = {promo_code_id: ex.message}
+                ajax_data['form-errors'] = {promo_code_id: exc.message}
                 return HttpResponseBadRequest(json.dumps(ajax_data),
                                               mimetype='application/json')
         finally:
@@ -205,8 +266,17 @@ class SubscriptionPurchaseWizard(SessionWizardView):
         if self.request.is_ajax():
             discount = get_current_discount(promo_code)
             if discount:
-                ajax_data.update({'discount_amount': discount.amount,
-                                  'discount_percentage': discount.percentage})
+                discount_description = (
+                    discount.description or 
+                    # fake it
+                    "Promo code {code} - {amount}".format(
+                        code=discount.code,
+                        amount=(discount.amount or
+                                str(discount.percentage) + '%')))
+                ajax_data.update(
+                    {'discount_amount': discount.amount,
+                     'discount_percentage': discount.percentage,
+                     'discount_description': discount_description})
                 return HttpResponse(json.dumps(ajax_data),
                                     mimetype='application/json')
 
@@ -315,8 +385,8 @@ class SubscriptionPurchaseWizard(SessionWizardView):
             self.form_list[str(self.SUBSCRIPTION_CREATE)] = (
                 correct_pay_when_form)
         return super(SubscriptionPurchaseWizard, self).get_form(step,
-                                                               data,
-                                                               files)
+                                                                data,
+                                                                files)
 
     @classmethod
     def insert_forms_into_form_list(cls, forms):

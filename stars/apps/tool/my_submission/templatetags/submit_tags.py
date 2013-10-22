@@ -2,17 +2,26 @@ from django.utils.html import strip_spaces_between_tags, escape
 from django import template
 register = template.Library()
 
+
 @register.inclusion_tag('tool/submissions/tags/available_points.html')
-def format_available_points(object):
+def format_available_points(creditsubmission, use_cache=False):
     """
-        Displays the Available points in a readable format
-        this prevents mulitple quieries to the DB
+        Displays the Available points in a readable formats
     """
-    available_points = object.get_available_points()
-    adjusted_points = object.get_adjusted_available_points()
-    if available_points == adjusted_points:
-        adjusted_points = None
-    return {'available_points': available_points, 'adjusted_points': adjusted_points}
+    value = creditsubmission.get_available_points(use_cache=use_cache)
+    adjusted_points = creditsubmission.get_adjusted_available_points()
+    popup_text = None
+
+    if adjusted_points == 0:
+        value = None
+        popup_text = "Total adjusted for non-applicable credits"
+
+    elif creditsubmission.credit.point_variation_reason:
+        popup_text = creditsubmission.credit.point_variation_reason
+
+    return {'value': value,
+            'popup_text': popup_text,
+            "id": "%s_point_variation" % creditsubmission.id}
 
 
 @register.inclusion_tag('tool/submissions/tags/crumbs.html')
@@ -50,10 +59,10 @@ def show_progress_icon(category, size_class=''):
         
         if z == "CategorySubmission":
             content = "%.0f / %.0f" % (numerator, denominator)
-            caption = "Credits Completed"
+            caption = "Progress"
         elif z == "SubcategorySubmission":
             content = ""
-            caption = "%.0f / %.0f Credits Completed" % (numerator, denominator)
+            caption = "%.0f / %.0f Progress" % (numerator, denominator)
     return {
         'percentage': percentage, 
         'numerator': numerator,
@@ -83,5 +92,11 @@ def show_payment_type_icon(payment, size_class=''):
     icon.alt = payment.method
     icon.file, icon.title = PAYMENT_TYPE_ICONS.get(payment.method, (None, None))
     return {'icon': icon}
+
+@register.inclusion_tag('tool/submissions/tags/documentation_field_inside_table.html')
+def show_submission_field_control(form_list, id):
+    """ Displays the submission form for a documentation field """
+    form = form_list[id]
+    return{"documentation_field":form.instance.documentation_field, "field_form":form }
 
 

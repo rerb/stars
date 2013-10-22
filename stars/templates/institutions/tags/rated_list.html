@@ -1,3 +1,15 @@
-{% for ss in ss_list %}
-	<a href='{{ ss.get_scorecard_url }}'>{{ ss.institution }}</a><br/>
-{% endfor %}
+<div id="ratingCarousel" class="carousel slide" data-interval="1000">
+  <!-- Carousel items -->
+  <div class="carousel-inner">
+    {% for ss in ss_list %}
+    <div class="{% if forloop.first %}active{% endif %} item">
+        <!-- <img src="{{ STATIC_URL }}images/{{ ss.rating.image_large }}" />-->
+        <a href="{{ ss.get_scorecard_url }}">
+          <img class="badge" src="{{ STATIC_URL }}images/{{ ss.rating.image_200 }}" />
+          <h4>{{ ss.institution }}</h4>
+        </a>
+        <p class="small">Submitted {{ ss.date_submitted|date:"F Y" }}</p>
+    </div>
+    {% endfor %}
+  </div><!-- /.carousel-inner -->
+</div><!-- /#regCarousel -->

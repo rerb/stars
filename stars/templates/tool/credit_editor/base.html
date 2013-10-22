@@ -1,17 +1,29 @@
 {% extends 'tool/base.html' %}
 
-{% block title %}{{ creditset }} | Credit Editor | {{ block.super }}{% endblock %}
+{% block title %}
+    {{ creditset }} | Credit Editor | {{ block.super }}
+{% endblock %}
 
 {% block extra_head %}
     {{ block.super }}
-    <script type="text/javascript" src="/media/tp/js/tiny_mce/tiny_mce.js"></script>
-    <script type="text/javascript" src="/media/static/js/textarea_credit_editor.js"></script>
-    <script type="text/javascript" src="/media/static/js/tablednd.js"></script>
-    <link href='/media/static/css/listexpander.css' rel='stylesheet' type='text/css' />
-    <script src='/media/static/js/listexpander.js' type='text/javascript'></script>
+    {% block tinymce %}
+    <script type="text/javascript"
+            src="{{ STATIC_URL }}tp/tinymce/js/tinymce/tinymce.min.js"></script>
+    <script type="text/javascript">
+        tinymce.init({plugins: "link paste table,",
+                      tools: "inserttable",
+                      selector: "textarea:not(.noMCE)"});
+    </script>
+    {% endblock %}
+    <script type="text/javascript"
+            src="{{ STATIC_URL }}js/tablednd.js"></script>
+	<script src="{{ STATIC_URL }}js/select_tree.js"></script>
 {% endblock %}
 
-{% block body_onload %}{{ block.super }}listexpander();collapseSummary();{% endblock %}
+{% block body_onload %}
+    {{ block.super }}
+    listexpander();collapseSummary();
+{% endblock %}
 
 {% block crumbs %}
     <a href='/tool/'>Reporting Tool</a> &gt;
@@ -42,4 +54,5 @@
         var tableDnD = null;
         setTable('dndtable');
     </script>
+    {{ block.super }}
 {% endblock %}

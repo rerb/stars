@@ -7,7 +7,6 @@ import sys
 from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User
-from django.utils.safestring import mark_safe
 from django.contrib.localflavor.us.models import PhoneNumberField
 from django.db.models import Q
 from django.contrib.contenttypes import generic
@@ -130,17 +129,45 @@ class SubmissionSet(models.Model, FlaggableModel):
     date_registered = models.DateField()
     date_submitted = models.DateField(blank=True, null=True)
     date_reviewed = models.DateField(blank=True, null=True)
-    registering_user = models.ForeignKey(User, related_name='registered_submissions')
-    submitting_user = models.ForeignKey(User, related_name='submitted_submissions', blank=True, null=True)
+    registering_user = models.ForeignKey(
+        User,
+        related_name='registered_submissions')
+    submitting_user = models.ForeignKey(User,
+                                        related_name='submitted_submissions',
+                                        blank=True,
+                                        null=True)
     rating = models.ForeignKey(Rating, blank=True, null=True)
     status = models.CharField(max_length=8, choices=SUBMISSION_STATUS_CHOICES)
-    submission_boundary = models.TextField(blank=True, null=True, help_text="The following is an example institutional boundary: This submission includes all of the the University's main campus as well as the downtown satellite campus. The University hospital and campus farm are excluded.")
-    presidents_letter = models.FileField("President's Letter", upload_to=upload_path_callback, blank=True, null=True, help_text="AASHE requires that every submission be vouched for by that institution's president. Please upload a PDF or scan of a letter from your president.")
-    reporter_status = models.BooleanField(help_text="Check this box if you would like to be given reporter status and not receive a STARS rating from AASHE.")
-    pdf_report = models.FileField(upload_to=upload_path_callback, blank=True, null=True)
+    submission_boundary = models.TextField(
+        blank=True,
+        null=True,
+        help_text=("The following is an example institutional boundary: "
+                   "This submission includes all of the the University's "
+                   "main campus as well as the downtown satellite campus. "
+                   "The University hospital and campus farm are excluded."))
+    presidents_letter = models.FileField(
+        "President's Letter",
+        upload_to=upload_path_callback,
+        blank=True,
+        null=True,
+        help_text=("AASHE requires that every submission be vouched "
+                   "for by that institution's president. Please upload "
+                   "a PDF or scan of a letter from your president."))
+    reporter_status = models.BooleanField(
+        help_text=("Check this box if you would like to be given "
+                   "reporter status and not receive a STARS rating "
+                   "from AASHE."))
+    pdf_report = models.FileField(upload_to=upload_path_callback,
+                                  blank=True,
+                                  null=True)
     is_locked = models.BooleanField(default=False)
-    is_visible = models.BooleanField(default=True, help_text='Is this submission visible to the institution? Often used with migrations.')
+    is_visible = models.BooleanField(
+        default=True,
+        help_text=("Is this submission visible to the institution? "
+                   "Often used with migrations."))
     score = models.FloatField(blank=True, null=True)
+    migrated_from = models.ForeignKey('self', null=True, related_name='+')
+    date_created = models.DateField(blank=True, null=True)
 
     class Meta:
         ordering = ("date_registered",)
@@ -227,9 +254,11 @@ class SubmissionSet(models.Model, FlaggableModel):
             return url
         else:
             if self.date_submitted:
-                url = '/institutions/%s/report/%s/'% (self.institution.slug, self.date_submitted)
+                url = '/institutions/%s/report/%s/'% (self.institution.slug,
+                                                      self.date_submitted)
             else:
-                url = '/institutions/%s/report/%s/'% (self.institution.slug, self.id)
+                url = '/institutions/%s/report/%s/'% (self.institution.slug,
+                                                      self.id)
             cache.set(cache_key, url, 60*60*24) # cache for 24 hours
             return url
 
@@ -238,7 +267,8 @@ class SubmissionSet(models.Model, FlaggableModel):
         return None
 
     def get_status(self):
-        """ Returns a status display string showing current status or rating for this submission """
+        """ Returns a status display string showing current status or rating
+            for this submission """
         if self.is_rated():
             return unicode(self.rating)
         return self.get_status_display()
@@ -260,10 +290,15 @@ class SubmissionSet(models.Model, FlaggableModel):
 
     def get_STARS_rating(self, recalculate=False):
         """
-            Return the STARS rating (potentially provisional) for this submission
-            @todo: this is inefficient - need to store or at least cache the STARS score.
+            Return the STARS rating (potentially provisional) for this
+            submission
+
+            @todo: this is inefficient - need to store or at least cache
+            the STARS score.
         """
-        if self.reporter_status or self.status == 'f' or self.institution.international:
+        if (self.reporter_status or
+            self.status == 'f' or
+            self.institution.international):
             return self.creditset.rating_set.get(name='Reporter')
 
         if self.is_rated() and not recalculate:
@@ -296,6 +331,9 @@ class SubmissionSet(models.Model, FlaggableModel):
             return 0
 
     def get_STARS_v1_0_score(self):
+        """
+            Averages of each category average
+        """
         score = 0
         non_inno_cats = 0
         innovation_score = 0
@@ -306,7 +344,29 @@ class SubmissionSet(models.Model, FlaggableModel):
                 score += cat.get_STARS_v1_0_score()
                 non_inno_cats += 1
 
-        score = (score / non_inno_cats) if non_inno_cats>0 else 0   # average score
+        score = (score / non_inno_cats) if non_inno_cats>0 else 0   # average
+
+        score += innovation_score  # plus any innovation points
+
+        return score if score <= 100 else 100
+
+    def get_STARS_v2_0_score(self):
+        """
+            Percentage of total achieved out of total available
+        """
+        innovation_score = 0
+        total_available = self.get_adjusted_available_points()
+        total_achieved = 0
+
+        for cat in self.categorysubmission_set.all().select_related():
+            if cat.category.is_innovation():
+                innovation_score = cat.get_STARS_v2_0_score()
+            elif cat.category.include_in_score:
+                _score, _avail = cat.get_score_ratio()
+                total_achieved += _score
+                total_available += _avail
+
+        score = total_achieved / total_available
 
         score += innovation_score  # plus any innovation points
 
@@ -329,31 +389,37 @@ class SubmissionSet(models.Model, FlaggableModel):
         return score
 
     def get_adjusted_available_points(self):
-        """ Gets only the points for credits that have not been labelled as Not Applicable """
+        """ Gets only the points for credits that have not been labelled as
+            Not Applicable """
         score = 0
         for cat in self.categorysubmission_set.all():
             score += cat.get_adjusted_available_points()
         return score
 
     def get_finished_credit_count(self):
-        """ Get the number of credits that have been marked complete, not pursuing, or not applicable """
+        """ Get the number of credits that have been marked complete,
+            not pursuing, or not applicable """
         count = 0
         for cat in self.categorysubmission_set.all():
             count += cat.get_finished_credit_count()
         return count
 
     def get_percent_complete(self):
-        """ Return the percentage of credits completed in the entire set: 0 - 100 """
+        """ Return the percentage of credits completed in the entire
+            set: 0 - 100 """
         total_credits = self.get_total_credits()
         if total_credits == 0: return 0
-        return int((self.get_finished_credit_count() / float(total_credits)) * 100)
+        return int(
+            (self.get_finished_credit_count() / float(total_credits)) * 100)
 
     def get_progress_title(self):
         """ Returns a title for progress on the entire submission set """
-        return "Complete" if self.get_percent_complete() == 100 else "Reporting Status"
+        return "Complete" if (
+            self.get_percent_complete() == 100) else "Reporting Status"
 
     def get_amount_due(self):
-        """ Returns the amount of the total # of "later" payments tied to this submission """
+        """ Returns the amount of the total # of "later" payments tied to
+            this submission """
         total = 0.0
         for p in self.payment_set.filter(type='later'):
             total += p.amount
@@ -375,7 +441,8 @@ class SubmissionSet(models.Model, FlaggableModel):
                 categorysubmission.save()
 
             # Create SubcategorySubmissions if necessary
-            for subcategory in categorysubmission.category.subcategory_set.all():
+            for subcategory in (
+                    categorysubmission.category.subcategory_set.all()):
                 try:
                     subcategorysubmission = SubcategorySubmission.objects.get(
                         subcategory=subcategory,
@@ -451,6 +518,7 @@ class SubmissionSet(models.Model, FlaggableModel):
         if user.email != self.institution.contact_email:
             to_mail.append(self.institution.contact_email)
         et.send_email(to_mail, {'ss': self,})
+
 
 INSTITUTION_TYPE_CHOICES = (("associate", "Associate"),
                             ("baccalaureate", "Baccalaureate"),
@@ -746,6 +814,12 @@ class CategorySubmission(models.Model):
             score = ((100.0 * score) / avail) if avail>0 else 0   # percentage of points earned, 0 - 100
         return score
 
+    def get_STARS_v2_0_score(self):
+        """
+            returns the available and achieved points
+        """
+        return self.get_score_ratio()
+
     def get_claimed_points(self):
         score = 0
         for sub in self.subcategorysubmission_set.all().select_related():
@@ -846,6 +920,9 @@ class SubcategorySubmission(models.Model):
 
     def get_total_credits(self):
         return self.subcategory.credit_set.count()
+
+    def get_submissionset(self):
+        return self.category_submission.submissionset
 
     def get_submit_url(self):
         return self.subcategory.get_submit_url(
@@ -963,10 +1040,15 @@ class CreditSubmission(models.Model):
     """
         A complete submission data set for a credit
         This is really an abstract base class for two types of submissions:
-         - a User Submission (normal submission for an institutions STARS submission set)
-         - a Test Submission (a test case used to validate formulae in the Credit Editor)
+
+         - a User Submission (normal submission for an institutions
+           STARS submission set)
+
+         - a Test Submission (a test case used to validate formulae in
+           the Credit Editor)
     """
     credit = models.ForeignKey(Credit)
+    available_point_cache = models.FloatField(blank=True, null=True)
 
     class Meta:
         ordering = ("credit__type", "credit__ordinal",)
@@ -974,7 +1056,6 @@ class CreditSubmission(models.Model):
     def __unicode__(self):
         return self.credit.title
 
-#    @staticmethod
     def model_name():
         return u"Credit Submission"
     model_name = staticmethod(model_name)
@@ -987,45 +1068,66 @@ class CreditSubmission(models.Model):
         return str(self)
 
     def get_scorecard_url(self):
-        return self.subcategory.get_scorecard_url(self.category_submission.submissionset)
+        return self.subcategory.get_scorecard_url(
+            self.category_submission.submissionset)
 
     def get_institution(self):
         return self.subcategory_submission.get_institution()
 
     def get_submission_fields(self):
         """
-            Returns the list of documentation field submission objects for this credit submission
-            You can't simply ask self.documentationfieldsubmission_set.all() because each field may have a different type.
-            If this CreditSubmission persists in DB, this method also saves empty submission field records for any that are missing.
-            @return the complete list of DocumentationFieldSubmission sub-class objects related to this CreditSubmission
+            Returns the list of documentation field submission objects for
+            this credit submission
+
+            You can't simply ask
+            self.documentationfieldsubmission_set.all() because each
+            field may have a different type.
+
+            If this CreditSubmission persists in DB, this method also
+            saves empty submission field records for any that are
+            missing.
+
+            @return the complete list of DocumentationFieldSubmission
+            sub-class objects related to this CreditSubmission
         """
         if (self.submission_fields):  # lazy init.
             return self.submission_fields
 
-        return self._fields_for_field_list(self.credit.documentationfield_set.all())
+        return self._submission_fields_for_documentation_fields(
+            self.credit.documentationfield_set.all())
 
     def get_public_submission_fields(self):
 
-        return self._fields_for_field_list(self.credit.documentationfield_set.filter(is_published=True))
+        return self._submission_fields_for_documentation_fields(
+            self.credit.documentationfield_set.filter(is_published=True))
 
-    def _fields_for_field_list(self, documentation_field_list):
+    def _submission_fields_for_documentation_fields(self,
+                                                    documentation_field_list):
 
         # Create the list of submission fields.
         errors = False
 
         submission_field_list = []
         for field in documentation_field_list:
-            SubmissionFieldModelClass = DocumentationFieldSubmission.get_field_class(field)
+            SubmissionFieldModelClass = (
+                DocumentationFieldSubmission.get_field_class(field))
             if SubmissionFieldModelClass:
                 try:
-                    submission_field = SubmissionFieldModelClass.objects.get(documentation_field=field, credit_submission=self)
+                    submission_field = SubmissionFieldModelClass.objects.get(
+                        documentation_field=field, credit_submission=self)
                     # ORM / Model Inheritance issue:
-                    #   DocumentationFieldSubmission has a foreign key to CreditSubmission, but object may have reference to a sub-class!
-                    #   Hack: (Joseph)  update the reference in the field we just loaded.
+                    #
+                    #   DocumentationFieldSubmission has a foreign key to
+                    #   CreditSubmission, but object may have reference to
+                    #   a sub-class!
+                    #
+                    #   Hack: (Joseph)  update the reference in the field
+                    #   we just loaded.
                     submission_field.credit_submission = self
 
                 except SubmissionFieldModelClass.DoesNotExist:
-                    submission_field = SubmissionFieldModelClass(documentation_field=field, credit_submission=self)
+                    submission_field = SubmissionFieldModelClass(
+                        documentation_field=field, credit_submission=self)
                     submission_field.save()
                 submission_field_list.append(submission_field)
 
@@ -1033,11 +1135,15 @@ class CreditSubmission(models.Model):
         return self.submission_fields
 
     def get_submission_field_values(self):
-        """ Returns the list of documentation field values for this submission """
+        """ Returns the list of documentation field values for this
+            submission
+        """
         return [field.get_value() for field in self.get_submission_fields()]
 
     def get_submission_field_key(self):
-        """ Returns a dictionary with identifier:value for each submission field """
+        """ Returns a dictionary with identifier:value for each submission
+            field
+        """
         fields = self.get_submission_fields()
         key = {}
         for field in fields:
@@ -1050,24 +1156,39 @@ class CreditSubmission(models.Model):
         for field in fields:
             print >> sys.stderr, field
 
-    # @todo: rename or remove this - potential confusion b/c name conflict with CreditUserSubmission!!
+    # @todo: rename or remove this - potential confusion b/c name conflict
+    #        with CreditUserSubmission!!
     #        I don't think this one is actually called anywhere.
     def is_complete(self):
         """ Return True if the Credit Submission is complete."""
-        if not self.persists(): # New submissions are incomplete - don't try to access fields yet!
+        if not self.persists():
+            # New submissions are incomplete - don't try to access fields yet!
             return False
         for field in self.get_submission_fields():
             if field.documentation_field.is_required() and not field.value:
                 return False
-        # assert: all required fields contain a value.
         return True
+ 
+    def is_test(self):
+        """Returns True if this is a test submission."""
+        return hasattr(self, 'credittestsubmission')
 
     def persists(self):
         """Does this CreditSubmission persist in the DB?"""
         return (not self.pk == None)
 
-    def get_available_points(self):
-        return self.credit.point_value
+    def get_available_points(self, use_cache=False):
+        if use_cache and self.available_point_cache != None:
+            return self.available_point_cache
+        # in most cases there's a fixed point value
+        if self.credit.point_minimum == None:
+            self.available_point_cache = self.credit.point_value
+            return self.credit.point_value
+        # but if there's not then we need to execute the formula
+        else:
+            (ran, message, exception, available_points) = self.credit.execute_point_value_formula(self)
+            self.available_point_cache = available_points
+            return available_points
 
     @staticmethod
     def round_points(points, log_error=True):
@@ -1086,9 +1207,10 @@ class CreditSubmission(models.Model):
         except Exception, e:
             if log_error:
                 logger.error(
-                    "Error converting formula result (%s) to numeric type: %s" %
-                    (points,e), exc_info=True)
-            return (0, "Non-numeric result calculated for points: %s" % points)
+                    "Error converting formula result (%s) to numeric type: %s"
+                    % (points,e), exc_info=True)
+            return (0,
+                    "Non-numeric result calculated for points: %s" % points)
 
     def validate_points(self, points, log_error=True):
         """
@@ -1119,46 +1241,69 @@ class CreditSubmission(models.Model):
 #    def __str__(self):  #  For DEBUG - comment out __unicode__ method above
 #        if self.persists(): persists="persists"
 #        else: persists="not saved"
-#        return "<CreditSubmission %s credit_id=%s  %s>"%(self.id, self.credit.id, persists)
+#        return "<CreditSubmission %s credit_id=%s  %s>"%(
+#                self.id, self.credit.id, persists)
 
 
 CREDIT_SUBMISSION_STATUS_CHOICES_LIMITED = [
-    ('c', 'Pursuing'),
+    ('c', 'Complete'),
     ('p', 'In Progress'),
     ('np', 'Not Pursuing'),
 ]
 
-# The 'ns' option isn't accessible in forms and 'na' only sometimes, so we 3 different lists.
-CREDIT_SUBMISSION_STATUS_CHOICES_W_NA = list(CREDIT_SUBMISSION_STATUS_CHOICES_LIMITED)
+# The 'ns' option isn't accessible in forms and 'na' only sometimes, so
+# we 3 different lists.
+CREDIT_SUBMISSION_STATUS_CHOICES_W_NA = list(
+    CREDIT_SUBMISSION_STATUS_CHOICES_LIMITED)
 CREDIT_SUBMISSION_STATUS_CHOICES_W_NA.append(('na', 'Not Applicable'))
 CREDIT_SUBMISSION_STATUS_CHOICES = list(CREDIT_SUBMISSION_STATUS_CHOICES_W_NA)
 CREDIT_SUBMISSION_STATUS_CHOICES.append(('ns', 'Not Started'))
 
-CREDIT_SUBMISSION_STATUS_ICONS = {   # used by template tag to create iconic representation of status
+# used by template tag to create iconic representation of status:
+CREDIT_SUBMISSION_STATUS_ICONS = {
     'c'  : ('icon-ok', 'c'),
     'p'  : ('icon-pencil', '...'),
     'np' : ('icon-remove', '-'),
     'na' : ('icon-tag', '-'),
 }
 
+
 class CreditUserSubmission(CreditSubmission, FlaggableModel):
     """
-        An individual submitted credit for an institutions STARS submission set
+        An individual submitted credit for an institutions STARS submission
+        set
     """
     subcategory_submission = models.ForeignKey(SubcategorySubmission)
     assessed_points = models.FloatField(blank=True, null=True)
     last_updated = models.DateTimeField(blank=True, null=True)
-    submission_status = models.CharField(max_length=8, choices=CREDIT_SUBMISSION_STATUS_CHOICES, default='ns')
-    applicability_reason = models.ForeignKey(ApplicabilityReason, blank=True, null=True)
+    submission_status = models.CharField(
+        max_length=8,
+        choices=CREDIT_SUBMISSION_STATUS_CHOICES,
+        default='ns')
+    applicability_reason = models.ForeignKey(ApplicabilityReason,
+                                             blank=True,
+                                             null=True)
     user = models.ForeignKey(User, blank=True, null=True)
-    internal_notes = models.TextField(help_text='This field is useful if you want to store notes for other people in your organization regarding this credit. They will not be published.', blank=True, null=True)
-    submission_notes = models.TextField(help_text='Use this space to add any additional information you may have about this credit. This will be published along with your submission.', blank=True, null=True)
+    internal_notes = models.TextField(
+        help_text=('This field is useful if you want to store notes for '
+                   'other people in your organization regarding this credit. '
+                   'They will not be published.'),
+        blank=True,
+        null=True)
+    submission_notes = models.TextField(
+        help_text=('Use this space to add any additional information '
+                   'you may have about this credit. This will be published '
+                   'along with your submission.'),
+        blank=True,
+        null=True)
     responsible_party_confirm = models.BooleanField()
-    responsible_party = models.ForeignKey(ResponsibleParty, blank=True, null=True)
+    responsible_party = models.ForeignKey(ResponsibleParty,
+                                          blank=True,
+                                          null=True)
 
     class Meta:
         # @todo: the unique clause needs to be added at the DB level now :-(
-#        unique_together = ("subcategory_submission", "credit")
+        # unique_together = ("subcategory_submission", "credit")
         pass
 
     def get_submit_url(self):
@@ -1166,11 +1311,12 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
         submissionset = category_submission.submissionset
         url = urlresolvers.reverse(
             'creditsubmission-submit',
-            kwargs={'institution_slug': submissionset.institution.slug,
-                    'submissionset': submissionset.id,
-                    'category_abbreviation': category_submission.category.abbreviation,
-                    'subcategory_slug': self.subcategory_submission.subcategory.slug,
-                    'credit_identifier': self.credit.identifier})
+            kwargs={
+                'institution_slug': submissionset.institution.slug,
+                'submissionset': submissionset.id,
+                'category_abbreviation': category_submission.category.abbreviation,
+                'subcategory_slug': self.subcategory_submission.subcategory.slug,
+                'credit_identifier': self.credit.identifier})
         return url
 
     def get_scorecard_url(self):
@@ -1179,7 +1325,8 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
         if url:
             return url
         else:
-            url = self.credit.get_scorecard_url(self.subcategory_submission.category_submission.submissionset)
+            url = self.credit.get_scorecard_url(
+                self.subcategory_submission.category_submission.submissionset)
             cache.set(cache_key, url, 60*60*24) # cache for 24 hours
             return url
 
@@ -1190,9 +1337,16 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
     def get_creditset(self):
         return self.subcategory_submission.get_creditset()
 
+    def get_submissionset(self):
+        return self.subcategory_submission.get_submissionset()
+
     def is_finished(self):
-        """ Indicate if this credit has been marked anything other than pending or not started """
-        return self.submission_status != 'p' and self.submission_status != 'ns' and self.submission_status != None
+        """ Indicate if this credit has been marked anything other than
+            pending or not started
+        """
+        return (self.submission_status != 'p' and
+                self.submission_status != 'ns' and
+                self.submission_status != None)
 
     def save(self, *args, **kwargs):
         """ Override model.Model save() method to update credit status"""
@@ -1209,25 +1363,93 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
 
     def is_pursued(self):
         """ Returns False if this credit is marked 'na' or 'np'  """
-        return self.submission_status != 'na' and self.submission_status != 'np'
+        return (self.submission_status != 'na' and
+                self.submission_status != 'np')
 
     def mark_as_in_progress(self):
         self.submission_status = 'p'
 
-#    def __str__(self):  # For DEBUG - comment out __unicode__ method above
-#        return "<CreditUserSubmission:  %s>"%super(CreditUserSubmission,self).__str__()
+    # def __str__(self):  # For DEBUG - comment out __unicode__ method above
+    #     return ("<CreditUserSubmission:  %s>" %
+    #             super(CreditUserSubmission,self).__str__())
 
     def get_adjusted_available_points(self):
-        """ Gets only the points for credits that have not been labelled as Not Applicable """
+        """ Gets only the points for credits that have not been labelled as
+            Not Applicable
+        """
         if self.submission_status == "na":
             return 0
-        return self.credit.point_value
+        return self.get_available_points()
+
+    def get_documentation_fields(self):
+        """Returns the DocumentationFields related to this CreditSubmission.
+        """
+        return [documentation_field_submission.documentation_field for
+                documentation_field_submission in
+                self.get_submission_fields()]
+
+    def get_documentation_field_submissions(self):
+        """Returns the DocumentationFieldSubmissions for all versions of all
+        the DocumentationFields of this CreditSubmission.
+        """
+        documentation_field_submissions = []
+
+        for documentation_field in self.get_documentation_fields():
+
+            for version_of_documentation_field in (
+                    documentation_field.get_all_versions()):
+
+                documentation_field_submissions_for_this_version = (
+                    DocumentationFieldSubmission.objects.for_documentation_field(
+                        documentation_field,
+                        institution=self.get_institution()))
+
+                for documentation_field_submission in (
+                        documentation_field_submissions_for_this_version):
+                    documentation_field_submissions.append(
+                        documentation_field_submission)
+
+        return documentation_field_submissions
+
+    def get_rated_documentation_field_submissions(self):
+        """Returns the rated DocumentationFieldSubmissions for all
+           versions of all the DocumentationFields of this
+           CreditSubmission.
+        """
+        documentation_field_submissions = (
+            self.get_documentation_field_submissions())
+
+        rated_documentation_field_submissions = [
+            dfs for dfs in documentation_field_submissions if
+            dfs.get_submissionset().status == RATED_SUBMISSION_STATUS ]
+
+        return rated_documentation_field_submissions
+
+    def get_rated_historical_documentation_field_submissions(self):
+        """Returns a set of rated DocumentationFieldSubmissions for all
+           versions of all the DocumentationFields of this CreditSubmission
+           that were submitted before the DocumentationFieldSubmissions
+           attached to this CreditSubmission.
+
+           Assumes this CreditSubmission is the latest one, e.g., that
+           all DocumentFieldSubmissions for this CreditSubmission
+           other than ones for this CreditSubmission are history.
+        """
+        rated_documentation_field_submissions = set(
+            self.get_rated_documentation_field_submissions())
+        documentation_fields_for_this_credit_submission = set(
+            self.get_documentation_fields())
+        return [ documentation_field_submission
+                 for document_field_submission
+                 in rated_documentation_field_submissions 
+                 if document_field_submission.credit_submission is not self ]
 
     def _calculate_points(self):
         """ Helper: returns the number of points calculated for this
         submission"""
-        # Somewhat complex logic is required here so that i something goes wrong,
-        # we log a detailed message, but only show the user meaningful messages.
+        # Somewhat complex logic is required here so that i something goes
+        # wrong, we log a detailed message, but only show the user meaningful
+        # messages.
         if not self.is_complete(): # no points for incomplete submission
             return 0
         assessed_points = 0  # default is zero - now re-calculate points...
@@ -1456,13 +1678,64 @@ class ReportingFieldDataCorrection(models.Model):
     reporting_field = generic.GenericForeignKey('content_type', 'object_id')
     explanation = models.TextField(blank=True, null=True)
 
+
+class DocumentationFieldSubmissionManager(models.Manager):
+
+    def for_documentation_field(self,
+                                documentation_field,
+                                institution=None):
+        """Returns the DocumentationFieldSubmissions for
+        DocumentationField `documentation_field`, optionally
+        filtered by Institution `institution`.
+        """
+        target_credit = documentation_field.credit
+        target_subcategory = target_credit.subcategory
+        target_category = target_subcategory.category
+        target_creditset = target_category.creditset
+
+        submission_sets = SubmissionSet.objects.filter(
+            creditset=target_creditset)
+        if institution:
+            submission_sets = submission_sets.filter(institution=institution)
+
+        if not submission_sets.exists():
+            return None
+
+        submission_set = submission_sets.reverse()[0]
+
+        category_submission = submission_set.categorysubmission_set.get(
+            category=target_category)
+        subcategory_submission = (
+            category_submission.subcategorysubmission_set.get(
+                subcategory=target_subcategory))
+        credit_submission = subcategory_submission.creditusersubmission_set.get(
+            credit=target_credit)
+
+        documentation_field_submissions = []
+
+        for documentation_field_submission in (
+                credit_submission.get_submission_fields()):
+
+            if (documentation_field_submission.documentation_field ==
+                documentation_field):
+
+                documentation_field_submissions.append(
+                    documentation_field_submission)
+
+        return documentation_field_submissions
+
+
 class DocumentationFieldSubmission(models.Model, FlaggableModel):
     """
         The submitted value for a documentation field (abstract).
     """
-    documentation_field = models.ForeignKey(DocumentationField, related_name="%(class)s_set")
+    documentation_field = models.ForeignKey(DocumentationField,
+                                            related_name="%(class)s_set")
     credit_submission = models.ForeignKey(CreditSubmission)
-    corrections = generic.GenericRelation(ReportingFieldDataCorrection, content_type_field='content_type', object_id_field='object_id')
+    corrections = generic.GenericRelation(ReportingFieldDataCorrection,
+                                          content_type_field='content_type',
+                                          object_id_field='object_id')
+    objects = DocumentationFieldSubmissionManager()
 
     class Meta:
         abstract = True
@@ -1477,20 +1750,27 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
         return self.credit_submission
 
     def get_institution(self):
-        parent = CreditUserSubmission.objects.get(pk=self.credit_submission.id)
+        parent = CreditUserSubmission.objects.get(
+            pk=self.credit_submission.id)
         return parent.get_institution()
 
     def get_creditset(self):
-        return self.credit_submission.get_creditset()
+        return self.credit_submission.creditusersubmission.get_creditset()
+
+    def get_submissionset(self):
+        """Returns the SubmissionSet related to this
+        DocumentationFieldSubmission.
+        """
+        return self.credit_submission.creditusersubmission.get_submissionset()
 
     def persists(self):
         """Does this Submission object persist in the DB?"""
         return (not self.pk == None)
 
-#    @staticmethod
     def get_field_class(field):
         """
-            Returns the related DocumentationFieldSubmission model class for a particular documentation field
+           Returns the related DocumentationFieldSubmission model class for a
+           particular documentation field
         """
         if field.type == 'text':
             return TextSubmission
@@ -1499,9 +1779,13 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
         if field.type == 'numeric':
             return NumericSubmission
         if field.type == 'choice':
-            return ChoiceWithOtherSubmission if field.has_other_choice() else ChoiceSubmission
+            return (ChoiceWithOtherSubmission
+                    if field.has_other_choice()
+                    else ChoiceSubmission)
         if field.type == 'multichoice':
-            return MultiChoiceWithOtherSubmission if field.has_other_choice() else MultiChoiceSubmission
+            return (MultiChoiceWithOtherSubmission
+                    if field.has_other_choice()
+                    else MultiChoiceSubmission)
         if field.type == 'boolean':
             return BooleanSubmission
         if field.type == 'url':
@@ -1552,15 +1836,16 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
                 else:
                     return self.value
 
-
     def save(self, *args, **kwargs):
-        """ Override models.Model save() method to forstall save if CreditSubmission doesn't persist"""
+        """ Override models.Model save() method to forstall save if
+            CreditSubmission doesn't persist """
         # Only save submission fields if the overall submission has been saved.
         if self.credit_submission.persists():
             super(DocumentationFieldSubmission, self).save()
 
     def get_value(self):
-        """ Use this accessor to get this submission's value - rather than accessing .value directly """
+        """ Use this accessor to get this submission's value - rather than
+            accessing .value directly """
         return self.value
 
     def get_units(self):
@@ -1576,7 +1861,27 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
         return False
 
     def get_correction_url(self):
-        return "%s%d/" % (self.credit_submission.get_scorecard_url(), self.documentation_field.id)
+        return "%s%d/" % (self.credit_submission.get_scorecard_url(),
+                          self.documentation_field.id)
+
+    def get_migrated_value(self):
+        """ Returns the value that was copied into this
+            DocumentFieldSubmission when this SubmissionSet
+            was migrated -- if that happened.
+        """
+        previous_documentation_field = (
+            self.documentation_field.previous_version)
+        if previous_documentation_field:
+            submissionset = self.get_submissionset()            
+            institution = submissionset.institution
+            previous_documentation_field_submissions = (
+                self.objects.for_documentation_field(
+                    documentation_field=previous_documentation_field,
+                    institution=instituion))
+            for prev_doc_fld_sub in previous_documentation_field_submissions:
+                if prev_doc_field_sub.documentation_field == prev_doc_fld_sub:
+                    return prev_doc_fld_sub.get_value()
+        return None
 
 
 class AbstractChoiceSubmission(DocumentationFieldSubmission):

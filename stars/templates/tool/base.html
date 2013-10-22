@@ -27,30 +27,22 @@
 {% endblock %}
 
 {% block content %}
+	{% include "terms/modal_container.html" %}
     <div class='row'>
-
         <div class='span3'>
-
-            <div style='text-align: center'>
-                {% if institution.is_participant %}
-                    <span class='label label-success'>STARS Participant</span>
-                    <br/>
-                {% else %}
-                    <span class='label label-important'>Survey Respondent</span>
-                    <br/>
-                    What does this mean?
-                    {% show_help_context 'what-is-respondent' %}
-                {% endif %}
-              <br/><br/>
-            </div>
             {% block tool_menu %}
                 {% include "tool/menu.html" %}
             {% endblock %}
         </div>
         <div class='span9'>
-        	<h1>{{ institution }}</h1><br/>
+            {% if institution %}
+                <h1>{{ institution }}</h1><br/>
+            {% endif %}
             {% block tool_content %}{% endblock %}
         </div>
     </div>
+{% endblock %}
 
+{% block extra_footer %}
+	{% include "terms/modal_js.html" %}
 {% endblock %}

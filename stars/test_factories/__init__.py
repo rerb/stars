@@ -1,53 +1,10 @@
-from accounts_factories import UserProfileFactory
+from accounts_factories import *
+from auth_factories import *
+from credits_factories import *
+from institutions_factories import *
+from misc_factories import *
+from notifications_factories import *
+from organizations_factories import *
+from registration_factories import *
+from submissions_factories import *
 
-from submissions_factories import (BoundaryFactory, CategorySubmissionFactory,
-                                   CreditUserSubmissionFactory,
-                                   ResponsiblePartyFactory,
-                                   SubmissionSetFactory,
-                                   SubcategorySubmissionFactory)
-
-from credits_factories import (ApplicabilityReasonFactory, CategoryFactory,
-                               CreditFactory, CreditSetFactory,
-                               IncrementalFeatureFactory, RatingFactory,
-                               SubcategoryFactory)
-
-from institutions_factories import (ClimateZoneFactory, InstitutionFactory,
-                                    PendingAccountFactory, StarsAccountFactory,
-                                    SubscriptionFactory,
-                                    SubscriptionPaymentFactory)
-
-from notifications_factories import EmailTemplateFactory, CopyEmailFactory
-
-from organizations_factories import OrganizationFactory
-
-from registration_factories import ValueDiscountFactory
-
-from misc_factories import UserFactory
-
-from auth_factories import AASHEAccountFactory
-
-__all__ = [ApplicabilityReasonFactory,
-           BoundaryFactory,
-           CategoryFactory,
-           CategorySubmissionFactory,
-           ClimateZoneFactory,
-           CopyEmailFactory,
-           CreditFactory,
-           CreditSetFactory,
-           CreditUserSubmissionFactory,
-           EmailTemplateFactory,
-           IncrementalFeatureFactory,
-           InstitutionFactory,
-           OrganizationFactory,
-           PendingAccountFactory,
-           RatingFactory,
-           ResponsiblePartyFactory,
-           StarsAccountFactory,
-           SubcategoryFactory,
-           SubcategorySubmissionFactory,
-           SubmissionSetFactory,
-           SubscriptionFactory,
-           SubscriptionPaymentFactory,
-           UserFactory,
-           UserProfileFactory,
-           ValueDiscountFactory]

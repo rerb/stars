@@ -128,19 +128,19 @@ class SubscriptionTest(TestCase):
         self.assertEqual(start_date, date.today() + timedelta(1))
 
     ####################################
-    # _qualifies_for_early_renewal_discount() tests:
+    # qualifies_for_early_renewal_discount() tests:
     ####################################
 
-    def test__qualifies_for_early_renewal_discount_no_previous_subscription(
+    def test_qualifies_for_early_renewal_discount_no_previous_subscription(
             self):
-        """Does _qualifies_for_early_renewal_discount work if there's no
+        """Does qualifies_for_early_renewal_discount work if there's no
         prev subscription?
         """
         self.assertFalse(
-            self.subscription._qualifies_for_early_renewal_discount())
+            self.subscription.qualifies_for_early_renewal_discount())
 
-    def test__qualifies_for_early_renewal_discount_current_subscription(self):
-        """Does _qualifies_for_early_renewal_discount work when a
+    def test_qualifies_for_early_renewal_discount_current_subscription(self):
+        """Does qualifies_for_early_renewal_discount work when a
         subscription is current?
         """
         current_start_date = date.today() - timedelta(days=5)
@@ -149,11 +149,11 @@ class SubscriptionTest(TestCase):
                             start_date=current_start_date,
                             end_date=current_end_date)
         self.assertTrue(
-            self.subscription._qualifies_for_early_renewal_discount())
+            self.subscription.qualifies_for_early_renewal_discount())
 
-    def test__qualifies_for_early_renewal_discount_recently_lapsed_subscription(
+    def test_qualifies_for_early_renewal_discount_recently_lapsed_subscription(
             self):
-        """Does _qualifies_for_early_renewal_discount work when subs is
+        """Does qualifies_for_early_renewal_discount work when subs is
         recently lapsed?
         """
         lapsed_start_date = date.today() - timedelta(days=100)
@@ -162,11 +162,11 @@ class SubscriptionTest(TestCase):
                             start_date=lapsed_start_date,
                             end_date=lapsed_end_date)
         self.assertTrue(
-            self.subscription._qualifies_for_early_renewal_discount())
+            self.subscription.qualifies_for_early_renewal_discount())
 
-    def test__qualifies_for_early_renewal_discount_long_time_lapsed_subscription(
+    def test_qualifies_for_early_renewal_discount_long_time_lapsed_subscription(
             self):
-        """Does _qualifies_for_early_renewal_discount work when a subs lapsed
+        """Does qualifies_for_early_renewal_discount work when a subs lapsed
         long time ago?
         """
         lapsed_start_date = date.today() - timedelta(days=1000)
@@ -175,7 +175,7 @@ class SubscriptionTest(TestCase):
                             start_date=lapsed_start_date,
                             end_date=lapsed_end_date)
         self.assertFalse(
-            self.subscription._qualifies_for_early_renewal_discount())
+            self.subscription.qualifies_for_early_renewal_discount())
 
     #############################
     # _apply_promo_code() tests:
@@ -289,7 +289,7 @@ class SubscriptionTest(TestCase):
         else:
             promo_code = None
 
-        self.subscription._qualifies_for_early_renewal_discount = (
+        self.subscription.qualifies_for_early_renewal_discount = (
             lambda *args: gets_discount)
 
         prices = self.subscription.calculate_prices(promo_code=promo_code)

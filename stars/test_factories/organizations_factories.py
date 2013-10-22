@@ -6,7 +6,7 @@ import factory
 from aashe.issdjango.models import Organizations
 
 
-class OrganizationFactory(factory.Factory):
+class OrganizationFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Organizations
 
     account_num = factory.Sequence(lambda i: '%s' % i)

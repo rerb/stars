@@ -12,9 +12,12 @@ from stars.apps.tests.views import (ProtectedFormMixinViewTest,
                                     ProtectedViewTest, ViewTest)
 from stars.apps.tool.views import (NoStarsAccountView, ToolLandingPageView,
                                    SelectInstitutionView, SummaryToolView)
-from stars.test_factories import (InstitutionFactory, StarsAccountFactory,
-                                  SubmissionSetFactory, UserFactory,
-                                  UserProfileFactory, AASHEAccountFactory)
+from stars.test_factories import (AASHEAccountFactory,
+                                  CreditSetFactory,
+                                  InstitutionFactory,
+                                  StarsAccountFactory,
+                                  SubmissionSetFactory,
+                                  UserFactory)
 
 
 class InstitutionToolMixinTest(ProtectedFormMixinViewTest):
@@ -103,7 +106,10 @@ class UserCanEditSubmissionMixinTest(ProtectedViewTest):
         self.institution = InstitutionFactory(slug='on-the-beach-soldier')
         self.account = StarsAccountFactory(institution=self.institution)
         self.request.user = self.account.user
-        self.submission = SubmissionSetFactory(institution=self.institution)
+        creditset = CreditSetFactory() 
+        self.submission = SubmissionSetFactory(
+            institution=self.institution,
+            creditset=creditset)
 
     def open_gate(self):
         self._make_submission_editable()

@@ -57,6 +57,18 @@ class InstitutionManager(models.Manager):
                                           True).filter(
                                               current_rating__isnull=False)
 
+    def get_participants_and_reports(self):
+        return Institution.objects.filter(
+            enabled=True).exclude(name='AASHE Example University')
+
+
+class InvalidAccessLevelError(Exception):
+    pass
+
+
+BASIC_ACCESS = 0
+FULL_ACCESS = 1
+
 
 class Institution(models.Model):
     """
@@ -121,9 +133,25 @@ class Institution(models.Model):
     def __unicode__(self):
         return self.name
 
+    @property
+    def access_level(self):
+        """Shadows is_participant, now that we don't have participants
+        and respondents, but institutions with full or basic access."""
+        if self.is_participant:
+            return FULL_ACCESS
+        else:
+            return BASIC_ACCESS
+
+    @access_level.setter
+    def access_level(self, level):
+        if level not in [BASIC_ACCESS, FULL_ACCESS]:
+            raise InvalidAccessLevelError(level)
+        self.is_participant = (level == FULL_ACCESS)
+
     def update_status(self):
         """
-            Update the status of this institution, based on subscriptions and submissions
+            Update the status of this institution, based on subscriptions and
+            submissions
 
             NOTE: does not save the institution
         """
@@ -559,7 +587,7 @@ class Subscription(models.Model):
             member_discount = 0
 
         gets_early_renewal_discount = (
-            self._qualifies_for_early_renewal_discount())
+            self.qualifies_for_early_renewal_discount())
 
         if gets_early_renewal_discount:
             pre_discount_price = running_total
@@ -770,7 +798,7 @@ class Subscription(models.Model):
                          'payment': subscription_payment}
         self._send_email(slug=slug, mail_to=mail_to, context=email_context)
 
-    def _qualifies_for_early_renewal_discount(self):
+    def qualifies_for_early_renewal_discount(self):
         """
             Returns True if this subscription's institution should get
             a discount for renewing early-ish.
@@ -1967,10 +1995,14 @@ class RespondentSurvey(models.Model):
     """
     institution = models.ForeignKey('Institution')
     user = models.ForeignKey(User)
-    source = models.TextField("How did you hear about the CSDC?", blank=True, null=True)
-    reasons = models.ManyToManyField('RespondentRegistrationReason', blank=True, null=True)
+    source = models.TextField("How did you hear about STARS?", blank=True,
+                              null=True)
+    reasons = models.ManyToManyField('RespondentRegistrationReason',
+                                     blank=True, null=True)
     other = models.CharField(max_length=64, blank=True, null=True)
-    potential_stars = models.NullBooleanField("Is your institution considering registering as a STARS participant?", blank=True, null=True)
+    potential_stars = models.NullBooleanField(
+        "Is your institution considering upgrading to STARS full access?",
+        blank=True, null=True)
 
     def __unicode__(self):
         return self.institution.__unicode__()

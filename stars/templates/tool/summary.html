@@ -30,7 +30,7 @@
                 <thead>
                     <tr>
                         <th>Institution Name</th>
-                        <th>Participation Level</th>
+                        <th>Access Level</th>
                         {% if institution.current_rating %}
                             <th>Current Rating</th>
                         {% endif %}
@@ -42,12 +42,12 @@
                         <td>
                             {% if institution.is_participant %}
                                 <span class='label label-success'>
-                                    STARS Participant
+                                    Full
                                 </span>
                                 <br/>
                             {% else %}
                                 <span class='label label-important'>
-                                    Survey Respondent
+                                    Basic
                                 </span>
                             {% endif %}
                         </td>
@@ -104,7 +104,7 @@
             {% testrule user_has_access_level user 'admin' institution %}
                 <a href='{% url subscription-create institution.slug %}'
                    class='btn btn-primary'>
-                    Purchase STARS Participant Subscription
+                    Purchase STARS Full Access Subscription
                 </a>
             {% endtestrule %}
         </div>

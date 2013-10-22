@@ -5,6 +5,11 @@
   {% include 'payments/subscription_price_extra_head.html' %}
 {% endblock %}
 
+{% block above_submit_form %}
+  {{ block.super }}
+  <h3>Payment Options</h3>
+{% endblock %}
+
 {% block form %}
   {% include 'payments/subscription_payment_options.html' %}
 {% endblock %}

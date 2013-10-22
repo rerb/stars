@@ -26,6 +26,7 @@ from stars.apps.payments.views import SubscriptionPurchaseWizard
 from stars.apps.submissions.models import SubmissionSet
 from stars.apps.submissions.tasks import (perform_migration,
                                           perform_data_migration)
+from stars.apps.third_parties.tasks import build_csv_export, build_pdf_export
 from stars.apps.third_parties.models import ThirdParty
 from stars.apps.tool.manage.forms import (AccountForm, AdminInstitutionForm,
                                           InstitutionPreferences,
@@ -38,6 +39,8 @@ from stars.apps.tool.manage.forms import (AccountForm, AdminInstitutionForm,
                                           ThirdPartiesForm)
 from stars.apps.tool.mixins import (InstitutionAdminToolMixin,
                                     InstitutionToolMixin)
+from stars.apps.download_async_task.views import (StartExportView,
+                                                  DownloadExportView)
 
 logger = getLogger('stars.request')
 
@@ -83,13 +86,10 @@ class ContactView(InstitutionAdminToolMixin, ValidationMessageFormMixin,
         return self.get_institution()
 
     def get_form_class(self):
-        if self.request.user.is_staff:
-            FormClass = AdminInstitutionForm
+        if self.get_institution().is_participant:
+            FormClass = ParticipantContactForm
         else:
-            if self.get_institution().is_participant:
-                FormClass = ParticipantContactForm
-            else:
-                FormClass = RespondentContactForm
+            FormClass = RespondentContactForm
         return FormClass
 
 
@@ -412,6 +412,68 @@ class ShareDataView(InstitutionAdminToolMixin,
         return context
 
 
+class SnapshotPDFExportView(StartExportView,
+                            InstitutionAdminToolMixin,
+                            ValidationMessageFormMixin,
+                            TemplateView):
+    """
+        Shows the download modal and triggers task
+    """
+    export_method = build_pdf_export
+
+    def get_url_prefix(self):
+        return "%s/pdf/" % self.kwargs['submissionset']
+
+    def get_task_params(self):
+        return self.get_institution().submissionset_set.get(pk=self.kwargs['submissionset'])
+
+
+class SnapshotPDFDownloadView(DownloadExportView,
+                              InstitutionAdminToolMixin,
+                              ValidationMessageFormMixin,
+                              TemplateView):
+    """
+        Returns the result of the task (hopefully an excel export)
+    """
+    mimetype = 'application/pdf'
+    extension = "pdf"
+
+    def get_filename(self):
+        return self.get_institution().slug[:64]
+
+
+class SnapshotCSVExportView(StartExportView,
+                              InstitutionAdminToolMixin,
+                              ValidationMessageFormMixin,
+                              TemplateView):
+    """
+        Shows the download modal and triggers task
+    """
+    export_method = build_csv_export
+
+    def get_url_prefix(self):
+        return "%s/csv/" % self.kwargs['submissionset']
+
+    def get_task_params(self):
+        return self.get_institution().submissionset_set.get(pk=self.kwargs['submissionset'])
+
+
+class SnapshotCSVDownloadView(DownloadExportView,
+                                InstitutionAdminToolMixin,
+                                ValidationMessageFormMixin,
+                                TemplateView):
+    """
+        Returns the result of the task (hopefully an excel export)
+    """
+#     mimetype = 'application/vnd.ms-excel'
+#     extension = "xls"
+    mimetype = "application/octet-stream"
+    extension = "zip"
+
+    def get_filename(self):
+        return self.get_institution().slug[:64]
+
+
 class ShareThirdPartiesView(InstitutionAdminToolMixin,
                             ValidationMessageFormMixin,
                             UpdateView):
@@ -522,12 +584,12 @@ class MigrateVersionView(InstitutionAdminToolMixin,
     model = SubmissionSet
     success_url_name = 'migrate-options'
     template_name = 'tool/manage/migrate_version.html'
-    tab_content_title = 'migrate version'
-    valid_message = ("Your migration is in progress. Please allow a "
+    tab_content_title = 'version upgrade'
+    valid_message = ("Your upgrade is in progress. Please allow a "
                      "few minutes before you can access your submission.")
-    invalid_message = ("Before the migration can begin, you need to "
+    invalid_message = ("Before the upgrade can begin, you need to "
                        "confirm your intention by checking that little "
-                       "check box down there above the Migrate My Data "
+                       "check box down there above the Migrate Version "
                        "button.")
 
     def update_logical_rules(self):

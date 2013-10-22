@@ -28,7 +28,7 @@
 				{% testrule user_can_migrate_version user institution %}
 					<a href="{% url migrate-version institution.slug active_submission.id %}" class='btn btn-primary'>Upgrade Now</a>
 				{% else %}
-					<div class="alert">Sorry, you do not have permission to migrate versions. Please contact your STARS liaison to get admin privileges.</div>
+					<div class="alert">Sorry, you do not have permission to upgrade versions. Please contact your STARS liaison to get admin privileges.</div>
 				{% endtestrule %}
 			{% else %}
 				<div class="alert alert-success">
