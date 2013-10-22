@@ -188,7 +188,7 @@ class RegistrationSurveyForm(ModelForm):
             choices=choices)
         self.fields['reasons'].help_text = "Select all that apply"
         self.fields['reasons'].label = ("The reason(s) your institution "
-                                        "registered for STARS were to:")
+                                        "registered for STARS:")
         self.fields['primary_reason'].label = (
             "Which of the above reasons, if any, was the primary reason "
             "your institution registered for STARS?")
@@ -203,14 +203,21 @@ class RespondentRegistrationSurveyForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(RespondentRegistrationSurveyForm, self).__init__(*args, **kwargs)
 
+        # Override the field labels, since as they are in the db,
+        # they refer to CSDC (i.e., they're pre-basic/full access).
+        # The labels are updated in the model, but that value is 
+        # not being used.
+        self.fields['source'].label = "How did you hear about STARS?"
+        self.fields['potential_stars'].label = (
+            "Is your institution considering upgrading to STARS Full Access?")
+
         from stars.apps.institutions.models import RespondentRegistrationReason
         choices = []
         for r in RespondentRegistrationReason.objects.all():
-#            if r.title != "Other" and r.title != "No reason was primary":
             choices.append((r.id, r.title))
 
         self.fields['reasons'].widget = forms.CheckboxSelectMultiple(
             choices=choices)
         self.fields['reasons'].help_text = "Select all that apply"
-        self.fields['reasons'].label = ("The reason(s) your institution "
-                                        "registered for the CSDC were to:")
+        self.fields['reasons'].label = ("Why did your institution "
+                                        "register for STARS Basic Access?")
