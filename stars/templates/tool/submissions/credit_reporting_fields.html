@@ -1,0 +1,183 @@
+{% extends 'tool/submissions/credit_base.html' %}
+
+{% load bootstrap %}
+{% load help %}
+
+{% block body_beforeunload %}{{ block.super }}return before_unload_credit();{% endblock %}
+
+{% block extra_head %}
+{{ block.super }}
+    <script type="text/javascript" src="{{ STATIC_URL }}admin/js/admin/RelatedObjectLookups.js"></script>
+    </script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/ajax.js"></script>
+
+    
+    <style type='text/css' media="screen">
+    	.tooltip {
+    		width: auto;
+    		max-width: 500px;
+    	}
+    	
+    	.tooltip-inner {
+    		width: 400px;
+    	}
+    </style>
+{% endblock %}
+
+{% block credit_tabs %}{% with active='fields' %}{{ block.super }}{% endwith %}{% endblock %}
+
+{% block tab_content %}
+    {% load fieldsets %}
+    <form method='post' action='.' class='submit_form'
+          name='form' enctype="multipart/form-data">
+
+        {% if credit.applicabilityreason_set.all %}
+            <div style='float: right;font-size: .9em;padding:10px;'>
+                Credit doesn't apply to you?
+                <a href='#status' class='classOne noExit' id='clickhere'>
+                    Click here</a>.
+            </div>
+        {% endif %}
+        <div style='font-size: .9em;padding:10px;'>
+            <span class="required_note"
+                  title="This field is required to complete credit">*</span>
+                Required Fields
+            <span class='conditionally_required_note'
+                  title="In some cases, this field will be required to complete credit">*</span>
+                Conditionally Required Fields
+        </div>
+
+        <div class='creditContent'>
+            <h2>Reporting Fields</h2>
+            {% with form as submission_form %}
+                {% include "tool/submissions/submission_fields_form.html" %}
+            {% endwith %}
+            <hr/>
+            <h3>Notes</h3>
+            <label>Notes about the submission{% if institution.is_participant %} (public){% endif %}:</label>
+            {% if form.submission_notes.errors %}{{ form.errors.submission_notes }}{% endif %}
+            <div class='field-form'>
+                 {{ form.submission_notes }}
+            </div>
+            
+            {% if credit.requires_responsible_party %}
+	            <hr/>
+	            <h3>
+	              <span class="required_note"
+	                    title="This field is required to complete credit">*</span>
+	              Responsible Party
+	            </h3>
+	            {% if form.responsible_party.errors %}
+	                {{ form.errors.responsible_party }}
+	            {% endif %}
+	            {{ form.responsible_party|bootstrap }}
+	            <a href="{% url add-responsible-party institution.slug submissionset.id %}"
+	               class="btn btn-info btn-small" id="add_id_responsible_party"
+	               onclick="return showAddAnotherPopup(this);"
+	               title='Add New Responsible Party'>
+	                    Add
+	            </a>
+	            {% show_help_context 'responsible_party' %}
+	            <br/>
+	            {% if form.responsible_party_confirm.errors %}
+	                {{ form.errors.responsible_party_confirm }}
+	            {% endif %}
+	           	{{ form.responsible_party_confirm|bootstrap }}
+	        {% endif %}
+            <hr/>
+            
+            {{ form.submission_status }}
+            {{ form.applicability_reason }}
+            
+            <script>
+            	function saveWithStatus(status) {
+            		$("#id_submission_status").val(status);
+            		$("form").submit()
+            	}
+            	
+            	function saveWithReason(reason) {
+            		console.debug("AR!");
+            		$("#id_applicability_reason").val(reason);
+            		saveWithStatus('na');
+            	}
+            </script>
+            
+            <div class='form-actions'>
+            
+            	Save as:<br/><br/>
+                
+                <div class="btn-toolbar" style="margin: 0;">
+                
+	                <div class="btn-group">
+		                <button type='button' id='saveAsInProgress'
+		                	onclick="saveWithStatus('p');"
+							class="btn{% if form.errors %} errors{% endif %}">
+		                    <i class='icon-edit'></i>
+		                    In progress
+		                </button>
+	                </div>
+	                
+ 	                <div class="btn-group">
+		                <button type='button' id='saveAsComplete'
+		                	onclick="saveWithStatus('c');"
+		                    class="btn btn-success{% if form.errors %} errors{% endif %}">
+		                    <i class='icon-check icon-white'></i>
+		                    Complete
+		                </button>
+	               	</div>
+	                
+	                {% if not credit.is_required %}
+	                <div class="btn-group">
+		                <button type='button' id='saveAsNotPursuing'
+		                	onclick="saveWithStatus('np');"
+	                        class="btn btn-warning{% if form.errors %} errors{% endif %}">
+		                    <i class="icon-remove-sign icon-white"></i>
+		                    Not pursuing
+		                </button>
+	                </div>
+	                {% endif %}
+	                
+	                {% if credit.applicabilityreason_set.all %}
+		                <div class="btn-group">
+						  <button class="btn btn-info dropdown-toggle" data-toggle="dropdown" type="button" id='saveAsNA'>
+						    <i class="icon-ban-circle icon-white"></i>
+						    Not Applicable
+						    <span class="caret"></span>
+						  </button>
+		                
+						  <ul class="dropdown-menu">
+						  	{% for reason in credit.applicabilityreason_set.all %}
+						    	<li><a href='#r{{ reason.id }}' name='r{{ reason.id }}' onclick="saveWithReason({{ reason.id }});">{{ reason }}</a></li>
+							{% endfor %}
+						  </ul>
+						</div>
+					{% endif %}
+					
+					<script>
+						options = {
+							"title": "{% get_help_context 'not_applicable' %}",
+							"html": true,
+							"trigger": "hover",
+							"placement": "top",
+							"delay": { show: 500, hide: 100 }
+						};
+						$("#saveAsNA").tooltip(options);
+						
+						// In progress
+						options["title"] = "{% get_help_context 'in_progress' %}";
+						$("#saveAsInProgress").tooltip(options);
+						
+						// Complete
+						options["title"] = "{% get_help_context 'complete' %}";
+						$("#saveAsComplete").tooltip(options);
+						
+						// Not Pursuing
+						options["title"] = "{% get_help_context 'not_pursuing' %}";
+						$("#saveAsNotPursuing").tooltip(options);
+					</script>
+					
+				</div>
+            </div>
+        </div>
+    </form>
+{% endblock %}
