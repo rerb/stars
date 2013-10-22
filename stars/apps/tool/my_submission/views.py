@@ -262,11 +262,11 @@ class SubmitForRatingWizard(SubmissionToolMixin, SessionWizardView):
         institution.rating_expires = date.today() + RATING_VALID_PERIOD
         institution.save()
 
-        # Send certificate to staff
-        send_certificate_pdf.delay(ss)
-
         # update their current submission
         rollover_submission.delay(ss)
+
+        # Send certificate to staff
+        send_certificate_pdf.delay(ss)
 
 
 class RatingCongratulationsView(SubmissionToolMixin, TemplateView):
