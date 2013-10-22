@@ -168,6 +168,24 @@ class SubmitForRatingWizard(SubmissionToolMixin, SessionWizardView):
     file_storage = FileSystemStorage(location=os.path.join(settings.MEDIA_ROOT,
                                                            'temp'))
 
+    def update_logical_rules(self):
+        super(SubmitForRatingWizard, self).update_logical_rules()
+        self.add_logical_rule({
+                               'name': 'user_can_submit_for_rating',
+                               'param_callbacks': [
+                                           ('user', 'get_request_user'),
+                                           ('submission', 'get_submissionset')
+                                                   ],
+                               'message': "Sorry, you do not have privileges "
+                                   "to submit for a rating."
+                               })
+        self.add_logical_rule({
+                               'name': 'submission_has_boundary',
+                               'param_callbacks': [('submission',
+                                                    'get_submissionset')],
+                               'response_callback': 'redirect_to_boundary'
+                               })
+
     def get_template_names(self):
         return ("tool/submissions/submit_wizard_%s.html" %
                 SUBMISSION_STEPS[int(self.steps.current)]['template'])
@@ -191,24 +209,6 @@ class SubmitForRatingWizard(SubmissionToolMixin, SessionWizardView):
             _context['credit_list'] = qs
             _context['reporter_rating'] = self.get_submissionset().creditset.rating_set.get(name='Reporter')
         return _context
-
-    def update_logical_rules(self):
-        super(SubmitForRatingWizard, self).update_logical_rules()
-        self.add_logical_rule({
-                               'name': 'user_can_submit_for_rating',
-                               'param_callbacks': [
-                                           ('user', 'get_request_user'),
-                                           ('submission', 'get_submissionset')
-                                                   ],
-                               'message': "Sorry, you do not have privileges "
-                                   "to submit for a rating."
-                               })
-        self.add_logical_rule({
-                               'name': 'submission_has_boundary',
-                               'param_callbacks': [('submission',
-                                                    'get_submissionset')],
-                               'response_callback': 'redirect_to_boundary'
-                               })
 
     def redirect_to_boundary(self):
         messages.error(self.request,

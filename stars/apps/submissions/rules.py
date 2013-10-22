@@ -1,6 +1,7 @@
 import logical_rules
 
 from stars.apps.institutions.rules import (institution_can_get_rated,
+                                           institution_can_submit_report,
                                            user_has_access_level,
                                            institution_has_snapshot_feature,
                                            institution_has_export)
@@ -80,7 +81,9 @@ logical_rules.site.register("user_can_view_export",
 def user_can_edit_submission(user, submission):
     return (submission_is_editable(submission) and
             user_has_access_level(user, 'submit', submission.institution))
-logical_rules.site.register("user_can_edit_submission", user_can_edit_submission)
+logical_rules.site.register("user_can_edit_submission",
+                            user_can_edit_submission)
+
 
 def user_can_manage_submission(user, submission):
     return (submission_is_editable(submission) and
@@ -107,12 +110,25 @@ logical_rules.site.register("user_can_submit_for_rating",
                           user_can_submit_for_rating)
 
 
+def user_can_submit_report(user, submission):
+    """
+        Rule defines whether a user (and institution) has
+        privileges to submit a SubmissionSet for a rating
+    """
+    return (submission == submission.institution.current_submission and
+            user_can_manage_submission(user, submission) and
+            institution_can_submit_report(submission.institution))
+logical_rules.site.register("user_can_submit_report",
+                          user_can_submit_report)
+
+
 def user_can_submit_snapshot(user, submission):
     return (submission == submission.institution.current_submission and
             user_can_manage_submission(user, submission) and
             institution_has_snapshot_feature(submission.institution))
 
-logical_rules.site.register("user_can_submit_snapshot", user_can_submit_snapshot)
+logical_rules.site.register("user_can_submit_snapshot",
+                            user_can_submit_snapshot)
 
 def user_can_migrate_version(user, institution):
     """
