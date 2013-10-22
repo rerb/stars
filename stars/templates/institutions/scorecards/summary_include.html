@@ -1,5 +1,6 @@
 {% extends 'credits/summary.html' %}
 
+{% load logical_rules_tags %}
 {% load submit_tags %}
 {% load report_tags %}
 {% load thumbnail %}
@@ -46,6 +47,7 @@
     {% endif %}
     {% include 'institutions/scorecards/submission_summary_table.html' %}
 
+	{% if creditset.has_boundary_feature %}
     <div class="accordion" id="boundary">
        <div class="accordion-group">
          <div class="accordion-heading">
@@ -60,6 +62,8 @@
          </div>
        </div>
      </div>
+     {% endif %}
+     
 {% endblock %}
 
 {% block category_section %}
