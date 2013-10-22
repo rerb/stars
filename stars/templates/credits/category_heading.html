@@ -3,6 +3,7 @@
 <strong>{{ cat }}</strong>
 
 <div style='float: right'>
+	{% if creditset.has_category_scoring_feature %}
 	{% testrule submission_has_scores submissionset %}
 		{% if cat.category.include_in_score %}
 			{% ifnotequal cat.category.title 'Innovation' %}
@@ -12,5 +13,6 @@
 			{% endifnotequal %}
 		{% endif %}
 	{% endtestrule %}
+	{% endif %}
 </div>
 
