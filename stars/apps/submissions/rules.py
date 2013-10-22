@@ -180,6 +180,20 @@ def submission_has_boundary(submission):
 logical_rules.site.register("submission_has_boundary",
                           submission_has_boundary)
 
+def submission_is_not_missing_required_boundary(submission):
+    """
+        Sometimes an Institution Boundary is required, and sometimes
+        it's not.  If it's required, it has to be there.
+    """
+    if submission.creditset.has_boundary_feature:
+        try:
+            _ = submission.boundary
+        except Boundary.DoesNotExist:
+            return False
+    return True
+logical_rules.site.register("submission_is_not_missing_required_boundary",
+                            submission_is_not_missing_required_boundary)
+
 def submission_has_scores(submission):
     """
         Indicates that the preview or reporting tool should show scores for

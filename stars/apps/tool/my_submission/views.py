@@ -181,11 +181,11 @@ class SubmitForRatingWizard(SubmissionToolMixin, SessionWizardView):
                                    "to submit a report."
                                })
         self.add_logical_rule({
-                               'name': 'submission_has_boundary',
-                               'param_callbacks': [('submission',
-                                                    'get_submissionset')],
-                               'response_callback': 'redirect_to_boundary'
-                               })
+            'name': 'submission_is_not_missing_required_boundary',
+            'param_callbacks': [('submission',
+                                 'get_submissionset')],
+            'response_callback': 'redirect_to_boundary'
+        })
 
     def get_template_names(self):
         return ("tool/submissions/submit_wizard_%s.html" %
