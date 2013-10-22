@@ -1,6 +1,7 @@
 import logical_rules
 
 from stars.apps.institutions.rules import (institution_can_get_rated,
+                                           institution_can_submit_report,
                                            user_has_access_level,
                                            institution_has_snapshot_feature,
                                            institution_has_export)
@@ -60,18 +61,21 @@ logical_rules.site.register("user_can_view_submission", user_can_view_submission
 def user_can_view_export(user, submission):
     """
         As long as a user can view an institution's submissions they
-        can export their current working submission and any rated ones
+        can export their rated submissions
+
+        Only Full-Access users can export their current submissions
+
+        All users can export their snapshots
     """
-    if (
-        submission.status == 'r' or
-        submission.institution.current_submission == submission
-        ):
-        return (
-                user_has_access_level(user, 'view', submission.institution) and
-                institution_has_export(submission.institution)
-                )
+    if user_has_access_level(user, 'view', submission.institution):
+        if submission.status == 'r':
+            return True
+            # all institutions have access to exports for their own reports
+        elif (submission.institution.current_submission == submission and
+              institution_has_export(submission.institution)):
+            return True
     elif submission.status == 'f':
-        return user.is_staff
+        return True
     return False
 logical_rules.site.register("user_can_view_export",
                             user_can_view_export)
@@ -80,7 +84,9 @@ logical_rules.site.register("user_can_view_export",
 def user_can_edit_submission(user, submission):
     return (submission_is_editable(submission) and
             user_has_access_level(user, 'submit', submission.institution))
-logical_rules.site.register("user_can_edit_submission", user_can_edit_submission)
+logical_rules.site.register("user_can_edit_submission",
+                            user_can_edit_submission)
+
 
 def user_can_manage_submission(user, submission):
     return (submission_is_editable(submission) and
@@ -107,12 +113,25 @@ logical_rules.site.register("user_can_submit_for_rating",
                           user_can_submit_for_rating)
 
 
+def user_can_submit_report(user, submission):
+    """
+        Rule defines whether a user (and institution) has
+        privileges to submit a SubmissionSet for a rating
+    """
+    return (submission == submission.institution.current_submission and
+            user_can_manage_submission(user, submission) and
+            institution_can_submit_report(submission.institution))
+logical_rules.site.register("user_can_submit_report",
+                          user_can_submit_report)
+
+
 def user_can_submit_snapshot(user, submission):
     return (submission == submission.institution.current_submission and
             user_can_manage_submission(user, submission) and
             institution_has_snapshot_feature(submission.institution))
 
-logical_rules.site.register("user_can_submit_snapshot", user_can_submit_snapshot)
+logical_rules.site.register("user_can_submit_snapshot",
+                            user_can_submit_snapshot)
 
 def user_can_migrate_version(user, institution):
     """

@@ -59,13 +59,19 @@ logical_rules.site.register("user_is_institution_admin",
 
 
 def institution_can_get_rated(institution):
-    if(institution.is_participant and
-       institution.current_subscription.get_available_ratings() > 0 and
-       institution.current_subscription.paid_in_full):
-        return True
-    return False
+        if(institution.is_participant and
+           institution.current_subscription.get_available_ratings() > 0 and
+           institution.current_subscription.paid_in_full):
+            return True
+        return False
 logical_rules.site.register("institution_can_get_rated",
                             institution_can_get_rated)
+
+
+def institution_can_submit_report(institution):
+    return True
+logical_rules.site.register("institution_can_submit_report",
+                            institution_can_submit_report)
 
 
 def institution_has_score_feature(institution):

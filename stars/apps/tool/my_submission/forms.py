@@ -612,13 +612,13 @@ class CreditSubmissionForm(LocalizedModelFormMixin, ModelForm):
         cleaned_data = self.cleaned_data
         error_message = "This credit cannot be submitted as complete."
 
-        self._validate_required_fields()
         has_error = self._has_errors()
 
         # only perform custom validation if the form had no basic
         # validation errors.  this is important because custom
         # validation_rules assume data is clean and complete.
         if not has_error:
+            self._validate_required_fields()
             validation_errors, validation_warnings = (
                 self.instance.credit.execute_validation_rules(self))
             has_error = self._load_errors(validation_errors)
