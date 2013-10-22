@@ -254,8 +254,9 @@ class SubmitForRatingWizard(SubmissionToolMixin, SessionWizardView):
         et.send_email([institution.contact_email],
                       {'submissionset': ss})
 
-        institution.current_subscription.ratings_used += 1
-        institution.current_subscription.save()
+        if institution.current_subscription:
+            institution.current_subscription.ratings_used += 1
+            institution.current_subscription.save()
 
         institution.current_rating = ss.rating
         institution.rated_submission = ss
