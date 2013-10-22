@@ -1995,10 +1995,14 @@ class RespondentSurvey(models.Model):
     """
     institution = models.ForeignKey('Institution')
     user = models.ForeignKey(User)
-    source = models.TextField("How did you hear about the CSDC?", blank=True, null=True)
-    reasons = models.ManyToManyField('RespondentRegistrationReason', blank=True, null=True)
+    source = models.TextField("How did you hear about STARS?", blank=True,
+                              null=True)
+    reasons = models.ManyToManyField('RespondentRegistrationReason',
+                                     blank=True, null=True)
     other = models.CharField(max_length=64, blank=True, null=True)
-    potential_stars = models.NullBooleanField("Is your institution considering registering as a STARS participant?", blank=True, null=True)
+    potential_stars = models.NullBooleanField(
+        "Is your institution considering upgrading to STARS full access?",
+        blank=True, null=True)
 
     def __unicode__(self):
         return self.institution.__unicode__()

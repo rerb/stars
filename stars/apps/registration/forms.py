@@ -114,11 +114,6 @@ class ContactForm(ModelForm):
                   'executive_contact_email']
 
     def __init__(self, *args, **kwargs):
-        """
-            Sets up the field labels and sets the exec contact fields
-            to required if necessary
-        """
-        self.include_exec = kwargs.pop("include_exec", False)
 
         super(ContactForm, self).__init__(*args, **kwargs)
         self.fields['contact_first_name'].label = "First Name"
@@ -129,42 +124,39 @@ class ContactForm(ModelForm):
         self.fields['contact_phone'].label = "Phone"
         self.fields['contact_email'].label = "Email"
 
-        if self.include_exec:
-            self.fields['executive_contact_first_name'].label = "First Name"
-            self.fields['executive_contact_middle_name'].label = "Middle Name"
-            self.fields['executive_contact_last_name'].label = "Last Name"
-            self.fields['executive_contact_title'].label = "Title"
-            self.fields['executive_contact_department'].label = (
-                "Department/Office")
-            self.fields['executive_contact_email'].label = "Email"
+        self.fields['executive_contact_first_name'].label = "First Name"
+        self.fields['executive_contact_middle_name'].label = "Middle Name"
+        self.fields['executive_contact_last_name'].label = "Last Name"
+        self.fields['executive_contact_title'].label = "Title"
+        self.fields['executive_contact_department'].label = (
+            "Department/Office")
+        self.fields['executive_contact_email'].label = "Email"
 
-            self.fields['executive_contact_first_name'].required = True
-            self.fields['executive_contact_middle_name'].required = False
-            self.fields['executive_contact_last_name'].required = True
-            self.fields['executive_contact_title'].required = True
-            self.fields['executive_contact_department'].required = True
-            self.fields['executive_contact_email'].required = True
+        self.fields['executive_contact_first_name'].required = True
+        self.fields['executive_contact_middle_name'].required = False
+        self.fields['executive_contact_last_name'].required = True
+        self.fields['executive_contact_title'].required = True
+        self.fields['executive_contact_department'].required = True
+        self.fields['executive_contact_email'].required = True
 
     def clean(self):
         cleaned_data = self.cleaned_data
 
-        if self.include_exec:
-            # confirm that the contact and the executive emails are different
-            if ("contact_email" in cleaned_data.keys() and
-                "executive_contact_email" in cleaned_data.keys()):
+        if ("contact_email" in cleaned_data.keys() and
+            "executive_contact_email" in cleaned_data.keys()):
 
-                contact = cleaned_data.get("contact_email")
-                executive = cleaned_data.get("executive_contact_email")
+            contact = cleaned_data.get("contact_email")
+            executive = cleaned_data.get("executive_contact_email")
 
-                if contact == executive:
-                    msg = ("Oops, you've entered the same information for both"
-                           " the primary and executive contact. Please make"
-                           " sure these contacts are two different individuals"
-                           " at your institution.")
-                    self._errors["executive_contact_email"] = ErrorList([msg])
+            if contact == executive:
+                msg = ("Oops, you've entered the same information for both"
+                       " the primary and executive contact. Please make"
+                       " sure these contacts are two different individuals"
+                       " at your institution.")
+                self._errors["executive_contact_email"] = ErrorList([msg])
 
-                    # The executive field is no longer valid
-                    del cleaned_data["executive_contact_email"]
+                # The executive field is no longer valid
+                del cleaned_data["executive_contact_email"]
 
         return cleaned_data
 
@@ -196,7 +188,7 @@ class RegistrationSurveyForm(ModelForm):
             choices=choices)
         self.fields['reasons'].help_text = "Select all that apply"
         self.fields['reasons'].label = ("The reason(s) your institution "
-                                        "registered for STARS were to:")
+                                        "registered for STARS:")
         self.fields['primary_reason'].label = (
             "Which of the above reasons, if any, was the primary reason "
             "your institution registered for STARS?")
@@ -211,14 +203,21 @@ class RespondentRegistrationSurveyForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(RespondentRegistrationSurveyForm, self).__init__(*args, **kwargs)
 
+        # Override the field labels, since as they are in the db,
+        # they refer to CSDC (i.e., they're pre-basic/full access).
+        # The labels are updated in the model, but that value is 
+        # not being used.
+        self.fields['source'].label = "How did you hear about STARS?"
+        self.fields['potential_stars'].label = (
+            "Is your institution considering upgrading to STARS Full Access?")
+
         from stars.apps.institutions.models import RespondentRegistrationReason
         choices = []
         for r in RespondentRegistrationReason.objects.all():
-#            if r.title != "Other" and r.title != "No reason was primary":
             choices.append((r.id, r.title))
 
         self.fields['reasons'].widget = forms.CheckboxSelectMultiple(
             choices=choices)
         self.fields['reasons'].help_text = "Select all that apply"
-        self.fields['reasons'].label = ("The reason(s) your institution "
-                                        "registered for the CSDC were to:")
+        self.fields['reasons'].label = ("Why did your institution "
+                                        "register for STARS Basic Access?")
