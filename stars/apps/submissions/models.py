@@ -166,7 +166,7 @@ class SubmissionSet(models.Model, FlaggableModel):
         help_text=("Is this submission visible to the institution? "
                    "Often used with migrations."))
     score = models.FloatField(blank=True, null=True)
-    migrated_from = models.ForeignKey('self', null=True, related_name='+')
+    migrated_from = models.ForeignKey('self', null=True, blank=True, related_name='+')
     date_created = models.DateField(blank=True, null=True)
 
     class Meta:

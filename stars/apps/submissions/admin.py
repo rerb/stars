@@ -37,6 +37,9 @@ class SubmissionSetAdmin(admin.ModelAdmin):
             form.base_fields['submitting_user'].choices = choices
         rating_choices = [(r.id, "%s (%s)" % (r.name, r.creditset.version)) for r in Rating.objects.all()]
         form.base_fields['rating'].choices = rating_choices
+
+        form.base_fields['migrated_from'].choices = [(s.id, "%s" % s) for s in obj.institution.submissionset_set.all()]
+
         return form
 
 admin.site.register(SubmissionSet, SubmissionSetAdmin)
