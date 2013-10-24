@@ -184,7 +184,12 @@ class RegistrationWizard(StarsAccountMixin, SubscriptionPurchaseWizard):
         init_starsaccount(self.request.user, institution)
         init_submissionset(institution, self.request.user)
 
-        self.send_emails(institution)
+        # 24 Oct 2013 - send_emails() sends "welcome_registrant"
+        # email to all registrants, which is incorrect. Commenting
+        # it out for now, until it's fixed (and sends "welcome_registrant"
+        # to Basic Access folks, and "welcome_participant" to
+        # Full Access subscribers.
+        # self.send_emails(institution)
 
         return super(RegistrationWizard, self).done(form_list, **kwargs)
 
