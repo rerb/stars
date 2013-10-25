@@ -12,18 +12,14 @@ class ValueDiscountTest(unittest.TestCase):
     def test_both_amount_and_percentage_disallowed(self):
         """Can a ValueDiscount have both an amount and a percentage?
         """
-        value_discount = ValueDiscountFactory(amount=10,
-                                              percentage=10)
         with self.assertRaises(ValidationError):
-            value_discount.save()
+            ValueDiscountFactory(amount=10, percentage=10)
 
     def test_either_amount_or_percentage_required(self):
         """Can a ValueDiscount have neither an amount nor a percentage?
         """
-        value_discount = ValueDiscountFactory(amount=0,
-                                              percentage=0)
         with self.assertRaises(ValidationError):
-            value_discount.save()
+            ValueDiscountFactory(amount=0, percentage=0)
 
     def test_amount_only_allowed(self):
         """Can we save a ValueDiscount with just an amount (and no percentage)?
@@ -41,10 +37,8 @@ class ValueDiscountTest(unittest.TestCase):
 
     def test_percentage_must_not_be_more_than_100(self):
         """Can percentage be > 100?"""
-        value_discount = ValueDiscountFactory(amount=0,
-                                              percentage=101)
         with self.assertRaises(ValidationError):
-            value_discount.save()
+            ValueDiscountFactory(amount=0, percentage=101)
 
     def test_start_date_equals_end_date(self):
         """Can start date equal end date?"""
@@ -52,15 +46,12 @@ class ValueDiscountTest(unittest.TestCase):
         value_discount = ValueDiscountFactory(start_date=date.today(),
                                               end_date=date.today())
         value_discount.save()
-        
 
     def test_start_date_before_end_date(self):
         """Can start date be before end date?"""
-        value_discount = ValueDiscountFactory(
-            start_date=date.today(),
-            end_date=date.today() - timedelta(days=10))
         with self.assertRaises(ValidationError):
-            value_discount.save()
+            ValueDiscountFactory(start_date=date.today(),
+                                 end_date=date.today() - timedelta(days=10))
 
 
 class AutomaticDiscountTest(unittest.TestCase):
