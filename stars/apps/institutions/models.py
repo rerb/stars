@@ -1,7 +1,5 @@
 from datetime import date, timedelta
 from logging import getLogger
-from datetime import date, timedelta
-from logging import getLogger
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
