@@ -12,6 +12,7 @@ from stars.apps.institutions.models import (Institution,
                                             Subscription,
                                             SubscriptionPayment)
 from stars.apps.institutions.tests.subscription import GOOD_CREDIT_CARD
+from stars.apps.submissions.models import SubmissionSet
 from stars.apps.tests.live_server import StarsLiveServerTest
 from stars.apps.tool.tests.views import InstitutionAdminToolMixinTest
 from stars.test_factories import (OrganizationFactory,
@@ -407,8 +408,8 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
         self.select_school(school=self.school)
         self.submit_contact_info(participation_level=PARTICIPANT)
         with self.assertRaises(TimeoutException):
-            _ = self.patiently_find(look_for='message-for-nonmembers',
-                                    by=By.ID)
+            self.patiently_find(look_for='message-for-nonmembers',
+                                by=By.ID)
 
     def _test_no_amount_due_skips_payment_steps(self, pay_when):
         """Are payment steps skipped if amount due is 0?
@@ -602,9 +603,9 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
         self.maxDiff = None
         self._test_registration_updates_contact_info(EXECUTIVE_CONTACT_INFO)
 
-    ##############################
-    # participant pays now tests #
-    ##############################
+    #############################
+    # full access pay now tests #
+    #############################
     def test_participant_paying_now_creates_institution(self):
         self.assertTrue(
             self._test_registration_model_mutation(
@@ -641,6 +642,15 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
                 school=self.school_factory(),
                 payment_option=NOW))
 
+    def test_participant_paying_now_creates_subsmissionset(self):
+        self.assertTrue(
+            self._test_registration_model_mutation(
+                participation_level=PARTICIPANT,
+                model=SubmissionSet,
+                difference=(+1),
+                school=self.school_factory(),
+                payment_option=NOW))
+
     def test_participant_paying_now_sets_institution_current_submission(self):
         self.institution.current_submission = None
         self.institution.save()
@@ -651,9 +661,51 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
                       new_registration=True)
         self.assertIsNotNone(self.school)
 
-    ################################
-    # participant pays later tests #
-    ################################
+    def test_emails_sent_for_full_access_paying_now(self):
+        initial_num_outbound_mails = len(mail.outbox)
+
+        self.register(participation_level=PARTICIPANT,
+                      payment_option=LATER)
+
+        self.assertEqual(len(mail.outbox),
+                         initial_num_outbound_mails + 1)
+
+        self.assertItemsEqual(
+            mail.outbox[0].to,
+            [CONTACT_INFO['contact_email'], self.user.email])
+
+    def test_invalid_cc_tx_doesnt_create_records(self):
+        """Is the db left untouched when a credit card transaction fails?"""
+        initial_institutions = Institution.objects.count()
+        initial_starsaccounts = StarsAccount.objects.count()
+        initial_submissionsets = SubmissionSet.objects.count()
+        initial_subscriptions = Subscription.objects.count()
+        initial_payments = SubscriptionPayment.objects.count()
+
+        self.participation_level = PARTICIPANT
+        self.select_school()
+        self.submit_contact_info(participation_level=PARTICIPANT)
+        self.next_button.click()  # price page
+        self.payment_option = NOW
+        self.credit_card_number = "badcreditcardnumber"
+        self.credit_card_expiration_month = "12"
+        self.credit_card_expiration_year = "2020"
+        self.final_registration_button.click()
+
+        self.assertEqual(initial_institutions,
+                         Institution.objects.count())
+        self.assertEqual(initial_starsaccounts,
+                         StarsAccount.objects.count())
+        self.assertEqual(initial_submissionsets,
+                         SubmissionSet.objects.count())
+        self.assertEqual(initial_subscriptions,
+                         Subscription.objects.count())
+        self.assertEqual(initial_payments,
+                         SubscriptionPayment.objects.count())
+
+    ###############################
+    # full access pay later tests #
+    ###############################
     def test_participant_paying_later_creates_institution(self):
         self.assertTrue(
             self._test_registration_model_mutation(
@@ -681,6 +733,15 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
                 school=self.school_factory(),
                 payment_option=LATER))
 
+    def test_participant_paying_later_creates_submissionset(self):
+        self.assertTrue(
+            self._test_registration_model_mutation(
+                participation_level=PARTICIPANT,
+                model=SubmissionSet,
+                difference=(+1),
+                school=self.school_factory(),
+                payment_option=LATER))
+
     def test_participant_paying_later_does_not_create_subscription_payment(
             self):
         self.assertTrue(
@@ -702,32 +763,11 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
                       new_registration=True)
         self.assertIsNotNone(self.school)
 
-    def test_emails_sent_for_participant_paying_later(self):
+    def test_emails_sent_for_full_access_paying_later(self):
         initial_num_outbound_mails = len(mail.outbox)
 
         self.register(participation_level=PARTICIPANT,
                       payment_option=LATER)
-
-        self.assertEqual(len(mail.outbox),
-                         initial_num_outbound_mails + 3)
-
-        self.assertItemsEqual(
-            mail.outbox[1].to,
-            [CONTACT_INFO['contact_email'], self.user.email])
-
-        self.assertItemsEqual(
-            mail.outbox[2].to,
-            [EXECUTIVE_CONTACT_INFO['executive_contact_email']])
-
-    ####################
-    # respondent tests #
-    ####################
-
-    def test_emails_sent_for_respondent_registration(self):
-        initial_num_outbound_mails = len(mail.outbox)
-
-        self.register(participation_level=RESPONDENT,
-                      new_registration=False)
 
         self.assertEqual(len(mail.outbox),
                          initial_num_outbound_mails + 1)
@@ -735,6 +775,50 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
         self.assertItemsEqual(
             mail.outbox[0].to,
             [CONTACT_INFO['contact_email'], self.user.email])
+
+    ######################
+    # basic access tests #
+    ######################
+    def test_basic_access_registration_creates_institution(self):
+        self.assertTrue(
+            self._test_registration_model_mutation(
+                participation_level=RESPONDENT,
+                model=Institution,
+                difference=(+1),
+                school=self.school_factory()))
+
+    def test_basic_access_registration_creates_stars_account(self):
+        self.assertTrue(
+            self._test_registration_model_mutation(
+                participation_level=RESPONDENT,
+                model=StarsAccount,
+                difference=(+1),
+                school=self.school_factory()))
+
+    def test_basic_access_registration_creates_submissionset(self):
+        self.assertTrue(
+            self._test_registration_model_mutation(
+                participation_level=RESPONDENT,
+                model=SubmissionSet,
+                difference=(+1),
+                school=self.school_factory()))
+
+    def test_emails_sent_for_basic_access_registration(self):
+        initial_num_outbound_mails = len(mail.outbox)
+
+        self.register(participation_level=RESPONDENT,
+                      new_registration=False)
+
+        self.assertEqual(len(mail.outbox),
+                         initial_num_outbound_mails + 2)
+
+        self.assertItemsEqual(
+            mail.outbox[0].to,
+            [CONTACT_INFO['contact_email'], self.user.email])
+
+        self.assertItemsEqual(
+            mail.outbox[1].to,
+            [EXECUTIVE_CONTACT_INFO['executive_contact_email']])
 
 
 class SurveyViewTest(InstitutionAdminToolMixinTest):

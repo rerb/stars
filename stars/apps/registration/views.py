@@ -1,6 +1,7 @@
 import abc
 from logging import getLogger
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.views.generic import CreateView
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
@@ -19,7 +20,8 @@ from stars.apps.tool.mixins import InstitutionAdminToolMixin
 from stars.apps.accounts.mixins import StarsAccountMixin
 
 from .utils import init_starsaccount, init_submissionset
-from ..payments.views import (SubscriptionPurchaseWizard,
+from ..payments.views import (FAILURE,
+                              SubscriptionPurchaseWizard,
                               amount_due_more_than_zero)
 
 
@@ -33,6 +35,18 @@ BASE_REGISTRATION_PRICE = {MEMBER: 900, NON_MEMBER: 1400}
 FULL_ACCESS = 1
 BASIC_ACCESS = 'use the constants, luke'
 
+CONTACT_FIELD_NAMES = ['contact_department',
+                       'contact_email',
+                       'contact_first_name',
+                       'contact_last_name',
+                       'contact_middle_name',
+                       'contact_phone',
+                       'contact_title',
+                       'executive_contact_first_name',
+                       'executive_contact_last_name',
+                       'executive_contact_title',
+                       'executive_contact_department',
+                       'executive_contact_email']
 
 class RegistrationWizard(StarsAccountMixin, SubscriptionPurchaseWizard):
     """
@@ -158,99 +172,27 @@ class RegistrationWizard(StarsAccountMixin, SubscriptionPurchaseWizard):
         """What access level is this person registering for?"""
         pass
 
-    def done(self, form_list, **kwargs):
-        institution = self.get_institution()
+    def process_step(self, form):
+        if int(self.steps.current) == self.CONTACT:
+            self._process_step_contact_info(form)
+        return super(RegistrationWizard, self).process_step(form)
 
-        if not institution.pk:
-            institution.save()
+    def _process_step_contact_info(self, form):
+        """Save the contact info so we'll have it to pop into the
+        Institution later, when it's finally created.
+        """
+        clean_form_info = form.clean()
+        for contact_field_name in CONTACT_FIELD_NAMES:
+            self.request.session[contact_field_name] = clean_form_info[
+                contact_field_name]
 
-        contact_form = form_list[self.CONTACT]
-
-        self.update_institution_contact_info(institution,
-                                             contact_form)
-        self.update_institution_executive_contact_info(institution,
-                                                       contact_form)
-
-        init_starsaccount(self.request.user, institution)
-        init_submissionset(institution, self.request.user)
-
-        if self.access_level == BASIC_ACCESS:
-            self.send_basic_access_emails(institution)
-
-        return super(RegistrationWizard, self).done(form_list, **kwargs)
-
-    def update_institution_contact_info(self, institution, contact_form):
+    def update_institution_contact_info(self, institution):
         """Updates the contact info stored on Institution `institution`
         with info in form `contact_form`."""
-        contact_field_names = ['contact_department',
-                               'contact_email',
-                               'contact_first_name',
-                               'contact_last_name',
-                               'contact_middle_name',
-                               'contact_phone',
-                               'contact_title']
-        self._update_institution_contact_info(
-            institution=institution,
-            contact_field_names=contact_field_names,
-            contact_form=contact_form)
-
-    def update_institution_executive_contact_info(self,
-                                                  institution,
-                                                  contact_form):
-        """Updates the exeutive contact info stored on Institution
-        `institution` with info in form `contact_form`."""
-        executive_contact_field_names = ['executive_contact_first_name',
-                                         'executive_contact_last_name',
-                                         'executive_contact_title',
-                                         'executive_contact_department',
-                                         'executive_contact_email']
-        self._update_institution_contact_info(
-            institution=institution,
-            contact_field_names=executive_contact_field_names,
-            contact_form=contact_form)
-
-    def _update_institution_contact_info(self,
-                                         institution,
-                                         contact_field_names,
-                                         contact_form):
-        """Updates the fields with names in `contact_field_names` on
-        Institution `institution` with input on form `contact_form`.
-        """
-        clean_form_info = contact_form.clean()
-        for field_name in contact_field_names:
+        for field_name in CONTACT_FIELD_NAMES:
             setattr(institution,
                     field_name,
-                    clean_form_info[field_name])
-        institution.save()
-
-    def send_basic_access_emails(self, institution):
-        # Primary Contact
-        email_to = [institution.contact_email]
-
-        if self.request.user.email != institution.contact_email:
-            email_to.append(self.request.user.email)
-
-        # Confirmation Email
-        if institution.international:
-            et = EmailTemplate.objects.get(
-                slug='welcome_international_pilot')
-            email_context = {'institution': institution}
-        else:
-            et = EmailTemplate.objects.get(slug='welcome_respondent')
-            email_context = {"institution": institution}
-
-        et.send_email(email_to, email_context)
-
-        # Executive Contact
-        if institution.executive_contact_email:
-            email_to = [institution.executive_contact_email]
-            if institution.international:
-                et = EmailTemplate.objects.get(
-                    slug='welcome_international_pilot_ec')
-            else:
-                et = EmailTemplate.objects.get(slug="welcome_exec")
-            email_context = {"institution": institution}
-            et.send_email(email_to, email_context)
+                    self.request.session[field_name])
 
     @classmethod
     def get_form_conditions(cls):
@@ -278,12 +220,87 @@ class FullAccessRegistrationWizard(RegistrationWizard):
     def access_level(self):
         return FULL_ACCESS
 
+    def _process_step_subscription_create(self, form):
+        
+        def _kill(dead_men_walking):
+            for dead_man in dead_men_walking:
+                try:
+                    dead_man.delete()
+                except ObjectDoesNotExist:
+                    pass 
+                    
+        institution = self.get_institution()
+        
+        self.update_institution_contact_info(institution)
+
+        # institution must have a pk before creating related StarsAccount
+        # and SubmissionSet records, so save it now:
+        institution.save()
+
+        account = init_starsaccount(self.request.user, institution)
+        submissionset = init_submissionset(institution, self.request.user)
+
+        try:
+            result = super(FullAccessRegistrationWizard,
+                           self)._process_step_subscription_create(form)
+        except:
+            _kill([account, submissionset, institution])
+            raise
+        else:
+            if result == FAILURE:
+                _kill([account, submissionset, institution])
+
 
 class BasicAccessRegistrationWizard(RegistrationWizard):
     
     @property
     def access_level(self):
         return BASIC_ACCESS
+
+    def _process_step_contact_info(self, form):
+        super(BasicAccessRegistrationWizard,
+              self)._process_step_contact_info(form)
+
+        institution = self.get_institution()
+        
+        self.update_institution_contact_info(institution)
+
+        # institution must have a pk before creating related StarsAccount
+        # and SubmissionSet records, so save it now:
+        institution.save()
+
+        init_starsaccount(self.request.user, institution)
+        init_submissionset(institution, self.request.user)
+
+        self.send_email(institution)
+
+    def send_email(self, institution):
+        # Primary Contact
+        email_to = [institution.contact_email]
+
+        if self.request.user.email != institution.contact_email:
+            email_to.append(self.request.user.email)
+
+        # Confirmation Email
+        if institution.international:
+            et = EmailTemplate.objects.get(
+                slug='welcome_international_pilot')
+            email_context = {'institution': institution}
+        else:
+            et = EmailTemplate.objects.get(slug='welcome_respondent')
+            email_context = {"institution": institution}
+
+        et.send_email(email_to, email_context)
+
+        # Executive Contact
+        email_to = [institution.executive_contact_email]
+        if institution.international:
+            et = EmailTemplate.objects.get(
+                slug='welcome_international_pilot_ec')
+        else:
+            et = EmailTemplate.objects.get(slug="welcome_exec")
+        email_context = {"institution": institution}
+        et.send_email(email_to, email_context)
 
 
 class SurveyView(InstitutionAdminToolMixin, CreateView):
