@@ -214,6 +214,14 @@ def registering_for_full_access(wizard):
     return wizard.access_level == FULL_ACCESS
 
 
+def delete_objects(dead_men_walking):
+    for dead_man in dead_men_walking:
+        try:
+            dead_man.delete()
+        except ObjectDoesNotExist:
+            pass 
+                    
+
 class FullAccessRegistrationWizard(RegistrationWizard):
 
     @property
@@ -222,13 +230,6 @@ class FullAccessRegistrationWizard(RegistrationWizard):
 
     def _process_step_subscription_create(self, form):
         
-        def _kill(dead_men_walking):
-            for dead_man in dead_men_walking:
-                try:
-                    dead_man.delete()
-                except ObjectDoesNotExist:
-                    pass 
-                    
         institution = self.get_institution()
         
         self.update_institution_contact_info(institution)
@@ -236,19 +237,36 @@ class FullAccessRegistrationWizard(RegistrationWizard):
         # institution must have a pk before creating related StarsAccount
         # and SubmissionSet records, so save it now:
         institution.save()
+        
+        try:
+            account = init_starsaccount(self.request.user, institution)
+        except Exception as exc:
+            delete_objects([institution])
+            try:
+                delete_objects([account])
+            except UnboundLocalError:
+                pass
+            raise exc
 
-        account = init_starsaccount(self.request.user, institution)
-        submissionset = init_submissionset(institution, self.request.user)
+        try:
+            submissionset = init_submissionset(institution, self.request.user)
+        except Exception as exc:
+            delete_objects([institution, account])
+            try:
+                delete_objects([submissionset])
+            except UnboundLocalError:
+                pass
+            raise exc
 
         try:
             result = super(FullAccessRegistrationWizard,
                            self)._process_step_subscription_create(form)
         except:
-            _kill([account, submissionset, institution])
+            delete_objects([account, submissionset, institution])
             raise
         else:
             if result == FAILURE:
-                _kill([account, submissionset, institution])
+                delete_objects([account, submissionset, institution])
 
 
 class BasicAccessRegistrationWizard(RegistrationWizard):
@@ -269,8 +287,25 @@ class BasicAccessRegistrationWizard(RegistrationWizard):
         # and SubmissionSet records, so save it now:
         institution.save()
 
-        init_starsaccount(self.request.user, institution)
-        init_submissionset(institution, self.request.user)
+        try:
+            account = init_starsaccount(self.request.user, institution)
+        except Exception as exc:
+            delete_objects([institution])
+            try:
+                delete_objects([account])
+            except UnboundLocalError:
+                pass
+            raise exc
+
+        try:
+            submissionset = init_submissionset(institution, self.request.user)
+        except Exception as exc:
+            delete_objects([institution, account])
+            try:
+                delete_objects([submissionset])
+            except UnboundLocalError:
+                pass
+            raise exc
 
 
 class SurveyView(InstitutionAdminToolMixin, CreateView):

@@ -6,6 +6,7 @@ from django.core.urlresolvers import reverse
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.select import Select
 from selenium.webdriver.support.wait import TimeoutException
+import mock
 
 from stars.apps.institutions.models import (Institution,
                                             StarsAccount,
@@ -46,6 +47,10 @@ logger.setLevel(CRITICAL)
 
 
 class CannotFindElementError(Exception):
+    pass
+
+
+class ForcedException(Exception):
     pass
 
 
@@ -674,13 +679,28 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
             mail.outbox[0].to,
             [CONTACT_INFO['contact_email'], self.user.email])
 
+    def _set_initial_object_counts(self):
+        self.initial_institutions = Institution.objects.count()
+        self.initial_starsaccounts = StarsAccount.objects.count()
+        self.initial_submissionsets = SubmissionSet.objects.count()
+        self.initial_subscriptions = Subscription.objects.count()
+        self.initial_payments = SubscriptionPayment.objects.count()
+
+    def _initial_object_counts_are_still_correct(self):
+        self.assertEqual(self.initial_institutions,
+                         Institution.objects.count())
+        self.assertEqual(self.initial_starsaccounts,
+                         StarsAccount.objects.count())
+        self.assertEqual(self.initial_submissionsets,
+                         SubmissionSet.objects.count())
+        self.assertEqual(self.initial_subscriptions,
+                         Subscription.objects.count())
+        self.assertEqual(self.initial_payments,
+                         SubscriptionPayment.objects.count())
+
     def test_invalid_cc_tx_doesnt_create_records(self):
         """Is the db left untouched when a credit card transaction fails?"""
-        initial_institutions = Institution.objects.count()
-        initial_starsaccounts = StarsAccount.objects.count()
-        initial_submissionsets = SubmissionSet.objects.count()
-        initial_subscriptions = Subscription.objects.count()
-        initial_payments = SubscriptionPayment.objects.count()
+        self._set_initial_object_counts()
 
         self.participation_level = PARTICIPANT
         self.select_school()
@@ -692,16 +712,7 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
         self.credit_card_expiration_year = "2020"
         self.final_registration_button.click()
 
-        self.assertEqual(initial_institutions,
-                         Institution.objects.count())
-        self.assertEqual(initial_starsaccounts,
-                         StarsAccount.objects.count())
-        self.assertEqual(initial_submissionsets,
-                         SubmissionSet.objects.count())
-        self.assertEqual(initial_subscriptions,
-                         Subscription.objects.count())
-        self.assertEqual(initial_payments,
-                         SubscriptionPayment.objects.count())
+        self._initial_object_counts_are_still_correct()
 
     ###############################
     # full access pay later tests #
@@ -770,11 +781,15 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
                       payment_option=LATER)
 
         self.assertEqual(len(mail.outbox),
-                         initial_num_outbound_mails + 1)
+                         initial_num_outbound_mails + 2)
 
         self.assertItemsEqual(
             mail.outbox[0].to,
             [CONTACT_INFO['contact_email'], self.user.email])
+
+        self.assertItemsEqual(
+            mail.outbox[1].to,
+            [EXECUTIVE_CONTACT_INFO['executive_contact_email']])
 
     ######################
     # basic access tests #
@@ -803,23 +818,60 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
                 difference=(+1),
                 school=self.school_factory()))
 
-    def test_emails_sent_for_basic_access_registration(self):
+    def test_no_emails_sent_for_basic_access_registration(self):
+        """Are any emails sent for Basic Access registration?"""
         initial_num_outbound_mails = len(mail.outbox)
 
         self.register(participation_level=RESPONDENT,
                       new_registration=False)
 
-        self.assertEqual(len(mail.outbox),
-                         initial_num_outbound_mails + 2)
+        self.assertEqual(len(mail.outbox), initial_num_outbound_mails)
 
-        self.assertItemsEqual(
-            mail.outbox[0].to,
-            [CONTACT_INFO['contact_email'], self.user.email])
+    def _raise_forced_exception(*args, **kwargs):
+        """Stub to raise an exception, for testing exception handling."""
+        raise ForcedException()
 
-        self.assertItemsEqual(
-            mail.outbox[1].to,
-            [EXECUTIVE_CONTACT_INFO['executive_contact_email']])
+    @mock.patch('stars.apps.registration.views.init_starsaccount',
+                _raise_forced_exception)
+    def test_cleanup_for_basic_access_broken_init_starsaccount(self):
+        """If init_starsaccount fails for Basic Access, is mess cleaned up?
+        """
+        self._set_initial_object_counts()
+        self.register(participation_level=RESPONDENT,
+                      new_registration=True)
+        self._initial_object_counts_are_still_correct()
 
+    @mock.patch('stars.apps.registration.views.init_starsaccount',
+                _raise_forced_exception)
+    def test_cleanup_for_full_access_broken_init_starsaccount(self):
+        """If init_starsaccount fails for Full Access, is the mess cleaned up?
+        """
+        self._set_initial_object_counts()
+        self.register(participation_level=PARTICIPANT,
+                      payment_option=Subscription.PAY_LATER,
+                      new_registration=True)
+        self._initial_object_counts_are_still_correct()
+
+    @mock.patch('stars.apps.registration.views.init_submissionset',
+                _raise_forced_exception)
+    def test_cleanup_for_basic_access_broken_init_submissionset(self):
+        """If init_submissionset fails for Basic Access, is mess cleaned up?
+        """
+        self._set_initial_object_counts()
+        self.register(participation_level=RESPONDENT,
+                      new_registration=True)
+        self._initial_object_counts_are_still_correct()
+
+    @mock.patch('stars.apps.registration.views.init_submissionset',
+                _raise_forced_exception)
+    def test_cleanup_for_full_access_broken_init_submissionset(self):
+        """If init_submissionset fails for Full Access, is the mess cleaned up?
+        """
+        self._set_initial_object_counts()
+        self.register(participation_level=PARTICIPANT,
+                      payment_option=Subscription.PAY_LATER,
+                      new_registration=True)
+        self._initial_object_counts_are_still_correct()
 
 class SurveyViewTest(InstitutionAdminToolMixinTest):
 
