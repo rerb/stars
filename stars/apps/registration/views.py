@@ -272,36 +272,6 @@ class BasicAccessRegistrationWizard(RegistrationWizard):
         init_starsaccount(self.request.user, institution)
         init_submissionset(institution, self.request.user)
 
-        self.send_email(institution)
-
-    def send_email(self, institution):
-        # Primary Contact
-        email_to = [institution.contact_email]
-
-        if self.request.user.email != institution.contact_email:
-            email_to.append(self.request.user.email)
-
-        # Confirmation Email
-        if institution.international:
-            et = EmailTemplate.objects.get(
-                slug='welcome_international_pilot')
-            email_context = {'institution': institution}
-        else:
-            et = EmailTemplate.objects.get(slug='welcome_respondent')
-            email_context = {"institution": institution}
-
-        et.send_email(email_to, email_context)
-
-        # Executive Contact
-        email_to = [institution.executive_contact_email]
-        if institution.international:
-            et = EmailTemplate.objects.get(
-                slug='welcome_international_pilot_ec')
-        else:
-            et = EmailTemplate.objects.get(slug="welcome_exec")
-        email_context = {"institution": institution}
-        et.send_email(email_to, email_context)
-
 
 class SurveyView(InstitutionAdminToolMixin, CreateView):
 
