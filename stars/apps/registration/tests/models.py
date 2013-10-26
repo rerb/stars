@@ -69,106 +69,100 @@ class AutomaticDiscountTest(unittest.TestCase):
         
     def test__overlapping_automatic_discount_same_start_date(self):
         """Does _overlapping_automatic_discount handle same start date?"""
-        overlapping_discount = ValueDiscountFactory(
-            start_date=self.other_auto_disc.start_date,
-            end_date=self.other_auto_disc.end_date - timedelta(days=5),
-            automatic=True)
-        self.assertTrue(
-            overlapping_discount._overlapping_automatic_discount())
+        with self.assertRaises(ValidationError):
+            ValueDiscountFactory(
+                start_date=self.other_auto_disc.start_date,
+                end_date=self.other_auto_disc.end_date - timedelta(days=5),
+                automatic=True)
 
     def test__overlapping_automatic_discount_same_end_date(self):
         """Does _overlapping_automatic_discount handle same end date?"""
-        overlapping_discount = ValueDiscountFactory(
-            start_date=self.other_auto_disc.start_date - timedelta(days=5),
-            end_date=self.other_auto_disc.end_date,
-            automatic=True)
-        self.assertTrue(
-            overlapping_discount._overlapping_automatic_discount())
+        with self.assertRaises(ValidationError):
+            ValueDiscountFactory(
+                start_date=(self.other_auto_disc.start_date -
+                            timedelta(days=5)),
+                end_date=self.other_auto_disc.end_date,
+                automatic=True)
 
     def test__overlapping_automatic_discount_same_date_range(self):
         """Does _overlapping_automatic_discount handle same date range?"""
-        overlapping_discount = ValueDiscountFactory(
-            start_date=self.other_auto_disc.start_date,
-            end_date=self.other_auto_disc.end_date,
-            automatic=True)
-        self.assertTrue(
-            overlapping_discount._overlapping_automatic_discount())
+        with self.assertRaises(ValidationError):
+            ValueDiscountFactory(
+                start_date=self.other_auto_disc.start_date,
+                end_date=self.other_auto_disc.end_date,
+                automatic=True)
 
     def test__overlapping_automatic_discount_start_date_overlap(self):
         """Does _overlapping_automatic_discount handle start date overlap?"""
-        overlapping_discount = ValueDiscountFactory(
-            start_date=self.other_auto_disc.start_date + timedelta(days=5),
-            end_date=self.other_auto_disc.end_date + timedelta(days=5),
-            automatic=True)
-        self.assertTrue(
-            overlapping_discount._overlapping_automatic_discount())
+        with self.assertRaises(ValidationError):
+            ValueDiscountFactory(
+                start_date=(self.other_auto_disc.start_date +
+                            timedelta(days=5)),
+                end_date=self.other_auto_disc.end_date + timedelta(days=5),
+                automatic=True)
 
     def test__overlapping_automatic_discount_end_date_overlap(self):
         """Does _overlapping_automatic_discount handle end date overlap?"""
-        overlapping_discount = ValueDiscountFactory(
-            start_date=self.other_auto_disc.start_date - timedelta(days=5),
-            end_date=self.other_auto_disc.end_date - timedelta(days=5),
-            automatic=True)
-        self.assertTrue(
-            overlapping_discount._overlapping_automatic_discount())
+        with self.assertRaises(ValidationError):
+            ValueDiscountFactory(
+                start_date=(self.other_auto_disc.start_date -
+                            timedelta(days=5)),
+                end_date=self.other_auto_disc.end_date - timedelta(days=5),
+                automatic=True)
 
     def test__overlapping_automatic_discount_contains_another(self):
         """Does _overlapping_automatic_discount handle this inside another?
         """
-        overlapping_discount = ValueDiscountFactory(
-            start_date=self.other_auto_disc.start_date - timedelta(days=5),
-            end_date=self.other_auto_disc.end_date + timedelta(days=5),
-            automatic=True)
-        self.assertTrue(
-            overlapping_discount._overlapping_automatic_discount())
+        with self.assertRaises(ValidationError):
+            ValueDiscountFactory(
+                start_date=(self.other_auto_disc.start_date -
+                            timedelta(days=5)),
+                end_date=self.other_auto_disc.end_date + timedelta(days=5),
+                automatic=True)
 
     def test__overlapping_automatic_discount_end_date_eq_other_start_date(
             self):
         """Does _overl.._auto.._disc.. handle end date == other start date?"""
-        overlapping_discount = ValueDiscountFactory(
-            start_date=self.other_auto_disc.start_date - timedelta(days=5),
-            end_date=self.other_auto_disc.start_date,
-            automatic=True)
-        self.assertTrue(
-            overlapping_discount._overlapping_automatic_discount())
+        with self.assertRaises(ValidationError):
+            ValueDiscountFactory(
+                start_date=(self.other_auto_disc.start_date -
+                            timedelta(days=5)),
+                end_date=self.other_auto_disc.start_date,
+                automatic=True)
 
     def test__overlapping_automatic_discount_start_date_eq_other_end_date(
             self):
         """Does _overl.._auto.._disc.. handle start date == other end date?"""
-        overlapping_discount = ValueDiscountFactory(
-            start_date=self.other_auto_disc.end_date,
-            end_date=self.other_auto_disc.end_date + timedelta(days=5),
-            automatic=True)
-        self.assertTrue(
-            overlapping_discount._overlapping_automatic_discount())
+        with self.assertRaises(ValidationError):
+            ValueDiscountFactory(
+                start_date=self.other_auto_disc.end_date,
+                end_date=self.other_auto_disc.end_date + timedelta(days=5),
+                automatic=True)
 
     def test__overlapping_automatic_discount_inside_another(self):
         """Does _overl.._auto.._disc.. handle other discount inside this one?
         """
-        overlapping_discount = ValueDiscountFactory(
-            start_date=self.other_auto_disc.start_date + timedelta(days=5),
-            end_date=self.other_auto_disc.end_date - timedelta(days=5),
-            automatic=True)
-        self.assertTrue(
-            overlapping_discount._overlapping_automatic_discount())
+        with self.assertRaises(ValidationError):
+            ValueDiscountFactory(
+                start_date=(self.other_auto_disc.start_date +
+                            timedelta(days=5)),
+                end_date=self.other_auto_disc.end_date - timedelta(days=5),
+                automatic=True)
 
-    def test__overlapping_automatic_discount_overlap(self):
+    def test__overlapping_automatic_discount_no_overlap(self):
         """Does _overl.._auto.._disc.. handle no overlap?"""
-        overlapping_discount = ValueDiscountFactory(
+        automatic_discount = ValueDiscountFactory(
             start_date=self.other_auto_disc.end_date + timedelta(days=5),
             end_date=self.other_auto_disc.end_date + timedelta(days=10),
             automatic=True)
-        self.assertFalse(
-            overlapping_discount._overlapping_automatic_discount())
+        self.assertTrue(automatic_discount.discount_applies())
 
     def test_clean_no_amount_or_percentage(self):
         """Does clean reject if there's no amount or percentage?"""
-        dirty_discount = ValueDiscountFactory(
-            amount=None, 
-            percentage=None,
-            automatic=True)
         with self.assertRaises(ValidationError):
-            dirty_discount.clean()
+            ValueDiscountFactory(amount=None, 
+                                 percentage=None,
+                                 automatic=True)
 
     def test_discount_applies_with_no_applicability_filter(self):
         """Is discount_applies() True when applicability_filter is blank?
