@@ -673,46 +673,15 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
                       payment_option=LATER)
 
         self.assertEqual(len(mail.outbox),
-                         initial_num_outbound_mails + 1)
+                         initial_num_outbound_mails + 2)
 
         self.assertItemsEqual(
             mail.outbox[0].to,
+            [EXECUTIVE_CONTACT_INFO['executive_contact_email']])
+
+        self.assertItemsEqual(
+            mail.outbox[1].to,
             [CONTACT_INFO['contact_email'], self.user.email])
-
-    def _set_initial_object_counts(self):
-        self.initial_institutions = Institution.objects.count()
-        self.initial_starsaccounts = StarsAccount.objects.count()
-        self.initial_submissionsets = SubmissionSet.objects.count()
-        self.initial_subscriptions = Subscription.objects.count()
-        self.initial_payments = SubscriptionPayment.objects.count()
-
-    def _initial_object_counts_are_still_correct(self):
-        self.assertEqual(self.initial_institutions,
-                         Institution.objects.count())
-        self.assertEqual(self.initial_starsaccounts,
-                         StarsAccount.objects.count())
-        self.assertEqual(self.initial_submissionsets,
-                         SubmissionSet.objects.count())
-        self.assertEqual(self.initial_subscriptions,
-                         Subscription.objects.count())
-        self.assertEqual(self.initial_payments,
-                         SubscriptionPayment.objects.count())
-
-    def test_invalid_cc_tx_doesnt_create_records(self):
-        """Is the db left untouched when a credit card transaction fails?"""
-        self._set_initial_object_counts()
-
-        self.participation_level = PARTICIPANT
-        self.select_school()
-        self.submit_contact_info(participation_level=PARTICIPANT)
-        self.next_button.click()  # price page
-        self.payment_option = NOW
-        self.credit_card_number = "badcreditcardnumber"
-        self.credit_card_expiration_month = "12"
-        self.credit_card_expiration_year = "2020"
-        self.final_registration_button.click()
-
-        self._initial_object_counts_are_still_correct()
 
     ###############################
     # full access pay later tests #
@@ -785,11 +754,11 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
 
         self.assertItemsEqual(
             mail.outbox[0].to,
-            [CONTACT_INFO['contact_email'], self.user.email])
+            [EXECUTIVE_CONTACT_INFO['executive_contact_email']])
 
         self.assertItemsEqual(
             mail.outbox[1].to,
-            [EXECUTIVE_CONTACT_INFO['executive_contact_email']])
+            [CONTACT_INFO['contact_email'], self.user.email])
 
     ######################
     # basic access tests #
@@ -826,6 +795,44 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
                       new_registration=False)
 
         self.assertEqual(len(mail.outbox), initial_num_outbound_mails)
+
+    ###################################################
+    # tests of exception handling (i.e., cleaning up) #
+    ###################################################
+    def _set_initial_object_counts(self):
+        self.initial_institutions = Institution.objects.count()
+        self.initial_starsaccounts = StarsAccount.objects.count()
+        self.initial_submissionsets = SubmissionSet.objects.count()
+        self.initial_subscriptions = Subscription.objects.count()
+        self.initial_payments = SubscriptionPayment.objects.count()
+
+    def _initial_object_counts_are_still_correct(self):
+        self.assertEqual(self.initial_institutions,
+                         Institution.objects.count())
+        self.assertEqual(self.initial_starsaccounts,
+                         StarsAccount.objects.count())
+        self.assertEqual(self.initial_submissionsets,
+                         SubmissionSet.objects.count())
+        self.assertEqual(self.initial_subscriptions,
+                         Subscription.objects.count())
+        self.assertEqual(self.initial_payments,
+                         SubscriptionPayment.objects.count())
+
+    def test_invalid_cc_tx_doesnt_create_records(self):
+        """Is the db left untouched when a credit card transaction fails?"""
+        self._set_initial_object_counts()
+
+        self.participation_level = PARTICIPANT
+        self.select_school()
+        self.submit_contact_info(participation_level=PARTICIPANT)
+        self.next_button.click()  # price page
+        self.payment_option = NOW
+        self.credit_card_number = "badcreditcardnumber"
+        self.credit_card_expiration_month = "12"
+        self.credit_card_expiration_year = "2020"
+        self.final_registration_button.click()
+
+        self._initial_object_counts_are_still_correct()
 
     def _raise_forced_exception(*args, **kwargs):
         """Stub to raise an exception, for testing exception handling."""
@@ -872,6 +879,7 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
                       payment_option=Subscription.PAY_LATER,
                       new_registration=True)
         self._initial_object_counts_are_still_correct()
+
 
 class SurveyViewTest(InstitutionAdminToolMixinTest):
 
