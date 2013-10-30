@@ -81,4 +81,12 @@ admin.site.register(ClimateZone, ClimateZoneAdmin)
 
 class MigrationHistoryAdmin(admin.ModelAdmin):
     list_display = ('institution', 'date', 'source_ss', 'target_ss')
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super(MigrationHistoryAdmin, self).get_form(request, obj, **kwargs)
+        if obj:
+            qs = obj.institution.submissionset_set.all()
+            form.base_fields['source_ss'].queryset = qs
+            form.base_fields['target_ss'].queryset = qs
+        return form
 admin.site.register(MigrationHistory, MigrationHistoryAdmin)
