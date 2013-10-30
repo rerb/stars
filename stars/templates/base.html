@@ -25,7 +25,9 @@
         {% block extra_head %}{% endblock %}
         {% block extra_style %}{% endblock %}
     </head>
-    <body class="html not-front not-logged-in no-sidebars page-node page-node- page-node-8 node-type-page" >
+    <body onload='{% block body_onload %}{% endblock %}'
+    	onbeforeunload='{% block body_beforeunload %}{% endblock %}'
+    	class="html not-front not-logged-in no-sidebars page-node page-node- page-node-8 node-type-page" >
     <div class="container">
 
       <div class="row top-nav">
