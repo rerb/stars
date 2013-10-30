@@ -1,6 +1,7 @@
 import abc
 from logging import getLogger
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.views.generic import CreateView
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
@@ -19,7 +20,8 @@ from stars.apps.tool.mixins import InstitutionAdminToolMixin
 from stars.apps.accounts.mixins import StarsAccountMixin
 
 from .utils import init_starsaccount, init_submissionset
-from ..payments.views import (SubscriptionPurchaseWizard,
+from ..payments.views import (FAILURE,
+                              SubscriptionPurchaseWizard,
                               amount_due_more_than_zero)
 
 
@@ -30,22 +32,29 @@ MEMBER = True
 NON_MEMBER = False
 BASE_REGISTRATION_PRICE = {MEMBER: 900, NON_MEMBER: 1400}
 
+FULL_ACCESS = 1
+BASIC_ACCESS = 'use the constants, luke'
+
+CONTACT_FIELD_NAMES = ['contact_department',
+                       'contact_email',
+                       'contact_first_name',
+                       'contact_last_name',
+                       'contact_middle_name',
+                       'contact_phone',
+                       'contact_title',
+                       'executive_contact_first_name',
+                       'executive_contact_last_name',
+                       'executive_contact_title',
+                       'executive_contact_department',
+                       'executive_contact_email']
 
 class RegistrationWizard(StarsAccountMixin, SubscriptionPurchaseWizard):
     """
         A wizard that runs a user through the forms required to register
-        as a STARS Participant.
+        for STARS.
 
-        This is an abstract class, by virtue of its abstract method
-        picked_participant().
-
-        Now that we're basing access on access levels (i.e., basic
-        and full) rather than particpant status (participant or
-        registerant), this code should be cleaned up to reflect
-        the new terminology.  'picked_participant()', e.g., might
-        better be replaced with 'access_level() == FULL'.  This cleanup
-        is a post-2.0 launch task . . . typed 1.5 working days before
-        launch of STARS 2.0.
+        This is an abstract class, by virtue of its abstract property
+        access_level.
     """
     __metaclass__ = abc.ABCMeta
 
@@ -158,141 +167,145 @@ class RegistrationWizard(StarsAccountMixin, SubscriptionPurchaseWizard):
 
         return None
 
-    def process_step(self, form):
-        if self.steps.current == self.PRICE:
-            self.request.session['is_participant'] = self.picked_participant()
-        return super(RegistrationWizard, self).process_step(form)
-    
-    @abc.abstractmethod
-    def picked_participant(self):
-        """ Checks if the user chose to be a participant """
+    @abc.abstractproperty
+    def access_level(self):
+        """What access level is this person registering for?"""
         pass
 
-    def done(self, form_list, **kwargs):
-        institution = self.get_institution()
+    def process_step(self, form):
+        if int(self.steps.current) == self.CONTACT:
+            self._process_step_contact_info(form)
+        return super(RegistrationWizard, self).process_step(form)
 
-        if not institution.pk:
-            institution.save()
+    def _process_step_contact_info(self, form):
+        """Save the contact info so we'll have it to pop into the
+        Institution later, when it's finally created.
+        """
+        clean_form_info = form.clean()
+        for contact_field_name in CONTACT_FIELD_NAMES:
+            self.request.session[contact_field_name] = clean_form_info[
+                contact_field_name]
 
-        contact_form = form_list[self.CONTACT]
-
-        self.update_institution_contact_info(institution,
-                                             contact_form)
-        self.update_institution_executive_contact_info(institution,
-                                                       contact_form)
-
-        init_starsaccount(self.request.user, institution)
-        init_submissionset(institution, self.request.user)
-
-        # 24 Oct 2013 - send_emails() sends "welcome_registrant"
-        # email to all registrants, which is incorrect. Commenting
-        # it out for now, until it's fixed (and sends "welcome_registrant"
-        # to Basic Access folks, and "welcome_participant" to
-        # Full Access subscribers.
-        # self.send_emails(institution)
-
-        return super(RegistrationWizard, self).done(form_list, **kwargs)
-
-    def update_institution_contact_info(self, institution, contact_form):
+    def update_institution_contact_info(self, institution):
         """Updates the contact info stored on Institution `institution`
         with info in form `contact_form`."""
-        contact_field_names = ['contact_department',
-                               'contact_email',
-                               'contact_first_name',
-                               'contact_last_name',
-                               'contact_middle_name',
-                               'contact_phone',
-                               'contact_title']
-        self._update_institution_contact_info(
-            institution=institution,
-            contact_field_names=contact_field_names,
-            contact_form=contact_form)
-
-    def update_institution_executive_contact_info(self,
-                                                  institution,
-                                                  contact_form):
-        """Updates the exeutive contact info stored on Institution
-        `institution` with info in form `contact_form`."""
-        executive_contact_field_names = ['executive_contact_first_name',
-                                         'executive_contact_last_name',
-                                         'executive_contact_title',
-                                         'executive_contact_department',
-                                         'executive_contact_email']
-        self._update_institution_contact_info(
-            institution=institution,
-            contact_field_names=executive_contact_field_names,
-            contact_form=contact_form)
-
-    def _update_institution_contact_info(self,
-                                         institution,
-                                         contact_field_names,
-                                         contact_form):
-        """Updates the fields with names in `contact_field_names` on
-        Institution `institution` with input on form `contact_form`.
-        """
-        clean_form_info = contact_form.clean()
-        for field_name in contact_field_names:
+        for field_name in CONTACT_FIELD_NAMES:
             setattr(institution,
                     field_name,
-                    clean_form_info[field_name])
-        institution.save()
-
-    def send_emails(self, institution):
-        # Primary Contact
-        email_to = [institution.contact_email]
-
-        if self.request.user.email != institution.contact_email:
-            email_to.append(self.request.user.email)
-
-        # Confirmation Email
-        if institution.international:
-            et = EmailTemplate.objects.get(
-                slug='welcome_international_pilot')
-            email_context = {'institution': institution}
-        else:
-            et = EmailTemplate.objects.get(slug='welcome_respondent')
-            email_context = {"institution": institution}
-
-        et.send_email(email_to, email_context)
-
-        # Executive Contact
-        if institution.executive_contact_email:
-            email_to = [institution.executive_contact_email]
-            if institution.international:
-                et = EmailTemplate.objects.get(
-                    slug='welcome_international_pilot_ec')
-            else:
-                et = EmailTemplate.objects.get(slug="welcome_exec")
-            email_context = {"institution": institution}
-            et.send_email(email_to, email_context)
+                    self.request.session[field_name])
 
     @classmethod
     def get_form_conditions(cls):
+        """Returns a dictionary of conditionally displayed forms and
+        the conditional which must evaluate to True for the form to be
+        shown.
+        """
         form_conditions = {
-            str(cls.PRICE): registerant_is_participant,
+            str(cls.PRICE): registering_for_full_access,
             str(cls.PAYMENT_OPTIONS): amount_due_more_than_zero,
-            str(cls.SUBSCRIPTION_CREATE): registerant_is_participant}
+            str(cls.SUBSCRIPTION_CREATE): registering_for_full_access}
         return form_conditions
 
 
-def registerant_is_participant(wizard):
+def registering_for_full_access(wizard):
+    """Returns True if this registration is for Full Access, 
+    False otherwise.
     """
-    Under what condition should the payment forms be shown?  Why, when
-    the user has chosen to be a participant, of course.  La la la.
-    """
-    return wizard.picked_participant()
+    return wizard.access_level == FULL_ACCESS
 
+
+def delete_objects(dead_men_walking):
+    for dead_man in dead_men_walking:
+        try:
+            dead_man.delete()
+        except ObjectDoesNotExist:
+            pass 
+                    
 
 class FullAccessRegistrationWizard(RegistrationWizard):
 
-    def picked_participant(self):
-        return True
+    @property
+    def access_level(self):
+        return FULL_ACCESS
+
+    def _process_step_subscription_create(self, form):
+        
+        institution = self.get_institution()
+        
+        self.update_institution_contact_info(institution)
+
+        # institution must have a pk before creating related StarsAccount
+        # and SubmissionSet records, so save it now:
+        institution.save()
+        
+        try:
+            account = init_starsaccount(self.request.user, institution)
+        except Exception as exc:
+            delete_objects([institution])
+            try:
+                delete_objects([account])
+            except UnboundLocalError:
+                pass
+            raise exc
+
+        try:
+            submissionset = init_submissionset(institution, self.request.user)
+        except Exception as exc:
+            delete_objects([institution, account])
+            try:
+                delete_objects([submissionset])
+            except UnboundLocalError:
+                pass
+            raise exc
+
+        try:
+            result = super(FullAccessRegistrationWizard,
+                           self)._process_step_subscription_create(form)
+        except:
+            delete_objects([account, submissionset, institution])
+            raise
+        else:
+            if result == FAILURE:
+                delete_objects([account, submissionset, institution])
 
 
 class BasicAccessRegistrationWizard(RegistrationWizard):
+    
+    @property
+    def access_level(self):
+        return BASIC_ACCESS
 
-    def picked_participant(self):
-        return False
+    def _process_step_contact_info(self, form):
+        super(BasicAccessRegistrationWizard,
+              self)._process_step_contact_info(form)
+
+        institution = self.get_institution()
+        
+        self.update_institution_contact_info(institution)
+
+        # institution must have a pk before creating related StarsAccount
+        # and SubmissionSet records, so save it now:
+        institution.save()
+
+        try:
+            account = init_starsaccount(self.request.user, institution)
+        except Exception as exc:
+            delete_objects([institution])
+            try:
+                delete_objects([account])
+            except UnboundLocalError:
+                pass
+            raise exc
+
+        try:
+            submissionset = init_submissionset(institution, self.request.user)
+        except Exception as exc:
+            delete_objects([institution, account])
+            try:
+                delete_objects([submissionset])
+            except UnboundLocalError:
+                pass
+            raise exc
 
 
 class SurveyView(InstitutionAdminToolMixin, CreateView):

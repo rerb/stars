@@ -6,12 +6,14 @@ from django.core.urlresolvers import reverse
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.select import Select
 from selenium.webdriver.support.wait import TimeoutException
+import mock
 
 from stars.apps.institutions.models import (Institution,
                                             StarsAccount,
                                             Subscription,
                                             SubscriptionPayment)
 from stars.apps.institutions.tests.subscription import GOOD_CREDIT_CARD
+from stars.apps.submissions.models import SubmissionSet
 from stars.apps.tests.live_server import StarsLiveServerTest
 from stars.apps.tool.tests.views import InstitutionAdminToolMixinTest
 from stars.test_factories import (OrganizationFactory,
@@ -48,13 +50,18 @@ class CannotFindElementError(Exception):
     pass
 
 
+class ForcedException(Exception):
+    pass
+
+
 class RegistrationWizardLiveServerTest(StarsLiveServerTest):
 
     # TODO: need all these fixtures?  any of these?
+    # NOTE: need old_cms_test_data.json, for sure, at least now.
     fixtures = [
         'registration_tests.json',
-        #'iss_testdata.json',
-        'notification_emailtemplate_tests.json']
+        'notification_emailtemplate_tests.json',
+        'old_cms_test_data.json']
 
     def setUp(self, *args, **kwargs):
         super(RegistrationWizardLiveServerTest, self).setUp(*args, **kwargs)
@@ -64,6 +71,7 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
         self.freebie_code = ValueDiscountFactory(amount=0,
                                                  percentage=100)
         self._previous_register_args = {}
+        self._participation_level = None
         self.summon_the_wizard()
 
     def school_factory(self, summon_the_wizard=True):
@@ -78,8 +86,23 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
             self.summon_the_wizard()
         return school
 
+    # participation level:
+    @property
+    def participation_level(self):
+        return self._participation_level
+
+    @participation_level.setter
+    def participation_level(self, value):
+        self.assertIn(value, [PARTICIPANT, RESPONDENT])
+        self._participation_level = value
+        if value == PARTICIPANT:
+            button = self.get_register_button('full-access')
+        else:
+            button = self.get_register_button('basic-access')
+        button.click()
+
     # Buttons;
-    # - one helper function, and;
+    # - a few helper functions, and;
     # - one property for each button element:
     def get_button_with_text(self, text):
         buttons = self.selenium.find_elements_by_tag_name('button')
@@ -88,6 +111,27 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
                 return button
         raise CannotFindElementError('no {text} button?'.format(
             text=text))
+
+    def get_register_buttons(self):
+        return self.selenium.find_elements_by_partial_link_text('Register')
+
+    def get_register_button(self, access_level):
+        for register_button in self.get_register_buttons():
+            if access_level in register_button.get_attribute('href'):
+                return register_button
+        raise CannotFindElementError(
+            'no register for {access_level} button?'.format(
+                access_level=access_level))
+
+    @property 
+    def register_full_access_button(self):
+        """Returns the Register for Full Access button."""
+        self.get_register_button('full-access')
+
+    @property 
+    def register_basic_access_button(self):
+        """Returns the Register for Basic Access button."""
+        self.get_register_button('basic-access')
 
     @property
     def apply_promo_code_button(self):
@@ -99,7 +143,12 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
     @property
     def final_registration_button(self):
         """Returns the final Registration button."""
-        return self.get_button_with_text('Register')
+        buttons = self.selenium.find_elements_by_tag_name('button')
+        for button in buttons:
+            if (button.text == 'Register' and
+                button.get_attribute('type') == 'submit'):
+                return button
+        raise CannotFindElementError('no final registration button?')
 
     @property
     def next_button(self):
@@ -214,53 +263,6 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
         select_element = self.selected_school_select_element
         select_element.select_by_value(str(school.account_num))
 
-    # Radio sets - for each radio set;
-    # - a function to get the radio buttons in the set;
-    # - a function for each radio button, to get that button;
-    # - one property to reflect the value of the radio set;
-    # - one property setter to update the value of the radio set.
-
-    # participation level:
-    def get_participation_level_radio_buttons(self):
-        """Returns the participation level radio buttons."""
-        input_buttons = self.selenium.find_elements_by_tag_name('input')
-        radio_buttons = [ib for ib in input_buttons
-                         if ib.get_attribute('type') == 'radio']
-        return radio_buttons
-
-    def get_participation_level_participant_radio_button(self):
-        """Returns the radio button that indicates 'Participant'."""
-        for radio_button in self.get_participation_level_radio_buttons():
-            if radio_button.get_attribute("value") == "participant":
-                return radio_button
-        raise CannotFindElementError('no Participant radio button?')
-
-    def get_participation_level_respondent_radio_button(self):
-        """Returns the radio button that indicates 'Survey Respondent'."""
-        for radio_button in self.get_participation_level_radio_buttons():
-            if radio_button.get_attribute("value") == "respondent":
-                return radio_button
-        raise CannotFindElementError('no Survey Respondent radio button?')
-
-    @property
-    def participation_level(self):
-        if self.get_participation_level_participant_radio_button.is_selected():
-            return PARTICIPANT
-        elif self.get_participation_level_respondent_radio_button.is_selected():
-            return RESPONDENT
-        else:
-            return None
-
-    @participation_level.setter
-    def participation_level(self, value):
-        self.assertIn(value, [PARTICIPANT, RESPONDENT])
-        if value == PARTICIPANT:
-            button = self.get_participation_level_participant_radio_button()
-        else:
-            button = self.get_participation_level_respondent_radio_button()
-        button.click()
-        self.next_button.click()
-
     # payment option:
     def get_payment_options_radio_buttons(self):
         """Returns the payment options radio buttons."""
@@ -337,7 +339,7 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
 
     def summon_the_wizard(self):
         self.selenium.get('/'.join((self.live_server_url,
-                                    "register")))
+                                    "pages/register/register-stars.html")))
 
     def select_school(self, school=None):
         """Picks an school, then moves along."""
@@ -360,8 +362,8 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
         """Enters contact info, then submits the contact info form."""
         self.assertIn(participation_level, [PARTICIPANT, RESPONDENT])
         self.enter_contact_info()
+        self.enter_executive_contact_info()
         if participation_level == PARTICIPANT:
-            self.enter_executive_contact_info()
             self.next_button.click()
         else:
             self.final_registration_button.click()
@@ -373,44 +375,21 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
         """Are insts already registered redirected to the tool summary page?"""
         self.institution.aashe_id = self.school.account_num
         self.institution.save()
+        self.participation_level = PARTICIPANT
         self.select_school()
         self.assertTrue(self.current_page_is_tool_summary_page())
 
-    def test_unregistered_folks_are_redirected_to_participation_level_page(
-            self):
-        """Are insts not registered redirected to the participation level page?
+    def test_unregistered_folks_are_redirected_to_contact_info_page(self):
+        """Are insts not registered redirected to the contact info page?
         """
-        self.select_school()
-        self.assertIsNotNone(self.get_participation_level_radio_buttons())
-
-    def test_participant_asked_for_exec_contact_info(self):
-        """Are participants asked for executive contact info?"""
-        # Pick an school:
-        self.select_school()
-        # Participation level page:
         self.participation_level = PARTICIPANT
-        # Contact info page:
-        try:
-            self.get_text_input_element(
-                end_of_id='executive_contact_first_name')
-        except CannotFindElementError as ex:
-            self.fail(ex.message)
-
-    def test_respondents_not_asked_for_exec_contact_info(self):
-        """Are respondents not asked for executive contact info?"""
         self.select_school()
-        # Participation level page:
-        self.participation_level = RESPONDENT
-        # Contact info page:
         self.assertTrue(self.current_page_is_contact_info_page())
-        with self.assertRaises(CannotFindElementError):
-            self.get_text_input_element(
-                end_of_id='executive_contact_first_name')
 
     def test_respondents_skip_subscription_steps(self):
         """Are the suscription steps skipped for respondents?"""
-        self.select_school()
         self.participation_level = RESPONDENT
+        self.select_school()
         self.assertTrue(self.current_page_is_final_confirmation_page())
 
     def test_nonmember_sees_please_join_us_message_on_price_form(self):
@@ -418,8 +397,8 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
         on the price form?"""
         self.school.is_member = False
         self.school.save()
-        self.select_school(school=self.school)
         self.participation_level = PARTICIPANT
+        self.select_school(school=self.school)
         self.submit_contact_info(participation_level=PARTICIPANT)
         nonmember_message = self.patiently_find(
             look_for='message-for-nonmembers', by=By.ID)
@@ -430,12 +409,12 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
         on the price form?"""
         self.school.is_member = True
         self.school.save()
-        self.select_school(school=self.school)
         self.participation_level = PARTICIPANT
+        self.select_school(school=self.school)
         self.submit_contact_info(participation_level=PARTICIPANT)
         with self.assertRaises(TimeoutException):
-            _ = self.patiently_find(look_for='message-for-nonmembers',
-                                    by=By.ID)
+            self.patiently_find(look_for='message-for-nonmembers',
+                                by=By.ID)
 
     def _test_no_amount_due_skips_payment_steps(self, pay_when):
         """Are payment steps skipped if amount due is 0?
@@ -444,11 +423,11 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
         """
         self.assertTrue(pay_when in [NOW, LATER])
 
+        # participation level page:
+        self.participation_level = PARTICIPANT
+
         # select school page:
         self.select_school()
-
-        # particiapation level page:
-        self.participation_level = PARTICIPANT
 
         # contact info page:
         self.submit_contact_info(participation_level=PARTICIPANT)
@@ -473,10 +452,10 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
 
     def test_pay_now_leads_to_credit_card_info_page(self):
         """After choosing 'Pay Now', is the credit card info page shown?"""
-        # Select school page:
-        self.select_school()
         # Participation level page:
         self.participation_level = PARTICIPANT
+        # Select school page:
+        self.select_school()
         # Contact info page:
         self.submit_contact_info(participation_level=PARTICIPANT)
         # Subscription price page:
@@ -489,9 +468,8 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
     def test_pay_later_skips_credit_card_info_page(self):
         """After choosing 'Pay Later', is the final confirmation page shown?
         """
-        self.select_school()
-        # Participation level page:
         self.participation_level = PARTICIPANT
+        self.select_school()
         # Contact info page:
         self.submit_contact_info(participation_level=PARTICIPANT)
         # Subscription price page:
@@ -545,9 +523,9 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
             }
 
         def _register():
-            self.select_school(school=school)
-
             self.participation_level = participation_level
+
+            self.select_school(school=school)
 
             self.submit_contact_info(participation_level=participation_level)
 
@@ -630,9 +608,9 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
         self.maxDiff = None
         self._test_registration_updates_contact_info(EXECUTIVE_CONTACT_INFO)
 
-    ##############################
-    # participant pays now tests #
-    ##############################
+    #############################
+    # full access pay now tests #
+    #############################
     def test_participant_paying_now_creates_institution(self):
         self.assertTrue(
             self._test_registration_model_mutation(
@@ -669,6 +647,15 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
                 school=self.school_factory(),
                 payment_option=NOW))
 
+    def test_participant_paying_now_creates_subsmissionset(self):
+        self.assertTrue(
+            self._test_registration_model_mutation(
+                participation_level=PARTICIPANT,
+                model=SubmissionSet,
+                difference=(+1),
+                school=self.school_factory(),
+                payment_option=NOW))
+
     def test_participant_paying_now_sets_institution_current_submission(self):
         self.institution.current_submission = None
         self.institution.save()
@@ -679,9 +666,26 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
                       new_registration=True)
         self.assertIsNotNone(self.school)
 
-    ################################
-    # participant pays later tests #
-    ################################
+    def test_emails_sent_for_full_access_paying_now(self):
+        initial_num_outbound_mails = len(mail.outbox)
+
+        self.register(participation_level=PARTICIPANT,
+                      payment_option=LATER)
+
+        self.assertEqual(len(mail.outbox),
+                         initial_num_outbound_mails + 2)
+
+        self.assertItemsEqual(
+            mail.outbox[0].to,
+            [EXECUTIVE_CONTACT_INFO['executive_contact_email']])
+
+        self.assertItemsEqual(
+            mail.outbox[1].to,
+            [CONTACT_INFO['contact_email'], self.user.email])
+
+    ###############################
+    # full access pay later tests #
+    ###############################
     def test_participant_paying_later_creates_institution(self):
         self.assertTrue(
             self._test_registration_model_mutation(
@@ -709,6 +713,15 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
                 school=self.school_factory(),
                 payment_option=LATER))
 
+    def test_participant_paying_later_creates_submissionset(self):
+        self.assertTrue(
+            self._test_registration_model_mutation(
+                participation_level=PARTICIPANT,
+                model=SubmissionSet,
+                difference=(+1),
+                school=self.school_factory(),
+                payment_option=LATER))
+
     def test_participant_paying_later_does_not_create_subscription_payment(
             self):
         self.assertTrue(
@@ -730,39 +743,142 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
                       new_registration=True)
         self.assertIsNotNone(self.school)
 
-    def test_emails_sent_for_participant_paying_later(self):
+    def test_emails_sent_for_full_access_paying_later(self):
         initial_num_outbound_mails = len(mail.outbox)
 
         self.register(participation_level=PARTICIPANT,
                       payment_option=LATER)
 
         self.assertEqual(len(mail.outbox),
-                         initial_num_outbound_mails + 3)
+                         initial_num_outbound_mails + 2)
+
+        self.assertItemsEqual(
+            mail.outbox[0].to,
+            [EXECUTIVE_CONTACT_INFO['executive_contact_email']])
 
         self.assertItemsEqual(
             mail.outbox[1].to,
             [CONTACT_INFO['contact_email'], self.user.email])
 
-        self.assertItemsEqual(
-            mail.outbox[2].to,
-            [EXECUTIVE_CONTACT_INFO['executive_contact_email']])
+    ######################
+    # basic access tests #
+    ######################
+    def test_basic_access_registration_creates_institution(self):
+        self.assertTrue(
+            self._test_registration_model_mutation(
+                participation_level=RESPONDENT,
+                model=Institution,
+                difference=(+1),
+                school=self.school_factory()))
 
-    ####################
-    # respondent tests #
-    ####################
+    def test_basic_access_registration_creates_stars_account(self):
+        self.assertTrue(
+            self._test_registration_model_mutation(
+                participation_level=RESPONDENT,
+                model=StarsAccount,
+                difference=(+1),
+                school=self.school_factory()))
 
-    def test_emails_sent_for_respondent_registration(self):
+    def test_basic_access_registration_creates_submissionset(self):
+        self.assertTrue(
+            self._test_registration_model_mutation(
+                participation_level=RESPONDENT,
+                model=SubmissionSet,
+                difference=(+1),
+                school=self.school_factory()))
+
+    def test_no_emails_sent_for_basic_access_registration(self):
+        """Are any emails sent for Basic Access registration?"""
         initial_num_outbound_mails = len(mail.outbox)
 
         self.register(participation_level=RESPONDENT,
                       new_registration=False)
 
-        self.assertEqual(len(mail.outbox),
-                         initial_num_outbound_mails + 1)
+        self.assertEqual(len(mail.outbox), initial_num_outbound_mails)
 
-        self.assertItemsEqual(
-            mail.outbox[0].to,
-            [CONTACT_INFO['contact_email'], self.user.email])
+    ###################################################
+    # tests of exception handling (i.e., cleaning up) #
+    ###################################################
+    def _set_initial_object_counts(self):
+        self.initial_institutions = Institution.objects.count()
+        self.initial_starsaccounts = StarsAccount.objects.count()
+        self.initial_submissionsets = SubmissionSet.objects.count()
+        self.initial_subscriptions = Subscription.objects.count()
+        self.initial_payments = SubscriptionPayment.objects.count()
+
+    def _initial_object_counts_are_still_correct(self):
+        self.assertEqual(self.initial_institutions,
+                         Institution.objects.count())
+        self.assertEqual(self.initial_starsaccounts,
+                         StarsAccount.objects.count())
+        self.assertEqual(self.initial_submissionsets,
+                         SubmissionSet.objects.count())
+        self.assertEqual(self.initial_subscriptions,
+                         Subscription.objects.count())
+        self.assertEqual(self.initial_payments,
+                         SubscriptionPayment.objects.count())
+
+    def test_invalid_cc_tx_doesnt_create_records(self):
+        """Is the db left untouched when a credit card transaction fails?"""
+        self._set_initial_object_counts()
+
+        self.participation_level = PARTICIPANT
+        self.select_school()
+        self.submit_contact_info(participation_level=PARTICIPANT)
+        self.next_button.click()  # price page
+        self.payment_option = NOW
+        self.credit_card_number = "badcreditcardnumber"
+        self.credit_card_expiration_month = "12"
+        self.credit_card_expiration_year = "2020"
+        self.final_registration_button.click()
+
+        self._initial_object_counts_are_still_correct()
+
+    def _raise_forced_exception(*args, **kwargs):
+        """Stub to raise an exception, for testing exception handling."""
+        raise ForcedException()
+
+    @mock.patch('stars.apps.registration.views.init_starsaccount',
+                _raise_forced_exception)
+    def test_cleanup_for_basic_access_broken_init_starsaccount(self):
+        """If init_starsaccount fails for Basic Access, is mess cleaned up?
+        """
+        self._set_initial_object_counts()
+        self.register(participation_level=RESPONDENT,
+                      new_registration=True)
+        self._initial_object_counts_are_still_correct()
+
+    @mock.patch('stars.apps.registration.views.init_starsaccount',
+                _raise_forced_exception)
+    def test_cleanup_for_full_access_broken_init_starsaccount(self):
+        """If init_starsaccount fails for Full Access, is the mess cleaned up?
+        """
+        self._set_initial_object_counts()
+        self.register(participation_level=PARTICIPANT,
+                      payment_option=Subscription.PAY_LATER,
+                      new_registration=True)
+        self._initial_object_counts_are_still_correct()
+
+    @mock.patch('stars.apps.registration.views.init_submissionset',
+                _raise_forced_exception)
+    def test_cleanup_for_basic_access_broken_init_submissionset(self):
+        """If init_submissionset fails for Basic Access, is mess cleaned up?
+        """
+        self._set_initial_object_counts()
+        self.register(participation_level=RESPONDENT,
+                      new_registration=True)
+        self._initial_object_counts_are_still_correct()
+
+    @mock.patch('stars.apps.registration.views.init_submissionset',
+                _raise_forced_exception)
+    def test_cleanup_for_full_access_broken_init_submissionset(self):
+        """If init_submissionset fails for Full Access, is the mess cleaned up?
+        """
+        self._set_initial_object_counts()
+        self.register(participation_level=PARTICIPANT,
+                      payment_option=Subscription.PAY_LATER,
+                      new_registration=True)
+        self._initial_object_counts_are_still_correct()
 
 
 class SurveyViewTest(InstitutionAdminToolMixinTest):
