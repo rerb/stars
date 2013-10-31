@@ -204,6 +204,6 @@ class StarsLiveServerTest(LiveServerTestCase):
         log_out_link.click()
 
     def go_to_reporting_tool(self):
-        reporting_tool_tab = self.patiently_find(look_for='Reporting',
+        reporting_tool_tab = self.patiently_find(look_for='Reporting Tool',
                                                  by=By.LINK_TEXT)
         reporting_tool_tab.click()
