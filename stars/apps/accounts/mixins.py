@@ -4,16 +4,12 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponseRedirect, HttpResponseForbidden, \
-     HttpResponseNotFound, Http404
+from django.http import HttpResponseRedirect
 from django.utils.decorators import method_decorator
 from django.utils.http import urlquote
 
-from stars.apps.institutions.models import StarsAccount, Institution
-from stars.apps.institutions.rules import user_has_access_level, \
-     institution_has_export
+from stars.apps.institutions.models import StarsAccount
 
-from aashe.aasheauth.models import AASHEUser
 
 logger = getLogger('stars.request')
 
