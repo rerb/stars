@@ -33,32 +33,26 @@ class TestStructure(TestCase):
 
         menu = view.get_creditset_nav()
         test_menu = [
-                        {
-                            'url': u'/test/TC/',
-                            'selected': False,
-                            'id': 1,
-                            'title': u'Test Category',
-                            'subcategories':
-                                [
-                                    {
-                                        'tier2': [],
-                                        'title': u'Test Subcategory',
-                                        'url': u'/test/TC/test-subcategory/',
-                                        'selected': False,
-                                        'credits':
-                                            [
-                                                {
-                                                    'url': u'/test/TC/test-subcategory/1/',
-                                                    'selected': False,
-                                                    'id': 1,
-                                                    'title': u'ID?: Test Credit'
-                                                }
-                                             ],
-                                        'id': 1
-                                    }
-                                 ]
-                        }
-                    ]
+            {
+                'bookmark': u'/test/TC/',
+                'attrs': {'id': 1},
+                'children': [
+                    {
+                        'bookmark': u'/test/TC/test-subcategory/',
+                        'attrs': {'id': 1},
+                        'children': [
+                            {
+                                'url': u'/test/TC/test-subcategory/1/',
+                                'attrs': {'id': 1},
+                                'title': u'C1: Test Credit'
+                            }
+                        ],
+                        'title': u'Test Subcategory'
+                    }
+                ],
+                'title': u'Test Category'
+            }
+        ]
         self.assertEqual(menu, test_menu)
 
         # try a bogus category
@@ -82,36 +76,24 @@ class TestStructure(TestCase):
 
         menu = view.get_creditset_nav()
         test_menu = [
-                        {
-                            'url': u'/test/TC/',
-                            'selected': True,
-                            'id': 1,
-                            'title': u'Test Category',
-                            'subcategories':
-                                [
-                                    {
-                                        'tier2': [],
-                                        'title': u'Test Subcategory',
-                                        'url': u'/test/TC/test-subcategory/',
-                                        'selected': False,
-                                        'credits':
-                                            [
-                                                {
-                                                    'url': u'/test/TC/test-subcategory/1/',
-                                                    'selected': False,
-                                                    'id': 1,
-                                                    'title': u'ID?: Test Credit'
-                                                }
-                                             ],
-                                        'id': 1
-                                    }
-                                 ]
-                        }
-                    ]
+            {
+                'bookmark': u'/test/TC/',
+                'attrs': {'id': 1},
+                'children': [
+                    {
+                        'bookmark': u'/test/TC/test-subcategory/',
+                        'attrs': {'id': 1},
+                        'children': [
+                            {
+                                'url': u'/test/TC/test-subcategory/1/',
+                                'attrs': {'id': 1},
+                                'title': u'C1: Test Credit'
+                            }
+                        ],
+                        'title': u'Test Subcategory'
+                    }
+                ],
+                'title': u'Test Category'
+            }
+        ]
         self.assertEqual(menu, test_menu)
-
-        kwargs['subcategory_slug'] = 'test-subcategory'
-        kwargs['credit_number'] = 1
-        kwargs['field_id'] = 1
-
-        _context = view.get_context_data(**kwargs)
