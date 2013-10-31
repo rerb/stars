@@ -14,8 +14,7 @@ class HelpTagsTest(TestCase):
     def test_show_help_text_as_tooltip(self):
         context = help.show_help_text(self.TEST_HELP_TEXT)
         self.assertTrue(context['tooltip'])
-        self.assertEqual(context['help_text'],
-                         self.TEST_HELP_TEXT.replace("'", "\&#39;"))
+        self.assertEqual(context['help_text'], self.TEST_HELP_TEXT)
 
     def test_show_help_context_as_inline(self):
         context = help.show_help_context("test", False)

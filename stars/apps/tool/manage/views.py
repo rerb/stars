@@ -28,7 +28,7 @@ from stars.apps.submissions.tasks import (perform_migration,
                                           perform_data_migration)
 from stars.apps.third_parties.tasks import build_csv_export, build_pdf_export
 from stars.apps.third_parties.models import ThirdParty
-from stars.apps.tool.manage.forms import (AccountForm, AdminInstitutionForm,
+from stars.apps.tool.manage.forms import (AccountForm,
                                           InstitutionPreferences,
                                           MigrateSubmissionSetForm,
                                           NotifyUsersForm,

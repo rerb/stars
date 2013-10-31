@@ -6,4 +6,4 @@ from views import (CreditHistoryViewTest,
                    CreditNotesViewTest,
                    EditBoundaryViewTest,
                    SubmissionSummaryViewTest)
-from credit_history import *
+from credit_history import GetSubmissionsetsToIncludeInHistoryTest

@@ -40,7 +40,7 @@ class CreditTest(TestCase):
         self.assertTrue(log.records[0].exc_info)
 
     def test_execute_validation_rules_logging(self):
-        """Does execute_validation_rules log an exception when on is raised?
+        """Does execute_validation_rules log an exception when one is raised?
         """
         mcredit = MockCredit()
         with testfixtures.LogCapture('stars') as log:
@@ -75,3 +75,6 @@ class MockCredit(Credit):
 class MockSubmission(object):
     def get_submission_field_key(self):
         return None
+
+    def get_available_points(self, *args, **kwargs):
+        return 10

@@ -49,22 +49,6 @@ class RatingTest(TestCase):
             '2-president_zip': '12345',
             '2-confirm': 'on'}
 
-    def test_missing_boundary(self):
-        """
-            If there is no boundary associated with the submission then
-            the user should be forwarded to the boundary page
-        """
-        print " - testing Missing Boundary"
-
-        self.ss.boundary.submissionset_id = 2
-        self.ss.boundary.save()
-
-        c = Client()
-        c.login(username='test_user', password='test')
-
-        response = c.get(self.url)
-        self.assertEqual(response.status_code, 302)
-
     def test_process(self):
 
         print " - testing process"
