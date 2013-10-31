@@ -88,8 +88,8 @@ fi
 if [ $RUN_COVERAGE ]
 then
     # Should set --source parameter based on $TESTS_TO_RUN.
-    coverage run --source=stars/apps/submissions/newapi,stars/apps/credits/api,stars/apps/institutions/api bin/django test ${TESTS_TO_RUN}
+    coverage run --source=stars/apps/submissions/newapi,stars/apps/credits/api,stars/apps/institutions/api ./manage.py test ${TESTS_TO_RUN}
     coverage html --omit="*/test.py" -d api-coverage-report
 else
-    bin/django test ${TESTS_TO_RUN}
+    ./manage.py test ${TESTS_TO_RUN}
 fi
