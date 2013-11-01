@@ -153,8 +153,10 @@ def migrate_submission(old_ss, new_ss, keep_status=False):
         Note: don't migrate IN data if the previous submission was rated
     """
     # if the old SubmissionSet hasn't been initialized we don't have
-    # to do anything
+    # to do much:
     if old_ss.categorysubmission_set.count() == 0:
+        new_ss.migrated_from = old_ss
+        new_ss.save()
         return new_ss
 
     # check if we can migrate innovation data
