@@ -13,9 +13,7 @@ from fixtures import FixturesTest
 
 from categorysubmission import CategorySubmissionTest
 from creditsubmission import CreditSubmissionTest
-from creditusersubmission import CreditUserSubmissionTest
 from choicewithothersubmission import ChoiceWithOtherSubmissionTest
-from documentationfieldsubmission import DocumentationFieldSubmissionTest
 from multichoicewithothersubmission import MultiChoiceWithOtherSubmissionTest
 from responsibleparty import ResponsiblePartyTest
 from submissionset import SubmissionSetTest
