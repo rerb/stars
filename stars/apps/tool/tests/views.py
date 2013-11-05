@@ -129,12 +129,14 @@ class UserCanEditSubmissionMixinTest(ProtectedViewTest):
     def test_get_succeeds(self, **kwargs):
         super(UserCanEditSubmissionMixinTest, self).test_get_succeeds(
             institution_slug=self.institution.slug,
-            submissionset=str(self.submission.id))
+            submissionset=str(self.submission.id),
+            **kwargs)
 
     def test_get_is_blocked(self, **kwargs):
         super(UserCanEditSubmissionMixinTest, self).test_get_is_blocked(
             institution_slug=self.institution.slug,
-            submissionset=str(self.submission.id))
+            submissionset=str(self.submission.id),
+            **kwargs)
 
 
 class SubmissionSetIsNotLockedMixinTest(ProtectedViewTest):
