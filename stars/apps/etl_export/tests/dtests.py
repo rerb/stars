@@ -148,9 +148,11 @@ class TestETL(TestCase):
         # Now make sure it deletes an object when it doesn't exist
         etl_to_del = etl_export.models.Institution()
         etl_to_del.populate(i)
-        etl_to_del.id = 2
+        etl_to_del.id = 200
         etl_to_del.save()
 
-        self.assertEqual(etl_export.models.Institution.objects.count(), 2)
+        self.assertIsNone(etl_to_del.delete_date)
         etl_export.models.Institution.etl_run_update()
-        self.assertEqual(etl_export.models.Institution.objects.count(), 1)
+        etl_to_del = etl_export.models.Institution.objects.get(
+            pk=etl_to_del.pk)
+        self.assertIsNotNone(etl_to_del.delete_date)
