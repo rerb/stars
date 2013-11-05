@@ -52,6 +52,7 @@ class Institution(ETLCompareMixin):
 
     # for ETLCompareMixin
     etl_source_class = institutions.models.Institution
+    etl_exclude_fields = ['change_date']
 
     def __str__(self):
         return "%d" % self.aashe_id
