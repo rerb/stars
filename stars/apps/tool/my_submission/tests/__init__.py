@@ -7,3 +7,4 @@ from views import (CreditHistoryViewTest,
                    EditBoundaryViewTest,
                    SubmissionSummaryViewTest)
 from credit_history import *
+from value_error import ValueErrorTest
