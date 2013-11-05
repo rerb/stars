@@ -4,7 +4,7 @@ from models import (Institution, StarsAccount,
                     PendingAccount, Subscription,
                     SubscriptionPayment, RegistrationReason,
                     RegistrationSurvey, RespondentRegistrationReason,
-                    RespondentSurvey, ClimateZone)
+                    RespondentSurvey, ClimateZone, MigrationHistory)
 from stars.apps.submissions.models import RATED_SUBMISSION_STATUS
 from stars.apps.credits.models import Rating
 
@@ -77,3 +77,16 @@ admin.site.register(RespondentSurvey, RespondentSurveyAdmin)
 class ClimateZoneAdmin(admin.ModelAdmin):
     pass
 admin.site.register(ClimateZone, ClimateZoneAdmin)
+
+
+class MigrationHistoryAdmin(admin.ModelAdmin):
+    list_display = ('institution', 'date', 'source_ss', 'target_ss')
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super(MigrationHistoryAdmin, self).get_form(request, obj, **kwargs)
+        if obj:
+            qs = obj.institution.submissionset_set.all()
+            form.base_fields['source_ss'].queryset = qs
+            form.base_fields['target_ss'].queryset = qs
+        return form
+admin.site.register(MigrationHistory, MigrationHistoryAdmin)

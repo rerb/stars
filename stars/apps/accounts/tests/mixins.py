@@ -9,9 +9,7 @@ from django.contrib import messages
 from django.contrib.messages.middleware import MessageMiddleware
 from django.http import HttpRequest
 from django.shortcuts import render
-import testfixtures
 
-from stars.apps.institutions.models import Institution
 from stars.apps.accounts import mixins
 
 
@@ -59,16 +57,3 @@ class StarsMixinTest(MixinTestCase):
         self.assertTrue(MESSAGE in info_message_divs[0].text)
 
 
-class AccountMixinTest(MixinTestCase):
-
-    def test_get_account_problem_response_no_selected_inst(self):
-        """Does get_account_problem_response show a msg if no inst is picked?
-        """
-        mixins.AccountMixin().get_account_problem_response(self.request)
-        response = render(self.request, 'base.html')
-        soup = BeautifulSoup(response.content)
-        info_message_divs = soup.find_all(
-            'div',
-            {'class': settings.MESSAGE_TAGS[messages.INFO]})
-        self.assertEqual(len(info_message_divs), 1)
-        self.assertTrue('need to select an inst' in info_message_divs[0].text)

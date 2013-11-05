@@ -355,15 +355,18 @@ class CreditHistoryView(UserCanEditSubmissionMixin,
     def get_history(self):
         history = credit_history.get_credit_submission_history(
             credit_submission=self.get_creditsubmission())
-        return history or []
+        return history
 
     def get_context_data(self, *args, **kwargs):
         context = super(CreditHistoryView, self).get_context_data(
             *args, **kwargs)
         history = self.get_history()
         context['history'] = history
-        all_documentation_field_submissions = reduce(chain,
-                                                     history.values())
+        if history:
+            all_documentation_field_submissions = reduce(chain,
+                                                         history.values())
+        else:
+            all_documentation_field_submissions = []
         context['exportable_submissionsets'] = set(
             [ history_.doc_field_sub.get_submissionset() for history_
               in all_documentation_field_submissions ])

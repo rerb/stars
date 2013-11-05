@@ -315,6 +315,7 @@ class SubscriptionPurchaseWizard(SessionWizardView):
             self.subscription_purchase_outcome = FAILURE
             if just_created_an_institution:
                 institution.delete()
+            return FAILURE
         except Exception:
             if just_created_an_institution:
                 institution.delete()
@@ -327,6 +328,7 @@ class SubscriptionPurchaseWizard(SessionWizardView):
                           {start} to {finish}.""".format(
                               start=subscription.start_date,
                               finish=subscription.end_date))
+            return SUCCESS
 
     def get_exp_date(self, form):
         """

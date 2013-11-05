@@ -1,6 +1,7 @@
 import datetime
 import time
 
+from django.template.defaultfilters import slugify
 import factory
 
 from stars.apps.credits.models import (ApplicabilityReason,
@@ -8,7 +9,6 @@ from stars.apps.credits.models import (ApplicabilityReason,
                                        Credit,
                                        CreditSet,
                                        DocumentationField,
-                                       IncrementalFeature,
                                        Rating,
                                        Subcategory,
                                        Unit)
@@ -26,12 +26,19 @@ class CategoryFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Category
 
     creditset = factory.SubFactory(CreditSetFactory)
+    title = factory.Sequence(
+        lambda i: 'Category-{0}.{1}'.format(i, time.time()))
+    abbreviation = factory.Sequence(
+        lambda i: 'C' + str(i))
 
 
 class SubcategoryFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Subcategory
 
     category = factory.SubFactory(CategoryFactory)
+    title = factory.Sequence(
+        lambda i: 'Subcategory-{0}.{1}'.format(i, time.time()))
+    slug = factory.LazyAttribute(lambda obj: slugify(obj.title))
 
 
 class CreditFactory(factory.DjangoModelFactory):
@@ -39,6 +46,8 @@ class CreditFactory(factory.DjangoModelFactory):
 
     subcategory = factory.SubFactory(SubcategoryFactory)
     point_value = 1
+    identifier = factory.Sequence(
+        lambda i: 'Credit-{0}.{1}'.format(i, time.time()))
 
 
 class UnitFactory(factory.DjangoModelFactory):

@@ -1381,69 +1381,6 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
             return 0
         return self.get_available_points()
 
-    def get_documentation_fields(self):
-        """Returns the DocumentationFields related to this CreditSubmission.
-        """
-        return [documentation_field_submission.documentation_field for
-                documentation_field_submission in
-                self.get_submission_fields()]
-
-    def get_documentation_field_submissions(self):
-        """Returns the DocumentationFieldSubmissions for all versions of all
-        the DocumentationFields of this CreditSubmission.
-        """
-        documentation_field_submissions = []
-
-        for documentation_field in self.get_documentation_fields():
-
-            for version_of_documentation_field in (
-                    documentation_field.get_all_versions()):
-
-                documentation_field_submissions_for_this_version = (
-                    DocumentationFieldSubmission.objects.for_documentation_field(
-                        documentation_field,
-                        institution=self.get_institution()))
-
-                for documentation_field_submission in (
-                        documentation_field_submissions_for_this_version):
-                    documentation_field_submissions.append(
-                        documentation_field_submission)
-
-        return documentation_field_submissions
-
-    def get_rated_documentation_field_submissions(self):
-        """Returns the rated DocumentationFieldSubmissions for all
-           versions of all the DocumentationFields of this
-           CreditSubmission.
-        """
-        documentation_field_submissions = (
-            self.get_documentation_field_submissions())
-
-        rated_documentation_field_submissions = [
-            dfs for dfs in documentation_field_submissions if
-            dfs.get_submissionset().status == RATED_SUBMISSION_STATUS ]
-
-        return rated_documentation_field_submissions
-
-    def get_rated_historical_documentation_field_submissions(self):
-        """Returns a set of rated DocumentationFieldSubmissions for all
-           versions of all the DocumentationFields of this CreditSubmission
-           that were submitted before the DocumentationFieldSubmissions
-           attached to this CreditSubmission.
-
-           Assumes this CreditSubmission is the latest one, e.g., that
-           all DocumentFieldSubmissions for this CreditSubmission
-           other than ones for this CreditSubmission are history.
-        """
-        rated_documentation_field_submissions = set(
-            self.get_rated_documentation_field_submissions())
-        documentation_fields_for_this_credit_submission = set(
-            self.get_documentation_fields())
-        return [ documentation_field_submission
-                 for document_field_submission
-                 in rated_documentation_field_submissions 
-                 if document_field_submission.credit_submission is not self ]
-
     def _calculate_points(self):
         """ Helper: returns the number of points calculated for this
         submission"""
@@ -1679,52 +1616,6 @@ class ReportingFieldDataCorrection(models.Model):
     explanation = models.TextField(blank=True, null=True)
 
 
-class DocumentationFieldSubmissionManager(models.Manager):
-
-    def for_documentation_field(self,
-                                documentation_field,
-                                institution=None):
-        """Returns the DocumentationFieldSubmissions for
-        DocumentationField `documentation_field`, optionally
-        filtered by Institution `institution`.
-        """
-        target_credit = documentation_field.credit
-        target_subcategory = target_credit.subcategory
-        target_category = target_subcategory.category
-        target_creditset = target_category.creditset
-
-        submission_sets = SubmissionSet.objects.filter(
-            creditset=target_creditset)
-        if institution:
-            submission_sets = submission_sets.filter(institution=institution)
-
-        if not submission_sets.exists():
-            return None
-
-        submission_set = submission_sets.reverse()[0]
-
-        category_submission = submission_set.categorysubmission_set.get(
-            category=target_category)
-        subcategory_submission = (
-            category_submission.subcategorysubmission_set.get(
-                subcategory=target_subcategory))
-        credit_submission = subcategory_submission.creditusersubmission_set.get(
-            credit=target_credit)
-
-        documentation_field_submissions = []
-
-        for documentation_field_submission in (
-                credit_submission.get_submission_fields()):
-
-            if (documentation_field_submission.documentation_field ==
-                documentation_field):
-
-                documentation_field_submissions.append(
-                    documentation_field_submission)
-
-        return documentation_field_submissions
-
-
 class DocumentationFieldSubmission(models.Model, FlaggableModel):
     """
         The submitted value for a documentation field (abstract).
@@ -1735,7 +1626,6 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
     corrections = generic.GenericRelation(ReportingFieldDataCorrection,
                                           content_type_field='content_type',
                                           object_id_field='object_id')
-    objects = DocumentationFieldSubmissionManager()
 
     class Meta:
         abstract = True
@@ -1863,25 +1753,6 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
     def get_correction_url(self):
         return "%s%d/" % (self.credit_submission.get_scorecard_url(),
                           self.documentation_field.id)
-
-    def get_migrated_value(self):
-        """ Returns the value that was copied into this
-            DocumentFieldSubmission when this SubmissionSet
-            was migrated -- if that happened.
-        """
-        previous_documentation_field = (
-            self.documentation_field.previous_version)
-        if previous_documentation_field:
-            submissionset = self.get_submissionset()            
-            institution = submissionset.institution
-            previous_documentation_field_submissions = (
-                self.objects.for_documentation_field(
-                    documentation_field=previous_documentation_field,
-                    institution=instituion))
-            for prev_doc_fld_sub in previous_documentation_field_submissions:
-                if prev_doc_field_sub.documentation_field == prev_doc_fld_sub:
-                    return prev_doc_fld_sub.get_value()
-        return None
 
 
 class AbstractChoiceSubmission(DocumentationFieldSubmission):

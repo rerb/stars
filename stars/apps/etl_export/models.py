@@ -2,8 +2,6 @@ from datetime import datetime, timedelta
 
 from django.db import models
 from django.contrib.localflavor.us.models import PhoneNumberField
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes import generic
 from django.db.models import Max
 
 from stars.apps.institutions.models import RATINGS_PER_SUBSCRIPTION
@@ -54,6 +52,7 @@ class Institution(ETLCompareMixin):
 
     # for ETLCompareMixin
     etl_source_class = institutions.models.Institution
+    etl_exclude_fields = ['change_date']
 
     def __str__(self):
         return "%d" % self.aashe_id

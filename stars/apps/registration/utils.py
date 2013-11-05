@@ -1,9 +1,8 @@
-from stars.apps.institutions.models import Subscription, StarsAccount
+from stars.apps.institutions.models import StarsAccount
 from stars.apps.submissions.models import SubmissionSet
 from stars.apps.credits.models import CreditSet
 
-import re
-from datetime import date, timedelta
+from datetime import date
 
 
 def init_starsaccount(user, institution):

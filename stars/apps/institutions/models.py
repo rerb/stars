@@ -1,7 +1,5 @@
 from datetime import date, timedelta
 from logging import getLogger
-from datetime import date, timedelta
-from logging import getLogger
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -780,11 +778,20 @@ class Subscription(models.Model):
             self._send_email(slug=exec_slug, mail_to=exec_mail_to,
                              context=exec_email_context)
 
+    def _send_post_purchase_welcome_executive_email(self):
+        if self.institution.executive_contact_email:
+            exec_mail_to = [self.institution.executive_contact_email,]
+            exec_slug = 'welcome_exec'
+            exec_email_context = {'institution': self.institution}
+            self._send_email(slug=exec_slug, mail_to=exec_mail_to,
+                             context=exec_email_context)
+
     def _send_post_purchase_pay_later_email(self, mail_to):
         if self.is_renewal():
             slug = "reg_renewal_unpaid"
         else:
             slug = "welcome_liaison_unpaid"
+            self._send_post_purchase_welcome_executive_email()
         email_context = {'price': self.amount_due}
         self._send_email(slug=slug, mail_to=mail_to, context=email_context)
 
@@ -794,6 +801,7 @@ class Subscription(models.Model):
             self._send_post_purchase_executive_renewal_email()
         else:
             slug = 'welcome_liaison_paid'
+            self._send_post_purchase_welcome_executive_email()
         email_context = {'institution': self.institution,
                          'payment': subscription_payment}
         self._send_email(slug=slug, mail_to=mail_to, context=email_context)

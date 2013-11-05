@@ -1,13 +1,7 @@
 """
     Submission Migration unit tests
-
-    Test Premises:
-     - Migrate from 1.0 to 1.1 w/out data
-     - Migrate from 1.0 to 1.1 w/ data
-     - Don't migrate 1.1 to 1.1
-
 """
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from django.core import mail
 from django.test import TestCase
@@ -22,7 +16,7 @@ from stars.test_factories import (CreditSetFactory,
 
 def go_to_migration_options_page(test, webdriver):
     test.go_to_reporting_tool()
-    migrate_tab = webdriver.find_element_by_link_text('Migrate')
+    migrate_tab = webdriver.find_element_by_link_text('Manage Data')
     migrate_tab.click()
 
 
@@ -54,7 +48,7 @@ class VersionMigrationTest(TestCase):
 
         _ = utils.migrate_submission(old_ss=self.submissionset,
                                      new_ss=new_submissionset)
-
+        
         self.assertEqual(new_submissionset.migrated_from,
                          self.submissionset)
 
@@ -75,16 +69,22 @@ class VersionMigrationLiveServerTest(StarsLiveServerTest):
         num_submission_sets_before = SubmissionSet.objects.count()
 
         migrate_now_button = self.selenium.find_element_by_link_text(
-            'Migrate Now')
+            'Upgrade Now')
         migrate_now_button.click()
 
         are_you_sure_checkbox = self.selenium.find_element_by_id(
             'id_is_locked')
         are_you_sure_checkbox.click()
 
-        migrate_version_button = self.selenium.find_element_by_css_selector(
-            'button.btn.btn-success')
-        migrate_version_button.click()
+        upgrade_version_button = None
+        for button in self.selenium.find_elements_by_tag_name('button'):
+            if button.text == 'Upgrade Version':
+                upgrade_version_button = button
+                break
+        self.assertIsNotNone(upgrade_version_button,
+                             'Can\'t find Upgrade Version button.')
+        
+        upgrade_version_button.click()
 
         # SubmissionSet added?
         self.assertEqual(SubmissionSet.objects.count(),

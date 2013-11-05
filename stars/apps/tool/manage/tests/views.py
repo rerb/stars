@@ -438,8 +438,8 @@ class MigrateViewTest(InstitutionAdminToolMixinTest):
     # Each subclass protects itself with a rule that must be True before
     # access is granted.  That's called 'gatekeeper_aashe_rule' here:
     gatekeeper_aashe_rule = None
-    # Name of the function that actually starts the migration:
-    migration_function_name = None
+    # Name of the task that actually starts the migration:
+    migration_task_name = None
 
     def setUp(self):
         super(MigrateViewTest, self).setUp()
@@ -479,6 +479,11 @@ class MigrateViewTest(InstitutionAdminToolMixinTest):
         self.request.method = 'POST'
         self.request.POST = {'is_locked': True}
 
+
+        class migrationTask(object):
+            def delay(self, *args, **kwargs):
+                return 1 / 0
+
         with testfixtures.Replacer() as r:
             self.open_gate()
             # stub out the migration function with a lambda that'll
@@ -486,8 +491,8 @@ class MigrateViewTest(InstitutionAdminToolMixinTest):
             # see if that error's raised when the migration
             # function should be called.
             r.replace('stars.apps.tool.manage.views.' +
-                      self.migration_function_name,
-                      lambda *args: 1/0)
+                      self.migration_task_name,
+                      migrationTask())
             self.assertRaises(ZeroDivisionError,
                               self.view_class.as_view(),
                               self.request,
@@ -499,14 +504,14 @@ class MigrateDataViewTest(MigrateViewTest):
 
     view_class = views.MigrateDataView
     gatekeeper_aashe_rule = 'user_can_migrate_from_submission'
-    migration_function_name = 'perform_data_migration.delay'
+    migration_task_name = 'perform_data_migration'
 
 
 class MigrateVersionViewTest(MigrateViewTest):
 
     view_class = views.MigrateVersionView
     gatekeeper_aashe_rule = 'user_can_migrate_version'
-    migration_function_name = 'perform_migration.delay'
+    migration_task_name = 'perform_migration'
 
     def test_dispatch_prevents_migration_when_already_at_latest_version(self):
         """Does dispatch prevent migration if current sub is at latest version?
@@ -548,7 +553,7 @@ class SubscriptionCreateWizardLiveServerTest(StarsLiveServerTest):
     @property
     def purchase_subscription_button(self):
         purchase_subscription_button = self.patiently_find(
-            look_for='Purchase STARS Participant Subscription',
+            look_for='Purchase STARS Full Access Subscription',
             by=By.LINK_TEXT)
         return purchase_subscription_button
 
@@ -601,9 +606,6 @@ class SubscriptionCreateWizardLiveServerTest(StarsLiveServerTest):
     def click_purchase_subscription_button(self):
         self.go_to_reporting_tool()
         self.purchase_subscription_button.click()
-
-    def test_get_is_blocked(self):
-        raise NotImplementedError
 
     def test_amount_due_gets_commas(self):
         """Does amount due show commas if > $999?"""
