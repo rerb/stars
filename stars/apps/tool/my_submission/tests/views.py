@@ -1,6 +1,5 @@
 """Tests for apps.tool.my_submission.views.
 """
-from stars.apps.submissions import models as submissions_models
 from stars.apps.tool.my_submission import views
 from stars.apps.tool.tests.views import (InstitutionToolMixinTest,
                                          UserCanEditSubmissionMixinTest)
@@ -64,27 +63,22 @@ class CreditHistoryViewTest(UserCanEditSubmissionMixinTest):
     def setUp(self, *args, **kwargs):
         super(CreditHistoryViewTest, self).setUp(*args, **kwargs)
         
-        self.institution_slug = self.institution.slug
-
-        submissionset = SubmissionSetFactory(
-            institution=self.institution,
-            status=submissions_models.RATED_SUBMISSION_STATUS)
-
-        self.submissionset_id = str(submissionset.id)
-
-        category = CategoryFactory()
+        category = CategoryFactory(creditset=self.submission.creditset)
+        category.save()
         category_submission = CategorySubmissionFactory(
             category=category,
-            submissionset=submissionset)
+            submissionset=self.submission)
         self.category_abbreviation = category.abbreviation
 
-        subcategory = SubcategoryFactory()
+        subcategory = SubcategoryFactory(category=category)
+        subcategory.save()
         subcategory_submission = SubcategorySubmissionFactory(
             subcategory=subcategory,
             category_submission=category_submission)
         self.subcategory_slug = subcategory.slug
 
-        credit = CreditFactory()
+        credit = CreditFactory(subcategory=subcategory)
+        credit.save()
         credit_submission = CreditUserSubmissionFactory(
             credit=credit,
             subcategory_submission=subcategory_submission)
@@ -93,22 +87,21 @@ class CreditHistoryViewTest(UserCanEditSubmissionMixinTest):
         # Some history to show:
         documentation_field = DocumentationFieldFactory(
             credit=credit)
+        documentation_field.save()
         documentation_field_submission = DocumentationFieldSubmissionFactory(
             documentation_field=documentation_field,
             credit_submission=credit_submission)
 
+        documentation_field_submission.save()
+
     def test_get_succeeds(self, **kwargs):
-        super(UserCanEditSubmissionMixinTest, self).test_get_succeeds(
-            institution_slug=self.institution_slug,
-            submissionset=self.submissionset_id,
+        super(CreditHistoryViewTest, self).test_get_succeeds(
             category_abbreviation=self.category_abbreviation,
             subcategory_slug=self.subcategory_slug,
             credit_identifier=self.credit_identifier)
 
     def test_get_is_blocked(self, **kwargs):
-        super(UserCanEditSubmissionMixinTest, self).test_get_is_blocked(
-            institution_slug=self.institution_slug,
-            submissionset=self.submissionset_id,
+        super(CreditHistoryViewTest, self).test_get_is_blocked(
             category_abbreviation=self.category_abbreviation,
             subcategory_slug=self.subcategory_slug,
             credit_identifier=self.credit_identifier)
