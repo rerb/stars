@@ -100,8 +100,14 @@ def perform_migration(old_ss, new_cs, user):
 def perform_data_migration(old_ss, user):
     """
         Just duplicates a submission and archives the old one
+
+        A data migration pulls in data but doesn't use the latest creditset,
+        it simply keeps the current creditset.
     """
-    new_ss = create_ss_mirror(old_ss, registering_user=user)
+    new_ss = create_ss_mirror(
+        old_ss,
+        new_cs=old_ss.institution.current_submission.creditset,
+        registering_user=user)
     new_ss.is_locked = False
     new_ss.save()
 
