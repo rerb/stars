@@ -21,7 +21,7 @@
 		<div class='span8'>
 			{% display_block_content 'migrate_base' user %}
 		</div>
-		<div class='span4'>
+		<div class='span3'>
 			<h3>Version Upgrade</h3>
 			<p>Upgrade Submission to <strong>{{ latest_creditset }}</strong>.</p>
 			{% if active_submission.creditset != latest_creditset %}
@@ -36,7 +36,7 @@
 				</div>
 			{% endif %}
 		</div>
-		<div class='span4 offset1'>
+		<div class='span5 offset1'>
 			<h3>Data Migration</h3>
 			<p>Pull data from previous Reports.</p>
 			{% testrule user_can_migrate_data user active_submission.institution %}
@@ -46,6 +46,7 @@
 							<tr>
 								<th>Date</th>
 								<th>Type</th>
+								<th>Version</th>
 								<th></th>
 							</tr>
 						</thead>
@@ -67,6 +68,9 @@
 									{% else %}
 										Unpublished
 									{% endif %}{% endif %}
+								</td>
+								<td>
+									{{ sub.creditset }}
 								</td>
 								<td>
 									<a href="{% url migrate-data institution.slug sub.id %}" class='btn btn-mini'>
