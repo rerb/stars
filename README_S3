@@ -1,0 +1,40 @@
+We are using django-s3-folder-storage to handle our media on Amazon's S3
+
+https://github.com/jamstooks/django-s3-folder-storage 
+
+Environment Variables
+---------------------
+
+USE_S3
+AWS_ACCESS_KEY_ID
+AWS_SECRET_ACCESS_KEY
+AWS_STORAGE_BUCKET_NAME
+
+Getting Started
+---------------
+
+You need to move all the static files from the codebase to the bucket:
+
+> ./manage.py collectstatic
+
+If that doesn't work, check your enivornment variables and ensure you have permission to access the bucket.
+
+The best way to initially populate the uploaded media from another system is to use `s3cmd`. Here's an example:
+
+> s3cmd sync secure s3://<bucket_name>/media/
+
+I did this also for seals and cache.
+
+Note, you need to run s3cmd --configure the first time, to get it set up.
+
+Troubleshooting
+---------------
+
+If you run into `Access-Control-Allow-Origin` errors, try:
+
+http://aws.typepad.com/aws/2012/08/amazon-s3-cross-origin-resource-sharing.html
+
+Local Development
+-----------------
+
+If you want to work locally, just don't set the `USE_S3` environment variable and set `MEDIA_ROOT` and you'll be good to go.
