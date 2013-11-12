@@ -297,7 +297,7 @@ class SubmissionSet(models.Model, FlaggableModel):
             the STARS score.
         """
         if (self.reporter_status or
-            self.status == 'f' or
+            self.status == FINALIZED_SUBMISSION_STATUS or
             self.institution.international):
             return self.creditset.rating_set.get(name='Reporter')
 
