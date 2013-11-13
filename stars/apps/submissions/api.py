@@ -82,11 +82,11 @@ class SummaryPieChart(Resource, SliceMixin):
 
         scores = {}
 
-        for ss in SubmissionSet.objects.get_rated():
+        for ss in SubmissionSet.objects.get_rated().filter(creditset__id__lte=5):
             if ss.rating.publish_score:
                 for cat in ss.categorysubmission_set.order_by('category__ordinal').filter(category__include_in_score=True):
                     # @todo: exclude supplemental
-                    latest = cat.category.get_latest_version()
+                    latest = cat.category
                     if cat.category.abbreviation in scores.keys():
                         if cat.score == None:
                             pass
