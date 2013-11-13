@@ -18,7 +18,9 @@ from django.core.cache import cache
 from stars.apps.credits.models import (CreditSet, Category, Subcategory,
                                        Credit, DocumentationField, Choice,
                                        ApplicabilityReason, Rating)
-from stars.apps.institutions.models import Institution, ClimateZone
+from stars.apps.institutions.models import (BASIC_ACCESS,
+                                            ClimateZone,
+                                            Institution)
 from stars.apps.submissions.export.pdf import build_report_pdf
 from stars.apps.notifications.models import EmailTemplate
 
@@ -298,7 +300,9 @@ class SubmissionSet(models.Model, FlaggableModel):
         """
         if (self.reporter_status or
             self.status == FINALIZED_SUBMISSION_STATUS or
-            self.institution.international):
+            self.institution.international or
+            self.institution.access_level == BASIC_ACCESS):
+
             return self.creditset.rating_set.get(name='Reporter')
 
         if self.is_rated() and not recalculate:
@@ -507,7 +511,7 @@ class SubmissionSet(models.Model, FlaggableModel):
                                    creditset=CreditSet.objects.get_latest(),
                                    registering_user=user,
                                    date_registered=date.today(),
-                                   status='ps')
+                                   status=PENDING_SUBMISSION_STATUS)
             new_ss.save()
             self.institution.current_submission = new_ss
             self.institution.save()
