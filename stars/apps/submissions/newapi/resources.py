@@ -9,15 +9,24 @@ from tastypie.utils import trailing_slash
 from tastypie.http import HttpGone, HttpMultipleChoices, HttpMethodNotAllowed
 
 from stars.apps.credits.models import Category, Credit, Subcategory
-from stars.apps.submissions.models import SubmissionSet, CategorySubmission, \
-     SubcategorySubmission, CreditUserSubmission, NumericSubmission, \
-     TextSubmission, LongTextSubmission, URLSubmission, DateSubmission, \
-     UploadSubmission, BooleanSubmission, ChoiceSubmission, \
-     MultiChoiceSubmission
+from stars.apps.submissions.models import (BooleanSubmission,
+                                           CategorySubmission,
+                                           ChoiceSubmission,
+                                           CreditUserSubmission,
+                                           DateSubmission,
+                                           LongTextSubmission,
+                                           MultiChoiceSubmission,
+                                           NumericSubmission,
+                                           SubcategorySubmission,
+                                           SubmissionSet,
+                                           TextSubmission,
+                                           URLSubmission,
+                                           UploadSubmission)
 from stars.apps.submissions import rules as submission_rules
 from stars.apps.api.resources import StarsApiResource
-from stars.apps.api.paths import CREDITS_RESOURCE_PATH, \
-     SUBMISSIONS_RESOURCE_PATH, INSTITUTIONS_RESOURCE_PATH
+from stars.apps.api.paths import (CREDITS_RESOURCE_PATH,
+                                  INSTITUTIONS_RESOURCE_PATH,
+                                  SUBMISSIONS_RESOURCE_PATH)
 
 
 class SubmissionSetResource(StarsApiResource):
@@ -288,14 +297,14 @@ class NestedSubmissionSetResource(SubmissionSetResource):
     """
 
     class Meta(SubmissionSetResource.Meta):
-        fields = [ 'date_submitted',
-                    'rating' ]
+        fields = ['date_submitted',
+                  'rating']
         allowed_methods = None
 
     def dehydrate(self, bundle):
         bundle.data['version'] = str(bundle.obj.creditset.version)
         bundle.data['rating'] = None
-        if bundle.obj.rating != None:
+        if bundle.obj.rating is not None:
             bundle.data['rating'] = str(bundle.obj.rating.name)
 
         return bundle
@@ -319,9 +328,9 @@ class CategorySubmissionResource(StarsApiResource):
         queryset = CategorySubmission.objects.all()
         resource_name = 'submissions/category'
         allowed_methods = ['get']
-        filtering = { 'submissionset': 'exact',
-                      'category': 'exact',
-                      'id': ALL_WITH_RELATIONS }
+        filtering = {'submissionset': 'exact',
+                     'category': 'exact',
+                     'id': ALL_WITH_RELATIONS}
         excludes = ['id']
 
     def dehydrate(self, bundle):
@@ -389,7 +398,7 @@ class SubcategorySubmissionResource(StarsApiResource):
         queryset = SubcategorySubmission.objects.all()
         resource_name = 'submissions/subcategory'
         allowed_methods = ['get']
-        filtering = { 'category': ALL_WITH_RELATIONS }
+        filtering = {'category': ALL_WITH_RELATIONS}
         excludes = ['id']
 
     def dehydrate_points(self, bundle):
@@ -409,8 +418,8 @@ class SubcategorySubmissionResource(StarsApiResource):
         # but we want to use
         #    submissions/<submission-set-id>/subcategory/<subcategory-id>
         # instead.
-        submissionset_id = \
-          bundle_or_obj.obj.category_submission.submissionset_id
+        submissionset_id = (
+            bundle_or_obj.obj.category_submission.submissionset_id)
         uri = uri.replace('submissions/',
                           'submissions/{0}/'.format(submissionset_id))
         subcategory_id = str(bundle_or_obj.obj.subcategory_id)
@@ -512,15 +521,15 @@ class CreditSubmissionResource(StarsApiResource):
 
         # combine all the fields into one list
         field_list = []
-        field_types = [ "boolean_submissions",
-                        "choice_submissions",
-                        "date_submissions",
-                        "longtext_submissions",
-                        "multichoice_submissions",
-                        "numeric_submissions",
-                        "text_submissions",
-                        "upload_submissions",
-                        "url_submissions" ]
+        field_types = ["boolean_submissions",
+                       "choice_submissions",
+                       "date_submissions",
+                       "longtext_submissions",
+                       "multichoice_submissions",
+                       "numeric_submissions",
+                       "text_submissions",
+                       "upload_submissions",
+                       "url_submissions"]
 
         for ft in field_types:
             for f in bundle.data[ft]:
@@ -565,9 +574,9 @@ class CreditSubmissionResource(StarsApiResource):
         submissionset_id = kwargs.pop('submissionset_id')
         categories_for_submissionset = CategorySubmission.objects.filter(
             submissionset=submissionset_id)
-        subcategories_for_submissionset = \
-          SubcategorySubmission.objects.filter(
-              category_submission__in=categories_for_submissionset)
+        subcategories_for_submissionset = (
+            SubcategorySubmission.objects.filter(
+                category_submission__in=categories_for_submissionset))
         return CreditUserSubmission.objects.filter(
             subcategory_submission__in=subcategories_for_submissionset)
 
@@ -589,6 +598,7 @@ class NestedCreditSubmissionResource(CreditSubmissionResource):
                                      self).dehydrate_title(bundle)
         return bundle
 
+
 class DocumentationFieldSubmissionResource(StarsApiResource):
 
     documentation_field = fields.ForeignKey(
@@ -609,9 +619,9 @@ class DocumentationFieldSubmissionResource(StarsApiResource):
         SubmissionSet."""
         categories_for_submissionset = CategorySubmission.objects.filter(
             submissionset=submissionset_id)
-        subcategories_for_submissionset = \
-          SubcategorySubmission.objects.filter(
-              category_submission__in=categories_for_submissionset)
+        subcategories_for_submissionset = (
+            SubcategorySubmission.objects.filter(
+                category_submission__in=categories_for_submissionset))
         return(CreditUserSubmission.objects.filter(
             subcategory_submission__in=subcategories_for_submissionset))
 
@@ -648,8 +658,8 @@ class DocumentationFieldSubmissionResource(StarsApiResource):
         DocumentationFieldSubmission's for a SubmissionSet, only
         all instances of a particular subtype.
         """
-        credit_user_submissions = \
-          self.credit_user_submissions_for_submissionset(**kwargs)
+        credit_user_submissions = (
+            self.credit_user_submissions_for_submissionset(**kwargs))
         return self._meta.queryset.filter(
             credit_submission__in=credit_user_submissions)
 
