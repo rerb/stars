@@ -64,8 +64,8 @@ class InvalidAccessLevelError(Exception):
     pass
 
 
-BASIC_ACCESS = 0
-FULL_ACCESS = 1
+BASIC_ACCESS = "basic"
+FULL_ACCESS = "full"
 
 
 class Institution(models.Model):
