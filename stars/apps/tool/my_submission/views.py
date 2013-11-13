@@ -17,6 +17,7 @@ from stars.apps.institutions.models import FULL_ACCESS, MigrationHistory
 from stars.apps.notifications.models import EmailTemplate
 from stars.apps.submissions.models import (Boundary,
                                            CreditUserSubmission,
+                                           RATED_SUBMISSION_STATUS,
                                            RATING_VALID_PERIOD,
                                            ResponsibleParty,
                                            SubcategorySubmission)
@@ -245,7 +246,7 @@ class SubmitForRatingWizard(SubmissionToolMixin, SessionWizardView):
         # Save the submission
         ss.date_submitted = date.today()
         ss.rating = ss.get_STARS_rating()
-        ss.status = 'r'
+        ss.status = RATED_SUBMISSION_STATUS
         ss.submitting_user = self.request.user
         ss.save()
 

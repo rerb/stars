@@ -6,6 +6,7 @@ from stars.apps.submissions.models import (Boundary,
                                            CreditTestSubmission,
                                            CreditUserSubmission,
                                            DocumentationFieldSubmission,
+                                           PENDING_SUBMISSION_STATUS,
                                            SubcategorySubmission,
                                            SubmissionSet)
 
@@ -101,7 +102,7 @@ def _new_submissionset_for_old_submissionset(old_ss,
     new_ss = SubmissionSet(creditset=new_cs,
                            institution=old_ss.institution,
                            date_registered=old_ss.date_registered,
-                           status='ps',
+                           status=PENDING_SUBMISSION_STATUS,
                            is_locked=True,
                            is_visible=False,
                            date_created=datetime.date.today())

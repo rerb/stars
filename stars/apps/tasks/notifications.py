@@ -1,13 +1,18 @@
 """
-    Run daily to determine if any notifications need to be sent to institutions who haven't paid
-    Institutions get a notification after 4 weeks indicating that they haven't paid.
+    Run daily to determine if any notifications need to be sent to
+    institutions who haven't paid
+
+    Institutions get a notification after 4 weeks indicating that they
+    haven't paid.
 """
 
 from datetime import timedelta, datetime, date
 import sys, calendar
 
 from stars.apps.institutions.models import * # required for execfile management func
-from stars.apps.submissions.models import SubmissionSet, Payment
+from stars.apps.submissions.models import (Payment, 
+                                           PENDING_SUBMISSION_STATUS,
+                                           SubmissionSet)
 from stars.apps.tasks.models import EmailNotification
 from stars.apps.notifications.models import EmailTemplate
 
@@ -20,7 +25,8 @@ def get_new_institutions(current_date):
 
     i_list = []
     for p in Payment.objects.filter(date__lte=date_limit).exclude(type='later'):
-        if not p.submissionset.institution.charter_participant and p.submissionset.status == 'ps':
+        if (not p.submissionset.institution.charter_participant and
+            p.submissionset.status == PENDING_SUBMISSION_STATUS):
             i_list.append(p.submissionset.institution)
 
     return i_list
@@ -159,7 +165,7 @@ def send_post_submission_survey(current_date=None):
                 'mail_to': [ss.institution.contact_email,],
                 'template_slug': "post_submission_survey",
                 'email_context': {'ss': ss,},
-                'n_type': 'ps',
+                'n_type': PENDING_SUBMISSION_STATUS,
                 'identifier': 'ps-%d' % ss.id,
              }
         message_list.append(m)

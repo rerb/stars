@@ -1,5 +1,6 @@
 from stars.apps.institutions.models import StarsAccount
-from stars.apps.submissions.models import SubmissionSet
+from stars.apps.submissions.models import (PENDING_SUBMISSION_STATUS, 
+                                           SubmissionSet)
 from stars.apps.credits.models import CreditSet
 
 from datetime import date
@@ -28,7 +29,8 @@ def init_submissionset(institution, user, date_callback=date.today):
     submissionset = SubmissionSet(creditset=creditset,
                                   institution=institution,
                                   date_registered=date_callback(),
-                                  registering_user=user, status='ps')
+                                  registering_user=user,
+                                  status=PENDING_SUBMISSION_STATUS)
     submissionset.save()
     institution.current_submission = submissionset
     institution.save()
