@@ -12,7 +12,7 @@ from stars.apps.submissions.models import SubmissionSet
 
 class SubmissionSetTest(TestCase):
 
-    fixtures = ['goldsubmissiontest.json']
+    fixtures = ['silversubmissiontest.json']
 
     def test_get_STARS_score_logging(self):
         """Does get_STARS_score log an error when there's no scoring method?
