@@ -94,8 +94,11 @@ class ValueErrorTest(ViewTest):
 
         self.request.POST["BooleanSubmission_1-value"] = '1' # unknown
 
-        response = self.view_class.as_view()(self.request, **self.view_kwargs)
-        self.assertEqual(response.status_code, 200)
+        try:
+            response = self.view_class.as_view()(self.request, **self.view_kwargs)
+            self.assertEqual(response.status_code, 200)
+        except ValueError:
+            self.fail("Still issuing the ValueError.")
 
     def test_get_succeeds(self, status_code=200, **kwargs):
         super(ValueErrorTest, self).test_get_succeeds(status_code, **self.view_kwargs)
