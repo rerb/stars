@@ -5,10 +5,15 @@ import json
 
 from stars.apps.api.test import ReadOnlyResourceTestCase
 
-from stars.apps.submissions.models import SubmissionSet, CategorySubmission, \
-     SubcategorySubmission, CreditUserSubmission, LongTextSubmission
+from stars.apps.submissions.models import (CategorySubmission,
+                                           CreditUserSubmission,
+                                           LongTextSubmission,
+                                           SubcategorySubmission,
+                                           SubmissionSet)
+
 
 submissions_list_path = '/api/0.1/submissions/'
+
 
 def submissions_detail_path(submissionset_id):
     return '{list_path}{submissionset_id}/'.format(
@@ -53,9 +58,9 @@ class SubmissionSetResourceTestCase(ReadOnlyResourceTestCase):
         visible_submissionsets = payload['objects']
         visible_submissionset_ids = [
             submissionset['resource_uri'].split('/')[-2] for submissionset
-            in visible_submissionsets ]
-        rated_submissionset_ids = [ str(submissionset.id) for submissionset in
-                                    SubmissionSet.objects.get_rated() ]
+            in visible_submissionsets]
+        rated_submissionset_ids = [str(submissionset.id) for submissionset in
+                                   SubmissionSet.objects.get_rated()]
         self.assertTrue(
             set(visible_submissionset_ids) == set(rated_submissionset_ids))
 
@@ -143,8 +148,8 @@ class SubcategorySubmissionResourceTestCase(ReadOnlyResourceTestCase):
 
     RATED_SUBCATEGORYSUBMISSION_ID = 429
     UNRATED_SUBCATEGORYSUBMISSION_ID = None
-    RATED_NON_REPORTER_SUBCATEGORYSUBMISSION_WITH_POINTS_ID = \
-      RATED_SUBCATEGORYSUBMISSION_ID
+    RATED_NON_REPORTER_SUBCATEGORYSUBMISSION_WITH_POINTS_ID = (
+        RATED_SUBCATEGORYSUBMISSION_ID)
     RATED_REPORTER_SUBCATEGORYSUBMISSION_WITH_POINTS_ID = 1291
 
     # detail_path and list_path are defined for
