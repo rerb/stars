@@ -92,26 +92,23 @@ class SaveSnapshot(SubmissionToolMixin, FormView):
     template_name = "tool/submissions/submit_snapshot.html"
 
     def update_logical_rules(self):
-        self.add_logical_rule({
-                               'name': 'user_can_submit_snapshot',
-                               'param_callbacks': [
-                                    ('user', 'get_request_user'),
-                                    ('submission', 'get_submissionset')
-                                                   ],
-                               'message': "Sorry, you do not have privileges "
-                                   "to submit a snapshot of this submission."
-                               })
+        self.add_logical_rule(
+            {'name': 'user_can_submit_snapshot',
+             'param_callbacks': [('user', 'get_request_user'),
+                                 ('submission', 'get_submissionset')],
+             'message': ("Sorry, you do not have privileges "
+                         "to submit a snapshot of this submission.")})
         super(SaveSnapshot, self).update_logical_rules()
 
     def get_success_url(self):
         return reverse(
-                       'share-data',
-                       kwargs={'institution_slug': self.get_institution().slug}
-                       )
+            'share-data',
+            kwargs={'institution_slug': self.get_institution().slug})
 
     def get_context_data(self, **kwargs):
         _context = super(SaveSnapshot, self).get_context_data(**kwargs)
-        _context['active_submission'] = self.get_institution().current_submission
+        _context['active_submission'] = (
+            self.get_institution().current_submission)
         return _context
 
     def form_valid(self, form):
@@ -130,7 +127,8 @@ class SaveSnapshot(SubmissionToolMixin, FormView):
             messages.info(self.request,
                           "You must complete your Boundary before submitting.")
             return HttpResponseRedirect(
-                reverse('boundary-edit',
+                reverse(
+                    'boundary-edit',
                     kwargs={'institution_slug': self.get_institution().slug,
                             'submissionset': self.get_submissionset().id}))
 
@@ -139,26 +137,26 @@ class SaveSnapshot(SubmissionToolMixin, FormView):
 
 
 SUBMISSION_STEPS = [
-                    {
-                        'form': StatusForm,
-                        'template': 'status',
-                        'instance_callback': 'get_submissionset'
-                    },
-                    {
-                        'form': LetterForm,
-                        'template': 'letter',
-                        'instance_callback': 'get_submissionset'
-                    },
-                    {
-                        'form': ExecContactForm,
-                        'template': 'exec',
-                        'instance_callback': 'get_institution'
-                    },
-                    {
-                        'form': Confirm,
-                        'template': 'finalize',
-                        'instance_callback': None
-                    },
+    {
+        'form': StatusForm,
+        'template': 'status',
+        'instance_callback': 'get_submissionset'
+    },
+    {
+        'form': LetterForm,
+        'template': 'letter',
+        'instance_callback': 'get_submissionset'
+    },
+    {
+        'form': ExecContactForm,
+        'template': 'exec',
+        'instance_callback': 'get_institution'
+    },
+    {
+        'form': Confirm,
+        'template': 'finalize',
+        'instance_callback': None
+    },
 ]
 
 
@@ -173,14 +171,14 @@ class SubmitForRatingWizard(SubmissionToolMixin, SessionWizardView):
     def update_logical_rules(self):
         super(SubmitForRatingWizard, self).update_logical_rules()
         self.add_logical_rule({
-                               'name': 'user_can_submit_report',
-                               'param_callbacks': [
-                                           ('user', 'get_request_user'),
-                                           ('submission', 'get_submissionset')
-                                                   ],
-                               'message': "Sorry, you do not have privileges "
-                                   "to submit a report."
-                               })
+            'name': 'user_can_submit_report',
+            'param_callbacks': [
+                ('user', 'get_request_user'),
+                ('submission', 'get_submissionset')
+            ],
+            'message': "Sorry, you do not have privileges "
+            "to submit a report."
+        })
         self.add_logical_rule({
             'name': 'submission_is_not_missing_required_boundary',
             'param_callbacks': [('submission',
@@ -199,7 +197,8 @@ class SubmitForRatingWizard(SubmissionToolMixin, SessionWizardView):
         return None
 
     def get_context_data(self, form, **kwargs):
-        _context = super(SubmitForRatingWizard, self).get_context_data(form=form, **kwargs)
+        _context = super(SubmitForRatingWizard, self).get_context_data(
+            form=form, **kwargs)
 
         if self.steps.current == '0':
 
@@ -215,7 +214,7 @@ class SubmitForRatingWizard(SubmissionToolMixin, SessionWizardView):
     def redirect_to_boundary(self):
         messages.error(self.request,
                       ("You must complete your Institutional Boundary"
-                      " before submitting for a rating."))
+                       " before submitting for a rating."))
         return HttpResponseRedirect(reverse('boundary-edit',
                                             kwargs={
                                                 'institution_slug':
@@ -232,10 +231,10 @@ class SubmitForRatingWizard(SubmissionToolMixin, SessionWizardView):
         self.finalize_rating()
 
         redirect_url = reverse('submit-success',
-                                kwargs={'institution_slug':
-                                        self.get_institution().slug,
-                                        'submissionset':
-                                        self.get_submissionset().id})
+                               kwargs={'institution_slug':
+                                       self.get_institution().slug,
+                                       'submissionset':
+                                       self.get_submissionset().id})
         return HttpResponseRedirect(redirect_url)
 
     def finalize_rating(self):
@@ -292,9 +291,10 @@ class SubcagegorySubmissionDetailView(UserCanEditSubmissionMixin, UpdateView):
         return obj
 
     def get_success_url(self):
-        return reverse('submission-summary',
-                    kwargs={'institution_slug': self.get_institution().slug,
-                            'submissionset': self.get_submissionset().id})
+        return reverse(
+            'submission-summary',
+            kwargs={'institution_slug': self.get_institution().slug,
+                    'submissionset': self.get_submissionset().id})
 
 
 class CreditSubmissionDetailView(UserCanEditSubmissionMixin, UpdateView):
@@ -311,16 +311,16 @@ class CreditSubmissionDetailView(UserCanEditSubmissionMixin, UpdateView):
 
     def form_invalid(self, form):
         messages.error(self.request,
-                      "Credit data has <b>NOT BEEN SAVED</b>! Please correct "
-                      "the errors below.")
+                       "Credit data has <b>NOT BEEN SAVED</b>! Please correct "
+                       "the errors below.")
         return super(CreditSubmissionDetailView, self).form_invalid(form)
 
     def form_valid(self, form):
         if form.has_warnings():
             # @todo: do this on GET too
             messages.info(self.request,
-                      "Some data values are not within the expected range "
-                      "- see notes below.")
+                          "Some data values are not within the expected range "
+                          "- see notes below.")
         return super(CreditSubmissionDetailView, self).form_valid(form)
 
 
@@ -369,8 +369,8 @@ class CreditHistoryView(UserCanEditSubmissionMixin,
         else:
             all_documentation_field_submissions = []
         context['exportable_submissionsets'] = set(
-            [ history_.doc_field_sub.get_submissionset() for history_
-              in all_documentation_field_submissions ])
+            [history_.doc_field_sub.get_submissionset() for history_
+             in all_documentation_field_submissions])
         context['institution_has_full_access'] = (
             context['institution'].access_level == FULL_ACCESS)
                 
