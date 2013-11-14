@@ -132,6 +132,10 @@ class RatingTest(TestCase):
                                             'ERROR:' not in msg.subject]
         self.assertEqual(len(mail_messages_that_are_not_errors), 2)
 
+        # make sure the second one has an attachment:
+        self.assertEqual(
+            len(mail_messages_that_are_not_errors[1].attachments), 1)
+        
         i = Institution.objects.get(pk=ss.institution.id)
         self.assertEqual(i.rated_submission, ss)
 
