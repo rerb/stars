@@ -201,6 +201,19 @@ logical_rules.site.register("submission_is_not_missing_required_boundary",
                             submission_is_not_missing_required_boundary)
 
 
+def required_credits_are_complete(submission):
+    creditset = submission.creditset
+    required_credits = creditset.get_credits().filter(is_required=True)
+    credit_submissions = submission.get_credit_submissions()
+    for credit in required_credits:
+        credit_submission = credit_submissions.get(credit=credit)
+        if credit_submission.submission_status != 'c':
+            return False
+    return True
+logical_rules.site.register("required_credits_are_complete",
+                            required_credits_are_complete)
+
+
 def submission_has_scores(submission):
     """
         Indicates that the preview or reporting tool should show scores for

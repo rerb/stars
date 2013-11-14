@@ -320,6 +320,13 @@ class CreditSet(VersionedModel):
             choices.append(('-1', ' '))
         return choices
 
+    def get_credits(self):
+        """Returns all the credits for this Credit Set."""
+        categories = Category.objects.filter(creditset=self)
+        subcategories = Subcategory.objects.filter(
+            category__in=categories)
+        return Credit.objects.filter(subcategory__in=subcategories)
+
 
 class Rating(models.Model):
     """
@@ -658,7 +665,10 @@ class Credit(VersionedModel):
         default=True,
         help_text="Indicates if this credit will have the 'info' tab")
 
-    is_required = models.BooleanField(default=False)
+    is_required = models.BooleanField(
+        default=False,
+        help_text=("Must this credit be completed before submitting for "
+                   "a rating?"))
     requires_responsible_party = models.BooleanField(default=True)
 
     class Meta:

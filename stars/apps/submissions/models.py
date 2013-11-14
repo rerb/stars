@@ -469,6 +469,15 @@ class SubmissionSet(models.Model, FlaggableModel):
                             subcategory_submission=subcategorysubmission)
                         creditsubmission.save()
 
+    def get_credit_submissions(self):
+        """Returns all the credit submissions for this SubmissionSet."""
+        category_subs = CategorySubmission.objects.filter(
+            submissionset=self)
+        subcategory_subs = SubcategorySubmission.objects.filter(
+            category_submission__in=category_subs)
+        return CreditUserSubmission.objects.filter(
+            subcategory_submission__in=subcategory_subs)
+
     def save(self, *args, **kwargs):
         # is this the first time save() has been called for self?
         run_init_credit_submissions = not self.pk

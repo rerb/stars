@@ -185,6 +185,12 @@ class SubmitForRatingWizard(SubmissionToolMixin, SessionWizardView):
                                  'get_submissionset')],
             'response_callback': 'redirect_to_boundary'
         })
+        self.add_logical_rule({
+            'name': 'required_credits_are_complete',
+            'param_callbacks': [('submission',
+                                 'get_submissionset')],
+            'response_callback': 'redirect_to_my_submission'
+        })
 
     def get_template_names(self):
         return ("tool/submissions/submit_wizard_%s.html" %
@@ -222,6 +228,14 @@ class SubmitForRatingWizard(SubmissionToolMixin, SessionWizardView):
                                                 'submissionset':
                                                 self.get_submissionset().id
                                                 }))
+
+    def redirect_to_my_submission(self):
+        messages.error(self.request,
+                       ("One or more required credits are not complete."))
+        return HttpResponseRedirect(reverse(
+            'submission-summary',
+            kwargs={'institution_slug': self.get_institution().slug,
+                    'submissionset': self.get_submissionset().id}))
 
     def done(self, form_list, **kwargs):
         for form in form_list:
@@ -373,7 +387,7 @@ class CreditHistoryView(UserCanEditSubmissionMixin,
              in all_documentation_field_submissions])
         context['institution_has_full_access'] = (
             context['institution'].access_level == FULL_ACCESS)
-                
+
         return context
 
 
