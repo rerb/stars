@@ -45,7 +45,7 @@ class SubmissionSetResource(StarsApiResource):
     rating = fields.CharField(readonly=True)
 
     class Meta(StarsApiResource.Meta):
-        queryset = SubmissionSet.objects.get_rated()
+        queryset = SubmissionSet.objects.get_rated().filter(is_locked=False)
         resource_name = 'submissions'
         allowed_methods = ['get']
         # exclude submission_boundary becauses it raises
@@ -101,7 +101,7 @@ class SubmissionSetResource(StarsApiResource):
                 "/(?P<fieldpk>\w[\w/-]*)%s$" %
                 (self._meta.resource_name, trailing_slash()),
                 self.wrap_view('get_field_detail')),
-                ]
+        ]
 
     def get_category_list(self, request, **kwargs):
         """Get a list of categories for the SubmissionSet with

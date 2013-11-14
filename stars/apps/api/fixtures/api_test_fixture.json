@@ -1105,7 +1105,7 @@
             "score": 52.110447811320597,
             "reporter_status": false,
             "registering_user": 8133,
-            "is_locked": false,
+            "is_locked": true,
             "institution": 258,
             "pdf_report": ""
         }

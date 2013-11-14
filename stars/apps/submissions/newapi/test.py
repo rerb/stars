@@ -22,6 +22,7 @@ def submissions_detail_path(submissionset_id):
 
 RATED_SUBMISSIONSET_ID = 75
 UNRATED_SUBMISSIONSET_ID = 688
+LOCKED_SUBMISSIONSET_ID = 429
 RATED_NON_REPORTER_SUBMISSIONSET_ID = RATED_SUBMISSIONSET_ID
 RATED_REPORTER_SUBMISSIONSET_ID = 113
 
@@ -56,13 +57,37 @@ class SubmissionSetResourceTestCase(ReadOnlyResourceTestCase):
         resp = self.get(self.list_path + '?limit=0')
         payload = json.loads(resp.content)
         visible_submissionsets = payload['objects']
-        visible_submissionset_ids = [
-            submissionset['resource_uri'].split('/')[-2] for submissionset
-            in visible_submissionsets]
-        rated_submissionset_ids = [str(submissionset.id) for submissionset in
-                                   SubmissionSet.objects.get_rated()]
-        self.assertTrue(
-            set(visible_submissionset_ids) == set(rated_submissionset_ids))
+        visible_submissionset_ids = [ss['id'] for ss
+                                     in visible_submissionsets]
+        self.assertNotIn(UNRATED_SUBMISSIONSET_ID,
+                         visible_submissionset_ids)
+
+    def test_get_locked_submission(self):
+        # Get a submission set that should be filtered:
+        resp = self.get(submissions_detail_path(LOCKED_SUBMISSIONSET_ID))
+        self.assertHttpNotFound(resp)
+
+    def test_locked_submissions_are_hidden(self):
+        resp = self.get(self.list_path + '?limit=0')
+        payload = json.loads(resp.content)
+        visible_submissionsets = payload['objects']
+        visible_submissionset_ids = [ss['id'] for ss
+                                     in visible_submissionsets]
+        self.assertNotIn(LOCKED_SUBMISSIONSET_ID,
+                         visible_submissionset_ids)
+
+    def test_rated_unlocked_submissions_are_visible(self):
+        resp = self.get(self.list_path + '?limit=0')
+        payload = json.loads(resp.content)
+        visible_submissionsets = payload['objects']
+        visible_submissionset_ids = [ss['id'] for ss
+                                     in visible_submissionsets]
+        rated_submissionset_ids = [
+            submissionset.id
+            for submissionset in
+            SubmissionSet.objects.get_rated().filter(is_locked=False)]
+        self.assertItemsEqual(visible_submissionset_ids,
+                              rated_submissionset_ids)
 
     def test_scoring_hidden_for_reporter(self):
         path = submissions_detail_path(RATED_REPORTER_SUBMISSIONSET_ID)
