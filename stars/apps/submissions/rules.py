@@ -16,7 +16,6 @@ def submission_is_editable(submission):
     """
     return (submission.status != 'r' and submission.status != 'f' and
             submission == submission.institution.current_submission)
-
 logical_rules.site.register("submission_is_editable", submission_is_editable)
 
 
@@ -25,14 +24,16 @@ def submission_is_not_locked(submission):
         Exposes SubmissionSet.is_locked.
     """
     return not submission.is_locked
+logical_rules.site.register("submission_is_not_locked",
+                            submission_is_not_locked)
 
-logical_rules.site.register("submission_is_not_locked", submission_is_not_locked)
 
 def publish_credit_data(credit_submission):
     """
         Identifies whether a credit's fields should be published anywhere
     """
     return credit_submission.submission_status == 'c'
+
 
 def user_can_preview_submission(user, submission):
     """
@@ -44,7 +45,7 @@ def user_can_preview_submission(user, submission):
             return True
     return False
 logical_rules.site.register("user_can_preview_submission",
-                          user_can_preview_submission)
+                            user_can_preview_submission)
 
 
 def user_can_view_submission(user, submission):
@@ -55,7 +56,8 @@ def user_can_view_submission(user, submission):
     if submission.status == 'r':
         return True
     return user_can_preview_submission(user, submission)
-logical_rules.site.register("user_can_view_submission", user_can_view_submission)
+logical_rules.site.register("user_can_view_submission",
+                            user_can_view_submission)
 
 
 def user_can_view_export(user, submission):
@@ -92,13 +94,13 @@ def user_can_manage_submission(user, submission):
     return (submission_is_editable(submission) and
             user_has_access_level(user, 'admin', submission.institution))
 logical_rules.site.register("user_can_manage_submission",
-                          user_can_manage_submission)
+                            user_can_manage_submission)
 
 
 def user_can_see_internal_notes(user, submission):
     return user_has_access_level(user, 'view', submission.institution)
 logical_rules.site.register("user_can_see_internal_notes",
-                          user_can_see_internal_notes)
+                            user_can_see_internal_notes)
 
 
 def user_can_submit_for_rating(user, submission):
@@ -110,7 +112,7 @@ def user_can_submit_for_rating(user, submission):
             user_can_manage_submission(user, submission) and
             institution_can_get_rated(submission.institution))
 logical_rules.site.register("user_can_submit_for_rating",
-                          user_can_submit_for_rating)
+                            user_can_submit_for_rating)
 
 
 def user_can_submit_report(user, submission):
@@ -122,7 +124,7 @@ def user_can_submit_report(user, submission):
             user_can_manage_submission(user, submission) and
             institution_can_submit_report(submission.institution))
 logical_rules.site.register("user_can_submit_report",
-                          user_can_submit_report)
+                            user_can_submit_report)
 
 
 def user_can_submit_snapshot(user, submission):
@@ -133,6 +135,7 @@ def user_can_submit_snapshot(user, submission):
 logical_rules.site.register("user_can_submit_snapshot",
                             user_can_submit_snapshot)
 
+
 def user_can_migrate_version(user, institution):
     """
         Only institution admins can migrate a submission
@@ -142,7 +145,9 @@ def user_can_migrate_version(user, institution):
         return user_has_access_level(user, 'admin', institution)
     else:
         return False
-logical_rules.site.register("user_can_migrate_version", user_can_migrate_version)
+logical_rules.site.register("user_can_migrate_version",
+                            user_can_migrate_version)
+
 
 def user_can_migrate_data(user, institution):
     """
@@ -165,7 +170,7 @@ def user_can_migrate_from_submission(user, submission):
                 return True
     return False
 logical_rules.site.register("user_can_migrate_from_submission",
-                          user_can_migrate_from_submission)
+                            user_can_migrate_from_submission)
 
 
 def submission_has_boundary(submission):
@@ -178,7 +183,8 @@ def submission_has_boundary(submission):
     except Boundary.DoesNotExist:
         return False
 logical_rules.site.register("submission_has_boundary",
-                          submission_has_boundary)
+                            submission_has_boundary)
+
 
 def submission_is_not_missing_required_boundary(submission):
     """
@@ -193,6 +199,7 @@ def submission_is_not_missing_required_boundary(submission):
     return True
 logical_rules.site.register("submission_is_not_missing_required_boundary",
                             submission_is_not_missing_required_boundary)
+
 
 def submission_has_scores(submission):
     """
