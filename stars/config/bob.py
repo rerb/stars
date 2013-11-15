@@ -144,5 +144,6 @@ EXCLUDED_TEST_APPS = ['aashe.issdjango',
                       'stars.apps.api',
                       'stars.tests',
                       'tastypie',
+                      'terms',
                       'template_repl']
 
