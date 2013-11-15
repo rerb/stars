@@ -32,16 +32,16 @@
         {% endif %}
       {% else %}
         {% if institution %}
-			Your institution{% if institution.name %}, {{ institution.name }},{% endif %}
-        	isn't currently registered as a STARS
-        	participant. Only institutions that are currently registered
-			as STARS Participants are allowed access to the Reporting
-			Tool.
-		{% else %}
-			Please contact your STARS Liaison to request access, or contact
-			<a href="mailto:stars@aashe.org">stars@aashe.org</a> for more
-			information.
-		{% endif %}
+          Your institution{% if institution.name %}, {{ institution.name }},{% endif %}
+          isn't currently registered as a STARS
+          participant. Only institutions that are currently registered
+          as STARS Participants are allowed access to the Reporting
+          Tool.
+        {% else %}
+          Please contact your STARS Liaison to request access, or contact
+          <a href="mailto:stars@aashe.org">stars@aashe.org</a> for more
+          information.
+        {% endif %}
       {% endif %}
     </p>
   </div>
