@@ -2,12 +2,19 @@
 
 {% block content %}
 
-  <div class='row span9' id='main-text'>
-    <p>
+  {% comment %}
+    Using 'btn-toolbar' classifications below so the sparse text
+    on this page will be set off from the page header and footer.
+    This is an example of the practical, unsentimental, unsemantic
+    web.
+  {% endcomment %}
+
+  <div class='row span9 btn-toolbar' id='main-text'>
+    <p class='btn-toolbar'>
       Your AASHE Account has not been granted access to any institution
       using the STARS Reporting Tool.
     </p>
-    <p>
+    <p class='btn-toolbar'>
       {% if institution and institution.is_participant %}
         The STARS Liaison for
         {% if liaison_name %}
