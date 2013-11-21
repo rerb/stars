@@ -1090,7 +1090,7 @@ class AbstractAccount(BaseAccount):
         """
         # et = EmailTemplate.objects.get(slug='invite_notification')
 
-        send_mail('STARS Account notification for: %s'%self.user,
+        send_mail('STARS Account notification for: %s'%self.user.email,
                       self.get_formatted_message(action, admin, institution),
                       settings.EMAIL_HOST_USER, [self.user.email],
                       fail_silently=True)
@@ -1150,7 +1150,7 @@ class StarsAccount(AbstractAccount):
         unique_together = ("user", "institution")
 
     def __unicode__(self):
-        return "%s" % self.user
+        return "%s" % self.user.email
 
     def select(self):
         """
@@ -2200,7 +2200,7 @@ class AbstractAccount(BaseAccount):
         """
         # et = EmailTemplate.objects.get(slug='invite_notification')
 
-        send_mail('STARS Account notification for: %s'%self.user,
+        send_mail('STARS Account notification for: %s'%self.user.email,
                       self.get_formatted_message(action, admin, institution),
                       settings.EMAIL_HOST_USER, [self.user.email],
                       fail_silently=True)
