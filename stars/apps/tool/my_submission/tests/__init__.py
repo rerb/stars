@@ -8,3 +8,4 @@ from views import (CreditHistoryViewTest,
                    SubmissionSummaryViewTest)
 from credit_history import GetSubmissionsetsToIncludeInHistoryTest
 from value_error import ValueErrorTest
+from srt87 import SRT87Test
