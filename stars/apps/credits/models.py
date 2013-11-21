@@ -1132,7 +1132,10 @@ class DocumentationField(VersionedModel):
         return label
 
     def get_escaped_tooltip_help_text(self):
-        return self.tooltip_help_text.replace("\"", "'")
+        if self.tooltip_help_text:
+            return self.tooltip_help_text.replace("\"", "'")
+        else:
+            return ''
 
     def __cmp__(self, other):
         """ Used for ordering by ordinal """
