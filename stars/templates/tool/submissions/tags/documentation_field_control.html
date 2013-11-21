@@ -9,6 +9,12 @@
 			Please correct the errors in this table.
 		</div>
 	{% endif %}
+	{% if field_form.form.errors %}
+		<div class="alert alert-error">{{ field_form.form.errors.value }}</div>
+	{% endif %}
+	{% if field_form.form.warnings %}
+		<div class="alert alert-warning">{{ field_form.form.warnings }}</div>
+	{% endif %}
 	<table class="table table-bordered">
 		<thead>
 			<tr>

@@ -85,21 +85,7 @@ class SubcategorySubmissionForm(ModelForm):
             'style': 'width: 35em;height: 15em;' }
 
 
-class SubmissionFieldForm(LocalizedModelFormMixin, ModelForm):
-    """ Parent class for all submission fields to provide access to
-    clean_value"""
-
-    def __init__(self, *args, **kwargs):
-        """ Add any specified options to the form's value field """
-        super(SubmissionFieldForm, self).__init__(*args, **kwargs)
-        self.warnings = None
-
-    def field_includes_units(self):
-        """ Returns true if the form field contains its own units,
-        false otherwise"""
-        return self.__class__ in (ChoiceWithOtherSubmissionForm,
-                                  MultiChoiceSubmissionForm,
-                                  MultiChoiceWithOtherSubmissionForm)
+class SubmissionFieldFormMixin():
 
     def append_error(self, msg):
         """ Helper to append or add new error message to this form's
@@ -116,6 +102,23 @@ class SubmissionFieldForm(LocalizedModelFormMixin, ModelForm):
             self.warnings.append(msg)
         else:
             self.warnings = WarningList([msg])
+
+
+class SubmissionFieldForm(SubmissionFieldFormMixin, LocalizedModelFormMixin, ModelForm):
+    """ Parent class for all submission fields to provide access to
+    clean_value"""
+
+    def __init__(self, *args, **kwargs):
+        """ Add any specified options to the form's value field """
+        super(SubmissionFieldForm, self).__init__(*args, **kwargs)
+        self.warnings = None
+
+    def field_includes_units(self):
+        """ Returns true if the form field contains its own units,
+        false otherwise"""
+        return self.__class__ in (ChoiceWithOtherSubmissionForm,
+                                  MultiChoiceSubmissionForm,
+                                  MultiChoiceWithOtherSubmissionForm)
 
     def form_name():
         return u"Credit Submission Form"
@@ -424,7 +427,28 @@ class CreditSubmissionForm(LocalizedModelFormMixin, ModelForm):
                     prefix="%s_%s"%(field.__class__.__name__,prefix) )
                 form['value'].field.widget.attrs['onchange'] = (
                     'field_changed(this);')  # see include.js
-                self._form_fields.append({'field': field, 'form': form})
+            else:
+                ## Dummy Tabular form class
+                class DummyTabularForm(SubmissionFieldFormMixin):
+                    def __init__(self, value):
+                        self.cleaned_data = {'value': value}
+                        self.warnings = None
+                        self._errors = {}
+                        self.instance = None
+
+                    def is_valid(self):
+                        return True
+
+                    @property
+                    def errors(self):
+                        return self._errors
+
+                    def save(self, *args, **kwargs):
+                        # just a dummy
+                        pass
+
+                form = DummyTabularForm(value=None)
+            self._form_fields.append({'field': field, 'form': form})
 
         return self._form_fields
 
@@ -432,8 +456,11 @@ class CreditSubmissionForm(LocalizedModelFormMixin, ModelForm):
         """
             Breaks up the forms into forms and subforms (in tables)
         """
+        if hasattr(self, '_form_field_list_with_tables'):
+            return self._form_field_list_with_tables
+
+        self._form_field_list_with_tables = []
         form_fields = self.get_submission_fields_and_forms()
-        form_field_list_with_tables = []
 
         # go through all documentation fields for this credit
         for df in self.instance.credit.documentationfield_set.all():
@@ -454,30 +481,34 @@ class CreditSubmissionForm(LocalizedModelFormMixin, ModelForm):
                 for sub_id in subfield_id_list:
                     # remove from base list
                     for f in form_fields:
-                        if f['form'].errors:
-                            pass
                         if f['field'].documentation_field_id == sub_id:
                             table_wrapper['subforms']["%d" % sub_id] = f['form']
                             if f['form'].errors:
                                 table_wrapper['errors'] = True
                             form_fields.remove(f)
                     # remove from new list, in case they are out of order
-                    for f in form_field_list_with_tables:
+                    for f in self._form_field_list_with_tables:
                         if type(f) != dict and f.instance.documentation_field.id == sub_id:
                             table_wrapper['subforms']["%d" % sub_id] = f
                             if f.errors:
                                 table_wrapper['errors'] = True
-                            form_field_list_with_tables.remove(f)
+                            self._form_field_list_with_tables.remove(f)
 
-                form_field_list_with_tables.append(table_wrapper)
+                # add the dummy form for the table
+                for f in form_fields:
+                    if f['field'].documentation_field_id == df.id:
+                        table_wrapper['form'] = f['form']
+                        table_wrapper['field'] = f['field']
+
+                self._form_field_list_with_tables.append(table_wrapper)
 
             else:
                 for f in form_fields:
                     if f['field'].documentation_field_id == df.id:
-                        form_field_list_with_tables.append(f['form'])
+                        self._form_field_list_with_tables.append(f['form'])
                         break
 
-        return form_field_list_with_tables
+        return self._form_field_list_with_tables
 
     def save(self, commit=True):
         """
@@ -498,8 +529,9 @@ class CreditSubmissionForm(LocalizedModelFormMixin, ModelForm):
         for field in self.get_submission_fields_and_forms():
             # Ensure field form has the newly saved instance of the
             # CreditSubmission object
-            field['form'].instance.credit_submission = self.instance
-            field['form'].save(commit)
+            if field['form'].__class__.__name__ != "DummyTabularForm":
+                field['form'].instance.credit_submission = self.instance
+                field['form'].save(commit)
 
         return self.instance
 
@@ -536,17 +568,25 @@ class CreditSubmissionForm(LocalizedModelFormMixin, ModelForm):
     def _validate_required_fields(self):
         """ Helper to do required field validation.  Should only be
         called when submission is complete!"""
-        cleaned_data = self.cleaned_data
+        __cleaned_data = self.cleaned_data
         for field in self.get_submission_fields_and_forms():
-            form_value = field['form'].cleaned_data.get("value")
-            doc_field = field['field'].documentation_field
-            if doc_field.is_upload():  # require upload fields can be
-                                       # blank so long as a file has
-                                       # been previously uploaded
-                form_value = form_value or field['field'].get_value()
-            if doc_field.is_required() and form_value in (None, "", []):
-                field['form'].append_error( u"This field is required to "
-                                            "mark this credit complete.")
+            # only try to evaluate the requirement if the field doesn't already
+            # have errors
+            if field['form'].is_valid():
+                try:
+                    form_value = field['form'].cleaned_data.get("value")
+                    doc_field = field['field'].documentation_field
+                    if doc_field.is_upload():   # require upload fields can be
+                                                # blank so long as a file has
+                                                # been previously uploaded
+                        form_value = form_value or field['field'].get_value()
+                    if (doc_field.is_required() and
+                        form_value in (None, "", []) and
+                        doc_field.type != 'tabular'):
+                        field['form'].append_error( u"This field is required to "
+                                                "mark this credit complete.")
+                except AttributeError:
+                    assert False
 
     def _has_errors(self):
         """ Helper method to determine if any error were discovered
@@ -596,6 +636,8 @@ class CreditSubmissionForm(LocalizedModelFormMixin, ModelForm):
         has_errors = False
         for field in self.get_submission_fields_and_forms():
             doc_field = field['field'].documentation_field
+            if doc_field.identifier == "AY":
+                pass
             if doc_field.identifier in validation_errors:
                 field['form'].append_error(
                     validation_errors[doc_field.identifier])
@@ -768,7 +810,7 @@ class CreditUserSubmissionForm(CreditSubmissionForm):
                 error = True
 
         # Only perform the overall form validation if the submission
-        # is marked complete
+        # is marked complete and if the 
         if marked_complete:
             cleaned_data = super(CreditUserSubmissionForm, self).clean()
 

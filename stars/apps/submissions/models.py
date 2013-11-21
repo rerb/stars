@@ -1090,11 +1090,11 @@ class CreditSubmission(models.Model):
             @return the complete list of DocumentationFieldSubmission
             sub-class objects related to this CreditSubmission
         """
-        if (self.submission_fields):  # lazy init.
-            return self.submission_fields
+        if not self.submission_fields:  # cache.
+            self.submission_fields = self._submission_fields_for_documentation_fields(
+                self.credit.documentationfield_set.all())
 
-        return self._submission_fields_for_documentation_fields(
-            self.credit.documentationfield_set.all())
+        return self.submission_fields
 
     def get_public_submission_fields(self):
 
@@ -1130,6 +1130,21 @@ class CreditSubmission(models.Model):
                         documentation_field=field, credit_submission=self)
                     submission_field.save()
                 submission_field_list.append(submission_field)
+            else:
+                # use a dummy submission_field for tabular
+                class TabularSubmissionField():
+                    def __init__(self, credit_submission, documentation_field):
+                        self.credit_submission = credit_submission
+                        self.documentation_field = documentation_field
+                        self.documentation_field_id = documentation_field.id
+
+                    def get_value(self):
+                        #dummy
+                        return None
+
+                submission_field_list.append(TabularSubmissionField(
+                      credit_submission=self,
+                      documentation_field=field))
 
         self.submission_fields = submission_field_list
         return self.submission_fields
@@ -1168,7 +1183,7 @@ class CreditSubmission(models.Model):
             if field.documentation_field.is_required() and not field.value:
                 return False
         return True
- 
+
     def is_test(self):
         """Returns True if this is a test submission."""
         return hasattr(self, 'credittestsubmission')
@@ -1684,6 +1699,7 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
             return DateSubmission
         if field.type == 'upload':
             return UploadSubmission
+        
 
         return None
     get_field_class = staticmethod(get_field_class)
