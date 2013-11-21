@@ -317,10 +317,13 @@ class AccountCreateView(InstitutionAdminToolMixin, ValidationMessageFormMixin,
         user_level = form.cleaned_data['userlevel']
         user_email = form.cleaned_data['email']
         aashe_user = self.get_aashe_user(email=user_email)
-        if aashe_user.email != user_email:
-            logger.error("Inconsistent Emails: %s and %s. This means the AASHE Account is out of sync with drupal." % (user_email, aashe_user.email),
-                         extra={'request': self.request})
+
         if aashe_user:
+
+            if aashe_user.email != user_email:
+                logger.error("Inconsistent Emails: %s and %s. This means the AASHE Account is out of sync with drupal." % (user_email, aashe_user.email),
+                         extra={'request': self.request})
+
             StarsAccount.update_account(
                 self.request.user,
                 self.preferences.notify_users,
