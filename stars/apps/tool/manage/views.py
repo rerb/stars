@@ -320,7 +320,7 @@ class AccountCreateView(InstitutionAdminToolMixin, ValidationMessageFormMixin,
 
         if aashe_user:
 
-            if aashe_user.email != user_email:
+            if aashe_user.email.lower() != user_email.lower():
                 logger.error("Inconsistent Emails: %s and %s. This means the AASHE Account is out of sync with drupal." % (user_email, aashe_user.email),
                          extra={'request': self.request})
 
