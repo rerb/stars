@@ -1155,6 +1155,9 @@ class CreditSubmission(models.Model):
                         #dummy
                         return None
 
+                    def get_human_value(self):
+                        return ""
+
                 submission_field_list.append(TabularSubmissionField(
                       credit_submission=self,
                       documentation_field=field))
@@ -1712,7 +1715,6 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
             return DateSubmission
         if field.type == 'upload':
             return UploadSubmission
-        
 
         return None
     get_field_class = staticmethod(get_field_class)
@@ -1721,6 +1723,8 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
         """
             Returns a human readable version of the value
         """
+        if self.documentation_field.type == 'tabluar':
+            return ""
         if self.documentation_field.type == 'upload':
             if self.value:
                 return "http://stars.aashe.org%s" % self.value.url
