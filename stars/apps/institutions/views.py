@@ -318,17 +318,15 @@ class ParticipantReportsView(SortableTableViewWithInstProps):
         return Institution.objects.get_participants_and_reports().select_related(
             'current_submission').select_related('current_submission__creditset')
 
+
 class InstitutionScorecards(InstitutionStructureMixin, TemplateView):
     """
     Provides a list of available reports for an institution.
 
-    Reports with is_visible == False are filtered from the list.
+    Show all rated reports, and if the user has privileges with that
+    institution, they can see the preview of the current submission too
 
-    Unrated SubmissionSets will be displayed to participating users only.
-
-    If there's only one SubmissionSet to show, we short-circuit to the
-    scorecard for that SubmissionSet, rather than show, and have the user
-    select from, a list of one element.
+    see submissions/rules.py: user_can_preview_submission
     """
     template_name = 'institutions/scorecards/list.html'
 
@@ -340,16 +338,12 @@ class InstitutionScorecards(InstitutionStructureMixin, TemplateView):
         submission_sets = []
         qs = institution.submissionset_set.filter(is_visible=True)
 
-        if not institution.is_participant:
-            # non participants only see rated submissions
-            qs = qs.filter(status='r')
-
         for ss in qs:
             if (ss.status == 'r' or
                 user_can_preview_submission(self.request.user, ss)):
                 submission_sets.append(ss)
 
-        if len(submission_sets) < 1 and not institution.is_participant:
+        if len(submission_sets) < 1:
             raise Http404
 
         _context.update({'submission_sets': submission_sets,
