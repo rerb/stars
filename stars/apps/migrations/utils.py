@@ -254,16 +254,20 @@ def migrate_submission(old_ss, new_ss, keep_status=False):
 
             if prev_df:
                 field_class = f.__class__
-                try:
-                    prev_cus = CreditUserSubmission.objects.get(credit=prev_df.credit,
-                                                                subcategory_submission__category_submission__submissionset=old_ss)
-                    old_f = field_class.objects.get(
-                        documentation_field=prev_df,
-                        credit_submission=prev_cus)
-                    f.value = old_f.value
-                    f.save()
-                except field_class.DoesNotExist:
+                if field_class.__name__ == 'TabularSubmissionField':
+                    # don't migrate the tabular wrappers, cause they don't actually exist
                     pass
+                else:
+                    try:
+                        prev_cus = CreditUserSubmission.objects.get(credit=prev_df.credit,
+                                                                    subcategory_submission__category_submission__submissionset=old_ss)
+                        old_f = field_class.objects.get(
+                            documentation_field=prev_df,
+                            credit_submission=prev_cus)
+                        f.value = old_f.value
+                        f.save()
+                    except field_class.DoesNotExist:
+                        pass
 
         # don't save until all the fields are updated
         c.save()
