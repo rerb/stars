@@ -47,7 +47,7 @@
     {% endif %}
     {% include 'institutions/scorecards/submission_summary_table.html' %}
 
-	{% if creditset.has_boundary_feature %}
+	{% if submissionset.creditset.has_boundary_feature %}
     <div class="accordion" id="boundary">
        <div class="accordion-group">
          <div class="accordion-heading">
