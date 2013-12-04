@@ -301,7 +301,9 @@ class SubmissionSet(models.Model, FlaggableModel):
         if (self.reporter_status or
             self.status == FINALIZED_SUBMISSION_STATUS or
             self.institution.international or
-            self.institution.access_level == BASIC_ACCESS):
+            (not self.is_rated() and
+             self.institution.access_level == BASIC_ACCESS)
+        ):
 
             return self.creditset.rating_set.get(name='Reporter')
 
