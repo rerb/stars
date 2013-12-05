@@ -12,10 +12,36 @@ from models import (SubmissionSet,
                     Flag,
                     SubmissionInquiry,
                     ExtensionRequest)
+from stars.apps.credits.widgets import (CategorySelectTree,
+                                        SubcategorySelectTree,
+                                        CreditSelectTree)
 from stars.apps.credits.models import Rating
 
 
-class SubmissionSetAdmin(admin.ModelAdmin):
+class SubmissionSetMixin():
+    def get_institution_user_choices(self, submissionset):
+        user_list = []
+        for a in submissionset.institution.starsaccount_set.all():
+            user_list.append(a.user)
+        if submissionset.registering_user and submissionset.registering_user not in user_list:
+            user_list.append(submissionset.registering_user)
+        if submissionset.submitting_user and submissionset.submitting_user not in user_list:
+            user_list.append(submissionset.submitting_user)
+        choices = [(u.id, u.email) for u in user_list]
+        return choices
+
+    def get_subcategory_choices(self, submissionset):
+        choices = []
+        for cat_sub in submissionset.categorysubmission_set.all():
+            for sub_sub in cat_sub.subcategorysubmission_set.all():
+                choices.append((sub_sub.id, sub_sub.subcategory.title))
+        return choices
+
+    def get_responsible_party_choices(self, submissionset):
+        return [(rp.id, rp.email) for rp in submissionset.institution.responsibleparty_set.all()]
+
+
+class SubmissionSetAdmin(admin.ModelAdmin, SubmissionSetMixin):
     list_display = ('creditset', 'institution', 'date_registered',
                     'date_submitted', 'status', 'rating',
                     'is_locked', 'is_visible')
@@ -25,14 +51,7 @@ class SubmissionSetAdmin(admin.ModelAdmin):
     def get_form(self, request, obj=None, **kwargs):
         form = super(SubmissionSetAdmin, self).get_form(request, obj, **kwargs)
         if obj:
-            user_list = []
-            for a in obj.institution.starsaccount_set.all():
-                user_list.append(a.user)
-            if obj.registering_user and obj.registering_user not in user_list:
-                user_list.append(obj.registering_user)
-            if obj.submitting_user and obj.submitting_user not in user_list:
-                user_list.append(obj.submitting_user)
-            choices = [(u.id, u.email) for u in user_list]
+            choices = self.get_institution_user_choices(obj)
             form.base_fields['registering_user'].choices = choices
             form.base_fields['submitting_user'].choices = choices
         rating_choices = [(r.id, "%s (%s)" % (r.name, r.creditset.version)) for r in Rating.objects.all()]
@@ -71,10 +90,29 @@ class SubcategorySubmissionAdmin(admin.ModelAdmin):
 admin.site.register(SubcategorySubmission, SubcategorySubmissionAdmin)
 
 
-class CreditUserSubmissionAdmin(admin.ModelAdmin):
+class CreditUserSubmissionAdmin(admin.ModelAdmin, SubmissionSetMixin):
     list_filter = ("submission_status", 'credit')
     list_display = ("credit", "get_institution",
                     "submission_status", "last_updated")
+
+    class Media:
+        js = ("/media/static/bootstrap/js/jquery.js",
+              "/media/static/js/select_tree.js",)
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super(CreditUserSubmissionAdmin, self).get_form(request, obj, **kwargs)
+        if obj:
+            ss = obj.get_submissionset()
+            choices = self.get_institution_user_choices(ss)
+            form.base_fields['user'].choices = choices
+            choices = self.get_subcategory_choices(ss)
+            form.base_fields['subcategory_submission'].choices = choices
+            choices = []
+            form.base_fields['applicability_reason'].choices = [(ar.id, ar.title) for ar in obj.credit.applicabilityreason_set.all()]
+            form.base_fields['responsible_party'].choices = self.get_responsible_party_choices(ss)
+            form.base_fields['credit'].widget = CreditSelectTree()
+        return form
+
 admin.site.register(CreditUserSubmission, CreditUserSubmissionAdmin)
 
 
