@@ -655,6 +655,10 @@ class SubmissionInquiryView(InstitutionStructureMixin,
     inlines = [CreditSubmissionInquiryFormSet]
     template_name = "institutions/inquiries/new.html"
 
+    def get_object_list(self):
+        return get_submissions_for_scorecards(
+            institution=self.get_institution())
+
     def get_context_data(self, **kwargs):
         _c = super(SubmissionInquiryView, self).get_context_data(**kwargs)
         return _c
