@@ -1060,6 +1060,7 @@ TYPE_TO_WIDGET = {
 
 class Unit(models.Model):
     name = models.CharField(max_length=32)
+    equivalent = models.ForeignKey('Unit', null=True, blank=True)
 
     class Meta:
         ordering = ('name',)
@@ -1187,13 +1188,21 @@ class DocumentationField(VersionedModel):
                 self.is_choice())
 
     def can_have_units(self):
-        """ Return True iff the units option apply to this field. """
+        """ Return True if the units option apply to this field. """
         return (self.type in ('text', 'long_text', 'numeric') or 
                 self.is_choice())
 
-    def get_units(self):
+    def get_units(self, measurement_system='us'):
         """ Return the units associated with this field or None """
-        return self.units if self.can_have_units() else None
+        if not self.can_have_units():
+            return None
+        elif measurement_system.lower() == 'us':
+            return self.units
+        elif measurement_system.lower() == 'metric':
+            return self.units.equivalent
+        else:
+            raise Exception("unexpected measurement_system: {0}".format(
+                measurement_system))
 
     def num_submissions(self):
         """ Return the number of credit submissions where this
