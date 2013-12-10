@@ -1061,12 +1061,17 @@ TYPE_TO_WIDGET = {
 class Unit(models.Model):
     name = models.CharField(max_length=32)
     equivalent = models.ForeignKey('Unit', null=True, blank=True)
+    ratio = models.FloatField(null=True, blank=True)
 
     class Meta:
         ordering = ('name',)
 
     def __unicode__(self):
         return self.name
+
+    def convert(self, quantity):
+        """Return the quantity of equivalent Units."""
+        return quantity * self.ratio
 
 
 class DocumentationField(VersionedModel):
