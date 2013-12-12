@@ -281,6 +281,7 @@ class RatedInstitutions(SortableTableViewWithInstProps):
     def get_queryset(self):
         return Institution.objects.get_rated().select_related('rated_submission').select_related('rated_submission__creditset')
 
+
 class ParticipantReportsView(SortableTableViewWithInstProps):
     """
         Extending SortableTableView to show a sortable list
@@ -288,8 +289,8 @@ class ParticipantReportsView(SortableTableViewWithInstProps):
     """
 
     template_name = "institutions/institution_participant_reports_list.html"
-    default_key = 'name'
-    default_rev = '-'
+    default_key = 'date_submitted'
+    default_rev = ''
     secondary_order_field = 'name'
     columns = [
                     {
@@ -309,14 +310,17 @@ class ParticipantReportsView(SortableTableViewWithInstProps):
                     },
                     {
                         'key':'date_submitted',
-                        'sort_field':'current_submission__date_submitted',
+                        'sort_field':'rated_submission__date_submitted',
                         'title':'Submission Date',
                     },
               ]
 
     def get_queryset(self):
-        return Institution.objects.get_participants_and_reports().select_related(
-            'current_submission').select_related('current_submission__creditset')
+        qs = Institution.objects.get_participants_and_reports()
+        qs = qs.select_related('current_submission')
+        qs = qs.select_related('current_submission__creditset')
+        qs = qs.select_related('rated_submission')
+        return qs
 
 
 class InstitutionScorecards(InstitutionStructureMixin, TemplateView):
