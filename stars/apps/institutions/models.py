@@ -79,7 +79,7 @@ class Institution(models.Model):
         help_text=("This is a staff-only flag for disabling an "
                    "institution. An institution will NOT appear on "
                    "the STARS Institutions list until it is enabled."),
-        default=False)
+        default=True)
     contact_first_name = models.CharField("Liaison First Name", max_length=32)
     contact_middle_name = models.CharField("Liaison Middle Name",
                                            max_length=32,
