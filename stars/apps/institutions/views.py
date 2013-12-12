@@ -300,7 +300,7 @@ class ParticipantReportsView(SortableTableViewWithInstProps):
                     },
                     {
                         'key': 'version',
-                        'sort_field': 'current_submission__creditset__version',
+                        'sort_field': 'rated_submission__creditset__version',
                         'title': 'Version',
                     },
                     {
@@ -317,9 +317,8 @@ class ParticipantReportsView(SortableTableViewWithInstProps):
 
     def get_queryset(self):
         qs = Institution.objects.get_participants_and_reports()
-        qs = qs.select_related('current_submission')
-        qs = qs.select_related('current_submission__creditset')
         qs = qs.select_related('rated_submission')
+        qs = qs.select_related('rated_submission__creditset')
         return qs
 
 
