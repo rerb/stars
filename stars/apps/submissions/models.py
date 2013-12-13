@@ -1463,8 +1463,8 @@ class CreditTestSubmission(CreditSubmission):
         self.result = False
         self.computed_value = None
         messages = []
-        had_error = False
-        (ran, msg, exception, points) = self.credit.execute_formula(self)
+
+        (ran, msg, exception, points, debugging) = self.credit.execute_formula(self, debug=True)
         if ran:
             try:
                 self.expected_value = float(self.expected_value)   # are we expecting a numeric result?
@@ -1474,15 +1474,16 @@ class CreditTestSubmission(CreditSubmission):
                 self.computed_value = points
                 self.result = self.computed_value == self.expected_value
         else:
-            # Since this is test, substitute user-friendly message for real error message.
-            if isinstance(exception,AssertionError):
-                messages.append('Assertion Failed: %s'%exception)
+            # Since this is test, substitute user-friendly
+            # message for real error message.
+            if isinstance(exception, AssertionError):
+                messages.append('Assertion Failed: %s' % exception)
             elif exception:
-                messages.append('Formula Error: %s'%exception)
+                messages.append('Formula Error: %s' % exception)
             else:
                 messages.append(msg)
 
-        return (len(messages)>0, messages)
+        return (len(messages) > 0, messages, debugging)
 
     def reset_test(self):
         """ reset this test such that the computed_value is None """

@@ -2,6 +2,7 @@ from django.forms.models import modelformset_factory
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.views.generic import DeleteView
+from django.utils.html import mark_safe
 
 from stars.apps.helpers.forms.views import MultiFormView
 from stars.apps.credits.views import CreditNavMixin
@@ -600,8 +601,12 @@ class FormulaAndValidation(CreditEditorFormView):
         _context['show_delete_button'] = True
         _context['test_case_list'] = CreditTestSubmission.objects.filter(
             credit=_context['credit'])
+        debug_list = []
         for case in _context['test_case_list']:
-            case.run_test()
+            __msg_count, __messages, debugging = case.run_test()
+            debug_list.append(mark_safe(debugging))
+        _context['debug_list'] = debug_list
+
         return _context
 
     def extra_success_action(self, request, context):

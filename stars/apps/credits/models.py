@@ -804,7 +804,7 @@ else:
                                                                flat=True)
         return get_next_variable_name(fields)
 
-    def execute_formula(self, submission):
+    def execute_formula(self, submission, debug=False):
         """
             Execute the formula for this credit for the given submission data
 
@@ -820,31 +820,50 @@ else:
                 - exception: if not success or None
                 - points: the results of the formula execution (may not
                   be numeric!!)
+            if debug == true:
+                - debugging: any debugging output from the formula
         """
         # get the key that relates field identifiers to their values
         field_key = submission.get_submission_field_key()
         available_points = submission.get_available_points(use_cache=False)
         points = 0
+        debugging = ""
         try:
             if (self.formula):
                 # exec formula in restricted namespace
                 globals = {}  # __builtins__ gets added automatically
                 locals = {"points": points,
-                          "AVAILABLE_POINTS": available_points}
+                          "AVAILABLE_POINTS": available_points,
+                          "debugging": debugging}
                 locals.update(field_key)
                 exec self.formula in globals, locals
                 points = locals['points']
+                debugging = locals['debugging']
         # Assertions may be used in formula for extra validation -
         # assume assertion text is intended for user
         except AssertionError, e:
             return(False, "%s" % e, e, points)
         except Exception, e:
             logger.exception("Formula Exception: %s" % e)
-            return(False,
-                   "There was an error processing this credit. AASHE "
-                   "has noted the error and will work to resolve the issue.",
-                   e, points)
-        return (True, "Formula executed successfully", None, points)
+            if not debug:
+                return(False,
+                       "There was an error processing this credit. AASHE "
+                       "has noted the error and will work to resolve the issue.",
+                       e, points)
+            else:
+                debugging += "\n***Exception***\n %s" % e
+                return(False,
+                       "There was an error processing this credit. AASHE "
+                       "has noted the error and will work to resolve the issue.",
+                       e, points, debugging)
+        if not debug:
+            return (True, "Formula executed successfully", None, points)
+        else:
+            return (True,
+                    "Formula executed successfully",
+                    None,
+                    points,
+                    debugging)
 
     def execute_validation_rules(self, submission):
         """

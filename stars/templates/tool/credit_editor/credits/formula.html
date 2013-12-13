@@ -52,6 +52,27 @@
                 {% include "tool/credit_editor/credits/test_case_edit_list.html" %}
             {% endwith %}
         </table>
+        
+        <h2>
+        	Debugging Output
+        </h2>
+        
+        <table class='table table-striped'>
+        	<thead>
+        	<tr>
+        		<th>Test Case</th>
+        		<th>Info</th>
+        	</tr>
+        	</thead>
+        	<tbody>
+        {% for d in debug_list %}
+        	<tr>
+        		<td>#{{ forloop.counter }}</td>
+        		<td><pre>{{ d }}</pre></td>
+        	</tr>
+        {% endfor %}
+        	</tbody>
+		</table>
 
         <div class="accordion" id="add-test-case-accordion">
             <div class="accordion-group">
