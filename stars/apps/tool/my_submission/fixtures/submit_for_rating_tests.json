@@ -11,6 +11,19 @@
              "scoring_method": "get_STARS_v1_0_score"
         }
     },
+    
+    {
+        "pk": 2,
+         "model": "credits.creditset",
+         "fields":
+        {
+            "is_locked": false,
+             "release_date": "2011-08-12",
+             "version": "Test 2",
+             "tier_2_points": 0.25,
+             "scoring_method": "get_STARS_v1_0_score"
+        }
+    },
 
     {
         "pk": 5215,
