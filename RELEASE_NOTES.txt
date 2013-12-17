@@ -1,0 +1,4 @@
+1.2.2
+=====
+
+Updated Celery - will require clearing out of celery-related tables
