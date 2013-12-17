@@ -1201,17 +1201,12 @@ class DocumentationField(VersionedModel):
         return (self.type in ('text', 'long_text', 'numeric') or 
                 self.is_choice())
 
-    def get_units(self, measurement_system='us'):
+    def get_units(self):
         """ Return the units associated with this field or None """
         if not self.can_have_units():
             return None
-        elif measurement_system.lower() == 'us':
-            return self.units
-        elif measurement_system.lower() == 'metric':
-            return self.units.equivalent
         else:
-            raise Exception("unexpected measurement_system: {0}".format(
-                measurement_system))
+            return self.units
 
     def num_submissions(self):
         """ Return the number of credit submissions where this
