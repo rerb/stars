@@ -1073,6 +1073,10 @@ class Unit(models.Model):
         """Return the quantity of equivalent Units."""
         return quantity * self.ratio
 
+    def revert(self, quantity):
+        """Revert `quantity` from the equivalent Unit to this Unit."""
+        return quantity / self.ratio
+
 
 class DocumentationField(VersionedModel):
     credit = models.ForeignKey(Credit)
