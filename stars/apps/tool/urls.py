@@ -1,11 +1,15 @@
 from django.conf.urls.defaults import include, patterns, url
 
-from stars.apps.tool.views import (NoStarsAccountView, SelectInstitutionView,
+from stars.apps.tool.views import (NoStarsAccountView,
+                                   SelectInstitutionView,
+                                   SettingsUpdateView,
                                    SubmissionLockedView,
                                    SummaryToolView,
                                    ToolLandingPageView)
 
-urlpatterns = patterns("",
+urlpatterns = patterns(
+    "",
+
     url('^$', ToolLandingPageView.as_view(), name='tool-landing-page'),
 
     url('^no-stars-account/', NoStarsAccountView.as_view(),
@@ -29,6 +33,10 @@ urlpatterns = patterns("",
 
     url(r'^(?P<institution_slug>[^/]*)/$', SummaryToolView.as_view(),
         name='tool-summary'),
+
+    url(r'^(?P<institution_slug>[^/]*)/settings/$',
+        SettingsUpdateView.as_view(),
+        name='settings'),
 
     (r'^(?P<institution_slug>[^/]*)/manage/',
      include('stars.apps.tool.manage.urls')),

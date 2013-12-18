@@ -48,6 +48,18 @@
                 My Report(s)
             </a>
         </li>
+    	{% testrule user_has_access_level user 'admin' institution %}
+            <li{% if active_menu == "settings"%} class='active'{% endif %}>
+                {% if institution %}
+                    <a href='{% url settings institution.slug %}'>
+                {% else %}
+                    <a href='{% url tool-landing-page %}'>
+                {% endif %}
+                        <i class="icon-wrench"></i>
+                        Settings
+                    </a>
+            </li>
+        {% endtestrule %}
     {% endif %}
     {% if user.is_staff %}
         <li{% if active_menu == "admin"%} class='active'{% endif %}>
