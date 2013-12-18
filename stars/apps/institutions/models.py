@@ -174,6 +174,7 @@ class Institution(models.Model):
                                          blank=True,
                                          null=True,
                                          related_name='rated')
+    prefers_metric_system = models.BooleanField(default=False)
 
     def __unicode__(self):
         return self.name
