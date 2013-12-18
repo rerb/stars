@@ -2,7 +2,7 @@ from logging import getLogger
 import sys
 import string
 
-from django.forms import ModelForm
+from django.forms import ModelForm, widgets
 from django.forms.widgets import TextInput, ClearableFileInput, HiddenInput
 from django import forms
 from django.forms.extras.widgets import SelectDateWidget
@@ -229,18 +229,54 @@ class DateSubmissionForm(SubmissionFieldForm):
         fields = ['value']
 
 
+class MetricWidget(widgets.TextInput):
+    """A TextInput that converts its value into its Metric equivalent.
+
+    The conversion happens in render(), so is visible to the user.
+
+    Used by NumericSubmissionForm when the institution in question
+    prefers the Metric system.
+    """
+
+    def __init__(self, us_units, *args, **kwargs):
+        self.us_units = us_units
+        super(MetricWidget, self).__init__(*args, **kwargs)
+
+    def render(self, name, value, attrs=None):
+        """Convert `value` to metric equivalent quantity."""
+        if value:
+            value = self.us_units.convert(value)
+        return super(MetricWidget, self).render(name, value, attrs)
+
+
 class NumericSubmissionForm(SubmissionFieldForm):
+
     class Meta:
         model = NumericSubmission
         fields = ['value']
 
     def __init__(self, *args, **kwargs):
-        """ If there is an instance with choices, set up the choices. """
         super(NumericSubmissionForm, self).__init__(*args, **kwargs)
 
+        institution = self.instance.get_institution()
+        self.use_metric_system = institution.prefers_metric_system
+
+        if self.use_metric_system:
+            self.us_units = self.instance.get_units()
+            self.fields['value'].widget = MetricWidget(us_units=self.us_units)
+
     def clean_value(self):
-        """ If there is a range, use this to validate the number """
+        """ If we're displaying a metric quantity, revert it to its
+            US equivalent.
+
+            If there is a range, use this to validate the number.
+        """
         value = self.cleaned_data.get("value")
+
+        if value:
+            if self.use_metric_system:
+                value = self.us_units.revert(value)
+
         if self.instance and not (value is None):
             min = self.instance.documentation_field.min_range
             max = self.instance.documentation_field.max_range
@@ -258,6 +294,7 @@ class NumericSubmissionForm(SubmissionFieldForm):
 
         elif not self.instance:
             logger.info("No Instance")
+
         return value
 
 
@@ -417,6 +454,7 @@ class CreditSubmissionForm(LocalizedModelFormMixin, ModelForm):
         prefix = 0  # Ideally, form prefix would be submission field
                     #id, but this may not be set yet, and each must be
                     #unique.
+
         for field in self.instance.get_submission_fields():
             prefix +=1
             SubmissionFieldFormClass = SubmissionFieldForm.get_form_class(field)
@@ -424,7 +462,7 @@ class CreditSubmissionForm(LocalizedModelFormMixin, ModelForm):
                 # bind the field form to the data (if there was any)
                 form = SubmissionFieldFormClass(
                     data, files, instance=field,
-                    prefix="%s_%s"%(field.__class__.__name__,prefix) )
+                    prefix="%s_%s"%(field.__class__.__name__,prefix))
                 form['value'].field.widget.attrs['onchange'] = (
                     'field_changed(this);')  # see include.js
             else:

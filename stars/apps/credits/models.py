@@ -1079,12 +1079,22 @@ TYPE_TO_WIDGET = {
 
 class Unit(models.Model):
     name = models.CharField(max_length=32)
+    equivalent = models.ForeignKey('Unit', null=True, blank=True)
+    ratio = models.FloatField(null=True, blank=True)
 
     class Meta:
         ordering = ('name',)
 
     def __unicode__(self):
         return self.name
+
+    def convert(self, quantity):
+        """Return the quantity of equivalent Units."""
+        return quantity * self.ratio
+
+    def revert(self, quantity):
+        """Revert `quantity` from the equivalent Unit to this Unit."""
+        return quantity / self.ratio
 
 
 class DocumentationField(VersionedModel):
@@ -1206,13 +1216,16 @@ class DocumentationField(VersionedModel):
                 self.is_choice())
 
     def can_have_units(self):
-        """ Return True iff the units option apply to this field. """
+        """ Return True if the units option apply to this field. """
         return (self.type in ('text', 'long_text', 'numeric') or 
                 self.is_choice())
 
     def get_units(self):
         """ Return the units associated with this field or None """
-        return self.units if self.can_have_units() else None
+        if not self.can_have_units():
+            return None
+        else:
+            return self.units
 
     def num_submissions(self):
         """ Return the number of credit submissions where this
