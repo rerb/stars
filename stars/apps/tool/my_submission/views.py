@@ -165,8 +165,7 @@ class SubmitForRatingWizard(SubmissionToolMixin, SessionWizardView):
         A wizard that runs a user through the forms
         required to submit for a rating
     """
-    file_storage = FileSystemStorage(location=os.path.join(settings.MEDIA_ROOT,
-                                                           'temp'))
+    file_storage = FileSystemStorage(location=os.path.join('/tmp/stars_wizard_files/'))
 
     def update_logical_rules(self):
         super(SubmitForRatingWizard, self).update_logical_rules()

@@ -460,6 +460,7 @@ class Subscription(models.Model):
     amount_due = models.FloatField()
     reason = models.CharField(max_length='16', blank=True, null=True)
     paid_in_full = models.BooleanField(default=False)
+    late = models.BooleanField(default=False)
 
     MEMBER_BASE_PRICE = 900
     NONMEMBER_BASE_PRICE = 1400

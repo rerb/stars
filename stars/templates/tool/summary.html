@@ -23,6 +23,13 @@
 
 {% block institution_content %}
 
+
+	{% if not institution.current_subscription.paid_in_full and institution.current_subscription.late %}
+		<div class="alert alert-error">
+			Payment is late. Your access level has been downgraded to Basic.
+		</div>
+	{% endif %}
+
     <div class='row'>
         <div class='span9'>
             <table class='table table-striped table-bordered table-condensed'
@@ -86,7 +93,8 @@
                                             Due: ${{ s.amount_due|floatformat:"-2" }}
                                             <br/>
                                             <a
-                                              href="{% url subscription-payment-create institution.slug s.id %}">
+                                              href="{% url subscription-payment-create institution.slug s.id %}"
+                                              class='btn btn-danger'>
                                                 Pay Now
                                             </a>
                                         {% endif %}

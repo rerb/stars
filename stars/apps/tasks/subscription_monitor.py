@@ -57,6 +57,17 @@ def update_institution_properties():
     for i in Institution.objects.all():
 
         is_participant, current_subscription = eval_participant_status(i)
+
+        # if the current_subscription is over 30 days old, then mark as late
+        thirty = datetime.timedelta(days=30)
+
+        if current_subscription:
+            if (datetime.date.today() - thirty) > current_subscription.start_date:
+                current_subscription.late = True
+                current_subscription.save()
+                is_participant = False
+                print >> sys.stdout, "Late payment: %s" % current_subscription
+
         rated_submission = eval_rated_submission(i)
 
         # Participation Status

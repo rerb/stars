@@ -14,7 +14,8 @@ import logical_rules
 from stars.apps import payments
 from stars.apps.credits.models import CreditSet
 from stars.apps.institutions.models import (PendingAccount, StarsAccount,
-                                            Subscription, SubscriptionPayment)
+                                            Subscription, SubscriptionPayment,
+                                            Institution)
 from stars.apps.institutions.tests.subscription import (GOOD_CREDIT_CARD,
                                                         BAD_CREDIT_CARD)
 from stars.apps.submissions.models import ResponsibleParty
@@ -983,11 +984,18 @@ class SubscriptionPaymentCreateViewTest(InstitutionViewOnlyToolMixinTest):
         super(SubscriptionPaymentCreateViewTest, self).setUp()
         self.subscription = Subscription.create(institution=self.institution)
         self.subscription.save()
+        # make this the current subscription
+        self.institution.current_subscription = self.subscription
+        self.institution.save()
 
     def _get_pk(self):
         return self.subscription.id
 
     def test_form_valid_creates_payment(self):
+        # confirm that the institution isn't marked as a participant
+        i = Institution.objects.get(pk=1)
+        self.assertFalse(i.is_participant)
+
         """Does form_valid() create a payment?"""
         self.account.user_level = self.blessed_user_level
         self.account.save()
@@ -1004,6 +1012,10 @@ class SubscriptionPaymentCreateViewTest(InstitutionViewOnlyToolMixinTest):
 
         self.assertEqual(SubscriptionPayment.objects.count(),
                          initial_payment_count + 1)
+
+        # confirm institution is now a participant
+        i = Institution.objects.get(pk=1)
+        self.assertTrue(i.is_participant)
 
     def test_form_valid_no_payment_created_when_purchase_error(self):
         """Does form_valid *not* create a payment if there's a purchase error?
