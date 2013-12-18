@@ -238,14 +238,15 @@ class MetricWidget(widgets.TextInput):
     prefers the Metric system.
     """
 
-    def __init__(self, us_units, *args, **kwargs):
-        self.us_units = us_units
+    def __init__(self, units, *args, **kwargs):
+        self.units = units
         super(MetricWidget, self).__init__(*args, **kwargs)
 
     def render(self, name, value, attrs=None):
         """Convert `value` to metric equivalent quantity."""
-        if value:
-            value = self.us_units.convert(value)
+        if value and self.units:
+            value = float(value)  # sometimes value is a string  :-(
+            value = self.units.convert(value)
         return super(MetricWidget, self).render(name, value, attrs)
 
 
@@ -262,8 +263,8 @@ class NumericSubmissionForm(SubmissionFieldForm):
         self.use_metric_system = institution.prefers_metric_system
 
         if self.use_metric_system:
-            self.us_units = self.instance.get_units()
-            self.fields['value'].widget = MetricWidget(us_units=self.us_units)
+            self.units = self.instance.get_units()
+            self.fields['value'].widget = MetricWidget(units=self.units)
 
     def clean_value(self):
         """ If we're displaying a metric quantity, revert it to its
@@ -273,29 +274,49 @@ class NumericSubmissionForm(SubmissionFieldForm):
         """
         value = self.cleaned_data.get("value")
 
-        if value:
-            if self.use_metric_system:
-                value = self.us_units.revert(value)
+        if self.use_metric_system and value and self.units:
+            value = self.units.revert(value)
 
         if self.instance and not (value is None):
             min = self.instance.documentation_field.min_range
             max = self.instance.documentation_field.max_range
 
-            if min != None and max != None and (value < min or value > max):
-                raise forms.ValidationError(
-                    "The value is outside of the accepted range for this "
-                    "field (range: %d - %d)." % (min, max))
-            elif min != None and value < min:
-                raise forms.ValidationError(
-                    "The value is must be greater than or equal to %d." % min)
-            elif max != None and value > max:
-                raise forms.ValidationError(
-                    "The value is must be less than or equal to %d." %max)
-
+            if (min is not None and
+                max is not None and
+                (value < min or
+                 value > max)):
+                self.raise_validation_error(
+                    error_message=("The value is outside of the accepted "
+                                   "range for this field (range: {min} - "
+                                   "{max})."),
+                    min=min,
+                    max=max)
+            elif (min is not None and
+                  value < min):
+                self.raise_validation_error(
+                    error_message=("The value is must be greater than or "
+                                   "equal to {min}."),
+                    min=min)
+            elif (max is not None and
+                  value > max):
+                self.raise_validation_error(
+                    error_message=("The value is must be less than or equal "
+                                   "to {max}"),
+                    max=max)
         elif not self.instance:
             logger.info("No Instance")
 
         return value
+
+    def raise_validation_error(self, error_message, min=None, max=None):
+        """Raises forms.ValidationError, converting `min` and `max` in
+        the error message to metric, when appropriate.
+        """
+        if self.use_metric_system and self.units:
+            for num in min, max:
+                if num:
+                    num = self.units.convert(num)
+        raise forms.ValidationError(error_message.format(min=min, max=max))
 
 
 class TextSubmissionForm(SubmissionFieldForm):
