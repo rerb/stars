@@ -760,6 +760,12 @@ class SubscriptionPaymentCreateView(ValidationMessageFormMixin,
             messages.error(self.request, str(ccpe))
             return self.form_invalid(form)
 
+        # if this is the current subscription, make sure the school is
+        # now marked as a participant
+        if self.subscription == self.subscription.institution.current_subscription:
+            i = self.get_institution(use_cache=False)
+            i.is_participant = True
+            i.save()
         return super(SubscriptionPaymentCreateView, self).form_valid(form)
 
     def get_tab_content_title(self):
