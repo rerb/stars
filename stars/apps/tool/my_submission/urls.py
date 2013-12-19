@@ -13,7 +13,7 @@ from stars.apps.tool.my_submission.views import (
     EditBoundaryView,
     RatingCongratulationsView,
     SaveSnapshot,
-    SubcagegorySubmissionDetailView,
+    SubcategorySubmissionDetailView,
     SubmissionSummaryView,
     SubmitForRatingWizard)
 
@@ -60,7 +60,7 @@ urlpatterns = patterns(
         name='add-responsible-party'),
 
     url(r'^%s/$' % SUBCAT_PATH,
-     SubcagegorySubmissionDetailView.as_view(),
+     SubcategorySubmissionDetailView.as_view(),
      name='subcategory-submit'),
 
     url(r'^%s/$' % CREDIT_PATH,

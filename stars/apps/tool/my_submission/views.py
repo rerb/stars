@@ -293,7 +293,7 @@ class RatingCongratulationsView(SubmissionToolMixin, TemplateView):
         return super(RatingCongratulationsView, self).get(*args, **kwargs)
 
 
-class SubcagegorySubmissionDetailView(UserCanEditSubmissionMixin, UpdateView):
+class SubcategorySubmissionDetailView(UserCanEditSubmissionMixin, UpdateView):
 
     model = SubcategorySubmission
     template_name = 'tool/submissions/subcategory.html'
