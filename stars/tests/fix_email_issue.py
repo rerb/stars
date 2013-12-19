@@ -6,7 +6,23 @@ import re
 from datetime import date, timedelta
 
 from stars.apps.institutions.models import Institution
-from stars.apps.tasks.subscription_monitor import eval_participant_status
+
+
+def eval_participant_status(i):
+    """
+        Does the evaluation of participant status, instead of using
+        the is_participant field
+
+        returns (is_participant, current_subscription)
+    """
+
+    # see if there is a current subscription
+    for sub in i.subscription_set.order_by('start_date'):
+        if sub.start_date <= date.today() and sub.end_date >= date.today():
+            return (True, sub)
+
+    return (False, None)
+
 
 filename = "institution_list.txt"
 
