@@ -61,7 +61,7 @@ def update_institution_properties():
         # if the current_subscription is over 30 days old, then mark as late
         thirty = datetime.timedelta(days=30)
 
-        if current_subscription:
+        if current_subscription and not current_subscription.paid_in_full:
             if (datetime.date.today() - thirty) > current_subscription.start_date:
                 current_subscription.late = True
                 current_subscription.save()
