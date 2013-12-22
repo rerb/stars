@@ -1093,8 +1093,18 @@ class Unit(models.Model):
         return quantity * self.ratio
 
     def revert(self, quantity):
-        """Revert `quantity` from the equivalent Unit to this Unit."""
+        """Revert `quantity` from the equivalent Unit to this Unit.
+
+        Assumes self.ratio is not None or 0.0
+        """
         return quantity / self.ratio
+
+    def save(self, *args, **kwargs):
+        """Don't save any nonsensible ratios -- i.e., 0 or None."""
+        if self.ratio:
+            super(Unit, self).save(*args, **kwargs)
+        else:
+            raise Exception('ratio must be set and non-zero')
 
 
 class DocumentationField(VersionedModel):
