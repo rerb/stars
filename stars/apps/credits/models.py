@@ -1080,7 +1080,7 @@ TYPE_TO_WIDGET = {
 class Unit(models.Model):
     name = models.CharField(max_length=32)
     equivalent = models.ForeignKey('Unit', null=True, blank=True)
-    ratio = models.FloatField(null=True, blank=True)
+    ratio = models.FloatField(null=True, blank=True, default=1.0)
 
     class Meta:
         ordering = ('name',)
