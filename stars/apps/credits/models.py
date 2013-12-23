@@ -1081,6 +1081,7 @@ class Unit(models.Model):
     name = models.CharField(max_length=32)
     equivalent = models.ForeignKey('Unit', null=True, blank=True)
     ratio = models.FloatField(null=True, blank=True, default=1.0)
+    is_metric = models.BooleanField(default=False)
 
     class Meta:
         ordering = ('name',)
@@ -1236,6 +1237,20 @@ class DocumentationField(VersionedModel):
             return None
         else:
             return self.units
+
+    @property
+    def metric_units(self):
+        if self.units and self.units.is_metric:
+            return self.units
+        else:
+            return self.units.equivalent
+
+    @property
+    def us_units(self):
+        if self.units and not self.units.is_metric:
+            return self.units
+        else:
+            return self.units.equivalent
 
     def num_submissions(self):
         """ Return the number of credit submissions where this
