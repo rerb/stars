@@ -1231,26 +1231,21 @@ class DocumentationField(VersionedModel):
         return (self.type in ('text', 'long_text', 'numeric') or 
                 self.is_choice())
 
-    def get_units(self):
-        """ Return the units associated with this field or None """
-        if not self.can_have_units():
-            return None
-        else:
-            return self.units
-
     @property
     def metric_units(self):
-        if self.units and self.units.is_metric:
-            return self.units
-        else:
-            return self.units.equivalent
+        if self.units:
+            if self.units.is_metric:
+                return self.units
+            else:
+                return self.units.equivalent
 
     @property
     def us_units(self):
-        if self.units and not self.units.is_metric:
-            return self.units
-        else:
-            return self.units.equivalent
+        if self.units:
+            if not self.units.is_metric:
+                return self.units
+            else:
+                return self.units.equivalent
 
     def num_submissions(self):
         """ Return the number of credit submissions where this
