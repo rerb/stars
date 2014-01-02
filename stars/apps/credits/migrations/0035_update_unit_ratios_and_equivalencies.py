@@ -12,11 +12,11 @@ class Migration(DataMigration):
         mbtu = orm.Unit.objects.get(name='MBtu')
         mmbtu = orm.Unit.objects.get(name='MMBtu')
 
-        mbtu.equivalent = mmbtu
+        mbtu.equivalent = mbtu
         mbtu.ratio = 1
         mbtu.save()
 
-        mmbtu.equivalent = mbtu
+        mmbtu.equivalent = mmbtu
         mmbtu.ratio = 1
         mmbtu.save()
 
@@ -41,8 +41,8 @@ class Migration(DataMigration):
             name='Metric Tons of CO2 Equivalent')
 
         for metric_unit in [cubic_metres, gross_square_metres,
-                            hectares, square_metres, mbtu, mmbtu,
-                            metric_tons, metric_tons_of_co2_equivalent]:
+                            hectares, square_metres, metric_tons,
+                            metric_tons_of_co2_equivalent]:
             metric_unit.is_metric = True
             metric_unit.save()
 
