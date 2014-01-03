@@ -263,7 +263,7 @@ class NumericSubmissionForm(SubmissionFieldForm):
         self.use_metric_system = institution.prefers_metric_system
 
         if self.use_metric_system:
-            self.units = self.instance.get_units()
+            self.units = self.instance.documentation_field.metric_units
             self.fields['value'].widget = MetricWidget(units=self.units)
 
     def clean_value(self):

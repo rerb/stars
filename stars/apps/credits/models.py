@@ -1080,7 +1080,8 @@ TYPE_TO_WIDGET = {
 class Unit(models.Model):
     name = models.CharField(max_length=32)
     equivalent = models.ForeignKey('Unit', null=True, blank=True)
-    ratio = models.FloatField(null=True, blank=True)
+    ratio = models.FloatField(null=True, blank=True, default=1.0)
+    is_metric = models.BooleanField(default=False)
 
     class Meta:
         ordering = ('name',)
@@ -1093,8 +1094,18 @@ class Unit(models.Model):
         return quantity * self.ratio
 
     def revert(self, quantity):
-        """Revert `quantity` from the equivalent Unit to this Unit."""
+        """Revert `quantity` from the equivalent Unit to this Unit.
+
+        Assumes self.ratio is not None or 0.0
+        """
         return quantity / self.ratio
+
+    def save(self, *args, **kwargs):
+        """Don't save any nonsensible ratios -- i.e., 0 or None."""
+        if self.ratio:
+            super(Unit, self).save(*args, **kwargs)
+        else:
+            raise Exception('ratio must be set and non-zero')
 
 
 class DocumentationField(VersionedModel):
@@ -1220,12 +1231,21 @@ class DocumentationField(VersionedModel):
         return (self.type in ('text', 'long_text', 'numeric') or 
                 self.is_choice())
 
-    def get_units(self):
-        """ Return the units associated with this field or None """
-        if not self.can_have_units():
-            return None
-        else:
-            return self.units
+    @property
+    def metric_units(self):
+        if self.units:
+            if self.units.is_metric:
+                return self.units
+            else:
+                return self.units.equivalent
+
+    @property
+    def us_units(self):
+        if self.units:
+            if not self.units.is_metric:
+                return self.units
+            else:
+                return self.units.equivalent
 
     def num_submissions(self):
         """ Return the number of credit submissions where this
