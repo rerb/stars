@@ -63,8 +63,11 @@ urlpatterns = patterns(
      SubcategorySubmissionDetailView.as_view(),
      name='subcategory-submit'),
 
+    # Caching can cause inaccurate info to be displayed after
+    # changing Institution.prefers_metric_system (details below),
+    # so we `never_cache` this URL:
     url(r'^%s/$' % CREDIT_PATH,
-        CreditSubmissionDetailView.as_view(),
+        never_cache(CreditSubmissionDetailView.as_view()),
         name='creditsubmission-submit'),
 
     url(r'^%s/documentation/$' % CREDIT_PATH,
@@ -79,3 +82,22 @@ urlpatterns = patterns(
         CreditHistoryView.as_view(),
         name='credit-history')
 )
+
+# Here's an illustration of the problem with caching
+# CreditSubmissionDetailView, noted above.
+#
+#   1. Institution.prefers_metric_system is False, so
+#      fields that have a related measurement unit display
+#      the US versions, e.g., `acres` and `gallons`, not
+#      `hectares` and `cubic metres`.
+#   2. User pulls up credit submission page with fields labelled `acres`.
+#   3. User goes to Settings and sets Institution.prefers_metric_system
+#      to True.
+#   4. User goes back to same credit submission page, but rather than
+#      `hectares`, the field noted above is still labelled `acres`,
+#      *and the quantity has not been converted to metric*.  At this point,
+#      if the user simply saves the form, his data is corrupted, since
+#      the US quantity is submitted, but the backend thinks it's a metric
+#      quantity, since Institution.prefers_metric_system is True.  Since
+#      it's a metric quantity, it's converted to its US equivalent and
+#      this is stored in the database.
