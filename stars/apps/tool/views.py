@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.views.generic import ListView, RedirectView, TemplateView
 from django.views.generic.edit import UpdateView
@@ -234,3 +235,7 @@ class SettingsUpdateView(InstitutionAdminToolMixin, UpdateView):
 
     def get_object(self):
         return self.get_institution()
+
+    def form_valid(self, form):
+        messages.success(self.request, "Settings saved.")
+        return super(SettingsUpdateView, self).form_valid(form)
