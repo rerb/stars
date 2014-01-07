@@ -8,7 +8,7 @@ from stars.apps.tests.live_server import StarsLiveServerTest
 
 class MeasurementLiveServerTest(StarsLiveServerTest):
 
-    fixtures = ['credits.yaml']
+    fixtures = ['creditset_v2.json']
 
     def setUp(self, *args, **kwargs):
         super(MeasurementLiveServerTest, self).setUp(*args, **kwargs)
