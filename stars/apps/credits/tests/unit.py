@@ -7,6 +7,8 @@ from stars.apps.credits.models import Unit
 
 class UnitTest(TestCase):
 
+    fixtures = ['units.yaml']
+
     def __init__(self, *args, **kwargs):
         super(UnitTest, self).__init__(*args, **kwargs)
         self.unit = Unit()
@@ -36,3 +38,24 @@ class UnitTest(TestCase):
         amount = 10
         self.assertEqual(amount,
                          self.unit.convert(self.unit.revert(amount)))
+
+    def test_equivalent_conversion(self):
+        """Is convert(X) == equivalent.convert(convert(X))?
+
+        This is a test of data, really.  If the data's right
+        (or at least symmetrically incorrect), the test will
+        pass.  Data wrong?  Test fails.
+        """
+        amount = 1000
+        result = ''
+        for unit in Unit.objects.all():
+            if unit.equivalent:
+                unit_convert = unit.convert(amount)
+                equivalent_convert = unit.equivalent.convert(unit_convert)
+                if not round(equivalent_convert) == amount:
+                    result += ('{unit}: {equivalent_convert} is not equal '
+                               'to {amount}; ').format(
+                                   unit=unit,
+                                   equivalent_convert=equivalent_convert,
+                                   amount=amount)
+        self.assertEqual(result, '')
