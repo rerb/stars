@@ -9,3 +9,4 @@ from views import (CreditHistoryViewTest,
 from credit_history import GetSubmissionsetsToIncludeInHistoryTest
 from value_error import ValueErrorTest
 from srt87 import SRT87Test
+from measurement import MeasurementLiveServerTest
