@@ -1,0 +1,6 @@
+Eligibility inquiry:
+
+{% for r in responses %}
+{{ r.label }}:
+	{{ r.value }}
+{% endfor %}

@@ -1,0 +1,34 @@
+{% load l10n %}
+{% load logical_rules_tags %}
+{% load help %}
+
+{% if user.is_staff %}
+	<a href="{{ field.get_flag_url }}" class='btn btn-warning btn-mini'><i class='icon-flag icon-white'></i></a>
+{% endif %}
+{% if field.flags %}
+	{% for f in field.flags %}
+		<a 	href="{% if user.is_staff %}{{ f.get_admin_url }}{% else %}#{% endif %}"
+  	rel="popover"
+  	id="flag_{{ f.id }}"
+  	data-content="{{ f.description }}"
+  	data-original-title="Flagged Field">
+ 		<i class='icon-flag'> </i></a>
+ 	<script type='text/javascript'>$('#flag_{{ f.id }}').popover();</script>
+	{% endfor %}
+{% endif %}
+    
+{% include 'institutions/scorecards/field_formatting.html' %}
+    
+{% if not pdf and not preview %}
+  {% testrule user_is_institution_admin user institution %}
+  <a 	href="{{ field.get_correction_url }}"
+  	data-toggle="popover"
+  	data-html='true'
+  	data-placement='right'
+  	id="dc_{{ field.documentation_field.id|unlocalize }}"
+  	title="{% get_help_context 'data_correction_popup' %}"
+  	data-original-title="Data Correction Request">
+  		<i class='icon-pencil'> </i></a>
+  <script type='text/javascript'>$('#dc_{{ field.documentation_field.id|unlocalize }}').tooltip();</script>
+  {% endtestrule %}
+{% endif %}
