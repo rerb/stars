@@ -3,14 +3,11 @@
 """
 from stars.apps.institutions.models import Subscription
 from stars.apps.institutions.tests.subscription import GOOD_CREDIT_CARD
-from stars.apps.tests.live_server import StarsLiveServerTest
+from stars.apps.tests.live_server import (CannotFindElementError,
+                                          StarsLiveServerTest)
 
 LATER = 'later'
 NOW = 'now'
-
-
-class CannotFindElementError(Exception):
-    pass
 
 
 class RenewalTest(StarsLiveServerTest):
@@ -20,14 +17,6 @@ class RenewalTest(StarsLiveServerTest):
     def setUp(self):
         super(RenewalTest, self).setUp()
         self.go_to_reporting_tool()
-
-    def get_button_with_text(self, text):
-        buttons = self.selenium.find_elements_by_tag_name('button')
-        for button in buttons:
-            if button.text == text:
-                return button
-        raise CannotFindElementError('no {text} button?'.format(
-            text=text))
 
     @property
     def next_button(self):
@@ -83,27 +72,6 @@ class RenewalTest(StarsLiveServerTest):
             button = self.get_pay_later_radio_button()
         button.click()
         self.next_button.click()
-
-    def get_input_elements(self, type):
-        input_elements = self.selenium.find_elements_by_tag_name('input')
-        type_elements = [ib for ib in input_elements
-                         if ib.get_attribute("type") == type]
-        return type_elements
-
-    def get_text_input_element(self, end_of_id):
-        """Returns (the first) text input element with an
-        ID that ends with `end_of_id`.
-
-        Useful for locating elements on pages managed by
-        a FormWizard, which mangles element IDs.
-        """
-        text_input_elements = self.get_input_elements(type="text")
-        for text_input_element in text_input_elements:
-            if text_input_element.get_attribute("id").endswith(end_of_id):
-                return text_input_element
-        raise CannotFindElementError(
-            "no {0} element?".format(end_of_id.replace("_",
-                                                       " ")))
 
     # credit card number:
     @property
