@@ -39,17 +39,15 @@ class SubmissionSetTest(TestCase):
                                            name='Silver')
         rating = ss.get_STARS_rating()
         self.assertEqual(rating, silver_rating)
-        
-    def test_basic_access_silver_score_gets_reporter_rating(self):
-        """If BA SubmissionSet has silver score, does it get reporter rating?
+
+    def test_basic_access_silver_score_keeps_silver_rating(self):
+        """If BA SubmissionSet has silver score, does it keep silver rating?
         """
         institution = Institution.objects.get(name__startswith='Agnes')
         institution.access_level = BASIC_ACCESS
         institution.save()
         ss = SubmissionSet.objects.get(institution=institution)
         reporter_rating = Rating.objects.get(creditset=ss.creditset,
-                                             name='Reporter')
+                                             name='Silver')
         rating = ss.get_STARS_rating()
         self.assertEqual(rating, reporter_rating)
-        
-        
