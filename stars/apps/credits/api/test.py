@@ -1,9 +1,14 @@
 """
 Tests for the STARS credits API.
+
+These are included in stars/apps/credits/tests/__init__.py.
 """
+import unittest
+
 from stars.apps.api.test import ReadOnlyResourceTestCase
 
 
+AUTH = 'off'  # change to 'on' when authorization is turned back on
 BASE_API_PATH = '/api/0.1/credits/'
 
 
@@ -13,6 +18,7 @@ class CreditSetResourceTestCase(ReadOnlyResourceTestCase):
     detail_path = list_path + '4/'
     __test__ = True  # Override ReadOnlyResourceTestCase.__test__ for nose.
 
+    @unittest.skipIf(AUTH != 'on', 'authorization checking disabled')
     def test_get_creditset_list_requires_auth(self):
         self.requires_auth(self.list_path)
 
@@ -20,6 +26,7 @@ class CreditSetResourceTestCase(ReadOnlyResourceTestCase):
         resp = self.get(self.list_path)
         self.assertValidJSONResponse(resp)
 
+    @unittest.skipIf(AUTH != 'on', 'authorization checking disabled')
     def test_get_creditset_detail_requires_auth(self):
         self.requires_auth(self.detail_path)
 
@@ -34,6 +41,7 @@ class CategoryResourceTestCase(ReadOnlyResourceTestCase):
     detail_path = list_path + '6/'
     __test__ = True  # Override ReadOnlyResourceTestCase.__test__ for nose.
 
+    @unittest.skipIf(AUTH != 'on', 'authorization checking disabled')
     def test_get_category_list_requires_auth(self):
         self.requires_auth(self.list_path)
 
@@ -41,6 +49,7 @@ class CategoryResourceTestCase(ReadOnlyResourceTestCase):
         resp = self.get(self.list_path)
         self.assertValidJSONResponse(resp)
 
+    @unittest.skipIf(AUTH != 'on', 'authorization checking disabled')
     def test_get_category_detail_requires_auth(self):
         self.requires_auth(self.detail_path)
 
@@ -55,6 +64,7 @@ class SubcategoryResourceTestCase(ReadOnlyResourceTestCase):
     detail_path = list_path + '21/'
     __test__ = True  # Override ReadOnlyResourceTestCase.__test__ for nose.
 
+    @unittest.skipIf(AUTH != 'on', 'authorization checking disabled')
     def test_get_subcategory_list_requires_auth(self):
         self.requires_auth(self.list_path)
 
@@ -62,6 +72,7 @@ class SubcategoryResourceTestCase(ReadOnlyResourceTestCase):
         resp = self.get(self.list_path)
         self.assertValidJSONResponse(resp)
 
+    @unittest.skipIf(AUTH != 'on', 'authorization checking disabled')
     def test_get_subcategory_detail_requires_auth(self):
         self.requires_auth(self.detail_path)
 
@@ -76,6 +87,7 @@ class CreditResourceTestCase(ReadOnlyResourceTestCase):
     detail_path = list_path + '143/'
     __test__ = True  # Override ReadOnlyResourceTestCase.__test__ for nose.
 
+    @unittest.skipIf(AUTH != 'on', 'authorization checking disabled')
     def test_get_credit_list_requires_auth(self):
         self.requires_auth(self.list_path)
 
@@ -83,6 +95,7 @@ class CreditResourceTestCase(ReadOnlyResourceTestCase):
         resp = self.get(self.list_path)
         self.assertValidJSONResponse(resp)
 
+    @unittest.skipIf(AUTH != 'on', 'authorization checking disabled')
     def test_get_credit_detail_requires_auth(self):
         self.requires_auth(self.detail_path)
 
@@ -97,6 +110,7 @@ class DocumentationFieldResourceTestCase(ReadOnlyResourceTestCase):
     detail_path = list_path + '26/'
     __test__ = True  # Override ReadOnlyResourceTestCase.__test__ for nose.
 
+    @unittest.skipIf(AUTH != 'on', 'authorization checking disabled')
     def test_get_documentation_field_list_requires_auth(self):
         self.requires_auth(self.list_path)
 
@@ -104,6 +118,7 @@ class DocumentationFieldResourceTestCase(ReadOnlyResourceTestCase):
         resp = self.get(self.list_path)
         self.assertValidJSONResponse(resp)
 
+    @unittest.skipIf(AUTH != 'on', 'authorization checking disabled')
     def test_get_documentation_field_detail_requires_auth(self):
         self.requires_auth(self.detail_path)
 
