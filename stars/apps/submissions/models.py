@@ -23,7 +23,6 @@ from stars.apps.institutions.models import (BASIC_ACCESS,
                                             Institution)
 from stars.apps.submissions.export.pdf import build_report_pdf
 from stars.apps.notifications.models import EmailTemplate
-from stars.apps.credits.utils import get_array_for_tabular_fields
 
 PENDING_SUBMISSION_STATUS = 'ps'
 PROCESSSING_SUBMISSION_STATUS = 'pr'
@@ -1114,110 +1113,59 @@ class CreditSubmission(models.Model):
 
     def get_public_submission_fields(self):
 
-        try:
-            return self._submission_fields_for_documentation_fields(
-                self.credit.documentationfield_set.filter(is_published=True))
-        except Exception as e:
-            pass
+        return self._submission_fields_for_documentation_fields(
+            self.credit.documentationfield_set.filter(is_published=True))
 
     def _submission_fields_for_documentation_fields(self,
-                                                    documentation_field_set):
-        """
-            Returns all the public submission fields for reports
-            and populates the tabular fields
-        """
+                                                    documentation_field_list):
 
         # Create the list of submission fields.
         errors = False
 
         submission_field_list = []
-        documentation_field_list = list(documentation_field_set)
-        
-        for df in documentation_field_list:
+        for field in documentation_field_list:
+            SubmissionFieldModelClass = (
+                DocumentationFieldSubmission.get_field_class(field))
+            if SubmissionFieldModelClass:
+                try:
+                    submission_field = SubmissionFieldModelClass.objects.get(
+                        documentation_field=field, credit_submission=self)
+                    # ORM / Model Inheritance issue:
+                    #
+                    #   DocumentationFieldSubmission has a foreign key to
+                    #   CreditSubmission, but object may have reference to
+                    #   a sub-class!
+                    #
+                    #   Hack: (Joseph)  update the reference in the field
+                    #   we just loaded.
+                    submission_field.credit_submission = self
 
-            sf = self._get_submission_field_for_documentation_field(df)
+                except SubmissionFieldModelClass.DoesNotExist:
+                    submission_field = SubmissionFieldModelClass(
+                        documentation_field=field, credit_submission=self)
+                    submission_field.save()
+                submission_field_list.append(submission_field)
+            else:
+                # use a dummy submission_field for tabular
+                class TabularSubmissionField():
+                    def __init__(self, credit_submission, documentation_field):
+                        self.credit_submission = credit_submission
+                        self.documentation_field = documentation_field
+                        self.documentation_field_id = documentation_field.id
 
-            if sf and df.type == "tabular":
+                    def get_value(self):
+                        #dummy
+                        return None
 
-                tabl = get_array_for_tabular_fields(df)
+                    def get_human_value(self):
+                        return ""
 
-                sf.sub_table = []
-                for row in tabl:
-                    r = []
-                    for col in row:
-                        if col.__class__.__name__ == "DocumentationField":
-                            sub_sf = self._get_submission_field_for_documentation_field(col)
-                            r.append(sub_sf)
-                        else:
-                            r.append(col)
-                    sf.sub_table.append(r)
-
-                sf.subfield_list = []
-                # add all the other subfields
-                r = 0
-                c = 0
-                for row in df.tabular_fields['fields']:
-                    for cell in [cell for cell in row if cell != '']:
-                        sub_df = DocumentationField.objects.get(pk=int(cell))
-                        sub_sf = self._get_submission_field_for_documentation_field(sub_df)
-
-                        # remove from list so we don't encounter it after
-                        if sub_df in documentation_field_list:
-                            documentation_field_list.remove(sub_df)
-                        # remove from list if we've already added it.
-                        if sub_sf in submission_field_list:
-                            submission_field_list.remove(sub_sf)
-
-                        sf.subfield_list.append(sub_sf)
-                        c += 1
-                    r += 1
-            if sf:
-                submission_field_list.append(sf)
+                submission_field_list.append(TabularSubmissionField(
+                      credit_submission=self,
+                      documentation_field=field))
 
         self.submission_fields = submission_field_list
         return self.submission_fields
-
-    def _get_submission_field_for_documentation_field(self, df):
-        SubmissionFieldModelClass = (
-            DocumentationFieldSubmission.get_field_class(df))
-        if SubmissionFieldModelClass:
-            try:
-                submission_field = SubmissionFieldModelClass.objects.get(
-                    documentation_field=df, credit_submission=self)
-                # ORM / Model Inheritance issue:
-                #
-                #   DocumentationFieldSubmission has a foreign key to
-                #   CreditSubmission, but object may have reference to
-                #   a sub-class!
-                #
-                #   Hack: (Joseph)  update the reference in the field
-                #   we just loaded.
-                submission_field.credit_submission = self
-
-            except SubmissionFieldModelClass.DoesNotExist:
-                submission_field = SubmissionFieldModelClass(
-                    documentation_field=df, credit_submission=self)
-                submission_field.save()
-            return submission_field
-        else:
-            # use a dummy submission_field for tabular
-            class TabularSubmissionField():
-                def __init__(self, credit_submission, documentation_field):
-                    self.credit_submission = credit_submission
-                    self.documentation_field = documentation_field
-                    self.documentation_field_id = documentation_field.id
-
-                def get_value(self):
-                    #dummy
-                    return None
-
-                def get_human_value(self):
-                    return ""
-
-            return TabularSubmissionField(
-                  credit_submission=self,
-                  documentation_field=df)
-        return None
 
     def get_submission_field_values(self):
         """ Returns the list of documentation field values for this
@@ -1834,12 +1782,8 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
         if self.value == None or self.value == "":
             return True
         # if it's nothing but whitespace
-        try:
-            if re.match("^\s+$", self.value) != None:
-                return True
-        except TypeError:
-            # if the value is not a string, this will throw an exception
-            pass
+        if re.match("^\s+$", self.value) != None:
+            return True
         return False
 
     def get_correction_url(self):

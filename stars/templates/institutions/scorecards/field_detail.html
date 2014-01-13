@@ -1,54 +1,45 @@
 {% load humanize %}
 {% load help %}
-{% load list_access %}
+{% load logical_rules_tags %}
 
 <span class='scorecardFieldTitle'>
-    {{ field.documentation_field.title }}:
+	{% if user.is_staff %}
+		<a href="{{ field.get_flag_url }}" class='btn btn-warning btn-mini'><i class='icon-flag icon-white'></i></a>
+	{% endif %}
+	{% if field.flags %}
+    	{% for f in field.flags %}
+    		<a 	href="{% if user.is_staff %}{{ f.get_admin_url }}{% else %}#{% endif %}"
+		    	rel="popover"
+		    	id="flag_{{ f.id }}"
+		    	data-content="{{ f.description }}"
+		    	data-original-title="Flagged Field">
+	    		<i class='icon-flag'> </i></a>
+	    	<script type='text/javascript'>$('#flag_{{ f.id }}').popover();</script>
+    	{% endfor %}
+    {% endif %}
+    {{ field.documentation_field.title }}
+    {% if not pdf and not preview %}
+	    {% testrule user_is_institution_admin user institution %}
+		    <a 	href="{{ field.get_correction_url }}"
+		    	rel="popover"
+		    	id="dc_{{ field.id }}"
+		    	data-content="{% get_help_context 'data_correction_popup' %}"
+		    	data-original-title="Data Correction Request">
+		    		<i class='icon-pencil'> </i></a>
+		    <script type='text/javascript'>$('#dc_{{ field.id }}').popover();</script>
+	    {% endtestrule %}
+    {% endif %}:
 </span>
 
 {% if not field.is_empty %}
-	{% if field.documentation_field.type == 'tabular' %}
-		<table class="table table-bordered tabular">
-			<thead>
-				{% for row in field.sub_table %}
-					<tr>
-					{% for col in row %}
-						{% if forloop.parentloop.first %}
-							<th>{% if col %}{{ col }}{% endif %}</th>
-						{% elif forloop.first %}
-							<th>{% if col %}{{ col }}{% endif %}</th>
-						{% else %}
-							<td>
-							{% with col as field %}
-								{% include "institutions/scorecards/field_formatting_wrapped.html" %}
-							{% endwith %}
-							</td>
-						{% endif %}
-					{% endfor %}
-					
-					{% if forloop.first %}
-						</thead>
-						<tbody>
-					{% endif %}
-					</tr>
-				{% endfor %}
-			</tbody>
-		</table>
-	
-	{% else %}
-	    <div class='well'
-	        {% ifequal field.documentation_field.type 'long_text' %}
-	        style='padding: 10px 20px;'>
-	        {% else %}
-	        >
-	        {% endifequal %}
-	        {% block formatting_include %}{% include 'institutions/scorecards/field_formatting_wrapped.html' %}{% endblock %}
-	    </div>
-    {% endif %}
-    
-    {% comment %}
-    <!--  @todo : make the following a modal -->
-    {% endcomment %}
+    <div class='well'
+        {% ifequal field.documentation_field.type 'long_text' %}
+        style='padding: 10px 20px;'>
+        {% else %}
+        >
+        {% endifequal %}
+        {% block formatting_include %}{% include 'institutions/scorecards/field_formatting.html' %}{% endblock %}
+    </div>
     
     {% if field.corrections.all %}
     	{% for c in field.corrections.all %}

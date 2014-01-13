@@ -32,30 +32,6 @@
     height: 1.25cm;
   }
 }
-
-table.tabular {
-    border-collapse: collapse;
-    border: 1px solid #ffffff;
-    text-align: left;
-}
-
-table.tabular tr {
-    virtical-align: middle;
-}
-
-table.tabular td, table.tabular th {
-	vertical-align: middle;
-	padding: 10px 10px 4px 10px;
-}
-
-table.tabular td {
-    background-color: #eeeeee;
-}
-
-table.tabular th {
-    background-color: #dddddd;
-}
-
 		</style>
 
 		<link href='{{ project_path }}/static/css/pdf.css' rel='stylesheet' type='text/css' />
@@ -314,12 +290,8 @@ table.tabular th {
 								{% if credit_submission.submission_status == 'na' %}
 									Not Applicable
 								{% else %}
-									{% if cat.category.include_in_score %}
-										{{ credit_submission.assessed_points|floatformat:2 }} /
-										{% format_available_points credit_submission %}
-									{% else %}
-					            		Not scored
-					            	{% endif %}
+									{{ credit_submission.assessed_points|floatformat:2 }} /
+									{% format_available_points credit_submission %}
 								{% endif %}
 							</td>
 						{% endif %}
@@ -345,12 +317,8 @@ table.tabular th {
 						</tr><tr>
 						    {% if rating.publish_score and credit_submission.submission_status != 'na' %}
 						    <td>
-						    	{% if cat.category.include_in_score %}
-				            		{{ credit_submission.assessed_points|floatformat:2 }} /
-				            		{% format_available_points credit_submission %}
-				            	{% else %}
-				            		Not scored
-				            	{% endif %}
+				            	{{ credit_submission.assessed_points|floatformat:2 }} /
+				            	{% format_available_points credit_submission %}
 						    </td>
 						    {% endif %}
 						    <td>
