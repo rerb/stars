@@ -30,8 +30,8 @@ class TAApplicationForm(ModelForm):
         model = TAApplication
         # ordering
         fields = ["first_name", "last_name", "title", "department",
-                  "institution", "phone_number", "email", "address", "city",
-                  "state", "zipcode", "instituion_type", "subcategories",
+                  "institution", "phone_number", "email",
+                  "instituion_type", "subcategories",
                   "skills_and_experience", "related_associations", "resume",
                   "credit_weakness"]
 
@@ -59,7 +59,9 @@ class TAApplicationForm(ModelForm):
 
         cs = CreditSet.objects.get_latest()
         subset = Subcategory.objects.filter(category__creditset=cs).exclude(
-            title='Demo').exclude(title='Innovation')
+            title='Demo').exclude(
+            title='Innovation').exclude(
+            title='Institutional Characteristics')
         self.fields['subcategories'].choices = [(s.id, s.title) for s in subset]
 
 
