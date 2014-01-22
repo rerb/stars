@@ -76,8 +76,8 @@ def user_can_view_export(user, submission):
         elif (submission.institution.current_submission == submission and
               institution_has_export(submission.institution)):
             return True
-    elif submission.status == 'f':
-        return True
+        elif submission.status == 'f':
+            return True
     return False
 logical_rules.site.register("user_can_view_export",
                             user_can_view_export)
