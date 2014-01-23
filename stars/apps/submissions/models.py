@@ -501,32 +501,16 @@ class SubmissionSet(models.Model, FlaggableModel):
         from stars.apps.migrations.utils import create_ss_mirror
 
         # Participants keep their existing submission and save a duplicate
-        if self.institution.is_participant:
-            new_ss = create_ss_mirror(self, registering_user=user)
+        new_ss = create_ss_mirror(self, new_cs=self.creditset, registering_user=user)
 
-            new_ss.registering_user = user
-            new_ss.date_registered = date.today()
-            new_ss.date_submitted = date.today()
-            new_ss.submitting_user = user
-            new_ss.status = 'f'
-            new_ss.is_visible = True
-            new_ss.is_locked = False
-            new_ss.save()
-
-        # Respondents get a new, empty submissionset
-        else:
-            self.status = "f"
-            self.date_submitted = date.today()
-            self.submitting_user = user
-            new_ss = SubmissionSet(institution=self.institution,
-                                   creditset=CreditSet.objects.get_latest(),
-                                   registering_user=user,
-                                   date_registered=date.today(),
-                                   status=PENDING_SUBMISSION_STATUS)
-            new_ss.save()
-            self.institution.current_submission = new_ss
-            self.institution.save()
-            self.save()
+        new_ss.registering_user = user
+        new_ss.date_registered = date.today()
+        new_ss.date_submitted = date.today()
+        new_ss.submitting_user = user
+        new_ss.status = 'f'
+        new_ss.is_visible = True
+        new_ss.is_locked = False
+        new_ss.save()
 
         et = EmailTemplate.objects.get(slug="snapshot_successful")
         to_mail = [user.email,]
