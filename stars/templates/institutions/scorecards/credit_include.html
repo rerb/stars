@@ -77,9 +77,7 @@
 		            <i>indicates that no data was submitted for this field</i>
 		        </div>
 	            <br/>
-	            {% for field in credit_submission.get_public_submission_fields %}
-	                {% include 'institutions/scorecards/field_detail.html' %}
-	            {% endfor %}
+	            {% include "institutions/scorecards/field_list.html" %}
 		{% endif %}{% endif %}
 		{% endblock %}
     </div>

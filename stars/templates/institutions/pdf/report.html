@@ -32,6 +32,30 @@
     height: 1.25cm;
   }
 }
+
+table.tabular {
+    border-collapse: collapse;
+    border: 1px solid #ffffff;
+    text-align: left;
+}
+
+table.tabular tr {
+    virtical-align: middle;
+}
+
+table.tabular td, table.tabular th {
+	vertical-align: middle;
+	padding: 10px 10px 4px 10px;
+}
+
+table.tabular td {
+    background-color: #eeeeee;
+}
+
+table.tabular th {
+    background-color: #dddddd;
+}
+
 		</style>
 
 		<link href='{{ project_path }}/static/css/pdf.css' rel='stylesheet' type='text/css' />
@@ -361,9 +385,7 @@
 				        </div>
 				        {% block tab_content %}
 				            <br/>
-				            {% for field in credit_submission.get_public_submission_fields %}
-				                {% include 'institutions/pdf/field_detail.html' %}
-				            {% endfor %}
+                            {% include "institutions/pdf/field_list.html" %}
 				        {% endblock %}
 					{% endif %}{% endif %}
 				{% endfor %}

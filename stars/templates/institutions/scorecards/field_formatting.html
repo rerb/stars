@@ -1,5 +1,8 @@
 {% load humanize %}
 {% load report_tags %}
+{% load logical_rules_tags %}
+{% load help %}
+{% load l10n %}
 
 {% if not field.is_empty %}
 	{% ifequal field.documentation_field.type 'long_text' %}
@@ -30,4 +33,38 @@
 	        {% endifequal %}
 	    {% endifequal %}
 	{% endifequal %}
+{% else %}
+	<span class='green'>---</span>
+{% endif %}
+
+{% if not pdf and not preview %}
+
+	{% if field.flags %}
+	   	{% for f in field.flags %}
+	   		<a 	href="{% if user.is_staff %}{{ f.get_admin_url }}{% else %}#{% endif %}"
+		    	rel="tooltip"
+                data-toggle="tooltip"
+		    	id="flag_{{ f.id|unlocalize }}"
+		    	title="{{ f.description }}"
+		    	class='pull-right'>
+	    		<i class='icon-flag'> </i></a>
+	    	<script type='text/javascript'>$('#flag_{{ f.id|unlocalize }}').tooltip({'html': true});</script>
+	  	{% endfor %}
+	  {% endif %}
+	{% if user.is_staff %}
+		<a href="{{ field.get_flag_url }}" class='btn btn-mini pull-right'><i class='icon-flag'></i></a>
+	{% endif %}
+  
+	{% testrule user_is_institution_admin user institution %}
+	    <a 	href="{{ field.get_correction_url }}"
+	    	class='btn btn-mini pull-right'
+            data-toggle="tooltip"
+	    	id="dc_{{ field.id|unlocalize }}"
+	    	title="{% get_help_context 'data_correction_popup' %}">
+	    		<i class='icon-pencil'> </i></a>
+	    <script type='text/javascript'>
+	    	var options = {'html': true}
+	    	$('#dc_{{ field.id|unlocalize }}').tooltip(options);
+	    </script>
+	{% endtestrule %}
 {% endif %}

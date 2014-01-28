@@ -14,6 +14,7 @@ from jsonfield import JSONField
 
 from stars.apps.credits.utils import get_next_variable_name
 from mixins import VersionedModel
+from utils import get_array_for_tabular_fields
 
 RATING_DURATION = 365*3
 
@@ -960,6 +961,24 @@ else:
         """ See global compile_formula function... """
         return compile_formula(self.validation_rules, "Validation Rules")
 
+    def get_child_fields(self):
+        """
+            Returns a list of fields that are nested in another tabular field
+        """
+        df_excludes = []
+        for df in self.documentationfield_set.all().filter(type='tabular'):
+            for row in df.tabular_fields['fields']:
+                for cell in [cell for cell in row if cell != '']:
+                    df_excludes.append(int(cell))
+        return df_excludes
+
+    def get_nested_documentation_fields(self):
+        """
+            Returns a list of documentation fields, excluding those that are
+            nested in the table of another
+        """
+        return self.documentationfield_set.exclude(id__in=self.get_child_fields())
+
 
 def compile_formula(formula, label='Formula'):
     """
@@ -1127,6 +1146,9 @@ class DocumentationField(VersionedModel):
 
     def get_creditset(self):
         return self.credit.get_creditset()
+
+    def get_sub_table(self):
+        return get_array_for_tabular_fields(self)
 
     def save(self, *args, **kwargs):
         """ Override model.Model save() method to assign identifier and 

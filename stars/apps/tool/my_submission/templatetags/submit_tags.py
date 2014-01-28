@@ -100,3 +100,26 @@ def show_submission_field_control(form_list, id):
     return{"documentation_field":form.instance.documentation_field, "field_form":form }
 
 
+def _get_form(doc_field, submission_form):
+    form = None
+    form_list = submission_form.get_submission_fields_and_forms()
+    for ff in form_list:
+        if ff['field'].documentation_field == doc_field:
+            form = ff['form']
+    return form
+
+@register.inclusion_tag('tool/submissions/tags/documentation_field_form.html')
+def show_submission_form_for_field(doc_field, submission_form):
+    """ Displays the submission form for a documentation field """
+    form = _get_form(doc_field, submission_form)
+    return{"documentation_field": doc_field,
+           "field_form": form,
+           "field_template": "tool/submissions/tags/tabular_field.html",
+           "submission_form": submission_form}
+
+@register.inclusion_tag('tool/submissions/tags/documentation_field_inside_table.html')
+def show_submission_form_for_field_inside_table(doc_field, submission_form):
+    """ Displays the submission form for a documentation field """
+    form = _get_form(doc_field, submission_form)
+    return{"documentation_field": doc_field,
+           "field_form": form}

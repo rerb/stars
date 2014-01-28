@@ -5,6 +5,45 @@ register = template.Library()
 
 from stars.apps.credits.models import Choice
 from stars.apps.submissions.models import Boundary
+from stars.apps.submissions.models import DocumentationFieldSubmission
+
+
+def _get_field(doc_field, field_list):
+    for f in field_list:
+        if f.documentation_field == doc_field:
+            return f
+    return None
+
+
+@register.inclusion_tag('institutions/scorecards/field_detail.html', takes_context=True)
+def show_submission_field(context):
+    context['field'] = _get_field(context['field'],
+                                  context['submission_field_list'])
+    return context
+
+
+@register.inclusion_tag('institutions/pdf/field_detail.html', takes_context=True)
+def show_submission_field_pdf(context):
+    context['field'] = _get_field(context['field'],
+                                  context['submission_field_list'])
+    return context
+
+
+@register.inclusion_tag('institutions/scorecards/field_formatting.html', takes_context=True)
+def show_submission_field_inside_table(context):
+    context['field'] = _get_field(context['field'],
+                                  context['submission_field_list'])
+    return context
+
+
+@register.inclusion_tag('institutions/pdf/field_formatting.html', takes_context=True)
+def show_submission_field_inside_table_pdf(context):
+    print context['submission_field_list']
+    context['field'] = _get_field(context['field'],
+                                  context['submission_field_list'])
+    print context['field']
+    return context
+
 
 @register.inclusion_tag('institutions/tags/boundary_display.html')
 def show_boundary(submission):

@@ -1066,10 +1066,6 @@ class CreditSubmission(models.Model):
     def get_crumb_label(self):
         return str(self)
 
-    def get_scorecard_url(self):
-        return self.subcategory.get_scorecard_url(
-            self.category_submission.submissionset)
-
     def get_institution(self):
         return self.subcategory_submission.get_institution()
 

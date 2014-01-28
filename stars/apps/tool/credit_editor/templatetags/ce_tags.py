@@ -10,31 +10,35 @@ from stars.apps.tool.my_submission.forms import SubmissionFieldForm
 
 register = template.Library()
 
+
+def _get_form(doc_field, editing=False):
+    """
+        Gets a form for a documentation field
+    """
+    SubmissionFieldModelClass = DocumentationFieldSubmission.get_field_class(doc_field)
+    submission_field = SubmissionFieldModelClass(documentation_field=doc_field) if SubmissionFieldModelClass else None
+
+    SubmissionFieldFormClass = SubmissionFieldForm.get_form_class(submission_field)
+    form = SubmissionFieldFormClass(None, instance=submission_field)
+    form.fields['value'].widget.attrs = {'class': 'noMCE',
+                                         'disabled': 'disabled'}
+    return form
+
+
 @register.inclusion_tag('tool/submissions/tags/documentation_field_form.html')
-def show_field_form(doc_field):
+def show_field_form(doc_field, editing=False):
     """ Displays the submission form for a documentation field """
-    SubmissionFieldModelClass = DocumentationFieldSubmission.get_field_class(doc_field)
-    submission_field = SubmissionFieldModelClass(documentation_field=doc_field) if SubmissionFieldModelClass else None
+    # BUG!  If you take noMCE out here, things get weird!
+    return{"documentation_field": doc_field,
+           "field_form": _get_form(doc_field, editing)}
 
-    SubmissionFieldFormClass = SubmissionFieldForm.get_form_class(submission_field)
-    form = SubmissionFieldFormClass(None, instance=submission_field)
-    form.fields['value'].widget.attrs={'class': 'noMCE', 'disabled':'disabled'} # BUG!  If you take noMCE out here, things get weird!
-    return{"documentation_field":doc_field, "field_form":form }
 
-@register.inclusion_tag('tool/submissions/tags/documentation_field_control.html')
-def show_field_control_from_id(doc_field_id, editing=False):
-    """ Displays the submission form controls for a single documentation field """
-    if not doc_field_id:
-        return
-    doc_field = DocumentationField.objects.get(pk=doc_field_id)
-    SubmissionFieldModelClass = DocumentationFieldSubmission.get_field_class(doc_field)
-    submission_field = SubmissionFieldModelClass(documentation_field=doc_field) if SubmissionFieldModelClass else None
-
-    SubmissionFieldFormClass = SubmissionFieldForm.get_form_class(submission_field)
-    form = SubmissionFieldFormClass(None, instance=submission_field)
-    form.fields['value'].widget.attrs={'class': 'noMCE', 'disabled':'disabled'} # BUG!  If you take noMCE out here, things get weird!
-    return{"documentation_field":doc_field, "field_form":form, "tabular": True, "editing": editing}
-
+@register.inclusion_tag('tool/submissions/tags/documentation_field_inside_table.html')
+def show_field_form_inside_table(doc_field, editing=False):
+    """ Displays the submission form for a documentation field """
+    # BUG!  If you take noMCE out here, things get weird!
+    return{"documentation_field": doc_field,
+           "field_form": _get_form(doc_field, editing)}
 
 
 @register.inclusion_tag('tool/credit_editor/tags/crumbs.html')
@@ -49,6 +53,7 @@ def show_editor_crumbs(object):
         except AttributeError:
             return {}
     return {'object_set': object_set}
+
 
 @register.inclusion_tag('tool/credit_editor/tags/dependent_objects.html')
 def show_dependent_objects(object, depth=-1):

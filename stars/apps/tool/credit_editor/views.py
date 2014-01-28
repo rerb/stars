@@ -415,20 +415,11 @@ class CreditReportingFields(CreditEditorFormView):
         # Create the DocumentationField forms
         credit = context['credit']
 
-        # get documentation field set w/out those in tabular fields
-        df_excludes = []
-        for df in credit.documentationfield_set.all().filter(type='tabular'):
-            for row in df.tabular_fields['fields']:
-                for cell in [cell for cell in row if cell != '']:
-                    df_excludes.append(int(cell))
-
-        df_list = credit.documentationfield_set.exclude(id__in=df_excludes)
-
         form_list.update({'object_ordering': self.generate_form_set(
             request,
             DocumentationField,
             DocumentationFieldOrderingForm,
-            df_list)})
+            credit.get_nested_documentation_fields())})
 
         # Add a new category form to the context
         _context['new_field_form'] = NewDocumentationFieldForm(

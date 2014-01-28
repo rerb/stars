@@ -452,64 +452,6 @@ class CreditSubmissionForm(LocalizedModelFormMixin, ModelForm):
 
         return self._form_fields
 
-    def get_forms_with_tables(self):
-        """
-            Breaks up the forms into forms and subforms (in tables)
-        """
-        if hasattr(self, '_form_field_list_with_tables'):
-            return self._form_field_list_with_tables
-
-        self._form_field_list_with_tables = []
-        form_fields = self.get_submission_fields_and_forms()
-
-        # go through all documentation fields for this credit
-        for df in self.instance.credit.documentationfield_set.all():
-
-            # create a table wrapper if it's a table
-            if df.type == 'tabular':
-                table_wrapper = {'tabular': True,
-                                 'instance': {'documentation_field': df},
-                                 'errors': False,
-                                 'subforms': {}} # subforms are a dict for lookup purposes
-
-                subfield_id_list = []
-                for row in df.tabular_fields['fields']:
-                    for cell in [cell for cell in row if cell != '']:
-                        subfield_id_list.append(int(cell))
-
-                # populate subforms and remove from all form_fields
-                for sub_id in subfield_id_list:
-                    # remove from base list
-                    for f in form_fields:
-                        if f['field'].documentation_field_id == sub_id:
-                            table_wrapper['subforms']["%d" % sub_id] = f['form']
-                            if f['form'].errors:
-                                table_wrapper['errors'] = True
-                            form_fields.remove(f)
-                    # remove from new list, in case they are out of order
-                    for f in self._form_field_list_with_tables:
-                        if type(f) != dict and f.instance.documentation_field.id == sub_id:
-                            table_wrapper['subforms']["%d" % sub_id] = f
-                            if f.errors:
-                                table_wrapper['errors'] = True
-                            self._form_field_list_with_tables.remove(f)
-
-                # add the dummy form for the table
-                for f in form_fields:
-                    if f['field'].documentation_field_id == df.id:
-                        table_wrapper['form'] = f['form']
-                        table_wrapper['field'] = f['field']
-
-                self._form_field_list_with_tables.append(table_wrapper)
-
-            else:
-                for f in form_fields:
-                    if f['field'].documentation_field_id == df.id:
-                        self._form_field_list_with_tables.append(f['form'])
-                        break
-
-        return self._form_field_list_with_tables
-
     def save(self, commit=True):
         """
             Save the data in this form (update instance or create a

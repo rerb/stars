@@ -1,21 +1,23 @@
+{% load submit_tags %}
+
         {% if submission_form.non_field_errors %}
 		    <div class="alert alert-error">
 		        {{ submission_form.non_field_errors }}
 		    </div>
 		{% endif %}
-		{% if submission_form.non_field_warnings %}
+		Warnings?
+		{{ submission_form.warnings }}
+		{% if submission_form.warnings %}
 		    <div class="alert alert-warning">
 		        <a class="close" data-dismiss="alert">&times;</a></a>
-		        {{ submission_form.non_field_warnings }}
+		        {{ submission_form.warnings }}
 		    </div>
 		{% endif %}
-        {% for submit_field in submission_form.get_forms_with_tables %}
-        	<div class='documentationField'>
-            {% with submit_field.instance.documentation_field as documentation_field %}
-            {% with submit_field as field_form %}
-                {% include 'tool/submissions/tags/documentation_field_form.html' %}
-            {% endwith %}
-            {% endwith %}
-            </div>
-        {% endfor %}
+		{% with "tool/submissions/tags/tabular_field.html" as field_template %}
+	        {% for documentation_field in credit.get_nested_documentation_fields %}
+	        	<div class='documentationField'>
+	        		{% show_submission_form_for_field documentation_field submission_form %}
+	            </div>
+	        {% endfor %}
+		{% endwith %}     
         

@@ -15,34 +15,10 @@
 	{% if field_form.form.warnings %}
 		<div class="alert alert-warning">{{ field_form.form.warnings }}</div>
 	{% endif %}
-	<table class="table table-bordered">
-		<thead>
-			<tr>
-				<th></th>
-				{% for c in documentation_field.tabular_fields.colHeadings %}
-					<th>{{ c }}</th>
-				{% endfor %}
-			</tr>
-		</thead>
-		<tbody>
-			{% for row in documentation_field.tabular_fields.fields %}
-				<tr>
-					{% with forloop.counter0 as i %}
-						<th>{% get_list_index documentation_field.tabular_fields.rowHeadings i as heading %}{{ heading }}</th>
-					{% endwith %}
-					{% for col in row %}
-						<td>
-							{% if field_form.subforms %}
-								{% show_submission_field_control field_form.subforms col %}
-							{% else %}
-								{% show_field_control_from_id col editing %}
-							{% endif %}
-						</td>
-					{% endfor %}
-				</tr>
-			{% endfor %}
-		</tbody>
-	</table>
+	
+	{# NOTE: this requires the field_template context variable #}
+	{% include "credits/tabular_field.html" %}
+	
 {% else %}
 	{{ field_form.value }}
 	{% if not field_form.field_includes_units and documentation_field.units %}

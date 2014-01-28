@@ -31,7 +31,7 @@ def render_to_pdf(template_src, context_dict):
 #    print >> sys.stdout, "%s: Finished HTML" % datetime.now()
     result = StringIO.StringIO()
 #    print >> sys.stdout, "RESULT"
-#    print >> sys.stderr, html
+#     print >> sys.stderr, html
 
     # print >> sys.stdout, "%s: Generating PDF" % datetime.now()
     pdf = pisa.pisaDocument(html, result)
