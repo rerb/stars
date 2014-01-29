@@ -44,7 +44,7 @@ WEBDRIVERS = [Browser(platform='darwin',
               Browser(platform='darwin',
                       name='chrome',
                       sentinels=['/Applications/Google Chrome.app',
-                       '/usr/local/bin/chromedriver'],
+                                 '/usr/local/bin/chromedriver'],
                       implementation=chrome.webdriver),
               #TODO: test on linux . . . 
               Browser(platform='linux2',
@@ -63,6 +63,10 @@ WEBDRIVERS = [Browser(platform='darwin',
 
 def skip_live_server_tests():
     return '--liveserver=' in sys.argv
+
+
+class CannotFindElementError(Exception):
+    pass
 
 
 class LiveServerTestCase(django.test.LiveServerTestCase):
@@ -212,3 +216,32 @@ class StarsLiveServerTest(LiveServerTestCase):
         reporting_tool_tab = self.patiently_find(look_for='Reporting Tool',
                                                  by=By.LINK_TEXT)
         reporting_tool_tab.click()
+
+    def get_button_with_text(self, text):
+        buttons = self.selenium.find_elements_by_tag_name('button')
+        for button in buttons:
+            if button.text == text:
+                return button
+        raise CannotFindElementError('no {text} button?'.format(
+            text=text))
+
+    def get_input_elements(self, type):
+        input_elements = self.selenium.find_elements_by_tag_name('input')
+        type_elements = [ib for ib in input_elements
+                         if ib.get_attribute('type') == type]
+        return type_elements
+
+    def get_text_input_element(self, end_of_id):
+        """Returns (the first) text input element with an
+        ID that ends with `end_of_id`.
+
+        Useful for locating elements on pages managed by
+        a FormWizard, which mangles element IDs.
+        """
+        text_input_elements = self.get_input_elements(type='text')
+        for text_input_element in text_input_elements:
+            if text_input_element.get_attribute('id').endswith(end_of_id):
+                return text_input_element
+        raise CannotFindElementError(
+            'no {0} element?'.format(end_of_id.replace('_',
+                                                       ' ')))

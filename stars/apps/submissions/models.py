@@ -1730,7 +1730,8 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
                     if str_val[-3:] == '.00':
                         str_val = str_val[:-3]
 
-                    units = self.get_units()
+                    units = self.documentation_field.units
+
                     if units:
                         return "%s %s" % (str_val, units)
 
@@ -1753,10 +1754,6 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
         """ Use this accessor to get this submission's value - rather than
             accessing .value directly """
         return self.value
-
-    def get_units(self):
-        """ Return the units associated with the field for this submission """
-        return self.documentation_field.get_units()
 
     def is_empty(self):
         if self.value == None or self.value == "":

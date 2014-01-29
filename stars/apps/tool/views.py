@@ -1,11 +1,15 @@
+from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.views.generic import ListView, RedirectView, TemplateView
+from django.views.generic.edit import UpdateView
 
 from stars.apps.accounts.mixins import StarsAccountMixin
 from stars.apps.helpers.old_path_preserver import (OLD_PATHS_TO_PRESERVE,
                                                    new_path_for_old_path)
 from stars.apps.institutions.models import Institution, StarsAccount
-from stars.apps.tool.mixins import InstitutionToolMixin
+from stars.apps.tool.forms import SettingsUpdateForm
+from stars.apps.tool.mixins import (InstitutionAdminToolMixin,
+                                    InstitutionToolMixin)
 
 import logical_rules
 import stars.apps.accounts
@@ -221,3 +225,17 @@ class SelectInstitutionView(StarsAccountMixin, ListView):
             return new_path_for_old_path(path, stars_account.institution)
         else:
             return path
+
+
+class SettingsUpdateView(InstitutionAdminToolMixin, UpdateView):
+
+    template_name = "tool/settings.html"
+    form_class = SettingsUpdateForm
+    model = Institution
+
+    def get_object(self):
+        return self.get_institution()
+
+    def form_valid(self, form):
+        messages.success(self.request, "Settings saved.")
+        return super(SettingsUpdateView, self).form_valid(form)
