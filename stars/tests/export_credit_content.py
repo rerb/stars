@@ -12,8 +12,6 @@ from django.utils.encoding import smart_unicode, smart_str
 
 import csv, string
 
-from unicode_csv_writer import UnicodeWriter
-
 def export_credit_content(credit, ss_qs=None):
 
     filename = 'export/%s.csv' % string.replace("%s" % credit, "/", "-")
@@ -127,6 +125,7 @@ def export_credit_content(credit, ss_qs=None):
         row.append(smart_str(cus.submission_notes))
         csvWriter.writerow(row)
 
-credit = Credit.objects.get(pk=15)
-
-export_credit_content(credit)
+credit_id_list = [402, 403, 404, 405, 406, 407]
+for cid in credit_id_list:
+    credit = Credit.objects.get(pk=cid)
+    export_credit_content(credit)
