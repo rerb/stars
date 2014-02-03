@@ -37,7 +37,7 @@
 	<span class='green'>---</span>
 {% endif %}
 
-{% if not pdf and not preview %}
+{% if not pdf and not preview and not data_display %}
 
 	{% if field.flags %}
 	   	{% for f in field.flags %}

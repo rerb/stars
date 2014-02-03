@@ -213,7 +213,7 @@ COMMON_FILTERS = [
                                     ('United States', "United States of America"),
                                     ('Canada', 'Canada')
                                ],
-                               base_qs=SubmissionSet.objects.filter(status='r'),
+                               base_qs=SubmissionSet.objects.filter(status='r').exclude(creditset__version='2.0'),
                         ),
                         Filter(
                               key='institution__is_member',
@@ -222,7 +222,7 @@ COMMON_FILTERS = [
                                    ('AASHE Member', True),
                                    ('Not an AASHE Member', False)
                               ],
-                              base_qs=SubmissionSet.objects.filter(status='r'),
+                              base_qs=SubmissionSet.objects.filter(status='r').exclude(creditset__version='2.0'),
                         ),
                         Filter(
                                 key='institution__is_pcc_signatory',
@@ -231,7 +231,7 @@ COMMON_FILTERS = [
                                      ('ACUPCC Signatory', True),
                                      ('Not an ACUPCC Signatory', False)
                                 ],
-                                base_qs=SubmissionSet.objects.filter(status='r'),
+                                base_qs=SubmissionSet.objects.filter(status='r').exclude(creditset__version='2.0'),
                         ),
                         Filter(
                                 key='institution__charter_participant',
@@ -240,7 +240,7 @@ COMMON_FILTERS = [
                                      ('Charter Participant', True),
                                      ('Not a Charter Participant', False)
                                 ],
-                                base_qs=SubmissionSet.objects.filter(status='r'),
+                                base_qs=SubmissionSet.objects.filter(status='r').exclude(creditset__version='2.0'),
                         ),
                         Filter(
                                 key='institution__is_pilot_participant',
@@ -249,7 +249,7 @@ COMMON_FILTERS = [
                                      ('Pilot Participant', True),
                                      ('Not a Pilot Participant', False)
                                 ],
-                                base_qs=SubmissionSet.objects.filter(status='r'),
+                                base_qs=SubmissionSet.objects.filter(status='r').exclude(creditset__version='2.0'),
                         ),
                         Filter(
                                 key='rating__name',
@@ -260,7 +260,7 @@ COMMON_FILTERS = [
                                     ('Gold', 'Gold'),
                                     ('Platinum', 'Platinum'),
                                 ],
-                                base_qs=SubmissionSet.objects.filter(status='r'),
+                                base_qs=SubmissionSet.objects.filter(status='r').exclude(creditset__version='2.0'),
                         ),
                         RangeFilter(
                                 key='institution__fte',
@@ -275,7 +275,7 @@ COMMON_FILTERS = [
                                     ('10,000 - 19,999', 'u20000', 10000, 20000),
                                     ('Over 20,000', 'o20000', 20000, None),
                                 ],
-                                base_qs=SubmissionSet.objects.filter(status='r'),
+                                base_qs=SubmissionSet.objects.filter(status='r').exclude(creditset__version='2.0'),
                         ),
                       ]
 
@@ -746,7 +746,8 @@ class ContentFilter(DisplayAccessMixin, CommonFilterMixin,
                     field_class = DocumentationFieldSubmission.get_field_class(rf)
                     cus_lookup = "subcategory_submission__category_submission__submissionset"
                     # I have to get creditusersubmissions so i can be sure these are actual user submissions and not tests
-                    cus = CreditUserSubmission.objects.get(**{cus_lookup: ss, 'credit': rf.credit.get_for_creditset(ss.creditset)})
+                    credit = rf.credit.get_for_creditset(ss.creditset)
+                    cus = CreditUserSubmission.objects.get(**{cus_lookup: ss, 'credit': credit})
                     try:
                         df = field_class.objects.get(credit_submission=cus, documentation_field=rf.get_for_creditset(ss.creditset))
                         cred = CreditUserSubmission.objects.get(pk=df.credit_submission.id)
