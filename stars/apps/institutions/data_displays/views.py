@@ -315,7 +315,7 @@ class CommonFilterMixin(object):
                            key='institution__org_type',
                            title='Organization Type',
                            item_list=org_type_list,
-                           base_qs=SubmissionSet.objects.filter(status='r'),
+                           base_qs=SubmissionSet.objects.filter(status='r').exclude(creditset__version='2.0'),
                            ),
                    ] + COMMON_FILTERS
 
@@ -747,7 +747,10 @@ class ContentFilter(DisplayAccessMixin, CommonFilterMixin,
                     cus_lookup = "subcategory_submission__category_submission__submissionset"
                     # I have to get creditusersubmissions so i can be sure these are actual user submissions and not tests
                     credit = rf.credit.get_for_creditset(ss.creditset)
-                    cus = CreditUserSubmission.objects.get(**{cus_lookup: ss, 'credit': credit})
+                    try:
+                        cus = CreditUserSubmission.objects.get(**{cus_lookup: ss, 'credit': credit})
+                    except CreditUserSubmission.DoesNotExist:
+                        pass
                     try:
                         df = field_class.objects.get(credit_submission=cus, documentation_field=rf.get_for_creditset(ss.creditset))
                         cred = CreditUserSubmission.objects.get(pk=df.credit_submission.id)
