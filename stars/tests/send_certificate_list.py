@@ -8,7 +8,7 @@ from django.conf import settings
 from datetime import date
 import sys
 
-ss_list = SubmissionSet.objects.filter(date_submitted__gte=date(year=2013, month=4, day=15), status='r').order_by('date_submitted')
+ss_list = SubmissionSet.objects.filter(date_submitted__gte=date(year=2014, month=1, day=1), status='r').order_by('date_submitted')
 
 settings.EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 settings.CELERY_ALWAYS_EAGER = True
