@@ -73,7 +73,11 @@ def migrate_creditset(old_cs, new_version_name, release_date):
                         new_dfs.save()
     return new_cs
 
-def create_ss_mirror(old_ss, new_cs=None, registering_user=None):
+
+def create_ss_mirror(old_ss, new_cs=None,
+                     registering_user=None,
+                     keep_innovation=False,
+                     keep_status=False):
     """
 
         and migrates the data from old_ss leaving it unchanged
@@ -83,7 +87,10 @@ def create_ss_mirror(old_ss, new_cs=None, registering_user=None):
     new_ss = _new_submissionset_for_old_submissionset(old_ss,
                                                       new_cs,
                                                       registering_user)
-    return migrate_submission(old_ss, new_ss)
+    return migrate_submission(old_ss, new_ss,
+                              keep_innovation=keep_innovation,
+                              keep_status=keep_status)
+
 
 def _new_submissionset_for_old_submissionset(old_ss,
                                              new_cs=None,
@@ -143,7 +150,8 @@ def migrate_ss_version(old_ss, new_cs):
 
     return new_ss
 
-def migrate_submission(old_ss, new_ss, keep_status=False):
+
+def migrate_submission(old_ss, new_ss, keep_status=False, keep_innovation=False):
     """
         Migrate data from one SubmissionSet to another
 
@@ -151,7 +159,8 @@ def migrate_submission(old_ss, new_ss, keep_status=False):
         and transfer all the properties UNLESS the submissionsets
         are of different versions.
 
-        Note: don't migrate IN data if the previous submission was rated
+        Note: don't migrate IN data if the previous submission was rated,
+        unless indicated (in the case of a snapshot)
     """
     # if the old SubmissionSet hasn't been initialized we don't have
     # to do much:
@@ -163,7 +172,7 @@ def migrate_submission(old_ss, new_ss, keep_status=False):
     # check if we can migrate innovation data
     migrate_innovation_category = True
 
-    if old_ss.status == "r":
+    if old_ss.status == "r" and not keep_innovation:
         migrate_innovation_category = False
 
     # Since there is currently no change necessary with the category
