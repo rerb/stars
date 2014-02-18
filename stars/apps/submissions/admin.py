@@ -17,6 +17,8 @@ from stars.apps.credits.widgets import (CategorySelectTree,
                                         CreditSelectTree)
 from stars.apps.credits.models import Rating
 
+from django.forms.widgets import TextInput
+
 
 class SubmissionSetMixin():
     def get_institution_user_choices(self, submissionset):
@@ -117,7 +119,14 @@ admin.site.register(CreditUserSubmission, CreditUserSubmissionAdmin)
 
 
 class UploadSubmissionAdmin(admin.ModelAdmin):
-    pass
+
+    def get_form(self, request, obj=None, **kwargs):
+        form = super(UploadSubmissionAdmin, self).get_form(request, obj, **kwargs)
+        if obj:
+            form.base_fields['credit_submission'].widget = TextInput()
+            form.base_fields['documentation_field'].widget = TextInput()
+        return form
+
 admin.site.register(UploadSubmission, UploadSubmissionAdmin)
 
 
