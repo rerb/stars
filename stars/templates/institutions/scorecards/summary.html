@@ -10,11 +10,11 @@
 	{# cache for those who have the export functionality #}
 	
 	{% testrule user_can_view_export user submissionset %}
-		{% cache 21600 submission_summary submissionset.id preview "EXPORT" %}
+		{% cache 21600 submission_summary submissionset.id preview "EXPORT" user.is_staff %}
 	    	{% include 'institutions/scorecards/summary_include.html' %}
 		{% endcache %}
 	{% else %}
-		{% cache 21600 submission_summary submissionset.id preview "NO_EXPORT" %}
+		{% cache 21600 submission_summary submissionset.id preview "NO_EXPORT" user.is_staff %}
 	    	{% include 'institutions/scorecards/summary_include.html' %}
 		{% endcache %}
 	{% endtestrule %}
