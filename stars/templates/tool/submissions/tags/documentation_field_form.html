@@ -3,6 +3,11 @@
 
 {% autoescape off %}
 <div class="control-group{% if field_form.value.errors %} error{% else %}{% if field_form.warnings %} warning{% endif %}{% endif %}">
+  <!--
+    submission field:
+    {{ field_form.instance }}
+    {{ field_form.instance.id }}
+  -->
     <label class="control-label">
       	{% if documentation_field.is_required %}
 	    <span class='required_note'
