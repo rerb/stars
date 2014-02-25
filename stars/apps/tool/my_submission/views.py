@@ -84,7 +84,30 @@ class EditBoundaryView(UserCanEditSubmissionMixin, UpdateView):
             return None
 
 
-class SaveSnapshot(SubmissionToolMixin, FormView):
+class SubmitRedirectMixin():
+
+    def redirect_to_boundary(self):
+        messages.error(self.request,
+                      ("You must complete your Institutional Boundary"
+                       " before submitting for a rating."))
+        return HttpResponseRedirect(reverse('boundary-edit',
+                                            kwargs={
+                                                'institution_slug':
+                                                self.get_institution().slug,
+                                                'submissionset':
+                                                self.get_submissionset().id
+                                                }))
+
+    def redirect_to_my_submission(self):
+        messages.error(self.request,
+                       ("One or more required credits are not complete."))
+        return HttpResponseRedirect(reverse(
+            'submission-summary',
+            kwargs={'institution_slug': self.get_institution().slug,
+                    'submissionset': self.get_submissionset().id}))
+
+
+class SaveSnapshot(SubmitRedirectMixin, SubmissionToolMixin, FormView):
     """
         First step in the form for submission
     """
@@ -98,6 +121,12 @@ class SaveSnapshot(SubmissionToolMixin, FormView):
                                  ('submission', 'get_submissionset')],
              'message': ("Sorry, you do not have privileges "
                          "to submit a snapshot of this submission.")})
+        self.add_logical_rule({
+            'name': 'submission_is_not_missing_required_boundary',
+            'param_callbacks': [('submission',
+                                 'get_submissionset')],
+            'response_callback': 'redirect_to_boundary'
+        })
         super(SaveSnapshot, self).update_logical_rules()
 
     def get_success_url(self):
@@ -118,22 +147,6 @@ class SaveSnapshot(SubmissionToolMixin, FormView):
         ss = self.get_institution().current_submission
         ss.take_snapshot(user=self.request.user)
         return super(SaveSnapshot, self).form_valid(form)
-
-    def render_to_response(self, context, **response_kwargs):
-
-        try:
-            _ = context['active_submission'].boundary
-        except Boundary.DoesNotExist:
-            messages.info(self.request,
-                          "You must complete your Boundary before submitting.")
-            return HttpResponseRedirect(
-                reverse(
-                    'boundary-edit',
-                    kwargs={'institution_slug': self.get_institution().slug,
-                            'submissionset': self.get_submissionset().id}))
-
-        return super(SaveSnapshot, self).render_to_response(
-            context, **response_kwargs)
 
 
 SUBMISSION_STEPS = [
@@ -160,7 +173,7 @@ SUBMISSION_STEPS = [
 ]
 
 
-class SubmitForRatingWizard(SubmissionToolMixin, SessionWizardView):
+class SubmitForRatingWizard(SubmitRedirectMixin, SubmissionToolMixin, SessionWizardView):
     """
         A wizard that runs a user through the forms
         required to submit for a rating
@@ -215,26 +228,6 @@ class SubmitForRatingWizard(SubmissionToolMixin, SessionWizardView):
             _context['credit_list'] = qs
             _context['reporter_rating'] = self.get_submissionset().creditset.rating_set.get(name='Reporter')
         return _context
-
-    def redirect_to_boundary(self):
-        messages.error(self.request,
-                      ("You must complete your Institutional Boundary"
-                       " before submitting for a rating."))
-        return HttpResponseRedirect(reverse('boundary-edit',
-                                            kwargs={
-                                                'institution_slug':
-                                                self.get_institution().slug,
-                                                'submissionset':
-                                                self.get_submissionset().id
-                                                }))
-
-    def redirect_to_my_submission(self):
-        messages.error(self.request,
-                       ("One or more required credits are not complete."))
-        return HttpResponseRedirect(reverse(
-            'submission-summary',
-            kwargs={'institution_slug': self.get_institution().slug,
-                    'submissionset': self.get_submissionset().id}))
 
     def done(self, form_list, **kwargs):
         for form in form_list:
