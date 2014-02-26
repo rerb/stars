@@ -4,7 +4,8 @@ from stars.apps.institutions.rules import (institution_can_get_rated,
                                            institution_can_submit_report,
                                            user_has_access_level,
                                            institution_has_snapshot_feature,
-                                           institution_has_export)
+                                           institution_has_export,
+                                           user_is_institution_admin)
 from stars.apps.credits.models import CreditSet
 from stars.apps.submissions.models import Boundary
 
@@ -128,10 +129,20 @@ logical_rules.site.register("user_can_submit_report",
 
 
 def user_can_submit_snapshot(user, submission):
-    return (submission == submission.institution.current_submission and
-            user_can_manage_submission(user, submission) and
-            institution_has_snapshot_feature(submission.institution))
+    """
+        A user can submit a snapshot for any submissionset with the
+        "snapshot" feature, as long as...
+            - they are an admin for the institution
+            - the submission is their current submission or a report
+    """
+    if (submission.creditset.has_feature('snapshot') and
+        user_is_institution_admin(user, submission.institution)):
 
+        if (submission == submission.institution.current_submission or
+            submission.is_rated()):
+            return True
+
+    return False
 logical_rules.site.register("user_can_submit_snapshot",
                             user_can_submit_snapshot)
 
