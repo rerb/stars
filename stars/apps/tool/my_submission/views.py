@@ -136,15 +136,15 @@ class SaveSnapshot(SubmitRedirectMixin, SubmissionToolMixin, FormView):
 
     def get_context_data(self, **kwargs):
         _context = super(SaveSnapshot, self).get_context_data(**kwargs)
-        _context['active_submission'] = (
-            self.get_institution().current_submission)
+#         _context['active_submission'] = (
+#             self.self.get_submissionset())
         return _context
 
     def form_valid(self, form):
         """
             When the form validates, create a finalized submission
         """
-        ss = self.get_institution().current_submission
+        ss = self.get_submissionset()
         ss.take_snapshot(user=self.request.user)
         return super(SaveSnapshot, self).form_valid(form)
 
