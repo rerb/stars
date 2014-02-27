@@ -415,6 +415,7 @@ class ShareDataView(InstitutionAdminToolMixin,
             self.get_institution().third_parties.all())
         context['snapshot_list'] = SubmissionSet.objects.get_snapshots(
             self.get_institution())
+        context['latest_report'] = self.get_institution().get_latest_submission()
         return context
 
 
