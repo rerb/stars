@@ -77,13 +77,15 @@
     </table>
     
     <p align='center'>
-      {% testrule institution_has_snapshot_feature institution %}
+      {% testrule user_can_submit_snapshot user institution.current_submission %}
 		<a href='{% url save-snapshot institution.slug institution.current_submission.id %}' class='btn btn-success'>
 			<i class="icon-share-alt icon-white"></i> Take a Snapshot of Your Current "My Submission" Data Now</a>
         {% if latest_report %}
+          {% testrule user_can_submit_snapshot user latest_report %}
           <br/><br/>or<br/><br/>
           <a href='{% url save-snapshot institution.slug latest_report.id %}' class='btn btn-info'>
             <i class="icon-share-alt icon-white"></i> Take a Snapshot of Your Most Recent STARS Report ({{ latest_report.date_submitted }})</a>
+          {% endtestrule %}
         {% endif %}
       {% else %}
         <a href='{% url migrate-options institution.slug  %}' class='btn'>

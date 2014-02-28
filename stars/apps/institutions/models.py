@@ -297,7 +297,7 @@ class Institution(models.Model):
         """ Return the institutions most recent SubmissionSet,
         perhaps excluding the unrated ones """
         try:
-            return self.get_submissions(include_unrated)[0]
+            return self.get_submissions(include_unrated).order_by("-date_submitted")[0]
         except:
             return None
 
