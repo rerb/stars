@@ -1,4 +1,4 @@
-from django.utils.encoding import smart_str
+from django.utils.encoding import smart_unicode, smart_str
 from django.core.files.temp import NamedTemporaryFile
 
 from stars.apps.submissions.models import (SubmissionSet,
@@ -7,15 +7,52 @@ from stars.apps.submissions.models import (SubmissionSet,
                                            )
 
 import string, csv
+import io
+import cStringIO
+import codecs
 
 
-def export_credit_csv(credit, ss_qs=None):
+class UnicodeWriter:
+    """
+    A CSV writer which will write rows to CSV file "f",
+    which is encoded in the given encoding.
+    """
+
+    def __init__(self, f, dialect=csv.excel, encoding="utf-8", **kwds):
+        # Redirect output to a queue
+        self.queue = cStringIO.StringIO()
+        self.writer = csv.writer(self.queue, dialect=dialect, **kwds)
+        self.stream = f
+        self.encoder = codecs.getincrementalencoder(encoding)()
+
+    def writerow(self, row):
+        self.writer.writerow([s.encode("utf-8") for s in row])
+        # Fetch UTF-8 output from the queue ...
+        data = self.queue.getvalue()
+        data = data.decode("utf-8")
+        # ... and reencode it into the target encoding
+        data = self.encoder.encode(data)
+        # write to the target stream
+        self.stream.write(data)
+        # empty queue
+        self.queue.truncate(0)
+
+    def writerows(self, rows):
+        for row in rows:
+            self.writerow(row)
+
+def export_credit_csv(credit, ss_qs=None, outfilename=None):
     """
         Returns a NamedTemporaryFile with data from each submisisonset
         in ss_qs for the specified credit.
     """
-    tempfile = NamedTemporaryFile(suffix='.csv', delete=False)
-    csvWriter = csv.writer(tempfile)
+    if not outfilename:
+        outfile = NamedTemporaryFile(suffix='.csv', delete=False)
+        csvWriter = UnicodeWriter(outfile)
+    else:
+#         outfile = io.open(outfilename, 'w', encoding='utf8')
+        outfile = open(outfilename, 'wb')
+        csvWriter = UnicodeWriter(outfile)
 
     # Get the list of submissions for columns
     if not ss_qs:
@@ -24,7 +61,12 @@ def export_credit_csv(credit, ss_qs=None):
     cus_list = []
     for ss in ss_qs:
         ss_list.append(ss)
-        cus = CreditUserSubmission.objects.get(credit=credit.get_for_creditset(ss.creditset), subcategory_submission__category_submission__submissionset=ss)
+        try:
+            cus = CreditUserSubmission.objects.get(credit=credit.get_for_creditset(ss.creditset), subcategory_submission__category_submission__submissionset=ss)
+        except CreditUserSubmission.DoesNotExist:
+            print "MISSING CreditUserSubmission"
+            print credit
+            print ss
         cus_list.append(cus)
 
     # Get the list of fields in the credit for rows
@@ -35,23 +77,23 @@ def export_credit_csv(credit, ss_qs=None):
     # Create Columns
 
     columns = [
-                "Institution",
-                "Date Submitted",
-                "Last Updated",
-                "Liason Email",
+                u"Institution",
+                u"Date Submitted",
+                u"Last Updated",
+                u"Liason Email",
 #                "City",
 #                "State",
 #                "Country",
 #                "Org type",
 #                "FTE-Enrollment",
-                "Version",
-                "Status",
+                u"Version",
+                u"Status",
                ]
 
     for df in df_list:
-        columns.append(df)
+        columns.append(unicode(df))
 
-    columns.append('Public Notes')
+    columns.append(u'Public Notes')
 
     csvWriter.writerow(columns)
 
@@ -63,8 +105,8 @@ def export_credit_csv(credit, ss_qs=None):
 
         row = [
                 institution.name,
-                ss.date_submitted,
-                cus.last_updated,
+                unicode(ss.date_submitted),
+                unicode(cus.last_updated),
                 institution.contact_email,
 #                profile.city,
 #                profile.state,
@@ -76,11 +118,11 @@ def export_credit_csv(credit, ss_qs=None):
 
         # Status and Score
         if cus.submission_status == "na":
-            row.append("Not Applicable")
+            row.append(u"Not Applicable")
         elif cus.submission_status == 'np' or cus.submission_status == 'ns':
-            row.append("Not Pursuing")
+            row.append(u"Not Pursuing")
         else:
-            row.append("Pursuing")
+            row.append(u"Pursuing")
 
         for df in df_list:
 
@@ -113,14 +155,25 @@ def export_credit_csv(credit, ss_qs=None):
                                                str_val[:32000])
                             else:
                                 str_val = ""
-                            row.append(smart_str(str_val))
+                            row.append(smart_unicode(str_val))
 
                         else:
-                            row.append(smart_str(dfs.value))
-        row.append(smart_str(cus.submission_notes))
-        csvWriter.writerow(row)
+                            if dfs.value:
+                                row.append(unicode(dfs.value))
+                            else:
+                                row.append(u"--")
+        if cus.submission_notes:
+            row.append(cus.submission_notes)
+        else:
+            row.append(u"--")
 
-    tempfile.close()
-    print "Closing tempfile: %s" % tempfile.name
-    return tempfile.name
-    
+        try:
+            csvWriter.writerow(row)
+        except:
+            print row
+            assert False
+
+    else:
+        outfile.close()
+        print "Closing file: %s" % outfile.name
+        return outfile.name
