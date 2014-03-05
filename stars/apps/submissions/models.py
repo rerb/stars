@@ -361,7 +361,7 @@ class SubmissionSet(models.Model, FlaggableModel):
             Percentage of total achieved out of total available
         """
         innovation_score = 0
-        total_available = self.get_adjusted_available_points()
+        total_available = 0
         total_achieved = 0
 
         for cat in self.categorysubmission_set.all().select_related():
@@ -372,9 +372,9 @@ class SubmissionSet(models.Model, FlaggableModel):
                 total_achieved += _score
                 total_available += _avail
 
-        score = total_achieved / total_available
+        score = total_achieved / total_available * 100
 
-        score += innovation_score  # plus any innovation points
+        score += innovation_score[0]  # plus any innovation points
 
         return score if score <= 100 else 100
 
