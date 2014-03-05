@@ -44,7 +44,14 @@ def get_summary_sheet(submission, sheet):
         if min_width < get_width(len(cs.category.title)):
             min_width = get_width(len(cs.category.title))
         sheet.write(r, c, cs.category.title)
-        sheet.write(r, c + 1, cs.get_STARS_score())
+        if (submission.creditset.version == "1.0" or
+            submission.creditset.version == "1.1" or
+            submission.creditset.version == "1.2"):
+            sheet.write(r, c + 1, str(cs.get_STARS_score()))
+        else:
+            sheet.write(r, c + 1, str(cs.get_STARS_score()[0]))
+            sheet.write(r, c + 2, str(cs.get_STARS_score()[1]))
+
         r += 1
 
     sheet.col(c).width = min_width
