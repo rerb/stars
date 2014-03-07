@@ -12,11 +12,7 @@
 
 {% block tinymce %}{% endblock %}
 
-{% block editor_content %}
-    {% with active_tab="formula-and-validation" %}
-        {{ block.super }}
-    {% endwith %}
-{% endblock %}
+
 
 {% block credit_content %}
     <div class="tab-pane active">
@@ -74,6 +70,9 @@
         	</tbody>
 		</table>
 
+        <a href='{{ credit.get_edit_url }}formula/add-test-case/'
+          class='btn'>Add Test Case</a>
+        {% comment %}
         <div class="accordion" id="add-test-case-accordion">
             <div class="accordion-group">
                 <div class="accordion-heading">
@@ -113,6 +112,7 @@
                 </div>
             </div>
         </div>
+      {% endcomment %}
     </div>
 {% endblock %}
 
