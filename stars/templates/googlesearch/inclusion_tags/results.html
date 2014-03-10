@@ -1,5 +1,7 @@
 {% load static %}
 
+<!-- {{ STATIC_URL }} -->
+
 <div id="cse-search-results"></div>
 <script type="text/javascript">
     var googleSearchIframeName = "cse-search-results";
@@ -7,4 +9,4 @@
     var googleSearchFrameWidth = 600;
     var googleSearchDomain = "www.google.com";
     var googleSearchPath = "/cse";
-</script><script type="text/javascript" src="{{ STATIC_URL }}js/show_afs_search.js"></script>
+</script><script type="text/javascript" src="{% get_static_prefix %}js/show_afs_search.js"></script>
