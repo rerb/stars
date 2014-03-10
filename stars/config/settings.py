@@ -189,7 +189,6 @@ INSTALLED_APPS = (
     'collapsing_menu',
     'django_extensions',
     'djcelery',
-    'googlesearch',
     'raven.contrib.django.raven_compat',
     'logical_rules',
     'sorl.thumbnail',

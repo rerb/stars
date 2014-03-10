@@ -1,5 +1,3 @@
-{% load googlesearch_inclusion_tags %}
-
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -90,9 +88,6 @@
               {% block main_menu %}
                 {% include 'helpers/main_menu.html' %}
               {% endblock %}
-              {% if user.is_staff %}
-                {% googlesearch_form %}
-              {% endif %}
             </div>
           </div>
         </div>

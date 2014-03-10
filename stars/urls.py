@@ -32,9 +32,6 @@ urlpatterns = patterns('',
 
     # articles (cms):
     (r'^pages/', include('stars.apps.old_cms.urls')),
-    
-    # google search
-    (r'^search/', include('googlesearch.urls')),
 
     # tool
     (r'^tool/', include('stars.apps.tool.urls')),
