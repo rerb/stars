@@ -1,0 +1,11 @@
+{% load i18n %}
+
+<form class="navbar-form pull-right" id="cref" action="{% url googlesearch-results %}">
+  <input
+    type="hidden"
+    name="cref"
+    value="http{% if request.is_secure %}s{%endif %}://{{ request.META.HTTP_HOST }}{% url googlesearch-cref-cse %}" />
+  <input type="hidden" name="cof" value="FORID:9" />
+  <input type="text" size="10" style="width:150px;" name="q" />
+</form>
+<script type="text/javascript" src="http://www.google.com/cse/brand?form=cref"></script>
