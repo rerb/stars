@@ -5,7 +5,7 @@ from tastypie.bundle import Bundle
 from django.core.cache import cache
 
 from models import SubmissionSet, SubcategorySubmission, CreditUserSubmission
-from stars.apps.credits.models import Category, Subcategory
+from stars.apps.credits.models import Category, Subcategory, CreditSet
 
 import sys
 
@@ -38,6 +38,15 @@ class Slice(object):
 
 class SliceMixin(object):
 
+    def __init__(self, *args, **kwargs):
+        """
+            set the latest credit set to use
+        """
+        super(SliceMixin, self).__init__(*args, **kwargs)
+
+        self.newest_creditset_id = 5
+        self.newest_creditset_to_use = CreditSet.objects.get(pk=self.newest_creditset_id)
+
     def dehydrate_slices(self, bundle):
         slices = []
         for obj in bundle.obj.slices:
@@ -52,7 +61,7 @@ class SliceMixin(object):
         return slices
 
 
-class SummaryPieChart(Resource, SliceMixin):
+class SummaryPieChart(SliceMixin, Resource):
     name = fields.CharField(attribute='name')
     id = fields.IntegerField(attribute='id')
     slices = fields.ListField(attribute='slices')
@@ -82,7 +91,7 @@ class SummaryPieChart(Resource, SliceMixin):
 
         scores = {}
 
-        for ss in SubmissionSet.objects.get_rated().filter(creditset__id__lte=5):
+        for ss in SubmissionSet.objects.get_rated().filter(creditset__id__lte=self.newest_creditset_id):
             if ss.rating.publish_score:
                 for cat in ss.categorysubmission_set.order_by('category__ordinal').filter(category__include_in_score=True):
                     # @todo: exclude supplemental
@@ -101,7 +110,7 @@ class SummaryPieChart(Resource, SliceMixin):
                             'running_total': cat.score,
                             'title': latest.title,
                             'long_title': latest.title,
-                            'id': cat.category.get_latest_version().id
+                            'id': cat.category.get_for_creditset(self.newest_creditset_to_use).id
                         }
                         if cat.category.abbreviation != "IN":
                             scores[cat.category.abbreviation]['value'] = 32
@@ -127,7 +136,7 @@ class SummaryPieChart(Resource, SliceMixin):
         return [c]
 
 
-class CategoryPieChart(Resource, SliceMixin):
+class CategoryPieChart(SliceMixin, Resource):
     name = fields.CharField(attribute='name')
     id = fields.IntegerField(attribute='id')
     slices = fields.ListField(attribute='slices')
@@ -200,12 +209,13 @@ class CategoryPieChart(Resource, SliceMixin):
         qs = qs.filter(category_submission__submissionset__status='r')
         qs = qs.filter(category_submission__submissionset__is_locked=False)
         qs = qs.filter(category_submission__submissionset__is_visible=True)
+        qs = qs.filter(category_submission__submissionset__creditset__id__lte=self.newest_creditset_id)
 
         slice_dict = {}
 
         for sub in qs:
             if sub.category_submission.submissionset.rating.publish_score:
-                latest = sub.subcategory.get_latest_version()
+                latest = sub.subcategory.get_for_creditset(self.newest_creditset_to_use)
                 if latest.id in slice_dict.keys():
                     slice_dict[latest.id]['running_total'] += sub.get_claimed_points()
                     slice_dict[latest.id]['running_count'] += 1
@@ -234,7 +244,7 @@ class CategoryPieChart(Resource, SliceMixin):
         return c
 
 
-class SubategoryPieChart(Resource, SliceMixin):
+class SubategoryPieChart(SliceMixin, Resource):
     name = fields.CharField(attribute='name')
     id = fields.IntegerField(attribute='id')
     slices = fields.ListField(attribute='slices', null=True)
@@ -316,6 +326,7 @@ class SubategoryPieChart(Resource, SliceMixin):
         qs = qs.filter(subcategory_submission__category_submission__submissionset__is_locked=False)
         qs = qs.filter(subcategory_submission__category_submission__submissionset__is_visible=True)
         qs = qs.filter(subcategory_submission__category_submission__category__include_in_score=True)
+        qs = qs.filter(subcategory_submission__category_submission__submissionset__creditset__id__lte=self.newest_creditset_id)
 
         slice_dict = {}
 
@@ -324,7 +335,7 @@ class SubategoryPieChart(Resource, SliceMixin):
 
         for c in qs:
             count += 1
-            latest = c.credit.get_latest_version()
+            latest = c.credit.get_for_creditset(self.newest_creditset_to_use)
             key = latest.get_identifier()
             if key in slice_dict.keys():
                 slice_dict[key]['running_total'] += c.assessed_points
