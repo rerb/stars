@@ -81,9 +81,26 @@ class CategorySubmissionAdmin(admin.ModelAdmin):
 admin.site.register(CategorySubmission, CategorySubmissionAdmin)
 
 
-class DataCorrectionRequestAdmin(admin.ModelAdmin):
+class DataCorrectionRequestAdmin(SubmissionSetMixin, admin.ModelAdmin):
     list_display = ('user', 'reporting_field', 'date', 'approved')
     list_filter = ('approved',)
+
+    def get_form(self, request, obj=None, **kwargs):
+        """
+            Show the choice objects in the help text if this is a choice field
+        """
+        form = super(DataCorrectionRequestAdmin, self).get_form(request, obj, **kwargs)
+        if(obj.reporting_field.documentation_field.type == "choice"):
+            choice_list_text = ""
+            for c in obj.reporting_field.documentation_field.choice_set.all():
+                choice_list_text += "%d: %s<br/>" % (c.id, c.choice)
+            form.base_fields['new_value'].help_text = choice_list_text
+
+        cus = CreditUserSubmission.objects.get(pk=obj.reporting_field.credit_submission.id)
+        choices = self.get_institution_user_choices(cus.get_submissionset())
+        form.base_fields['user'].choices = choices
+        return form
+
 admin.site.register(DataCorrectionRequest, DataCorrectionRequestAdmin)
 
 

@@ -1524,6 +1524,17 @@ class DataCorrectionRequest(models.Model):
     user = models.ForeignKey(User, blank=True, null=True)
     approved = models.BooleanField(default=False)
 
+    def __unicode__(self):
+        return self.reporting_field.documentation_field.title
+
+    def get_absolute_url(self):
+        """
+            used to link back to the report from the admin
+        """
+        cus = CreditUserSubmission.objects.get(pk=self.reporting_field.credit_submission.id)
+#         ss = cus.subcategory_submission.category_submission.submissionset
+        return cus.get_scorecard_url()
+
     def save(self):
         """
             Check the approved property to see if this was approved
@@ -1555,6 +1566,9 @@ class DataCorrectionRequest(models.Model):
         """
             Approving a correction request creates a ReportingFieldDataCorrection
         """
+        prev_value = self.reporting_field.value
+        if not prev_value:
+            prev_value = "--"
         rfdc = ReportingFieldDataCorrection(
                                             previous_value=self.reporting_field.value,
                                             change_date = datetime.today(),
@@ -1562,7 +1576,10 @@ class DataCorrectionRequest(models.Model):
                                             explanation = self.explanation,
                                             request = self,
                                             )
-        self.reporting_field.value = self.new_value
+        if(self.reporting_field.documentation_field.type == "choice"):
+            self.reporting_field.value = Choice.objects.get(pk=int(self.new_value))
+        else:
+            self.reporting_field.value = self.new_value
         self.reporting_field.save()
         rfdc.save()
         self.approved = True
