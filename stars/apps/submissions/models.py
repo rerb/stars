@@ -1570,7 +1570,7 @@ class DataCorrectionRequest(models.Model):
         if not prev_value:
             prev_value = "--"
         rfdc = ReportingFieldDataCorrection(
-                                            previous_value=self.reporting_field.value,
+                                            previous_value=prev_value,
                                             change_date = datetime.today(),
                                             reporting_field = self.reporting_field,
                                             explanation = self.explanation,
