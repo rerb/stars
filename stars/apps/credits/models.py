@@ -1190,7 +1190,7 @@ class DocumentationField(VersionedModel):
             l, b, r = label[0:MAX].rpartition(' ')
             if not l:
                 l = label[0:MAX]
-            label = "%s ..." % l
+            label = u"%s ..." % l
         return label
 
     def get_escaped_tooltip_help_text(self):
