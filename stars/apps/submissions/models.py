@@ -1576,8 +1576,23 @@ class DataCorrectionRequest(models.Model):
                                             explanation = self.explanation,
                                             request = self,
                                             )
-        if(self.reporting_field.documentation_field.type == "choice"):
+
+        if self.reporting_field.documentation_field.type == "choice":
             self.reporting_field.value = Choice.objects.get(pk=int(self.new_value))
+        elif self.reporting_field.documentation_field.type == "boolean":
+            if self.new_value == "Yes":
+                self.reporting_field.value = True
+            elif self.new_value == "No":
+                self.reporting_field.value = False
+            else:
+                self.reporting_field.value = None
+
+            if rfdc.previous_value == True:
+                rfdc.previous_value = "Yes"
+            elif rfdc.previous_value == False:
+                rfdc.previous_value = "No"
+            else:
+                rfdc.previous_value = "Unknown"
         else:
             self.reporting_field.value = self.new_value
         self.reporting_field.save()

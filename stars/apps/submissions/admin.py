@@ -90,11 +90,15 @@ class DataCorrectionRequestAdmin(SubmissionSetMixin, admin.ModelAdmin):
             Show the choice objects in the help text if this is a choice field
         """
         form = super(DataCorrectionRequestAdmin, self).get_form(request, obj, **kwargs)
+        
         if(obj.reporting_field.documentation_field.type == "choice"):
             choice_list_text = ""
             for c in obj.reporting_field.documentation_field.choice_set.all():
                 choice_list_text += "%d: %s<br/>" % (c.id, c.choice)
             form.base_fields['new_value'].help_text = choice_list_text
+
+        if(obj.reporting_field.documentation_field.type == "boolean"):
+            form.base_fields['new_value'].help_text = "Use <b>Yes</b>, <b>No</b>, or <b>Unknown</b>"
 
         cus = CreditUserSubmission.objects.get(pk=obj.reporting_field.credit_submission.id)
         choices = self.get_institution_user_choices(cus.get_submissionset())
