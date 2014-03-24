@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 
+{% load cache %}
+{% load content %}
+{% load institution_lists %}
+
 {% block extra_style %}
 <style type='text/css'>
 .stars-hero {
@@ -16,6 +20,8 @@
 {% endblock header-tabs %}
 
 {% block content %}
+
+{% cache 7200 home-page %}
 <!-- template cached: {% now "jS F Y H:i" %} -->
 <div class="row">
   <div class="span12">
@@ -89,8 +95,7 @@
     <div class="span4">
       <div class="frontblock boxleft">
         <h2>Latest Updates</h2>
-	{% load content %}
-	{% display_block_content "highlights" %}
+	     {% display_block_content "highlights" %}
       </div>
       <a href="/pages/register/register-stars.html"><button class="btn btn-success" type="button">More Info</button></a>
     </div>
@@ -98,7 +103,6 @@
     <div class="span4">
       <div class="frontblock boxleft">
         <h2>Newly Rated</h2>
-        {% load institution_lists %}
         {% show_rated_registrants %}
       </div>
       <a href="{% url participants-reports %}"><button class="btn btn-success" type="button">See More Participants</button></a>
@@ -107,11 +111,7 @@
     <div class="span4 social-tabs">
       <div class="frontblock boxleft">
         <h2>Connect With Us</h2>
-        {% load content %}
-        {% load cache %}
-        {% cache 7200 twitter-feed %}
         {% display_twitter_feed %}
-        {% endcache %}
       </div>
       <a href="mailto:stars@aashe.org"><button class="btn btn-success contact-btn" type="button">Contact Us</button></a>
     </div>
@@ -126,11 +126,13 @@
       $('#ratingCarousel').carousel();
     });
   </script>
-  
-  {% endblock %}
+
+  {% endcache %}  
+{% endblock %}
  
 
 {% block post-content %}
+  {% cache 7200 homepage-partner-list %}
       <div class="row">
         <!-- partnership block -->
         {% block partners-list %}
@@ -156,4 +158,5 @@
         </div><!-- /.span12 .partners -->
         {% endblock %}
       </div><!-- /.row -->
+   {% endcache %}
 {% endblock post-content %}
