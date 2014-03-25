@@ -48,6 +48,8 @@ def display_twitter_feed(account="aashenews", count=2):
         local_timestamp = clean_timestamp + timedelta(hours=offset_hours)
         tweet['timestamp'] = local_timestamp
 
+        tweet['user']['profile_image_url'] = tweet['user']['profile_image_url'].replace("http", "https")
+
     return {'tweets': tweets}
 
 @register.inclusion_tag('helpers/tags/snippet_content.html')
