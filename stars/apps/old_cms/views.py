@@ -47,16 +47,13 @@ class CMSView(TemplateView):
         does match a Subcategory.slug, we redirect to the Subcategory
         URL.
         """
-        try:
-            slugged_obj = self._get_slugged_obj(slug=kwargs['category_slug'])
-            if isinstance(slugged_obj, Category):
-                self.category = slugged_obj
-            elif isinstance(slugged_obj, Subcategory):
-                return HttpResponseRedirect(slugged_obj.get_absolute_url())
-            else:
-                raise Http404
-        except:
-            pass
+        slugged_obj = self._get_slugged_obj(slug=kwargs['category_slug'])
+        if isinstance(slugged_obj, Category):
+            self.category = slugged_obj
+        elif isinstance(slugged_obj, Subcategory):
+            return HttpResponseRedirect(slugged_obj.get_absolute_url())
+        else:
+            raise Http404
 
         return super(CMSView, self).get(request, *args, **kwargs)
 
@@ -65,7 +62,7 @@ class CMSView(TemplateView):
 
         context = super(CMSView, self).get_context_data(*args, **kwargs)
 
-        context['categories'] = Category.objects.filter(published=True).order_by('ordinal')
+        # context['categories'] = Category.objects.filter(published=True).order_by('ordinal')
 
         # Creating inital values for each of these so that
         # I can use them as cache keys in the template
@@ -73,7 +70,7 @@ class CMSView(TemplateView):
                         'article': None})
 
         if 'article_slug' in kwargs:
-            article = get_object_or_404(NewArticle,
+            article = get_object_or_404(self.category.newarticle_set.all(),
                                         slug=kwargs['article_slug'],
                                         published=True)
             context['article'] = article

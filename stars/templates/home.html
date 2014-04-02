@@ -23,92 +23,68 @@
 
 {% cache 7200 home-page %}
 <!-- template cached: {% now "jS F Y H:i" %} -->
-<div class="row">
-  <div class="span12">
-    <img src="{{ STATIC_URL }}images/stickies.jpg"></img>
-    <div class="hero-unit">
-      <div id="storyCarousel" class="carousel slide">
-        <!-- Carousel items -->
-        <div class="carousel-inner">
-
-          <div class="active item" id="step1">
-            <div class="story-slide-text">
-              <h2>STARS 2.0 is here!</h2>
-              <p>Where do you stand in the higher education sustainability landscape? Click the arrows to get started.</p>
-            </div>
-          </div><!-- /.item -->
-
-          <div class="item" id="step2">
-            <div class="story-slide-text">
-              <h2>Register</h2>
-              <p>Create a baseline for continuous improvement while showcasing your campus's sustainability efforts.</p>
-            </div>
-          </div><!-- /.item -->
-
-          <div class="item" id="step3">
-            <div class="story-slide-text">
-              <h2>Engage</h2>
-              <p>Foster cross-campus sustainability collaboration by gathering a diverse data collection team.</p>
-            </div>
-          </div><!-- /.item -->
-
-          <div class="item" id="step4">
-            <div class="story-slide-text">
-              <h2>Report</h2>
-              <p>See what you're doing right and what you can improve on.</p>
-            </div>
-          </div><!-- /.item -->
-
-          <div class="item" id="step5">
-            <div class="story-slide-text">
-              <h2>Submit</h2>
-              <p>You did it! You earned an official STARS rating and established a sustainability baseline.</p>
-            </div>
-          </div><!-- /.item -->
-
-          <div class="item" id="step6">
-            <div class="story-slide-text">
-              <h2>Celebrate</h2>
-              <p>Show off that STARS seal and let everyone know about your good work.</p>
-            </div>
-          </div><!-- /.item -->
-
-          <div class="item" id="step7">
-            <div class="story-slide-text">
-              <h2>Evaluate</h2>
-              <p>Use STARS data gathered from your peers to enhance your own sustainability campus culture.</p>
-            </div>
-          </div><!-- /.item -->
-        </div>
-
-          <!-- Carousel nav -->
-          <a class="carousel-control left" href="#storyCarousel" data-slide="prev">‹</a>
-          <a class="carousel-control right" href="#storyCarousel" data-slide="next">›</a>
-        </div>
-
-      </div>
+<div class="row" style="padding-top: 10px;padding-bottom: 10px;">
+  <div class="span4" style='text-align: center;'>
+    <a href="/pages/about/technical-manual.html"
+      class='btn btn-info'
+      style='margin-bottom: 10px;'>
+    See the Credits »</a><br/>
+    <a href="/pages/about/technical-manual.html">
+    <img src="{{ STATIC_URL }}images/home/tm.png" /></a>
+  </div>
+  <div class="span4" style="text-align: center;;">
+    <div style="background-image:url('{{ STATIC_URL }}images/home/reporting_screenshot.png'); padding-bottom: 100px;">
+    <a
+      href="/pages/participate/register-stars.html"
+      class="btn btn-success btn-large"
+      style="margin-top: 130px; margin-bottom: 15px;">
+      Get Started Now</a><br/>
+    <a href="/pages/about/why-participate.html"
+    class="btn btn-small"
+    style='background-color: white;'>
+      Why Participate?
+    </a>
+    </div>
+    <!-- <div style='background-color: #eee; border: 1px solid #ddd; margin-top: 3em;'>
+      <label for="report-search">Find an Institution:</label>
+      <input type="text" class="input-large" />
+    </div> -->
+  </div>
+  <div class="span4" style="text-align: center;">
+    <a href="{% url participants-reports %}"
+      class="btn btn-info"
+      style='margin-bottom: 10px;'>
+      See all Reports »</a>
+    {% show_rated_registrants %}
+    
+    <div style="background-image:url('{{ STATIC_URL }}images/home/data-displays.png');background-position:center;background-repeat:no-repeat;">
+      <a href="/institutions/data-displays/dashboard/"
+        class="btn btn-inverse"
+        style='margin-top: 65px; margin-bottom: 45px;'>
+        Explore the Data »</a>
     </div>
   </div>
+ </div>
+ 
+  
+  <div class="row" style='margin-top: 15px;'>
+    <div class="span12" style="text-align: center; height: 400px" id="map_canvas">
+      <!-- <img src='{{ STATIC_URL }}/images/home/map-placeholder.png' /> -->
+    </div>
+  </div>
+  
+ <br/><br/>
 
   <div class="row">
 
-    <div class="span4">
+    <div class="span6">
       <div class="frontblock boxleft">
         <h2>Latest Updates</h2>
 	     {% display_block_content "highlights" %}
       </div>
-      <a href="/pages/register/register-stars.html"><button class="btn btn-success" type="button">More Info</button></a>
     </div>
 
-    <div class="span4">
-      <div class="frontblock boxleft">
-        <h2>Newly Rated</h2>
-        {% show_rated_registrants %}
-      </div>
-      <a href="{% url participants-reports %}"><button class="btn btn-success" type="button">See More Participants</button></a>
-    </div>
-
-    <div class="span4 social-tabs">
+    <div class="span6 social-tabs">
       <div class="frontblock boxleft">
         <h2>Connect With Us</h2>
         {% display_twitter_feed %}
@@ -120,43 +96,15 @@
   
   <script>
     $(document).ready(function(){
-      $('#storyCarousel').carousel({
-        interval: 0
-       });
       $('#ratingCarousel').carousel();
     });
   </script>
+  
+  {% show_institutions_map %}
 
   {% endcache %}  
 {% endblock %}
  
 
 {% block post-content %}
-  {% cache 7200 homepage-partner-list %}
-      <div class="row">
-        <!-- partnership block -->
-        {% block partners-list %}
-        <div class="span12 partners partners-start">
-          <h4>STARS Partner Organizations</h4>
-            <a href="http://www.acuho-i.org/?tabid=125"><img src="{{ STATIC_URL }}images/partners/acuho-logo.png"></img></a>
-            <a href="http://www2.aashe.org/heasc/"><img src="{{ STATIC_URL }}images/partners/HEASClogo_green_WEB.jpg"></img></a>
-            <a href="http://www.naepnet.org/iMIS15_PROD/"><img src="{{ STATIC_URL }}images/partners/NAEP_0.jpg"></img></a>
-            <a href="http://www.secondnature.org/"><img src="{{ STATIC_URL }}images/partners/second-nature.jpg"></img></a>
-            <a href="http://www.nacufs.org/i4a/pages/index.cfm?pageid=1"><img src="{{ STATIC_URL }}images/partners/NACUFS.jpg"></img></a>
-	</div>
-	<div class="span12 partners">
-            <a href="http://www.nwf.org/Global-Warming/Campus-Solutions.aspx"><img src="{{ STATIC_URL }}images/partners/campus-ecology.jpg"></img></a>
-            <a href="http://www.scup.org/page/index"><img src="{{ STATIC_URL }}images/partners/SCUP-logo.jpg"></img></a>
-            <a href="http://www.graduationpledge.org/"><img src="{{ STATIC_URL }}images/partners/gpa_logo.jpg"></img></a>
-            <a href="http://www.endowmentethics.org/"><img src="{{ STATIC_URL }}images/partners/REC.JPG"></img></a>
-            <a href="http://www2.myacpa.org/"><img src="{{ STATIC_URL }}images/partners/acpa_wtag.jpg"></img></a>
-	</div>
-        <div class="span12 partners pull-left">
-            <a href="http://www.leafme.ca/"><img src="{{ STATIC_URL }}images/partners/leaf_logo.jpg"></img></a>
-            <a href="http://syc-cjs.org/"><img src="{{ STATIC_URL }}images/partners/syc_2008.jpg"></img></a>
-            <a href="http://www.focusthenation.org/"><img src="{{ STATIC_URL }}images/partners/ftn_text_logo_vert.jpg"></img></a>
-        </div><!-- /.span12 .partners -->
-        {% endblock %}
-      </div><!-- /.row -->
-   {% endcache %}
 {% endblock post-content %}
