@@ -39,7 +39,7 @@
     </div> -->
   </div>
   
-  <div class="span3" style='text-align: center;'>
+  <div class="span3" style='text-align: center;padding-bottom: 20px;'>
     <!-- <a href="/pages/about/technical-manual.html"
       class='btn btn-info'
       style='margin-bottom: 10px;'>
@@ -49,22 +49,19 @@
   </div>
 
   <div class="span3" style="text-align: center;">
-    {% show_rated_registrants %}
     <a href="{% url participants-reports %}"
-      class="btn"
+      class="btn btn-small"
       style='margin-bottom: 10px;'>
-      See all Reports »</a>
-    
+      See all Reports »</a><br/><br/>
+    {% show_rated_registrants %}
   </div>
 
   <div class="span3" style="text-align: center;">
-    <div style="background-image:url('{{ STATIC_URL }}images/home/data-displays.png');background-position:center;background-repeat:no-repeat;">
       <a href="/institutions/data-displays/dashboard/"
-        class="btn btn-inverse"
-        style='margin-top: 65px; margin-bottom: 45px;'>
-        Explore the Data »</a>
-    </div>
-  </div>
+        class="btn btn-small">
+        Explore the Data »</a><br/><br/>
+      <img src="{{ STATIC_URL }}images/home/data-displays.png" />
+      
  </div>
  
   
