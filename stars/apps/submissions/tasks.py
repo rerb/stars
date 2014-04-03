@@ -150,7 +150,7 @@ def update_pie_api_cache():
     """
         Clear each endpoint's cache and then re-fetch it
     """
-    cs = CreditSet.objects.get_latest()
+    cs = CreditSet.objects.get(pk=5)
 
     from tastypie.api import Api
 
