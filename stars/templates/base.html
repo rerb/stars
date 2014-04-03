@@ -155,6 +155,30 @@
 
 </script>
 
+<script>
+UserVoice=window.UserVoice||[];(function(){var uv=document.createElement('script');uv.type='text/javascript';uv.async=true;uv.src='//widget.uservoice.com/FgC7fgYHgQ6x9LPBGmpbCw.js';var s=document.getElementsByTagName('script')[0];s.parentNode.insertBefore(uv,s)})();
+
+UserVoice.push(['set', {
+  accent_color: '#53a753',
+  trigger_color: 'white',
+  trigger_background_color: '#666',//'#e2753a',
+  post_idea_enabled: false,
+  smartvote_enabled: false
+}]);
+
+UserVoice.push(['identify', {
+  {% if user.is_authenticated %}
+    email:      '{{ user.email }}', // User’s email address
+  {% endif %}
+}]);
+
+// Add default trigger to the bottom-right corner of the window:
+UserVoice.push(['addTrigger', { mode: 'contact', trigger_position: 'top-right' }]);
+
+// Autoprompt for Satisfaction and SmartVote (only displayed under certain conditions)
+UserVoice.push(['autoprompt', {}]);
+</script>
+
 {% block extra_footer %}{% endblock %}
 
 </body>
