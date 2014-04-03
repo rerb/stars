@@ -45,7 +45,7 @@
         <li{% if active_menu == "reports"%} class='active'{% endif %}>
             <a href='/institutions/{{ institution.slug }}/report/'>
                 <i class='icon-book'></i>
-                My Report(s)
+                My Published Report(s)
             </a>
         </li>
     	{% testrule user_has_access_level user 'admin' institution %}
