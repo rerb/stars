@@ -40,27 +40,29 @@
   </div>
   
   <div class="span3" style='text-align: center;padding-bottom: 20px;'>
-    <!-- <a href="/pages/about/technical-manual.html"
-      class='btn btn-info'
-      style='margin-bottom: 10px;'>
-    See the Credits »</a><br/> -->
+    <a href="/pages/about/technical-manual.html"
+      class='btn'
+      style='margin-bottom: 5px;'>
+    See the Credits »</a><br/><br/>
     <a href="/pages/about/technical-manual.html">
-    <img src="{{ STATIC_URL }}images/home/tm.png" height="180px;"/></a>
+    <img src="{{ STATIC_URL }}images/home/tm.png" height="130px;"/></a>
   </div>
 
   <div class="span3" style="text-align: center;">
     <a href="{% url participants-reports %}"
-      class="btn btn-small"
-      style='margin-bottom: 10px;'>
+      class="btn"
+      style='margin-bottom: 5px;'>
       See all Reports »</a><br/><br/>
     {% show_rated_registrants %}
   </div>
 
   <div class="span3" style="text-align: center;">
       <a href="/institutions/data-displays/dashboard/"
-        class="btn btn-small">
+        class="btn">
         Explore the Data »</a><br/><br/>
-      <img src="{{ STATIC_URL }}images/home/data-displays.png" />
+      <a
+        href="/institutions/data-displays/dashboard/">
+        <img src="{{ STATIC_URL }}images/home/data-displays.png" /></a>
       
  </div>
  
