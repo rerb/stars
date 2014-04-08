@@ -45,7 +45,7 @@
       style='margin-bottom: 5px;'>
     See the Credits »</a><br/><br/>
     <a href="/pages/about/technical-manual.html">
-    <img src="{{ STATIC_URL }}images/home/tm.png" height="130px;"/></a>
+    <img src="{{ STATIC_URL }}images/home/tm.png" height="130" alt="STARS Technical Manual"/></a>
   </div>
 
   <div class="span3" style="text-align: center;">
@@ -62,8 +62,10 @@
         Explore the Data »</a><br/><br/>
       <a
         href="/institutions/data-displays/dashboard/">
-        <img src="{{ STATIC_URL }}images/home/data-displays.png" /></a>
-      
+        <img
+          src="{{ STATIC_URL }}images/home/data-displays.png"
+          alt="STARS Data Disiplays"/></a>
+  </div>
  </div>
  
   
@@ -89,7 +91,9 @@
         <h2>Connect With Us</h2>
         {% display_twitter_feed %}
       </div>
-      <a href="mailto:stars@aashe.org"><button class="btn btn-success contact-btn" type="button">Contact Us</button></a>
+      <a
+        href="mailto:stars@aashe.org"
+        class="btn btn-success contact-btn">Contact Us</a>
     </div>
     
   </div><!-- end row -->
