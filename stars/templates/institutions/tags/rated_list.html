@@ -8,7 +8,7 @@
     style="text-align: center;">
         <a href="{{ ss.get_scorecard_url }}">
           {% thumbnail ss.rating.image_large "70x70" as im %}
-          <img src="{{ im.url }}" width="70px;" height="70px;"/>
+          <img src="{{ im.url }}" width="70" height="70" alt="{{ss.rating}}"/>
           {% endthumbnail %}
           <h4>{{ ss.institution }}</h4>
         </a>
