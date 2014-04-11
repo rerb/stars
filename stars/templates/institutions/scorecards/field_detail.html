@@ -28,25 +28,5 @@
 	        {% block formatting_include %}{% include 'institutions/scorecards/field_formatting.html' %}{% endblock %}
 	    </div>
 	    
-	    {% if field.corrections.all %}
-	    	{% for c in field.corrections.all %}
-	    
-			    <div class='correction'>
-			    	<img src='/media/static/images/expand_big.gif' alt='+' onclick='expandCollapse(this,false);' id='correction_{{ c.id }}' class='collapseExpand' style='vertical-align: text-bottom;'/>
-			    	<span style="color: #000">Data Corrected: {{ c.change_date }}</span>
-			    	<br/>
-			    	<div style='{% block correction_display %}display: none;{% endblock %}font-size: .8em;margin: 10px 20px;' id='correction_{{ c.id }}_target'>
-			    		<p>{{ institution }} requested that AASHE Staff correct a mistake in this reporting field for the reason specified below.</p>
-			    		<span style='color: #000; font-weight: bold;'>Previous Value:</span>
-			    		{{ c.previous_value }}
-			    		{% if c.explanation %}
-			    			<br/><br/>
-			    			<span style='color: #000; font-weight: bold;'>Explanation:</span>
-			  				{{ c.explanation }}
-			    		{% endif %}
-			    	</div>
-			    </div>
-	    	{% endfor %}
-	    {% endif %}
 {% endif %}
 <br/>

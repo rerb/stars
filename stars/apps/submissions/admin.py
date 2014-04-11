@@ -82,7 +82,7 @@ admin.site.register(CategorySubmission, CategorySubmissionAdmin)
 
 
 class DataCorrectionRequestAdmin(SubmissionSetMixin, admin.ModelAdmin):
-    list_display = ('user', 'reporting_field', 'date', 'approved')
+    list_display = ("get_submissionset", 'reporting_field', 'date', 'approved', "get_required_status")
     list_filter = ('approved',)
 
     def get_form(self, request, obj=None, **kwargs):

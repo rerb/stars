@@ -1535,6 +1535,18 @@ class DataCorrectionRequest(models.Model):
 #         ss = cus.subcategory_submission.category_submission.submissionset
         return cus.get_scorecard_url()
 
+    def get_submissionset(self):
+        " used to display the submission set in the admin's list_display"
+        cus = CreditUserSubmission.objects.get(pk=self.reporting_field.credit_submission.id)
+        return cus.subcategory_submission.category_submission.submissionset
+
+    def get_required_status(self):
+        """
+            Used by the admin to indicate if a field is conditionally required
+            based on another field
+        """
+        return self.reporting_field.documentation_field.get_required_display()
+
     def save(self):
         """
             Check the approved property to see if this was approved
@@ -1567,7 +1579,7 @@ class DataCorrectionRequest(models.Model):
             Approving a correction request creates a ReportingFieldDataCorrection
         """
         prev_value = self.reporting_field.value
-        if not prev_value:
+        if prev_value == None:
             prev_value = "--"
         rfdc = ReportingFieldDataCorrection(
                                             previous_value=prev_value,
