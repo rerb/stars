@@ -1546,6 +1546,10 @@ class DataCorrectionRequest(models.Model):
             based on another field
         """
         return self.reporting_field.documentation_field.get_required_display()
+        
+    def get_credit(self):
+        " Return the credit for the admin list"
+        return self.reporting_field.documentation_field.credit
 
     def save(self):
         """
