@@ -1609,6 +1609,8 @@ class DataCorrectionRequest(models.Model):
                 rfdc.previous_value = "No"
             else:
                 rfdc.previous_value = "Unknown"
+        elif self.reporting_field.documentation_field.type == "numeric":
+            self.reporting_field.value = float(self.new_value)
         else:
             self.reporting_field.value = self.new_value
         self.reporting_field.save()
