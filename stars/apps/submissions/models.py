@@ -799,8 +799,10 @@ class CategorySubmission(models.Model):
             score = getattr(self, scoring_method)
             if self.submissionset.status == 'r':
                 self.score = score()
+                if type(self.score) == tuple:
+                    self.score = self.score[0]
                 self.save()
-            return score()
+            return self.score
         else:
             logger.error(
                 "No method (%s) defined to score category submission %s" %
@@ -1409,7 +1411,7 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
         assessed_points = 0  # default is zero - now re-calculate points...
         validation_error = False
 
-        (ran, message, exception, points) = self.credit.execute_formula(self)
+        (ran, message, exception, points, d) = self.credit.execute_formula(self, debug=True)
 
         if ran:  #perform validation on points...
             (points, messages) = self.validate_points(points)
@@ -2112,12 +2114,14 @@ class BooleanSubmission(DocumentationFieldSubmission):
     value = models.NullBooleanField(blank=True, null=True)
 
     def __unicode__(self):
+        str = super(BooleanSubmission, self).__unicode__()
         if self.value == True:
-            return "Yes"
+            str = "%s (Yes)" % str
         elif self.value == False:
-            return "No"
+            str = "%s (no)" % str
         else:
-            return "---"
+            str = "%s (no)" % str
+        return str
 
 PAYMENT_REASON_CHOICES = (
     ('member_reg', 'member_reg'),
