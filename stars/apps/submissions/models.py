@@ -2116,14 +2116,12 @@ class BooleanSubmission(DocumentationFieldSubmission):
     value = models.NullBooleanField(blank=True, null=True)
 
     def __unicode__(self):
-        strval = super(BooleanSubmission, self).__unicode__()
         if self.value == True:
-            strval = "%s (Yes)" % strval
+            return "Yes"
         elif self.value == False:
-            strval = "%s (no)" % strval
+            return "No"
         else:
-            strval = "%s (---)" % strval
-        return strval
+            return "---"
 
 PAYMENT_REASON_CHOICES = (
     ('member_reg', 'member_reg'),
