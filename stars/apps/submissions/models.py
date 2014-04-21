@@ -1538,21 +1538,21 @@ class DataCorrectionRequest(models.Model):
 #         ss = cus.subcategory_submission.category_submission.submissionset
         return cus.get_scorecard_url()
 
-        def get_submissionset(self):
-            " used to display the submission set in the admin's list_display"
-            cus = CreditUserSubmission.objects.get(pk=self.reporting_field.credit_submission.id)
-            return cus.subcategory_submission.category_submission.submissionset
+    def get_submissionset(self):
+        " used to display the submission set in the admin's list_display"
+        cus = CreditUserSubmission.objects.get(pk=self.reporting_field.credit_submission.id)
+        return cus.subcategory_submission.category_submission.submissionset
 
-        def get_required_status(self):
-            """
-                Used by the admin to indicate if a field is conditionally required
-                based on another field
-            """
-            return self.reporting_field.documentation_field.get_required_display()
+    def get_required_status(self):
+        """
+            Used by the admin to indicate if a field is conditionally required
+            based on another field
+        """
+        return self.reporting_field.documentation_field.get_required_display()
 
-        def get_credit(self):
-            " Return the credit for the admin list"
-            return self.reporting_field.documentation_field.credit
+    def get_credit(self):
+        " Return the credit for the admin list"
+        return self.reporting_field.documentation_field.credit
 
     def save(self):
         """
