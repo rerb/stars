@@ -217,7 +217,7 @@ COMMON_FILTERS = [
                                     ('United States', "United States of America"),
                                     ('Canada', 'Canada')
                                ],
-                               base_qs=SubmissionSet.objects.filter(status='r').exclude(creditset__version='2.0'),
+                               base_qs=SubmissionSet.objects.filter(status='r').filter(expired=False).exclude(creditset__version='2.0'),
                         ),
                         Filter(
                               key='institution__is_member',
@@ -226,7 +226,7 @@ COMMON_FILTERS = [
                                    ('AASHE Member', True),
                                    ('Not an AASHE Member', False)
                               ],
-                              base_qs=SubmissionSet.objects.filter(status='r').exclude(creditset__version='2.0'),
+                              base_qs=SubmissionSet.objects.filter(status='r').filter(expired=False).exclude(creditset__version='2.0'),
                         ),
                         Filter(
                                 key='institution__is_pcc_signatory',
@@ -235,7 +235,7 @@ COMMON_FILTERS = [
                                      ('ACUPCC Signatory', True),
                                      ('Not an ACUPCC Signatory', False)
                                 ],
-                                base_qs=SubmissionSet.objects.filter(status='r').exclude(creditset__version='2.0'),
+                                base_qs=SubmissionSet.objects.filter(status='r').filter(expired=False).exclude(creditset__version='2.0'),
                         ),
                         Filter(
                                 key='institution__charter_participant',
@@ -244,7 +244,7 @@ COMMON_FILTERS = [
                                      ('Charter Participant', True),
                                      ('Not a Charter Participant', False)
                                 ],
-                                base_qs=SubmissionSet.objects.filter(status='r').exclude(creditset__version='2.0'),
+                                base_qs=SubmissionSet.objects.filter(status='r').filter(expired=False).exclude(creditset__version='2.0'),
                         ),
                         Filter(
                                 key='institution__is_pilot_participant',
@@ -253,7 +253,7 @@ COMMON_FILTERS = [
                                      ('Pilot Participant', True),
                                      ('Not a Pilot Participant', False)
                                 ],
-                                base_qs=SubmissionSet.objects.filter(status='r').exclude(creditset__version='2.0'),
+                                base_qs=SubmissionSet.objects.filter(status='r').filter(expired=False).exclude(creditset__version='2.0'),
                         ),
                         Filter(
                                 key='rating__name',
@@ -264,7 +264,7 @@ COMMON_FILTERS = [
                                     ('Gold', 'Gold'),
                                     ('Platinum', 'Platinum'),
                                 ],
-                                base_qs=SubmissionSet.objects.filter(status='r').exclude(creditset__version='2.0'),
+                                base_qs=SubmissionSet.objects.filter(status='r').filter(expired=False).exclude(creditset__version='2.0'),
                         ),
                         RangeFilter(
                                 key='institution__fte',
@@ -279,7 +279,7 @@ COMMON_FILTERS = [
                                     ('10,000 - 19,999', 'u20000', 10000, 20000),
                                     ('Over 20,000', 'o20000', 20000, None),
                                 ],
-                                base_qs=SubmissionSet.objects.filter(status='r').exclude(creditset__version='2.0'),
+                                base_qs=SubmissionSet.objects.filter(status='r').filter(expired=False).exclude(creditset__version='2.0'),
                         ),
                       ]
 
@@ -319,7 +319,7 @@ class CommonFilterMixin(object):
                            key='institution__org_type',
                            title='Organization Type',
                            item_list=org_type_list,
-                           base_qs=SubmissionSet.objects.filter(status='r').exclude(creditset__version='2.0'),
+                           base_qs=SubmissionSet.objects.filter(status='r').filter(expired=False).exclude(creditset__version='2.0'),
                            ),
                    ] + COMMON_FILTERS
 
