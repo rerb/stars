@@ -9,6 +9,7 @@
 {% endblock %}
 
 {% block railAboveMenu %}
+  {% if not submissionset.expired %}
     <div style='text-align: center;'>
     <a href='{{ submissionset.get_scorecard_url }}'>
     {% if preview %}
@@ -22,6 +23,7 @@
     {% endif %}
     </a>
     </div>
+   {% endif %}
     {% include 'institutions/scorecards/vertical_status_table.html' %}
 {% endblock %}
 

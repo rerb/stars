@@ -8,15 +8,15 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding field 'Subscription.late'
-        db.add_column('institutions_subscription', 'late',
-                      self.gf('django.db.models.fields.BooleanField')(default=False),
+        # Adding field 'Institution.latest_expired_submission'
+        db.add_column('institutions_institution', 'latest_expired_submission',
+                      self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='latest_expired', null=True, to=orm['submissions.SubmissionSet']),
                       keep_default=False)
 
 
     def backwards(self, orm):
-        # Deleting field 'Subscription.late'
-        db.delete_column('institutions_subscription', 'late')
+        # Deleting field 'Institution.latest_expired_submission'
+        db.delete_column('institutions_institution', 'latest_expired_submission_id')
 
 
     models = {
@@ -133,6 +133,7 @@ class Migration(SchemaMigration):
             'is_participant': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'is_pcc_signatory': ('django.db.models.fields.NullBooleanField', [], {'default': 'False', 'null': 'True', 'blank': 'True'}),
             'is_pilot_participant': ('django.db.models.fields.NullBooleanField', [], {'default': 'False', 'null': 'True', 'blank': 'True'}),
+            'latest_expired_submission': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'latest_expired'", 'null': 'True', 'to': "orm['submissions.SubmissionSet']"}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'org_type': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True', 'blank': 'True'}),
             'prefers_metric_system': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
@@ -240,6 +241,7 @@ class Migration(SchemaMigration):
             'date_registered': ('django.db.models.fields.DateField', [], {}),
             'date_reviewed': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
             'date_submitted': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
+            'expired': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'institution': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['institutions.Institution']"}),
             'is_locked': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),

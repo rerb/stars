@@ -174,6 +174,10 @@ class Institution(models.Model):
                                          blank=True,
                                          null=True,
                                          related_name='rated')
+    latest_expired_submission = models.ForeignKey("submissions.SubmissionSet",
+                                         blank=True,
+                                         null=True,
+                                         related_name='latest_expired')
     prefers_metric_system = models.BooleanField(default=False)
 
     def __unicode__(self):

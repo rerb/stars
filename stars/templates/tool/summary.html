@@ -136,6 +136,7 @@
                                     </a>
                                 </td>
                                 <td>
+                                  {% if not ss.expired %}
                                     {% thumbnail ss.rating.image_large "50x50" as im %}
                                         <img src="{{ im.url }}"
                                              width="{{ im.x }}"
@@ -149,6 +150,9 @@
                                             <i class='icon-download-alt'></i>
                                         </a>
                                     {% endthumbnail %}
+                                  {% else %}
+                                    <em>Expired</em>
+                                  {% endif %}
                                 </td>
                             </tr>
                         {% endfor %}

@@ -39,7 +39,11 @@
                     </td>
                     <td>
                         {% if ss.status == 'r' %}
+                          {% if not ss.expired %}
                             {{ ss.rating }}
+                          {% else %}
+                            Expired
+                          {% endif %}
                         {% else %}
                             Not Rated
                         {% endif %}

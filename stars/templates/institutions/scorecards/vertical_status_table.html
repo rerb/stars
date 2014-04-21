@@ -11,17 +11,25 @@
             Overall Rating
         </th>
         <td>
+          {% if not submissionset.expired %}
             {{ rating }}
+          {% else %}
+            Expired
+          {% endif %}
         </td>
     </tr><tr>
         <th>Overall Score</th>
         <td>
+          {% if not submissionset.expired %}
             {% if rating.publish_score %}
                 {{ score|floatformat:2 }}
             {% else %}
                 {% load help %}
                 {% show_help_context "reporter_status" %}
             {% endif %}
+          {% else %}
+            Expired
+          {% endif %}
         </td>
     </tr>
     <tr>

@@ -35,6 +35,7 @@
 	    {% endif %}
     </td>
     <td>
+      {% if not submissionset.expired %}
         {% if rating.publish_score %}
           {% if category_submission.category.include_in_score %}
             {{ credit_submission.assessed_points|floatformat:2 }} /
@@ -47,6 +48,9 @@
             {% load help %}
             {% show_help_context "reporter_status" %}
         {% endif %}
+       {% else %}
+        Expired
+       {% endif %}
     </td>
     <td style='text-align: right;'>
         {% if credit_submission.responsible_party %}

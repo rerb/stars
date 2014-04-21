@@ -150,7 +150,11 @@ class Dashboard(TemplateView):
                 if len(slices) == 0:
                     _context['total_reg_count'] = reg_count
 
-                rating_count = SubmissionSet.objects.filter(status='r').filter(is_visible=True).filter(date_submitted__lt=current_month).count()
+                rating_count = SubmissionSet.objects.filter(status='r')
+                rating_count = rating_count.filter(is_visible=True)
+                rating_count = rating_count.filter(expired=False)
+                rating_count = rating_count.filter(date_submitted__lt=current_month)
+                rating_count = rating_count.count()
                 slice['rating_count'] = rating_count
                 if len(slices) == 0:
                     _context['total_rating_count'] = rating_count

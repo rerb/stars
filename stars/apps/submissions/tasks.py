@@ -6,6 +6,7 @@ import sys
 
 from stars.apps.submissions.export.pdf import build_certificate_pdf
 from stars.apps.submissions.export.excel import build_report_export
+from stars.apps.submissions.models import SubmissionSet
 from stars.apps.migrations.utils import (migrate_ss_version,
                                          migrate_submission,
                                          create_ss_mirror)
@@ -19,6 +20,8 @@ from stars.apps.institutions.models import MigrationHistory
 from django.core.cache import cache
 
 from celery.decorators import task
+
+import datetime
 
 logger = getLogger('stars.user')
 
@@ -188,3 +191,32 @@ def update_pie_api_cache():
             cache.delete(s_key)
 
             s_view.obj_get(**kwargs)
+
+
+def expireRatings():
+    """
+        Mark submissions as expired if they are over 3 years old
+        and adjust the institution's current rating appropriately
+    """
+
+    today = datetime.date.today()
+    td = datetime.timedelta(days=365 * 3)  # 3 years
+
+    # all rated submissions that haven't already expired
+    for ss in SubmissionSet.objects.filter(status="r").exclude(expired=True):
+
+        if ss.date_submitted + td < today:
+            print ""  # newline
+            print "Expired: %s" % ss
+            print "Date Submitted: %s" % ss.date_submitted
+            ss.expired = True
+            ss.save()
+
+            # update the institution if this is still their latest rated submission
+            i = ss.institution
+            if i.rated_submission == ss:
+                print "**Only Rating (dropping current rating)"
+                i.rated_submission = None
+                i.current_rating = None
+                i.latest_expired_submission = ss
+                i.save()

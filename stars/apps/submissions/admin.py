@@ -47,7 +47,7 @@ class SubmissionSetAdmin(admin.ModelAdmin, SubmissionSetMixin):
     list_display = ('creditset', 'institution', 'date_created',
                     'date_submitted', 'status', 'rating',
                     'is_locked', 'is_visible')
-    list_filter = ('date_registered', 'status', 'is_locked')
+    list_filter = ('date_registered', 'status', 'is_locked', 'expired')
     search_fields = ('institution__name',)
 
     def get_form(self, request, obj=None, **kwargs):
@@ -82,7 +82,7 @@ admin.site.register(CategorySubmission, CategorySubmissionAdmin)
 
 
 class DataCorrectionRequestAdmin(SubmissionSetMixin, admin.ModelAdmin):
-    list_display = ("get_submissionset", 'date', 'approved', 'reporting_field', "get_credit", "get_required_status")
+    list_display = ('user', 'reporting_field', 'date', 'approved')
     list_filter = ('approved',)
 
     def get_form(self, request, obj=None, **kwargs):

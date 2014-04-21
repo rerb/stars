@@ -70,18 +70,22 @@
         {{ institution.rated_submission.creditset.version }}
       </td>
       <td>
-	{% if institution.current_rating %}
-        {{ institution.current_rating }}
-	{% endif %}
+	   {% if institution.current_rating %}
+          {{ institution.current_rating }}
+       {% elif institution.latest_expired_submission %}
+        <em>Expired</em>
+	   {% endif %}
       </td>
       <td>
-	{% with institution.rated_submission as latest_submission %}
-	{% if latest_submission.date_submitted %}
-        <a href='{% url scorecard-summary institution.slug latest_submission.date_submitted %}'>
-          {{ latest_submission.date_submitted }}
-        </a>
-	{% endif %}
-	{% endwith %}
+        {% if institution.rated_submission %}
+            <a href='{% url scorecard-summary institution.slug institution.rated_submission.date_submitted %}'>
+              {{ institution.rated_submission.date_submitted }}
+            </a>
+        {% elif institution.latest_expired_submission %}
+            <a href='{% url scorecard-summary institution.slug institution.latest_expired_submission.date_submitted %}'>
+              {{ institution.latest_expired_submission.date_submitted }}
+            </a>
+        {% endif %}
       </td>
     </tr>
     {% endfor %}

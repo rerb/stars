@@ -29,7 +29,11 @@
     <tdata>
     <tr>
         <td>
-            {{ rating }}
+            {% if not submissionset.expired %}
+              {{ rating }}
+            {% else %}
+              <em>Expired</em>
+            {% endif %}
             {% if user.is_staff %}
                 <a href="{{ submissionset.get_flag_url }}" class='btn btn-warning btn-mini'><i class='icon-flag icon-white'></i></a>
             {% endif %}
@@ -46,12 +50,16 @@
             {% endif %}
         </td>
         <td>
+          {% if not submissionset.expired %}
             {% if rating.publish_score %}
                 {{ score|floatformat:2 }}
             {% else %}
                 {% load help %}
                 {% show_help_context "reporter_status" %}
             {% endif %}
+          {% else %}
+            <em>Expired</em>
+          {% endif %}
         </td>
         <td>
       {{ submissionset.institution.contact_first_name }}

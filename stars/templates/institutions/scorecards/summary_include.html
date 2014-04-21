@@ -23,6 +23,7 @@
 {% endblock %}
 
 {% block railAboveMenu %}
+  {% if not submissionset.expired %}
     <div style='text-align: center;'>
     {% if preview %}
     	{% thumbnail "seals/Stars_Seal_Participant_RGB_300.png" "300x300" as im %}
@@ -34,6 +35,7 @@
 		{% endthumbnail %}
     {% endif %}
     </div>
+   {% endif %}
 {% endblock %}
 
 {% block summaryTable %}

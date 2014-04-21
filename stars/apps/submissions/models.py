@@ -131,6 +131,7 @@ class SubmissionSet(models.Model, FlaggableModel):
     date_registered = models.DateField()
     date_submitted = models.DateField(blank=True, null=True)
     date_reviewed = models.DateField(blank=True, null=True)
+    expired = models.BooleanField(default=False)
     registering_user = models.ForeignKey(
         User,
         related_name='registered_submissions')
@@ -799,10 +800,8 @@ class CategorySubmission(models.Model):
             score = getattr(self, scoring_method)
             if self.submissionset.status == 'r':
                 self.score = score()
-                if type(self.score) == tuple:
-                    self.score = self.score[0]
                 self.save()
-            return self.score
+            return score()
         else:
             logger.error(
                 "No method (%s) defined to score category submission %s" %
@@ -1411,7 +1410,7 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
         assessed_points = 0  # default is zero - now re-calculate points...
         validation_error = False
 
-        (ran, message, exception, points, d) = self.credit.execute_formula(self, debug=True)
+        (ran, message, exception, points) = self.credit.execute_formula(self)
 
         if ran:  #perform validation on points...
             (points, messages) = self.validate_points(points)
@@ -1537,22 +1536,6 @@ class DataCorrectionRequest(models.Model):
 #         ss = cus.subcategory_submission.category_submission.submissionset
         return cus.get_scorecard_url()
 
-    def get_submissionset(self):
-        " used to display the submission set in the admin's list_display"
-        cus = CreditUserSubmission.objects.get(pk=self.reporting_field.credit_submission.id)
-        return cus.subcategory_submission.category_submission.submissionset
-
-    def get_required_status(self):
-        """
-            Used by the admin to indicate if a field is conditionally required
-            based on another field
-        """
-        return self.reporting_field.documentation_field.get_required_display()
-        
-    def get_credit(self):
-        " Return the credit for the admin list"
-        return self.reporting_field.documentation_field.credit
-
     def save(self):
         """
             Check the approved property to see if this was approved
@@ -1585,7 +1568,7 @@ class DataCorrectionRequest(models.Model):
             Approving a correction request creates a ReportingFieldDataCorrection
         """
         prev_value = self.reporting_field.value
-        if prev_value == None:
+        if not prev_value:
             prev_value = "--"
         rfdc = ReportingFieldDataCorrection(
                                             previous_value=prev_value,
@@ -1611,8 +1594,6 @@ class DataCorrectionRequest(models.Model):
                 rfdc.previous_value = "No"
             else:
                 rfdc.previous_value = "Unknown"
-        elif self.reporting_field.documentation_field.type == "numeric":
-            self.reporting_field.value = float(self.new_value)
         else:
             self.reporting_field.value = self.new_value
         self.reporting_field.save()
@@ -2114,14 +2095,12 @@ class BooleanSubmission(DocumentationFieldSubmission):
     value = models.NullBooleanField(blank=True, null=True)
 
     def __unicode__(self):
-        str = super(BooleanSubmission, self).__unicode__()
         if self.value == True:
-            str = "%s (Yes)" % str
+            return "Yes"
         elif self.value == False:
-            str = "%s (no)" % str
+            return "No"
         else:
-            str = "%s (no)" % str
-        return str
+            return "---"
 
 PAYMENT_REASON_CHOICES = (
     ('member_reg', 'member_reg'),
