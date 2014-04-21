@@ -231,7 +231,8 @@ def submission_has_scores(submission):
         this submission
     """
     if submission.status == 'r':
-        return submission.rating.name != "Reporter"
+        return (submission.rating.name != "Reporter" and
+                not submission.expired)
     elif submission.status == 'f':
         # don't show score for snapshots
         return False
