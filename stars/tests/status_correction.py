@@ -19,12 +19,13 @@ cus = CreditUserSubmission.objects.get(pk=cus_id)
 
 print ss
 print "Changing Status for %s from %s to %s" % (cus, cus.submission_status, new_status)
+old_points = cus.assessed_points
 
 cus.submission_status = new_status
-cus.save()
+
+print "Score changed from %s to %s" % (cus.assessed_points, cus._calculate_points())
 
 if cus.assessed_points != cus._calculate_points() or new_status == 'c':
-    cus.assessed_points = cus._calculate_points()
     cus.save()
     
     cus.subcategory_submission.points = None
@@ -48,5 +49,6 @@ if cus.assessed_points != cus._calculate_points() or new_status == 'c':
         rating_changed = True
         ss.save()
 
+cus.save()
 ss.pdf_report = None
 ss.save()
