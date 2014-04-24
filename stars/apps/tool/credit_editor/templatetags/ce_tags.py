@@ -26,19 +26,19 @@ def _get_form(doc_field, editing=False):
 
 
 @register.inclusion_tag('tool/submissions/tags/documentation_field_form.html')
-def show_field_form(doc_field, editing=False):
+def show_field_form(doc_field, editing=True):
     """ Displays the submission form for a documentation field """
-    # BUG!  If you take noMCE out here, things get weird!
     return{"documentation_field": doc_field,
-           "field_form": _get_form(doc_field, editing)}
+           "field_form": _get_form(doc_field, editing),
+           "editing": editing}
 
 
 @register.inclusion_tag('tool/submissions/tags/documentation_field_inside_table.html')
-def show_field_form_inside_table(doc_field, editing=False):
+def show_field_form_inside_table(doc_field, editing=True):
     """ Displays the submission form for a documentation field """
-    # BUG!  If you take noMCE out here, things get weird!
     return{"documentation_field": doc_field,
-           "field_form": _get_form(doc_field, editing)}
+           "field_form": _get_form(doc_field, editing),
+           "editing": editing}
 
 
 @register.inclusion_tag('tool/credit_editor/tags/crumbs.html')

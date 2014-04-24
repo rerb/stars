@@ -258,13 +258,17 @@ class NumericSubmissionForm(SubmissionFieldForm):
 
     def __init__(self, *args, **kwargs):
         super(NumericSubmissionForm, self).__init__(*args, **kwargs)
+        self.use_metric_system = False
+        try:
+            institution = self.instance.get_institution()
+            self.use_metric_system = institution.prefers_metric_system
 
-        institution = self.instance.get_institution()
-        self.use_metric_system = institution.prefers_metric_system
-
-        if self.use_metric_system:
-            self.units = self.instance.documentation_field.us_units
-            self.fields['value'].widget = MetricWidget(units=self.units)
+            if self.use_metric_system:
+                self.units = self.instance.documentation_field.us_units
+                self.fields['value'].widget = MetricWidget(units=self.units)
+        except:
+            # this will raise an error in credit editor
+            pass
 
     def clean_value(self):
         """ If we're displaying a metric quantity, revert it to its

@@ -25,6 +25,12 @@
       {% endwith %}
     {% endwith %}
   {% endwith %}
+  
+    {% if editing %}
+      <a href='{{ documentation_field.get_edit_url }}'>
+      <i class='icon-edit'></i>
+      </a>
+    {% endif %}
 	
   {% if field_form.value.errors %}
     <div class="alert alert-error">{{ field_form.errors.value }}</div>
