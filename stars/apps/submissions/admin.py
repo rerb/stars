@@ -11,7 +11,11 @@ from models import (SubmissionSet,
                     CreditSubmissionInquiry,
                     Flag,
                     SubmissionInquiry,
-                    ExtensionRequest)
+                    ExtensionRequest,
+                    URLSubmission,
+                    NumericSubmission,
+                    TextSubmission,
+                    LongTextSubmission)
 from stars.apps.credits.widgets import (CategorySelectTree,
                                         SubcategorySelectTree,
                                         CreditSelectTree)
@@ -139,16 +143,42 @@ class CreditUserSubmissionAdmin(admin.ModelAdmin, SubmissionSetMixin):
 admin.site.register(CreditUserSubmission, CreditUserSubmissionAdmin)
 
 
-class UploadSubmissionAdmin(admin.ModelAdmin):
-
+class SubmissionFieldMixin(object):
+    
     def get_form(self, request, obj=None, **kwargs):
-        form = super(UploadSubmissionAdmin, self).get_form(request, obj, **kwargs)
+        """
+            This prevents super-long load times
+        """
+        form = super(SubmissionFieldMixin, self).get_form(request, obj, **kwargs)
         if obj:
             form.base_fields['credit_submission'].widget = TextInput()
             form.base_fields['documentation_field'].widget = TextInput()
         return form
 
+
+class UploadSubmissionAdmin(SubmissionFieldMixin, admin.ModelAdmin):
+    pass
 admin.site.register(UploadSubmission, UploadSubmissionAdmin)
+
+
+class URLSubmissionAdmin(SubmissionFieldMixin, admin.ModelAdmin):
+    pass
+admin.site.register(URLSubmission, URLSubmissionAdmin)
+
+
+class NumericSubmissionAdmin(SubmissionFieldMixin, admin.ModelAdmin):
+    pass
+admin.site.register(NumericSubmission, NumericSubmissionAdmin)
+
+
+class TextSubmissionAdmin(SubmissionFieldMixin, admin.ModelAdmin):
+    pass
+admin.site.register(TextSubmission, TextSubmissionAdmin)
+
+
+class LongTextSubmissionAdmin(SubmissionFieldMixin, admin.ModelAdmin):
+    pass
+admin.site.register(LongTextSubmission, LongTextSubmissionAdmin)
 
 
 class ResponsiblePartyAdmin(admin.ModelAdmin):
