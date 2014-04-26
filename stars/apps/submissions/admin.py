@@ -15,7 +15,8 @@ from models import (SubmissionSet,
                     URLSubmission,
                     NumericSubmission,
                     TextSubmission,
-                    LongTextSubmission)
+                    LongTextSubmission,
+                    BooleanSubmission)
 from stars.apps.credits.widgets import (CategorySelectTree,
                                         SubcategorySelectTree,
                                         CreditSelectTree)
@@ -144,16 +145,24 @@ admin.site.register(CreditUserSubmission, CreditUserSubmissionAdmin)
 
 
 class SubmissionFieldMixin(object):
-    
+    list_display = ('id', 'get_cus_id', 'get_df_id')
+
     def get_form(self, request, obj=None, **kwargs):
         """
             This prevents super-long load times
         """
         form = super(SubmissionFieldMixin, self).get_form(request, obj, **kwargs)
-        if obj:
-            form.base_fields['credit_submission'].widget = TextInput()
-            form.base_fields['documentation_field'].widget = TextInput()
+        form.base_fields['credit_submission'].widget = TextInput()
+        form.base_fields['documentation_field'].widget = TextInput()
         return form
+
+    def get_cus_id(self, obj):
+        return obj.credit_submission.id
+    get_cus_id.short_description = 'Credit Submission Id'
+
+    def get_df_id(self, obj):
+        return obj.documentation_field.id
+    get_df_id.short_description = 'Doc Field Id'
 
 
 class UploadSubmissionAdmin(SubmissionFieldMixin, admin.ModelAdmin):
@@ -179,6 +188,11 @@ admin.site.register(TextSubmission, TextSubmissionAdmin)
 class LongTextSubmissionAdmin(SubmissionFieldMixin, admin.ModelAdmin):
     pass
 admin.site.register(LongTextSubmission, LongTextSubmissionAdmin)
+
+
+class BooleanSubmissionAdmin(SubmissionFieldMixin, admin.ModelAdmin):
+    pass
+admin.site.register(BooleanSubmission, BooleanSubmissionAdmin)
 
 
 class ResponsiblePartyAdmin(admin.ModelAdmin):
