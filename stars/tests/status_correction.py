@@ -19,7 +19,6 @@ cus = CreditUserSubmission.objects.get(pk=cus_id)
 
 print ss
 print "Changing Status for %s from %s to %s" % (cus, cus.submission_status, new_status)
-old_points = cus.assessed_points
 
 cus.submission_status = new_status
 
