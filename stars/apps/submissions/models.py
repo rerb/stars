@@ -116,9 +116,8 @@ class SubmissionManager(models.Manager):
     def get_snapshots(self, institution):
         return SubmissionSet.objects.filter(
             institution=institution).filter(
-                is_locked=False).filter(
-                    status='f').order_by(
-                        '-date_submitted')
+                status='f').order_by(
+                    '-date_submitted')
 
 
 class SubmissionSet(models.Model, FlaggableModel):
