@@ -64,7 +64,7 @@ class SelectSchoolForm(forms.Form):
                  'Two Year Institution',
                  'Graduate Institution',
                  'System Office')
-    COUNTRIES = ('Canada', 'United States of America')
+    COUNTRIES = ('Canada', 'United States of America', 'Mexico')
 
     def __init__(self, *args, **kwargs):
         super(SelectSchoolForm, self).__init__(*args, **kwargs)
