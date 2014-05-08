@@ -64,7 +64,7 @@ class SelectSchoolForm(forms.Form):
                  'Two Year Institution',
                  'Graduate Institution',
                  'System Office')
-    COUNTRIES = ('Canada', 'United States of America', 'Mexico')
+    # COUNTRIES = ('Canada', 'United States of America', 'Mexico')
 
     def __init__(self, *args, **kwargs):
         super(SelectSchoolForm, self).__init__(*args, **kwargs)
@@ -80,8 +80,7 @@ class SelectSchoolForm(forms.Form):
         institution_choices = []
 
         for org in Organizations.objects.filter(
-                org_type__in=self.ORG_TYPES,
-                country__in=self.COUNTRIES).order_by('org_name'):
+                org_type__in=self.ORG_TYPES).order_by('org_name'):
 
             choice_label = org.org_name
             if org.city and org.state:
@@ -209,7 +208,7 @@ class RespondentRegistrationSurveyForm(ModelForm):
 
         # Override the field labels, since as they are in the db,
         # they refer to CSDC (i.e., they're pre-basic/full access).
-        # The labels are updated in the model, but that value is 
+        # The labels are updated in the model, but that value is
         # not being used.
         self.fields['source'].label = "How did you hear about STARS?"
         self.fields['potential_stars'].label = (
