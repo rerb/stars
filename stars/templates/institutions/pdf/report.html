@@ -6,7 +6,7 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<title>{{ ss.institution.name }} STARS Report</title>
-		
+
 		<style type='text/css'>
 @page {
   margin: 1cm;
@@ -73,7 +73,7 @@ table.tabular th {
 			{% endif %}
 		</div>
 		<h1>{{ ss.institution.name }}<br/><i>STARS REPORT</i></h1>
-		
+
 		<table class='submissionSummary vertical'>
 			<tr>
 				<th>Date Submitted:</th>
@@ -128,7 +128,7 @@ table.tabular th {
 				</td>
 			{% endif %}
 		</table>
-		
+
 		<h2 style='-pdf-outline: false;'>Wait, Wait! Don’t Print Me!</h2>
 		<p>
 			To reduce paper consumption, this document has been designed to be browsed quickly and easily on computer screens using Adobe Reader. The following special features have been embedded:
@@ -156,7 +156,7 @@ table.tabular th {
 		<p>
 			If these features don’t meet your on-screen reading needs, please consider printing only the sections you need, printing double-sided, and using recycled-content paper or paper that has already been printed on one side.
 		</p>
-		
+
 		<h2 style='-pdf-outline: false;'>About STARS</h2>
 		<p>The Sustainability Tracking, Assessment &amp; Rating System (STARS<sup>&reg;</sup>) is a transparent, self-reporting framework for colleges and universities to gauge relative progress toward sustainability.  STARS was developed by <a href="http://www.aashe.org" target="_self">AASHE</a> with broad participation from the higher education community.</p>
 <p>STARS is designed to:</p>
@@ -171,19 +171,19 @@ table.tabular th {
 <p><a href="http://stars.aashe.org/pages/about/3993/" target="_self">STARS 1.0</a>, which launched on January 19, 2010, after a three-year development process, is the first version of STARS in which participants can earn a rating.</p>
 <h3 style="-pdf-outline: false;" class="noBreak">About AASHE</h3>
 <p>STARS is a program of AASHE, the <a href="http://www.aashe.org" target="_self">Association for the Advancement of Sustainability in Higher Education</a>.  AASHE is a <a href="http://www.aashe.org/membership/description.php" target="_self">member-driven organization</a> with a mission to empower higher education to lead the sustainability transformation.  <a href="http://www.aashe.org/about/about.php" target="_self">Learn more about AASHE</a>.</p>
-		
+
 		<h2 style='-pdf-outline: false;'>Table of Contents</h2>
-		
+
 		<div>
 		   <pdf:toc />
 		</div>
-		
+
 		{% if rating.publish_score %}
 		<h2>Summary of Results</h2>
-		
-		
+
+
 		{% if rating.publish_score %}
-			
+
 			<table class='scoreTable vertical'>
 				<tr>
 					<th>
@@ -209,7 +209,7 @@ table.tabular th {
 				</tr>
 			</table>
 		{% endif %}
-				
+
 		<table class='tableOfContents'>
 			{% for cat in ss.categorysubmission_set.all %}
               {% if cat.category.include_in_report %}
@@ -219,12 +219,14 @@ table.tabular th {
 					</td>
 					{% if rating.publish_score %}
 						<td align='right' width="50%">
+							{% if ss.creditset.has_category_scoring_feature %}
 				        {% if cat.category.title != 'Innovation' %}
 				            {{ cat.get_STARS_score|floatformat:2 }}%
 				        {% else %}
 				            {{ cat.get_STARS_score|floatformat:2 }}
 				        {% endif %}
-				       	</td>
+							{% endif %}
+		       	</td>
 				    {% endif %}
 				</tr>
 				{% for sub in cat.subcategorysubmission_set.all %}
@@ -246,7 +248,7 @@ table.tabular th {
 		</table>
 		{% endif %}
 		<p class='disclaimer'>The information presented in this submission is self-reported and has not been verified by AASHE or a third party. If you believe any of this information is erroneous, please see the <a href='http://stars.aashe.org/pages/faqs/4105/?root_category=about#Erroneous_Data'>process for inquiring</a> about the information reported by an institution.</p>
-		
+
 		{% for cat in ss.categorysubmission_set.all %}
           {% if cat.category.include_in_report %}
 			<h2 class='category'>
@@ -254,7 +256,7 @@ table.tabular th {
 				{{ cat }}
 			</h2>
 			{% if rating.publish_score %}
-				
+
 				<table class='scoreTable vertical'>
 					<tr>
 						<th>
@@ -277,7 +279,7 @@ table.tabular th {
 					{{ sub }}
 				</h3>
 				{% if rating.publish_score %}
-				
+
 					<table class='scoreTable vertical'>
 						<tr>
 							<th>Points Claimed</th>
@@ -377,7 +379,7 @@ table.tabular th {
 			    	{% else %}{% if credit_submission.submission_status == 'np' or credit_submission.submission_status == 'ns' %}
 			    		<p class='hideReportingFields'>
 			    			This credit was marked as <b>Not Pursuing</b> so Reporting Fields will not be displayed.
-			    		</p> 
+			    		</p>
 			    	{% else %}
 				        <div style="text-align: right;font-size: .9em;padding:10px;">
 				            "<span class='green bold'>---</span>"
