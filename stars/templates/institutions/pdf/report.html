@@ -256,6 +256,7 @@ table.tabular th {
 				{{ cat }}
 			</h2>
 			{% if rating.publish_score %}
+			{% if ss.creditset.has_category_scoring_feature %}
 
 				<table class='scoreTable vertical'>
 					<tr>
@@ -272,6 +273,8 @@ table.tabular th {
 					    </td>
 					</tr>
 				</table>
+
+			{% endif %}
 			{% endif %}
 			{% for sub in cat.subcategorysubmission_set.all %}
 				<h3 class='{% if forloop.counter0 == 0 %}noBreak{% endif %}'>
