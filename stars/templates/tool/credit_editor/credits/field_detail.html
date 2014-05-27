@@ -10,6 +10,7 @@
 
 {% block credit_content %}
     <a href='{{ credit.get_edit_url }}fields/'>&lt;&lt; back to all fields</a>
+    <span class="label pull-right">{{ field.type }}</span>
     <form class='generalForm' method='POST' action='.'>
         {{ object_form|bootstrap }}
 
