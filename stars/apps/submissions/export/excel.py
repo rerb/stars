@@ -49,8 +49,8 @@ def get_summary_sheet(submission, sheet):
             submission.creditset.version == "1.2"):
             sheet.write(r, c + 1, str(cs.get_STARS_score()))
         else:
-            sheet.write(r, c + 1, str(cs.get_STARS_score()[0]))
-            sheet.write(r, c + 2, str(cs.get_STARS_score()[1]))
+            sheet.write(r, c + 1, str(cs.get_score_ratio()[0]))
+            sheet.write(r, c + 2, str(cs.get_score_ratio()[1]))
 
         r += 1
 
