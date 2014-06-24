@@ -16,6 +16,10 @@ import csv, string
 import datetime
 
 cs_id_list = [5, 6]
+limit_inst_ids = [ # if this has ids, then only these institutions will be exported
+    293, # Stanford
+    664 # University of Pittsburgh
+]
 
 for cs_id in cs_id_list:
 
@@ -28,6 +32,9 @@ for cs_id in cs_id_list:
     snapshot_list = tp.get_snapshots().exclude(institution__id=447).order_by("institution__name")
     snapshot_list = snapshot_list.filter(creditset=cs)
     snapshot_list = snapshot_list.filter(date_submitted__lte=deadline)
+
+    if(limit_inst_ids):
+        snapshot_list = snapshot_list.filter(institution__id__in=limit_inst_ids)
 
     # snapshot_list = snapshot_list | tp.get_snapshots().filter(id='1528')
 
@@ -56,5 +63,5 @@ for cs_id in cs_id_list:
                 filename = 'export/%s/%s.csv' % (cs.version, string.replace("%s" % c, "/", "-"))
                 filename = string.replace(filename, ":", "")
                 filename = string.replace(filename, " ", "_")
-             
+
                 export_credit_csv(c, ss_qs=latest_snapshot_list, outfilename=filename)

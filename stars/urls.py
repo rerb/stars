@@ -49,6 +49,9 @@ urlpatterns = patterns('',
     # institutions
     (r'^institutions/', include('stars.apps.institutions.urls')),
 
+    # third parties
+    (r'^tp/', include('stars.apps.third_parties.urls')),
+
     # registration
     (r'^register/', include('stars.apps.registration.urls')),
 
@@ -59,7 +62,7 @@ urlpatterns = patterns('',
 
     # djcelery
     url('^tasks/', include('djcelery.urls')),
-    
+
     # django-terms
     url(r'^terms/', include('terms.urls')),
 )

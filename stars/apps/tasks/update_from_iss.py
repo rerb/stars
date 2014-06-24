@@ -10,6 +10,6 @@ def run_update():
         # print "%s\n" % o.org_name
         i.update_from_iss()
         i.save()
-    
+
 if __name__ == '__main__':
     run_update()

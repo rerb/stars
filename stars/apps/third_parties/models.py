@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 from stars.apps.submissions.models import SubmissionSet
 
@@ -14,6 +15,7 @@ class ThirdParty(models.Model):
                                                     blank=True, null=True)
     disabled = models.BooleanField(default=False)
     help_text = models.TextField(blank=True, null=True)
+    authorized_users = models.ManyToManyField(User)
 
     class Meta:
         verbose_name_plural = "Third Parties"
