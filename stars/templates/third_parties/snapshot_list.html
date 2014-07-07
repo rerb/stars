@@ -19,7 +19,7 @@
               </td>
               <td>
                 {% for ss in i.list %}
-                  {{ ss.date_submitted }}<br/>
+                  {{ ss.date_submitted }} ({{ ss.creditset.version }})<br/>
                 {% endfor %}
               </td>
             </tr>
