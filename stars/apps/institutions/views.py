@@ -299,6 +299,11 @@ class ParticipantReportsView(SortableTableViewWithInstProps):
                         'title': 'Institution',
                     },
                     {
+                        'key': 'country',
+                        'sort_field': 'country',
+                        'title': 'Country',
+                    },
+                    {
                         'key': 'version',
                         'sort_field': 'rated_submission__creditset__version',
                         'title': 'Version',
@@ -469,7 +474,7 @@ class ScorecardView(RulesMixin,
         _context['preview'] = False
         if not ss.status == 'r':
             _context['preview'] = True
-            
+
         return _context
 
     def get_category_url(self, category, url_prefix):
@@ -597,7 +602,7 @@ class DataCorrectionView(RulesMixin,
     """
     template_name = "institutions/data_correction_request/new.html"
     form_class = DataCorrectionRequestForm
-    
+
     def get_object_list(self):
         return get_submissions_for_scorecards(
             institution=self.get_institution())
