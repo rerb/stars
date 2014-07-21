@@ -53,7 +53,7 @@ class ParticipantContactForm(AdminInstitutionForm):
         super(ParticipantContactForm, self).__init__(*args, **kwargs)
 
         self.fields['executive_contact_first_name'].required = True
-        self.fields['executive_contact_middle_name'].required = True
+        self.fields['executive_contact_last_name'].required = True
         self.fields['executive_contact_title'].required = True
         self.fields['executive_contact_department'].required = True
         self.fields['executive_contact_email'].required = True
