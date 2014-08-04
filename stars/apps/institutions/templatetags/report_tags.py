@@ -38,10 +38,10 @@ def show_submission_field_inside_table(context):
 
 @register.inclusion_tag('institutions/pdf/field_formatting.html', takes_context=True)
 def show_submission_field_inside_table_pdf(context):
-    print context['submission_field_list']
+#     print context['submission_field_list']
     context['field'] = _get_field(context['field'],
                                   context['submission_field_list'])
-    print context['field']
+#     print context['field']
     return context
 
 

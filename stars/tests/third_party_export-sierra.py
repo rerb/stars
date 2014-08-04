@@ -16,10 +16,37 @@ import csv, string
 import datetime
 
 cs_id_list = [5, 6]
-limit_inst_ids = [ # if this has ids, then only these institutions will be exported
-    293, # Stanford
-    664 # University of Pittsburgh
+limit_inst_ids = [
+    # if this has ids, then only these institutions will be exported
 ]
+
+institution_name_list = [
+    "American University",
+    "Ball State University",
+    "Bryant University",
+    "California State University, Monterey Bay",
+    "Central Connecticut State University",
+    "Denison University",
+    "Goucher College",
+    "Mills College",
+    "Randolph College",
+    "State University of New York at Oneonta",
+    "The Ohio State University",
+    "University at Albany",
+    "University of California, Merced",
+    "University of Michigan",
+    "University of North Texas",
+    "University of Richmond",
+    "Wellesley College"
+]
+
+print "# of institutions: %d" % len(institution_name_list)
+
+for i_name in institution_name_list:
+    i = Institution.objects.get(name=i_name)
+    limit_inst_ids.append(i.id)
+
+print "# of institution ids: %d" % len(limit_inst_ids)
 
 for cs_id in cs_id_list:
 
@@ -27,7 +54,7 @@ for cs_id in cs_id_list:
     tp = ThirdParty.objects.get(slug="sierra")
     print "EXPORTING: %s" % tp
 
-    deadline = datetime.date.today()
+    deadline = datetime.date(year=2014, month=6, day=25)
 
     snapshot_list = tp.get_snapshots().exclude(institution__id=447).order_by("institution__name")
     snapshot_list = snapshot_list.filter(creditset=cs)
@@ -57,11 +84,11 @@ for cs_id in cs_id_list:
 
     print "%d Snapshots" % len(latest_snapshot_list)
 
-    for cat in cs.category_set.all():
-        for sub in cat.subcategory_set.all():
-            for c in sub.credit_set.all():
-                filename = 'export/%s/%s.csv' % (cs.version, string.replace("%s" % c, "/", "-"))
-                filename = string.replace(filename, ":", "")
-                filename = string.replace(filename, " ", "_")
-
-                export_credit_csv(c, ss_qs=latest_snapshot_list, outfilename=filename)
+    # for cat in cs.category_set.all():
+    #     for sub in cat.subcategory_set.all():
+    #         for c in sub.credit_set.all():
+    #             filename = 'export/%s/%s.csv' % (cs.version, string.replace("%s" % c, "/", "-"))
+    #             filename = string.replace(filename, ":", "")
+    #             filename = string.replace(filename, " ", "_")
+    #
+    #             export_credit_csv(c, ss_qs=latest_snapshot_list, outfilename=filename)

@@ -297,9 +297,7 @@ table.tabular th {
 				        </div>
 				        {% block tab_content %}
 				            <br/>
-				            {% for field in credit_submission.get_public_submission_fields %}
-				                {% include 'institutions/pdf/field_detail.html' %}
-				            {% endfor %}
+				            {% include "institutions/pdf/field_list.html" %}
 				        {% endblock %}
 					{% endif %}{% endif %}
 				{% endfor %}
