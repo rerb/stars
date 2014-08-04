@@ -50,10 +50,24 @@ print "%d (%d%%)" % (renewal_count, renewal_percent)
 print "Current active subscriptions - first-time subscribers"
 print "%d (%d%%)" % (first_time_count, first_time_percent)
 
-print "Canadian participants (to date)"
+print "Canadian overal participants (to date)"
 canada_count = 0
 for i in Institution.objects.filter(country="Canada"):
     if i.subscription_set.count():
+        canada_count += 1
+print canada_count
+
+print "Current Canadian Participants"
+canada_count = 0
+for i in Institution.objects.filter(country="Canada"):
+    if i.is_participant:
+        canada_count += 1
+print canada_count
+
+print "Canadian Rated Institutions"
+canada_count = 0
+for i in Institution.objects.filter(country="Canada"):
+    if i.current_rating:
         canada_count += 1
 print canada_count
 
