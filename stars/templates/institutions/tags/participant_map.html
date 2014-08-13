@@ -11,34 +11,53 @@
 								lat: {{ i.institution.latitude }},
 								lon: {{ i.institution.longitude }},
 								title: "{{ i.institution.org_name }}",
-								content: "<b>{{ i.institution.org_name }}</b><p>
+								content: "<p style='text-align: center'>
+								<b>{{ i.institution.org_name }}</b><br/>
 								{% if i.current_rating %}
 									{% thumbnail i.current_rating.image_large "70x70" as im %}
 										<a href='{{ i.rated_submission.get_scorecard_url }}'>
-									    	<img src='{{ im.url }}' style='margin: 0px 15px 5px 0px;' align='left' /></a>
+									    	<img src='{{ im.url }}' style='margin: 5px;' /></a>
 									{% endthumbnail %}
 								{% endif %}
+
+								{% if i.image_path %}
+									{% thumbnail i.image_path "70x70" as im %}
+										<img src='{{ im.url }}' style='margin: 5px;' title='{{i.image_title}}' />
+									{% endthumbnail %}
+								{% endif %}
+
 								</p>",
 								{% if i.current_rating %}
-							      	icon: "{{ i.current_rating.map_icon.url }}"
-						      	{% else %}
-                    icon: {
-              				path: google.maps.SymbolPath.CIRCLE,
-              				scale: 4,
-              				fillColor: '#ffffff',
-              				strokeColor: '#848e2b',
-              				strokeWeight: 2,
-              				fillOpacity: 1
-                    }
-                      // icon: "{{ STATIC_URL }}images/map_icons/participant.png"
-						      	{% endif %}
+					      	icon: "{{ i.current_rating.map_icon.url }}"
+								{% elif i.subscription != null %}
+									icon: {
+										path: google.maps.SymbolPath.CIRCLE,
+										scale: 5,
+										fillColor: '#5bb75b',
+										strokeColor: '#ffffff',
+										strokeWeight: 1,
+										fillOpacity: 1,
+										strokeOpacity: .8
+									}
+				      	{% else %}
+	                icon: {
+	          				path: google.maps.SymbolPath.CIRCLE,
+	          				scale: 3,
+	          				fillColor: '#aaa',
+										strokeColor: "#777",
+	          				strokeWeight: 1,
+										opacity: 1,
+										fillOpacity: 1
+	                }
+                  // icon: "{{ STATIC_URL }}images/map_icons/participant.png"
+				      	{% endif %}
 							}
 							{% if not forloop.last %},{% endif %}
 						{% endif %}
 						{% endspaceless %}
 					{% endfor %}
 			]
-		
+
 			var centerPos = new google.maps.LatLng(49.496675,-108.632812);
 			  var myOptions = {
 			    zoom: 3,
@@ -54,23 +73,23 @@
 			    mapTypeId: google.maps.MapTypeId.TERRAIN
 			  }
 			  var map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
-			   
+
 			  bounds = new google.maps.LatLngBounds();
-			  
+
 			  infoWindow = new google.maps.InfoWindow({
 			  	maxWidth: 450
 			  });
-			  
+
 			  function createMarker(school) {
 			  	var point = new google.maps.LatLng(school['lat'], school['lon']);
 			  	bounds.extend(point)
 			  	marker = new google.maps.Marker({
-			      position: point, 
+			      position: point,
 			      map: map,
 			      icon: school.icon,
 			      title: school['title']
 			  	});
-			    
+
 			  	// Register a click listener on each marker created.
 			    google.maps.event.addListener(marker, 'click', (function(markerArg, content) {
 			      return function() {
@@ -81,7 +100,7 @@
 			  	return marker;
 
 			  }
-			  
+
 
 			  //var bounds = new google.maps.LatLngBounds();
 			  for ( i = 0; i < school_list.length; i++ ) {

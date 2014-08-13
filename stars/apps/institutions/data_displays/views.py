@@ -63,29 +63,10 @@ class Dashboard(TemplateView):
         if not _context:
             _context = {}
 
-            # map vars
-            i_list = []
-            i_qs = Institution.objects.filter(enabled=True).filter(Q(is_participant=True) | Q(current_rating__isnull=False)).order_by('name')
             ratings = {}
             for r in Rating.objects.all():
                 if r.name not in ratings.keys():
                     ratings[r.name] = 0
-
-            for i in i_qs:
-                d = {
-                        'institution': i.profile,
-                        'current_rating': i.current_rating,
-                        'rated_submission': i.rated_submission,
-                        'subscription': i.current_subscription
-                    }
-                if i.charter_participant:
-                    d['image_path'] = "/media/static/images/seals/STARS-Seal-CharterParticipant_70x70.png"
-                else:
-                    d['image_path'] = "/media/static/images/seals/STARS-Seal-Participant_70x70.png"
-                i_list.append(d)
-
-            _context['mapped_institutions'] = i_list
-
 
             # bar chart vars
             bar_chart = {}
@@ -98,7 +79,7 @@ class Dashboard(TemplateView):
 
                 if i.current_rating.publish_score:
                     ss = i.rated_submission
-                    if i.rated_submission.creditset.version != '2.0':                        
+                    if i.rated_submission.creditset.version != '2.0':
                         for cs in ss.categorysubmission_set.all():
                             if cs.category.include_in_score and cs.category.abbreviation != "IN":
                                 if bar_chart.has_key(cs.category.abbreviation):
