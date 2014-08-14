@@ -5,6 +5,7 @@ from django.db import DatabaseError
 
 from stars.apps.institutions.models import Institution
 from stars.apps.notifications.models import EmailTemplate
+from stars.apps.submissions.models import SubmissionSet
 
 def eval_participant_status(i):
     """
@@ -32,6 +33,23 @@ def eval_rated_submission(i):
         return i.submissionset_set.filter(status='r').order_by('-date_submitted')[0]
     except:
         return None
+
+def expire_ratings():
+    """
+        Expire any ratings that are over 3 years old
+    """
+    d = datetime.date.today()
+    td = datetime.timedelta(days=365*3)
+    expire_date = d - td
+    for s in SubmissionSet.objects.filter(date_submitted__lt=expire_date):
+        s.expired = True
+        s.save()
+        # remove it if it's the current submission for an institution
+        if s.institution.rated_submission == s:
+            s.institution.rated_submission = None
+            s.institution.current_rating = None
+            s.institution.latest_expired_submission = s
+            s.institution.save()
 
 def update_institution_properties():
     """
@@ -124,6 +142,7 @@ def update_institution_properties():
 # exception is caught and it's accepted.
 
 try:
+    expire_ratings()
     update_institution_properties()
 except DatabaseError as e:
     if e.message == 'no such table: institutions_institution':
