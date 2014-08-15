@@ -141,11 +141,12 @@ def update_institution_properties():
 # error, since it tries to access a table that isn't there.  So, this
 # exception is caught and it's accepted.
 
-try:
-    expire_ratings()
-    update_institution_properties()
-except DatabaseError as e:
-    if e.message == 'no such table: institutions_institution':
-        pass
-    else:
-        raise e
+if __name__ == '__main__':
+    try:
+        expire_ratings()
+        update_institution_properties()
+    except DatabaseError as e:
+        if e.message == 'no such table: institutions_institution':
+            pass
+        else:
+            raise e

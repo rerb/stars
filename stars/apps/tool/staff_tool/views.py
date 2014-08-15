@@ -57,7 +57,7 @@ def select_institution(request, id):
 #     from django.db.models import Max
 # #    payment_ids = Payment.objects.values('submissionset__institution').annotate(latest_payment=Max('date')).values('id')
 #     payments = Payment.objects.all().order_by('-date').select_related('submissionset', 'submissionset__institution')
-# 
+#
 #     template = "tool/admin/payments/latest.html"
 #     return respond(request, template, {'payment_list':payments})
 
@@ -120,6 +120,11 @@ class InstitutionList(SortableTableView):
                         'title': 'Institution',
                     },
                     {
+                        'key': 'rating',
+                        'sort_field': 'current_rating',
+                        'title': 'Rating',
+                    },
+                    {
                         'key': 'version',
                         'sort_field': 'current_submission__creditset__version',
                         'title': 'Version',
@@ -130,25 +135,20 @@ class InstitutionList(SortableTableView):
                         'title': 'Access Level',
                     },
                     {
-                        'key': 'reg_date',
-                        'sort_field': 'reg_date',
-                        'title': 'Registered',
-                    },
-                    {
-                        'key': 'rating',
-                        'sort_field': 'current_rating',
-                        'title': 'Rating',
+                        'key': 'contact_email',
+                        'sort_field': 'contact_email',
+                        'title': 'Liaison',
                     },
                     {
                         'key': 'submission',
                         'sort_field': 'rated_submission__date_submitted',
                         'title': 'Submission Date',
                     },
-                    {
-                        'key':'subscription',
-                        'sort_field':'current_subscription__start_date',
-                        'title':'Subscription',
-                    },
+                    # {
+                    #     'key':'subscription',
+                    #     'sort_field':'current_subscription__start_date',
+                    #     'title':'Subscription',
+                    # },
               ]
 
     def get_queryset(self):
@@ -224,4 +224,3 @@ class EditSubscriptionPayment(SubscriptionPaymentBaseMixin, UpdateView):
 
     def get_object(self):
         return self.get_payment()
-
