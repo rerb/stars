@@ -304,15 +304,15 @@ class SubmissionSet(models.Model, FlaggableModel):
             (not self.is_rated() and
              self.institution.access_level == BASIC_ACCESS)
         ):
-
             return self.creditset.rating_set.get(name='Reporter')
 
         if self.is_rated() and not recalculate:
             return self.rating
 
-        return self.creditset.get_rating(self.get_STARS_score())
+        score = self.get_STARS_score(recalculate)
+        return self.creditset.get_rating(score)
 
-    def get_STARS_score(self):
+    def get_STARS_score(self, recalculate=False):
         """
             Return the total STARS score for this submission
             Relies on the scoring method defined by the CreditSet model.
@@ -320,7 +320,7 @@ class SubmissionSet(models.Model, FlaggableModel):
              - define version-specific scoring methods below, and add
                to SCORING_METHOD_CHOICES in CreditSet model.
         """
-        if self.status == 'r' and self.score:
+        if self.status == 'r' and self.score and not recalculate:
             return self.score
 
         scoring_method = self.creditset.scoring_method
