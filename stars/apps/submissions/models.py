@@ -2107,6 +2107,16 @@ class UploadSubmission(DocumentationFieldSubmission):
         """ Returns the name of the file w/out the full path. """
         return os.path.basename(self.value.name)
 
+    def get_admin_url(self):
+        print "**********FINDING URL: "
+        print self.id
+        url = urlresolvers.reverse(
+            'admin:submissions_uploadsubmission_change',
+            args=(self.id,))
+
+        print url
+        return url
+
 
 class BooleanSubmission(DocumentationFieldSubmission):
     """

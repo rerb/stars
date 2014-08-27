@@ -3,6 +3,7 @@
 {% load logical_rules_tags %}
 {% load help %}
 {% load l10n %}
+{% load admin_urls %}
 
 {% if not field.is_empty %}
 	{% ifequal field.documentation_field.type 'long_text' %}
@@ -17,6 +18,9 @@
 	            {% if field.value %}
 	                <a href='{% if host %}http://{{ host }}{% endif %}{{ field.value.url }}'>{{ field.get_filename }}</a>
 	            {% endif %}
+							{% if user.is_staff %}
+								<a href="{{ field.get_admin_url }}" class='btn btn-mini pull-right'><i class='icon-upload'></i></a>
+							{% endif %}
 	        {% else %}
 	            {% ifequal field.documentation_field.type 'numeric' %}
 	                {{ field.value|floatformat:"-2" }}
@@ -54,7 +58,7 @@
 	{% if user.is_staff %}
 		<a href="{{ field.get_flag_url }}" class='btn btn-mini pull-right'><i class='icon-flag'></i></a>
 	{% endif %}
-  
+
 	{% testrule user_is_institution_admin user institution %}
 	    <a 	href="{{ field.get_correction_url }}"
 	    	class='btn btn-mini pull-right'
@@ -67,10 +71,10 @@
 	    	$('#dc_{{ field.id|unlocalize }}').tooltip(options);
 	    </script>
 	{% endtestrule %}
-  
+
   {% if field.corrections.all %}
   	{% for c in field.corrections.all %}
-  
+
 	    <div class='correction'>
 	    	<img src='/media/static/images/expand_big.gif' alt='+' onclick='expandCollapse(this,false);' id='correction_{{ c.id }}' class='collapseExpand' style='vertical-align: text-bottom;'/>
 	    	<span style="color: #000">Data Corrected: {{ c.change_date }}</span>
