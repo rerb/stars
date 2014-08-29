@@ -19,7 +19,7 @@
 	                <a href='{% if host %}http://{{ host }}{% endif %}{{ field.value.url }}'>{{ field.get_filename }}</a>
 	            {% endif %}
 							{% if user.is_staff %}
-								<a href="{{ field.get_admin_url }}" class='btn btn-mini pull-right'><i class='icon-upload'></i></a>
+								<a href="{{ field.get_admin_url }}" target="_blank" class='btn btn-mini pull-right'><i class='icon-upload'></i></a>
 							{% endif %}
 	        {% else %}
 	            {% ifequal field.documentation_field.type 'numeric' %}
