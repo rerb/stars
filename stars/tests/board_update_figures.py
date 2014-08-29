@@ -32,6 +32,12 @@ total_participants = Institution.objects.filter(is_participant=True).count()
 print "Current active subscriptions"
 print total_participants
 
+td = datetime.timedelta(days=365)
+d = datetime.date.today() - td
+total_last_year = Subscription.objects.filter(start_date__lte=d).filter(end_date__gte=d).count()
+print "Active subscriptions on this date last year (%s)" % d
+print total_last_year
+
 renewal_count = 0
 first_time_count = 0
 for i in Institution.objects.filter(is_participant=True):
