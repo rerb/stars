@@ -1,0 +1,31 @@
+{% extends 'tool/admin/reports/base.html' %}
+
+{% block admin_content %}
+  <ul class='nav nav-pills sub-pills'>
+    <li>
+      <a href='/tool/admin/reports/'>Overview</a>
+    </li>
+    <li class="active">
+      <a href='/tool/admin/reports/financials/'>Monthly Reports</a>
+    </li>
+  </ul>
+
+  <h3>
+    Active Participants and Revenue by Month
+    <small>{{ today }}</small>
+  </h3>
+  <table class='table'>
+    <tr>
+      <th>Month</th>
+      <th>Active Participants</th>
+      <th>Payments</th>
+    </tr>
+    {% for o in object_list %}
+      <tr>
+        <td>{{ o.date|date:"F Y" }}</td>
+        <td>{{ o.participants }}</td>
+        <td>${{ o.revenue }}</td>
+      </tr>
+    {% endfor %}
+  </table>
+{% endblock %}
