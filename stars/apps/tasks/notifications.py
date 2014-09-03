@@ -7,10 +7,11 @@
 """
 
 from datetime import timedelta, datetime, date
+from dateutil.relativedelta import relativedelta
 import sys, calendar
 
 from stars.apps.institutions.models import * # required for execfile management func
-from stars.apps.submissions.models import (Payment, 
+from stars.apps.submissions.models import (Payment,
                                            PENDING_SUBMISSION_STATUS,
                                            SubmissionSet)
 from stars.apps.tasks.models import EmailNotification
@@ -197,19 +198,25 @@ def add_months(d, months):
         negative months are ok
     """
 
-    year = d.year
-    month = d.month
-    day = d.day
+    return d + relativedelta( months = months )
 
-    month += months
-    year += int(month) / int(12)
-    month = int(month) % int(12)
-
-    min_days, max_days = calendar.monthrange(year, month)
-    if max_days < day:
-        day = max_days
-
-    return date(year=year, month=month, day=day)
+    # year = d.year
+    # month = d.month
+    # day = d.day
+    #
+    # month += months
+    # if month > 12:
+    #     year += int(month) / int(12)
+    #     month = int(month) % int(12)
+    # #
+    # # if month == 0:
+    # #     month = 12
+    #
+    # min_days, max_days = calendar.monthrange(year, month)
+    # if max_days < day:
+    #     day = max_days
+    #
+    # return date(year=year, month=month, day=day)
 
 def send_notification(n_type, identifier, mail_to, template_slug, email_context, count=1):
     """

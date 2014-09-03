@@ -1,21 +1,24 @@
 from datetime import date
 from logging import getLogger
+from logical_rules.mixins import RulesMixin
 
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, Http404
 from django.db.models import Min
 from django.utils.decorators import method_decorator
-from django.views.generic import CreateView, UpdateView
+from django.views.generic import CreateView, UpdateView, ListView
 
 from stars.apps.accounts.utils import respond
 from stars.apps.accounts.decorators import user_is_staff
 from stars.apps.institutions.models import (Institution,
-                                            SubscriptionPayment)
+                                            SubscriptionPayment,
+                                            Subscription)
 from stars.apps.institutions.views import SortableTableView
 from stars.apps.submissions.models import SubmissionSet
 from stars.apps.tool.staff_tool.forms import PaymentForm
 from stars.apps.tool.mixins import InstitutionToolMixin
 from stars.apps.third_parties.models import ThirdParty
+from stars.apps.tasks.notifications import add_months
 
 logger = getLogger('stars.request')
 
@@ -91,6 +94,38 @@ def overview_report(request):
 
     template = "tool/admin/reports/quick_overview.html"
 
+    return respond(request, template, context)
+
+
+@user_is_staff
+def financial_report(request):
+    """
+        Provide a quick summary for board reports
+    """
+
+    d = date(year=2009, month=10, day=1)
+    tbl = []
+
+    while d <= date.today():
+
+        subs = Subscription.objects.filter(start_date__lte=d).filter(end_date__gte=d)
+
+        revenue = 0
+        payments = SubscriptionPayment.objects.filter(date__year=d.year).filter(date__month=d.month)
+        for p in payments:
+            revenue += p.amount
+
+        participants = subs.count()
+
+        tbl.append({
+            'date': add_months(d, -1),
+            'participants': participants,
+            'revenue': revenue})
+
+        d = add_months(d, 1)
+
+    context = {'object_list': tbl, 'today': date.today()}
+    template = "tool/admin/reports/financial.html"
     return respond(request, template, context)
 
 

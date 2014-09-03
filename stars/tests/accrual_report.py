@@ -12,8 +12,8 @@ from stars.apps.institutions.models import Subscription, SubscriptionPayment
 
 from datetime import date
 
-start = date(year=2014, month=1, day=1)
-end = date(year=2014, month=7, day=31)
+start = date(year=2013, month=1, day=1)
+end = date(year=2014, month=1, day=1)
 
 print "%s\t%s\t%s\t%s\t%s\t%s\t%s" % (
     "institution",
@@ -24,7 +24,7 @@ print "%s\t%s\t%s\t%s\t%s\t%s\t%s" % (
     "payment method",
     "confirmation #")
 
-for p in SubscriptionPayment.objects.filter(date__gte=start).filter(date__lte=end).order_by("date"):
+for p in SubscriptionPayment.objects.filter(date__gte=start).filter(date__lt=end).order_by("date"):
     try:
         print "%s\t%s\t%s\t%s\t%s\t%s\t%s" % (
             p.subscription.institution.name,
