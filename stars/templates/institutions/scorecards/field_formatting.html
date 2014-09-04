@@ -77,7 +77,7 @@
 
 	    <div class='correction'>
 	    	<img src='/media/static/images/expand_big.gif' alt='+' onclick='expandCollapse(this,false);' id='correction_{{ c.id }}' class='collapseExpand' style='vertical-align: text-bottom;'/>
-	    	<span style="color: #000">Data Corrected: {{ c.change_date }}</span>
+	    	<span style="color: #000">Date Revised: {{ c.change_date }}</span>
 	    	<br/>
 	    	<div style='{% block correction_display %}display: none;{% endblock %}font-size: .8em;margin: 10px 20px;' id='correction_{{ c.id }}_target'>
 	    		<p>{{ institution }} requested that AASHE Staff correct a mistake in this reporting field for the reason specified below.</p>
