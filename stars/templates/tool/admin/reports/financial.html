@@ -11,13 +11,19 @@
   </ul>
 
   <h3>
-    Active Participants and Revenue by Month
-    <small>{{ today }}</small>
+    Current Participants and Revenue by Month
+    <small>generated {{ today }}</small>
   </h3>
+  <div class='well' style='text-align: center'>
+    <strong>{{ today }}:</strong>
+    {{ participants_today }}<br/>
+    <strong>{{ last_year }}:</strong>
+    {{ participants_last_year }}
+  </div>
   <table class='table'>
     <tr>
       <th>Month</th>
-      <th>Active Participants</th>
+      <th>Current Participants</th>
       <th>Payments</th>
     </tr>
     {% for o in object_list %}

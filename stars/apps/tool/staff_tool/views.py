@@ -103,9 +103,13 @@ def financial_report(request):
         Provide a quick summary for board reports
     """
 
+    d = today = date.today()
+    participants_today = Subscription.objects.filter(start_date__lte=d).filter(end_date__gte=d).count()
+    d = last_year = add_months(d, -12)
+    participants_last_year = Subscription.objects.filter(start_date__lte=d).filter(end_date__gte=d).count()
+
     d = date(year=2009, month=10, day=1)
     tbl = []
-
     while d <= date.today():
 
         subs = Subscription.objects.filter(start_date__lte=d).filter(end_date__gte=d)
@@ -124,7 +128,12 @@ def financial_report(request):
 
         d = add_months(d, 1)
 
-    context = {'object_list': tbl, 'today': date.today()}
+    context = {
+        'object_list': tbl,
+        'today': today,
+        'participants_today': participants_today,
+        'last_year': last_year,
+        'participants_last_year': participants_last_year}
     template = "tool/admin/reports/financial.html"
     return respond(request, template, context)
 

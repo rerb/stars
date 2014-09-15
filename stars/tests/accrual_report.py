@@ -12,8 +12,8 @@ from stars.apps.institutions.models import Subscription, SubscriptionPayment
 
 from datetime import date
 
-start = date(year=2013, month=1, day=1)
-end = date(year=2014, month=1, day=1)
+start = date(year=2014, month=1, day=1)
+end = date(year=2014, month=9, day=1)
 
 print "%s\t%s\t%s\t%s\t%s\t%s\t%s" % (
     "institution",
