@@ -37,7 +37,7 @@
 			    s.parentNode.insertBefore(p, s);
 			})();
 		</script>
-    
+
     </head>
     <body onload='{% block body_onload %}{% endblock %}'
     	onbeforeunload='{% block body_beforeunload %}{% endblock %}'
@@ -97,7 +97,7 @@
         <section class="span12">
           {% block crumbs %}{% endblock %}
           <a id="main-content"></a>
-          
+
           {% if messages  %}
 	            {% for message in messages %}
 		            <div {% if message.tags %}
@@ -108,7 +108,7 @@
                     </div>
 			    {% endfor %}
             {% endif %}
-          
+
           {% block content %}
           {% endblock content %}
         </section>
@@ -127,7 +127,10 @@
           <strong>Remittance Address: PO Box 824583, Philadelphia, PA 19182-4583</strong>
         </div><!-- /.span8 -->
         <div class="bottom-menu span3">
-          <a href="mailto:stars@aashe.org">Contact Us</a><br/>
+          <a href="mailto:stars@aashe.org"
+            onclick="javascript:UserVoice.push(['show',]);return false;">
+            Contact Us</a>
+          <br/>
           <a href="http://www.aashe.org/privacy-policy">Privacy Policy</a><br/>
           <a href="http://www.aashe.org/">AASHE</a><br/>
 		      <a href='http://stars-api-documentation.readthedocs.org/en/latest/index.html'>API v1.0</a>
