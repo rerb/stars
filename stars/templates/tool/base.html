@@ -37,6 +37,19 @@
       STARS Reporters may request an exemption by emailing
       <a href="mailto:stars@aashe.org">stars@aashe.org</a>.
     </div>
+
+    {% if institution.prefers_metric_system %}
+      <div class='alert alert-error' style='font-size: 1.7em; line-height: 1.4;text-align:center;'>
+        <strong>Warning!</strong>
+        A bug has been found in the handling of metric units today (Sept 16th). Please refrain
+        from entering data into the tool until tomorrow (Sept 17th). Please
+        <a href="mailto:stars@aashe.org"
+          onclick="javascript:UserVoice.push(['show',]);return false;">
+          contact us</a>
+        if you have any questions.
+      </div>
+    {% endif %}
+
     <div class='row'>
         <div class='span3'>
             {% block tool_menu %}
