@@ -2060,11 +2060,25 @@ class DateSubmission(DocumentationFieldSubmission):
     """
     value = models.DateField(blank=True, null=True)
 
+
 class NumericSubmission(DocumentationFieldSubmission):
     """
         The submitted value for a Numeric Documentation Field
     """
     value = models.FloatField(blank=True, null=True)
+    metric_value = models.FloatField(blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        """
+            Override the save method to generate the metric value
+        """
+        if self.credit_submission.get_institution().prefers_metric_system:
+            units = self.documentation_field.us_units
+            self.value = units.convert(self.metric_value)
+        else:
+            units = self.documentation_field.metric_units
+            self.metric_value = units.convert(self.value)
+        super(NumericSubmission, self).save(*args, **kwargs)
 
 class TextSubmission(DocumentationFieldSubmission):
     """

@@ -229,57 +229,53 @@ class DateSubmissionForm(SubmissionFieldForm):
         fields = ['value']
 
 
-class MetricWidget(widgets.TextInput):
-    """A TextInput that converts its value into its Metric equivalent.
-
-    The conversion happens in render(), so is visible to the user.
-
-    Used by NumericSubmissionForm when the institution in question
-    prefers the Metric system.
-    """
-
-    def __init__(self, units, *args, **kwargs):
-        self.units = units
-        super(MetricWidget, self).__init__(*args, **kwargs)
-
-    def render(self, name, value, attrs=None):
-        """Convert `value` to metric equivalent quantity."""
-        if value and self.units:
-            value = float(value)  # sometimes value is a string  :-(
-            value = self.units.convert(value)
-        return super(MetricWidget, self).render(name, value, attrs)
-
-
 class NumericSubmissionForm(SubmissionFieldForm):
 
     class Meta:
         model = NumericSubmission
-        fields = ['value']
+        fields = ['value', 'metric_value']
 
     def __init__(self, *args, **kwargs):
+        """
+            Sets the base field to use. If it's metric, use the metric_value field
+            if not, just use the value field. These will be converted for cleaning
+            and during save.
+        """
+
         super(NumericSubmissionForm, self).__init__(*args, **kwargs)
+
         self.use_metric_system = False
-        try:
-            institution = self.instance.get_institution()
-            self.use_metric_system = institution.prefers_metric_system
+        # try:
+        institution = self.instance.get_institution()
+        self.use_metric_system = institution.prefers_metric_system
 
-            if self.use_metric_system:
-                self.units = self.instance.documentation_field.us_units
-                self.fields['value'].widget = MetricWidget(units=self.units)
-        except:
+        if self.use_metric_system:
+            self.units = self.instance.documentation_field.us_units
+            self.fields['value'].widget = forms.HiddenInput()
+        else:
+            self.units = self.instance.documentation_field.metric_units
+            self.fields['metric_value'].widget = forms.HiddenInput()
+        # except Institution.DoesNotExist:
             # this will raise an error in credit editor
-            pass
+            # pass
 
-    def clean_value(self):
+    def clean(self):
         """ If we're displaying a metric quantity, revert it to its
             US equivalent.
 
             If there is a range, use this to validate the number.
         """
-        value = self.cleaned_data.get("value")
+        data = self.cleaned_data
+        metric_value = data["metric_value"]
+        value = data["value"]
 
-        if self.use_metric_system and value and self.units:
-            value = self.units.revert(value)
+        if self.use_metric_system:
+            if metric_value == None:
+                value = None
+            else:
+                # conversion to metric happens during save, but conversion to us
+                # is necessary for cleaning
+                value = self.units.revert(metric_value)
 
         if self.instance and not (value is None):
             min = self.instance.documentation_field.min_range
@@ -310,7 +306,7 @@ class NumericSubmissionForm(SubmissionFieldForm):
         elif not self.instance:
             logger.info("No Instance")
 
-        return value
+        return {'value': value, 'metric_value': metric_value}
 
     def raise_validation_error(self, error_message, min=None, max=None):
         """Raises forms.ValidationError, converting `min` and `max` in
@@ -815,7 +811,7 @@ class CreditUserSubmissionForm(CreditSubmissionForm):
                 error = True
 
         # Only perform the overall form validation if the submission
-        # is marked complete and if the 
+        # is marked complete and if the
         if marked_complete:
             cleaned_data = super(CreditUserSubmissionForm, self).clean()
 
