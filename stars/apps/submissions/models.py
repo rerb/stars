@@ -2072,11 +2072,21 @@ class NumericSubmission(DocumentationFieldSubmission):
         """
             Override the save method to generate the metric value
         """
-        if self.credit_submission.get_institution().prefers_metric_system:
-            units = self.documentation_field.us_units
+        # get metric preference
+        cs = self.credit_submission
+        cus = CreditUserSubmission.objects.get(creditsubmission_ptr_id=cs.id)
+        prefers_metric = cus.get_institution().prefers_metric_system
+
+        # in most cases the following would have worked:
+        # self.credit_submission.get_institution().prefers_metric_system
+        # but when accessing the NumericSubmission directly, we need to connect
+        # the correct CreditUserSubmission instead of CreditSubmission
+
+        if prefers_metric:
+            units = self.documentation_field.metric_units
             self.value = units.convert(self.metric_value)
         else:
-            units = self.documentation_field.metric_units
+            units = self.documentation_field.us_units
             self.metric_value = units.convert(self.value)
         super(NumericSubmission, self).save(*args, **kwargs)
 

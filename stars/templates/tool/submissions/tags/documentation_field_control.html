@@ -20,7 +20,7 @@
 	{% include "credits/tabular_field.html" %}
 
 {% else %}
-  {{ field_form.value }}
+  {{ field_form.value }} <!-- {{ field_form.instance.id }} -->
 	{% if documentation_field.type == 'numeric' %}
 		{{ field_form.metric_value }}
 	{% endif %}
