@@ -12,6 +12,7 @@ from misc_factories import UserFactory
 from stars.apps.submissions.models import (Boundary,
                                            CategorySubmission,
                                            CreditUserSubmission,
+                                           NumericSubmission,
                                            ResponsibleParty,
                                            SubcategorySubmission,
                                            SubmissionSet,
@@ -84,6 +85,14 @@ class TextDocumentationFieldSubmissionFactory(factory.DjangoModelFactory):
 
 
 DocumentationFieldSubmissionFactory = TextDocumentationFieldSubmissionFactory
+
+
+class NumericDocumentationFieldSubmissionFactory(factory.DjangoModelFactory):
+    FACTORY_FOR = NumericSubmission
+
+    documentation_field = factory.SubFactory(DocumentationFieldFactory)
+    credit_submission = factory.SubFactory(CreditUserSubmissionFactory)
+    value = 0
 
 
 class BoundaryFactory(factory.DjangoModelFactory):
