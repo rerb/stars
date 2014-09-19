@@ -15,6 +15,7 @@ from categorysubmission import CategorySubmissionTest
 from creditsubmission import CreditSubmissionTest
 from choicewithothersubmission import ChoiceWithOtherSubmissionTest
 from multichoicewithothersubmission import MultiChoiceWithOtherSubmissionTest
+from numericsubmission import NumericSubmissionTest
 from responsibleparty import ResponsiblePartyTest
 from submissionset import SubmissionSetTest
 from tasks import TasksTest
