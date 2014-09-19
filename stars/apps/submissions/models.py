@@ -2083,11 +2083,13 @@ class NumericSubmission(DocumentationFieldSubmission):
         # the correct CreditUserSubmission instead of CreditSubmission
 
         if prefers_metric:
-            units = self.documentation_field.metric_units
-            self.value = units.convert(self.metric_value)
+            if self.metric_value is not None:
+                units = self.documentation_field.metric_units
+                self.value = units.convert(self.metric_value)
         else:
-            units = self.documentation_field.us_units
-            self.metric_value = units.convert(self.value)
+            if self.value is not None:
+                units = self.documentation_field.us_units
+                self.metric_value = units.convert(self.value)
         super(NumericSubmission, self).save(*args, **kwargs)
 
 class TextSubmission(DocumentationFieldSubmission):
