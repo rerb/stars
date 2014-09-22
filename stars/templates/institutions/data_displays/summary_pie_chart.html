@@ -40,14 +40,14 @@
   font-size: 12px;
 }
    </style>
-   
+
 {% endblock %}
 
 {% block active_viz %} class='active' {% endblock %}
 
 {% block tab_content %}
   {{ block.super }}
-  
+
   {% display_block_content 'pie_viz_summary' user %}
    <div class="well" style='background-color: white;'><div id="viz"></div></div>
    <p align='center'>Built using <a href='http://mbostock.github.com/d3/'>d3.js</a>.</p>
@@ -66,7 +66,7 @@
     var arc = d3.svg.arc().outerRadius(r).innerRadius(inner_r);
     var label_arc = d3.svg.arc().innerRadius(inner_r).outerRadius(label_r);
     var donut = d3.layout.pie();
-    
+
     // Queue keeps track of all the previous parents
     var default_title = "Average Scores in STARS";
     var parent_stack = [
@@ -75,7 +75,7 @@
                         		'title': default_title
                         	}
                         ]
-    
+
     /* TWEENS */
 /*     var tweenShowArcs = function (b) {
         var i = d3.interpolate({startAngle: 0, endAngle: 0}, b);
@@ -84,7 +84,7 @@
            return arc2(i(t));
         };
        } */
-    
+
     var tweenShowFill = function (b) {
      var i = d3.interpolate({startAngle: 0, endAngle: 0}, b);
      return function(t) {
@@ -108,7 +108,7 @@
         return arc2(i(t));
      };
     }
-    
+
     var tweenHidePie = function (b) {
         var i = d3.interpolate({}, b);
         return function(t) {
@@ -116,7 +116,7 @@
            return arc2(i(t));
         };
        }
-    
+
     /* Data filtering functions */
     var id_inner = function(d, i) {
         return d.data.id;
@@ -130,7 +130,7 @@
     var d_func = donut.value(d_inner);
 
     function drawPie(canvas, classname, data, parent_slice, parent_classname)
-    {   
+    {
         canvas.data([data]);
 
         var arcs = canvas.selectAll("g." + classname + "_arcs")
@@ -139,7 +139,7 @@
            .attr("class", classname + "_arcs")
            .on('click', function(d, i) { return selectSlice(d, i, classname, parent_slice); })
            .attr("transform", "translate(" + (w / 2) + "," + (h / 2) + ")");
-        
+
         arcs.append("svg:title")
         	.text(function(d, i) { return d.data.long_title + "\n\n  (" + Math.round(d.data.fill_fraction*100) + "%)" });
 
@@ -147,19 +147,19 @@
            .attr("class", classname + "_fills")
            .attr("fill", function(d, i) { return fill_color(i); })
            .attr("stroke", function(d, i) { return stroke_color(i); });
-           
+
          var lines = arcs.append("svg:path")
         	.attr("class", classname + "_lines")
            .attr("fill", 'transparent')
            .attr("stroke", "#aaaaaa")
-           
+
         var getLabelText = function(d, i) {
          	 if(d.endAngle - d.startAngle > .2)
         	 	return d.data.title;
         	 else
         		 return ""
          }
-        
+
         var labels = arcs.append("svg:text")
         	.attr("class", classname + "_labels")
            .attr("transform", function(d) {
@@ -169,35 +169,35 @@
                    // pythagorean theorem for hypotenuse
                    h = Math.sqrt(x*x + y*y);
                return "translate(" + (x/h * label_r) +  ',' +
-                  (y/h * label_r) +  ")"; 
+                  (y/h * label_r) +  ")";
            })
            .attr("text-anchor", "middle")
            .style("opacity", 0)
            .text(getLabelText);
-        
+
         runShowTweens(lines, fills, labels);
     }
-        
+
     var runShowTweens = function(lines, fills, labels)
     {
         lines.transition()
           .ease("bounce")
           .duration(750)
           .attrTween("d", tweenShowBorder);
-          
+
         fills.transition()
            .ease("bounce")
            .delay(500)
            .duration(750)
            .attrTween("d", tweenShowFill);
-           
+
         labels.transition()
         	.ease("bounce")
            .delay(500)
            .duration(750)
            .styleTween("opacity", tweenOpacity(100));
     }
-    
+
     var up = function()
     {
     	if(parent_stack.length > 1)
@@ -222,27 +222,27 @@
             	.ease("bounce")
                 .duration(1000)
                 .attrTween("d", tweenHidePie);
-        	
+
         	if(parent_stack.length == 1)
         		d3.select("#reset_button").attr("class", "reset_button_disabled")
-        	
+
         	d3.select("#pie_title").text(title);
-        		
+
         	// unhide parents
-        	
+
         	labels = d3.selectAll("." + parent_classname + "_labels")
         	fills = d3.selectAll("." + parent_classname + "_fills")
         	lines = d3.selectAll("." + parent_classname + "_lines")
         	runShowTweens(lines, fills, labels);
     	}
     }
-    
+
     var selectSlice = function(d, i, classname, parent_slice)
     {
     	chart_data = d.data.child_chart;
 
     	new_classname = d.data.id;
-    	
+
     	if(chart_data) {
         	// Hide parents
         	d3.selectAll("." + classname + "_labels")
@@ -250,22 +250,22 @@
             	.ease("sin")
                 .duration(1000)
                 .styleTween("opacity", tweenOpacity(0));
-        	
+
         	d3.selectAll("." + classname + "_fills")
         		.transition()
             	.ease("bounce")
                 .duration(1000)
                 .attrTween("d", tweenHidePie);
-        	
+
         	d3.selectAll("." + classname + "_lines")
         		.transition()
             	.ease("bounce")
                 .duration(1000)
                 .attrTween("d", tweenHidePie);
-        	
+
     		d3.select("#reset_button")
     	      .attr("class", "reset_button")
-        	
+
 /*           	vis.append("svg:circle")
                 .attr("cx", w / 2)
                 .attr("cy", h / 2)
@@ -281,7 +281,7 @@
     							}
     						);
             d3.select("#pie_title").text(d.data.title);
-              	
+
         	// Draw the new one if it doesn't already exist
         	fills = d3.selectAll("." + new_classname + "_fills")
         	if(fills[0].length == 0) {
@@ -289,7 +289,7 @@
                     return function(json) {
                     	data = json.slices;
                         drawPie(vis, classname, data, parent_slice, parent_classname);
-                    }    	
+                    }
             	}
             	d3.json(chart_data, draw_wrapper(vis, new_classname, d, classname));
         	}
@@ -312,7 +312,7 @@
              .attr("cx", w / 2)
              .attr("cy", h / 2)
              .attr("r", r);
-   
+
 	vis.append("svg:circle")
       .attr("cx", w / 2)
       .attr("cy", h / 2)
@@ -320,7 +320,7 @@
       .attr("class", "reset_button_disabled")
       .attr("id", "reset_button")
       .on('click', up);
-	
+
 	var title = vis.append("svg:text")
 		title.append("svg:tspan")
 			.style("fill", "#333")
@@ -336,19 +336,19 @@
 	 	.attr("text-anchor", "middle")
         .style("opacity", 100)
         .text(default_title); */
-           
+
     /* d3.json("data/subcategories.json", display); */
     document.body.style.cursor = 'wait';
 
     d3.json("/api/v1/summary-pie-chart/", display);
     //d3.json("/api/v1/category-pie-chart/11/", display);
     // d3.json("/api/v1/subcategory-pie-chart/45/", display);
-    
+
     function display(json) {
         document.body.style.cursor = 'default';
         data = json.objects[0].slices;
         drawPie(vis, top_chart_name, data, null, null);
     }
-   
+
    </script>
 {% endblock %}
