@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% load thumbnail %}
+{% load help %}
+
+{% block title %}Reporting Tool | {{ block.super }}{% endblock %}
+
+{% block main_menu %}
+    {% with selected="mm_tool" %}
+        {% include 'helpers/main_menu.html' %}
+    {% endwith %}
+{% endblock %}
+
+{% block crumbs %}
+    <ul class="breadcrumb">
+        <li>
+            <a href="/">Home</a> <span class="divider">/</span>
+        </li>
+        <li>
+            <a href='{% url tool-landing-page %}'>
+                Reporting
+            </a>
+            <span class="divider">/</span>
+        </li>
+        {% block crumbs-tool %}{% endblock %}
+    </ul>
+{% endblock %}
+
+{% block content %}
+	{% include "terms/modal_container.html" %}
+    <div class="alert alert-error">
+      <strong>Please Note:</strong>
+      All <i>STARS Version One</i> reports that are in progress will automatically be
+      <a href="https://aashe-stars.uservoice.com/knowledgebase/articles/377438-can-i-submit-a-report-under-an-older-version-of-st">
+        upgraded to STARS 2.0</a>
+      on <strong>October 20, 2014</strong>. Institutions that intend to submit as
+      STARS Reporters may request an exemption by emailing
+      <a href="mailto:stars@aashe.org">stars@aashe.org</a>.
+    </div>
+
+    <div class='row'>
+        <div class='span3'>
+            {% block tool_menu %}
+                {% include "tool/menu.html" %}
+            {% endblock %}
+        </div>
+        <div class='span9'>
+            {% if institution %}
+                <h1>{{ institution }}</h1><br/>
+            {% endif %}
+            {% block tool_content %}{% endblock %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block extra_footer %}
+	{% include "terms/modal_js.html" %}
+{% endblock %}
