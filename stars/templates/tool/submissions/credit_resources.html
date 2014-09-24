@@ -6,7 +6,14 @@
 
 {% block tab_content %}
 <div class='creditContent'>
-    <h2>Resources</h2><br/>
+    <h2>
+      Resources
+      {% if user.is_staff %}
+        <a href="{{ credit.get_edit_url }}" target="_blank">
+          <i class='icon-edit'></i>
+        </a>
+        {% endif %}
+    </h2><br/>
     {% if credit.resources %}
       {% autoescape off %}
         <div class='well'>{{ credit.resources }}</div>
