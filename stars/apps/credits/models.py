@@ -221,7 +221,7 @@ class CreditSet(VersionedModel):
         if not name[0].isalpha():         # ensure first character is alpha
             name = "v%s" % name
         # replace punctuation with underscores:
-        name = re.sub(r'[\-\'\.,?/;:"~!@#$%^&*()+]', '_', name)  
+        name = re.sub(r'[\-\'\.,?/;:"~!@#$%^&*()+]', '_', name)
         return name
 
     def num_normal_categories(self):
@@ -579,7 +579,7 @@ class Subcategory(VersionedModel):
                  'queryset': self.credit_set.all()}]
 
     def num_submissions(self):
-        """ Return the number of credit submissions started for this 
+        """ Return the number of credit submissions started for this
             subcategory """
         from stars.apps.submissions.models import get_active_submissions
         return get_active_submissions(subcategory=self).count()
@@ -671,6 +671,11 @@ class Credit(VersionedModel):
         help_text=("Must this credit be completed before submitting for "
                    "a rating?"))
     requires_responsible_party = models.BooleanField(default=True)
+
+    resources = models.TextField(
+        blank=True,
+        null=True,
+        help_text="A list of resources related to this credit")
 
     class Meta:
         ordering = ('ordinal',)
@@ -1092,7 +1097,7 @@ TYPE_TO_WIDGET = {
     'date': forms.TextInput,
     'upload': forms.FileInput,
     'choice': forms.Select,
-    'tabular': forms.Textarea #@todo - custom 
+    'tabular': forms.Textarea #@todo - custom
 }
 
 
@@ -1172,7 +1177,7 @@ class DocumentationField(VersionedModel):
         return get_array_for_tabular_fields(self)
 
     def save(self, *args, **kwargs):
-        """ Override model.Model save() method to assign identifier and 
+        """ Override model.Model save() method to assign identifier and
             ordinal """
         if not self.identifier:
             self.identifier = self.credit.get_next_field_identifier()
@@ -1250,7 +1255,7 @@ class DocumentationField(VersionedModel):
 
     def can_have_units(self):
         """ Return True if the units option apply to this field. """
-        return (self.type in ('text', 'long_text', 'numeric') or 
+        return (self.type in ('text', 'long_text', 'numeric') or
                 self.is_choice())
 
     @property
@@ -1296,7 +1301,7 @@ class Choice(VersionedModel):
     ordinal = models.SmallIntegerField(default=-1)
     # 'bonafide' choices are defined by STARS staff, other choices are
     # user=defined
-    is_bonafide = models.BooleanField(default=True)  
+    is_bonafide = models.BooleanField(default=True)
 
     class Meta:
         ordering = ('ordinal',)

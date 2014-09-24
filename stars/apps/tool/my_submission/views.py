@@ -383,6 +383,11 @@ class CreditHistoryView(UserCanEditSubmissionMixin,
         return context
 
 
+class CreditResourcesView(UserCanEditSubmissionMixin, TemplateView):
+
+    template_name = "tool/submissions/credit_resources.html"
+
+
 class AddResponsiblePartyView(UserCanEditSubmissionMixin, CreateView):
 
     template_name = "tool/submissions/responsible_party.html"

@@ -1,0 +1,26 @@
+{% extends 'tool/submissions/credit_base.html' %}
+
+{% load bootstrap %}
+
+{% block credit_tabs %}{% with active='resources' %}{{ block.super }}{% endwith %}{% endblock %}
+
+{% block tab_content %}
+<div class='creditContent'>
+    <h2>Resources</h2><br/>
+    {% if credit.resources %}
+      {% autoescape off %}
+        <div class='well'>{{ credit.resources }}</div>
+      {% endautoescape %}
+    {% else %}
+      <div class='well'>
+        <p style="text-align: center;">There are currently no resources associated with this credit.</p>
+      </div>
+    {% endif %}
+    <p style="text-align: center">
+      <a href="mailto:stars@aashe.org"
+        class="btn btn-success"
+        onclick="javascript:UserVoice.push(['show',]);return false;">
+        Suggest a Resource</a>
+    </p>
+</div>
+{% endblock %}

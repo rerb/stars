@@ -9,6 +9,7 @@ from stars.apps.tool.my_submission.views import (
     CreditDocumentationView,
     CreditHistoryView,
     CreditNotesView,
+    CreditResourcesView,
     CreditSubmissionDetailView,
     EditBoundaryView,
     RatingCongratulationsView,
@@ -80,7 +81,11 @@ urlpatterns = patterns(
 
     url(r'^%s/history/$' % CREDIT_PATH,
         CreditHistoryView.as_view(),
-        name='credit-history')
+        name='credit-history'),
+
+    url(r'^%s/resources/$' % CREDIT_PATH,
+        CreditResourcesView.as_view(),
+        name='credit-resources'),
 )
 
 # Here's an illustration of the problem with caching
