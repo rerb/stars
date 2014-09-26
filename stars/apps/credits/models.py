@@ -673,6 +673,11 @@ class Credit(VersionedModel):
                    "a rating?"))
     requires_responsible_party = models.BooleanField(default=True)
 
+    resources = models.TextField(
+        blank=True,
+        null=True,
+        help_text="A list of resources related to this credit")
+
     class Meta:
         ordering = ('ordinal',)
 

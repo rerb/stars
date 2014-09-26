@@ -53,4 +53,14 @@
        History
      </a>
    </li>
+
+    <li
+      {% if active == "resources" %}
+        class="active"
+      {% endif %}
+      >
+      <a href="{{ credit_submission.get_submit_url }}resources/">
+        Resources <sup style="color: red;">NEW</sup>
+      </a>
+    </li>
 </ul>
