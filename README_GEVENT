@@ -1,0 +1,27 @@
+Async with Gevent
+=================
+
+Getting gevent up and running with gunicorn is a fairly quick process.
+Simply add the worker=gevent to gunicorn configuration and monkey-patching
+your db library using gunicorn.conf.
+
+Gunicorn
+--------
+
+We now have gunicorn.conf in the repo that handles the gunicorn configuration.
+
+The command for starting gunicorn simply needs the -c parameter pointing to this file.
+
+	-c=/path/to/gunicorn.conf
+
+Celery
+------
+
+Celery tasks can also run asynchronously:
+
+	celeryd -P gevent
+
+References
+----------
+
+http://media.codysoyland.com/pdf/django-on-gevent.pdf (pg 27)
