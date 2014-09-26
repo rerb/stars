@@ -2193,25 +2193,25 @@ def upload_path_callback(instance, filename):
         # if this is a test submission use a different URL
         return "uploads/test_cases/%s" % filename
 
+
 class UploadSubmission(DocumentationFieldSubmission):
     """
         The submitted value for a File Upload Documentation Field
         @todo: custom storage engine to rename files
     """
-    value = models.FileField(upload_to=upload_path_callback, blank=True, null=True)
+    value = models.FileField(
+        upload_to=upload_path_callback,
+        blank=True,
+        null=True)
 
     def get_filename(self):
         """ Returns the name of the file w/out the full path. """
         return os.path.basename(self.value.name)
 
     def get_admin_url(self):
-        print "**********FINDING URL: "
-        print self.id
         url = urlresolvers.reverse(
             'admin:submissions_uploadsubmission_change',
             args=(self.id,))
-
-        print url
         return url
 
 
