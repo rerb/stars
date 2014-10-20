@@ -267,8 +267,12 @@ class NumericSubmissionForm(SubmissionFieldForm):
             If there is a range, use this to validate the number.
         """
         data = self.cleaned_data
-        metric_value = data["metric_value"]
-        value = data["value"]
+        try:
+            metric_value = data["metric_value"]
+            value = data["value"]
+        except:
+            # there must have been a validation error
+            return data
 
         if self.instance.use_metric():
             if metric_value is None:
