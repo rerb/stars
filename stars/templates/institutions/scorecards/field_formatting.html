@@ -18,9 +18,6 @@
 	            {% if field.value %}
 	                <a href='{% if host %}http://{{ host }}{% endif %}{{ field.value.url }}'>{{ field.get_filename }}</a>
 	            {% endif %}
-							{% if user.is_staff %}
-								<a href="{{ field.get_admin_url }}" target="_blank" class='btn btn-mini pull-right'><i class='icon-upload'></i></a>
-							{% endif %}
 	        {% else %}
 	            {% ifequal field.documentation_field.type 'numeric' %}
 	                {{ field.value|floatformat:"-2" }}
@@ -55,7 +52,11 @@
 	    	<script type='text/javascript'>$('#flag_{{ f.id|unlocalize }}').tooltip({'html': true});</script>
 	  	{% endfor %}
 	  {% endif %}
-	{% if user.is_staff %}
+	{% if user.is_staff %}		
+		{% ifequal field.documentation_field.type 'upload' %}
+			<a href="{{ field.get_admin_url }}" target="_blank" class='btn btn-mini pull-right'><i class='icon-upload'></i></a>
+		{% endifequal %}
+
 		<a href="{{ field.get_flag_url }}" class='btn btn-mini pull-right'><i class='icon-flag'></i></a>
 	{% endif %}
 
