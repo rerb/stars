@@ -343,18 +343,13 @@ class InstitutionScorecards(InstitutionStructureMixin, TemplateView):
 
         institution = self.get_institution()
 
-        submission_sets = []
         qs = institution.submissionset_set.filter(is_visible=True)
+        qs = qs.filter(status='r').order_by("-date_submitted")
 
-        for ss in qs:
-            if (ss.status == 'r' or
-                user_can_preview_submission(self.request.user, ss)):
-                submission_sets.append(ss)
-
-        if len(submission_sets) < 1:
+        if qs.count() < 1:
             raise Http404
 
-        _context.update({'submission_sets': submission_sets,
+        _context.update({'submission_sets': qs,
                          'institution': institution})
 
         return _context
