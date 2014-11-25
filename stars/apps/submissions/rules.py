@@ -5,7 +5,8 @@ from stars.apps.institutions.rules import (institution_can_get_rated,
                                            user_has_access_level,
                                            institution_has_snapshot_feature,
                                            institution_has_export,
-                                           user_is_institution_admin)
+                                           user_is_institution_admin,
+                                           user_is_participant)
 from stars.apps.credits.models import CreditSet
 from stars.apps.submissions.models import Boundary
 
@@ -68,8 +69,14 @@ def user_can_view_export(user, submission):
 
         Only Full-Access users can export their current submissions
 
-        All users can export their snapshots
+        All users can export their own snapshots
+
+        All participants can export rated submissions
     """
+    if submission.status == 'r':
+        if user_is_participant(user):
+            return True
+
     if user_has_access_level(user, 'view', submission.institution):
         if submission.status == 'r':
             return True
