@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% load cache %}
+{% load content %}
+{% load institution_lists %}
+
+{% block content %}
+
+{% cache 7200 home-page %}
+<!-- template cached: {% now "jS F Y H:i" %} -->
+<div class="row" style="padding-top: 10px;padding-bottom: 10px;background-repeat: no-repeat;">
+  
+  <div class="span3" style="text-align: center;">
+    <a
+      href="/pages/participate/register-stars.html"
+      class="btn btn-success btn-large"
+      style="margin-top: 50px; margin-bottom: 15px;">
+      Get Started Now</a><br/><br/>
+    <a href="/pages/about/why-participate.html"
+    class=""
+    style='background-color: white;'>
+      Why Participate?
+    </a>
+    <!-- <div style='background-color: #eee; border: 1px solid #ddd; margin-top: 3em;'>
+      <label for="report-search">Find an Institution:</label>
+      <input type="text" class="input-large" />
+    </div> -->
+  </div>
+  
+  <div class="span3" style='text-align: center;padding-bottom: 20px;'>
+    <a href="/pages/about/technical-manual.html"
+      class='btn'
+      style='margin-bottom: 5px;'>
+    See the Credits »</a><br/><br/>
+    <a href="/pages/about/technical-manual.html">
+    <img src="{{ STATIC_URL }}images/home/tm.png" height="130" alt="STARS Technical Manual"/></a>
+  </div>
+
+  <div class="span3" style="text-align: center;">
+    <a href="{% url participants-reports %}"
+      class="btn"
+      style='margin-bottom: 5px;'>
+      Browse all Reports »</a><br/><br/>
+    {% show_rated_registrants %}
+  </div>
+
+  <div class="span3" style="text-align: center;">
+      <a href="/institutions/data-displays/dashboard/"
+        class="btn">
+        Explore the Data »</a><br/><br/>
+      <a
+        href="/institutions/data-displays/dashboard/">
+        <img
+          src="{{ STATIC_URL }}images/home/data-displays.png"
+          alt="STARS Data Disiplays"/></a>
+  </div>
+ </div>
+ 
+  
+  <div class="row" style='margin-top: 15px;'>
+    <div class="span12" style="text-align: center; height: 400px" id="map_canvas">
+      <!-- <img src='{{ STATIC_URL }}/images/home/map-placeholder.png' /> -->
+    </div>
+  </div>
+  
+ <br/><br/>
+
+  <div class="row">
+
+    <div class="span6">
+      <div class="frontblock boxleft">
+        <h2>Latest Updates</h2>
+	     {% display_block_content "highlights" user %}
+      </div>
+    </div>
+
+    <div class="span6 social-tabs">
+      <div class="frontblock boxleft">
+        <h2>Connect With Us</h2>
+        {% display_twitter_feed %}
+      </div>
+    </div>
+    
+  </div><!-- end row -->
+  
+  <script>
+    $(document).ready(function(){
+      $('#ratingCarousel').carousel();
+    });
+  </script>
+  
+  {% show_institutions_map %}
+
+  {% endcache %}  
+{% endblock %}
+ 
+
+{% block post-content %}
+{% endblock post-content %}
