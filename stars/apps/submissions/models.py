@@ -2148,7 +2148,7 @@ class NumericSubmission(DocumentationFieldSubmission):
 
         if self.requires_duplication():
             if self.use_metric():
-                if self.metric_value:
+                if self.metric_value is not None:
                     units = self.documentation_field.metric_units
                     self.value = units.convert(self.metric_value)
                 else:

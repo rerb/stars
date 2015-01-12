@@ -20,6 +20,8 @@ class CreditSetFactory(factory.DjangoModelFactory):
     version = factory.Sequence(lambda i: i)
     release_date = datetime.date(1970, 1, 1)
     tier_2_points = 1
+    scoring_method = "get_STARS_v2_0_score"
+    credit_identifier = "get_1_1_identifier"
 
 
 class CategoryFactory(factory.DjangoModelFactory):
@@ -47,6 +49,8 @@ class CreditFactory(factory.DjangoModelFactory):
     subcategory = factory.SubFactory(SubcategoryFactory)
     point_value = 1
     identifier = factory.Sequence(
+        lambda i: 'Credit-{0}.{1}'.format(i, time.time()))
+    title = factory.Sequence(
         lambda i: 'Credit-{0}.{1}'.format(i, time.time()))
 
 
@@ -77,5 +81,3 @@ class RatingFactory(factory.DjangoModelFactory):
 
     creditset = factory.SubFactory(CreditSetFactory)
     minimal_score = 1
-
-

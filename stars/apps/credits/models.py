@@ -1105,7 +1105,14 @@ TYPE_TO_WIDGET = {
 class Unit(models.Model):
     name = models.CharField(max_length=32)
     equivalent = models.ForeignKey('Unit', null=True, blank=True)
-    ratio = models.FloatField(null=True, blank=True, default=1.0)
+    # This is the ratio of this unit to its equivalent.
+    # For example, if this unit is Square Feet, then the ratio is 0.092903
+    # because 1 Square Foot is 0.092903 Square Meters
+    ratio = models.FloatField(
+        null=True,
+        blank=True,
+        default=1.0,
+        help_text="Ex: 0.092903 for Square Feet because 1sqf = 0.092903sqm")
     is_metric = models.BooleanField(default=False)
 
     class Meta:

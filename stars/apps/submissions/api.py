@@ -45,7 +45,10 @@ class SliceMixin(object):
         super(SliceMixin, self).__init__(*args, **kwargs)
 
         self.newest_creditset_id = 5
-        self.newest_creditset_to_use = CreditSet.objects.get(pk=self.newest_creditset_id)
+        try:
+            self.newest_creditset_to_use = CreditSet.objects.get(pk=self.newest_creditset_id)
+        except CreditSet.DoesNotExist:
+            self.newest_creditset_to_use = CreditSet.objects.get_latest()
 
     def dehydrate_slices(self, bundle):
         slices = []

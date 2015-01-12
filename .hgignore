@@ -29,5 +29,6 @@ ta_apps
 secure
 .idea
 stars/.ropeproject
+ghostdriver.log
 *.orig
 *\#*\#
