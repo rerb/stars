@@ -20,3 +20,4 @@ from responsibleparty import ResponsiblePartyTest
 from submissionset import SubmissionSetTest
 from tasks import TasksTest
 from views import TestSubmissionStructureMixin
+from metric_conversion import MetricConversionTest

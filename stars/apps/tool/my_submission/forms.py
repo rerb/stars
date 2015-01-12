@@ -260,56 +260,71 @@ class NumericSubmissionForm(SubmissionFieldForm):
             # this will raise an error in credit editor
             # pass
 
-    def clean(self):
-        """ If we're displaying a metric quantity, revert it to its
-            US equivalent.
+    def clean_value(self):
+        """ validate the value field if they aren't using metric """
+        value = self.cleaned_data.get("value")
+        if not self.instance.use_metric():
+            if value is not None:
+                min = self.instance.documentation_field.min_range
+                max = self.instance.documentation_field.max_range
+                self._validate_min_max(value, min, max)
+        return value
 
-            If there is a range, use this to validate the number.
+    def clean_metric_value(self):
+        """ validate the metric_value field when using metric """
+        metric_value = self.cleaned_data.get("metric_value")
+        if self.instance.use_metric():
+            if metric_value is not None:
+                min = self.instance.documentation_field.min_range
+                max = self.instance.documentation_field.max_range
+                if min is not None:
+                    min = self.units.convert(min)
+                if max is not None:
+                    max = self.units.convert(max)
+                self._validate_min_max(metric_value, min, max)
+        return metric_value
+
+    def _validate_min_max(self, value, min, max):
         """
-        data = self.cleaned_data
-        try:
-            metric_value = data["metric_value"]
-            value = data["value"]
-        except:
-            # there must have been a validation error
-            return data
+            Validates that a value is within the min and max.
+            It doesn't use the properties of self to allow the logic to be
+            duplicated for metric and us values
+
+            raises a validation error if necessary
+        """
+        if (min is not None and
+            max is not None and
+            (value < min or
+             value > max)):
+            raise forms.ValidationError(
+                "The value is outside of the accepted range for this field "
+                "(range: %d - %d)." % (min, max))
+        elif (min is not None and
+              value < min):
+            raise forms.ValidationError(
+                "The value is must be greater than or equal to %d." % min)
+        elif (max is not None and
+              value > max):
+            raise forms.ValidationError(
+                "The value is must be less than or equal to %d" % max)
+
+
+    def clean(self):
+        """
+            If we're using metric, convert value for formula validation
+
+            save() on the model handles conversion. this is just for validation
+        """
+        # if there were field errors, we have no cleaned data.
+        if not self.is_valid():
+            return self.cleaned_data
+
+        value = self.cleaned_data.get("value")
+        metric_value = self.cleaned_data.get("metric_value")
 
         if self.instance.use_metric():
-            if metric_value is None:
-                value = None
-            else:
-                # conversion to metric happens during save, but conversion to
-                # US is necessary for cleaning
-                value = self.units.revert(metric_value)
-
-        if self.instance and not (value is None):
-            min = self.instance.documentation_field.min_range
-            max = self.instance.documentation_field.max_range
-
-            if (min is not None and
-                max is not None and
-                (value < min or
-                 value > max)):
-                self.raise_validation_error(
-                    error_message=("The value is outside of the accepted "
-                                   "range for this field (range: {min} - "
-                                   "{max})."),
-                    min=min,
-                    max=max)
-            elif (min is not None and
-                  value < min):
-                self.raise_validation_error(
-                    error_message=("The value is must be greater than or "
-                                   "equal to {min}."),
-                    min=min)
-            elif (max is not None and
-                  value > max):
-                self.raise_validation_error(
-                    error_message=("The value is must be less than or equal "
-                                   "to {max}"),
-                    max=max)
-        elif not self.instance:
-            logger.info("No Instance")
+            units = self.instance.documentation_field.metric_units
+            value = self.units.convert(metric_value)
 
         return {'value': value, 'metric_value': metric_value}
 
@@ -317,7 +332,7 @@ class NumericSubmissionForm(SubmissionFieldForm):
         """Raises forms.ValidationError, converting `min` and `max` in
         the error message to metric, when appropriate.
         """
-        if self.use_metric_system and self.units:
+        if self.instance.use_metric() and self.units:
             for num in min, max:
                 if num:
                     num = self.units.convert(num)
@@ -574,7 +589,9 @@ class CreditSubmissionForm(LocalizedModelFormMixin, ModelForm):
     def _validate_required_fields(self):
         """ Helper to do required field validation.  Should only be
         called when submission is complete!"""
+
         __cleaned_data = self.cleaned_data
+
         for field in self.get_submission_fields_and_forms():
             # only try to evaluate the requirement if the field doesn't already
             # have errors
@@ -598,7 +615,8 @@ class CreditSubmissionForm(LocalizedModelFormMixin, ModelForm):
         """ Helper method to determine if any error were discovered
         during basic validation of each field"""
         for field in self.get_submission_fields_and_forms():
-            if "value" in field['form']._errors:
+            if ("value" in field['form']._errors or
+                "metric_value" in field['form']._errors):
                 return True
         # assert:  none of the fields had errors defined.
         return len(self.non_field_errors()) > 0
@@ -689,9 +707,9 @@ class CreditSubmissionForm(LocalizedModelFormMixin, ModelForm):
         for field in self.get_submission_fields_and_forms():
             doc_field = field['field'].documentation_field
             key[doc_field.identifier] = field['form'].cleaned_data.get("value")
-            if doc_field.is_upload():  # upload fields may be blank
-                                       # but still have a file that's
-                                       # been previously uploaded
+            if doc_field.is_upload():
+                # upload fields may be blank but still have a file that's
+                # been previously uploaded
                 key[doc_field.identifier] = (key[doc_field.identifier] or
                                              field['field'].get_value())
         return key
