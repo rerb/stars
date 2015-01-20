@@ -95,7 +95,7 @@ class DataCorrectionRequestAdmin(SubmissionSetMixin, admin.ModelAdmin):
             Show the choice objects in the help text if this is a choice field
         """
         form = super(DataCorrectionRequestAdmin, self).get_form(request, obj, **kwargs)
-        
+
         if(obj.reporting_field.documentation_field.type == "choice"):
             choice_list_text = ""
             for c in obj.reporting_field.documentation_field.choice_set.all():
@@ -193,6 +193,11 @@ admin.site.register(LongTextSubmission, LongTextSubmissionAdmin)
 class BooleanSubmissionAdmin(SubmissionFieldMixin, admin.ModelAdmin):
     pass
 admin.site.register(BooleanSubmission, BooleanSubmissionAdmin)
+
+
+class DateSubmissionAdmin(SubmissionFieldMixin, admin.ModelAdmin):
+    pass
+admin.site.register(DateSubmission, DateSubmissionAdmin)
 
 
 class ResponsiblePartyAdmin(admin.ModelAdmin):
