@@ -16,7 +16,8 @@ from models import (SubmissionSet,
                     NumericSubmission,
                     TextSubmission,
                     LongTextSubmission,
-                    BooleanSubmission)
+                    BooleanSubmission,
+                    DateSubmission)
 from stars.apps.credits.widgets import (CategorySelectTree,
                                         SubcategorySelectTree,
                                         CreditSelectTree)
