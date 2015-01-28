@@ -1,12 +1,11 @@
 Django==1.4.3
 Fabric==1.4.2
-Pillow==2.1.0
-PyMySQL==0.6.3
-PyYAML==3.10
 South==0.8.1
 Werkzeug==0.8.3
--e hg+ssh://hg@bitbucket.org/jamstooks/aashe-python#egg=aashe_python-dev
--e git+https://github.com/toastdriven/django-tastypie.git@32dae8d2590dde3122289118ac241ab0bd2452e8#egg=django_tastypie-dev
+-e hg+ssh://hg@bitbucket.org/aashe/aashe-auth#egg=aashe-auth-dev
+-e hg+ssh://hg@bitbucket.org/aashe/issdjango#egg=issdjango-dev
+-e git+https://github.com/toastdriven/django-tastypie.git@32dae8d2590dde3122289118ac241ab0bd2452e8#egg=django_tas
+typie-dev
 -e git+https://github.com/python-excel/xlwt.git#egg=xlwt-dev
 amqp==1.0.11
 amqplib==1.0.2
@@ -22,7 +21,8 @@ django-celery==3.0.17
 django-classy-tags==0.4
 django-cms==2.4.2
 django-codemirror-widget==0.3.0
--e hg+ssh://hg@bitbucket.org/aashe/django-collapsing-menu@e1eaae6eae90abddfc2012db8c12f039e8689fc0#egg=django_collapsing_menu-dev
+-e hg+ssh://hg@bitbucket.org/aashe/django-collapsing-menu@e1eaae6eae90abddfc2012db8c12f039e8689fc0#egg=django_col
+lapsing_menu-dev
 django-debug-toolbar==0.9.4
 django-excel-response==1.0
 django-extensions==1.1.1
@@ -41,9 +41,7 @@ django-storages==1.1.5
 django-terms==1.0.4
 dj-database-url==0.2.1
 factory-boy==2.1.2
-dulwich==0.9.0
 gevent==1.0
--e git+https://bitbucket.org/kuranes/globetrotter-provinces.git#egg=globetrotter
 greenlet==0.4.1
 gunicorn==0.17.0
 hg-git==0.3.4
@@ -61,7 +59,6 @@ ordereddict==1.1
 ordered-set==1.1
 pisa==3.0.32
 pyPdf==1.13
-pycountry==0.14.8-mt
 pycrypto==2.6
 python-dateutil==1.5
 python-memcached==1.48
