@@ -1,0 +1,10 @@
+Steps for migrating production server to STARS 2.0 from Facelift/2.0 branches
+
+1) BACKUP PRODUCTION DB
+2) Take down site
+3) hg pull
+4) hg update
+5) Run ./manage.py migrate
+6) Import facelift-updated-content.sql into db
+7) pip install -r requirements.txt
+8) restart gunicorn and nginx
