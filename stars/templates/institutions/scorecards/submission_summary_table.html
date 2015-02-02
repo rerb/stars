@@ -1,5 +1,5 @@
 {% load logical_rules_tags %}
- 
+
 <!-- Modal -->
 <div id="downloadModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-body">
@@ -80,25 +80,32 @@
         {% testrule user_can_view_export user submissionset %}
          <td>
         	<div class="btn-group">
-			  <a class="btn dropdown-toggle btn-small" data-toggle="dropdown" href="#">
-			    Download <span class="caret"></span>
-			  </a>
-			  <ul class="dropdown-menu">
-				<li>
-					<a
-						class='modal-link'
-						href="{{ submissionset.get_scorecard_url }}pdf/">
-						<i class='icon-download-alt'></i> PDF
-					</a>
-				</li>
-					<li><a 
-							class='modal-link'
-							href='{{ submissionset.get_scorecard_url }}excel/'>
-						<i class='icon-download-alt'></i> Excel
-					</a></li>
-			  </ul>
-			</div>
-		</td>
+    			  <a class="btn dropdown-toggle btn-small" data-toggle="dropdown" href="#">
+    			    Download <span class="caret"></span>
+    			  </a>
+    			  <ul class="dropdown-menu">
+    				<li>
+    					<a
+    						class='modal-link'
+    						href="{{ submissionset.get_scorecard_url }}pdf/">
+    						<i class='icon-download-alt'></i> PDF
+    					</a>
+    				</li>
+    				<li><a
+    						class='modal-link'
+    						href='{{ submissionset.get_scorecard_url }}excel/'>
+    					<i class='icon-download-alt'></i> Excel
+    				</a></li>
+            {% testrule user_can_download_certificate user submissionset %}
+            <li><a
+                class='modal-link'
+                href='{{ submissionset.get_scorecard_url }}cert/'>
+              <i class='icon-download-alt'></i> Certificate
+            </a></li>
+            {% endtestrule %}
+    			  </ul>
+	       </div>
+    		</td>
         {% endtestrule %}
     </tr>
     </tdata>

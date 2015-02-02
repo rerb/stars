@@ -22,3 +22,9 @@ Running Celery Worker
 =====================
 
 ./manage.py celery worker --loglevel=info
+
+Runserver
+=========
+
+Since the virtualenv defaults to CELERY_ALWAYS_EAGER = False, you may need to
+`unset CELERY_ALWAYS_EAGER`

@@ -32,7 +32,7 @@ def hello_world():
 
 @task()
 def build_pdf_export(ss):
-    print "starting pdf export"
+    print "starting pdf export(ss: %d)" % ss.id
 #     s = False
 #     if ss.pdf_report:
 #         print "existing report %s" % ss.pdf_report)
@@ -44,17 +44,29 @@ def build_pdf_export(ss):
 #     tempfile = NamedTemporaryFile(suffix='.pdf', delete=False)
 #     tempfile.write(pdf.getvalue())
 #     tempfile.close()
-# 
+#
 #     print tempfile.name
-    print "export done"
+    print "pdf export done(ss: %d)" % ss.id
     return str(pdf)
 
 @task()
 def build_excel_export(ss):
-    print "starting excel export"
+    print "starting excel export(ss: %d)" % ss.id
     report = build_report_export(ss)
-    print "export done"
+    print "excel export done(ss: %d)" % ss.id
     return report
+
+@task()
+def build_certificate_export(ss):
+    print "starting certificate export(ss: %d)" % ss.id
+    # cert_pdf = build_certificate_pdf(ss)
+    pdf = build_certificate_pdf(ss)
+    from django.core.files.temp import NamedTemporaryFile
+    tempfile = NamedTemporaryFile(suffix='.pdf', delete=False)
+    tempfile.write(pdf.getvalue())
+    tempfile.close()
+    print "cert export done(ss: %d)" % ss.id
+    return tempfile.name
 
 @task()
 def send_certificate_pdf(ss):

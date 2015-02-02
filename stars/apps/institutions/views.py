@@ -22,7 +22,8 @@ from stars.apps.submissions.models import (SubmissionInquiry,
                                            RATED_SUBMISSION_STATUS)
 from stars.apps.submissions.rules import user_can_preview_submission
 from stars.apps.submissions.views import SubmissionStructureMixin
-from stars.apps.submissions.tasks import build_excel_export, build_pdf_export
+from stars.apps.submissions.tasks import (
+    build_excel_export, build_pdf_export, build_certificate_export)
 from stars.apps.download_async_task.views import (StartExportView,
                                                   DownloadExportView)
 
@@ -565,6 +566,31 @@ class PDFDownloadView(ExportRules,
 
     def get_filename(self):
         return self.get_submissionset().institution.slug[:64]
+
+
+class CertificateExportView(InstitutionStructureMixin,
+                            SubmissionStructureMixin,
+                            StartExportView):
+    """
+        Displays an exported Certificate version of the selected report.
+    """
+
+    export_method = build_certificate_export
+    url_prefix = "cert/"
+
+    def get_task_params(self):
+        return self.get_submissionset()
+
+
+class CertificateDownloadView(InstitutionStructureMixin,
+                              SubmissionStructureMixin,
+                              DownloadExportView):
+    mimetype = 'application/pdf'
+    extension = "pdf"
+
+    def get_filename(self):
+        # @TODO - get the date of submission into the filename
+        return "%s" % (self.get_submissionset().rating)
 
 
 class ScorecardInternalNotesView(ScorecardView):

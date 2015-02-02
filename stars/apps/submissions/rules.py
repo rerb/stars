@@ -90,6 +90,14 @@ def user_can_view_export(user, submission):
 logical_rules.site.register("user_can_view_export",
                             user_can_view_export)
 
+def user_can_download_certificate(user, submission):
+    if submission.status == "r":
+        if user.is_staff:
+            return True
+        # return (user_has_access_level(user, 'admin', submission.institution))
+    return False
+logical_rules.site.register("user_can_download_certificate",
+                            user_can_download_certificate)
 
 def user_can_edit_submission(user, submission):
     return (submission_is_editable(submission) and

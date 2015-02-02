@@ -38,21 +38,31 @@ urlpatterns = patterns(
     #
 
     # PDF Export of Submission
-    (r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/pdf/$',
+    url(r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/pdf/$',
      never_cache(PDFExportView.as_view())),
 
-    # Export retrieval view
-    (r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/pdf/download/(?P<task>[^/]+)/$',
+    # PDF retrieval view
+    url(r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/pdf/download/(?P<task>[^/]+)/$',
      never_cache(PDFDownloadView.as_view())),
 
     # Excel Export of Submission
-    (r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/excel/$',
+    url(r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/excel/$',
      never_cache(ExcelExportView.as_view())),
 
     # Export retrieval view
-    (r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/excel/download/(?P<task>[^/]+)/$',
+    url(r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/excel/download/(?P<task>[^/]+)/$',
      never_cache(ExcelDownloadView.as_view())),
 
+    # Certificate Export of Submission
+    url(r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/cert/$',
+        never_cache(CertificateExportView.as_view()),
+        name="cert-export"),
+
+    # Certificate retrieval view
+    url(r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/cert/download/(?P<task>[^/]+)/$',
+        never_cache(CertificateDownloadView.as_view()),
+        name="cert-download"
+    ),
 
     # Old Credit Scorecard - all ints for category_id, subcategory_id, and
     # credit_id; redirects to new Credit Scorecard url below:
