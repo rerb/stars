@@ -581,6 +581,10 @@ class CertificateExportView(InstitutionStructureMixin,
     def get_task_params(self):
         return self.get_submissionset()
 
+    def get_object_list(self):
+        ss_list = super(CertificateExportView, self).get_object_list()
+        return ss_list.filter(status="r")
+
 
 class CertificateDownloadView(InstitutionStructureMixin,
                               SubmissionStructureMixin,
@@ -591,6 +595,10 @@ class CertificateDownloadView(InstitutionStructureMixin,
     def get_filename(self):
         # @TODO - get the date of submission into the filename
         return "%s" % (self.get_submissionset().rating)
+
+    def get_object_list(self):
+        ss_list = super(CertificateDownloadView, self).get_object_list()
+        return ss_list.filter(status="r")
 
 
 class ScorecardInternalNotesView(ScorecardView):
