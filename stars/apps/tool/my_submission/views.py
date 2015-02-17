@@ -2,7 +2,6 @@ from datetime import datetime, date
 from itertools import chain
 import os
 
-from django.conf import settings
 from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
@@ -375,8 +374,14 @@ class CreditHistoryView(UserCanEditSubmissionMixin,
         else:
             all_documentation_field_submissions = []
         context['exportable_submissionsets'] = set(
-            [history_.doc_field_sub.get_submissionset() for history_
-             in all_documentation_field_submissions])
+            [
+                history_.doc_field_sub.get_submissionset() for history_
+                in all_documentation_field_submissions
+                if getattr(history_.doc_field_sub,
+                           'get_submissionset',
+                           False)
+            ]
+        )
         context['institution_has_full_access'] = (
             context['institution'].access_level == FULL_ACCESS)
 
