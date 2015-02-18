@@ -308,7 +308,6 @@ class NumericSubmissionForm(SubmissionFieldForm):
             raise forms.ValidationError(
                 "The value is must be less than or equal to %d" % max)
 
-
     def clean(self):
         """
             If we're using metric, convert value for formula validation
@@ -323,8 +322,11 @@ class NumericSubmissionForm(SubmissionFieldForm):
         metric_value = self.cleaned_data.get("metric_value")
 
         if self.instance.use_metric():
-            units = self.instance.documentation_field.metric_units
-            value = self.units.convert(metric_value)
+            if metric_value != None:
+                units = self.instance.documentation_field.metric_units
+                value = self.units.convert(metric_value)
+            else:
+                value = None
 
         return {'value': value, 'metric_value': metric_value}
 

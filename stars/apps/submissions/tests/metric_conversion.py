@@ -52,6 +52,8 @@
             values don't change
         Save credit as complete
             values don't change
+
+        Try submitting null values to fields
 """
 
 from unittest import TestCase
@@ -143,6 +145,7 @@ if B >= A:
         self.runTestImperial()
         self.runTestMetric()
         self.runTestPreferenceSwitch()
+        self.runTestNullValues()
 
     def runTestEnv(self):
         self.assertEqual(self.df1.identifier, "A")
@@ -427,6 +430,36 @@ if B >= A:
         self.assertEqual(self.ns2.value, 6.5)
         self.assertEqual(self.ns1.metric_value, 3.75)
         self.assertEqual(self.ns2.metric_value, 3.25)
+
+    def runTestNullValues(self):
+        """
+            Test null value submissions
+        """
+
+        print "testing null values"
+
+        # just submit and save
+        post_dict = {
+            "responsible_party": self.rp.id,
+            "responsible_party_confirm": True,
+            "submission_status": 'p',
+            "NumericSubmission_1-value": "",
+            "NumericSubmission_1-metric_value": "",
+            "NumericSubmission_2-value": "",
+            "NumericSubmission_2-metric_value": ""
+        }
+        print "Testing saving as 'In Progress'"
+        response = self.client.post(self.cus.get_submit_url(), post_dict)
+        self.assertEqual(response.status_code, 302)
+
+        print "switching to metric"
+        self.institution.prefers_metric_system = True
+        self.institution.save()
+
+        print "Testing saving as 'In Progress'"
+        response = self.client.post(self.cus.get_submit_url(), post_dict)
+        self.assertEqual(response.status_code, 302)
+
 
     def buildSubmissionEnvironmentForCreditSet(
         self,
