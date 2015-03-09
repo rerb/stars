@@ -1,0 +1,76 @@
+{% autoescape off %}
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>{{ ss.institution.name }} STARS Report</title>
+
+		<style type='text/css'>
+@page {
+	margin: 1cm;
+	size: letter landscape;
+	background-color: #fff;
+}
+
+body {
+	font-family: Garamond, Times, serif;
+	font-size: 10pt;
+	text-align: center;
+}
+
+h1 {
+	font-size: 26pt;
+	padding-top: .5cm;
+	margin: 0cm;
+}
+
+h2 {
+	font-size: 16pt;
+	margin: 1cm 3cm .5cm;
+	font-weight: bolder;
+}
+
+h3 {
+	font-size: 16pt;
+	margin: .5cm;
+}
+
+.signatureLine {
+	border-top 1px solid #000;
+    margin: 0 0 0 0;
+	padding: .2cm 0 0 0;
+}
+
+.logoTable {
+	margin: 0 1cm;
+}
+		</style>
+	</head>
+	<body>
+		<h1>{{ ss.institution.name }}</h1>
+		<img src='{{ ss.rating.get_large_image_path }}' alt='{{ ss.rating }}' height='10cm' />
+		<h2>
+			Is hereby recognized by the Association for the Advancement of Sustainability in Higher Education as a STARS {{ ss.rating }} Institution based on its reported accomplishments in campus sustainability.
+		</h2>
+		<h3>
+			Awarded on {{ ss.date_submitted }} and valid for three years.
+		</h3>
+        <table class='logoTable'>
+		    <tr>
+		        <td style='text-align: left;vertical-align: top;'>
+					<img src='{{ project_path }}/static/images/pdf/AASHE_RGB_300.png' height='3cm' />
+				</td>
+				<td>
+					<img src='{{ project_path }}/static/images/pdf/sig.png' /><br/>
+            		<div class='signatureLine'>
+									Meghan Fay Zahniser, Executive Director
+            		</div>
+            	</td>
+				<td style='text-align: right;vertical-align: top;'>
+					<img src='{{ project_path }}/static/images/pdf/STARS_rgb_300.png' height='3cm' />
+				</td>
+			</tr>
+		</table>
+	</body>
+</html>
+{% endautoescape %}
