@@ -75,7 +75,8 @@ from stars.apps.credits.models import Unit
 from stars.apps.submissions.models import (
     NumericSubmission,
     CreditUserSubmission,
-    DataCorrectionRequest)
+    DataCorrectionRequest,
+    ReportingFieldDataCorrection)
 from stars.apps.registration.utils import init_starsaccount, init_submissionset
 
 from django.test import Client
@@ -87,11 +88,13 @@ class MetricConversionTest(TestCase):
     fixtures = ["notification_emailtemplate_tests.json",]
 
     def setUp(self):
-        self.us_unit = Unit(is_metric=False,
+        self.us_unit = Unit(name='imperial units',
+                            is_metric=False,
                             ratio=.5) # 1 us is .5 metric
         self.us_unit.save()
         # metric value is twice the us unit
-        self.metric_unit = Unit(is_metric=True,
+        self.metric_unit = Unit(name="metric units",
+                                is_metric=True,
                                 ratio=2, # 1 metric is 2 us
                                 equivalent=self.us_unit)
         self.metric_unit.save()
@@ -506,8 +509,32 @@ if B >= A:
         dcr.save()
 
         self.ns1 = NumericSubmission.objects.get(documentation_field=self.df1)
+        rfdc = ReportingFieldDataCorrection.objects.get(request=dcr)
         self.assertEqual(self.ns1.metric_value, 2)
-        self.assertEqual(self.ns1.metric_value, 4)
+        self.assertEqual(self.ns1.value, 4)
+        self.assertEqual(rfdc.previous_value, "1 metric units")
+
+        # Ok now try it with the other unit
+        self.institution.prefers_metric_system = False
+        self.institution.save()
+
+        dcr = DataCorrectionRequest(
+            reporting_field=self.ns1,
+            new_value=3,
+            explanation='testing',
+            user=self.user,
+            approved=False
+        )
+        dcr.save()
+        dcr.approved = True
+        dcr.save()
+
+        self.ns1 = NumericSubmission.objects.get(documentation_field=self.df1)
+        rfdc = ReportingFieldDataCorrection.objects.get(request=dcr)
+        self.assertEqual(self.ns1.metric_value, 1.5)
+        self.assertEqual(self.ns1.value, 3)
+        self.assertEqual(rfdc.previous_value, "4 imperial units")
+
 
     def buildSubmissionEnvironmentForCreditSet(
         self,
