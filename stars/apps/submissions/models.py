@@ -1520,7 +1520,8 @@ class DataCorrectionRequest(models.Model):
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
     reporting_field = generic.GenericForeignKey('content_type', 'object_id')
-    new_value = models.TextField()
+    new_value = models.TextField(
+        help_text="Note: if this is a numeric field, use the institution's preference for metric/imperial. You can find this in their settings.")
     explanation = models.TextField()
     user = models.ForeignKey(User, blank=True, null=True)
     approved = models.BooleanField(default=False)
@@ -1611,7 +1612,12 @@ class DataCorrectionRequest(models.Model):
             else:
                 rfdc.previous_value = "Unknown"
         elif self.reporting_field.documentation_field.type == "numeric":
-            self.reporting_field.value = float(self.new_value)
+            # unit conversion handled by the save() method on the model
+            if self.reporting_field.use_metric():
+                self.reporting_field.metric_value = float(self.new_value)
+            else:
+                self.reporting_field.value = float(self.new_value)
+
         else:
             self.reporting_field.value = self.new_value
         self.reporting_field.save()
