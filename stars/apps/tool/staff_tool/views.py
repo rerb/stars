@@ -163,7 +163,12 @@ class AccrualReport(ListView):
 
     def get_context_data(self, **kwargs):
         _c = super(AccrualReport, self).get_context_data(**kwargs)
-        _c['year'] = self.request.GET.get('year', 2015)
+        year = self.request.GET.get('year', 2015)
+        try:
+            y = int(year)
+        except:
+            y = 2015
+        _c['year'] = y
         _c['today'] = date.today()
         return _c
 

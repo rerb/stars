@@ -1,5 +1,7 @@
 {% extends 'tool/admin/reports/base.html' %}
 
+{% load l10n %}
+
 {% block admin_content %}
   <ul class='nav nav-pills sub-pills'>
     <li>
@@ -14,7 +16,7 @@
   </ul>
 
   <h3>
-    Accrual Report for {{ year }}
+    Accrual Report for {{ year|unlocalize }}
     <small>generated {{ today }}</small>
   </h3><br/>
   <table class='table'>
