@@ -158,7 +158,7 @@ class AccrualReport(ListView):
         except:
             y = 2015
         qs = SubscriptionPayment.objects.all()
-        qs = qs.filter(date__year=y)
+        qs = qs.filter(date__year=y).order_by("date")
         return qs
 
     def get_context_data(self, **kwargs):
