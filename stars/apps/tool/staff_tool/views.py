@@ -1,12 +1,13 @@
 from datetime import date
 from logging import getLogger
 from logical_rules.mixins import RulesMixin
+from django_async_download.views import StartExportView, DownloadExportView
 
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, Http404
 from django.db.models import Min
 from django.utils.decorators import method_decorator
-from django.views.generic import CreateView, UpdateView, ListView
+from django.views.generic import CreateView, UpdateView, ListView, TemplateView
 
 from stars.apps.accounts.utils import respond
 from stars.apps.accounts.decorators import user_is_staff
@@ -19,6 +20,8 @@ from stars.apps.tool.staff_tool.forms import PaymentForm
 from stars.apps.tool.mixins import InstitutionToolMixin
 from stars.apps.third_parties.models import ThirdParty
 from stars.apps.tasks.notifications import add_months
+
+from tasks import build_accrual_report_csv
 
 logger = getLogger('stars.request')
 
@@ -139,10 +142,7 @@ def financial_report(request):
     return respond(request, template, context)
 
 
-class AccrualReport(ListView):
-
-    model = SubscriptionPayment
-    template_name = 'tool/admin/reports/accrual_report.html'
+class ReportMixin(object):
 
     def update_logical_rules(self):
         super(SubscriptionPaymentBaseMixin, self).update_logical_rules()
@@ -150,6 +150,12 @@ class AccrualReport(ListView):
             'name': 'user_is_staff',
             'param_callbacks': [('user', 'get_request_user')],
         })
+
+
+class AccrualReport(ReportMixin, ListView):
+
+    model = SubscriptionPayment
+    template_name = 'tool/admin/reports/accrual_report.html'
 
     def get_queryset(self):
         year = self.request.GET.get('year', 2015)
@@ -173,14 +179,32 @@ class AccrualReport(ListView):
         return _c
 
 
-@user_is_staff
-def accrual_report(request):
+class AccrualExcelView(ReportMixin, StartExportView):
     """
-        Accrual Report for current YTD
+        Populates the download modal and triggers task
     """
+    export_method = build_accrual_report_csv
+    download_url_name = "accrual_download"
+
+    def get_task_params(self):
+        return self.kwargs['year']
+
+    def get_download_url(self, task):
+        """ Useful if your download url will be dynamic """
+        return reverse(
+            self.download_url_name,
+            args=[self.kwargs['year'], task])
 
 
+class AccrualExcelDownloadView(ReportMixin, DownloadExportView):
+    """
+        Returns the result of the task (hopefully an excel export)
+    """
+    mimetype = 'text/csv'
+    extension = "csv"
 
+    def get_filename(self):
+        return "%s_Accrual_Report" % self.kwargs['year']
 
 
 class InstitutionList(SortableTableView):

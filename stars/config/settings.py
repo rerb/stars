@@ -188,6 +188,8 @@ INSTALLED_APPS = (
     'captcha',
     'collapsing_menu',
     'django_extensions',
+    'django_async_download',
+    'django_async_download.tests.demo_project',
     'djcelery',
     'raven.contrib.django.raven_compat',
     'logical_rules',

@@ -9,6 +9,7 @@ Werkzeug==0.8.3
 -e hg+ssh://hg@bitbucket.org/jamstooks/aashe-python#egg=aashe_python-dev
 -e git+https://github.com/toastdriven/django-tastypie.git@32dae8d2590dde3122289118ac241ab0bd2452e8#egg=django_tastypie-dev
 -e git+https://github.com/python-excel/xlwt.git#egg=xlwt-dev
+-e git+https://github.com/AASHE/django-async-download.git#egg=django_async_download-dev
 amqp==1.0.11
 amqplib==1.0.2
 anyjson==0.3.3
@@ -67,7 +68,7 @@ pycountry==0.14.8-mt
 pycrypto==2.6
 python-dateutil==1.5
 python-memcached==1.48
-pytz>=2013b  # because pip doesn't like version numbers that end in 'b'; 
+pytz>=2013b  # because pip doesn't like version numbers that end in 'b';
              # see http://goo.gl/beZ4bG
 raven==3.3.7
 readline==6.2.4.1
