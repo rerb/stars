@@ -2,7 +2,8 @@ from django.conf.urls.defaults import patterns, url
 from views import (
     InstitutionList,
     AddSubscriptionPayment,
-    EditSubscriptionPayment)
+    EditSubscriptionPayment,
+    AccrualReport)
 
 urlpatterns = patterns(
     'stars.apps.tool.staff_tool.views',
@@ -16,6 +17,7 @@ urlpatterns = patterns(
     # Reports
     (r'^reports/$', 'overview_report'),
     (r'^reports/financials/$', 'financial_report'),
+    (r'^reports/accrual/$', AccrualReport.as_view()),
 
     # Payment processing
     url(r'^payments/(?P<institution_slug>[^/]+)/(?P<subscription_id>\d+)/(?P<payment_id>\d+)/$',

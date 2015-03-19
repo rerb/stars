@@ -1,0 +1,42 @@
+{% extends 'tool/admin/reports/base.html' %}
+
+{% block admin_content %}
+  <ul class='nav nav-pills sub-pills'>
+    <li>
+      <a href='/tool/admin/reports/'>Overview</a>
+    </li>
+    <li>
+      <a href='/tool/admin/reports/financials/'>Monthly Reports</a>
+    </li>
+    <li class="active">
+      <a href='/tool/admin/reports/accrual/?year=2015'>Annual Accrual Reports</a>
+    </li>
+  </ul>
+
+  <h3>
+    Accrual Report for {{ year }}
+    <small>generated {{ today }}</small>
+  </h3><br/>
+  <table class='table'>
+    <tr>
+      <th>institution</th>
+      <th>payment date</th>
+      <th>amount</th>
+      <th>subscription start</th>
+      <th>subscription end</th>
+      <th>payment method</th>
+      <th>confirmation #</th>
+    </tr>
+    {% for p in object_list %}
+      <tr>
+        <td>{{ p.subscription.institution.name }}</td>
+        <td>{{ p.date }}</td>
+        <td>{{ p.amount }}</td>
+        <td>{{ p.subscription.start_date }}</td>
+        <td>{{ p.subscription.end_date }}</td>
+        <td>{{ p.method }}</td>
+        <td>{{ p.confirmation }}</td>
+      </tr>
+    {% endfor %}
+  </table>
+{% endblock %}

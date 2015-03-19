@@ -22,6 +22,7 @@ from stars.apps.tasks.notifications import add_months
 
 logger = getLogger('stars.request')
 
+
 @user_is_staff
 def institutions_search(request):
     """
@@ -136,6 +137,45 @@ def financial_report(request):
         'participants_last_year': participants_last_year}
     template = "tool/admin/reports/financial.html"
     return respond(request, template, context)
+
+
+class AccrualReport(ListView):
+
+    model = SubscriptionPayment
+    template_name = 'tool/admin/reports/accrual_report.html'
+
+    def update_logical_rules(self):
+        super(SubscriptionPaymentBaseMixin, self).update_logical_rules()
+        self.add_logical_rule({
+            'name': 'user_is_staff',
+            'param_callbacks': [('user', 'get_request_user')],
+        })
+
+    def get_queryset(self):
+        year = self.request.GET.get('year', 2015)
+        try:
+            y = int(year)
+        except:
+            y = 2015
+        qs = SubscriptionPayment.objects.all()
+        qs = qs.filter(date__year=y)
+        return qs
+
+    def get_context_data(self, **kwargs):
+        _c = super(AccrualReport, self).get_context_data(**kwargs)
+        _c['year'] = self.request.GET.get('year', 2015)
+        _c['today'] = date.today()
+        return _c
+
+
+@user_is_staff
+def accrual_report(request):
+    """
+        Accrual Report for current YTD
+    """
+
+
+
 
 
 class InstitutionList(SortableTableView):
