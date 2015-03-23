@@ -19,10 +19,6 @@ handler500 = 'stars.apps.helpers.views.server_error'
 
 urlpatterns = patterns('',
 
-    # testing django-async-download
-    (r'^dad/', include('django_async_download.tests.demo_project.urls')),
-
-
     # catch old paths we need to preserve first:
     url(r'^{old_paths_to_preserve}$'.format(
             old_paths_to_preserve='|'.join(OLD_PATHS_TO_PRESERVE)),

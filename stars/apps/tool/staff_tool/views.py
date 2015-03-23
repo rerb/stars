@@ -1,7 +1,7 @@
 from datetime import date
 from logging import getLogger
 from logical_rules.mixins import RulesMixin
-from django_async_download.views import StartExportView, DownloadExportView
+from django_celery_downloader.views import StartExportView, DownloadExportView
 
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, Http404

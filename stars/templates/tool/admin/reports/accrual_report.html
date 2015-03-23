@@ -21,7 +21,7 @@
   </h3>
   <p style="text-align: right;">
     <a
-      class='modal-link btn btn-info'
+      class='djangoAsyncDownloadModal-link btn btn-info'
       href="{% url accrual_modal year %}"> Export
     </a>
   </p>
@@ -47,5 +47,6 @@
       </tr>
     {% endfor %}
   </table>
-  {% include "django_async_download/modal_create.html" %}
+
+{% include "django_celery_downloader/modal_helper.html" %}
 {% endblock %}
