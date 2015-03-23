@@ -23,7 +23,10 @@
 	        	Provisional STARS Rating
 	        	{% show_help_context 'provisional_rating' %}
 	        </th>
-	        <th>Provisional Score</th>
+	        <th>
+            Provisional Score
+	        	{% show_help_context 'provisional_score' %}
+          </th>
         {% endtestrule %}
         <th>Export</th>
     </tr>
@@ -63,7 +66,7 @@
 						<i class='icon-download-alt'></i> PDF
 					</a>
 				</li>
-				<li><a 
+				<li><a
 						class='modal-link'
 						href='{{ submissionset.get_scorecard_url }}excel/'>
 					<i class='icon-download-alt'></i> Excel
