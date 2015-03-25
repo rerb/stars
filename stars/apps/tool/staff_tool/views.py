@@ -1,12 +1,13 @@
 from datetime import date
 from logging import getLogger
 from logical_rules.mixins import RulesMixin
+from django_celery_downloader.views import StartExportView, DownloadExportView
 
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, Http404
 from django.db.models import Min
 from django.utils.decorators import method_decorator
-from django.views.generic import CreateView, UpdateView, ListView
+from django.views.generic import CreateView, UpdateView, ListView, TemplateView
 
 from stars.apps.accounts.utils import respond
 from stars.apps.accounts.decorators import user_is_staff
@@ -20,7 +21,10 @@ from stars.apps.tool.mixins import InstitutionToolMixin
 from stars.apps.third_parties.models import ThirdParty
 from stars.apps.tasks.notifications import add_months
 
+from tasks import build_accrual_report_csv
+
 logger = getLogger('stars.request')
+
 
 @user_is_staff
 def institutions_search(request):
@@ -136,6 +140,71 @@ def financial_report(request):
         'participants_last_year': participants_last_year}
     template = "tool/admin/reports/financial.html"
     return respond(request, template, context)
+
+
+class ReportMixin(object):
+
+    def update_logical_rules(self):
+        super(SubscriptionPaymentBaseMixin, self).update_logical_rules()
+        self.add_logical_rule({
+            'name': 'user_is_staff',
+            'param_callbacks': [('user', 'get_request_user')],
+        })
+
+
+class AccrualReport(ReportMixin, ListView):
+
+    model = SubscriptionPayment
+    template_name = 'tool/admin/reports/accrual_report.html'
+
+    def get_queryset(self):
+        year = self.request.GET.get('year', 2015)
+        try:
+            y = int(year)
+        except:
+            y = 2015
+        qs = SubscriptionPayment.objects.all()
+        qs = qs.filter(date__year=y).order_by("date")
+        return qs
+
+    def get_context_data(self, **kwargs):
+        _c = super(AccrualReport, self).get_context_data(**kwargs)
+        year = self.request.GET.get('year', 2015)
+        try:
+            y = int(year)
+        except:
+            y = 2015
+        _c['year'] = y
+        _c['today'] = date.today()
+        return _c
+
+
+class AccrualExcelView(ReportMixin, StartExportView):
+    """
+        Populates the download modal and triggers task
+    """
+    export_method = build_accrual_report_csv
+    download_url_name = "accrual_download"
+
+    def get_task_params(self):
+        return self.kwargs['year']
+
+    def get_download_url(self, task):
+        """ Useful if your download url will be dynamic """
+        return reverse(
+            self.download_url_name,
+            args=[self.kwargs['year'], task])
+
+
+class AccrualExcelDownloadView(ReportMixin, DownloadExportView):
+    """
+        Returns the result of the task (hopefully an excel export)
+    """
+    mimetype = 'text/csv'
+    extension = "csv"
+
+    def get_filename(self):
+        return "%s_Accrual_Report" % self.kwargs['year']
 
 
 class InstitutionList(SortableTableView):

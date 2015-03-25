@@ -54,9 +54,13 @@
             values don't change
 
         Try submitting null values to fields
+
+        - test data corrections
+            submit a data correction using metric
+            submit a data correction using imperial
 """
 
-from unittest import TestCase
+from django.test import TestCase
 
 from stars.test_factories import (
     CreditFactory,
@@ -70,7 +74,9 @@ from stars.test_factories import (
 from stars.apps.credits.models import Unit
 from stars.apps.submissions.models import (
     NumericSubmission,
-    CreditUserSubmission)
+    CreditUserSubmission,
+    DataCorrectionRequest,
+    ReportingFieldDataCorrection)
 from stars.apps.registration.utils import init_starsaccount, init_submissionset
 
 from django.test import Client
@@ -79,12 +85,16 @@ from django.contrib.auth.models import User
 
 class MetricConversionTest(TestCase):
 
+    fixtures = ["notification_emailtemplate_tests.json",]
+
     def setUp(self):
-        self.us_unit = Unit(is_metric=False,
+        self.us_unit = Unit(name='imperial units',
+                            is_metric=False,
                             ratio=.5) # 1 us is .5 metric
         self.us_unit.save()
         # metric value is twice the us unit
-        self.metric_unit = Unit(is_metric=True,
+        self.metric_unit = Unit(name="metric units",
+                                is_metric=True,
                                 ratio=2, # 1 metric is 2 us
                                 equivalent=self.us_unit)
         self.metric_unit.save()
@@ -146,6 +156,7 @@ if B >= A:
         self.runTestMetric()
         self.runTestPreferenceSwitch()
         self.runTestNullValues()
+        self.runTestDataCorrections()
 
     def runTestEnv(self):
         self.assertEqual(self.df1.identifier, "A")
@@ -459,6 +470,70 @@ if B >= A:
         print "Testing saving as 'In Progress'"
         response = self.client.post(self.cus.get_submit_url(), post_dict)
         self.assertEqual(response.status_code, 302)
+
+    def runTestDataCorrections(self):
+        """
+            Tests that data corrections are applied using the correct units
+        """
+        print "testing data correction requests"
+
+        self.institution.prefers_metric_system = True
+        self.institution.save()
+
+        # save field with value 1
+        post_dict = {
+            "responsible_party": self.rp.id,
+            "responsible_party_confirm": True,
+            "submission_status": 'p',
+            "NumericSubmission_1-value": "",
+            "NumericSubmission_1-metric_value": "1",
+            "NumericSubmission_2-value": "",
+            "NumericSubmission_2-metric_value": "1"
+        }
+
+        response = self.client.post(self.cus.get_submit_url(), post_dict)
+        self.assertEqual(response.status_code, 302)
+
+        # create a data correction request for df1
+        self.ns1 = NumericSubmission.objects.get(documentation_field=self.df1)
+
+        dcr = DataCorrectionRequest(
+            reporting_field=self.ns1,
+            new_value=2,
+            explanation='testing',
+            user=self.user,
+            approved=False
+        )
+        dcr.save()
+        dcr.approved = True
+        dcr.save()
+
+        self.ns1 = NumericSubmission.objects.get(documentation_field=self.df1)
+        rfdc = ReportingFieldDataCorrection.objects.get(request=dcr)
+        self.assertEqual(self.ns1.metric_value, 2)
+        self.assertEqual(self.ns1.value, 4)
+        self.assertEqual(rfdc.previous_value, "1 metric units")
+
+        # Ok now try it with the other unit
+        self.institution.prefers_metric_system = False
+        self.institution.save()
+
+        dcr = DataCorrectionRequest(
+            reporting_field=self.ns1,
+            new_value=3,
+            explanation='testing',
+            user=self.user,
+            approved=False
+        )
+        dcr.save()
+        dcr.approved = True
+        dcr.save()
+
+        self.ns1 = NumericSubmission.objects.get(documentation_field=self.df1)
+        rfdc = ReportingFieldDataCorrection.objects.get(request=dcr)
+        self.assertEqual(self.ns1.metric_value, 1.5)
+        self.assertEqual(self.ns1.value, 3)
+        self.assertEqual(rfdc.previous_value, "4 imperial units")
 
 
     def buildSubmissionEnvironmentForCreditSet(

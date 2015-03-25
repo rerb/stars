@@ -18,6 +18,7 @@ handler500 = 'stars.apps.helpers.views.server_error'
 
 
 urlpatterns = patterns('',
+
     # catch old paths we need to preserve first:
     url(r'^{old_paths_to_preserve}$'.format(
             old_paths_to_preserve='|'.join(OLD_PATHS_TO_PRESERVE)),
