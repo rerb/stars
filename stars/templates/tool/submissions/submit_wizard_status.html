@@ -1,0 +1,56 @@
+{% extends "tool/submissions/submit_wizard.html" %}
+
+{% load help %}
+{% load thumbnail %}
+
+{% block above_submit_form %}
+    {% show_help_context 'submit_for_rating_confirm' 0 %}
+    {% include 'tool/submissions/submission_summary_table.html' %}
+    
+    {% if credit_list %}
+        <div class='well'>
+        	<div class="alert">
+	        	{% get_help_context 'submit_for_rating_credits' %}
+	        </div>
+	        <div style='height: 150px;overflow: auto;'>
+	        <table class='table table-striped table-bordered'>
+				{% for credit_user_submission in credit_list %}
+				<tr>
+					<td>{{ credit_user_submission.credit.subcategory }}</td>
+					<td>{{ credit_user_submission.credit.identifier }}</td>
+					<td>
+						<a href='{{ credit_user_submission.get_submit_url }}'>{{ credit_user_submission.credit.title }}</a>
+					</td>
+				</tr>
+				{% endfor %}
+			</table>
+			</div>
+		</div>
+	{% endif %}
+{% endblock %}
+
+{% block submit_form_fields %}
+	{% if submissionset.get_STARS_rating.name != "Reporter" %}
+	<table class='table'>
+		<tr>
+			<td>
+				{% thumbnail submissionset.get_STARS_rating.image_large "150x150" as im %}
+    				<img src="{{ im.url }}" style="width: {{ im.width }}px;height={{ im.height }}px;" alt='{{ submissionset.rating }}' />
+				{% endthumbnail %}
+			</td>
+			<td>
+				<br/><br/><br/>
+				You achieved {{ submissionset.get_STARS_rating.name }}, but you have the option to submit as a Repoter.
+				{% show_help_context 'submit_for_rating_reporter' %}
+			</td>
+			<td>
+				{% thumbnail reporter_rating.image_large "150x150" as im %}
+    				<img src="{{ im.url }}" style="width: {{ im.width }}px;height={{ im.height }}px;" alt='Reporter' />
+				{% endthumbnail %}
+				<br/>
+				Submit as Repoter: {{ wizard.form.reporter_status }}
+			</td>
+		</tr>
+	</table>
+	{% endif %}
+{% endblock %}

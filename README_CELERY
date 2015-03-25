@@ -1,0 +1,30 @@
+Useful Links
+============
+
+http://django-celery.readthedocs.org/en/latest/getting-started/first-steps-with-django.html
+http://docs.celeryproject.org/en/latest/index.html
+
+Running Rabbitmq
+================
+
+Install
+-------
+
+http://docs.celeryproject.org/en/latest/getting-started/broker-installation.html
+
+Run
+---
+
+rabbitmq-server
+(you don't need to sudo if you used brew)
+
+Running Celery Worker
+=====================
+
+./manage.py celery worker --loglevel=info
+
+Runserver
+=========
+
+Since the virtualenv defaults to CELERY_ALWAYS_EAGER = False, you may need to
+`unset CELERY_ALWAYS_EAGER`
