@@ -19,15 +19,11 @@ else:
     if not config:
         configs = {
             '/var/www/stars/.*': 'starsapp01',
-    #        '/Users/jamstooks/.*': 'ben',
-            '/Users/jesse/Documents/src/.*': 'jesse',
             '/Users/rerb/src/.*': 'bob',
-            '/Users/kuranes/.*': 'matt',
-            '/app/stars': 'heroku',
         }
 
         # find the first key that matches the ROOT_PATH
-        config = 'default'
+        config = 'settings'
         for k in configs.keys():
             m = re.match("(%s)" % k, ROOT_PATH)
             if m:

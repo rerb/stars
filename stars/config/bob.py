@@ -68,7 +68,7 @@ else:
     DATABASES['iss'] = dj_database_url.parse(
         os.environ.get('ISS_MYSQL_DB_URL'))
 
-DATABASE_ROUTERS = ('aashe.issdjango.router.ISSRouter',)
+DATABASE_ROUTERS = ('issdjango.router.ISSRouter',)
 
 # Stand alone mode indicates that the server will be running using
 # the django dev server so we will need to serve the static files (see urls.py)
@@ -125,7 +125,7 @@ if DEBUG_TOOLBAR:
 TEMPLATE_STRING_IF_INVALID = 'INVALID EXPRESSION: %s'
 
 TEST_RUNNER = 'hotrunner.HotRunner'
-EXCLUDED_TEST_APPS = ['aashe.issdjango',
+EXCLUDED_TEST_APPS = ['issdjango',
                       'bootstrapform',
                       'captcha',
                       'collapsing_menu',
@@ -146,4 +146,3 @@ EXCLUDED_TEST_APPS = ['aashe.issdjango',
                       'tastypie',
                       'terms',
                       'template_repl']
-
