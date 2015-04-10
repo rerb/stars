@@ -142,10 +142,10 @@ def financial_report(request):
     return respond(request, template, context)
 
 
-class ReportMixin(object):
+class ReportMixin(RulesMixin):
 
     def update_logical_rules(self):
-        super(SubscriptionPaymentBaseMixin, self).update_logical_rules()
+        super(ReportMixin, self).update_logical_rules()
         self.add_logical_rule({
             'name': 'user_is_staff',
             'param_callbacks': [('user', 'get_request_user')],
