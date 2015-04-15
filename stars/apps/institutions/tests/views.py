@@ -5,7 +5,7 @@ import datetime
 from django.test import TestCase
 from django.test.client import Client
 
-from aashe.issdjango.models import Organizations
+from issdjango.models import Organizations
 
 from stars.apps.institutions import views
 from stars.apps.institutions.models import Institution

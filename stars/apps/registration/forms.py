@@ -3,7 +3,7 @@ from django.forms import widgets
 from django.forms import ModelForm
 from django.forms.util import ErrorList
 
-from aashe.issdjango.models import Organizations
+from issdjango.models import Organizations
 from stars.apps.institutions.models import (Institution,
                                             RegistrationSurvey,
                                             RespondentSurvey)

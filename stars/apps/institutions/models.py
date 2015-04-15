@@ -223,7 +223,7 @@ class Institution(models.Model):
             else:
                 self.is_participant = False
                 self.current_subscription = None
-                # if it has expired, check and see if there is another 
+                # if it has expired, check and see if there is another
                 # that is current
                 for sub in self.subscription_set.all():
                     if (sub.start_date <= date.today() and
@@ -371,7 +371,7 @@ class Institution(models.Model):
 
     @property
     def profile(self):
-        from aashe.issdjango.models import Organizations
+        from issdjango.models import Organizations
         try:
             org = Organizations.objects.get(account_num=self.aashe_id)
             return org
@@ -1582,7 +1582,7 @@ class Institution(models.Model):
 
     @property
     def profile(self):
-        from aashe.issdjango.models import Organizations
+        from issdjango.models import Organizations
         try:
             org = Organizations.objects.get(account_num=self.aashe_id)
             return org
