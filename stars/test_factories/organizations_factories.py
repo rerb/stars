@@ -3,7 +3,7 @@ import time
 
 import factory
 
-from aashe.issdjango.models import Organizations
+from issdjango.models import Organizations
 
 
 class OrganizationFactory(factory.DjangoModelFactory):

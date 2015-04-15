@@ -35,7 +35,7 @@ DATABASES = {
     'iss': dj_database_url.parse(os.environ.get('ISS_DB_URL', None))
 }
 DATABASES['default']['OPTIONS'] = {'init_command': 'SET storage_engine=MYISAM'}
-DATABASE_ROUTERS = ('aashe.issdjango.router.ISSRouter',)
+DATABASE_ROUTERS = ('issdjango.router.ISSRouter',)
 
 # Media
 USE_S3 = os.environ.get('USE_S3', None)
@@ -183,7 +183,7 @@ INSTALLED_APPS = (
     'stars.tests',
 
     'aashe.aasheauth',
-    'aashe.issdjango',
+    'issdjango',
     'bootstrapform',
     'captcha',
     'collapsing_menu',

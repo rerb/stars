@@ -17,7 +17,7 @@ from django.views.generic import TemplateView, FormView
 from logical_rules.mixins import RulesMixin
 from stars.apps.accounts.mixins import StarsAccountMixin
 
-from aashe.issdjango.models import TechnicalAdvisor
+from issdjango.models import TechnicalAdvisor
 
 from stars.apps.credits.models import (CreditSet,
                                        Rating,

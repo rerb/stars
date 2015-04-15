@@ -6,7 +6,7 @@ from django.views.generic import CreateView
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 
-from aashe.issdjango.models import Organizations
+from issdjango.models import Organizations
 
 from stars.apps.institutions.models import (Institution,
                                             RegistrationSurvey,
@@ -208,7 +208,7 @@ class RegistrationWizard(StarsAccountMixin, SubscriptionPurchaseWizard):
 
 
 def registering_for_full_access(wizard):
-    """Returns True if this registration is for Full Access, 
+    """Returns True if this registration is for Full Access,
     False otherwise.
     """
     return wizard.access_level == FULL_ACCESS
@@ -219,8 +219,8 @@ def delete_objects(dead_men_walking):
         try:
             dead_man.delete()
         except ObjectDoesNotExist:
-            pass 
-                    
+            pass
+
 
 class FullAccessRegistrationWizard(RegistrationWizard):
 
@@ -229,15 +229,15 @@ class FullAccessRegistrationWizard(RegistrationWizard):
         return FULL_ACCESS
 
     def _process_step_subscription_create(self, form):
-        
+
         institution = self.get_institution()
-        
+
         self.update_institution_contact_info(institution)
 
         # institution must have a pk before creating related StarsAccount
         # and SubmissionSet records, so save it now:
         institution.save()
-        
+
         try:
             account = init_starsaccount(self.request.user, institution)
         except Exception as exc:
@@ -270,7 +270,7 @@ class FullAccessRegistrationWizard(RegistrationWizard):
 
 
 class BasicAccessRegistrationWizard(RegistrationWizard):
-    
+
     @property
     def access_level(self):
         return BASIC_ACCESS
@@ -280,7 +280,7 @@ class BasicAccessRegistrationWizard(RegistrationWizard):
               self)._process_step_contact_info(form)
 
         institution = self.get_institution()
-        
+
         self.update_institution_contact_info(institution)
 
         # institution must have a pk before creating related StarsAccount
