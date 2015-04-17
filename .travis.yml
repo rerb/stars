@@ -2,11 +2,31 @@ language: python
 python:
 - '2.6'
 - '2.7'
+env:
+  global:
+  - AASHE_DRUPAL_COOKIE_DOMAIN=.aashe.org
+  - AASHE_DRUPAL_KEY_DOMAIN=stars.aashe.org
+  - AASHE_DRUPAL_URI=http://www.aashe.org/services/xmlrpc
+  - secure: n0aHUou+oD3ylZo7ypxqWXegLEM0dtIA7QcgK4bySahWjARYG7saLlXAdLeXYXx1xx7/8Z3BaS8tKsJc4Pr+VqgaqMG0lcTOfcHd26p8o0WhbsnfbJWq25MnuJr1deU+NdN65cEuOnhZ+2s1XKjw5fTMMPiu4YVKgjvE+J71frc=
+  - secure: SVOTd32cU2Ad9WWDCwgKGyp+PpmWZXV/yYmfasts9QI+8xnYVuWThobSNiqleRaFhZq/4r+qP2YEHx/aDwtoZEXxx18GE1vB1Gq6RpV8hto4VLh965oNjcRHm5J5bgIToRSR06o6JCRM3N37agilAK2ZS6h3JKcbQTEZ4clLPHs=
+  - AUTHORIZENET_TEST_SERVER=test.authorize.net
+  - secure: PQV9/G19jlwH3+qK/p+j9vpVoKpKEzQR2G7fY5aZiZZ982CFTN4KEaxLWfbMfGfIEy8Qq3KEuD7KolItE9zjYPqgsC7iDUD4WSSRNUJBjp6hkzq3rB9VasqlIWgpGA3Po/6ViBaqdFZsdqrQ8RQaBmbme6otWyMJHD/fECqnVTA=
+  - secure: H1YaLrE19qgVTS+dU+aHP0Fl/FYu3griMLzr4isYgOdR2vNSBHCybZI6vWMoNQGjHRONjJQCJ7LxePlYYrGTt6xdXbeY7Ay/admwS83SLXN+RpaHV7CShqQYdX4rAtmllVvAFYYeATZ3ED0n1WLej1/YXcdK81yWzY+DhvwD+go=
+  - CACHE_URL=dummy://
+  - CELERY_ALWAYS_EAGER=1
+  - CONFIG=settings
+  - DEBUG=1
+  - EMAIL_REPLY_TO=stars@aashe.org
+  - STARS_TEST_DB=mysql://travis@localhost/stars_tests
+  - ISS_TEST_DB=mysql://travis@localhost/iss_tests
+  - secure: Y13CVgOLJW5e5uGxb+0I2EbQqF6D+H7ZrASUOs4VHgDM/UNs6hBBIAfBhQUB0q4VMaGr3qrYw1vQHtUvXSxXR7WwMxIkoDzfVE8kJWD5dW/KqO5cnSGW1XFBCM9DJ8z8J7/0C3W9JJn/WK4iizZBo9qBlt4EPidI8Td4Iq77Xmg=
+before_script:
+- mysql -e 'create database stars_tests;'
+- mysql -e 'create database iss_tests;'
 install:
 - pip install -r requirements.txt
 - pip install -r requirements_dev.txt
 script: coverage run manage.py test submissions
-# after_success: coveralls
 notifications:
   hipchat:
     rooms:
