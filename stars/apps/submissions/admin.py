@@ -106,6 +106,9 @@ class DataCorrectionRequestAdmin(SubmissionSetMixin, admin.ModelAdmin):
         if(obj.reporting_field.documentation_field.type == "boolean"):
             form.base_fields['new_value'].help_text = "Use <b>Yes</b>, <b>No</b>, or <b>Unknown</b>"
 
+        if(obj.reporting_field.documentation_field.type == "date"):
+            form.base_fields['new_value'].help_text = "This is a date field. You must use the format YYYY-MM-DD, for example 1979-12-24."
+
         cus = CreditUserSubmission.objects.get(pk=obj.reporting_field.credit_submission.id)
         choices = self.get_institution_user_choices(cus.get_submissionset())
         form.base_fields['user'].choices = choices

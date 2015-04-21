@@ -1614,14 +1614,20 @@ class DataCorrectionRequest(models.Model):
         elif self.reporting_field.documentation_field.type == "numeric":
             # unit conversion handled by the save() method on the model
             if self.reporting_field.use_metric():
-                rfdc.previous_value = "%d %s" % (
-                    self.reporting_field.metric_value,
-                    self.reporting_field.documentation_field.metric_units)
+                if self.reporting_field.value != None:
+                    rfdc.previous_value = "%d %s" % (
+                        self.reporting_field.metric_value,
+                        self.reporting_field.documentation_field.metric_units)
+                else:
+                    rfdc.previous_value = "---"
                 self.reporting_field.metric_value = float(self.new_value)
             else:
-                rfdc.previous_value = "%d %s" % (
-                    self.reporting_field.value,
-                    self.reporting_field.documentation_field.us_units)
+                if self.reporting_field.value != None:
+                    rfdc.previous_value = "%d %s" % (
+                        self.reporting_field.value,
+                        self.reporting_field.documentation_field.us_units)
+                else:
+                    rfdc.previous_value = "---"
                 self.reporting_field.value = float(self.new_value)
 
         else:
