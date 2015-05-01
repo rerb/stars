@@ -58,8 +58,8 @@ if USE_S3:
 else:
     MEDIA_URL = '/media/'
     STATIC_URL = "/media/static/"
-    MEDIA_ROOT = os.environ.get("MEDIA_ROOT", None)
-    STATIC_ROOT = os.environ.get("STATIC_ROOT", None)
+    MEDIA_ROOT = os.environ.get("MEDIA_ROOT", "")
+    STATIC_ROOT = os.environ.get("STATIC_ROOT", "")
 
 STATICFILES_DIRS = (
     os.path.join(os.path.dirname(__file__), "..", "static"),
