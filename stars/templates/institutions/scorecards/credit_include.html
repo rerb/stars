@@ -35,7 +35,8 @@
 {% block center_column %}
   {% load submit_tags %}
   <h1>
-    <a href='{{ submissionset.get_scorecard_url }}'>{{ institution }}</a><br/>
+    <a href='{{ submissionset.get_scorecard_url }}'>{{ institution }}</a>
+    <br/>
     {{ credit_submission.credit }}
   </h1>
 
@@ -49,6 +50,28 @@
       {% with "fields" as active %}
         {% include "institutions/scorecards/credit_tabs.html" %}
       {% endwith %}
+
+      {% if credit_submission.submission_status == 'na' %}
+        <p class='hideReportingFields'>
+          This credit was marked as <b>Not Applicable</b> for the
+          following reason:<br/><br/>
+          <i>{{ credit_submission.applicability_reason.reason }}</i>
+        </p>
+      {% else %}
+        {% if credit_submission.submission_status == 'np' or credit_submission.submission_status == 'ns' %}
+          <p class='hideReportingFields'>
+            This credit was marked as <b>Not Pursuing</b> so Reporting
+            Fields will not be displayed.
+          </p>
+        {% else %}
+          <div style="text-align: right;font-size: .9em;padding:10px;">
+            "<span class='green bold'>---</span>"
+            <i>indicates that no data was submitted for this field</i>
+          </div>
+          <br/>
+          {% include "institutions/scorecards/field_list.html" %}
+        {% endif %}
+      {% endif %}
 
       {% block submission_notes %}
         {% if credit_submission.submission_notes %}
@@ -70,25 +93,6 @@
         {% endif %}
       {% endblock %}
 
-      {% if credit_submission.submission_status == 'na' %}
-        <p class='hideReportingFields'>
-          This credit was marked as <b>Not Applicable</b> for the following reason:<br/><br/>
-          <i>{{ credit_submission.applicability_reason.reason }}</i>
-        </p>
-      {% else %}
-        {% if credit_submission.submission_status == 'np' or credit_submission.submission_status == 'ns' %}
-          <p class='hideReportingFields'>
-            This credit was marked as <b>Not Pursuing</b> so Reporting Fields will not be displayed.
-          </p>
-        {% else %}
-          <div style="text-align: right;font-size: .9em;padding:10px;">
-            "<span class='green bold'>---</span>"
-            <i>indicates that no data was submitted for this field</i>
-          </div>
-          <br/>
-          {% include "institutions/scorecards/field_list.html" %}
-        {% endif %}
-      {% endif %}
     {% endblock %}
   </div>
 
