@@ -453,12 +453,6 @@
 	      {{ credit_submission.credit.criteria }}
 	      <hr/>
 	    {% endif %}
-	    {% if credit_submission.submission_notes %}
-	      <div class='note'>
-		<b>Submission Note:</b><br/>
-		{{ credit_submission.submission_notes|urlize|linebreaks|fix_ampersands|wraplinks:95 }}
-	      </div>
-	    {% endif %}
 	    {% if credit_submission.submission_status == 'na' %}
 	      <p class='hideReportingFields'>
 		This credit was marked as <b>Not Applicable</b> for the following reason:<br/><br/>
@@ -478,8 +472,14 @@
                   {% include "institutions/pdf/field_list.html" %}
 		{% endblock %}
 	    {% endif %}{% endif %}
-		      {% endfor %}
+            {% if credit_submission.submission_notes %}
+	      <div class='note'>
+		<b>Submission Note:</b><br/>
+		{{ credit_submission.submission_notes|urlize|linebreaks|fix_ampersands|wraplinks:95 }}
+	      </div>
+	    {% endif %}
 	  {% endfor %}
+	{% endfor %}
       {% endif %}
     {% endfor %}
     <div id="footerContent">
