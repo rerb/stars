@@ -320,7 +320,7 @@
 
           {% if credit_submission.submission_notes %}
             <div class='note'>
-              <b>Submission Note:</b><br/>
+              <b>Data source(s) and notes about the submission:</b><br/>
               {{ credit_submission.submission_notes|urlize|linebreaks|fix_ampersands|wraplinks:95 }}
             </div>
           {% endif %}
