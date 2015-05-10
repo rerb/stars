@@ -960,7 +960,8 @@ class SubcategorySubmission(models.Model):
         return self.creditusersubmission_set.exclude(submission_status='ns').exclude(submission_status='p').count()
 
     def get_claimed_points(self):
-        if self.category_submission.submissionset.status == "r" and self.points:
+        if (self.category_submission.submissionset.status == "r" and
+            self.points is not None):
             return self.points
 
         score = 0

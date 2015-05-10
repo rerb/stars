@@ -15,7 +15,7 @@ from django.utils.encoding import smart_unicode, smart_str
 import csv, string
 import datetime
 
-cs_id_list = [5, 6]
+cs_id_list = [6]
 limit_inst_ids = [
     # if this has ids, then only these institutions will be exported
 ]
@@ -47,6 +47,7 @@ limit_inst_ids = [
 #     limit_inst_ids.append(i.id)
 #
 # print "# of institution ids: %d" % len(limit_inst_ids)
+
 
 for cs_id in cs_id_list:
 
@@ -84,11 +85,27 @@ for cs_id in cs_id_list:
 
     print "%d Snapshots" % len(latest_snapshot_list)
 
-    for cat in cs.category_set.all():
-        for sub in cat.subcategory_set.all():
-            for c in sub.credit_set.all():
-                filename = 'export/%s/%s.csv' % (cs.version, string.replace("%s" % c, "/", "-"))
-                filename = string.replace(filename, ":", "")
-                filename = string.replace(filename, " ", "_")
+    # for cat in cs.category_set.all():
+    #     for sub in cat.subcategory_set.all():
+    #         for c in sub.credit_set.all():
+    #             filename = 'export/%s/%s.csv' % (cs.version, string.replace("%s" % c, "/", "-"))
+    #             filename = string.replace(filename, ":", "")
+    #             filename = string.replace(filename, " ", "_")
+    #
+    #             export_credit_csv(c, ss_qs=latest_snapshot_list, outfilename=filename)
 
-                export_credit_csv(c, ss_qs=latest_snapshot_list, outfilename=filename)
+    # export pdfs
+    count = 0
+    total = len(latest_snapshot_list)
+    for ss in latest_snapshot_list:
+        count += 1
+        print ss
+        print "%d of %d" % (count, total)
+        if count < 80:
+            continue
+        outfile = "export/pdf/%s" % ss.get_pdf_filename()
+        # pdf = ss.get_pdf(False)
+        # f = open(outfile, 'w')
+        # f.write(pdf)
+        pdf = ss.get_pdf(refresh=False, template='institutions/pdf/third_party_report.html')
+        os.rename(pdf, outfile)
