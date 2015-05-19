@@ -1,5 +1,5 @@
-function initCategory(current) {
-	url = "/institutions/data-displays/callback/cs/5/";
+function initCategory(current, cs) {
+	url = "/institutions/data-displays/callback/cs/" + cs + "/";
 	if( current != null ) {
 		get_params = "?current=" + current;
 	}
@@ -11,7 +11,7 @@ function initCategory(current) {
 }
 
 function resetSelect(obj_id) {
-	
+
 	sel = document.getElementById(obj_id)
 	sel.options.length=0
 	sel.options[0] = new Option("-------", "")
@@ -65,9 +65,9 @@ function updateChildOptions(url_prefix, parent_id, child_sel, current) {
 		else {
 			get_params = "";
 		}
-		
+
 		ajaxFillTarget(url + get_params, child_sel);
-		
+
 		//console.log(url+get_params)
 	}
 }
@@ -100,7 +100,7 @@ function applyLookup(obj) {
 		while( sel.length > 1 ) {
 			sel.remove(sel.length - 1)
 		}
-		// Repopulate the child	
+		// Repopulate the child
 		if( obj.selectedIndex ) {
 			key = obj.options[obj.selectedIndex].value
 			for(i=0; i < choices_lookup[key].length; i++) {
@@ -114,7 +114,7 @@ function applyLookup(obj) {
  * Shows/hides the payment form
  */
 function togglePayment(obj) {
-	
+
 	f = document.getElementById('pay_form');
 	if( obj.checked )
 		f.style.display = "none";
@@ -127,7 +127,7 @@ function togglePayment(obj) {
  * requires twitter bootstrap accordion
  */
 function toggleFormCollapse(obj) {
-	
+
 	f = document.getElementById('checkboxCollapse');
 	if( obj.checked )
 		f.style.display = "none";
@@ -139,10 +139,10 @@ function toggleFormCollapse(obj) {
  * Makes this div invisible and that div visible
  */
 function swap_divs(this_div_id, that_div_id) {
-	
+
 	this_div = document.getElementById(this_div_id);
 	that_div = document.getElementById(that_div_id);
-	
+
 	this_div.style.display = "none";
 	that_div.style.display = "block";
 }
@@ -179,7 +179,7 @@ function expand_collapse(dom_obj) {
             dom_obj.className = css_class.replace(/expanded/g, 'collapsed');
         }
         else {
-            dom_obj.className = css_class + ' collapsed';        
+            dom_obj.className = css_class + ' collapsed';
         }
     }
 }
@@ -195,7 +195,7 @@ function setTable(dndtable) {
     tableDnD.onDrop = function(table, row) {
         row.style.backgroundColor = "#fff";
         var rows = this.table.tBodies[0].rows;
-        
+
         //var tbody =table.getElementsByTagName("tbody");
         //var Tr =TBODY[0].getElementsByTagName("tr");
         var count = 0;
@@ -210,7 +210,7 @@ function setTable(dndtable) {
                     inputs[j].value = count;
                     count++;
                 }
-                
+
                 /*var inputs =  tds[1].getElementsByTagName("input");
                 if (inputs.length > 0) {
                     inputs[0].value = i;
@@ -224,8 +224,8 @@ function setTable(dndtable) {
                 buttons[i].disabled = false
             }
         }
-        
-        
+
+
         //var save_button = document.getElementById('save_ordering');
         //save_button.disabled = false;
     }
@@ -264,7 +264,7 @@ function toggle_applicability_reasons(status_obj) {
     /***
         If a user selects the not-applicable option for a credit submission
         then the applicability reason form field gets displayed. It's hidden, otherwise.
-        
+
         @status_obj The form field DOM Object for the status.
     ***/
     reason_obj = document.getElementById('reason_choices')
@@ -306,24 +306,24 @@ function before_unload_credit() {
  * the state of the submission button is an indicator of
  * the state of the form. if the submisison button is disabled
  * then the form doesn't have any changes to be saved
- * 
+ *
  * the before_unload_credit() method uses the status of the button
  * to determine if the user should be alerted with a pop-up that
  * there have been changes made to the system
- * 
+ *
  * ignore_errors is used when the form is processed to ensure that
  * the form can be submitted without before_unload_credit() preventing
  * the user from submitting
  **/
 function enable_submit(enable, ignore_errors) {
 	button = document.getElementById('submit_button');
-	
+
 	re = /.*errors.*/;
 	if( !ignore_errors && re.test(button.className)) {
 		// If there were errors, don't disable the button
 		return
 	}
-	
+
     button.disabled = !enable;
     if(enable) {
     	button.className = "enabled";

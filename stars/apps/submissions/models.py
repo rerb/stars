@@ -894,6 +894,9 @@ class SubcategorySubmission(models.Model):
     subcategory = models.ForeignKey(Subcategory)
     description = models.TextField(blank=True, null=True)
     points = models.FloatField(blank=True, null=True)
+    # caching for the data displays
+    percentage_score = models.FloatField(blank=True, null=True)
+    adjusted_available_points = models.FloatField(blank=True, null=True)
 
     class Meta:
         unique_together = ("category_submission", "subcategory")
@@ -960,16 +963,24 @@ class SubcategorySubmission(models.Model):
         return self.creditusersubmission_set.exclude(submission_status='ns').exclude(submission_status='p').count()
 
     def get_claimed_points(self):
-        if (self.category_submission.submissionset.status == "r" and
-            self.points is not None):
+        rated = self.category_submission.submissionset.status == "r"
+        # check the cache
+        if rated and self.points and self.percentage_score:
             return self.points
 
         score = 0
         for credit in self.creditusersubmission_set.filter(submission_status='c'):
             score += credit.assessed_points
-            if self.category_submission.submissionset.status == "r":
-                self.points = score
-                self.save()
+
+        if self.category_submission.submissionset.status == "r":
+            # cache it on the model
+            self.points = score
+            available = self.get_available_points()
+            if available > 0:
+                self.percentage_score = score / available
+            else:
+                self.percentage_score = 0
+            self.save()
         return score
 
     def get_available_points(self):
@@ -980,10 +991,21 @@ class SubcategorySubmission(models.Model):
 
     def get_adjusted_available_points(self):
         """ Gets only the points for credits that have not been labelled as Not Applicable """
-        score = 0
+
+        rated = self.category_submission.submissionset.status == "r"
+        # check the cache
+        if rated and self.adjusted_available_points:
+            return self.adjusted_available_points
+
+        points = 0
         for credit_submission in self.creditusersubmission_set.all():
-                score += credit_submission.get_adjusted_available_points()
-        return score
+            points += credit_submission.get_adjusted_available_points()
+
+        if rated:
+            # cache the result
+            self.adjusted_available_points = points
+            self.save()
+        return points
 
     def get_percent_complete(self):
         """ Return the percentage of credits completed in this subcategory: 0 - 100 """

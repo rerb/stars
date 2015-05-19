@@ -9,15 +9,17 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
-from django.db.models import Q
+from django.core.urlresolvers import reverse
+from django.db.models import Q, Avg, StdDev, Min, Max
 from django.http import HttpResponseRedirect
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView, FormView
+from django.http import Http404
 
 from logical_rules.mixins import RulesMixin
 from stars.apps.accounts.mixins import StarsAccountMixin
 
-from issdjango.models import TechnicalAdvisor
+from aashe.issdjango.models import TechnicalAdvisor
 
 from stars.apps.credits.models import (CreditSet,
                                        Rating,
@@ -27,6 +29,7 @@ from stars.apps.credits.models import (CreditSet,
                                        DocumentationField)
 from stars.apps.institutions.data_displays.filters import (
     Filter, RangeFilter, FilteringMixin, NarrowFilteringMixin)
+from stars.apps.institutions.data_displays.common_filters import *
 
 from stars.apps.institutions.data_displays.forms import (
     CharacteristicFilterForm, DelCharacteristicFilterForm, ScoreColumnForm,
@@ -42,7 +45,7 @@ from stars.apps.submissions.models import (SubmissionSet, CreditUserSubmission,
 logger = getLogger('stars.request')
 
 USAGE_TEXT = ("AASHE believes transparency is a key component in communicating"
-      " sustainability claims.STARS data are made publicly available,"
+      " sustainability claims. STARS data are made publicly available,"
       " and can be used in research and publications, provided that"
       " certain Data Use Guidelines"
       " (http://www.aashe.org/files/documents/STARS/data_use_guidelines.pdf)"
@@ -62,6 +65,7 @@ class Dashboard(TemplateView):
 
         if not _context:
             _context = {}
+            _context['display_version'] = "2.0" # used in the tabs
 
             ratings = {}
             for r in Rating.objects.all():
@@ -190,81 +194,6 @@ class Dashboard(TemplateView):
         return _context
 
 
-COMMON_FILTERS = [
-                        Filter(
-                               key='institution__country',
-                               title='Country',
-                               item_list=[
-                                    ('United States', "United States of America"),
-                                    ('Canada', 'Canada')
-                               ],
-                               base_qs=SubmissionSet.objects.filter(status='r').filter(expired=False).exclude(creditset__version='2.0'),
-                        ),
-                        Filter(
-                              key='institution__is_member',
-                              title='AASHE Membership',
-                              item_list=[
-                                   ('AASHE Member', True),
-                                   ('Not an AASHE Member', False)
-                              ],
-                              base_qs=SubmissionSet.objects.filter(status='r').filter(expired=False).exclude(creditset__version='2.0'),
-                        ),
-                        Filter(
-                                key='institution__is_pcc_signatory',
-                                title='ACUPCC Signatory Status',
-                                item_list=[
-                                     ('ACUPCC Signatory', True),
-                                     ('Not an ACUPCC Signatory', False)
-                                ],
-                                base_qs=SubmissionSet.objects.filter(status='r').filter(expired=False).exclude(creditset__version='2.0'),
-                        ),
-                        Filter(
-                                key='institution__charter_participant',
-                                title='STARS Charter Participant',
-                                item_list=[
-                                     ('Charter Participant', True),
-                                     ('Not a Charter Participant', False)
-                                ],
-                                base_qs=SubmissionSet.objects.filter(status='r').filter(expired=False).exclude(creditset__version='2.0'),
-                        ),
-                        Filter(
-                                key='institution__is_pilot_participant',
-                                title='STARS Pilot Participant',
-                                item_list=[
-                                     ('Pilot Participant', True),
-                                     ('Not a Pilot Participant', False)
-                                ],
-                                base_qs=SubmissionSet.objects.filter(status='r').filter(expired=False).exclude(creditset__version='2.0'),
-                        ),
-                        Filter(
-                                key='rating__name',
-                                title='STARS Rating',
-                                item_list=[
-                                    ('Bronze', 'Bronze'),
-                                    ('Silver', 'Silver'),
-                                    ('Gold', 'Gold'),
-                                    ('Platinum', 'Platinum'),
-                                ],
-                                base_qs=SubmissionSet.objects.filter(status='r').filter(expired=False).exclude(creditset__version='2.0'),
-                        ),
-                        RangeFilter(
-                                key='institution__fte',
-                                title='FTE Enrollment',
-                                item_list=[
-                                    ('Less than 200', 'u200', None, 200),
-                                    ('200 - 499', 'u500', 200, 500),
-                                    ('500 - 999', 'u1000', 500, 1000),
-                                    ('1,000 - 1,999', 'u2000', 1000, 2000),
-                                    ('2,000 - 4,999', 'u5000', 2000, 5000),
-                                    ('5,000 - 9,999', 'u10000', 5000, 10000),
-                                    ('10,000 - 19,999', 'u20000', 10000, 20000),
-                                    ('Over 20,000', 'o20000', 20000, None),
-                                ],
-                                base_qs=SubmissionSet.objects.filter(status='r').filter(expired=False).exclude(creditset__version='2.0'),
-                        ),
-                      ]
-
-
 class DisplayAccessMixin(StarsAccountMixin, RulesMixin):
     """
         A basic rule mixin for all Data Displays
@@ -295,14 +224,21 @@ class CommonFilterMixin(object):
         # value means "don't filter base_qs"
         org_type_list.insert(0, ('All Institutions', 'DO_NOT_FILTER'))
 
+        if self.kwargs["cs_version"] == "2.0":
+            common_filters = COMMON_2_0_FILTERS
+            base_qs = BASE_2_0_QS
+        else:
+            common_filters = COMMON_1_0_FILTERS
+            base_qs = BASE_1_0_QS
+
         filters = [
-                    Filter(
-                           key='institution__org_type',
-                           title='Organization Type',
-                           item_list=org_type_list,
-                           base_qs=SubmissionSet.objects.filter(status='r').filter(expired=False).exclude(creditset__version='2.0'),
-                           ),
-                   ] + COMMON_FILTERS
+            Filter(
+                key='institution__org_type',
+                title='Organization Type',
+                item_list=org_type_list,
+                base_qs=base_qs
+            ),
+        ] + common_filters
 
         # Store in the cache for 6 hours
         cache.set('institution__org_type_filter', filters, 60 * 60 * 6)
@@ -339,41 +275,84 @@ class AggregateFilter(DisplayAccessMixin, CommonFilterMixin, FilteringMixin,
     def get_description_help_context_name(self):
         return "data_display_categories"
 
-    def get_object_list(self):
+    def get_object_list(self, credit_set, category_list):
+        """
+            basically the tabular output of the category display
+
+            returns a row for each filter with the average scores for each
+            category in the creditset
+
+            Ex:
+                        ER          PAE         OP
+            Canada      12.2        14.7        22.1
+            US          13.2        17.4        21.2
+
+            so the return val would be something like:
+
+            [
+                {
+                    "title": "Canada",
+                    "columns": [
+                        {"avg": 12.2, "stddev": 2.2, "cat": ER},
+                        {"avg": 14.7, "stddev": 2.1, "cat": PAE},
+                        {"avg": 21.2, "stddev": 2.1, "cat": OP},
+                    ]
+                },
+                ...
+            ]
+        """
 
         object_list = []
         ss_list = None
 
         for f, v in self.get_selected_filter_objects():
 
-            cache_key = self.convertCacheKey(f.get_active_title(v))
+            # get a unique key for each row @TODO - add version
+            cache_key = "%s-%s" % (
+                self.convertCacheKey(f.get_active_title(v)),
+                credit_set.version)
+            print cache_key
+            # see if a cached version is available
             row = cache.get(cache_key)
 
+            # if not, generate that row
             if not row:
                 row = {}
                 row['title'] = f.get_active_title(v)
 
+                # all the submissionsets from that filter
                 ss_list = f.get_results(v).exclude(rating__publish_score=False)
+                row['total'] = ss_list.count()
 
-                count = 0
-                for ss in ss_list:
-                    for cat in ss.categorysubmission_set.all():
-                        k_list = "%s_list" % cat.category.abbreviation
-                        if not k_list in row:
-                            row[k_list] = []
-                        row[k_list].append(cat.get_STARS_score())
-                    count += 1
-                row['total'] = count
+                columns = []
 
-                for k in row.keys():
-                    m = re.match("(\w+)_list", k)
-                    if m:
-                        cat_abr = m.groups()[0]
-                        if len(row['%s_list' % cat_abr]) != 0:
-                            row["%s_avg" % cat_abr], std, mn, mx = get_variance(row['%s_list' % cat_abr])
-                        else:
-                            row["%s_avg" % cat_abr] = std, mn, mx = None
-                        row['%s_var' % cat_abr] = "Standard Deviation: %.2f | Min: %.2f | Max %.2f" % (std, mn, mx)
+                """
+                    for each submission in the ss_list
+
+                    run a query to get the average `score` for each category
+
+                """
+                for cat in category_list:
+                    obj = {'cat': cat.title}
+
+                    qs = SubcategorySubmission.objects.all()
+                    qs = qs.filter(category_submission__submissionset__in=ss_list)
+                    qs = qs.filter(subcategory=cat)
+
+                    result = qs.aggregate(
+                        Avg('points'),
+                        StdDev('points'),
+                        Min('points'),
+                        Max('points'))
+                    obj['avg'] = result['points__avg']
+                    obj['std'] = result['points__stddev']
+                    obj['min'] = result['points__min']
+                    obj['max'] = result['points__max']
+
+                    columns.append(obj)
+                    print obj
+
+                row['columns'] = columns
 
                 cache.set(cache_key, row, 60 * 60 * 6)  # cache for 6 hours
 
@@ -384,8 +363,33 @@ class AggregateFilter(DisplayAccessMixin, CommonFilterMixin, FilteringMixin,
     def get_context_data(self, **kwargs):
 
         _context = super(AggregateFilter, self).get_context_data(**kwargs)
+
+        if self.kwargs["cs_version"] == "1.0":
+            credit_set = CreditSet.objects.get(version="1.2")
+            _context['display_version'] = "1.0"
+        elif self.kwargs["cs_version"] == "2.0":
+            credit_set = CreditSet.objects.get(version="2.0")
+            _context['display_version'] = "2.0"
+        else:
+            raise Http404
+        _context['credit_set'] = credit_set
+
+        _context['url_1_0'] = "#"
+        _context['url_2_0'] = "#"
+        if self.kwargs["cs_version"] == "2.0":
+            _context['url_1_0'] = reverse(
+                'categories_data_display', kwargs={"cs_version": "1.0"})
+        if self.kwargs["cs_version"] == "1.0":
+            _context['url_2_0'] = reverse(
+                'categories_data_display', kwargs={"cs_version": "2.0"})
+
+        subcategory_list = Subcategory.objects.filter(
+            category__creditset=credit_set,
+            category__include_in_report=True,
+            category__include_in_score=True)
+        _context['category_list'] = subcategory_list
+        _context['object_list'] = self.get_object_list(credit_set, subcategory_list)
         _context['top_help_text'] = self.get_description_help_context_name()
-        _context['object_list'] = self.get_object_list()
 
         return _context
 
@@ -487,13 +491,15 @@ class ScoreFilter(DisplayAccessMixin, CommonFilterMixin, NarrowFilteringMixin, T
 
         return None
 
-    def get_select_form(self):
+    def get_select_form(self, credit_set):
         """
             Initializes the form for the user to select the columns
         """
-        return ScoreColumnForm(initial=self.get_selected_columns())
+        return ScoreColumnForm(
+            initial=self.get_selected_columns(),
+            credit_set=credit_set)
 
-    def get_object_list(self):
+    def get_object_list(self, credit_set):
         """
             Returns the list of objects based on the characteristic filters
             and the selected columns
@@ -504,7 +510,7 @@ class ScoreFilter(DisplayAccessMixin, CommonFilterMixin, NarrowFilteringMixin, T
             return None
         else:
 #            columns = []
-#            for k, col in selected_columns.items():
+#            for k, col in selected_columns.items():,
 #                columns.insert(0, (k, col))
 
             # Get the queryset from the filters
@@ -568,10 +574,30 @@ class ScoreFilter(DisplayAccessMixin, CommonFilterMixin, NarrowFilteringMixin, T
     def get_context_data(self, **kwargs):
 
         _context = super(ScoreFilter, self).get_context_data(**kwargs)
+
+        if self.kwargs["cs_version"] == "1.0":
+            credit_set = CreditSet.objects.get(version="1.2")
+            _context['display_version'] = "1.0"
+        elif self.kwargs["cs_version"] == "2.0":
+            credit_set = CreditSet.objects.get(version="2.0")
+            _context['display_version'] = "2.0"
+        else:
+            raise Http404
+        _context['credit_set'] = credit_set
+
+        _context['url_1_0'] = "#"
+        _context['url_2_0'] = "#"
+        if self.kwargs["cs_version"] == "2.0":
+            _context['url_1_0'] = reverse(
+                'scores_data_display', kwargs={"cs_version": "1.0"})
+        if self.kwargs["cs_version"] == "1.0":
+            _context['url_2_0'] = reverse(
+                'scores_data_display', kwargs={"cs_version": "2.0"})
+
         _context['top_help_text'] = self.get_description_help_context_name()
-        _context['object_list'] = self.get_object_list()
+        _context['object_list'] = self.get_object_list(credit_set)
         _context['selected_columns'] = self.get_selected_columns()
-        _context['select_form'] = self.get_select_form()
+        _context['select_form'] = self.get_select_form(credit_set)
 
         return _context
 
@@ -766,6 +792,26 @@ class ContentFilter(DisplayAccessMixin, CommonFilterMixin,
     def get_context_data(self, **kwargs):
 
         _context = super(ContentFilter, self).get_context_data(**kwargs)
+
+        if self.kwargs["cs_version"] == "1.0":
+            credit_set = CreditSet.objects.get(version="1.2")
+            _context['display_version'] = "1.0"
+        elif self.kwargs["cs_version"] == "2.0":
+            credit_set = CreditSet.objects.get(version="2.0")
+            _context['display_version'] = "2.0"
+        else:
+            raise Http404
+        _context['credit_set'] = credit_set
+
+        _context['url_1_0'] = "#"
+        _context['url_2_0'] = "#"
+        if self.kwargs["cs_version"] == "2.0":
+            _context['url_1_0'] = reverse(
+                'content_data_display', kwargs={"cs_version": "1.0"})
+        if self.kwargs["cs_version"] == "1.0":
+            _context['url_2_0'] = reverse(
+                'content_data_display', kwargs={"cs_version": "2.0"})
+
         _context['top_help_text'] = self.get_description_help_context_name()
         _context['reporting_field'] = self.get_selected_field()
         _context['object_list'] = self.get_object_list()
@@ -840,7 +886,7 @@ class CategoryInCreditSetCallback(CallbackView):
     def get_object_list(self, **kwargs):
 
         cs = CreditSet.objects.get(pk=kwargs['cs_id'])
-        return cs.category_set.all()
+        return cs.category_set.filter(include_in_report=True)
 
 
 class SubcategoryInCategoryCallback(CallbackView):
@@ -873,4 +919,4 @@ class FieldInCreditCallback(CallbackView):
     def get_object_list(self, **kwargs):
 
         credit = Credit.objects.get(pk=kwargs['credit_id'])
-        return credit.documentationfield_set.all()
+        return credit.documentationfield_set.exclude(type='tabular')
