@@ -181,7 +181,7 @@ INSTALLED_APPS = (
     'stars.apps.api',
     'stars.apps.download_async_task',
     'stars.test_factories',
-    'stars.tests',
+    # 'stars.tests',
 
     'aashe.aasheauth',
     'issdjango',
