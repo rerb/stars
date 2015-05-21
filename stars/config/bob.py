@@ -20,7 +20,7 @@ DEBUG = True
 TEMPLATE_DEBUG = False
 DEBUG_TOOLBAR = False
 MAINTENANCE_MODE = False
-CELERY_ALWAYS_EAGER = True
+# CELERY_ALWAYS_EAGER = True
 PROFILE = False
 
 ADMINS = (('Bob Erb', 'bob@aashe.org'),)
