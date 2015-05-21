@@ -5,21 +5,14 @@ import hashlib
 
 from excel_response import ExcelResponse
 
-from django.conf import settings
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.db.models import Q, Avg, StdDev, Min, Max
-from django.http import HttpResponseRedirect
-from django.utils.decorators import method_decorator
-from django.views.generic import TemplateView, FormView
+from django.views.generic import TemplateView
 from django.http import Http404
 
 from logical_rules.mixins import RulesMixin
 from stars.apps.accounts.mixins import StarsAccountMixin
-
-from aashe.issdjango.models import TechnicalAdvisor
 
 from stars.apps.credits.models import (CreditSet,
                                        Rating,
@@ -28,13 +21,12 @@ from stars.apps.credits.models import (CreditSet,
                                        Subcategory,
                                        DocumentationField)
 from stars.apps.institutions.data_displays.filters import (
-    Filter, RangeFilter, FilteringMixin, NarrowFilteringMixin)
+    Filter, FilteringMixin, NarrowFilteringMixin)
 from stars.apps.institutions.data_displays.common_filters import *
 
 from stars.apps.institutions.data_displays.forms import (
-    CharacteristicFilterForm, DelCharacteristicFilterForm, ScoreColumnForm,
+    ScoreColumnForm,
     ReportingFieldSelectForm)
-from stars.apps.institutions.data_displays.models import AuthorizedUser
 from stars.apps.institutions.data_displays.utils import get_variance
 from stars.apps.institutions.models import Institution, Subscription
 from stars.apps.submissions.models import (SubmissionSet, CreditUserSubmission,
