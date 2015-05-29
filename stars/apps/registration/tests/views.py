@@ -123,12 +123,12 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
             'no register for {access_level} button?'.format(
                 access_level=access_level))
 
-    @property 
+    @property
     def register_full_access_button(self):
         """Returns the Register for Full Access button."""
         self.get_register_button('full-access')
 
-    @property 
+    @property
     def register_basic_access_button(self):
         """Returns the Register for Basic Access button."""
         self.get_register_button('basic-access')
@@ -144,6 +144,9 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
     def final_registration_button(self):
         """Returns the final Registration button."""
         buttons = self.selenium.find_elements_by_tag_name('button')
+        # There are 2 'Register' submit buttons on the form, we want
+        # the last one, so we reverse the list and take the first:
+        buttons.reverse()
         for button in buttons:
             if (button.text == 'Register' and
                 button.get_attribute('type') == 'submit'):
@@ -338,8 +341,9 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
         return 'survey' in self.selenium.title.lower()
 
     def summon_the_wizard(self):
-        self.selenium.get('/'.join((self.live_server_url,
-                                    "pages/register/register-stars.html")))
+        self.selenium.get('/'.join(
+            (self.live_server_url,
+             "pages/participate/register-stars.html")))
 
     def select_school(self, school=None):
         """Picks an school, then moves along."""
