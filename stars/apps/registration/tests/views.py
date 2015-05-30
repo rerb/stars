@@ -486,11 +486,11 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
     def test_participant_finally_redirected_to_survey(self):
         self.register(participation_level=PARTICIPANT,
                       payment_option=LATER)
-        self.current_page_is_survey_page()
+        self.assertTrue(self.current_page_is_survey_page())
 
     def test_respondent_finally_redirected_to_survey(self):
         self.register(participation_level=RESPONDENT)
-        self.current_page_is_survey_page()
+        self.assertTrue(self.current_page_is_survey_page())
 
     #############################################
     # tests that database is updated correctly: #
@@ -837,6 +837,19 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
         self.final_registration_button.click()
 
         self._initial_object_counts_are_still_correct()
+
+    def test_valid_cc(self):
+        """Can we process a credit card charge?"""
+        self.participation_level = PARTICIPANT
+        self.select_school()
+        self.submit_contact_info(participation_level=PARTICIPANT)
+        self.next_button.click()  # price page
+        self.payment_option = NOW
+        self.credit_card_number = "4007000000027"  # test number
+        self.credit_card_expiration_month = "12"
+        self.credit_card_expiration_year = "2020"
+        self.final_registration_button.click()
+        self.assertTrue(self.current_page_is_survey_page())
 
     def _raise_forced_exception(*args, **kwargs):
         """Stub to raise an exception, for testing exception handling."""
