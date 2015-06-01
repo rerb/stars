@@ -268,6 +268,7 @@ AUTHORIZENET_SERVER = os.environ.get('AUTHORIZENET_SERVER', None)
 ANALYTICS_ID = os.environ.get('ANALYTICS_ID', None)
 
 SKIP_SOUTH_TESTS=True
+SOUTH_TESTS_MIGRATE = False
 
 RECAPTCHA_PUBLIC_KEY = os.environ.get('RECAPTCHA_PUBLIC_KEY', None)
 RECAPTCHA_PRIVATE_KEY = os.environ.get('RECAPTCHA_PRIVATE_KEY', None)
@@ -282,8 +283,6 @@ if m:
 
 DJANGO_VERSION = django.get_version()
 HG_REVISION = None
-
-SOUTH_TESTS_MIGRATE = False
 
 # Sentry Logging: getsentry.com
 RAVEN_CONFIG = {
