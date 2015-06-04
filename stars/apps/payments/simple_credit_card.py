@@ -98,17 +98,13 @@ class CreditCardPaymentProcessor(object):
         """
         # Assertions below help when debugging tests that fail because
         # settings.AUTHORIZENET_* aren't set.
-        assert ((settings.AUTHORIZENET_SERVER is not None and
-                 settings.AUTHORIZENET_LOGIN is not None and
+        assert ((settings.AUTHORIZENET_LOGIN is not None and
                  settings.AUTHORIZENET_KEY is not None),
-                'settings.AUTHORIZE_SERVER, settings.AUTHORIZE_LOGIN and '
+                'settings.AUTHORIZE_LOGIN and '
                 'settings.AUTHORIZE_KEY are required.')
 
         client = AuthorizeClient(settings.AUTHORIZENET_LOGIN,
-                                 settings.AUTHORIZENET_KEY,
-                                 debug=True)
-        # authorize sauce doesn't need server passed in?
-        # is it hard-coded to the production authorize.net?
+                                 settings.AUTHORIZENET_KEY)
 
         # exp_date is MMYYYY.
         year = int(exp_date[2:])
