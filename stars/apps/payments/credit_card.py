@@ -128,7 +128,7 @@ class CreditCardPaymentProcessor(object):
         return payment_context
 
     def _process_payment(self, payment_context, product_list,
-                         invoice_num=None, server=None, login=None, key=None):
+                         invoice_num=None, login=None, key=None):
         """
             Connects to Authorize.net and processes a payment based on the
             payment information in payment_dict and the product_dict
@@ -138,7 +138,7 @@ class CreditCardPaymentProcessor(object):
 
             product_list: [{'name': '', 'price': #.#, 'quantity': #},]
 
-            server, login, and key: optional parameters for Auth.net
+            login and key: optional parameters for Auth.net
             connections (for testing)
 
             returns:
@@ -147,9 +147,6 @@ class CreditCardPaymentProcessor(object):
                 'msg': msg,
                 'conf': "" }
         """
-        server = server or settings.AUTHORIZENET_SERVER
-        assert server is not None, "server is required"
-
         login = login or settings.AUTHORIZENET_LOGIN
         assert login is not None, "login is required"
 
