@@ -25,7 +25,6 @@ class CreditCardPaymentProcessor(object):
                              amount,
                              user,
                              form,
-                             invoice_num,
                              product_name=None):
         """
             A simple payment processing form for the reg process
@@ -43,8 +42,7 @@ class CreditCardPaymentProcessor(object):
 
         result = self._process_payment(
             payment_context=payment_context,
-            product_list=[product_dict],
-            invoice_num=invoice_num)
+            product_list=[product_dict])
 
         return result
 
@@ -57,8 +55,7 @@ class CreditCardPaymentProcessor(object):
             model_to_dict(subscription.institution),
             amount,
             user,
-            form,
-            invoice_num=subscription.institution.aashe_id)
+            form)
 
         if result['cleared'] and result['trans_id']:
 
@@ -128,7 +125,7 @@ class CreditCardPaymentProcessor(object):
         return payment_context
 
     def _process_payment(self, payment_context, product_list,
-                         invoice_num=None, login=None, key=None):
+                         login=None, key=None):
         """
             Connects to Authorize.net and processes a payment based on the
             payment information in payment_dict and the product_dict
@@ -140,21 +137,12 @@ class CreditCardPaymentProcessor(object):
 
             login and key: optional parameters for Auth.net
             connections (for testing)
-
-            returns:
-                {'cleared': cleared,
-                'reason_code': reason_code,
-                'msg': msg,
-                'conf': "" }
         """
         login = login or settings.AUTHORIZENET_LOGIN
-        assert login is not None, "login is required"
 
         key = key or settings.AUTHORIZENET_KEY
-        assert key is not None, "key is required"
 
-        client = AuthorizeClient(settings.AUTHORIZENET_LOGIN,
-                                 settings.AUTHORIZENET_KEY)
+        client = AuthorizeClient(login, key)
 
         # exp_date is MMYYYY.
         year = int(payment_context['exp_date'][2:])
