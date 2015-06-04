@@ -59,7 +59,7 @@ else:
     MEDIA_URL = '/media/'
     STATIC_URL = "/media/static/"
     MEDIA_ROOT = os.environ.get("MEDIA_ROOT", None)
-    # STATIC_ROOT = os.environ.get("STATIC_ROOT", None)
+    STATIC_ROOT = os.environ.get("STATIC_ROOT", None)
 
 STATICFILES_DIRS = (
     os.path.join(os.path.dirname(__file__), "..", "static"),
