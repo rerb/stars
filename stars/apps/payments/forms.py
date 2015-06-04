@@ -148,11 +148,11 @@ class SubscriptionPriceForm(forms.Form):
         promo code.
     """
     promo_code = forms.CharField(
-        max_length=16, 
+        max_length=16,
         required=False,
         widget=forms.TextInput(
             attrs={'class': 'promo_code'}))
-    
+
     def clean_promo_code(self):
         data = self.cleaned_data['promo_code']
         if data == "":
@@ -189,6 +189,11 @@ class SubscriptionPayNowForm(forms.Form):
         max_length=17, widget=forms.TextInput(attrs={'autocomplete': 'off'}))
     exp_month = forms.CharField(max_length=2, initial='mm')
     exp_year = forms.CharField(max_length=4, initial='yyyy')
+    cvv = forms.CharField(
+        max_length=3,
+        label='CV Code',
+        help_text='This is the 3-digit code on the back of your card',
+        widget=forms.TextInput(attrs={'autocomplete': 'off'}))
 
     def clean_exp_month(self):
         data = self.cleaned_data['exp_month']

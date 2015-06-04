@@ -454,7 +454,8 @@ class SubscriptionTest(TestCase):
         subscription.pay(user=UserFactory(),
                          amount=subscription.amount_due,
                          card_num=GOOD_CREDIT_CARD,
-                         exp_date='102020')
+                         exp_date='102020',
+                         cvv='123')
         self.assertEqual(subscription.subscriptionpayment_set.count(), 1)
 
     def test_pay_creates_payment_for_correct_amount(self):
@@ -465,7 +466,8 @@ class SubscriptionTest(TestCase):
             user=UserFactory(),
             amount=subscription.amount_due,
             card_num=GOOD_CREDIT_CARD,
-            exp_date='102020')
+            exp_date='102020',
+            cvv='123')
         self.assertEqual(subscription_payment.amount,
                          SUBSCRIPTION_PRICE)
 
@@ -476,7 +478,8 @@ class SubscriptionTest(TestCase):
             subscription.pay(user=UserFactory(),
                              amount=subscription.amount_due,
                              card_num=BAD_CREDIT_CARD,
-                             exp_date='102020')
+                             exp_date='102020',
+                             cvv='123')
         except CreditCardProcessingError:
             self.assertEqual(subscription.subscriptionpayment_set.count(), 0)
         else:
@@ -493,7 +496,8 @@ class SubscriptionTest(TestCase):
             subscription.pay(user=UserFactory(),
                              amount=subscription.amount_due - unpaid_amount,
                              card_num=GOOD_CREDIT_CARD,
-                             exp_date='102020')
+                             exp_date='102020',
+                             cvv='123')
         self.assertEqual(subscription.amount_due, unpaid_amount)
 
     def test_pay_full_amount_due_updates_paid_in_full(self):
@@ -506,7 +510,8 @@ class SubscriptionTest(TestCase):
             subscription.pay(user=UserFactory(),
                              amount=subscription.amount_due,
                              card_num=GOOD_CREDIT_CARD,
-                             exp_date='102020')
+                             exp_date='102020',
+                             cvv='123')
         self.assertTrue(subscription.paid_in_full)
 
     def test_pay_partial_amount_due_does_not_update_paid_in_full(self):
@@ -519,7 +524,8 @@ class SubscriptionTest(TestCase):
             subscription.pay(user=UserFactory(),
                              amount=subscription.amount_due - .10,
                              card_num=GOOD_CREDIT_CARD,
-                             exp_date='102020')
+                             exp_date='102020',
+                             cvv='123')
         self.assertFalse(subscription.paid_in_full)
 
     ########################
@@ -534,7 +540,8 @@ class SubscriptionTest(TestCase):
             pay_when=Subscription.PAY_NOW,
             user=UserFactory(),
             card_num=GOOD_CREDIT_CARD,
-            exp_date='102020')
+            exp_date='102020',
+            cvv='123')
         self.assertEqual(subscription.subscriptionpayment_set.count(), 1)
 
     def test_purchase_pay_now_creates_payment_for_correct_amount(self):
@@ -548,7 +555,8 @@ class SubscriptionTest(TestCase):
                               pay_when=Subscription.PAY_NOW,
                               user=UserFactory(),
                               card_num=GOOD_CREDIT_CARD,
-                              exp_date='102020')
+                              exp_date='102020',
+                              cvv='123')
         self.assertEqual(SubscriptionPayment.objects.reverse()[0].amount,
                          prices['total'])
 
@@ -592,7 +600,8 @@ class SubscriptionTest(TestCase):
                                   pay_when=Subscription.PAY_NOW,
                                   user=UserFactory(),
                                   card_num=BAD_CREDIT_CARD,
-                                  exp_date='102020')
+                                  exp_date='102020',
+                                  cvv='123')
         except SubscriptionPurchaseError:
             self.assertEqual(initial_outgoing_mails, len(mail.outbox))
         else:
@@ -615,7 +624,8 @@ class SubscriptionTest(TestCase):
                               pay_when=Subscription.PAY_NOW,
                               user=UserFactory(),
                               card_num=GOOD_CREDIT_CARD,
-                              exp_date='102020')
+                              exp_date='102020',
+                              cvv='123')
         self.assertEqual(initial_outgoing_mails + 1, len(mail.outbox))
 
     def test_purchase_pay_now_first_subrx_sends_one_email(self):
@@ -629,7 +639,8 @@ class SubscriptionTest(TestCase):
                               pay_when=Subscription.PAY_NOW,
                               user=UserFactory(),
                               card_num=GOOD_CREDIT_CARD,
-                              exp_date='102020')
+                              exp_date='102020',
+                              cvv='123')
         self.assertEqual(initial_outgoing_mails + 1, len(mail.outbox))
 
     def test_purchase_mails_user_if_not_contact_email(self):
@@ -683,7 +694,8 @@ class SubscriptionTest(TestCase):
                               pay_when=Subscription.PAY_NOW,
                               user=UserFactory(),
                               card_num=GOOD_CREDIT_CARD,
-                              exp_date='102020')
+                              exp_date='102020',
+                              cvv='123')
 
     @_test_email_templates_ok
     def test_purchase_pay_later_registration_email_templates_ok(self):
@@ -705,7 +717,8 @@ class SubscriptionTest(TestCase):
                               pay_when=Subscription.PAY_NOW,
                               user=UserFactory(),
                               card_num=GOOD_CREDIT_CARD,
-                              exp_date='102020')
+                              exp_date='102020',
+                              cvv='123')
 
     @_test_email_templates_ok
     def test_purchase_pay_later_renewal_email_templates_ok(self):

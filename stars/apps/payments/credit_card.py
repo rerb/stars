@@ -1,11 +1,9 @@
 from datetime import datetime
 from logging import getLogger
-import sys
 
+from authorize import AuthorizeClient, CreditCard
 from django.conf import settings
 from django.forms.models import model_to_dict
-
-from zc.authorizedotnet.processing import CcProcessor
 
 import stars.apps.institutions.models
 from utils import is_canadian_zipcode
@@ -118,8 +116,9 @@ class CreditCardPaymentProcessor(object):
             'billing_lastname': contact_info['contact_last_name'],
             'billing_email': contact_info['contact_email'],
             'description': "{inst} STARS Registration ({when})".format(
-                inst=contact_info['contact_last_name'], when=datetime.now().isoformat()),
-#            'company': contact_info['name'],
+                inst=contact_info['contact_last_name'],
+                when=datetime.now().isoformat()),
+            # 'company': contact_info['name'],
             'last_four': last_four,
         }
 
@@ -148,48 +147,51 @@ class CreditCardPaymentProcessor(object):
                 'msg': msg,
                 'conf': "" }
         """
-        if not server:
-            server = settings.AUTHORIZENET_SERVER
-            assert server is not None, "server is required"
-        if not login:
-            login = settings.AUTHORIZENET_LOGIN
-            assert login is not None, "login is required"
-        if not key:
-            key = settings.AUTHORIZENET_KEY
-            assert key is not None, "key is required"
+        server = server or settings.AUTHORIZENET_SERVER
+        assert server is not None, "server is required"
 
-        cc = CcProcessor(server=server, login=login, key=key)
+        login = login or settings.AUTHORIZENET_LOGIN
+        assert login is not None, "login is required"
+
+        key = key or settings.AUTHORIZENET_KEY
+        assert key is not None, "key is required"
+
+        client = AuthorizeClient(settings.AUTHORIZENET_LOGIN,
+                                 settings.AUTHORIZENET_KEY)
+
+        # exp_date is MMYYYY.
+        year = int(payment_context['exp_date'][2:])
+        month = int(payment_context['exp_date'][:2])
+
+        try:
+            cc = CreditCard(payment_context['cc_number'],
+                            year,
+                            month,
+                            payment_context['cv_number'])
+        except Exception as ex:
+            raise CreditCardProcessingError(str(ex))
 
         total = 0.0
         for product in product_list:
             total += product['price'] * product['quantity']
-        result = cc.authorize(amount=str(total),
-                              card_num=payment_context['cc_number'],
-                              exp_date=payment_context['exp_date'],
-                              invoice_num=invoice_num,
-                              address=payment_context['billing_address'],
-                              city=payment_context['billing_city'],
-                              state=payment_context['billing_state'],
-                              zip=payment_context['billing_zipcode'],
-                              first_name=payment_context['billing_firstname'],
-                              last_name=payment_context['billing_lastname'],
-                              card_code=payment_context['cv_number'],
-                              country=payment_context['country'])
 
-        if result.response == "approved":
-            capture_result = cc.captureAuthorized(trans_id=result.trans_id)
+        transaction = client.card(cc).capture(total)
+
+        if transaction.full_response['response_code'] == '1':
+            # Success.
             return {'cleared': True,
                     'reason_code': None,
                     'msg': None,
-                    'conf': capture_result.approval_code,
-                    'trans_id': capture_result.trans_id}
+                    'conf': transaction.full_response['authorization_code'],
+                    'trans_id': transaction.full_response['transaction_id']}
         else:
-            logger.error("Payment denied for %s %s (%s)" %
-                           (payment_context['billing_firstname'],
-                            payment_context['billing_lastname'],
-                            result.response_reason))
+            msg = ("Payment denied for %s %s (%s)" %
+                   (payment_context['billing_firstname'],
+                    payment_context['billing_lastname'],
+                    transaction.full_response['response_reason_text']))
+            logger.error(msg)
             return {'cleared': False,
-                    'reason_code': None,
-                    'msg': result.response_reason,
+                    'reason_code': transaction.full_response['response_code'],
+                    'msg': transaction.full_response['response_reason_text'],
                     'conf': None,
                     'trans_id': None}

@@ -12,6 +12,7 @@ Werkzeug==0.8.3
 amqp==1.0.11
 amqplib==1.0.2
 anyjson==0.3.3
+authorizesauce
 beautifulsoup4==4.1.3
 boto==2.9.5
 celery==3.0.19
@@ -71,7 +72,6 @@ sorl-thumbnail==11.12
 ssh==1.8.0
 -e git+https://github.com/sixohsix/twitter.git@c3a3fb3276938b053df0aec8421586497415e6ec#egg=twitter
 wsgiref==0.1.2
-zc.authorizedotnet==1.3.1
 zc.creditcard==1.0
 zc.ssl==1.2
 zope.exceptions==4.0.5
