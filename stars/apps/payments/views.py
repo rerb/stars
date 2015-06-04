@@ -293,6 +293,7 @@ class SubscriptionPurchaseWizard(SessionWizardView):
         else:
             card_num = None
             exp_date = None
+            cvv = None
 
         promo_code = self.request.session.get('promo_code')
 
