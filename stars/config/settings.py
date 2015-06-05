@@ -156,7 +156,7 @@ INSTALLED_APPS = (
     'django.contrib.humanize',
     'django.contrib.staticfiles',
 
-    'terms', # must come before stars.apps.tool, which overrides the admin
+    'terms',  # must come before stars.apps.tool, which overrides the admin
 
     'stars.apps.credits',
     'stars.apps.tool.credit_editor',
@@ -170,7 +170,7 @@ INSTALLED_APPS = (
     'stars.apps.submissions',
     'stars.apps.accounts',
     'stars.apps.helpers',
-    'stars.apps.helpers.forms', # included here for testing
+    'stars.apps.helpers.forms',  # included here for testing
     'stars.apps.old_cms',
     'stars.apps.etl_export',
     'stars.apps.custom_forms',
@@ -180,6 +180,7 @@ INSTALLED_APPS = (
     'stars.apps.third_parties',
     'stars.apps.api',
     'stars.apps.download_async_task',
+    'stars.apps.payments',  # included here for testing
     'stars.test_factories',
     # 'stars.tests',
 
@@ -453,7 +454,6 @@ if 'test' in sys.argv:
     MIDDLEWARE_CLASSES.remove(
         'django.middleware.cache.FetchFromCacheMiddleware')
     MIDDLEWARE_CLASSES.remove('django.middleware.cache.UpdateCacheMiddleware')
-
     DATABASES['default'] = dj_database_url.parse(
         os.environ.get('STARS_TEST_DB',
                        "sqlite:////tmp/stars_tests.db"))
