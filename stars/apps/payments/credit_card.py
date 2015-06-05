@@ -154,7 +154,8 @@ class CreditCardPaymentProcessor(object):
         assert key is not None, "key is required"
 
         client = AuthorizeClient(settings.AUTHORIZENET_LOGIN,
-                                 settings.AUTHORIZENET_KEY)
+                                 settings.AUTHORIZENET_KEY,
+                                 debug=settings.DEBUG)
 
         # exp_date is MMYYYY.
         year = int(payment_context['exp_date'][2:])
