@@ -91,7 +91,7 @@ class CreditCardPaymentProcessor(object):
     def _process_payment(self, payment_context, product_list,
                          login=settings.AUTHORIZENET_LOGIN,
                          key=settings.AUTHORIZENET_KEY,
-                         debug=settings.DEBUG):
+                         debug=False):
         """
             Connects to Authorize.net and processes a payment.
 
@@ -100,9 +100,10 @@ class CreditCardPaymentProcessor(object):
 
             product_list: [{'name': '', 'price': #.#, 'quantity': #},]
         """
-        client = AuthorizeClient(settings.AUTHORIZENET_LOGIN,
-                                 settings.AUTHORIZENET_KEY,
-                                 debug=settings.DEBUG)
+        client = AuthorizeClient(login,
+                                 key,
+                                 test=debug,
+                                 debug=debug)
 
         # exp_date is MMYYYY.
         year = int(payment_context['exp_date'][2:])
