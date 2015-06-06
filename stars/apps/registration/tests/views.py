@@ -555,7 +555,7 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
                     self.credit_card_number = GOOD_CREDIT_CARD
                     self.credit_card_expiration_month = "12"
                     self.credit_card_expiration_year = "2020"
-                    self.cvv = "123"
+                    self.credit_card_cvv = "123"
                 self.final_registration_button.click()
 
         self.assertIn(participation_level, [PARTICIPANT, RESPONDENT])
@@ -850,6 +850,7 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
         self.credit_card_number = "badcreditcardnumber"
         self.credit_card_expiration_month = "12"
         self.credit_card_expiration_year = "2020"
+        self.credit_card_cvv = "123"
         self.final_registration_button.click()
 
         self._initial_object_counts_are_still_correct()
@@ -864,6 +865,7 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
         self.credit_card_number = "4007000000027"  # test number
         self.credit_card_expiration_month = "12"
         self.credit_card_expiration_year = "2020"
+        self.credit_card_cvv = "123"
         self.final_registration_button.click()
         self.assertTrue(self.current_page_is_survey_page())
 
