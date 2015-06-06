@@ -142,7 +142,9 @@ class CreditCardPaymentProcessor(object):
 
         key = key or settings.AUTHORIZENET_KEY
 
-        client = AuthorizeClient(login, key)
+        client = AuthorizeClient(settings.AUTHORIZENET_LOGIN,
+                                 settings.AUTHORIZENET_KEY,
+                                 debug=settings.DEBUG)
 
         # exp_date is MMYYYY.
         year = int(payment_context['exp_date'][2:])
