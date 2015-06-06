@@ -3,14 +3,6 @@
 """
 import os
 
-# monkey patches for pudb:
-try:
-    import urwid.raw_display
-    urwid.raw_display.Screen.signal_init = lambda x : None
-    urwid.raw_display.Screen.signal_restore = lambda x : None
-except ImportError:
-    print 'no urwid . . . pudb ain\'t gonna work'
-
 from settings import *
 
 MEDIA_ROOT = os.environ.get('MEDIA_ROOT')
@@ -29,6 +21,7 @@ MANAGERS = ADMINS
 # Send emails to to django.core.mail.outbox rather than the console:
 EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
 
+
 def get_api_test_mode():
     try:
         return int(os.environ['API_TEST_MODE'])
@@ -39,6 +32,7 @@ def get_api_test_mode():
             return True  # If True, auth is turned off
 
 API_TEST_MODE = get_api_test_mode()
+
 
 def use_sqlite_for_tests():
     """If environmental variable USE_SQLITE_FOR_TESTS is not set or 1,
@@ -56,8 +50,9 @@ def use_sqlite_for_tests():
                     use_sqlite))
     return True  # default
 
-if ((('test' in sys.argv) or ('testserver' in sys.argv)) and
-    use_sqlite_for_tests()):
+
+if ((('test' in sys.argv) or
+     ('testserver' in sys.argv)) and use_sqlite_for_tests()):
     DATABASES['default'] = dj_database_url.parse(
         os.environ.get('STARS_SQLITE_DB_URL'))
     DATABASES['iss'] = dj_database_url.parse(
