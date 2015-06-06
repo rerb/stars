@@ -17,46 +17,26 @@ class CreditCardPaymentProcessor(object):
     """
         Processes credit card payments.
     """
-    def process_payment_form(self,
-                             amount,
-                             card_num,
-                             exp_date,
-                             cvv,
-                             invoice_num):
-        """
-            A simple payment processing form for the reg process
-        """
-        product_name = "STARS Subscription Purchase"
-
-        product_dict = {'price': amount,
-                        'quantity': 1,
-                        'name':  product_name}
-
-        result = self._process_payment(
-            card_num=card_num,
-            exp_date=exp_date,
-            cvv=cvv,
-            products=[product_dict],
-            invoice_num=invoice_num)
-
-        return result
-
     def process_subscription_payment(self,
                                      subscription,
                                      user,
                                      amount,
                                      card_num,
                                      exp_date,
-                                     cvv):
+                                     cvv,
+                                     debug=False):
         """
             Processes a subscription credit card payment.
         """
-        result = self.process_payment_form(
-            amount=amount,
-            card_num=card_num,
-            exp_date=exp_date,
-            cvv=cvv,
-            invoice_num=subscription.institution.aashe_id)
+        product = {'price': amount,
+                   'quantity': 1,
+                   'name': 'STARS Subscription Purchase'}
+
+        result = self._process_payment(card_num=card_num,
+                                       exp_date=exp_date,
+                                       cvv=cvv,
+                                       products=[product],
+                                       debug=debug)
 
         if result['cleared'] and result['trans_id']:
 
@@ -78,34 +58,19 @@ class CreditCardPaymentProcessor(object):
                          card_num,
                          exp_date,
                          cvv,
-                         invoice_num,
-                         products):
-
+                         products,
+                         login=settings.AUTHORIZENET_LOGIN,
+                         key=settings.AUTHORIZENET_KEY,
+                         debug=False):
         """
             Connects to Authorize.net and processes a payment.
 
             products: [{'name': '', 'price': #.#, 'quantity': #},]
-
-            server, login, and key: optional parameters for Auth.net
-            connections (for testing)
-
-            returns:
-                {'cleared': cleared,
-                 'reason_code': reason_code,
-                 'msg': msg,
-                 'conf': confirmation_code,
-                 'trans_id': transaction_id}
         """
-        # Assertions below help when debugging tests that fail because
-        # settings.AUTHORIZENET_* aren't set.
-        assert ((settings.AUTHORIZENET_LOGIN is not None and
-                 settings.AUTHORIZENET_KEY is not None),
-                'settings.AUTHORIZE_LOGIN and '
-                'settings.AUTHORIZE_KEY are required.')
-
-        client = AuthorizeClient(settings.AUTHORIZENET_LOGIN,
-                                 settings.AUTHORIZENET_KEY,
-                                 debug=settings.DEBUG)
+        client = AuthorizeClient(login,
+                                 key,
+                                 test=debug,
+                                 debug=debug)
 
         # exp_date is MMYYYY.
         year = int(exp_date[2:])
