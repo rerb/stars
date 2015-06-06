@@ -1,4 +1,4 @@
-"""Tests for apps.institutions.models.Subscription.
+"""Tests for apps/payments/credit_card.py.
 """
 from logging import getLogger, CRITICAL
 import os
