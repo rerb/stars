@@ -264,7 +264,6 @@ CELERY_CACHE_BACKEND = os.environ.get('CELERY_CACHE_BACKEND', 'dummy')
 # default is test mode
 AUTHORIZENET_LOGIN = os.environ.get('AUTHORIZENET_LOGIN', None)
 AUTHORIZENET_KEY = os.environ.get('AUTHORIZENET_KEY', None)
-AUTHORIZENET_SERVER = os.environ.get('AUTHORIZENET_SERVER', None)
 
 ANALYTICS_ID = os.environ.get('ANALYTICS_ID', None)
 
@@ -471,7 +470,6 @@ if 'test' in sys.argv:
 
     AUTHORIZENET_LOGIN = os.environ.get('AUTHORIZENET_TEST_LOGIN', None)
     AUTHORIZENET_KEY = os.environ.get('AUTHORIZENET_TEST_KEY', None)
-    AUTHORIZENET_SERVER = os.environ.get('AUTHORIZENET_TEST_SERVER', None)
 
     AUTHORIZE_CLIENT_TEST = True
     AUTHORIZE_CLIENT_DEBUG = True
