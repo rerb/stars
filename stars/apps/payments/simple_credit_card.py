@@ -81,16 +81,9 @@ class CreditCardPaymentProcessor(object):
         for product in products:
             total += product['price'] * product['quantity']
 
-        transaction = client.card(cc).capture(total)
-
-        if transaction.full_response['response_code'] == '1':
-            # Success.
-            return {'cleared': True,
-                    'reason_code': None,
-                    'msg': None,
-                    'conf': transaction.full_response['authorization_code'],
-                    'trans_id': transaction.full_response['transaction_id']}
-        else:
+        try:
+            transaction = client.card(cc).capture(total)
+        except AuthorizeResponseError:
             logger.error("Payment denied. %s" %
                          transaction.full_response['response_reason_text'])
             return {'cleared': False,
@@ -98,3 +91,10 @@ class CreditCardPaymentProcessor(object):
                     'msg': transaction.full_response['response_reason_text'],
                     'conf': None,
                     'trans_id': None}
+        else:
+            # Success.
+            return {'cleared': True,
+                    'reason_code': None,
+                    'msg': None,
+                    'conf': transaction.full_response['authorization_code'],
+                    'trans_id': transaction.full_response['transaction_id']}

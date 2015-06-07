@@ -1,7 +1,7 @@
 from datetime import datetime
 from logging import getLogger
 
-from authorize import AuthorizeClient, CreditCard
+from authorize import AuthorizeClient, AuthorizeResponseError, CreditCard
 from django.conf import settings
 
 import stars.apps.institutions.models
@@ -115,16 +115,9 @@ class CreditCardPaymentProcessor(object):
         for product in product_list:
             total += product['price'] * product['quantity']
 
-        transaction = client.card(cc).capture(total)
-
-        if transaction.full_response['response_code'] == '1':
-            # Success.
-            return {'cleared': True,
-                    'reason_code': None,
-                    'msg': None,
-                    'conf': transaction.full_response['authorization_code'],
-                    'trans_id': transaction.full_response['transaction_id']}
-        else:
+        try:
+            transaction = client.card(cc).capture(total)
+        except AuthorizeResponseError:
             msg = "Payment denied ({reason})".format(
                 reason=transaction.full_response['response_reason_text'])
             logger.error(msg)
@@ -133,3 +126,10 @@ class CreditCardPaymentProcessor(object):
                     'msg': transaction.full_response['response_reason_text'],
                     'conf': None,
                     'trans_id': None}
+        else:
+            # Success.
+            return {'cleared': True,
+                    'reason_code': None,
+                    'msg': None,
+                    'conf': transaction.full_response['authorization_code'],
+                    'trans_id': transaction.full_response['transaction_id']}
