@@ -19,8 +19,7 @@ class CreditCardPaymentProcessor(object):
                                      subscription,
                                      amount,
                                      user,
-                                     form,
-                                     debug=False):
+                                     form):
         """
             Processes a subscription credit card payment.
         """
@@ -28,8 +27,7 @@ class CreditCardPaymentProcessor(object):
             amount=amount,
             user=user,
             form=form,
-            product_name='STARS Test Subscription',
-            debug=debug)
+            product_name='STARS Test Subscription')
 
         if result['cleared'] and result['trans_id']:
 
@@ -56,8 +54,7 @@ class CreditCardPaymentProcessor(object):
                              amount,
                              user,
                              form,
-                             product_name="STARS Subscription Purchase",
-                             debug=False):
+                             product_name="STARS Subscription Purchase"):
         """
             A simple payment processing form for the reg process
         """
@@ -67,10 +64,8 @@ class CreditCardPaymentProcessor(object):
                         'quantity': 1,
                         'name':  product_name}
 
-        result = self._process_payment(
-            payment_context=payment_context,
-            product_list=[product_dict],
-            debug=debug)
+        result = self._process_payment(payment_context=payment_context,
+                                       product_list=[product_dict])
 
         return result
 
@@ -90,8 +85,7 @@ class CreditCardPaymentProcessor(object):
 
     def _process_payment(self, payment_context, product_list,
                          login=settings.AUTHORIZENET_LOGIN,
-                         key=settings.AUTHORIZENET_KEY,
-                         debug=False):
+                         key=settings.AUTHORIZENET_KEY):
         """
             Connects to Authorize.net and processes a payment.
 
@@ -102,8 +96,8 @@ class CreditCardPaymentProcessor(object):
         """
         client = AuthorizeClient(login,
                                  key,
-                                 test=debug,
-                                 debug=debug)
+                                 test=settings.AUTHORIZE_CLIENT_TEST,
+                                 debug=settings.AUTHORIZE_CLIENT_DEBUG)
 
         # exp_date is MMYYYY.
         year = int(payment_context['exp_date'][2:])

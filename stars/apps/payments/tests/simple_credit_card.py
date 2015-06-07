@@ -55,8 +55,7 @@ class SimpleCreditCardPaymentProcessorTest(TestCase):
             amount=19.95,
             card_num=GOOD_CREDIT_CARD,
             exp_date='022022',
-            cvv='123',
-            debug=True)
+            cvv='123')
         self.assertEqual(payment.amount, 19.95)
 
     def test_process_subscription_payment_handles_invalid_cc_number(self):
@@ -70,16 +69,14 @@ class SimpleCreditCardPaymentProcessorTest(TestCase):
                           amount=19.95,
                           card_num=BAD_CREDIT_CARD,
                           exp_date='022022',
-                          cvv='123',
-                          debug=True)
+                          cvv='123')
 
     def test__process_payment(self):
         """Does _process_payment() work?"""
         result = self.ccpp._process_payment(card_num=GOOD_CREDIT_CARD,
                                             exp_date='022022',
                                             cvv='123',
-                                            products=self.product_list,
-                                            debug=True)
+                                            products=self.product_list)
         self.assertEquals(True, result['cleared'])
         self.assertGreater(result['conf'], '')
         self.assertGreater(result['trans_id'], '')
@@ -94,5 +91,4 @@ class SimpleCreditCardPaymentProcessorTest(TestCase):
                           cvv='123',
                           products=self.product_list,
                           login=self.login,
-                          key=self.key,
-                          debug=True)
+                          key=self.key)

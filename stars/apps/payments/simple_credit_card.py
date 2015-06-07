@@ -23,8 +23,7 @@ class CreditCardPaymentProcessor(object):
                                      amount,
                                      card_num,
                                      exp_date,
-                                     cvv,
-                                     debug=False):
+                                     cvv):
         """
             Processes a subscription credit card payment.
         """
@@ -35,8 +34,7 @@ class CreditCardPaymentProcessor(object):
         result = self._process_payment(card_num=card_num,
                                        exp_date=exp_date,
                                        cvv=cvv,
-                                       products=[product],
-                                       debug=debug)
+                                       products=[product])
 
         if result['cleared'] and result['trans_id']:
 
@@ -60,8 +58,7 @@ class CreditCardPaymentProcessor(object):
                          cvv,
                          products,
                          login=settings.AUTHORIZENET_LOGIN,
-                         key=settings.AUTHORIZENET_KEY,
-                         debug=False):
+                         key=settings.AUTHORIZENET_KEY):
         """
             Connects to Authorize.net and processes a payment.
 
@@ -69,9 +66,8 @@ class CreditCardPaymentProcessor(object):
         """
         client = AuthorizeClient(login,
                                  key,
-                                 test=debug,
-                                 debug=debug)
-
+                                 test=settings.AUTHORIZE_CLIENT_TEST,
+                                 debug=settings.AUTHORIZE_CLIENT_DEBUG)
         # exp_date is MMYYYY.
         year = int(exp_date[2:])
         month = int(exp_date[:2])

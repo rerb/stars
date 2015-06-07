@@ -564,7 +564,7 @@ class Subscription(models.Model):
     @classmethod
     def purchase(cls, institution, pay_when, user,
                  promo_code=None, card_num=None, exp_date=None,
-                 cvv=None, debug=False):
+                 cvv=None):
         """
            Encapsulates the purchase process.
 
@@ -610,8 +610,7 @@ class Subscription(models.Model):
                     amount=subscription.amount_due,
                     card_num=card_num,
                     exp_date=exp_date,
-                    cvv=cvv,
-                    debug=debug)
+                    cvv=cvv)
             except CreditCardProcessingError as ccpe:
                 subscription.delete()
                 raise SubscriptionPurchaseError(str(ccpe))
@@ -686,8 +685,7 @@ class Subscription(models.Model):
     def is_renewal(self):
         return 'renew' in self.reason
 
-    def pay(self, user, amount, card_num, exp_date, cvv,
-            debug=False):
+    def pay(self, user, amount, card_num, exp_date, cvv):
         """
             Make a payment on this subscription.
 
@@ -719,8 +717,7 @@ class Subscription(models.Model):
             amount=amount,
             card_num=card_num,
             exp_date=exp_date,
-            cvv=cvv,
-            debug=debug)
+            cvv=cvv)
 
         self.amount_due -= amount
 
@@ -1810,7 +1807,7 @@ class Subscription(models.Model):
 
         return (subscription_payment, payment_context)
 
-    def purchase(self, pay_when, user, form=None, debug=False):
+    def purchase(self, pay_when, user, form=None):
         """
            Encapsulates the purchase process
 
@@ -1833,8 +1830,7 @@ class Subscription(models.Model):
                 (subscription_payment, payment_context) = self.pay(
                     amount=self.amount_due,
                     user=user,
-                    form=form,
-                    debug=debug)
+                    form=form)
             except CreditCardProcessingError as ccpe:
                 raise SubscriptionPurchaseError(str(ccpe))
         else:  # pay_when == self.PAY_LATER:

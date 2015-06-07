@@ -448,6 +448,9 @@ if DEBUG_TOOLBAR:
         'INTERCEPT_REDIRECTS': False,
     }
 
+AUTHORIZE_CLIENT_TEST = os.environ.get('AUTHORIZE_CLIENT_TEST', False)
+AUTHORIZE_CLIENT_DEBUG = os.environ.get('AUTHORIZE_CLIENT_DEBUG', False)
+
 # Test backends
 if 'test' in sys.argv:
     # until fix for http://code.djangoproject.com/ticket/14105
@@ -469,3 +472,6 @@ if 'test' in sys.argv:
     AUTHORIZENET_LOGIN = os.environ.get('AUTHORIZENET_TEST_LOGIN', None)
     AUTHORIZENET_KEY = os.environ.get('AUTHORIZENET_TEST_KEY', None)
     AUTHORIZENET_SERVER = os.environ.get('AUTHORIZENET_TEST_SERVER', None)
+
+    AUTHORIZE_CLIENT_TEST = True
+    AUTHORIZE_CLIENT_DEBUG = True

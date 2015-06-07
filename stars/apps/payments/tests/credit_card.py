@@ -53,8 +53,7 @@ class CreditCardPaymentProcessorTest(TestCase):
             subscription=self.subscription,
             amount=19.95,
             user=self.user,
-            form=self.valid_payment_form,
-            debug=True)
+            form=self.valid_payment_form)
         self.assertEqual(payment.amount, 19.95)
 
     def test_process_subscription_payment_handles_invalid_cc_number(self):
@@ -66,8 +65,7 @@ class CreditCardPaymentProcessorTest(TestCase):
                           subscription=self.subscription,
                           amount=99.95,
                           user=self.user,
-                          form=self.valid_payment_form,
-                          debug=True)
+                          form=self.valid_payment_form)
 
     def test_process_payment_form(self):
         """Does process_payment_form() work?"""
@@ -75,8 +73,7 @@ class CreditCardPaymentProcessorTest(TestCase):
             amount=99.95,
             user=self.user,
             form=self.valid_payment_form,
-            product_name='STARS Test Purchase',
-            debug=True)
+            product_name='STARS Test Purchase')
         self.assertEquals(True, result['cleared'])
         self.assertGreater(result['conf'], '')
         self.assertGreater(result['trans_id'], '')
@@ -90,8 +87,7 @@ class CreditCardPaymentProcessorTest(TestCase):
                           amount=99.95,
                           user=self.user,
                           form=self.valid_payment_form,
-                          product_name='STARS Test Purchase',
-                          debug=True)
+                          product_name='STARS Test Purchase')
 
     def test__get_payment_context(self):
         """Does _get_payment_context() work?"""
@@ -107,8 +103,7 @@ class CreditCardPaymentProcessorTest(TestCase):
         result = self.ccpp._process_payment(self.valid_payment_context,
                                             self.product_list,
                                             self.login,
-                                            self.key,
-                                            debug=True)
+                                            self.key)
         self.assertEquals(True, result['cleared'])
         self.assertGreater(result['conf'], '')
         self.assertGreater(result['trans_id'], '')
@@ -122,8 +117,7 @@ class CreditCardPaymentProcessorTest(TestCase):
                           self.valid_payment_context,
                           self.product_list,
                           self.login,
-                          self.key,
-                          debug=True)
+                          self.key)
 
     # def test__process_payment_handles_payment_denied(self):
     #     """Does _process_payment() handle payment denied gracefully?
