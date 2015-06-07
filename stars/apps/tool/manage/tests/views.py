@@ -885,6 +885,11 @@ class SubscriptionCreateWizardLiveServerTest(StarsLiveServerTest):
         return credit_card_expiration_year_element
 
     @property
+    def credit_card_cvv_element(self):
+        credit_card_cvv_element = self.get_credit_card_element("cvv")
+        return credit_card_cvv_element
+
+    @property
     def credit_card_number(self):
         return self.credit_card_number_element.text
 
@@ -910,6 +915,15 @@ class SubscriptionCreateWizardLiveServerTest(StarsLiveServerTest):
     def credit_card_expiration_year(self, value):
         self.credit_card_expiration_year_element.clear()
         self.credit_card_expiration_year_element.send_keys(value)
+
+    @property
+    def credit_card_cvv(self):
+        return self.credit_card_cvv_element.text
+
+    @credit_card_cvv.setter
+    def credit_card_cvv(self, value):
+        self.credit_card_cvv_element.clear()
+        self.credit_card_cvv_element.send_keys(value)
 
     # def wait(self, tag_name="body"):
     #     # Wait until the response is received
@@ -937,13 +951,14 @@ class SubscriptionCreateWizardLiveServerTest(StarsLiveServerTest):
         """Go through the subscription process, and pay for it now."""
         self.click_purchase_subscription_button()
         self.next_button.click()
-        #) Payment options form:
+        # Payment options form:
         self.pay_now_radio_button.click()
         self.next_button.click()
         # Credit card info form:
         self.credit_card_number = credit_card_number
         self.credit_card_expiration_month = "12"
         self.credit_card_expiration_year = "2020"
+        self.credit_card_cvv = "123"
         self.final_purchase_subscription_button.click()
 
     def test_pay_now_creates_subscription(self):
@@ -1002,7 +1017,8 @@ class SubscriptionPaymentCreateViewTest(InstitutionViewOnlyToolMixinTest):
         self.request.method = 'POST'
         self.request.POST = {'card_number': GOOD_CREDIT_CARD,
                              'exp_month': '10',
-                             'exp_year': '2020'}
+                             'exp_year': '2020',
+                             'ccv': '123'}
 
         initial_payment_count = SubscriptionPayment.objects.count()
 
@@ -1026,7 +1042,8 @@ class SubscriptionPaymentCreateViewTest(InstitutionViewOnlyToolMixinTest):
         self.request.method = 'POST'
         self.request.POST = {'card_number': BAD_CREDIT_CARD,
                              'exp_month': '10',
-                             'exp_year': '2020'}
+                             'exp_year': '2020',
+                             'cvv': '123'}
 
         initial_payment_count = SubscriptionPayment.objects.count()
 
