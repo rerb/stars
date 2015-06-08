@@ -84,16 +84,27 @@ class CreditCardPaymentProcessor(object):
         try:
             transaction = client.card(cc).capture(total)
         except AuthorizeResponseError as are:
-            logger.error("Payment denied. %s" % str(are))
+            logger.error("AuthorizeResponseError: %s" % str(are))
             return {'cleared': False,
                     'reason_code': None,
-                    'msg': str(are),
+                    'msg': ("Sorry, but there was an error processing "
+                            "your credit card.STARS staff have been "
+                            "notified."),
                     'conf': None,
                     'trans_id': None}
-        else:
+
+        if transaction.full_response['authorization_code']:
             # Success.
             return {'cleared': True,
                     'reason_code': None,
                     'msg': None,
+                    'conf': transaction.full_response['authorization_code'],
+                    'trans_id': transaction.full_response['transaction_id']}
+        else:
+            logger.error("Payment denied. %s" % transaction.full_response[
+                'response_reason_text'])
+            return {'cleared': False,
+                    'reason_code': transaction.full_response['reason_code'],
+                    'msg': transaction.full_response['response_reason_text'],
                     'conf': transaction.full_response['authorization_code'],
                     'trans_id': transaction.full_response['transaction_id']}
