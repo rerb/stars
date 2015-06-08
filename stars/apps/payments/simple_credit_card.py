@@ -1,7 +1,7 @@
 from datetime import datetime
 from logging import getLogger
 
-from authorize import AuthorizeClient, CreditCard
+from authorize import AuthorizeClient, AuthorizeResponseError, CreditCard
 from django.conf import settings
 
 import stars.apps.institutions.models
