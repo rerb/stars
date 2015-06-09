@@ -123,12 +123,12 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
             'no register for {access_level} button?'.format(
                 access_level=access_level))
 
-    @property 
+    @property
     def register_full_access_button(self):
         """Returns the Register for Full Access button."""
         self.get_register_button('full-access')
 
-    @property 
+    @property
     def register_basic_access_button(self):
         """Returns the Register for Basic Access button."""
         self.get_register_button('basic-access')
@@ -144,6 +144,9 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
     def final_registration_button(self):
         """Returns the final Registration button."""
         buttons = self.selenium.find_elements_by_tag_name('button')
+        # There are 2 'Register' submit buttons on the form, we want
+        # the last one, so we reverse the list and take the first:
+        buttons.reverse()
         for button in buttons:
             if (button.text == 'Register' and
                 button.get_attribute('type') == 'submit'):
@@ -338,8 +341,9 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
         return 'survey' in self.selenium.title.lower()
 
     def summon_the_wizard(self):
-        self.selenium.get('/'.join((self.live_server_url,
-                                    "pages/register/register-stars.html")))
+        self.selenium.get('/'.join(
+            (self.live_server_url,
+             "pages/participate/register-stars.html")))
 
     def select_school(self, school=None):
         """Picks an school, then moves along."""
@@ -482,11 +486,11 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
     def test_participant_finally_redirected_to_survey(self):
         self.register(participation_level=PARTICIPANT,
                       payment_option=LATER)
-        self.current_page_is_survey_page()
+        self.assertTrue(self.current_page_is_survey_page())
 
     def test_respondent_finally_redirected_to_survey(self):
         self.register(participation_level=RESPONDENT)
-        self.current_page_is_survey_page()
+        self.assertTrue(self.current_page_is_survey_page())
 
     #############################################
     # tests that database is updated correctly: #
@@ -833,6 +837,19 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
         self.final_registration_button.click()
 
         self._initial_object_counts_are_still_correct()
+
+    def test_valid_cc(self):
+        """Can we process a credit card charge?"""
+        self.participation_level = PARTICIPANT
+        self.select_school()
+        self.submit_contact_info(participation_level=PARTICIPANT)
+        self.next_button.click()  # price page
+        self.payment_option = NOW
+        self.credit_card_number = "4007000000027"  # test number
+        self.credit_card_expiration_month = "12"
+        self.credit_card_expiration_year = "2020"
+        self.final_registration_button.click()
+        self.assertTrue(self.current_page_is_survey_page())
 
     def _raise_forced_exception(*args, **kwargs):
         """Stub to raise an exception, for testing exception handling."""

@@ -20,7 +20,7 @@ FIXTURE_DIRS = ('fixtures', os.path.join(PROJECT_PATH, 'apps/api/fixtures'),)
 PROFILE = os.environ.get("PROFILE", False)
 
 TIME_ZONE = 'America/Lima'
-LANGUAGE_CODE = 'en'
+LANGUAGE_CODE = 'en-us'
 SITE_ID = 1
 USE_I18N = True
 USE_L10N = True
@@ -181,7 +181,7 @@ INSTALLED_APPS = (
     'stars.apps.api',
     'stars.apps.download_async_task',
     'stars.test_factories',
-    'stars.tests',
+    # 'stars.tests',
 
     'aashe.aasheauth',
     'issdjango',
@@ -268,6 +268,7 @@ AUTHORIZENET_SERVER = os.environ.get('AUTHORIZENET_SERVER', None)
 ANALYTICS_ID = os.environ.get('ANALYTICS_ID', None)
 
 SKIP_SOUTH_TESTS=True
+SOUTH_TESTS_MIGRATE = False
 
 RECAPTCHA_PUBLIC_KEY = os.environ.get('RECAPTCHA_PUBLIC_KEY', None)
 RECAPTCHA_PRIVATE_KEY = os.environ.get('RECAPTCHA_PRIVATE_KEY', None)
@@ -282,8 +283,6 @@ if m:
 
 DJANGO_VERSION = django.get_version()
 HG_REVISION = None
-
-SOUTH_TESTS_MIGRATE = False
 
 # Sentry Logging: getsentry.com
 RAVEN_CONFIG = {
