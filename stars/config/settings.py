@@ -59,7 +59,7 @@ else:
     MEDIA_URL = '/media/'
     STATIC_URL = "/media/static/"
     MEDIA_ROOT = os.environ.get("MEDIA_ROOT", None)
-    # STATIC_ROOT = os.environ.get("STATIC_ROOT", None)
+    STATIC_ROOT = os.environ.get("STATIC_ROOT", None)
 
 STATICFILES_DIRS = (
     os.path.join(os.path.dirname(__file__), "..", "static"),
@@ -156,7 +156,7 @@ INSTALLED_APPS = (
     'django.contrib.humanize',
     'django.contrib.staticfiles',
 
-    'terms', # must come before stars.apps.tool, which overrides the admin
+    'terms',  # must come before stars.apps.tool, which overrides the admin
 
     'stars.apps.credits',
     'stars.apps.tool.credit_editor',
@@ -170,7 +170,7 @@ INSTALLED_APPS = (
     'stars.apps.submissions',
     'stars.apps.accounts',
     'stars.apps.helpers',
-    'stars.apps.helpers.forms', # included here for testing
+    'stars.apps.helpers.forms',  # included here for testing
     'stars.apps.old_cms',
     'stars.apps.etl_export',
     'stars.apps.custom_forms',
@@ -180,6 +180,7 @@ INSTALLED_APPS = (
     'stars.apps.third_parties',
     'stars.apps.api',
     'stars.apps.download_async_task',
+    'stars.apps.payments',  # included here for testing
     'stars.test_factories',
     # 'stars.tests',
 
@@ -263,7 +264,6 @@ CELERY_CACHE_BACKEND = os.environ.get('CELERY_CACHE_BACKEND', 'dummy')
 # default is test mode
 AUTHORIZENET_LOGIN = os.environ.get('AUTHORIZENET_LOGIN', None)
 AUTHORIZENET_KEY = os.environ.get('AUTHORIZENET_KEY', None)
-AUTHORIZENET_SERVER = os.environ.get('AUTHORIZENET_SERVER', None)
 
 ANALYTICS_ID = os.environ.get('ANALYTICS_ID', None)
 
@@ -447,13 +447,15 @@ if DEBUG_TOOLBAR:
         'INTERCEPT_REDIRECTS': False,
     }
 
+AUTHORIZE_CLIENT_TEST = os.environ.get('AUTHORIZE_CLIENT_TEST', False)
+AUTHORIZE_CLIENT_DEBUG = os.environ.get('AUTHORIZE_CLIENT_DEBUG', False)
+
 # Test backends
 if 'test' in sys.argv:
     # until fix for http://code.djangoproject.com/ticket/14105
     MIDDLEWARE_CLASSES.remove(
         'django.middleware.cache.FetchFromCacheMiddleware')
     MIDDLEWARE_CLASSES.remove('django.middleware.cache.UpdateCacheMiddleware')
-
     DATABASES['default'] = dj_database_url.parse(
         os.environ.get('STARS_TEST_DB',
                        "sqlite:////tmp/stars_tests.db"))
@@ -468,4 +470,6 @@ if 'test' in sys.argv:
 
     AUTHORIZENET_LOGIN = os.environ.get('AUTHORIZENET_TEST_LOGIN', None)
     AUTHORIZENET_KEY = os.environ.get('AUTHORIZENET_TEST_KEY', None)
-    AUTHORIZENET_SERVER = os.environ.get('AUTHORIZENET_TEST_SERVER', None)
+
+    AUTHORIZE_CLIENT_TEST = True
+    AUTHORIZE_CLIENT_DEBUG = True

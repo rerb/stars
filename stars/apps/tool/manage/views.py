@@ -753,10 +753,12 @@ class SubscriptionPaymentCreateView(ValidationMessageFormMixin,
         try:
             card_num = form.cleaned_data.get('card_number')
             exp_date = form.get_exp_date()
+
             self.subscription.pay(amount=self.amount_due,
                                   user=self.request.user,
                                   card_num=card_num,
-                                  exp_date=exp_date)
+                                  exp_date=exp_date,
+                                  cvv=form.cleaned_data.get('cvv'))
         except simple_credit_card.CreditCardProcessingError as ccpe:
             messages.error(self.request, str(ccpe))
             return self.form_invalid(form)

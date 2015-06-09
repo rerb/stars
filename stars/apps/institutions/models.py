@@ -563,7 +563,8 @@ class Subscription(models.Model):
 
     @classmethod
     def purchase(cls, institution, pay_when, user,
-                 promo_code=None, card_num=None, exp_date=None):
+                 promo_code=None, card_num=None, exp_date=None,
+                 cvv=None):
         """
            Encapsulates the purchase process.
 
@@ -585,10 +586,12 @@ class Subscription(models.Model):
 
              exp_date: credit card expiration date as string, "MMYYYY"
 
+             cvv: security code as a string
+
            Raises a SubscriptionPurchaseError if there's a problem
            charging a credit card.
 
-           card_num and exp_date are required if pay_when == self.PAY_NOW.
+           card_num, exp_date and cvv are required if pay_when == self.PAY_NOW.
         """
         # See pitiful comment in pay() for why import from credit_card
         # happens here, rather in the top level.
@@ -606,7 +609,8 @@ class Subscription(models.Model):
                     user=user,
                     amount=subscription.amount_due,
                     card_num=card_num,
-                    exp_date=exp_date)
+                    exp_date=exp_date,
+                    cvv=cvv)
             except CreditCardProcessingError as ccpe:
                 subscription.delete()
                 raise SubscriptionPurchaseError(str(ccpe))
@@ -681,7 +685,7 @@ class Subscription(models.Model):
     def is_renewal(self):
         return 'renew' in self.reason
 
-    def pay(self, user, amount, card_num, exp_date):
+    def pay(self, user, amount, card_num, exp_date, cvv):
         """
             Make a payment on this subscription.
 
@@ -712,7 +716,8 @@ class Subscription(models.Model):
             user=user,
             amount=amount,
             card_num=card_num,
-            exp_date=exp_date)
+            exp_date=exp_date,
+            cvv=cvv)
 
         self.amount_due -= amount
 
