@@ -332,11 +332,12 @@ class AggregateFilter(DisplayAccessMixin, CommonFilterMixin, FilteringMixin,
                     qs = qs.filter(subcategory=cat)
 
                     result = qs.aggregate(
-                        Avg('points'),
+                        Avg('percentage_score'),
                         StdDev('points'),
                         Min('points'),
                         Max('points'))
-                    obj['avg'] = result['points__avg']
+
+                    obj['avg'] = result['percentage_score__avg'] * 100
                     obj['std'] = result['points__stddev']
                     obj['min'] = result['points__min']
                     obj['max'] = result['points__max']
