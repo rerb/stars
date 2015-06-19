@@ -14,6 +14,7 @@ logger.setLevel(CRITICAL)
 
 GOOD_CREDIT_CARD = '4007000000027'  # good test credit card number
 BAD_CREDIT_CARD = '123412341234'
+TEST_CARD_NUM = '4222222222222'  # For submitting magic numbers.
 
 
 class MockPaymentForm(object):
@@ -119,16 +120,15 @@ class CreditCardPaymentProcessorTest(TestCase):
                           self.login,
                           self.key)
 
-    # def test__process_payment_handles_payment_denied(self):
-    #     """Does _process_payment() handle payment denied gracefully?
-    #     """
-    #     # How to force a payment denied response?
-    #     # What's the thing to do?  Mock client.card(cc).capture()
-    #     # so it returns exactly what we're testing for?
-    #     result = self.ccpp._process_payment(self.valid_payment_context,
-    #                                         self.product_list,
-    #                                         self.login,
-    #                                         self.key)
-    #     self.assertEquals(False, result['cleared'])
-    #     self.assertGreater(result['reason_code'], '')
-    #     self.assertGreater(result['msg'], '')
+    def test__process_payment_handles_duplicate_transaction(self):
+        """Does _process_payment handle response dupe transx gracefully?
+        """
+        self.valid_payment_context['cc_number'] = TEST_CARD_NUM
+        self.product_list[0]['price'] = 11.00  # Duplicate Tx code == 11.
+        response = self.ccpp._process_payment(self.valid_payment_context,
+                                              self.product_list,
+                                              self.login,
+                                              self.key)
+        self.assertFalse(response['cleared'])
+        self.assertTrue('uplicate' in response['msg'])
+        self.assertEqual('11', response['reason_code'])

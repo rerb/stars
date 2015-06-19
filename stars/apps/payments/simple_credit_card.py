@@ -1,3 +1,4 @@
+import ast
 from datetime import datetime
 from logging import getLogger
 
@@ -66,7 +67,7 @@ class CreditCardPaymentProcessor(object):
         """
         client = AuthorizeClient(login,
                                  key,
-                                 test=settings.AUTHORIZE_CLIENT_TEST,
+                                 test=False,
                                  debug=settings.AUTHORIZE_CLIENT_DEBUG)
         # exp_date is MMYYYY.
         year = int(exp_date[2:])
@@ -83,12 +84,11 @@ class CreditCardPaymentProcessor(object):
 
         try:
             transaction = client.card(cc).capture(total)
-        except AuthorizeResponseError:
-            logger.error("Payment denied. %s" %
-                         transaction.full_response['response_reason_text'])
+        except AuthorizeResponseError as exc:
+            logger.error("Payment denied. %s" % str(exc))
             return {'cleared': False,
-                    'reason_code': transaction.full_response['response_code'],
-                    'msg': transaction.full_response['response_reason_text'],
+                    'reason_code': exc.full_response['response_reason_code'],
+                    'msg': exc.full_response['response_reason_text'],
                     'conf': None,
                     'trans_id': None}
         else:
