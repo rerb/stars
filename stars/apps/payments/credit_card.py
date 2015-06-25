@@ -125,10 +125,20 @@ class CreditCardPaymentProcessor(object):
                     'msg': exc.full_response['response_reason_text'],
                     'conf': None,
                     'trans_id': None}
-        else:
+
+        if transaction.full_response['response_code'] == '1':
             # Success.
             return {'cleared': True,
                     'reason_code': None,
                     'msg': None,
+                    'conf': transaction.full_response['authorization_code'],
+                    'trans_id': transaction.full_response['transaction_id']}
+        else:
+            logger.error("Payment denied. %s" % transaction.full_response[
+                'response_reason_text'])
+            return {'cleared': False,
+                    'reason_code': transaction.full_response[
+                        'response_reason_code'],
+                    'msg': transaction.full_response['response_reason_text'],
                     'conf': transaction.full_response['authorization_code'],
                     'trans_id': transaction.full_response['transaction_id']}
