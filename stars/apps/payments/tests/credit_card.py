@@ -116,7 +116,6 @@ class CreditCardPaymentProcessorTest(TestCase):
                           self.login,
                           self.key)
 
-<<<<<<< .merge_file_cfBcED
     def test__process_payment_handles_duplicate_transaction(self):
         """Does _process_payment handle response dupe transx gracefully?
         """
@@ -129,17 +128,3 @@ class CreditCardPaymentProcessorTest(TestCase):
         self.assertFalse(response['cleared'])
         self.assertTrue('uplicate' in response['msg'])
         self.assertEqual('11', response['reason_code'])
-=======
-    # def test__process_payment_handles_nonmatching_cvv(self):
-    #     """Does _process_payment() handle an nonmatching CVV gracefully?
-    #     """
-    #     # Sending a cvv of 901 is supposed to raise a "CVV doesn't match"
-    #     # error, but that doesn't seem to be the case.  So this test is
-    #     # left here but commented out.
-    #     self.valid_payment_context['cvv'] = 901
-    #     result = self.ccpp._process_payment(self.valid_payment_context,
-    #                                         self.product_list,
-    #                                         self.login,
-    #                                         self.key)
-    #     self.assertEquals(False, result['cleared'])
->>>>>>> .merge_file_LB7teX
