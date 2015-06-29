@@ -8,7 +8,7 @@ urlpatterns = patterns(
     'django.views.generic.simple',
     # data views
     url(r'^$',
-        "direct_to_template",
+        never_cache("direct_to_template"),
         {'template': 'institutions/data_views/index.html'}),
     url(r'^pie-chart-visualization/$',
         TemplateView.as_view(
