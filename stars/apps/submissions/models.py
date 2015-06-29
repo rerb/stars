@@ -424,7 +424,8 @@ class SubmissionSet(models.Model, FlaggableModel):
         """ Return the percentage of credits completed in the entire
             set: 0 - 100 """
         total_credits = self.get_total_credits()
-        if total_credits == 0: return 0
+        if total_credits == 0:
+            return 0
         return int(
             (self.get_finished_credit_count() / float(total_credits)) * 100)
 
