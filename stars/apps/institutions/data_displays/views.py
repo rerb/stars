@@ -915,7 +915,7 @@ class CallbackView(TemplateView):
     def get_context_data(self, **kwargs):
 
         _context = super(CallbackView, self).get_context_data(**kwargs)
-        if current in self.request.GET:
+        if 'current' in self.request.GET:
             _context['current'] = int(self.request.GET['current'])
 
         _context['object_list'] = self.get_object_list(**kwargs)
