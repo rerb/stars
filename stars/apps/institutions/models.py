@@ -298,10 +298,10 @@ class Institution(models.Model):
                       if sf.documentation_field.title.lower() ==
                       'institution type'][0]
 
-                return sf.get_human_value()
+                if sf.get_human_value():
+                    return sf.get_human_value()
 
-            else:
-                return carnegie_class
+            return carnegie_class
 
         iss_org = self.profile
         if iss_org:
