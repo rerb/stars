@@ -25,13 +25,13 @@ def render_to_pdf(template_src, context_dict):
 
     template = get_template(template_src)
     context = Context(context_dict)
-#    print >> sys.stdout, "Building PDF"
-#    print >> sys.stdout, "%s: Generating HTML" % datetime.now()
+    # print >> sys.stdout, "Building PDF"
+    # print >> sys.stdout, "%s: Generating HTML" % datetime.now()
     html = template.render(context)
-#    print >> sys.stdout, "%s: Finished HTML" % datetime.now()
+    # print >> sys.stdout, "%s: Finished HTML" % datetime.now()
     result = StringIO.StringIO()
-#    print >> sys.stdout, "RESULT"
-#     print >> sys.stderr, html
+    # print >> sys.stdout, "RESULT"
+    # print >> sys.stderr, html
 
     # print >> sys.stdout, "%s: Generating PDF" % datetime.now()
     pdf = pisa.pisaDocument(html, result)

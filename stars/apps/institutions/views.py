@@ -586,6 +586,22 @@ class CertificateExportView(InstitutionStructureMixin,
         return ss_list.filter(status="r")
 
 
+class ScorecardCertPreview(ScorecardView):
+    template_name = 'institutions/pdf/certificate.html'
+
+    def get_context_data(self, **kwargs):
+        """ Expects arguments for category_id/subcategory_id/credit_id """
+        _context = super(ScorecardCertPreview, self).get_context_data(**kwargs)
+
+        from django.conf import settings
+
+        return {
+            'ss': self.get_submissionset(),
+            'project_path': settings.PROJECT_PATH,
+            'preview': True
+        }
+
+
 class CertificateDownloadView(InstitutionStructureMixin,
                               SubmissionStructureMixin,
                               DownloadExportView):
