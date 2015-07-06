@@ -73,6 +73,13 @@ if settings.DEBUG:
         (r'^styles/$', 'django.views.generic.simple.direct_to_template', {'template': 'styles.html'}),
     )
 
+if settings.DEBUG:
+    urlpatterns += patterns('',
+        url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {
+            'document_root': settings.MEDIA_ROOT,
+        }),
+   )
+
 if settings.PROFILE:
     urlpatterns += patterns('',
                             url(r'^profiler/', include('profiler.urls')))
