@@ -64,6 +64,11 @@ urlpatterns = patterns(
         name="cert-download"
     ),
 
+    # Certificate preview
+    url(r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/cert-preview/$',
+        never_cache(ScorecardCertPreview.as_view()),
+        name="cert-preview"),
+
     # Old Credit Scorecard - all ints for category_id, subcategory_id, and
     # credit_id; redirects to new Credit Scorecard url below:
     (r'^(?P<institution_slug>[^/]+)'
