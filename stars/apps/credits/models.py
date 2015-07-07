@@ -379,7 +379,14 @@ class Rating(models.Model):
         return None
 
     def get_large_image_path(self):
-        return "%s%s" % (settings.MEDIA_ROOT, self.image_large)
+        """
+            Returns the full path to the image. Best practice is to have a
+            trailing "/" on MEDIA_ROOT, but we check to make sure it's there
+        """
+        if len(settings.MEDIA_ROOT) > 1 and settings.MEDIA_ROOT[-1] == "/":
+            return "%s%s" % (settings.MEDIA_ROOT, self.image_large)
+        else:
+            return "%s/%s" % (settings.MEDIA_ROOT, self.image_large)
 
 
 class Category(VersionedModel):
