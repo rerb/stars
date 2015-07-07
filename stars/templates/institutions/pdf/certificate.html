@@ -67,6 +67,7 @@ h3 {
 		{% if preview %}
 			<!-- SS: {{ ss.id }} -->
 			<img src='{{ ss.rating.image_large.url }}' alt='{{ ss.rating }}' height="300px" />
+			<!-- {{ ss.rating.get_large_image_path }} -->
 		{% else %}
 			<img src='{{ ss.rating.get_large_image_path }}' alt='{{ ss.rating }}' height="13cm" />
 		{% endif %}
@@ -83,6 +84,7 @@ h3 {
 		        <td style='text-align: left;vertical-align: top;'>
 					{% if preview %}
 						<img src='/media/static/images/pdf/AASHE_RGB_300.png' height="100px" />
+						<!-- {{ project_path }}/static/images/pdf/AASHE_RGB_300.png -->
 					{% else %}
 						<img src='{{ project_path }}/static/images/pdf/AASHE_RGB_300.png' height='3cm' />
 					{% endif %}
