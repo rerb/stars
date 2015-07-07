@@ -1,3 +1,4 @@
+import collections
 from datetime import date, timedelta
 from logging import getLogger
 
@@ -12,7 +13,7 @@ from django.core.mail import send_mail
 from django.contrib.auth.signals import user_logged_in
 from django.dispatch import receiver
 
-from stars.apps.credits.models import CreditSet
+from stars.apps.credits.models import Category, CreditSet
 from stars.apps.registration.models import get_current_discount
 from stars.apps.notifications.models import EmailTemplate
 
@@ -237,30 +238,89 @@ class Institution(models.Model):
     def update_from_iss(self):
         "Method to update properties from the parent org in the ISS"
 
-        field_mappings = (
-            ("name", "org_name", True),
-            ("aashe_id", "account_num", False),
-            ("org_type", "carnegie_class", True),
-            ("fte", "enrollment_fte", False),
-            ("is_pcc_signatory", "is_signatory", False),
-            ("is_member", "is_member", False),
-            ("is_pilot_participant", "pilot_participant", False),
-            ("country", "country", True)
-        )
+        FieldMapping = collections.namedtuple('FieldMapping',
+                                              'stars_field iss_field decode')
+
+        field_mappings = (FieldMapping(stars_field="name",
+                                       iss_field="org_name",
+                                       decode=True),
+                          FieldMapping(stars_field="aashe_id",
+                                       iss_field="account_num",
+                                       decode=False),
+                          FieldMapping(stars_field="org_type",
+                                       iss_field="carnegie_class",
+                                       decode=True),
+                          FieldMapping(stars_field="fte",
+                                       iss_field="enrollment_fte",
+                                       decode=False),
+                          FieldMapping(stars_field="is_pcc_signatory",
+                                       iss_field="is_signatory",
+                                       decode=False),
+                          FieldMapping(stars_field="is_member",
+                                       iss_field="is_member",
+                                       decode=False),
+                          FieldMapping(stars_field="is_pilot_participant",
+                                       iss_field="pilot_participant",
+                                       decode=False),
+                          FieldMapping(stars_field="country",
+                                       iss_field="country",
+                                       decode=True))
+
+        def get_institutional_boundary_credit(creditset):
+            category = Category.objects.filter(creditset=creditset).get(
+                title='Institutional Characteristics')
+            subcategory = category.subcategory_set.get(
+                title='Institutional Characteristics')
+            ib_credit = subcategory.credit_set.get(
+                title='Institutional Boundary')
+            return ib_credit
+
+        def get_org_type(self, carnegie_class):
+            """Get org type, based on Salesforce Carnegie Classifications
+            for pre 2.0 submissions, and the submission's Institutional
+            Characteristics for 2.0+ submissions.
+            """
+            # Import way down here to avoid circular dependency:
+            from stars.apps.submissions.models import CreditUserSubmission
+
+            latest_rated_submission = self.get_latest_rated_submission()
+            if (latest_rated_submission and
+                latest_rated_submission.creditset.version >= '2'):
+
+                # Get IB credit for this submission.
+                ib_credit = get_institutional_boundary_credit(
+                    creditset=latest_rated_submission.creditset)
+
+                cus = CreditUserSubmission.objects.filter(credit=ib_credit).get(
+                    subcategory_submission__category_submission__submissionset=latest_rated_submission)
+
+                sf = [sf for sf in cus.get_submission_fields()
+                      if sf.documentation_field.title.lower() ==
+                      'institution type'][0]
+
+                if sf.get_human_value():
+                    return sf.get_human_value()
+
+            return carnegie_class
 
         iss_org = self.profile
         if iss_org:
-            for k_self, k_iss, decode in field_mappings:
-                val = getattr(iss_org, k_iss)
-                if not isinstance(val, unicode) and decode and val:
+            for fm in field_mappings:
+                val = getattr(iss_org, fm.iss_field)
+                if not isinstance(val, unicode) and fm.decode and val:
                     # decode if necessary from the latin1
                     val = val.decode('latin1').encode('utf-8')
-                setattr(self, k_self, val)
+                setattr(self, fm.stars_field, val)
 
             # additional membership logic for child members
             if not self.is_member:
                 if getattr(iss_org, 'member_type') == "Child Member":
                     self.is_member = True
+
+            # handle org-type specially:
+            self.org_type = get_org_type(self,
+                                         carnegie_class=getattr(
+                                             iss_org, 'carnegie_class'))
         else:
             logger.error("No ISS institution found %s" % (self.name))
 

@@ -14,7 +14,7 @@
 
 {% block extra_head %}
 	{{ block.super }}
-	
+
 	{% include "institutions/data_displays/filter_js.html" %}
 	{% if object_list %}
 	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
@@ -23,33 +23,39 @@
       google.setOnLoadCallback(drawChart);
       function drawChart() {
         var data = new google.visualization.DataTable();
-   
-		  var raw_data = [
+
+		  	var raw_data = [
 		  					{% for o in object_list %}
 		  						[
 		  							"{{ o.title }}",
-		  							{% if o.total %}{{ o.ER_avg|floatformat:2 }}{% else %}0{% endif %},
-		  							{% if o.total %}{{ o.OP_avg|floatformat:2 }}{% else %}0{% endif %},
-		  							{% if o.total %}{{ o.PAE_avg|floatformat:2 }}{% else %}0{% endif %}
+										{% for col in o.columns %}
+											{% if col.avg %}{{col.avg|floatformat:2}}{% else %}0{% endif %},
+										{% endfor %}
 		  						]{% if not forloop.last %},{% endif %}
 		  					{% endfor %}
 		                 ];
-		  
-		  var categories = ["ER", "OP", "PAE"];
-		                  
+
+		  var categories = [
+				{% autoescape off %}
+				{% for cat in category_list %}
+					"{{cat}}"{% if not forloop.last %},{% endif %}
+				{% endfor %}
+				{% endautoescape %}
+			];
+
 		  data.addColumn('string', 'Category');
 		  for (var i = 0; i  < raw_data.length; ++i) {
-		    data.addColumn('number', raw_data[i][0]);    
+		    data.addColumn('number', raw_data[i][0]);
 		  }
-		  
+
 		  data.addRows(categories.length);
-		
-		  for (var j = 0; j < categories.length; ++j) {    
-		    data.setValue(j, 0, categories[j]);    
+
+		  for (var j = 0; j < categories.length; ++j) {
+		    data.setValue(j, 0, categories[j]);
 		  }
 		  for (var i = 0; i  < raw_data.length; ++i) {
 		    for (var j = 1; j  < raw_data[i].length; ++j) {
-		      data.setValue(j-1, i+1, raw_data[i][j]);    
+		      data.setValue(j-1, i+1, raw_data[i][j]);
 		    }
 		  }
 
@@ -62,7 +68,7 @@
 								"#5160AB", "#A486BD"
 			                 ],
                           hAxis: {title: 'Category'},
-                          vAxis: {title: "Average Score", baseline: 0},
+                          vAxis: {title: "Average Score %", baseline: 0},
                           legend: 'top'
                          });
       }
@@ -76,7 +82,7 @@
 
 	{% load content %}
     {% display_block_content 'data_display_categories' user %}
-    
+
 	<div class='well'>
 		{% include 'institutions/data_displays/top_level_filters.html' %}
 	</div>
@@ -88,15 +94,14 @@
 	       		<th style='text-align: left' rowspan='2'>
 	       			Selected Characteristic
 	       		</th>
-	       		<th colspan='4'>
-	       			Average Scores by Category
+	       		<th colspan='{{category_list|length}}'>
+	                  Average Scores (percentage of available points earned)
 	       		</th>
 	       	</tr>
 	       	<tr>
-	       		<th><acronym title='Education & Research'>ER</acronym></th>
-	       		<th><acronym title='Operations'>OP</acronym></th>
-	       		<th><acronym title='Planning, Administration &amp; Engagement'>PAE</acronym></th>
-	       		<th><acronym title='Innovation'>IN</acronym></th>
+						{% for cat in category_list %}
+							<th><acronym title="{{cat}}">{{cat}}</acronym></th>
+	       		{% endfor %}
 	       	</tr>
 	    </thead>
 	    <tbody>
@@ -106,42 +111,14 @@
 	       				{{ o.title }}
 	       				( {{ o.total }} found )
 	       			</td>
-	       			<td>
-	       				{% if o.total %}
-	       					<span title="{{ o.ER_var }}" class='variance'>
-	       						{{ o.ER_avg|floatformat:2 }}%
-	       					</span>
-	       				{% else %}
-	       					--
-	       				{% endif %}
-	       			</td>
-	       			<td>
-	       				{% if o.total %}
-	       					<span title="{{ o.OP_var }}" class='variance'>
-	       						{{ o.OP_avg|floatformat:2 }}%
-	       					</span>
-	       				{% else %}
-	       					--
-	       				{% endif %}
-	       			</td>
-	       			<td>
-	       				{% if o.total %}
-	       					<span title="{{ o.PAE_var }}" class='variance'>
-	       						{{ o.PAE_avg|floatformat:2 }}%
-	       					</span>
-	       				{% else %}
-	       					--
-	       				{% endif %}
-	       			</td>
-	       			<td>
-	       				{% if o.total %}
-	       					<span title="{{ o.IN_var }}" class='variance'>
-	       						{{ o.IN_avg|floatformat:2 }}
-	       					</span>
-	       				{% else %}
-	       					--
-	       				{% endif %}
-	       			</td>
+							{% for col in o.columns %}
+								<td>
+									<span
+										title="Standard Deviation: {{col.std|floatformat:2}} | Min: {{col.min|floatformat:2}} | Max {{col.max|floatformat:2}}"
+										class="variance">
+											{{col.avg|floatformat:2}}{% if col.cat != 'IN'%}%{% endif %}
+									</span>
+							{% endfor %}
 	       		</tr>
 	       	{% endfor %}
        	</tbody>

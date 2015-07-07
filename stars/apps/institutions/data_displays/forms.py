@@ -15,10 +15,10 @@ EMPTY_CHOICES = (
                 )
 
 class CharacteristicFilterForm(forms.Form):
-    
+
     type = forms.CharField(required=False, widget=forms.widgets.Select(choices=EMPTY_CHOICES))
     item = forms.CharField(required=False, widget=forms.widgets.Select(choices=EMPTY_CHOICES))
-    
+
     def clean(self):
         """
             This form can be empty, but if one is filled out then both must be
@@ -32,29 +32,29 @@ class CharacteristicFilterForm(forms.Form):
             del cleaned_data["item"]
 
         return cleaned_data
-    
+
     def __init__(self, available_filters, **kwargs):
-        
+
         super(CharacteristicFilterForm, self).__init__(**kwargs)
-        
+
         choices = [("", "-------")]
         for f in available_filters:
             choices.append((f.key, f.title))
-            
+
         self.fields['type'].widget = forms.widgets.Select(choices=choices, attrs={'onchange': 'applyLookup(this);',})
-    
+
 class DelCharacteristicFilterForm(forms.Form):
-    
+
     delete = forms.BooleanField(required=False, widget=forms.HiddenInput)
-    
+
     def __init__(self, instance, *args, **kwargs):
-        
+
         self.instance = instance
         super(DelCharacteristicFilterForm, self).__init__(*args, **kwargs)
-    
+
 
 class CreditSetElementField(forms.CharField):
-    
+
     def to_python(self, value):
         "Normalize data to a Category, Subcategory, or Credit."
 
@@ -74,16 +74,16 @@ class CreditSetElementField(forms.CharField):
         return None
 
 class ScoreColumnForm(forms.Form):
-    
+
     col1 = CreditSetElementField(required=False)
     col2 = CreditSetElementField(required=False)
     col3 = CreditSetElementField(required=False)
     col4 = CreditSetElementField(required=False)
-    
-    def __init__(self, *args, **kwargs):
-        
+
+    def __init__(self, credit_set=None, *args, **kwargs):
+
 #        self.instance = instance
-        
+
         if kwargs.has_key('initial'):
             initial = kwargs['initial']
             new_initial = {}
@@ -102,30 +102,33 @@ class ScoreColumnForm(forms.Form):
             else:
                 for i in range(1,5):
                     new_initial['column_%d' % i] = "select_one"
-            
+
             kwargs['initial'] = new_initial
-        
+
         super(ScoreColumnForm, self).__init__(*args, **kwargs)
-        
+
         choices = [("", "Select One")]
         disabled = []
-        
-        for cat in CreditSet.objects.get(pk=2).category_set.all():
+
+        # if not credit_set:
+        #     credit_set = CreditSet.objects.get_latest()
+
+        for cat in credit_set.category_set.filter(include_in_score=True):
             choices.append(("cat_%d" % cat.id, string.upper(cat.title)))
 #            spacer = ("cat_%d_spacer" % cat.id, "")
             choices.append(('', ''))
 #            disabled.append(spacer)
-            
+
             for sub in cat.subcategory_set.all():
                 choices.append(("sub_%d" % sub.id, mark_safe("&nbsp;%s" % sub.title)))
 #                spacer = ("sub_%d_spacer" % sub.id, "")
 #                choices.append(spacer)
 #                disabled.append(spacer)
                 choices.append(('', ''))
-                
+
                 for c in sub.get_tier1_credits():
                     choices.append(("crd_%d" % c.id, mark_safe("&nbsp;&nbsp;&nbsp;%s" % c.title)))
-                    
+
                 t2 = sub.get_tier2_credits()
                 if t2:
 #                    spacer = ("sub_%d_t2spacer" % sub.id, mark_safe("&nbsp;&nbsp;&nbsp;-------"))
@@ -134,14 +137,14 @@ class ScoreColumnForm(forms.Form):
 #                    disabled.append(spacer)
                     for c in t2:
                         choices.append(("crd_%d" % c.id, mark_safe("&nbsp;&nbsp;&nbsp;%s" % c.title)))
-                
+
 #                spacer = ("sub_%d_spacer2" % sub.id, "")
 #                choices.append(spacer)
 #                disabled.append(spacer)
                 choices.append(('', ''))
-                
+
         w = forms.Select(choices=choices)
-        
+
         self.fields['col1'].widget = w
         self.fields['col2'].widget = w
         self.fields['col3'].widget = w
@@ -150,23 +153,23 @@ class ScoreColumnForm(forms.Form):
         self.fields['col2'].label = "Column 2"
         self.fields['col3'].label = "Column 3"
         self.fields['col4'].label = "Column 4"
-    
+
 class ReportingFieldSelectForm(forms.Form):
-    
+
     reporting_field = forms.ModelChoiceField(DocumentationField, required=False)
-    
+
     def __init__(self, *args, **kwargs):
-        
+
         super(ReportingFieldSelectForm, self).__init__(*args, **kwargs)
-               
+
         cs = CreditSet.objects.get(pk=2)
         cs_lookup = "credit__subcategory__category__creditset"
-        self.fields['reporting_field'].queryset = DocumentationField.objects.filter(**{cs_lookup: cs}) 
-        
+        self.fields['reporting_field'].queryset = DocumentationField.objects.filter(**{cs_lookup: cs})
+
         self.fields['reporting_field'].widget.choices = (('', '--------'),)
-        
+
     def clean(self):
-        
+
         cleaned_data = self.cleaned_data
-        
+
         return cleaned_data
