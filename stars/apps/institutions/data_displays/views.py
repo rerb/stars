@@ -372,7 +372,6 @@ class AggregateFilter(DisplayAccessMixin, CommonFilterMixin, FilteringMixin,
                     obj['max'] = result['points__max']
 
                     columns.append(obj)
-                    print obj
 
                 row['columns'] = columns
 
