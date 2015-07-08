@@ -193,6 +193,7 @@ class SortableTableViewWithInstProps(SortableTableView):
         _context['charter_count'] = charter_count
         _context['pilot_count'] = pilot_count
         _context['international_count'] = international_count
+        _context['display_version'] = "2.0"
         return _context
 
 
