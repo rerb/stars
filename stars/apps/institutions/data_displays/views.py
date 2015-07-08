@@ -220,7 +220,8 @@ class DisplayAccessMixin(StarsAccountMixin, RulesMixin):
     def access_denied_callback(self):
         self.template_name = self.denied_template_name
         return self.render_to_response(
-            {'top_help_text': self.get_description_help_context_name()})
+            {'top_help_text': self.get_description_help_context_name(),
+             'display_version': '2.0'})
 
 
 class CommonFilterMixin(object):
