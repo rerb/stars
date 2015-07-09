@@ -231,7 +231,10 @@ class CommonFilterMixin(object):
 
     def get_available_filters(self):
 
-        filters = cache.get('institution__org_type_filter', None)
+        cache_key = '-'.join(['institution__org_type_filter',
+                              self.kwargs['cs_version']])
+
+        filters = cache.get(cache_key, None)
         if filters:
             return filters
 
@@ -260,7 +263,7 @@ class CommonFilterMixin(object):
         ] + common_filters
 
         # Store in the cache for 6 hours
-        cache.set('institution__org_type_filter', filters, 60 * 60 * 6)
+        cache.set(cache_key, filters, 60 * 60 * 6)
         return filters
 
     def convertCacheKey(self, key):
