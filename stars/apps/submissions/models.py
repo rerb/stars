@@ -907,8 +907,9 @@ class SubcategorySubmission(models.Model):
     description = models.TextField(blank=True, null=True)
     points = models.FloatField(blank=True, null=True)
     # caching for the data displays
-    percentage_score = models.FloatField(blank=True, null=True)
-    adjusted_available_points = models.FloatField(blank=True, null=True)
+    percentage_score = models.FloatField(blank=True, null=True, default=0.0)
+    adjusted_available_points = models.FloatField(blank=True, null=True,
+                                                  default=0.0)
 
     class Meta:
         unique_together = ("category_submission", "subcategory")
