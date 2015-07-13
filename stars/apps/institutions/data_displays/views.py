@@ -280,7 +280,7 @@ class AggregateFilter(DisplayAccessMixin, CommonFilterMixin, FilteringMixin,
     """
         Provides a filtering tool for average category scores
 
-        Participants and Members Only
+        Members Only
     """
     template_name = "institutions/data_displays/categories.html"
     denied_template_name = "institutions/data_displays/denied_categories.html"
@@ -444,9 +444,9 @@ class ScoreFilter(DisplayAccessMixin, CommonFilterMixin,
     def update_logical_rules(self):
         super(DisplayAccessMixin, self).update_logical_rules()
         self.add_logical_rule({
-            'name': 'user_has_participant_displays',
+            'name': 'user_has_member_displays',
             'param_callbacks': [
-                ('user', 'get_request_user')
+                ('user', 'get_request_user'),
             ],
             'response_callback': 'access_denied_callback'
         })
