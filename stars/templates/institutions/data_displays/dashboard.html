@@ -5,7 +5,7 @@
 {% load institution_lists %}
 
 {% block crumb-tab %}
-	<li>Dashboard Summary</li>
+  <li>Dashboard Summary</li>
 {% endblock %}
 
 {% block title %}Dashboard | {{ block.super }}{% endblock %}
@@ -13,155 +13,155 @@
 {% block body_onload %}{{ block.super }}initialize();{% endblock %}
 
 {% block extra_head %}
-	<style type='text/css'>
-		#map_canvas img {
-		  max-width: none;
-		}
-		#map_canvas label { 
-		  width: auto; display:inline; 
-		} 
-	</style>
+  <style type='text/css'>
+   #map_canvas img {
+     max-width: none;
+   }
+   #map_canvas label {
+     width: auto; display:inline;
+   }
+  </style>
 
-	{{ block.super }}
-  	
-  	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
-    <script type="text/javascript">
-      google.load("visualization", "1", {packages:["corechart"]});
-      google.setOnLoadCallback(drawChart);
-      function drawChart() {
-        // Create and populate the data table.
-        var data = new google.visualization.DataTable();
-        data.addColumn('string', 'Task');
-        data.addColumn('number', 'Hours per Day');
-        data.addRows(5);
-        data.setValue(0, 0, 'Platinum');
-        data.setValue(0, 1, {{ ratings.Platinum }});
-        data.setValue(1, 0, 'Gold');
-        data.setValue(1, 1, {{ ratings.Gold }});
-        data.setValue(2, 0, 'Silver');
-        data.setValue(2, 1, {{ ratings.Silver }});
-        data.setValue(3, 0, 'Bronze');
-        data.setValue(3, 1, {{ ratings.Bronze }});
-        data.setValue(4, 0, 'Reporter');
-        data.setValue(4, 1, {{ ratings.Reporter }});
-      
-        // Create and draw the visualization.
-        new google.visualization.PieChart(document.getElementById('ratingChart')).
-          draw(data,
-               {
-                 is3D: true,
-                 legend: 'left',
-                 backgroundColor: "#f5f5f5",
-                 colors: [
-                        	"#8E8C8A", // platinum
-                        	"#A39161", // gold
-							"#A7A9AC", // silver
-							"#8C7459", // bronze
-							"#848E2B", // reporter
-                 ],
-                 pieResidueSliceColor: "#1b617f"
-               });
-      }
-    </script>
-    
-    <script type="text/javascript">
-      function drawAreaChart() {
-      
-      	var data = new google.visualization.DataTable();
-		data.addColumn('string', 'Month');
-		data.addColumn('number', 'Registrations');
-		data.addColumn('number', 'Submissions');
-		data.addColumn('number', 'Renewals');
-		
-		data.addRows([
-			{% for row in ratings_renewals_registrations %}
-				["{{ row.date|date:"M y" }}", {{ row.reg_count }}, {{ row.rating_count }}, {{ row.renew_count }}]{% if not forloop.last %},{% endif %}
-			{% endfor %}
-		]);
-        
-        // Create and draw the visualization.
-        var ac = new google.visualization.AreaChart(document.getElementById('areaChart'));
-        ac.draw(data, {
-          backgroundColor: "#f5f5f5",
-          colors: ["#00A060", "#6BBC49", "#CEDC45"],
-          legend: 'top',
-          hAxis: {title: 'Date'},
-          vAxis: {title: "Total"},
-          pointSize: 2
-        });
-      }
-      
+  {{ block.super }}
 
-      google.setOnLoadCallback(drawAreaChart);
-    </script>
-    
-    <script type="text/javascript">
-      function drawBarChart() {
-        // Create and populate the data table.
-        var data = new google.visualization.DataTable();
-                        
-        data.addColumn('string', 'Category');
-        data.addColumn('number', 'Score');
-        
-        data.addRows([
-        	{% for row in bar_chart|dictsort:"ord" %}
-        		['{{ row.short }}', {{ row.avg|floatformat:2 }}]{% if not forloop.last %},{% endif %}
-        	{% endfor %}
-        ]);
-        
-        // Create and draw the visualization.
-        new google.visualization.ColumnChart(document.getElementById('barChart')).
-            draw(data,
-                 {
-                  backgroundColor: "#f5f5f5",
-                  colors: ["#0080CF", "#00BCE4"],
-                  legend: 'none',
-                  hAxis: {title: 'Category'},
-                  vAxis: {title: "Average Score", baseline: 0},
-                 });
-      }
+  <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+  <script type="text/javascript">
+   google.load("visualization", "1", {packages:["corechart"]});
+   google.setOnLoadCallback(drawChart);
+   function drawChart() {
+     // Create and populate the data table.
+     var data = new google.visualization.DataTable();
+     data.addColumn('string', 'Task');
+     data.addColumn('number', 'Hours per Day');
+     data.addRows(5);
+     data.setValue(0, 0, 'Platinum');
+     data.setValue(0, 1, {{ ratings.Platinum }});
+     data.setValue(1, 0, 'Gold');
+     data.setValue(1, 1, {{ ratings.Gold }});
+     data.setValue(2, 0, 'Silver');
+     data.setValue(2, 1, {{ ratings.Silver }});
+     data.setValue(3, 0, 'Bronze');
+     data.setValue(3, 1, {{ ratings.Bronze }});
+     data.setValue(4, 0, 'Reporter');
+     data.setValue(4, 1, {{ ratings.Reporter }});
 
-      google.setOnLoadCallback(drawBarChart);
-    </script>
-    
-    <script type="text/javascript">
-      function drawMemberNumbersBarChart() {
-        // Create and populate the data table.
-        var data = new google.visualization.DataTable();
-                        
-        data.addColumn('string', 'Affiliation');
-        data.addColumn('number', 'Total');
-        
-        data.addRows([
-            ['Rated/Participating', {{ properties.uptake }}],
-        	['Current Participants', {{ properties.participant }}],
-        	['Rated', {{ properties.rated }}],
-        	['AASHE', {{ properties.member }}],
-        	['ACUPCC', {{ properties.pcc }}],
-        	['Charter', {{ properties.charter }}],
-        	['Pilot', {{ properties.pilot }}],
-        	['USA', {{ properties.us }}],
-        	['Canada', {{ properties.canada }}],
-        	['International Pilot', {{ properties.international }}]
-        ]);
-        
-        // Create and draw the visualization.
-        new google.visualization.BarChart(document.getElementById('memberNumbers')).
-            draw(data,
-                 {
-                  backgroundColor: "#f5f5f5",
-                  colors: [
-	                   "#5160AB", "#A486BD"
-                 	],
-                  legend: 'none',
-                  hAxis: {title: 'Total', baseline: 0}
-                  //vAxis: {title: "Affiliations"},
-                 });
-      }
+     // Create and draw the visualization.
+     new google.visualization.PieChart(document.getElementById('ratingChart')).
+                                                               draw(data,
+                                                                    {
+       is3D: true,
+       legend: 'left',
+       backgroundColor: "#f5f5f5",
+       colors: [
+         "#8E8C8A", // platinum
+         "#A39161", // gold
+	 "#A7A9AC", // silver
+	 "#8C7459", // bronze
+	 "#848E2B", // reporter
+       ],
+       pieResidueSliceColor: "#1b617f"
+     });
+   }
+  </script>
 
-      google.setOnLoadCallback(drawMemberNumbersBarChart);
-    </script>
-    
+  <script type="text/javascript">
+   function drawAreaChart() {
+
+     var data = new google.visualization.DataTable();
+     data.addColumn('string', 'Month');
+     data.addColumn('number', 'Registrations');
+     data.addColumn('number', 'Submissions');
+     data.addColumn('number', 'Renewals');
+
+     data.addRows([
+       {% for row in ratings_renewals_registrations %}
+       ["{{ row.date|date:"M y" }}", {{ row.reg_count }}, {{ row.rating_count }}, {{ row.renew_count }}]{% if not forloop.last %},{% endif %}
+       {% endfor %}
+     ]);
+
+     // Create and draw the visualization.
+     var ac = new google.visualization.AreaChart(document.getElementById('areaChart'));
+     ac.draw(data, {
+       backgroundColor: "#f5f5f5",
+       colors: ["#00A060", "#6BBC49", "#CEDC45"],
+       legend: 'top',
+       hAxis: {title: 'Date'},
+       vAxis: {title: "Total"},
+       pointSize: 2
+     });
+   }
+
+
+   google.setOnLoadCallback(drawAreaChart);
+  </script>
+
+  <script type="text/javascript">
+   function drawBarChart() {
+     // Create and populate the data table.
+     var data = new google.visualization.DataTable();
+
+     data.addColumn('string', 'Category');
+     data.addColumn('number', 'Score');
+
+     data.addRows([
+       {% for row in bar_chart|dictsort:"ord" %}
+       ['{{ row.short }}', {{ row.avg|floatformat:2 }}]{% if not forloop.last %},{% endif %}
+       {% endfor %}
+     ]);
+
+     // Create and draw the visualization.
+     new google.visualization.ColumnChart(document.getElementById('barChart')).
+                                                                  draw(data,
+                                                                       {
+       backgroundColor: "#f5f5f5",
+       colors: ["#0080CF", "#00BCE4"],
+       legend: 'none',
+       hAxis: {title: 'Category'},
+       vAxis: {title: "Average Score", baseline: 0},
+     });
+   }
+
+   google.setOnLoadCallback(drawBarChart);
+  </script>
+
+  <script type="text/javascript">
+   function drawMemberNumbersBarChart() {
+     // Create and populate the data table.
+     var data = new google.visualization.DataTable();
+
+     data.addColumn('string', 'Affiliation');
+     data.addColumn('number', 'Total');
+
+     data.addRows([
+       ['Rated/Participating', {{ properties.uptake }}],
+       ['Current Participants', {{ properties.participant }}],
+       ['Rated', {{ properties.rated }}],
+       ['AASHE', {{ properties.member }}],
+       ['ACUPCC', {{ properties.pcc }}],
+       ['Charter', {{ properties.charter }}],
+       ['Pilot', {{ properties.pilot }}],
+       ['USA', {{ properties.us }}],
+       ['Canada', {{ properties.canada }}],
+       ['International Pilot', {{ properties.international }}]
+     ]);
+
+     // Create and draw the visualization.
+     new google.visualization.BarChart(document.getElementById('memberNumbers')).
+                                                               draw(data,
+                                                                    {
+       backgroundColor: "#f5f5f5",
+       colors: [
+	 "#5160AB", "#A486BD"
+       ],
+       legend: 'none',
+       hAxis: {title: 'Total', baseline: 0}
+       //vAxis: {title: "Affiliations"},
+     });
+   }
+
+   google.setOnLoadCallback(drawMemberNumbersBarChart);
+  </script>
+
 {% endblock %}
 
 {% block h1 %}STARS Dashboard{% endblock %}
@@ -170,138 +170,138 @@
 
 {% block tab_content %}
   {{ block.super }}
-		Data Last Updated: {{ cache_time }}
-		<div class="row">
-			<div class="span12 dashboard-map" id="map_canvas" style='height: 500px;'></div>
-		</div>
-		
-		<div class="row">
-			<div class="span7">
-				<div class="dashboard-chart" id="ratingChart"></div>
-			</div>
-			<div class="span5">
-				<h2 class='dashboard'>STARS Ratings</h3>
-				<table class="table table-condensed">
-					<tbody>
-						<tr>
-							<th>Platinum</th>
-							<td>{{ ratings.Platinum }}</td>
-						</tr><tr>
-							<th>Gold</th>
-							<td>{{ ratings.Gold }}</td>
-						</tr><tr>
-							<th>Silver</th>
-							<td>{{ ratings.Silver }}</td>
-						</tr><tr>
-							<th>Bronze</th>
-							<td>{{ ratings.Bronze }}</td>
-						</tr><tr>
-							<th>Reporter</th>
-							<td>{{ ratings.Reporter }}</td>
-						</tr>
-					</tbody>
-				</table>
-		    	{% display_block_content 'dash_ratings' user %}
-			</div>
-		</div>
-		
-		<div class="row">
-			<div class="span7">
-				<div class="dashboard-chart" id="areaChart"></div>
-			</div>
-			<div class="span5">
- 				<h2 class='dashboard'>STARS Registrations and Submissions</h2>
-				<table class="table table-condensed">
-					<tbody>
-						<tr>
-							<th>Registrations</th>
-							<td>{{ total_reg_count }}</td>
-						</tr><tr>
-			              <th>Submissions</th>
-			              <td>{{ total_rating_count }}</td>
-			            </tr><tr>
-							<th>Renewals</th>
-							<td>{{ total_renew_count }}</td>
-						</tr>
-					</tbody>
-				</table>
-		    	{% display_block_content 'dash_parts_and_subs' user %}
-			</div>
-		</div>
-		
-		<div class="row">
-			<div class="span7">
-				<div class="dashboard-chart" id="barChart"></div>
-			</div>
-			<div class="span5">
-				<h2 class='dashboard'>Average Category Scores</h2>
-				<table class="table table-condensed">
-					<tbody>
-					{% for cat in bar_chart|dictsort:"ord" %}
-						<tr>
-							<th>{{ cat.title }}</th>
-							<td><span class='variance' title="{{ cat.var }}">{{ cat.avg|floatformat:2 }}%</span></td>
-						</tr>
-					{% endfor %}
-					</tbody>
-				</table>
-    			{% display_block_content 'dash_avg_cat_scores' user %}
-			</div>
-		</div>
-		
-		<div class="row">
-			<div class="span7">
-				<div class="dashboard-chart" id="memberNumbers"></div>
-			</div>
-			<div class="span5">
-				<h2 class='dashboard'>STARS Institutions Breakdown</h2>
-				<table class="table table-condensed">
-					<tbody>
-						<tr>
-			              <th>Participating and/or Rated</th>
-			              <td>{{ properties.uptake }}</td>
-			            </tr>
-			            <tr>
-							<th>Current STARS Participants</th>
-							<td>{{ properties.participant }}</td>
-						</tr>
-			            <tr>
-			              <th>Rated Institutions</th>
-			              <td>{{ properties.rated }}</td>
-			            </tr>
-						<tr>
-							<th>AASHE Members</th>
-							<td>{{ properties.member }}</td>
-						</tr>
-						<tr>
-							<th>ACUPCC Signatories</th>
-							<td>{{ properties.pcc }}</td>
-						</tr>
-						<tr>
-							<th>US Institutions</th>
-							<td>{{ properties.us }}</td>
-						</tr>
-						<tr>
-							<th>Canadian Institutions</th>
-							<td>{{ properties.canada }}</td>
-						</tr>
-			            <tr>
-			              <th>International Pilot Participants</th>
-			              <td>{{ properties.international }}</td>
-			            </tr>
-			            <tr>
-			              <th>Charter STARS Participants</th>
-			              <td>{{ properties.charter }}</td>
-			            </tr>
-			            <tr>
-			              <th>STARS Pilot Participants</th>
-			              <td>{{ properties.pilot }}</td>
-			            </tr>
-		           </tbody>
-				</table>
-		    	{% display_block_content 'dash_inst_properties' user %}
-		    </div>
-		</div>
+  Data Last Updated: {{ cache_time }}
+  <div class="row">
+    <div class="span12 dashboard-map" id="map_canvas" style='height: 500px;'></div>
+  </div>
+
+  <div class="row">
+    <div class="span7">
+      <div class="dashboard-chart" id="ratingChart"></div>
+    </div>
+    <div class="span5">
+      <h2 class='dashboard'>STARS Ratings</h3>
+	<table class="table table-condensed">
+	  <tbody>
+	    <tr>
+	      <th>Platinum</th>
+	      <td>{{ ratings.Platinum }}</td>
+	    </tr><tr>
+	      <th>Gold</th>
+	      <td>{{ ratings.Gold }}</td>
+	    </tr><tr>
+	      <th>Silver</th>
+	      <td>{{ ratings.Silver }}</td>
+	    </tr><tr>
+	      <th>Bronze</th>
+	      <td>{{ ratings.Bronze }}</td>
+	    </tr><tr>
+	      <th>Reporter</th>
+	      <td>{{ ratings.Reporter }}</td>
+	    </tr>
+	  </tbody>
+	</table>
+	{% display_block_content 'dash_ratings' user %}
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="span7">
+      <div class="dashboard-chart" id="areaChart"></div>
+    </div>
+    <div class="span5">
+      <h2 class='dashboard'>STARS Registrations and Submissions</h2>
+      <table class="table table-condensed">
+	<tbody>
+	  <tr>
+	    <th>Registrations</th>
+	    <td>{{ total_reg_count }}</td>
+	  </tr><tr>
+	    <th>Submissions</th>
+	    <td>{{ total_rating_count }}</td>
+	  </tr><tr>
+	    <th>Renewals</th>
+	    <td>{{ total_renew_count }}</td>
+	  </tr>
+	</tbody>
+      </table>
+      {% display_block_content 'dash_parts_and_subs' user %}
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="span7">
+      <div class="dashboard-chart" id="barChart"></div>
+    </div>
+    <div class="span5">
+      <h2 class='dashboard'>Average Category Scores</h2>
+      <table class="table table-condensed">
+	<tbody>
+	  {% for cat in bar_chart|dictsort:"ord" %}
+	    <tr>
+	      <th>{{ cat.title }}</th>
+	      <td><span class='variance' title="{{ cat.var }}">{{ cat.avg|floatformat:2 }}%</span></td>
+	    </tr>
+	  {% endfor %}
+	</tbody>
+      </table>
+      {% display_block_content 'dash_avg_cat_scores' user %}
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="span7">
+      <div class="dashboard-chart" id="memberNumbers"></div>
+    </div>
+    <div class="span5">
+      <h2 class='dashboard'>STARS Institutions Breakdown</h2>
+      <table class="table table-condensed">
+	<tbody>
+	  <tr>
+	    <th>Participating and/or Rated</th>
+	    <td>{{ properties.uptake }}</td>
+	  </tr>
+	  <tr>
+	    <th>Current STARS Participants</th>
+	    <td>{{ properties.participant }}</td>
+	  </tr>
+	  <tr>
+	    <th>Rated Institutions</th>
+	    <td>{{ properties.rated }}</td>
+	  </tr>
+	  <tr>
+	    <th>AASHE Members</th>
+	    <td>{{ properties.member }}</td>
+	  </tr>
+	  <tr>
+	    <th>ACUPCC Signatories</th>
+	    <td>{{ properties.pcc }}</td>
+	  </tr>
+	  <tr>
+	    <th>US Institutions</th>
+	    <td>{{ properties.us }}</td>
+	  </tr>
+	  <tr>
+	    <th>Canadian Institutions</th>
+	    <td>{{ properties.canada }}</td>
+	  </tr>
+	  <tr>
+	    <th>International Pilot Participants</th>
+	    <td>{{ properties.international }}</td>
+	  </tr>
+	  <tr>
+	    <th>Charter STARS Participants</th>
+	    <td>{{ properties.charter }}</td>
+	  </tr>
+	  <tr>
+	    <th>STARS Pilot Participants</th>
+	    <td>{{ properties.pilot }}</td>
+	  </tr>
+	</tbody>
+      </table>
+      {% display_block_content 'dash_inst_properties' user %}
+    </div>
+  </div>
 {% endblock %}
 
 {% block extra_footer %}
