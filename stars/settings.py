@@ -19,6 +19,7 @@ else:
     if not config:
         configs = {
             '/Users/rerb/src/.*': 'bob',
+            '/media/scott/Data/Code/AASHE/stars/.*': 'scott',
         }
 
         # find the first key that matches the ROOT_PATH

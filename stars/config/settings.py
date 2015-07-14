@@ -6,7 +6,8 @@ from django.contrib.messages import constants as messages
 sys.path.append('../')
 
 ADMINS = (('Benjamin Stookey', 'ben@aashe.org'),
-          ('Bob Erb', 'bob.erb@aashe.org'))
+          ('Bob Erb', 'bob.erb@aashe.org'),
+          ('Scott Johnson', 'scott@aashe.org'),)
 MANAGERS = ADMINS
 
 DEFAULT_CHARSET = 'utf-8'
