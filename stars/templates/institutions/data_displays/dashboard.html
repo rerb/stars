@@ -170,6 +170,7 @@
 
 {% block tab_content %}
   {{ block.super }}
+
   Data Last Updated: {{ cache_time }}
   <div class="row">
     <div class="span12 dashboard-map" id="map_canvas" style='height: 500px;'></div>
@@ -180,32 +181,34 @@
   </div>
 
   <div class="row">
+    <div class="span12">
+      <h2 class='dashboard'>Current Ratings</h2>
+    </div>
     <div class="span7">
       <div class="dashboard-chart" id="ratingChart"></div>
     </div>
     <div class="span5">
-      <h2 class='dashboard'>STARS Ratings</h3>
-	<table class="table table-condensed">
-	  <tbody>
-	    <tr>
-	      <th>Platinum</th>
-	      <td>{{ ratings.Platinum }}</td>
-	    </tr><tr>
-	      <th>Gold</th>
-	      <td>{{ ratings.Gold }}</td>
-	    </tr><tr>
-	      <th>Silver</th>
-	      <td>{{ ratings.Silver }}</td>
-	    </tr><tr>
-	      <th>Bronze</th>
-	      <td>{{ ratings.Bronze }}</td>
-	    </tr><tr>
-	      <th>Reporter</th>
-	      <td>{{ ratings.Reporter }}</td>
-	    </tr>
-	  </tbody>
-	</table>
-	{% display_block_content 'dash_ratings' user %}
+      <table class="table table-condensed">
+	<tbody>
+	  <tr>
+	    <th>Platinum</th>
+	    <td>{{ ratings.Platinum }}</td>
+	  </tr><tr>
+	    <th>Gold</th>
+	    <td>{{ ratings.Gold }}</td>
+	  </tr><tr>
+	    <th>Silver</th>
+	    <td>{{ ratings.Silver }}</td>
+	  </tr><tr>
+	    <th>Bronze</th>
+	    <td>{{ ratings.Bronze }}</td>
+	  </tr><tr>
+	    <th>Reporter</th>
+	    <td>{{ ratings.Reporter }}</td>
+	  </tr>
+	</tbody>
+      </table>
+      {% display_block_content 'dash_ratings' user %}
     </div>
   </div>
 
