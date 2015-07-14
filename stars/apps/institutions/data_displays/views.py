@@ -75,6 +75,10 @@ class Dashboard(TemplateView):
             """
 
             for i in Institution.objects.filter(current_rating__isnull=False):
+                # Skip expired ratings.
+                if i.current_submission.expired:
+                    continue
+
                 ratings[i.current_rating.name] += 1
 
                 if i.current_rating.publish_score:
@@ -231,7 +235,10 @@ class CommonFilterMixin(object):
 
     def get_available_filters(self):
 
-        filters = cache.get('institution__org_type_filter', None)
+        cache_key = '-'.join(['institution__org_type_filter',
+                              self.kwargs['cs_version']])
+
+        filters = cache.get(cache_key, None)
         if filters:
             return filters
 
@@ -260,7 +267,7 @@ class CommonFilterMixin(object):
         ] + common_filters
 
         # Store in the cache for 6 hours
-        cache.set('institution__org_type_filter', filters, 60 * 60 * 6)
+        cache.set(cache_key, filters, 60 * 60 * 6)
         return filters
 
     def convertCacheKey(self, key):
@@ -277,7 +284,7 @@ class AggregateFilter(DisplayAccessMixin, CommonFilterMixin, FilteringMixin,
     """
         Provides a filtering tool for average category scores
 
-        Participants and Members Only
+        Members Only
     """
     template_name = "institutions/data_displays/categories.html"
     denied_template_name = "institutions/data_displays/denied_categories.html"
@@ -441,9 +448,9 @@ class ScoreFilter(DisplayAccessMixin, CommonFilterMixin,
     def update_logical_rules(self):
         super(DisplayAccessMixin, self).update_logical_rules()
         self.add_logical_rule({
-            'name': 'user_has_participant_displays',
+            'name': 'user_has_member_displays',
             'param_callbacks': [
-                ('user', 'get_request_user')
+                ('user', 'get_request_user'),
             ],
             'response_callback': 'access_denied_callback'
         })
