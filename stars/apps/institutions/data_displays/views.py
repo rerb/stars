@@ -75,6 +75,10 @@ class Dashboard(TemplateView):
             """
 
             for i in Institution.objects.filter(current_rating__isnull=False):
+                # Skip expired ratings.
+                if i.current_submission.expired:
+                    continue
+
                 ratings[i.current_rating.name] += 1
 
                 if i.current_rating.publish_score:
