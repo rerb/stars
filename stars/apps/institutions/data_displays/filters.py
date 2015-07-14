@@ -1,5 +1,3 @@
-from django.http import QueryDict
-
 """
     Filters are a way of doing the following.
 
@@ -33,6 +31,8 @@ from django.http import QueryDict
 
     The FilteringMixin provides all the filtering methods to a view
 """
+from django.http import QueryDict
+
 
 class Filter(object):
     """
@@ -60,7 +60,7 @@ class Filter(object):
         if self.key == "rating__name":
             return "%s Rated Institutions" % item
 
-        for k,v in self.item_list:
+        for k, v in self.item_list:
             if item == v:
                 return k
 
@@ -78,17 +78,18 @@ class Filter(object):
         " Returns a queryset with the applied filter for item. "
 
         if item != 'DO_NOT_FILTER':
-        # convert True and False from text
+            # convert True and False from text
             if item == "True":
                 item = True
             elif item == "False":
                 item = False
 
-            kwargs = {self.key: item,}
+            kwargs = {self.key: item}
 
             return self.base_qs.filter(**kwargs)
 
         return self.base_qs
+
 
 class RangeFilter(Filter):
     """
@@ -136,13 +137,16 @@ class RangeFilter(Filter):
 
         return None
 
+
 class FilteringMixin(object):
     """
         A mixin that will manage filtering
 
-        Filters are defined in the GET request and stored internally as a QueryDict
+        Filters are defined in the GET request and stored internally
+        as a QueryDict
 
-        Optionally `available_filters` can be overridden to set the default filters
+        Optionally `available_filters` can be overridden to set the
+        default filters
     """
 
     def get_available_filters(self):
@@ -154,9 +158,11 @@ class FilteringMixin(object):
     def get_context_data(self, **kwargs):
 
         _context = super(FilteringMixin, self).get_context_data(**kwargs)
-        _context['available_filters'] = self.get_available_filters_for_context()
+        _context['available_filters'] = (
+            self.get_available_filters_for_context())
         _context['selected_filters'] = self.get_selected_filters_for_context()
-        _context['selected_filters_querydict'] = self.get_selected_filter_querydict()
+        _context['selected_filters_querydict'] = (
+            self.get_selected_filter_querydict())
         _context['get_params'] = self.request.GET.urlencode()
         return _context
 
@@ -178,14 +184,15 @@ class FilteringMixin(object):
         available_filters = []
         for f in self.get_available_filters():
             f_dict = {
-                        'filter_title': f.title,
-                        'filter_key': f.key,
-                        'filter_choices': []
-                      }
+                'filter_title': f.title,
+                'filter_key': f.key,
+                'filter_choices': []
+            }
             # Populate the choices with URLs
-            choices = []
             for i in f.item_list:
-                url = "?%s" % self.add_filter_to_querydict(self.request.GET, f.key, i[1]).urlencode()
+                url = "?%s" % self.add_filter_to_querydict(self.request.GET,
+                                                           f.key,
+                                                           i[1]).urlencode()
                 f_dict['filter_choices'].append((i[0], url))
 
             available_filters.append(f_dict)
@@ -242,12 +249,14 @@ class FilteringMixin(object):
         filter_list = []
 
         # iterate through each GET param
-        for f,v in self.get_selected_filter_objects():
+        for f, v in self.get_selected_filter_objects():
             filter_list.append({
-                                'filter_title': f.title,
-                                'selected_item_title': f.get_active_title(v),
-                                'del_link': self.drop_filer_from_querydict(self.request.GET, f.key, v).urlencode()
-                                })
+                'filter_title': f.title,
+                'selected_item_title': f.get_active_title(v),
+                'del_link': self.drop_filer_from_querydict(self.request.GET,
+                                                           f.key,
+                                                           v).urlencode()
+            })
 
         return filter_list
 
@@ -266,7 +275,7 @@ class FilteringMixin(object):
 
         if l and filter_value in l:
 
-            l[:] = [x for x in l if x != filter_value] # be sure to remove dupes
+            l[:] = [x for x in l if x != filter_value]  # be sure to remove dupes
             _qd.setlist(filter_key, l)
 
             # if that was the only value, remove the key altogether
@@ -303,7 +312,8 @@ class NarrowFilteringMixin(FilteringMixin):
         """
             Removes a filter once it's in use
         """
-        available_filters = super(NarrowFilteringMixin, self).get_available_filters_for_context()
+        available_filters = super(NarrowFilteringMixin,
+                                  self).get_available_filters_for_context()
         selected_filters = self.get_selected_filter_objects()
         for f in selected_filters:
             for af in available_filters:
