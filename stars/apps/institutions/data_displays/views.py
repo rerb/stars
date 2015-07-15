@@ -58,6 +58,7 @@ class Dashboard(TemplateView):
         cache_time = cache.get('stars_dashboard_context_cache_time')
 
         if not _context:
+
             _context = {}
             _context['display_version'] = "2.0"  # used in the tabs
 
@@ -69,7 +70,6 @@ class Dashboard(TemplateView):
             for i in Institution.objects.filter(current_rating__isnull=False):
                 if i.current_submission.expired:
                     continue
-
                 ratings[i.current_rating.name] += 1
 
             _context['ratings'] = ratings
@@ -128,7 +128,7 @@ class Dashboard(TemplateView):
             # Get data for registrants-by-country table.
             participants = collections.defaultdict(int)
 
-            for participant in Institution.objects.filter(is_participant=True):
+            for participant in Institution.objects.all():
                 participants[participant.country] += 1
 
             # Sort by country.
@@ -146,6 +146,7 @@ class Dashboard(TemplateView):
 
         _context['cache_time'] = cache_time
         _context.update(super(Dashboard, self).get_context_data(**kwargs))
+
         return _context
 
 
