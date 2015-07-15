@@ -1,3 +1,4 @@
+import collections
 from datetime import date, datetime
 from logging import getLogger
 import re
@@ -124,8 +125,22 @@ class Dashboard(TemplateView):
 
             _context['ratings_registrations'] = slices
 
-            cache_time = datetime.now()
+            # Get data for registrants-by-country table.
+            participants = collections.defaultdict(int)
+
+            for participant in Institution.objects.filter(is_participant=True):
+                participants[participant.country] += 1
+
+            # Sort by country.
+            ordered_participants = collections.OrderedDict()
+
+            for country, count in sorted(participants.items()):
+                ordered_participants[country] = count
+
+            _context['participants'] = dict(ordered_participants)
+
             # Cache this for 2 hours.
+            cache_time = datetime.now()
             cache.set('stars_dashboard_context', _context, 60 * 120)
             cache.set('stars_dashboard_context_cache_time', cache_time, 60*120)
 

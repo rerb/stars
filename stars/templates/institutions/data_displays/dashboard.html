@@ -166,6 +166,24 @@
       {% display_block_content 'dash_parts_and_subs' user %}
     </div>
   </div>
+
+  <div class="row">
+    <div class="span12">
+      <h2 class='dashboard'>Participants by Country</h2>
+    </div>
+    <div class="span7">
+      <table class="table table-condensed">
+	<tbody>
+          {% for country, count in participants.items %}
+	    <tr>
+	      <th>{{ country }}</th>
+	      <td>{{ count }}</td>
+	    </tr>
+          {% endfor %}
+	</tbody>
+      </table>
+    </div>
+  </div>
 {% endblock %}
 
 {% block extra_footer %}
