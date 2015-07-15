@@ -164,30 +164,6 @@ class Dashboard(TemplateView):
 
             _context['ratings_registrations'] = slices
 
-            # Horizontal Bar Chart
-
-            uptake_qs = Institution.objects.filter(enabled=True).filter(
-                Q(is_participant=True) | Q(current_rating__isnull=False))
-
-            properties = {
-                'uptake': uptake_qs.count(),
-                'participant': uptake_qs.filter(is_participant=True).count(),
-                'rated': uptake_qs.filter(
-                    current_rating__isnull=False).count(),
-                'pcc': uptake_qs.filter(is_pcc_signatory=True).count(),
-                'member': uptake_qs.filter(is_member=True).count(),
-                'us': uptake_qs.filter(
-                    country="United States of America").count(),
-                'canada': uptake_qs.filter(country='Canada').count(),
-                'international': uptake_qs.filter(international=True).count(),
-                'charter': Institution.objects.filter(
-                    charter_participant=True).count(),
-                'pilot': Institution.objects.filter(
-                    is_pilot_participant=True).count(),
-            }
-
-            _context['properties'] = properties
-
             cache_time = datetime.now()
             # Cache this for 2 hours.
             cache.set('stars_dashboard_context', _context, 60 * 120)

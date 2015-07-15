@@ -123,44 +123,6 @@
    google.setOnLoadCallback(drawBarChart);
   </script>
 
-  <script type="text/javascript">
-   function drawMemberNumbersBarChart() {
-     // Create and populate the data table.
-     var data = new google.visualization.DataTable();
-
-     data.addColumn('string', 'Affiliation');
-     data.addColumn('number', 'Total');
-
-     data.addRows([
-       ['Rated/Participating', {{ properties.uptake }}],
-       ['Current Participants', {{ properties.participant }}],
-       ['Rated', {{ properties.rated }}],
-       ['AASHE', {{ properties.member }}],
-       ['ACUPCC', {{ properties.pcc }}],
-       ['Charter', {{ properties.charter }}],
-       ['Pilot', {{ properties.pilot }}],
-       ['USA', {{ properties.us }}],
-       ['Canada', {{ properties.canada }}],
-       ['International Pilot', {{ properties.international }}]
-     ]);
-
-     // Create and draw the visualization.
-     new google.visualization.BarChart(document.getElementById('memberNumbers')).
-                                                               draw(data,
-                                                                    {
-       backgroundColor: "#f5f5f5",
-       colors: [
-	 "#5160AB", "#A486BD"
-       ],
-       legend: 'none',
-       hAxis: {title: 'Total', baseline: 0}
-       //vAxis: {title: "Affiliations"},
-     });
-   }
-
-   google.setOnLoadCallback(drawMemberNumbersBarChart);
-  </script>
-
 {% endblock %}
 
 {% block h1 %}STARS Dashboard{% endblock %}
@@ -251,60 +213,6 @@
 	</tbody>
       </table>
       {% display_block_content 'dash_avg_cat_scores' user %}
-    </div>
-  </div>
-
-  <div class="row">
-    <div class="span7">
-      <div class="dashboard-chart" id="memberNumbers"></div>
-    </div>
-    <div class="span5">
-      <h2 class='dashboard'>STARS Institutions Breakdown</h2>
-      <table class="table table-condensed">
-	<tbody>
-	  <tr>
-	    <th>Participating and/or Rated</th>
-	    <td>{{ properties.uptake }}</td>
-	  </tr>
-	  <tr>
-	    <th>Current STARS Participants</th>
-	    <td>{{ properties.participant }}</td>
-	  </tr>
-	  <tr>
-	    <th>Rated Institutions</th>
-	    <td>{{ properties.rated }}</td>
-	  </tr>
-	  <tr>
-	    <th>AASHE Members</th>
-	    <td>{{ properties.member }}</td>
-	  </tr>
-	  <tr>
-	    <th>ACUPCC Signatories</th>
-	    <td>{{ properties.pcc }}</td>
-	  </tr>
-	  <tr>
-	    <th>US Institutions</th>
-	    <td>{{ properties.us }}</td>
-	  </tr>
-	  <tr>
-	    <th>Canadian Institutions</th>
-	    <td>{{ properties.canada }}</td>
-	  </tr>
-	  <tr>
-	    <th>International Pilot Participants</th>
-	    <td>{{ properties.international }}</td>
-	  </tr>
-	  <tr>
-	    <th>Charter STARS Participants</th>
-	    <td>{{ properties.charter }}</td>
-	  </tr>
-	  <tr>
-	    <th>STARS Pilot Participants</th>
-	    <td>{{ properties.pilot }}</td>
-	  </tr>
-	</tbody>
-      </table>
-      {% display_block_content 'dash_inst_properties' user %}
     </div>
   </div>
 {% endblock %}
