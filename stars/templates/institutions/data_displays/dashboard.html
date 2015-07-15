@@ -171,14 +171,30 @@
     <div class="span12">
       <h2 class='dashboard'>Participants by Country</h2>
     </div>
-    <div class="span7">
+    <div class="span6">
       <table class="table table-condensed">
 	<tbody>
           {% for country, count in participants %}
-	    <tr>
-	      <th>{{ country }}</th>
-	      <td>{{ count }}</td>
-	    </tr>
+            {% if forloop.counter <= half_num_participants %}
+	      <tr>
+	        <th>{{ country }}</th>
+	        <td>{{ count }}</td>
+	      </tr>
+            {% endif %}
+          {% endfor %}
+	</tbody>
+      </table>
+    </div>
+    <div class="span6">
+      <table class="table table-condensed">
+	<tbody>
+          {% for country, count in participants %}
+            {% if forloop.counter > half_num_participants %}
+	      <tr>
+	        <th>{{ country }}</th>
+	        <td>{{ count }}</td>
+	      </tr>
+            {% endif %}
           {% endfor %}
 	</tbody>
       </table>

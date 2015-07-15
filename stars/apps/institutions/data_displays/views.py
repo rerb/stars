@@ -138,6 +138,7 @@ class Dashboard(TemplateView):
                 ordered_participants[country] = count
 
             _context['participants'] = ordered_participants.items()
+            _context['half_num_participants'] = len(ordered_participants) / 2
 
             # Cache this for 2 hours.
             cache_time = datetime.now()
