@@ -94,35 +94,6 @@
    google.setOnLoadCallback(drawAreaChart);
   </script>
 
-  <script type="text/javascript">
-   function drawBarChart() {
-     // Create and populate the data table.
-     var data = new google.visualization.DataTable();
-
-     data.addColumn('string', 'Category');
-     data.addColumn('number', 'Score');
-
-     data.addRows([
-       {% for row in bar_chart|dictsort:"ord" %}
-       ['{{ row.short }}', {{ row.avg|floatformat:2 }}]{% if not forloop.last %},{% endif %}
-       {% endfor %}
-     ]);
-
-     // Create and draw the visualization.
-     new google.visualization.ColumnChart(document.getElementById('barChart')).
-                                                                  draw(data,
-                                                                       {
-       backgroundColor: "#f5f5f5",
-       colors: ["#0080CF", "#00BCE4"],
-       legend: 'none',
-       hAxis: {title: 'Category'},
-       vAxis: {title: "Average Score", baseline: 0},
-     });
-   }
-
-   google.setOnLoadCallback(drawBarChart);
-  </script>
-
 {% endblock %}
 
 {% block h1 %}STARS Dashboard{% endblock %}
@@ -193,26 +164,6 @@
 	</tbody>
       </table>
       {% display_block_content 'dash_parts_and_subs' user %}
-    </div>
-  </div>
-
-  <div class="row">
-    <div class="span7">
-      <div class="dashboard-chart" id="barChart"></div>
-    </div>
-    <div class="span5">
-      <h2 class='dashboard'>Average Category Scores</h2>
-      <table class="table table-condensed">
-	<tbody>
-	  {% for cat in bar_chart|dictsort:"ord" %}
-	    <tr>
-	      <th>{{ cat.title }}</th>
-	      <td><span class='variance' title="{{ cat.var }}">{{ cat.avg|floatformat:2 }}%</span></td>
-	    </tr>
-	  {% endfor %}
-	</tbody>
-      </table>
-      {% display_block_content 'dash_avg_cat_scores' user %}
     </div>
   </div>
 {% endblock %}

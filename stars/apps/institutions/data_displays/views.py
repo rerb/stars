@@ -65,53 +65,13 @@ class Dashboard(TemplateView):
                 if r.name not in ratings.keys():
                     ratings[r.name] = 0
 
-            # bar chart vars
-            bar_chart = {}
-            """
-                '<cat_abbr>': {'title': '<cat_title>',
-                               'ord': #,
-                               'list': [],
-                               'avg': #}
-            """
-
             for i in Institution.objects.filter(current_rating__isnull=False):
-                # Skip expired ratings.
                 if i.current_submission.expired:
                     continue
 
                 ratings[i.current_rating.name] += 1
 
-                if i.current_rating.publish_score:
-                    ss = i.rated_submission
-                    if i.rated_submission.creditset.version != '2.0':
-                        for cs in ss.categorysubmission_set.all():
-                            if (cs.category.include_in_score and
-                                cs.category.abbreviation != "IN"):
-                                if cs.category.abbreviation in bar_chart:
-                                    bar_chart[cs.category.abbreviation][
-                                        'list'].append(cs.get_STARS_score())
-                                else:
-                                    bar_chart[cs.category.abbreviation] = {}
-                                    bar_chart[cs.category.abbreviation][
-                                        'title'] = "%s (%s)" % (
-                                            cs.category.title,
-                                            cs.category.abbreviation)
-                                    bar_chart[cs.category.abbreviation][
-                                        'ord'] = cs.category.ordinal
-                                    bar_chart[cs.category.abbreviation][
-                                        'list'] = [cs.get_STARS_score()]
-
             _context['ratings'] = ratings
-
-            bar_chart_rows = []
-            for k, v in bar_chart.items():
-                avg, std, min, max = get_variance(v['list'])
-                var = "Standard Deviation: %.2f | Min: %.2f | Max %.2f" % (
-                    std, min, max)
-                bar_chart_rows.append({'short': k, 'avg': avg, 'var': var,
-                                       'ord': v['ord'], 'title': v['title']})
-
-            _context['bar_chart'] = bar_chart_rows
 
             # get participants-to-submission figures
 
@@ -144,7 +104,7 @@ class Dashboard(TemplateView):
                     start_date__lte=current_month).values(
                         'institution').distinct().count()
                 slice['reg_count'] = reg_count
-                if len(slices) == 0:
+                if len(slices) == 0:  # When is this true?
                     _context['total_reg_count'] = reg_count
 
                 rating_count = SubmissionSet.objects.filter(status='r')
