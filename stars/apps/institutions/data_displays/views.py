@@ -137,7 +137,7 @@ class Dashboard(TemplateView):
             for country, count in sorted(participants.items()):
                 ordered_participants[country] = count
 
-            _context['participants'] = dict(ordered_participants)
+            _context['participants'] = ordered_participants.items()
 
             # Cache this for 2 hours.
             cache_time = datetime.now()
