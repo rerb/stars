@@ -162,24 +162,7 @@ class Dashboard(TemplateView):
 
                 slices.insert(0, slice)
 
-            renew_count = 0
-            for slice in slices:
-                d = slice['date']
-                # find all the subscriptions starting that month
-                for sub in Subscription.objects.filter(
-                        start_date__year=d.year).filter(
-                            start_date__month=d.month):
-                    # If this institution has previous subscriptions
-                    # increment the count.
-                    if sub.institution.subscription_set.filter(
-                            start_date__lt=d):
-                        renew_count += 1
-
-                slice['renew_count'] = renew_count
-
-            _context['total_renew_count'] = renew_count
-
-            _context['ratings_renewals_registrations'] = slices
+            _context['ratings_registrations'] = slices
 
             # Horizontal Bar Chart
 

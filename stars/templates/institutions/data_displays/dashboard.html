@@ -70,12 +70,11 @@
      var data = new google.visualization.DataTable();
      data.addColumn('string', 'Month');
      data.addColumn('number', 'Registrations');
-     data.addColumn('number', 'Submissions');
-     data.addColumn('number', 'Renewals');
+     data.addColumn('number', 'Reports');
 
      data.addRows([
-       {% for row in ratings_renewals_registrations %}
-       ["{{ row.date|date:"M y" }}", {{ row.reg_count }}, {{ row.rating_count }}, {{ row.renew_count }}]{% if not forloop.last %},{% endif %}
+       {% for row in ratings_registrations %}
+       ["{{ row.date|date:"M y" }}", {{ row.reg_count }}, {{ row.rating_count }}]{% if not forloop.last %},{% endif %}
        {% endfor %}
      ]);
 
@@ -213,22 +212,21 @@
   </div>
 
   <div class="row">
+    <div class="span12">
+      <h2 class='dashboard'>Registrations & Reports</h2>
+    </div>
     <div class="span7">
       <div class="dashboard-chart" id="areaChart"></div>
     </div>
     <div class="span5">
-      <h2 class='dashboard'>STARS Registrations and Submissions</h2>
       <table class="table table-condensed">
 	<tbody>
 	  <tr>
 	    <th>Registrations</th>
 	    <td>{{ total_reg_count }}</td>
 	  </tr><tr>
-	    <th>Submissions</th>
+	    <th>Ratings</th>
 	    <td>{{ total_rating_count }}</td>
-	  </tr><tr>
-	    <th>Renewals</th>
-	    <td>{{ total_renew_count }}</td>
 	  </tr>
 	</tbody>
       </table>
