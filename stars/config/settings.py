@@ -480,4 +480,4 @@ if 'test' in sys.argv:
     AUTHORIZE_CLIENT_DEBUG = True
 
 # Override default of compression off when debug=true to test locally
-COMPRESS_ENABLED = True
+COMPRESS_ENABLED = os.environ.get('COMPRESS_ENABLED')
