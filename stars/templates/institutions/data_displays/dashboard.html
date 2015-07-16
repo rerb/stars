@@ -3,6 +3,7 @@
 {% load thumbnail %}
 {% load content %}
 {% load institution_lists %}
+{% load compress %}
 
 {% block crumb-tab %}
   <li>Dashboard Summary</li>
@@ -23,8 +24,8 @@
   </style>
 
   {{ block.super }}
-
   <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+{% compress js %}
   <script type="text/javascript">
    google.load("visualization", "1", {packages:["corechart"]});
    google.setOnLoadCallback(drawChart);
@@ -64,7 +65,7 @@
    }
   </script>
 
-  <script type="text/javascript">
+  <script async type="text/javascript">
    function drawAreaChart() {
 
      var data = new google.visualization.DataTable();
@@ -95,7 +96,7 @@
    google.setOnLoadCallback(drawAreaChart);
   </script>
 
-  <script type="text/javascript">
+  <script async type="text/javascript">
    function drawBarChart() {
      // Create and populate the data table.
      var data = new google.visualization.DataTable();
@@ -124,7 +125,7 @@
    google.setOnLoadCallback(drawBarChart);
   </script>
 
-  <script type="text/javascript">
+  <script async type="text/javascript">
    function drawMemberNumbersBarChart() {
      // Create and populate the data table.
      var data = new google.visualization.DataTable();
@@ -161,7 +162,7 @@
 
    google.setOnLoadCallback(drawMemberNumbersBarChart);
   </script>
-
+{% endcompress %}
 {% endblock %}
 
 {% block h1 %}STARS Dashboard{% endblock %}

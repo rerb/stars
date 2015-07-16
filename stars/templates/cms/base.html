@@ -147,11 +147,11 @@
   {% addtoblock "js" %}
   {% compress js %}
   <script type="text/javascript">var _sf_startpt=(new Date()).getTime()</script>
-  <script src="{{ STATIC_URL }}bootstrap/js/jquery.js" type="text/javascript"></script>
-  <script src="{{ STATIC_URL }}bootstrap/js/bootstrap.js" type="text/javascript"></script>
-  <script src="{{ STATIC_URL }}js/include.js" type="text/javascript"></script>
-  <script src="{{ STATIC_URL }}js/new_include.js" type="text/javascript"></script>
-  <script type="text/javascript">
+  <script async src="{{ STATIC_URL }}bootstrap/js/jquery.js" type="text/javascript"></script>
+  <script async src="{{ STATIC_URL }}bootstrap/js/bootstrap.js" type="text/javascript"></script>
+  <script async src="{{ STATIC_URL }}js/include.js" type="text/javascript"></script>
+  <script async src="{{ STATIC_URL }}js/new_include.js" type="text/javascript"></script>
+  <script async type="text/javascript">
 
 var _gaq = _gaq || [];
 _gaq.push(['_setAccount', 'UA-1056760-17']);
@@ -165,7 +165,7 @@ _gaq.push(['_trackPageview']);
 
 </script>
 
-<script type="text/javascript">
+<script async type="text/javascript">
 var _sf_async_config={};
 /** CONFIGURATION START **/
 _sf_async_config.uid = 22656;
