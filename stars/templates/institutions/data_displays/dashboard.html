@@ -90,7 +90,6 @@
      });
    }
 
-
    google.setOnLoadCallback(drawAreaChart);
   </script>
 
@@ -104,14 +103,6 @@
   {{ block.super }}
 
   Data Last Updated: {{ cache_time }}
-  <div class="row">
-    <div class="span12 dashboard-map" id="map_canvas" style='height: 500px;'></div>
-  </div>
-  <div class="well well-sm">
-    STARS pins represent rated institutions. Green dots are unrated institutions
-    with full access. Blue dots are unrated institutions with basic access.
-  </div>
-
   <div class="row">
     <div class="span12">
       <h2 class='dashboard'>Current Ratings</h2>
@@ -165,6 +156,14 @@
       </table>
       {% display_block_content 'dash_parts_and_subs' user %}
     </div>
+  </div>
+
+  <div class="row">
+    <div class="span12 dashboard-map" id="map_canvas" style='height: 500px;'></div>
+  </div>
+  <div class="well well-sm">
+    STARS pins represent rated institutions. Green dots are unrated institutions
+    with full access. Blue dots are unrated institutions with basic access.
   </div>
 
   <div class="row">
