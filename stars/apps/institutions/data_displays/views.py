@@ -110,7 +110,6 @@ class Dashboard(TemplateView):
 
                 rating_count = SubmissionSet.objects.filter(status='r')
                 rating_count = rating_count.filter(is_visible=True)
-                rating_count = rating_count.filter(expired=False)
                 rating_count = rating_count.filter(
                     date_submitted__lt=current_month)
                 rating_count = rating_count.count()
