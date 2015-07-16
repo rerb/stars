@@ -34,24 +34,6 @@ COMMON_1_0_FILTERS = [
         base_qs=BASE_1_0_QS
     ),
     Filter(
-        key='institution__charter_participant',
-        title='STARS Charter Participant',
-        item_list=[
-            ('Charter Participant', True),
-            ('Not a Charter Participant', False)
-        ],
-        base_qs=BASE_1_0_QS
-    ),
-    Filter(
-        key='institution__is_pilot_participant',
-        title='STARS Pilot Participant',
-        item_list=[
-            ('Pilot Participant', True),
-            ('Not a Pilot Participant', False)
-        ],
-        base_qs=BASE_1_0_QS
-    ),
-    Filter(
         key='rating__name',
         title='STARS Rating',
         item_list=[
@@ -108,24 +90,6 @@ COMMON_2_0_FILTERS = [
         item_list=[
             ('ACUPCC Signatory', True),
             ('Not an ACUPCC Signatory', False)
-        ],
-        base_qs=BASE_2_0_QS
-    ),
-    Filter(
-        key='institution__charter_participant',
-        title='STARS Charter Participant',
-        item_list=[
-            ('Charter Participant', True),
-            ('Not a Charter Participant', False)
-        ],
-        base_qs=BASE_2_0_QS
-    ),
-    Filter(
-        key='institution__is_pilot_participant',
-        title='STARS Pilot Participant',
-        item_list=[
-            ('Pilot Participant', True),
-            ('Not a Pilot Participant', False)
         ],
         base_qs=BASE_2_0_QS
     ),
