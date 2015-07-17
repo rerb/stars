@@ -11,8 +11,12 @@ class Migration(SchemaMigration):
         # Adding model 'ValueDiscount'
         db.create_table('registration_valuediscount', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('code', self.gf('django.db.models.fields.CharField')(max_length=16)),
-            ('amount', self.gf('django.db.models.fields.IntegerField')()),
+            ('code', self.gf('django.db.models.fields.CharField')(unique=True, max_length=36)),
+            ('amount', self.gf('django.db.models.fields.PositiveIntegerField')()),
+            ('applicability_filter', self.gf('django.db.models.fields.TextField')(blank=True)),
+            ('automatic', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('description', self.gf('django.db.models.fields.CharField')(max_length=78, blank=True)),
+            ('percentage', self.gf('django.db.models.fields.PositiveIntegerField')(default=0)),
             ('start_date', self.gf('django.db.models.fields.DateField')()),
             ('end_date', self.gf('django.db.models.fields.DateField')()),
         ))
@@ -27,10 +31,14 @@ class Migration(SchemaMigration):
     models = {
         'registration.valuediscount': {
             'Meta': {'object_name': 'ValueDiscount'},
-            'amount': ('django.db.models.fields.IntegerField', [], {}),
-            'code': ('django.db.models.fields.CharField', [], {'max_length': '16'}),
+            'amount': ('django.db.models.fields.PositiveIntegerField', [], {}),
+            'applicability_filter': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
+            'automatic': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'code': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '36'}),
+            'description': ('django.db.models.fields.CharField', [], {'max_length': '78', 'blank': 'True'}),
             'end_date': ('django.db.models.fields.DateField', [], {}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'percentage': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0'}),
             'start_date': ('django.db.models.fields.DateField', [], {})
         }
     }
