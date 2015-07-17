@@ -2,6 +2,7 @@
 
 {% load bootstrap %}
 {% load help %}
+{%  load compress %}
 
 {% block body_beforeunload %}{{ block.super }}return before_unload_credit();{% endblock %}
 
