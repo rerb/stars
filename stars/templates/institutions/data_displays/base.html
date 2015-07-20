@@ -1,12 +1,9 @@
 {% extends 'institutions/base.html' %}
 
 {% load content %}
-{% load compress %}
 
 {% block extra_head %}
 	{{ block.super }}
-    {% compress js %}
-	<script async src="{{ STATIC_URL }}js/parent_child_selects.js"
+	<script src="{{ STATIC_URL }}js/parent_child_selects.js"
             type="text/javascript"></script>
-    {% endcompress %}
 {% endblock %}

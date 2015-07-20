@@ -3,7 +3,6 @@
 {% load thumbnail %}
 {% load content %}
 {% load institution_lists %}
-{% load compress %}
 
 {% block crumb-tab %}
   <li>Dashboard Summary</li>
@@ -24,8 +23,8 @@
   </style>
 
   {{ block.super }}
+
   <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-{% compress js %}
   <script type="text/javascript">
    google.load("visualization", "1", {packages:["corechart"]});
    google.setOnLoadCallback(drawChart);
@@ -65,7 +64,7 @@
    }
   </script>
 
-  <script async type="text/javascript">
+  <script type="text/javascript">
    function drawAreaChart() {
 
      var data = new google.visualization.DataTable();
@@ -93,34 +92,6 @@
 
    google.setOnLoadCallback(drawAreaChart);
   </script>
-
-  <script async type="text/javascript">
-   function drawBarChart() {
-     // Create and populate the data table.
-     var data = new google.visualization.DataTable();
-
-     data.addColumn('string', 'Category');
-     data.addColumn('number', 'Score');
-
-     data.addRows([
-       {% for row in bar_chart|dictsort:"ord" %}
-       ['{{ row.short }}', {{ row.avg|floatformat:2 }}]{% if not forloop.last %},{% endif %}
-       {% endfor %}
-     ]);
-
-     // Create and draw the visualization.
-     new google.visualization.ColumnChart(document.getElementById('barChart')).
-                                                                  draw(data,
-                                                                       {
-       backgroundColor: "#f5f5f5",
-       colors: ["#0080CF", "#00BCE4"],
-       legend: 'none',
-       hAxis: {title: 'Category'},
-       vAxis: {title: "Average Score", baseline: 0},
-     });
-   }
-
-{% endcompress %}
 
 {% endblock %}
 

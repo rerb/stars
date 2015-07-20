@@ -1,10 +1,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
-{% load compress %}
 <head>
-{% compress js %}
-<script async language="javascript" src="../../tiny_mce_popup.js"></script>
-<script async type="text/javascript" src="jscripts/embed.js"></script>
-<script async type="text/javascript">
+<script language="javascript" src="../../tiny_mce_popup.js"></script>
+<script type="text/javascript" src="jscripts/embed.js"></script>
+<script type="text/javascript">
 tinyMCEPopup.onInit.add(function(ed) {
 	var dom = tinyMCEPopup.dom;
 
@@ -17,7 +15,6 @@ tinyMCEPopup.onInit.add(function(ed) {
 	dom.setHTML('content', ed.getContent());
 });
 </script>
-{% endcompress %}
 <title>Example of a custom preview page</title>
 </head>
 <body>

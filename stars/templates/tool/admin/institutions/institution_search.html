@@ -1,11 +1,7 @@
 {% extends 'tool/admin/institutions/base.html' %}
 
-{% load compress %}
-
 {% block extra_head %}
-    {% compress js %}
     <script src='/media/static/js/ajax.js' type='text/javascript'></script>
-    {% endcompress %}
 {% endblock %}
 
 {% block subsubmenu_class %}ssm_inst_search{% endblock %}

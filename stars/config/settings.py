@@ -70,7 +70,6 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
-    'compressor.finders.CompressorFinder',
 )
 
 SECRET_KEY = 'omxxweql@m7!@yh5a-)=f^_xo*(m2+gaz#+8dje)e6wv@q$v%@'
@@ -94,7 +93,6 @@ MIDDLEWARE_CLASSES = [ # a list so it can be editable during tests (see below)
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'geordi.VisorMiddleware',
 #    'aashe.aasheauth.middleware.AASHEAccountMiddleware',
     'django.middleware.cache.FetchFromCacheMiddleware',
     'django.contrib.redirects.middleware.RedirectFallbackMiddleware',
@@ -216,9 +214,7 @@ INSTALLED_APPS = (
     # 'cms.plugins.twitter',
     # 'mptt',
     # 'menus',
-    # 'sekizai',
-    'compressor',
-    'geordi',
+    # 'sekizai'
 )
 
 # auth config
@@ -478,6 +474,3 @@ if 'test' in sys.argv:
 
     AUTHORIZE_CLIENT_TEST = True
     AUTHORIZE_CLIENT_DEBUG = True
-
-# Override default of compression off when debug=true to test locally
-COMPRESS_ENABLED = os.environ.get('COMPRESS_ENABLED')

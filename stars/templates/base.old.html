@@ -1,23 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
-    {% load compress %}
 	<head>
-        {% compress css %}
+		<script type="text/javascript">var _sf_startpt=(new Date()).getTime()</script>
         <link rel="stylesheet" href="{{  STATIC_URL  }}css/base.css">
         <link rel="stylesheet" href="{{  STATIC_URL  }}css/facelift.css">
 		<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}bootstrap/css/bootstrap.css">
  		<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}fonts/dejavu-sans/stylesheet.css">
-        {% endcompress %}
 
 		<link rel="shortcut icon" href="{{ STATIC_URL }}images/stars_favicon.ico" type="image/x-icon" />
 
-        {% compress js %}
-        <script async type="text/javascript">var _sf_startpt=(new Date()).getTime()</script>
-		<script async src="{{ STATIC_URL }}bootstrap/js/jquery.js" type="text/javascript"></script>
-		<script async src="{{ STATIC_URL }}bootstrap/js/bootstrap.js" type="text/javascript"></script>
-		<script async src="{{ STATIC_URL }}js/include.js" type="text/javascript"></script>
-		<script async src="{{ STATIC_URL }}js/new_include.js" type="text/javascript"></script>
-        {% endcompress %}
+		<script src="{{ STATIC_URL }}bootstrap/js/jquery.js" type="text/javascript"></script>
+		<script src="{{ STATIC_URL }}bootstrap/js/bootstrap.js" type="text/javascript"></script>
+		<script src="{{ STATIC_URL }}js/include.js" type="text/javascript"></script>
+		<script src="{{ STATIC_URL }}js/new_include.js" type="text/javascript"></script>
 
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 
