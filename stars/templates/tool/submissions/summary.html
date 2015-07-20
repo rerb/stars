@@ -1,6 +1,7 @@
 {% extends "tool/submissions/columned_layout.html" %}
 
 {% load logical_rules_tags %}
+{% load compress %}
 
 {% block crumbs-tool %}
   {% load submit_tags  %}
@@ -174,7 +175,9 @@
 
 {% block extra_footer %}
     {{ block.super }}
-    <script type="text/javascript">
+    {% compress js %}
+    <script async type="text/javascript">
         $(".collapse").collapse('hide');
     </script>
+    {% endcompress %}
 {% endblock %}

@@ -1,11 +1,14 @@
 {% extends 'institutions/scorecards/base.html' %}
 
 {% load bootstrap %}
+{% load compress %}
 
 {% block extra_head %}
 	{{ block.super }}
-	<script type="text/javascript" src="http://code.jquery.com/jquery-1.4.2.min.js"></script>
+    {% compress js %}
+	<script async type="text/javascript" src="http://code.jquery.com/jquery-1.4.2.min.js"></script>
       </script>
+    {% endcompress %}
 {% endblock %}
 
 {% block crumb-tab %}

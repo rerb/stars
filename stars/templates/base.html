@@ -1,17 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
+    {%  load compress %}
     <head>
-        <script type="text/javascript">var _sf_startpt=(new Date()).getTime()</script>
+        {% compress css %}
         <link rel="stylesheet" href="{{ STATIC_URL }}bootstrap/css/bootstrap.css">
         <link rel="stylesheet" href="{{ STATIC_URL }}fonts/dejavu-sans/stylesheet.css">
         <link rel="stylesheet" href="{{  STATIC_URL  }}css/base.css">
         <link rel="stylesheet" href="{{  STATIC_URL  }}css/facelift.css">
-        <script type="text/javascript"> /* Provisory for dev environment: */ localStorage.clear(); </script>
+        {% endcompress %}
+
+        {% compress js %}
+        <script async type="text/javascript">var _sf_startpt=(new Date()).getTime()</script>
+        <script async  type="text/javascript"> /* Provisory for dev environment: */ localStorage.clear(); </script>
+        <script async  src="{{ STATIC_URL }}bootstrap/js/jquery.js" type="text/javascript"></script>
+        <script async  src="{{ STATIC_URL }}bootstrap-2.3.2/js/bootstrap.min.js" type="text/javascript"></script>
+        <script async  src="{{ STATIC_URL }}js/include.js" type="text/javascript"></script>
+        <script async  src="{{ STATIC_URL }}js/new_include.js" type="text/javascript"></script>
+        {% endcompress %}
+
         <link rel="shortcut icon" href="{{ STATIC_URL }}images/stars_favicon.ico" type="image/x-icon" />
-	<script src="{{ STATIC_URL }}bootstrap/js/jquery.js" type="text/javascript"></script>
-	<script src="{{ STATIC_URL }}bootstrap-2.3.2/js/bootstrap.min.js" type="text/javascript"></script>
-	<script src="{{ STATIC_URL }}js/include.js" type="text/javascript"></script>
-	<script src="{{ STATIC_URL }}js/new_include.js" type="text/javascript"></script>
 
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 	<meta name="description" content="STARS is a transparent, self-reporting framework for colleges and universities to gauge relative progress toward sustainability." />
@@ -151,7 +158,6 @@
 
 <script>
 UserVoice=window.UserVoice||[];(function(){var uv=document.createElement('script');uv.type='text/javascript';uv.async=true;uv.src='//widget.uservoice.com/FgC7fgYHgQ6x9LPBGmpbCw.js';var s=document.getElementsByTagName('script')[0];s.parentNode.insertBefore(uv,s)})();
-
 UserVoice.push(['set', {
   accent_color: '#53a753',
   trigger_color: 'white',
