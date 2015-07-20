@@ -1,3 +1,6 @@
-<script type="text/javascript">
+{% load compress %}
+{% compress js %}
+<script async type="text/javascript">
     opener.dismissAddAnotherPopup(window, "{{ id }}", "{{ name }}");
 </script>
+{% endcompress %}

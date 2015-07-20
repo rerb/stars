@@ -1,6 +1,7 @@
 {% extends 'institutions/data_displays/dashboard_base.html' %}
 
 {% load content %}
+{% load compress %}
 
 {% block crumb-tab %}
 	<li>Dashboard Average Scores</li>
@@ -10,8 +11,9 @@
 
 {% block extra_head %}
    <title>Pie Chart</title>
-   <script src="{{ STATIC_URL }}js/d3.v3.min.js"></script>
-   <script type="text/javascript" src="{{ STATIC_URL }}js/stars_d3.js"></script>
+    {% compress js %}
+   <script async src="{{ STATIC_URL }}js/d3.v3.min.js"></script>
+   <script async type="text/javascript" src="{{ STATIC_URL }}js/stars_d3.js"></script>
    <style type="text/css">
 
 #viz {
@@ -53,7 +55,7 @@
    <p align='center'>Built using <a href='http://mbostock.github.com/d3/'>d3.js</a>.</p>
    <p align='center'>Special thanks to Anna Mika for some pie chart <a href='http://www.uvm.edu/sustain/aashe-stars'>inspiration.</a></p>
 
-   <script type="text/javascript">
+   <script async type="text/javascript">
 
     var r = 200,
         w = 700,
@@ -351,4 +353,5 @@
     }
 
    </script>
+{% endcompress %}
 {% endblock %}
