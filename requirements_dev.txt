@@ -4,4 +4,3 @@ elpy
 ipdb
 pyflakes
 rope
-geordi
