@@ -1,5 +1,7 @@
 {% extends 'institutions/data_displays/base.html' %}
 
+{% load compress %}
+
 {% block crumb-tab %}
 	<li>Category Display</li>
 {% endblock %}
@@ -17,7 +19,8 @@
 
 	{% include "institutions/data_displays/filter_js.html" %}
 	{% if object_list %}
-	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+	<script async type="text/javascript" src="https://www.google.com/jsapi"></script>
+    {% compress js %}
     <script type="text/javascript">
       google.load("visualization", "1", {packages:["corechart"]});
       google.setOnLoadCallback(drawChart);
@@ -73,6 +76,7 @@
                          });
       }
     </script>
+    {% endcompress %}
     {% endif %}
 {% endblock %}
 

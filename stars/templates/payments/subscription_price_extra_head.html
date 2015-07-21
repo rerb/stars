@@ -1,4 +1,6 @@
 {% block extra_head %}
+{% load compress %}
+{% compress js %}
   <script type="text/javascript">
     function addThousandsCommas(text_amount) {
         var number_parts;
@@ -142,4 +144,5 @@
         }
     });
   </script>
+{% endcompress %}
 {% endblock %}

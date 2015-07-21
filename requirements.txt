@@ -77,3 +77,5 @@ zc.ssl==1.2
 zope.exceptions==4.0.5
 zope.interface==4.0.3
 zope.testing==4.1.1
+django-compressor
+geordi

@@ -1,24 +1,26 @@
 {% extends 'tool/base.html' %}
 
+{% load compress %}
+
 {% block title %}
     {{ creditset }} | Credit Editor | {{ block.super }}
 {% endblock %}
-
+{% compress js %}
 {% block extra_head %}
     {{ block.super }}
     {% block tinymce %}
-    <script type="text/javascript"
+    <script async type="text/javascript"
             src="{{ STATIC_URL }}tp/tinymce/js/tinymce/tinymce.min.js"></script>
-    <script type="text/javascript">
+    <script async type="text/javascript">
         tinymce.init({plugins: "link paste table,",
                       tools: "inserttable",
                       convert_urls : false,
                       selector: "textarea:not(.noMCE)"});
     </script>
     {% endblock %}
-    <script type="text/javascript"
+    <script async type="text/javascript"
             src="{{ STATIC_URL }}js/tablednd.js"></script>
-	<script src="{{ STATIC_URL }}js/select_tree.js"></script>
+	<script async src="{{ STATIC_URL }}js/select_tree.js"></script>
 {% endblock %}
 
 {% block body_onload %}
@@ -51,9 +53,10 @@
 {% endblock %}
 
 {% block extra_footer %}
-    <script type='text/javascript'>
+    <script async type='text/javascript'>
         var tableDnD = null;
         setTable('dndtable');
     </script>
     {{ block.super }}
 {% endblock %}
+{% endcompress %}
