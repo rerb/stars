@@ -5,11 +5,10 @@
 {% block title %}
     {{ creditset }} | Credit Editor | {{ block.super }}
 {% endblock %}
-
+{% compress js %}
 {% block extra_head %}
     {{ block.super }}
     {% block tinymce %}
-    {% compress js %}
     <script async type="text/javascript"
             src="{{ STATIC_URL }}tp/tinymce/js/tinymce/tinymce.min.js"></script>
     <script async type="text/javascript">
@@ -58,6 +57,6 @@
         var tableDnD = null;
         setTable('dndtable');
     </script>
-{% endcompress %}
     {{ block.super }}
 {% endblock %}
+{% endcompress %}
