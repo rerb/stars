@@ -143,7 +143,8 @@ class Institution(models.Model):
     stars_staff_notes = models.TextField(blank=True, null=True)
     date_created = models.DateTimeField(auto_now_add=True,
                                         blank=True,
-                                        null=True)
+                                        null=True,
+                                        db_index=True)
     international = models.BooleanField(default=False)
 
     # ISS properties
@@ -1465,7 +1466,7 @@ class Institution(models.Model):
 
     charter_participant = models.BooleanField()
     stars_staff_notes = models.TextField(blank=True, null=True)
-    date_created = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+    date_created = models.DateTimeField(auto_now_add=True, blank=True, null=True, db_index=True)
     international = models.BooleanField(default=False)
 
     # ISS properties
