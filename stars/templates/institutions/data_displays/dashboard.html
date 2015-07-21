@@ -3,7 +3,6 @@
 {% load thumbnail %}
 {% load content %}
 {% load institution_lists %}
-{% load compress %}
 
 {% block crumb-tab %}
   <li>Dashboard Summary</li>
@@ -25,7 +24,7 @@
 
   {{ block.super }}
   <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-{% compress js %}
+
   <script type="text/javascript">
    google.load("visualization", "1", {packages:["corechart"]});
    google.setOnLoadCallback(drawChart);
@@ -94,8 +93,6 @@
 
    google.setOnLoadCallback(drawAreaChart);
   </script>
-
-{% endcompress %}
 
 {% endblock %}
 
