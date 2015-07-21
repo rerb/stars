@@ -185,7 +185,7 @@
             {% if forloop.counter <= half_num_participants %}
 	      <tr>
 	        <th>{{ country }}</th>
-	        <td>{{ count }}</td>
+	        <td style="text-align:right">{{ count }}</td>
 	      </tr>
             {% endif %}
           {% endfor %}
@@ -199,7 +199,7 @@
             {% if forloop.counter > half_num_participants %}
 	      <tr>
 	        <th>{{ country }}</th>
-	        <td>{{ count }}</td>
+	        <td style="text-align:right">{{ count }}</td>
 	      </tr>
             {% endif %}
           {% endfor %}
