@@ -62,11 +62,7 @@ class Dashboard(TemplateView):
             _context = {}
             _context['display_version'] = "2.0"  # used in the tabs
 
-            ratings = {}
-            for r in Rating.objects.all():
-                if r.name not in ratings.keys():
-                    ratings[r.name] = 0
-
+            ratings = collections.defaultdict(int)
             for i in Institution.objects.filter(current_rating__isnull=False):
                 if i.current_submission.expired:
                     continue
@@ -103,7 +99,7 @@ class Dashboard(TemplateView):
                 slice = {}
                 subscription_count = Subscription.objects.filter(
                     start_date__lte=current_month).values(
-                        'institution').distinct().count()
+                        'institution').count()
                 slice['subscription_count'] = subscription_count
                 if len(slices) == 0:
                     _context['total_subscription_count'] = subscription_count
@@ -119,6 +115,7 @@ class Dashboard(TemplateView):
 
                 participant_count = Institution.objects.filter(
                     date_created__lt=current_month).count()
+
                 slice['participant_count'] = participant_count
                 if len(slices) == 0:
                     _context['total_participant_count'] = participant_count
@@ -135,6 +132,12 @@ class Dashboard(TemplateView):
             for slice in slices:
                 if slice['participant_count']:
                     slice['participant_count'] += num_extras
+                else:
+                    # Don't know how many Institutions we had in this
+                    # month, but we know we had so many Subscriptions,
+                    # and each one of those was matched by an
+                    # Institution, so:
+                    slice['participant_count'] = slice['subscription_count']
 
             _context['total_participant_count'] += num_extras
 
