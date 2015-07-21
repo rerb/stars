@@ -3,6 +3,7 @@
 {% load thumbnail %}
 {% load content %}
 {% load institution_lists %}
+{% load compress %}
 
 {% block crumb-tab %}
   <li>Dashboard Summary</li>
@@ -23,8 +24,8 @@
   </style>
 
   {{ block.super }}
-
   <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+{% compress js %}
   <script type="text/javascript">
    google.load("visualization", "1", {packages:["corechart"]});
    google.setOnLoadCallback(drawChart);
@@ -64,17 +65,18 @@
    }
   </script>
 
-  <script type="text/javascript">
+  <script async type="text/javascript">
    function drawAreaChart() {
 
      var data = new google.visualization.DataTable();
      data.addColumn('string', 'Month');
-     data.addColumn('number', 'Registrations');
-     data.addColumn('number', 'Reports');
+     data.addColumn('number', 'Subscriptions');
+     data.addColumn('number', 'Ratings');
+     data.addColumn('number', 'Participants');
 
      data.addRows([
-       {% for row in ratings_registrations %}
-       ["{{ row.date|date:"M y" }}", {{ row.reg_count }}, {{ row.rating_count }}]{% if not forloop.last %},{% endif %}
+       {% for row in ratings_subscriptions_participants %}
+       ["{{ row.date|date:"M y" }}", {{ row.subscription_count }}, {{ row.rating_count }}, {{ row.participant_count }}]{% if not forloop.last %},{% endif %}
        {% endfor %}
      ]);
 
@@ -92,6 +94,8 @@
 
    google.setOnLoadCallback(drawAreaChart);
   </script>
+
+{% endcompress %}
 
 {% endblock %}
 
@@ -137,7 +141,7 @@
 
   <div class="row">
     <div class="span12">
-      <h2 class='dashboard'>Registrations & Reports</h2>
+      <h2 class='dashboard'>Participation</h2>
     </div>
     <div class="span7">
       <div class="dashboard-chart" id="areaChart"></div>
@@ -146,8 +150,12 @@
       <table class="table table-condensed">
 	<tbody>
 	  <tr>
-	    <th>Registrations</th>
-	    <td>{{ total_reg_count }}</td>
+	    <th>Participants</th>
+	    <td>{{ total_participant_count }}</td>
+	  </tr><tr>
+	    <th>Subscriptions</th>
+	    <td>{{ total_subscription_count }}</td>
+	  </tr>
 	  </tr><tr>
 	    <th>Ratings</th>
 	    <td>{{ total_rating_count }}</td>

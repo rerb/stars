@@ -8,7 +8,7 @@ from excel_response import ExcelResponse
 
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
-from django.db.models import Q, Avg, StdDev, Min, Max
+from django.db.models import Avg, StdDev, Min, Max
 from django.views.generic import TemplateView
 from django.http import Http404
 
@@ -28,9 +28,9 @@ from stars.apps.institutions.data_displays.common_filters import *
 from stars.apps.institutions.data_displays.forms import (
     ScoreColumnForm,
     ReportingFieldSelectForm)
-from stars.apps.institutions.data_displays.utils import get_variance
 from stars.apps.institutions.models import Institution, Subscription
-from stars.apps.submissions.models import (SubmissionSet, CreditUserSubmission,
+from stars.apps.submissions.models import (SubmissionSet,
+                                           CreditUserSubmission,
                                            DocumentationFieldSubmission,
                                            CategorySubmission,
                                            SubcategorySubmission)
@@ -101,12 +101,12 @@ class Dashboard(TemplateView):
                     start_date__lte=current_month).all():
                 # create a "slice" from the current month
                 slice = {}
-                reg_count = Subscription.objects.filter(
+                subscription_count = Subscription.objects.filter(
                     start_date__lte=current_month).values(
                         'institution').distinct().count()
-                slice['reg_count'] = reg_count
-                if len(slices) == 0:  # When is this true?
-                    _context['total_reg_count'] = reg_count
+                slice['subscription_count'] = subscription_count
+                if len(slices) == 0:
+                    _context['total_subscription_count'] = subscription_count
 
                 rating_count = SubmissionSet.objects.filter(status='r')
                 rating_count = rating_count.filter(is_visible=True)
@@ -117,12 +117,28 @@ class Dashboard(TemplateView):
                 if len(slices) == 0:
                     _context['total_rating_count'] = rating_count
 
+                participant_count = Institution.objects.filter(
+                    date_created__lt=current_month).count()
+                slice['participant_count'] = participant_count
+                if len(slices) == 0:
+                    _context['total_participant_count'] = participant_count
+
                 current_month = change_month(current_month, -1)
                 slice['date'] = current_month
 
                 slices.insert(0, slice)
 
-            _context['ratings_registrations'] = slices
+            # A good number of Institutions don't have a date_created
+            # value, so we need to adjust our counts by that number.
+            num_extras = Institution.objects.filter(
+                date_created=None).count()
+            for slice in slices:
+                if slice['participant_count']:
+                    slice['participant_count'] += num_extras
+
+            _context['total_participant_count'] += num_extras
+
+            _context['ratings_subscriptions_participants'] = slices
 
             # Get data for registrants-by-country table.
             participants = collections.defaultdict(int)
