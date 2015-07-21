@@ -16,7 +16,6 @@ from logical_rules.mixins import RulesMixin
 from stars.apps.accounts.mixins import StarsAccountMixin
 
 from stars.apps.credits.models import (CreditSet,
-                                       Rating,
                                        Credit,
                                        Category,
                                        Subcategory,
@@ -44,6 +43,8 @@ USAGE_TEXT = (
     " certain Data Use Guidelines"
     " (http://www.aashe.org/files/documents/STARS/data_use_guidelines.pdf)"
     " are met.")
+
+CACHE_HOURS=24  # Number of hours to cache results.
 
 
 class Dashboard(TemplateView):
@@ -158,10 +159,12 @@ class Dashboard(TemplateView):
             _context['participants'] = ordered_participants.items()
             _context['half_num_participants'] = len(ordered_participants) / 2
 
-            # Cache this for 2 hours.
+            # Cache this for CACHE_HOURS hours.
             cache_time = datetime.now()
-            cache.set('stars_dashboard_context', _context, 60 * 120)
-            cache.set('stars_dashboard_context_cache_time', cache_time, 60*120)
+            cache.set('stars_dashboard_context', _context,
+                      60 * 60 * CACHE_HOURS)
+            cache.set('stars_dashboard_context_cache_time', cache_time,
+                      60 * 60 * CACHE_HOURS)
 
         _context['cache_time'] = cache_time
         _context.update(super(Dashboard, self).get_context_data(**kwargs))
@@ -220,8 +223,8 @@ class CommonFilterMixin(object):
             ),
         ] + common_filters
 
-        # Store in the cache for 6 hours
-        cache.set(cache_key, filters, 60 * 60 * 6)
+        # Store in the cache for CACHE_HOURS hours
+        cache.set(cache_key, filters, 60 * 60 * CACHE_HOURS)
         return filters
 
     def convertCacheKey(self, key):
@@ -336,7 +339,7 @@ class AggregateFilter(DisplayAccessMixin, CommonFilterMixin, FilteringMixin,
 
                 row['columns'] = columns
 
-                cache.set(cache_key, row, 60 * 60 * 6)  # cache for 6 hours
+                cache.set(cache_key, row, 60 * 60 * CACHE_HOURS)
 
             object_list.insert(0, row)
 
@@ -792,7 +795,7 @@ class ContentFilter(DisplayAccessMixin, CommonFilterMixin,
                                "assessed_points": None, 'point_value': None}
                     object_list.append(row)
 
-        cache.set(cache_key, object_list, 60*120)  # Cache for 2 hours
+        cache.set(cache_key, object_list, 60 * 60 * CACHE_HOURS)
         return object_list
 
     def get_context_data(self, **kwargs):
