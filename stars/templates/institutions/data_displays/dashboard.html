@@ -25,7 +25,9 @@
 
   {{ block.super }}
   <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+
 {% compress js %}
+
   <script type="text/javascript">
    google.load("visualization", "1", {packages:["corechart"]});
    google.setOnLoadCallback(drawChart);
@@ -70,12 +72,13 @@
 
      var data = new google.visualization.DataTable();
      data.addColumn('string', 'Month');
-     data.addColumn('number', 'Registrations');
-     data.addColumn('number', 'Reports');
+     data.addColumn('number', 'Subscriptions');
+     data.addColumn('number', 'Participants');
+     data.addColumn('number', 'Ratings');
 
      data.addRows([
-       {% for row in ratings_registrations %}
-       ["{{ row.date|date:"M y" }}", {{ row.reg_count }}, {{ row.rating_count }}]{% if not forloop.last %},{% endif %}
+       {% for row in ratings_subscriptions_participants %}
+         ["{{ row.date|date:"M y" }}", {{ row.subscription_count|stringformat:"d" }}, {{ row.participant_count|stringformat:"d" }}, {{ row.rating_count|stringformat:"d" }}]{% if not forloop.last %},{% endif %}
        {% endfor %}
      ]);
 
@@ -132,6 +135,7 @@
   {{ block.super }}
 
   Data Last Updated: {{ cache_time }}
+
   <div class="row">
     <div class="span12">
       <h2 class='dashboard'>Current Ratings</h2>
@@ -144,19 +148,19 @@
 	<tbody>
 	  <tr>
 	    <th>Platinum</th>
-	    <td>{{ ratings.Platinum }}</td>
+	    <td style="text-align:right">{{ ratings.Platinum }}</td>
 	  </tr><tr>
 	    <th>Gold</th>
-	    <td>{{ ratings.Gold }}</td>
+	    <td style="text-align:right">{{ ratings.Gold }}</td>
 	  </tr><tr>
 	    <th>Silver</th>
-	    <td>{{ ratings.Silver }}</td>
+	    <td style="text-align:right">{{ ratings.Silver }}</td>
 	  </tr><tr>
 	    <th>Bronze</th>
-	    <td>{{ ratings.Bronze }}</td>
+	    <td style="text-align:right">{{ ratings.Bronze }}</td>
 	  </tr><tr>
 	    <th>Reporter</th>
-	    <td>{{ ratings.Reporter }}</td>
+	    <td style="text-align:right">{{ ratings.Reporter }}</td>
 	  </tr>
 	</tbody>
       </table>
@@ -166,7 +170,7 @@
 
   <div class="row">
     <div class="span12">
-      <h2 class='dashboard'>Registrations & Reports</h2>
+      <h2 class='dashboard'>Participation</h2>
     </div>
     <div class="span7">
       <div class="dashboard-chart" id="areaChart"></div>
@@ -175,11 +179,17 @@
       <table class="table table-condensed">
 	<tbody>
 	  <tr>
-	    <th>Registrations</th>
-	    <td>{{ total_reg_count }}</td>
-	  </tr><tr>
+	    <th>Subscriptions</th>
+	    <td style="text-align:right">{{ total_subscription_count }}</td>
+	  </tr>
+          <tr>
+	    <th>Participants</th>
+	    <td style="text-align:right">{{ total_participant_count }}</td>
+	  </tr>
+	  </tr>
+          <tr>
 	    <th>Ratings</th>
-	    <td>{{ total_rating_count }}</td>
+	    <td style="text-align:right">{{ total_rating_count }}</td>
 	  </tr>
 	</tbody>
       </table>
@@ -188,6 +198,9 @@
   </div>
 
   <div class="row">
+    <div class="span12">
+      <h2 class='dashboard'>Participants by Country</h2>
+    </div>
     <div class="span12 dashboard-map" id="map_canvas" style='height: 500px;'></div>
   </div>
   <div class="well well-sm">
@@ -196,9 +209,6 @@
   </div>
 
   <div class="row">
-    <div class="span12">
-      <h2 class='dashboard'>Participants by Country</h2>
-    </div>
     <div class="span6">
       <table class="table table-condensed">
 	<tbody>
@@ -206,7 +216,7 @@
             {% if forloop.counter <= half_num_participants %}
 	      <tr>
 	        <th>{{ country }}</th>
-	        <td>{{ count }}</td>
+	        <td style="text-align:right">{{ count }}</td>
 	      </tr>
             {% endif %}
           {% endfor %}
@@ -220,7 +230,7 @@
             {% if forloop.counter > half_num_participants %}
 	      <tr>
 	        <th>{{ country }}</th>
-	        <td>{{ count }}</td>
+	        <td style="text-align:right">{{ count }}</td>
 	      </tr>
             {% endif %}
           {% endfor %}

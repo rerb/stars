@@ -8,7 +8,7 @@ from excel_response import ExcelResponse
 
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
-from django.db.models import Q, Avg, StdDev, Min, Max
+from django.db.models import Avg, StdDev, Min, Max
 from django.views.generic import TemplateView
 from django.http import Http404
 
@@ -16,7 +16,6 @@ from logical_rules.mixins import RulesMixin
 from stars.apps.accounts.mixins import StarsAccountMixin
 
 from stars.apps.credits.models import (CreditSet,
-                                       Rating,
                                        Credit,
                                        Category,
                                        Subcategory,
@@ -28,9 +27,9 @@ from stars.apps.institutions.data_displays.common_filters import *
 from stars.apps.institutions.data_displays.forms import (
     ScoreColumnForm,
     ReportingFieldSelectForm)
-from stars.apps.institutions.data_displays.utils import get_variance
 from stars.apps.institutions.models import Institution, Subscription
-from stars.apps.submissions.models import (SubmissionSet, CreditUserSubmission,
+from stars.apps.submissions.models import (SubmissionSet,
+                                           CreditUserSubmission,
                                            DocumentationFieldSubmission,
                                            CategorySubmission,
                                            SubcategorySubmission)
@@ -44,6 +43,8 @@ USAGE_TEXT = (
     " certain Data Use Guidelines"
     " (http://www.aashe.org/files/documents/STARS/data_use_guidelines.pdf)"
     " are met.")
+
+CACHE_HOURS=24  # Number of hours to cache results.
 
 
 class Dashboard(TemplateView):
@@ -62,11 +63,7 @@ class Dashboard(TemplateView):
             _context = {}
             _context['display_version'] = "2.0"  # used in the tabs
 
-            ratings = {}
-            for r in Rating.objects.all():
-                if r.name not in ratings.keys():
-                    ratings[r.name] = 0
-
+            ratings = collections.defaultdict(int)
             for i in Institution.objects.filter(current_rating__isnull=False):
                 if i.current_submission.expired:
                     continue
@@ -101,12 +98,12 @@ class Dashboard(TemplateView):
                     start_date__lte=current_month).all():
                 # create a "slice" from the current month
                 slice = {}
-                reg_count = Subscription.objects.filter(
+                subscription_count = Subscription.objects.filter(
                     start_date__lte=current_month).values(
-                        'institution').distinct().count()
-                slice['reg_count'] = reg_count
-                if len(slices) == 0:  # When is this true?
-                    _context['total_reg_count'] = reg_count
+                        'institution').count()
+                slice['subscription_count'] = subscription_count
+                if len(slices) == 0:
+                    _context['total_subscription_count'] = subscription_count
 
                 rating_count = SubmissionSet.objects.filter(status='r')
                 rating_count = rating_count.filter(is_visible=True)
@@ -117,12 +114,35 @@ class Dashboard(TemplateView):
                 if len(slices) == 0:
                     _context['total_rating_count'] = rating_count
 
+                participant_count = Institution.objects.filter(
+                    date_created__lt=current_month).count()
+
+                slice['participant_count'] = participant_count
+                if len(slices) == 0:
+                    _context['total_participant_count'] = participant_count
+
                 current_month = change_month(current_month, -1)
                 slice['date'] = current_month
 
                 slices.insert(0, slice)
 
-            _context['ratings_registrations'] = slices
+            # A good number of Institutions don't have a date_created
+            # value, so we need to adjust our counts by that number.
+            num_extras = Institution.objects.filter(
+                date_created=None).count()
+            for slice in slices:
+                if slice['participant_count']:
+                    slice['participant_count'] += num_extras
+                else:
+                    # Don't know how many Institutions we had in this
+                    # month, but we know we had so many Subscriptions,
+                    # and each one of those was matched by an
+                    # Institution, so:
+                    slice['participant_count'] = slice['subscription_count']
+
+            _context['total_participant_count'] += num_extras
+
+            _context['ratings_subscriptions_participants'] = slices
 
             # Get data for registrants-by-country table.
             participants = collections.defaultdict(int)
@@ -139,10 +159,12 @@ class Dashboard(TemplateView):
             _context['participants'] = ordered_participants.items()
             _context['half_num_participants'] = len(ordered_participants) / 2
 
-            # Cache this for 2 hours.
+            # Cache this for CACHE_HOURS hours.
             cache_time = datetime.now()
-            cache.set('stars_dashboard_context', _context, 60 * 120)
-            cache.set('stars_dashboard_context_cache_time', cache_time, 60*120)
+            cache.set('stars_dashboard_context', _context,
+                      60 * 60 * CACHE_HOURS)
+            cache.set('stars_dashboard_context_cache_time', cache_time,
+                      60 * 60 * CACHE_HOURS)
 
         _context['cache_time'] = cache_time
         _context.update(super(Dashboard, self).get_context_data(**kwargs))
@@ -201,8 +223,8 @@ class CommonFilterMixin(object):
             ),
         ] + common_filters
 
-        # Store in the cache for 6 hours
-        cache.set(cache_key, filters, 60 * 60 * 6)
+        # Store in the cache for CACHE_HOURS hours
+        cache.set(cache_key, filters, 60 * 60 * CACHE_HOURS)
         return filters
 
     def convertCacheKey(self, key):
@@ -317,7 +339,7 @@ class AggregateFilter(DisplayAccessMixin, CommonFilterMixin, FilteringMixin,
 
                 row['columns'] = columns
 
-                cache.set(cache_key, row, 60 * 60 * 6)  # cache for 6 hours
+                cache.set(cache_key, row, 60 * 60 * CACHE_HOURS)
 
             object_list.insert(0, row)
 
@@ -773,7 +795,7 @@ class ContentFilter(DisplayAccessMixin, CommonFilterMixin,
                                "assessed_points": None, 'point_value': None}
                     object_list.append(row)
 
-        cache.set(cache_key, object_list, 60*120)  # Cache for 2 hours
+        cache.set(cache_key, object_list, 60 * 60 * CACHE_HOURS)
         return object_list
 
     def get_context_data(self, **kwargs):
