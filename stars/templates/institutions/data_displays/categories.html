@@ -19,7 +19,7 @@
 
 	{% include "institutions/data_displays/filter_js.html" %}
 	{% if object_list %}
-	<script async type="text/javascript" src="https://www.google.com/jsapi"></script>
+	<script type="text/javascript" src="https://www.google.com/jsapi"></script>
     {% compress js %}
     <script type="text/javascript">
       google.load("visualization", "1", {packages:["corechart"]});
