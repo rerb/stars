@@ -40,7 +40,7 @@ class FilterTestCase(TestCase):
     def test_get_select_list(self):
         self.assertEqual(
             self.filter.item_list,
-            filter.get_select_list())
+            self.filter.get_select_list())
 
     def test_get_results_DO_NOT_FILTER(self):
         """Does get_results handle the DO_NOT_FILTER flag?
