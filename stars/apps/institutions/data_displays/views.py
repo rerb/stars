@@ -53,121 +53,133 @@ class Dashboard(TemplateView):
     """
     template_name = "institutions/data_displays/dashboard.html"
 
+    def get_ratings_context(self):
+        """Return a context for the Ratings graph."""
+        ratings = collections.defaultdict(int)
+        for i in Institution.objects.filter(current_rating__isnull=False):
+            if i.current_submission.expired:
+                continue
+            ratings[i.current_rating.name] += 1
+        return ratings
+
+    def get_participation_context(self):
+        """Return a context for the participation line graph."""
+        current_month = date.today()
+        current_month = current_month.replace(day=1)
+
+        def change_month(d, delta):
+            if d.month + delta == 13:
+                d = d.replace(month=1)
+                d = d.replace(year=d.year + 1)
+            elif d.month + delta == 0:
+                d = d.replace(month=12)
+                d = d.replace(year=d.year - 1)
+            else:
+                d = d.replace(month=d.month+delta)
+            return d
+
+        current_month = change_month(current_month, 1)
+
+        slices = []
+        context = {}
+
+        # go back through all months until we don't have any subscriptions
+        while Subscription.objects.filter(
+                start_date__lte=current_month).all():
+            # create a "slice" from the current month
+            slice = {}
+            subscription_count = Subscription.objects.filter(
+                start_date__lte=current_month).values(
+                    'institution').count()
+            slice['subscription_count'] = subscription_count
+            if len(slices) == 0:
+                context['total_subscription_count'] = subscription_count
+
+            rating_count = SubmissionSet.objects.filter(status='r')
+            rating_count = rating_count.filter(is_visible=True)
+            rating_count = rating_count.filter(
+                date_submitted__lt=current_month)
+            rating_count = rating_count.count()
+            slice['rating_count'] = rating_count
+            if len(slices) == 0:
+                context['total_rating_count'] = rating_count
+
+            participant_count = Institution.objects.filter(
+                date_created__lt=current_month).count()
+
+            slice['participant_count'] = participant_count
+            if len(slices) == 0:
+                context['total_participant_count'] = participant_count
+
+            current_month = change_month(current_month, -1)
+            slice['date'] = current_month
+
+            slices.insert(0, slice)
+
+        # A good number of Institutions don't have a date_created
+        # value, so we need to adjust our counts by that number.
+        num_extras = Institution.objects.filter(
+            date_created=None).count()
+        for slice in slices:
+            if slice['participant_count']:
+                slice['participant_count'] += num_extras
+            else:
+                # Don't know how many Institutions we had in this
+                # month, but we know we had so many Subscriptions,
+                # and each one of those was matched by an
+                # Institution, so:
+                slice['participant_count'] = slice['subscription_count']
+
+        context['total_participant_count'] += num_extras
+
+        context['ratings_subscriptions_participants'] = slices
+
+        return context
+
+    def get_participants_context(self):
+        """Return a context for the Participants map."""
+        context = {}
+        participants = collections.defaultdict(int)
+
+        for participant in Institution.objects.all():
+            participants[participant.country] += 1
+
+        # Sort by country.
+        ordered_participants = collections.OrderedDict()
+
+        for country, count in sorted(participants.items()):
+            ordered_participants[country] = count
+
+        context['participants'] = ordered_participants.items()
+        context['half_num_participants'] = len(ordered_participants) / 2
+
+        return context
+
     def get_context_data(self, **kwargs):
 
-        _context = cache.get('stars_dashboard_context')
+        context = cache.get('stars_dashboard_context')
         cache_time = cache.get('stars_dashboard_context_cache_time')
 
-        if not _context:
+        if not context:
 
-            _context = {}
-            _context['display_version'] = "2.0"  # used in the tabs
+            context = {}
+            context['display_version'] = "2.0"  # used in the tabs
 
-            ratings = collections.defaultdict(int)
-            for i in Institution.objects.filter(current_rating__isnull=False):
-                if i.current_submission.expired:
-                    continue
-                ratings[i.current_rating.name] += 1
+            context['ratings'] = self.get_ratings_context()
 
-            _context['ratings'] = ratings
+            context.update(self.get_participation_context())
 
-            # get participants-to-submission figures
-
-            current_month = date.today()
-            current_month = current_month.replace(day=1)
-
-            def change_month(d, delta):
-
-                if d.month + delta == 13:
-                    d = d.replace(month=1)
-                    d = d.replace(year=d.year + 1)
-                elif d.month + delta == 0:
-                    d = d.replace(month=12)
-                    d = d.replace(year=d.year - 1)
-                else:
-                    d = d.replace(month=d.month+delta)
-
-                return d
-
-            current_month = change_month(current_month, 1)
-
-            slices = []
-
-            # go back through all months until we don't have any subscriptions
-            while Subscription.objects.filter(
-                    start_date__lte=current_month).all():
-                # create a "slice" from the current month
-                slice = {}
-                subscription_count = Subscription.objects.filter(
-                    start_date__lte=current_month).values(
-                        'institution').count()
-                slice['subscription_count'] = subscription_count
-                if len(slices) == 0:
-                    _context['total_subscription_count'] = subscription_count
-
-                rating_count = SubmissionSet.objects.filter(status='r')
-                rating_count = rating_count.filter(is_visible=True)
-                rating_count = rating_count.filter(
-                    date_submitted__lt=current_month)
-                rating_count = rating_count.count()
-                slice['rating_count'] = rating_count
-                if len(slices) == 0:
-                    _context['total_rating_count'] = rating_count
-
-                participant_count = Institution.objects.filter(
-                    date_created__lt=current_month).count()
-
-                slice['participant_count'] = participant_count
-                if len(slices) == 0:
-                    _context['total_participant_count'] = participant_count
-
-                current_month = change_month(current_month, -1)
-                slice['date'] = current_month
-
-                slices.insert(0, slice)
-
-            # A good number of Institutions don't have a date_created
-            # value, so we need to adjust our counts by that number.
-            num_extras = Institution.objects.filter(
-                date_created=None).count()
-            for slice in slices:
-                if slice['participant_count']:
-                    slice['participant_count'] += num_extras
-                else:
-                    # Don't know how many Institutions we had in this
-                    # month, but we know we had so many Subscriptions,
-                    # and each one of those was matched by an
-                    # Institution, so:
-                    slice['participant_count'] = slice['subscription_count']
-
-            _context['total_participant_count'] += num_extras
-
-            _context['ratings_subscriptions_participants'] = slices
-
-            # Get data for registrants-by-country table.
-            participants = collections.defaultdict(int)
-
-            for participant in Institution.objects.all():
-                participants[participant.country] += 1
-
-            # Sort by country.
-            ordered_participants = collections.OrderedDict()
-
-            for country, count in sorted(participants.items()):
-                ordered_participants[country] = count
-
-            _context['participants'] = ordered_participants.items()
-            _context['half_num_participants'] = len(ordered_participants) / 2
+            context.update(self.get_participants_context())
 
             # Cache this for 2 hours.
             cache_time = datetime.now()
-            cache.set('stars_dashboard_context', _context, 60 * 120)
+            cache.set('stars_dashboard_context', context, 60 * 120)
             cache.set('stars_dashboard_context_cache_time', cache_time, 60*120)
 
-        _context['cache_time'] = cache_time
-        _context.update(super(Dashboard, self).get_context_data(**kwargs))
+        context['cache_time'] = cache_time
+        context.update(super(Dashboard, self).get_context_data(**kwargs))
 
-        return _context
+        return context
 
 
 class DisplayAccessMixin(StarsAccountMixin, RulesMixin):
