@@ -14,7 +14,8 @@ urlpatterns = patterns(
         TemplateView.as_view(
             template_name="institutions/data_displays/summary_pie_chart.html"),
         kwargs={'display_version': '1.0'}),
-    url(r'^dashboard/$', Dashboard.as_view()),
+    url(r'^dashboard/$', Dashboard.as_view(),
+        name="dashboard"),
 
     url(r'^(?P<cs_version>[^\/]+)/categories/$',
         never_cache(AggregateFilter.as_view()),
