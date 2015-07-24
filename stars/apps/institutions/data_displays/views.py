@@ -16,14 +16,15 @@ from logical_rules.mixins import RulesMixin
 from stars.apps.accounts.mixins import StarsAccountMixin
 
 from stars.apps.credits.models import (CreditSet,
-                                       Rating,
                                        Credit,
                                        Category,
                                        Subcategory,
                                        DocumentationField)
 from stars.apps.institutions.data_displays.filters import (
     Filter, FilteringMixin, NarrowFilteringMixin)
-from stars.apps.institutions.data_displays.common_filters import *
+from stars.apps.institutions.data_displays.common_filters import (
+    BASE_1_0_QS, COMMON_1_0_FILTERS,
+    BASE_2_0_QS, COMMON_2_0_FILTERS)
 
 from stars.apps.institutions.data_displays.forms import (
     ScoreColumnForm,
