@@ -35,7 +35,7 @@
 {% load help %}
 {% show_help_context 'rated_institutions_page' 0 %}
 {% load cache %}
-{% cache 900 institution_list_rated sort_key rev %}
+{% cache 7200 institution_list_rated sort_key rev %}
 <!-- template cached: {% now "jS F Y H:i" %} -->
 <table id="institution_list" class="table table-striped table-condensed">
   <thead>
