@@ -5,7 +5,7 @@
 		</a>
 	</li>
 	<li{% if active == 'categories' %} class="active" {% endif %}>
-		<a href="{% url categories_data_display display_version %}">
+		<a href="{% url categories_data_display display_version %}?institution__org_type=DO_NOT_FILTER">
 			Category Display
 		</a>
 	</li>
