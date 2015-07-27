@@ -8,10 +8,9 @@
 {% endblock %}
 
 {% block body_onload %}{% endblock %}
-
+{% compress js %}
 {% block extra_head %}
    <title>Pie Chart</title>
-    {% compress js %}
    <script async src="{{ STATIC_URL }}js/d3.v3.min.js"></script>
    <script async type="text/javascript" src="{{ STATIC_URL }}js/stars_d3.js"></script>
    <style type="text/css">
@@ -353,5 +352,5 @@
     }
 
    </script>
-{% endcompress %}
 {% endblock %}
+{% endcompress %}
