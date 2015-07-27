@@ -171,10 +171,15 @@ class Dashboard(TemplateView):
 
             context.update(self.get_participants_context())
 
-            # Cache this for 2 hours.
+            # Cache this for 24 hours.
             cache_time = datetime.now()
-            cache.set('stars_dashboard_context', context, 60 * 120)
-            cache.set('stars_dashboard_context_cache_time', cache_time, 60*120)
+            twenty_four_hours = 60 * 60 * 24
+            cache.set('stars_dashboard_context',
+                      context,
+                      twenty_four_hours)
+            cache.set('stars_dashboard_context_cache_time',
+                      cache_time,
+                      twenty_four_hours)
 
         context['cache_time'] = cache_time
         context.update(super(Dashboard, self).get_context_data(**kwargs))
