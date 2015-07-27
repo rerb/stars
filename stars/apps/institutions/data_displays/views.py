@@ -859,7 +859,8 @@ class ContentExcelFilter(ExcelMixin, ContentFilter):
         cols += [
             ('Institution', 'Country', 'Institution Type',
              'STARS Version', 'Points Earned',
-             'Available Points', context['reporting_field'].title),
+             'Available Points', context['reporting_field'].title,
+             'Units'),
         ]
 
         for o in context['object_list']:
@@ -877,8 +878,10 @@ class ContentExcelFilter(ExcelMixin, ContentFilter):
             else:
                 row.append('')
             if o['field']:
-                row.append(o['field'].get_human_value())
+                row.append(o['field'].value)
+                row.append(o['field'].documentation_field.units.name)
             else:
+                row.append('')
                 row.append('')
             cols.append(row)
         return ExcelResponse(cols)
