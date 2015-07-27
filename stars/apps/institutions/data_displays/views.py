@@ -543,6 +543,7 @@ class ScoreFilter(DisplayAccessMixin, CommonFilterMixin,
                                     obj = CategorySubmission.objects.get(
                                         submissionset=ss, category=cat)
                                     claimed_points = obj.get_STARS_score()
+                                    available_points = obj.get_adjusted_available_points()
                                     if obj.category.abbreviation != "IN":
                                         units = "%"
                                     url = obj.get_scorecard_url()
