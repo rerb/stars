@@ -880,7 +880,10 @@ class ContentExcelFilter(ExcelMixin, ContentFilter):
                 row.append('')
             if o['field']:
                 row.append(o['field'].value)
-                row.append(o['field'].documentation_field.units.name)
+                if o['field'].documentation_field.units:
+                    row.append(o['field'].documentation_field.units.name)
+                else:
+                    row.append('')
             else:
                 row.append('')
                 row.append('')
