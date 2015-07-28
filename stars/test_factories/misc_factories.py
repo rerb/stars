@@ -1,7 +1,14 @@
 import time
 
+from aashe.aasheauth.models import AASHEUser
 from django.contrib.auth.models import User
 import factory
+
+
+class AASHEUserFactory(factory.DjangoModelFactory):
+    FACTORY_FOR = AASHEUser
+
+    drupal_id = factory.Sequence(lambda i: i)
 
 
 class UserFactory(factory.DjangoModelFactory):
@@ -12,6 +19,8 @@ class UserFactory(factory.DjangoModelFactory):
     password = 'test'
     email = factory.LazyAttribute(
         lambda o: '{0}@example.com'.format(o.username))
+    aasheuser = factory.RelatedFactory(AASHEUserFactory,
+                                       'user')
 
     @classmethod
     def _prepare(cls, create, **kwargs):
