@@ -9,7 +9,7 @@
 {% block extra_head %}
     {{ block.super }}
     {% block tinymce %}
-    <script async type="text/javascript"
+    <script type="text/javascript"
             src="{{ STATIC_URL }}tp/tinymce/js/tinymce/tinymce.min.js"></script>
     <script async type="text/javascript">
         tinymce.init({plugins: "link paste table,",
