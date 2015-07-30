@@ -7,7 +7,13 @@ from selenium.webdriver.support.ui import Select
 
 from stars.apps.credits.models import CreditSet
 # from stars.apps.tests.live_server import StarsLiveServerTest
-from stars.test_factories import SubscriptionFactory, UserFactory
+from stars.apps.institutions.data_displays.views import (
+    Dashboard)
+from stars.test_factories import (InstitutionFactory,
+                                  RatingFactory,
+                                  SubmissionSetFactory,
+                                  SubscriptionFactory,
+                                  UserFactory)
 
 
 class DashboardTestCase(TestCase):
@@ -23,14 +29,36 @@ class DashboardTestCase(TestCase):
         resp = client.get(reverse('dashboard'))
         self.assertEqual(200, resp.status_code)
 
+    def test_get_ratings_context(self):
+        """Does get_ratings_context return a sensible context?
+        """
+        gold_rating = RatingFactory(name='gold')
+        _ = InstitutionFactory(
+            current_rating=gold_rating,
+            current_submission=SubmissionSetFactory())
+        _ = InstitutionFactory(
+            current_rating=gold_rating,
+            current_submission=SubmissionSetFactory())
+
+        ratings_context = Dashboard().get_ratings_context()
+
+        self.assertEqual(2, ratings_context['gold'])
+
+    def test_get_participation_context(self):
+        """Does get_participation_context run w/o error?
+        """
+        SubscriptionFactory(start_date=datetime.date(2015, 1, 1))
+        participation_context = Dashboard().get_participation_context()
+        self.assertEqual(2, participation_context['total_participant_count'])
+
 
 PASSWORD = 'password'
 
 
-def new_member():
+def member(user=None):
     """Return a User that will be identified as a member.
     """
-    user = UserFactory(password=PASSWORD)
+    user = user or UserFactory(password=PASSWORD)
     user.aasheuser.set_drupal_user_dict(
         {'roles': {'Member': 'Member'}})
     user.aasheuser.save()
@@ -71,7 +99,7 @@ class AggregateFilterTestCase(TestCase):
 
     def setUp(self):
         self.client = Client()
-        self.member = new_member()
+        self.member = member()
         self.non_member = new_non_member()
         create_creditsets()
 
@@ -110,7 +138,7 @@ class ScoreFilterTestCase(TestCase):
 
     def setUp(self):
         self.client = Client()
-        self.member = new_member()
+        self.member = member()
         self.non_member = new_non_member()
         create_creditsets()
 
@@ -149,7 +177,7 @@ class ContentFilterTestCase(TestCase):
 
     def setUp(self):
         self.client = Client()
-        self.member = new_member()
+        self.member = member()
         self.non_member = new_non_member()
         create_creditsets()
 
@@ -189,19 +217,45 @@ class ContentFilterTestCase(TestCase):
 #     def setUp(self):
 #         super(DataDisplayLiveServerTest, self).setUp()
 #         self.selenium.implicitly_wait(30)
+#         create_creditsets()
 
-#     def test_can_add_category_filter(self):
-#         """Can we add a filter on the Category data display?
+#     def filter_canada(self):
+#         """Set a filter to show only Canadian institutions.
 #         """
-#         self.user = new_member()
-#         import ipdb; ipdb.set_trace()
-#         self.selenium.get(self.live_server_url)
-#         self.selenium.find_element_by_link_text(
-#             u"Explore the Data »").click()
-#         self.selenium.find_element_by_link_text("Category Display").click()
 #         Select(self.selenium.find_element_by_id(
 #             "filter_type")).select_by_visible_text("Country")
 #         Select(self.selenium.find_element_by_id(
 #             "filter_options")).select_by_visible_text("Canada")
 #         self.selenium.find_element_by_xpath(
 #             "//button[@type='button']").click()
+
+#     def go_to_dashboard(self):
+#         """Go to the Data Displays dashboard.
+#         """
+#         self.selenium.get(self.live_server_url)
+#         self.selenium.find_element_by_link_text(
+#             u"Explore the Data »").click()
+
+#     def test_can_add_category_filter(self):
+#         """Can we add a filter on the Category data display?
+#         """
+#         self.user = member(self.user)
+#         self.go_to_dashboard()
+#         self.selenium.find_element_by_link_text("Category Display").click()
+#         self.filter_canada()
+
+#     def test_can_add_score_filter(self):
+#         """Can we add a filter on the Score data display?
+#         """
+#         self.user = member(self.user)
+#         self.go_to_dashboard()
+#         self.selenium.find_element_by_link_text("Score Display").click()
+#         self.filter_canada()
+
+#     def test_can_add_content_filter(self):
+#         """Can we add a filter on the Content data display?
+#         """
+#         self.user = member(self.user)
+#         self.go_to_dashboard()
+#         self.selenium.find_element_by_link_text("Content Display").click()
+#         self.filter_canada()
