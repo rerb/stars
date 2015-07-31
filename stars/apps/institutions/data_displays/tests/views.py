@@ -1,15 +1,19 @@
 # -*- coding: utf-8 -*-
 import datetime
+import time
 
+from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.test import Client, TestCase
 from selenium.webdriver.support.ui import Select
 
 from stars.apps.credits.models import CreditSet
-# from stars.apps.tests.live_server import StarsLiveServerTest
+from stars.apps.tests.live_server import StarsLiveServerTest
 from stars.apps.institutions.data_displays.views import (
-    Dashboard)
-from stars.test_factories import (InstitutionFactory,
+    Dashboard,
+    ScoreFilter)
+from stars.test_factories import (CategoryFactory,
+                                  InstitutionFactory,
                                   RatingFactory,
                                   SubmissionSetFactory,
                                   SubscriptionFactory,
@@ -44,12 +48,33 @@ class DashboardTestCase(TestCase):
 
         self.assertEqual(2, ratings_context['gold'])
 
-    def test_get_participation_context(self):
-        """Does get_participation_context run w/o error?
+    def test_get_participation_context_total_participant_count(self):
+        """Does get_participation_context return right total participant count?
         """
         SubscriptionFactory(start_date=datetime.date(2015, 1, 1))
         participation_context = Dashboard().get_participation_context()
         self.assertEqual(2, participation_context['total_participant_count'])
+
+    def test_get_particpants_context_sorts_by_country(self):
+        """Does get_participants_context sort its result by country?
+        """
+        _ = InstitutionFactory(country='Bolivia')
+        _ = InstitutionFactory(country='Austrailia')
+        _ = InstitutionFactory(country='Denmark')
+        _ = InstitutionFactory(country='Columbia')
+        participants_context = Dashboard().get_participants_context()
+        participants = participants_context['participants']
+        self.assertEqual(participants.pop()[0], 'Denmark')
+        self.assertEqual(participants.pop()[0], 'Columbia')
+        self.assertEqual(participants.pop()[0], 'Bolivia')
+        self.assertEqual(participants.pop()[0], 'Austrailia')
+
+    def test_get_context_data_cacheless(self):
+        """Does get_context_data() work if the cache is empty?
+        """
+        cache.clear()
+        context = Dashboard().get_context_data()
+        self.assertEqual(context['display_version'], '2.0')
 
 
 PASSWORD = 'password'
@@ -172,6 +197,14 @@ class ScoreFilterTestCase(TestCase):
         self.assertEqual(200, resp.status_code)
         self.assertIn(FILTERS_SHOW_SENTINEL, resp.content)
 
+    def test_get_object_from_string_category(self):
+        """Does get_object_from_string() return the Category it should?
+        """
+        category = CategoryFactory()
+        result = ScoreFilter().get_object_from_string('cat_' +
+                                                      str(category.pk))
+        self.assertEqual(category, result)
+
 
 class ContentFilterTestCase(TestCase):
 
@@ -212,50 +245,50 @@ class ContentFilterTestCase(TestCase):
         self.assertIn(FILTERS_SHOW_SENTINEL, resp.content)
 
 
-# class DataDisplayLiveServerTest(StarsLiveServerTest):
+class DataDisplayLiveServerTest(StarsLiveServerTest):
 
-#     def setUp(self):
-#         super(DataDisplayLiveServerTest, self).setUp()
-#         self.selenium.implicitly_wait(30)
-#         create_creditsets()
+    def setUp(self):
+        super(DataDisplayLiveServerTest, self).setUp()
+        self.selenium.implicitly_wait(30)
+        create_creditsets()
 
-#     def filter_canada(self):
-#         """Set a filter to show only Canadian institutions.
-#         """
-#         Select(self.selenium.find_element_by_id(
-#             "filter_type")).select_by_visible_text("Country")
-#         Select(self.selenium.find_element_by_id(
-#             "filter_options")).select_by_visible_text("Canada")
-#         self.selenium.find_element_by_xpath(
-#             "//button[@type='button']").click()
+    def filter_canada(self):
+        """Set a filter to show only Canadian institutions.
+        """
+        Select(self.selenium.find_element_by_id(
+            "filter_type")).select_by_visible_text("Country")
+        Select(self.selenium.find_element_by_id(
+            "filter_options")).select_by_visible_text("Canada")
+        self.selenium.find_element_by_xpath(
+            "//button[@type='button']").click()
 
-#     def go_to_dashboard(self):
-#         """Go to the Data Displays dashboard.
-#         """
-#         self.selenium.get(self.live_server_url)
-#         self.selenium.find_element_by_link_text(
-#             u"Explore the Data »").click()
+    def go_to_dashboard(self):
+        """Go to the Data Displays dashboard.
+        """
+        self.selenium.get(self.live_server_url)
+        self.selenium.find_element_by_link_text(
+            u"Explore the Data »").click()
 
-#     def test_can_add_category_filter(self):
-#         """Can we add a filter on the Category data display?
-#         """
-#         self.user = member(self.user)
-#         self.go_to_dashboard()
-#         self.selenium.find_element_by_link_text("Category Display").click()
-#         self.filter_canada()
+    def test_can_add_category_filter(self):
+        """Can we add a filter on the Category data display?
+        """
+        self.user = member(self.user)
+        self.go_to_dashboard()
+        self.selenium.find_element_by_link_text("Category Display").click()
+        self.filter_canada()
 
-#     def test_can_add_score_filter(self):
-#         """Can we add a filter on the Score data display?
-#         """
-#         self.user = member(self.user)
-#         self.go_to_dashboard()
-#         self.selenium.find_element_by_link_text("Score Display").click()
-#         self.filter_canada()
+    def test_can_add_score_filter(self):
+        """Can we add a filter on the Score data display?
+        """
+        self.user = member(self.user)
+        self.go_to_dashboard()
+        self.selenium.find_element_by_link_text("Score Display").click()
+        self.filter_canada()
 
-#     def test_can_add_content_filter(self):
-#         """Can we add a filter on the Content data display?
-#         """
-#         self.user = member(self.user)
-#         self.go_to_dashboard()
-#         self.selenium.find_element_by_link_text("Content Display").click()
-#         self.filter_canada()
+    def test_can_add_content_filter(self):
+        """Can we add a filter on the Content data display?
+        """
+        self.user = member(self.user)
+        self.go_to_dashboard()
+        self.selenium.find_element_by_link_text("Content Display").click()
+        self.filter_canada()
