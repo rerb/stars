@@ -11,16 +11,16 @@
     {% block tinymce %}
     <script type="text/javascript"
             src="{{ STATIC_URL }}tp/tinymce/js/tinymce/tinymce.min.js"></script>
-    <script async type="text/javascript">
+    <script type="text/javascript">
         tinymce.init({plugins: "link paste table,",
                       tools: "inserttable",
                       convert_urls : false,
                       selector: "textarea:not(.noMCE)"});
     </script>
     {% endblock %}
-    <script async type="text/javascript"
+    <script type="text/javascript"
             src="{{ STATIC_URL }}js/tablednd.js"></script>
-	<script async src="{{ STATIC_URL }}js/select_tree.js"></script>
+	<script src="{{ STATIC_URL }}js/select_tree.js"></script>
 {% endblock %}
 
 {% block body_onload %}
@@ -53,7 +53,7 @@
 {% endblock %}
 
 {% block extra_footer %}
-    <script async type='text/javascript'>
+    <script type='text/javascript'>
         var tableDnD = null;
         setTable('dndtable');
     </script>

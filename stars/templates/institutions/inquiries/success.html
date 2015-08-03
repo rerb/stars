@@ -5,8 +5,8 @@
 {% block extra_head %}
 	{{ block.super }}
     {% compress js %}
-	<script async type="text/javascript" src="http://www.google.com/recaptcha/api/js/recaptcha_ajax.js"></script>
-	<script async type="text/javascript">
+	<script type="text/javascript" src="http://www.google.com/recaptcha/api/js/recaptcha_ajax.js"></script>
+	<script type="text/javascript">
          function showRecaptcha(element) {
            Recaptcha.create("{{ recaptcha_public_key }}", element, {
              theme: "clean",
