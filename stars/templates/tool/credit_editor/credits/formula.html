@@ -10,8 +10,8 @@
     <style type="text/css">.CodeMirror {border: 1px solid #ddd;}</style>
     {% endcompress %}
     {% compress js %}
-    <script async src='{{ STATIC_URL }}tp/codemirror/lib/codemirror.js' type="text/javascript"></script>
-    <script async src="{{ STATIC_URL }}tp/codemirror/mode/python/python.js"></script>
+    <script src='{{ STATIC_URL }}tp/codemirror/lib/codemirror.js' type="text/javascript"></script>
+    <script src="{{ STATIC_URL }}tp/codemirror/mode/python/python.js"></script>
     {% endcompress %}
 {% endblock %}
 

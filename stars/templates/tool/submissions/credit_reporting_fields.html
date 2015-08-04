@@ -9,8 +9,8 @@
 {% block extra_head %}
 {{ block.super }}
     {% compress js %}
-    <script async type="text/javascript" src="{{ STATIC_URL }}admin/js/admin/RelatedObjectLookups.js"></script>
-    <script async type="text/javascript" src="{{ STATIC_URL }}js/ajax.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}admin/js/admin/RelatedObjectLookups.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/ajax.js"></script>
     {% endcompress %}
     {% compress css %}
     <style type='text/css' media="screen">

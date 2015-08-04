@@ -1,7 +1,7 @@
 {% if settings_context.analytics_id %}
 {% load compress %}
 {% compress js %}
-	<script async type="text/javascript">
+	<script type="text/javascript">
 
 	  var _gaq = _gaq || [];
 	  _gaq.push(['_setAccount', '{{ settings_context.analytics_id }}']);
