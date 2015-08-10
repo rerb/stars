@@ -108,8 +108,15 @@ MIDDLEWARE_CLASSES = [ # a list so it can be editable during tests (see below)
     ]
 
 import django_cache_url
-CACHES = {'default': django_cache_url.parse(os.environ.get('CACHE_URL',
-                                                           'dummy://'))}
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache'
+    },
+    'filecache': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': PROJECT_PATH + '/CACHE/filecache/',
+    }
+}
 
 AUTH_PROFILE_MODULE = 'accounts.UserProfile'
 AUTHENTICATION_BACKENDS = ('aashe.aasheauth.backends.AASHEBackend',)
