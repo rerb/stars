@@ -27,6 +27,11 @@ from stars.apps.submissions.tasks import (
 from stars.apps.download_async_task.views import (StartExportView,
                                                   DownloadExportView)
 
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+from django.views.decorators.vary import vary_on_cookie
+from django.views.decorators.csrf import csrf_protect, requires_csrf_token
+
 
 class InstitutionStructureMixin(StructureMixin):
     """
@@ -490,9 +495,17 @@ class ScorecardView(RulesMixin,
 class ScorecardSummary(ScorecardView):
     template_name = 'institutions/scorecards/summary.html'
 
+    @method_decorator(vary_on_cookie)
+    @method_decorator(cache_page(86400 * 1, cache="filecache"))
+    def dispatch(self, *args, **kwargs):
+        return super(ScorecardSummary, self).dispatch(*args, **kwargs)
+
 
 class ScorecardCredit(ScorecardView):
     template_name = 'institutions/scorecards/credit.html'
+
+    def dispatch(self, *args, **kwargs):
+        return super(ScorecardCredit, self).dispatch(*args, **kwargs)
 
 
 class ScorecardCreditDocumentation(ScorecardView):

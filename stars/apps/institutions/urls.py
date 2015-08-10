@@ -1,6 +1,5 @@
 from django.conf.urls.defaults import *
-from django.views.decorators.cache import never_cache, cache_page
-## Caching of views set as (86400 * number of days)
+from django.views.decorators.cache import never_cache
 
 from stars.apps.institutions.views import *
 
@@ -23,11 +22,11 @@ urlpatterns = patterns(
 
     # All scorecards for an Institution
     url(r'^(?P<institution_slug>[^/]+)/report/$',
-        cache_page(86400 * 1, cache="filecache")(InstitutionScorecards.as_view()), name='scorecard-list'),
+        InstitutionScorecards.as_view(), name='scorecard-list'),
 
     # Specific scorecard summary for an institution
     url(r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/$',
-        cache_page(86400 * 1, cache="filecache")(ScorecardSummary.as_view()), name='scorecard-summary'),
+        ScorecardSummary.as_view(), name='scorecard-summary'),
 
     # Submission inquiry for an institution
     url(r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/inquiry/$',
