@@ -28,9 +28,9 @@ from stars.apps.download_async_task.views import (StartExportView,
                                                   DownloadExportView)
 
 from django.utils.decorators import method_decorator
-from django.views.decorators.cache import cache_page
-from django.views.decorators.vary import vary_on_cookie
-from django.views.decorators.csrf import csrf_protect, requires_csrf_token
+from django.views.decorators.cache import cache_page, patch_cache_control
+from django.views.decorators.vary import vary_on_cookie, vary_on_headers
+from django.utils.cache import patch_vary_headers
 
 
 class InstitutionStructureMixin(StructureMixin):
@@ -495,21 +495,35 @@ class ScorecardView(RulesMixin,
 class ScorecardSummary(ScorecardView):
     template_name = 'institutions/scorecards/summary.html'
 
-    @method_decorator(vary_on_cookie)
-    @method_decorator(cache_page(86400 * 1, cache="filecache"))
-    def dispatch(self, *args, **kwargs):
-        return super(ScorecardSummary, self).dispatch(*args, **kwargs)
+    @method_decorator(cache_page(86400 * 30, cache="filecache"))
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_anonymous():
+            response = super(ScorecardSummary, self).dispatch(request, *args, **kwargs)
+            patch_cache_control(response, public=True)
+        else:
+            response = super(ScorecardSummary, self).dispatch(request, *args, **kwargs)
+            patch_cache_control(response, private=True)
+            patch_vary_headers(response, ['User-Agent'])
+
+        return response
 
 
 class ScorecardCredit(ScorecardView):
     template_name = 'institutions/scorecards/credit.html'
 
+    @method_decorator(vary_on_cookie)
+    @method_decorator(cache_page(86400 * 30, cache="filecache"))
     def dispatch(self, *args, **kwargs):
         return super(ScorecardCredit, self).dispatch(*args, **kwargs)
 
 
 class ScorecardCreditDocumentation(ScorecardView):
     template_name = 'institutions/scorecards/credit_documentation.html'
+
+    @method_decorator(vary_on_cookie)
+    @method_decorator(cache_page(86400 * 30, cache="filecache"))
+    def dispatch(self, *args, **kwargs):
+        return super(ScorecardCreditDocumentation, self).dispatch(*args, **kwargs)
 
 
 class ExportRules(RulesMixin):
