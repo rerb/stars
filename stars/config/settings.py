@@ -226,6 +226,7 @@ INSTALLED_APPS = (
     # 'sekizai',
     'compressor',
     'geordi',
+    'adv_cache_tag',
 )
 
 # auth config

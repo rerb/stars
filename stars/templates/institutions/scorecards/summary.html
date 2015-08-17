@@ -1,6 +1,6 @@
 {% extends "institutions/scorecards/base.html" %}
 
-{% load cache %}
+{% load custom_caching %}
 {% load logical_rules_tags %}
 
 {% block body_onload %}expandTo = 0;{{ block.super }}{% endblock %}
@@ -10,12 +10,12 @@
 	{# cache for those who have the export functionality #}
 	
 	{% testrule user_can_view_export user submissionset %}
-		{% cache 21600 submission_summary submissionset.id preview "EXPORT" user.is_staff %}
+		{% file_cache 21600 submission_summary submissionset.id preview "EXPORT" user.is_staff %}
 	    	{% include 'institutions/scorecards/summary_include.html' %}
-		{% endcache %}
+		{% endfile_cache %}
 	{% else %}
-		{% cache 21600 submission_summary submissionset.id preview "NO_EXPORT" user.is_staff %}
+		{% file_cache 21600 submission_summary submissionset.id preview "NO_EXPORT" user.is_staff %}
 	    	{% include 'institutions/scorecards/summary_include.html' %}
-		{% endcache %}
+		{% endfile_cache %}
 	{% endtestrule %}
 {% endblock %}
