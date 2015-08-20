@@ -125,7 +125,7 @@ class ScoreColumnForm(forms.Form):
         super(ScoreColumnForm, self).__init__(*args, **kwargs)
 
         choices = [("", "Select One"),
-                   ("cs_%d" % credit_set.id, "TOTAL SCORE"),
+                   ("cs_%d" % credit_set.id, "Overall Score"),
                    ('', '')]
         # disabled = []
 
