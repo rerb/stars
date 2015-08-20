@@ -4,7 +4,20 @@
 {% load help %}
 {% load l10n %}
 {% load admin_urls %}
+{% load custom_caching %}
 
+{% setvar "anon" as version %}
+
+{% testrule user_is_institution_admin user institution %}
+    {% setvar "admin" as version %}
+{% endtestrule %}
+
+{% if user.is_staff %}
+    {% setvar "staff" as version %}
+{% endif %}
+
+
+{% file_cache 86400 scorecards_field_formatting version %}
 {% if not field.is_empty %}
 	{% ifequal field.documentation_field.type 'long_text' %}
 	    <div style='text-align: left; margin: 0px;padding: 0px;'>
@@ -94,3 +107,4 @@
   	{% endfor %}
   {% endif %}
 {% endif %}
+{% endfile_cache %}
