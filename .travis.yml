@@ -21,7 +21,7 @@ env:
   - ISS_TEST_DB=mysql://travis@localhost/iss_tests
   - secure: Y13CVgOLJW5e5uGxb+0I2EbQqF6D+H7ZrASUOs4VHgDM/UNs6hBBIAfBhQUB0q4VMaGr3qrYw1vQHtUvXSxXR7WwMxIkoDzfVE8kJWD5dW/KqO5cnSGW1XFBCM9DJ8z8J7/0C3W9JJn/WK4iizZBo9qBlt4EPidI8Td4Iq77Xmg=
 before_script:
-  - 'echo -e "Host *\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config'
+  - echo -e "Host bitbucket.org\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
   - mysql -e 'create database stars_tests;'
   - mysql -e 'create database iss_tests;'
 install:
