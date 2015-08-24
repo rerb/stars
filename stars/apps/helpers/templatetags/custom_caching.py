@@ -6,6 +6,12 @@ class FileBasedCacheTag(CacheTag):
 
     class Meta(CacheTag.Meta):
         cache_backend = 'filecache'
+        takes_context = 'true'
+
+    def get_base_cache_key(self):
+        args = self.get_cache_key_args()
+        path = template.resolve_variable(args['name'], self.context)
+        return path
 
 register = template.Library()
 FileBasedCacheTag.register(register, 'file_cache')

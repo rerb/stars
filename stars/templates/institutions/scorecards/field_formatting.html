@@ -17,7 +17,7 @@
 {% endif %}
 
 
-{% file_cache 86400 scorecards_field_formatting version %}
+{% file_cache 2592000 request.path version %}
 {% if not field.is_empty %}
 	{% ifequal field.documentation_field.type 'long_text' %}
 	    <div style='text-align: left; margin: 0px;padding: 0px;'>

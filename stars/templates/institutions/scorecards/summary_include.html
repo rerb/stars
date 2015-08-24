@@ -6,18 +6,6 @@
 {% load thumbnail %}
 {% load custom_caching %}
 
-{% setvar "anon" as version %}
-
-{% testrule user_is_institution_admin user institution %}
-    {% setvar "admin" as version %}
-{% endtestrule %}
-
-{% if user.is_staff %}
-    {% setvar "staff" as version %}
-{% endif %}
-
-{% file_cache 86400 submission_summary version %}
-
 {% block h1 %}
     <a href='{% url scorecard-list institution.slug %}'>
 	    {{ institution }}
@@ -117,4 +105,3 @@
         SS: {{ submissionset.id }}
     -->
 {% endblock %}
-{% endfile_cache %}
