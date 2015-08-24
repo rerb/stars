@@ -8,7 +8,11 @@
 
 {% block title %}Categories | {{ block.super }}{% endblock %}
 
-{% block body_onload %}{{ block.super }}initLookup();{% endblock %}
+{% block body_onload %}
+  {{ block.super }}
+  initLookup();
+  transposeTable();
+{% endblock %}
 
 {% block tabs %}
   {% with active='categories' %}
@@ -99,41 +103,41 @@
     </div></div>
   {% endif %}
   <div class='row displays-down-arrow'><i class='icon-arrow-down'></i></div>
+  {% if object_list %}
+    <div class="row">
+      <div class="span12">
+        <h4 style='padding: 30px;'>
+          Average Scores (percentage of available points earned)
+        </h4>
+      </div>
+    </div>
+  {% endif %}
   <table id='institution_list' class='table'>
     {% if object_list %}
-      <thead>
-        <tr>
-          <th style='text-align: left' rowspan='2'>
-            Selected Characteristic
-          </th>
-          <th colspan='{{category_list|length}}'>
-            Average Scores (percentage of available points earned)
-          </th>
-        </tr>
-        <tr>
-          {% for cat in category_list %}
-            <th><acronym title="{{cat}}">{{cat}}</acronym></th>
+      <tr>
+        <td style='text-align: left; font-weight: bold'>
+          Selected Characteristic
+        </td>
+        {% for cat in category_list %}
+          <td><acronym title="{{cat}}">{{cat}}</acronym></td>
+        {% endfor %}
+      </tr>
+      {% for o in object_list %}
+        <tr class="{% cycle 'even' 'odd' %}">
+          <td style='text-align: left; font-weight: bold'>
+            {{ o.title }}
+            ({{ o.total }} found)
+          </td>
+          {% for col in o.columns %}
+            <td>
+              <span
+                title="Standard Deviation: {{col.std|floatformat:2}} | Min: {{col.min|floatformat:2}} | Max {{col.max|floatformat:2}}"
+                class="variance">
+                {{col.avg|floatformat:2}}{% if col.cat != 'IN'%}%{% endif %}
+              </span>
           {% endfor %}
         </tr>
-      </thead>
-      <tbody>
-        {% for o in object_list %}
-          <tr class="{% cycle 'even' 'odd' %}">
-            <td style='text-align: left'>
-              {{ o.title }}
-              ( {{ o.total }} found )
-            </td>
-            {% for col in o.columns %}
-              <td>
-                <span
-                  title="Standard Deviation: {{col.std|floatformat:2}} | Min: {{col.min|floatformat:2}} | Max {{col.max|floatformat:2}}"
-                  class="variance">
-                  {{col.avg|floatformat:2}}{% if col.cat != 'IN'%}%{% endif %}
-                </span>
-            {% endfor %}
-          </tr>
-        {% endfor %}
-      </tbody>
+      {% endfor %}
     {% else %}
       <tr><td colspan="6">
         <p style='padding: 30px;'>
@@ -142,4 +146,32 @@
       </td></tr>
     {% endif %}
   </table>
+
+  <script type="text/javascript">
+   transposeTable = function() {
+     // Transpose the institution_list table.
+     // (So it probably won't overflow the width of the page.)
+     $("#institution_list").each(function() {
+       var $this = $(this);
+       var newrows = [];
+       $this.find("tr").each(function() {
+         var i = 0;
+         $(this).find("td").each(function() {
+           i++;
+           if(newrows[i] === undefined) {
+             newrows[i] = $("<tr></tr>");
+           }
+           newrows[i].append($(this));
+         });
+       });
+       $this.find("tr").remove();
+       for (var i = 0; i < newrows.length; ++i) {
+         $this.append(newrows[i]);
+       }
+     });
+
+     return false;
+   }
+  </script>
+
 {% endblock %}
