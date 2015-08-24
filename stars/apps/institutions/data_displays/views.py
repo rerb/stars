@@ -415,7 +415,8 @@ class ScoreFilter(DisplayAccessMixin, CommonFilterMixin,
     _obj_mappings = [
         ('cat', Category),
         ('sub', Subcategory),
-        ('crd', Credit)]
+        ('crd', Credit),
+        ('cs', CreditSet)]
 
     def update_logical_rules(self):
         super(DisplayAccessMixin, self).update_logical_rules()
@@ -471,6 +472,7 @@ class ScoreFilter(DisplayAccessMixin, CommonFilterMixin,
 
         get = self.request.GET
         self._selected_columns = []
+
         for key in self._col_keys:
             if key in get:
                 self._selected_columns.append(
@@ -576,11 +578,15 @@ class ScoreFilter(DisplayAccessMixin, CommonFilterMixin,
                                                 available_points = ss.creditset.tier_2_points
                                     else:
                                         claimed_points = "Reporter"
+                            elif isinstance(col_obj, CreditSet):
+                                claimed_points = ss.get_STARS_score()
+                                url = ss.get_scorecard_url()
 
                             row['cols'].append({
                                 'claimed_points': claimed_points,
-                                "available_points": available_points,
-                                'units': units, 'url': url})
+                                'available_points': available_points,
+                                'units': units,
+                                'url': url})
 
                     object_list.append(row)
 
@@ -611,7 +617,15 @@ class ScoreFilter(DisplayAccessMixin, CommonFilterMixin,
 
         _context['top_help_text'] = self.get_description_help_context_name()
         _context['object_list'] = self.get_object_list(credit_set)
-        _context['selected_columns'] = self.get_selected_columns()
+
+        # Add a title for each selected column:
+        _context['column_headings'] = []
+        for key, value in self.get_selected_columns():
+            if not isinstance(value, CreditSet):
+                _context['column_headings'].append((key, str(value)))
+            else:
+                _context['column_headings'].append((key, "Overall Score"))
+
         _context['select_form'] = self.get_select_form(credit_set)
 
         return _context
@@ -648,12 +662,15 @@ class ScoreExcelFilter(ExcelMixin, ScoreFilter):
                 "STARS Version"]
 
         for column in context['selected_columns']:
-            column_name = str(column[1])
+            if not isinstance(column[1], CreditSet):
+                column_name = str(column[1])
+            else:
+                column_name = "Overall Score"
             cols.append(column_name)
             cols.append("")  # blank space
         rows.append(cols)
 
-        subcols = ["", ""]
+        subcols = ["", "", "", ""]
         for c in context['selected_columns']:
             subcols.append("Points Earned")
             subcols.append("Available Points")
