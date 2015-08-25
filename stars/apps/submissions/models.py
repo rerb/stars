@@ -1600,6 +1600,7 @@ class DataCorrectionRequest(models.Model):
                 c = self.applied_correction
             except ReportingFieldDataCorrection.DoesNotExist:
                 self.approve()
+            self.invalidate_cache()
 
         return super(DataCorrectionRequest, self).save()
 
@@ -1732,6 +1733,8 @@ class DataCorrectionRequest(models.Model):
 
         for version in versions:
             cache.delete('file_cache:' + url + ':' + str(hash(version)))
+            cache.delete('file_cache:' + self.submissionset.get_scorecard_url + str(hash("EXPORT" + version)))
+            cache.delete('file_cache:' + self.submissionset.get_scorecard_url + str(hash("NO_EXPORT" + version)))
 
 
 class ReportingFieldDataCorrection(models.Model):
