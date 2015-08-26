@@ -235,7 +235,7 @@ class CommonFilterMixin(object):
                 title='Organization Type',
                 item_list=org_type_list,
                 base_qs=base_qs
-            ),
+            )
         ] + common_filters
 
         # Store in the cache for 6 hours
@@ -310,7 +310,6 @@ class AggregateFilter(DisplayAccessMixin, CommonFilterMixin, FilteringMixin,
             cache_key = "%s-%s" % (
                 self.convertCacheKey(f.get_active_title(v)),
                 credit_set.version)
-            print cache_key
             # see if a cached version is available
             row = cache.get(cache_key)
 
@@ -345,10 +344,13 @@ class AggregateFilter(DisplayAccessMixin, CommonFilterMixin, FilteringMixin,
                         Min('points'),
                         Max('points'))
 
-                    obj['avg'] = result['percentage_score__avg'] * 100
-                    obj['std'] = result['points__stddev']
-                    obj['min'] = result['points__min']
-                    obj['max'] = result['points__max']
+                    if result['percentage_score__avg']:
+                        obj['avg'] = result['percentage_score__avg'] * 100
+                    else:
+                        obj['avg'] = 0
+                    obj['std'] = result['points__stddev'] or 0
+                    obj['min'] = result['points__min'] or 0
+                    obj['max'] = result['points__max'] or 0
 
                     columns.append(obj)
 
@@ -611,9 +613,11 @@ class ScoreFilter(DisplayAccessMixin, CommonFilterMixin,
         if self.kwargs["cs_version"] == "2.0":
             _context['url_1_0'] = reverse(
                 'scores_data_display', kwargs={"cs_version": "1.0"})
-        if self.kwargs["cs_version"] == "1.0":
+        elif self.kwargs["cs_version"] == "1.0":
             _context['url_2_0'] = reverse(
                 'scores_data_display', kwargs={"cs_version": "2.0"})
+        else:
+            raise Http404
 
         _context['top_help_text'] = self.get_description_help_context_name()
         _context['object_list'] = self.get_object_list(credit_set)
