@@ -11,7 +11,8 @@ COMMON_1_0_FILTERS = [
         title='Country',
         item_list=[
             ('United States', "United States of America"),
-            ('Canada', 'Canada')
+            ('Canada', 'Canada'),
+            ('All Other', 'ALL_OTHER_COUNTRIES')
         ],
         base_qs=BASE_1_0_QS
     ),
@@ -71,7 +72,8 @@ COMMON_2_0_FILTERS = [
         title='Country',
         item_list=[
             ('United States', "United States of America"),
-            ('Canada', 'Canada')
+            ('Canada', 'Canada'),
+            ('All Other', 'ALL_OTHER_COUNTRIES')
         ],
         base_qs=BASE_2_0_QS
     ),

@@ -77,7 +77,13 @@ class Filter(object):
     def get_results(self, item):
         " Returns a queryset with the applied filter for item. "
 
-        if item != 'DO_NOT_FILTER':
+        if item == 'DO_NOT_FILTER':
+            return self.base_qs
+        elif item == 'ALL_OTHER_COUNTRIES':
+            return self.base_qs.exclude(
+                institution__country='United States of America').exclude(
+                    institution__country='Canada')
+        else:
             # convert True and False from text
             if item == "True":
                 item = True
