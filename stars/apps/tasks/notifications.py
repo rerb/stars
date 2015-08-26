@@ -184,6 +184,7 @@ def send_notification_set(notification_set):
     """
 
     for n in notification_set:
+        print "sending %s to %s" % (n['template_slug'], n['mail_to'])
         send_notification(
                             n_type=n['n_type'],
                             identifier=n['identifier'],

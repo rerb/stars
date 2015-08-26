@@ -1,0 +1,7 @@
+[run]
+source =
+  stars/apps/institutions
+  stars/apps/submissions
+omit =
+  *migrations*
+  *api*

@@ -25,10 +25,12 @@ import datetime
 
 logger = getLogger('stars.user')
 
+
 @task()
 def hello_world():
     " A simple test task so I can test celery "
     print >> sys.stdout, "Hello World"
+
 
 @task()
 def build_pdf_export(ss):
@@ -49,12 +51,14 @@ def build_pdf_export(ss):
     print "pdf export done(ss: %d)" % ss.id
     return str(pdf)
 
+
 @task()
 def build_excel_export(ss):
     print "starting excel export(ss: %d)" % ss.id
     report = build_report_export(ss)
     print "excel export done(ss: %d)" % ss.id
     return report
+
 
 @task()
 def build_certificate_export(ss):
@@ -68,6 +72,7 @@ def build_certificate_export(ss):
     print "cert export done(ss: %d)" % ss.id
     return tempfile.name
 
+
 @task()
 def send_certificate_pdf(ss):
 
@@ -76,10 +81,11 @@ def send_certificate_pdf(ss):
     et = EmailTemplate.objects.get(slug='certificate_to_staff')
     email_context = {"ss": ss}
     et.send_email(
-                    mail_to=['monika.urbanski@aashe.org'],
-                    context=email_context,
-                    attachments=((ss.institution.slug, pdf.getvalue(), 'application/pdf'),),
-                    title="New Certificate: %s" % ss)
+        mail_to=['monika.urbanski@aashe.org'],
+        context=email_context,
+        attachments=(
+            (ss.institution.slug, pdf.getvalue(), 'application/pdf'),),
+        title="New Certificate: %s" % ss)
 
 
 @task()
@@ -151,6 +157,7 @@ def migrate_purchased_submission(old_ss, new_ss):
     new_ss.is_locked = False
     new_ss.save()
 
+
 @task()
 def rollover_submission(old_ss):
     new_ss = create_ss_mirror(old_ss)
@@ -187,7 +194,7 @@ def update_pie_api_cache():
     # summary
     for cat in cs.category_set.filter(include_in_score=True):
         print cat
-        kwargs = {"pk": cat.id,}
+        kwargs = {"pk": cat.id}
         c_key = cat_view.generate_cache_key('detail', **kwargs)
 #        c_key = 'v1:category-pie-chart:detail:pk=%d' % cat.id
         print c_key
@@ -224,7 +231,8 @@ def expireRatings():
             ss.expired = True
             ss.save()
 
-            # update the institution if this is still their latest rated submission
+            # update the institution if this is still their
+            # latest rated submission
             i = ss.institution
             if i.rated_submission == ss:
                 print "**Only Rating (dropping current rating)"

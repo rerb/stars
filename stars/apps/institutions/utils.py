@@ -7,6 +7,7 @@ from stars.apps.institutions.models import Institution
 from stars.apps.notifications.models import EmailTemplate
 from stars.apps.submissions.models import SubmissionSet
 
+
 def eval_participant_status(i):
     """
         Does the evaluation of participant status, instead of using
@@ -17,10 +18,15 @@ def eval_participant_status(i):
 
     # see if there is a current subscription
     for sub in i.subscription_set.order_by('start_date'):
-        if sub.start_date <= datetime.date.today() and sub.end_date >= datetime.date.today():
+        # print sub
+        if (
+            sub.start_date <= datetime.date.today() and
+            sub.end_date >= datetime.date.today()
+        ):
             return (True, sub)
 
     return (False, None)
+
 
 def eval_rated_submission(i):
     """
@@ -33,6 +39,7 @@ def eval_rated_submission(i):
         return i.submissionset_set.filter(status='r').order_by('-date_submitted')[0]
     except:
         return None
+
 
 def expire_ratings():
     """
@@ -50,6 +57,7 @@ def expire_ratings():
             s.institution.current_rating = None
             s.institution.latest_expired_submission = s
             s.institution.save()
+
 
 def update_institution_properties():
     """
@@ -91,6 +99,11 @@ def update_institution_properties():
         # Participation Status
 
         if i.is_participant != is_participant:
+            """
+                potential @bug - although might be desirable
+                when there's an unpaid rollover subscription, the school will
+                still get an expiration notice
+            """
 
             # if participation status has changed
 
@@ -105,8 +118,13 @@ def update_institution_properties():
                 # expiration: was an now isn't
                 i.is_participant = False
                 i.current_subscription = None
+                print "**********"
                 print >> sys.stdout, "%s subscription expired" % i
-                #@todo email institution
+                print "sending expiration notice to %s" % i.contact_email
+                for sub in i.subscription_set.order_by('start_date'):
+                    print "%s - %s" % (sub.start_date, sub.end_date)
+                print "**********"
+                # @todo email institution
                 et = EmailTemplate.objects.get(slug='stars_subscription_expired')
                 et.send_email([i.contact_email], {'institution': i})
             i.save()
@@ -123,7 +141,7 @@ def update_institution_properties():
 
         if i.rated_submission != rated_submission:
 
-            if rated_submission == None:
+            if rated_submission is None:
 
                 # expired rating
 
@@ -131,22 +149,7 @@ def update_institution_properties():
                 i.current_rating = None
                 i.save()
 
-            else:
-
-                if i.rated_submission == None:
-                    print >> sys.stdout, "Warning: evaluation found rating that wasn't saved for %s!" % i
-
-# During test runs, this module gets imported before the test database
-# is created.  Calling update_institution_properties then throws an
-# error, since it tries to access a table that isn't there.  So, this
-# exception is caught and it's accepted.
-
-if __name__ == '__main__':
-    try:
-        expire_ratings()
-        update_institution_properties()
-    except DatabaseError as e:
-        if e.message == 'no such table: institutions_institution':
-            pass
-        else:
-            raise e
+            # else:
+            #
+            #     if i.rated_submission is None:
+            #         print >> sys.stdout, "Warning: evaluation found rating that wasn't saved for %s!" % i

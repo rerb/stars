@@ -27,8 +27,6 @@ USE_I18N = True
 USE_L10N = True
 USE_THOUSAND_SEPARATOR = True
 
-
-
 # Database
 import dj_database_url
 DATABASES = {
@@ -53,7 +51,8 @@ if USE_S3:
     MEDIA_ROOT = '/%s/' % DEFAULT_S3_PATH
     MEDIA_URL = 'https://s3.amazonaws.com/%s/media/' % AWS_STORAGE_BUCKET_NAME
     STATIC_ROOT = "/%s/" % STATIC_S3_PATH
-    STATIC_URL = 'https://s3.amazonaws.com/%s/static/' % AWS_STORAGE_BUCKET_NAME
+    STATIC_URL = 'https://s3.amazonaws.com/%s/static/' % (
+        AWS_STORAGE_BUCKET_NAME)
     ADMIN_MEDIA_PREFIX = STATIC_URL + 'admin/'
 
 else:
@@ -69,7 +68,7 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    # 'django.contrib.staticfiles.finders.DefaultStorageFinder',
     'compressor.finders.CompressorFinder',
 )
 
@@ -88,14 +87,14 @@ CMS_TEMPLATES = (
     ('cms/article_detail.html', 'Article Detail'),
 )
 
-MIDDLEWARE_CLASSES = [ # a list so it can be editable during tests (see below)
+MIDDLEWARE_CLASSES = [  # a list so it can be editable during tests (see below)
     'stars.apps.helpers.utils.StripCookieMiddleware',
     'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'geordi.VisorMiddleware',
-#    'aashe.aasheauth.middleware.AASHEAccountMiddleware',
+    # 'aashe.aasheauth.middleware.AASHEAccountMiddleware',
     'django.middleware.cache.FetchFromCacheMiddleware',
     'django.contrib.redirects.middleware.RedirectFallbackMiddleware',
     'django.middleware.doc.XViewMiddleware',
@@ -115,10 +114,10 @@ AUTH_PROFILE_MODULE = 'accounts.UserProfile'
 AUTHENTICATION_BACKENDS = ('aashe.aasheauth.backends.AASHEBackend',)
 if 'test' in sys.argv:
     AUTHENTICATION_BACKENDS = (
-                               'django.contrib.auth.backends.ModelBackend',
-                               'aashe.aasheauth.backends.AASHEBackend',
-                               # 'stars.apps.accounts.aashe.AASHEAuthBackend',
-                               )
+        'django.contrib.auth.backends.ModelBackend',
+        'aashe.aasheauth.backends.AASHEBackend',
+        # 'stars.apps.accounts.aashe.AASHEAuthBackend',
+        )
 
 DASHBOARD_URL = "/tool/"
 LOGIN_URL = "/accounts/login/"
@@ -232,14 +231,16 @@ AASHE_DRUPAL_COOKIE_DOMAIN = os.environ.get('AASHE_DRUPAL_COOKIE_DOMAIN',
 AASHE_AUTH_VERBOSE = os.environ.get('AASHE_AUTH_VERBOSE', False)
 
 # Permissions or user levels for STARS users
-STARS_PERMISSIONS = (('admin', 'Administrator'),
-                     ('submit', 'Data Entry'),
-                     ('view', 'Observer'))
-                   # ('review', 'Audit/Review'))
+STARS_PERMISSIONS = (
+    ('admin', 'Administrator'),
+    ('submit', 'Data Entry'),
+    ('view', 'Observer'))
 
 # Email
-EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND',
-                               'django.core.mail.backends.console.EmailBackend')
+EMAIL_BACKEND = os.environ.get(
+    'EMAIL_BACKEND', 'django.core.mail.backends.filebased.EmailBackend')
+EMAIL_FILE_PATH = os.environ.get(
+    'EMAIL_FILE_PATH', '/tmp/stars-email-messages')
 EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', True)
 EMAIL_HOST = os.environ.get('EMAIL_HOST', None)
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', None)
@@ -247,21 +248,25 @@ EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', None)
 EMAIL_PORT = os.environ.get('EMAIL_PORT', None)
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', None)
 EMAIL_REPLY_TO = os.environ.get('EMAIL_REPLY_TO', None)
-EMAIL_FILE_PATH = os.environ.get('EMAIL_FILE_PATH', '/tmp/stars-email-messages')
 
 # sorl thumbnail
-#THUMBNAIL_ENGINE = "sorl.thumbnail.engines.pgmagick_engine.Engine"
+# THUMBNAIL_ENGINE = "sorl.thumbnail.engines.pgmagick_engine.Engine"
 THUMBNAIL_ENGINE = "sorl.thumbnail.engines.pil_engine.Engine"
 THUMBNAIL_FORMAT = 'PNG'
 THUMBNAIL_DEBUG = os.environ.get("THUMBNAIL_DEBUG", False)
 
 # Celery
-import djcelery
-djcelery.setup_loader()
-
-BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'amqp://guest:guest@localhost:5672/')
+# import djcelery
+# djcelery.setup_loader()
+CELERY_TIMEZONE = 'US/Eastern'
+from celerybeat_schedule import STARS_TASK_SCHEDULE
+CELERYBEAT_SCHEDULE = STARS_TASK_SCHEDULE
+BROKER_URL = os.environ.get(
+    'CELERY_BROKER_URL', 'amqp://guest:guest@localhost:5672/')
 CELERY_ALWAYS_EAGER = os.environ.get('CELERY_ALWAYS_EAGER', False)
-CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'database')
+CELERY_RESULT_BACKEND = os.environ.get(
+    'CELERY_RESULT_BACKEND',
+    'djcelery.backends.database:DatabaseBackend')
 CELERY_RESULT_DBURI = os.environ.get('CELERY_RESULT_DBURI',
                                      "sqlite:///tmp/stars-celery-results.db")
 CELERY_CACHE_BACKEND = os.environ.get('CELERY_CACHE_BACKEND', 'dummy')
@@ -272,7 +277,7 @@ AUTHORIZENET_KEY = os.environ.get('AUTHORIZENET_KEY', None)
 
 ANALYTICS_ID = os.environ.get('ANALYTICS_ID', None)
 
-SKIP_SOUTH_TESTS=True
+SKIP_SOUTH_TESTS = True
 SOUTH_TESTS_MIGRATE = False
 
 RECAPTCHA_PUBLIC_KEY = os.environ.get('RECAPTCHA_PUBLIC_KEY', None)
@@ -382,7 +387,7 @@ LOGGING = {
     'loggers': {
         # root logger, for third party log messages:
         '': {
-            'handlers':['simple_console_handler', 'mail_admins_handler']
+            'handlers': ['simple_console_handler', 'mail_admins_handler']
         },
         'django.request': {
             'handlers': ['mail_admins_handler'],
@@ -400,7 +405,7 @@ LOGGING = {
             'handlers': ['stars_user_console_handler',
                          'mail_admins_handler'],
             'propagate': False,
-            'filters' : ['module_name_filter', 'user_filter']
+            'filters': ['module_name_filter', 'user_filter']
         },
         # logger with module_name and request elements added to log record:
         'stars.request': {
@@ -431,11 +436,12 @@ CONSUMER_SECRET = 's9aIjWEgy4EkbDgK14CkBlDwuAySykYZrtquQiTg'
 if sys.version >= '2.7':
     logging.captureWarnings(True)
 
-MESSAGE_TAGS = { messages.DEBUG: 'alert fade in alert-debug',
-                 messages.INFO : 'alert fade in alert-info',
-                 messages.SUCCESS : 'alert fade in alert-success',
-                 messages.WARNING : 'alert fade in alert-warning',
-                 messages.ERROR : 'alert fade in alert-error' }
+MESSAGE_TAGS = {
+    messages.DEBUG: 'alert fade in alert-debug',
+    messages.INFO: 'alert fade in alert-info',
+    messages.SUCCESS: 'alert fade in alert-success',
+    messages.WARNING: 'alert fade in alert-warning',
+    messages.ERROR: 'alert fade in alert-error'}
 
 if os.path.exists(os.path.join(os.path.dirname(__file__), 'hg_info.py')):
     from hg_info import revision

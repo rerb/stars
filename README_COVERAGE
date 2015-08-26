@@ -1,0 +1,26 @@
+# Coverage
+
+## Install the test requirements
+
+    pip install -r requirements_test.txt
+
+## Run the tests with
+
+    coverage run manage.py test submissions
+
+## Limiting coverage
+
+As we fully test more apps, we'll expand the coverage, so, for example, if you
+want to add `institutions` to coverage, simply add it to the
+
+    source =
+      stars/apps/submissions
+      stars/apps/institutions
+
+## Run the report
+
+    coverage report -m
+
+### Note
+
+We can look into an integration with [coveralls.io](http://www.coveralls.io).
