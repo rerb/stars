@@ -71,7 +71,7 @@ STARS_TASK_SCHEDULE = {
     # stars.apps.tasks.tasks.send_notifications
     'send out notifications when necessary': {
         'task': 'tasks.send_notifications',
-        'schedule': crontab(hour=5, minute=0),
+        'schedule': crontab(hour=7, minute=0),
         # 'schedule': timedelta(seconds=30),
     },
 }
