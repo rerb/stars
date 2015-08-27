@@ -4,8 +4,8 @@ MySQL-python
 Pillow==2.7.0
 South==0.8.1
 Werkzeug==0.8.3
--e git+https://github.com/AASHE/aashe-auth.git#egg=aashe-auth-dev
--e git+https://github.com/AASHE/issdjango.git#egg=issdjango-dev
+-e git+ssh://git@github.com/AASHE/aashe-auth.git#egg=aashe-auth-dev
+-e git+ssh://git@github.com/AASHE/issdjango.git#egg=issdjango-dev
 -e git+https://github.com/toastdriven/django-tastypie.git@32dae8d2590dde3122289118ac241ab0bd2452e8#egg=django_tastypie-dev
 -e git+https://github.com/python-excel/xlwt.git#egg=xlwt-dev
 -e git+https://github.com/AASHE/django-celery-downloader.git#egg=django-celery-downloader-dev
