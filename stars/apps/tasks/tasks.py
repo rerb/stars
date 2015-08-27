@@ -15,8 +15,10 @@ def send_notifications():
     send_welcome_email()
 
     # Payment Reminders
-    print "Sending overdue notifications"
-    send_overdue_notifications()
+    # print "Sending overdue notifications"
+    # send_overdue_notifications()
+    # @todo - this is based on submissionset.date_registered so I think this
+    # doesn't work anymore ... disabled for now
 
     # After Submission
     print "Sending Post Submission Survey"

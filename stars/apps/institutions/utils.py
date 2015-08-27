@@ -36,7 +36,8 @@ def eval_rated_submission(i):
     """
 
     try:
-        return i.submissionset_set.filter(status='r').order_by('-date_submitted')[0]
+        return i.submissionset_set.filter(status='r').order_by(
+            '-date_submitted')[0]
     except:
         return None
 
@@ -46,17 +47,20 @@ def expire_ratings():
         Expire any ratings that are over 3 years old
     """
     d = datetime.date.today()
-    td = datetime.timedelta(days=365*3)
-    expire_date = d - td
-    for s in SubmissionSet.objects.filter(date_submitted__lt=expire_date):
-        s.expired = True
-        s.save()
+    expire_date = d - datetime.timedelta(days=365*3)
+    print "** Expiring Ratings **"
+    for ss in SubmissionSet.objects.filter(date_submitted__lt=expire_date):
+        ss.expired = True
+        ss.save()
+        print "Rating expired for %s (%s)" % (ss, ss.date_submitted)
         # remove it if it's the current submission for an institution
-        if s.institution.rated_submission == s:
-            s.institution.rated_submission = None
-            s.institution.current_rating = None
-            s.institution.latest_expired_submission = s
-            s.institution.save()
+        if ss.institution.rated_submission == ss:
+            ss.institution.rated_submission = None
+            ss.institution.current_rating = None
+            ss.institution.latest_expired_submission = ss
+            ss.institution.save()
+        else:
+            print "Not their current rating"
 
 
 def update_institution_properties():
@@ -111,9 +115,9 @@ def update_institution_properties():
                 # renewal: wasn't an now is
                 i.is_participant = True
                 if i.current_subscription:
-                    print >> sys.stdout, "Inconsistent status w/ subscription for %s" % i
+                    print "Inconsistent status w/ subscription for %s" % i
                 i.current_subscription = current_subscription
-                print >> sys.stdout, "Found subscription for %s" % i
+                print "Found subscription for %s" % i
             else:
                 # expiration: was an now isn't
                 i.is_participant = False
@@ -125,7 +129,8 @@ def update_institution_properties():
                     print "%s - %s" % (sub.start_date, sub.end_date)
                 print "**********"
                 # @todo email institution
-                et = EmailTemplate.objects.get(slug='stars_subscription_expired')
+                et = EmailTemplate.objects.get(
+                    slug='stars_subscription_expired')
                 et.send_email([i.contact_email], {'institution': i})
             i.save()
 

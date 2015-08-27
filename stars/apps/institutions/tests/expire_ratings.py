@@ -8,6 +8,7 @@ from django.test import TestCase
 from stars.apps.institutions.models import Institution
 from stars.apps.submissions.models import SubmissionSet
 from stars.apps.credits.models import Rating
+from stars.test_factories import SubmissionSetFactory, RatingFactory
 
 import sys
 from datetime import datetime, timedelta
@@ -30,9 +31,10 @@ class ExpiredRatingTest(TestCase):
         td = timedelta(days=10)
         new_time = datetime.today() - td
 
-        self.r = Rating.objects.create(name="Rating 1")
         self.i = Institution.objects.create(name="Inst 1")
-        self.ss = SubmissionSet.objects.create(
+        self.r = RatingFactory(name="Rating 1")
+        self.ss = SubmissionSetFactory(
+            creditset=self.r.creditset,
             institution=self.i,
             status="r",
             expired=False,
@@ -52,3 +54,39 @@ class ExpiredRatingTest(TestCase):
         self.assertEqual(self.i.current_rating.id, self.r.id)
 
         # rating has expired: cleared from institution, marked expired
+        td = timedelta(days=366*3)
+        new_time = datetime.today() - td
+        self.ss.date_submitted = new_time
+        self.ss.save()
+        expire_ratings()
+        self.i = Institution.objects.all()[0]
+        self.ss = SubmissionSet.objects.all()[0]
+        self.assertEqual(self.i.rated_submission, None)
+        self.assertEqual(self.i.current_rating, None)
+        self.assertTrue(self.ss.expired)
+
+        # rating has expired, but not current rating: mark expired
+        td = timedelta(days=366*3)
+        new_time = datetime.today() - td
+        self.ss.date_submitted = new_time
+        self.ss.expired = False
+        self.ss.save()
+        td = timedelta(days=365)
+        new_time = datetime.today() - td
+        new_ss = SubmissionSetFactory(
+            creditset=self.r.creditset,
+            institution=self.i,
+            status="r",
+            expired=False,
+            date_submitted=new_time,
+            rating=self.r
+        )
+        self.i.rated_submission = new_ss
+        self.i.current_rating = self.r
+        self.i.save()
+        expire_ratings()
+        self.i = Institution.objects.all()[0]
+        self.ss = SubmissionSet.objects.all()[0]
+        self.assertEqual(self.i.current_rating, self.r)
+        self.assertEqual(self.i.rated_submission, new_ss)
+        self.assertTrue(self.ss.expired)

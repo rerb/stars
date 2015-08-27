@@ -7,3 +7,4 @@
 htmlcov
 ghostdriver.log
 celerybeat-schedule
+celerybeat.pid
