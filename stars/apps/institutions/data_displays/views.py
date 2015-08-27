@@ -187,6 +187,15 @@ class Dashboard(TemplateView):
         return context
 
 
+class PieChartView(TemplateView):
+    template_name = 'institutions/data_displays/summary_pie_chart.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(PieChartView, self).get_context_data(**kwargs)
+        context['display_version'] = "2.0"
+        return context
+
+
 class DisplayAccessMixin(StarsAccountMixin, RulesMixin):
     """
         A basic rule mixin for all Data Displays

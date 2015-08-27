@@ -11,12 +11,8 @@ urlpatterns = patterns(
         "direct_to_template",
         {'template': 'institutions/data_views/index.html'}),
     url(r'^pie-chart-visualization/$',
-        TemplateView.as_view(
-            template_name="institutions/data_displays/summary_pie_chart.html"),
-        kwargs={'display_version': '1.0'}),
-    url(r'^dashboard/$', Dashboard.as_view(),
+        PieChartView.as_view(),
         name="dashboard"),
-
     url(r'^(?P<cs_version>[^\/]+)/categories/$',
         never_cache(AggregateFilter.as_view()),
         name="categories_data_display"),
