@@ -33,10 +33,10 @@ from datetime import timedelta
 STARS_TASK_SCHEDULE = {
 
     # runs regularly to let us know celerybeat is working
-    'run beacon': {
-        'task': 'tasks.beacon',
-        'schedule': timedelta(seconds=30),
-    },
+    # 'run beacon': {
+    #     'task': 'tasks.beacon',
+    #     'schedule': timedelta(seconds=30),
+    # },
 
     # Executes every morning at 6:15 A.M
     # stars.apps.institutions.tasks.monitor_subscription
