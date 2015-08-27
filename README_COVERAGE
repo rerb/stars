@@ -6,16 +6,20 @@
 
 ## Run the tests with
 
-    coverage run manage.py test submissions
+    coverage run run_tests.py
 
 ## Limiting coverage
 
-As we fully test more apps, we'll expand the coverage, so, for example, if you
-want to add `institutions` to coverage, simply add it to the
+As we fully test more apps, we'll expand the coverage in .coveragerc. So, for
+example, if you want to add `institutions` to coverage, simply add it to
 
     source =
       stars/apps/submissions
       stars/apps/institutions
+
+### Note:
+
+Keep run_tests.py and .coveragerc synced
 
 ## Run the report
 
