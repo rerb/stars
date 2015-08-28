@@ -1,6 +1,7 @@
 language: python
 python:
 - '2.7'
+sudo: required
 env:
   global:
   - AASHE_DRUPAL_COOKIE_DOMAIN=.aashe.org
@@ -31,7 +32,7 @@ before_script:
   - mysql -e 'create database iss;'
   - mysql -e 'create database stars_tests;'
   - mysql -e 'create database iss_tests;'
-  - apt-get install phantomjs
+  - sudo apt-get install phantomjs
 script: coverage run manage.py test registration
 notifications:
   hipchat:
