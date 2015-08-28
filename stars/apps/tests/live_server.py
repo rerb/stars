@@ -50,17 +50,17 @@ WEBDRIVERS = [
                        '/usr/local/bin/chromedriver'],
             implementation=chrome.webdriver),
     Browser(platform='linux2',
+            name='phantomjs',
+            sentinels=['/usr/bin/phantomjs'],
+            implementation=phantomjs.webdriver),
+    Browser(platform='linux2',
             name='firefox',
             sentinels=['/usr/bin/firefox'],
             implementation=firefox.webdriver),
     Browser(platform='linux2',
             name='chrome',
             sentinels=['/usr/bin/chromium-browser'],
-            implementation=chrome.webdriver),
-    Browser(platform='linux2',
-            name='phantomjs',
-            sentinels=['/usr/bin/phantomjs'],
-            implementation=phantomjs.webdriver)]
+            implementation=chrome.webdriver)]
 
 
 def skip_live_server_tests():
