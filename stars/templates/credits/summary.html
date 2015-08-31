@@ -1,36 +1,68 @@
 {% extends 'credits/columned_layout.html' %}
 
+{% load l10n %}
+
 {% block center_column %}
+
     {% load submit_tags %}
     <h1>{% block h1 %}{{ institution }}{% endblock %}</h1>
     {% block summaryTable %}{% endblock %}
-    
+
     <div class="accordion" id="categories">
     	{% for cat in submissionset.categorysubmission_set.all %}
 			<div class="accordion-group">
 				<div class="accordion-heading category-accordion-heading">
-					<a class="accordion-toggle" data-toggle="collapse" data-parent="#categories" href="#{{ cat.id }}">
+					<a class="accordion-toggle" data-toggle="collapse" data-parent="#categories" href="#{{ cat.id|unlocalize }}">
 						{% include "credits/category_heading.html" %}
-	                </a>
-	              </div>
-	              <div id="{{ cat.id }}" class="accordion-body collapse in">
+	        </a>
+        </div>
+        <div id="{{ cat.id|unlocalize }}" class="accordion-body collapse in">
 					<div class="accordion-inner">
-						<div class="accordion subcategory_accordion" id="{{ cat.id }}_subcategories">
+						<div class="accordion subcategory_accordion" id="{{ cat.id|unlocalize }}_subcategories">
 							{% for sub in cat.subcategorysubmission_set.all %}
 								<div class="accordion-group collapse in">
 									<div class="accordion-heading">
-										<a class="accordion-toggle" data-toggle="collapse" data-parent="#{{ cat.id }}_subcategories" href="#{{ sub.id }}">
+										<a class="accordion-toggle" data-toggle="collapse" data-parent="#{{ cat.id|unlocalize }}_subcategories" href="#{{ sub.id|unlocalize }}">
 											{% include "credits/subcategory_heading.html" %}
 										</a>
+                    {% if cat.category.include_in_score %}
+                      <div id="chart_div_{{ sub.id|unlocalize }}" style="height: 50px;background-color: #eee"></div>
+                      <script>
+                        function drawChart() {
+
+                          var data = google.visualization.arrayToDataTable([
+                            ['Subcategory', 'Score', 'Available'],
+                            ["{{ sub }}",
+                              {{ sub.points|unlocalize }},
+                              {{ sub.get_available_points|unlocalize }}]
+                          ]);
+
+                          var options = {
+                            isStacked: true,
+                            legend: {position: 'none'},
+                            vAxis: {textPosition: 'none'},
+                            hAxis: {textPosition: 'none'}
+                            // title: '{{cat}}',
+                            // hAxis: {title: 'Subcategory', titleTextStyle: {color: 'red'}}
+                          };
+
+                          var chartContainer = document.getElementById('chart_div_{{ sub.id|unlocalize }}');
+                          var chart = new google.visualization.BarChart(chartContainer);
+
+                          chart.draw(data, options);
+                        }
+                        drawChart();
+                      </script>
+                    {% endif %}
 									</div>
-									<div id="{{ sub.id }}" class="accordion-body collapse in">
+									<div id="{{ sub.id|unlocalize }}" class="accordion-body collapse out">
 										<div class="accordion-inner">
 											{% block subcategory_description %}{% endblock %}
 											{% include "credits/subcategory_content.html" %}
-		                  				</div>
+		                </div>
 									</div>
-		            			</div>
-		            		{% endfor %}
+	              </div>
+          		{% endfor %}
 						</div>
 					</div>
 				</div>
