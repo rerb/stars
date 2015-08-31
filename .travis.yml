@@ -31,7 +31,7 @@ before_script:
   - mysql -e 'create database iss;'
   - mysql -e 'create database stars_tests;'
   - mysql -e 'create database iss_tests;'
-script: run_tests.py
+script: python run_tests.py
 notifications:
   hipchat:
     rooms:
