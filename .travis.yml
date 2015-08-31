@@ -1,7 +1,7 @@
 language: python
 python:
-- '2.6'
 - '2.7'
+sudo: required
 env:
   global:
   - AASHE_DRUPAL_COOKIE_DOMAIN=.aashe.org
@@ -17,16 +17,23 @@ env:
   - CONFIG=settings
   - DEBUG=1
   - EMAIL_REPLY_TO=stars@aashe.org
+  - STARS_DB_URL=mysql://travis@localhost/stars
+  - ISS_DB_URL=mysql://travis@localhost/iss
   - STARS_TEST_DB=mysql://travis@localhost/stars_tests
   - ISS_TEST_DB=mysql://travis@localhost/iss_tests
   - secure: Y13CVgOLJW5e5uGxb+0I2EbQqF6D+H7ZrASUOs4VHgDM/UNs6hBBIAfBhQUB0q4VMaGr3qrYw1vQHtUvXSxXR7WwMxIkoDzfVE8kJWD5dW/KqO5cnSGW1XFBCM9DJ8z8J7/0C3W9JJn/WK4iizZBo9qBlt4EPidI8Td4Iq77Xmg=
 install:
-- pip install -r requirements.txt --process-dependency-links
+- pip install -r requirements.txt --process-dependency-links --trusted-host download.zope.org
 - pip install -r requirements_dev.txt
+- pip install -r requirements_test.txt
+- pip install --upgrade six
 before_script:
+  - mysql -e 'create database stars;'
+  - mysql -e 'create database iss;'
   - mysql -e 'create database stars_tests;'
   - mysql -e 'create database iss_tests;'
-script: coverage run manage.py test submissions
+  - sudo apt-get install phantomjs
+script: coverage run manage.py test registration
 notifications:
   hipchat:
     rooms:
