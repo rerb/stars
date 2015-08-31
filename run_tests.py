@@ -1,3 +1,3 @@
 #! /bin/bash
 
-coverage run manage.py test institutions submissions
+coverage run manage.py test helpers registration submissions
