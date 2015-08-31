@@ -323,7 +323,7 @@ class Institution(models.Model):
                                          carnegie_class=getattr(
                                              iss_org, 'carnegie_class'))
         else:
-            logger.error("No ISS institution found %s" % (self.name))
+            logger.warning("No ISS institution found %s" % (self.name))
 
     def get_admin_url(self):
         """ Returns the base URL for AASHE Staff to administer aspects of
@@ -1549,7 +1549,7 @@ class Institution(models.Model):
                 if getattr(iss_org, 'member_type') == "Child Member":
                     self.is_member = True
         else:
-            logger.error("No ISS institution found %s" % (self.name))
+            logger.warning("No ISS institution found %s" % (self.name))
 
     def get_admin_url(self):
         """ Returns the base URL for AASHE Staff to administer aspects of this institution """
