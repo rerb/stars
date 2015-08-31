@@ -66,10 +66,6 @@ from stars.test_factories import (
     CreditFactory,
     DocumentationFieldFactory,
     InstitutionFactory,
-    SubmissionSetFactory,
-    NumericDocumentationFieldSubmissionFactory,
-    CreditUserSubmissionFactory,
-    DocumentationFieldFactory,
     ResponsiblePartyFactory)
 from stars.apps.credits.models import Unit
 from stars.apps.submissions.models import (
@@ -85,17 +81,17 @@ from django.contrib.auth.models import User
 
 class MetricConversionTest(TestCase):
 
-    fixtures = ["notification_emailtemplate_tests.json",]
+    fixtures = ["notification_emailtemplate_tests.json"]
 
     def setUp(self):
         self.us_unit = Unit(name='imperial units',
                             is_metric=False,
-                            ratio=.5) # 1 us is .5 metric
+                            ratio=.5)  # 1 us is .5 metric
         self.us_unit.save()
         # metric value is twice the us unit
         self.metric_unit = Unit(name="metric units",
                                 is_metric=True,
-                                ratio=2, # 1 metric is 2 us
+                                ratio=2,  # 1 metric is 2 us
                                 equivalent=self.us_unit)
         self.metric_unit.save()
         self.us_unit.equivalent = self.metric_unit
@@ -104,7 +100,7 @@ class MetricConversionTest(TestCase):
         self.credit = CreditFactory(
             identifier="c1",
             title='c1',
-            point_value="20" # give us room to work with
+            point_value="20"  # give us room to work with
         )
         self.credit_set = self.credit.get_creditset()
         self.credit_set.version = "2.0"
@@ -181,8 +177,6 @@ if B >= A:
             Fix verification and save as "in progress"
                 confirm metric values are accurate
         """
-        print "testing imperial"
-
         # just submit and save
         post_dict = {
             "responsible_party": self.rp.id,
@@ -193,14 +187,9 @@ if B >= A:
             "NumericSubmission_2-value": 1,
             "NumericSubmission_2-metric_value": ""
         }
-        print "Testing saving as 'In Progress'"
         response = self.client.post(self.cus.get_submit_url(), post_dict)
         self.assertEqual(response.status_code, 302)
 
-        print """
-            Set the fields to valid numbers and submit the credit as complete
-                confirm submission accuracy and values are consistent
-                confirm that the metric_values are calculated"""
         post_dict['submission_status'] = 'c'
         response = self.client.post(self.cus.get_submit_url(), post_dict)
         self.assertEqual(response.status_code, 302)
@@ -219,11 +208,6 @@ if B >= A:
         self.assertEqual(self.ns1.metric_value, 1)
         self.assertEqual(self.ns2.metric_value, .5)
 
-        print """
-            Test with min/max verification failing
-                confirm submission doesn't go through
-                confirm values don't change"""
-
         # above range
         post_dict['NumericSubmission_1-value'] = 11
         response = self.client.post(self.cus.get_submit_url(), post_dict)
@@ -237,10 +221,6 @@ if B >= A:
         self.assertEqual(self.ns1.value, 2)
         self.assertEqual(self.ns1.metric_value, 1)
 
-        print """
-            Submit with formula verification failing
-                confirm failure
-                confirm values don't change"""
         # set B as greater than A
         post_dict['NumericSubmission_1-value'] = 5
         post_dict['NumericSubmission_2-value'] = 6
@@ -253,10 +233,6 @@ if B >= A:
         self.assertEqual(self.ns1.metric_value, 1)
         self.assertEqual(self.ns2.metric_value, .5)
 
-        print """
-            Fix verification and save as 'in progress'
-                confirm metric values are accurate
-        """
         post_dict['NumericSubmission_1-value'] = 6
         post_dict['NumericSubmission_2-value'] = 5
         post_dict['submission_status'] = 'p'
@@ -283,15 +259,9 @@ if B >= A:
         Fix verification and save as "in progress"
             confirm metric values are accurate
         """
-
-        print "Testing Metric"
         self.institution.prefers_metric_system = True
         self.institution.save()
 
-        print """
-            Save credit as in progress
-                values shouldn't change
-        """
         post_dict = {
             "responsible_party": self.rp.id,
             "responsible_party_confirm": True,
@@ -310,11 +280,6 @@ if B >= A:
         self.assertEqual(self.ns1.metric_value, 3)
         self.assertEqual(self.ns2.metric_value, 2.5)
 
-        print """
-            Test with min/max verification failing
-                confirm submission doesn't go through
-                confirm values don't change"""
-
         # above range
         post_dict['NumericSubmission_1-metric_value'] = 5.5
         response = self.client.post(self.cus.get_submit_url(), post_dict)
@@ -328,10 +293,6 @@ if B >= A:
         self.assertEqual(self.ns1.value, 6)
         self.assertEqual(self.ns1.metric_value, 3)
 
-        print """
-            Submit with formula verification failing
-                confirm failure
-                confirm values don't change"""
         # set B as greater than A
         post_dict['NumericSubmission_1-metric_value'] = 3
         post_dict['NumericSubmission_2-metric_value'] = 4
@@ -345,9 +306,6 @@ if B >= A:
         self.assertEqual(self.ns1.metric_value, 3)
         self.assertEqual(self.ns2.metric_value, 2.5)
 
-        print """
-            Fix verification and save as "complete"
-                confirm metric values are accurate"""
         # set A as greater than B
         post_dict['submission_status'] = "c"
         post_dict['NumericSubmission_1-metric_value'] = 4
@@ -361,10 +319,6 @@ if B >= A:
         self.assertEqual(self.ns2.value, 6.4)
         self.assertEqual(self.ns1.metric_value, 4)
         self.assertEqual(self.ns2.metric_value, 3.2)
-
-        print """
-            Tweak values and save as "in progress"
-                confirm metric values are accurate"""
 
         post_dict['submission_status'] = "p"
         post_dict['NumericSubmission_1-metric_value'] = 4.1
@@ -388,14 +342,9 @@ if B >= A:
         Save credit as complete
             confirm new values
         """
-
-        print "Reverting back to imperial"
         self.institution.prefers_metric_system = False
         self.institution.save()
 
-        print """
-            Set institution pref back to imperial
-                confirm values don't change and are displayed appropriately"""
         # values don't change
         self.ns1 = NumericSubmission.objects.get(documentation_field=self.df1)
         self.ns2 = NumericSubmission.objects.get(documentation_field=self.df2)
@@ -404,10 +353,6 @@ if B >= A:
         self.assertEqual(self.ns1.metric_value, 4.1)
         self.assertEqual(self.ns2.metric_value, 3.3)
 
-        print """
-            Save credit as in progress
-                confirm new values
-        """
         post_dict = {
             "responsible_party": self.rp.id,
             "responsible_party_confirm": True,
@@ -427,10 +372,6 @@ if B >= A:
         self.assertEqual(self.ns1.metric_value, 3.75)
         self.assertEqual(self.ns2.metric_value, 3.25)
 
-        print """
-            Save credit as complete
-                confirm new values
-        """
         post_dict['submission_status'] = 'c'
         response = self.client.post(self.cus.get_submit_url(), post_dict)
         self.assertEqual(response.status_code, 302)
@@ -446,9 +387,6 @@ if B >= A:
         """
             Test null value submissions
         """
-
-        print "testing null values"
-
         # just submit and save
         post_dict = {
             "responsible_party": self.rp.id,
@@ -459,15 +397,12 @@ if B >= A:
             "NumericSubmission_2-value": "",
             "NumericSubmission_2-metric_value": ""
         }
-        print "Testing saving as 'In Progress'"
         response = self.client.post(self.cus.get_submit_url(), post_dict)
         self.assertEqual(response.status_code, 302)
 
-        print "switching to metric"
         self.institution.prefers_metric_system = True
         self.institution.save()
 
-        print "Testing saving as 'In Progress'"
         response = self.client.post(self.cus.get_submit_url(), post_dict)
         self.assertEqual(response.status_code, 302)
 
@@ -475,8 +410,6 @@ if B >= A:
         """
             Tests that data corrections are applied using the correct units
         """
-        print "testing data correction requests"
-
         self.institution.prefers_metric_system = True
         self.institution.save()
 
