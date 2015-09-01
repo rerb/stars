@@ -909,15 +909,29 @@ class ContentExcelFilter(ExcelMixin, ContentFilter):
             else:
                 row.append('')
             if o['field']:
-                row.append(o['field'].value)
-                if o['field'].documentation_field.units:
-                    row.append(o['field'].documentation_field.units.name)
-                else:
+                if o['field'].documentation_field.type == 'upload':
+                    if o['field'].value:
+                        if self.request.is_secure():
+                            url = 'https://'
+                        else:
+                            url = 'http://'
+                        url += (self.request.get_host() +
+                                o['field'].value.url)
+                        row.append(url)
+                    else:
+                        row.append('')
                     row.append('')
+                else:
+                    row.append(o['field'].value)
+                    if o['field'].documentation_field.units:
+                        row.append(o['field'].documentation_field.units.name)
+                    else:
+                        row.append('')
             else:
                 row.append('')
                 row.append('')
             cols.append(row)
+
         return ExcelResponse(cols)
 
 
