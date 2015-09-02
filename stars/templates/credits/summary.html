@@ -30,26 +30,84 @@
 		      {% include "credits/subcategory_heading.html" %}
 		    </a>
                     {% if cat.category.include_in_score %}
-                      <div id="chart_div_{{ sub.id|unlocalize }}"
-                           style="height: 50px;background-color: #eee"></div>
+                      <div id="chart_div_{{ sub.id|unlocalize }}"></div>
+
                       <script>
+                       function asPercentageOfAdjustedAvailablePoints(n) {
+                         var percentage = (n / {{ sub.get_adjusted_available_points }});
+                         return parseFloat(percentage.toFixed(2));
+                       }
+
+                       function roundedPoints(n) {
+                         if (n > 0) {
+                           return n.toFixed(2)
+                         }
+                         else {
+                           return '0.00'
+                         }
+                       }
+
+                       function categoryColor(category_abbreviation) {
+                         var color;
+                         switch (category_abbreviation) {
+                           case 'AC':
+                             color = '#00bce4';
+                             break;
+                           case 'EN':
+                             color = '#a486bd';
+                             break;
+                           case 'OP':
+                             color = '#6bbc49';
+                             break;
+                           case 'PA':
+                             color = '#cedc45';
+                             break;
+                           case 'IN':
+                             color = '#15387f';
+                             break;
+                         }
+                         return color;
+                       }
+
                        function drawChart() {
 
                          var data = google.visualization.arrayToDataTable([
-                           ['Subcategory', 'Score', 'Available'],
-                           ["{{ sub }}",
-                            {{ sub.points|unlocalize }},
-                            {{ sub.get_available_points|unlocalize }}]
+                           ['Subcategory',
+                            'Score',
+                            { role: 'annotation' },
+                            'Average',
+                            { role: 'annotation' }],
+
+                           ['{{ sub }}',
+                            asPercentageOfAdjustedAvailablePoints(
+                             {{ sub.points }}),
+                            roundedPoints({{ sub.points }}) + " pts",
+                            asPercentageOfAdjustedAvailablePoints(
+                             {{ sub.subcategory.average_points }}),
+                            roundedPoints(
+                             {{ sub.subcategory.average_points }}) + " pts"]
                          ]);
 
+                         var formatter = new google.visualization.NumberFormat(
+                           {pattern: '###%'});
+                         formatter.format(data, 1);
+                         formatter.format(data, 3);
+
                          var options = {
-                           isStacked: true,
-                           legend: {position: 'none'},
-                           vAxis: {textPosition: 'none'},
-                           hAxis: {textPosition: 'none'}
-                           // title: '{{cat}}',
-                           // hAxis: {title: 'Subcategory',
-                           //         titleTextStyle: {color: 'red'}}
+                           chartArea: {
+                             width: '60%'
+                           },
+                           colors: [categoryColor(
+                             '{{ sub.subcategory.category.abbreviation }}'),
+                                    '#eee'], // '#0080cf'],
+                           hAxis: {
+                             minValue: 0,
+                             maxValue: 1,
+                             textPosition: 'none'
+                           },
+                           vAxis: {
+                             textPosition: 'none'
+                           }
                          };
 
                          var chartContainer = document.getElementById(
@@ -59,6 +117,7 @@
 
                          chart.draw(data, options);
                        }
+
                        drawChart();
                       </script>
                     {% endif %}
