@@ -6,14 +6,14 @@
 {% load admin_urls %}
 {% load custom_caching %}
 
-{% setvar "anon" as version %}
+{% define "anon" as version %}
 
 {% testrule user_is_institution_admin user institution %}
-    {% setvar "admin" as version %}
+    {% define "admin" as version %}
 {% endtestrule %}
 
 {% if user.is_staff %}
-    {% setvar "staff" as version %}
+    {% define "staff" as version %}
 {% endif %}
 
 

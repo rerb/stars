@@ -23,7 +23,6 @@ from stars.apps.institutions.models import (BASIC_ACCESS,
                                             Institution)
 from stars.apps.submissions.export.pdf import build_report_pdf
 from stars.apps.notifications.models import EmailTemplate
-from adv_cache_tag.tag import CacheTag
 
 PENDING_SUBMISSION_STATUS = 'ps'
 PROCESSSING_SUBMISSION_STATUS = 'pr'
@@ -1600,7 +1599,6 @@ class DataCorrectionRequest(models.Model):
                 c = self.applied_correction
             except ReportingFieldDataCorrection.DoesNotExist:
                 self.approve()
-            self.invalidate_cache()
 
         return super(DataCorrectionRequest, self).save()
 
@@ -1723,26 +1721,15 @@ class DataCorrectionRequest(models.Model):
                             "rating_changed": rating_changed,
                             "old_rating": old_rating,
                             "old_score": old_score,
-
-                        }
+        }
         et.send_email(mail_to, email_context)
-
-    def invalidate_cache(self):
-        url = self.get_absolute_url()
-        versions = ['anon', 'admin', 'staff']
-
-        for version in versions:
-            cache.delete('file_cache:' + url + ':' + str(hash(version)))
-            cache.delete('file_cache:' + self.submissionset.get_scorecard_url + str(hash("EXPORT" + version)))
-            cache.delete('file_cache:' + self.submissionset.get_scorecard_url + str(hash("NO_EXPORT" + version)))
-
 
 class ReportingFieldDataCorrection(models.Model):
     """
         Represents a change to a particular field in Credit Submission after
         an institution has received a rating.
     """
-    request = models.OneToOneField(CreditSubmission, related_name='applied_correction', blank=True, null=True)
+    request = models.OneToOneField(DataCorrectionRequest, related_name='applied_correction', blank=True, null=True)
     previous_value = models.TextField()
     change_date = models.DateField()
     content_type = models.ForeignKey(ContentType)

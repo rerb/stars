@@ -3,14 +3,14 @@
 {% load custom_caching %}
 {% load logical_rules_tags %}
 
-{% setvar "anon" as version %}
+{% define "anon" as version %}
 
 {% testrule user_is_institution_admin user institution %}
-    {% setvar "admin" as version %}
+    {% define "admin" as version %}
 {% endtestrule %}
 
 {% if user.is_staff %}
-    {% setvar "staff" as version %}
+    {% define "staff" as version %}
 {% endif %}
 
 {% block body_onload %}expandTo = 0;{{ block.super }}{% endblock %}
@@ -20,11 +20,11 @@
 	{# cache for those who have the export functionality #}
 	
 	{% testrule user_can_view_export user submissionset %}
-		{% file_cache 2592000 request.get_full_path "EXPORT" version %}
+		{% file_cache 2592000 request.get_full_path submissionset.id preview "EXPORT" user.is_staff %}
 	    	{% include 'institutions/scorecards/summary_include.html' %}
 		{% endfile_cache %}
 	{% else %}
-		{% file_cache 2592000 request.get_full_path "NO_EXPORT" version %}
+		{% file_cache 2592000 request.get_full_path submissionset.id preview "EXPORT" user.is_staff %}
 	    	{% include 'institutions/scorecards/summary_include.html' %}
 		{% endfile_cache %}
 	{% endtestrule %}

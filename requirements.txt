@@ -80,3 +80,4 @@ zope.testing==4.1.1
 django-compressor
 geordi
 django-adv-cache-tag
+-e git+https://github.com/baronvonvaderham/django-filecache.git#egg=filecache
