@@ -187,6 +187,15 @@ class Dashboard(TemplateView):
         return context
 
 
+class PieChartView(TemplateView):
+    template_name = 'institutions/data_displays/summary_pie_chart.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(PieChartView, self).get_context_data(**kwargs)
+        context['display_version'] = "2.0"
+        return context
+
+
 class DisplayAccessMixin(StarsAccountMixin, RulesMixin):
     """
         A basic rule mixin for all Data Displays
@@ -235,7 +244,7 @@ class CommonFilterMixin(object):
                 title='Organization Type',
                 item_list=org_type_list,
                 base_qs=base_qs
-            ),
+            )
         ] + common_filters
 
         # Store in the cache for 6 hours
@@ -310,7 +319,6 @@ class AggregateFilter(DisplayAccessMixin, CommonFilterMixin, FilteringMixin,
             cache_key = "%s-%s" % (
                 self.convertCacheKey(f.get_active_title(v)),
                 credit_set.version)
-            print cache_key
             # see if a cached version is available
             row = cache.get(cache_key)
 
@@ -345,10 +353,13 @@ class AggregateFilter(DisplayAccessMixin, CommonFilterMixin, FilteringMixin,
                         Min('points'),
                         Max('points'))
 
-                    obj['avg'] = result['percentage_score__avg'] * 100
-                    obj['std'] = result['points__stddev']
-                    obj['min'] = result['points__min']
-                    obj['max'] = result['points__max']
+                    if result['percentage_score__avg']:
+                        obj['avg'] = result['percentage_score__avg'] * 100
+                    else:
+                        obj['avg'] = 0
+                    obj['std'] = result['points__stddev'] or 0
+                    obj['min'] = result['points__min'] or 0
+                    obj['max'] = result['points__max'] or 0
 
                     columns.append(obj)
 
@@ -415,7 +426,8 @@ class ScoreFilter(DisplayAccessMixin, CommonFilterMixin,
     _obj_mappings = [
         ('cat', Category),
         ('sub', Subcategory),
-        ('crd', Credit)]
+        ('crd', Credit),
+        ('cs', CreditSet)]
 
     def update_logical_rules(self):
         super(DisplayAccessMixin, self).update_logical_rules()
@@ -471,6 +483,7 @@ class ScoreFilter(DisplayAccessMixin, CommonFilterMixin,
 
         get = self.request.GET
         self._selected_columns = []
+
         for key in self._col_keys:
             if key in get:
                 self._selected_columns.append(
@@ -576,11 +589,15 @@ class ScoreFilter(DisplayAccessMixin, CommonFilterMixin,
                                                 available_points = ss.creditset.tier_2_points
                                     else:
                                         claimed_points = "Reporter"
+                            elif isinstance(col_obj, CreditSet):
+                                claimed_points = ss.get_STARS_score()
+                                url = ss.get_scorecard_url()
 
                             row['cols'].append({
                                 'claimed_points': claimed_points,
-                                "available_points": available_points,
-                                'units': units, 'url': url})
+                                'available_points': available_points,
+                                'units': units,
+                                'url': url})
 
                     object_list.append(row)
 
@@ -605,13 +622,23 @@ class ScoreFilter(DisplayAccessMixin, CommonFilterMixin,
         if self.kwargs["cs_version"] == "2.0":
             _context['url_1_0'] = reverse(
                 'scores_data_display', kwargs={"cs_version": "1.0"})
-        if self.kwargs["cs_version"] == "1.0":
+        elif self.kwargs["cs_version"] == "1.0":
             _context['url_2_0'] = reverse(
                 'scores_data_display', kwargs={"cs_version": "2.0"})
+        else:
+            raise Http404
 
         _context['top_help_text'] = self.get_description_help_context_name()
         _context['object_list'] = self.get_object_list(credit_set)
-        _context['selected_columns'] = self.get_selected_columns()
+
+        # Add a title for each selected column:
+        _context['column_headings'] = []
+        for key, value in self.get_selected_columns():
+            if not isinstance(value, CreditSet):
+                _context['column_headings'].append((key, str(value)))
+            else:
+                _context['column_headings'].append((key, "Overall Score"))
+
         _context['select_form'] = self.get_select_form(credit_set)
 
         return _context
@@ -648,12 +675,15 @@ class ScoreExcelFilter(ExcelMixin, ScoreFilter):
                 "STARS Version"]
 
         for column in context['selected_columns']:
-            column_name = str(column[1])
+            if not isinstance(column[1], CreditSet):
+                column_name = str(column[1])
+            else:
+                column_name = "Overall Score"
             cols.append(column_name)
             cols.append("")  # blank space
         rows.append(cols)
 
-        subcols = ["", ""]
+        subcols = ["", "", "", ""]
         for c in context['selected_columns']:
             subcols.append("Points Earned")
             subcols.append("Available Points")
@@ -879,15 +909,29 @@ class ContentExcelFilter(ExcelMixin, ContentFilter):
             else:
                 row.append('')
             if o['field']:
-                row.append(o['field'].value)
-                if o['field'].documentation_field.units:
-                    row.append(o['field'].documentation_field.units.name)
-                else:
+                if o['field'].documentation_field.type == 'upload':
+                    if o['field'].value:
+                        if self.request.is_secure():
+                            url = 'https://'
+                        else:
+                            url = 'http://'
+                        url += (self.request.get_host() +
+                                o['field'].value.url)
+                        row.append(url)
+                    else:
+                        row.append('')
                     row.append('')
+                else:
+                    row.append(o['field'].value)
+                    if o['field'].documentation_field.units:
+                        row.append(o['field'].documentation_field.units.name)
+                    else:
+                        row.append('')
             else:
                 row.append('')
                 row.append('')
             cols.append(row)
+
         return ExcelResponse(cols)
 
 

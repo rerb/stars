@@ -3,3 +3,8 @@
 /export
 .DS_Store
 .DS_Store?
+.envrc
+htmlcov
+ghostdriver.log
+celerybeat-schedule
+celerybeat.pid

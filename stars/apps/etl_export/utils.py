@@ -1,5 +1,5 @@
-from stars.apps.etl_export.models import (Institution, SubmissionSet,
-        Subscription, SubscriptionPayment, Boundary)
+from stars.apps.etl_export.models import (
+    Institution, SubmissionSet, Subscription, SubscriptionPayment, Boundary)
 import sys
 
 

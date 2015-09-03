@@ -4,25 +4,25 @@ MySQL-python
 Pillow==2.7.0
 South==0.8.1
 Werkzeug==0.8.3
--e hg+ssh://hg@bitbucket.org/aashe/aashe-auth#egg=aashe-auth-dev
--e hg+ssh://hg@bitbucket.org/aashe/issdjango#egg=issdjango-dev
+-e git+ssh://git@github.com/AASHE/aashe-auth.git#egg=aashe-auth-dev
+-e git+ssh://git@github.com/AASHE/issdjango.git#egg=issdjango-dev
 -e git+https://github.com/toastdriven/django-tastypie.git@32dae8d2590dde3122289118ac241ab0bd2452e8#egg=django_tastypie-dev
 -e git+https://github.com/python-excel/xlwt.git#egg=xlwt-dev
 -e git+https://github.com/AASHE/django-celery-downloader.git#egg=django-celery-downloader-dev
-amqp==1.0.11
+amqp==1.4.6
 amqplib==1.0.2
 anyjson==0.3.3
 authorizesauce
 beautifulsoup4==4.1.3
 boto==2.9.5
-celery==3.0.19
+celery==3.1.18
 django-bootstrap-form==2.0.5
 django-cache-url==0.3.2
-django-celery==3.0.17
+django-celery==3.1.16
 django-classy-tags==0.4
 django-cms==2.4.2
 django-codemirror-widget==0.3.0
--e hg+ssh://hg@bitbucket.org/aashe/django-collapsing-menu@e1eaae6eae90abddfc2012db8c12f039e8689fc0#egg=django_collapsing_menu-dev
+-e git+https://github.com/AASHE/django-collapsing-menu#egg=django_collapsing_menu-dev
 django-debug-toolbar==0.9.4
 django-excel-response==1.0
 django-extensions==1.1.1
@@ -47,7 +47,6 @@ hg-git==0.3.4
 html5lib==0.90
 httplib2==0.8
 ipython==0.13.1
-kombu==2.5.10
 lxml==3.1beta1
 mercurial==2.7
 mimeparse==0.1.3
