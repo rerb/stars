@@ -604,7 +604,6 @@ class ScoreFilter(DisplayAccessMixin, CommonFilterMixin,
             return object_list
 
     def get_context_data(self, **kwargs):
-
         _context = super(ScoreFilter, self).get_context_data(**kwargs)
 
         if self.kwargs["cs_version"] == "1.0":
@@ -633,6 +632,7 @@ class ScoreFilter(DisplayAccessMixin, CommonFilterMixin,
 
         # Add a title for each selected column:
         _context['column_headings'] = []
+
         for key, value in self.get_selected_columns():
             if not isinstance(value, CreditSet):
                 _context['column_headings'].append((key, str(value)))
@@ -674,7 +674,9 @@ class ScoreExcelFilter(ExcelMixin, ScoreFilter):
         cols = ["Institution", 'Country', 'Institution Type',
                 "STARS Version"]
 
-        for column in context['selected_columns']:
+        selected_columns = self.get_selected_columns()
+
+        for column in selected_columns:
             if not isinstance(column[1], CreditSet):
                 column_name = str(column[1])
             else:
@@ -684,7 +686,7 @@ class ScoreExcelFilter(ExcelMixin, ScoreFilter):
         rows.append(cols)
 
         subcols = ["", "", "", ""]
-        for c in context['selected_columns']:
+        for c in selected_columns:
             subcols.append("Points Earned")
             subcols.append("Available Points")
         rows.append(subcols)
