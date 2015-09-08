@@ -93,7 +93,7 @@ MIDDLEWARE_CLASSES = [  # a list so it can be editable during tests (see below)
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'geordi.VisorMiddleware',
+    # 'geordi.VisorMiddleware',
     # 'aashe.aasheauth.middleware.AASHEAccountMiddleware',
     'django.middleware.cache.FetchFromCacheMiddleware',
     'django.contrib.redirects.middleware.RedirectFallbackMiddleware',
@@ -217,7 +217,7 @@ INSTALLED_APPS = (
     # 'menus',
     # 'sekizai',
     'compressor',
-    'geordi',
+    # 'geordi',
 )
 
 # auth config
