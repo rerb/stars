@@ -13,7 +13,7 @@
         errors will be raised if '{% url ... instutition.slug %}' is
         called when no institution is available.
     {% endcomment %}
-    
+
     {% if institution %}
     	{% testrule user_has_access_level user 'admin' institution %}
             <li{% if active_menu == "summary"%} class='active'{% endif %}>
@@ -28,13 +28,21 @@
             </li>
         {% endtestrule %}
         {% testrule user_has_access_level user 'submit' institution %}
-            <li{% if active_menu == "submission"%} class='active'{% endif %}>
+            <li{% if active_menu == "submission" %} class='active'{% endif %}>
                    <a href='{% url submission-summary institution.slug institution.current_submission.id %}'>
                     <i class="icon-folder-close"></i>
                     My Submission
                 </a>
             </li>
             {% block submission_outline %}{% endblock %}
+        {% endtestrule %}
+        {% testrule user_has_access_level user 'view' institution %}
+          <li{% if active_menu == "preview" %} class='active'{% endif %}>
+                 <a href="{{ institution.current_submission.get_scorecard_url }}">
+                  <i class="icon-eye-open"></i>
+                  Preview Submission
+              </a>
+          </li>
         {% endtestrule %}
         <li{% if active_menu == "resources"%} class='active'{% endif %}>
             <a href='{% url my-resources institution.slug %}'>
