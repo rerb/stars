@@ -180,7 +180,7 @@ class SubmissionSet(models.Model, FlaggableModel):
     score = models.FloatField(blank=True, null=True)
     migrated_from = models.ForeignKey('self', null=True, blank=True,
                                       related_name='+')
-    date_created = models.DateField(blank=True, null=True)
+    date_created = models.DateField(blank=True, null=True, auto_now_add=True)
 
     class Meta:
         ordering = ("date_registered",)
