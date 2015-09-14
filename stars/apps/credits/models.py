@@ -525,7 +525,6 @@ class Subcategory(VersionedModel):
     description = models.TextField()
     passthrough = models.BooleanField(default=False,
         help_text="makes the subcategory sorta invisible, for use with Inst. Characteristics")
-    average_points = models.FloatField(default=0)
 
     class Meta:
         ordering = ('category', 'ordinal',)
