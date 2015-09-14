@@ -185,6 +185,15 @@ class Institution(models.Model):
     def __unicode__(self):
         return self.name
 
+    @classmethod
+    def get_org_types(cls):
+        institutions = cls.objects.values('org_type').distinct()
+        org_types = []
+        for institution in institutions:
+            if institution['org_type']:
+                org_types.append(institution['org_type'])
+        return org_types
+
     @property
     def access_level(self):
         """Shadows is_participant, now that we don't have participants
