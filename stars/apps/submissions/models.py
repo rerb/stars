@@ -2403,17 +2403,21 @@ class SubcategoryOrgTypeAveragePoints(models.Model):
     org_type = models.CharField(max_length=32)
     average_points = models.FloatField(default=0)
 
-    # class Meta:
-    #     unique_together = ("subcategory", "org_type")
+    class Meta:
+        unique_together = ("subcategory", "org_type")
 
     def calculate(self):
-        """Calculate the average.
+        """Calculate the average.  Only count rated submissions.
         """
         subcategory_submissions = SubcategorySubmission.objects.filter(
-            subcategory=self.subcategory)
+            subcategory=self.subcategory,
+            category_submission__submissionset__status='r')
         total_points = total_submissions = 0
         for subcategory_submission in subcategory_submissions:
             total_points += subcategory_submission.get_claimed_points()
             total_submissions += 1
-        self.average_points = total_points / total_submissions
+        if total_submissions:
+            self.average_points = total_points / total_submissions
+        else:
+            self.average_points = 0
         self.save()
