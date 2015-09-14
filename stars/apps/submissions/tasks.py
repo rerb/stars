@@ -1,27 +1,28 @@
 """
     Celery tasks
 """
-from logging import getLogger
+import datetime
 import sys
+from logging import getLogger
 
-from stars.apps.submissions.export.pdf import build_certificate_pdf
-from stars.apps.submissions.export.excel import build_report_export
-from stars.apps.submissions.models import SubmissionSet
-from stars.apps.migrations.utils import (migrate_ss_version,
-                                         migrate_submission,
-                                         create_ss_mirror)
-from stars.apps.notifications.models import EmailTemplate
-from stars.apps.credits.models import CreditSet
-from stars.apps.submissions.api import (SummaryPieChart,
-                                        CategoryPieChart,
-                                        SubategoryPieChart)
-from stars.apps.institutions.models import MigrationHistory
-
-from django.core.cache import cache
-
+from celery import shared_task
 from celery.decorators import task
 
-import datetime
+from django.core.cache import cache
+from stars.apps.credits.models import CreditSet, Subcategory
+from stars.apps.institutions.models import Institution, MigrationHistory
+from stars.apps.migrations.utils import (create_ss_mirror,
+                                         migrate_ss_version,
+                                         migrate_submission)
+from stars.apps.notifications.models import EmailTemplate
+from stars.apps.submissions.api import (CategoryPieChart,
+                                        SubategoryPieChart,
+                                        SummaryPieChart)
+from stars.apps.submissions.export.excel import build_report_export
+from stars.apps.submissions.export.pdf import build_certificate_pdf
+from stars.apps.submissions.models import (SubcategoryOrgTypeAveragePoints,
+                                           SubmissionSet)
+
 
 logger = getLogger('stars.user')
 
@@ -240,3 +241,26 @@ def expireRatings():
                 i.current_rating = None
                 i.latest_expired_submission = ss
                 i.save()
+
+
+@shared_task(name='submissions.load_subcategory_org_type_average_points')
+def load_subcategory_org_type_average_points():
+    """Populate SubcategoryOrgTypeAveragePoints and calculate the averages.
+    """
+    logger = getLogger('stars')
+    org_types = Institution.get_org_types()
+    subcategories = Subcategory.objects.all()
+    for subcategory in subcategories:
+        for org_type in org_types:
+            logger.info('loading subcategory {subcategory} '
+                        'for {org_type}'.format(subcategory=subcategory.title,
+                                                org_type=org_type))
+            try:
+                average = SubcategoryOrgTypeAveragePoints.objects.get(
+                    subcategory=subcategory,
+                    org_type=org_type)
+            except SubcategoryOrgTypeAveragePoints.DoesNotExist:
+                average = SubcategoryOrgTypeAveragePoints.objects.create(
+                    subcategory=subcategory,
+                    org_type=org_type)
+            average.calculate()
