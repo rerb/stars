@@ -2365,6 +2365,7 @@ class SubmissionInquiry(models.Model):
     def __unicode__(self):
         return self.submissionset.institution.name
 
+
 class CreditSubmissionInquiry(models.Model):
     """
         An inquiry, tied to a SubmissionInquiry about a particular credit.
@@ -2380,6 +2381,7 @@ class CreditSubmissionInquiry(models.Model):
     def __unicode__(self):
         return self.credit.title
 
+
 class ExtensionRequest(models.Model):
     """
         Schools can request a 6 month extension for their submission
@@ -2392,3 +2394,26 @@ class ExtensionRequest(models.Model):
 
     def __unicode__(self):
         return str(self.date)
+
+
+class SubcategoryOrgTypeAveragePoints(models.Model):
+    """The average points for a Subcategory and Institution.org_type.
+    """
+    subcategory = models.ForeignKey(Subcategory)
+    org_type = models.CharField(max_length=32)
+    average_points = models.FloatField(default=0)
+
+    # class Meta:
+    #     unique_together = ("subcategory", "org_type")
+
+    def calculate(self):
+        """Calculate the average.
+        """
+        subcategory_submissions = SubcategorySubmission.objects.filter(
+            subcategory=self.subcategory)
+        total_points = total_submissions = 0
+        for subcategory_submission in subcategory_submissions:
+            total_points += subcategory_submission.get_claimed_points()
+            total_submissions += 1
+        self.average_points = total_points / total_submissions
+        self.save()
