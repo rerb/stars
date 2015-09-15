@@ -106,7 +106,7 @@ MIDDLEWARE_CLASSES = [  # a list so it can be editable during tests (see below)
     # 'cms.middleware.language.LanguageCookieMiddleware',
     ]
 
-FILECACHE_DIRECTORY = os.environ.get("FILECACHE_DIRECTORY", "/CACHE/filecache/")
+FILECACHE_DIRECTORY = os.environ.get("FILECACHE_DIRECTORY", os.path.join(PROJECT_PATH, "/CACHE/filecache/"))
 
 import django_cache_url
 CACHES = {
@@ -486,8 +486,14 @@ if 'test' in sys.argv:
         os.environ.get('ISS_TEST_DB',
                        "sqlite:////tmp/iss_tests.db"))
 
-    CACHES = {'default': django_cache_url.parse(os.environ.get(
-        'CACHE_TEST_URL', 'file:///tmp/stars-cache'))}
+    CACHES = {
+        'default':
+            django_cache_url.parse(os.environ.get('CACHE_TEST_URL', 'file:///tmp/stars-cache')),
+        'filecache': {
+            'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+            'LOCATION': FILECACHE_DIRECTORY,
+        }
+    }
 
     API_TEST_MODE = False
 
