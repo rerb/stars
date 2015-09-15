@@ -1,6 +1,7 @@
 {% extends 'credits/columned_layout.html' %}
 
 {% load l10n %}
+{% load subcategory_averages %}
 
 {% block center_column %}
 
@@ -77,15 +78,15 @@
                             { role: 'annotation' },
                             'Average',
                             { role: 'annotation' }],
-
                            ['{{ sub }}',
                             asPercentageOfAdjustedAvailablePoints(
                              {{ sub.points }}),
                             roundedPoints({{ sub.points }}) + " pts",
+                            {% subcategory_org_type_average_points sub.subcategory sub.category_submission.submissionset.institution.org_type as avg_points %}
                             asPercentageOfAdjustedAvailablePoints(
-                             {{ sub.subcategory.average_points }}),
+                             {{ avg_points }}),
                             roundedPoints(
-                             {{ sub.subcategory.average_points }}) + " pts"]
+                             {{ avg_points }}) + " pts"]
                          ]);
 
                          var formatter = new google.visualization.NumberFormat(
