@@ -66,7 +66,7 @@ raven==3.3.7
 readline==6.2.4.1
 reportlab==2.4
 simplejson==3.3.0
-six==1.2.0
+six==1.9.0
 sorl-thumbnail==11.12
 ssh==1.8.0
 -e git+https://github.com/sixohsix/twitter.git@c3a3fb3276938b053df0aec8421586497415e6ec#egg=twitter
