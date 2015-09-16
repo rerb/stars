@@ -101,8 +101,11 @@
                          formatter.format(data, 3);
 
                          var options = {
+                           height: 70,
                            chartArea: {
-                             width: '60%'
+                             width: '60%',
+                             height: '90%',
+                             top: 0,
                            },
                            colors: [categoryColor(
                              '{{ sub.subcategory.category.abbreviation }}'),
@@ -110,7 +113,7 @@
                            hAxis: {
                              minValue: 0,
                              maxValue: 1,
-                             textPosition: 'none'
+                             textPosition: 'none',
                            },
                            vAxis: {
                              textPosition: 'none'
