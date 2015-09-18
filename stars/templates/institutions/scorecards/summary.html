@@ -6,11 +6,6 @@
 {% block body_onload %}expandTo = 0;{{ block.super }}{% endblock %}
 
 {% block content %}
-    SUBMISSION SET ID: {{ submissionset.id }}
-    PREVIEW: {{ preview }}
-    STAFF: {{ user.is_staff }}
-	{# cache for those who have the export functionality #}
-	
 	{% testrule user_can_view_export user submissionset %}
 		{% file_cache 2592000 request.get_full_path submissionset.id preview "EXPORT" user.is_staff %}
 	    	{% include 'institutions/scorecards/summary_include.html' %}
