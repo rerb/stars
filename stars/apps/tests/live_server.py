@@ -53,12 +53,6 @@ WEBDRIVERS = [
             name='phantomjs',
             sentinels=['/usr/bin/phantomjs'],
             implementation=phantomjs.webdriver),
-    # Another instance of Linux/phantomjs because this is where
-    # Travis-ci puts it:
-    Browser(platform='linux2',
-            name='phantomjs',
-            sentinels=['/usr/local/phantomjs/bin/phantomjs'],
-            implementation=phantomjs.webdriver),
     Browser(platform='linux2',
             name='firefox',
             sentinels=['/usr/bin/firefox'],
