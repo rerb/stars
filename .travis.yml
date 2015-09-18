@@ -23,8 +23,6 @@ env:
   - ISS_TEST_DB=mysql://travis@localhost/iss_tests
   - secure: Y13CVgOLJW5e5uGxb+0I2EbQqF6D+H7ZrASUOs4VHgDM/UNs6hBBIAfBhQUB0q4VMaGr3qrYw1vQHtUvXSxXR7WwMxIkoDzfVE8kJWD5dW/KqO5cnSGW1XFBCM9DJ8z8J7/0C3W9JJn/WK4iizZBo9qBlt4EPidI8Td4Iq77Xmg=
 before_install:
-  - chromium --version
-  - fail
   - export DISPLAY=:99.0
   - sh -e /etc/init.d/xvfb start
   - wget -N http://chromedriver.storage.googleapis.com/2.14/chromedriver_linux64.zip -P ~/Downloads
