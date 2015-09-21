@@ -41,15 +41,6 @@
                            return parseFloat(percentage.toFixed(2));
                          }
 
-                         function roundedPoints(n) {
-                           if (n > 0) {
-                             return n.toFixed(2)
-                           }
-                           else {
-                             return '0.00'
-                           }
-                         }
-
                          function categoryColor(category_abbreviation) {
                            var color;
                            switch (category_abbreviation) {
@@ -83,18 +74,13 @@
                            var data = google.visualization.arrayToDataTable([
                              ['Subcategory',
                               'Score',
-                              { role: 'annotation' },
-                              'Average',
-                              { role: 'annotation' }],
+                              'Average'],
                              ['{{ sub }}',
                               asPercentageOfAdjustedAvailablePoints(
                                {{ sub.points }}),
-                              roundedPoints({{ sub.points }}) + " pts",
                               {% subcategory_org_type_average_points sub.subcategory sub.category_submission.submissionset.institution.org_type as avg_points %}
                               asPercentageOfAdjustedAvailablePoints(
-                               {{ avg_points }}),
-                              roundedPoints(
-                               {{ avg_points }}) + " pts"]
+                               {{ avg_points }})]
                            ]);
 
                            var formatter = new google.visualization.NumberFormat(
