@@ -6,67 +6,71 @@
 {% load thumbnail %}
 
 {% block h1 %}
-    <a href='{% url scorecard-list institution.slug %}'>
-	    {{ institution }}
-    </a>
-    <h4>
-        {{ institution.get_location_string }}
-    </h4>
-    <br/>
+  <a href='{% url scorecard-list institution.slug %}'>
+    {{ institution }}
+  </a>
+  <h4>
+    {{ institution.get_location_string }}
+  </h4>
+  <br/>
 {% endblock %}
 
 {% block navHeader %}
-    <h4>
-        <a href='{{ submissionset.get_scorecard_url }}'>STARS {{ submissionset.creditset }}</a>
-        {% if preview %}<span class="label label-warning">Preview</span>{% endif %}
-    </h4>
+  <h4>
+    <a href='{{ submissionset.get_scorecard_url }}'>
+      STARS {{ submissionset.creditset }}</a>
+    {% if preview %}<span class="label label-warning">Preview</span>{% endif %}
+  </h4>
 {% endblock %}
 
 {% block railAboveMenu %}
   {% if not submissionset.expired %}
     <div style='text-align: center;'>
-    {% if preview %}
-    	{% thumbnail "seals/Stars_Seal_Participant_RGB_300.png" "300x300" as im %}
-    		<img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" />
-		{% endthumbnail %}
-    {% else %}
-    	{% thumbnail submissionset.rating.image_large "300x300" as im %}
-    		<img src="{{ im.url }}" width="{{ im.width }}" height="{{ im.height }}" alt='{{ submissionset.rating }}' />
-		{% endthumbnail %}
+      {% if preview %}
+        {% thumbnail "seals/Stars_Seal_Participant_RGB_300.png" "300x300" as im %}
+          <img src="{{ im.url }}" width="{{ im.width }}"
+               height="{{ im.height }}" />
+        {% endthumbnail %}
+      {% else %}
+        {% thumbnail submissionset.rating.image_large "300x300" as im %}
+          <img src="{{ im.url }}" width="{{ im.width }}"
+               height="{{ im.height }}" alt='{{ submissionset.rating }}' />
+        {% endthumbnail %}
     {% endif %}
     </div>
-   {% endif %}
+  {% endif %}
 {% endblock %}
 
 {% block summaryTable %}
   <!-- template cached: {% now "jS F Y H:i" %} -->
-    {% if preview %}
-    	<div class="alert">
-    		This is a preview of your report. To continue editing your
-            final report please go to
-            <a href='{% url submission-summary institution.slug submissionset.id %}'>
-            My Submission</a>.
-    	</div>
-    {% endif %}
-    {% include 'institutions/scorecards/submission_summary_table.html' %}
+  {% if preview %}
+    <div class="alert">
+      This is a preview of your report. To continue editing your
+      final report please go to
+      <a href='{% url submission-summary institution.slug submissionset.id %}'>
+        My Submission</a>.
+    </div>
+  {% endif %}
+  {% include 'institutions/scorecards/submission_summary_table.html' %}
 
-	{% if submissionset.creditset.has_boundary_feature %}
+  {% if submissionset.creditset.has_boundary_feature %}
     <div class="accordion" id="boundary">
-       <div class="accordion-group">
-         <div class="accordion-heading">
-           <a class="accordion-toggle" data-toggle="collapse" data-parent="#boundary" href="#collapseOne">
-             Submission Boundary
-           </a>
-         </div>
-         <div id="collapseOne" class="accordion-body collapse in">
-           <div class="accordion-inner">
-             {% show_boundary submissionset %}
-            </div>
-         </div>
-       </div>
-     </div>
-     {% endif %}
-     
+      <div class="accordion-group">
+        <div class="accordion-heading">
+          <a class="accordion-toggle" data-toggle="collapse"
+             data-parent="#boundary" href="#collapseOne">
+            Submission Boundary
+          </a>
+        </div>
+        <div id="collapseOne" class="accordion-body collapse in">
+          <div class="accordion-inner">
+            {% show_boundary submissionset %}
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
 {% endblock %}
 
 {% block category_section %}
@@ -76,31 +80,33 @@
 {% endblock %}
 
 {% block subcategory_description %}
-	{% if submissionset.creditset.has_submission_summary_feature %}
-		{% if sub.description %}
-			{% if sub.description|wordcount < 35 %}
-				<div style='margin: 10px 50px 0px'>
-					{{ sub.description|urlizetrunc:30|linebreaks|fix_ampersands }}
-				</div>
-			{% else %}
-				<div style="margin: 10px 50px 0px" id='sdt{{ sub.id }}'>
-					{{ sub.description|urlizetrunc:85|fix_ampersands|truncatewords_html:35 }}
-					<a style='display: inline; margin: 0px;text-align: center;' href="javascript:swap_divs('sdt{{ sub.id }}', 'sde{{ sub.id }}')">
-						read more</a>
-				</div>
-				<div style="display: none;margin: 10px 50px 0px" id='sde{{ sub.id }}'>
-					{{ sub.description|urlizetrunc:85|linebreaks|fix_ampersands }}
-					<a style='display: block; margin: 0px;text-align: center;' href="javascript:swap_divs('sde{{ sub.id }}', 'sdt{{ sub.id }}')">
-						&lt;&lt; show less</a>
-				</div>
-			{% endif %}
-		{% endif %}
-	{% endif %}
+  {% if submissionset.creditset.has_submission_summary_feature %}
+    {% if sub.description %}
+      {% if sub.description|wordcount < 35 %}
+        <div style='margin: 10px 50px 0px'>
+          {{ sub.description|urlizetrunc:30|linebreaks|fix_ampersands }}
+        </div>
+      {% else %}
+        <div style="margin: 10px 50px 0px" id='sdt{{ sub.id }}'>
+          {{ sub.description|urlizetrunc:85|fix_ampersands|truncatewords_html:35 }}
+          <a style='display: inline; margin: 0px;text-align: center;'
+             href="javascript:swap_divs('sdt{{ sub.id }}', 'sde{{ sub.id }}')">
+            read more</a>
+        </div>
+        <div style="display: none;margin: 10px 50px 0px" id='sde{{ sub.id }}'>
+          {{ sub.description|urlizetrunc:85|linebreaks|fix_ampersands }}
+          <a style='display: block; margin: 0px;text-align: center;'
+             href="javascript:swap_divs('sde{{ sub.id }}', 'sdt{{ sub.id }}')">
+            &lt;&lt; show less</a>
+        </div>
+      {% endif %}
+    {% endif %}
+  {% endif %}
 {% endblock %}
 
 {% block center_column_footer %}
-    {% include 'institutions/scorecards/footer.html' %}
-    <!--
-        SS: {{ submissionset.id }}
-    -->
+  {% include 'institutions/scorecards/footer.html' %}
+  <!--
+    SS: {{ submissionset.id }}
+  -->
 {% endblock %}
