@@ -29,6 +29,7 @@
                        data-parent="#{{ cat.id|unlocalize }}_subcategories"
                        href="#{{ sub.id|unlocalize }}">
 		      {% include "credits/subcategory_heading.html" %}
+                      <img src='/media/static/images/expand_big.gif' alt='+'>
 		    </a>
                     {% if cat.category.creditset.has_basic_benchmarking_feature %}
                       {% if cat.category.include_in_score %}
