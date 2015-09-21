@@ -30,110 +30,118 @@
                        href="#{{ sub.id|unlocalize }}">
 		      {% include "credits/subcategory_heading.html" %}
 		    </a>
-                    {% if cat.category.include_in_score %}
-                      <div id="chart_div_{{ sub.id|unlocalize }}"></div>
+                    {% if cat.category.creditset.has_basic_benchmarking_feature %}
+                      {% if cat.category.include_in_score %}
+                        <div id="chart_div_{{ sub.id|unlocalize }}"></div>
 
-                      <script>
-                       function asPercentageOfAdjustedAvailablePoints(n) {
-                         var percentage = (n / {{ sub.get_adjusted_available_points }});
-                         return parseFloat(percentage.toFixed(2));
-                       }
-
-                       function roundedPoints(n) {
-                         if (n > 0) {
-                           return n.toFixed(2)
+                        <script>
+                         function asPercentageOfAdjustedAvailablePoints(n) {
+                           var percentage = (n / {{ sub.get_adjusted_available_points }});
+                           return parseFloat(percentage.toFixed(2));
                          }
-                         else {
-                           return '0.00'
-                         }
-                       }
 
-                       function categoryColor(category_abbreviation) {
-                         var color;
-                         switch (category_abbreviation) {
-                           case 'AC':
-                             color = '#00bce4';
-                             break;
-                           case 'ER':
-                             color = '#00bce4';
-                             break;
-                           case 'EN':
-                             color = '#a486bd';
-                             break;
-                           case 'OP':
-                             color = '#6bbc49';
-                             break;
-                           case 'PA':
-                             color = '#cedc45';
-                             break;
-                           case 'PAE':
-                             color = '#cedc45';
-                             break;
-                           case 'IN':
-                             color = '#15387f';
-                             break;
-                         }
-                         return color;
-                       }
-
-                       function drawChart() {
-
-                         var data = google.visualization.arrayToDataTable([
-                           ['Subcategory',
-                            'Score',
-                            { role: 'annotation' },
-                            'Average',
-                            { role: 'annotation' }],
-                           ['{{ sub }}',
-                            asPercentageOfAdjustedAvailablePoints(
-                             {{ sub.points }}),
-                            roundedPoints({{ sub.points }}) + " pts",
-                            {% subcategory_org_type_average_points sub.subcategory sub.category_submission.submissionset.institution.org_type as avg_points %}
-                            asPercentageOfAdjustedAvailablePoints(
-                             {{ avg_points }}),
-                            roundedPoints(
-                             {{ avg_points }}) + " pts"]
-                         ]);
-
-                         var formatter = new google.visualization.NumberFormat(
-                           {pattern: '###%'});
-                         formatter.format(data, 1);
-                         formatter.format(data, 3);
-
-                         var options = {
-                           height: 70,
-                           chartArea: {
-                             width: '60%',
-                             height: '90%',
-                             top: 0,
-                           },
-                           colors: [categoryColor(
-                             '{{ sub.subcategory.category.abbreviation }}'),
-                                    '#eee'], // '#0080cf'],
-                           hAxis: {
-                             minValue: 0,
-                             maxValue: 1,
-                             textPosition: 'none',
-                           },
-                           vAxis: {
-                             textPosition: 'none'
+                         function roundedPoints(n) {
+                           if (n > 0) {
+                             return n.toFixed(2)
                            }
-                         };
+                           else {
+                             return '0.00'
+                           }
+                         }
 
-                         var chartContainer = document.getElementById(
-                           'chart_div_{{ sub.id|unlocalize }}');
-                         var chart = new google.visualization.BarChart(
-                           chartContainer);
+                         function categoryColor(category_abbreviation) {
+                           var color;
+                           switch (category_abbreviation) {
+                             case 'AC':
+                               color = '#00bce4';
+                               break;
+                             case 'ER':
+                               color = '#00bce4';
+                               break;
+                             case 'EN':
+                               color = '#a486bd';
+                               break;
+                             case 'OP':
+                               color = '#6bbc49';
+                               break;
+                             case 'PA':
+                               color = '#cedc45';
+                               break;
+                             case 'PAE':
+                               color = '#cedc45';
+                               break;
+                             case 'IN':
+                               color = '#15387f';
+                               break;
+                           }
+                           return color;
+                         }
 
-                         chart.draw(data, options);
-                       }
+                         function drawChart() {
 
-                       drawChart();
-                      </script>
+                           var data = google.visualization.arrayToDataTable([
+                             ['Subcategory',
+                              'Score',
+                              { role: 'annotation' },
+                              'Average',
+                              { role: 'annotation' }],
+                             ['{{ sub }}',
+                              asPercentageOfAdjustedAvailablePoints(
+                               {{ sub.points }}),
+                              roundedPoints({{ sub.points }}) + " pts",
+                              {% subcategory_org_type_average_points sub.subcategory sub.category_submission.submissionset.institution.org_type as avg_points %}
+                              asPercentageOfAdjustedAvailablePoints(
+                               {{ avg_points }}),
+                              roundedPoints(
+                               {{ avg_points }}) + " pts"]
+                           ]);
+
+                           var formatter = new google.visualization.NumberFormat(
+                             {pattern: '###%'});
+                           formatter.format(data, 1);
+                           formatter.format(data, 3);
+
+                           var options = {
+                             height: 70,
+                             chartArea: {
+                               width: '60%',
+                               height: '90%',
+                               top: 0,
+                             },
+                             colors: [categoryColor(
+                               '{{ sub.subcategory.category.abbreviation }}'),
+                                      '#eee'], // '#0080cf'],
+                             hAxis: {
+                               minValue: 0,
+                               maxValue: 1,
+                               textPosition: 'none',
+                             },
+                             vAxis: {
+                               textPosition: 'none'
+                             }
+                           };
+
+                           var chartContainer = document.getElementById(
+                             'chart_div_{{ sub.id|unlocalize }}');
+                           var chart = new google.visualization.BarChart(
+                             chartContainer);
+
+                           chart.draw(data, options);
+                         }
+
+                         drawChart();
+                        </script>
+                      {% endif %}
                     {% endif %}
 		  </div>
 		  <div id="{{ sub.id|unlocalize }}"
-                       class="accordion-body collapse out">
+                       class="accordion-body collapse
+                       {% if cat.category.creditset.has_basic_benchmarking_feature %}
+                         out
+                       {% else %}
+                         in
+                       {% endif %}
+                       ">
 		    <div class="accordion-inner">
 		      {% block subcategory_description %}{% endblock %}
 		      {% include "credits/subcategory_content.html" %}
