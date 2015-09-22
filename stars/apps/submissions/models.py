@@ -533,6 +533,32 @@ class SubmissionSet(models.Model, FlaggableModel):
             to_mail.append(self.institution.contact_email)
         et.send_email(to_mail, {'ss': self})
 
+    def get_org_type(self):
+        """Return the org type for the institution associated with this
+        submissionset.
+
+        For creditsets >= 2.0, pull the org type off the institution
+        boundary credit.  For others, pull from the institution record.
+        """
+        if self.creditset.version > '2.':
+            institutional_characteristics_category = Category.objects.get(
+                abbreviation='IC')
+            institutional_characteristics_credit_submissions = (
+                self.get_credit_submissions().filter(
+                    subcategory_submission__category_submission__category=
+                    institutional_characteristics_category))
+            boundary_credit_submission = (
+                institutional_characteristics_credit_submissions.get(
+                    credit__title='Institutional Boundary'))
+            boundary_credit_submission_fields = (
+                boundary_credit_submission.get_submission_fields())
+            institution_type_submission_field = filter(
+                lambda x: x.documentation_field.title == 'Institution type',
+                boundary_credit_submission_fields)[0]
+            return institution_type_submission_field.get_human_value()
+        else:
+            return self.institution.org_type
+
 
 INSTITUTION_TYPE_CHOICES = (("associate", "Associate"),
                             ("baccalaureate", "Baccalaureate"),

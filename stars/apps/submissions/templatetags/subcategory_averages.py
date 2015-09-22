@@ -12,12 +12,17 @@ logger = getLogger('stars')
 
 
 @register.assignment_tag
-def subcategory_org_type_average_points(subcategory, org_type):
-    """Return the average_points for the provided subcategory and org_type.
+def subcategory_submission_average_points(subcategory_submission):
+    """Return the average_points for the subcategory and institution
+    org type derieved from subcategory_submission.
 
     If no matching SubcategoryOrgTypeAveragePoints is found, one is
     created, and then average_points are calculated.
     """
+    subcategory = subcategory_submission.subcategory
+    org_type = (
+        subcategory_submission.category_submission.submissionset.get_org_type(
+        ))
     try:
         subcategory_org_type_average_points = (
             SubcategoryOrgTypeAveragePoints.objects.get(

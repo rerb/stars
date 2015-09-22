@@ -81,7 +81,7 @@
                               asPercentageOfAdjustedAvailablePoints(
                                {{ sub.points }}),
                               "",
-                              {% subcategory_org_type_average_points sub.subcategory sub.category_submission.submissionset.institution.org_type as avg_points %}
+                              {% subcategory_submission_average_points sub as avg_points %}
                               asPercentageOfAdjustedAvailablePoints(
                                {{ avg_points }}),
                               ""]
