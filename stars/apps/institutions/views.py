@@ -14,7 +14,7 @@ from stars.apps.institutions.forms import (SubmissionSelectForm,
                                            SubmissionInquiryForm,
                                            CreditSubmissionInquiryFormSet,
                                            DataCorrectionRequestForm)
-from stars.apps.institutions.models import Institution
+from stars.apps.institutions.models import FULL_ACCESS, Institution
 from stars.apps.notifications.models import EmailTemplate
 from stars.apps.submissions.models import (SubmissionInquiry,
                                            DataCorrectionRequest,
@@ -471,6 +471,10 @@ class ScorecardView(RulesMixin,
         _context['preview'] = False
         if not ss.status == 'r':
             _context['preview'] = True
+
+        _context['show_column_charts'] = (
+            ss.creditset.has_basic_benchmarking_feature and
+            ss.institution.access_level == FULL_ACCESS)
 
         return _context
 
