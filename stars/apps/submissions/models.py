@@ -2440,10 +2440,18 @@ class SubcategoryOrgTypeAveragePoints(models.Model):
             category_submission__submissionset__status='r')
         total_points = total_submissions = 0
         for subcategory_submission in subcategory_submissions:
-            total_points += subcategory_submission.get_claimed_points()
-            total_submissions += 1
+            if (subcategory_submission.get_submissionset().get_org_type() ==
+                self.org_type):
+
+                total_points += subcategory_submission.get_claimed_points()
+                total_submissions += 1
         if total_submissions:
             self.average_points = total_points / total_submissions
         else:
             self.average_points = 0
         self.save()
+        logger.debug('For subcategory: {subcategory}, org_type: {org_type}: '
+                     'average_points: {average_points}'.format(
+                         subcategory=self.subcategory,
+                         org_type=self.org_type,
+                         average_points=self.average_points))
