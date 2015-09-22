@@ -14,13 +14,12 @@ from stars.apps.institutions.forms import (SubmissionSelectForm,
                                            SubmissionInquiryForm,
                                            CreditSubmissionInquiryFormSet,
                                            DataCorrectionRequestForm)
-from stars.apps.institutions.models import FULL_ACCESS, Institution
+from stars.apps.institutions.models import Institution
 from stars.apps.notifications.models import EmailTemplate
 from stars.apps.submissions.models import (SubmissionInquiry,
                                            DataCorrectionRequest,
                                            PENDING_SUBMISSION_STATUS,
                                            RATED_SUBMISSION_STATUS)
-from stars.apps.submissions.rules import user_can_preview_submission
 from stars.apps.submissions.views import SubmissionStructureMixin
 from stars.apps.submissions.tasks import (
     build_excel_export, build_pdf_export, build_certificate_export)
@@ -474,7 +473,7 @@ class ScorecardView(RulesMixin,
 
         _context['show_column_charts'] = (
             ss.creditset.has_basic_benchmarking_feature and
-            ss.institution.access_level == FULL_ACCESS)
+            not ss.reporter_status)
 
         return _context
 
