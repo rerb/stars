@@ -106,7 +106,7 @@ MIDDLEWARE_CLASSES = [  # a list so it can be editable during tests (see below)
     # 'cms.middleware.language.LanguageCookieMiddleware',
     ]
 
-FILECACHE_DIRECTORY = os.environ.get("FILECACHE_DIRECTORY", "/tmp/filecache/")
+FILECACHE_DIRECTORY = os.environ.get("FILECACHE_DIRECTORY", "/var/www/stars/CACHE/filecache")
 
 import django_cache_url
 CACHES = {
@@ -115,7 +115,7 @@ CACHES = {
     },
     'filecache': {
         'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-        'LOCATION': FILECACHE_DIRECTORY,
+        'LOCATION': django_cache_url.parse(os.environ.get('FILE_CACHE_URL', 'file:///var/www/stars/CACHE/filecache')),
     }
 }
 
