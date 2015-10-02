@@ -923,6 +923,8 @@ class ContentExcelFilter(ExcelMixin, ContentFilter):
                     else:
                         row.append('')
                     row.append('')
+                elif o['field'].documentation_field.type == 'choice':
+                    row.append(str(o['field'].value))
                 else:
                     row.append(o['field'].value)
                     if o['field'].documentation_field.units:
