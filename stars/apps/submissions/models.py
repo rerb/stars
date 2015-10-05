@@ -1728,14 +1728,14 @@ class DataCorrectionRequest(models.Model):
 
     def cache_invalidate(self):
         report_url = self.get_absolute_url()
-        print report_url
+        print "ABSOLUTE URL: " + report_url
         self.submissionset = self.get_submissionset()
         summary_url = self.submissionset.get_scorecard_url()
-        print summary_url
+        print "SCORECARD URL: " + summary_url
         # Set up all the different cache version data lists
         versions = ['anon', 'admin', 'staff']
         id = self.submissionset.id
-        print id
+        print "SUBMISSIONSET ID: " + str(id)
         # vary_on template: [submissionset.id, preview (boolean), EXPORT/NO_EXPORT, user.is_staff]
         vary_on = [
             [id, True, 'EXPORT', True],

@@ -21,3 +21,5 @@ from submissionset import SubmissionSetTest
 from tasks import TasksTest
 from views import TestSubmissionStructureMixin
 from metric_conversion import MetricConversionTest
+
+from filecache_tests import FileCacheTest

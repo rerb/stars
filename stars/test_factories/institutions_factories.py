@@ -18,9 +18,9 @@ class InstitutionFactory(factory.DjangoModelFactory):
 
     enabled = True
     slug = factory.Sequence(
-        lambda i: 'test-inst-{0}-{1}'.format(i, time.time()))
+        lambda i: 'test-inst-{0}-{1}')
     name = factory.Sequence(
-        lambda i: 'test institution {0}.{1}'.format(i, time.time()))
+        lambda i: 'test institution {0}.{1}')
     aashe_id = factory.Sequence(
         lambda i: '%s' % i)
 
