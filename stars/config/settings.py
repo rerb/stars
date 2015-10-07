@@ -106,8 +106,7 @@ MIDDLEWARE_CLASSES = [  # a list so it can be editable during tests (see below)
     # 'cms.middleware.language.LanguageCookieMiddleware',
     ]
 
-#FILECACHE_DIRECTORY = os.environ.get("FILECACHE_DIRECTORY", "/var/www/stars/CACHE/filecache")
-FILECACHE_DIRECTORY = os.environ.get("FILECACHE_DIRECTORY", "/media/Data/Code/AASHE/stars/CACHE/filecache")
+FILECACHE_DIRECTORY = os.environ.get("FILECACHE_DIRECTORY", "/tmp/filecache")
 
 import django_cache_url
 CACHES = {
@@ -116,8 +115,7 @@ CACHES = {
     },
     'filecache': {
         'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-        'LOCATION': django_cache_url.parse(os.environ.get('FILE_CACHE_URL', 'file:///var/www/stars/CACHE/filecache')),
-        #'LOCATION': django_cache_url.parse(os.environ.get('FILE_CACHE_URL', 'file:///media/Data/Code/AASHE/stars/CACHE/filecache')),
+        'LOCATION': django_cache_url.parse(os.environ.get('FILE_CACHE_URL', 'file:///tmp/filecache')),
     }
 }
 
@@ -493,7 +491,7 @@ if 'test' in sys.argv:
             django_cache_url.parse(os.environ.get('CACHE_TEST_URL', 'file:///tmp/stars-cache')),
         'filecache': {
             'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-            'LOCATION': FILECACHE_DIRECTORY,
+            'LOCATION': django_cache_url.parse(os.environ.get('FILE_CACHE_URL', 'file:///tmp/filecache')),
         }
     }
 
