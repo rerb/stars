@@ -487,11 +487,12 @@ if 'test' in sys.argv:
                        "sqlite:////tmp/iss_tests.db"))
 
     CACHES = {
-        'default':
-            django_cache_url.parse(os.environ.get('CACHE_TEST_URL', 'file:///tmp/stars-cache')),
+        'default': {
+            'BACKEND': 'django.core.cache.backends.dummy.DummyCache'
+        },
         'filecache': {
             'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-            'LOCATION': django_cache_url.parse(os.environ.get('FILE_CACHE_URL', 'file:///tmp/filecache')),
+            'LOCATION': FILECACHE_DIRECTORY,
         }
     }
 
