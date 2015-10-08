@@ -377,7 +377,7 @@ class SubmissionSet(models.Model, FlaggableModel):
 
         for cat in self.categorysubmission_set.all().select_related():
             if cat.category.is_innovation():
-                innovation_score = cat.get_STARS_v2_0_score()
+                innovation_score = cat.get_STARS_v2_2_score()[0]
             elif cat.category.include_in_score:
                 _score, _avail = cat.get_score_ratio()
                 total_achieved += _score
@@ -385,7 +385,7 @@ class SubmissionSet(models.Model, FlaggableModel):
 
         score = total_achieved / total_available * 100
 
-        score += innovation_score[0]  # plus any innovation points
+        score += innovation_score  # plus any innovation points
 
         return score if score <= 100 else 100
 
