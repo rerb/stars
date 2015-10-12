@@ -75,17 +75,31 @@
                              ['Subcategory',
                               'Score',
                               { role: 'annotation' },
-                              'Average',
-                              { role: 'annotation' }],
+                              '1st Q',
+                              { role: 'annotation' },
+                              '2nd Q',
+                              '3rd Q',
+                              '4th Q'],
                              ['{{ sub }}',
                               asPercentageOfAdjustedAvailablePoints(
                                {{ sub.points }}),
                               "",
                               {% subcategory_submission_average_points sub as avg_points %}
-                              asPercentageOfAdjustedAvailablePoints(
-                               {{ avg_points }}),
-                              ""]
-                           ]);
+                              0,
+                              "",
+                              0,
+                              0,
+                              0],
+                             ['{{ sub }}',
+                              0,
+                              "",
+                              {% subcategory_submission_average_points sub as avg_points %}
+                              .05,
+                              "",
+                              .15,
+                              .35,
+                              .70]
+                              ]);
 
                            var formatter = new google.visualization.NumberFormat(
                              {pattern: '###%'});
@@ -93,15 +107,20 @@
                            formatter.format(data, 3);
 
                            var options = {
-                             height: 70,
+                             isStacked: true,
+                             height: 110,
+                             bar: { groupWidth: '75%' },
                              chartArea: {
                                width: '60%',
-                               height: '90%',
+                               height: '80%',
                                top: 0,
                              },
                              colors: [categoryColor(
                                '{{ sub.subcategory.category.abbreviation }}'),
-                                      '#eee'], // '#0080cf'],
+                                      '#aaa',
+                                      '#bbb',
+                                      '#ccc',
+                                      '#ddd'],
                              hAxis: {
                                minValue: 0,
                                maxValue: 1,
