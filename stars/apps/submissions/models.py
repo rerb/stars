@@ -501,6 +501,39 @@ class SubmissionSet(models.Model, FlaggableModel):
             # so we wait until after super(...).save() assigns self.pk
             # a value:
             self.init_credit_submissions()
+        self.invalidate_cache()
+
+    def invalidate_cache(self):
+        cus_set = self.get_credit_submissions()
+        for cus in cus_set:
+            report_url = cus.get_scorecard_url()
+            summary_url = self.get_scorecard_url()
+            # Set up all the different cache version data lists
+            versions = ['anon', 'admin', 'staff']
+            id = self.id
+            # vary_on template: [submissionset.id, preview (boolean), EXPORT/NO_EXPORT, user.is_staff]
+            vary_on = [
+                [id, True, 'EXPORT', True],
+                [id, False, 'EXPORT', True],
+                [id, True, 'EXPORT', False],
+                [id, False, 'EXPORT', False],
+                [id, True, 'NO_EXPORT', True],
+                [id, False, 'NO_EXPORT', True],
+                [id, True, 'NO_EXPORT', False],
+                [id, False, 'NO_EXPORT', False],
+            ]
+            # Loop through them and generate the cache keys
+            keys = []
+            for x in versions:
+                vary = [x]
+                key = generate_cache_key(report_url, vary)
+                keys.append(key)
+            for x in vary_on:
+                key = generate_cache_key(summary_url, x)
+                keys.append(key)
+            # Loop through the keys and invalidate each
+            for key in keys:
+                invalidate_filecache(key)
 
     def take_snapshot(self, user):
         """
