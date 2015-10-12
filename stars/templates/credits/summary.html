@@ -75,41 +75,45 @@
                              ['Subcategory',
                               'Score',
                               { role: 'annotation' },
-                              '1st Q',
-                              { role: 'annotation' },
-                              '2nd Q',
-                              '3rd Q',
-                              '4th Q'],
+                              '1st Quartile',
+                              '2nd Quartile',
+                              '3rd Quartile',
+                              '4th Quartile',
+                              { role: 'annotation' }],
                              ['{{ sub }}',
                               asPercentageOfAdjustedAvailablePoints(
                                {{ sub.points }}),
-                              "",
                               {% subcategory_submission_average_points sub as avg_points %}
+                              'Score',
                               0,
-                              "",
                               0,
                               0,
-                              0],
+                              0,
+                              ''],
                              ['{{ sub }}',
                               0,
-                              "",
                               {% subcategory_submission_average_points sub as avg_points %}
+                              '',
                               .05,
-                              "",
                               .15,
                               .35,
-                              .70]
+                              .45,
+                              'Others']
                               ]);
 
                            var formatter = new google.visualization.NumberFormat(
                              {pattern: '###%'});
                            formatter.format(data, 1);
                            formatter.format(data, 3);
+                           formatter.format(data, 4);
+                           formatter.format(data, 5);
+                           formatter.format(data, 6);
+                           formatter.format(data, 7);
 
                            var options = {
                              isStacked: true,
-                             height: 110,
-                             bar: { groupWidth: '75%' },
+                             height: 60,
+                             bar: { groupWidth: '100%' },
                              chartArea: {
                                width: '60%',
                                height: '80%',
@@ -128,6 +132,9 @@
                              },
                              vAxis: {
                                textPosition: 'none'
+                             },
+                             legend: {
+                               position: 'none'
                              }
                            };
 
