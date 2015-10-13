@@ -1,28 +1,28 @@
-from datetime import datetime, date, timedelta
-from logging import getLogger
 import os
 import re
 import sys
+from datetime import date, datetime, timedelta
+from logging import getLogger
 
+import numpy
 from django.conf import settings
-from django.db import models
 from django.contrib.auth.models import User
-from django.contrib.localflavor.us.models import PhoneNumberField
-from django.db.models import Q
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.localflavor.us.models import PhoneNumberField
 from django.core import urlresolvers
-from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.cache import cache
+from django.core.files.uploadedfile import InMemoryUploadedFile
+from django.db import models
+from django.db.models import Q
 
-from stars.apps.credits.models import (CreditSet, Category, Subcategory,
-                                       Credit, DocumentationField, Choice,
-                                       ApplicabilityReason, Rating)
-from stars.apps.institutions.models import (BASIC_ACCESS,
-                                            ClimateZone,
-                                            Institution)
-from stars.apps.submissions.export.pdf import build_report_pdf
+from stars.apps.credits.models import (ApplicabilityReason, Category, Choice,
+                                       Credit, CreditSet, DocumentationField,
+                                       Rating, Subcategory)
+from stars.apps.institutions.models import ClimateZone, Institution
 from stars.apps.notifications.models import EmailTemplate
+from stars.apps.submissions.export.pdf import build_report_pdf
+
 
 PENDING_SUBMISSION_STATUS = 'ps'
 PROCESSSING_SUBMISSION_STATUS = 'pr'
@@ -2455,3 +2455,39 @@ class SubcategoryOrgTypeAveragePoints(models.Model):
                          subcategory=self.subcategory,
                          org_type=self.org_type,
                          average_points=self.average_points))
+
+
+class SubcategoryQuartiles(models.Model):
+    """Cached statistics for Subcategories.
+
+    Stores the quartiles for submissions, grouped by subcategory and org_type.
+    """
+    subcategory = models.ForeignKey(Subcategory)
+    org_type = models.CharField(max_length=32)
+    first = models.FloatField(default=0)
+    second = models.FloatField(default=0)
+    third = models.FloatField(default=0)
+    fourth = models.FloatField(default=0)
+
+    class Meta:
+        unique_together = ("subcategory", "org_type")
+
+    def calculate(self):
+        """Calculate the quartiles.  Only count rated submissions.
+        """
+        subcategory_submissions = SubcategorySubmission.objects.filter(
+            subcategory=self.subcategory,
+            category_submission__submissionset__status='r')
+        points = []
+        for subcategory_submission in subcategory_submissions:
+            if (subcategory_submission.get_submissionset().get_org_type() ==
+                self.org_type):
+
+                points.append(subcategory_submission.get_claimed_points())
+        if sum(points):
+            array = numpy.array(points)
+            self.first, self.second, self.third, self.fourth = (
+                numpy.percentile(array, numpy.arange(0, 100, 25)))
+        else:
+            self.first = self.second = self.third = self.fourth = 0
+        self.save()
