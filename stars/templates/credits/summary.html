@@ -2,6 +2,7 @@
 
 {% load l10n %}
 {% load subcategory_averages %}
+{% load scorecard %}
 
 {% block center_column %}
 
@@ -33,121 +34,112 @@
 		    </a>
                     {% if show_column_charts %}
                       {% if cat.category.include_in_score %}
-                        <div id="chart_div_{{ sub.id|unlocalize }}"></div>
+                        <div class="container">
+                          <div class="row">
+                            <div class="span6">
+                              <div id="chart_div_{{ sub.id|unlocalize }}"></div>
 
-                        <script>
-                         function asPercentageOfAdjustedAvailablePoints(n) {
-                           var percentage = (n / {{ sub.get_adjusted_available_points }});
-                           return parseFloat(percentage.toFixed(2));
-                         }
+                              <script>
+                               function asPercentageOfAdjustedAvailablePoints(n) {
+                                 var percentage = (n / {{ sub.get_adjusted_available_points }});
+                                 return parseFloat(percentage.toFixed(2));
+                               }
 
-                         function categoryColor(category_abbreviation) {
-                           var color;
-                           switch (category_abbreviation) {
-                             case 'AC':
-                               color = '#00bce4';
-                               break;
-                             case 'ER':
-                               color = '#00bce4';
-                               break;
-                             case 'EN':
-                               color = '#a486bd';
-                               break;
-                             case 'OP':
-                               color = '#6bbc49';
-                               break;
-                             case 'PA':
-                               color = '#cedc45';
-                               break;
-                             case 'PAE':
-                               color = '#cedc45';
-                               break;
-                             case 'IN':
-                               color = '#15387f';
-                               break;
-                           }
-                           return color;
-                         }
+                               function drawChart() {
+                                 var dataTable = new google.visualization.DataTable()
+                                 dataTable.addColumn('string', 'Subcategory');
+                                 dataTable.addColumn('number', 'Score');
+                                 dataTable.addColumn('number', 'Quartiles');
+                                 dataTable.addColumn({type: 'string', role: 'tooltip'})
+                                 dataTable.addColumn('number', '');
+                                 dataTable.addColumn({type: 'string', role: 'tooltip'})
+                                 dataTable.addColumn('number', '');
+                                 dataTable.addColumn({type: 'string', role: 'tooltip'})
+                                 dataTable.addColumn('number', '');
+                                 dataTable.addColumn({type: 'string', role: 'tooltip'})
 
-                         function drawChart() {
+                                 dataTable.addRows([
+                                   ['{{ sub }}',
+                                    asPercentageOfAdjustedAvailablePoints(
+                                      {{ sub.points }}),
+                                    0,
+                                    '',
+                                    0,
+                                    '',
+                                    0,
+                                    '',
+                                    0,
+                                    ''],
+                                   ['{{ sub }}',
+                                    0,
+                                    {% subcategory_quartiles sub as q %}
+                                    {{ q.relative_one }},
+                                    '1st quartile: {{ q.absolute_one_percent }}%',
+                                    {{ q.relative_two }},
+                                    '2nd quartile: {{ q.absolute_two_percent }}%',
+                                    {{ q.relative_three }},
+                                    '3rd quartile: {{ q.absolute_three_percent }}%',
+                                    {{ q.relative_four }},
+                                    '4th quartile: {{ q.absolute_four_percent }}%'
+                                    ],
+                                 ]);
 
-                           var data = google.visualization.arrayToDataTable([
-                             ['Subcategory',
-                              'Score',
-                              { role: 'annotation' },
-                              '1st Quartile',
-                              '2nd Quartile',
-                              '3rd Quartile',
-                              '4th Quartile',
-                              { role: 'annotation' }],
-                             ['{{ sub }}',
-                              asPercentageOfAdjustedAvailablePoints(
-                               {{ sub.points }}),
-                              {% subcategory_submission_average_points sub as avg_points %}
-                              'Score',
-                              0,
-                              0,
-                              0,
-                              0,
-                              ''],
-                             ['{{ sub }}',
-                              0,
-                              {% subcategory_submission_average_points sub as avg_points %}
-                              '',
-                              .05,
-                              .15,
-                              .35,
-                              .45,
-                              'Others']
-                              ]);
+                                 var formatter = new google.visualization.NumberFormat(
+                                   {pattern: '###%'});
+                                 formatter.format(dataTable, 1);
+                                 formatter.format(dataTable, 2);
+                                 formatter.format(dataTable, 3);
+                                 formatter.format(dataTable, 4);
+                                 formatter.format(dataTable, 5);
 
-                           var formatter = new google.visualization.NumberFormat(
-                             {pattern: '###%'});
-                           formatter.format(data, 1);
-                           formatter.format(data, 3);
-                           formatter.format(data, 4);
-                           formatter.format(data, 5);
-                           formatter.format(data, 6);
-                           formatter.format(data, 7);
+                                 var options = {
+                                   isStacked: true,
+                                   height: 40,
+                                   bar: { groupWidth: '100%' },
+                                   chartArea: {
+                                     width: '90%',
+                                     height: '80%',
+                                     top: 0,
+                                   },
+                                   colors: ['{% category_color sub.subcategory.category.abbreviation %}',
+                                            '#aaa',
+                                            '#bbb',
+                                            '#ccc',
+                                            '#ddd'],
+                                   hAxis: {
+                                     minValue: 0,
+                                     maxValue: 1,
+                                     textPosition: 'none',
+                                   },
+                                   vAxis: {
+                                     textPosition: 'none'
+                                   },
+                                   legend: {
+                                     position: 'none'
+                                   }
+                                 };
 
-                           var options = {
-                             isStacked: true,
-                             height: 60,
-                             bar: { groupWidth: '100%' },
-                             chartArea: {
-                               width: '60%',
-                               height: '80%',
-                               top: 0,
-                             },
-                             colors: [categoryColor(
-                               '{{ sub.subcategory.category.abbreviation }}'),
-                                      '#aaa',
-                                      '#bbb',
-                                      '#ccc',
-                                      '#ddd'],
-                             hAxis: {
-                               minValue: 0,
-                               maxValue: 1,
-                               textPosition: 'none',
-                             },
-                             vAxis: {
-                               textPosition: 'none'
-                             },
-                             legend: {
-                               position: 'none'
-                             }
-                           };
+                                 var chartContainer = document.getElementById(
+                                   'chart_div_{{ sub.id|unlocalize }}');
+                                 var chart = new google.visualization.BarChart(
+                                   chartContainer);
 
-                           var chartContainer = document.getElementById(
-                             'chart_div_{{ sub.id|unlocalize }}');
-                           var chart = new google.visualization.BarChart(
-                             chartContainer);
+                                 chart.draw(dataTable, options);
+                               }
 
-                           chart.draw(data, options);
-                         }
-
-                         drawChart();
-                        </script>
+                               drawChart();
+                              </script>
+                            </div>
+                            <div class="span2" style="font-size: 1em; line-height: 1em;">
+                              <span style="background-color: {% category_color sub.subcategory.category.abbreviation %};">
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                              Score
+                              <br />
+                              <span style="background-color: #aaa;">&nbsp;&nbsp;</span><span style="background-color: #bbb">&nbsp;&nbsp;</span><span style="background-color: #ccc">&nbsp;&nbsp;</span><span style="background-color: #ddd">&nbsp;&nbsp;</span>
+                              Quartiles
+                            </div>
+                          </div>
+                        </div>
                       {% endif %}
                     {% endif %}
 		  </div>
