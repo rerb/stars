@@ -2,6 +2,8 @@ from logging import getLogger
 
 from django import template
 
+from stars.apps.submissions.models import SubcategoryQuartiles
+
 
 register = template.Library()
 
@@ -27,27 +29,42 @@ def category_color(category_abbreviation):
 
 
 @register.assignment_tag
-def subcategory_quartiles(subcategory):
+def subcategory_quartiles(subcategory_submission):
 
-    class Quartile(object):
+    class Quartiles(object):
 
         def __init__(self, **kwargs):
-            self.absolute_one = kwargs.get('absolute_one', .0)
-            self.absolute_two = kwargs.get('absolute_two', .0)
-            self.absolute_three = kwargs.get('absolute_three', .0)
-            self.absolute_four = kwargs.get('absolute_four', .0)
-            self.absolute_one_percent = int(self.absolute_one * 100)
-            self.absolute_two_percent = int(self.absolute_two * 100)
-            self.absolute_three_percent = int(self.absolute_three * 100)
-            self.absolute_four_percent = int(self.absolute_four * 100)
-            self.relative_one = self.absolute_one
-            self.relative_two = self.absolute_two - self.absolute_one
-            self.relative_three = self.absolute_three - self.absolute_two
-            self.relative_four = self.absolute_four - self.absolute_three
+            self.absolute_first = kwargs.get('absolute_first', .0)
+            self.absolute_second = kwargs.get('absolute_second', .0)
+            self.absolute_third = kwargs.get('absolute_third', .0)
+            self.absolute_fourth = kwargs.get('absolute_fourth', .0)
+            self.absolute_first_percent = int(self.absolute_first * 100)
+            self.absolute_second_percent = int(self.absolute_second * 100)
+            self.absolute_third_percent = int(self.absolute_third * 100)
+            self.absolute_fourth_percent = int(self.absolute_fourth * 100)
+            self.relative_first = self.absolute_first
+            self.relative_second = self.absolute_second - self.absolute_first
+            self.relative_third = self.absolute_third - self.absolute_second
+            self.relative_fourth = self.absolute_fourth - self.absolute_third
 
-    q = Quartile(absolute_one=.15,
-                 absolute_two=.3,
-                 absolute_three=.6,
-                 absolute_four=.8)
+    subcategory = subcategory_submission.subcategory
+    submission_set = subcategory_submission.get_submissionset()
+    org_type = submission_set.institution.org_type
 
-    return q
+    cached_quartiles = SubcategoryQuartiles.objects.get(
+        subcategory=subcategory,
+        org_type=org_type)
+
+    available_points = subcategory_submission.get_adjusted_available_points()
+
+    absolute_first = cached_quartiles.first / available_points
+    absolute_second = cached_quartiles.second / available_points
+    absolute_third = cached_quartiles.third / available_points
+    absolute_fourth = cached_quartiles.fourth / available_points
+
+    quartiles = Quartiles(absolute_first=absolute_first,
+                          absolute_second=absolute_second,
+                          absolute_third=absolute_third,
+                          absolute_fourth=absolute_fourth)
+
+    return quartiles
