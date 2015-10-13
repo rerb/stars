@@ -7,24 +7,20 @@ from logging import getLogger
 
 from celery import shared_task
 from celery.decorators import task
-
 from django.core.cache import cache
+
 from stars.apps.credits.models import CreditSet, Subcategory
 from stars.apps.institutions.models import Institution, MigrationHistory
-from stars.apps.migrations.utils import (create_ss_mirror,
-                                         migrate_ss_version,
+from stars.apps.migrations.utils import (create_ss_mirror, migrate_ss_version,
                                          migrate_submission)
 from stars.apps.notifications.models import EmailTemplate
-from stars.apps.submissions.api import (CategoryPieChart,
-                                        SubategoryPieChart,
+from stars.apps.submissions.api import (CategoryPieChart, SubategoryPieChart,
                                         SummaryPieChart)
 from stars.apps.submissions.export.excel import build_report_export
 from stars.apps.submissions.export.pdf import build_certificate_pdf
 from stars.apps.submissions.models import (SubcategoryOrgTypeAveragePoints,
+                                           SubcategoryQuartiles,
                                            SubmissionSet)
-
-
-logger = getLogger('stars.user')
 
 
 @task()
@@ -96,6 +92,7 @@ def perform_migration(old_ss, new_cs, user):
         email the Liaison, copying the user
         (if the emails are different)
     """
+    logger = getLogger('stars.user')
 
     new_ss = migrate_ss_version(old_ss, new_cs)
 
@@ -264,3 +261,29 @@ def load_subcategory_org_type_average_points():
                     subcategory=subcategory,
                     org_type=org_type)
             average.calculate()
+
+
+@shared_task(name='submissions.load_subcategory_quartiles')
+def load_subcategory_quartiles():
+    """Update the SubcategoryQuartile table.
+    """
+    org_types = Institution.get_org_types()
+
+    org_type_count = 0
+    for org_type in org_types:
+        org_type_count += 1
+        subcategory_count = 0
+        for subcategory in Subcategory.objects.all():
+            subcategory_count += 1
+            print 'org_type: {x}/{y}, subcategory: {z}/{a}'.format(
+                x=org_type_count, y=len(org_types),
+                z=subcategory_count, a=Subcategory.objects.count())
+            try:
+                subcategory_quartiles = SubcategoryQuartiles.objects.get(
+                    org_type=org_type,
+                    subcategory=subcategory)
+            except SubcategoryQuartiles.DoesNotExist:
+                subcategory_quartiles = SubcategoryQuartiles.objects.create(
+                    org_type=org_type,
+                    subcategory=subcategory)
+            subcategory_quartiles.calculate()
