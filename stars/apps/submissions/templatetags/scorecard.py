@@ -38,10 +38,10 @@ def subcategory_quartiles(subcategory_submission):
             self.absolute_second = kwargs.get('absolute_second', .0)
             self.absolute_third = kwargs.get('absolute_third', .0)
             self.absolute_fourth = kwargs.get('absolute_fourth', .0)
-            self.absolute_first_percent = int(self.absolute_first * 100)
-            self.absolute_second_percent = int(self.absolute_second * 100)
-            self.absolute_third_percent = int(self.absolute_third * 100)
-            self.absolute_fourth_percent = int(self.absolute_fourth * 100)
+            self.absolute_first_percent = round(self.absolute_first * 100, 2)
+            self.absolute_second_percent = round(self.absolute_second * 100, 2)
+            self.absolute_third_percent = round(self.absolute_third * 100, 2)
+            self.absolute_fourth_percent = round(self.absolute_fourth * 100, 2)
             self.relative_first = self.absolute_first
             self.relative_second = self.absolute_second - self.absolute_first
             self.relative_third = self.absolute_third - self.absolute_second
@@ -55,12 +55,10 @@ def subcategory_quartiles(subcategory_submission):
         subcategory=subcategory,
         org_type=org_type)
 
-    available_points = subcategory_submission.get_adjusted_available_points()
-
-    absolute_first = cached_quartiles.first / available_points
-    absolute_second = cached_quartiles.second / available_points
-    absolute_third = cached_quartiles.third / available_points
-    absolute_fourth = cached_quartiles.fourth / available_points
+    absolute_first = cached_quartiles.first / 100
+    absolute_second = cached_quartiles.second / 100
+    absolute_third = cached_quartiles.third / 100
+    absolute_fourth = cached_quartiles.fourth / 100
 
     quartiles = Quartiles(absolute_first=absolute_first,
                           absolute_second=absolute_second,

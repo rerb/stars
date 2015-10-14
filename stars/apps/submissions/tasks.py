@@ -273,11 +273,12 @@ def load_subcategory_quartiles():
     for org_type in org_types:
         org_type_count += 1
         subcategory_count = 0
+        total_subcategories = Subcategory.objects.count()
         for subcategory in Subcategory.objects.all():
             subcategory_count += 1
             print 'org_type: {x}/{y}, subcategory: {z}/{a}'.format(
                 x=org_type_count, y=len(org_types),
-                z=subcategory_count, a=Subcategory.objects.count())
+                z=subcategory_count, a=total_subcategories)
             try:
                 subcategory_quartiles = SubcategoryQuartiles.objects.get(
                     org_type=org_type,
