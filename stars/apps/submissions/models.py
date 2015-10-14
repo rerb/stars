@@ -2460,7 +2460,11 @@ class SubcategoryOrgTypeAveragePoints(models.Model):
 class SubcategoryQuartiles(models.Model):
     """Cached statistics for Subcategories.
 
-    Stores the quartiles for submissions, grouped by subcategory and org_type.
+    Caches the quartiles for submissions, grouped by subcategory and org_type.
+
+    Values cached (first, second, third, fourth) are the highest numbers
+    of each quartile.  The numbers represent the percentage of available
+    points granted to a submission, not the number of points granted.
     """
     subcategory = models.ForeignKey(Subcategory)
     org_type = models.CharField(max_length=32)
@@ -2478,14 +2482,23 @@ class SubcategoryQuartiles(models.Model):
         subcategory_submissions = SubcategorySubmission.objects.filter(
             subcategory=self.subcategory,
             category_submission__submissionset__status='r')
-        points = []
+        points_percent = []
+
         for subcategory_submission in subcategory_submissions:
             if (subcategory_submission.get_submissionset().get_org_type() ==
                 self.org_type):
 
-                points.append(subcategory_submission.get_claimed_points())
-        if sum(points):
-            array = numpy.array(points)
+                adjusted_available_points = (
+                    subcategory_submission.get_adjusted_available_points())
+
+                if adjusted_available_points:
+
+                    points_percent.append(
+                        (subcategory_submission.get_claimed_points() /
+                         adjusted_available_points) * 100)
+
+        if sum(points_percent):
+            array = numpy.array(points_percent)
             self.first, self.second, self.third, self.fourth = (
                 numpy.percentile(array, numpy.arange(0, 100, 25)))
         else:
