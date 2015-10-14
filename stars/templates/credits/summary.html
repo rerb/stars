@@ -10,6 +10,21 @@
   <h1>{% block h1 %}{{ institution }}{% endblock %}</h1>
   {% block summaryTable %}{% endblock %}
 
+  <div class="modal hide fade" id="quartiles_help">
+    <div class="modal-body">
+      <p>
+        The grey bar displays the scores for all STARS rated
+        institutions of the same basic type as the institution
+        featured in the report (Associate, Baccalaureate, Master’s, or
+        Doctoral) in quartiles. Hovering over the bar reveals the top
+        score in each quartile.
+      </p>
+    </div>
+    <div class="modal-footer">
+      <a href="#" class="btn" data-dismiss="modal">Close</a>
+    </div>
+  </div>
+
   <div class="accordion" id="categories">
     {% for cat in submissionset.categorysubmission_set.all %}
       <div class="accordion-group">
@@ -132,11 +147,14 @@
                             </div>
                             <div class="span2" style="font-size: 1em; line-height: 1em;">
                               <span style="background-color: {% category_color sub.subcategory.category.abbreviation %};">
-                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                                &nbsp;&nbsp;&nbsp;&nbsp;</span>
                               Score
                               <br />
-                              <span style="background-color: #aaa;">&nbsp;&nbsp;</span><span style="background-color: #bbb">&nbsp;&nbsp;</span><span style="background-color: #ccc">&nbsp;&nbsp;</span><span style="background-color: #ddd">&nbsp;&nbsp;</span>
+                              <span style="background-color: #aaa;">&nbsp;</span><span style="background-color: #bbb">&nbsp;</span><span style="background-color: #ccc">&nbsp;</span><span style="background-color: #ddd">&nbsp;</span>
                               Quartiles
+                              <a data-toggle="modal" href="#quartiles_help">
+                                <i class="icon-question-sign"></i>
+                              </a>
                             </div>
                           </div>
                         </div>
