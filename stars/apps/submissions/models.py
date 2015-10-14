@@ -19,7 +19,9 @@ from django.db.models import Q
 from stars.apps.credits.models import (ApplicabilityReason, Category, Choice,
                                        Credit, CreditSet, DocumentationField,
                                        Rating, Subcategory)
-from stars.apps.institutions.models import ClimateZone, Institution
+from stars.apps.institutions.models import (BASIC_ACCESS,
+                                            ClimateZone,
+                                            Institution)
 from stars.apps.notifications.models import EmailTemplate
 from stars.apps.submissions.export.pdf import build_report_pdf
 
