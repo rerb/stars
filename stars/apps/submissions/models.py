@@ -2502,7 +2502,7 @@ class SubcategoryQuartiles(models.Model):
         if sum(points_percent):
             array = numpy.array(points_percent)
             self.first, self.second, self.third, self.fourth = (
-                numpy.percentile(array, numpy.arange(0, 100, 25)))
+                numpy.percentile(array, numpy.arange(25, 101, 25)))
         else:
             self.first = self.second = self.third = self.fourth = 0
         self.save()
