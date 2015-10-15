@@ -106,17 +106,12 @@ MIDDLEWARE_CLASSES = [  # a list so it can be editable during tests (see below)
     # 'cms.middleware.language.LanguageCookieMiddleware',
     ]
 
-FILECACHE_DIRECTORY = os.environ.get("FILECACHE_DIRECTORY", "/tmp/filecache")
-
 import django_cache_url
 CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.dummy.DummyCache'
-    },
-    'filecache': {
-        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-        'LOCATION': django_cache_url.parse(os.environ.get('FILE_CACHE_URL', 'file:///tmp/filecache')),
-    }
+    'default': django_cache_url.parse(
+        os.environ.get('CACHE_URL', 'dummy://')),
+    'filecache': django_cache_url.parse(
+        os.environ.get('FILE_CACHE_URL', 'file:///tmp/filecache'))
 }
 
 AUTH_PROFILE_MODULE = 'accounts.UserProfile'
@@ -487,13 +482,10 @@ if 'test' in sys.argv:
                        "sqlite:////tmp/iss_tests.db"))
 
     CACHES = {
-        'default': {
-            'BACKEND': 'django.core.cache.backends.dummy.DummyCache'
-        },
-        'filecache': {
-            'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-            'LOCATION': FILECACHE_DIRECTORY,
-        }
+        'default': django_cache_url.parse(
+            os.environ.get('CACHE_URL_TEST', 'dummy://')),
+        'filecache': django_cache_url.parse(
+            os.environ.get('FILE_CACHE_URL_TEST', 'file:///tmp/filecache'))
     }
 
     API_TEST_MODE = False
