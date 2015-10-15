@@ -473,7 +473,7 @@ class ScorecardView(RulesMixin,
 
         _context['show_column_charts'] = (
             ss.creditset.has_basic_benchmarking_feature and
-            not ss.reporter_status)
+            ss.rating.name != 'Reporter')
 
         return _context
 
