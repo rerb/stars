@@ -257,6 +257,9 @@ class Institution(models.Model):
                           FieldMapping(stars_field="aashe_id",
                                        iss_field="account_num",
                                        decode=False),
+                          FieldMapping(stars_field="org_type",
+                                       iss_field="carnegie_class",
+                                       decode=True),
                           FieldMapping(stars_field="fte",
                                        iss_field="enrollment_fte",
                                        decode=False),
@@ -325,9 +328,9 @@ class Institution(models.Model):
                     self.is_member = True
 
             # handle org-type specially:
-            iss_org_type = iss_org.carnegie_class or iss_org.org_type
             self.org_type = get_org_type(self,
-                                         carnegie_class=iss_org_type)
+                                         carnegie_class=getattr(
+                                             iss_org, 'carnegie_class'))
         else:
             logger.warning("No ISS institution found %s" % (self.name))
 
