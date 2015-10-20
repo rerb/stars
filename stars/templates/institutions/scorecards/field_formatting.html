@@ -4,20 +4,7 @@
 {% load help %}
 {% load l10n %}
 {% load admin_urls %}
-{% load custom_caching %}
 
-{% define "anon" as version %}
-
-{% testrule user_is_institution_admin user institution %}
-    {% define "admin" as version %}
-{% endtestrule %}
-
-{% if user.is_staff %}
-    {% define "staff" as version %}
-{% endif %}
-
-
-{% file_cache 2592000 request.path version %}
 {% if not field.is_empty %}
   {% ifequal field.documentation_field.type 'long_text' %}
     <div style='text-align: left; margin: 0px;padding: 0px;'>
@@ -121,4 +108,3 @@
     {% endfor %}
   {% endif %}
 {% endif %}
-{% endfile_cache %}
