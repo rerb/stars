@@ -107,8 +107,12 @@ MIDDLEWARE_CLASSES = [  # a list so it can be editable during tests (see below)
     ]
 
 import django_cache_url
-CACHES = {'default': django_cache_url.parse(os.environ.get('CACHE_URL',
-                                                           'dummy://'))}
+CACHES = {
+    'default': django_cache_url.parse(
+        os.environ.get('CACHE_URL', 'dummy://')),
+    'filecache': django_cache_url.parse(
+        os.environ.get('FILE_CACHE_URL', 'file:///tmp/filecache'))
+}
 
 AUTH_PROFILE_MODULE = 'accounts.UserProfile'
 AUTHENTICATION_BACKENDS = ('aashe.aasheauth.backends.AASHEBackend',)
@@ -217,6 +221,9 @@ INSTALLED_APPS = (
     # 'menus',
     # 'sekizai',
     'compressor',
+    # 'geordi',
+    'adv_cache_tag',
+    'file_cache_tag',
     # 'geordi',
 )
 
@@ -474,8 +481,12 @@ if 'test' in sys.argv:
         os.environ.get('ISS_TEST_DB',
                        "sqlite:////tmp/iss_tests.db"))
 
-    CACHES = {'default': django_cache_url.parse(os.environ.get(
-        'CACHE_TEST_URL', 'file:///tmp/stars-cache'))}
+    CACHES = {
+        'default': django_cache_url.parse(
+            os.environ.get('CACHE_URL_TEST', 'dummy://')),
+        'filecache': django_cache_url.parse(
+            os.environ.get('FILE_CACHE_URL_TEST', 'file:///tmp/filecache'))
+    }
 
     API_TEST_MODE = False
 

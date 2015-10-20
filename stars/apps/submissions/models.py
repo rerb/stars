@@ -23,6 +23,7 @@ from stars.apps.institutions.models import (BASIC_ACCESS,
                                             Institution)
 from stars.apps.submissions.export.pdf import build_report_pdf
 from stars.apps.notifications.models import EmailTemplate
+from file_cache_tag.templatetags.custom_caching import generate_cache_key, invalidate_filecache
 
 PENDING_SUBMISSION_STATUS = 'ps'
 PROCESSSING_SUBMISSION_STATUS = 'pr'
@@ -376,7 +377,7 @@ class SubmissionSet(models.Model, FlaggableModel):
 
         for cat in self.categorysubmission_set.all().select_related():
             if cat.category.is_innovation():
-                innovation_score = cat.get_STARS_v2_0_score()
+                innovation_score = cat.get_STARS_v2_2_score()[0]
             elif cat.category.include_in_score:
                 _score, _avail = cat.get_score_ratio()
                 total_achieved += _score
@@ -384,7 +385,7 @@ class SubmissionSet(models.Model, FlaggableModel):
 
         score = total_achieved / total_available * 100
 
-        score += innovation_score[0]  # plus any innovation points
+        score += innovation_score  # plus any innovation points
 
         return score if score <= 100 else 100
 
@@ -500,6 +501,39 @@ class SubmissionSet(models.Model, FlaggableModel):
             # so we wait until after super(...).save() assigns self.pk
             # a value:
             self.init_credit_submissions()
+        self.invalidate_cache()
+
+    def invalidate_cache(self):
+        cus_set = self.get_credit_submissions()
+        for cus in cus_set:
+            report_url = cus.get_scorecard_url()
+            summary_url = self.get_scorecard_url()
+            # Set up all the different cache version data lists
+            versions = ['anon', 'admin', 'staff']
+            id = self.id
+            # vary_on template: [submissionset.id, preview (boolean), EXPORT/NO_EXPORT, user.is_staff]
+            vary_on = [
+                [id, True, 'EXPORT', True],
+                [id, False, 'EXPORT', True],
+                [id, True, 'EXPORT', False],
+                [id, False, 'EXPORT', False],
+                [id, True, 'NO_EXPORT', True],
+                [id, False, 'NO_EXPORT', True],
+                [id, True, 'NO_EXPORT', False],
+                [id, False, 'NO_EXPORT', False],
+            ]
+            # Loop through them and generate the cache keys
+            keys = []
+            for x in versions:
+                vary = [x]
+                key = generate_cache_key(report_url, vary)
+                keys.append(key)
+            for x in vary_on:
+                key = generate_cache_key(summary_url, x)
+                keys.append(key)
+            # Loop through the keys and invalidate each
+            for key in keys:
+                invalidate_filecache(key)
 
     def take_snapshot(self, user):
         """
@@ -1721,9 +1755,41 @@ class DataCorrectionRequest(models.Model):
                             "rating_changed": rating_changed,
                             "old_rating": old_rating,
                             "old_score": old_score,
-
-                        }
+        }
         et.send_email(mail_to, email_context)
+        self.cache_invalidate()
+
+    def cache_invalidate(self):
+        report_url = self.get_absolute_url()
+        self.submissionset = self.get_submissionset()
+        summary_url = self.submissionset.get_scorecard_url()
+        # Set up all the different cache version data lists
+        versions = ['anon', 'admin', 'staff']
+        id = self.submissionset.id
+        # vary_on template: [submissionset.id, preview (boolean), EXPORT/NO_EXPORT, user.is_staff]
+        vary_on = [
+            [id, True, 'EXPORT', True],
+            [id, False, 'EXPORT', True],
+            [id, True, 'EXPORT', False],
+            [id, False, 'EXPORT', False],
+            [id, True, 'NO_EXPORT', True],
+            [id, False, 'NO_EXPORT', True],
+            [id, True, 'NO_EXPORT', False],
+            [id, False, 'NO_EXPORT', False],
+        ]
+        # Loop through them and generate the cache keys
+        keys = []
+        for x in versions:
+            vary = [x]
+            key = generate_cache_key(report_url, vary)
+            keys.append(key)
+        for x in vary_on:
+            key = generate_cache_key(summary_url, x)
+            keys.append(key)
+        # Loop through the keys and invalidate each
+        for key in keys:
+            invalidate_filecache(key)
+
 
 class ReportingFieldDataCorrection(models.Model):
     """
