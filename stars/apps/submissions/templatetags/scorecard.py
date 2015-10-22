@@ -51,6 +51,19 @@ def subcategory_quartiles(subcategory_submission):
     submission_set = subcategory_submission.get_submissionset()
     org_type = submission_set.institution.org_type
 
+    if not org_type:
+        # It might be the case that institution.org_type is blank
+        # because there have been no SubmissionSets rated for this
+        # Institution.  We might, in these cases, be able to deduce
+        # an org_type from the current, unrated submission.  There's
+        # logic in Institution.update_from_iss() to do just that, so
+        # let's give that a shot here.  (Because maybe the org_type
+        # has been updated in the SubmissionSet since the last time
+        # Institution.update_from_iss() ran.)
+        submission_set.institution.update_from_iss()
+        if submission_set.institution.org_type:
+            submission_set.institution.save()
+
     cached_quartiles = SubcategoryQuartiles.objects.get(
         subcategory=subcategory,
         org_type=org_type)
