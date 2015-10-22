@@ -293,16 +293,27 @@ class Institution(models.Model):
             # Import way down here to avoid circular dependency:
             from stars.apps.submissions.models import CreditUserSubmission
 
-            latest_rated_submission = self.get_latest_rated_submission()
-            if (latest_rated_submission and
-                latest_rated_submission.creditset.version >= '2'):
+            submission = self.get_latest_rated_submission()
+
+            # No rated submission?  Then check the most recently created
+            # submission.  That's the one that's being worked on.  Right?
+            if not submission:
+                try:
+                    submission = self.submissionset_set.filter(
+                        institution=self).order_by(
+                            '-date_submitted').order_by(
+                                '-date_created')[0]
+                except IndexError:
+                    pass
+
+            if (submission and submission.creditset.version >= '2'):
 
                 # Get IB credit for this submission.
                 ib_credit = get_institutional_boundary_credit(
-                    creditset=latest_rated_submission.creditset)
+                    creditset=submission.creditset)
 
                 cus = CreditUserSubmission.objects.filter(credit=ib_credit).get(
-                    subcategory_submission__category_submission__submissionset=latest_rated_submission)
+                    subcategory_submission__category_submission__submissionset=submission)
 
                 sf = [sf for sf in cus.get_submission_fields()
                       if sf.documentation_field.title.lower() ==
