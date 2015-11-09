@@ -477,18 +477,13 @@ class ScorecardView(RulesMixin,
         return _context
 
     def show_column_charts_or_not(self, submissionset, rating):
-        """ Should we show the column charts for this SubmissionSet? """
-        if submissionset.creditset.has_basic_benchmarking_feature:
-            if rating.name != 'Reporter':
+        """Should we show the column charts for this SubmissionSet?
 
-                return True
-            else:
-                # If this is a preview report, and the Institution has
-                # full access, also show the charts.
-                if (submissionset.status != 'r' and
-                    submissionset.institution.access_level == FULL_ACCESS):
-
-                    return True
+        Only for preview reports for folks with FULL_ACCESS."""
+        if (submissionset.creditset.has_basic_benchmarking_feature and
+            submissionset.status != 'r' and
+            submissionset.institution.access_level == FULL_ACCESS):
+            return True
         return False
 
     def get_category_url(self, category, url_prefix):
