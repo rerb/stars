@@ -240,29 +240,6 @@ def expireRatings():
                 i.save()
 
 
-@shared_task(name='submissions.load_subcategory_org_type_average_points')
-def load_subcategory_org_type_average_points():
-    """Populate SubcategoryOrgTypeAveragePoints and calculate the averages.
-    """
-    logger = getLogger('stars')
-    org_types = Institution.get_org_types()
-    subcategories = Subcategory.objects.all()
-    for subcategory in subcategories:
-        for org_type in org_types:
-            logger.info('loading subcategory {subcategory} '
-                        'for {org_type}'.format(subcategory=subcategory.title,
-                                                org_type=org_type))
-            try:
-                average = SubcategoryOrgTypeAveragePoints.objects.get(
-                    subcategory=subcategory,
-                    org_type=org_type)
-            except SubcategoryOrgTypeAveragePoints.DoesNotExist:
-                average = SubcategoryOrgTypeAveragePoints.objects.create(
-                    subcategory=subcategory,
-                    org_type=org_type)
-            average.calculate()
-
-
 @shared_task(name='submissions.load_subcategory_quartiles')
 def load_subcategory_quartiles():
     """Update the SubcategoryQuartile table.

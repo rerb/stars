@@ -2491,41 +2491,6 @@ class ExtensionRequest(models.Model):
         return str(self.date)
 
 
-class SubcategoryOrgTypeAveragePoints(models.Model):
-    """The average points for a Subcategory and Institution.org_type.
-    """
-    subcategory = models.ForeignKey(Subcategory)
-    org_type = models.CharField(max_length=32)
-    average_points = models.FloatField(default=0)
-
-    class Meta:
-        unique_together = ("subcategory", "org_type")
-
-    def calculate(self):
-        """Calculate the average.  Only count rated submissions.
-        """
-        subcategory_submissions = SubcategorySubmission.objects.filter(
-            subcategory=self.subcategory,
-            category_submission__submissionset__status='r')
-        total_points = total_submissions = 0
-        for subcategory_submission in subcategory_submissions:
-            if (subcategory_submission.get_submissionset().get_org_type() ==
-                self.org_type):
-
-                total_points += subcategory_submission.get_claimed_points()
-                total_submissions += 1
-        if total_submissions:
-            self.average_points = total_points / total_submissions
-        else:
-            self.average_points = 0
-        self.save()
-        logger.debug('For subcategory: {subcategory}, org_type: {org_type}: '
-                     'average_points: {average_points}'.format(
-                         subcategory=self.subcategory,
-                         org_type=self.org_type,
-                         average_points=self.average_points))
-
-
 class SubcategoryQuartiles(models.Model):
     """Cached statistics for Subcategories.
 
