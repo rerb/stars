@@ -1,6 +1,11 @@
 # Default Settings for STARS project
 # These can be extended by any .py file in the config folder
-import logging, os, sys, django, re
+import logging
+import os
+import re
+import sys
+
+import django
 from django.contrib.messages import constants as messages
 
 sys.path.append('../')
@@ -191,21 +196,23 @@ INSTALLED_APPS = (
     # 'stars.tests',
 
     'aashe.aasheauth',
-    'issdjango',
     'bootstrapform',
     'captcha',
     'collapsing_menu',
-    'django_extensions',
+    'compressor',
     'django_celery_downloader',
     'django_celery_downloader.tests.demo_app',
+    'django_extensions',
     'djcelery',
-    'raven.contrib.django.raven_compat',
+    'geordi',
+    'gunicorn',
+    'issdjango',
     'logical_rules',
+    'raven.contrib.django.raven_compat',
+    's3_folder_storage',
     'sorl.thumbnail',
     'south',
-    's3_folder_storage',
     'tastypie',
-    'gunicorn',
     # 'cms',
     # 'cms.plugins.file',
     # 'cms.plugins.flash',
@@ -224,7 +231,6 @@ INSTALLED_APPS = (
     # 'geordi',
     'adv_cache_tag',
     'file_cache_tag',
-    # 'geordi',
 )
 
 # auth config

@@ -1,29 +1,32 @@
-from datetime import datetime, date, timedelta
-from logging import getLogger
 import os
 import re
 import sys
+from datetime import date, datetime, timedelta
+from logging import getLogger
 
+import numpy
 from django.conf import settings
-from django.db import models
 from django.contrib.auth.models import User
-from django.contrib.localflavor.us.models import PhoneNumberField
-from django.db.models import Q
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.localflavor.us.models import PhoneNumberField
 from django.core import urlresolvers
-from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.cache import cache
+from django.core.files.uploadedfile import InMemoryUploadedFile
+from django.db import models
+from django.db.models import Q
 
-from stars.apps.credits.models import (CreditSet, Category, Subcategory,
-                                       Credit, DocumentationField, Choice,
-                                       ApplicabilityReason, Rating)
+from file_cache_tag.templatetags.custom_caching import (generate_cache_key,
+                                                        invalidate_filecache)
+from stars.apps.credits.models import (ApplicabilityReason, Category, Choice,
+                                       Credit, CreditSet, DocumentationField,
+                                       Rating, Subcategory)
 from stars.apps.institutions.models import (BASIC_ACCESS,
                                             ClimateZone,
                                             Institution)
-from stars.apps.submissions.export.pdf import build_report_pdf
 from stars.apps.notifications.models import EmailTemplate
-from file_cache_tag.templatetags.custom_caching import generate_cache_key, invalidate_filecache
+from stars.apps.submissions.export.pdf import build_report_pdf
+
 
 PENDING_SUBMISSION_STATUS = 'ps'
 PROCESSSING_SUBMISSION_STATUS = 'pr'
@@ -566,6 +569,32 @@ class SubmissionSet(models.Model, FlaggableModel):
         if user.email != self.institution.contact_email:
             to_mail.append(self.institution.contact_email)
         et.send_email(to_mail, {'ss': self})
+
+    def get_org_type(self):
+        """Return the org type for the institution associated with this
+        submissionset.
+
+        For creditsets >= 2.0, pull the org type off the institution
+        boundary credit.  For others, pull from the institution record.
+        """
+        if self.creditset.version > '2.':
+            institutional_characteristics_category = Category.objects.get(
+                abbreviation='IC')
+            institutional_characteristics_credit_submissions = (
+                self.get_credit_submissions().filter(
+                    subcategory_submission__category_submission__category=
+                    institutional_characteristics_category))
+            boundary_credit_submission = (
+                institutional_characteristics_credit_submissions.get(
+                    credit__title='Institutional Boundary'))
+            boundary_credit_submission_fields = (
+                boundary_credit_submission.get_submission_fields())
+            institution_type_submission_field = filter(
+                lambda x: x.documentation_field.title == 'Institution type',
+                boundary_credit_submission_fields)[0]
+            return institution_type_submission_field.get_human_value()
+        else:
+            return self.institution.org_type
 
 
 INSTITUTION_TYPE_CHOICES = (("associate", "Associate"),
@@ -2431,6 +2460,7 @@ class SubmissionInquiry(models.Model):
     def __unicode__(self):
         return self.submissionset.institution.name
 
+
 class CreditSubmissionInquiry(models.Model):
     """
         An inquiry, tied to a SubmissionInquiry about a particular credit.
@@ -2446,6 +2476,7 @@ class CreditSubmissionInquiry(models.Model):
     def __unicode__(self):
         return self.credit.title
 
+
 class ExtensionRequest(models.Model):
     """
         Schools can request a 6 month extension for their submission
@@ -2458,3 +2489,87 @@ class ExtensionRequest(models.Model):
 
     def __unicode__(self):
         return str(self.date)
+
+
+class SubcategoryOrgTypeAveragePoints(models.Model):
+    """The average points for a Subcategory and Institution.org_type.
+    """
+    subcategory = models.ForeignKey(Subcategory)
+    org_type = models.CharField(max_length=32)
+    average_points = models.FloatField(default=0)
+
+    class Meta:
+        unique_together = ("subcategory", "org_type")
+
+    def calculate(self):
+        """Calculate the average.  Only count rated submissions.
+        """
+        subcategory_submissions = SubcategorySubmission.objects.filter(
+            subcategory=self.subcategory,
+            category_submission__submissionset__status='r')
+        total_points = total_submissions = 0
+        for subcategory_submission in subcategory_submissions:
+            if (subcategory_submission.get_submissionset().get_org_type() ==
+                self.org_type):
+
+                total_points += subcategory_submission.get_claimed_points()
+                total_submissions += 1
+        if total_submissions:
+            self.average_points = total_points / total_submissions
+        else:
+            self.average_points = 0
+        self.save()
+        logger.debug('For subcategory: {subcategory}, org_type: {org_type}: '
+                     'average_points: {average_points}'.format(
+                         subcategory=self.subcategory,
+                         org_type=self.org_type,
+                         average_points=self.average_points))
+
+
+class SubcategoryQuartiles(models.Model):
+    """Cached statistics for Subcategories.
+
+    Caches the quartiles for submissions, grouped by subcategory and org_type.
+
+    Values cached (first, second, third, fourth) are the highest numbers
+    of each quartile.  The numbers represent the percentage of available
+    points granted to a submission, not the number of points granted.
+    """
+    subcategory = models.ForeignKey(Subcategory)
+    org_type = models.CharField(max_length=32)
+    first = models.FloatField(default=0)
+    second = models.FloatField(default=0)
+    third = models.FloatField(default=0)
+    fourth = models.FloatField(default=0)
+
+    class Meta:
+        unique_together = ("subcategory", "org_type")
+
+    def calculate(self):
+        """Calculate the quartiles.  Only count rated submissions.
+        """
+        subcategory_submissions = SubcategorySubmission.objects.filter(
+            subcategory=self.subcategory,
+            category_submission__submissionset__status='r')
+        points_percent = []
+
+        for subcategory_submission in subcategory_submissions:
+            if (subcategory_submission.get_submissionset().get_org_type() ==
+                self.org_type):
+
+                adjusted_available_points = (
+                    subcategory_submission.get_adjusted_available_points())
+
+                if adjusted_available_points:
+
+                    points_percent.append(
+                        (subcategory_submission.get_claimed_points() /
+                         adjusted_available_points) * 100)
+
+        if sum(points_percent):
+            array = numpy.array(points_percent)
+            self.first, self.second, self.third, self.fourth = (
+                numpy.percentile(array, numpy.arange(25, 101, 25)))
+        else:
+            self.first = self.second = self.third = self.fourth = 0
+        self.save()

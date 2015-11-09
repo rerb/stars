@@ -62,6 +62,8 @@ else:
         os.environ.get('STARS_MYSQL_DB_URL'))
     DATABASES['iss'] = dj_database_url.parse(
         os.environ.get('ISS_MYSQL_DB_URL'))
+    DATABASES['default']['OPTIONS'] = {'init_command':
+                                       'SET storage_engine=MYISAM'}
 
 DATABASE_ROUTERS = ('issdjango.router.ISSRouter',)
 

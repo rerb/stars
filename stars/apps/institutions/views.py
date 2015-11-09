@@ -14,13 +14,12 @@ from stars.apps.institutions.forms import (SubmissionSelectForm,
                                            SubmissionInquiryForm,
                                            CreditSubmissionInquiryFormSet,
                                            DataCorrectionRequestForm)
-from stars.apps.institutions.models import Institution
+from stars.apps.institutions.models import FULL_ACCESS, Institution
 from stars.apps.notifications.models import EmailTemplate
 from stars.apps.submissions.models import (SubmissionInquiry,
                                            DataCorrectionRequest,
                                            PENDING_SUBMISSION_STATUS,
                                            RATED_SUBMISSION_STATUS)
-from stars.apps.submissions.rules import user_can_preview_submission
 from stars.apps.submissions.views import SubmissionStructureMixin
 from stars.apps.submissions.tasks import (
     build_excel_export, build_pdf_export, build_certificate_export)
@@ -472,7 +471,20 @@ class ScorecardView(RulesMixin,
         if not ss.status == 'r':
             _context['preview'] = True
 
+        _context['show_column_charts'] = self.show_column_charts_or_not(ss,
+                                                                        rating)
+
         return _context
+
+    def show_column_charts_or_not(self, submissionset, rating):
+        """Should we show the column charts for this SubmissionSet?
+
+        Only for preview reports for folks with FULL_ACCESS."""
+        if (submissionset.creditset.has_basic_benchmarking_feature and
+            submissionset.status != 'r' and
+            submissionset.institution.access_level == FULL_ACCESS):
+            return True
+        return False
 
     def get_category_url(self, category, url_prefix):
         """ The default link for a category. """
