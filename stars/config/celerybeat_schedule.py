@@ -45,6 +45,12 @@ STARS_TASK_SCHEDULE = {
         'schedule': crontab(hour=6, minute=15),
         # 'schedule': timedelta(seconds=60),
     },
+    # Executes every morning at 2am
+    # stars.apps.submissions.tasks.load_subcategory_quartiles
+    'load SubcategoryQuartiles table every morning': {
+        'task': 'submissions.load_subcategory_quartiles',
+        'schedule': crontab(hour=2, minute=0)
+    },
     # Executes every morning at 3am
     # stars.apps.institutions.tasks.update_from_iss
     'update iss values every morning': {
