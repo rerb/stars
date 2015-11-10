@@ -34,16 +34,6 @@
                     My Submission
                 </a>
             </li>
-
-            {% testrule user_has_access_level user 'view' institution %}
-              <li{% if active_menu == "preview" %} class='active'{% endif %}>
-                <a href="{{ institution.current_submission.get_scorecard_url }}">
-                  <i class="icon-eye-open"></i>
-                  Preview Submission
-                </a>
-              </li>
-            {% endtestrule %}
-
             {% block submission_outline %}{% endblock %}
         {% endtestrule %}
         {% testrule user_has_access_level user 'view' institution %}
