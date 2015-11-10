@@ -18,8 +18,7 @@ from stars.apps.submissions.api import (CategoryPieChart, SubategoryPieChart,
                                         SummaryPieChart)
 from stars.apps.submissions.export.excel import build_report_export
 from stars.apps.submissions.export.pdf import build_certificate_pdf
-from stars.apps.submissions.models import (SubcategoryOrgTypeAveragePoints,
-                                           SubcategoryQuartiles,
+from stars.apps.submissions.models import (SubcategoryQuartiles,
                                            SubmissionSet)
 
 
@@ -242,26 +241,20 @@ def expireRatings():
 
 @shared_task(name='submissions.load_subcategory_quartiles')
 def load_subcategory_quartiles():
-    """Update the SubcategoryQuartile table.
+    """Update the SubcategoryQuartiles table.
     """
-    org_types = Institution.get_org_types()
-
-    org_type_count = 0
-    for org_type in org_types:
-        org_type_count += 1
-        subcategory_count = 0
-        total_subcategories = Subcategory.objects.count()
+    # Make sure there's a SubcategoryQuartiles object for each
+    # combination of org_type and Subcategory:
+    for org_type in Institution.get_org_types():
         for subcategory in Subcategory.objects.all():
-            subcategory_count += 1
-            print 'org_type: {x}/{y}, subcategory: {z}/{a}'.format(
-                x=org_type_count, y=len(org_types),
-                z=subcategory_count, a=total_subcategories)
             try:
-                subcategory_quartiles = SubcategoryQuartiles.objects.get(
+                SubcategoryQuartiles.objects.get(
                     org_type=org_type,
                     subcategory=subcategory)
             except SubcategoryQuartiles.DoesNotExist:
-                subcategory_quartiles = SubcategoryQuartiles.objects.create(
+                SubcategoryQuartiles.objects.create(
                     org_type=org_type,
                     subcategory=subcategory)
-            subcategory_quartiles.calculate()
+    # Calculate the quartiles:
+    for subcategory_quartiles in SubcategoryQuartiles.objects.all():
+        subcategory_quartiles.calculate()
