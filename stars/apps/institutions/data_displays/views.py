@@ -82,6 +82,7 @@ class Dashboard(TemplateView):
 
         slices = []
         context = {}
+        context['total_participant_count'] = 0
 
         # go back through all months until we don't have any subscriptions
         while Subscription.objects.filter(
