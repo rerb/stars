@@ -46,10 +46,16 @@
   <!-- template cached: {% now "jS F Y H:i" %} -->
   {% if preview %}
     <div class="alert">
-      This is a preview of your report. To continue editing your
-      final report please go to
-      <a href='{% url submission-summary institution.slug submissionset.id %}'>
-        My Submission</a>.
+      <p>
+        This is a preview of your report. To continue editing your
+        final report please go to
+        <a href='{% url submission-summary institution.slug submissionset.id %}'>
+          My Submission</a>.
+      </p>
+      <p>
+        Please note that the benchmarking charts below will not appear
+        in the public report.
+      </p>
     </div>
   {% endif %}
   {% include 'institutions/scorecards/submission_summary_table.html' %}
