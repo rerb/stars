@@ -1,37 +1,107 @@
-# encoding: utf-8
+# -*- coding: utf-8 -*-
 import datetime
 from south.db import db
 from south.v2 import SchemaMigration
 from django.db import models
 
+
 class Migration(SchemaMigration):
-    
+
     def forwards(self, orm):
-        
+        # Adding model 'Flag'
+        db.create_table('submissions_flag', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('date', self.gf('django.db.models.fields.DateField')(auto_now_add=True, blank=True)),
+            ('description', self.gf('django.db.models.fields.TextField')()),
+            ('content_type', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['contenttypes.ContentType'])),
+            ('object_id', self.gf('django.db.models.fields.PositiveIntegerField')()),
+        ))
+        db.send_create_signal('submissions', ['Flag'])
+
         # Adding model 'SubmissionSet'
         db.create_table('submissions_submissionset', (
-            ('status', self.gf('django.db.models.fields.CharField')(max_length=8)),
-            ('rating', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['credits.Rating'], null=True, blank=True)),
-            ('submission_boundary', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
-            ('submission_deadline', self.gf('django.db.models.fields.DateField')()),
-            ('submitting_user', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='submitted_submissions', null=True, to=orm['auth.User'])),
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('creditset', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['credits.CreditSet'])),
-            ('presidents_letter', self.gf('django.db.models.fields.files.FileField')(max_length=100, null=True, blank=True)),
-            ('date_submitted', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
             ('institution', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['institutions.Institution'])),
             ('date_registered', self.gf('django.db.models.fields.DateField')()),
+            ('date_submitted', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
             ('date_reviewed', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
-            ('reporter_status', self.gf('django.db.models.fields.BooleanField')(default=False, blank=True)),
+            ('expired', self.gf('django.db.models.fields.BooleanField')(default=False)),
             ('registering_user', self.gf('django.db.models.fields.related.ForeignKey')(related_name='registered_submissions', to=orm['auth.User'])),
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('submitting_user', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='submitted_submissions', null=True, to=orm['auth.User'])),
+            ('rating', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['credits.Rating'], null=True, blank=True)),
+            ('status', self.gf('django.db.models.fields.CharField')(max_length=8)),
+            ('submission_boundary', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
+            ('presidents_letter', self.gf('django.db.models.fields.files.FileField')(max_length=100, null=True, blank=True)),
+            ('reporter_status', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('pdf_report', self.gf('django.db.models.fields.files.FileField')(max_length=100, null=True, blank=True)),
+            ('is_locked', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('is_visible', self.gf('django.db.models.fields.BooleanField')(default=True)),
+            ('score', self.gf('django.db.models.fields.FloatField')(null=True, blank=True)),
+            ('migrated_from', self.gf('django.db.models.fields.related.ForeignKey')(blank=True, related_name='+', null=True, to=orm['submissions.SubmissionSet'])),
+            ('date_created', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
         ))
         db.send_create_signal('submissions', ['SubmissionSet'])
 
+        # Adding model 'Boundary'
+        db.create_table('submissions_boundary', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('submissionset', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['submissions.SubmissionSet'], unique=True)),
+            ('fte_students', self.gf('django.db.models.fields.IntegerField')(null=True, blank=True)),
+            ('undergrad_count', self.gf('django.db.models.fields.IntegerField')(null=True, blank=True)),
+            ('graduate_count', self.gf('django.db.models.fields.IntegerField')(null=True, blank=True)),
+            ('fte_employmees', self.gf('django.db.models.fields.IntegerField')(null=True, blank=True)),
+            ('institution_type', self.gf('django.db.models.fields.CharField')(max_length=32, null=True, blank=True)),
+            ('institutional_control', self.gf('django.db.models.fields.CharField')(max_length=32, null=True, blank=True)),
+            ('endowment_size', self.gf('django.db.models.fields.BigIntegerField')(null=True, blank=True)),
+            ('student_residential_percent', self.gf('django.db.models.fields.FloatField')(null=True, blank=True)),
+            ('student_ftc_percent', self.gf('django.db.models.fields.FloatField')(null=True, blank=True)),
+            ('student_ptc_percent', self.gf('django.db.models.fields.FloatField')(null=True, blank=True)),
+            ('student_online_percent', self.gf('django.db.models.fields.FloatField')(null=True, blank=True)),
+            ('gsf_building_space', self.gf('django.db.models.fields.FloatField')(null=True, blank=True)),
+            ('gsf_lab_space', self.gf('django.db.models.fields.FloatField')(null=True, blank=True)),
+            ('cultivated_grounds_acres', self.gf('django.db.models.fields.FloatField')(null=True, blank=True)),
+            ('undeveloped_land_acres', self.gf('django.db.models.fields.FloatField')(null=True, blank=True)),
+            ('climate_region', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['institutions.ClimateZone'], null=True, blank=True)),
+            ('ag_school_present', self.gf('django.db.models.fields.NullBooleanField')(null=True, blank=True)),
+            ('ag_school_included', self.gf('django.db.models.fields.NullBooleanField')(null=True, blank=True)),
+            ('ag_school_details', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
+            ('med_school_present', self.gf('django.db.models.fields.NullBooleanField')(null=True, blank=True)),
+            ('med_school_included', self.gf('django.db.models.fields.NullBooleanField')(null=True, blank=True)),
+            ('med_school_details', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
+            ('pharm_school_present', self.gf('django.db.models.fields.NullBooleanField')(null=True, blank=True)),
+            ('pharm_school_included', self.gf('django.db.models.fields.NullBooleanField')(null=True, blank=True)),
+            ('pharm_school_details', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
+            ('pub_health_school_present', self.gf('django.db.models.fields.NullBooleanField')(null=True, blank=True)),
+            ('pub_health_school_included', self.gf('django.db.models.fields.NullBooleanField')(null=True, blank=True)),
+            ('pub_health_school_details', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
+            ('vet_school_present', self.gf('django.db.models.fields.NullBooleanField')(null=True, blank=True)),
+            ('vet_school_included', self.gf('django.db.models.fields.NullBooleanField')(null=True, blank=True)),
+            ('vet_school_details', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
+            ('sat_campus_present', self.gf('django.db.models.fields.NullBooleanField')(null=True, blank=True)),
+            ('sat_campus_included', self.gf('django.db.models.fields.NullBooleanField')(null=True, blank=True)),
+            ('sat_campus_details', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
+            ('hospital_present', self.gf('django.db.models.fields.NullBooleanField')(null=True, blank=True)),
+            ('hospital_included', self.gf('django.db.models.fields.NullBooleanField')(null=True, blank=True)),
+            ('hospital_details', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
+            ('farm_present', self.gf('django.db.models.fields.NullBooleanField')(null=True, blank=True)),
+            ('farm_included', self.gf('django.db.models.fields.NullBooleanField')(null=True, blank=True)),
+            ('farm_acres', self.gf('django.db.models.fields.FloatField')(null=True, blank=True)),
+            ('farm_details', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
+            ('agr_exp_present', self.gf('django.db.models.fields.NullBooleanField')(null=True, blank=True)),
+            ('agr_exp_included', self.gf('django.db.models.fields.NullBooleanField')(null=True, blank=True)),
+            ('agr_exp_acres', self.gf('django.db.models.fields.IntegerField')(null=True, blank=True)),
+            ('agr_exp_details', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
+            ('additional_details', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
+        ))
+        db.send_create_signal('submissions', ['Boundary'])
+
         # Adding model 'CategorySubmission'
         db.create_table('submissions_categorysubmission', (
-            ('category', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['credits.Category'])),
-            ('submissionset', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['submissions.SubmissionSet'])),
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('submissionset', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['submissions.SubmissionSet'])),
+            ('category', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['credits.Category'])),
+            ('score', self.gf('django.db.models.fields.FloatField')(null=True, blank=True)),
         ))
         db.send_create_signal('submissions', ['CategorySubmission'])
 
@@ -40,9 +110,13 @@ class Migration(SchemaMigration):
 
         # Adding model 'SubcategorySubmission'
         db.create_table('submissions_subcategorysubmission', (
-            ('category_submission', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['submissions.CategorySubmission'])),
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('category_submission', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['submissions.CategorySubmission'])),
             ('subcategory', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['credits.Subcategory'])),
+            ('description', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
+            ('points', self.gf('django.db.models.fields.FloatField')(null=True, blank=True)),
+            ('percentage_score', self.gf('django.db.models.fields.FloatField')(default=0.0, null=True, blank=True)),
+            ('adjusted_available_points', self.gf('django.db.models.fields.FloatField')(default=0.0, null=True, blank=True)),
         ))
         db.send_create_signal('submissions', ['SubcategorySubmission'])
 
@@ -51,38 +125,38 @@ class Migration(SchemaMigration):
 
         # Adding model 'ResponsibleParty'
         db.create_table('submissions_responsibleparty', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('institution', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['institutions.Institution'])),
             ('first_name', self.gf('django.db.models.fields.CharField')(max_length=32)),
             ('last_name', self.gf('django.db.models.fields.CharField')(max_length=32)),
             ('title', self.gf('django.db.models.fields.CharField')(max_length=128)),
-            ('phone', self.gf('django.contrib.localflavor.us.models.PhoneNumberField')(max_length=20)),
-            ('institution', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['institutions.Institution'])),
-            ('email', self.gf('django.db.models.fields.EmailField')(max_length=75)),
             ('department', self.gf('django.db.models.fields.CharField')(max_length=128)),
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('email', self.gf('django.db.models.fields.EmailField')(max_length=75)),
+            ('phone', self.gf('django.contrib.localflavor.us.models.PhoneNumberField')(max_length=20)),
         ))
         db.send_create_signal('submissions', ['ResponsibleParty'])
 
         # Adding model 'CreditSubmission'
         db.create_table('submissions_creditsubmission', (
-            ('credit', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['credits.Credit'])),
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('credit', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['credits.Credit'])),
+            ('available_point_cache', self.gf('django.db.models.fields.FloatField')(null=True, blank=True)),
         ))
         db.send_create_signal('submissions', ['CreditSubmission'])
 
         # Adding model 'CreditUserSubmission'
         db.create_table('submissions_creditusersubmission', (
             ('creditsubmission_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['submissions.CreditSubmission'], unique=True, primary_key=True)),
-            ('last_updated', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
-            ('responsible_party_confirm', self.gf('django.db.models.fields.BooleanField')(default=False, blank=True)),
-            ('submission_notes', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
-            ('internal_notes', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
-            ('review_status', self.gf('django.db.models.fields.CharField')(max_length=8)),
-            ('submission_status', self.gf('django.db.models.fields.CharField')(default='ns', max_length=8)),
-            ('responsible_party', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['submissions.ResponsibleParty'], null=True, blank=True)),
-            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'], null=True, blank=True)),
-            ('assessed_points', self.gf('django.db.models.fields.FloatField')(null=True, blank=True)),
             ('subcategory_submission', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['submissions.SubcategorySubmission'])),
+            ('assessed_points', self.gf('django.db.models.fields.FloatField')(null=True, blank=True)),
+            ('last_updated', self.gf('django.db.models.fields.DateTimeField')(null=True, blank=True)),
+            ('submission_status', self.gf('django.db.models.fields.CharField')(default='ns', max_length=8)),
             ('applicability_reason', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['credits.ApplicabilityReason'], null=True, blank=True)),
+            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'], null=True, blank=True)),
+            ('internal_notes', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
+            ('submission_notes', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
+            ('responsible_party_confirm', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('responsible_party', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['submissions.ResponsibleParty'], null=True, blank=True)),
         ))
         db.send_create_signal('submissions', ['CreditUserSubmission'])
 
@@ -93,37 +167,63 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal('submissions', ['CreditTestSubmission'])
 
+        # Adding model 'DataCorrectionRequest'
+        db.create_table('submissions_datacorrectionrequest', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('date', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
+            ('content_type', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['contenttypes.ContentType'])),
+            ('object_id', self.gf('django.db.models.fields.PositiveIntegerField')()),
+            ('new_value', self.gf('django.db.models.fields.TextField')()),
+            ('explanation', self.gf('django.db.models.fields.TextField')()),
+            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'], null=True, blank=True)),
+            ('approved', self.gf('django.db.models.fields.BooleanField')(default=False)),
+        ))
+        db.send_create_signal('submissions', ['DataCorrectionRequest'])
+
+        # Adding model 'ReportingFieldDataCorrection'
+        db.create_table('submissions_reportingfielddatacorrection', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('request', self.gf('django.db.models.fields.related.OneToOneField')(blank=True, related_name='applied_correction', unique=True, null=True, to=orm['submissions.DataCorrectionRequest'])),
+            ('previous_value', self.gf('django.db.models.fields.TextField')()),
+            ('change_date', self.gf('django.db.models.fields.DateField')()),
+            ('content_type', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['contenttypes.ContentType'])),
+            ('object_id', self.gf('django.db.models.fields.PositiveIntegerField')()),
+            ('explanation', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
+        ))
+        db.send_create_signal('submissions', ['ReportingFieldDataCorrection'])
+
         # Adding model 'ChoiceSubmission'
         db.create_table('submissions_choicesubmission', (
-            ('documentation_field', self.gf('django.db.models.fields.related.ForeignKey')(related_name='choicesubmission_set', to=orm['credits.DocumentationField'])),
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('value', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['credits.Choice'], null=True, blank=True)),
+            ('documentation_field', self.gf('django.db.models.fields.related.ForeignKey')(related_name='choicesubmission_set', to=orm['credits.DocumentationField'])),
             ('credit_submission', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['submissions.CreditSubmission'])),
+            ('value', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['credits.Choice'], null=True, blank=True)),
         ))
         db.send_create_signal('submissions', ['ChoiceSubmission'])
 
         # Adding model 'MultiChoiceSubmission'
         db.create_table('submissions_multichoicesubmission', (
-            ('documentation_field', self.gf('django.db.models.fields.related.ForeignKey')(related_name='multichoicesubmission_set', to=orm['credits.DocumentationField'])),
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('documentation_field', self.gf('django.db.models.fields.related.ForeignKey')(related_name='multichoicesubmission_set', to=orm['credits.DocumentationField'])),
             ('credit_submission', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['submissions.CreditSubmission'])),
         ))
         db.send_create_signal('submissions', ['MultiChoiceSubmission'])
 
         # Adding M2M table for field value on 'MultiChoiceSubmission'
-        db.create_table('submissions_multichoicesubmission_value', (
+        m2m_table_name = db.shorten_name('submissions_multichoicesubmission_value')
+        db.create_table(m2m_table_name, (
             ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
             ('multichoicesubmission', models.ForeignKey(orm['submissions.multichoicesubmission'], null=False)),
             ('choice', models.ForeignKey(orm['credits.choice'], null=False))
         ))
-        db.create_unique('submissions_multichoicesubmission_value', ['multichoicesubmission_id', 'choice_id'])
+        db.create_unique(m2m_table_name, ['multichoicesubmission_id', 'choice_id'])
 
         # Adding model 'URLSubmission'
         db.create_table('submissions_urlsubmission', (
-            ('documentation_field', self.gf('django.db.models.fields.related.ForeignKey')(related_name='urlsubmission_set', to=orm['credits.DocumentationField'])),
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('value', self.gf('django.db.models.fields.URLField')(max_length=200, null=True, blank=True)),
+            ('documentation_field', self.gf('django.db.models.fields.related.ForeignKey')(related_name='urlsubmission_set', to=orm['credits.DocumentationField'])),
             ('credit_submission', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['submissions.CreditSubmission'])),
+            ('value', self.gf('django.db.models.fields.URLField')(max_length=200, null=True, blank=True)),
         ))
         db.send_create_signal('submissions', ['URLSubmission'])
 
@@ -132,10 +232,10 @@ class Migration(SchemaMigration):
 
         # Adding model 'DateSubmission'
         db.create_table('submissions_datesubmission', (
-            ('documentation_field', self.gf('django.db.models.fields.related.ForeignKey')(related_name='datesubmission_set', to=orm['credits.DocumentationField'])),
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('value', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
+            ('documentation_field', self.gf('django.db.models.fields.related.ForeignKey')(related_name='datesubmission_set', to=orm['credits.DocumentationField'])),
             ('credit_submission', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['submissions.CreditSubmission'])),
+            ('value', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
         ))
         db.send_create_signal('submissions', ['DateSubmission'])
 
@@ -144,10 +244,11 @@ class Migration(SchemaMigration):
 
         # Adding model 'NumericSubmission'
         db.create_table('submissions_numericsubmission', (
-            ('documentation_field', self.gf('django.db.models.fields.related.ForeignKey')(related_name='numericsubmission_set', to=orm['credits.DocumentationField'])),
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('value', self.gf('django.db.models.fields.FloatField')(null=True, blank=True)),
+            ('documentation_field', self.gf('django.db.models.fields.related.ForeignKey')(related_name='numericsubmission_set', to=orm['credits.DocumentationField'])),
             ('credit_submission', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['submissions.CreditSubmission'])),
+            ('value', self.gf('django.db.models.fields.FloatField')(null=True, blank=True)),
+            ('metric_value', self.gf('django.db.models.fields.FloatField')(null=True, blank=True)),
         ))
         db.send_create_signal('submissions', ['NumericSubmission'])
 
@@ -156,10 +257,10 @@ class Migration(SchemaMigration):
 
         # Adding model 'TextSubmission'
         db.create_table('submissions_textsubmission', (
-            ('documentation_field', self.gf('django.db.models.fields.related.ForeignKey')(related_name='textsubmission_set', to=orm['credits.DocumentationField'])),
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('value', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
+            ('documentation_field', self.gf('django.db.models.fields.related.ForeignKey')(related_name='textsubmission_set', to=orm['credits.DocumentationField'])),
             ('credit_submission', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['submissions.CreditSubmission'])),
+            ('value', self.gf('django.db.models.fields.CharField')(max_length=255, null=True, blank=True)),
         ))
         db.send_create_signal('submissions', ['TextSubmission'])
 
@@ -168,10 +269,10 @@ class Migration(SchemaMigration):
 
         # Adding model 'LongTextSubmission'
         db.create_table('submissions_longtextsubmission', (
-            ('documentation_field', self.gf('django.db.models.fields.related.ForeignKey')(related_name='longtextsubmission_set', to=orm['credits.DocumentationField'])),
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('value', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
+            ('documentation_field', self.gf('django.db.models.fields.related.ForeignKey')(related_name='longtextsubmission_set', to=orm['credits.DocumentationField'])),
             ('credit_submission', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['submissions.CreditSubmission'])),
+            ('value', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
         ))
         db.send_create_signal('submissions', ['LongTextSubmission'])
 
@@ -180,10 +281,10 @@ class Migration(SchemaMigration):
 
         # Adding model 'UploadSubmission'
         db.create_table('submissions_uploadsubmission', (
-            ('documentation_field', self.gf('django.db.models.fields.related.ForeignKey')(related_name='uploadsubmission_set', to=orm['credits.DocumentationField'])),
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('value', self.gf('django.db.models.fields.files.FileField')(max_length=100, null=True, blank=True)),
+            ('documentation_field', self.gf('django.db.models.fields.related.ForeignKey')(related_name='uploadsubmission_set', to=orm['credits.DocumentationField'])),
             ('credit_submission', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['submissions.CreditSubmission'])),
+            ('value', self.gf('django.db.models.fields.files.FileField')(max_length=100, null=True, blank=True)),
         ))
         db.send_create_signal('submissions', ['UploadSubmission'])
 
@@ -192,10 +293,10 @@ class Migration(SchemaMigration):
 
         # Adding model 'BooleanSubmission'
         db.create_table('submissions_booleansubmission', (
-            ('documentation_field', self.gf('django.db.models.fields.related.ForeignKey')(related_name='booleansubmission_set', to=orm['credits.DocumentationField'])),
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('value', self.gf('django.db.models.fields.NullBooleanField')(null=True, blank=True)),
+            ('documentation_field', self.gf('django.db.models.fields.related.ForeignKey')(related_name='booleansubmission_set', to=orm['credits.DocumentationField'])),
             ('credit_submission', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['submissions.CreditSubmission'])),
+            ('value', self.gf('django.db.models.fields.NullBooleanField')(null=True, blank=True)),
         ))
         db.send_create_signal('submissions', ['BooleanSubmission'])
 
@@ -204,58 +305,96 @@ class Migration(SchemaMigration):
 
         # Adding model 'Payment'
         db.create_table('submissions_payment', (
-            ('confirmation', self.gf('django.db.models.fields.CharField')(max_length='16', null=True, blank=True)),
-            ('reason', self.gf('django.db.models.fields.CharField')(max_length='8')),
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('submissionset', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['submissions.SubmissionSet'])),
+            ('date', self.gf('django.db.models.fields.DateTimeField')()),
             ('amount', self.gf('django.db.models.fields.FloatField')()),
             ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
-            ('date', self.gf('django.db.models.fields.DateTimeField')()),
-            ('submissionset', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['submissions.SubmissionSet'])),
+            ('reason', self.gf('django.db.models.fields.CharField')(max_length='16')),
             ('type', self.gf('django.db.models.fields.CharField')(max_length='8')),
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('confirmation', self.gf('django.db.models.fields.CharField')(max_length='16', null=True, blank=True)),
         ))
         db.send_create_signal('submissions', ['Payment'])
 
-        # Adding model 'SubmissionEnquiry'
-        db.create_table('submissions_submissionenquiry', (
-            ('phone_number', self.gf('django.contrib.localflavor.us.models.PhoneNumberField')(max_length=20)),
-            ('city', self.gf('django.db.models.fields.CharField')(max_length=32)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=128)),
-            ('affiliation', self.gf('django.db.models.fields.CharField')(max_length=128)),
-            ('state', self.gf('django.db.models.fields.CharField')(max_length=2)),
-            ('date', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('submissionset', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['submissions.SubmissionSet'])),
-            ('email_address', self.gf('django.db.models.fields.EmailField')(max_length=75)),
+        # Adding model 'SubmissionInquiry'
+        db.create_table('submissions_submissioninquiry', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('addtional_comments', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
+            ('submissionset', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['submissions.SubmissionSet'])),
+            ('date', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
+            ('anonymous', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('first_name', self.gf('django.db.models.fields.CharField')(max_length=128, null=True, blank=True)),
+            ('last_name', self.gf('django.db.models.fields.CharField')(max_length=128, null=True, blank=True)),
+            ('affiliation', self.gf('django.db.models.fields.CharField')(max_length=128, null=True, blank=True)),
+            ('city', self.gf('django.db.models.fields.CharField')(max_length=32, null=True, blank=True)),
+            ('state', self.gf('django.db.models.fields.CharField')(max_length=2, null=True, blank=True)),
+            ('email_address', self.gf('django.db.models.fields.EmailField')(max_length=75, null=True, blank=True)),
+            ('phone_number', self.gf('django.contrib.localflavor.us.models.PhoneNumberField')(max_length=20, null=True, blank=True)),
+            ('additional_comments', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
         ))
-        db.send_create_signal('submissions', ['SubmissionEnquiry'])
+        db.send_create_signal('submissions', ['SubmissionInquiry'])
 
-        # Adding model 'CreditSubmissionEnquiry'
-        db.create_table('submissions_creditsubmissionenquiry', (
-            ('submission_enquiry', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['submissions.SubmissionEnquiry'])),
+        # Adding model 'CreditSubmissionInquiry'
+        db.create_table('submissions_creditsubmissioninquiry', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('submission_inquiry', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['submissions.SubmissionInquiry'])),
             ('credit', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['credits.Credit'])),
             ('explanation', self.gf('django.db.models.fields.TextField')()),
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
         ))
-        db.send_create_signal('submissions', ['CreditSubmissionEnquiry'])
-    
-    
-    def backwards(self, orm):
-        
-        # Deleting model 'SubmissionSet'
-        db.delete_table('submissions_submissionset')
+        db.send_create_signal('submissions', ['CreditSubmissionInquiry'])
 
-        # Deleting model 'CategorySubmission'
-        db.delete_table('submissions_categorysubmission')
+        # Adding model 'ExtensionRequest'
+        db.create_table('submissions_extensionrequest', (
+            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('submissionset', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['submissions.SubmissionSet'])),
+            ('old_deadline', self.gf('django.db.models.fields.DateField')()),
+            ('date', self.gf('django.db.models.fields.DateField')(auto_now_add=True, blank=True)),
+            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'])),
+        ))
+        db.send_create_signal('submissions', ['ExtensionRequest'])
+
+
+    def backwards(self, orm):
+        # Removing unique constraint on 'BooleanSubmission', fields ['documentation_field', 'credit_submission']
+        db.delete_unique('submissions_booleansubmission', ['documentation_field_id', 'credit_submission_id'])
+
+        # Removing unique constraint on 'UploadSubmission', fields ['documentation_field', 'credit_submission']
+        db.delete_unique('submissions_uploadsubmission', ['documentation_field_id', 'credit_submission_id'])
+
+        # Removing unique constraint on 'LongTextSubmission', fields ['documentation_field', 'credit_submission']
+        db.delete_unique('submissions_longtextsubmission', ['documentation_field_id', 'credit_submission_id'])
+
+        # Removing unique constraint on 'TextSubmission', fields ['documentation_field', 'credit_submission']
+        db.delete_unique('submissions_textsubmission', ['documentation_field_id', 'credit_submission_id'])
+
+        # Removing unique constraint on 'NumericSubmission', fields ['documentation_field', 'credit_submission']
+        db.delete_unique('submissions_numericsubmission', ['documentation_field_id', 'credit_submission_id'])
+
+        # Removing unique constraint on 'DateSubmission', fields ['documentation_field', 'credit_submission']
+        db.delete_unique('submissions_datesubmission', ['documentation_field_id', 'credit_submission_id'])
+
+        # Removing unique constraint on 'URLSubmission', fields ['documentation_field', 'credit_submission']
+        db.delete_unique('submissions_urlsubmission', ['documentation_field_id', 'credit_submission_id'])
+
+        # Removing unique constraint on 'SubcategorySubmission', fields ['category_submission', 'subcategory']
+        db.delete_unique('submissions_subcategorysubmission', ['category_submission_id', 'subcategory_id'])
 
         # Removing unique constraint on 'CategorySubmission', fields ['submissionset', 'category']
         db.delete_unique('submissions_categorysubmission', ['submissionset_id', 'category_id'])
 
+        # Deleting model 'Flag'
+        db.delete_table('submissions_flag')
+
+        # Deleting model 'SubmissionSet'
+        db.delete_table('submissions_submissionset')
+
+        # Deleting model 'Boundary'
+        db.delete_table('submissions_boundary')
+
+        # Deleting model 'CategorySubmission'
+        db.delete_table('submissions_categorysubmission')
+
         # Deleting model 'SubcategorySubmission'
         db.delete_table('submissions_subcategorysubmission')
-
-        # Removing unique constraint on 'SubcategorySubmission', fields ['category_submission', 'subcategory']
-        db.delete_unique('submissions_subcategorysubmission', ['category_submission_id', 'subcategory_id'])
 
         # Deleting model 'ResponsibleParty'
         db.delete_table('submissions_responsibleparty')
@@ -269,6 +408,12 @@ class Migration(SchemaMigration):
         # Deleting model 'CreditTestSubmission'
         db.delete_table('submissions_credittestsubmission')
 
+        # Deleting model 'DataCorrectionRequest'
+        db.delete_table('submissions_datacorrectionrequest')
+
+        # Deleting model 'ReportingFieldDataCorrection'
+        db.delete_table('submissions_reportingfielddatacorrection')
+
         # Deleting model 'ChoiceSubmission'
         db.delete_table('submissions_choicesubmission')
 
@@ -276,60 +421,42 @@ class Migration(SchemaMigration):
         db.delete_table('submissions_multichoicesubmission')
 
         # Removing M2M table for field value on 'MultiChoiceSubmission'
-        db.delete_table('submissions_multichoicesubmission_value')
+        db.delete_table(db.shorten_name('submissions_multichoicesubmission_value'))
 
         # Deleting model 'URLSubmission'
         db.delete_table('submissions_urlsubmission')
 
-        # Removing unique constraint on 'URLSubmission', fields ['documentation_field', 'credit_submission']
-        db.delete_unique('submissions_urlsubmission', ['documentation_field_id', 'credit_submission_id'])
-
         # Deleting model 'DateSubmission'
         db.delete_table('submissions_datesubmission')
-
-        # Removing unique constraint on 'DateSubmission', fields ['documentation_field', 'credit_submission']
-        db.delete_unique('submissions_datesubmission', ['documentation_field_id', 'credit_submission_id'])
 
         # Deleting model 'NumericSubmission'
         db.delete_table('submissions_numericsubmission')
 
-        # Removing unique constraint on 'NumericSubmission', fields ['documentation_field', 'credit_submission']
-        db.delete_unique('submissions_numericsubmission', ['documentation_field_id', 'credit_submission_id'])
-
         # Deleting model 'TextSubmission'
         db.delete_table('submissions_textsubmission')
-
-        # Removing unique constraint on 'TextSubmission', fields ['documentation_field', 'credit_submission']
-        db.delete_unique('submissions_textsubmission', ['documentation_field_id', 'credit_submission_id'])
 
         # Deleting model 'LongTextSubmission'
         db.delete_table('submissions_longtextsubmission')
 
-        # Removing unique constraint on 'LongTextSubmission', fields ['documentation_field', 'credit_submission']
-        db.delete_unique('submissions_longtextsubmission', ['documentation_field_id', 'credit_submission_id'])
-
         # Deleting model 'UploadSubmission'
         db.delete_table('submissions_uploadsubmission')
-
-        # Removing unique constraint on 'UploadSubmission', fields ['documentation_field', 'credit_submission']
-        db.delete_unique('submissions_uploadsubmission', ['documentation_field_id', 'credit_submission_id'])
 
         # Deleting model 'BooleanSubmission'
         db.delete_table('submissions_booleansubmission')
 
-        # Removing unique constraint on 'BooleanSubmission', fields ['documentation_field', 'credit_submission']
-        db.delete_unique('submissions_booleansubmission', ['documentation_field_id', 'credit_submission_id'])
-
         # Deleting model 'Payment'
         db.delete_table('submissions_payment')
 
-        # Deleting model 'SubmissionEnquiry'
-        db.delete_table('submissions_submissionenquiry')
+        # Deleting model 'SubmissionInquiry'
+        db.delete_table('submissions_submissioninquiry')
 
-        # Deleting model 'CreditSubmissionEnquiry'
-        db.delete_table('submissions_creditsubmissionenquiry')
-    
-    
+        # Deleting model 'CreditSubmissionInquiry'
+        db.delete_table('submissions_creditsubmissioninquiry')
+
+        # Deleting model 'ExtensionRequest'
+        db.delete_table('submissions_extensionrequest')
+
+
     models = {
         'auth.group': {
             'Meta': {'object_name': 'Group'},
@@ -338,7 +465,7 @@ class Migration(SchemaMigration):
             'permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'})
         },
         'auth.permission': {
-            'Meta': {'unique_together': "(('content_type', 'codename'),)", 'object_name': 'Permission'},
+            'Meta': {'ordering': "('content_type__app_label', 'content_type__model', 'codename')", 'unique_together': "(('content_type', 'codename'),)", 'object_name': 'Permission'},
             'codename': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contenttypes.ContentType']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
@@ -351,9 +478,9 @@ class Migration(SchemaMigration):
             'first_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
             'groups': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.Group']", 'symmetrical': 'False', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'True', 'blank': 'True'}),
-            'is_staff': ('django.db.models.fields.BooleanField', [], {'default': 'False', 'blank': 'True'}),
-            'is_superuser': ('django.db.models.fields.BooleanField', [], {'default': 'False', 'blank': 'True'}),
+            'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
+            'is_staff': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'is_superuser': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'last_login': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
             'last_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
             'password': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
@@ -361,49 +488,63 @@ class Migration(SchemaMigration):
             'username': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '30'})
         },
         'contenttypes.contenttype': {
-            'Meta': {'unique_together': "(('app_label', 'model'),)", 'object_name': 'ContentType', 'db_table': "'django_content_type'"},
+            'Meta': {'ordering': "('name',)", 'unique_together': "(('app_label', 'model'),)", 'object_name': 'ContentType', 'db_table': "'django_content_type'"},
             'app_label': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
         'credits.applicabilityreason': {
-            'Meta': {'object_name': 'ApplicabilityReason'},
+            'Meta': {'ordering': "('ordinal',)", 'object_name': 'ApplicabilityReason'},
             'credit': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['credits.Credit']"}),
             'help_text': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'ordinal': ('django.db.models.fields.IntegerField', [], {}),
+            'previous_version': ('django.db.models.fields.related.OneToOneField', [], {'blank': 'True', 'related_name': "'_next_version'", 'unique': 'True', 'null': 'True', 'to': "orm['credits.ApplicabilityReason']"}),
             'reason': ('django.db.models.fields.CharField', [], {'max_length': '128'})
         },
         'credits.category': {
-            'Meta': {'object_name': 'Category'},
+            'Meta': {'ordering': "('ordinal',)", 'object_name': 'Category'},
             'abbreviation': ('django.db.models.fields.CharField', [], {'max_length': '6'}),
             'creditset': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['credits.CreditSet']"}),
-            'description': ('django.db.models.fields.TextField', [], {}),
+            'description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'include_in_report': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
+            'include_in_score': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'max_point_value': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'ordinal': ('django.db.models.fields.SmallIntegerField', [], {'default': '-1'}),
+            'previous_version': ('django.db.models.fields.related.OneToOneField', [], {'blank': 'True', 'related_name': "'_next_version'", 'unique': 'True', 'null': 'True', 'to': "orm['credits.Category']"}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '64'})
         },
         'credits.choice': {
-            'Meta': {'object_name': 'Choice'},
+            'Meta': {'ordering': "('ordinal',)", 'object_name': 'Choice'},
             'choice': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'documentation_field': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['credits.DocumentationField']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'is_bonafide': ('django.db.models.fields.BooleanField', [], {'default': 'True', 'blank': 'True'}),
-            'ordinal': ('django.db.models.fields.SmallIntegerField', [], {'default': '-1'})
+            'is_bonafide': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
+            'ordinal': ('django.db.models.fields.SmallIntegerField', [], {'default': '-1'}),
+            'previous_version': ('django.db.models.fields.related.OneToOneField', [], {'blank': 'True', 'related_name': "'_next_version'", 'unique': 'True', 'null': 'True', 'to': "orm['credits.Choice']"})
         },
         'credits.credit': {
-            'Meta': {'object_name': 'Credit'},
+            'Meta': {'ordering': "('ordinal',)", 'object_name': 'Credit'},
             'applicability': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'criteria': ('django.db.models.fields.TextField', [], {}),
             'formula': ('django.db.models.fields.TextField', [], {'default': "'points = 0'", 'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'identifier': ('django.db.models.fields.CharField', [], {'default': "'ID?'", 'max_length': '16'}),
+            'is_required': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'measurement': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'number': ('django.db.models.fields.SmallIntegerField', [], {'default': '-1'}),
             'ordinal': ('django.db.models.fields.SmallIntegerField', [], {'default': '-1'}),
+            'point_minimum': ('django.db.models.fields.FloatField', [], {'null': 'True', 'blank': 'True'}),
             'point_value': ('django.db.models.fields.FloatField', [], {}),
+            'point_value_formula': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
+            'point_variation_reason': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
+            'previous_version': ('django.db.models.fields.related.OneToOneField', [], {'blank': 'True', 'related_name': "'_next_version'", 'unique': 'True', 'null': 'True', 'to': "orm['credits.Credit']"}),
+            'requires_responsible_party': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
+            'resources': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'scoring': ('django.db.models.fields.TextField', [], {}),
+            'show_info': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'staff_notes': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'subcategory': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['credits.Subcategory']"}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '64'}),
@@ -411,75 +552,142 @@ class Migration(SchemaMigration):
             'validation_rules': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'})
         },
         'credits.creditset': {
-            'Meta': {'object_name': 'CreditSet'},
+            'Meta': {'ordering': "('release_date',)", 'object_name': 'CreditSet'},
+            'credit_identifier': ('django.db.models.fields.CharField', [], {'default': "'get_1_1_identifier'", 'max_length': '25'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'is_locked': ('django.db.models.fields.BooleanField', [], {'default': 'False', 'blank': 'True'}),
+            'is_locked': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'previous_version': ('django.db.models.fields.related.OneToOneField', [], {'blank': 'True', 'related_name': "'_next_version'", 'unique': 'True', 'null': 'True', 'to': "orm['credits.CreditSet']"}),
             'release_date': ('django.db.models.fields.DateField', [], {}),
             'scoring_method': ('django.db.models.fields.CharField', [], {'max_length': '25'}),
+            'supported_features': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['credits.IncrementalFeature']", 'symmetrical': 'False'}),
             'tier_2_points': ('django.db.models.fields.FloatField', [], {}),
             'version': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '5'})
         },
         'credits.documentationfield': {
-            'Meta': {'unique_together': "(('credit', 'identifier'),)", 'object_name': 'DocumentationField'},
+            'Meta': {'ordering': "('ordinal',)", 'unique_together': "(('credit', 'identifier'),)", 'object_name': 'DocumentationField'},
             'credit': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['credits.Credit']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'identifier': ('django.db.models.fields.CharField', [], {'max_length': '2'}),
             'inline_help_text': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
-            'is_confidential': ('django.db.models.fields.BooleanField', [], {'default': 'False', 'blank': 'True'}),
-            'last_choice_is_other': ('django.db.models.fields.BooleanField', [], {'default': 'False', 'blank': 'True'}),
+            'is_published': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
+            'last_choice_is_other': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'max_range': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
             'min_range': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
             'ordinal': ('django.db.models.fields.SmallIntegerField', [], {'default': '-1'}),
+            'previous_version': ('django.db.models.fields.related.OneToOneField', [], {'blank': 'True', 'related_name': "'_next_version'", 'unique': 'True', 'null': 'True', 'to': "orm['credits.DocumentationField']"}),
             'required': ('django.db.models.fields.CharField', [], {'default': "'req'", 'max_length': '8'}),
+            'tabular_fields': ('jsonfield.fields.JSONField', [], {'null': 'True', 'blank': 'True'}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'tooltip_help_text': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'type': ('django.db.models.fields.CharField', [], {'max_length': '16'}),
             'units': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['credits.Unit']", 'null': 'True', 'blank': 'True'})
         },
+        'credits.incrementalfeature': {
+            'Meta': {'object_name': 'IncrementalFeature'},
+            'description': ('django.db.models.fields.TextField', [], {}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'key': ('django.db.models.fields.SlugField', [], {'unique': 'True', 'max_length': '50'})
+        },
         'credits.rating': {
-            'Meta': {'object_name': 'Rating'},
+            'Meta': {'ordering': "('-minimal_score',)", 'object_name': 'Rating'},
             'creditset': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['credits.CreditSet']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'image_200': ('django.db.models.fields.files.ImageField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'image_large': ('django.db.models.fields.files.ImageField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
+            'map_icon': ('django.db.models.fields.files.ImageField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'minimal_score': ('django.db.models.fields.SmallIntegerField', [], {}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': "'16'"})
+            'name': ('django.db.models.fields.CharField', [], {'max_length': "'16'"}),
+            'publish_score': ('django.db.models.fields.BooleanField', [], {'default': 'True'})
         },
         'credits.subcategory': {
-            'Meta': {'object_name': 'Subcategory'},
+            'Meta': {'ordering': "('category', 'ordinal')", 'object_name': 'Subcategory'},
             'category': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['credits.Category']"}),
             'description': ('django.db.models.fields.TextField', [], {}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'max_point_value': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
             'ordinal': ('django.db.models.fields.SmallIntegerField', [], {'default': '-1'}),
+            'passthrough': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'previous_version': ('django.db.models.fields.related.OneToOneField', [], {'blank': 'True', 'related_name': "'_next_version'", 'unique': 'True', 'null': 'True', 'to': "orm['credits.Subcategory']"}),
+            'slug': ('django.db.models.fields.SlugField', [], {'max_length': '64', 'null': 'True', 'blank': 'True'}),
             'title': ('django.db.models.fields.CharField', [], {'max_length': '64'})
         },
         'credits.unit': {
-            'Meta': {'object_name': 'Unit'},
+            'Meta': {'ordering': "('name',)", 'object_name': 'Unit'},
+            'equivalent': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['credits.Unit']", 'null': 'True', 'blank': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'is_metric': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '32'}),
+            'ratio': ('django.db.models.fields.FloatField', [], {'default': '1.0', 'null': 'True', 'blank': 'True'})
+        },
+        'institutions.climatezone': {
+            'Meta': {'object_name': 'ClimateZone'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '32'})
         },
         'institutions.institution': {
             'Meta': {'object_name': 'Institution'},
-            'aashe_id': ('django.db.models.fields.IntegerField', [], {}),
-            'charter_participant': ('django.db.models.fields.BooleanField', [], {'default': 'False', 'blank': 'True'}),
+            'aashe_id': ('django.db.models.fields.IntegerField', [], {'unique': 'True', 'null': 'True', 'blank': 'True'}),
+            'charter_participant': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'contact_department': ('django.db.models.fields.CharField', [], {'max_length': '64'}),
             'contact_email': ('django.db.models.fields.EmailField', [], {'max_length': '75'}),
             'contact_first_name': ('django.db.models.fields.CharField', [], {'max_length': '32'}),
             'contact_last_name': ('django.db.models.fields.CharField', [], {'max_length': '32'}),
             'contact_middle_name': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True', 'blank': 'True'}),
             'contact_phone': ('django.contrib.localflavor.us.models.PhoneNumberField', [], {'max_length': '20'}),
-            'contact_title': ('django.db.models.fields.CharField', [], {'max_length': '64'}),
-            'enabled': ('django.db.models.fields.BooleanField', [], {'default': 'False', 'blank': 'True'}),
-            'executive_contact_department': ('django.db.models.fields.CharField', [], {'max_length': '64'}),
-            'executive_contact_email': ('django.db.models.fields.EmailField', [], {'max_length': '75'}),
-            'executive_contact_first_name': ('django.db.models.fields.CharField', [], {'max_length': '32'}),
-            'executive_contact_last_name': ('django.db.models.fields.CharField', [], {'max_length': '32'}),
+            'contact_phone_ext': ('django.db.models.fields.SmallIntegerField', [], {'null': 'True', 'blank': 'True'}),
+            'contact_title': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
+            'country': ('django.db.models.fields.CharField', [], {'max_length': '128', 'null': 'True', 'blank': 'True'}),
+            'current_rating': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['credits.Rating']", 'null': 'True', 'blank': 'True'}),
+            'current_submission': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'current'", 'null': 'True', 'to': "orm['submissions.SubmissionSet']"}),
+            'current_subscription': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'current'", 'null': 'True', 'to': "orm['institutions.Subscription']"}),
+            'date_created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'null': 'True', 'blank': 'True'}),
+            'enabled': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
+            'executive_contact_address': ('django.db.models.fields.CharField', [], {'max_length': '128', 'null': 'True', 'blank': 'True'}),
+            'executive_contact_city': ('django.db.models.fields.CharField', [], {'max_length': '16', 'null': 'True', 'blank': 'True'}),
+            'executive_contact_department': ('django.db.models.fields.CharField', [], {'max_length': '64', 'null': 'True', 'blank': 'True'}),
+            'executive_contact_email': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'null': 'True', 'blank': 'True'}),
+            'executive_contact_first_name': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True', 'blank': 'True'}),
+            'executive_contact_last_name': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True', 'blank': 'True'}),
             'executive_contact_middle_name': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True', 'blank': 'True'}),
-            'executive_contact_title': ('django.db.models.fields.CharField', [], {'max_length': '64'}),
+            'executive_contact_state': ('django.db.models.fields.CharField', [], {'max_length': '2', 'null': 'True', 'blank': 'True'}),
+            'executive_contact_title': ('django.db.models.fields.CharField', [], {'max_length': '64', 'null': 'True', 'blank': 'True'}),
+            'executive_contact_zip': ('django.db.models.fields.CharField', [], {'max_length': '8', 'null': 'True', 'blank': 'True'}),
+            'fte': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'international': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'is_member': ('django.db.models.fields.NullBooleanField', [], {'default': 'False', 'null': 'True', 'blank': 'True'}),
+            'is_participant': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'is_pcc_signatory': ('django.db.models.fields.NullBooleanField', [], {'default': 'False', 'null': 'True', 'blank': 'True'}),
+            'is_pilot_participant': ('django.db.models.fields.NullBooleanField', [], {'default': 'False', 'null': 'True', 'blank': 'True'}),
+            'latest_expired_submission': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'latest_expired'", 'null': 'True', 'to': "orm['submissions.SubmissionSet']"}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'slug': ('django.db.models.fields.SlugField', [], {'max_length': '255', 'db_index': 'True'})
+            'org_type': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True', 'blank': 'True'}),
+            'prefers_metric_system': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'president_address': ('django.db.models.fields.CharField', [], {'max_length': '128', 'null': 'True', 'blank': 'True'}),
+            'president_city': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True', 'blank': 'True'}),
+            'president_first_name': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True', 'blank': 'True'}),
+            'president_last_name': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True', 'blank': 'True'}),
+            'president_middle_name': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True', 'blank': 'True'}),
+            'president_state': ('django.db.models.fields.CharField', [], {'max_length': '2', 'null': 'True', 'blank': 'True'}),
+            'president_title': ('django.db.models.fields.CharField', [], {'max_length': '64', 'null': 'True', 'blank': 'True'}),
+            'president_zip': ('django.db.models.fields.CharField', [], {'max_length': '8', 'null': 'True', 'blank': 'True'}),
+            'rated_submission': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'rated'", 'null': 'True', 'to': "orm['submissions.SubmissionSet']"}),
+            'rating_expires': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
+            'slug': ('django.db.models.fields.SlugField', [], {'max_length': '255'}),
+            'stars_staff_notes': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'})
+        },
+        'institutions.subscription': {
+            'Meta': {'ordering': "['-start_date']", 'object_name': 'Subscription'},
+            'amount_due': ('django.db.models.fields.FloatField', [], {}),
+            'end_date': ('django.db.models.fields.DateField', [], {}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'institution': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['institutions.Institution']"}),
+            'late': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'paid_in_full': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'ratings_allocated': ('django.db.models.fields.SmallIntegerField', [], {'default': '1'}),
+            'ratings_used': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
+            'reason': ('django.db.models.fields.CharField', [], {'max_length': "'16'", 'null': 'True', 'blank': 'True'}),
+            'start_date': ('django.db.models.fields.DateField', [], {})
         },
         'submissions.booleansubmission': {
             'Meta': {'unique_together': "(('documentation_field', 'credit_submission'),)", 'object_name': 'BooleanSubmission'},
@@ -488,10 +696,62 @@ class Migration(SchemaMigration):
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'value': ('django.db.models.fields.NullBooleanField', [], {'null': 'True', 'blank': 'True'})
         },
+        'submissions.boundary': {
+            'Meta': {'object_name': 'Boundary'},
+            'additional_details': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
+            'ag_school_details': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
+            'ag_school_included': ('django.db.models.fields.NullBooleanField', [], {'null': 'True', 'blank': 'True'}),
+            'ag_school_present': ('django.db.models.fields.NullBooleanField', [], {'null': 'True', 'blank': 'True'}),
+            'agr_exp_acres': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
+            'agr_exp_details': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
+            'agr_exp_included': ('django.db.models.fields.NullBooleanField', [], {'null': 'True', 'blank': 'True'}),
+            'agr_exp_present': ('django.db.models.fields.NullBooleanField', [], {'null': 'True', 'blank': 'True'}),
+            'climate_region': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['institutions.ClimateZone']", 'null': 'True', 'blank': 'True'}),
+            'cultivated_grounds_acres': ('django.db.models.fields.FloatField', [], {'null': 'True', 'blank': 'True'}),
+            'endowment_size': ('django.db.models.fields.BigIntegerField', [], {'null': 'True', 'blank': 'True'}),
+            'farm_acres': ('django.db.models.fields.FloatField', [], {'null': 'True', 'blank': 'True'}),
+            'farm_details': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
+            'farm_included': ('django.db.models.fields.NullBooleanField', [], {'null': 'True', 'blank': 'True'}),
+            'farm_present': ('django.db.models.fields.NullBooleanField', [], {'null': 'True', 'blank': 'True'}),
+            'fte_employmees': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
+            'fte_students': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
+            'graduate_count': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
+            'gsf_building_space': ('django.db.models.fields.FloatField', [], {'null': 'True', 'blank': 'True'}),
+            'gsf_lab_space': ('django.db.models.fields.FloatField', [], {'null': 'True', 'blank': 'True'}),
+            'hospital_details': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
+            'hospital_included': ('django.db.models.fields.NullBooleanField', [], {'null': 'True', 'blank': 'True'}),
+            'hospital_present': ('django.db.models.fields.NullBooleanField', [], {'null': 'True', 'blank': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'institution_type': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True', 'blank': 'True'}),
+            'institutional_control': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True', 'blank': 'True'}),
+            'med_school_details': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
+            'med_school_included': ('django.db.models.fields.NullBooleanField', [], {'null': 'True', 'blank': 'True'}),
+            'med_school_present': ('django.db.models.fields.NullBooleanField', [], {'null': 'True', 'blank': 'True'}),
+            'pharm_school_details': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
+            'pharm_school_included': ('django.db.models.fields.NullBooleanField', [], {'null': 'True', 'blank': 'True'}),
+            'pharm_school_present': ('django.db.models.fields.NullBooleanField', [], {'null': 'True', 'blank': 'True'}),
+            'pub_health_school_details': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
+            'pub_health_school_included': ('django.db.models.fields.NullBooleanField', [], {'null': 'True', 'blank': 'True'}),
+            'pub_health_school_present': ('django.db.models.fields.NullBooleanField', [], {'null': 'True', 'blank': 'True'}),
+            'sat_campus_details': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
+            'sat_campus_included': ('django.db.models.fields.NullBooleanField', [], {'null': 'True', 'blank': 'True'}),
+            'sat_campus_present': ('django.db.models.fields.NullBooleanField', [], {'null': 'True', 'blank': 'True'}),
+            'student_ftc_percent': ('django.db.models.fields.FloatField', [], {'null': 'True', 'blank': 'True'}),
+            'student_online_percent': ('django.db.models.fields.FloatField', [], {'null': 'True', 'blank': 'True'}),
+            'student_ptc_percent': ('django.db.models.fields.FloatField', [], {'null': 'True', 'blank': 'True'}),
+            'student_residential_percent': ('django.db.models.fields.FloatField', [], {'null': 'True', 'blank': 'True'}),
+            'submissionset': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['submissions.SubmissionSet']", 'unique': 'True'}),
+            'undergrad_count': ('django.db.models.fields.IntegerField', [], {'null': 'True', 'blank': 'True'}),
+            'undeveloped_land_acres': ('django.db.models.fields.FloatField', [], {'null': 'True', 'blank': 'True'}),
+            'vet_school_details': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
+            'vet_school_included': ('django.db.models.fields.NullBooleanField', [], {'null': 'True', 'blank': 'True'}),
+            'vet_school_present': ('django.db.models.fields.NullBooleanField', [], {'null': 'True', 'blank': 'True'})
+        },
         'submissions.categorysubmission': {
-            'Meta': {'unique_together': "(('submissionset', 'category'),)", 'object_name': 'CategorySubmission'},
+            'Meta': {'ordering': "('category__ordinal',)", 'unique_together': "(('submissionset', 'category'),)", 'object_name': 'CategorySubmission'},
             'category': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['credits.Category']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'score': ('django.db.models.fields.FloatField', [], {'null': 'True', 'blank': 'True'}),
             'submissionset': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['submissions.SubmissionSet']"})
         },
         'submissions.choicesubmission': {
@@ -502,35 +762,46 @@ class Migration(SchemaMigration):
             'value': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['credits.Choice']", 'null': 'True', 'blank': 'True'})
         },
         'submissions.creditsubmission': {
-            'Meta': {'object_name': 'CreditSubmission'},
+            'Meta': {'ordering': "('credit__type', 'credit__ordinal')", 'object_name': 'CreditSubmission'},
+            'available_point_cache': ('django.db.models.fields.FloatField', [], {'null': 'True', 'blank': 'True'}),
             'credit': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['credits.Credit']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'})
         },
-        'submissions.creditsubmissionenquiry': {
-            'Meta': {'object_name': 'CreditSubmissionEnquiry'},
+        'submissions.creditsubmissioninquiry': {
+            'Meta': {'object_name': 'CreditSubmissionInquiry'},
             'credit': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['credits.Credit']"}),
             'explanation': ('django.db.models.fields.TextField', [], {}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'submission_enquiry': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['submissions.SubmissionEnquiry']"})
+            'submission_inquiry': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['submissions.SubmissionInquiry']"})
         },
         'submissions.credittestsubmission': {
-            'Meta': {'object_name': 'CreditTestSubmission', '_ormbases': ['submissions.CreditSubmission']},
+            'Meta': {'ordering': "('credit__type', 'credit__ordinal')", 'object_name': 'CreditTestSubmission', '_ormbases': ['submissions.CreditSubmission']},
             'creditsubmission_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['submissions.CreditSubmission']", 'unique': 'True', 'primary_key': 'True'}),
             'expected_value': ('django.db.models.fields.FloatField', [], {'null': 'True', 'blank': 'True'})
         },
         'submissions.creditusersubmission': {
-            'Meta': {'object_name': 'CreditUserSubmission', '_ormbases': ['submissions.CreditSubmission']},
+            'Meta': {'ordering': "('credit__type', 'credit__ordinal')", 'object_name': 'CreditUserSubmission', '_ormbases': ['submissions.CreditSubmission']},
             'applicability_reason': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['credits.ApplicabilityReason']", 'null': 'True', 'blank': 'True'}),
             'assessed_points': ('django.db.models.fields.FloatField', [], {'null': 'True', 'blank': 'True'}),
             'creditsubmission_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['submissions.CreditSubmission']", 'unique': 'True', 'primary_key': 'True'}),
             'internal_notes': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'last_updated': ('django.db.models.fields.DateTimeField', [], {'null': 'True', 'blank': 'True'}),
             'responsible_party': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['submissions.ResponsibleParty']", 'null': 'True', 'blank': 'True'}),
-            'responsible_party_confirm': ('django.db.models.fields.BooleanField', [], {'default': 'False', 'blank': 'True'}),
-            'review_status': ('django.db.models.fields.CharField', [], {'max_length': '8'}),
+            'responsible_party_confirm': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'subcategory_submission': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['submissions.SubcategorySubmission']"}),
             'submission_notes': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'submission_status': ('django.db.models.fields.CharField', [], {'default': "'ns'", 'max_length': '8'}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']", 'null': 'True', 'blank': 'True'})
+        },
+        'submissions.datacorrectionrequest': {
+            'Meta': {'object_name': 'DataCorrectionRequest'},
+            'approved': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contenttypes.ContentType']"}),
+            'date': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'explanation': ('django.db.models.fields.TextField', [], {}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'new_value': ('django.db.models.fields.TextField', [], {}),
+            'object_id': ('django.db.models.fields.PositiveIntegerField', [], {}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']", 'null': 'True', 'blank': 'True'})
         },
         'submissions.datesubmission': {
@@ -539,6 +810,22 @@ class Migration(SchemaMigration):
             'documentation_field': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'datesubmission_set'", 'to': "orm['credits.DocumentationField']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'value': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'})
+        },
+        'submissions.extensionrequest': {
+            'Meta': {'object_name': 'ExtensionRequest'},
+            'date': ('django.db.models.fields.DateField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'old_deadline': ('django.db.models.fields.DateField', [], {}),
+            'submissionset': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['submissions.SubmissionSet']"}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"})
+        },
+        'submissions.flag': {
+            'Meta': {'object_name': 'Flag'},
+            'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contenttypes.ContentType']"}),
+            'date': ('django.db.models.fields.DateField', [], {'auto_now_add': 'True', 'blank': 'True'}),
+            'description': ('django.db.models.fields.TextField', [], {}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'object_id': ('django.db.models.fields.PositiveIntegerField', [], {})
         },
         'submissions.longtextsubmission': {
             'Meta': {'unique_together': "(('documentation_field', 'credit_submission'),)", 'object_name': 'LongTextSubmission'},
@@ -559,6 +846,7 @@ class Migration(SchemaMigration):
             'credit_submission': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['submissions.CreditSubmission']"}),
             'documentation_field': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'numericsubmission_set'", 'to': "orm['credits.DocumentationField']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'metric_value': ('django.db.models.fields.FloatField', [], {'null': 'True', 'blank': 'True'}),
             'value': ('django.db.models.fields.FloatField', [], {'null': 'True', 'blank': 'True'})
         },
         'submissions.payment': {
@@ -567,13 +855,23 @@ class Migration(SchemaMigration):
             'confirmation': ('django.db.models.fields.CharField', [], {'max_length': "'16'", 'null': 'True', 'blank': 'True'}),
             'date': ('django.db.models.fields.DateTimeField', [], {}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'reason': ('django.db.models.fields.CharField', [], {'max_length': "'8'"}),
+            'reason': ('django.db.models.fields.CharField', [], {'max_length': "'16'"}),
             'submissionset': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['submissions.SubmissionSet']"}),
             'type': ('django.db.models.fields.CharField', [], {'max_length': "'8'"}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"})
         },
+        'submissions.reportingfielddatacorrection': {
+            'Meta': {'object_name': 'ReportingFieldDataCorrection'},
+            'change_date': ('django.db.models.fields.DateField', [], {}),
+            'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contenttypes.ContentType']"}),
+            'explanation': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'object_id': ('django.db.models.fields.PositiveIntegerField', [], {}),
+            'previous_value': ('django.db.models.fields.TextField', [], {}),
+            'request': ('django.db.models.fields.related.OneToOneField', [], {'blank': 'True', 'related_name': "'applied_correction'", 'unique': 'True', 'null': 'True', 'to': "orm['submissions.DataCorrectionRequest']"})
+        },
         'submissions.responsibleparty': {
-            'Meta': {'object_name': 'ResponsibleParty'},
+            'Meta': {'ordering': "('last_name', 'first_name')", 'object_name': 'ResponsibleParty'},
             'department': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
             'email': ('django.db.models.fields.EmailField', [], {'max_length': '75'}),
             'first_name': ('django.db.models.fields.CharField', [], {'max_length': '32'}),
@@ -584,39 +882,51 @@ class Migration(SchemaMigration):
             'title': ('django.db.models.fields.CharField', [], {'max_length': '128'})
         },
         'submissions.subcategorysubmission': {
-            'Meta': {'unique_together': "(('category_submission', 'subcategory'),)", 'object_name': 'SubcategorySubmission'},
+            'Meta': {'ordering': "('subcategory__ordinal',)", 'unique_together': "(('category_submission', 'subcategory'),)", 'object_name': 'SubcategorySubmission'},
+            'adjusted_available_points': ('django.db.models.fields.FloatField', [], {'default': '0.0', 'null': 'True', 'blank': 'True'}),
             'category_submission': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['submissions.CategorySubmission']"}),
+            'description': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'percentage_score': ('django.db.models.fields.FloatField', [], {'default': '0.0', 'null': 'True', 'blank': 'True'}),
+            'points': ('django.db.models.fields.FloatField', [], {'null': 'True', 'blank': 'True'}),
             'subcategory': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['credits.Subcategory']"})
         },
-        'submissions.submissionenquiry': {
-            'Meta': {'object_name': 'SubmissionEnquiry'},
-            'addtional_comments': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
-            'affiliation': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
-            'city': ('django.db.models.fields.CharField', [], {'max_length': '32'}),
+        'submissions.submissioninquiry': {
+            'Meta': {'object_name': 'SubmissionInquiry'},
+            'additional_comments': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
+            'affiliation': ('django.db.models.fields.CharField', [], {'max_length': '128', 'null': 'True', 'blank': 'True'}),
+            'anonymous': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'city': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True', 'blank': 'True'}),
             'date': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'email_address': ('django.db.models.fields.EmailField', [], {'max_length': '75'}),
+            'email_address': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'null': 'True', 'blank': 'True'}),
+            'first_name': ('django.db.models.fields.CharField', [], {'max_length': '128', 'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
-            'phone_number': ('django.contrib.localflavor.us.models.PhoneNumberField', [], {'max_length': '20'}),
-            'state': ('django.db.models.fields.CharField', [], {'max_length': '2'}),
+            'last_name': ('django.db.models.fields.CharField', [], {'max_length': '128', 'null': 'True', 'blank': 'True'}),
+            'phone_number': ('django.contrib.localflavor.us.models.PhoneNumberField', [], {'max_length': '20', 'null': 'True', 'blank': 'True'}),
+            'state': ('django.db.models.fields.CharField', [], {'max_length': '2', 'null': 'True', 'blank': 'True'}),
             'submissionset': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['submissions.SubmissionSet']"})
         },
         'submissions.submissionset': {
-            'Meta': {'object_name': 'SubmissionSet'},
+            'Meta': {'ordering': "('date_registered',)", 'object_name': 'SubmissionSet'},
             'creditset': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['credits.CreditSet']"}),
+            'date_created': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
             'date_registered': ('django.db.models.fields.DateField', [], {}),
             'date_reviewed': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
             'date_submitted': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
+            'expired': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'institution': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['institutions.Institution']"}),
+            'is_locked': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'is_visible': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
+            'migrated_from': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'+'", 'null': 'True', 'to': "orm['submissions.SubmissionSet']"}),
+            'pdf_report': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'presidents_letter': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'rating': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['credits.Rating']", 'null': 'True', 'blank': 'True'}),
             'registering_user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'registered_submissions'", 'to': "orm['auth.User']"}),
-            'reporter_status': ('django.db.models.fields.BooleanField', [], {'default': 'False', 'blank': 'True'}),
+            'reporter_status': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'score': ('django.db.models.fields.FloatField', [], {'null': 'True', 'blank': 'True'}),
             'status': ('django.db.models.fields.CharField', [], {'max_length': '8'}),
             'submission_boundary': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
-            'submission_deadline': ('django.db.models.fields.DateField', [], {}),
             'submitting_user': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'submitted_submissions'", 'null': 'True', 'to': "orm['auth.User']"})
         },
         'submissions.textsubmission': {
@@ -641,5 +951,5 @@ class Migration(SchemaMigration):
             'value': ('django.db.models.fields.URLField', [], {'max_length': '200', 'null': 'True', 'blank': 'True'})
         }
     }
-    
+
     complete_apps = ['submissions']

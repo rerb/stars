@@ -8,6 +8,7 @@ from stars.apps.institutions.tests.views import (ActiveInstitutionsViewTest,
                                                  RatedInstitutionsViewTest,
                                                  ScorecardViewTest,
                                                  TopLevelTest)
+from expire_ratings import ExpiredRatingTest
 
 __test__ = {
     'permissions': permissions,
@@ -22,4 +23,5 @@ __test__ = {
     'SubscriptionTest': SubscriptionTest,
     'TopLevelTest': TopLevelTest,
     'InstitutionResourceTestCase': InstitutionResourceTestCase,
+    'ExpiredRatingTest': ExpiredRatingTest,
 }

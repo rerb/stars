@@ -6,7 +6,7 @@
 {% block above_submit_form %}
     {% show_help_context 'submit_for_rating_confirm' 0 %}
     {% include 'tool/submissions/submission_summary_table.html' %}
-    
+
     {% if credit_list %}
         <div class='well'>
         	<div class="alert">
@@ -40,7 +40,7 @@
 			</td>
 			<td>
 				<br/><br/><br/>
-				You achieved {{ submissionset.get_STARS_rating.name }}, but you have the option to submit as a Repoter.
+				You achieved {{ submissionset.get_STARS_rating.name }}, but you have the option to submit as a Reporter.
 				{% show_help_context 'submit_for_rating_reporter' %}
 			</td>
 			<td>
@@ -48,7 +48,7 @@
     				<img src="{{ im.url }}" style="width: {{ im.width }}px;height={{ im.height }}px;" alt='Reporter' />
 				{% endthumbnail %}
 				<br/>
-				Submit as Repoter: {{ wizard.form.reporter_status }}
+				Submit as Reporter: {{ wizard.form.reporter_status }}
 			</td>
 		</tr>
 	</table>

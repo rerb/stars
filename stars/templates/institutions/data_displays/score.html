@@ -24,13 +24,15 @@
 
 {% block tab_content %}
     {% display_block_content 'data_display_scores' user %}
-	
+
 	<div class='well'>
+		<span class="badge" style="font-size: 1.1em;">Step 1</span><br/>
 		{% include 'institutions/data_displays/top_level_filters.html' %}
 	</div>
 	<div class='row displays-down-arrow'><i class='icon-arrow-down'></i></div>
 
 	<div class='well'>
+		<span class="badge" style="font-size: 1.1em;">Step 2</span><br/>
 		{% display_block_content 'data_display_score_second_filter' user %}
 		<table class='table'>
 			{{ select_form|bootstrap }}
@@ -38,14 +40,14 @@
 		<div style='text-align: center'>
 			<script type='text/javascript'>
 !function ($) {
-	
+
 	$.fn.addScoreColumns = function($prefix){
-		
+
 		// Bind the onchange event to the selection populate method
 		this.bind('click.addScoreColumns', function(){
-			
+
 			var $this = $(this);
-			
+
 			var $new_query = "";
 			// Get the values of all the colulmn selects
 			var $col_list = ['col1', 'col2', 'col3', 'col4'];
@@ -54,7 +56,7 @@
 					$new_query += col + "=" + $("#id_" + col).val() + "&";
 				}
 			});
-			
+
 			var $url = ""
 			if($prefix.length > 0) {
 				$url = $prefix;
@@ -62,11 +64,11 @@
 					$url += "&" + $new_query.substring(0, $new_query.length - 1);
 				}
 			}
-			
+
 			window.location.replace("?" + $url);
 		});
 	};
-	
+
 }(window.jQuery);
 			</script>
 			<button type='button' class='btn' id='applyButton'>Apply</button>
@@ -75,9 +77,9 @@
 			</script>
 		</div>
 	</div>
-	
+
 	<div class='row displays-down-arrow'><i class='icon-arrow-down'></i></div>
-	
+
 	{% if object_list and get_params %}
 		<div class='row'><div class='span2 offset10'>
 			<a href='excel/?{{ get_params }}' class='btn btn-info'>
@@ -85,17 +87,18 @@
 			</a>
 		</div></div>
 	{% endif %}
-	
+
 	<table id='institution_list' class='table'>
        	{% if object_list %}
 			<thead>
        		<tr>
 	       		<th style='text-align: left'>
-	       			Matching Institutions
+
+    			  Matching Institutions
 	       		</th>
-	   			{% for k, col in selected_columns %}
-	   				{% if col %}
-	   					<th>{{ col }}</th>
+	   			{% for key, heading in column_headings %}
+	   				{% if heading %}
+	   					<th>{{ heading }}</th>
 	   				{% endif %}
 	   			{% endfor %}
 	       	</tr>
@@ -109,7 +112,7 @@
 	       			{% for col in o.cols %}
 	       				<td>
 	       					<a href='{{ col.url }}'>
-	       						{{ col.claimed_points }}
+	       						{{ col.claimed_points|floatformat:2 }}
 	       						{% if col.available_points %}
 	       							/ {{ col.available_points }}
 	       						{% endif %}

@@ -1,5 +1,7 @@
-django-template-repl
+coverage
+django-extensions
 django-hotrunner
+django-template-repl
 elpy
 ipdb
 pyflakes

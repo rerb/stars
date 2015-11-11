@@ -26,6 +26,8 @@ from stars.apps.submissions.models import CreditTestSubmission
 from stars.apps.tool.my_submission.forms import CreditSubmissionForm
 from widgets import TabularFieldEdit
 
+from datetime import date
+
 
 class RightSizeInputModelForm(ModelForm):
     """A ModelForm upon which every TextInput and Textarea widget
@@ -89,6 +91,14 @@ class CreditSetForm(RightSizeInputModelForm):
     class Meta:
         model = CreditSet
         exclude = ('scoring_method', 'tier_2_points')
+
+    def __init__(self, *args, **kwargs):
+        super(CreditSetForm, self).__init__(*args, **kwargs)
+
+        # opt for the last 10 years and next 2
+        year = date.today().year
+        widget = extra_widgets.SelectDateWidget(years=range(year-15, year+2))
+        self.fields['release_date'].widget = widget
 
 
 class NewCreditSetForm(CreditSetForm):

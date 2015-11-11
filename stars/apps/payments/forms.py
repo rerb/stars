@@ -18,7 +18,6 @@ class PaymentForm(forms.Form):
 
         If processing then user and amount values must be specified too
     """
-    name_on_card = forms.CharField(max_length=64)
     card_number = forms.CharField(
         max_length=17,
         widget=forms.TextInput(attrs={'autocomplete': 'off'}))
@@ -29,11 +28,6 @@ class PaymentForm(forms.Form):
         label='CV Code',
         help_text='This is the 3-digit code on the back of your card',
         widget=forms.TextInput(attrs={'autocomplete': 'off'}))
-    billing_address = forms.CharField(max_length=128)
-    billing_address_line_2 = forms.CharField(max_length=128, required=False)
-    billing_city = forms.CharField(max_length=32)
-    billing_state = forms.CharField(max_length=2)
-    billing_zipcode = forms.CharField(max_length=7, label='Billing ZIP code')
 
     def __init__(self, *args, **kwargs):
         """
@@ -43,8 +37,6 @@ class PaymentForm(forms.Form):
         self.process = kwargs.pop('process', False)
         self.amount = kwargs.pop('amount', None)
         self.user = kwargs.pop('user', None)
-        self.contact_info = kwargs.pop('contact_info', None)
-        self.invoice_num = kwargs.pop('invoice_num', None)
         super(PaymentForm, self).__init__(*args, **kwargs)
 
     def get_amount(self):
@@ -59,11 +51,9 @@ class PaymentForm(forms.Form):
     def process_payment(self):
         cc = CreditCardPaymentProcessor()
         try:
-            result = cc.process_payment_form(self.contact_info,
-                                             self.amount,
+            result = cc.process_payment_form(self.amount,
                                              self.user,
                                              self,
-                                             self.invoice_num,
                                              product_name=None)
         except CreditCardProcessingError, e:
             raise forms.ValidationError(e)
@@ -148,11 +138,11 @@ class SubscriptionPriceForm(forms.Form):
         promo code.
     """
     promo_code = forms.CharField(
-        max_length=16, 
+        max_length=16,
         required=False,
         widget=forms.TextInput(
             attrs={'class': 'promo_code'}))
-    
+
     def clean_promo_code(self):
         data = self.cleaned_data['promo_code']
         if data == "":
@@ -189,6 +179,11 @@ class SubscriptionPayNowForm(forms.Form):
         max_length=17, widget=forms.TextInput(attrs={'autocomplete': 'off'}))
     exp_month = forms.CharField(max_length=2, initial='mm')
     exp_year = forms.CharField(max_length=4, initial='yyyy')
+    cvv = forms.CharField(
+        max_length=3,
+        label='CV Code',
+        help_text='This is the 3-digit code on the back of your card',
+        widget=forms.TextInput(attrs={'autocomplete': 'off'}))
 
     def clean_exp_month(self):
         data = self.cleaned_data['exp_month']

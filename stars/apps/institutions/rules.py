@@ -10,6 +10,7 @@ from stars.apps.institutions.models import StarsAccount
 def user_has_access_level(user, access_level, institution):
     """
         Access levels are "admin", "submit", "view"
+        Checks to see if a user has a specific access level (or higher)
     """
     if not user.is_authenticated():
         return False

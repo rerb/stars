@@ -14,8 +14,15 @@ framework.
 
 """
 import os
+import sys
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "stars.settings")
+
+newrelic = os.environ.get("NEW_RELIC_CONFIG_FILE", False)
+if newrelic:
+    print >> sys.stderr, "Using New Relic"
+    import newrelic.agent
+    newrelic.agent.initialize()
 
 # This application object is used by any WSGI server configured to use this
 # file. This includes Django's development server, if the WSGI_APPLICATION

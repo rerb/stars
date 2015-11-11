@@ -1,13 +1,14 @@
 {% extends 'institutions/data_displays/dashboard_base.html' %}
 
 {% load content %}
+{% load compress %}
 
 {% block crumb-tab %}
 	<li>Dashboard Average Scores</li>
 {% endblock %}
 
 {% block body_onload %}{% endblock %}
-
+{% compress js %}
 {% block extra_head %}
    <title>Pie Chart</title>
    <script src="{{ STATIC_URL }}js/d3.v3.min.js"></script>
@@ -352,3 +353,4 @@
 
    </script>
 {% endblock %}
+{% endcompress %}

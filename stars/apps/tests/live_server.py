@@ -25,40 +25,42 @@ class NoWebdriverForPlatformError(Exception):
 
 Browser = collections.namedtuple(
     'Browser',
-    ['platform',  # as returned by sys.platform
-     'name',
-     'sentinels', # list of files that, when present, indicate the browser
-                  # is installed
-     'implementation'  # the webdriver implementation
- ])
+    [
+        'platform',  # as returned by sys.platform
+        'name',
+        'sentinels',  # list of files that, when present, indicate the
+                      # browser is installed
+        'implementation'  # the webdriver implementation
+    ]
+)
 
 
-WEBDRIVERS = [Browser(platform='darwin',
-                      name='phantomjs',
-                      sentinels=['/usr/local/bin/phantomjs'],
-                      implementation=phantomjs.webdriver),
-              Browser(platform='darwin',
-                      name='firefox',
-                      sentinels=['/Applications/Firefox.app'],
-                      implementation=firefox.webdriver),
-              Browser(platform='darwin',
-                      name='chrome',
-                      sentinels=['/Applications/Google Chrome.app',
-                                 '/usr/local/bin/chromedriver'],
-                      implementation=chrome.webdriver),
-              #TODO: test on linux . . . 
-              Browser(platform='linux2',
-                      name='firefox',
-                      sentinels=['/usr/bin/firefox'],
-                      implementation=firefox.webdriver),
-              Browser(platform='linux2',
-                      name='chrome', 
-                      sentinels=['/usr/bin/chromium-browser'],
-                      implementation=chrome.webdriver),
-              Browser(platform='linux2',
-                      name='phantomjs',
-                      sentinels=['/usr/bin/phantomjs'],
-                      implementation=phantomjs.webdriver)]
+WEBDRIVERS = [
+    Browser(platform='darwin',
+            name='phantomjs',
+            sentinels=['/usr/local/bin/phantomjs'],
+            implementation=phantomjs.webdriver),
+    Browser(platform='darwin',
+            name='firefox',
+            sentinels=['/Applications/Firefox.app'],
+            implementation=firefox.webdriver),
+    Browser(platform='darwin',
+            name='chrome',
+            sentinels=['/Applications/Google Chrome.app',
+                       '/usr/local/bin/chromedriver'],
+            implementation=chrome.webdriver),
+    Browser(platform='linux2',
+            name='phantomjs',
+            sentinels=['/usr/bin/phantomjs'],
+            implementation=phantomjs.webdriver),
+    Browser(platform='linux2',
+            name='firefox',
+            sentinels=['/usr/bin/firefox'],
+            implementation=firefox.webdriver),
+    Browser(platform='linux2',
+            name='chrome',
+            sentinels=['/usr/bin/chromium-browser'],
+            implementation=chrome.webdriver)]
 
 
 def skip_live_server_tests():
@@ -102,8 +104,8 @@ class LiveServerTestCase(django.test.LiveServerTestCase):
             for sentinel in webdriver.sentinels:
                 try:
                     os.stat(sentinel)
-                except OSError as e:
-                    print 'cannot stat', sentinel, ': ', e
+                except OSError:
+                    pass
                 else:
                     return webdriver.implementation
         raise NoWebdriverForPlatformError(sys.platform)
@@ -119,7 +121,7 @@ class StarsLiveServerTest(LiveServerTestCase):
     """Base test case that:
 
           - takes care of starting and stopping a webdriver;
-          - creates a Institution and an admin User for that Institution;
+          - creates an Institution and an admin User for that Institution;
           - logs the user in;
           - provides helper functions (like go_to_reporting_tool());
           - is skipped if the argument '--liveserver=' is provided on

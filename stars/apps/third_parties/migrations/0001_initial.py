@@ -16,23 +16,40 @@ class Migration(SchemaMigration):
             ('publication', self.gf('django.db.models.fields.CharField')(max_length=128, null=True, blank=True)),
             ('logo', self.gf('django.db.models.fields.files.ImageField')(max_length=100, null=True, blank=True)),
             ('next_deadline', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
+            ('disabled', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('help_text', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
         ))
         db.send_create_signal('third_parties', ['ThirdParty'])
 
         # Adding M2M table for field access_to_institutions on 'ThirdParty'
-        db.create_table('third_parties_thirdparty_access_to_institutions', (
+        m2m_table_name = db.shorten_name('third_parties_thirdparty_access_to_institutions')
+        db.create_table(m2m_table_name, (
             ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
             ('thirdparty', models.ForeignKey(orm['third_parties.thirdparty'], null=False)),
             ('institution', models.ForeignKey(orm['institutions.institution'], null=False))
         ))
-        db.create_unique('third_parties_thirdparty_access_to_institutions', ['thirdparty_id', 'institution_id'])
+        db.create_unique(m2m_table_name, ['thirdparty_id', 'institution_id'])
+
+        # Adding M2M table for field authorized_users on 'ThirdParty'
+        m2m_table_name = db.shorten_name('third_parties_thirdparty_authorized_users')
+        db.create_table(m2m_table_name, (
+            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
+            ('thirdparty', models.ForeignKey(orm['third_parties.thirdparty'], null=False)),
+            ('user', models.ForeignKey(orm['auth.user'], null=False))
+        ))
+        db.create_unique(m2m_table_name, ['thirdparty_id', 'user_id'])
+
 
     def backwards(self, orm):
         # Deleting model 'ThirdParty'
         db.delete_table('third_parties_thirdparty')
 
         # Removing M2M table for field access_to_institutions on 'ThirdParty'
-        db.delete_table('third_parties_thirdparty_access_to_institutions')
+        db.delete_table(db.shorten_name('third_parties_thirdparty_access_to_institutions'))
+
+        # Removing M2M table for field authorized_users on 'ThirdParty'
+        db.delete_table(db.shorten_name('third_parties_thirdparty_authorized_users'))
+
 
     models = {
         'auth.group': {
@@ -73,7 +90,7 @@ class Migration(SchemaMigration):
         },
         'credits.creditset': {
             'Meta': {'ordering': "('release_date',)", 'object_name': 'CreditSet'},
-            'credit_identifier': ('django.db.models.fields.CharField', [], {'default': "'get_1_0_identifier'", 'max_length': '25'}),
+            'credit_identifier': ('django.db.models.fields.CharField', [], {'default': "'get_1_1_identifier'", 'max_length': '25'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'is_locked': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'previous_version': ('django.db.models.fields.related.OneToOneField', [], {'blank': 'True', 'related_name': "'_next_version'", 'unique': 'True', 'null': 'True', 'to': "orm['credits.CreditSet']"}),
@@ -111,13 +128,13 @@ class Migration(SchemaMigration):
             'contact_middle_name': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True', 'blank': 'True'}),
             'contact_phone': ('django.contrib.localflavor.us.models.PhoneNumberField', [], {'max_length': '20'}),
             'contact_phone_ext': ('django.db.models.fields.SmallIntegerField', [], {'null': 'True', 'blank': 'True'}),
-            'contact_title': ('django.db.models.fields.CharField', [], {'max_length': '64'}),
+            'contact_title': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'country': ('django.db.models.fields.CharField', [], {'max_length': '128', 'null': 'True', 'blank': 'True'}),
             'current_rating': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['credits.Rating']", 'null': 'True', 'blank': 'True'}),
             'current_submission': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'current'", 'null': 'True', 'to': "orm['submissions.SubmissionSet']"}),
             'current_subscription': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'current'", 'null': 'True', 'to': "orm['institutions.Subscription']"}),
             'date_created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'null': 'True', 'blank': 'True'}),
-            'enabled': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'enabled': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'executive_contact_address': ('django.db.models.fields.CharField', [], {'max_length': '128', 'null': 'True', 'blank': 'True'}),
             'executive_contact_city': ('django.db.models.fields.CharField', [], {'max_length': '16', 'null': 'True', 'blank': 'True'}),
             'executive_contact_department': ('django.db.models.fields.CharField', [], {'max_length': '64', 'null': 'True', 'blank': 'True'}),
@@ -135,8 +152,10 @@ class Migration(SchemaMigration):
             'is_participant': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'is_pcc_signatory': ('django.db.models.fields.NullBooleanField', [], {'default': 'False', 'null': 'True', 'blank': 'True'}),
             'is_pilot_participant': ('django.db.models.fields.NullBooleanField', [], {'default': 'False', 'null': 'True', 'blank': 'True'}),
+            'latest_expired_submission': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'latest_expired'", 'null': 'True', 'to': "orm['submissions.SubmissionSet']"}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
             'org_type': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True', 'blank': 'True'}),
+            'prefers_metric_system': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'president_address': ('django.db.models.fields.CharField', [], {'max_length': '128', 'null': 'True', 'blank': 'True'}),
             'president_city': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True', 'blank': 'True'}),
             'president_first_name': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True', 'blank': 'True'}),
@@ -151,11 +170,12 @@ class Migration(SchemaMigration):
             'stars_staff_notes': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'})
         },
         'institutions.subscription': {
-            'Meta': {'object_name': 'Subscription'},
+            'Meta': {'ordering': "['-start_date']", 'object_name': 'Subscription'},
             'amount_due': ('django.db.models.fields.FloatField', [], {}),
             'end_date': ('django.db.models.fields.DateField', [], {}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'institution': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['institutions.Institution']"}),
+            'late': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'paid_in_full': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'ratings_allocated': ('django.db.models.fields.SmallIntegerField', [], {'default': '1'}),
             'ratings_used': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
@@ -165,13 +185,16 @@ class Migration(SchemaMigration):
         'submissions.submissionset': {
             'Meta': {'ordering': "('date_registered',)", 'object_name': 'SubmissionSet'},
             'creditset': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['credits.CreditSet']"}),
+            'date_created': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
             'date_registered': ('django.db.models.fields.DateField', [], {}),
             'date_reviewed': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
             'date_submitted': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
+            'expired': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'institution': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['institutions.Institution']"}),
             'is_locked': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'is_visible': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
+            'migrated_from': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'+'", 'null': 'True', 'to': "orm['submissions.SubmissionSet']"}),
             'pdf_report': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'presidents_letter': ('django.db.models.fields.files.FileField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'rating': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['credits.Rating']", 'null': 'True', 'blank': 'True'}),
@@ -185,6 +208,9 @@ class Migration(SchemaMigration):
         'third_parties.thirdparty': {
             'Meta': {'ordering': "['-next_deadline']", 'object_name': 'ThirdParty'},
             'access_to_institutions': ('django.db.models.fields.related.ManyToManyField', [], {'blank': 'True', 'related_name': "'third_parties'", 'null': 'True', 'symmetrical': 'False', 'to': "orm['institutions.Institution']"}),
+            'authorized_users': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.User']", 'symmetrical': 'False'}),
+            'disabled': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'help_text': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'logo': ('django.db.models.fields.files.ImageField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '64'}),

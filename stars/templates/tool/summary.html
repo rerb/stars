@@ -4,6 +4,7 @@
 {% load logical_rules_tags %}
 {% load content %}
 {% load help %}
+{% load compress %}
 
 {% block tabs %}
     {% with active_tab="summary" %}{{ block.super }}{% endwith %}
@@ -15,10 +16,14 @@
 
 {% block extra_head %}
     {{ block.super }}
+    {% compress js %}
     <script src='/media/static/js/listexpander.js' type='text/javascript'>
     </script>
+    {% endcompress %}
+    {% compress css %}
     <link href='/media/static/css/listexpander.css' rel='stylesheet'
           type='text/css' />
+    {% endcompress %}
 {% endblock %}
 
 {% block institution_content %}

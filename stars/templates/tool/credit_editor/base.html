@@ -1,9 +1,11 @@
 {% extends 'tool/base.html' %}
 
+{% load compress %}
+
 {% block title %}
     {{ creditset }} | Credit Editor | {{ block.super }}
 {% endblock %}
-
+{% compress js %}
 {% block extra_head %}
     {{ block.super }}
     {% block tinymce %}
@@ -57,3 +59,4 @@
     </script>
     {{ block.super }}
 {% endblock %}
+{% endcompress %}

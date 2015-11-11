@@ -1,4 +1,6 @@
 {% if settings_context.analytics_id %}
+{% load compress %}
+{% compress js %}
 <script type="text/javascript">
 	var _sf_async_config={uid:22656,domain:"stars.aashe.org"};
 	(function(){
@@ -17,4 +19,5 @@
 	     loadChartbeat : function() { oldonload(); loadChartbeat(); };
 	})();
 </script>
+{% endcompress %}
 {% endif %}

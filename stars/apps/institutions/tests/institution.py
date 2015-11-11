@@ -11,7 +11,7 @@ from stars.test_factories import InstitutionFactory
 class InstitutionTest(TestCase):
 
     def test_update_from_iss_logging(self):
-        """Does update_from_iss log an error if there's no ISS instituion?
+        """Does update_from_iss log a warning if there's no ISS instituion?
         """
         institution = Institution()
         institution.name = 'bob'
@@ -23,7 +23,7 @@ class InstitutionTest(TestCase):
                 institution.update_from_iss()
 
         self.assertEqual(len(log.records), 1)
-        self.assertEqual(log.records[0].levelname, 'ERROR')
+        self.assertEqual(log.records[0].levelname, 'WARNING')
         self.assertTrue('No ISS institution found bob' in log.records[0].msg)
 
     def test_set_slug_from_iss_institution_logging(self):

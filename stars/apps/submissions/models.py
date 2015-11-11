@@ -1,28 +1,32 @@
-from datetime import datetime, date, timedelta
-from logging import getLogger
 import os
 import re
 import sys
+from datetime import date, datetime, timedelta
+from logging import getLogger
 
+import numpy
 from django.conf import settings
-from django.db import models
 from django.contrib.auth.models import User
-from django.contrib.localflavor.us.models import PhoneNumberField
-from django.db.models import Q
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.localflavor.us.models import PhoneNumberField
 from django.core import urlresolvers
-from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.cache import cache
+from django.core.files.uploadedfile import InMemoryUploadedFile
+from django.db import models
+from django.db.models import Q
 
-from stars.apps.credits.models import (CreditSet, Category, Subcategory,
-                                       Credit, DocumentationField, Choice,
-                                       ApplicabilityReason, Rating)
+from file_cache_tag.templatetags.custom_caching import (generate_cache_key,
+                                                        invalidate_filecache)
+from stars.apps.credits.models import (ApplicabilityReason, Category, Choice,
+                                       Credit, CreditSet, DocumentationField,
+                                       Rating, Subcategory)
 from stars.apps.institutions.models import (BASIC_ACCESS,
                                             ClimateZone,
                                             Institution)
-from stars.apps.submissions.export.pdf import build_report_pdf
 from stars.apps.notifications.models import EmailTemplate
+from stars.apps.submissions.export.pdf import build_report_pdf
+
 
 PENDING_SUBMISSION_STATUS = 'ps'
 PROCESSSING_SUBMISSION_STATUS = 'pr'
@@ -45,10 +49,12 @@ EXTENSION_PERIOD = timedelta(days=366/2)
 # Rating valid for
 RATING_VALID_PERIOD = timedelta(days=365 * 3)
 
-# Institutions that registered before May 29th, but haven't paid are still published
+# Institutions that registered before May 29th, but haven't paid are
+# still published.
 REGISTRATION_PUBLISH_DEADLINE = date(2010, 5, 29)
 
 logger = getLogger('stars')
+
 
 def upload_path_callback(instance, filename):
     """
@@ -57,6 +63,7 @@ def upload_path_callback(instance, filename):
     path = instance.get_upload_path()
     path = "%s%s" % (path, filename)
     return path
+
 
 class Flag(models.Model):
     """
@@ -69,22 +76,26 @@ class Flag(models.Model):
     target = generic.GenericForeignKey('content_type', 'object_id')
 
     def get_admin_url(self):
-        return urlresolvers.reverse("admin:submissions_flag_change", args=[self.id])
+        return urlresolvers.reverse("admin:submissions_flag_change",
+                                    args=[self.id])
 
     def __unicode__(self):
         return "%s" % self.target
 
+
 class FlaggableModel():
-#    flags = generic.GenericRelation(Flag, content_type_field='content_type', object_id_field='object_id')
+    # flags = generic.GenericRelation(Flag, content_type_field='content_type',
+    #                                 object_id_field='object_id')
 
     def get_flag_url(self):
 
-        #return "%s/%d/flag/" % (self.credit_submission.get_scorecard_url(), self.id)
+        # return "%s/%d/flag/" % (self.credit_submission.get_scorecard_url(),
+        #                         self.id)
         link = "%s?content_type=%s&object_id=%d" % (
-                                                        urlresolvers.reverse('admin:submissions_flag_add'),
-                                                        ContentType.objects.get_for_model(self).id,
-                                                        self.id
-                                                    )
+            urlresolvers.reverse('admin:submissions_flag_add'),
+            ContentType.objects.get_for_model(self).id,
+            self.id
+        )
         return link
 
     @property
@@ -92,13 +103,16 @@ class FlaggableModel():
         type = ContentType.objects.get_for_model(self)
         return Flag.objects.filter(content_type__pk=type.id, object_id=self.id)
 
+
 class SubmissionManager(models.Manager):
     """
         Adds some custom query functionality to the SubmissionSet object
     """
 
     def published(self):
-        """ Submissionsets that have been paid in full or unpaid before May 28th """
+        """ Submissionsets that have been paid in full or unpaid before
+        May 28th.
+        """
 
         deadline = REGISTRATION_PUBLISH_DEADLINE
         qs1 = SubmissionSet.objects.filter(institution__enabled=True).filter(payment__isnull=False).filter(is_visible=True).filter(is_locked=False)
@@ -168,8 +182,9 @@ class SubmissionSet(models.Model, FlaggableModel):
         help_text=("Is this submission visible to the institution? "
                    "Often used with migrations."))
     score = models.FloatField(blank=True, null=True)
-    migrated_from = models.ForeignKey('self', null=True, blank=True, related_name='+')
-    date_created = models.DateField(blank=True, null=True)
+    migrated_from = models.ForeignKey('self', null=True, blank=True,
+                                      related_name='+')
+    date_created = models.DateField(blank=True, null=True, auto_now_add=True)
 
     class Meta:
         ordering = ("date_registered",)
@@ -199,7 +214,8 @@ class SubmissionSet(models.Model, FlaggableModel):
         # Rated institutions can have their pdf saved
         if self.status == 'r':
             name = self.get_pdf_filename()
-            f = InMemoryUploadedFile(pdf_result, "pdf", name, None, pdf_result.tell(), None)
+            f = InMemoryUploadedFile(pdf_result, "pdf", name, None,
+                                     pdf_result.tell(), None)
             self.pdf_report.save(name, f)
             return self.pdf_report.file
 
@@ -221,7 +237,7 @@ class SubmissionSet(models.Model, FlaggableModel):
         return False
 
     def was_submitted(self):
-        " Indicates if this set has been submitted for a rating "
+        """ Indicates if this set has been submitted for a rating. """
         return self.date_submitted != None
 
     def get_crumb_label(self):
@@ -240,14 +256,14 @@ class SubmissionSet(models.Model, FlaggableModel):
     def get_manage_url(self):
         return urlresolvers.reverse(
             'submission-summary',
-            kwargs={ 'institution_slug': self.institution.slug,
-                     'submissionset': self.id })
+            kwargs={'institution_slug': self.institution.slug,
+                    'submissionset': self.id})
 
     def get_submit_url(self):
-       return urlresolvers.reverse(
-           'submission-submit',
-           kwargs={ 'institution_slug': self.institution.slug,
-                    'submissionset': self.id })
+        return urlresolvers.reverse(
+            'submission-submit',
+            kwargs={'institution_slug': self.institution.slug,
+                    'submissionset': self.id})
 
     def get_scorecard_url(self):
         cache_key = "submission_%d_scorecard_url" % self.id
@@ -256,12 +272,12 @@ class SubmissionSet(models.Model, FlaggableModel):
             return url
         else:
             if self.date_submitted:
-                url = '/institutions/%s/report/%s/'% (self.institution.slug,
-                                                      self.date_submitted)
+                url = '/institutions/%s/report/%s/' % (self.institution.slug,
+                                                       self.date_submitted)
             else:
-                url = '/institutions/%s/report/%s/'% (self.institution.slug,
-                                                      self.id)
-            cache.set(cache_key, url, 60*60*24) # cache for 24 hours
+                url = '/institutions/%s/report/%s/' % (self.institution.slug,
+                                                       self.id)
+            cache.set(cache_key, url, 60 * 60 * 24)  # cache for 24 hours
             return url
 
     def get_parent(self):
@@ -301,8 +317,7 @@ class SubmissionSet(models.Model, FlaggableModel):
         if (self.reporter_status or
             self.status == FINALIZED_SUBMISSION_STATUS or
             (not self.is_rated() and
-             self.institution.access_level == BASIC_ACCESS)
-        ):
+             self.institution.access_level == BASIC_ACCESS)):
             return self.creditset.rating_set.get(name='Reporter')
 
         if self.is_rated() and not recalculate:
@@ -349,7 +364,7 @@ class SubmissionSet(models.Model, FlaggableModel):
                 score += cat.get_STARS_v1_0_score()
                 non_inno_cats += 1
 
-        score = (score / non_inno_cats) if non_inno_cats>0 else 0   # average
+        score = (score / non_inno_cats) if non_inno_cats > 0 else 0   # average
 
         score += innovation_score  # plus any innovation points
 
@@ -365,7 +380,7 @@ class SubmissionSet(models.Model, FlaggableModel):
 
         for cat in self.categorysubmission_set.all().select_related():
             if cat.category.is_innovation():
-                innovation_score = cat.get_STARS_v2_0_score()
+                innovation_score = cat.get_STARS_v2_0_score()[0]
             elif cat.category.include_in_score:
                 _score, _avail = cat.get_score_ratio()
                 total_achieved += _score
@@ -373,7 +388,7 @@ class SubmissionSet(models.Model, FlaggableModel):
 
         score = total_achieved / total_available * 100
 
-        score += innovation_score[0]  # plus any innovation points
+        score += innovation_score  # plus any innovation points
 
         return score if score <= 100 else 100
 
@@ -413,7 +428,8 @@ class SubmissionSet(models.Model, FlaggableModel):
         """ Return the percentage of credits completed in the entire
             set: 0 - 100 """
         total_credits = self.get_total_credits()
-        if total_credits == 0: return 0
+        if total_credits == 0:
+            return 0
         return int(
             (self.get_finished_credit_count() / float(total_credits)) * 100)
 
@@ -488,6 +504,39 @@ class SubmissionSet(models.Model, FlaggableModel):
             # so we wait until after super(...).save() assigns self.pk
             # a value:
             self.init_credit_submissions()
+        self.invalidate_cache()
+
+    def invalidate_cache(self):
+        cus_set = self.get_credit_submissions()
+        for cus in cus_set:
+            report_url = cus.get_scorecard_url()
+            summary_url = self.get_scorecard_url()
+            # Set up all the different cache version data lists
+            versions = ['anon', 'admin', 'staff']
+            id = self.id
+            # vary_on template: [submissionset.id, preview (boolean), EXPORT/NO_EXPORT, user.is_staff]
+            vary_on = [
+                [id, True, 'EXPORT', True],
+                [id, False, 'EXPORT', True],
+                [id, True, 'EXPORT', False],
+                [id, False, 'EXPORT', False],
+                [id, True, 'NO_EXPORT', True],
+                [id, False, 'NO_EXPORT', True],
+                [id, True, 'NO_EXPORT', False],
+                [id, False, 'NO_EXPORT', False],
+            ]
+            # Loop through them and generate the cache keys
+            keys = []
+            for x in versions:
+                vary = [x]
+                key = generate_cache_key(report_url, vary)
+                keys.append(key)
+            for x in vary_on:
+                key = generate_cache_key(summary_url, x)
+                keys.append(key)
+            # Loop through the keys and invalidate each
+            for key in keys:
+                invalidate_filecache(key)
 
     def take_snapshot(self, user):
         """
@@ -516,10 +565,36 @@ class SubmissionSet(models.Model, FlaggableModel):
         new_ss.save()
 
         et = EmailTemplate.objects.get(slug="snapshot_successful")
-        to_mail = [user.email,]
+        to_mail = [user.email]
         if user.email != self.institution.contact_email:
             to_mail.append(self.institution.contact_email)
-        et.send_email(to_mail, {'ss': self,})
+        et.send_email(to_mail, {'ss': self})
+
+    def get_org_type(self):
+        """Return the org type for the institution associated with this
+        submissionset.
+
+        For creditsets >= 2.0, pull the org type off the institution
+        boundary credit.  For others, pull from the institution record.
+        """
+        if self.creditset.version > '2.':
+            institutional_characteristics_category = Category.objects.get(
+                abbreviation='IC')
+            institutional_characteristics_credit_submissions = (
+                self.get_credit_submissions().filter(
+                    subcategory_submission__category_submission__category=
+                    institutional_characteristics_category))
+            boundary_credit_submission = (
+                institutional_characteristics_credit_submissions.get(
+                    credit__title='Institutional Boundary'))
+            boundary_credit_submission_fields = (
+                boundary_credit_submission.get_submission_fields())
+            institution_type_submission_field = filter(
+                lambda x: x.documentation_field.title == 'Institution type',
+                boundary_credit_submission_fields)[0]
+            return institution_type_submission_field.get_human_value()
+        else:
+            return self.institution.org_type
 
 
 INSTITUTION_TYPE_CHOICES = (("associate", "Associate"),
@@ -894,6 +969,10 @@ class SubcategorySubmission(models.Model):
     subcategory = models.ForeignKey(Subcategory)
     description = models.TextField(blank=True, null=True)
     points = models.FloatField(blank=True, null=True)
+    # caching for the data displays
+    percentage_score = models.FloatField(blank=True, null=True, default=0.0)
+    adjusted_available_points = models.FloatField(blank=True, null=True,
+                                                  default=0.0)
 
     class Meta:
         unique_together = ("category_submission", "subcategory")
@@ -960,15 +1039,24 @@ class SubcategorySubmission(models.Model):
         return self.creditusersubmission_set.exclude(submission_status='ns').exclude(submission_status='p').count()
 
     def get_claimed_points(self):
-        if self.category_submission.submissionset.status == "r" and self.points:
+        rated = self.category_submission.submissionset.status == "r"
+        # check the cache
+        if rated and self.points and self.percentage_score:
             return self.points
 
         score = 0
         for credit in self.creditusersubmission_set.filter(submission_status='c'):
             score += credit.assessed_points
-            if self.category_submission.submissionset.status == "r":
-                self.points = score
-                self.save()
+
+        if self.category_submission.submissionset.status == "r":
+            # cache it on the model
+            self.points = score
+            available = self.get_available_points()
+            if available > 0:
+                self.percentage_score = score / available
+            else:
+                self.percentage_score = 0
+            self.save()
         return score
 
     def get_available_points(self):
@@ -979,10 +1067,21 @@ class SubcategorySubmission(models.Model):
 
     def get_adjusted_available_points(self):
         """ Gets only the points for credits that have not been labelled as Not Applicable """
-        score = 0
+
+        rated = self.category_submission.submissionset.status == "r"
+        # check the cache
+        if rated and self.adjusted_available_points:
+            return self.adjusted_available_points
+
+        points = 0
         for credit_submission in self.creditusersubmission_set.all():
-                score += credit_submission.get_adjusted_available_points()
-        return score
+            points += credit_submission.get_adjusted_available_points()
+
+        if rated:
+            # cache the result
+            self.adjusted_available_points = points
+            self.save()
+        return points
 
     def get_percent_complete(self):
         """ Return the percentage of credits completed in this subcategory: 0 - 100 """
@@ -1685,9 +1784,41 @@ class DataCorrectionRequest(models.Model):
                             "rating_changed": rating_changed,
                             "old_rating": old_rating,
                             "old_score": old_score,
-
-                        }
+        }
         et.send_email(mail_to, email_context)
+        self.cache_invalidate()
+
+    def cache_invalidate(self):
+        report_url = self.get_absolute_url()
+        self.submissionset = self.get_submissionset()
+        summary_url = self.submissionset.get_scorecard_url()
+        # Set up all the different cache version data lists
+        versions = ['anon', 'admin', 'staff']
+        id = self.submissionset.id
+        # vary_on template: [submissionset.id, preview (boolean), EXPORT/NO_EXPORT, user.is_staff]
+        vary_on = [
+            [id, True, 'EXPORT', True],
+            [id, False, 'EXPORT', True],
+            [id, True, 'EXPORT', False],
+            [id, False, 'EXPORT', False],
+            [id, True, 'NO_EXPORT', True],
+            [id, False, 'NO_EXPORT', True],
+            [id, True, 'NO_EXPORT', False],
+            [id, False, 'NO_EXPORT', False],
+        ]
+        # Loop through them and generate the cache keys
+        keys = []
+        for x in versions:
+            vary = [x]
+            key = generate_cache_key(report_url, vary)
+            keys.append(key)
+        for x in vary_on:
+            key = generate_cache_key(summary_url, x)
+            keys.append(key)
+        # Loop through the keys and invalidate each
+        for key in keys:
+            invalidate_filecache(key)
+
 
 class ReportingFieldDataCorrection(models.Model):
     """
@@ -2329,6 +2460,7 @@ class SubmissionInquiry(models.Model):
     def __unicode__(self):
         return self.submissionset.institution.name
 
+
 class CreditSubmissionInquiry(models.Model):
     """
         An inquiry, tied to a SubmissionInquiry about a particular credit.
@@ -2344,6 +2476,7 @@ class CreditSubmissionInquiry(models.Model):
     def __unicode__(self):
         return self.credit.title
 
+
 class ExtensionRequest(models.Model):
     """
         Schools can request a 6 month extension for their submission
@@ -2356,3 +2489,52 @@ class ExtensionRequest(models.Model):
 
     def __unicode__(self):
         return str(self.date)
+
+
+class SubcategoryQuartiles(models.Model):
+    """Cached statistics for Subcategories.
+
+    Caches the quartiles for submissions, grouped by subcategory and org_type.
+
+    Values cached (first, second, third, fourth) are the highest numbers
+    of each quartile.  The numbers represent the percentage of available
+    points granted to a submission, not the number of points granted.
+    """
+    subcategory = models.ForeignKey(Subcategory)
+    org_type = models.CharField(max_length=32)
+    first = models.FloatField(default=0)
+    second = models.FloatField(default=0)
+    third = models.FloatField(default=0)
+    fourth = models.FloatField(default=0)
+
+    class Meta:
+        unique_together = ("subcategory", "org_type")
+
+    def calculate(self):
+        """Calculate the quartiles.  Only count rated submissions.
+        """
+        subcategory_submissions = SubcategorySubmission.objects.filter(
+            subcategory=self.subcategory,
+            category_submission__submissionset__status='r')
+        points_percent = []
+
+        for subcategory_submission in subcategory_submissions:
+            if (subcategory_submission.get_submissionset().get_org_type() ==
+                self.org_type):
+
+                adjusted_available_points = (
+                    subcategory_submission.get_adjusted_available_points())
+
+                if adjusted_available_points:
+
+                    points_percent.append(
+                        (subcategory_submission.get_claimed_points() /
+                         adjusted_available_points) * 100)
+
+        if sum(points_percent):
+            array = numpy.array(points_percent)
+            self.first, self.second, self.third, self.fourth = (
+                numpy.percentile(array, numpy.arange(25, 101, 25)))
+        else:
+            self.first = self.second = self.third = self.fourth = 0
+        self.save()

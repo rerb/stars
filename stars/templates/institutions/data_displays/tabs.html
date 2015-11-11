@@ -1,21 +1,21 @@
 <ul class="nav nav-tabs">
 	<li{% if active == 'dashboard' %} class="active" {% endif %}>
 		<a href="/institutions/data-displays/dashboard/">
-			STARS Institutions
+			STARS Dashboard
 		</a>
 	</li>
 	<li{% if active == 'categories' %} class="active" {% endif %}>
-		<a href="/institutions/data-displays/categories/">
+		<a href="{% url categories_data_display display_version %}?institution__org_type=DO_NOT_FILTER">
 			Category Display
 		</a>
 	</li>
 	<li{% if active == 'scores' %} class="active" {% endif %}>
-		<a href="/institutions/data-displays/scores/">
+		<a href="{% url scores_data_display display_version %}?institution__org_type=DO_NOT_FILTER">
 			Score Display
 		</a>
 	</li>
 	<li{% if active == 'content' %} class="active" {% endif %}>
-		<a href="/institutions/data-displays/content/">
+		<a href="{% url content_data_display display_version %}?institution__org_type=DO_NOT_FILTER">
 			Content Display
 		</a>
 	</li>

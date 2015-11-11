@@ -1,8 +1,5 @@
-from os.path import basename
-from datetime import date
 from django import template
 from django.conf import settings
-from django.db.models import Q
 
 register = template.Library()
 
@@ -39,10 +36,6 @@ def show_institutions_map():
 
     i_list = []
     i_qs = Institution.objects.filter(enabled=True)
-    ratings = {}
-    for r in Rating.objects.all():
-        if r.name not in ratings.keys():
-            ratings[r.name] = 0
 
     for i in i_qs:
         d = {

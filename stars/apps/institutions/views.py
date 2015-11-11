@@ -14,13 +14,12 @@ from stars.apps.institutions.forms import (SubmissionSelectForm,
                                            SubmissionInquiryForm,
                                            CreditSubmissionInquiryFormSet,
                                            DataCorrectionRequestForm)
-from stars.apps.institutions.models import Institution
+from stars.apps.institutions.models import FULL_ACCESS, Institution
 from stars.apps.notifications.models import EmailTemplate
 from stars.apps.submissions.models import (SubmissionInquiry,
                                            DataCorrectionRequest,
                                            PENDING_SUBMISSION_STATUS,
                                            RATED_SUBMISSION_STATUS)
-from stars.apps.submissions.rules import user_can_preview_submission
 from stars.apps.submissions.views import SubmissionStructureMixin
 from stars.apps.submissions.tasks import (
     build_excel_export, build_pdf_export, build_certificate_export)
@@ -193,6 +192,7 @@ class SortableTableViewWithInstProps(SortableTableView):
         _context['charter_count'] = charter_count
         _context['pilot_count'] = pilot_count
         _context['international_count'] = international_count
+        _context['display_version'] = "2.0"
         return _context
 
 
@@ -471,7 +471,20 @@ class ScorecardView(RulesMixin,
         if not ss.status == 'r':
             _context['preview'] = True
 
+        _context['show_column_charts'] = self.show_column_charts_or_not(ss,
+                                                                        rating)
+
         return _context
+
+    def show_column_charts_or_not(self, submissionset, rating):
+        """Should we show the column charts for this SubmissionSet?
+
+        Only for preview reports for folks with FULL_ACCESS."""
+        if (submissionset.creditset.has_basic_benchmarking_feature and
+            submissionset.status != 'r' and
+            submissionset.institution.access_level == FULL_ACCESS):
+            return True
+        return False
 
     def get_category_url(self, category, url_prefix):
         """ The default link for a category. """
@@ -584,6 +597,22 @@ class CertificateExportView(InstitutionStructureMixin,
     def get_object_list(self):
         ss_list = super(CertificateExportView, self).get_object_list()
         return ss_list.filter(status="r")
+
+
+class ScorecardCertPreview(ScorecardView):
+    template_name = 'institutions/pdf/certificate.html'
+
+    def get_context_data(self, **kwargs):
+        """ Expects arguments for category_id/subcategory_id/credit_id """
+        _context = super(ScorecardCertPreview, self).get_context_data(**kwargs)
+
+        from django.conf import settings
+
+        return {
+            'ss': self.get_submissionset(),
+            'project_path': settings.PROJECT_PATH,
+            'preview': True
+        }
 
 
 class CertificateDownloadView(InstitutionStructureMixin,

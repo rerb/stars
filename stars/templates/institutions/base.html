@@ -4,7 +4,7 @@
 
 {% block title %}Institutions | {{ block.super }}{% endblock %}
 
-{% block main_menu %} 
+{% block main_menu %}
 	{% with selected="mm_institutions" %}
     	{% include 'helpers/main_menu.html' %}
     {% endwith %}
@@ -16,7 +16,10 @@
 	    	<a href="/">Home</a> <span class="divider">/</span>
 	  	</li>
 	  <li>
-	    <a href='/institutions/data-displays/dashboard/'>STARS Institutions</a> <span class="divider">/</span>
+	    <a href='{% url participants-reports %}'>
+              STARS Institutions
+            </a>
+            <span class="divider">/</span>
 	  </li>
 	  {% block crumb-tab %}{% endblock %}
 	</ul>

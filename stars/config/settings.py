@@ -1,12 +1,18 @@
 # Default Settings for STARS project
 # These can be extended by any .py file in the config folder
-import logging, os, sys, django, re
+import logging
+import os
+import re
+import sys
+
+import django
 from django.contrib.messages import constants as messages
 
 sys.path.append('../')
 
 ADMINS = (('Benjamin Stookey', 'ben@aashe.org'),
-          ('Bob Erb', 'bob.erb@aashe.org'))
+          ('Bob Erb', 'bob.erb@aashe.org'),
+          ('Scott Johnson', 'scott@aashe.org'),)
 MANAGERS = ADMINS
 
 DEFAULT_CHARSET = 'utf-8'
@@ -20,13 +26,11 @@ FIXTURE_DIRS = ('fixtures', os.path.join(PROJECT_PATH, 'apps/api/fixtures'),)
 PROFILE = os.environ.get("PROFILE", False)
 
 TIME_ZONE = 'America/Lima'
-LANGUAGE_CODE = 'en'
+LANGUAGE_CODE = 'en-us'
 SITE_ID = 1
 USE_I18N = True
 USE_L10N = True
 USE_THOUSAND_SEPARATOR = True
-
-
 
 # Database
 import dj_database_url
@@ -52,14 +56,15 @@ if USE_S3:
     MEDIA_ROOT = '/%s/' % DEFAULT_S3_PATH
     MEDIA_URL = 'https://s3.amazonaws.com/%s/media/' % AWS_STORAGE_BUCKET_NAME
     STATIC_ROOT = "/%s/" % STATIC_S3_PATH
-    STATIC_URL = 'https://s3.amazonaws.com/%s/static/' % AWS_STORAGE_BUCKET_NAME
+    STATIC_URL = 'https://s3.amazonaws.com/%s/static/' % (
+        AWS_STORAGE_BUCKET_NAME)
     ADMIN_MEDIA_PREFIX = STATIC_URL + 'admin/'
 
 else:
     MEDIA_URL = '/media/'
     STATIC_URL = "/media/static/"
-    MEDIA_ROOT = os.environ.get("MEDIA_ROOT", "")
-    STATIC_ROOT = os.environ.get("STATIC_ROOT", "")
+    MEDIA_ROOT = os.environ.get("MEDIA_ROOT", None)
+    STATIC_ROOT = os.environ.get("STATIC_ROOT", '')
 
 STATICFILES_DIRS = (
     os.path.join(os.path.dirname(__file__), "..", "static"),
@@ -68,7 +73,8 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    # 'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    'compressor.finders.CompressorFinder',
 )
 
 SECRET_KEY = 'omxxweql@m7!@yh5a-)=f^_xo*(m2+gaz#+8dje)e6wv@q$v%@'
@@ -86,13 +92,14 @@ CMS_TEMPLATES = (
     ('cms/article_detail.html', 'Article Detail'),
 )
 
-MIDDLEWARE_CLASSES = [ # a list so it can be editable during tests (see below)
+MIDDLEWARE_CLASSES = [  # a list so it can be editable during tests (see below)
     'stars.apps.helpers.utils.StripCookieMiddleware',
     'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-#    'aashe.aasheauth.middleware.AASHEAccountMiddleware',
+    # 'geordi.VisorMiddleware',
+    # 'aashe.aasheauth.middleware.AASHEAccountMiddleware',
     'django.middleware.cache.FetchFromCacheMiddleware',
     'django.contrib.redirects.middleware.RedirectFallbackMiddleware',
     'django.middleware.doc.XViewMiddleware',
@@ -105,17 +112,21 @@ MIDDLEWARE_CLASSES = [ # a list so it can be editable during tests (see below)
     ]
 
 import django_cache_url
-CACHES = {'default': django_cache_url.parse(os.environ.get('CACHE_URL',
-                                                           'dummy://'))}
+CACHES = {
+    'default': django_cache_url.parse(
+        os.environ.get('CACHE_URL', 'dummy://')),
+    'filecache': django_cache_url.parse(
+        os.environ.get('FILE_CACHE_URL', 'file:///tmp/filecache'))
+}
 
 AUTH_PROFILE_MODULE = 'accounts.UserProfile'
 AUTHENTICATION_BACKENDS = ('aashe.aasheauth.backends.AASHEBackend',)
 if 'test' in sys.argv:
     AUTHENTICATION_BACKENDS = (
-                               'django.contrib.auth.backends.ModelBackend',
-                               'aashe.aasheauth.backends.AASHEBackend',
-                               # 'stars.apps.accounts.aashe.AASHEAuthBackend',
-                               )
+        'django.contrib.auth.backends.ModelBackend',
+        'aashe.aasheauth.backends.AASHEBackend',
+        # 'stars.apps.accounts.aashe.AASHEAuthBackend',
+        )
 
 DASHBOARD_URL = "/tool/"
 LOGIN_URL = "/accounts/login/"
@@ -156,7 +167,7 @@ INSTALLED_APPS = (
     'django.contrib.humanize',
     'django.contrib.staticfiles',
 
-    'terms', # must come before stars.apps.tool, which overrides the admin
+    'terms',  # must come before stars.apps.tool, which overrides the admin
 
     'stars.apps.credits',
     'stars.apps.tool.credit_editor',
@@ -170,7 +181,7 @@ INSTALLED_APPS = (
     'stars.apps.submissions',
     'stars.apps.accounts',
     'stars.apps.helpers',
-    'stars.apps.helpers.forms', # included here for testing
+    'stars.apps.helpers.forms',  # included here for testing
     'stars.apps.old_cms',
     'stars.apps.etl_export',
     'stars.apps.custom_forms',
@@ -180,25 +191,28 @@ INSTALLED_APPS = (
     'stars.apps.third_parties',
     'stars.apps.api',
     'stars.apps.download_async_task',
+    'stars.apps.payments',  # included here for testing
     'stars.test_factories',
-    'stars.tests',
+    # 'stars.tests',
 
     'aashe.aasheauth',
-    'issdjango',
     'bootstrapform',
     'captcha',
     'collapsing_menu',
-    'django_extensions',
+    'compressor',
     'django_celery_downloader',
     'django_celery_downloader.tests.demo_app',
+    'django_extensions',
     'djcelery',
-    'raven.contrib.django.raven_compat',
+    'geordi',
+    'gunicorn',
+    'issdjango',
     'logical_rules',
+    'raven.contrib.django.raven_compat',
+    's3_folder_storage',
     'sorl.thumbnail',
     'south',
-    's3_folder_storage',
     'tastypie',
-    'gunicorn',
     # 'cms',
     # 'cms.plugins.file',
     # 'cms.plugins.flash',
@@ -212,7 +226,11 @@ INSTALLED_APPS = (
     # 'cms.plugins.twitter',
     # 'mptt',
     # 'menus',
-    # 'sekizai'
+    # 'sekizai',
+    'compressor',
+    # 'geordi',
+    'adv_cache_tag',
+    'file_cache_tag',
 )
 
 # auth config
@@ -226,14 +244,16 @@ AASHE_DRUPAL_COOKIE_DOMAIN = os.environ.get('AASHE_DRUPAL_COOKIE_DOMAIN',
 AASHE_AUTH_VERBOSE = os.environ.get('AASHE_AUTH_VERBOSE', False)
 
 # Permissions or user levels for STARS users
-STARS_PERMISSIONS = (('admin', 'Administrator'),
-                     ('submit', 'Data Entry'),
-                     ('view', 'Observer'))
-                   # ('review', 'Audit/Review'))
+STARS_PERMISSIONS = (
+    ('admin', 'Administrator'),
+    ('submit', 'Data Entry'),
+    ('view', 'Observer'))
 
 # Email
-EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND',
-                               'django.core.mail.backends.console.EmailBackend')
+EMAIL_BACKEND = os.environ.get(
+    'EMAIL_BACKEND', 'django.core.mail.backends.filebased.EmailBackend')
+EMAIL_FILE_PATH = os.environ.get(
+    'EMAIL_FILE_PATH', '/tmp/stars-email-messages')
 EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', True)
 EMAIL_HOST = os.environ.get('EMAIL_HOST', None)
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', None)
@@ -241,21 +261,25 @@ EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', None)
 EMAIL_PORT = os.environ.get('EMAIL_PORT', None)
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', None)
 EMAIL_REPLY_TO = os.environ.get('EMAIL_REPLY_TO', None)
-EMAIL_FILE_PATH = os.environ.get('EMAIL_FILE_PATH', '/tmp/stars-email-messages')
 
 # sorl thumbnail
-#THUMBNAIL_ENGINE = "sorl.thumbnail.engines.pgmagick_engine.Engine"
+# THUMBNAIL_ENGINE = "sorl.thumbnail.engines.pgmagick_engine.Engine"
 THUMBNAIL_ENGINE = "sorl.thumbnail.engines.pil_engine.Engine"
 THUMBNAIL_FORMAT = 'PNG'
 THUMBNAIL_DEBUG = os.environ.get("THUMBNAIL_DEBUG", False)
 
 # Celery
-import djcelery
-djcelery.setup_loader()
-
-BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'amqp://guest:guest@localhost:5672/')
+# import djcelery
+# djcelery.setup_loader()
+CELERY_TIMEZONE = 'US/Eastern'
+from celerybeat_schedule import STARS_TASK_SCHEDULE
+CELERYBEAT_SCHEDULE = STARS_TASK_SCHEDULE
+BROKER_URL = os.environ.get(
+    'CELERY_BROKER_URL', 'amqp://guest:guest@localhost:5672/')
 CELERY_ALWAYS_EAGER = os.environ.get('CELERY_ALWAYS_EAGER', False)
-CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'database')
+CELERY_RESULT_BACKEND = os.environ.get(
+    'CELERY_RESULT_BACKEND',
+    'djcelery.backends.database:DatabaseBackend')
 CELERY_RESULT_DBURI = os.environ.get('CELERY_RESULT_DBURI',
                                      "sqlite:///tmp/stars-celery-results.db")
 CELERY_CACHE_BACKEND = os.environ.get('CELERY_CACHE_BACKEND', 'dummy')
@@ -263,11 +287,11 @@ CELERY_CACHE_BACKEND = os.environ.get('CELERY_CACHE_BACKEND', 'dummy')
 # default is test mode
 AUTHORIZENET_LOGIN = os.environ.get('AUTHORIZENET_LOGIN', None)
 AUTHORIZENET_KEY = os.environ.get('AUTHORIZENET_KEY', None)
-AUTHORIZENET_SERVER = os.environ.get('AUTHORIZENET_SERVER', None)
 
 ANALYTICS_ID = os.environ.get('ANALYTICS_ID', None)
 
-SKIP_SOUTH_TESTS=True
+SKIP_SOUTH_TESTS = True
+SOUTH_TESTS_MIGRATE = False
 
 RECAPTCHA_PUBLIC_KEY = os.environ.get('RECAPTCHA_PUBLIC_KEY', None)
 RECAPTCHA_PRIVATE_KEY = os.environ.get('RECAPTCHA_PRIVATE_KEY', None)
@@ -282,8 +306,6 @@ if m:
 
 DJANGO_VERSION = django.get_version()
 HG_REVISION = None
-
-SOUTH_TESTS_MIGRATE = False
 
 # Sentry Logging: getsentry.com
 RAVEN_CONFIG = {
@@ -378,7 +400,7 @@ LOGGING = {
     'loggers': {
         # root logger, for third party log messages:
         '': {
-            'handlers':['simple_console_handler', 'mail_admins_handler']
+            'handlers': ['simple_console_handler', 'mail_admins_handler']
         },
         'django.request': {
             'handlers': ['mail_admins_handler'],
@@ -396,7 +418,7 @@ LOGGING = {
             'handlers': ['stars_user_console_handler',
                          'mail_admins_handler'],
             'propagate': False,
-            'filters' : ['module_name_filter', 'user_filter']
+            'filters': ['module_name_filter', 'user_filter']
         },
         # logger with module_name and request elements added to log record:
         'stars.request': {
@@ -427,11 +449,12 @@ CONSUMER_SECRET = 's9aIjWEgy4EkbDgK14CkBlDwuAySykYZrtquQiTg'
 if sys.version >= '2.7':
     logging.captureWarnings(True)
 
-MESSAGE_TAGS = { messages.DEBUG: 'alert fade in alert-debug',
-                 messages.INFO : 'alert fade in alert-info',
-                 messages.SUCCESS : 'alert fade in alert-success',
-                 messages.WARNING : 'alert fade in alert-warning',
-                 messages.ERROR : 'alert fade in alert-error' }
+MESSAGE_TAGS = {
+    messages.DEBUG: 'alert fade in alert-debug',
+    messages.INFO: 'alert fade in alert-info',
+    messages.SUCCESS: 'alert fade in alert-success',
+    messages.WARNING: 'alert fade in alert-warning',
+    messages.ERROR: 'alert fade in alert-error'}
 
 if os.path.exists(os.path.join(os.path.dirname(__file__), 'hg_info.py')):
     from hg_info import revision
@@ -448,13 +471,15 @@ if DEBUG_TOOLBAR:
         'INTERCEPT_REDIRECTS': False,
     }
 
+AUTHORIZE_CLIENT_TEST = os.environ.get('AUTHORIZE_CLIENT_TEST', False)
+AUTHORIZE_CLIENT_DEBUG = os.environ.get('AUTHORIZE_CLIENT_DEBUG', False)
+
 # Test backends
 if 'test' in sys.argv:
     # until fix for http://code.djangoproject.com/ticket/14105
     MIDDLEWARE_CLASSES.remove(
         'django.middleware.cache.FetchFromCacheMiddleware')
     MIDDLEWARE_CLASSES.remove('django.middleware.cache.UpdateCacheMiddleware')
-
     DATABASES['default'] = dj_database_url.parse(
         os.environ.get('STARS_TEST_DB',
                        "sqlite:////tmp/stars_tests.db"))
@@ -462,11 +487,20 @@ if 'test' in sys.argv:
         os.environ.get('ISS_TEST_DB',
                        "sqlite:////tmp/iss_tests.db"))
 
-    CACHES = {'default': django_cache_url.parse(os.environ.get(
-        'CACHE_TEST_URL', 'file:///tmp/stars-cache'))}
+    CACHES = {
+        'default': django_cache_url.parse(
+            os.environ.get('CACHE_URL_TEST', 'dummy://')),
+        'filecache': django_cache_url.parse(
+            os.environ.get('FILE_CACHE_URL_TEST', 'file:///tmp/filecache'))
+    }
 
     API_TEST_MODE = False
 
     AUTHORIZENET_LOGIN = os.environ.get('AUTHORIZENET_TEST_LOGIN', None)
     AUTHORIZENET_KEY = os.environ.get('AUTHORIZENET_TEST_KEY', None)
-    AUTHORIZENET_SERVER = os.environ.get('AUTHORIZENET_TEST_SERVER', None)
+
+    AUTHORIZE_CLIENT_TEST = True
+    AUTHORIZE_CLIENT_DEBUG = True
+
+# Override default of compression off when debug=true to test locally
+COMPRESS_ENABLED = os.environ.get('COMPRESS_ENABLED')
