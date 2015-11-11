@@ -10,12 +10,12 @@
 		</a>
 	</li>
 	<li{% if active == 'scores' %} class="active" {% endif %}>
-		<a href="{% url scores_data_display display_version %}">
+		<a href="{% url scores_data_display display_version %}?institution__org_type=DO_NOT_FILTER">
 			Score Display
 		</a>
 	</li>
 	<li{% if active == 'content' %} class="active" {% endif %}>
-		<a href="{% url content_data_display display_version %}">
+		<a href="{% url content_data_display display_version %}?institution__org_type=DO_NOT_FILTER">
 			Content Display
 		</a>
 	</li>
