@@ -18,6 +18,7 @@ from stars.apps.institutions.models import (PendingAccount, StarsAccount,
                                             Institution)
 from stars.apps.institutions.tests.subscription import (GOOD_CREDIT_CARD,
                                                         BAD_CREDIT_CARD)
+import stars.apps.institutions.rules  # registers logical rules
 from stars.apps.submissions.models import ResponsibleParty
 from stars.apps.tests.live_server import StarsLiveServerTest
 from stars.apps.tool.manage import views
