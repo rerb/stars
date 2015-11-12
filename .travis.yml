@@ -25,6 +25,7 @@ env:
   - FILECACHE_DIRECTORY=/tmp/filecache
   - FILECACHE_URL=/tmp/filecache
 before_install:
+  - which phantomjs
   - export DISPLAY=:99.0
   - sh -e /etc/init.d/xvfb start
   - wget -N http://chromedriver.storage.googleapis.com/2.10/chromedriver_linux64.zip -P ~/Downloads
