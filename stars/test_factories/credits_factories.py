@@ -49,7 +49,7 @@ class CreditFactory(factory.DjangoModelFactory):
     subcategory = factory.SubFactory(SubcategoryFactory)
     point_value = 1
     identifier = factory.Sequence(
-        lambda i: 'Credit-{0}.{1}'.format(i, time.time()))
+        lambda i: 'Credit-{0}'.format(i))
     title = factory.Sequence(
         lambda i: 'Credit-{0}.{1}'.format(i, time.time()))
 
