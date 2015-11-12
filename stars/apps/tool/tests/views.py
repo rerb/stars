@@ -106,7 +106,7 @@ class UserCanEditSubmissionMixinTest(ProtectedViewTest):
         self.institution = InstitutionFactory(slug='on-the-beach-soldier')
         self.account = StarsAccountFactory(institution=self.institution)
         self.request.user = self.account.user
-        creditset = CreditSetFactory() 
+        creditset = CreditSetFactory()
         self.submission = SubmissionSetFactory(
             institution=self.institution,
             creditset=creditset)
@@ -239,8 +239,8 @@ class NoStarsAccountViewTest(ViewTest):
     def setUp(self):
         super(NoStarsAccountViewTest, self).setUp()
         self.user = UserFactory()
-        self.user_aashe_account = AASHEAccountFactory(user=self.user)
-        self.request.user = self.user
+        self.user_aashe_account = AASHEAccountFactory()
+        self.user = self.user_aashe_account.user
         self.view = self.view_class()
 
     def test_get_institution_empty_profile_instlist(self):
