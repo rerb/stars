@@ -79,5 +79,5 @@ zope.interface==4.0.3
 zope.testing==4.1.1
 django-compressor
 #geordi
-django-adv-cache-tag
+django-adv-cache-tag==0.2.1
 -e git+https://github.com/baronvonvaderham/django-file-cache-tag.git#egg=filecache
