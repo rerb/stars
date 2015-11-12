@@ -5,12 +5,6 @@ from django.contrib.auth.models import User
 import factory
 
 
-class AASHEUserFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = AASHEUser
-
-    drupal_id = factory.Sequence(lambda i: i)
-
-
 class UserFactory(factory.DjangoModelFactory):
     FACTORY_FOR = User
 
@@ -19,8 +13,6 @@ class UserFactory(factory.DjangoModelFactory):
     password = 'test'
     email = factory.LazyAttribute(
         lambda o: '{0}@example.com'.format(o.username))
-    aasheuser = factory.RelatedFactory(AASHEUserFactory,
-                                       'user')
 
     @classmethod
     def _prepare(cls, create, **kwargs):
@@ -31,3 +23,10 @@ class UserFactory(factory.DjangoModelFactory):
             if create:
                 user.save()
         return user
+
+
+class AASHEUserFactory(factory.DjangoModelFactory):
+    FACTORY_FOR = AASHEUser
+
+    drupal_id = factory.Sequence(lambda i: i)
+    user = factory.SubFactory(UserFactory)
