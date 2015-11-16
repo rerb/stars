@@ -98,7 +98,6 @@ MIDDLEWARE_CLASSES = [  # a list so it can be editable during tests (see below)
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    # 'geordi.VisorMiddleware',
     # 'aashe.aasheauth.middleware.AASHEAccountMiddleware',
     'django.middleware.cache.FetchFromCacheMiddleware',
     'django.contrib.redirects.middleware.RedirectFallbackMiddleware',
@@ -204,7 +203,6 @@ INSTALLED_APPS = (
     'django_celery_downloader.tests.demo_app',
     'django_extensions',
     'djcelery',
-    'geordi',
     'gunicorn',
     'issdjango',
     'logical_rules',
@@ -228,7 +226,6 @@ INSTALLED_APPS = (
     # 'menus',
     # 'sekizai',
     'compressor',
-    # 'geordi',
     'adv_cache_tag',
     'file_cache_tag',
 )

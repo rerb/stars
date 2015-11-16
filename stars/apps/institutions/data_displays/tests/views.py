@@ -12,7 +12,8 @@ from stars.apps.tests.live_server import StarsLiveServerTest
 from stars.apps.institutions.data_displays.views import (
     Dashboard,
     ScoreFilter)
-from stars.test_factories import (CategoryFactory,
+from stars.test_factories import (AASHEUserFactory,
+                                  CategoryFactory,
                                   InstitutionFactory,
                                   RatingFactory,
                                   SubmissionSetFactory,
@@ -24,7 +25,7 @@ class DashboardTestCase(TestCase):
 
     def setUp(self):
         # Need at least some history.
-        _ = SubscriptionFactory()
+        SubscriptionFactory()
 
     def test_dashboard_loads(self):
         """Does the dashboard load?
@@ -84,9 +85,9 @@ def member(user=None):
     """Return a User that will be identified as a member.
     """
     user = user or UserFactory(password=PASSWORD)
-    user.aasheuser.set_drupal_user_dict(
-        {'roles': {'Member': 'Member'}})
-    user.aasheuser.save()
+    aashe_user = AASHEUserFactory(user=user)
+    aashe_user.set_drupal_user_dict({'roles': {'Member': 'Member'}})
+    aashe_user.save()
     return user
 
 
@@ -94,6 +95,7 @@ def new_non_member():
     """Return a User that will NOT be identified as a member.
     """
     non_member = UserFactory(password=PASSWORD)
+    AASHEUserFactory(user=non_member)
     return non_member
 
 
@@ -115,9 +117,9 @@ def create_creditset(version):
 
 
 def create_creditsets():
-    _ = create_creditset('1.0')
-    _ = create_creditset('1.2')
-    _ = create_creditset('2.0')
+    create_creditset('1.0')
+    create_creditset('1.2')
+    create_creditset('2.0')
 
 
 class AggregateFilterTestCase(TestCase):

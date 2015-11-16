@@ -180,8 +180,8 @@ class SummaryToolViewTest(InstitutionViewOnlyToolMixinTest):
     def test_get_with_no_slug_raises_page_not_found(self):
         """Does a GET w/no institution slug raise a 404?"""
         with self.assertRaises(Http404):
-            _ = self.view_class.as_view()(self.request,
-                                          institution_slug='')
+            self.view_class.as_view()(self.request,
+                                      institution_slug='')
 
 
 class ToolLandingPageViewTest(ViewTest):
@@ -214,14 +214,15 @@ class ToolLandingPageViewTest(ViewTest):
                 self.view_class.as_view()(request=self.request)
             except SuspiciousOperation:  # Django doesn't like reverse mocked.
                 pass
-            reverse_mock.assert_called_with('tool-summary',
-                                            kwargs={'institution_slug':
-                                                    stars_account.institution.slug})
+            reverse_mock.assert_called_with(
+                'tool-summary',
+                kwargs={'institution_slug':
+                        stars_account.institution.slug})
 
     def test_redirect_when_many_stars_accounts(self):
         """Is the redirection when the user has >1 STARS accounts correct?"""
         for i in (1, 2):
-            _ = StarsAccountFactory(user=self.request.user)
+            StarsAccountFactory(user=self.request.user)
         with patch('stars.apps.tool.views.reverse') as reverse_mock:
             try:
                 self.view_class.as_view()(request=self.request)
@@ -244,65 +245,85 @@ class NoStarsAccountViewTest(ViewTest):
         self.view = self.view_class()
 
     def test_get_institution_empty_profile_instlist(self):
-        self.assertEqual(self.view.get_institution(user=self.request.user),
+        """Does get_institution work when profile has no institutions?"""
+        self.assertEqual(self.view.get_institution(user=self.user),
                          None)
 
     def test_get_institution_one_valid_entry_profile_instlist(self):
+        """Does get_institution work when profile has 1 valid institution?"""
         institution = InstitutionFactory()
         self.user_aashe_account.set_drupal_user_dict({'profile_instlist':
                                                       str(institution.id)})
         self.user_aashe_account.save()
-        self.assertEqual(self.view.get_institution(user=self.request.user),
+        self.assertEqual(self.view.get_institution(user=self.user),
                          institution)
 
     def test_get_institution_one_invalid_entry_profile_instlist(self):
-        self.user_aashe_account.set_drupal_user_dict({'profile_instlist': '-999'})
+        """Does get_institution work when profile has 1 invalid institution?"""
+        self.user_aashe_account.set_drupal_user_dict(
+            {'profile_instlist': '-999'})
         self.user_aashe_account.save()
-        self.assertEqual(self.view.get_institution(user=self.request.user),
+        self.assertEqual(self.view.get_institution(user=self.user),
                          None)
 
     def test_get_institution_two_valid_entries_profile_instlist(self):
+        """Does get_institution work when profile has 2 valid institutions?"""
         first_institution = InstitutionFactory()
         second_institution = InstitutionFactory()
-        self.user_aashe_account.set_drupal_user_dict({'profile_instlist': ','.join(
-            (str(first_institution.id), str(second_institution.id)))})
+        self.user_aashe_account.set_drupal_user_dict(
+            {'profile_instlist': ','.join(
+                (str(first_institution.id), str(second_institution.id)))})
         self.user_aashe_account.save()
-        self.assertEqual(self.view.get_institution(user=self.request.user),
+        self.assertEqual(self.view.get_institution(user=self.user),
                          first_institution)
 
     def test_get_institution_two_invalid_entries_profile_instlist(self):
-        self.user_aashe_account.set_drupal_user_dict({'profile_instlist': '-999,-888'})
+        """Does get_institution work when profile has 2 invalid institutions?
+        """
+        self.user_aashe_account.set_drupal_user_dict(
+            {'profile_instlist': '-999,-888'})
         self.user_aashe_account.save()
-        self.assertEqual(self.view.get_institution(user=self.request.user),
+        self.assertEqual(self.view.get_institution(user=self.user),
                          None)
 
     def test_get_institution_one_valid_one_invalid_entries_profile_instlist(
             self):
+        """Does get_institution work when profile has 2 institutions,
+        1 valid and 1 invalid?
+        """
         institution = InstitutionFactory()
-        self.user_aashe_account.set_drupal_user_dict({'profile_instlist': '-999,' + str(institution.id)})
+        self.user_aashe_account.set_drupal_user_dict(
+            {'profile_instlist': '-999,' + str(institution.id)})
         self.user_aashe_account.save()
-        self.assertEqual(self.view.get_institution(user=self.request.user),
+        self.assertEqual(self.view.get_institution(user=self.user),
                          institution)
 
     def test_get_institution_one_participant_of_two_entries_profile_instlist(
             self):
+        """Does get_institution work when profile has 2 institutions,
+        1 a participant?
+        """
         first_institution = InstitutionFactory()
         second_institution = InstitutionFactory(is_participant=True)
-        self.user_aashe_account.set_drupal_user_dict({'profile_instlist': ','.join(
-            (str(first_institution.id), str(second_institution.id)))})
+        self.user_aashe_account.set_drupal_user_dict(
+            {'profile_instlist': ','.join(
+                (str(first_institution.id), str(second_institution.id)))})
         self.user_aashe_account.save()
-        self.assertEqual(self.view.get_institution(user=self.request.user),
+        self.assertEqual(self.view.get_institution(user=self.user),
                          second_institution)
 
     def test_get_institution_no_participant_of_two_entries_profile_instlist(
             self):
-        first_institution = InstitutionFactory(is_participant=True)
-        second_institution = InstitutionFactory(is_participant=True)
-
-        self.user_aashe_account.set_drupal_user_dict({'profile_instlist': ','.join(
-            (str(first_institution.id), str(second_institution.id)))})
+        """Does get_institution work when profile has 2 institutions,
+        neither a participant?
+        """
+        first_institution = InstitutionFactory(is_participant=False)
+        second_institution = InstitutionFactory(is_participant=False)
+        self.user_aashe_account.set_drupal_user_dict(
+            {'profile_instlist': ','.join(
+                (str(first_institution.id), str(second_institution.id)))})
         self.user_aashe_account.save()
-        self.assertEqual(self.view.get_institution(user=self.request.user),
+        self.assertEqual(self.view.get_institution(user=self.user),
                          first_institution)
 
     def test_get_liaison_name(self):
@@ -426,8 +447,9 @@ class NoStarsAccountViewTest(ViewTest):
                                                       str(institution.id)})
         self.user_aashe_account.save()
         response = self.view_class.as_view()(request=self.request)
-        self.assertTrue(re.search("isn't currently registered as a STARS",
-                                  response.rendered_content))
+        self.assertTrue(re.search(
+            "Your AASHE Account has not been granted access",
+            response.rendered_content))
 
 
 class SelectInstitutionViewTest(ViewTest):

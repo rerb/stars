@@ -1,13 +1,14 @@
-from logging import getLogger, CRITICAL
 import urlparse
+from logging import getLogger, CRITICAL
 
+import mock
 from django.core import mail
 from django.core.urlresolvers import reverse
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.select import Select
 from selenium.webdriver.support.wait import TimeoutException
-import mock
 
+import stars.apps.institutions.rules  # registers logical rules
 from stars.apps.institutions.models import (Institution,
                                             StarsAccount,
                                             Subscription,
