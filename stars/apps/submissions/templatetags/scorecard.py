@@ -63,6 +63,7 @@ def subcategory_quartiles(subcategory_submission):
         submission_set.institution.update_from_iss()
         if submission_set.institution.org_type:
             submission_set.institution.save()
+            org_type = submission_set.institution.org_type
 
     try:
         cached_quartiles = SubcategoryQuartiles.objects.get(
