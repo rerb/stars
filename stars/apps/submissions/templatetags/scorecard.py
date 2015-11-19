@@ -64,14 +64,29 @@ def subcategory_quartiles(subcategory_submission):
         if submission_set.institution.org_type:
             submission_set.institution.save()
 
-    cached_quartiles = SubcategoryQuartiles.objects.get(
-        subcategory=subcategory,
-        org_type=org_type)
+    if not org_type:  # still
+        logger.error('No org_type for SubmissionSet {0}'.format(
+            submission_set))
 
-    absolute_first = cached_quartiles.first / 100
-    absolute_second = cached_quartiles.second / 100
-    absolute_third = cached_quartiles.third / 100
-    absolute_fourth = cached_quartiles.fourth / 100
+    try:
+        cached_quartiles = SubcategoryQuartiles.objects.get(
+            subcategory=subcategory,
+            org_type=org_type)
+    except SubcategoryQuartiles.DoesNotExist:
+        # This shouldn't happen, but might -- if, e.g., org_type
+        # is empty.
+        logger.error(
+            'No SubcategoryQuartiles for subcategory:'
+            '{0}, org_type: {1])'.format(subcategory, org_type))
+        absolute_first = 0
+        absolute_second = 0
+        absolute_third = 0
+        absolute_fourth = 0
+    else:
+        absolute_first = cached_quartiles.first / 100
+        absolute_second = cached_quartiles.second / 100
+        absolute_third = cached_quartiles.third / 100
+        absolute_fourth = cached_quartiles.fourth / 100
 
     quartiles = Quartiles(absolute_first=absolute_first,
                           absolute_second=absolute_second,
