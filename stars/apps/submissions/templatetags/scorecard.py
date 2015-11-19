@@ -77,7 +77,7 @@ def subcategory_quartiles(subcategory_submission):
         # is empty.
         logger.error(
             'No SubcategoryQuartiles for subcategory:'
-            '{0}, org_type: {1])'.format(subcategory, org_type))
+            '{0}, org_type: {1}'.format(subcategory, org_type))
         absolute_first = 0
         absolute_second = 0
         absolute_third = 0
