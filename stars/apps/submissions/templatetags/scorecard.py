@@ -64,10 +64,6 @@ def subcategory_quartiles(subcategory_submission):
         if submission_set.institution.org_type:
             submission_set.institution.save()
 
-    if not org_type:  # still
-        logger.error('No org_type for SubmissionSet {0}'.format(
-            submission_set))
-
     try:
         cached_quartiles = SubcategoryQuartiles.objects.get(
             subcategory=subcategory,
