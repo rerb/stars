@@ -1019,7 +1019,7 @@ class SubscriptionPaymentCreateViewTest(InstitutionViewOnlyToolMixinTest):
         self.request.POST = {'card_number': GOOD_CREDIT_CARD,
                              'exp_month': '10',
                              'exp_year': '2020',
-                             'ccv': '123'}
+                             'cvv': '123'}
 
         initial_payment_count = SubscriptionPayment.objects.count()
 
