@@ -18,6 +18,7 @@ class RenewalTest(StarsLiveServerTest):
 
     def setUp(self):
         super(RenewalTest, self).setUp()
+        time.sleep(2)
         self.go_to_reporting_tool()
 
     @property
@@ -141,7 +142,7 @@ class RenewalTest(StarsLiveServerTest):
     def test_purchase_subscription_pay_later(self):
         """Is a new Subscription created when I pay later?"""
         # Remember how many Subscriptions there are before purchase:
-        num_submission_sets_before_purchase = Subscription.objects.count()
+        num_subscriptions_before_purchase = Subscription.objects.count()
 
         # Purchase a subscription:
         time.sleep(2)
@@ -164,12 +165,12 @@ class RenewalTest(StarsLiveServerTest):
         # Was a Subscription created?
         time.sleep(2)
         self.assertEqual(Subscription.objects.count(),
-                         num_submission_sets_before_purchase + 1)
+                         num_subscriptions_before_purchase + 1)
 
     def test_purchase_subscription_pay_now(self):
         """Is a new Subscription created when I pay now?"""
         # Remember how many Subscriptions there are before purchase:
-        num_submission_sets_before_purchase = Subscription.objects.count()
+        num_subscriptions_before_purchase = Subscription.objects.count()
 
         # Purchase a subscription:
         time.sleep(2)
@@ -194,6 +195,8 @@ class RenewalTest(StarsLiveServerTest):
         time.sleep(2)
         self.final_purchase_subscription_button.click()
 
+        time.sleep(2)
+
         # Was a Subscription created?
         self.assertEqual(Subscription.objects.count(),
-                         num_submission_sets_before_purchase + 1)
+                         num_subscriptions_before_purchase + 1)
