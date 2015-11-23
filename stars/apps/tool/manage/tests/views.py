@@ -1,5 +1,6 @@
 """Tests for apps/tool/manage/views.py.
 """
+import time
 from logging import getLogger, CRITICAL
 
 from bs4 import BeautifulSoup
@@ -690,6 +691,7 @@ class SubscriptionCreateWizardLiveServerTest(StarsLiveServerTest):
 
         self.apply_promo_code_button.click()
 
+        time.sleep(1)
         discounted_amount_due = self.amount_due
 
         self.assertEqual(initial_amount_due,
