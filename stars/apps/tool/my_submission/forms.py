@@ -322,11 +322,13 @@ class NumericSubmissionForm(SubmissionFieldForm):
         metric_value = self.cleaned_data.get("metric_value")
 
         if self.instance.use_metric():
-            if metric_value != None:
+            if metric_value is not None:
                 units = self.instance.documentation_field.metric_units
-                value = self.units.convert(metric_value)
+                value = units.convert(metric_value)
             else:
                 value = None
+
+        print "form: m: %s ... i: %s" % (metric_value, value)
 
         return {'value': value, 'metric_value': metric_value}
 
