@@ -328,8 +328,6 @@ class NumericSubmissionForm(SubmissionFieldForm):
             else:
                 value = None
 
-        print "form: m: %s ... i: %s" % (metric_value, value)
-
         return {'value': value, 'metric_value': metric_value}
 
     def raise_validation_error(self, error_message, min=None, max=None):
