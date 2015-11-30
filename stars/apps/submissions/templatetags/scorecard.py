@@ -63,15 +63,32 @@ def subcategory_quartiles(subcategory_submission):
         submission_set.institution.update_from_iss()
         if submission_set.institution.org_type:
             submission_set.institution.save()
+            org_type = submission_set.institution.org_type
 
-    cached_quartiles = SubcategoryQuartiles.objects.get(
-        subcategory=subcategory,
-        org_type=org_type)
+    absolute_first = 0
+    absolute_second = 0
+    absolute_third = 0
+    absolute_fourth = 0
 
-    absolute_first = cached_quartiles.first / 100
-    absolute_second = cached_quartiles.second / 100
-    absolute_third = cached_quartiles.third / 100
-    absolute_fourth = cached_quartiles.fourth / 100
+    if org_type:
+        try:
+            cached_quartiles = SubcategoryQuartiles.objects.get(
+                subcategory=subcategory,
+                org_type=org_type)
+        except SubcategoryQuartiles.DoesNotExist:
+            logger.error(
+                'No SubcategoryQuartiles for subcategory: {0}, '
+                'org_type: {1}; institution: {2}; '
+                'submissionset.pk: {3}'.format(
+                    subcategory,
+                    org_type,
+                    subcategory_submission.get_institution(),
+                    subcategory_submission.get_submissionset().pk))
+        else:
+            absolute_first = cached_quartiles.first / 100
+            absolute_second = cached_quartiles.second / 100
+            absolute_third = cached_quartiles.third / 100
+            absolute_fourth = cached_quartiles.fourth / 100
 
     quartiles = Quartiles(absolute_first=absolute_first,
                           absolute_second=absolute_second,

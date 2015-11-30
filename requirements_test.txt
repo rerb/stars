@@ -1,4 +1,4 @@
 coverage==3.6
 django-nose==1.1
-selenium==2.39.0
+selenium==2.48.0
 testfixtures==2.3.5

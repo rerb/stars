@@ -295,9 +295,10 @@ class Institution(models.Model):
 
             submission = self.get_latest_rated_submission()
 
-            # No rated submission?  Then check the most recently created
-            # submission.  That's the one that's being worked on.  Right?
-            if not submission:
+            # No rated submission?  Or rated submission a pre-2.0 creditset?
+            # Then check the most recently created submission.  That's the
+            # one that's being worked on.  Right?
+            if not submission or submission.creditset.version < '2':
                 try:
                     submission = self.submissionset_set.filter(
                         institution=self).order_by(
@@ -312,8 +313,9 @@ class Institution(models.Model):
                 ib_credit = get_institutional_boundary_credit(
                     creditset=submission.creditset)
 
-                cus = CreditUserSubmission.objects.filter(credit=ib_credit).get(
-                    subcategory_submission__category_submission__submissionset=submission)
+                cus = CreditUserSubmission.objects.filter(
+                    credit=ib_credit).get(
+                        subcategory_submission__category_submission__submissionset=submission)
 
                 sf = [sf for sf in cus.get_submission_fields()
                       if sf.documentation_field.title.lower() ==

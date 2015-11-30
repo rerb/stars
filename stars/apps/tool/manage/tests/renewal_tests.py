@@ -1,6 +1,8 @@
 """
     Functional tests for the subscription renewal process.
 """
+import time
+
 from stars.apps.institutions.models import Subscription
 from stars.apps.institutions.tests.subscription import GOOD_CREDIT_CARD
 from stars.apps.tests.live_server import (CannotFindElementError,
@@ -16,13 +18,14 @@ class RenewalTest(StarsLiveServerTest):
 
     def setUp(self):
         super(RenewalTest, self).setUp()
+        time.sleep(2)
         self.go_to_reporting_tool()
 
     @property
     def next_button(self):
         """Returns the Next button."""
         return self.get_button_with_text('Next')
- 
+
     @property
     def final_purchase_subscription_button(self):
         """Returns the final Purchase Subscription button."""
@@ -105,13 +108,13 @@ class RenewalTest(StarsLiveServerTest):
         self.credit_card_expiration_month_element.clear()
         self.credit_card_expiration_month_element.send_keys(value)
 
+    # credit card expiration year:
     @property
     def credit_card_expiration_year_element(self):
         credit_card_expiration_year_element = self.get_text_input_element(
             "exp_year")
         return credit_card_expiration_year_element
 
-    # credit card expiration year:
     @property
     def credit_card_expiration_year(self):
         return self.credit_card_expiration_year_element.text
@@ -121,51 +124,79 @@ class RenewalTest(StarsLiveServerTest):
         self.credit_card_expiration_year_element.clear()
         self.credit_card_expiration_year_element.send_keys(value)
 
+    # credit card cvv:
+    @property
+    def credit_card_cvv_element(self):
+        credit_card_cvv_element = self.get_text_input_element("cvv")
+        return credit_card_cvv_element
+
+    @property
+    def credit_card_cvv(self):
+        return self.credit_card_cvv_element.text
+
+    @credit_card_cvv.setter
+    def credit_card_cvv(self, value):
+        self.credit_card_cvv_element.clear()
+        self.credit_card_cvv_element.send_keys(value)
+
     def test_purchase_subscription_pay_later(self):
         """Is a new Subscription created when I pay later?"""
         # Remember how many Subscriptions there are before purchase:
-        num_submission_sets_before_purchase = Subscription.objects.count()
+        num_subscriptions_before_purchase = Subscription.objects.count()
 
         # Purchase a subscription:
+        time.sleep(2)
         purchase_subscription_button = self.selenium.find_element_by_link_text(
             'Purchase STARS Full Access Subscription')
         purchase_subscription_button.click()
 
         # Subscription Price View -- just click through it.
+        time.sleep(2)
         self.next_button.click()
 
         # Pay later:
+        time.sleep(2)
         self.payment_option = LATER
 
         # Purchase it!
+        time.sleep(2)
         self.final_purchase_subscription_button.click()
 
         # Was a Subscription created?
+        time.sleep(2)
         self.assertEqual(Subscription.objects.count(),
-                         num_submission_sets_before_purchase + 1)
+                         num_subscriptions_before_purchase + 1)
 
     def test_purchase_subscription_pay_now(self):
         """Is a new Subscription created when I pay now?"""
         # Remember how many Subscriptions there are before purchase:
-        num_submission_sets_before_purchase = Subscription.objects.count()
+        num_subscriptions_before_purchase = Subscription.objects.count()
 
         # Purchase a subscription:
+        time.sleep(2)
         purchase_subscription_button = self.selenium.find_element_by_link_text(
             'Purchase STARS Full Access Subscription')
         purchase_subscription_button.click()
 
         # Subscription Price View -- just click through it.
+        time.sleep(2)
         self.next_button.click()
 
         # Pay now:
+        time.sleep(2)
         self.payment_option = NOW
 
+        time.sleep(2)
         self.credit_card_number = GOOD_CREDIT_CARD
         self.credit_card_expiration_month = "12"
         self.credit_card_expiration_year = "2020"
+        self.credit_card_cvv = "123"
 
+        time.sleep(2)
         self.final_purchase_subscription_button.click()
+
+        time.sleep(2)
 
         # Was a Subscription created?
         self.assertEqual(Subscription.objects.count(),
-                         num_submission_sets_before_purchase + 1)
+                         num_subscriptions_before_purchase + 1)

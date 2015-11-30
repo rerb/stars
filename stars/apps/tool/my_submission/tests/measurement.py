@@ -1,5 +1,6 @@
 """Tests of behavior related to measurements (metric or US).
 """
+import time
 from selenium.webdriver.common.by import By
 
 from stars.apps.registration.utils import init_submissionset
@@ -12,6 +13,7 @@ class MeasurementLiveServerTest(StarsLiveServerTest):
 
     def setUp(self, *args, **kwargs):
         super(MeasurementLiveServerTest, self).setUp(*args, **kwargs)
+        time.sleep(1)
         init_submissionset(self.institution, self.user)
         self.go_to_reporting_tool()
 
@@ -57,6 +59,7 @@ class MeasurementLiveServerTest(StarsLiveServerTest):
         save_in_progress_button.click()
 
         # Go to settings:
+        time.sleep(1)
         settings_link = self.patiently_find(look_for='Settings',
                                             by=By.LINK_TEXT)
         settings_link.click()
@@ -82,9 +85,9 @@ class MeasurementLiveServerTest(StarsLiveServerTest):
             by=By.LINK_TEXT)
         ic_2_link.click()
 
-        # What were 200 acres should now be 494.21 hectares:
+        # What were 200 acres should now be ~81 hectares:
         input_element = self.get_text_input_element(
-            'NumericSubmission_2-value')
+            'NumericSubmission_2-metric_value')
         page_says = input_element.get_attribute('value')
 
-        self.assertEqual(page_says, '494.21')
+        self.assertEqual(page_says, '80.9372')
