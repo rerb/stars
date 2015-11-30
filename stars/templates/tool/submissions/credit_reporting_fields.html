@@ -65,8 +65,10 @@
             {% if credit.requires_responsible_party %}
 	            <hr/>
 	            <h3>
-	              <span class="required_note"
-	                    title="This field is required to complete credit">*</span>
+                      {% if not credit.subcategory.category.creditset.has_optional_responsible_parties_feature %}
+	                <span class="required_note"
+	                      title="This field is required to complete credit">*</span>
+                      {% endif %}
 	              Responsible Party
 	            </h3>
 	            {% if form.responsible_party.errors %}

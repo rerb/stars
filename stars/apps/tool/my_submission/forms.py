@@ -778,13 +778,15 @@ class CreditUserSubmissionForm(CreditSubmissionForm):
         # Select only the responsible parties associated with that institution
         self.fields['responsible_party'].queryset = self.instance.subcategory_submission.category_submission.submissionset.institution.responsibleparty_set.all()
 
-        self.fields['responsible_party_confirm'].label = mark_safe(
-            '<span class="required_note" '
-            '      title="This field is required to complete credit"> '
-            '  * '
-            '</span> '
-            'The information included in the submission for this credit '
-            'is accurate to the best of my knowledge.')
+        self.fields['responsible_party_confirm'].label = (
+                'The information included in the submission for this credit '
+                'is accurate to the best of my knowledge.')
+        if not self.instance.credit.get_creditset().has_optional_responsible_parties_feature:
+            self.fields['responsible_party_confirm'].label = mark_safe(
+                '<span class="required_note" '
+                '      title="This field is required to complete credit"> '
+                '  * '
+                '</span>' + self.fields['responsible_party_confirm'].label)
 
         for field in self:
             # add the onchange field_changed handler to inform users
@@ -823,7 +825,9 @@ class CreditUserSubmissionForm(CreditSubmissionForm):
 
         # responsible party and responsible party confirm are required
         # if marked complete
-        if marked_complete and self.instance.credit.requires_responsible_party:
+        if (marked_complete and
+            self.instance.credit.requires_responsible_party and
+            not self.instance.credit.get_creditset().has_optional_responsible_parties_feature):
             rp = cleaned_data.get("responsible_party")
             if rp == None or rp == "":
                 msg = u"This field is required to mark this credit complete."
