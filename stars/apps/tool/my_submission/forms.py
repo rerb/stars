@@ -2,7 +2,7 @@ from logging import getLogger
 import sys
 import string
 
-from django.forms import ModelForm, widgets
+from django.forms import ModelForm
 from django.forms.widgets import TextInput, ClearableFileInput, HiddenInput
 from django import forms
 from django.forms.extras.widgets import SelectDateWidget
