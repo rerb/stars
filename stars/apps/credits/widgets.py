@@ -25,9 +25,13 @@ class SelectTreeWidget(Widget):
         super(SelectTreeWidget, self).__init__(attrs)
         if template_name:
             self.template_name = template_name
+        if attrs and 'ordinal' in attrs:
+            self.ordinal = attrs['ordinal']
+        else:
+            self.ordinal = ''
 
     def render(self, name, value, attrs=None):
-        if value != None:
+        if value is not None:
             init_val = self.get_select_tree_array(value)
         else:
             init_val = []
@@ -41,6 +45,12 @@ class SelectTreeWidget(Widget):
                            'attrs': final_attrs})
         result = mark_safe(template.render(context))
         return result
+
+    def ordinal_id(self, id):
+        if self.ordinal:
+            return '-'.join([id, str(self.ordinal)])
+        else:
+            return id
 
 
 class CategorySelectTree(SelectTreeWidget):
@@ -58,7 +68,7 @@ class CategorySelectTree(SelectTreeWidget):
                  "data_child": attrs["id"],
                  "data_child_callback": "populateCategories",
                  "name": "creditset",
-                 "id": "creditset",
+                 "id": self.ordinal_id("creditset"),
                 },
                 {
                  "label": "Category",
@@ -82,7 +92,7 @@ class SubcategorySelectTree(CategorySelectTree):
         return self.update_select_list(old_list=select_list,
                                        attrs=attrs,
                                        label="subcategory",
-                                       parent_id="category",
+                                       parent_id=self.ordinal_id("category"),
                                        callback="populateSubcategories")
 
     def update_select_list(self, old_list, attrs, label, parent_id, callback):
@@ -118,7 +128,7 @@ class CreditSelectTree(SubcategorySelectTree):
         return self.update_select_list(old_list=select_list,
                                        attrs=attrs,
                                        label="credit",
-                                       parent_id="subcategory",
+                                       parent_id=self.ordinal_id("subcategory"),
                                        callback="populateCredits")
 
 
@@ -138,11 +148,11 @@ class DocumentationFieldSelectTree(CreditSelectTree):
         return self.update_select_list(old_list=select_list,
                                        attrs=attrs,
                                        label="field",
-                                       parent_id="credit",
+                                       parent_id=self.ordinal_id("credit"),
                                        callback="populateFields")
 
 # class DocumentationFieldSelectTree(Widget):
-# 
+#
 #     def get_select_list(self, attrs):
 #         return [
 #                 {
@@ -180,7 +190,7 @@ class DocumentationFieldSelectTree(CreditSelectTree):
 #                  "name": attrs["name"]
 #                  }
 #                 ]
-# 
+#
 #     def get_select_tree_array(self, value):
 #         if value is None:
 #             return None
