@@ -1197,6 +1197,12 @@ class DocumentationField(VersionedModel):
         help_text='This documentation field will be displayed in the '
                   'public report. Applies to 99.99% of fields.')
     tabular_fields = JSONField(blank=True, null=True)
+    copy_from_field = models.ForeignKey(
+        'self',
+        on_delete=models.CASCADE,
+        help_text='Field whose value can be copied into this field.',
+        null=True,
+        blank=True)
 
     class Meta:
         ordering = ('ordinal',)
