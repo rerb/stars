@@ -304,10 +304,13 @@ class DocumentationFieldForm(RightSizeInputModelForm):
 
         cs = self.instance.credit.get_creditset()
         self.fields['credit'].choices = cs.get_pulldown_credit_choices()
-        fields = self.instance.credit.documentationfield_set.exclude(type='tabular')
+        fields = self.instance.credit.documentationfield_set.exclude(
+            type='tabular')
         self.fields['tabular_fields'].widget = TabularFieldEdit(
-                                             fields_in_credit=fields)
+            fields_in_credit=fields)
         self.fields['previous_version'].widget = DocumentationFieldSelectTree()
+        self.fields['copy_from_field'].widget = DocumentationFieldSelectTree(
+            attrs={'ordinal': 1})
 
     def clean(self):
         cleaned_data = self.cleaned_data
