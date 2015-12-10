@@ -25,6 +25,14 @@
     {{ field_form.metric_value }}
   {% endif %}
 
+  {% if documentation_field.copy_from_field %}
+    {% with documentation_field.copy_from_field as dfcopy %}
+      <input type="button"
+             value="Copy from {{ dfcopy.credit.identifier}}: {{ dfcopy.title }}"
+             onclick='this.parentNode.firstElementChild.value = "{% get_documentation_field_submission_value dfcopy submissionset %}";'#}
+    {% endwith %}
+  {% endif %}
+
   {% if not field_form.field_includes_units and documentation_field.units %}
     {% if field_form.instance.get_institution.prefers_metric_system %}
       <span class="help-inline">{{ documentation_field.units.equivalent }}

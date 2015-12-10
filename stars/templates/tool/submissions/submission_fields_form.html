@@ -14,7 +14,7 @@
 {% with "tool/submissions/tags/tabular_field.html" as field_template %}
   {% for documentation_field in credit.get_nested_documentation_fields %}
     <div class='documentationField'>
-      {% show_submission_form_for_field documentation_field submission_form %}
+      {% show_submission_form_for_field documentation_field submission_form submissionset %}
     </div>
   {% endfor %}
 {% endwith %}

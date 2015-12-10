@@ -1,4 +1,8 @@
 from django import template
+
+from stars.apps.submissions.models import CreditUserSubmission
+
+
 register = template.Library()
 
 
@@ -120,13 +124,15 @@ def _get_form(doc_field, submission_form):
 
 
 @register.inclusion_tag('tool/submissions/tags/documentation_field_form.html')
-def show_submission_form_for_field(doc_field, submission_form):
+def show_submission_form_for_field(doc_field, submission_form,
+                                   submissionset=None):
     """ Displays the submission form for a documentation field """
     form = _get_form(doc_field, submission_form)
-    return{"documentation_field": doc_field,
-           "field_form": form,
-           "field_template": "tool/submissions/tags/tabular_field.html",
-           "submission_form": submission_form}
+    return {"documentation_field": doc_field,
+            "field_form": form,
+            "field_template": "tool/submissions/tags/tabular_field.html",
+            "submission_form": submission_form,
+            "submissionset": submissionset}
 
 
 @register.inclusion_tag(
@@ -134,5 +140,23 @@ def show_submission_form_for_field(doc_field, submission_form):
 def show_submission_form_for_field_inside_table(doc_field, submission_form):
     """ Displays the submission form for a documentation field """
     form = _get_form(doc_field, submission_form)
-    return{"documentation_field": doc_field,
-           "field_form": form}
+    return {"documentation_field": doc_field,
+            "field_form": form}
+
+
+@register.simple_tag
+def get_documentation_field_submission_value(documentation_field,
+                                             submissionset):
+    """Return the value of the DocumentationFieldSubmission for
+    `documentation_field`, in `submissionset`.
+    """
+    credit_user_submission = CreditUserSubmission.objects.get(
+        credit=documentation_field.credit,
+        subcategory_submission__category_submission__submissionset=submissionset)
+
+    for submission_field in credit_user_submission.get_submission_fields():
+        if submission_field.documentation_field == documentation_field:
+            return submission_field.value
+
+    # Fail silently . . . :-(
+    return ''
