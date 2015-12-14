@@ -21,7 +21,7 @@
 
 {% else %}
   {{ field_form.value }} <!-- {{ field_form.instance.id }} -->
-  {% if documentation_field.type == 'numeric' %}
+  {% if documentation_field.type == 'numeric' and not editing %}
     {{ field_form.metric_value }}
   {% endif %}
 
@@ -32,8 +32,10 @@
              value="Populate"
              style="margin-bottom: 9px"
              data-toggle="tooltip"
-             title="Copy from {{ dfcopy.credit.identifier}}: {{ dfcopy.title }}"
-             onclick='this.parentNode.firstElementChild.value = "{% get_documentation_field_submission_value dfcopy submissionset %}";'#}
+             title="Copy from {{ dfcopy.credit.identifier}}: {{ dfcopy.title }}";
+             {% if not editing %}
+               onclick='this.parentNode.firstElementChild.value = "{% get_documentation_field_submission_value dfcopy submissionset %}";'
+             {% endif %}
     {% endwith %}
   {% endif %}
 
