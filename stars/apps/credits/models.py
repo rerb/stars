@@ -1199,7 +1199,7 @@ class DocumentationField(VersionedModel):
     tabular_fields = JSONField(blank=True, null=True)
     copy_from_field = models.ForeignKey(
         'self',
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         help_text='Field whose value can be copied into this field.',
         null=True,
         blank=True)
