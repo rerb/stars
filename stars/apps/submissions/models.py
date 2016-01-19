@@ -755,6 +755,7 @@ class Boundary(models.Model):
                     'climate_region',
                 ]
 
+
 def get_active_submissions(creditset=None, category=None, subcategory=None, credit=None):
     """ Return a queryset for ALL active (started / finished) credit submissions that meet the given criteria.
         Only ZERO or ONE criteria should be specified - more is redundant and this code does not check for consistency.
@@ -780,27 +781,44 @@ def get_active_submissions(creditset=None, category=None, subcategory=None, cred
 
     return submissions.exclude(submission_status='ns')
 
-def get_complete_submissions(creditset=None, category=None, subcategory=None, credit=None):
-    """ See get_active_submission above - except only returns those marked as complete """
-    submissions = get_active_submissions(creditset, category, subcategory, credit)
+
+def get_complete_submissions(creditset=None,
+                             category=None,
+                             subcategory=None,
+                             credit=None):
+    """ See get_active_submission above - except only returns those marked
+        as complete """
+    submissions = get_active_submissions(creditset,
+                                         category,
+                                         subcategory,
+                                         credit)
     return submissions.filter(submission_status='c')
 
+
 def get_active_field_submissions(field):
-    """ Return a queryset for ALL active (non-empty) submissions for the given documentations field. """
+    """ Return a queryset for ALL active (non-empty) submissions for the
+        given documentations field. """
     FieldClass = DocumentationFieldSubmission.get_field_class(field)
-    submissions = FieldClass.objects.filter(documentation_field=field).exclude(value=None)
+    submissions = FieldClass.objects.filter(
+        documentation_field=field).exclude(
+            value=None)
     if FieldClass is TextSubmission or FieldClass is LongTextSubmission:
         submissions = submissions.exclude(value='')
     return submissions
 
 
 def get_na_submissions(applicability_reason):
-    """ Return a queryset for all n/a submissions that cite the given applicability_reason """
-    return CreditUserSubmission.objects.filter(applicability_reason=applicability_reason).filter(submission_status='na')
+    """ Return a queryset for all n/a submissions that cite the given
+        applicability_reason """
+    return CreditUserSubmission.objects.filter(
+        applicability_reason=applicability_reason).filter(
+            submission_status='na')
+
 
 def get_id(object):
     """ Return a valid identifier for the given sumbssion set object """
     return str(object).strip().lower().replace(" & ", "-").replace(" ", "-")
+
 
 class CategorySubmission(models.Model):
     """
@@ -961,6 +979,7 @@ class CategorySubmission(models.Model):
     def is_innovation(self):
         return self.category.is_innovation()
 
+
 class SubcategorySubmission(models.Model):
     """
         A Category from a credit set that is being submitted
@@ -1100,6 +1119,7 @@ class SubcategorySubmission(models.Model):
 
     def is_innovation(self):
         return self.category_submission.is_innovation()
+
 
 class ResponsibleParty(models.Model):
     """
@@ -1378,10 +1398,10 @@ CREDIT_SUBMISSION_STATUS_CHOICES.append(('ns', 'Not Started'))
 
 # used by template tag to create iconic representation of status:
 CREDIT_SUBMISSION_STATUS_ICONS = {
-    'c'  : ('icon-ok', 'c'),
-    'p'  : ('icon-pencil', '...'),
-    'np' : ('icon-remove', '-'),
-    'na' : ('icon-tag', '-'),
+    'c': ('icon-ok', 'c'),
+    'p': ('icon-pencil', '...'),
+    'np': ('icon-remove', '-'),
+    'na': ('icon-tag', '-'),
 }
 
 
@@ -1504,14 +1524,14 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
         # Somewhat complex logic is required here so that i something goes
         # wrong, we log a detailed message, but only show the user meaningful
         # messages.
-        if not self.is_complete(): # no points for incomplete submission
+        if not self.is_complete():  # no points for incomplete submission
             return 0
         assessed_points = 0  # default is zero - now re-calculate points...
         validation_error = False
 
         (ran, message, exception, points, d) = self.credit.execute_formula(self, debug=True)
 
-        if ran:  #perform validation on points...
+        if ran:  # perform validation on points...
             (points, messages) = self.validate_points(points)
             validation_error = len(messages) > 0
 
@@ -1524,11 +1544,16 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
 
         return assessed_points
 
+
 class CreditTestSubmission(CreditSubmission):
+
     """
         A test data set for a Credit formula - not part of any submission set
     """
-    expected_value = models.FloatField(blank=True, null=True, help_text="Point value expected from the formula for this test data")
+    expected_value = models.FloatField(
+        blank=True,
+        null=True,
+        help_text="Point value expected from the formula for this test data")
 
 #    @staticmethod
     def model_name():
@@ -1873,7 +1898,7 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
 
     def persists(self):
         """Does this Submission object persist in the DB?"""
-        return (not self.pk == None)
+        return (self.pk is not None)
 
     def get_field_class(field):
         """
@@ -1884,7 +1909,7 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
             return TextSubmission
         if field.type == 'long_text':
             return LongTextSubmission
-        if field.type == 'numeric':
+        if field.type in ('numeric', 'calculated'):
             return NumericSubmission
         if field.type == 'choice':
             return (ChoiceWithOtherSubmission
@@ -1947,12 +1972,47 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
                 else:
                     return self.value
 
+    def calculate(self):
+        """Calculate self.documentation_field formula.
+        For calculated fields only.
+        """
+        # get the key that relates field identifiers to their values
+        field_key = self.credit_submission.get_submission_field_key()
+        value = 0
+        if (self.documentation_field.formula):
+            # exec formula in restricted namespace
+            globals = {}  # __builtins__ gets added automatically
+            locals = {"value": value}
+            locals.update(field_key)
+            try:
+                exec self.documentation_field.formula in globals, locals
+            # Assertions may be used in formula for extra validation -
+            # assume assertion text is intended for user
+            except AssertionError, e:
+                raise
+            except Exception, e:
+                logger.exception("Formula Exception: %s" % e)
+                self.value = None
+            else:
+                self.value = locals['value']
+
     def save(self, *args, **kwargs):
-        """ Override models.Model save() method to forstall save if
-            CreditSubmission doesn't persist """
         # Only save submission fields if the overall submission has been saved.
-        if self.credit_submission.persists():
-            super(DocumentationFieldSubmission, self).save()
+        if not self.credit_submission.persists():
+            return
+        super(DocumentationFieldSubmission, self).save()
+        if self.documentation_field.type != 'calculated':  # avoid endless loop
+            # If there are any calculated fields for this field's
+            # credit, calculate them.  They might rely on this field's
+            # value.  They might not, too, but we have no way to know
+            # which fields are used in a calculated field's formula;
+            # we only know they're attached to the same credit.
+            for sub_field in self.credit_submission.get_submission_fields():
+                if sub_field.documentation_field.type == 'calculated':
+                    old_value = sub_field.value
+                    sub_field.calculate()
+                    if sub_field.value != old_value:
+                        sub_field.save()
 
     def get_value(self):
         """ Use this accessor to get this submission's value - rather than
@@ -1960,10 +2020,10 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
         return self.value
 
     def is_empty(self):
-        if self.value == None or self.value == "":
+        if self.value is None or self.value == "":
             return True
         # if it's nothing but whitespace
-        if re.match("^\s+$", self.value) != None:
+        if re.match("^\s+$", self.value) is not None:
             return True
         return False
 
@@ -1983,19 +2043,27 @@ class AbstractChoiceSubmission(DocumentationFieldSubmission):
 
     @staticmethod
     def _get_str(choice):
-        return '<%d:%s>'%(choice.ordinal, choice.choice) if choice else '<None>'
+        return ('<%d:%s>' % (choice.ordinal, choice.choice)
+                if choice
+                else '<None>')
 
     def get_choice_queryset(self):
-        """ Return the queryset used to define the choices for this submission """
-        return Choice.objects.filter(documentation_field=self.documentation_field).filter(is_bonafide=True)
+        """Return the queryset used to define the choices for this
+           submission"""
+
+        return Choice.objects.filter(
+            documentation_field=self.documentation_field).filter(
+                is_bonafide=True)
 
     def get_last_choice(self):
-        """ Return the last Choice object in the list of choices for this submission """
+        """ Return the last Choice object in the list of choices for this
+            submission """
         choices = self.get_choice_queryset()
         if len(choices) > 0:
             return choices[len(choices)-1]  # no negative indexing on QuerySets
         else:
             return None
+
 
 class ChoiceSubmission(AbstractChoiceSubmission):
     """
@@ -2007,24 +2075,36 @@ class ChoiceSubmission(AbstractChoiceSubmission):
         """ Value is a Choice object, or None """
         return self.value
 
+
 class AbstractChoiceWithOther(object):
-    """ A base class for sharing the compress / decompress logig needed for Choice-with-other type submisssions """
+    """
+        A base class for sharing the compress / decompress logig needed
+        for Choice-with-other type submisssions
+    """
     def compress(self, choice, other_value):
         """
-            Given a decompressed choice / other value pair into a single Choice value
-            Return a single Choice representing the selection, or None.
-            Assumes choice is a Choice and other_value has been properly sanatized!
-            See decompress() above, except compress is peformed during clean() in ModelChoiceWithOtherField
+            Given a decompressed choice / other value pair into a single
+            Choice value Return a single Choice representing the
+            selection, or None.  Assumes choice is a Choice and
+            other_value has been properly sanatized!  See decompress()
+            above, except compress is peformed during clean() in
+            ModelChoiceWithOtherField
         """
         if not choice:
             return None
-        if choice == self.get_last_choice() and other_value:  #The value is an 'other' - create the Choice object
-            # search for the 'other' choice value first - try to re-use an existing choice.
-            find = Choice.objects.filter(documentation_field=self.documentation_field).filter(choice=other_value)  #@todo: can this be case insensitive?
+        if choice == self.get_last_choice() and other_value:
+            # The value is an 'other' - create the Choice object
+            # search for the 'other' choice value first - try to
+            # re-use an existing choice.
+            find = Choice.objects.filter(
+                documentation_field=self.documentation_field).filter(
+                    choice=other_value)  # @todo: can this be case insensitive?
             if len(find) > 0:
                 choice = find[0]
             else:
-                choice = Choice(documentation_field=self.documentation_field, choice=other_value, is_bonafide = False)
+                choice = Choice(documentation_field=self.documentation_field,
+                                choice=other_value,
+                                is_bonafide=False)
                 choice.save()
 
         return choice
@@ -2062,15 +2142,15 @@ class ChoiceWithOtherSubmission(ChoiceSubmission, AbstractChoiceWithOther):
             logger.error("Attempt to decompress non-existing Choice (id=%s)" %
                          value, exc_info=True)
             return [None, None]
-        if choice.is_bonafide:  # A bonafide choice is one of the actual choices
+        if choice.is_bonafide:  # One of the actual choices
             return [value, None]
         else:                   # whereas non-bonafide choices
-                                #represent an 'other' choice.
+                                # represent an 'other' choice.
 
             # value is not one of the bonafide choices - try to find
             # it in the DB.  The selection is the last choice, and the
             # Choice text is the 'other' field.
-            return [self.get_last_choice().pk, choice.choice ]
+            return [self.get_last_choice().pk, choice.choice]
 
     def compress(self, choice, other_value):
         """
@@ -2100,12 +2180,14 @@ class MultiChoiceSubmission(AbstractChoiceSubmission):
     """
         The submitted value for a Multi-Choice Documentation Field
     """
-    # should be called values, really, since it potentially represents multiple values
+    # should be called values, really, since it potentially
+    # represents multiple values
     value = models.ManyToManyField(Choice, blank=True, null=True)
 
     def get_value(self):
         """ Value is a list of Choice objects, or None """
-        # got to be careful here - many-to-many is only valid after submission has been saved.
+        # got to be careful here - many-to-many is only valid
+        # after submission has been saved.
         return self.value.all() if self.persists() else None
 
     def __unicode__(self):
@@ -2113,7 +2195,7 @@ class MultiChoiceSubmission(AbstractChoiceSubmission):
         choices = self.get_value()
         if not choices:
             return "[ ]"
-        return '[%s]' %','.join([self._get_str(choice) for choice in choices])
+        return '[%s]' % ','.join([self._get_str(choice) for choice in choices])
 
 
 class MultiChoiceWithOtherSubmission(MultiChoiceSubmission,
@@ -2196,11 +2278,13 @@ class MultiChoiceWithOtherSubmission(MultiChoiceSubmission,
 
         return choice_list
 
+
 class URLSubmission(DocumentationFieldSubmission):
     """
         The submitted value for a URL Documentation Field
     """
     value = models.URLField(blank=True, null=True, verify_exists=False)
+
 
 class DateSubmission(DocumentationFieldSubmission):
     """
@@ -2317,6 +2401,7 @@ class TextSubmission(DocumentationFieldSubmission):
     """
     value = models.CharField(max_length=255, blank=True, null=True)
 
+
 class LongTextSubmission(DocumentationFieldSubmission):
     """
         The submitted value for Long Text Documentation Field
@@ -2370,12 +2455,13 @@ class BooleanSubmission(DocumentationFieldSubmission):
     value = models.NullBooleanField(blank=True, null=True)
 
     def __unicode__(self):
-        if self.value == True:
+        if self.value is True:
             return "Yes"
-        elif self.value == False:
+        elif self.value is False:
             return "No"
         else:
             return "---"
+
 
 PAYMENT_REASON_CHOICES = (
     ('member_reg', 'member_reg'),

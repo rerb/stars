@@ -1086,7 +1086,8 @@ DOCUMENTATION_FIELD_TYPES = (
     ('date', 'date'),
     ('upload', 'upload'),
     ('tabular', 'tabular'),
-#    ('multiple_upload', 'multiple upload'),
+    ('calculated', 'calculated')
+    #  ('multiple_upload', 'multiple upload'),
 )
 
 REQUIRED_TYPES = (
@@ -1105,7 +1106,8 @@ TYPE_TO_WIDGET = {
     'date': forms.TextInput,
     'upload': forms.FileInput,
     'choice': forms.Select,
-    'tabular': forms.Textarea #@todo - custom
+    'tabular': forms.Textarea,  # @todo - custom
+    'calculated': forms.TextInput
 }
 
 
@@ -1203,6 +1205,19 @@ class DocumentationField(VersionedModel):
         help_text='Field whose value can be copied into this field.',
         null=True,
         blank=True)
+    formula = models.TextField('Calculation Formula',
+                               blank=True,
+                               null=True,
+                               default='',
+                               help_text='Formula to compute field value')
+    imperial_formula_text = models.CharField(max_length=255,
+                                             blank=True,
+                                             null=True,
+                                             help_text="Imperial formula text")
+    metric_formula_text = models.CharField(max_length=255,
+                                           blank=True,
+                                           null=True,
+                                           help_text="Metric formula text")
 
     class Meta:
         ordering = ('ordinal',)

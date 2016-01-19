@@ -16,8 +16,7 @@ from stars.apps.credits.models import (CreditSet,
                                        Rating,
                                        compile_formula,
                                        Choice,
-                                       Unit
-                                       )
+                                       Unit)
 from stars.apps.credits.widgets import (CategorySelectTree,
                                         SubcategorySelectTree,
                                         CreditSelectTree,
@@ -228,25 +227,10 @@ class NewT2CreditForm(NewCreditForm):
                    'previous_version', 'identifier')
 
 
-class CreditFormulaForm(RightSizeInputModelForm):
-    formula = forms.CharField(
-        widget=CodeMirrorTextarea(mode='python',
-                                  config={'lineNumbers': True},),
-        required=False,
-        help_text='Must set <em>points</em><br/>AVAILABLE_POINTS has a value if this varies')
-    validation_rules = forms.CharField(
-        widget=CodeMirrorTextarea(mode='python',
-                                  config={'lineNumbers': True},),
-        required=False)
-    point_value_formula = forms.CharField(
-        widget=CodeMirrorTextarea(mode='python',
-                                  config={'lineNumbers': True},),
-        required=False,
-        help_text='Must set <em>available_points</em><br/>MIN_POINTS and MAX_POINTS variables are available if this varies')
+class AbstractFormWithFormula(object):
 
     class Meta:
-        model = Credit
-        fields = ('formula', 'validation_rules', 'point_value_formula')
+      abstract = True
 
     def clean_formula(self):
         return self._clean_code_field('formula')
@@ -268,6 +252,30 @@ class CreditFormulaForm(RightSizeInputModelForm):
         return code
 
 
+class CreditFormulaForm(AbstractFormWithFormula,
+                        RightSizeInputModelForm):
+    formula = forms.CharField(
+        widget=CodeMirrorTextarea(mode='python',
+                                  config={'lineNumbers': True},),
+        required=False,
+        help_text=('Must set <em>points</em><br/>AVAILABLE_POINTS '
+                   'has a value if this varies'))
+    validation_rules = forms.CharField(
+        widget=CodeMirrorTextarea(mode='python',
+                                  config={'lineNumbers': True},),
+        required=False)
+    point_value_formula = forms.CharField(
+        widget=CodeMirrorTextarea(mode='python',
+                                  config={'lineNumbers': True},),
+        required=False,
+        help_text=('Must set <em>available_points</em><br/>MIN_POINTS '
+                   'and MAX_POINTS variables are available if this varies'))
+
+    class Meta:
+        model = Credit
+        fields = ('formula', 'validation_rules', 'point_value_formula')
+
+
 class CreditTestSubmissionForm(CreditSubmissionForm):
 
     class Meta:
@@ -284,7 +292,12 @@ class CreditOrderForm(RightSizeInputModelForm):
         fields = ('ordinal',)
 
 
-class DocumentationFieldForm(RightSizeInputModelForm):
+class DocumentationFieldForm(AbstractFormWithFormula,
+                             RightSizeInputModelForm):
+    formula = forms.CharField(
+        widget=forms.Textarea(attrs={'class': 'noMCE'}),
+        required=False,
+        help_text='Must set <em>value</em>')
     tooltip_help_text = forms.CharField(
         widget=widgets.Textarea(attrs={'rows': '2'}),
         required=False)
@@ -295,7 +308,8 @@ class DocumentationFieldForm(RightSizeInputModelForm):
     class Meta:
         model = DocumentationField
         exclude = ('ordinal', 'identifier', 'type',
-                   'last_choice_is_other')
+                   'last_choice_is_other',
+                   'metric_formula_text', 'imperial_formula_text')
 
     def __init__(self, *args, **kwargs):
         super(DocumentationFieldForm, self).__init__(*args, **kwargs)

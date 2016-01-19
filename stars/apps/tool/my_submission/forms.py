@@ -2,7 +2,7 @@ from logging import getLogger
 import sys
 import string
 
-from django.forms import ModelForm, widgets
+from django.forms import ModelForm
 from django.forms.widgets import TextInput, ClearableFileInput, HiddenInput
 from django import forms
 from django.forms.extras.widgets import SelectDateWidget
@@ -25,46 +25,46 @@ class NewBoundaryForm(LocalizedModelFormMixin, BetterModelForm):
         model = Boundary
         exclude = ("submissionset",)
 
-        fieldsets = [ ('Characteristics',
-                       { 'fields':Boundary.get_characteristic_field_names(),
-                         'legend': "Characteristics",
-                         'description': 'boundary_characteristics' }),
-                      ('Features',
-                       { 'fields': [ 'ag_school_present',
-                                     'ag_school_included',
-                                     'ag_school_details',
-                                     'med_school_present',
-                                     'med_school_included',
-                                     'med_school_details',
-                                     'pharm_school_present',
-                                     'pharm_school_included',
-                                     'pharm_school_details',
-                                     'pub_health_school_present',
-                                     'pub_health_school_included',
-                                     'pub_health_school_details',
-                                     'vet_school_present',
-                                     'vet_school_included',
-                                     'vet_school_details',
-                                     'sat_campus_present',
-                                     'sat_campus_included',
-                                     'sat_campus_details',
-                                     'hospital_present',
-                                     'hospital_included',
-                                     'hospital_details',
-                                     'farm_present',
-                                     'farm_included',
-                                     'farm_acres',
-                                     'farm_details',
-                                     'agr_exp_present',
-                                     'agr_exp_included',
-                                     'agr_exp_acres',
-                                     'agr_exp_details' ],
-                         'legend': 'Features',
-                         'description': 'boundary_features' }),
-                      ('narrative',
-                       { 'fields': ['additional_details'],
-                         'legend': "Narrative",
-                         "description": "boundary_narrative" }) ]
+        fieldsets = [('Characteristics',
+                      {'fields': Boundary.get_characteristic_field_names(),
+                       'legend': "Characteristics",
+                       'description': 'boundary_characteristics'}),
+                     ('Features',
+                      {'fields': ['ag_school_present',
+                                  'ag_school_included',
+                                  'ag_school_details',
+                                  'med_school_present',
+                                  'med_school_included',
+                                  'med_school_details',
+                                  'pharm_school_present',
+                                  'pharm_school_included',
+                                  'pharm_school_details',
+                                  'pub_health_school_present',
+                                  'pub_health_school_included',
+                                  'pub_health_school_details',
+                                  'vet_school_present',
+                                  'vet_school_included',
+                                  'vet_school_details',
+                                  'sat_campus_present',
+                                  'sat_campus_included',
+                                  'sat_campus_details',
+                                  'hospital_present',
+                                  'hospital_included',
+                                  'hospital_details',
+                                  'farm_present',
+                                  'farm_included',
+                                  'farm_acres',
+                                  'farm_details',
+                                  'agr_exp_present',
+                                  'agr_exp_included',
+                                  'agr_exp_acres',
+                                  'agr_exp_details'],
+                       'legend': 'Features',
+                       'description': 'boundary_features'}),
+                     ('narrative',
+                      {'fields': ['additional_details'],
+                       'legend': "Narrative",
+                       "description": "boundary_narrative"})]
 
     def __init__(self, *args, **kwargs):
         super(NewBoundaryForm, self).__init__(*args, **kwargs)
@@ -82,7 +82,7 @@ class SubcategorySubmissionForm(ModelForm):
         self.fields['description'].widget.attrs = {
             'onkeydown': 'field_changed(this);',
             'onchange': 'field_changed(this);',
-            'style': 'width: 35em;height: 15em;' }
+            'style': 'width: 35em;height: 15em;'}
 
 
 class SubmissionFieldFormMixin():
@@ -104,7 +104,9 @@ class SubmissionFieldFormMixin():
             self.warnings = WarningList([msg])
 
 
-class SubmissionFieldForm(SubmissionFieldFormMixin, LocalizedModelFormMixin, ModelForm):
+class SubmissionFieldForm(SubmissionFieldFormMixin,
+                          LocalizedModelFormMixin,
+                          ModelForm):
     """ Parent class for all submission fields to provide access to
     clean_value"""
 
@@ -129,7 +131,8 @@ class SubmissionFieldForm(SubmissionFieldFormMixin, LocalizedModelFormMixin, Mod
         DocumentationFieldSubmission submission_field model"""
         SubmissionFormsModule = sys.modules[__name__]
         FormClass = getattr(SubmissionFormsModule,
-                            "%sForm"%submission_field.__class__.__name__ , None)
+                            "%sForm" % submission_field.__class__.__name__,
+                            None)
         return FormClass
     get_form_class = staticmethod(get_form_class)
 
@@ -203,7 +206,7 @@ class MultiChoiceWithOtherSubmissionForm(AbstractMultiFieldSubmissionForm):
 
 class URLSubmissionForm(SubmissionFieldForm):
     value = forms.URLField(required=False, verify_exists=False,
-                           widget=TextInput(attrs={'style': 'width: 600px;',}))
+                           widget=TextInput(attrs={'style': 'width: 600px;'}))
 
     class Meta:
         model = URLSubmission
@@ -220,7 +223,7 @@ class DateSubmissionForm(SubmissionFieldForm):
         if self.instance:
             min = self.instance.documentation_field.min_range
             max = self.instance.documentation_field.max_range
-            if min != None and max != None:
+            if min is not None and max is not None:
                 self.fields['value'].widget = SelectDateWidget(
                     required=False, years=range(min, max+1))
 
@@ -259,6 +262,10 @@ class NumericSubmissionForm(SubmissionFieldForm):
         # except Institution.DoesNotExist:
             # this will raise an error in credit editor
             # pass
+        # If this is a calculated field, make the widgets read-only:
+        if self.instance.documentation_field.type == 'calculated':
+            for field in self.fields.values():
+                field.widget.attrs['readonly'] = 'readonly'
 
     def clean_value(self):
         """ validate the value field if they aren't using metric """
@@ -363,11 +370,11 @@ class TextSubmissionForm(SubmissionFieldForm):
 
             chars = len(value)
 
-            if max != None:
+            if max is not None:
                 if chars > max:
                     raise forms.ValidationError(
                         "The text is too long for this field. "
-                        "Limit: %d characters"% max)
+                        "Limit: %d characters" % max)
         elif not self.instance:
             logger.info("No Instance")
         return value
@@ -377,7 +384,7 @@ class LongTextSubmissionForm(SubmissionFieldForm):
     value = forms.CharField(
         widget=forms.Textarea(
             attrs={'style': 'width: 600px;height:100px;'}),
-            required=False)  # don't use MCE for submissions!
+        required=False)  # don't use MCE for submissions!
 
     class Meta:
         model = LongTextSubmission
@@ -505,7 +512,7 @@ class CreditSubmissionForm(LocalizedModelFormMixin, ModelForm):
                 # bind the field form to the data (if there was any)
                 form = SubmissionFieldFormClass(
                     data, files, instance=field,
-                    prefix="%s_%s"%(field.__class__.__name__,prefix))
+                    prefix = "%s_%s" % (field.__class__.__name__, prefix))
                 form['value'].field.widget.attrs['onchange'] = (
                     'field_changed(this);')  # see include.js
             else:
