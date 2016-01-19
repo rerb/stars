@@ -13,16 +13,16 @@ from stars.apps.institutions.models import Institution, Subscription
 from stars.apps.submissions.models import SubmissionSet
 
 
-start = datetime.date(2014, 1, 1)
-end = datetime.date(2014, 12, 31)
+start = datetime.date(2015, 1, 1)
+end = datetime.date(2015, 12, 31)
 
 print """
 #############################################################
-# XX% of 2014 STARS Current Participants were AASHE Members #
+# XX%% of %d STARS Current Participants were AASHE Members #
 #############################################################
 
-subscriber: an Institution that had a valid subscription in 2014.
-"""
+subscriber: an Institution that had a valid subscription in %d.
+""" % (start.year, start.year)
 members = 0.0
 subscribers = set()
 
@@ -36,15 +36,16 @@ for subscriber in subscribers:
     if subscriber.is_member:
         members += 1
 
-print '2014 subscribers:', len(subscribers)
+print "%d subscribers: %d" % (start.year, len(subscribers))
 print '         members:', members,
 print '(' + str((members / len(subscribers)) * 100) + '%)'
 
 
 print """
 ###########################################################
-# XX% of 2014 STARS Rated Institutions were AASHE Members #
-###########################################################"""
+# XX%% of %d STARS Rated Institutions were AASHE Members #
+###########################################################
+""" % start.year
 rated = 0.0
 members = 0.0
 institutions = set()
@@ -64,15 +65,16 @@ for inst in institutions:
     if inst.is_member:
         members += 1
 
-print '2014 rated institutions:', rated
+print "%d rated institutions: %d" % (start.year, rated)
 print '                members:', members,
 print '(' + str((members / rated) * 100) + '%)'
 
 print """
 ######################################################################
-# XX% of institutions that were using STARS at the beginning of 2014 #
+# XX%% of institutions that were using STARS at the beginning of %d #
 # became full-access subscribers during that year                    #
-######################################################################"""
+######################################################################
+""" % start.year
 upgrades = 0.0
 
 for inst in Institution.objects.filter(date_created__lte=start):
@@ -85,6 +87,6 @@ for inst in Institution.objects.filter(date_created__lte=start):
         elif ss.start_date <= end:
             upgrades += 1
 
-print '2014 subscribers:', len(subscribers)
+print "%d subscribers: %d" % (start.year, len(subscribers))
 print '        upgrades:', upgrades,
 print '(' + str((upgrades / len(subscribers)) * 100) + '%)'

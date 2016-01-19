@@ -1436,7 +1436,8 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
     responsible_party_confirm = models.BooleanField()
     responsible_party = models.ForeignKey(ResponsibleParty,
                                           blank=True,
-                                          null=True)
+                                          null=True,
+                                          on_delete=models.SET_NULL)
 
     class Meta:
         # @todo: the unique clause needs to be added at the DB level now :-(

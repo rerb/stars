@@ -501,3 +501,5 @@ if 'test' in sys.argv:
 
 # Override default of compression off when debug=true to test locally
 COMPRESS_ENABLED = os.environ.get('COMPRESS_ENABLED')
+
+AUTH_USER_MODEL = 'auth.User'

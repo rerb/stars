@@ -3,8 +3,11 @@
 """
 from unittest import TestCase
 
-from stars.test_factories import CreditUserSubmissionFactory, \
-     ResponsiblePartyFactory
+from stars.apps.submissions.models import (CreditUserSubmission,
+                                           ResponsibleParty)
+from stars.test_factories import (CreditUserSubmissionFactory,
+                                  ResponsiblePartyFactory)
+
 
 def _hide_creditusersubmission(creditusersubmission):
     """
@@ -41,3 +44,13 @@ class ResponsiblePartyTest(TestCase):
         self.assertEqual(
             self.responsible_party.get_creditusersubmissions().count(),
             len(self.credit_user_submissions) - 2)
+
+    def test_deleting_responsible_party_doesnt_delete_submission(self):
+        """Does deleting a RP delete the related CreditUserSubmissions?
+        (It shouldn't.)
+        """
+        num_cus_before = CreditUserSubmission.objects.count()
+        num_rp_before = ResponsibleParty.objects.count()
+        self.responsible_party.delete()
+        self.assertEqual(num_rp_before - 1, ResponsibleParty.objects.count())
+        self.assertEqual(num_cus_before, CreditUserSubmission.objects.count())

@@ -7,7 +7,7 @@ urlpatterns = patterns(
     'stars.apps.institutions.views',
 
     # Active Institutions
-    (r'^$', ActiveInstitutions.as_view()),
+    # (r'^$', ActiveInstitutions.as_view()),
 
     # Rated institutions
     (r'^rated/$', RatedInstitutions.as_view()),
