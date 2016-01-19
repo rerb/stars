@@ -308,8 +308,8 @@ class DocumentationFieldForm(AbstractFormWithFormula,
     class Meta:
         model = DocumentationField
         exclude = ('ordinal', 'identifier', 'type',
-                   'last_choice_is_other',
-                   'metric_formula_text', 'imperial_formula_text')
+                   'last_choice_is_other', 'metric_formula_text',
+                   'imperial_formula_text')
 
     def __init__(self, *args, **kwargs):
         super(DocumentationFieldForm, self).__init__(*args, **kwargs)
@@ -357,7 +357,8 @@ class DocumentationFieldForm(AbstractFormWithFormula,
 class NewDocumentationFieldForm(DocumentationFieldForm):
     class Meta(DocumentationFieldForm.Meta):
         exclude = ('ordinal', 'identifier', 'last_choice_is_other',
-                   'min_range', 'max_range')
+                   'min_range', 'max_range', 'metric_formula_text',
+                   'imperial_formula_text')
 
 
 class DocumentationFieldOrderingForm(RightSizeInputModelForm):
