@@ -20,7 +20,6 @@ def clear_cache(url):
 
     # Extract submission set data from URL
     pieces = url.split('/')
-    print pieces
     date_submitted = pieces[6]
     slug = pieces[4]
     institution = Institution.objects.get(slug=slug)
