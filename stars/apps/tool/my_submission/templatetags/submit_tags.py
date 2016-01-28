@@ -160,3 +160,9 @@ def get_documentation_field_submission_value(documentation_field,
 
     # Fail silently . . . :-(
     return ''
+
+
+@register.assignment_tag
+def subcategory_has_opt_in_credits(subcategory):
+    """Does `subcategory` have any opt-in Credits?"""
+    return bool(subcategory.credit_set.filter(is_opt_in=True).count())
