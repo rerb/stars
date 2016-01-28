@@ -8,6 +8,49 @@
   {% show_submit_crumbs submissionset %}
 {% endblock %}
 
+{% block extra_head %}
+  <script type="text/javascript">
+   function getCreditUserSubmissionId(checkbox) {
+     var id = checkbox.getAttribute("id");
+     return $(id.split('-')).last()[0];
+   }
+   function setOptInCredits(subId) {
+     $("body").css("cursor", "wait");
+
+     var modal = $("#editOptInCredits" + subId);
+     var form = modal.find("form");
+     var checkboxes = form.find(":checkbox");
+     var ajax_data = {};
+
+     checkboxes.each(function(index, cb) {
+       var creditUserSubmissionId = getCreditUserSubmissionId(cb);
+       ajax_data[creditUserSubmissionId] = $(cb).is(":checked");
+     });
+
+     var ajax_request = $.ajax({
+       url: "{% url set-opt-in-credits %}",
+       type: "POST",
+       data: ajax_data,
+       error: function(data, textStatus, jqXHR) {
+         alert("Error\n\n" + data.responseText);
+         $("body").css("cursor", "default");
+
+       },
+       complete: function(data, textStatus, jqXHR) {
+         modal.modal("hide");
+         data_obj = JSON.parse(data.responseText);
+         if (data_obj["data_changed"]) {
+           location.reload();  // reload from server
+         }
+         else {
+           $("body").css("cursor", "default");
+         }
+       }
+     });
+   }
+  </script>
+{% endblock %}
+
 {% block tool_content %}
   {% load submit_tags %}
 
@@ -143,6 +186,72 @@
                           </div>
                         {% endif %}
                       {% endif %}
+                      {% subcategory_has_opt_in_credits sub.subcategory as handle_opt_in_credits %}
+                      {% if handle_opt_in_credits %}
+                        <button type="button" class="btn btn-primary btn-small"
+                                data-toggle="modal"
+                                data-target="#editOptInCredits{{ sub.id|slugify }}">
+                          <i class='icon-check icon-white'></i>
+                          Select Credits
+                        </button>
+                        <div class="modal fade"
+                             id="editOptInCredits{{ sub.id|slugify }}" tabindex="-1"
+                             role="dialog">
+                          <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <button type="button" class="close"
+                                        data-dismiss="modal" aria-label="Close">
+                                  <span aria-hidden="true">&times;</span>
+                                </button>
+                                <h4 class="modal-title">
+                                  Select {{ sub.subcategory }} Credits
+                                </h4>
+                              </div>
+                              <div class="modal-body">
+                                <form role="form">
+                                  <table>
+                                    <tr>
+                                      <th colspan="2">
+                                        Select
+                                      </th>
+                                      <th>
+                                        Credit
+                                      </th>
+                                    </tr>
+                                    {% for credit_submission in sub.creditusersubmission_set.all %}
+                                      {% if credit_submission.credit.is_opt_in %}
+                                        <tr>
+                                          <td colspan="2">
+                                            <input type="checkbox" class="form-control"
+                                                   id="opt-in-{{ credit_submission.id|slugify }}"
+                                                   {% if credit_submission.submission_status != "na" %}
+                                                     checked
+                                                   {% endif %}>
+                                          </td>
+                                          <td>
+                                            {{ credit_submission.credit }}
+                                          </td>
+                                        </tr>
+                                      {% endif %}
+                                    {% endfor %}
+                                  </table>
+                                </form>
+                              </div>
+                              <div class="modal-footer">
+                                <button type="button" class="btn btn-default"
+                                        data-dismiss="modal">
+                                  Cancel
+                                </button>
+                                <button type="submit" class="btn btn-primary"
+                                        onclick="setOptInCredits({{ sub.id|slugify }})">
+                                  Save changes
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      {% endif %}
                       <table class='table table-condensed table-striped'>
                         <thead>
                           <tr>
@@ -157,26 +266,27 @@
                         </thead>
                         <tbody>
                           {% for c in sub.creditusersubmission_set.all %}
-                            <tr class='{% cycle 'even' 'odd' %}'
-                                {% ifchanged c.credit.type %}
-                                  style="border-top-width: 1px;"
-                                {% endifchanged %}
-                                >
-                              <td class='credit'>
-                                <a href='{{ c.get_submit_url }}'>
-                                  {{ c.credit }} <!-- {{ c.id }} -->
-                                </a>
-                              </td>
-                              <td>{% show_status_icon c %}</td>
-                              {% testrule institution_has_score_feature institution %}
-                                {% if cat.category.include_in_score %}
-                                  <td>
-                                    {{ c.assessed_points|floatformat:2 }} /
-                                    {% format_available_points c %}
-                                  </td>
-                                {% endif %}
-                              {% endtestrule %}
-                            </tr>
+                            {% if not c.credit.is_opt_in or c.submission_status != 'na' %}
+                              <tr class='{% cycle 'even' 'odd' %}'
+                                      {% ifchanged c.credit.type %}
+                                        style="border-top-width: 1px;"
+                                      {% endifchanged %}>
+                                <td class='credit'>
+                                  <a href='{{ c.get_submit_url }}'>
+                                    {{ c.credit }} <!-- {{ c.id }} -->
+                                  </a>
+                                </td>
+                                <td>{% show_status_icon c %}</td>
+                                {% testrule institution_has_score_feature institution %}
+                                  {% if cat.category.include_in_score %}
+                                    <td>
+                                      {{ c.assessed_points|floatformat:2 }} /
+                                      {% format_available_points c %}
+                                    </td>
+                                  {% endif %}
+                                {% endtestrule %}
+                              </tr>
+                            {% endif %}
                           {% endfor %}
                         </tbody>
                       </table>
