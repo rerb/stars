@@ -208,7 +208,7 @@ class CreditSet(VersionedModel):
             if score >= rating.minimal_score:
                 return rating
         # oh-oh - we didn't find any suitable rating.
-        logger.error("No valid rating could be found for score "
+        logger.warning("No valid rating could be found for score "
                      "%s in creditset %s" % (score, self))
         return Rating(name="Rating Unavailable",
                       minimal_score=0,
