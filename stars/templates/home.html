@@ -75,9 +75,27 @@
     </div>
 
     <div class="span6 social-tabs">
-      <div class="frontblock boxleft">
-        <h2>Connect With Us</h2>
-        {% display_twitter_feed %}
+      <div class="frontblock boxleft" style="overflow: auto">
+        <h2>Subscribe to the STARS Update</h2>
+        <div style='text-align: center; padding: 40px; font-size: 1.5em;'>
+          Stay In Touch...<br><br>
+          <a href="#updateModal" role="button" class="btn btn-large btn-success"
+            data-toggle="modal" style="margin: auto;">
+            <i class="icon-envelope icon-white"></i> Subscribe
+          </a>
+        </div>
+        <div id="updateModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 id="updateModalLabel">STARS Update</h3>
+          </div>
+          <div class="modal-body">
+            {% include "helpers/stars_update_reg.html" %}
+          </div>
+          <div class="modal-footer">
+            <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+          </div>
+        </div>
       </div>
     </div>
     
@@ -97,3 +115,11 @@
 
 {% block post-content %}
 {% endblock post-content %}
+
+{% block extra_footer %}
+<script>
+$('#updateModal').modal({
+  show: false,
+});
+</script>
+{% endblock %}
