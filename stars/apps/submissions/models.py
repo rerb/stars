@@ -322,7 +322,6 @@ class SubmissionSet(models.Model, FlaggableModel):
 
         if self.is_rated() and not recalculate:
             return self.rating
-
         score = self.get_STARS_score(recalculate)
         return self.creditset.get_rating(score)
 
@@ -343,7 +342,8 @@ class SubmissionSet(models.Model, FlaggableModel):
             if self.status == 'r':
                 self.score = score(recalculate)
                 self.save()
-            return self.score
+                return self.score
+            return score(recalculate)
         else:
             logger.error(
                 "No method (%s) defined to score submission %s" %
