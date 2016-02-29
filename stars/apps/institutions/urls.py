@@ -2,6 +2,8 @@ from django.conf.urls.defaults import *
 from django.views.decorators.cache import never_cache
 
 from stars.apps.institutions.views import *
+from stars.apps.submissions.views import CreditSubmissionStatusUpdateView
+
 
 urlpatterns = patterns(
     'stars.apps.institutions.views',
@@ -86,6 +88,11 @@ urlpatterns = patterns(
 
     # Data correction request
     (r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/(?P<category_abbreviation>[^/]+)/(?P<subcategory_slug>[^/]+)/(?P<credit_identifier>[^/]+)/(?P<field_id>\d+)/$', DataCorrectionView.as_view()),
+
+    # Credit status update
+    url(r'^credit_submission_status_update/(?P<pk>[^/]+)/$',
+        CreditSubmissionStatusUpdateView.as_view(),
+        name='credit-submission-status-update'),
 
     # Credit Documentation
     (r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/(?P<category_abbreviation>[^/]+)/(?P<subcategory_slug>[^/]+)/(?P<credit_identifier>[^/]+)/documentation/$', ScorecardCreditDocumentation.as_view()),

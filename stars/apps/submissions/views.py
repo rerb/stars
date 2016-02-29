@@ -1,7 +1,11 @@
 from django.shortcuts import get_object_or_404
+from django.views.generic import UpdateView
 
 from stars.apps.credits.views import CreditsetStructureMixin
-from stars.apps.submissions.models import DocumentationFieldSubmission
+from stars.apps.submissions.forms import CreditSubmissionStatusUpdateForm
+from stars.apps.submissions.models import (CreditUserSubmission,
+                                           DocumentationFieldSubmission)
+
 
 import re
 
@@ -116,3 +120,18 @@ class SubmissionStructureMixin(CreditsetStructureMixin):
                 credit_submission=self.get_creditsubmission())
             self.set_structure_object(cache_key, obj)
         return obj
+
+
+class CreditSubmissionStatusUpdateView(UpdateView):
+
+    model = CreditUserSubmission
+    form_class = CreditSubmissionStatusUpdateForm
+    template_name = 'institutions/credit_submission_status_update.html'
+
+    def get_object(self, *args, **kwargs):
+        return CreditUserSubmission.objects.get(pk=self.kwargs['pk'])
+
+    def form_valid(self, form):
+        import ipdb; ipdb.set_trace()
+        credit_user_submission = self.get_object(commit=False)
+        # recalculate credit score, submission set score
