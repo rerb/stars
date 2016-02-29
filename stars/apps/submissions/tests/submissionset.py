@@ -1,27 +1,21 @@
 """Tests for apps.submissions.models.SubmissionSet.
 """
-from django.test import TestCase
 import testfixtures
+from django.test import TestCase
 
-from stars.apps.credits.models import CreditSet, Rating
-from stars.apps.institutions.models import (BASIC_ACCESS,
-                                            FULL_ACCESS,
-                                            Institution)
-from stars.apps.submissions.models import SubmissionSet
+from stars.test_factories import (CreditFactory,
+                                  CreditSetFactory,
+                                  SubmissionSetFactory)
 
 
 class SubmissionSetTest(TestCase):
 
-    fixtures = ['silversubmissiontest.json']
-
     def test_get_STARS_score_logging(self):
         """Does get_STARS_score log an error when there's no scoring method?
         """
-        creditset = CreditSet()
-        creditset.scoring_method = 'bogus_scoring_method'
-        submissionset = SubmissionSet()
-        submissionset.status = 'x'
-        submissionset.creditset = creditset
+        creditset = CreditSetFactory(scoring_method='bogus_scoring_method')
+        submissionset = SubmissionSetFactory(creditset=creditset, status='x')
+
         with testfixtures.LogCapture('stars') as log:
             submissionset.get_STARS_score()
 
@@ -29,25 +23,26 @@ class SubmissionSetTest(TestCase):
         self.assertEqual(log.records[0].levelname, 'ERROR')
         self.assertTrue(log.records[0].msg.startswith('No method'))
 
-    def test_silver_score_gets_silver_rating(self):
-        """If SubmissionSet has silver score, does it get silver rating?"""
-        institution = Institution.objects.get(name__startswith='Agnes')
-        institution.access_level = FULL_ACCESS
-        institution.save()
-        ss = SubmissionSet.objects.get(institution=institution)
-        silver_rating = Rating.objects.get(creditset=ss.creditset,
-                                           name='Silver')
-        rating = ss.get_STARS_rating()
-        self.assertEqual(rating, silver_rating)
-
-    def test_basic_access_silver_score_keeps_silver_rating(self):
-        """If BA SubmissionSet has silver score, does it keep silver rating?
+    def test_init_credit_submission_with_opt_in_credit(self):
+        """Does init_credit_submission() handle opt-in Credits correctly?
         """
-        institution = Institution.objects.get(name__startswith='Agnes')
-        institution.access_level = BASIC_ACCESS
-        institution.save()
-        ss = SubmissionSet.objects.get(institution=institution)
-        reporter_rating = Rating.objects.get(creditset=ss.creditset,
-                                             name='Silver')
-        rating = ss.get_STARS_rating()
-        self.assertEqual(rating, reporter_rating)
+        credit = CreditFactory(is_opt_in=True)
+        submissionset = SubmissionSetFactory(
+            creditset=credit.subcategory.category.creditset)
+        submissionset.init_credit_submissions()
+        creditsubmission = (submissionset.categorysubmission_set.all()[0].
+                            subcategorysubmission_set.all()[0].
+                            creditusersubmission_set.all()[0])
+        self.assertEqual('na', creditsubmission.submission_status)
+
+    def test_init_credit_submission_with_non_opt_in_credit(self):
+        """Does init_credit_submission() handle non-opt-in Credits correctly?
+        """
+        credit = CreditFactory(is_opt_in=False)
+        submissionset = SubmissionSetFactory(
+            creditset=credit.subcategory.category.creditset)
+        submissionset.init_credit_submissions()
+        creditsubmission = (submissionset.categorysubmission_set.all()[0].
+                            subcategorysubmission_set.all()[0].
+                            creditusersubmission_set.all()[0])
+        self.assertNotEqual('na', creditsubmission.submission_status)

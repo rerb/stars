@@ -485,6 +485,11 @@ class SubmissionSet(models.Model, FlaggableModel):
                             credit=credit,
                             subcategory_submission=subcategorysubmission)
                         creditsubmission.save()
+                    if (credit.is_opt_in and
+                        creditsubmission.submission_status != 'na'):
+
+                        creditsubmission.submission_status = 'na'
+                        creditsubmission.save()
 
     def get_credit_submissions(self):
         """Returns all the credit submissions for this SubmissionSet."""
