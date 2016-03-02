@@ -11,7 +11,6 @@ from issdjango.models import Organizations
 from stars.apps.institutions.models import (Institution,
                                             RegistrationSurvey,
                                             RespondentSurvey)
-from stars.apps.notifications.models import EmailTemplate
 from stars.apps.registration.forms import (SelectSchoolForm,
                                            RegistrationSurveyForm,
                                            RespondentRegistrationSurveyForm,
@@ -47,6 +46,7 @@ CONTACT_FIELD_NAMES = ['contact_department',
                        'executive_contact_title',
                        'executive_contact_department',
                        'executive_contact_email']
+
 
 class RegistrationWizard(StarsAccountMixin, SubscriptionPurchaseWizard):
     """

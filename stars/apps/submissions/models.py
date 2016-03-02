@@ -485,6 +485,11 @@ class SubmissionSet(models.Model, FlaggableModel):
                             credit=credit,
                             subcategory_submission=subcategorysubmission)
                         creditsubmission.save()
+                    if (credit.is_opt_in and
+                        creditsubmission.submission_status != 'na'):
+
+                        creditsubmission.submission_status = 'na'
+                        creditsubmission.save()
 
     def get_credit_submissions(self):
         """Returns all the credit submissions for this SubmissionSet."""
@@ -1021,7 +1026,17 @@ class SubcategorySubmission(models.Model):
         return self.category_submission.get_creditset()
 
     def get_total_credits(self):
-        return self.subcategory.credit_set.count()
+        total = 0
+        for credit in self.subcategory.credit_set.all():
+            if not credit.is_opt_in:
+                total += 1
+            else:
+                cus = CreditUserSubmission.objects.get(
+                    subcategory_submission=self,
+                    credit=credit)
+                if cus.submission_status != 'na':
+                    total += 1
+        return total
 
     def get_submissionset(self):
         return self.category_submission.submissionset
@@ -1035,27 +1050,45 @@ class SubcategorySubmission(models.Model):
             submissionset=self.category_submission.submissionset)
 
     def get_scorecard_url(self):
-        return '%s%s'%(self.category_submission.submissionset.get_scorecard_url(),self.subcategory.get_browse_url())
+        return '%s%s'%(
+            self.category_submission.submissionset.get_scorecard_url(),
+            self.subcategory.get_browse_url())
 
     def get_complete_credit_count(self):
-        """ Find all CreditSubmissions in this subcategory that are complete """
-        return self.creditusersubmission_set.filter(submission_status='c').count()
+        """ Find all CreditSubmissions in this subcategory
+            that are complete """
+        return self.creditusersubmission_set.filter(
+            submission_status='c').count()
 
     def get_pending_credit_count(self):
-        return self.creditusersubmission_set.filter(submission_status='p').count()
+        return self.creditusersubmission_set.filter(
+            submission_status='p').count()
 
     def get_not_pursuing_credit_count(self):
-        return self.creditusersubmission_set.filter(submission_status='np').count()
+        return self.creditusersubmission_set.filter(
+            submission_status='np').count()
 
     def get_not_applicable_credit_count(self):
-        return self.creditusersubmission_set.filter(submission_status='na').count()
+        return self.creditusersubmission_set.filter(
+            submission_status='na').count()
 
     def get_not_started_credit_count(self):
-        return self.creditusersubmission_set.filter(submission_status='ns').count()
+        return self.creditusersubmission_set.filter(
+            submission_status='ns').count()
 
     def get_finished_credit_count(self):
-        """ Get the number of credits that have been marked complete, not pursuing, or not applicable """
-        return self.creditusersubmission_set.exclude(submission_status='ns').exclude(submission_status='p').count()
+        """ Get the number of credits that have been marked
+        complete, not pursuing, or not applicable """
+        total = 0
+        for cus in self.creditusersubmission_set.exclude(
+                submission_status='ns').exclude(
+                    submission_status='p'):
+            if not cus.credit.is_opt_in:
+                total += 1
+            else:
+                if cus.submission_status != 'na':
+                    total += 1
+        return total
 
     def get_claimed_points(self):
         rated = self.category_submission.submissionset.status == "r"
@@ -1064,7 +1097,8 @@ class SubcategorySubmission(models.Model):
             return self.points
 
         score = 0
-        for credit in self.creditusersubmission_set.filter(submission_status='c'):
+        for credit in self.creditusersubmission_set.filter(
+                submission_status='c'):
             score += credit.assessed_points
 
         if self.category_submission.submissionset.status == "r":

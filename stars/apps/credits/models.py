@@ -678,8 +678,11 @@ class Credit(VersionedModel):
         default=False,
         help_text=("Must this credit be completed before submitting for "
                    "a rating?"))
-    requires_responsible_party = models.BooleanField(default=True)
-
+    requires_responsible_party = models.BooleanField(
+        default=True,
+        help_text="Does this credit require a Responsible Party?")
+    is_opt_in = models.BooleanField(default=False,
+                                    help_text="Is this an opt-in credit?")
     resources = models.TextField(
         blank=True,
         null=True,

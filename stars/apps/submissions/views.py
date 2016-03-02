@@ -1,9 +1,13 @@
+import re
+
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from django.utils import simplejson as json
+from django.views.generic import View
 
 from stars.apps.credits.views import CreditsetStructureMixin
-from stars.apps.submissions.models import DocumentationFieldSubmission
-
-import re
+from stars.apps.submissions.models import (CreditUserSubmission,
+                                           DocumentationFieldSubmission)
 
 
 class SubmissionStructureMixin(CreditsetStructureMixin):
@@ -116,3 +120,30 @@ class SubmissionStructureMixin(CreditsetStructureMixin):
                 credit_submission=self.get_creditsubmission())
             self.set_structure_object(cache_key, obj)
         return obj
+
+
+class SetOptInCreditsView(View):
+    """
+        An AJAX view to update the opt-in values on some
+        CreditUserSubmissions.
+    """
+
+    def post(self, request):
+        data_changed = False
+        for key, value in request.POST.items():
+            cus = CreditUserSubmission.objects.get(pk=int(key))
+            if value.lower() == 'true':
+                if cus.submission_status == 'na':
+                    cus.submission_status = 'ns'
+                    cus.save()
+                    data_changed = True
+            else:
+                if cus.submission_status != 'na':
+                    cus.submission_status = 'na'
+                    cus.save()
+                    data_changed = True
+
+        ajax_data = {'data_changed': data_changed}
+
+        return HttpResponse(json.dumps(ajax_data),
+                            mimetype='application/json')
