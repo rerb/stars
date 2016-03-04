@@ -49,3 +49,13 @@ TinyMCE is automatically pulled down by buildout.
 === Deployment ===
 
 See README_SERVER for more details
+
+== File-Based Cache Invalidation ==
+
+A management command has been added...
+
+    ./manage.py clear_cache [url]
+
+Execute from the project root on the stars server. Copy/paste the COMPLETE url from your address bar for the report/credit in question (even including the http:// prefix). This is necessary for the function to properly parse the necessary institution and report data from the URL pattern.
+
+This command will invalidate the cache for the submitted URL as well as the parent submission set report card if the URL is for a credit (same as if a data correction on a single credit is approved). Invalidating for the parent report card will NOT invalidate for any credit children.

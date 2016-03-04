@@ -7,6 +7,7 @@ from stars.test_factories.submissions_factories import (
         DocumentationFieldFactory,
         NumericDocumentationFieldSubmissionFactory
     )
+from django.core.management import call_command
 
 
 class FileCacheTest(TestCase):
@@ -19,8 +20,10 @@ class FileCacheTest(TestCase):
         )
         self.ss = self.credit_submission.get_submissionset()
         self.ss.status = "r"
+        self.ss.date_submitted = '2016-01-19'
         self.ss.presidents_letter = os.path.join(os.path.dirname(__file__), "..", "..", "tool/my_submission/tests/test.pdf")
         self.ss.save()
+        self.institution = self.ss.institution
         self.c = self.documentation_field.credit
         self.c.name = "Innovation"
         self.c.acronym = "IN"
@@ -75,7 +78,17 @@ class FileCacheTest(TestCase):
         key = custom_caching.generate_cache_key(self.url, [self.ss.id, False, "NO_EXPORT", False])
         cached_response = filecache.get(key)
         self.assertTrue(cached_response)
-        print "SAVE TIME!"
         self.ss.save()
+        no_cache = filecache.get(key)
+        self.assertFalse(no_cache)
+
+    def test_managament_invalidation(self):
+        url = 'http://stars.aashe.org' + self.url
+        response = self.client.get(self.url)
+        filecache = caches.get_cache('filecache')
+        key = custom_caching.generate_cache_key(self.url, [self.ss.id, False, "NO_EXPORT", False])
+        cached_response = filecache.get(key)
+        self.assertTrue(cached_response)
+        call_command('clear_cache', url)
         no_cache = filecache.get(key)
         self.assertFalse(no_cache)

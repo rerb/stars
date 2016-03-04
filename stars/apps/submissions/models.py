@@ -322,7 +322,6 @@ class SubmissionSet(models.Model, FlaggableModel):
 
         if self.is_rated() and not recalculate:
             return self.rating
-
         score = self.get_STARS_score(recalculate)
         return self.creditset.get_rating(score)
 
@@ -341,18 +340,22 @@ class SubmissionSet(models.Model, FlaggableModel):
         if hasattr(self, scoring_method):
             score = getattr(self, scoring_method)
             if self.status == 'r':
-                self.score = score()
+                self.score = score(recalculate)
                 self.save()
-            return score()
+                return self.score
+            return score(recalculate)
         else:
             logger.error(
                 "No method (%s) defined to score submission %s" %
                 (scoring_method, self.creditset.version))
             return 0
 
-    def get_STARS_v1_0_score(self):
+    def get_STARS_v1_0_score(self, recalculate=False):
         """
             Averages of each category average
+
+            Added the `recalculate` parameter, because we use it for 2.0.
+            It has no affect with this method.
         """
         score = 0
         non_inno_cats = 0
@@ -370,7 +373,7 @@ class SubmissionSet(models.Model, FlaggableModel):
 
         return score if score <= 100 else 100
 
-    def get_STARS_v2_0_score(self):
+    def get_STARS_v2_0_score(self, recalculate=False):
         """
             Percentage of total achieved out of total available
         """
@@ -380,9 +383,9 @@ class SubmissionSet(models.Model, FlaggableModel):
 
         for cat in self.categorysubmission_set.all().select_related():
             if cat.category.is_innovation():
-                innovation_score = cat.get_STARS_v2_0_score()[0]
+                innovation_score = cat.get_STARS_v2_0_score(recalculate)[0]
             elif cat.category.include_in_score:
-                _score, _avail = cat.get_score_ratio()
+                _score, _avail = cat.get_STARS_v2_0_score(recalculate)
                 total_achieved += _score
                 total_available += _avail
 
@@ -820,6 +823,7 @@ def get_na_submissions(applicability_reason):
             submission_status='na')
 
 
+
 def get_id(object):
     """ Return a valid identifier for the given sumbssion set object """
     return str(object).strip().lower().replace(" & ", "-").replace(" ", "-")
@@ -916,11 +920,11 @@ class CategorySubmission(models.Model):
             score = ((100.0 * score) / avail) if avail>0 else 0   # percentage of points earned, 0 - 100
         return score
 
-    def get_STARS_v2_0_score(self):
+    def get_STARS_v2_0_score(self, recalculate=False):
         """
             returns the available and achieved points
         """
-        return self.get_score_ratio()
+        return self.get_score_ratio(recalculate)
 
     def get_claimed_points(self):
         score = 0
@@ -934,22 +938,22 @@ class CategorySubmission(models.Model):
             score += sub.get_available_points()
         return score
 
-    def get_score_ratio(self):
+    def get_score_ratio(self, recalculate=False):
         """
             Returns the claimed and adjusted available points
         """
         claimed = 0
         available = 0
         for sub in self.subcategorysubmission_set.all().select_related():
-            claimed += sub.get_claimed_points()
-            available += sub.get_adjusted_available_points()
+            claimed += sub.get_claimed_points(recalculate)
+            available += sub.get_adjusted_available_points(recalculate)
         return claimed, available
 
-    def get_adjusted_available_points(self):
+    def get_adjusted_available_points(self, recalculate=False):
         """ Gets only the points for credits that have not been labelled as Not Applicable """
         score = 0
         for sub in self.subcategorysubmission_set.all():
-            score += sub.get_adjusted_available_points()
+            score += sub.get_adjusted_available_points(recalculate=recalculate)
         return score
 
     def get_not_started_credit_count(self):
@@ -1090,10 +1094,10 @@ class SubcategorySubmission(models.Model):
                     total += 1
         return total
 
-    def get_claimed_points(self):
+    def get_claimed_points(self, recalculate=False):
         rated = self.category_submission.submissionset.status == "r"
         # check the cache
-        if rated and self.points and self.percentage_score:
+        if rated and self.points and self.percentage_score and not recalculate:
             return self.points
 
         score = 0
@@ -1118,12 +1122,12 @@ class SubcategorySubmission(models.Model):
             points += credit.point_value
         return points
 
-    def get_adjusted_available_points(self):
+    def get_adjusted_available_points(self, recalculate=False):
         """ Gets only the points for credits that have not been labelled as Not Applicable """
 
         rated = self.category_submission.submissionset.status == "r"
         # check the cache
-        if rated and self.adjusted_available_points:
+        if rated and self.adjusted_available_points and not recalculate:
             return self.adjusted_available_points
 
         points = 0
@@ -1408,6 +1412,10 @@ class CreditSubmission(models.Model):
             points = 0
 
         return points, messages
+
+    def get_status_update_url(self):
+        return urlresolvers.reverse('credit-submission-status-update',
+                                    kwargs={'pk': self.id})
 
 #    def __str__(self):  #  For DEBUG - comment out __unicode__ method above
 #        if self.persists(): persists="persists"

@@ -207,7 +207,7 @@ class AccrualExcelDownloadView(ReportMixin, DownloadExportView):
         return "%s_Accrual_Report" % self.kwargs['year']
 
 
-class InstitutionList(SortableTableView):
+class InstitutionList(ReportMixin, SortableTableView):
     """
         A quick report on registration for Jillian
 
