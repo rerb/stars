@@ -1363,6 +1363,10 @@ class CreditSubmission(models.Model):
 
         return points, messages
 
+    def get_status_update_url(self):
+        return urlresolvers.reverse('credit-submission-status-update',
+                                    kwargs={'pk': self.id})
+
 #    def __str__(self):  #  For DEBUG - comment out __unicode__ method above
 #        if self.persists(): persists="persists"
 #        else: persists="not saved"
