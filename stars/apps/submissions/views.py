@@ -128,10 +128,58 @@ class CreditSubmissionStatusUpdateView(UpdateView):
     form_class = CreditSubmissionStatusUpdateForm
     template_name = 'institutions/credit_submission_status_update.html'
 
-    def get_object(self, *args, **kwargs):
-        return CreditUserSubmission.objects.get(pk=self.kwargs['pk'])
+    def get_success_url(self, *args, **kwargs):
+        return self.request.POST['next']
+
+    def get_context_data(self, **kwargs):
+        context = super(CreditSubmissionStatusUpdateView,
+                        self).get_context_data(**kwargs)
+        context['next'] = self.request.GET['next']
+        return context
 
     def form_valid(self, form):
-        import ipdb; ipdb.set_trace()
-        credit_user_submission = self.get_object(commit=False)
-        # recalculate credit score, submission set score
+        """Recalculate scores.
+        """
+        credit_user_submission = self.get_object()
+
+        submissionset = credit_user_submission.get_submissionset()
+
+        original_submission_status = self.request.POST[
+            "original_submission_status"]
+
+        credit_user_submission.submission_status = (
+            form.cleaned_data["submission_status"])
+
+        if ((credit_user_submission.assessed_points !=
+             credit_user_submission._calculate_points()) or
+            credit_user_submission.submission_status == 'c' or
+            original_submission_status == 'na' or
+            credit_user_submission.submission_status == 'na'):
+
+            subcategory_submission = (
+                credit_user_submission.subcategory_submission)
+            subcategory_submission.points = None
+            subcategory_submission.points = (
+                subcategory_submission.get_claimed_points())
+            subcategory_submission.save()
+
+            category_submission = subcategory_submission.category_submission
+            category_submission.score = None
+            category_submission.score = category_submission.get_STARS_score()
+            category_submission.save()
+
+            submissionset.score = None
+            submissionset.score = submissionset.get_STARS_score()
+            submissionset.save()
+
+            new_rating = submissionset.get_STARS_rating(recalculate=True)
+            if submissionset.rating != new_rating:
+                submissionset.rating = new_rating
+                submissionset.save()
+
+        credit_user_submission.save()
+        submissionset.pdf_report = None
+        submissionset.save()
+        submissionset.invalidate_cache()
+
+        return super(CreditSubmissionStatusUpdateView, self).form_valid(form)

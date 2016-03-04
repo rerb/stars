@@ -1,27 +1,33 @@
-{% extends 'institutions/scorecards/base.html' %}
+{% extends 'tool/base.html' %}
 
 {% load bootstrap %}
 
 {% block content %}
   <div class="row">
-    <div class="col-md-3">
-    </div>
-    <div class="col-md-9">
+    <span class="span9" style="padding-left: 20px">
       <h2>Update Credit Submission Status</h2>
       <div>
         <form enctype="multipart/form-data" method='post' action='.'>
           {% csrf_token %}
           {{ form|bootstrap_horizontal }}
-          <div class='form-actions' style="padding-left: -10px">
+          <input type="hidden" name="next" value="{{ next }}" />
+          <input type="hidden" name="original_submission_status"
+                 value="{{ object.submission_status }}" />
+          <div class="form-actions" style="padding-left: -10px">
             <button
-              type='submit'
-              id='submit_button'
-              class='btn btn-primary'>
+              type="submit"
+              id="submit_button"
+              class="btn btn-primary"
+              onclick="document.body.style.cursor = 'wait';">
               Save
+            </button>
+            <button onclick="window.history.back();"
+                    class="btn btn-default">
+              Cancel
             </button>
           </div>
         </form>
       </div>
-    </div>
+    </span>
   </div>
 {% endblock %}

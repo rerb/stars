@@ -39,7 +39,7 @@
       {% endif %}
 
       {% if user.is_staff %}
-        <a href="{{ credit_submission.get_status_update_url }}"
+        <a href="{{ credit_submission.get_status_update_url }}?next={{ request.get_full_path  }}"
            class="btn btn-warning btn-mini">
           <i class="icon-refresh icon-white"></i>
         </a>
