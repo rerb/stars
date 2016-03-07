@@ -99,6 +99,8 @@ def build_category_summary_sheet(category, sheet):
             min_width = get_width(len(sub.subcategory.title))
 
         sheet.write(r, c, sub.subcategory.title, boldStyle)
+        c += 1
+        sheet.write(r, c, sub.description)
         r += 1
         for cs in sub.creditusersubmission_set.all():
             if min_width < get_width(len(unicode(cs.credit))):
