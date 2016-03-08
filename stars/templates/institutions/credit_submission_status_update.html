@@ -9,7 +9,7 @@
       <div>
         <form enctype="multipart/form-data" method='post' action='.'>
           {% csrf_token %}
-          {{ form|bootstrap_horizontal }}
+          {{ form }}
           <input type="hidden" name="next" value="{{ next }}" />
           <input type="hidden" name="original_submission_status"
                  value="{{ object.submission_status }}" />
