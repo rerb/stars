@@ -30,13 +30,14 @@
   <form method='post' action='.' class='form-horizontal'
         name='submission_form' onsubmit='enable_submit(false, true);'>
     {{ form|bootstrap }}
+    <input type="hidden" name="next" value="{{ next }}" />
     <div class='form-actions'>
       <button type='submit' id='submit_button'
               class='btn btn-primary{% if errors %} errors{% endif %}'>
         Save
       </button>
-      <a href='{% url submission-summary institution.slug submissionset.id %}'
-         class='btn'>
+      <a href='javascript:window.history.back();'
+         class='btn btn-default' role='button'>
         Cancel
       </a>
     </div>

@@ -295,11 +295,26 @@ class SubcategorySubmissionDetailView(UserCanEditSubmissionMixin, UpdateView):
         obj = self.get_subcategorysubmission()
         return obj
 
+    def get_context_data(self, **kwargs):
+        context = super(SubcategorySubmissionDetailView,
+                        self).get_context_data(**kwargs)
+        context['next'] = self.request.GET.get('next', '')
+        return context
+
     def get_success_url(self):
-        return reverse(
-            'submission-summary',
-            kwargs={'institution_slug': self.get_institution().slug,
-                    'submissionset': self.get_submissionset().id})
+        url = self.request.POST.get('next', False)
+        if not url:
+            url = reverse(
+                'submission-summary',
+                kwargs={'institution_slug': self.get_institution().slug,
+                        'submissionset': self.get_submissionset().id})
+        return url
+
+    def form_valid(self, form):
+        if form.has_changed():
+            submissionset = self.get_object().get_submissionset()
+            submissionset.invalidate_cache()
+        return super(SubcategorySubmissionDetailView, self).form_valid(form)
 
 
 class CreditSubmissionDetailView(UserCanEditSubmissionMixin, UpdateView):
