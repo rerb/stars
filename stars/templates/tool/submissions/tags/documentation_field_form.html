@@ -8,6 +8,11 @@
   {{ field_form.instance }}
   {{ field_form.instance.id }}
   -->
+  {% if documentation_field.header %}
+    <div class="field-header">
+      {{ documentation_field.header|safe }}
+    </div>
+  {% endif %}
   <label class="control-label">
     {% if documentation_field.is_required %}
       <span class='required_note'

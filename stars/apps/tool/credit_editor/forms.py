@@ -294,6 +294,9 @@ class CreditOrderForm(RightSizeInputModelForm):
 
 class DocumentationFieldForm(AbstractFormWithFormula,
                              RightSizeInputModelForm):
+    header = forms.CharField(
+        widget=widgets.Textarea(attrs={'rows': '2'}),
+        required=False)
     formula = forms.CharField(
         widget=forms.Textarea(attrs={'class': 'noMCE'}),
         required=False,

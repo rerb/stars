@@ -1171,6 +1171,12 @@ class Unit(models.Model):
 
 class DocumentationField(VersionedModel):
     credit = models.ForeignKey(Credit)
+    header = models.TextField('Header',
+                              blank=True,
+                              null=True,
+                              default='',
+                              help_text=('HTML to display before field '
+                                         'in Reporting Tool'))
     title = models.CharField("Promt/Question", max_length=255)
     type = models.CharField(max_length=16, choices=DOCUMENTATION_FIELD_TYPES)
     last_choice_is_other = models.BooleanField(
