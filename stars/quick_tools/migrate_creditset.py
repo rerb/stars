@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
-from stars.apps.institutions.models import *
-from stars.apps.credits.models import *
+from stars.apps.credits.models import CreditSet
 from stars.apps.migrations.utils import migrate_creditset
 
 from datetime import date
