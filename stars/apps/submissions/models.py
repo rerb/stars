@@ -1260,10 +1260,9 @@ class CreditSubmission(models.Model):
 
     def _submission_fields_for_documentation_fields(self,
                                                     documentation_field_list):
-
-        # Create the list of submission fields.
-        errors = False
-
+        """Return the list of DocumentationFields for this CreditSubmission,
+        creating them if they don't already exist.
+        """
         submission_field_list = []
         for field in documentation_field_list:
             SubmissionFieldModelClass = (
@@ -1296,11 +1295,14 @@ class CreditSubmission(models.Model):
                         self.documentation_field_id = documentation_field.id
 
                     def get_value(self):
-                        #dummy
+                        # dummy
                         return None
 
                     def get_human_value(self):
                         return ""
+
+                    def __unicode__(self):
+                        return "TabularSubmissionField"
 
                 submission_field_list.append(TabularSubmissionField(
                       credit_submission=self,
@@ -1926,7 +1928,7 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
         return self.credit_submission
 
     def get_institution(self):
-        parent = CreditUserSubmission.objects.get(
+        parent = CreditSubmission.objects.get(
             pk=self.credit_submission.id)
         return parent.get_institution()
 
@@ -2407,6 +2409,9 @@ class NumericSubmission(DocumentationFieldSubmission):
             Logic to determine if the `metric_value` field should be used. This
             is shared with the form, so it makes sense to add it to the model
         """
+        # Test submissions don't have institutions:
+        if self.credit_submission.is_test():
+            return False
         if self.requires_duplication():
             institution = self.get_institution()
             return institution.prefers_metric_system
