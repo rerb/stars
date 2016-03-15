@@ -448,10 +448,6 @@ class CreditSubmissionForm(LocalizedModelFormMixin, ModelForm):
         "tool/submissions/submission_fields_form.html" to render the
         submission field elements themselves.
     """
-    class Meta:
-        model = CreditSubmission
-        fields = [] # This is an abstract base class - not to be used directly!
-
     def __init__(self, *args, **kwargs):
         """
             Construct a form to edit a CreditSubmission instance
@@ -749,14 +745,6 @@ class CreditUserSubmissionForm(CreditSubmissionForm):
         A Credit Submission Form for a user submission, with Submission Status
     """
     submission_status = forms.CharField(widget=HiddenInput())
-#     applicability_reason = forms.ModelChoiceField(
-#         queryset=,
-#         widget=HiddenInput()
-#     )
-                                        #forms.RadioSelect(
-        #choices=CREDIT_SUBMISSION_STATUS_CHOICES_LIMITED))
-#     applicability_reason = custom_fields.ModelChoiceWithHelpField(
-#         queryset=None, empty_label=None, required=False)
 
     class Meta:
         model = CreditUserSubmission
@@ -769,16 +757,6 @@ class CreditUserSubmissionForm(CreditSubmissionForm):
 
         self.fields['applicability_reason'].queryset = self.instance.credit.applicabilityreason_set.all()
         self.fields['applicability_reason'].widget = HiddenInput()
-        # if there are reasons that this might not apply, allow the
-        # "not applicable" choice
-#         if self.instance.credit.applicabilityreason_set.all():
-# #             self.fields['applicability_reason'].queryset = (
-# #                 self.instance.credit.applicabilityreason_set.all())
-# #             self.fields['applicability_reason'].widget = HiddenInput()
-# #             self.fields['submission_status'].widget = HiddenInput()
-#             """forms.RadioSelect(
-#                 choices=CREDIT_SUBMISSION_STATUS_CHOICES_W_NA,
-#                 attrs={'onchange': 'toggle_applicability_reasons(this);'})"""
 
         self.fields['submission_notes'].widget.attrs['style'] = "width: 600px;"
 
