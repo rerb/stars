@@ -1296,11 +1296,15 @@ class CreditSubmission(models.Model):
                         self.documentation_field_id = documentation_field.id
 
                     def get_value(self):
-                        #dummy
+                        # dummy
                         return None
 
                     def get_human_value(self):
                         return ""
+
+                    def __unicode__(self):
+                        return ("TabularSubmissionField for " +
+                                self.credit_submission.credit.title)
 
                 submission_field_list.append(TabularSubmissionField(
                       credit_submission=self,
