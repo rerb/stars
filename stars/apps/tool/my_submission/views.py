@@ -35,7 +35,8 @@ from stars.apps.tool.my_submission.forms import (CreditUserSubmissionForm,
 from stars.apps.tool.my_submission.forms import NewBoundaryForm
 
 
-class SubmissionSummaryView(UserCanEditSubmissionMixin, TemplateView):
+class SubmissionSummaryView(UserCanEditSubmissionMixin,
+                            TemplateView):
     """
         Though called a summary view, this actually throws up a template
         through which a submission can be edited.
@@ -59,6 +60,9 @@ class SubmissionSummaryView(UserCanEditSubmissionMixin, TemplateView):
             if time_delta.days < 30:
                 context['show_migration_warning'] = True
                 context['last_migration_date'] = max_date
+
+        context['outline'] = self.get_submissionset_nav()
+
         return context
 
 
