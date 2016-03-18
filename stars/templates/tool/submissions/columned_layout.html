@@ -9,7 +9,10 @@
 {% block body_onload %}{{ block.super }}{% endblock %}
 
 {% block left-nav %}
-  Hello, Bob
+  <div class="well" style="width:220px; padding: 8px 0;">
+    {% load collapsing_menu %}
+    {% show_collapsing_menu outline %}
+  </div>
 {% endblock %}
 
 {% block submission_outline %}
