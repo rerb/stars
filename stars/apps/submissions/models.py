@@ -1929,7 +1929,7 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
         return self.credit_submission
 
     def get_institution(self):
-        parent = CreditSubmission.objects.get(
+        parent = CreditUserSubmission.objects.get(
             pk=self.credit_submission.id)
         return parent.get_institution()
 
