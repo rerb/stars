@@ -1,7 +1,10 @@
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 
-from stars.apps.credits.models import *
+from stars.apps.credits.models import (Category,
+                                       Credit,
+                                       CreditSet,
+                                       Subcategory)
 
 
 class StructureMixin(object):
@@ -187,14 +190,14 @@ class CreditsetStructureMixin(StructureMixin):
                         current = self.get_credit()
         self.set_structure_object(key, current)
         return current
-        
+
     def get_creditset_nav(self, url_prefix="/"):
         """
             Generates the outline list for the django-collapsing-menu
         """
         current = self.get_current_selection()
         outline = []
-        
+
         # Top Level: Categories
         for cat in self.get_creditset().category_set.all():
             cat_item = {
@@ -202,7 +205,7 @@ class CreditsetStructureMixin(StructureMixin):
                 'bookmark': self.get_category_url(cat, url_prefix),
                 'children': [],
                 'attrs': {'id': cat.id}
-            }    
+            }
             if current == cat:
                 cat_item['attrs']['class'] = 'active'
 
@@ -213,7 +216,7 @@ class CreditsetStructureMixin(StructureMixin):
                     'bookmark': self.get_subcategory_url(sub, url_prefix),
                     'children': [],
                     'attrs': {'id': sub.id}
-                }    
+                }
                 if current == sub:
                     sub_item['attrs']['class'] = 'active'
 
@@ -226,9 +229,9 @@ class CreditsetStructureMixin(StructureMixin):
                     }
                     if current == credit:
                         c_item['attrs']['class'] = "active"
-                    
+
                     sub_item['children'].append(c_item)
-                        
+
                 # Fourth Level: T2 Credits
                 t2_qs = sub.credit_set.all().filter(type='t2')
                 if t2_qs.count() > 0:
@@ -244,13 +247,13 @@ class CreditsetStructureMixin(StructureMixin):
                         }
                         if current == t2:
                             t2_item['attrs']['class'] = "active"
-                    
+
                         t2_header_item['children'].append(t2_item)
-                
+
                     sub_item['children'].append(t2_header_item)
 
                 cat_item['children'].append(sub_item)
-                
+
             outline.append(cat_item)
 
         return outline
@@ -275,8 +278,7 @@ class CreditsetStructureMixin(StructureMixin):
 
 
 class CreditNavMixin(object):
-    """
-        Class-based mix-in view that can
+    """Class-based mix-in view that can
 
             - extract the Category, Subcategory, and Credit
               from the variables passed to __call__()
@@ -285,7 +287,8 @@ class CreditNavMixin(object):
 
         Thoughts:
 
-            - use a `get_context_from_request` method so that it can be used with mixins
+            - use a `get_context_from_request` method so that it can
+              be used with mixins
     """
 
     def get_creditset_selection(self, request, creditset, **kwargs):
@@ -300,31 +303,41 @@ class CreditNavMixin(object):
         credit = None
 
         # Get the CategorySubmission
-        if kwargs.has_key('category_id'):
-            category = get_object_or_404(Category, id=kwargs['category_id'], creditset=creditset)
+        if 'category_id' in kwargs:
+            category = get_object_or_404(Category,
+                                         id=kwargs['category_id'],
+                                         creditset=creditset)
 
             # Get the SubcategorySubmission
-            if kwargs.has_key('subcategory_id'):
-                subcategory = get_object_or_404(Subcategory, id=kwargs['subcategory_id'], category=category)
+            if 'subcategory_id' in kwargs:
+                subcategory = get_object_or_404(Subcategory,
+                                                id=kwargs['subcategory_id'],
+                                                category=category)
 
                 # Get the Credit
-                if kwargs.has_key('credit_id'):
-                    credit = get_object_or_404(Credit, id=kwargs['credit_id'], subcategory=subcategory)
+                if 'credit_id' in kwargs:
+                    credit = get_object_or_404(Credit,
+                                               id=kwargs['credit_id'],
+                                               subcategory=subcategory)
 
         return (category, subcategory, credit)
 
-    def get_creditset_navigation(self, creditset, url_prefix=None, current=None):
+    def get_creditset_navigation(self, creditset,
+                                 url_prefix=None, current=None):
         """
-            Provides a list of categories for a given `creditset`,
-            each with a subcategory dict containing a list of subcategories,
-            each with credits and tier2 credits dicts containing lists of credits
+            Provides a list of categories for a given `creditset`, each with a
+            subcategory dict containing a list of subcategories, each
+            with credits and tier2 credits dicts containing lists of
+            credits
 
             Category:
                 {'title': title, 'url': url, 'subcategories': subcategory_list}
             Subcategory:
-                {'title': title, 'url': url, 'credits': credit_list, 'tier2': credit_list}
+                {'title': title, 'url': url, 'credits': credit_list,
+                 'tier2': credit_list}
             Credit:
                 {'title': title, 'url': url}
+
         """
         outline = []
         # Top Level: Categories
@@ -352,26 +365,22 @@ class CreditNavMixin(object):
                     elif credit.type == 't2':
                         tier2.append(c)
 
-                temp_sc =   {
-                            'title': sub.title,
-                            'url': self.get_subcategory_url(sub, url_prefix),
-                            'credits': credits,
-                            'tier2': tier2,
-                            'id': sub.id,
-                            'selected': False,
-                        }
+                temp_sc = {'title': sub.title,
+                           'url': self.get_subcategory_url(sub, url_prefix),
+                           'credits': credits,
+                           'tier2': tier2,
+                           'id': sub.id,
+                           'selected': False}
                 if current == sub:
                     temp_sc['selected'] = True
 
                 subcategories.append(temp_sc)
 
-            temp_c =    {
-                            'title': cat.title,
-                            'url': self.get_category_url(cat, url_prefix),
-                            'subcategories': subcategories,
-                            'id': cat.id,
-                            'selected': False,
-                        }
+            temp_c = {'title': cat.title,
+                      'url': self.get_category_url(cat, url_prefix),
+                      'subcategories': subcategories,
+                      'id': cat.id,
+                      'selected': False}
             if current == cat:
                 temp_c['selected'] = True
             outline.append(temp_c)
@@ -380,12 +389,15 @@ class CreditNavMixin(object):
 
     def get_category_url(self, category, url_prefix=None):
         """ The default link for a category. """
-        raise NotImplementedError, "Your inheriting class needs to define this"
+        raise (NotImplementedError,
+               "Your inheriting class needs to define this")
 
     def get_subcategory_url(self, subcategory, url_prefix=None):
         """ The default link for a category. """
-        raise NotImplementedError, "Your inheriting class needs to define this"
+        raise (NotImplementedError,
+               "Your inheriting class needs to define this")
 
     def get_credit_url(self, credit, url_prefix=None):
         """ The default credit link. """
-        raise NotImplementedError, "Your inheriting class needs to define this"
+        raise (NotImplementedError,
+               "Your inheriting class needs to define this")
