@@ -23,7 +23,7 @@ def migrate_creditset(old_cs, new_version_name, release_date):
         new_obj.id = None
         if previous:
             new_obj.previous_version = old_obj
-        for k,v in prop_dict.items():
+        for k, v in prop_dict.items():
             setattr(new_obj, k, v)
         new_obj.save()
         return new_obj
@@ -33,44 +33,45 @@ def migrate_creditset(old_cs, new_version_name, release_date):
 
     # ratings
     for r in old_cs.rating_set.all():
-        new_r = migrate_obj(r, {'creditset': new_cs,})
+        migrate_obj(r, {'creditset': new_cs})
 
     # categories, subcategories, credits, applicability reasons,
     # documentation field, choice
     for cat in old_cs.category_set.all():
-        new_cat = migrate_obj(cat, {'creditset': new_cs,})
+        new_cat = migrate_obj(cat, {'creditset': new_cs})
 
         for sub in cat.subcategory_set.all():
-            new_sub = migrate_obj(sub, {'category': new_cat,})
+            new_sub = migrate_obj(sub, {'category': new_cat})
 
             for credit in sub.credit_set.all():
-                new_c = migrate_obj(credit, {'subcategory': new_sub,})
+                new_c = migrate_obj(credit, {'subcategory': new_sub})
 
                 for ar in credit.applicabilityreason_set.all():
-                    new_ar = migrate_obj(ar, {'credit': new_c,})
+                    migrate_obj(ar, {'credit': new_c})
 
                 for field in credit.documentationfield_set.order_by('-id'):
-                    new_f = migrate_obj(field, {'credit': new_c,})
+                    new_f = migrate_obj(field, {'credit': new_c})
 
                     for choice in field.choice_set.all():
-                        new_choice = migrate_obj(
-                            choice,
-                            {'documentation_field': new_f})
+                        migrate_obj(choice,
+                                    {'documentation_field': new_f})
 
-                for cts in CreditTestSubmission.objects.filter(credit=credit):
-                    new_cts = CreditTestSubmission(
-                        credit=new_c,
-                        expected_value=cts.expected_value)
-                    new_cts.save()
+                # for cts in CreditTestSubmission.objects.filter(credit=credit):
+                #     new_cts = CreditTestSubmission(
+                #         credit=new_c,
+                #         expected_value=cts.expected_value)
+                #     new_cts.save()
 
-                    for dfs in cts.get_submission_fields():
-                        new_field = dfs.documentation_field.next_version
-                        new_dfs = DocumentationFieldSubmission.get_field_class(
-                            dfs.documentation_field)(
-                                value=dfs.value,
-                                documentation_field=dfs.documentation_field.next_version,
-                                credit_submission=new_cts)
-                        new_dfs.save()
+                #     for dfs in cts.get_submission_fields():
+                #         new_field = dfs.documentation_field.next_version
+                #         dfs_class = DocumentationFieldSubmission.get_field_class(
+                #             dfs.documentation_field)
+                #         if dfs_class:
+                #             new_dfs = dfs_class(documentation_field=new_field,
+                #                                 value=dfs.value,
+                #                                 credit_submission=new_cts)
+                #             new_dfs.save()
+
     return new_cs
 
 
@@ -120,6 +121,7 @@ def _new_submissionset_for_old_submissionset(old_ss,
 
     return new_ss
 
+
 def migrate_ss_version(old_ss, new_cs):
     """
         Migrate a SubmissionSet from one CreditSet version to another
@@ -151,7 +153,9 @@ def migrate_ss_version(old_ss, new_cs):
     return new_ss
 
 
-def migrate_submission(old_ss, new_ss, keep_status=False, keep_innovation=False):
+def migrate_submission(old_ss, new_ss,
+                       keep_status=False,
+                       keep_innovation=False):
     """
         Migrate data from one SubmissionSet to another
 
@@ -264,12 +268,14 @@ def migrate_submission(old_ss, new_ss, keep_status=False, keep_innovation=False)
             if prev_df:
                 field_class = f.__class__
                 if field_class.__name__ == 'TabularSubmissionField':
-                    # don't migrate the tabular wrappers, cause they don't actually exist
+                    # don't migrate the tabular wrappers,
+                    # cause they don't actually exist
                     pass
                 else:
                     try:
-                        prev_cus = CreditUserSubmission.objects.get(credit=prev_df.credit,
-                                                                    subcategory_submission__category_submission__submissionset=old_ss)
+                        prev_cus = CreditUserSubmission.objects.get(
+                            credit=prev_df.credit,
+                            subcategory_submission__category_submission__submissionset=old_ss)
                         old_f = field_class.objects.get(
                             documentation_field=prev_df,
                             credit_submission=prev_cus)

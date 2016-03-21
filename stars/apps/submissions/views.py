@@ -1,13 +1,15 @@
+import re
+
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from django.views.generic import UpdateView
+from django.template.defaultfilters import slugify
+from django.utils import simplejson as json
+from django.views.generic import UpdateView, View
 
 from stars.apps.credits.views import CreditsetStructureMixin
 from stars.apps.submissions.forms import CreditSubmissionStatusUpdateForm
 from stars.apps.submissions.models import (CreditUserSubmission,
                                            DocumentationFieldSubmission)
-
-
-import re
 
 
 class SubmissionStructureMixin(CreditsetStructureMixin):
@@ -120,6 +122,133 @@ class SubmissionStructureMixin(CreditsetStructureMixin):
                 credit_submission=self.get_creditsubmission())
             self.set_structure_object(cache_key, obj)
         return obj
+
+    def get_current_selection(self):
+        """
+            Determine which component is newest
+        """
+        key = 'current'
+        current = self.get_structure_object(key)
+        if not current:
+            current = self.get_submissionset()
+            if self.get_categorysubmission():
+                current = self.get_categorysubmission()
+                if self.get_subcategorysubmission():
+                    current = self.get_subcategorysubmission()
+                    if self.get_creditsubmission():
+                        current = self.get_creditsubmission()
+        self.set_structure_object(key, current)
+        return current
+
+    def get_submissionset_nav(self, url_prefix="/"):
+        """
+            Generates the outline list for the django-collapsing-menu
+        """
+        current = self.get_current_selection()
+        outline = []
+
+        # Top Level: Categories
+        for catsub in self.get_submissionset().categorysubmission_set.all():
+            catsub_item = {
+                'title': catsub.category.title,
+                'children': [],
+                'attrs': {'id': catsub.id}
+            }
+            if current == catsub:
+                catsub_item['attrs']['class'] = 'active'
+
+            # Second Level: Subcategories
+            for subcatsub in catsub.subcategorysubmission_set.all():
+                subcatsub_item = {
+                    'title': subcatsub.subcategory.title,
+                    'children': [],
+                    'attrs': {'id': subcatsub.id}
+                }
+                if current == subcatsub:
+                    subcatsub_item['attrs']['class'] = 'active'
+
+                # Third Level: T1 Credits
+                for creditsub in subcatsub.creditusersubmission_set.all().filter(credit__type='t1'):
+                    creditsub_item = {
+                        'title': creditsub.credit.__unicode__(),
+                        'url': self.get_creditsubmission_url(
+                            creditsub, url_prefix),
+                        'attrs': {'id': creditsub.id}
+                    }
+                    if current == creditsub:
+                        creditsub_item['attrs']['class'] = "active"
+
+                    subcatsub_item['children'].append(creditsub_item)
+
+                # Fourth Level: T2 Credits
+                t2_qs = subcatsub.creditusersubmission_set.all().filter(
+                    credit__type='t2')
+                if t2_qs.count() > 0:
+                    t2_header_item = {
+                        'title': "Tier 2 Credits",
+                        'children': []
+                    }
+                    for t2 in t2_qs:
+                        t2_item = {
+                            'title': t2.__unicode__(),
+                            'url': self.get_creditsubmission_url(
+                                t2, url_prefix),
+                            'attrs': {'id': t2.id}
+                        }
+                        if current == t2:
+                            t2_item['attrs']['class'] = "active"
+
+                        t2_header_item['children'].append(t2_item)
+
+                    subcatsub_item['children'].append(t2_header_item)
+
+                catsub_item['children'].append(subcatsub_item)
+
+            outline.append(catsub_item)
+
+        return outline
+
+    def get_creditsubmission_url(self, creditsubmission, url_prefix="/"):
+        """ The default creditsubmission link. """
+        credit = creditsubmission.credit
+        subcategory = creditsubmission.credit.subcategory
+        category = creditsubmission.credit.subcategory.category
+        submissionset = creditsubmission.get_submissionset()
+        return ("/tool/{institution_slug}/submission/{submissionset_id}"
+                "/{category_abbreviation}/{subcategory_title}"
+                "/{credit_identifier}/").format(
+                    institution_slug=submissionset.institution.slug,
+                    submissionset_id=submissionset.id,
+                    category_abbreviation=category.abbreviation,
+                    subcategory_title=slugify(subcategory.title),
+                    credit_identifier=credit.identifier)
+
+
+class SetOptInCreditsView(View):
+    """
+        An AJAX view to update the opt-in values on some
+        CreditUserSubmissions.
+    """
+
+    def post(self, request):
+        data_changed = False
+        for key, value in request.POST.items():
+            cus = CreditUserSubmission.objects.get(pk=int(key))
+            if value.lower() == 'true':
+                if cus.submission_status == 'na':
+                    cus.submission_status = 'ns'
+                    cus.save()
+                    data_changed = True
+            else:
+                if cus.submission_status != 'na':
+                    cus.submission_status = 'na'
+                    cus.save()
+                    data_changed = True
+
+        ajax_data = {'data_changed': data_changed}
+
+        return HttpResponse(json.dumps(ajax_data),
+                            mimetype='application/json')
 
 
 class CreditSubmissionStatusUpdateView(UpdateView):

@@ -239,10 +239,10 @@ class NoStarsAccountViewTest(ViewTest):
 
     def setUp(self):
         super(NoStarsAccountViewTest, self).setUp()
-        self.user = UserFactory()
-        self.user_aashe_account = AASHEAccountFactory(user=self.user)
-        self.view = self.view_class()
+        self.user_aashe_account = AASHEAccountFactory()
+        self.user = self.user_aashe_account.user
         self.request.user = self.user
+        self.view = self.view_class()
 
     def test_get_institution_empty_profile_instlist(self):
         """Does get_institution work when profile has no institutions?"""

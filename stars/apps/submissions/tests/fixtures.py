@@ -3,6 +3,7 @@ from stars.apps.credits.models import *
 from stars.apps.submissions.models import *
 from stars.apps.institutions.models import Institution
 
+
 class FixturesTest(StarsApiTestCase):
 
     def testIncrementalFeatureLoad(self):

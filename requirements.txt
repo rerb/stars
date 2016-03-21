@@ -22,7 +22,7 @@ django-cache-url==0.3.2
 django-celery==3.1.16
 django-classy-tags==0.4
 django-cms==2.4.2
-django-codemirror-widget==0.3.0
+django-codemirror-widget==0.4.0
 -e git+https://github.com/AASHE/django-collapsing-menu#egg=django_collapsing_menu-dev
 django-compressor==1.5
 django-debug-toolbar==0.9.4

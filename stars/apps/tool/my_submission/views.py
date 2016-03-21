@@ -35,7 +35,8 @@ from stars.apps.tool.my_submission.forms import (CreditUserSubmissionForm,
 from stars.apps.tool.my_submission.forms import NewBoundaryForm
 
 
-class SubmissionSummaryView(UserCanEditSubmissionMixin, TemplateView):
+class SubmissionSummaryView(UserCanEditSubmissionMixin,
+                            TemplateView):
     """
         Though called a summary view, this actually throws up a template
         through which a submission can be edited.
@@ -59,6 +60,9 @@ class SubmissionSummaryView(UserCanEditSubmissionMixin, TemplateView):
             if time_delta.days < 30:
                 context['show_migration_warning'] = True
                 context['last_migration_date'] = max_date
+
+        context['outline'] = self.get_submissionset_nav()
+
         return context
 
 
@@ -295,11 +299,26 @@ class SubcategorySubmissionDetailView(UserCanEditSubmissionMixin, UpdateView):
         obj = self.get_subcategorysubmission()
         return obj
 
+    def get_context_data(self, **kwargs):
+        context = super(SubcategorySubmissionDetailView,
+                        self).get_context_data(**kwargs)
+        context['next'] = self.request.GET.get('next', '')
+        return context
+
     def get_success_url(self):
-        return reverse(
-            'submission-summary',
-            kwargs={'institution_slug': self.get_institution().slug,
-                    'submissionset': self.get_submissionset().id})
+        url = self.request.POST.get('next', False)
+        if not url:
+            url = reverse(
+                'submission-summary',
+                kwargs={'institution_slug': self.get_institution().slug,
+                        'submissionset': self.get_submissionset().id})
+        return url
+
+    def form_valid(self, form):
+        if form.has_changed():
+            submissionset = self.get_object().get_submissionset()
+            submissionset.invalidate_cache()
+        return super(SubcategorySubmissionDetailView, self).form_valid(form)
 
 
 class CreditSubmissionDetailView(UserCanEditSubmissionMixin, UpdateView):
@@ -328,6 +347,12 @@ class CreditSubmissionDetailView(UserCanEditSubmissionMixin, UpdateView):
                           "- see notes below.")
         return super(CreditSubmissionDetailView, self).form_valid(form)
 
+    def get_context_data(self, *args, **kwargs):
+        context = super(CreditSubmissionDetailView, self).get_context_data(
+            *args, **kwargs)
+        context['outline'] = self.get_submissionset_nav()
+        return context
+
 
 class CreditDocumentationView(UserCanEditSubmissionMixin, TemplateView):
 
@@ -338,6 +363,12 @@ class CreditDocumentationView(UserCanEditSubmissionMixin, TemplateView):
             return ["tool/submissions/credit_info_popup.html"]
         return super(CreditDocumentationView, self).get_template_names()
 
+    def get_context_data(self, *args, **kwargs):
+        context = super(CreditDocumentationView, self).get_context_data(
+            *args, **kwargs)
+        context['outline'] = self.get_submissionset_nav()
+        return context
+
 
 class CreditNotesView(UserCanEditSubmissionMixin, UpdateView):
 
@@ -347,6 +378,12 @@ class CreditNotesView(UserCanEditSubmissionMixin, UpdateView):
 
     def get_object(self):
         return self.get_creditsubmission()
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(CreditNotesView, self).get_context_data(
+            *args, **kwargs)
+        context['outline'] = self.get_submissionset_nav()
+        return context
 
 
 class CreditHistoryView(UserCanEditSubmissionMixin,
@@ -385,12 +422,20 @@ class CreditHistoryView(UserCanEditSubmissionMixin,
         context['institution_has_full_access'] = (
             context['institution'].access_level == FULL_ACCESS)
 
+        context['outline'] = self.get_submissionset_nav()
+
         return context
 
 
 class CreditResourcesView(UserCanEditSubmissionMixin, TemplateView):
 
     template_name = "tool/submissions/credit_resources.html"
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(CreditResourcesView, self).get_context_data(
+            *args, **kwargs)
+        context['outline'] = self.get_submissionset_nav()
+        return context
 
 
 class AddResponsiblePartyView(UserCanEditSubmissionMixin, CreateView):

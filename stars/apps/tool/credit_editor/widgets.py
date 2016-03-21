@@ -1,4 +1,3 @@
-from django.forms import Widget
 from django.forms.widgets import Textarea
 from django.template import Context
 from django.template.loader import get_template

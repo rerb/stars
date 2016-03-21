@@ -678,8 +678,11 @@ class Credit(VersionedModel):
         default=False,
         help_text=("Must this credit be completed before submitting for "
                    "a rating?"))
-    requires_responsible_party = models.BooleanField(default=True)
-
+    requires_responsible_party = models.BooleanField(
+        default=True,
+        help_text="Does this credit require a Responsible Party?")
+    is_opt_in = models.BooleanField(default=False,
+                                    help_text="Is this an opt-in credit?")
     resources = models.TextField(
         blank=True,
         null=True,
@@ -1086,7 +1089,8 @@ DOCUMENTATION_FIELD_TYPES = (
     ('date', 'date'),
     ('upload', 'upload'),
     ('tabular', 'tabular'),
-#    ('multiple_upload', 'multiple upload'),
+    ('calculated', 'calculated')
+    #  ('multiple_upload', 'multiple upload'),
 )
 
 REQUIRED_TYPES = (
@@ -1105,7 +1109,8 @@ TYPE_TO_WIDGET = {
     'date': forms.TextInput,
     'upload': forms.FileInput,
     'choice': forms.Select,
-    'tabular': forms.Textarea #@todo - custom
+    'tabular': forms.Textarea,  # @todo - custom
+    'calculated': forms.TextInput
 }
 
 
@@ -1166,6 +1171,12 @@ class Unit(models.Model):
 
 class DocumentationField(VersionedModel):
     credit = models.ForeignKey(Credit)
+    header = models.TextField('Header',
+                              blank=True,
+                              null=True,
+                              default='',
+                              help_text=('HTML to display before field '
+                                         'in Reporting Tool'))
     title = models.CharField("Promt/Question", max_length=255)
     type = models.CharField(max_length=16, choices=DOCUMENTATION_FIELD_TYPES)
     last_choice_is_other = models.BooleanField(
@@ -1197,6 +1208,25 @@ class DocumentationField(VersionedModel):
         help_text='This documentation field will be displayed in the '
                   'public report. Applies to 99.99% of fields.')
     tabular_fields = JSONField(blank=True, null=True)
+    copy_from_field = models.ForeignKey(
+        'self',
+        on_delete=models.SET_NULL,
+        help_text='Field whose value can be copied into this field.',
+        null=True,
+        blank=True)
+    formula = models.TextField('Calculation Formula',
+                               blank=True,
+                               null=True,
+                               default='',
+                               help_text='Formula to compute field value')
+    imperial_formula_text = models.CharField(max_length=255,
+                                             blank=True,
+                                             null=True,
+                                             help_text="Imperial formula text")
+    metric_formula_text = models.CharField(max_length=255,
+                                           blank=True,
+                                           null=True,
+                                           help_text="Metric formula text")
 
     class Meta:
         ordering = ('ordinal',)
