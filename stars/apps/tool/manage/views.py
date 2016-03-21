@@ -76,21 +76,13 @@ class ContactView(InstitutionAdminToolMixin, ValidationMessageFormMixin,
                   UpdateView):
     """
         Displays the contact form for an institution
-
-        Contact form is customized based on the user's permission level
     """
     tab_content_title = 'contact'
     template_name = 'tool/manage/detail.html'
+    form_class = ParticipantContactForm
 
     def get_object(self):
         return self.get_institution()
-
-    def get_form_class(self):
-        if self.get_institution().is_participant:
-            FormClass = ParticipantContactForm
-        else:
-            FormClass = RespondentContactForm
-        return FormClass
 
 
 class InstitutionPaymentsView(InstitutionAdminToolMixin, ListView):

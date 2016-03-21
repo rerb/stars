@@ -43,7 +43,7 @@ class SubmissionStructureMixin(CreditsetStructureMixin):
             Raises 404 if key in kwargs and not found.
         """
         property = 'pk'
-        pattern = "\d{4}-\d{2}-\d{2}"
+        pattern = "^\d{4}-\d{2}-\d{2}$"
         if re.match(pattern, self.kwargs['submissionset']):
             property = 'date_submitted'
 
