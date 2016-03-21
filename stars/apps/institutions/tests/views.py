@@ -54,7 +54,7 @@ class ActiveInstitutionsViewTest(TestCase):
         c = Client()
 
         # confirm we get a 200 just querying
-        url = "/institutions/"
+        url = "/institutions/participants-and-reports/"
         response = c.get(url)
         self.assertEqual(response.status_code, 200)
 
@@ -62,7 +62,7 @@ class ActiveInstitutionsViewTest(TestCase):
         qs = view.get_queryset()
         self.assertEqual(len(qs), 3)
 
-        url = "/institutions/?sort=rating"
+        url = "/institutions/participants-and-reports/?sort=rating"
         response = c.get(url)
         self.assertEqual(response.status_code, 200)
 
@@ -89,7 +89,7 @@ class RatedInstitutionsViewTest(TestCase):
             i = InstitutionFactory(is_participant=True,
                                    rated_submission=ss,
                                    current_rating=r)
-         # create 1 non-rated Institutions
+        # create 1 non-rated Institutions
         for _ in range(1):
             i = InstitutionFactory()
             s = SubscriptionFactory(end_date=today - td)

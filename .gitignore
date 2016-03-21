@@ -10,3 +10,4 @@ celerybeat-schedule
 celerybeat.pid
 stellar.yaml
 \#*\#
+*.flymake.py
