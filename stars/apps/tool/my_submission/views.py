@@ -303,6 +303,7 @@ class SubcategorySubmissionDetailView(UserCanEditSubmissionMixin, UpdateView):
         context = super(SubcategorySubmissionDetailView,
                         self).get_context_data(**kwargs)
         context['next'] = self.request.GET.get('next', '')
+        context['outline'] = self.get_submissionset_nav()
         return context
 
     def get_success_url(self):

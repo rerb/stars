@@ -34,11 +34,11 @@ urlpatterns = patterns(
 
     # Export retrieval view
     url(r'^pdf/download/(?P<task>[^/]+)/$',
-     never_cache(PDFDownloadView.as_view())),
+        never_cache(PDFDownloadView.as_view())),
 
     # Export retrieval view
     url(r'^excel/download/(?P<task>[^/]+)/$',
-     never_cache(ExcelDownloadView.as_view())),
+        never_cache(ExcelDownloadView.as_view())),
 
     # Submit a snaphot
     url(r'^snapshot/$', SaveSnapshot.as_view(), name='save-snapshot'),
@@ -61,8 +61,8 @@ urlpatterns = patterns(
         name='add-responsible-party'),
 
     url(r'^%s/$' % SUBCAT_PATH,
-     SubcategorySubmissionDetailView.as_view(),
-     name='subcategory-submit'),
+        SubcategorySubmissionDetailView.as_view(),
+        name='subcategory-submit'),
 
     # Caching can cause inaccurate info to be displayed after
     # changing Institution.prefers_metric_system (details below),
