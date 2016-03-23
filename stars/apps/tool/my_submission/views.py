@@ -136,6 +136,9 @@ class SaveSnapshot(SubmitRedirectMixin, SubmissionToolMixin, TemplateView):
         _context = super(SaveSnapshot, self).get_context_data(**kwargs)
         _context['task'] = take_snapshot_task.delay(self.get_submissionset(), self.request.user)
         return _context
+        
+    def post(self, request, *args, **kwargs):
+        return self.get(request, args, kwargs)
 
 
 SUBMISSION_STEPS = [
