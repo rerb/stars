@@ -11,19 +11,40 @@
 {% endblock %}
 
 {% block tool_content %}
-    <h1>Save your Submission as a Snapshot</h1>
-    {% include 'tool/submissions/submission_summary_table.html' %}
-    <div class='required'>
-        <span class="required_note"
-              title="This field is required to complete credit">*</span>
-        Required Fields<br/>
+  
+    <div id="waiting">
+      <h2>Please wait while your snapshot is saved...</h2>
+      <p>This can take several minutes.</p>
+    	<hr/>
+    	<div class="progress progress-striped progress-primary active" id="progressBar">
+    		<div class="bar" style="width: 100%;"></div>
+    	</div>
     </div>
-    <form class='generalForm' method='post' action='.'>
-      {% load content %}
-      {% display_block_content 'save_snapshot' user %}
-        {{ form|bootstrap }}
-		<div class='form-actions'>
-	   		<button type='submit' class='btn btn-success'>Save Snapshot</button>
-	   	</div>
-    </form>
+    <div id="finished" style="display: none">
+      <h2>Success!</h2>
+      <p>Your snapshot has been saved.</p>
+      <p><a href="{% url share-data institution.slug %}">Back to Snapshots</a></p>
+    </div>
+    
+  	<script type="text/javascript">
+  		function pollForResult(url) {
+          console.log('Checking task status');
+  		    $.getJSON(url, function(data) {
+  		    	if(data.task.status == "SUCCESS") {
+  						$("#waiting").hide();
+  						$("#finished").show();
+  		        }
+  		    	else {
+  		        	setTimeout(function(){
+  		        		pollForResult(url);
+  		        	}, 3000);
+  		    	}
+  		    });
+  		}
+  		setTimeout(function(){
+  			pollForResult("/tasks/{{ task }}/status/");
+  		}, 1000);
+  	</script>
+    
+    
 {% endblock %}

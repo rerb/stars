@@ -1,5 +1,15 @@
 [
     {
+      "pk": 1,
+      "model": "credits.incrementalfeature",
+      "fields":
+      {
+        "key": "snapshot",
+        "description": "Can have snapshots"
+      }
+    },
+    
+    {
         "pk": 1,
          "model": "credits.creditset",
          "fields":
@@ -8,7 +18,8 @@
              "release_date": "2010-08-12",
              "version": "Test",
              "tier_2_points": 0.25,
-             "scoring_method": "get_STARS_v1_0_score"
+             "scoring_method": "get_STARS_v1_0_score",
+             "supported_features": [1]
         }
     },
     

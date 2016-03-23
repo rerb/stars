@@ -57,6 +57,13 @@ def build_excel_export(ss):
 
 
 @task()
+def take_snapshot_task(ss, user):
+    print "starting snapshot: (%d) %s" % (ss.id, ss)
+    ss.take_snapshot(user=user)
+    print "snapshot completed: (%d) %s" % (ss.id, ss)
+
+
+@task()
 def build_certificate_export(ss):
     print "starting certificate export(ss: %d)" % ss.id
     # cert_pdf = build_certificate_pdf(ss)
