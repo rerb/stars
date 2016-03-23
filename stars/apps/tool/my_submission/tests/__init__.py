@@ -1,4 +1,5 @@
 from submit_for_rating import RatingTest
+from save_snapshot import SaveSnapshot
 from forms import (LongTextSubmissionFormTest,
                    NumericSubmissionFormTest,
                    TextSubmissionFormTest)

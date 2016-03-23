@@ -21,7 +21,8 @@ from stars.apps.submissions.models import (Boundary,
                                            ResponsibleParty,
                                            SubcategorySubmission)
 from stars.apps.submissions.tasks import (send_certificate_pdf,
-                                          rollover_submission)
+                                          rollover_submission,
+                                          take_snapshot_task)
 from stars.apps.tool.mixins import (UserCanEditSubmissionMixin,
                                     SubmissionToolMixin,)
 from stars.apps.tool.my_submission import credit_history
@@ -110,11 +111,10 @@ class SubmitRedirectMixin():
                     'submissionset': self.get_submissionset().id}))
 
 
-class SaveSnapshot(SubmitRedirectMixin, SubmissionToolMixin, FormView):
+class SaveSnapshot(SubmitRedirectMixin, SubmissionToolMixin, TemplateView):
     """
         First step in the form for submission
     """
-    form_class = Confirm
     template_name = "tool/submissions/submit_snapshot.html"
 
     def update_logical_rules(self):
@@ -132,24 +132,10 @@ class SaveSnapshot(SubmitRedirectMixin, SubmissionToolMixin, FormView):
         })
         super(SaveSnapshot, self).update_logical_rules()
 
-    def get_success_url(self):
-        return reverse(
-            'share-data',
-            kwargs={'institution_slug': self.get_institution().slug})
-
     def get_context_data(self, **kwargs):
         _context = super(SaveSnapshot, self).get_context_data(**kwargs)
-#         _context['active_submission'] = (
-#             self.self.get_submissionset())
+        _context['task'] = take_snapshot_task.delay(self.get_submissionset(), self.request.user)
         return _context
-
-    def form_valid(self, form):
-        """
-            When the form validates, create a finalized submission
-        """
-        ss = self.get_submissionset()
-        ss.take_snapshot(user=self.request.user)
-        return super(SaveSnapshot, self).form_valid(form)
 
 
 SUBMISSION_STEPS = [
