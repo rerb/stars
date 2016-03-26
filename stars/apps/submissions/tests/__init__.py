@@ -11,6 +11,7 @@ from stars.apps.submissions.newapi.test import (
 
 from fixtures import FixturesTest
 
+from calculated_field import CalculatedFieldTest
 from categorysubmission import CategorySubmissionTest
 from creditsubmission import CreditSubmissionTest
 from choicewithothersubmission import ChoiceWithOtherSubmissionTest

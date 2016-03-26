@@ -1353,18 +1353,19 @@ class CreditSubmission(models.Model):
 
     def persists(self):
         """Does this CreditSubmission persist in the DB?"""
-        return (not self.pk == None)
+        return self.pk is not None
 
     def get_available_points(self, use_cache=False):
-        if use_cache and self.available_point_cache != None:
+        if use_cache and self.available_point_cache is not None:
             return self.available_point_cache
         # in most cases there's a fixed point value
-        if self.credit.point_minimum == None:
+        if self.credit.point_minimum is None:
             self.available_point_cache = self.credit.point_value
             return self.credit.point_value
         # but if there's not then we need to execute the formula
         else:
-            (ran, message, exception, available_points) = self.credit.execute_point_value_formula(self)
+            (ran, message, exception, available_points) = (
+                self.credit.execute_point_value_formula(self))
             self.available_point_cache = available_points
             return available_points
 
@@ -2053,12 +2054,17 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
             # value.  They might not, too, but we have no way to know
             # which fields are used in a calculated field's formula;
             # we only know they're attached to the same credit.
-            for sub_field in self.credit_submission.get_submission_fields():
-                if sub_field.documentation_field.type == 'calculated':
-                    old_value = sub_field.value
-                    sub_field.calculate()
-                    if sub_field.value != old_value:
-                        sub_field.save()
+            for calculated_field in self.credit_submission.credit.documentationfield_set.filter(type='calculated'):
+
+                # Calculated field submissions are instantiated as NumericSubmissions:
+                calculated_submission_field = NumericSubmission.objects.get(
+                    credit_submission=self.credit_submission,
+                    documentation_field=calculated_field)
+
+                old_value = calculated_submission_field.value
+                calculated_submission_field.calculate()
+                if calculated_submission_field.value != old_value:
+                    calculated_submission_field.save()
 
     def get_value(self):
         """ Use this accessor to get this submission's value - rather than

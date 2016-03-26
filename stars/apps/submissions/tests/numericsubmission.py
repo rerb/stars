@@ -37,7 +37,7 @@ class NumericSubmissionTest(TestCase):
         self.documentation_field.save()
 
         numeric_submission = NumericSubmission(
-            documentation_field = self.documentation_field,
+            documentation_field=self.documentation_field,
             credit_submission=self.credit_user_submission,
             metric_value=100)
 
@@ -52,7 +52,7 @@ class NumericSubmissionTest(TestCase):
         self.documentation_field.save()
 
         numeric_submission = NumericSubmission(
-            documentation_field = self.documentation_field,
+            documentation_field=self.documentation_field,
             credit_submission=self.credit_user_submission,
             value=100)
 
@@ -68,7 +68,7 @@ class NumericSubmissionTest(TestCase):
         self.documentation_field.save()
 
         numeric_submission = NumericSubmission(
-            documentation_field = self.documentation_field,
+            documentation_field=self.documentation_field,
             credit_submission=self.credit_user_submission,
             metric_value=None)
 
@@ -85,7 +85,7 @@ class NumericSubmissionTest(TestCase):
         self.documentation_field.save()
 
         numeric_submission = NumericSubmission(
-            documentation_field = self.documentation_field,
+            documentation_field=self.documentation_field,
             credit_submission=self.credit_user_submission,
             metric_value=None)
 
@@ -102,7 +102,7 @@ class NumericSubmissionTest(TestCase):
         self.documentation_field.save()
 
         numeric_submission = NumericSubmission(
-            documentation_field = self.documentation_field,
+            documentation_field=self.documentation_field,
             credit_submission=self.credit_user_submission,
             value=None)
 
@@ -119,7 +119,7 @@ class NumericSubmissionTest(TestCase):
         self.documentation_field.save()
 
         numeric_submission = NumericSubmission(
-            documentation_field = self.documentation_field,
+            documentation_field=self.documentation_field,
             credit_submission=self.credit_user_submission,
             value=None)
 
@@ -134,7 +134,7 @@ class NumericSubmissionTest(TestCase):
         self.documentation_field.save()
 
         numeric_submission = NumericSubmission(
-            documentation_field = self.documentation_field,
+            documentation_field=self.documentation_field,
             credit_submission=self.credit_user_submission,
             value=100)
 
@@ -150,7 +150,7 @@ class NumericSubmissionTest(TestCase):
         self.documentation_field.save()
 
         numeric_submission = NumericSubmission(
-            documentation_field = self.documentation_field,
+            documentation_field=self.documentation_field,
             credit_submission=self.credit_user_submission,
             metric_value=100)
 
