@@ -663,7 +663,8 @@ class Credit(VersionedModel):
         null=True,
         help_text='A Python script that provides custom validation for '
                   'this credit.')
-    type = models.CharField(max_length=2, choices=CREDIT_TYPE_CHOICES)
+    type = models.CharField(max_length=2, choices=CREDIT_TYPE_CHOICES,
+                            db_index=True)
     criteria = models.TextField()
     applicability = models.TextField(blank=True, null=True)
     scoring = models.TextField()
