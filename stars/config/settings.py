@@ -142,12 +142,13 @@ TEMPLATE_DIRS = [os.path.join(os.path.dirname(__file__), "..", "templates")]
 # Use a custom context processor to get all the account and user info
 # to the templates
 TEMPLATE_CONTEXT_PROCESSORS = (
-    "stars.apps.accounts.utils.account_context",
+    'soapbox.context_processors.soapbox_messages',
+    'stars.apps.accounts.utils.account_context',
     'stars.apps.helpers.utils.settings_context',
     'django.core.context_processors.static',
     'django.core.context_processors.media',
     'django.contrib.messages.context_processors.messages',
-    "django.contrib.auth.context_processors.auth",
+    'django.contrib.auth.context_processors.auth',
     'django.core.context_processors.request',
     # 'cms.context_processors.media',
     # 'sekizai.context_processors.sekizai',
@@ -208,6 +209,7 @@ INSTALLED_APPS = (
     'logical_rules',
     'raven.contrib.django.raven_compat',
     's3_folder_storage',
+    'soapbox',
     'sorl.thumbnail',
     'south',
     'tastypie',

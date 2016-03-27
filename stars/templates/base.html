@@ -7,6 +7,7 @@
         <link rel="stylesheet" href="{{ STATIC_URL }}fonts/dejavu-sans/stylesheet.css">
         <link rel="stylesheet" href="{{  STATIC_URL  }}css/base.css">
         <link rel="stylesheet" href="{{  STATIC_URL  }}css/facelift.css">
+        <link rel="stylesheet" href="http://cdn.jsdelivr.net/animatecss/2.1.0/animate.min.css">
         {% endcompress %}
 
         {% compress js %}
@@ -30,22 +31,30 @@
 
         <!--  pingdom real user monitoring -->
         <script>
-			var _prum = [['id', '52b2099cabe53d4c67000000'],
-			             ['mark', 'firstbyte', (new Date()).getTime()]];
-			(function() {
-			    var s = document.getElementsByTagName('script')[0]
-			      , p = document.createElement('script');
-			    p.async = 'async';
-			    p.src = '//rum-static.pingdom.net/prum.min.js';
-			    s.parentNode.insertBefore(p, s);
-			})();
-		</script>
+	 var _prum = [['id', '52b2099cabe53d4c67000000'],
+		      ['mark', 'firstbyte', (new Date()).getTime()]];
+	 (function() {
+	   var s = document.getElementsByTagName('script')[0]
+	     , p = document.createElement('script');
+	   p.async = 'async';
+	   p.src = '//rum-static.pingdom.net/prum.min.js';
+	   s.parentNode.insertBefore(p, s);
+	 })();
+	</script>
 
     </head>
     <body onload='{% block body_onload %}{% endblock %}'
-    	onbeforeunload='{% block body_beforeunload %}{% endblock %}'
-    	class="html not-front not-logged-in no-sidebars page-node page-node- page-node-8 node-type-page" >
-    <div class="container">
+    	  onbeforeunload='{% block body_beforeunload %}{% endblock %}'
+    	  class="html not-front not-logged-in no-sidebars page-node page-node- page-node-8 node-type-page" >
+      <div class="container">
+
+        {% for message in soapbox_messages %}
+          <div class="row text-center animated fadeInDown">
+            <div class="offset1 span10 soapbox-message">
+              {{ message }}
+            </div>
+          </div>
+        {% endfor %}
 
       <div class="row top-nav">
         <div class="span7 aashe-tabs">
@@ -59,7 +68,7 @@
         {% block top_menu %}
         {% include 'helpers/top_menu.html' %}
         {% endblock %}
-      </div>
+        </div>
       </div>
 
       <div class="row header">

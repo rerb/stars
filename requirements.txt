@@ -10,6 +10,7 @@ Werkzeug==0.8.3
 -e git+https://github.com/toastdriven/django-tastypie.git@32dae8d2590dde3122289118ac241ab0bd2452e8#egg=django_tastypie-dev
 -e git+https://github.com/python-excel/xlwt.git#egg=xlwt-dev
 -e git+https://github.com/AASHE/django-celery-downloader.git#egg=django-celery-downloader-dev
+-e git+https://github.com/rerb/django-soapbox.git#egg=django-soapbox-dev
 amqp==1.4.6
 amqplib==1.0.2
 anyjson==0.3.3

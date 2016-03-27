@@ -238,3 +238,11 @@ ul.nav-pills li.active a:hover {
 .required_note {
   color: red;
 }
+.soapbox-message {
+    padding-top: 20px;
+    padding-bottom: 20px;
+    background-color: firebrick;
+    text-align: center;
+    color: white;
+    margin-top: 12px;
+}
