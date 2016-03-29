@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.views.generic import TemplateView
-from django.views.generic.edit import FormView, UpdateView, CreateView
+from django.views.generic.edit import UpdateView, CreateView
 from django.db.models import Max, Q
 from django.contrib.formtools.wizard.views import SessionWizardView
 from django.core.files.storage import FileSystemStorage
@@ -24,6 +24,7 @@ from stars.apps.submissions.tasks import (send_certificate_pdf,
                                           rollover_submission,
                                           take_snapshot_task)
 from stars.apps.tool.mixins import (UserCanEditSubmissionMixin,
+                                    UserCanEditSubmissionOrIsAdminMixin,
                                     SubmissionToolMixin,)
 from stars.apps.tool.my_submission import credit_history
 from stars.apps.tool.my_submission.forms import (CreditUserSubmissionForm,
@@ -134,9 +135,10 @@ class SaveSnapshot(SubmitRedirectMixin, SubmissionToolMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         _context = super(SaveSnapshot, self).get_context_data(**kwargs)
-        _context['task'] = take_snapshot_task.delay(self.get_submissionset(), self.request.user)
+        _context['task'] = take_snapshot_task.delay(self.get_submissionset(),
+                                                    self.request.user)
         return _context
-        
+
     def post(self, request, *args, **kwargs):
         return self.get(request, args, kwargs)
 
@@ -165,12 +167,15 @@ SUBMISSION_STEPS = [
 ]
 
 
-class SubmitForRatingWizard(SubmitRedirectMixin, SubmissionToolMixin, SessionWizardView):
+class SubmitForRatingWizard(SubmitRedirectMixin,
+                            SubmissionToolMixin,
+                            SessionWizardView):
     """
         A wizard that runs a user through the forms
         required to submit for a rating
     """
-    file_storage = FileSystemStorage(location=os.path.join('/tmp/stars_wizard_files/'))
+    file_storage = FileSystemStorage(
+        location=os.path.join('/tmp/stars_wizard_files/'))
 
     def update_logical_rules(self):
         super(SubmitForRatingWizard, self).update_logical_rules()
@@ -278,7 +283,9 @@ class RatingCongratulationsView(SubmissionToolMixin, TemplateView):
         return super(RatingCongratulationsView, self).get(*args, **kwargs)
 
 
-class SubcategorySubmissionDetailView(UserCanEditSubmissionMixin, UpdateView):
+class SubcategorySubmissionDetailView(
+        UserCanEditSubmissionOrIsAdminMixin,
+        UpdateView):
 
     model = SubcategorySubmission
     template_name = 'tool/submissions/subcategory.html'
