@@ -3,7 +3,6 @@ import logical_rules
 from stars.apps.institutions.rules import (institution_can_get_rated,
                                            institution_can_submit_report,
                                            user_has_access_level,
-                                           institution_has_snapshot_feature,
                                            institution_has_export,
                                            user_is_institution_admin,
                                            user_is_participant)
@@ -90,6 +89,7 @@ def user_can_view_export(user, submission):
 logical_rules.site.register("user_can_view_export",
                             user_can_view_export)
 
+
 def user_can_download_certificate(user, submission):
     if submission.status == "r":
         if user.is_staff:
@@ -99,11 +99,22 @@ def user_can_download_certificate(user, submission):
 logical_rules.site.register("user_can_download_certificate",
                             user_can_download_certificate)
 
+
 def user_can_edit_submission(user, submission):
     return (submission_is_editable(submission) and
             user_has_access_level(user, 'submit', submission.institution))
 logical_rules.site.register("user_can_edit_submission",
                             user_can_edit_submission)
+
+
+def user_can_edit_submission_or_is_admin(user, submission):
+    return (user_can_edit_submission(submission=submission,
+                                     user=user) or
+            user_has_access_level(user=user,
+                                  access_level='admin',
+                                  institution=submission.institution))
+logical_rules.site.register("user_can_edit_submission_or_is_admin",
+                            user_can_edit_submission_or_is_admin)
 
 
 def user_can_manage_submission(user, submission):

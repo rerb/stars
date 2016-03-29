@@ -57,10 +57,10 @@ class InstitutionAdminToolMixin(InstitutionToolMixin):
     """
     def update_logical_rules(self):
         super(InstitutionAdminToolMixin, self).update_logical_rules()
-        self.add_logical_rule({ 'name': 'user_is_institution_admin',
-                                'param_callbacks': [
-                                    ('user', 'get_request_user'),
-                                    ('institution', 'get_institution')] })
+        self.add_logical_rule({'name': 'user_is_institution_admin',
+                               'param_callbacks': [
+                                   ('user', 'get_request_user'),
+                                   ('institution', 'get_institution')]})
 
 
 class SubmissionToolMixin(InstitutionToolMixin,
@@ -98,6 +98,20 @@ class UserCanEditSubmissionMixin(SubmissionToolMixin):
                                             " to edit this submission"
                                             )
                                })
+
+
+class UserCanEditSubmissionOrIsAdminMixin(SubmissionToolMixin):
+
+        def update_logical_rules(self):
+            super(UserCanEditSubmissionOrIsAdminMixin,
+                  self).update_logical_rules()
+            self.add_logical_rule(
+                {'name': 'user_can_edit_submission_or_is_admin',
+                 'param_callbacks': [('user', 'get_request_user'),
+                                     ('submission', 'get_submissionset')],
+                 'redirect_url': reverse('submission-locked'),
+                 'message': ("Sorry, but you do not have access"
+                             " to edit this submission")})
 
 
 class SubmissionSetIsNotLockedMixin(SubmissionToolMixin):
