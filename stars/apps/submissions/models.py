@@ -293,7 +293,7 @@ class SubmissionSet(models.Model, FlaggableModel):
 
     def is_pending_review(self):
         """ Return True iff this submission set has been rated """
-        return self.status == 'pr'
+        return self.status == PROCESSSING_SUBMISSION_STATUS
 
     def is_rated(self):
         """ Return True iff this submission set has been rated """
@@ -587,7 +587,8 @@ class SubmissionSet(models.Model, FlaggableModel):
         """
         if self.creditset.version > '2.':
             institutional_characteristics_category = Category.objects.get(
-                abbreviation='IC')
+                abbreviation='IC',
+                creditset=self.creditset)
             institutional_characteristics_credit_submissions = (
                 self.get_credit_submissions().filter(
                     subcategory_submission__category_submission__category=
