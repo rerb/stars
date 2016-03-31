@@ -1,7 +1,7 @@
 import copy
 import datetime
 
-from stars.apps.credits.models import CreditSet
+from stars.apps.credits.models import CreditSet, DocumentationField
 from stars.apps.submissions.models import (Boundary,
                                            CreditTestSubmission,
                                            CreditUserSubmission,
@@ -9,6 +9,34 @@ from stars.apps.submissions.models import (Boundary,
                                            PENDING_SUBMISSION_STATUS,
                                            SubcategorySubmission,
                                            SubmissionSet)
+
+
+def bumped_tabular_embedded_fields(tabular_field):
+    """
+        Returns a list of lists that maps the fields in
+        tabular_field['fields'] to the pk's of those fields
+        that succeeded them.
+
+        E.g., given:
+
+            DocField1.pk is 1
+
+            DocField2.pk is 2; DocField2.previous_version = 1
+
+            TabField1.fields[['1']]
+
+            bump_tabular_fields(TabField1) returns TabField1 with
+            fields reset to [['2']]
+    """
+    new_fields = []
+    for row in tabular_field.tabular_fields['fields']:
+        new_row = []
+        for col in row:
+            new_col = str(DocumentationField.objects.get(
+                previous_version=int(col)).pk)
+            new_row.append(new_col)
+        new_fields.append(new_row)
+    return new_fields
 
 
 def migrate_creditset(old_cs, new_version_name, release_date):
@@ -50,6 +78,7 @@ def migrate_creditset(old_cs, new_version_name, release_date):
                     migrate_obj(ar, {'credit': new_c})
 
                 for field in credit.documentationfield_set.order_by('-id'):
+
                     new_f = migrate_obj(field, {'credit': new_c})
 
                     for choice in field.choice_set.all():
@@ -71,6 +100,13 @@ def migrate_creditset(old_cs, new_version_name, release_date):
                 #                                 value=dfs.value,
                 #                                 credit_submission=new_cts)
                 #             new_dfs.save()
+
+    for tabular_field in DocumentationField.objects.filter(
+            credit__subcategory__category__creditset=new_cs,
+            type='tabular'):
+        tabular_field.tabular_fields['fields'] = (
+            bumped_tabular_embedded_fields(tabular_field))
+        tabular_field.save()
 
     return new_cs
 

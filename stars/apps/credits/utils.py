@@ -81,8 +81,8 @@ def get_array_for_tabular_fields(df):
 
     # now fill in the fields
     c = 1
-    i_d = df.id
     tabular_fields = df.tabular_fields['fields']
+
     for col in tabular_fields:
         for cell in col:
             df = DocumentationField.objects.get(pk=int(cell))
