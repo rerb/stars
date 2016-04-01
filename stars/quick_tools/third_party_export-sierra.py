@@ -55,11 +55,13 @@ for cs_id in cs_id_list:
     tp = ThirdParty.objects.get(slug="sierra")
     print "EXPORTING: %s" % tp
 
-    deadline = datetime.date(year=2015, month=3, day=25)
+    start = datetime.date(year=2015, month=3, day=31)
+    deadline = datetime.date(year=2016, month=3, day=31)
 
     snapshot_list = tp.get_snapshots().exclude(institution__id=447).order_by("institution__name")
     snapshot_list = snapshot_list.filter(creditset=cs)
     snapshot_list = snapshot_list.filter(date_submitted__lte=deadline)
+    snapshot_list = snapshot_list.filter(date_submitted__gte=start)
 
     if(limit_inst_ids):
         snapshot_list = snapshot_list.filter(institution__id__in=limit_inst_ids)
@@ -85,27 +87,27 @@ for cs_id in cs_id_list:
 
     print "%d Snapshots" % len(latest_snapshot_list)
 
-    # for cat in cs.category_set.all():
-    #     for sub in cat.subcategory_set.all():
-    #         for c in sub.credit_set.all():
-    #             filename = 'export/%s/%s.csv' % (cs.version, string.replace("%s" % c, "/", "-"))
-    #             filename = string.replace(filename, ":", "")
-    #             filename = string.replace(filename, " ", "_")
-    #
-    #             export_credit_csv(c, ss_qs=latest_snapshot_list, outfilename=filename)
+    for cat in cs.category_set.all():
+        for sub in cat.subcategory_set.all():
+            for c in sub.credit_set.all():
+                filename = 'export/%s/%s.csv' % (cs.version, string.replace("%s" % c, "/", "-"))
+                filename = string.replace(filename, ":", "")
+                filename = string.replace(filename, " ", "_")
 
-    # export pdfs
-    count = 0
-    total = len(latest_snapshot_list)
-    for ss in latest_snapshot_list:
-        count += 1
-        print ss
-        print "%d of %d" % (count, total)
-        if count < 80:
-            continue
-        outfile = "export/pdf/%s" % ss.get_pdf_filename()
-        # pdf = ss.get_pdf(False)
-        # f = open(outfile, 'w')
-        # f.write(pdf)
-        pdf = ss.get_pdf(refresh=False, template='institutions/pdf/third_party_report.html')
-        os.rename(pdf, outfile)
+                export_credit_csv(c, ss_qs=latest_snapshot_list, outfilename=filename)
+
+    # # export pdfs
+    # count = 0
+    # total = len(latest_snapshot_list)
+    # for ss in latest_snapshot_list:
+    #     count += 1
+    #     print ss
+    #     print "%d of %d" % (count, total)
+    #     if count < 80:
+    #         continue
+    #     outfile = "export/pdf/%s" % ss.get_pdf_filename()
+    #     # pdf = ss.get_pdf(False)
+    #     # f = open(outfile, 'w')
+    #     # f.write(pdf)
+    #     pdf = ss.get_pdf(refresh=False, template='institutions/pdf/third_party_report.html')
+    #     os.rename(pdf, outfile)
