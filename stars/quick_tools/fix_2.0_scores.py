@@ -1,12 +1,13 @@
 from stars.apps.submissions.models import SubmissionSet
 
 ss_id_list = [
-              2182, # ASU
-              2166, # Goshen College
-              2038, # Slippery Rock University
-              2082, # University of Nebraska-Lincoln
-              2036, # University of Victoria
-              2089, # Wilfrid Laurier University
+              # 2182, # ASU
+              # 2166, # Goshen College
+              # 2038, # Slippery Rock University
+              # 2082, # University of Nebraska-Lincoln
+              # 2036, # University of Victoria
+              # 2089, # Wilfrid Laurier University
+              2036, # u of vic
 ]
 
 for id in ss_id_list:
