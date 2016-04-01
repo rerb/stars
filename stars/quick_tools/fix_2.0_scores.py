@@ -10,9 +10,10 @@ ss_id_list = [
               2036, # u of vic
 ]
 
-for id in ss_id_list:
-    ss = SubmissionSet.objects.get(pk=id)
-    
+def recalculate_score(ss):
+    """
+    Extracted as a method so that it can be used from the command line
+    """
     print ss
     print "current score: %s" % ss.score
     print "current rating: %s" % ss.rating
@@ -31,3 +32,7 @@ for id in ss_id_list:
     
     print "new score: %s" % ss.score
     print "new rating: %s" % ss.rating
+
+for id in ss_id_list:
+    ss = SubmissionSet.objects.get(pk=id)
+    recalculate_score(ss)
