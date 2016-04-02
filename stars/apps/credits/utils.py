@@ -85,7 +85,10 @@ def get_array_for_tabular_fields(df):
 
     for col in tabular_fields:
         for cell in col:
-            df = DocumentationField.objects.get(pk=int(cell))
+            if cell:
+                df = DocumentationField.objects.get(pk=int(cell))
+            else:
+                df = ''
             table[c].append(df)
         c += 1
 
