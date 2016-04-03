@@ -1,4 +1,5 @@
 {% load help %}
+{% load submit_tags %}
 
 {% if field_form.value.errors %}
   <div class='control-group error'>
@@ -29,11 +30,26 @@
     {% endwith %}
   {% endwith %}
 
-    {% if editing %}
-      <a href='{{ documentation_field.get_edit_url }}'>
+  {% if documentation_field.copy_from_field %}
+    {% with documentation_field.copy_from_field as dfcopy %}
+      <input type="button"
+             class="btn btn-primary"
+             value="Populate"
+             style="margin-bottom: 9px"
+             data-toggle="tooltip"
+             title="Copy from {{ dfcopy.credit.identifier}}: {{ dfcopy.title }}"
+             {% if submissionset %}
+               onclick='this.parentNode.firstElementChild.value = "{% get_documentation_field_submission_value dfcopy submissionset %}";'
+             {% endif %}
+      >
+    {% endwith %}
+  {% endif %}
+
+  {% if editing %}
+    <a href='{{ documentation_field.get_edit_url }}'>
       <i class='icon-edit'></i>
-      </a>
-    {% endif %}
+    </a>
+  {% endif %}
 
   {% if field_form.value.errors %}
     <div class="alert alert-error">{{ field_form.errors.value }}</div>
