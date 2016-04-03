@@ -6,7 +6,7 @@ class RatingAdmin(admin.ModelAdmin):
     list_display = ('name', 'minimal_score', 'creditset', 'image_large')
     list_filter = ('creditset',)
     ordering = ('minimal_score', 'creditset', )
-    
+
 admin.site.register(Rating, RatingAdmin)
 
 class IncrementalFeatureAdmin(admin.ModelAdmin):
@@ -43,7 +43,7 @@ admin.site.register(Subcategory, SubcategoryAdmin)
 
 class DocumentationFieldInline(admin.TabularInline):
     model = DocumentationField
-    
+
 class CreditAdmin(admin.ModelAdmin):
     list_display = ('get_identifier','title', 'subcategory', 'type')
     list_filter = ('subcategory__category__creditset', 'subcategory',)
@@ -58,11 +58,6 @@ class CreditAdmin(admin.ModelAdmin):
             '/media/static/js/textarea_admin.js',
           )
 admin.site.register(Credit, CreditAdmin)
-
-
-class ApplicabilityReasonAdmin(admin.ModelAdmin):
-    list_display = ('reason', 'credit')
-admin.site.register(ApplicabilityReason, ApplicabilityReasonAdmin)
 
 
 class UnitAdmin(admin.ModelAdmin):

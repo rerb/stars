@@ -1,3 +1,4 @@
+from django.core.urlresolvers import reverse
 from django.forms.models import modelformset_factory
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
@@ -512,6 +513,12 @@ class ApplicabilityReasons(CreditEditorFormView):
         return HttpResponseRedirect("%sapplicability/" %
                                     context['credit'].get_edit_url())
 
+    def get_extra_context(self, *args, **kwargs):
+        _context = super(ApplicabilityReasons, self).get_extra_context(
+            *args, **kwargs)
+        _context['show_delete_button'] = True
+        return _context
+
 
 class AddApplicabilityReason(AddObject):
     """
@@ -569,6 +576,24 @@ class EditApplicabilityReason(CreditEditorFormView):
     def get_success_response(self, request, context):
         return HttpResponseRedirect("%sapplicability/" %
                                     context['credit'].get_edit_url())
+
+
+class DeleteApplicabilityReason(DeleteView, IsStaffMixin):
+
+    model = ApplicabilityReason
+    success_url_name = 'applicability-reason-list'
+    tab_content_title = 'delete an applicability reason'
+    template_name = ('tool/credit_editor/'
+                     'applicability_reason_confirm_delete.html')
+
+    def get_success_url(self):
+        credit = self.object.credit
+        return reverse(
+            self.success_url_name,
+            kwargs={'creditset_id': credit.get_creditset().id,
+                    'category_id': credit.subcategory.category.id,
+                    'subcategory_id': credit.subcategory.id,
+                    'credit_id': credit.id})
 
 
 class FormulaAndValidation(CreditEditorFormView):

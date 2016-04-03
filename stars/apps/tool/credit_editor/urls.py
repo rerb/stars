@@ -40,10 +40,15 @@ urlpatterns = patterns(
     (r'^%sadd-field/$' % cr_prefix, AddReportingField()),
     (r'^%s(?P<field_id>\d+)/$' % cr_prefix, EditReportingField()),
 
-    (r'^%sapplicability/$' % cr_prefix, ApplicabilityReasons()),
+    url(r'^%sapplicability/$' % cr_prefix,
+        ApplicabilityReasons(),
+        name="applicability-reason-list"),
     (r'^%sadd-reason/$' % cr_prefix, AddApplicabilityReason()),
     (r'^%sapplicability/(?P<reason_id>\d+)/$' % cr_prefix,
      EditApplicabilityReason()),
+    url(r'^credits/applicabilityreason/(?P<pk>\d+)/delete/$',
+        DeleteApplicabilityReason.as_view(),
+        name="applicability-reason-delete"),
 
     (r'^%sformula/$' % cr_prefix, FormulaAndValidation()),
     (r'^%sformula/add-test-case/$' % cr_prefix, AddTestCase()),

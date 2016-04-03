@@ -1050,7 +1050,7 @@ class ApplicabilityReason(VersionedModel):
 
     def get_delete_url(self):
         """ Returns the URL of the page to confirm deletion of this object """
-        return reverse("admin:credits_applicabilityreason_delete", args=(self.id,))
+        return reverse("applicability-reason-delete", args=(self.id,))
 
     def get_parent(self):
         """ Returns the parent element for crumbs """
