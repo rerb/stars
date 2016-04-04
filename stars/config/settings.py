@@ -12,7 +12,8 @@ sys.path.append('../')
 
 ADMINS = (('Benjamin Stookey', 'ben@aashe.org'),
           ('Bob Erb', 'bob.erb@aashe.org'),
-          ('Scott Johnson', 'scott@aashe.org'),)
+          ('Scott Johnson', 'scott@aashe.org'),
+          ('Chris Pelton', 'chris.pelton@aashe.org'))
 MANAGERS = ADMINS
 
 DEFAULT_CHARSET = 'utf-8'
