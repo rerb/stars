@@ -50,12 +50,14 @@
                 My Resources
             </a>
         </li>
+        {% if institution.latest_expired_submission or institution.rated_submission %}
         <li{% if active_menu == "reports"%} class='active'{% endif %}>
             <a href='/institutions/{{ institution.slug }}/report/'>
                 <i class='icon-book'></i>
                 My Published Report(s)
             </a>
         </li>
+        {% endif %}
     	{% testrule user_has_access_level user 'admin' institution %}
             <li{% if active_menu == "settings"%} class='active'{% endif %}>
                 {% if institution %}
