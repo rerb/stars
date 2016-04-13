@@ -1,18 +1,27 @@
+from functools32 import lru_cache
+
+
+@lru_cache()
 def get_mappings():
     """
     Return a list of var names for mapping ints to variable names
+
+    List has 6 * 26 elements.  If you need more variable names than
+    that, this function is insufficient.
     """
 
     var_names = []
     for i in range(0, 26):
         var_names.append(chr(i+65))
 
-    for i in range(0, 3):
+    for i in range(0, 5):
         for j in range(0, 26):
             var_names.append("%s%s" % (chr(i+65), chr(j+65)))
 
     return var_names
 
+
+@lru_cache()
 def int_to_var(num):
     """
     converts a number to a unique variable name
@@ -21,6 +30,8 @@ def int_to_var(num):
 
     return mappings[num]
 
+
+@lru_cache()
 def var_to_int(var):
     """
     converts a variable name to a unique number
@@ -28,6 +39,7 @@ def var_to_int(var):
 
     mappings = get_mappings()
     return mappings.index(var)
+
 
 def get_next_variable_name(variable_list):
     """
