@@ -1350,7 +1350,7 @@ class CreditSubmission(models.Model):
 
     def is_test(self):
         """Returns True if this is a test submission."""
-        return hasattr(self, 'credittestsubmission')
+        return isinstance(self, CreditTestSubmission)
 
     def persists(self):
         """Does this CreditSubmission persist in the DB?"""
