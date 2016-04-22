@@ -600,7 +600,7 @@ class SubmissionSet(models.Model, FlaggableModel):
             boundary_credit_submission_fields = (
                 boundary_credit_submission.get_submission_fields())
             institution_type_submission_field = filter(
-                lambda x: x.documentation_field.title == 'Institution type',
+                lambda x: x.documentation_field.title.startswith('Institution type'),
                 boundary_credit_submission_fields)[0]
             return institution_type_submission_field.get_human_value()
         else:
