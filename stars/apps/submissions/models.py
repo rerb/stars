@@ -12,6 +12,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.localflavor.us.models import PhoneNumberField
 from django.core import urlresolvers
 from django.core.cache import cache
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db import models
 from django.db.models import Q
@@ -2057,10 +2058,16 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
             # we only know they're attached to the same credit.
             for calculated_field in self.credit_submission.credit.documentationfield_set.filter(type='calculated'):
 
-                # Calculated field submissions are instantiated as NumericSubmissions:
-                calculated_submission_field = NumericSubmission.objects.get(
-                    credit_submission=self.credit_submission,
-                    documentation_field=calculated_field)
+                # Calculated field submissions are instantiated
+                # as NumericSubmissions:
+                try:
+                    calculated_submission_field = NumericSubmission.objects.get(
+                        credit_submission=self.credit_submission,
+                        documentation_field=calculated_field)
+                except ObjectDoesNotExist:
+                    calculated_submission_field = NumericSubmission.objects.create(
+                        credit_submission=self.credit_submission,
+                        documentation_field=calculated_field)
 
                 old_value = calculated_submission_field.value
                 calculated_submission_field.calculate()
