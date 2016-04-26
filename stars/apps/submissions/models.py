@@ -1351,7 +1351,7 @@ class CreditSubmission(models.Model):
 
     def is_test(self):
         """Returns True if this is a test submission."""
-        return isinstance(self, CreditTestSubmission)
+        return CreditTestSubmission.objects.filter(pk=self).exists()
 
     def persists(self):
         """Does this CreditSubmission persist in the DB?"""
@@ -2424,6 +2424,12 @@ class NumericSubmission(DocumentationFieldSubmission):
             Logic to determine if the `metric_value` field should be used. This
             is shared with the form, so it makes sense to add it to the model
         """
+        if not hasattr(self, 'credit_submission'):
+            # It's not a real submission, just an example in
+            # the credit editor, just an in-memory, unbound
+            # object, and so without a 'credit_submission'
+            # attribute.
+            return False
         # Test submissions don't have institutions:
         if self.credit_submission.is_test():
             return False
