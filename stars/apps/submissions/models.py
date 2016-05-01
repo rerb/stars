@@ -12,10 +12,10 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.localflavor.us.models import PhoneNumberField
 from django.core import urlresolvers
 from django.core.cache import cache
-from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db import models
 from django.db.models import Q
+from model_utils import FieldTracker
 
 from file_cache_tag.templatetags.custom_caching import (generate_cache_key,
                                                         invalidate_filecache)
@@ -1233,7 +1233,8 @@ class CreditSubmission(models.Model):
     def get_institution(self):
         return self.subcategory_submission.get_institution()
 
-    def get_submission_fields(self):
+    def get_submission_fields(self,
+                              recalculate_related_calculated_fields=True):
         """
             Returns the list of documentation field submission objects for
             this credit submission
@@ -1251,7 +1252,8 @@ class CreditSubmission(models.Model):
         """
         if not self.submission_fields:  # cache.
             self.submission_fields = self._submission_fields_for_documentation_fields(
-                self.credit.documentationfield_set.all())
+                self.credit.documentationfield_set.all(),
+                recalculate_related_calculated_fields)
 
         return self.submission_fields
 
@@ -1260,10 +1262,12 @@ class CreditSubmission(models.Model):
         return self._submission_fields_for_documentation_fields(
             self.credit.documentationfield_set.filter(is_published=True))
 
-    def _submission_fields_for_documentation_fields(self,
-                                                    documentation_field_list):
-        """Return the list of DocumentationFields for this CreditSubmission,
-        creating them if they don't already exist.
+    def _submission_fields_for_documentation_fields(
+            self,
+            documentation_field_list,
+            recalculate_related_calculated_fields):
+        """Return the list of DocumentationFieldSubmissions for this
+        CreditSubmission, creating them if they don't already exist.
         """
         submission_field_list = []
         for field in documentation_field_list:
@@ -1286,7 +1290,11 @@ class CreditSubmission(models.Model):
                 except SubmissionFieldModelClass.DoesNotExist:
                     submission_field = SubmissionFieldModelClass(
                         documentation_field=field, credit_submission=self)
-                    submission_field.save()
+                    if isinstance(submission_field, NumericSubmission):
+                        submission_field.save(
+                            recalculate_related_calculated_fields=recalculate_related_calculated_fields)
+                    else:
+                        submission_field.save()
                 submission_field_list.append(submission_field)
             else:
                 # use a dummy submission_field for tabular
@@ -1382,14 +1390,14 @@ class CreditSubmission(models.Model):
 
                 - error = error message or None if conversion was successful
         """
-        try: # Ensure that the result of the formula was a valid points value!
+        try:  # Ensure that the result of the formula was a valid points value!
             points = float(points)
             return (round(points, 2), None)
         except Exception, e:
             if log_error:
                 logger.error(
                     "Error converting formula result (%s) to numeric type: %s"
-                    % (points,e), exc_info=True)
+                    % (points, e), exc_info=True)
             return (0,
                     "Non-numeric result calculated for points: %s" % points)
 
@@ -1899,7 +1907,9 @@ class ReportingFieldDataCorrection(models.Model):
         Represents a change to a particular field in Credit Submission after
         an institution has received a rating.
     """
-    request = models.OneToOneField(DataCorrectionRequest, related_name='applied_correction', blank=True, null=True)
+    request = models.OneToOneField(DataCorrectionRequest,
+                                   related_name='applied_correction',
+                                   blank=True, null=True)
     previous_value = models.TextField()
     change_date = models.DateField()
     content_type = models.ForeignKey(ContentType)
@@ -2022,57 +2032,44 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
                     return self.value
 
     def calculate(self):
-        """Calculate self.documentation_field formula.
+        """Calculate self.documentation_field.formula.
         For calculated fields only.
         """
+        if not self.documentation_field.formula:
+            return
         # get the key that relates field identifiers to their values
         field_key = self.credit_submission.get_submission_field_key()
         value = 0
-        if (self.documentation_field.formula):
-            # exec formula in restricted namespace
-            globals = {}  # __builtins__ gets added automatically
-            locals = {"value": value}
-            locals.update(field_key)
-            try:
-                exec self.documentation_field.formula in globals, locals
-            # Assertions may be used in formula for extra validation -
-            # assume assertion text is intended for user
-            except AssertionError, e:
-                raise
-            except Exception, e:
-                logger.exception("Formula Exception: %s" % e)
-                self.value = None
-            else:
-                self.value = locals['value']
+        # exec formula in restricted namespace
+        globals = {}  # __builtins__ gets added automatically
+        locals = {"value": value}
+        locals.update(field_key)
+        try:
+            exec self.documentation_field.formula in globals, locals
+        # Assertions may be used in formula for extra validation -
+        # assume assertion text is intended for user
+        except AssertionError:
+            raise
+        except Exception, exc:
+            logger.exception(
+                "Formula Exception for NumericSubmission(pk={pk}), "
+                "formula:`{formula}`; locals: {locals}; "
+                "{exc}".format(
+                    pk=self.pk,
+                    formula=self.documentation_field.formula,
+                    locals={key: value for key, value in locals.items()
+                            if (type(value) in (int, float) or
+                                value is None)},
+                    exc=exc))
+            self.value = None
+        else:
+            self.value = locals['value']
 
     def save(self, *args, **kwargs):
         # Only save submission fields if the overall submission has been saved.
         if not self.credit_submission.persists():
             return
         super(DocumentationFieldSubmission, self).save()
-        if self.documentation_field.type != 'calculated':  # avoid endless loop
-            # If there are any calculated fields for this field's
-            # credit, calculate them.  They might rely on this field's
-            # value.  They might not, too, but we have no way to know
-            # which fields are used in a calculated field's formula;
-            # we only know they're attached to the same credit.
-            for calculated_field in self.credit_submission.credit.documentationfield_set.filter(type='calculated'):
-
-                # Calculated field submissions are instantiated
-                # as NumericSubmissions:
-                try:
-                    calculated_submission_field = NumericSubmission.objects.get(
-                        credit_submission=self.credit_submission,
-                        documentation_field=calculated_field)
-                except ObjectDoesNotExist:
-                    calculated_submission_field = NumericSubmission.objects.create(
-                        credit_submission=self.credit_submission,
-                        documentation_field=calculated_field)
-
-                old_value = calculated_submission_field.value
-                calculated_submission_field.calculate()
-                if calculated_submission_field.value != old_value:
-                    calculated_submission_field.save()
 
     def get_value(self):
         """ Use this accessor to get this submission's value - rather than
@@ -2410,6 +2407,7 @@ class NumericSubmission(DocumentationFieldSubmission):
     """
     value = models.FloatField(blank=True, null=True)
     metric_value = models.FloatField(blank=True, null=True)
+    tracker = FieldTracker(fields=['value'])
 
     def requires_duplication(self):
         """
@@ -2438,15 +2436,17 @@ class NumericSubmission(DocumentationFieldSubmission):
             return institution.prefers_metric_system
         return False
 
-    def save(self, *args, **kwargs):
+    def save(self, recalculate_related_calculated_fields=True,
+             *args, **kwargs):
         """
-            Override the save method to generate the metric value
+            Override the save method to
+                1. generate the metric value, and
+                2. recalculate any related calculated fields, when neccesary.
         """
         # in most cases the following would have worked:
         # self.credit_submission.get_institution().prefers_metric_system
         # but when accessing the NumericSubmission directly, we need to connect
         # the correct CreditUserSubmission instead of CreditSubmission
-
         if self.requires_duplication():
             if self.use_metric():
                 if self.metric_value is not None:
@@ -2462,6 +2462,18 @@ class NumericSubmission(DocumentationFieldSubmission):
                     self.metric_value = None
 
         super(NumericSubmission, self).save(*args, **kwargs)
+
+        if (recalculate_related_calculated_fields and
+            self.tracker.has_changed('value')):
+
+            # If this field is used in any calculated fields ...
+            for calculated_field in self.documentation_field.calculated_fields.all():
+                # ... recalculate those fields:
+                for field_submission in NumericSubmission.objects.filter(
+                        documentation_field=calculated_field):
+                    field_submission.calculate()
+                    if field_submission.tracker.has_changed('value'):
+                        field_submission.save()
 
 
 class TextSubmission(DocumentationFieldSubmission):

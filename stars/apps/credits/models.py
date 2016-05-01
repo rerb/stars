@@ -1,17 +1,18 @@
-from logging import getLogger
+import ast
+import math
 import re
 from datetime import date
-import math
+from logging import getLogger
 
-from django.db import models
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
+from django.db import models
 from django.db import transaction
-from django.utils.encoding import smart_unicode
-from django.conf import settings
 from django.template.defaultfilters import slugify
-
+from django.utils.encoding import smart_unicode
 from jsonfield import JSONField
+from model_utils import FieldTracker
 
 from stars.apps.credits.utils import get_next_variable_name
 from mixins import VersionedModel
@@ -1209,8 +1210,16 @@ class DocumentationField(VersionedModel):
         help_text='This documentation field will be displayed in the '
                   'public report. Applies to 99.99% of fields.')
     tabular_fields = JSONField(blank=True, null=True)
+    formula_terms = models.ManyToManyField(
+        'self',
+        related_name='calculated_fields',
+        help_text='Fields used in this field\'s formula calculation.',
+        blank=True,
+        null=True,
+        symmetrical=False)
     copy_from_field = models.ForeignKey(
         'self',
+        related_name='source_field',
         on_delete=models.SET_NULL,
         help_text='Field whose value can be copied into this field.',
         null=True,
@@ -1220,6 +1229,7 @@ class DocumentationField(VersionedModel):
                                null=True,
                                default='',
                                help_text='Formula to compute field value')
+    tracker = FieldTracker(fields=['formula'])
     imperial_formula_text = models.CharField(max_length=255,
                                              blank=True,
                                              null=True,
@@ -1240,14 +1250,66 @@ class DocumentationField(VersionedModel):
         return get_array_for_tabular_fields(self)
 
     def save(self, *args, **kwargs):
-        """ Override model.Model save() method to assign identifier and
-            ordinal """
+        """ 1. Assign identifier and ordinal;
+            2. for calculated fields,
+               a. update formula_terms,
+               b. if formula changes, recalculate
+                  all linked DocumentFieldSubmissions.
+        """
         if not self.identifier:
             self.identifier = self.credit.get_next_field_identifier()
         if self.ordinal == -1:
             self.ordinal = _get_next_ordinal(
                 self.credit.documentationfield_set.all())
+
         super(DocumentationField, self).save(*args, **kwargs)
+
+        if self.type == 'calculated' and self.tracker.has_changed('formula'):
+            self.update_formula_terms()
+            from stars.apps.submissions.models import NumericSubmission
+            for calculated_submission in NumericSubmission.objects.filter(
+                    documentation_field=self):
+                calculated_submission.calculate()
+                calculated_submission.save()
+
+    def update_formula_terms(self):
+        """For calculated fields, update the set of fields upon
+        which the calculation depends.
+        """
+        if self.type != 'calculated':
+            return
+
+        formula_terms = self.get_formula_terms()
+        formula_terms = self.get_fields_for_terms(
+            terms_list=formula_terms)
+        self.formula_terms.clear()
+        for dependent_field in formula_terms:
+            self.formula_terms.add(dependent_field)
+
+    def get_formula_terms(self):
+        """Return a list of terms used in self.formula.
+        """
+        if not self.formula:
+            return []
+        try:
+            parsed_formula = ast.parse(self.formula)
+        except Exception, exc:
+            logger.warning(
+                "Unparseable formula: '{formula}' in {id} ({exc})".format(
+                    formula=self.formula,
+                    id="DocumentationField(pk=" + str(self.pk) + ")",
+                    exc=exc))
+            return []
+        terms = [node.id for node in list(ast.walk(parsed_formula))
+                 if isinstance(node, ast.Name)]
+        return terms
+
+    def get_fields_for_terms(self, terms_list):
+        """Return a QuerySet of DocumentationFields whose identifiers
+        match the terms in `terms_list`.
+        """
+        return DocumentationField.objects.filter(credit=self.credit,
+                                                 identifier__in=terms_list)
 
     def __unicode__(self):
         """ Limit the length of the text representation to 50 characters """
@@ -1280,7 +1342,8 @@ class DocumentationField(VersionedModel):
 
     def get_delete_url(self):
         """ Returns the URL of the page to confirm deletion of this object """
-        return reverse("admin:credits_documentationfield_delete", args=(self.id,))
+        return reverse("admin:credits_documentationfield_delete",
+                       args=(self.id,))
 
     def is_required(self):
         """ Return true if this field is required to complete a submission """

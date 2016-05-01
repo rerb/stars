@@ -46,9 +46,9 @@ class VersionMigrationTest(TestCase):
             institution=self.submissionset.institution,
             creditset=self.second_creditset)
 
-        _ = utils.migrate_submission(old_ss=self.submissionset,
-                                     new_ss=new_submissionset)
-        
+        utils.migrate_submission(old_ss=self.submissionset,
+                                 new_ss=new_submissionset)
+
         self.assertEqual(new_submissionset.migrated_from,
                          self.submissionset)
 
@@ -58,9 +58,9 @@ class VersionMigrationLiveServerTest(StarsLiveServerTest):
     def setUp(self):
         super(VersionMigrationLiveServerTest, self).setUp()
         first_creditset, _ = make_two_creditsets()
-        _ = SubmissionSetFactory(institution=self.institution,
-                                 creditset=first_creditset)
-        _ = EmailTemplateFactory(slug='migration_success')
+        SubmissionSetFactory(institution=self.institution,
+                             creditset=first_creditset)
+        EmailTemplateFactory(slug='migration_success')
         go_to_migration_options_page(self, self.selenium)
 
     def test_version_migration(self):
@@ -83,7 +83,7 @@ class VersionMigrationLiveServerTest(StarsLiveServerTest):
                 break
         self.assertIsNotNone(upgrade_version_button,
                              'Can\'t find Upgrade Version button.')
-        
+
         upgrade_version_button.click()
 
         # SubmissionSet added?
@@ -91,8 +91,8 @@ class VersionMigrationLiveServerTest(StarsLiveServerTest):
                          num_submission_sets_before + 1)
 
         # Check that an email was sent.
-        mail_messages_that_are_not_errors = [ msg for msg in mail.outbox if
-                                              'ERROR:' not in msg.subject ]
+        mail_messages_that_are_not_errors = [msg for msg in mail.outbox if
+                                             'ERROR:' not in msg.subject]
         self.assertEqual(len(mail_messages_that_are_not_errors), 1)
 
 
@@ -101,14 +101,14 @@ class DataMigrationLiveServerTest(StarsLiveServerTest):
     def setUp(self):
         super(DataMigrationLiveServerTest, self).setUp()
         creditset = CreditSetFactory()
-        _ = SubmissionSetFactory(creditset=creditset,
-                                 institution=self.institution,
-                                 date_registered=datetime.now(),
-                                 registering_user=self.user,
-                                 status='r',
-                                 is_locked=False,
-                                 is_visible=True)
-        _ = EmailTemplateFactory(slug='migration_success')
+        SubmissionSetFactory(creditset=creditset,
+                             institution=self.institution,
+                             date_registered=datetime.now(),
+                             registering_user=self.user,
+                             status='r',
+                             is_locked=False,
+                             is_visible=True)
+        EmailTemplateFactory(slug='migration_success')
         go_to_migration_options_page(self, self.selenium)
 
     def test_data_migration(self):

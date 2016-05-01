@@ -11,6 +11,7 @@ from institutions_factories import ClimateZoneFactory, InstitutionFactory
 from misc_factories import UserFactory
 from stars.apps.submissions.models import (Boundary,
                                            CategorySubmission,
+                                           CreditTestSubmission,
                                            CreditUserSubmission,
                                            NumericSubmission,
                                            ResponsibleParty,
@@ -87,12 +88,24 @@ class TextDocumentationFieldSubmissionFactory(factory.DjangoModelFactory):
 DocumentationFieldSubmissionFactory = TextDocumentationFieldSubmissionFactory
 
 
+TextSubmissionFactory = TextDocumentationFieldSubmissionFactory
+
+
 class NumericDocumentationFieldSubmissionFactory(factory.DjangoModelFactory):
     FACTORY_FOR = NumericSubmission
 
     documentation_field = factory.SubFactory(DocumentationFieldFactory)
     credit_submission = factory.SubFactory(CreditUserSubmissionFactory)
     value = 0
+
+
+NumericSubmissionFactory = NumericDocumentationFieldSubmissionFactory
+
+
+class CreditTestSubmissionFactory(factory.DjangoModelFactory):
+    FACTORY_FOR = CreditTestSubmission
+
+    credit = factory.SubFactory(CreditFactory)
 
 
 class BoundaryFactory(factory.DjangoModelFactory):

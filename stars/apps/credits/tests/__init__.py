@@ -8,6 +8,7 @@ from stars.apps.credits.api.test import (CategoryResourceTestCase,
 
 from credit import CreditTest
 from creditset import CreditsetTest
+from documentation_field import DocumentationFieldTestCase
 from unit import UnitTest  # :-)
 from views import TestStructure
 
@@ -16,6 +17,7 @@ __test__ = {
     'TestUtils': TestUtils,
     'CreditSetResourceTestCase': CreditSetResourceTestCase,
     'CategoryResourceTestCase': CategoryResourceTestCase,
+    'DocumentationFieldTestCase': DocumentationFieldTestCase,
     'SubcategoryResourceTestCase': SubcategoryResourceTestCase,
     'CreditResourceTestCase': CreditResourceTestCase,
     'DocumentationFieldResourceTestCase': DocumentationFieldResourceTestCase,

@@ -2,9 +2,11 @@
 """
 from unittest import TestCase
 
-from stars.test_factories import (CreditUserSubmissionFactory,
-                                  DocumentationFieldFactory)
-from stars.apps.credits.models import Unit
+from stars.test_factories import (CreditFactory,
+                                  CreditUserSubmissionFactory,
+                                  DocumentationFieldFactory,
+                                  NumericSubmissionFactory)
+from stars.apps.credits.models import DocumentationField, Unit
 from stars.apps.submissions.models import NumericSubmission
 
 
@@ -157,3 +159,79 @@ class NumericSubmissionTest(TestCase):
         numeric_submission.save()
 
         self.assertEqual(100, numeric_submission.metric_value)
+
+    def test_calculated_field_is_calculated_when_term_changes(self):
+        credit = CreditFactory()
+        first_term_field = DocumentationFieldFactory(
+            credit=credit,
+            type='numeric',
+            identifier='AA')
+        second_term_field = DocumentationFieldFactory(
+            credit=credit,
+            type='numeric',
+            identifier='AB')
+        calculated_field = DocumentationField.objects.create(
+            credit=credit,
+            type='calculated',
+            formula='value = AA + AB')
+        credit_submission = CreditUserSubmissionFactory(
+            credit=credit)
+        first_term_submission = NumericSubmissionFactory(
+            credit_submission=credit_submission,
+            documentation_field=first_term_field,
+            value=1)
+        NumericSubmissionFactory(
+            credit_submission=credit_submission,
+            documentation_field=second_term_field,
+            value=2)
+        calculated_submission = NumericSubmissionFactory(
+            credit_submission=credit_submission,
+            documentation_field=calculated_field,
+            value=None)
+
+        first_term_submission.value = 10
+        first_term_submission.save()
+
+        # We have a dirty read.
+        calculated_submission = NumericSubmission.objects.get(
+            pk=calculated_submission.pk)
+
+        self.assertEqual(12, calculated_submission.value)
+
+    def test_calculated_field_is_cleared_when_term_goes_invalid(self):
+        credit = CreditFactory()
+        first_term_field = DocumentationFieldFactory(
+            credit=credit,
+            type='numeric',
+            identifier='BA')
+        second_term_field = DocumentationFieldFactory(
+            credit=credit,
+            type='numeric',
+            identifier='BB')
+        calculated_field = DocumentationField.objects.create(
+            credit=credit,
+            type='calculated',
+            formula='value = BA + BB')
+        credit_submission = CreditUserSubmissionFactory(
+            credit=credit)
+        first_term_submission = NumericSubmissionFactory(
+            credit_submission=credit_submission,
+            documentation_field=first_term_field,
+            value=1)
+        NumericSubmissionFactory(
+            credit_submission=credit_submission,
+            documentation_field=second_term_field,
+            value=2)
+        calculated_submission = NumericSubmissionFactory(
+            credit_submission=credit_submission,
+            documentation_field=calculated_field,
+            value=None)
+
+        first_term_submission.value = None
+        first_term_submission.save()
+
+        # We have a dirty read.
+        calculated_submission = NumericSubmission.objects.get(
+            pk=calculated_submission.pk)
+
+        self.assertEqual(None, calculated_submission.value)
