@@ -557,7 +557,8 @@ class CreditSubmissionForm(LocalizedModelFormMixin, ModelForm):
             # CreditSubmission object
             if field['form'].__class__.__name__ != "DummyTabularForm":
                 field['form'].instance.credit_submission = self.instance
-                field['form'].save(commit)
+                if field['field'].documentation_field.type != 'calculated':
+                    field['form'].save(commit)
 
         return self.instance
 
