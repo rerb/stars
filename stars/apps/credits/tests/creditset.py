@@ -7,7 +7,7 @@ import testfixtures
 from stars.apps.credits.models import CreditSet
 
 
-class CreditsetTest(TestCase):
+class CreditSetTest(TestCase):
 
     def setUp(self):
         self.creditset = CreditSet()
@@ -19,5 +19,5 @@ class CreditsetTest(TestCase):
             self.creditset.get_rating(None)
 
         self.assertEqual(len(log.records), 1)
-        self.assertEqual(log.records[0].levelname, 'ERROR')
+        self.assertEqual(log.records[0].levelname, 'WARNING')
         self.assertTrue('No valid rating' in log.records[0].msg)
