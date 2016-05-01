@@ -764,10 +764,10 @@ class CreditUserSubmissionForm(CreditSubmissionForm):
         # Select only the responsible parties associated with that institution
         self.fields['responsible_party'].queryset = self.instance.subcategory_submission.category_submission.submissionset.institution.responsibleparty_set.all()
 
-        self.fields['responsible_party_confirm'].label = (
+        if not self.instance.credit.get_creditset().has_optional_responsible_parties_feature:
+            self.fields['responsible_party_confirm'].label = (
                 'The information included in the submission for this credit '
                 'is accurate to the best of my knowledge.')
-        if not self.instance.credit.get_creditset().has_optional_responsible_parties_feature:
             self.fields['responsible_party_confirm'].label = mark_safe(
                 '<span class="required_note" '
                 '      title="This field is required to complete credit"> '
@@ -809,10 +809,10 @@ class CreditUserSubmissionForm(CreditSubmissionForm):
         if not status == 'na':
             cleaned_data["applicability_reason"] = None
 
-        # responsible party and responsible party confirm are required
-        # if marked complete
+        # Responsible party and responsible party confirm are required
+        # if marked complete and responsible parties aren't optional for
+        # this creditset.
         if (marked_complete and
-            self.instance.credit.requires_responsible_party and
             not self.instance.credit.get_creditset().has_optional_responsible_parties_feature):
             rp = cleaned_data.get("responsible_party")
             if rp == None or rp == "":

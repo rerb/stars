@@ -74,32 +74,34 @@
         {{ form.submission_notes }}
       </div>
 
-      {% if credit.requires_responsible_party %}
-	<hr/>
-	<h3>
-          {% if not credit.subcategory.category.creditset.has_optional_responsible_parties_feature %}
-	    <span class="required_note"
-	          title="This field is required to complete credit">*</span>
-          {% endif %}
-	  Responsible Party
-	</h3>
-	{% if form.responsible_party.errors %}
-	  {{ form.errors.responsible_party }}
-	{% endif %}
-	{{ form.responsible_party|bootstrap }}
-	<a href="{% url add-responsible-party institution.slug submissionset.id %}"
-	   class="btn btn-info btn-small" id="add_id_responsible_party"
-	   onclick="return showAddAnotherPopup(this);"
-	   title='Add New Responsible Party'>
-	  Add
-	</a>
-	{% show_help_context 'responsible_party' %}
-	<br/>
-	{% if form.responsible_party_confirm.errors %}
-	  {{ form.errors.responsible_party_confirm }}
-	{% endif %}
-	{{ form.responsible_party_confirm|bootstrap }}
+
+      <hr/>
+      <h3>
+        {% if not credit.subcategory.category.creditset.has_optional_responsible_parties_feature %}
+      	  <span class="required_note"
+	        title="This field is required to complete credit">*</span>
+        {% endif %}
+        Responsible Party
+      </h3>
+      {% if form.responsible_party.errors %}
+	{{ form.errors.responsible_party }}
       {% endif %}
+      {{ form.responsible_party|bootstrap }}
+      <a href="{% url add-responsible-party institution.slug submissionset.id %}"
+	 class="btn btn-info btn-small" id="add_id_responsible_party"
+	 onclick="return showAddAnotherPopup(this);"
+	 title='Add New Responsible Party'>
+	Add
+      </a>
+      {% show_help_context 'responsible_party' %}
+      <br/>
+      {% if form.responsible_party_confirm.errors %}
+	{{ form.errors.responsible_party_confirm }}
+      {% endif %}
+      {% if not credit.subcategory.category.creditset.has_optional_responsible_parties_feature %}
+        {{ form.responsible_party_confirm|bootstrap }}
+      {% endif %}
+
       <hr/>
 
       {{ form.submission_status }}
