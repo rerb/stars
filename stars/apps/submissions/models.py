@@ -1359,7 +1359,7 @@ class CreditSubmission(models.Model):
 
     def is_test(self):
         """Returns True if this is a test submission."""
-        return CreditTestSubmission.objects.filter(pk=self).exists()
+        return isinstance(self, CreditTestSubmission)
 
     def persists(self):
         """Does this CreditSubmission persist in the DB?"""
@@ -1672,8 +1672,12 @@ class CreditTestSubmission(CreditSubmission):
         return "%sadd-test/" % (self.credit.get_formula_url(),)
 
     def parameter_list(self):
-        """ Returns a string with this submission's field values formatted as a parameter list """
-        return ', '.join([field.__unicode__() for field in self.get_submission_fields()])
+        """ Returns a string with this submission's field values formatted as
+            a parameter list.
+        """
+        return ', '.join([field.__unicode__()
+                          for field
+                          in self.get_submission_fields()])
 
     def __unicode__(self):
         return "f( %s ) = %s" % (self.parameter_list(), self.expected_value)
