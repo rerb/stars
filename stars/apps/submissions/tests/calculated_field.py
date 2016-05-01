@@ -13,11 +13,11 @@ class CalculatedFieldTest(TestCase):
     def setUp(self):
         credit_user_submission = CreditUserSubmissionFactory()
         credit = credit_user_submission.credit
-        calculated_field = DocumentationFieldFactory(credit=credit,
-                                                     type="calculated",
-                                                     formula="value = B * 10")
         numeric_field = DocumentationFieldFactory(credit=credit,
                                                   type="numeric")
+        calculated_field = DocumentationFieldFactory(credit=credit,
+                                                     type="calculated",
+                                                     formula="value = A * 10")
 
         self.calculated_submission = NumericSubmission.objects.create(
             documentation_field=calculated_field,

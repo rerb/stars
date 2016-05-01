@@ -210,7 +210,7 @@ class CreditSet(VersionedModel):
                 return rating
         # oh-oh - we didn't find any suitable rating.
         logger.warning("No valid rating could be found for score "
-                     "%s in creditset %s" % (score, self))
+                       "%s in creditset %s" % (score, self))
         return Rating(name="Rating Unavailable",
                       minimal_score=0,
                       creditset=self)
@@ -1280,10 +1280,10 @@ class DocumentationField(VersionedModel):
             return
 
         formula_terms = self.get_formula_terms()
-        formula_terms = self.get_fields_for_terms(
+        formula_fields = self.get_fields_for_terms(
             terms_list=formula_terms)
         self.formula_terms.clear()
-        for dependent_field in formula_terms:
+        for dependent_field in formula_fields:
             self.formula_terms.add(dependent_field)
 
     def get_formula_terms(self):
