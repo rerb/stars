@@ -3,9 +3,7 @@ import datetime
 
 from stars.apps.credits.models import CreditSet, DocumentationField
 from stars.apps.submissions.models import (Boundary,
-                                           CreditTestSubmission,
                                            CreditUserSubmission,
-                                           DocumentationFieldSubmission,
                                            PENDING_SUBMISSION_STATUS,
                                            SubcategorySubmission,
                                            SubmissionSet)
@@ -296,7 +294,12 @@ def migrate_submission(old_ss, new_ss,
                 continue
 
         # get all the fields in this credit
-        for f in c.get_submission_fields():
+        submission_fields = c.get_submission_fields(
+            recalculate_related_calculated_fields=False)
+        for f in submission_fields:
+
+            if f.documentation_field.type == 'calculated':
+                continue
 
             prev_df = f.documentation_field.get_for_creditset(
                 old_ss.creditset)
@@ -316,9 +319,16 @@ def migrate_submission(old_ss, new_ss,
                             documentation_field=prev_df,
                             credit_submission=prev_cus)
                         f.value = old_f.value
-                        f.save()
+                        f.save(recalculate_related_calculated_fields=False)
                     except field_class.DoesNotExist:
                         pass
+
+        # Calculate calculated fields after all the other
+        # submission fields have values.
+        for f in submission_fields:
+            if f.documentation_field.type == 'calculated':
+                f.calculate()
+                f.save()
 
         # don't save until all the fields are updated
         c.save()
