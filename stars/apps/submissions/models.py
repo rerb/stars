@@ -1265,7 +1265,7 @@ class CreditSubmission(models.Model):
     def _submission_fields_for_documentation_fields(
             self,
             documentation_field_list,
-            recalculate_related_calculated_fields):
+            recalculate_related_calculated_fields=True):
         """Return the list of DocumentationFieldSubmissions for this
         CreditSubmission, creating them if they don't already exist.
         """
