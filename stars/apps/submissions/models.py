@@ -1630,6 +1630,8 @@ class CreditTestSubmission(CreditSubmission):
         self.computed_value = None
         messages = []
 
+        self.calculate_calculated_fields()
+
         (ran, msg, exception, points, debugging) = self.credit.execute_formula(self, debug=True)
         if ran:
             try:
@@ -1650,6 +1652,12 @@ class CreditTestSubmission(CreditSubmission):
                 messages.append(msg)
 
         return (len(messages) > 0, messages, debugging)
+
+    def calculate_calculated_fields(self):
+        submission_fields = self.get_submission_fields()
+        for submission_field in submission_fields:
+            if submission_field.documentation_field.type == 'calculated':
+                submission_field.calculate()
 
     def reset_test(self):
         """ reset this test such that the computed_value is None """
@@ -1799,7 +1807,7 @@ class DataCorrectionRequest(models.Model):
         elif self.reporting_field.documentation_field.type == "numeric":
             # unit conversion handled by the save() method on the model
             if self.reporting_field.use_metric():
-                if self.reporting_field.value != None:
+                if self.reporting_field.value is not None:
                     rfdc.previous_value = "%d %s" % (
                         self.reporting_field.metric_value,
                         self.reporting_field.documentation_field.metric_units)
@@ -1807,7 +1815,7 @@ class DataCorrectionRequest(models.Model):
                     rfdc.previous_value = "---"
                 self.reporting_field.metric_value = float(self.new_value)
             else:
-                if self.reporting_field.value != None:
+                if self.reporting_field.value is not None:
                     rfdc.previous_value = "%d %s" % (
                         self.reporting_field.value,
                         self.reporting_field.documentation_field.us_units)
