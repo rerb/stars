@@ -1359,7 +1359,20 @@ class CreditSubmission(models.Model):
 
     def is_test(self):
         """Returns True if this is a test submission."""
-        return isinstance(self, CreditTestSubmission)
+        if isinstance(self, CreditTestSubmission):
+            return True
+        else:
+            # Sometimes we see a CreditSubmission that's neither
+            # an instance of CreditTestSubmission or
+            # CreditUserSubmission. In these cases, we look to
+            # the credittestsubmission attribute for guidance.
+            # If it points to an existing CreditTestSubmission, we
+            # consider this CreditSubmission to be a test.
+            try:
+                self.credittestsubmission
+                return True
+            except CreditTestSubmission.DoesNotExist:
+                return False
 
     def persists(self):
         """Does this CreditSubmission persist in the DB?"""

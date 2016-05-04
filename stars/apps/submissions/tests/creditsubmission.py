@@ -6,7 +6,8 @@ import testfixtures
 
 from stars.apps.credits.models import Credit
 from stars.apps.submissions.models import CreditSubmission
-from stars.test_factories import (CreditTestSubmissionFactory,
+from stars.test_factories import (CreditSubmissionFactory,
+                                  CreditTestSubmissionFactory,
                                   CreditUserSubmissionFactory)
 
 
@@ -47,3 +48,26 @@ class CreditSubmissionTest(TestCase):
         """
         user_submission = CreditUserSubmissionFactory()
         self.assertFalse(user_submission.is_test())
+
+    def test_is_test_false_for_sexless_credit_submission(self):
+        """Is is_test False for a CreditSubmission that's neither
+        a CreditUserSubmission or a CreditTestSubmission?
+        """
+        credit_submission = CreditSubmissionFactory()
+        self.assertFalse(credit_submission.is_test())
+
+    def test_is_test_true_for_testy_credit_submission(self):
+        """Is is_test True for a CreditSubmission that's not
+        a CreditTestSubmission but looks like one?
+        """
+        credit_submission = CreditSubmissionFactory()
+        credit_submission.credittestsubmission = CreditTestSubmissionFactory()
+        self.assertTrue(credit_submission.is_test())
+
+    def test_is_test_true_for_usery_credit_submission(self):
+        """Is is_test False for a CreditSubmission that's not
+        a CreditUserSubmission but looks like one?
+        """
+        credit_submission = CreditSubmissionFactory()
+        credit_submission.creditusersubmission = CreditUserSubmissionFactory()
+        self.assertFalse(credit_submission.is_test())
