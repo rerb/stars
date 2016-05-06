@@ -15,7 +15,6 @@ from django.core.cache import cache
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.db import models
 from django.db.models import Q
-from model_utils import FieldTracker
 
 from file_cache_tag.templatetags.custom_caching import (generate_cache_key,
                                                         invalidate_filecache)
@@ -293,7 +292,7 @@ class SubmissionSet(models.Model, FlaggableModel):
         return self.get_status_display()
 
     def is_pending_review(self):
-        """ Return True iff this submission set has been rated """
+        """ Return True if this submission set has been rated """
         return self.status == PROCESSSING_SUBMISSION_STATUS
 
     def is_rated(self):
@@ -2432,7 +2431,6 @@ class NumericSubmission(DocumentationFieldSubmission):
     """
     value = models.FloatField(blank=True, null=True)
     metric_value = models.FloatField(blank=True, null=True)
-    tracker = FieldTracker(fields=['value'])
 
     def requires_duplication(self):
         """
@@ -2468,6 +2466,9 @@ class NumericSubmission(DocumentationFieldSubmission):
                 1. generate the metric value, and
                 2. recalculate any related calculated fields, when neccesary.
         """
+        previous_value = (NumericSubmission.objects.get(pk=self.pk).value
+                          if self.pk
+                          else None)
         # in most cases the following would have worked:
         # self.credit_submission.get_institution().prefers_metric_system
         # but when accessing the NumericSubmission directly, we need to connect
@@ -2489,15 +2490,18 @@ class NumericSubmission(DocumentationFieldSubmission):
         super(NumericSubmission, self).save(*args, **kwargs)
 
         if (recalculate_related_calculated_fields and
-            self.tracker.has_changed('value')):
+            self.value != previous_value):
 
             # If this field is used in any calculated fields ...
             for calculated_field in self.documentation_field.calculated_fields.all():
                 # ... recalculate those fields:
                 for field_submission in NumericSubmission.objects.filter(
                         documentation_field=calculated_field):
+                    previous_field_submission_value = field_submission.value
                     field_submission.calculate()
-                    if field_submission.tracker.has_changed('value'):
+                    if (field_submission.value !=
+                        previous_field_submission_value):
+
                         field_submission.save()
 
 
