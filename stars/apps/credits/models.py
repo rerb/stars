@@ -12,7 +12,6 @@ from django.db import transaction
 from django.template.defaultfilters import slugify
 from django.utils.encoding import smart_unicode
 from jsonfield import JSONField
-from model_utils import FieldTracker
 
 from stars.apps.credits.utils import get_next_variable_name
 from mixins import VersionedModel
@@ -1226,7 +1225,6 @@ class DocumentationField(VersionedModel):
                                null=True,
                                default='',
                                help_text='Formula to compute field value')
-    tracker = FieldTracker(fields=['formula'])
     imperial_formula_text = models.CharField(max_length=255,
                                              blank=True,
                                              null=True,
@@ -1259,9 +1257,14 @@ class DocumentationField(VersionedModel):
             self.ordinal = _get_next_ordinal(
                 self.credit.documentationfield_set.all())
 
+        previous_formula = (
+            DocumentationField.objects.get(pk=self.pk).formula
+            if self.pk
+            else None) if self.type == 'calculated' else None
+
         super(DocumentationField, self).save(*args, **kwargs)
 
-        if self.type == 'calculated' and self.tracker.has_changed('formula'):
+        if self.type == 'calculated' and previous_formula != self.formula:
             self.update_formula_terms()
             from stars.apps.submissions.models import NumericSubmission
             for calculated_submission in NumericSubmission.objects.filter(

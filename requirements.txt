@@ -34,7 +34,6 @@ django-form-utils==0.2.0
 django-jsonfield==0.7.1
 django-logical-rules==0.1.1
 django-memcache-status==1.1
-django-model-utils==2.5
 django-mptt==0.5.2
 django-picklefield==0.3.0
 django-recaptcha==0.0.6
