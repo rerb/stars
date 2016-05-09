@@ -42,7 +42,6 @@ def migrate_creditset(old_cs, new_version_name, release_date):
         Copy a creditset to a new version and update `previous_version`
         references
     """
-
     def migrate_obj(old_obj, prop_dict, previous=True):
 
         new_obj = copy.copy(old_obj)
@@ -109,54 +108,59 @@ def migrate_creditset(old_cs, new_version_name, release_date):
     return new_cs
 
 
-def create_ss_mirror(old_ss, new_cs=None,
+def create_ss_mirror(old_submissionset,
+                     new_creditset=None,
                      registering_user=None,
                      keep_innovation=False,
                      keep_status=False):
     """
 
-        and migrates the data from old_ss leaving it unchanged
+        and migrates the data from old_submissionset leaving it unchanged
 
         takes an optional creditset to use
     """
-    new_ss = _new_submissionset_for_old_submissionset(old_ss,
-                                                      new_cs,
-                                                      registering_user)
-    return migrate_submission(old_ss, new_ss,
+    new_submissionset = new_submissionset_for_old_submissionset(
+        old_submissionset=old_submissionset,
+        new_creditset=new_creditset,
+        registering_user=registering_user)
+    return migrate_submission(old_submissionset,
+                              new_submissionset,
                               keep_innovation=keep_innovation,
                               keep_status=keep_status)
 
 
-def _new_submissionset_for_old_submissionset(old_ss,
-                                             new_cs=None,
-                                             registering_user=None):
+def new_submissionset_for_old_submissionset(old_submissionset,
+                                            new_creditset=None,
+                                            registering_user=None):
     """
         Returns a new SubmissionSet based on existing submissionset
-        `old_ss`, using CreditSet `new_cs` or, if not specified, the
-        latest CreditSet.
+        `old_submissionset`, using CreditSet `new_creditset` or, if
+        not specified, the latest CreditSet.
 
         If `registering_user` is provided, it's tacked on to the
         new SubmissionSet, otherwise, the registering_user from
-        `old_ss` is copied.
+        `old_submissionset` is copied.
     """
-    new_cs = new_cs or CreditSet.objects.get_latest()
+    new_creditset = new_creditset or CreditSet.objects.get_latest()
 
-    new_ss = SubmissionSet(creditset=new_cs,
-                           institution=old_ss.institution,
-                           date_registered=old_ss.date_registered,
-                           status=PENDING_SUBMISSION_STATUS,
-                           is_locked=True,
-                           is_visible=False,
-                           date_created=datetime.date.today())
+    new_submissionset = SubmissionSet(
+        creditset=new_creditset,
+        institution=old_submissionset.institution,
+        date_registered=old_submissionset.date_registered,
+        status=PENDING_SUBMISSION_STATUS,
+        is_locked=True,
+        is_visible=False,
+        date_created=datetime.date.today())
 
-    new_ss.registering_user = registering_user or old_ss.registering_user
+    new_submissionset.registering_user = (registering_user or
+                                          old_submissionset.registering_user)
 
-    new_ss.save()
+    new_submissionset.save()
 
-    return new_ss
+    return new_submissionset
 
 
-def migrate_ss_version(old_ss, new_cs):
+def migrate_ss_version(old_submissionset, new_creditset):
     """
         Migrate a SubmissionSet from one CreditSet version to another
 
@@ -167,27 +171,28 @@ def migrate_ss_version(old_ss, new_cs):
         - Unhides the new one and makes it active
         - Returns the new submissionset
     """
-    if not old_ss.is_locked:
-        old_ss.is_locked = True
-        old_ss.save()
+    if not old_submissionset.is_locked:
+        old_submissionset.is_locked = True
+        old_submissionset.save()
 
-    new_ss = create_ss_mirror(old_ss, new_cs)
+    new_submissionset = create_ss_mirror(old_submissionset, new_creditset)
 
-    new_ss.is_locked = False
-    new_ss.is_visible = True
-    new_ss.migrated_from = old_ss
-    new_ss.save()
+    new_submissionset.is_locked = False
+    new_submissionset.is_visible = True
+    new_submissionset.migrated_from = old_submissionset
+    new_submissionset.save()
 
     # make active submission set
-    new_ss.institution.set_active_submission(new_ss)
+    new_submissionset.institution.set_active_submission(new_submissionset)
 
-    old_ss.is_visible = False
-    old_ss.save()
+    old_submissionset.is_visible = False
+    old_submissionset.save()
 
-    return new_ss
+    return new_submissionset
 
 
-def migrate_submission(old_ss, new_ss,
+def migrate_submission(old_submissionset,
+                       new_submissionset,
                        keep_status=False,
                        keep_innovation=False):
     """
@@ -197,148 +202,164 @@ def migrate_submission(old_ss, new_ss,
         and transfer all the properties UNLESS the submissionsets
         are of different versions.
 
-        Note: don't migrate IN data if the previous submission was rated,
-        unless indicated (in the case of a snapshot)
+        Note: don't migrate Innovations credits if the previous submission
+        is rated, unless indicated (e.g., in the case of a snapshot).
     """
     # if the old SubmissionSet hasn't been initialized we don't have
     # to do much:
-    if old_ss.categorysubmission_set.count() == 0:
-        new_ss.migrated_from = old_ss
-        new_ss.save()
-        return new_ss
+    if old_submissionset.categorysubmission_set.count() == 0:
+        new_submissionset.migrated_from = old_submissionset
+        new_submissionset.save()
+        return new_submissionset
 
     # check if we can migrate innovation data
-    migrate_innovation_category = True
-
-    if old_ss.status == "r" and not keep_innovation:
-        migrate_innovation_category = False
+    if old_submissionset.status != "r":
+        # Always migrate Innovation credits for unrated submissions.
+        migrate_innovation_credits = True
+    else:
+        # For rated submissions, migrate Innovation credits
+        # when keep_innovation is True, don't migrate them when
+        # keep_innovation is False.
+        migrate_innovation_credits = keep_innovation
 
     # Since there is currently no change necessary with the category
     # we will ignore it.
 
-    # I'm keeping this in here in case we add data to the
-    # CategorySubmission objects
+    # Get all SubcategorySubmissions in the new SubmissionSet ...
+    subcategory_submissions = SubcategorySubmission.objects.filter(
+        category_submission__submissionset=new_submissionset)
 
-    # for cat in new_ss.categorysubmission_set.all():
-    #     try:
-    #         old_cat = ss.categorysubmission_set.get(
-    #             category=cat.category.previous_version)
-    #     except CategorySubmission.DoesNotExist:
-    #         continue
+    # ... and maybe filter out the Innovation credits:
+    if not migrate_innovation_credits:
+        subcategory_submissions = subcategory_submissions.exclude(
+            subcategory__slug="innovation")
 
-    # Get all SubcategorySubmissions in this SubmissionSet regardless
-    # of Category
-    ss_set = SubcategorySubmission.objects.filter(
-        category_submission__submissionset=new_ss)
-    if not migrate_innovation_category:
-        ss_set = ss_set.exclude(
-            category_submission__category__abbreviation="IN")
-
-    for sub in ss_set:
+    for subcategory_submission in subcategory_submissions:
         # get the related subcategory
-        prev_sub = sub.subcategory.get_for_creditset(old_ss.creditset)
+        prev_subcategory = (
+            subcategory_submission.subcategory.get_for_creditset(
+                old_submissionset.creditset))
 
         # if it has a previous version
-        if prev_sub:
+        if prev_subcategory:
             try:
-                old_sub = SubcategorySubmission.objects.get(
-                    category_submission__submissionset=old_ss,
-                    subcategory=prev_sub)
-                sub.description = old_sub.description
-                sub.save()
+                old_subcategory_submission = (
+                    SubcategorySubmission.objects.get(
+                        category_submission__submissionset=old_submissionset,
+                        subcategory=prev_subcategory))
+                subcategory_submission.description = (
+                    old_subcategory_submission.description)
+                subcategory_submission.save()
             except SubcategorySubmission.DoesNotExist:
                 # This must be a new subcategory
                 continue
         else:
             pass
 
-    c_set = CreditUserSubmission.objects.filter(
-        subcategory_submission__category_submission__submissionset=new_ss)
-    if not migrate_innovation_category:
-        c_set = c_set.exclude(subcategory_submission__category_submission__category__abbreviation="IN")
+    # Get all the CreditUserSubmission for the new SubmissionSet ...
+    credit_user_submissions = CreditUserSubmission.objects.filter(
+        subcategory_submission__category_submission__submissionset=new_submissionset)
 
-    for c in c_set:
+    # ... and maybe filter out Innovation Credits:
+    if not migrate_innovation_credits:
+        credit_user_submissions = credit_user_submissions.exclude(
+            subcategory_submission__subcategory__slug="innovation")
+
+    for credit_user_submission in credit_user_submissions:
 
         # find the parent credit
-        prev_credit = c.credit.get_for_creditset(old_ss.creditset)
+        prev_credit = credit_user_submission.credit.get_for_creditset(
+            old_submissionset.creditset)
 
         if prev_credit:
             try:
-                old_c = CreditUserSubmission.objects.get(
-                    subcategory_submission__category_submission__submissionset=old_ss,
+                old_credit_user_submission = CreditUserSubmission.objects.get(
+                    subcategory_submission__category_submission__submissionset=old_submissionset,
                     credit=prev_credit)
 
-                c.last_updated = old_c.last_updated
+                credit_user_submission.last_updated = (
+                    old_credit_user_submission.last_updated)
                 try:
-                    c.user = old_c.user
+                    credit_user_submission.user = (
+                        old_credit_user_submission.user)
                 except:
-                    c.user = None
-                c.internal_notes = old_c.internal_notes
-                c.submission_notes = old_c.submission_notes
-                c.responsible_party = old_c.responsible_party
+                    credit_user_submission.user = None
+                credit_user_submission.internal_notes = (
+                    old_credit_user_submission.internal_notes)
+                credit_user_submission.submission_notes = (
+                    old_credit_user_submission.submission_notes)
+                credit_user_submission.responsible_party = (
+                    old_credit_user_submission.responsible_party)
 
                 # can only keep status if the
                 if (keep_status and
-                    old_ss.creditset.version == new_ss.creditset.version):
-                    c.submission_status = old_c.submission_status
-                    c.responsible_party_confirm = (
-                        old_c.responsible_party_confirm)
-                    c.applicability_reason = old_c.applicability_reason
-                    c.assessed_points = old_c.assessed_points
+                    old_submissionset.creditset.version == new_submissionset.creditset.version):
+
+                    credit_user_submission.submission_status = (
+                        old_credit_user_submission.submission_status)
+                    credit_user_submission.responsible_party_confirm = (
+                        old_credit_user_submission.responsible_party_confirm)
+                    credit_user_submission.applicability_reason = (
+                        old_credit_user_submission.applicability_reason)
+                    credit_user_submission.assessed_points = (
+                        old_credit_user_submission.assessed_points)
                 else:
-                    c.submission_status = 'ns'
-                    if old_c.submission_status != 'ns':
-                        c.submission_status = 'p'
+                    credit_user_submission.submission_status = 'ns'
+                    if old_credit_user_submission.submission_status != 'ns':
+                        credit_user_submission.submission_status = 'p'
 
             except CreditUserSubmission.DoesNotExist:
                 continue
 
         # get all the fields in this credit
-        submission_fields = c.get_submission_fields(
+        submission_fields = credit_user_submission.get_submission_fields(
             recalculate_related_calculated_fields=False)
-        for f in submission_fields:
 
-            if f.documentation_field.type == 'calculated':
+        for submission_field in submission_fields:
+
+            if submission_field.documentation_field.type == 'calculated':
                 continue
 
-            prev_df = f.documentation_field.get_for_creditset(
-                old_ss.creditset)
+            prev_documentation_field = (
+                submission_field.documentation_field.get_for_creditset(
+                    old_submissionset.creditset))
 
-            if prev_df:
-                field_class = f.__class__
-                if field_class.__name__ == 'TabularSubmissionField':
+            if prev_documentation_field:
+                submission_field_class = submission_field.__class__
+                if submission_field_class.__name__ == 'TabularSubmissionField':
                     # don't migrate the tabular wrappers,
                     # cause they don't actually exist
                     pass
                 else:
                     try:
                         prev_cus = CreditUserSubmission.objects.get(
-                            credit=prev_df.credit,
-                            subcategory_submission__category_submission__submissionset=old_ss)
-                        old_f = field_class.objects.get(
-                            documentation_field=prev_df,
+                            credit=prev_documentation_field.credit,
+                            subcategory_submission__category_submission__submissionset=old_submissionset)
+                        old_submission_field = submission_field_class.objects.get(
+                            documentation_field=prev_documentation_field,
                             credit_submission=prev_cus)
-                        f.value = old_f.value
-                        f.save(recalculate_related_calculated_fields=False)
-                    except field_class.DoesNotExist:
+                        submission_field.value = old_submission_field.value
+                        submission_field.save(
+                            recalculate_related_calculated_fields=False)
+                    except submission_field_class.DoesNotExist:
                         pass
 
         # Calculate calculated fields after all the other
         # submission fields have values.
-        for f in submission_fields:
-            if f.documentation_field.type == 'calculated':
-                f.calculate()
-                f.save()
+        for submission_field in submission_fields:
+            if submission_field.documentation_field.type == 'calculated':
+                submission_field.calculate()
+                submission_field.save()
 
         # don't save until all the fields are updated
-        c.save()
+        credit_user_submission.save()
 
     try:
-        new_boundary = copy.copy(old_ss.boundary)
-        new_boundary.submissionset = new_ss
+        new_boundary = copy.copy(old_submissionset.boundary)
+        new_boundary.submissionset = new_submissionset
         new_boundary.id = None
         new_boundary.save()
     except Boundary.DoesNotExist:
         pass
 
-    return new_ss
+    return new_submissionset

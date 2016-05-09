@@ -130,8 +130,8 @@ def perform_data_migration(old_ss, user):
         it simply keeps the current creditset.
     """
     new_ss = create_ss_mirror(
-        old_ss,
-        new_cs=old_ss.institution.current_submission.creditset,
+        old_submissionset=old_ss,
+        new_creditset=old_ss.institution.current_submission.creditset,
         registering_user=user)
     new_ss.is_locked = False
     new_ss.save()

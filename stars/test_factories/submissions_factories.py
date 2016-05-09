@@ -101,7 +101,8 @@ TextSubmissionFactory = TextDocumentationFieldSubmissionFactory
 class NumericDocumentationFieldSubmissionFactory(factory.DjangoModelFactory):
     FACTORY_FOR = NumericSubmission
 
-    documentation_field = factory.SubFactory(DocumentationFieldFactory)
+    documentation_field = factory.SubFactory(DocumentationFieldFactory,
+                                             type="numeric")
     credit_submission = factory.SubFactory(CreditUserSubmissionFactory)
     value = 0
 

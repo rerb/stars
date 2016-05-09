@@ -557,8 +557,8 @@ class SubmissionSet(models.Model, FlaggableModel):
         from stars.apps.migrations.utils import create_ss_mirror
 
         # Participants keep their existing submission and save a duplicate
-        new_ss = create_ss_mirror(self,
-                                  new_cs=self.creditset,
+        new_ss = create_ss_mirror(old_submissionset=self,
+                                  new_creditset=self.creditset,
                                   registering_user=user,
                                   keep_innovation=True,
                                   keep_status=True)

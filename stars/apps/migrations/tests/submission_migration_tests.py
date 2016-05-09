@@ -1,23 +1,17 @@
 """
     Submission Migration unit tests
 """
-from datetime import datetime
-
-from django.core import mail
 from django.test import TestCase
 
+from stars.apps.credits.models import (Category,
+                                       Credit,
+                                       Subcategory,
+                                       DocumentationField)
 from stars.apps.migrations import utils
-from stars.apps.submissions.models import SubmissionSet
-from stars.apps.tests.live_server import StarsLiveServerTest
+from stars.apps.submissions.models import (CreditUserSubmission,
+                                           NumericSubmission)
 from stars.test_factories import (CreditSetFactory,
-                                  EmailTemplateFactory,
                                   SubmissionSetFactory)
-
-
-def go_to_migration_options_page(test, webdriver):
-    test.go_to_reporting_tool()
-    migrate_tab = webdriver.find_element_by_link_text('Manage Data')
-    migrate_tab.click()
 
 
 def make_two_creditsets():
@@ -46,93 +40,170 @@ class VersionMigrationTest(TestCase):
             institution=self.submissionset.institution,
             creditset=self.second_creditset)
 
-        utils.migrate_submission(old_ss=self.submissionset,
-                                 new_ss=new_submissionset)
+        utils.migrate_submission(old_submissionset=self.submissionset,
+                                 new_submissionset=new_submissionset)
 
         self.assertEqual(new_submissionset.migrated_from,
                          self.submissionset)
 
 
-class VersionMigrationLiveServerTest(StarsLiveServerTest):
+class MigrateSubmissionTestCase(TestCase):
 
-    def setUp(self):
-        super(VersionMigrationLiveServerTest, self).setUp()
-        first_creditset, _ = make_two_creditsets()
-        SubmissionSetFactory(institution=self.institution,
-                             creditset=first_creditset)
-        EmailTemplateFactory(slug='migration_success')
-        go_to_migration_options_page(self, self.selenium)
-
-    def test_version_migration(self):
-        """Does migrating to new version make new SubmissionSet and send mail?
-        """
-        num_submission_sets_before = SubmissionSet.objects.count()
-
-        migrate_now_button = self.selenium.find_element_by_link_text(
-            'Upgrade Now')
-        migrate_now_button.click()
-
-        are_you_sure_checkbox = self.selenium.find_element_by_id(
-            'id_is_locked')
-        are_you_sure_checkbox.click()
-
-        upgrade_version_button = None
-        for button in self.selenium.find_elements_by_tag_name('button'):
-            if button.text == 'Upgrade Version':
-                upgrade_version_button = button
-                break
-        self.assertIsNotNone(upgrade_version_button,
-                             'Can\'t find Upgrade Version button.')
-
-        upgrade_version_button.click()
-
-        # SubmissionSet added?
-        self.assertEqual(SubmissionSet.objects.count(),
-                         num_submission_sets_before + 1)
-
-        # Check that an email was sent.
-        mail_messages_that_are_not_errors = [msg for msg in mail.outbox if
-                                             'ERROR:' not in msg.subject]
-        self.assertEqual(len(mail_messages_that_are_not_errors), 1)
-
-
-class DataMigrationLiveServerTest(StarsLiveServerTest):
-
-    def setUp(self):
-        super(DataMigrationLiveServerTest, self).setUp()
+    def get_creditset(self):
         creditset = CreditSetFactory()
-        SubmissionSetFactory(creditset=creditset,
-                             institution=self.institution,
-                             date_registered=datetime.now(),
-                             registering_user=self.user,
-                             status='r',
-                             is_locked=False,
-                             is_visible=True)
-        EmailTemplateFactory(slug='migration_success')
-        go_to_migration_options_page(self, self.selenium)
 
-    def test_data_migration(self):
-        """Does migrating data make a new SubmissionSet and show success msg?
+        self.innovations_category = Category.objects.create(
+            creditset=creditset,
+            abbreviation="IN")
+        self.innovations_subcategory = Subcategory.objects.create(
+            category=self.innovations_category,
+            title="Innovation")
+        self.innovations_credit = Credit.objects.create(
+            subcategory=self.innovations_subcategory,
+            identifier="INNOVATION",
+            point_value=10)
+        self.innovations_documentation_field = (
+            DocumentationField.objects.create(
+                credit=self.innovations_credit,
+                type="numeric"))
+
+        self.not_innovations_subcategory = Subcategory.objects.create(
+            category=self.innovations_category,
+            title="Not Innovation")
+        self.not_innovations_credit = Credit.objects.create(
+            subcategory=self.not_innovations_subcategory,
+            identifier="NOT-INNOVATION",
+            point_value=20)
+        self.not_innovations_documentation_field = (
+            DocumentationField.objects.create(
+                credit=self.not_innovations_credit,
+                type="numeric"))
+
+        return creditset
+
+    def get_submissionset(self, creditset):
+        submissionset = SubmissionSetFactory(creditset=creditset)
+
+        self.innovations_numeric_submission = NumericSubmission.objects.create(
+            documentation_field=self.innovations_documentation_field,
+            credit_submission=CreditUserSubmission.objects.get(
+                subcategory_submission__subcategory__slug='innovation'),
+            value=10)
+
+        self.not_innovations_numeric_submission = (
+            NumericSubmission.objects.create(
+                documentation_field=self.not_innovations_documentation_field,
+                credit_submission=CreditUserSubmission.objects.get(
+                    subcategory_submission__subcategory__slug='not-innovation'),
+                value=20))
+
+        return submissionset
+
+    def test_innovations_credits_dont_migrate_for_rated_submission(self):
+        """Do Innovation credits migrate from rated submissions?
+        They shouldn't.
         """
-        num_submission_sets_before = SubmissionSet.objects.count()
+        creditset = self.get_creditset()
 
-        migrate_button = self.selenium.find_element_by_css_selector(
-            'a.btn.btn-mini')
-        migrate_button.click()
+        submissionset = self.get_submissionset(creditset=creditset)
+        submissionset.status = "r"
+        submissionset.save()
 
-        confirmation_checkbox = self.patiently_find('id_is_locked')
-        confirmation_checkbox.click()
+        new_submissionset = utils.new_submissionset_for_old_submissionset(
+            old_submissionset=submissionset,
+            new_creditset=submissionset.creditset)
 
-        migrate_my_data_button = self.patiently_find('migrate-my-data-button')
-        migrate_my_data_button.click()
+        new_submissionset = utils.migrate_submission(
+            old_submissionset=submissionset,
+            new_submissionset=new_submissionset)
 
-        migration_in_progress_message = 'migration is in progress'
-        for alert in self.selenium.find_elements_by_class_name('alert'):
-            if migration_in_progress_message in alert.text:
-                break
-        else:
-            self.assertTrue(False, 'No alert with {msg} found'.format(
-                msg=migration_in_progress_message))
+        new_credit_submissions = new_submissionset.get_credit_submissions()
 
-        self.assertEqual(SubmissionSet.objects.count(),
-                         num_submission_sets_before + 1)
+        new_innovations_credit_submission = [
+            cs for cs in new_credit_submissions
+            if cs.credit.subcategory.slug == 'innovation'][0]
+        self.assertEqual(
+            0, new_innovations_credit_submission.numericsubmission_set.count())
+
+        new_not_innovations_credit_submission = [
+            cs for cs in new_credit_submissions
+            if cs.credit.subcategory.slug == 'not-innovation'][0]
+        self.assertEqual(
+            1, new_not_innovations_credit_submission.numericsubmission_set.count())
+        new_not_innovations_numericsubmission = (
+            new_not_innovations_credit_submission.numericsubmission_set.all()[0])
+        self.assertEqual(20, new_not_innovations_numericsubmission.value)
+
+    def test_innovations_credits_migrate_if_specified(self):
+        """Do Innovation credits migrate from rated submissions if told to?
+        """
+        creditset = self.get_creditset()
+
+        submissionset = self.get_submissionset(creditset=creditset)
+        submissionset.status = "r"
+        submissionset.save()
+
+        new_submissionset = utils.new_submissionset_for_old_submissionset(
+            old_submissionset=submissionset,
+            new_creditset=submissionset.creditset)
+
+        new_submissionset = utils.migrate_submission(
+            old_submissionset=submissionset,
+            new_submissionset=new_submissionset,
+            keep_innovation=True)
+
+        new_credit_submissions = new_submissionset.get_credit_submissions()
+
+        new_innovations_credit_submission = [
+            cs for cs in new_credit_submissions
+            if cs.credit.subcategory.slug == 'innovation'][0]
+        self.assertEqual(
+            1, new_innovations_credit_submission.numericsubmission_set.count())
+        new_innovations_numericsubmission = (
+            new_innovations_credit_submission.numericsubmission_set.all()[0])
+        self.assertEqual(10, new_innovations_numericsubmission.value)
+
+        new_not_innovations_credit_submission = [
+            cs for cs in new_credit_submissions
+            if cs.credit.subcategory.slug == 'not-innovation'][0]
+        self.assertEqual(
+            1, new_not_innovations_credit_submission.numericsubmission_set.count())
+        new_not_innovations_numericsubmission = (
+            new_not_innovations_credit_submission.numericsubmission_set.all()[0])
+        self.assertEqual(20, new_not_innovations_numericsubmission.value)
+
+    def test_innovations_credits_migrate_if_submission_is_unrated(self):
+        """Do Innovation credits migrate from unrated submissions?
+        """
+        creditset = self.get_creditset()
+
+        submissionset = self.get_submissionset(creditset=creditset)
+        submissionset.save()
+
+        new_submissionset = utils.new_submissionset_for_old_submissionset(
+            old_submissionset=submissionset,
+            new_creditset=submissionset.creditset)
+
+        new_submissionset = utils.migrate_submission(
+            old_submissionset=submissionset,
+            new_submissionset=new_submissionset)
+
+        new_credit_submissions = new_submissionset.get_credit_submissions()
+
+        new_innovations_credit_submission = [
+            cs for cs in new_credit_submissions
+            if cs.credit.subcategory.slug == 'innovation'][0]
+        self.assertEqual(
+            1, new_innovations_credit_submission.numericsubmission_set.count())
+        new_innovations_numericsubmission = (
+            new_innovations_credit_submission.numericsubmission_set.all()[0])
+        self.assertEqual(10, new_innovations_numericsubmission.value)
+
+        new_not_innovations_credit_submission = [
+            cs for cs in new_credit_submissions
+            if cs.credit.subcategory.slug == 'not-innovation'][0]
+        self.assertEqual(
+            1, new_not_innovations_credit_submission.numericsubmission_set.count())
+        new_not_innovations_numericsubmission = (
+            new_not_innovations_credit_submission.numericsubmission_set.all()[0])
+        self.assertEqual(20, new_not_innovations_numericsubmission.value)
