@@ -948,6 +948,10 @@ class CategorySubmission(models.Model):
         for sub in self.subcategorysubmission_set.all().select_related():
             claimed += sub.get_claimed_points(recalculate)
             available += sub.get_adjusted_available_points(recalculate)
+        # Innovation and Leadership credits are capped at 4.
+        if self.category.abbreviation == "IN":
+            claimed = 4 if claimed > 4 else claimed
+            available = 4
         return claimed, available
 
     def get_adjusted_available_points(self, recalculate=False):
