@@ -28,7 +28,7 @@
         <div class='controls'>
 
           {{ field_form.value }} <!-- {{ field_form.instance.id }} -->
-          {% if documentation_field.type == 'numeric' %}
+          {% if documentation_field.type == 'numeric' or documentation_field.type == 'calculated' %}
             {{ field_form.metric_value }}
           {% endif %}
 
