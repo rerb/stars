@@ -25,7 +25,7 @@
           </a>
 	{% endif %}
       {% else %}
-	{% ifequal field.documentation_field.type 'numeric' %}
+	{% if field.documentation_field.type == 'numeric' or field.documentation_field.type == 'calculated' %}
 	  {{ field.value|floatformat:"-2" }}
 	  {% if field.documentation_field.units %}
 	    <i>{{ field.documentation_field.units }}</i>
