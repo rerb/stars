@@ -310,9 +310,13 @@ class DocumentationFieldForm(AbstractFormWithFormula,
 
     class Meta:
         model = DocumentationField
-        exclude = ('ordinal', 'identifier', 'type',
-                   'last_choice_is_other', 'metric_formula_text',
-                   'imperial_formula_text')
+        exclude = ('formula_terms',
+                   'identifier',
+                   'imperial_formula_text',
+                   'last_choice_is_other',
+                   'metric_formula_text',
+                   'ordinal',
+                   'type')
 
     def __init__(self, *args, **kwargs):
         super(DocumentationFieldForm, self).__init__(*args, **kwargs)
@@ -331,37 +335,29 @@ class DocumentationFieldForm(AbstractFormWithFormula,
 
     def clean(self):
         cleaned_data = self.cleaned_data
-        type = cleaned_data.get("type")
 
         # detect if we are moving between credits
-        if self.instance.credit and self.instance.credit != cleaned_data['credit']:
+        if (self.instance.credit and
+            self.instance.credit != cleaned_data['credit']):
+
             self.instance.identifier = None
             self.instance.ordinal = -1
 
-        #@todo: validate that choice-type fields actually specify choices
-
-        # Code for cleaning numberic choices, if we ever implement those again...
-        #                if type == 'numeric':
-        #                    choice_list = re.split('\n+', choices)
-        #                    for choice in choice_list:
-        #                        m = re.match('\d+\.?\d*', choice)
-        #                        if not m:
-        #                            msg = u"Please use valid numeric values"
-        #                            self._errors["choices"] = ErrorList([msg])
-        #                if not msg:
-        #                    cleaned_data['choices'] = choices
-        #            else:
-        #                msg = u"Please provide choices or set this reporting field to 'user-defined'."
-        #                self._errors["choices"] = ErrorList([msg])
+        # @todo: validate that choice-type fields actually specify choices
 
         return cleaned_data
 
 
 class NewDocumentationFieldForm(DocumentationFieldForm):
     class Meta(DocumentationFieldForm.Meta):
-        exclude = ('ordinal', 'identifier', 'last_choice_is_other',
-                   'min_range', 'max_range', 'metric_formula_text',
-                   'imperial_formula_text')
+        exclude = ('formula_terms',
+                   'identifier',
+                   'imperial_formula_text',
+                   'last_choice_is_other',
+                   'max_range',
+                   'metric_formula_text',
+                   'min_range',
+                   'ordinal')
 
 
 class DocumentationFieldOrderingForm(RightSizeInputModelForm):
