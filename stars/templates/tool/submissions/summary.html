@@ -56,6 +56,13 @@
 {% block tool_content %}
   {% load submit_tags %}
 
+  {% if show_reviewing_warning %}
+    {% load content %}
+    <div class="alert alert-warning">
+      {% display_block_content 'submission_in_review_warning' %}
+    </div>
+  {% endif %}
+
   {% if show_migration_warning %}
     <div class='alert alert-warning'>
       You recently upgraded your submission data ({{ last_migration_date }}).
