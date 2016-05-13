@@ -1,11 +1,14 @@
 from os.path import basename
 import sys
+
+from django.template.defaultfilters import stringfilter
 from django import template
-register = template.Library()
 
 from stars.apps.credits.models import Choice
 from stars.apps.submissions.models import Boundary
-from stars.apps.submissions.models import DocumentationFieldSubmission
+
+
+register = template.Library()
 
 
 def _get_field(doc_field, field_list):
@@ -15,33 +18,35 @@ def _get_field(doc_field, field_list):
     return None
 
 
-@register.inclusion_tag('institutions/scorecards/field_detail.html', takes_context=True)
+@register.inclusion_tag('institutions/scorecards/field_detail.html',
+                        takes_context=True)
 def show_submission_field(context):
     context['field'] = _get_field(context['field'],
                                   context['submission_field_list'])
     return context
 
 
-@register.inclusion_tag('institutions/pdf/field_detail.html', takes_context=True)
+@register.inclusion_tag('institutions/pdf/field_detail.html',
+                        takes_context=True)
 def show_submission_field_pdf(context):
     context['field'] = _get_field(context['field'],
                                   context['submission_field_list'])
     return context
 
 
-@register.inclusion_tag('institutions/scorecards/field_formatting.html', takes_context=True)
+@register.inclusion_tag('institutions/scorecards/field_formatting.html',
+                        takes_context=True)
 def show_submission_field_inside_table(context):
     context['field'] = _get_field(context['field'],
                                   context['submission_field_list'])
     return context
 
 
-@register.inclusion_tag('institutions/pdf/field_formatting.html', takes_context=True)
+@register.inclusion_tag('institutions/pdf/field_formatting.html',
+                        takes_context=True)
 def show_submission_field_inside_table_pdf(context):
-#     print context['submission_field_list']
     context['field'] = _get_field(context['field'],
                                   context['submission_field_list'])
-#     print context['field']
     return context
 
 
@@ -50,10 +55,6 @@ def show_boundary(submission):
     """
         Display the data from the submission boundary
     """
-
-    # Generate the characterisics table
-
-
     # Generate the feature table
     features = [
                     ("Agricultural School", 'ag_school'),
@@ -73,9 +74,12 @@ def show_boundary(submission):
         for k, p in features:
             d = {
                     'title': k,
-                    'present': getattr(submission.boundary, '%s_present' % p),
-                    'included': getattr(submission.boundary, '%s_included' % p),
-                    'details': getattr(submission.boundary, "%s_details" % p),
+                    'present': getattr(submission.boundary,
+                                       '%s_present' % p),
+                    'included': getattr(submission.boundary,
+                                        '%s_included' % p),
+                    'details': getattr(submission.boundary,
+                                       "%s_details" % p),
                     'id': p
                  }
             if hasattr(submission.boundary, "%s_acres" % p):
@@ -88,10 +92,15 @@ def show_boundary(submission):
 
     return {'feature_table': feature_table, 'submissionset': submission}
 
+
 @register.inclusion_tag('institutions/tags/crumbs.html')
 def show_scorecard_crumbs(object):
-    """ Displays the crumb navigation for a particular object in the Reports Tool """
-    # @todo: This is a duplicate of the submissions crumbs tag / template = only the link method differs
+    """
+        Displays the crumb navigation for a particular object in the
+        Reports Tool
+    """
+    # @todo: This is a duplicate of the submissions crumbs tag /
+    # template = only the link method differs
     object_set = []
     parent = object
     while parent:
@@ -109,56 +118,72 @@ def show_reporting_field(field, hide_empty_field=False):
         Optionally, it will hide fields that do not have any value submitted
     """
     format_method = {
-            'text': _get_text_context,
-            'long_text': _get_text_context,
-            'numeric': _get_text_context,
-            'boolean': _get_boolean_context,
-            'choice': _get_choice_context,
-            'multichoice': _get_choice_context,
-            'url': _get_url_context,
-            'date': _get_date_context,
-            'upload': _get_upload_context,
+        'text': _get_text_context,
+        'long_text': _get_text_context,
+        'numeric': _get_text_context,
+        'boolean': _get_boolean_context,
+        'choice': _get_choice_context,
+        'multichoice': _get_choice_context,
+        'url': _get_url_context,
+        'date': _get_date_context,
+        'upload': _get_upload_context,
+        'calculated': _get_text_context
     }
-    context = format_method.get(field.documentation_field.type, _get_text_context)(field)
+    context = format_method.get(field.documentation_field.type,
+                                _get_text_context)(field)
 
-    context.update({'show_field': ((not hide_empty_field) or (context['field_value'] is not None)),
-                    'field': field
-                   })
+    context.update({
+        'show_field': ((not hide_empty_field) or
+                       (context['field_value'] is not None)),
+        'field': field
+    })
 
     return context
+
 
 def _get_text_context(field):
     text = field.get_value()
     units = field.documentation_field.units
-    return {'field_value' : text if text else None, 'units': units if (text and units) else ''}
+    return {'field_value': text if text else None,
+            'units': units if (text and units) else ''}
+
 
 def _get_date_context(field):
     date = field.get_value()
-    return {'field_value' : date.strftime("%b. %d, %Y") if date else None}
+    return {'field_value': date.strftime("%b. %d, %Y") if date else None}
+
 
 def _get_boolean_context(field):
     value = field.get_value()
-    return {'field_value' : 'Yes' if value else 'No' if value is not None else None}
+    return {
+        'field_value': 'Yes' if value else 'No' if value is not None else None}
+
 
 def _get_url_context(field):
     url = field.get_value()
     if url:
-        return {'url':url, 'field_value':url}
+        return {'url': url,
+                'field_value': url}
     else:
-        return {'field_value':None}
+        return {'field_value': None}
+
 
 def _get_upload_context(field):
     filepath = field.get_value()
     if filepath:
         filename = basename(str(filepath))
         url = filepath.url if filepath.url else ''
-        return {'url':url, 'field_value':filename}
+        return {'url': url,
+                'field_value': filename}
     else:
-        return {'field_value':None}
+        return {'field_value': None}
+
 
 def _get_choice_context(field):
-    choices = list(Choice.objects.filter(documentation_field=field.documentation_field))
-    if field.documentation_field.type == 'choice':  # for consistency, process single choice as a 1 element list
+    choices = list(Choice.objects.filter(
+        documentation_field=field.documentation_field))
+    # for consistency, process single choice as a 1 element list
+    if field.documentation_field.type == 'choice':
         field_choices = [field.get_value()]
     else:  # multi-choice fields have a list of values
         field_choices = field.get_value()
@@ -174,36 +199,35 @@ def _get_choice_context(field):
 
     units = field.documentation_field.units
 
-    return {'choices': [ {'choice':c.choice, 'is_selected':c.is_selected} for c in choices ],
-            'units' : units if units else '',
-            'field_value': (True if at_least_one_selected else None)
-           }
+    return {
+        'choices': [{'choice': c.choice,
+                     'is_selected': c.is_selected} for c in choices],
+        'units': units if units else '',
+        'field_value': (True if at_least_one_selected else None)
+    }
 
-
-from django.template.defaultfilters import stringfilter#, linebreaks
 
 def charwrap(value, arg):
-   """
-   Wraps characters at specified line length with a <br/> tag
+    """
+    Wraps characters at specified line length with a <br/> tag
 
-   Argument: number of characters to wrap the text at.
+    Argument: number of characters to wrap the text at.
 
-   Example {% field.value|charwrap:80 %}
-   """
+    Example {% field.value|charwrap:80 %}
+    """
+    converted = ""
+    temp_val = value
+    while len(temp_val) > int(arg) and int(arg) > 0:
+        converted += "%s<br/>\n" % temp_val[:int(arg)]
+        temp_val = temp_val[int(arg):]
+    converted += temp_val
+    return converted
 
-   converted = ""
-   temp_val = value
-   while len(temp_val) > int(arg) and int(arg) > 0:
-       converted += "%s<br/>\n" % temp_val[:int(arg)]
-       temp_val = temp_val[int(arg):]
-   converted += temp_val
-   return converted
-   # return linebreaks(converted)
 
 charwrap.is_safe = True
-# charwrap.needs_autoescape = True
 charwrap = stringfilter(charwrap)
 register.filter(charwrap)
+
 
 def wraplinks(text, length):
     """
@@ -215,12 +239,21 @@ def wraplinks(text, length):
         text = "<p>Check this <a href='URL'>http://boguslink.com</a> out!</p>"
         {{ text|wraplinks:7 }}
 
-        "<p>Check this <br/><a href='URL'>http://<br/>bogusli<br/>nk.com</a><br/> out!</p>"
+        "<p>Check this
+           <br/>
+           <a href='URL'>
+             http://<br/>bogusli<br/>nk.com
+           </a>
+           <br/>
+           out!
+         </p>"
     """
     import re
     link_re = "<a href=[\"'](?P<url>.*?)[\"']>(?P<title>.*?)</a>"
+
     def wrapper(m):
-        return "<a href=\"%s\"><br/>\n%s<br/>\n</a>" % (m.group('url'), charwrap(m.group('title'), length))
+        return ("<a href=\"%s\"><br/>\n%s<br/>\n</a>" %
+                (m.group('url'), charwrap(m.group('title'), length)))
 
     return re.sub(link_re, wrapper, text)
 
