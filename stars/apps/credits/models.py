@@ -1375,13 +1375,13 @@ class DocumentationField(VersionedModel):
         return self.last_choice_is_other
 
     def can_have_min_max(self):
-        """ Return True iff the min / max options apply to this field. """
+        """ Return True if the min / max options apply to this field. """
         return (self.type in ('text', 'long_text', 'numeric', 'date') and not
                 self.is_choice())
 
     def can_have_units(self):
         """ Return True if the units option apply to this field. """
-        return (self.type in ('text', 'long_text', 'numeric') or
+        return (self.type in ('text', 'long_text', 'numeric', 'calculated') or
                 self.is_choice())
 
     @property
