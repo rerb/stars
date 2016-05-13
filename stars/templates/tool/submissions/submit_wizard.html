@@ -26,7 +26,6 @@
         enctype="multipart/form-data">
     {% csrf_token %}
     {{ wizard.management_form }}
-    {{ wizard.form.management_form }}
     {% block submit_form_fields %}
       {{ wizard.form|bootstrap }}
     {% endblock %}
