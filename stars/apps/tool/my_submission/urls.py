@@ -1,7 +1,7 @@
 from django.conf.urls.defaults import patterns, url
 
 from stars.apps.helpers.forms.forms import Confirm
-from stars.apps.tool.my_submission.forms import (ExecContactForm,
+from stars.apps.tool.my_submission.forms import (ContactsForm,
                                                  LetterForm,
                                                  StatusForm)
 from stars.apps.tool.my_submission.views import (
@@ -12,7 +12,7 @@ from stars.apps.tool.my_submission.views import (
     CreditResourcesView,
     CreditSubmissionDetailView,
     EditBoundaryView,
-    RatingCongratulationsView,
+    SubmitSuccessView,
     SaveSnapshot,
     SubcategorySubmissionDetailView,
     SubmissionSummaryView,
@@ -47,11 +47,11 @@ urlpatterns = patterns(
     url(r'^submit/$',
         SubmitForRatingWizard.as_view([StatusForm,
                                        LetterForm,
-                                       ExecContactForm,
+                                       ContactsForm,
                                        Confirm]),
         name='submission-submit'),
 
-    url(r'^submit/success/$', RatingCongratulationsView.as_view(),
+    url(r'^submit/success/$', SubmitSuccessView.as_view(),
         name='submit-success'),
 
     url(r'^boundary/$', EditBoundaryView.as_view(),
