@@ -94,13 +94,9 @@ class Flag(models.Model):
 
 
 class FlaggableModel():
-    # flags = generic.GenericRelation(Flag, content_type_field='content_type',
-    #                                 object_id_field='object_id')
 
     def get_flag_url(self):
 
-        # return "%s/%d/flag/" % (self.credit_submission.get_scorecard_url(),
-        #                         self.id)
         link = "%s?content_type=%s&object_id=%d" % (
             urlresolvers.reverse('admin:submissions_flag_add'),
             ContentType.objects.get_for_model(self).id,
