@@ -52,6 +52,12 @@
       </tr>
     </tbody>
   </table>
+  {% if credit_submission_locked %}
+    {% load content %}
+    <div class="alert alert-warning">
+      {% display_block_content 'submission_in_review_warning' %}
+    </div>
+  {% endif %}
   {% block credit_tabs %}
     {% include "tool/submissions/credit_tabs.html" %}
   {% endblock %}

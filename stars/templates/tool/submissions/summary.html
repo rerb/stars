@@ -56,7 +56,7 @@
 {% block tool_content %}
   {% load submit_tags %}
 
-  {% if show_reviewing_warning %}
+  {% if submission_under_review %}
     {% load content %}
     <div class="alert alert-warning">
       {% display_block_content 'submission_in_review_warning' %}
@@ -73,31 +73,34 @@
   {% endif %}
 
   {% include 'tool/submissions/submission_summary_table.html' %}
-  <div class='submissionBoundary'>
-    <p style='text-align: center;'>
 
-      {% if submissionset.creditset.has_boundary_feature %}
-        {% testrule user_has_access_level user 'admin' institution %}
-          <a href='{% url boundary-edit institution.slug submissionset.id %}'
-             class='btn btn-warning'>
-            <i class="icon-edit icon-white"></i> Edit Boundary</a>
+  {% if not submission_under_review %}
+    <div class='submissionBoundary'>
+      <p style='text-align: center;'>
+
+        {% if submissionset.creditset.has_boundary_feature %}
+          {% testrule user_has_access_level user 'admin' institution %}
+            <a href='{% url boundary-edit institution.slug submissionset.id %}'
+               class='btn btn-warning'>
+              <i class="icon-edit icon-white"></i> Edit Boundary</a>
+          {% endtestrule %}
+        {% endif %}
+
+        {% testrule institution_has_snapshot_feature institution %}
+          <a href='{% url share-data institution.slug %}'
+             class='btn btn-info'>
+            <i class="icon-share icon-white"></i> Save Snapshot
+          </a>
         {% endtestrule %}
-      {% endif %}
 
-      {% testrule institution_has_snapshot_feature institution %}
-        <a href='{% url share-data institution.slug %}'
-           class='btn btn-info'>
-          <i class="icon-share icon-white"></i> Save Snapshot
-        </a>
-      {% endtestrule %}
-
-      {% testrule user_can_submit_report user submissionset %}
-        <a href='{{ submissionset.get_submit_url }}'
-           class='btn btn-success'>
-          <i class="icon-check icon-white"></i> Submit Report</a>
-      {% endtestrule %}
-    </p>
-  </div>
+        {% testrule user_can_submit_report user submissionset %}
+          <a href='{{ submissionset.get_submit_url }}'
+             class='btn btn-success'>
+            <i class="icon-check icon-white"></i> Submit Report</a>
+        {% endtestrule %}
+      </p>
+    </div>
+  {% endif %}
 
   <div class="accordion" id="categories">
     {% for cat in category_submission_list %}
@@ -179,20 +182,26 @@
                     <div class="accordion-inner">
                       {% if not sub.subcategory.passthrough %}
                         {% if submissionset.creditset.has_submission_summary_feature %}
-                          <div class='well' style='text-align: center'>
-                            {% if sub.description %}
-                              {{ sub.description|urlizetrunc:85|linebreaks|fix_ampersands }}
-                            {% endif %}
-                            <a href='{{ sub.get_submit_edit_url }}'
-                               class='btn btn-info btn-small'>
-                              <i class='icon-pencil icon-white'></i>
+                          {% if not submission_under_review %}
+                            <div class='well' style='text-align: center'>
                               {% if sub.description %}
-                                Edit Description
-                              {% else %}
-                                Add Description (optional)
+                                {{ sub.description|urlizetrunc:85|linebreaks|fix_ampersands }}
                               {% endif %}
-                            </a>
-                          </div>
+                              <a href='{{ sub.get_submit_edit_url }}'
+                                 class='btn btn-info btn-small'>
+                                <i class='icon-pencil icon-white'></i>
+                                {% if sub.description %}
+                                  Edit Description
+                                {% else %}
+                                  Add Description (optional)
+                                {% endif %}
+                              </a>
+                            </div>
+                          {% elif sub.description %}
+                            <div class='well' style='text-align: center'>
+                              {{ sub.description|urlizetrunc:85|linebreaks|fix_ampersands }}
+                            </div>
+                          {% endif %}
                         {% endif %}
                       {% endif %}
                       <table class='table table-condensed table-striped'>
@@ -260,10 +269,10 @@
                                   <table>
                                     <tr>
                                       <th style="padding-right: 10px;">
-                                        Pursue
+                                        Add
                                       </th>
                                       <th style="padding-right: 10px;">
-                                        Opt-out
+                                        Drop
                                       </th>
                                       <th align="left">
                                         Credit
@@ -327,7 +336,6 @@
       </div>
     {% endfor %}
   </div>
-
 {% endblock %}
 
 {% block extra_footer %}

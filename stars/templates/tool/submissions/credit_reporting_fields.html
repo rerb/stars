@@ -4,12 +4,20 @@
 {% load help %}
 {% load compress %}
 
+{% block body_onload %}
+  {{ block.super }}
+  {% if credit_submission_locked %}
+    lockdown();
+  {% endif %}
+{% endblock %}
+
 {% block body_beforeunload %}
-  {{ block.super }}return before_unload_credit();
+  {{ block.super }}
+  return before_unload_credit();
 {% endblock %}
 
 {% block extra_head %}
-{{ block.super }}
+  {{ block.super }}
   {% compress js %}
     <script type="text/javascript"
             src="{{ STATIC_URL }}admin/js/admin/RelatedObjectLookups.js">
@@ -28,6 +36,25 @@
     	}
     </style>
   {% endcompress %}
+  {% if credit_submission_locked %}
+    {% compress js %}
+      <script>
+       function lockdown() {
+         var submit_form_elements = $(".submit_form").find(":input");
+         for (i = 0; i < submit_form_elements.length; i++) {
+           submit_form_elements[i].disabled = true;
+         }
+         anchors = $(".submit_form").find("a");
+         anchors.attr({
+           href: null,
+           target: null,
+           onclick: null
+         });
+         anchors.addClass('disabled');
+       }
+      </script>
+    {% endcompress %}
+  {% endif %}
 {% endblock %}
 
 {% block credit_tabs %}
@@ -38,6 +65,7 @@
 
 {% block tab_content %}
   {% load fieldsets %}
+
   <form method='post' action='.' class='submit_form'
         name='form' enctype="multipart/form-data">
 
@@ -73,7 +101,6 @@
       <div class='field-form'>
         {{ form.submission_notes }}
       </div>
-
 
       <hr/>
       <h3>

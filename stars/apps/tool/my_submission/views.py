@@ -65,9 +65,7 @@ class SubmissionSummaryView(UserCanEditSubmissionMixin,
                 context['show_migration_warning'] = True
                 context['last_migration_date'] = max_date
 
-        # Show the "reviewing" message if the SubmissionSet is being
-        # reviewed:
-        context['show_reviewing_warning'] = (
+        context['submission_under_review'] = (
             submissionset.status == SUBMISSION_STATUSES["REVIEW"])
 
         context['outline'] = self.get_submissionset_nav()
@@ -365,7 +363,11 @@ class CreditSubmissionDetailView(UserCanEditSubmissionMixin, UpdateView):
     def get_context_data(self, *args, **kwargs):
         context = super(CreditSubmissionDetailView, self).get_context_data(
             *args, **kwargs)
+
         context['outline'] = self.get_submissionset_nav()
+        context['credit_submission_locked'] = (
+            self.get_creditsubmission().is_locked())
+
         return context
 
 
