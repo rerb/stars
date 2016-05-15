@@ -31,28 +31,28 @@
 {% endcomment %}
 
 <table class="table table-bordered tabular">
-	<thead>
-		{% for row in documentation_field.get_sub_table %}
-			<tr>
-			{% for col in row %}
-				{% if forloop.parentloop.first %}
-					<td>{% if col %}{{ col }}{% endif %}</td>
-				{% elif forloop.first %}
-					<td>{% if col %}{{ col }}{% endif %}</td>
-				{% else %}
-					<td>
-					{% with col as field %}
-						{% include field_template %}
-					{% endwith %}
-					</td>
-				{% endif %}
-			{% endfor %}
+  <thead>
+    {% for row in documentation_field.get_sub_table %}
+      <tr>
+        {% for col in row %}
+          {% if forloop.parentloop.first %}
+            <td>{% if col %}{{ col }}{% endif %}</td>
+          {% elif forloop.first %}
+            <td>{% if col %}{{ col }}{% endif %}</td>
+          {% else %}
+            <td>
+              {% with col as field %}
+                {% include field_template %}
+              {% endwith %}
+            </td>
+          {% endif %}
+        {% endfor %}
 
-			{% if forloop.first %}
-				</thead>
-				<tbody>
-			{% endif %}
-			</tr>
-		{% endfor %}
-	</tbody>
+        {% if forloop.first %}
+          </thead>
+          <tbody>
+        {% endif %}
+      </tr>
+    {% endfor %}
+  </tbody>
 </table>
