@@ -2152,12 +2152,22 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
                 else:
                     return self.value
 
+    # @TODO - move calculate() into NumericSubmission.
     def calculate(self):
         """Calculate self.documentation_field.formula.
         For calculated fields only.
         """
         if not self.documentation_field.formula:
+            self.value = None
             return
+        # Check that all formula terms are not None:
+        for formula_term in self.documentation_field.formula_terms.all():
+            numeric_submission = NumericSubmission.objects.get(
+                documentation_field=formula_term,
+                credit_submission=self.credit_submission)
+            if numeric_submission.value is None:
+                self.value = None
+                return
         # get the key that relates field identifiers to their values
         field_key = self.credit_submission.get_submission_field_key()
         value = 0
