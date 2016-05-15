@@ -638,7 +638,7 @@ class CreditSubmissionForm(LocalizedModelFormMixin, ModelForm):
               - call ONLY on GET (warnings are loaded by form
                 validation on POST) for Complete instances!
 
-            Loads warnings onto form and returns TRUE iff any warnings
+            Loads warnings onto form and returns TRUE if any warnings
             are loaded.
         """
         validation_errors, validation_warnings = (
@@ -888,7 +888,8 @@ class BoundaryForm(LocalizedModelFormMixin, ModelForm):
             "or operated buildings or other holdings are omitted, "
             "briefly explain why.")
         self.fields['submission_boundary'].widget.attrs = {'cols': 60,
-                                                           'rows': 4,}
+                                                           'rows': 4}
+
 
 class StatusForm(LocalizedModelFormMixin, ModelForm):
     """
@@ -980,3 +981,12 @@ class ContactsForm(LocalizedModelFormMixin, ModelForm):
         for field in self.fields.values():
             if field.required:
                 field.label += " *"
+
+
+class ApproveSubmissionForm(LocalizedModelFormMixin, ModelForm):
+
+    class Meta:
+        model = SubmissionSet
+        # This is just a confirmation form, no inputs, just
+        # two buttons, Cancel and Submit.
+        fields = []

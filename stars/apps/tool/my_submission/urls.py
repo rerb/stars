@@ -6,6 +6,7 @@ from stars.apps.tool.my_submission.forms import (ContactsForm,
                                                  StatusForm)
 from stars.apps.tool.my_submission.views import (
     AddResponsiblePartyView,
+    ApproveSubmissionView,
     CreditDocumentationView,
     CreditHistoryView,
     CreditNotesView,
@@ -54,6 +55,9 @@ urlpatterns = patterns(
     url(r'^submit/success/$', SubmitSuccessView.as_view(),
         name='submit-success'),
 
+    url(r'^approve/$', ApproveSubmissionView.as_view(),
+        name='approve-submission'),
+
     url(r'^boundary/$', EditBoundaryView.as_view(),
         name='boundary-edit'),
 
@@ -85,7 +89,7 @@ urlpatterns = patterns(
 
     url(r'^%s/resources/$' % CREDIT_PATH,
         CreditResourcesView.as_view(),
-        name='credit-resources'),
+        name='credit-resources')
 )
 
 # Here's an illustration of the problem with caching

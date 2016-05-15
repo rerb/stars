@@ -15,19 +15,21 @@ from stars.apps.institutions.models import FULL_ACCESS, MigrationHistory
 from stars.apps.notifications.models import EmailTemplate
 from stars.apps.submissions.models import (Boundary,
                                            CreditUserSubmission,
-                                           RATED_SUBMISSION_STATUS,
                                            RATING_VALID_PERIOD,
                                            ResponsibleParty,
+                                           SUBMISSION_STATUSES,
                                            SubcategorySubmission,
-                                           SUBMISSION_STATUSES)
-from stars.apps.submissions.tasks import (send_certificate_pdf,
-                                          rollover_submission,
-                                          take_snapshot_task)
+                                           SubmissionSet)
+from stars.apps.submissions.tasks import (
+    rollover_submission,
+    send_email_with_certificate_attachment,
+    take_snapshot_task)
 from stars.apps.tool.mixins import (UserCanEditSubmissionMixin,
                                     UserCanEditSubmissionOrIsAdminMixin,
-                                    SubmissionToolMixin,)
+                                    SubmissionToolMixin)
 from stars.apps.tool.my_submission import credit_history
-from stars.apps.tool.my_submission.forms import (ContactsForm,
+from stars.apps.tool.my_submission.forms import (ApproveSubmissionForm,
+                                                 ContactsForm,
                                                  CreditUserSubmissionForm,
                                                  CreditUserSubmissionNotesForm,
                                                  LetterForm,
@@ -255,38 +257,17 @@ class SubmitForRatingWizard(SubmitRedirectMixin,
         submissionset.submitting_user = self.request.user
         submissionset.save()
 
-    # def finalize_rating(self):
+        # Send mail to STARS Liaison.
+        if not submissionset.reporter_status:
+            email_template = EmailTemplate.objects.get(
+                slug="submission_for_rating")
+        else:
+            email_template = EmailTemplate.objects.get(
+                slug="submission_as_reporter")
 
-    #     ss = self.get_submissionset(use_cache=False)
-
-    #     # Save the submission
-    #     ss.date_submitted = date.today()
-    #     ss.rating = ss.get_STARS_rating()
-    #     ss.status = RATED_SUBMISSION_STATUS
-    #     ss.submitting_user = self.request.user
-    #     ss.save()
-
-    #     # Send email to submitting institution
-    #     institution = ss.institution
-    #     et = EmailTemplate.objects.get(slug="submission_for_rating")
-    #     et.send_email([institution.contact_email],
-    #                   {'submissionset': ss})
-
-    #     # Update institution subscription data.
-    #     if institution.current_subscription:
-    #         institution.current_subscription.ratings_used += 1
-    #         institution.current_subscription.save()
-
-    #     institution.current_rating = ss.rating
-    #     institution.rated_submission = ss
-    #     institution.rating_expires = date.today() + RATING_VALID_PERIOD
-    #     institution.save()
-
-    #     # update their current submission
-    #     rollover_submission.delay(ss)
-
-    #     # Send certificate to staff
-    #     send_certificate_pdf.delay(ss)
+        stars_liaison_email = submissionset.institution.contact_email
+        email_template.send_email([stars_liaison_email],
+                                  {'submissionset': submissionset})
 
 
 class SubmitSuccessView(SubmissionToolMixin, TemplateView):
@@ -297,6 +278,70 @@ class SubmitSuccessView(SubmissionToolMixin, TemplateView):
 
     def get(self, *args, **kwargs):
         return super(SubmitSuccessView, self).get(*args, **kwargs)
+
+
+class ApproveSubmissionView(SubmissionToolMixin, UpdateView):
+
+    model = SubmissionSet
+    template_name = 'tool/submissions/approve_submission_confirmation.html'
+    form_class = ApproveSubmissionForm
+
+    def get_object(self, *args, **kwargs):
+        return self.get_submissionset()
+
+    def form_valid(self, form):
+
+        submissionset = self.get_submissionset(use_cache=False)
+
+        # Update the SubmissionSet.
+        submissionset.rating = submissionset.get_STARS_rating()
+        submissionset.status = SUBMISSION_STATUSES["RATED"]
+        submissionset.submitting_user = self.request.user
+        submissionset.save()
+
+        # Send email to STARS Liaison, Executive Contact,
+        # and institution President.
+        institution = submissionset.institution
+
+        recipients = [email for email in (institution.contact_email,
+                                          institution.executive_contact_email,
+                                          institution.president_email)
+                      if email]
+
+        if not submissionset.reporter_status:
+            email_template = EmailTemplate.objects.get(
+                slug="published_rating")
+            send_email_with_certificate_attachment(
+                submissionset=submissionset,
+                email_template=email_template,
+                email_context={'submissionset': submissionset},
+                recipients=recipients)
+        else:
+            email_template = EmailTemplate.objects.get(
+                slug="published_reporter")
+            email_template.send_email(recipients,
+                                      {'submissionset': submissionset})
+
+        # Update institution subscription data.
+        if institution.current_subscription:
+            institution.current_subscription.ratings_used += 1
+            institution.current_subscription.save()
+
+        institution.current_rating = submissionset.rating
+        institution.rated_submission = submissionset
+        institution.rating_expires = date.today() + RATING_VALID_PERIOD
+        institution.save()
+
+        # Update their current submission.
+        rollover_submission.delay(submissionset)
+
+        return super(ApproveSubmissionView, self).form_valid(form)
+
+    def get_success_url(self):
+        url = reverse(
+            'tool-summary',
+            kwargs={'institution_slug': self.get_institution().slug})
+        return url
 
 
 class SubcategorySubmissionDetailView(
