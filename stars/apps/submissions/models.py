@@ -2132,7 +2132,8 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
                         str_val = "%s ... [TRUNCATED]" % str_val[:32000]
                     return str_val
 
-                elif self.documentation_field.type in ('numeric', 'calculated'):
+                elif self.documentation_field.type in ('numeric',
+                                                       'calculated'):
 
                     str_val = "%.2f" % self.value
                     if str_val[-3:] == '.00':
