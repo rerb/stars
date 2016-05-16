@@ -348,7 +348,7 @@ def migrate_submission(old_submissionset,
         # submission fields have values.
         for submission_field in submission_fields:
             if submission_field.documentation_field.type == 'calculated':
-                submission_field.calculate()
+                submission_field.calculate(check_for_nones=True)
                 submission_field.save()
 
         # don't save until all the fields are updated
