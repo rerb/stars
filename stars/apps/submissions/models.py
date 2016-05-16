@@ -2153,21 +2153,29 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
                     return self.value
 
     # @TODO - move calculate() into NumericSubmission.
-    def calculate(self):
+    def calculate(self, check_for_nones=False):
         """Calculate self.documentation_field.formula.
         For calculated fields only.
+
+        If check_for_nones is True, calculation won't happen if any
+        of the formula terms is None.  This, essentially, prevents
+        the Exception that would occur if calculation proceeded.  It's
+        useful for, e.g., when migrating a SubmissionSet, when the values
+        for formula terms might not get migrated before the calculated field
+        that depends on them.
         """
         if not self.documentation_field.formula:
             self.value = None
             return
-        # Check that all formula terms are not None:
-        for formula_term in self.documentation_field.formula_terms.all():
-            numeric_submission = NumericSubmission.objects.get(
-                documentation_field=formula_term,
-                credit_submission=self.credit_submission)
-            if numeric_submission.value is None:
-                self.value = None
-                return
+        if check_for_nones:
+            # Check that all formula terms are not None:
+            for formula_term in self.documentation_field.formula_terms.all():
+                numeric_submission = NumericSubmission.objects.get(
+                    documentation_field=formula_term,
+                    credit_submission=self.credit_submission)
+                if numeric_submission.value is None:
+                    self.value = None
+                    return
         # get the key that relates field identifiers to their values
         field_key = self.credit_submission.get_submission_field_key()
         value = 0
@@ -2183,10 +2191,10 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
             raise
         except Exception, exc:
             logger.exception(
-                "Formula Exception for NumericSubmission(pk={pk}), "
+                "Formula Exception for {numeric_submission}, "
                 "formula:`{formula}`; locals: {locals}; "
                 "{exc}".format(
-                    pk=self.pk,
+                    numeric_submission=self,
                     formula=self.documentation_field.formula,
                     locals={key: value for key, value in locals.items()
                             if (type(value) in (int, float) or
