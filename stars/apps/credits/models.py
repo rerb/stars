@@ -1269,8 +1269,10 @@ class DocumentationField(VersionedModel):
             from stars.apps.submissions.models import NumericSubmission
             for calculated_submission in NumericSubmission.objects.filter(
                     documentation_field=self):
+                previous_value = calculated_submission.value
                 calculated_submission.calculate()
-                calculated_submission.save()
+                if calculated_submission.value != previous_value:
+                    calculated_submission.save()
 
     def update_formula_terms(self):
         """For calculated fields, update the set of fields upon
