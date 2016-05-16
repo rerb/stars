@@ -1,9 +1,13 @@
 import copy
 import datetime
 
+from django.core.exceptions import ObjectDoesNotExist
+
 from stars.apps.credits.models import CreditSet, DocumentationField
 from stars.apps.submissions.models import (Boundary,
+                                           ChoiceSubmission,
                                            CreditUserSubmission,
+                                           MultiChoiceSubmission,
                                            PENDING_SUBMISSION_STATUS,
                                            SubcategorySubmission,
                                            SubmissionSet)
@@ -335,10 +339,39 @@ def migrate_submission(old_submissionset,
                         prev_cus = CreditUserSubmission.objects.get(
                             credit=prev_documentation_field.credit,
                             subcategory_submission__category_submission__submissionset=old_submissionset)
-                        old_submission_field = submission_field_class.objects.get(
-                            documentation_field=prev_documentation_field,
-                            credit_submission=prev_cus)
-                        submission_field.value = old_submission_field.value
+                        old_submission_field = (
+                            submission_field_class.objects.get(
+                                documentation_field=prev_documentation_field,
+                                credit_submission=prev_cus))
+                        if isinstance(submission_field,
+                                      ChoiceSubmission):
+                            old_selection = old_submission_field.value.choice
+                            new_choices = (
+                                submission_field.get_choice_queryset())
+                            try:
+                                new_selection = new_choices.get(choice=old_selection)
+                            except ObjectDoesNotExist:
+                                submission_field.value = None
+                            else:
+                                submission_field.value = new_selection
+                        elif isinstance(submission_field,
+                                        MultiChoiceSubmission):
+                            # Hey there, sorry, but this bit of code -- the part
+                            # that handles MultiChoiceSubmissions -- hasn't been
+                            # tested.
+                            old_choices = (
+                                old_submission_field.get_choice_queryset())
+                            new_choices = (
+                                submission_field.get_choice_queryset())
+                            old_selections = old_submission_field.get_value()
+                            for old_selection in old_selections:
+                                try:
+                                    new_selection = new_chioces.get(
+                                        choice=old_selection)
+                                except ObjectDoesNotExist:
+                                    pass
+                                else:
+                                    submission_field.value.add(new_selection)
                         submission_field.save(
                             recalculate_related_calculated_fields=False)
                     except submission_field_class.DoesNotExist:
