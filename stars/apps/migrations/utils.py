@@ -366,12 +366,14 @@ def migrate_submission(old_submissionset,
                             old_selections = old_submission_field.get_value()
                             for old_selection in old_selections:
                                 try:
-                                    new_selection = new_chioces.get(
+                                    new_selection = new_choices.get(
                                         choice=old_selection)
                                 except ObjectDoesNotExist:
                                     pass
                                 else:
                                     submission_field.value.add(new_selection)
+                        else:
+                            submission_field.value = old_submission_field.value
                         submission_field.save(
                             recalculate_related_calculated_fields=False)
                     except submission_field_class.DoesNotExist:
