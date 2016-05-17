@@ -133,6 +133,7 @@ class Institution(models.Model):
                                            blank=True,
                                            null=True)
     president_title = models.CharField(max_length=64, blank=True, null=True)
+    president_email = models.EmailField(blank=True, null=True)
     president_address = models.CharField(max_length=128, blank=True, null=True)
     president_city = models.CharField(max_length=32, blank=True, null=True)
     president_state = models.CharField(max_length=2, blank=True, null=True)

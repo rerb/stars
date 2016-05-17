@@ -3,7 +3,8 @@
 {% load help %}
 
 <!-- Modal -->
-<div id="downloadModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div id="downloadModal" class="modal hide fade" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-body">
     <p>...</p>
   </div>
@@ -13,80 +14,81 @@
 </div>
 
 <table class='table table-striped table-bordered table-condensed'>
-    <thead>
+  <thead>
     <tr>
+      <th>
+        STARS Version
+      </th>
+      {% testrule institution_has_score_feature institution %}
         <th>
-          STARS Version
+          Provisional STARS Rating
+          {% show_help_context 'provisional_rating' %}
         </th>
-        {% testrule institution_has_score_feature institution %}
-	        <th>
-	        	Provisional STARS Rating
-	        	{% show_help_context 'provisional_rating' %}
-	        </th>
-	        <th>
-            Provisional Score
-	        	{% show_help_context 'provisional_score' %}
-          </th>
-        {% endtestrule %}
-        <th>Export</th>
+        <th>
+          Provisional Score
+          {% show_help_context 'provisional_score' %}
+        </th>
+      {% endtestrule %}
+      <th>Export</th>
     </tr>
-    </thead>
-    <tbody>
+  </thead>
+  <tbody>
     <tr>
-        <td>
-          {{ submissionset.creditset.version }}
-          {% testrule user_can_migrate_version user institution %}
-              <br/>
-              <a href="{% url migrate-options institution.slug %}"
-                 class='btn btn-mini'>
-        	      <i class='icon-share-alt'></i>
-                  Upgrade
-              </a>
-          {% endtestrule %}
-        </td>
-        {% testrule institution_has_score_feature institution %}
-        <td>
-            {{ submissionset.get_STARS_rating }}
-         </td>
-        <td>
-            {{ submissionset.get_STARS_score|floatformat:2 }}
-        </td>
+      <td>
+        {{ submissionset.creditset.version }}
+        {% testrule user_can_migrate_version user institution %}
+          {% if not submission_under_review %}
+            <br/>
+            <a href="{% url migrate-options institution.slug %}"
+               class='btn btn-mini'>
+              <i class='icon-share-alt'></i>
+              Upgrade
+            </a>
+          {% endif %}
         {% endtestrule %}
-    	<td>
-          {% testrule user_can_view_export user submissionset %}
-    		<div class="btn-group">
-			  <a class="btn dropdown-toggle btn-small" data-toggle="dropdown" href="#">
-			    Download <span class="caret"></span>
-			  </a>
-			  <ul class="dropdown-menu">
-				<li>
-					<a
-						class='modal-link'
-						href="{{ submissionset.get_scorecard_url }}pdf/">
-						<i class='icon-download-alt'></i> PDF
-					</a>
-				</li>
-				<li><a
-						class='modal-link'
-						href='{{ submissionset.get_scorecard_url }}excel/'>
-					<i class='icon-download-alt'></i> Excel
-				</a></li>
-			  </ul>
-			</div>
-          {% else %}
-            {% include "tool/participant_only_snippet.html" %}
-          {% endtestrule %}
-    	</td>
+      </td>
+      {% testrule institution_has_score_feature institution %}
+        <td>
+          {{ submissionset.get_STARS_rating }}
+        </td>
+        <td>
+          {{ submissionset.get_STARS_score|floatformat:2 }}
+        </td>
+      {% endtestrule %}
+      <td>
+        {% testrule user_can_view_export user submissionset %}
+          <div class="btn-group">
+            <a class="btn dropdown-toggle btn-small"
+               data-toggle="dropdown" href="#">
+              Download <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+              <li>
+                <a class='modal-link'
+                   href="{{ submissionset.get_scorecard_url }}pdf/">
+                  <i class='icon-download-alt'></i> PDF
+                </a>
+              </li>
+              <li><a class='modal-link'
+                     href='{{ submissionset.get_scorecard_url }}excel/'>
+                <i class='icon-download-alt'></i> Excel
+              </a></li>
+            </ul>
+          </div>
+        {% else %}
+          {% include "tool/participant_only_snippet.html" %}
+        {% endtestrule %}
+      </td>
     </tr>
-    </tbody>
+  </tbody>
 </table>
 
 <script>
 $(function() {
-    $(".modal-link").click(function(event) {
-        event.preventDefault()
-        $('#downloadModal').removeData("modal")
-        $('#downloadModal').modal({remote: $(this).attr("href")})
-    })
-})
+   $(".modal-link").click(function(event) {
+     event.preventDefault()
+       $('#downloadModal').removeData("modal")
+       $('#downloadModal').modal({remote: $(this).attr("href")})
+   })
+ })
 </script>

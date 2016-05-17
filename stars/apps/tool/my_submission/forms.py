@@ -638,7 +638,7 @@ class CreditSubmissionForm(LocalizedModelFormMixin, ModelForm):
               - call ONLY on GET (warnings are loaded by form
                 validation on POST) for Complete instances!
 
-            Loads warnings onto form and returns TRUE iff any warnings
+            Loads warnings onto form and returns TRUE if any warnings
             are loaded.
         """
         validation_errors, validation_warnings = (
@@ -888,7 +888,8 @@ class BoundaryForm(LocalizedModelFormMixin, ModelForm):
             "or operated buildings or other holdings are omitted, "
             "briefly explain why.")
         self.fields['submission_boundary'].widget.attrs = {'cols': 60,
-                                                           'rows': 4,}
+                                                           'rows': 4}
+
 
 class StatusForm(LocalizedModelFormMixin, ModelForm):
     """
@@ -906,13 +907,14 @@ class LetterForm(LocalizedModelFormMixin, ModelForm):
     """
     class Meta:
         model = SubmissionSet
-        fields = ['presidents_letter',]
+        fields = ['presidents_letter']
 
     def clean_presidents_letter(self):
         data = self.cleaned_data['presidents_letter']
         if ('1-presidents_letter' in self.files.keys()
             and self.files['1-presidents_letter'].content_type != 'application/pdf'
-            and not 'test' in sys.argv):
+            and 'test' not in sys.argv):
+
             raise forms.ValidationError("This doesn't seem to be a PDF file")
         return data
 
@@ -921,35 +923,70 @@ class LetterForm(LocalizedModelFormMixin, ModelForm):
         self.fields['presidents_letter'].required = True
 
 
-class ExecContactForm(LocalizedModelFormMixin, ModelForm):
+class ContactsForm(LocalizedModelFormMixin, ModelForm):
     """
-        The contact informartion for the institution's executive contact
+        The contact information for the institution's contacts
     """
-    confirm = forms.BooleanField(
-        label='I confirm that this is the highest ranking officer on campus.',
-        required=True)
-
     class Meta:
         model = Institution
-        fields = [ 'president_first_name',
-                   'president_middle_name',
-                   'president_last_name',
-                   'president_title',
-                   'president_address',
-                   'president_city',
-                   'president_state',
-                   'president_zip' ]
+        fields = ['contact_first_name',
+                  'contact_last_name',
+                  'contact_title',
+                  'contact_department',
+                  'contact_phone',
+                  'contact_phone_ext',
+                  'contact_email',
+                  'executive_contact_first_name',
+                  'executive_contact_last_name',
+                  'executive_contact_title',
+                  'executive_contact_department',
+                  'executive_contact_email',
+                  'president_first_name',
+                  'president_last_name',
+                  'president_title',
+                  'president_email']
 
     def __init__(self, *args, **kwargs):
-        super(ExecContactForm, self).__init__(*args, **kwargs)
-        for f in self.fields:
+        super(ContactsForm, self).__init__(*args, **kwargs)
+        for f in ('contact_first_name',
+                  'contact_last_name',
+                  'contact_title',
+                  'contact_department',
+                  'contact_phone',
+                  'contact_email',
+                  'executive_contact_first_name',
+                  'executive_contact_last_name',
+                  'executive_contact_title',
+                  'executive_contact_department',
+                  'executive_contact_email'):
             self.fields[f].required = True
+
+        self.fields['contact_first_name'].label = "First Name"
+        self.fields['contact_last_name'].label = "Last Name"
+        self.fields['contact_title'].label = "Title"
+        self.fields['contact_department'].label = "Department/Office"
+        self.fields['contact_phone'].label = "Phone"
+        self.fields['contact_phone_ext'].label = "Extension"
+        self.fields['contact_email'].label = "Email"
+        self.fields['executive_contact_first_name'].label = "First Name"
+        self.fields['executive_contact_last_name'].label = "Last Name"
+        self.fields['executive_contact_title'].label = "Title"
+        self.fields['executive_contact_department'].label = "Department/Office"
+        self.fields['executive_contact_email'].label = "Email"
         self.fields['president_first_name'].label = "First Name"
-        self.fields['president_middle_name'].label = "Middle Name"
-        self.fields['president_middle_name'].required = False
         self.fields['president_last_name'].label = "Last Name"
         self.fields['president_title'].label = "Title"
-        self.fields['president_address'].label = "Address"
-        self.fields['president_city'].label = "City"
-        self.fields['president_state'].label = "State"
-        self.fields['president_zip'].label = "Zipcode"
+        self.fields['president_email'].label = "Email"
+
+        for field in self.fields.values():
+            if field.required:
+                field.label += " *"
+
+
+class ApproveSubmissionForm(LocalizedModelFormMixin, ModelForm):
+
+    class Meta:
+        model = SubmissionSet
+        # This is just a confirmation form, no inputs, just
+        # two buttons, Cancel and Submit.
+        fields = []

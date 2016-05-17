@@ -1,0 +1,25 @@
+{% extends 'tool/base.html' %}
+
+{% load logical_rules_tags %}
+
+{% block tool_content %}
+  <div>
+    Sure you want to approve that report?
+  </div>
+
+  <form method="post" action=".">
+    <div class="form-actions">
+      <button type="submit"
+              class="btn btn-primary">
+        <i class="icon-ok icon-white"></i>
+        Yes, Approve It.
+      </button>
+      <a href="{% url submission-summary institution.slug submissionset.id %}"
+         class="btn">
+        <i class="icon-remove"></i>
+        No, Wait, Go Back!
+      </a>
+    </div>
+  </form>
+
+{% endblock %}

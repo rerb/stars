@@ -1,6 +1,5 @@
 from datetime import datetime, date
 from itertools import chain
-import os
 
 from django.contrib import messages
 from django.core.urlresolvers import reverse
@@ -16,20 +15,23 @@ from stars.apps.institutions.models import FULL_ACCESS, MigrationHistory
 from stars.apps.notifications.models import EmailTemplate
 from stars.apps.submissions.models import (Boundary,
                                            CreditUserSubmission,
-                                           RATED_SUBMISSION_STATUS,
                                            RATING_VALID_PERIOD,
                                            ResponsibleParty,
-                                           SubcategorySubmission)
-from stars.apps.submissions.tasks import (send_certificate_pdf,
-                                          rollover_submission,
-                                          take_snapshot_task)
+                                           SUBMISSION_STATUSES,
+                                           SubcategorySubmission,
+                                           SubmissionSet)
+from stars.apps.submissions.tasks import (
+    rollover_submission,
+    send_email_with_certificate_attachment,
+    take_snapshot_task)
 from stars.apps.tool.mixins import (UserCanEditSubmissionMixin,
                                     UserCanEditSubmissionOrIsAdminMixin,
-                                    SubmissionToolMixin,)
+                                    SubmissionToolMixin)
 from stars.apps.tool.my_submission import credit_history
-from stars.apps.tool.my_submission.forms import (CreditUserSubmissionForm,
+from stars.apps.tool.my_submission.forms import (ApproveSubmissionForm,
+                                                 ContactsForm,
+                                                 CreditUserSubmissionForm,
                                                  CreditUserSubmissionNotesForm,
-                                                 ExecContactForm,
                                                  LetterForm,
                                                  StatusForm,
                                                  ResponsiblePartyForm,
@@ -48,8 +50,10 @@ class SubmissionSummaryView(UserCanEditSubmissionMixin,
     def get_context_data(self, **kwargs):
         context = super(SubmissionSummaryView, self).get_context_data(**kwargs)
 
-        context['category_submission_list'] = self.get_submissionset(
-            ).categorysubmission_set.all().select_related()
+        submissionset = self.get_submissionset()
+
+        context['category_submission_list'] = (
+            submissionset.categorysubmission_set.all().select_related())
 
         # Show the migration message if there was a recent migration
         # and the score is zero
@@ -62,6 +66,9 @@ class SubmissionSummaryView(UserCanEditSubmissionMixin,
             if time_delta.days < 30:
                 context['show_migration_warning'] = True
                 context['last_migration_date'] = max_date
+
+        context['submission_under_review'] = (
+            submissionset.status == SUBMISSION_STATUSES["REVIEW"])
 
         context['outline'] = self.get_submissionset_nav()
 
@@ -155,8 +162,8 @@ SUBMISSION_STEPS = [
         'instance_callback': 'get_submissionset'
     },
     {
-        'form': ExecContactForm,
-        'template': 'exec',
+        'form': ContactsForm,
+        'template': 'contacts',
         'instance_callback': 'get_institution'
     },
     {
@@ -174,8 +181,7 @@ class SubmitForRatingWizard(SubmitRedirectMixin,
         A wizard that runs a user through the forms
         required to submit for a rating
     """
-    file_storage = FileSystemStorage(
-        location=os.path.join('/tmp/stars_wizard_files/'))
+    file_storage = FileSystemStorage(location='/tmp/stars_wizard_files/')
 
     def update_logical_rules(self):
         super(SubmitForRatingWizard, self).update_logical_rules()
@@ -216,7 +222,6 @@ class SubmitForRatingWizard(SubmitRedirectMixin,
             form=form, **kwargs)
 
         if self.steps.current == '0':
-
             qs = CreditUserSubmission.objects.all()
             qs = qs.filter(subcategory_submission__category_submission__submissionset=self.get_submissionset())
             qs = qs.filter(Q(submission_status='p') |
@@ -224,14 +229,15 @@ class SubmitForRatingWizard(SubmitRedirectMixin,
             qs = qs.order_by('subcategory_submission__category_submission__category__ordinal','credit__number')
             _context['credit_list'] = qs
             _context['reporter_rating'] = self.get_submissionset().creditset.rating_set.get(name='Reporter')
+
         return _context
 
     def done(self, form_list, **kwargs):
         for form in form_list:
-            if hasattr(form, 'save'):
+            if hasattr(form, 'save'):  # When might this be False?
                 form.save()
 
-        self.finalize_rating()
+        self.setup_submissionset_for_review()
 
         redirect_url = reverse('submit-success',
                                kwargs={'institution_slug':
@@ -240,47 +246,102 @@ class SubmitForRatingWizard(SubmitRedirectMixin,
                                        self.get_submissionset().id})
         return HttpResponseRedirect(redirect_url)
 
-    def finalize_rating(self):
+    def setup_submissionset_for_review(self):
 
-        ss = self.get_submissionset(use_cache=False)
-        institution = ss.institution
+        submissionset = self.get_submissionset(use_cache=False)
 
         # Save the submission
-        ss.date_submitted = date.today()
-        ss.rating = ss.get_STARS_rating()
-        ss.status = RATED_SUBMISSION_STATUS
-        ss.submitting_user = self.request.user
-        ss.save()
+        submissionset.date_submitted = date.today()
+        submissionset.rating = submissionset.get_STARS_rating()
+        submissionset.status = SUBMISSION_STATUSES["REVIEW"]
+        submissionset.submitting_user = self.request.user
+        submissionset.save()
 
-        # Send email to submitting institution
-        et = EmailTemplate.objects.get(slug="submission_for_rating")
-        et.send_email([institution.contact_email],
-                      {'submissionset': ss})
+        # Send mail to STARS Liaison.
+        if not submissionset.reporter_status:
+            email_template = EmailTemplate.objects.get(
+                slug="submission_for_rating")
+        else:
+            email_template = EmailTemplate.objects.get(
+                slug="submission_as_reporter")
 
-        if institution.current_subscription:
-            institution.current_subscription.ratings_used += 1
-            institution.current_subscription.save()
-
-        institution.current_rating = ss.rating
-        institution.rated_submission = ss
-        institution.rating_expires = date.today() + RATING_VALID_PERIOD
-        institution.save()
-
-        # update their current submission
-        rollover_submission.delay(ss)
-
-        # Send certificate to staff
-        send_certificate_pdf.delay(ss)
+        stars_liaison_email = submissionset.institution.contact_email
+        email_template.send_email([stars_liaison_email],
+                                  {'submissionset': submissionset})
 
 
-class RatingCongratulationsView(SubmissionToolMixin, TemplateView):
+class SubmitSuccessView(SubmissionToolMixin, TemplateView):
     """
-        Return a congratulations page on the most recent rating
+        Return a congratulations page when a submission is made.
     """
     template_name = 'tool/submissions/submit_success.html'
 
     def get(self, *args, **kwargs):
-        return super(RatingCongratulationsView, self).get(*args, **kwargs)
+        return super(SubmitSuccessView, self).get(*args, **kwargs)
+
+
+class ApproveSubmissionView(SubmissionToolMixin, UpdateView):
+
+    model = SubmissionSet
+    template_name = 'tool/submissions/approve_submission_confirmation.html'
+    form_class = ApproveSubmissionForm
+
+    def get_object(self, *args, **kwargs):
+        return self.get_submissionset()
+
+    def form_valid(self, form):
+
+        submissionset = self.get_submissionset(use_cache=False)
+
+        # Update the SubmissionSet.
+        submissionset.rating = submissionset.get_STARS_rating()
+        submissionset.status = SUBMISSION_STATUSES["RATED"]
+        submissionset.submitting_user = self.request.user
+        submissionset.save()
+
+        # Send email to STARS Liaison, Executive Contact,
+        # and institution President.
+        institution = submissionset.institution
+
+        recipients = [email for email in (institution.contact_email,
+                                          institution.executive_contact_email,
+                                          institution.president_email)
+                      if email]
+
+        if not submissionset.reporter_status:
+            email_template = EmailTemplate.objects.get(
+                slug="published_rating")
+            send_email_with_certificate_attachment(
+                submissionset=submissionset,
+                email_template=email_template,
+                email_context={'submissionset': submissionset},
+                recipients=recipients)
+        else:
+            email_template = EmailTemplate.objects.get(
+                slug="published_reporter")
+            email_template.send_email(recipients,
+                                      {'submissionset': submissionset})
+
+        # Update institution subscription data.
+        if institution.current_subscription:
+            institution.current_subscription.ratings_used += 1
+            institution.current_subscription.save()
+
+        institution.current_rating = submissionset.rating
+        institution.rated_submission = submissionset
+        institution.rating_expires = date.today() + RATING_VALID_PERIOD
+        institution.save()
+
+        # Update their current submission.
+        rollover_submission.delay(submissionset)
+
+        return super(ApproveSubmissionView, self).form_valid(form)
+
+    def get_success_url(self):
+        url = reverse(
+            'tool-summary',
+            kwargs={'institution_slug': self.get_institution().slug})
+        return url
 
 
 class SubcategorySubmissionDetailView(
@@ -347,7 +408,11 @@ class CreditSubmissionDetailView(UserCanEditSubmissionMixin, UpdateView):
     def get_context_data(self, *args, **kwargs):
         context = super(CreditSubmissionDetailView, self).get_context_data(
             *args, **kwargs)
+
         context['outline'] = self.get_submissionset_nav()
+        context['credit_submission_locked'] = (
+            self.get_creditsubmission().is_locked())
+
         return context
 
 

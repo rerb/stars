@@ -10,6 +10,9 @@ class HelpContext(models.Model):
     title = models.CharField(max_length=64, blank=True, null=True)
     help_text = models.TextField()
 
+    class Meta:
+        ordering = ('name',)
+
     def __unicode__(self):
         return self.name
 
@@ -25,6 +28,9 @@ class BlockContent(models.Model):
     key = models.SlugField(unique=True)
     content = models.TextField()
 
+    class Meta:
+        ordering = ('key',)
+
     def __str__(self):
         return self.key
 
@@ -39,6 +45,9 @@ class SnippetContent(models.Model):
     """
     key = models.SlugField(unique=True)
     content = models.CharField(max_length=255)
+
+    class Meta:
+        ordering = ('key',)
 
     def __str__(self):
         return self.key

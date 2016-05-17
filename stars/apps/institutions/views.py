@@ -16,10 +16,9 @@ from stars.apps.institutions.forms import (SubmissionSelectForm,
                                            DataCorrectionRequestForm)
 from stars.apps.institutions.models import FULL_ACCESS, Institution
 from stars.apps.notifications.models import EmailTemplate
-from stars.apps.submissions.models import (SubmissionInquiry,
-                                           DataCorrectionRequest,
-                                           PENDING_SUBMISSION_STATUS,
-                                           RATED_SUBMISSION_STATUS)
+from stars.apps.submissions.models import (DataCorrectionRequest,
+                                           SubmissionInquiry,
+                                           SUBMISSION_STATUSES)
 from stars.apps.submissions.views import SubmissionStructureMixin
 from stars.apps.submissions.tasks import (
     build_excel_export, build_pdf_export, build_certificate_export)
@@ -371,14 +370,16 @@ class InstitutionScorecards(InstitutionStructureMixin, TemplateView):
 
 def get_submissions_for_scorecards(institution):
     """
-    Scorecards are only shown for pending and rated submissions.
+    Scorecards are only shown for pending, rated submissions and submissions
+    under review.
     """
     return (
         institution.submissionset_set.filter(
-            status=PENDING_SUBMISSION_STATUS)
-        |
+            status=SUBMISSION_STATUSES["PENDING"]) |
         institution.submissionset_set.filter(
-            status=RATED_SUBMISSION_STATUS)
+            status=SUBMISSION_STATUSES["RATED"]) |
+        institution.submissionset_set.filter(
+            status=SUBMISSION_STATUSES["REVIEW"])
     )
 
 

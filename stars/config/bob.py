@@ -19,7 +19,7 @@ ADMINS = (('Bob Erb', 'bob@aashe.org'),)
 MANAGERS = ADMINS
 
 # Send emails to to django.core.mail.outbox rather than the console:
-EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+# EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
 
 
 def get_api_test_mode():

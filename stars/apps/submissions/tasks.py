@@ -92,6 +92,22 @@ def send_certificate_pdf(ss):
 
 
 @task()
+def send_email_with_certificate_attachment(submissionset,
+                                           email_template,
+                                           email_context,
+                                           recipients):
+
+    certificate = build_certificate_pdf(submissionset)
+
+    email_template.send_email(
+        mail_to=recipients,
+        context=email_context,
+        attachments=((submissionset.institution.slug,
+                      certificate.getvalue(),
+                      'application/pdf'),))
+
+
+@task()
 def perform_migration(old_ss, new_cs, user):
     """
         Run the migration and then
