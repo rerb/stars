@@ -1578,6 +1578,18 @@ CREDIT_SUBMISSION_STATUS_ICONS = {
     UNLOCKED: ('icon-lock', 'r')
 }
 
+REVIEW_CONCLUSIONS = {
+    "NOT_REVIEWED": "not-reviewed",
+    "MEETS_CRITERIA": "meets-criteria",
+    "DOES_NOT_MEET_CRITERIA": "does-not-meet-criteria",
+    "NOT_REALLY_PURSUING": "not-really-pursuing"}
+
+REVIEW_CONCLUSION_CHOICES = (
+    (REVIEW_CONCLUSIONS["NOT_REVIEWED"], "Not Reviewed"),
+    (REVIEW_CONCLUSIONS["MEETS_CRITERIA"], "Meets Criteria"),
+    (REVIEW_CONCLUSIONS["DOES_NOT_MEET_CRITERIA"], "Does Not Meet Criteria"),
+    (REVIEW_CONCLUSIONS["NOT_REALLY_PURSUING"], "Not Really Pursuing"))
+
 
 class CreditUserSubmission(CreditSubmission, FlaggableModel):
     """
@@ -1612,6 +1624,10 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
                                           blank=True,
                                           null=True,
                                           on_delete=models.SET_NULL)
+    review_conclusion = models.CharField(
+        max_length=32,
+        choices=REVIEW_CONCLUSION_CHOICES,
+        default=REVIEW_CONCLUSIONS["NOT_REVIEWED"])
 
     class Meta:
         # @todo: the unique clause needs to be added at the DB level now :-(
