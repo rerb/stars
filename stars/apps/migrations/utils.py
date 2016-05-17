@@ -345,15 +345,16 @@ def migrate_submission(old_submissionset,
                                 credit_submission=prev_cus))
                         if isinstance(submission_field,
                                       ChoiceSubmission):
-                            old_selection = old_submission_field.value.choice
-                            new_choices = (
-                                submission_field.get_choice_queryset())
-                            try:
-                                new_selection = new_choices.get(choice=old_selection)
-                            except ObjectDoesNotExist:
-                                submission_field.value = None
-                            else:
-                                submission_field.value = new_selection
+                            if old_submission_field.value is not None:
+                                old_selection = old_submission_field.value.choice
+                                new_choices = (
+                                    submission_field.get_choice_queryset())
+                                try:
+                                    new_selection = new_choices.get(choice=old_selection)
+                                except ObjectDoesNotExist:
+                                    submission_field.value = None
+                                else:
+                                    submission_field.value = new_selection
                         elif isinstance(submission_field,
                                         MultiChoiceSubmission):
                             # Hey there, sorry, but this bit of code -- the part
