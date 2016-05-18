@@ -55,20 +55,22 @@ class SubmissionSummaryView(UserCanEditSubmissionMixin,
         context['category_submission_list'] = (
             submissionset.categorysubmission_set.all().select_related())
 
+        context['submission_under_review'] = (
+            submissionset.status == SUBMISSION_STATUSES["REVIEW"])
+
         # Show the migration message if there was a recent migration
-        # and the score is zero
+        # and the score is zero, unless the submission is under review
         context['show_migration_warning'] = False
         i = self.get_institution()
         migration_list = MigrationHistory.objects.filter(institution=i)
         if migration_list:
             max_date = migration_list.aggregate(Max('date'))['date__max']
             time_delta = datetime.now() - max_date
-            if time_delta.days < 30:
+            if (time_delta.days < 30 and
+                not context['submission_under_review']):
+
                 context['show_migration_warning'] = True
                 context['last_migration_date'] = max_date
-
-        context['submission_under_review'] = (
-            submissionset.status == SUBMISSION_STATUSES["REVIEW"])
 
         context['outline'] = self.get_submissionset_nav()
 
@@ -237,18 +239,22 @@ class SubmitForRatingWizard(SubmitRedirectMixin,
             if hasattr(form, 'save'):  # When might this be False?
                 form.save()
 
-        self.setup_submissionset_for_review()
+        submissionset = self.get_submissionset(use_cache=False)
+
+        self.setup_submissionset_for_review(submissionset=submissionset)
+
+        # My Submission gets cached, and in the cache it still looks
+        # like it's not under review, so flush that mother here.
+        submissionset.invalidate_cache()
 
         redirect_url = reverse('submit-success',
                                kwargs={'institution_slug':
                                        self.get_institution().slug,
                                        'submissionset':
-                                       self.get_submissionset().id})
+                                       submissionset.id})
         return HttpResponseRedirect(redirect_url)
 
-    def setup_submissionset_for_review(self):
-
-        submissionset = self.get_submissionset(use_cache=False)
+    def setup_submissionset_for_review(self, submissionset):
 
         # Save the submission
         submissionset.date_submitted = date.today()
