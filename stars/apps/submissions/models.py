@@ -2169,7 +2169,7 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
                     return self.value
 
     # @TODO - move calculate() into NumericSubmission.
-    def calculate(self, check_for_nones=False):
+    def calculate(self, check_for_nones=True):
         """Calculate self.documentation_field.formula.
         For calculated fields only.
 
