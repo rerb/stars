@@ -1672,18 +1672,38 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
 
     def is_finished(self):
         """ Indicate if this credit has been marked anything other than
-            pending or not started
+            in progress or not started
         """
         return (self.submission_status != IN_PROGRESS and
                 self.submission_status != NOT_STARTED and
                 self.submission_status is not None)
 
-    def save(self, *args, **kwargs):
-        """ Override model.Model save() method to update credit status"""
+    def save(self, calculate_points=True, *args, **kwargs):
         self.last_updated = datetime.now()
-        self.assessed_points = float(self._calculate_points())
+
+        if calculate_points:
+            self.assessed_points = float(self._calculate_points())
+
+        # When submission_status goes from UNLOCKED to something else,
+        # we need to send some mail.  To compare the present value
+        # with the new, we need to pull the present submission_status
+        # out of the db. Further on, we'll compare it to the
+        # new_boundary value and send some mail if it flipped from
+        # UNLOCKED to something else.
+        previous_submission_status = (
+            CreditUserSubmission.objects.get(pk=self.pk).submission_status
+            # We don't care if the new submission_status is UNLOCKED,
+            # so don't hit the db when it is.
+            if self.submission_status != UNLOCKED
+            else None)
 
         super(CreditUserSubmission, self).save(*args, **kwargs)
+
+        if (previous_submission_status == UNLOCKED and
+            self.submission_status != UNLOCKED):
+
+            self.send_unlocked_credit_submission_updated_email(
+                self.get_submission_status_display())
 
     def is_complete(self):
         return self.submission_status == COMPLETE
@@ -1703,6 +1723,9 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
         """
         return (self.get_submissionset().is_under_review() and
                 self.submission_status is not UNLOCKED)
+
+    def unlock(self):
+        self.submission_status = UNLOCKED
 
     def mark_as_in_progress(self):
         self.submission_status = IN_PROGRESS
@@ -1741,6 +1764,21 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
             assessed_points = points
 
         return assessed_points
+
+    def send_unlocked_credit_submission_updated_email(
+            self,
+            previous_submission_status):
+        """ Send email to let STARS reviewers know a credit submission
+            has just been unlocked.
+        """
+        email_template = EmailTemplate.objects.get(
+            slug="unlocked_credit_sub_just_updated")
+        mail_to = ["stars@aashe.org"]
+        email_context = {
+            "previous_submission_status": previous_submission_status,
+            "credit_user_submission": self,
+            "institution": self.get_submissionset().institution}
+        email_template.send_email(mail_to, email_context)
 
 
 class CreditTestSubmission(CreditSubmission):
@@ -2876,3 +2914,44 @@ class SubcategoryQuartiles(models.Model):
         else:
             self.first = self.second = self.third = self.fourth = 0
         self.save()
+
+
+CREDIT_REVIEW_NOTATION_KINDS = {
+    "BEST_PRACTICE": "best-practice",
+    "REVISION_REQUEST": "revision-request",
+    "SUGGESTION_FOR_IMPROVEMENT": "suggestion-for-improvement"}
+
+CREDIT_REVIEW_NOTATION_KIND_CHOICES = (
+    (CREDIT_REVIEW_NOTATION_KINDS["BEST_PRACTICE"], "Best Practice"),
+    (CREDIT_REVIEW_NOTATION_KINDS["REVISION_REQUEST"], "Revision Request"),
+    (CREDIT_REVIEW_NOTATION_KINDS["SUGGESTION_FOR_IMPROVEMENT"],
+         "Suggestion For Improvement"))
+
+
+class CreditReviewNotation(models.Model):
+
+    credit_user_submission = models.ForeignKey(CreditUserSubmission)
+    kind = models.CharField(max_length="32",
+                            choices=CREDIT_REVIEW_NOTATION_KIND_CHOICES,
+                            blank=True, null=True)
+    comment = models.TextField(blank=True, null=True)
+    send_email = models.BooleanField(blank=True, default=True)
+
+    def save(self, *args, **kwargs):
+
+        new_credit_review_notification = not self.pk
+
+        if self.pk:
+            # Don't let the kind of this CreditReviewNotation change.
+            self.kind = CreditReviewNotation.objects.get(pk=self.pk).kind
+
+        super(CreditReviewNotation, self).save(*args, **kwargs)
+
+        if (new_credit_review_notification and
+            self.kind in (
+                CREDIT_REVIEW_NOTATION_KINDS["REVISION_REQUEST"],
+                CREDIT_REVIEW_NOTATION_KINDS["SUGGESTION_FOR_IMPROVEMENT"])):
+
+            if self.credit_user_submission.is_locked():
+                self.credit_user_submission.unlock()
+                self.credit_user_submission.save(calculate_points=False)
