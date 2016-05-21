@@ -7,12 +7,12 @@ from stars.apps.tool.my_submission.forms import (ContactsForm,
 from stars.apps.tool.my_submission.views import (
     AddResponsiblePartyView,
     ApproveSubmissionView,
-    CreditDocumentationView,
-    CreditHistoryView,
-    CreditNotesView,
-    CreditResourcesView,
-    CreditReviewView,
-    CreditSubmissionDetailView,
+    CreditSubmissionDocumentationView,
+    CreditSubmissionHistoryView,
+    CreditSubmissionNotesView,
+    CreditSubmissionResourcesView,
+    CreditSubmissionReviewView,
+    CreditSubmissionReportingFieldsView,
     EditBoundaryView,
     SubmitSuccessView,
     SaveSnapshot,
@@ -73,32 +73,32 @@ urlpatterns = patterns(
     # changing Institution.prefers_metric_system (details below),
     # so we `never_cache` this URL:
     url(r'^%s/$' % CREDIT_PATH,
-        never_cache(CreditSubmissionDetailView.as_view()),
+        never_cache(CreditSubmissionReportingFieldsView.as_view()),
         name='creditsubmission-submit'),
 
     url(r'^%s/documentation/$' % CREDIT_PATH,
-        CreditDocumentationView.as_view(),
+        CreditSubmissionDocumentationView.as_view(),
         name='creditdocs-submit'),
 
     url(r'^%s/notes/$' % CREDIT_PATH,
-        CreditNotesView.as_view(),
+        CreditSubmissionNotesView.as_view(),
         name='creditnotes-submit'),
 
     url(r'^%s/history/$' % CREDIT_PATH,
-        CreditHistoryView.as_view(),
+        CreditSubmissionHistoryView.as_view(),
         name='credit-history'),
 
     url(r'^%s/resources/$' % CREDIT_PATH,
-        CreditResourcesView.as_view(),
+        CreditSubmissionResourcesView.as_view(),
         name='credit-resources'),
 
     url(r'^%s/review/$' % CREDIT_PATH,
-        CreditReviewView.as_view(),
+        CreditSubmissionReviewView.as_view(),
         name='credit-review')
 )
 
 # Here's an illustration of the problem with caching
-# CreditSubmissionDetailView, noted above.
+# CreditSubmissionReportingFieldsView, noted above.
 #
 #   1. Institution.prefers_metric_system is False, so
 #      fields that have a related measurement unit display

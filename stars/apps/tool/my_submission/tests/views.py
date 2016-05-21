@@ -17,6 +17,7 @@ from stars.test_factories import (CategoryFactory,
 
 # @TODO - we definitely need tests here for all the form submission tools
 
+
 class SubmissionSummaryViewTest(InstitutionToolMixinTest):
 
     view_class = views.SubmissionSummaryView
@@ -51,18 +52,18 @@ class EditBoundaryViewTest(UserCanEditSubmissionMixinTest):
     view_class = views.EditBoundaryView
 
 
-class CreditNotesViewTest(UserCanEditSubmissionMixinTest):
+class CreditSubmissionNotesViewTest(UserCanEditSubmissionMixinTest):
 
-    view_class = views.CreditNotesView
+    view_class = views.CreditSubmissionNotesView
 
 
-class CreditHistoryViewTest(UserCanEditSubmissionMixinTest):
+class CreditSubmissionHistoryViewTest(UserCanEditSubmissionMixinTest):
 
-    view_class = views.CreditHistoryView
+    view_class = views.CreditSubmissionHistoryView
 
     def setUp(self, *args, **kwargs):
-        super(CreditHistoryViewTest, self).setUp(*args, **kwargs)
-        
+        super(CreditSubmissionHistoryViewTest, self).setUp(*args, **kwargs)
+
         category = CategoryFactory(creditset=self.submission.creditset)
         category.save()
         category_submission = CategorySubmissionFactory(
@@ -95,13 +96,13 @@ class CreditHistoryViewTest(UserCanEditSubmissionMixinTest):
         documentation_field_submission.save()
 
     def test_get_succeeds(self, **kwargs):
-        super(CreditHistoryViewTest, self).test_get_succeeds(
+        super(CreditSubmissionHistoryViewTest, self).test_get_succeeds(
             category_abbreviation=self.category_abbreviation,
             subcategory_slug=self.subcategory_slug,
             credit_identifier=self.credit_identifier)
 
     def test_get_is_blocked(self, **kwargs):
-        super(CreditHistoryViewTest, self).test_get_is_blocked(
+        super(CreditSubmissionHistoryViewTest, self).test_get_is_blocked(
             category_abbreviation=self.category_abbreviation,
             subcategory_slug=self.subcategory_slug,
             credit_identifier=self.credit_identifier)

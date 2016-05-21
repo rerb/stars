@@ -3,7 +3,7 @@ from itertools import chain
 
 from django.contrib import messages
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 from django.views.generic import TemplateView
 from django.views.generic.edit import UpdateView, CreateView
 from django.db.models import Max, Q
@@ -354,9 +354,8 @@ class ApproveSubmissionView(SubmissionToolMixin, UpdateView):
         return url
 
 
-class SubcategorySubmissionDetailView(
-        UserCanEditSubmissionOrIsAdminMixin,
-        UpdateView):
+class SubcategorySubmissionDetailView(UserCanEditSubmissionOrIsAdminMixin,
+                                      UpdateView):
 
     model = SubcategorySubmission
     template_name = 'tool/submissions/subcategory.html'
@@ -389,31 +388,12 @@ class SubcategorySubmissionDetailView(
         return super(SubcategorySubmissionDetailView, self).form_valid(form)
 
 
-class CreditSubmissionDetailView(UserCanEditSubmissionMixin, UpdateView):
+class CreditSubmissionDetailView(UserCanEditSubmissionMixin):
 
     model = CreditUserSubmission
-    template_name = "tool/submissions/credit_reporting_fields.html"
-    form_class = CreditUserSubmissionForm
 
     def get_object(self, queryset=None):
         return self.get_creditsubmission()
-
-    def get_success_url(self):
-        return self.get_creditsubmission().get_submit_url()
-
-    def form_invalid(self, form):
-        messages.error(self.request,
-                       "Credit data has <b>NOT BEEN SAVED</b>! Please correct "
-                       "the errors below.")
-        return super(CreditSubmissionDetailView, self).form_invalid(form)
-
-    def form_valid(self, form):
-        if form.has_warnings():
-            # @todo: do this on GET too
-            messages.info(self.request,
-                          "Some data values are not within the expected range "
-                          "- see notes below.")
-        return super(CreditSubmissionDetailView, self).form_valid(form)
 
     def get_context_data(self, *args, **kwargs):
         context = super(CreditSubmissionDetailView, self).get_context_data(
@@ -426,40 +406,53 @@ class CreditSubmissionDetailView(UserCanEditSubmissionMixin, UpdateView):
         return context
 
 
-class CreditDocumentationView(UserCanEditSubmissionMixin, TemplateView):
+class CreditSubmissionReportingFieldsView(CreditSubmissionDetailView,
+                                          UpdateView):
+
+    template_name = "tool/submissions/credit_reporting_fields.html"
+    form_class = CreditUserSubmissionForm
+
+    def get_success_url(self):
+        return self.get_creditsubmission().get_submit_url()
+
+    def form_invalid(self, form):
+        messages.error(self.request,
+                       "Credit data has <b>NOT BEEN SAVED</b>! Please correct "
+                       "the errors below.")
+        return super(CreditSubmissionReportingFieldsView,
+                     self).form_invalid(form)
+
+    def form_valid(self, form):
+        if form.has_warnings():
+            # @todo: do this on GET too
+            messages.info(self.request,
+                          "Some data values are not within the expected range "
+                          "- see notes below.")
+        return super(CreditSubmissionReportingFieldsView,
+                     self).form_valid(form)
+
+
+class CreditSubmissionDocumentationView(CreditSubmissionDetailView,
+                                        TemplateView):
 
     template_name = "tool/submissions/credit_info.html"
 
     def get_template_names(self):
         if self.request.GET.get('popup', False):
             return ["tool/submissions/credit_info_popup.html"]
-        return super(CreditDocumentationView, self).get_template_names()
-
-    def get_context_data(self, *args, **kwargs):
-        context = super(CreditDocumentationView, self).get_context_data(
-            *args, **kwargs)
-        context['outline'] = self.get_submissionset_nav()
-        return context
+        return super(CreditSubmissionDocumentationView,
+                     self).get_template_names()
 
 
-class CreditNotesView(UserCanEditSubmissionMixin, UpdateView):
+class CreditSubmissionNotesView(CreditSubmissionDetailView,
+                                UpdateView):
 
     template_name = "tool/submissions/credit_notes.html"
     form_class = CreditUserSubmissionNotesForm
-    model = CreditUserSubmission
-
-    def get_object(self):
-        return self.get_creditsubmission()
-
-    def get_context_data(self, *args, **kwargs):
-        context = super(CreditNotesView, self).get_context_data(
-            *args, **kwargs)
-        context['outline'] = self.get_submissionset_nav()
-        return context
 
 
-class CreditHistoryView(UserCanEditSubmissionMixin,
-                        TemplateView):
+class CreditSubmissionHistoryView(CreditSubmissionDetailView,
+                                  TemplateView):
     """
         Displays a list of submission history for a credit
         (based on DocumentationFieldSubmissions).
@@ -473,7 +466,8 @@ class CreditHistoryView(UserCanEditSubmissionMixin,
         return history
 
     def get_context_data(self, *args, **kwargs):
-        context = super(CreditHistoryView, self).get_context_data(
+        context = super(CreditSubmissionHistoryView,
+                        self).get_context_data(
             *args, **kwargs)
         history = self.get_history()
         context['history'] = history
@@ -494,26 +488,18 @@ class CreditHistoryView(UserCanEditSubmissionMixin,
         context['institution_has_full_access'] = (
             context['institution'].access_level == FULL_ACCESS)
 
-        context['outline'] = self.get_submissionset_nav()
-
         return context
 
 
-class CreditResourcesView(UserCanEditSubmissionMixin, TemplateView):
+class CreditSubmissionResourcesView(CreditSubmissionDetailView,
+                                    TemplateView):
 
     template_name = "tool/submissions/credit_resources.html"
 
-    def get_context_data(self, *args, **kwargs):
-        context = super(CreditResourcesView, self).get_context_data(
-            *args, **kwargs)
-        context['outline'] = self.get_submissionset_nav()
-        return context
 
+class CreditSubmissionReviewView(CreditSubmissionDetailView,
+                                 UpdateWithInlinesView):
 
-class CreditReviewView(UserCanEditSubmissionMixin,
-                       UpdateWithInlinesView):
-
-    model = CreditUserSubmission
     form_class = CreditReviewForm
     inlines = [CreditReviewNotationInlineFormSet]
 
@@ -522,28 +508,7 @@ class CreditReviewView(UserCanEditSubmissionMixin,
             return ["tool/submissions/credit_review_popup.html"]
         else:
             return ["tool/submissions/credit_review.html"]
-        return super(CreditReviewView, self).get_template_names()
-
-    def get_object(self):
-        return self.get_creditsubmission()
-
-    def get_context_data(self, *args, **kwargs):
-        context = super(CreditReviewView, self).get_context_data(
-            *args, **kwargs)
-        context['outline'] = self.get_submissionset_nav()
-        return context
-
-    # def get_form_kwargs(self):
-    #     kwargs = super(CreditReviewView, self).__init__(*args, **kwargs)
-
-    def forms_valid(self, form, inlines):
-
-        # TODO: is this required?
-        # self.object = form.save()
-        # for formset in inlines:
-        #     formset.save()
-
-        return super(CreditReviewView, self).forms_valid(form, inlines)
+        return super(CreditSubmissionReviewView, self).get_template_names()
 
 
 class AddResponsiblePartyView(UserCanEditSubmissionMixin, CreateView):
