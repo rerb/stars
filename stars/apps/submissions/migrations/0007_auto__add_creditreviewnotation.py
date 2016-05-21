@@ -12,9 +12,10 @@ class Migration(SchemaMigration):
         db.create_table('submissions_creditreviewnotation', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
             ('credit_user_submission', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['submissions.CreditUserSubmission'])),
-            ('kind', self.gf('django.db.models.fields.CharField')(max_length='32', null=True, blank=True)),
+            ('kind', self.gf('django.db.models.fields.CharField')(max_length='32')),
             ('comment', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
             ('send_email', self.gf('django.db.models.fields.BooleanField')(default=True)),
+            ('email_sent', self.gf('django.db.models.fields.BooleanField')(default=False)),
         ))
         db.send_create_signal('submissions', ['CreditReviewNotation'])
 
@@ -339,8 +340,9 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'CreditReviewNotation'},
             'comment': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'credit_user_submission': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['submissions.CreditUserSubmission']"}),
+            'email_sent': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'kind': ('django.db.models.fields.CharField', [], {'max_length': "'32'", 'null': 'True', 'blank': 'True'}),
+            'kind': ('django.db.models.fields.CharField', [], {'max_length': "'32'"}),
             'send_email': ('django.db.models.fields.BooleanField', [], {'default': 'True'})
         },
         'submissions.creditsubmission': {
