@@ -19,7 +19,7 @@ function jumpToSubcat(cat_id, sub_id) {
     // 1 Expand Category
     // 2 Expand Subcategory
     // 3 Jump to bookmark
-    
+
     jump = "ec_" + cat_id;
     cat_img = document.getElementById(jump);
     expandCollapse(cat_img, true);
@@ -36,10 +36,10 @@ function collapseSummary() {
     /**
         Collapses the summary outline but leaves a subcategory and category
         open if an anchor has been used
-        
+
         Anchors will be in the format "ec_<cat_id>" and "ec_<cat_id>_<sub_id>"
     **/
-    
+
     // Parse Anchor
     anchor = self.document.location.hash;
     cat = null;
@@ -81,50 +81,49 @@ function disable_select_options() {
 
 function addFormToFormset(prefix) {
 
-	total_forms = $('#id_' + prefix + '-TOTAL_FORMS').val();
-	// total_forms = document.getElementById('id_' + prefix + '-TOTAL_FORMS').value
+    total_forms = $('#id_' + prefix + '-TOTAL_FORMS').val();
 
     // Clone the chosen table
     table_selector = "#" + prefix + "_table" + (total_forms-1)
-	var clone = $(table_selector).clone(true);
-	
-	// Get the new id
-	total_forms++;
-	clone.attr({'id': prefix + "_table" + (total_forms-1)});
+    var clone = $(table_selector).clone(true);
+
+    // Get the new id
+    total_forms++;
+    clone.attr({'id': prefix + "_table" + (total_forms-1)});
     if( total_forms % 2 == 0 )
         clone.attr({'style': "background-color: #ddd"});
     else
         clone.attr({'style': "background-color: inherit"});
-	
-	if (total_forms > 1 ) {
-		// Update inputs
-		search_string = prefix + "-" + (total_forms - 2) + "-";
-		replace_string = prefix + "-" + (total_forms - 1) + "-";
-		
-		clone.find(':input').each(function() {
-	        var name = $(this).attr('name').replace(search_string, replace_string);
-	        var id = $(this).attr('id').replace("id_" + search_string, "id_" + replace_string);
-	        $(this).attr({'name': name, 'id': id}).val('').removeAttr('checked');
-	    });
-	    
-	    clone.find('label').each(function() {
-	        var id = $(this).attr('for').replace("id_" + search_string, "id_" + replace_string);
-	        $(this).attr({'id': id});
-	    });
-	    
-	    clone.find('select').each(function() {
-	        var name = $(this).attr('name').replace(search_string, replace_string);
-	        var id = $(this).attr('id').replace("id_" + search_string, "id_" + replace_string);
-	        $(this).attr({'name': name, 'id': id, 'selectedIndex': 0});
-	    });
-	    
-	    // Remove any errors
-	    clone.find('ul').each(function() {
-	    	if( $(this).attr('class') == "errorlist" )
-	    		$(this).remove();
-	    });
-	}
-	
-	$(table_selector).after(clone);
-	$('#id_' + prefix + '-TOTAL_FORMS').val(total_forms);
+
+    if (total_forms > 1 ) {
+        // Update inputs
+        search_string = prefix + "-" + (total_forms - 2) + "-";
+        replace_string = prefix + "-" + (total_forms - 1) + "-";
+
+        clone.find(':input').each(function() {
+            var name = $(this).attr('name').replace(search_string, replace_string);
+            var id = $(this).attr('id').replace("id_" + search_string, "id_" + replace_string);
+            $(this).attr({'name': name, 'id': id}).val('').removeAttr('checked');
+        });
+
+        clone.find('label').each(function() {
+            var id = $(this).attr('for').replace("id_" + search_string, "id_" + replace_string);
+            $(this).attr({'id': id});
+        });
+
+        clone.find('select').each(function() {
+            var name = $(this).attr('name').replace(search_string, replace_string);
+            var id = $(this).attr('id').replace("id_" + search_string, "id_" + replace_string);
+            $(this).attr({'name': name, 'id': id, 'selectedIndex': 0});
+        });
+
+        // Remove any errors
+        clone.find('ul').each(function() {
+            if( $(this).attr('class') == "errorlist" )
+                $(this).remove();
+        });
+    }
+
+    $(table_selector).after(clone);
+    $('#id_' + prefix + '-TOTAL_FORMS').val(total_forms);
 }
