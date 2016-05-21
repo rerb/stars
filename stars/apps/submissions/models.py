@@ -2932,13 +2932,12 @@ class CreditReviewNotation(models.Model):
 
     credit_user_submission = models.ForeignKey(CreditUserSubmission)
     kind = models.CharField(max_length="32",
-                            choices=CREDIT_REVIEW_NOTATION_KIND_CHOICES,
-                            blank=True, null=True)
+                            choices=CREDIT_REVIEW_NOTATION_KIND_CHOICES)
     comment = models.TextField(blank=True, null=True)
     send_email = models.BooleanField(blank=True, default=True)
+    email_sent = models.BooleanField(blank=True, default=False)
 
     def save(self, *args, **kwargs):
-
         new_credit_review_notification = not self.pk
 
         if self.pk:
