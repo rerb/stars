@@ -1722,7 +1722,7 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
             SubmissionSet is under review?
         """
         return (self.get_submissionset().is_under_review() and
-                self.submission_status is not UNLOCKED)
+                self.submission_status != UNLOCKED)
 
     def unlock(self):
         self.submission_status = UNLOCKED
