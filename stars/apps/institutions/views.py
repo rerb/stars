@@ -755,7 +755,7 @@ class SubmissionInquiryView(InstitutionStructureMixin,
         for formset in inlines:
             formset.save()
 
-#        Send confirmation email
+        # Send confirmation email
         email_to = [_context['institution'].contact_email]
         if not self.object.anonymous and self.object.email_address:
             email_to.append(self.object.email_address)
