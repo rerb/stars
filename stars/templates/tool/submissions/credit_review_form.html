@@ -1,0 +1,59 @@
+{% load bootstrap %}
+
+<div class="reviewContent">
+  <h2>Credit Review</h2>
+
+  <form id="creditReviewForm" method="post" action="." class="generalForm">
+    <div class="container span8">
+      <div class="row">
+        <div class="span8">
+          {{ form|bootstrap }}
+        </div>
+      </div>
+      <div class="row">
+        <div class="span8">
+          Review Notations
+        </div>
+      </div>
+      <br />
+      {% for formset in inlines %}
+        {% for form in formset.forms %}
+          <div class="container well span8">
+            <div class="row">
+              {{ form.id }}
+              <div class="span3">
+                {{ form.kind }}
+              </div>
+            </div>
+            <div class="row">
+              <div class="span8">
+                {{ form.comment }}
+              </div>
+            </div>
+            <div class="row">
+              <div class="span8">
+                {{ form.send_email }} Send Email
+                {% if form.instance.email_sent %}
+                  Again
+                {% endif %}
+                {% if form.instance.pk %}
+                  <div class="pull-right">
+                    {{ form.DELETE }} Delete
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          {{ formset.management_form }}
+        {% endfor %}
+      {% endfor %}
+      <div class="row span8">
+        <div class="form-actions">
+          <button type="submit" id="submit_button" class="btn btn-primary">
+            Save
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

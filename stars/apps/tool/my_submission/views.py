@@ -3,12 +3,13 @@ from itertools import chain
 
 from django.contrib import messages
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic import TemplateView
 from django.views.generic.edit import UpdateView, CreateView
 from django.db.models import Max, Q
 from django.contrib.formtools.wizard.views import SessionWizardView
 from django.core.files.storage import FileSystemStorage
+from extra_views import UpdateWithInlinesView
 
 from stars.apps.helpers.forms.forms import Confirm
 from stars.apps.institutions.models import FULL_ACCESS, MigrationHistory
@@ -28,14 +29,17 @@ from stars.apps.tool.mixins import (UserCanEditSubmissionMixin,
                                     UserCanEditSubmissionOrIsAdminMixin,
                                     SubmissionToolMixin)
 from stars.apps.tool.my_submission import credit_history
-from stars.apps.tool.my_submission.forms import (ApproveSubmissionForm,
-                                                 ContactsForm,
-                                                 CreditUserSubmissionForm,
-                                                 CreditUserSubmissionNotesForm,
-                                                 LetterForm,
-                                                 StatusForm,
-                                                 ResponsiblePartyForm,
-                                                 SubcategorySubmissionForm)
+from stars.apps.tool.my_submission.forms import (
+    ApproveSubmissionForm,
+    ContactsForm,
+    CreditReviewForm,
+    CreditReviewNotationInlineFormSet,
+    CreditUserSubmissionForm,
+    CreditUserSubmissionNotesForm,
+    LetterForm,
+    StatusForm,
+    ResponsiblePartyForm,
+    SubcategorySubmissionForm)
 from stars.apps.tool.my_submission.forms import NewBoundaryForm
 
 
@@ -504,6 +508,42 @@ class CreditResourcesView(UserCanEditSubmissionMixin, TemplateView):
             *args, **kwargs)
         context['outline'] = self.get_submissionset_nav()
         return context
+
+
+class CreditReviewView(UserCanEditSubmissionMixin,
+                       UpdateWithInlinesView):
+
+    model = CreditUserSubmission
+    form_class = CreditReviewForm
+    inlines = [CreditReviewNotationInlineFormSet]
+
+    def get_template_names(self):
+        if self.request.GET.get('popup', False):
+            return ["tool/submissions/credit_review_popup.html"]
+        else:
+            return ["tool/submissions/credit_review.html"]
+        return super(CreditReviewView, self).get_template_names()
+
+    def get_object(self):
+        return self.get_creditsubmission()
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(CreditReviewView, self).get_context_data(
+            *args, **kwargs)
+        context['outline'] = self.get_submissionset_nav()
+        return context
+
+    # def get_form_kwargs(self):
+    #     kwargs = super(CreditReviewView, self).__init__(*args, **kwargs)
+
+    def forms_valid(self, form, inlines):
+
+        # TODO: is this required?
+        # self.object = form.save()
+        # for formset in inlines:
+        #     formset.save()
+
+        return super(CreditReviewView, self).forms_valid(form, inlines)
 
 
 class AddResponsiblePartyView(UserCanEditSubmissionMixin, CreateView):

@@ -1,20 +1,21 @@
-from logging import getLogger
-import sys
 import string
+import sys
+from logging import getLogger
 
-from django.forms import ModelForm
-from django.forms.widgets import TextInput, ClearableFileInput, HiddenInput
 from django import forms
+from django.forms import ModelForm
 from django.forms.extras.widgets import SelectDateWidget
-from django.forms.util import ErrorList
 from django.utils.safestring import mark_safe
+from django.forms.util import ErrorList
+from django.forms.widgets import TextInput, ClearableFileInput, HiddenInput
+from extra_views import InlineFormSet
+from form_utils.forms import BetterModelForm
 
 from stars.apps.helpers.forms import fields as custom_fields
 from stars.apps.helpers.forms.forms import LocalizedModelFormMixin
 from stars.apps.helpers.forms.util import WarningList
 from stars.apps.submissions.models import *
 
-from form_utils.forms import BetterModelForm
 
 logger = getLogger('stars')
 
@@ -858,7 +859,9 @@ class SubmitSubmissionSetForm(LocalizedModelFormMixin, ModelForm):
     """
     class Meta:
         model = SubmissionSet
-        fields = ['reporter_status', 'submission_boundary', 'presidents_letter']
+        fields = ['reporter_status',
+                  'submission_boundary',
+                  'presidents_letter']
 
     def __init__(self, *args, **kwargs):
         super(SubmitSubmissionSetForm, self).__init__(*args, **kwargs)
@@ -877,7 +880,7 @@ class BoundaryForm(LocalizedModelFormMixin, ModelForm):
     """
     class Meta:
         model = SubmissionSet
-        fields = ['submission_boundary',]
+        fields = ['submission_boundary']
 
     def __init__(self, *args, **kwargs):
         super(BoundaryForm, self).__init__(*args, **kwargs)
@@ -898,7 +901,7 @@ class StatusForm(LocalizedModelFormMixin, ModelForm):
     """
     class Meta:
         model = SubmissionSet
-        fields = ['reporter_status',]
+        fields = ['reporter_status']
 
 
 class LetterForm(LocalizedModelFormMixin, ModelForm):
@@ -912,7 +915,8 @@ class LetterForm(LocalizedModelFormMixin, ModelForm):
     def clean_presidents_letter(self):
         data = self.cleaned_data['presidents_letter']
         if ('1-presidents_letter' in self.files.keys()
-            and self.files['1-presidents_letter'].content_type != 'application/pdf'
+            and (self.files['1-presidents_letter'].content_type !=
+                 'application/pdf')
             and 'test' not in sys.argv):
 
             raise forms.ValidationError("This doesn't seem to be a PDF file")
@@ -990,3 +994,32 @@ class ApproveSubmissionForm(LocalizedModelFormMixin, ModelForm):
         # This is just a confirmation form, no inputs, just
         # two buttons, Cancel and Submit.
         fields = []
+
+
+class CreditReviewForm(LocalizedModelFormMixin, ModelForm):
+    """
+    Records credit review info.
+    """
+
+    class Meta:
+        model = CreditUserSubmission
+        fields = ["review_conclusion"]
+
+
+class CreditReviewNotationForm(LocalizedModelFormMixin,
+                               ModelForm):
+
+    class Meta:
+        model = CreditReviewNotation
+        fields = ["kind", "comment", "send_email"]
+
+    def __init__(self, *args, **kwargs):
+        super(CreditReviewNotationForm, self).__init__(*args, **kwargs)
+        self.fields["comment"].widget.attrs["class"] = "row-fluid"
+
+
+class CreditReviewNotationInlineFormSet(InlineFormSet):
+    model = CreditReviewNotation
+    extra = 1
+    can_delete = True
+    form_class = CreditReviewNotationForm
