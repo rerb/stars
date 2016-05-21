@@ -11,3 +11,4 @@ celerybeat.pid
 stellar.yaml
 \#*\#
 *.flymake.py
+.idea
