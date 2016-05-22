@@ -3,7 +3,7 @@ import sys
 from logging import getLogger
 
 from django import forms
-from django.forms import ModelForm
+from django.forms import Form, ModelForm
 from django.forms.extras.widgets import SelectDateWidget
 from django.utils.safestring import mark_safe
 from django.forms.util import ErrorList
@@ -845,8 +845,11 @@ class CreditUserSubmissionNotesForm(LocalizedModelFormMixin, ModelForm):
     """
         A Form for storing internal notes about a Credit Submission
     """
-    internal_notes = forms.CharField(label="Only shared internally", widget=forms.Textarea(
-        attrs={'style': "width: 600px;height: 300px;"}), required=False)
+    internal_notes = forms.CharField(
+        label="Only shared internally",
+        widget=forms.Textarea(
+            attrs={'style': "width: 600px;height: 300px;"}),
+        required=False)
 
     class Meta:
         model = CreditUserSubmission
@@ -1021,3 +1024,14 @@ class CreditSubmissionReviewNotationInlineFormSet(InlineFormSet):
     extra = 1
     can_delete = True
     form_class = CreditSubmissionReviewNotationForm
+
+
+class SendCreditSubmissionReviewNotationsEmailForm(Form):
+
+    email_content = forms.CharField(
+        label="",
+        widget=forms.Textarea(
+            attrs={"style": "width: 628px; height: 700px"}))
+
+    class Meta:
+        fields = ["email_content"]

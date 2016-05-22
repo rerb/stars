@@ -1,0 +1,32 @@
+{% extends 'tool/submissions/credit_base.html' %}
+
+{% load bootstrap %}
+
+{% block credit_tabs %}
+  {% with active='review' %}
+    {{ block.super }}
+  {% endwith %}
+{% endblock %}
+
+{% block tab_content %}
+  <form id="sendCreditSubmissionReviewNotationsForm" method="post"
+        action="." class="generalForm">
+    <div class="container span8" style="padding-left: 50px">
+      <div class="row">
+        <h2>
+          Preview/Send Email
+        </h2>
+      </div>
+      <div class="row">
+        {{ form|bootstrap }}
+      </div>
+      <div class="row">
+        <div class="form-actions">
+          <button type="submit" id="submit_button" class="btn btn-primary">
+            Send
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+{% endblock %}

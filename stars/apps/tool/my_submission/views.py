@@ -1,11 +1,13 @@
 from datetime import datetime, date
 from itertools import chain
 
+from django.conf import settings
 from django.contrib import messages
+from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.views.generic import TemplateView
-from django.views.generic.edit import UpdateView, CreateView
+from django.views.generic.edit import CreateView, FormView, UpdateView
 from django.db.models import Max, Q
 from django.contrib.formtools.wizard.views import SessionWizardView
 from django.core.files.storage import FileSystemStorage
@@ -14,13 +16,16 @@ from extra_views import UpdateWithInlinesView
 from stars.apps.helpers.forms.forms import Confirm
 from stars.apps.institutions.models import FULL_ACCESS, MigrationHistory
 from stars.apps.notifications.models import EmailTemplate
-from stars.apps.submissions.models import (Boundary,
-                                           CreditUserSubmission,
-                                           RATING_VALID_PERIOD,
-                                           ResponsibleParty,
-                                           SUBMISSION_STATUSES,
-                                           SubcategorySubmission,
-                                           SubmissionSet)
+from stars.apps.notifications.utils import build_message
+from stars.apps.submissions.models import (
+    Boundary,
+    CREDIT_SUBMISSION_REVIEW_NOTATION_KINDS,
+    CreditUserSubmission,
+    RATING_VALID_PERIOD,
+    ResponsibleParty,
+    SUBMISSION_STATUSES,
+    SubcategorySubmission,
+    SubmissionSet)
 from stars.apps.submissions.tasks import (
     rollover_submission,
     send_email_with_certificate_attachment,
@@ -37,6 +42,7 @@ from stars.apps.tool.my_submission.forms import (
     CreditUserSubmissionForm,
     CreditUserSubmissionNotesForm,
     LetterForm,
+    SendCreditSubmissionReviewNotationsEmailForm,
     StatusForm,
     ResponsiblePartyForm,
     SubcategorySubmissionForm)
@@ -513,6 +519,89 @@ class CreditSubmissionReviewView(CreditSubmissionDetailView,
         else:
             return ["tool/submissions/credit_submission_review.html"]
         return super(CreditSubmissionReviewView, self).get_template_names()
+
+
+class SendCreditSubmissionReviewNotationEmailView(UserCanEditSubmissionMixin,
+                                                  FormView):
+
+    form_class = SendCreditSubmissionReviewNotationsEmailForm
+    template_name = (
+        "tool/submissions/send_credit_submission_review_notations_email.html")
+
+    def get_initial(self):
+        initial = super(SendCreditSubmissionReviewNotationEmailView,
+                        self).get_initial()
+        initial["email_content"] = self.get_email_content()
+        return initial
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(SendCreditSubmissionReviewNotationEmailView,
+                        self).get_context_data(*args, **kwargs)
+        context["outline"] = self.get_submissionset_nav()
+        return context
+
+    def get_email_content(self):
+        self.credit_submission = self.get_creditsubmission()
+        self.notations_to_send = (
+            self.credit_submission.creditsubmissionreviewnotation_set.filter(
+                send_email=True))
+        self.institution = (
+            self.credit_submission.get_submissionset().institution)
+
+        context = {}
+
+        context["institution"] = self.institution
+
+        context["best_practices"] = self.notations_to_send.filter(
+            kind=CREDIT_SUBMISSION_REVIEW_NOTATION_KINDS["BEST_PRACTICE"])
+        context["revision_requests"] = self.notations_to_send.filter(
+            kind=CREDIT_SUBMISSION_REVIEW_NOTATION_KINDS["REVISION_REQUEST"])
+        context["suggestions_for_improvement"] = self.notations_to_send.filter(
+            kind=CREDIT_SUBMISSION_REVIEW_NOTATION_KINDS[
+                "SUGGESTION_FOR_IMPROVEMENT"])
+
+        context["my_submission_url"] = (
+            self.credit_submission.get_submissionset().get_submit_url())
+
+        context["sincerely_from"] = self.request.user.get_full_name()
+
+        with open((settings.TEMPLATE_DIRS[0] +
+                   "/tool/submissions/" +
+                   "credit_submission_review_notations_email.html"),
+                  "rb") as content:
+
+            email_content = build_message(content.read(), context)
+
+        return email_content
+
+    def form_valid(self, form):
+        # Send the mail:
+        self.send_mail(institution=self.institution,
+                       content=form.cleaned_data["email_content"])
+        # Mark the notations as sent:
+        for notation in self.notations_to_send:
+            notation.email_sent = True
+            notation.send_email = False
+            notation.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+    def send_mail(self, institution, content):
+        subject = "AASHE Staff Review Results: {inst} STARS Report".format(
+            inst=str(institution))
+        message = EmailMessage(
+            subject=subject,
+            body=content,
+            from_email="stars-reviewers@aashe.org",
+            to=[institution.contact_email],
+            cc=["stars-reviewers@aashe.org"],
+            bcc=["bob@aashe.org"],
+            headers={"Reply-To": "stars-reviewers@aashe.org"})
+        # We send HTML mail only.
+        message.content_subtype = "html"
+        message.send()
+
+    def get_success_url(self):
+        return self.credit_submission.get_submit_url()
 
 
 class AddResponsiblePartyView(UserCanEditSubmissionMixin, CreateView):
