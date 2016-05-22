@@ -1684,26 +1684,36 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
         if calculate_points:
             self.assessed_points = float(self._calculate_points())
 
-        # When submission_status goes from UNLOCKED to something else,
-        # we need to send some mail.  To compare the present value
-        # with the new, we need to pull the present submission_status
-        # out of the db. Further on, we'll compare it to the
-        # new_boundary value and send some mail if it flipped from
-        # UNLOCKED to something else.
-        previous_submission_status = (
-            CreditUserSubmission.objects.get(pk=self.pk).submission_status
-            # We don't care if the new submission_status is UNLOCKED,
-            # so don't hit the db when it is.
-            if self.submission_status != UNLOCKED
-            else None)
+        # When this submission's SubmissionSet is under review and
+        # this submission's submission_status goes from UNLOCKED to
+        # something else, we need to send some mail.  To compare the
+        # present value with the new, we need to pull the present
+        # submission_status out of the db. Further on, we'll compare
+        # it to the new submission_status value and send some mail if
+        # it flipped from UNLOCKED to something else.
+        submissionset = self.get_submissionset()
+
+        current_submission_status = (
+            CreditUserSubmission.objects.get(pk=self.pk).submission_status)
+
+        previous_submission_status = current_submission_status
+
+        # If the current submission_status of this submission is UNLOCKED,
+        # and the new submission_status is IN_PROGRESS, we don't really
+        # want to save the new value.  We want the keep the submission
+        # UNLOCKED:
+        if (self.submission_status == IN_PROGRESS and
+            current_submission_status == UNLOCKED):
+
+            self.submission_status = UNLOCKED
 
         super(CreditUserSubmission, self).save(*args, **kwargs)
 
-        if (previous_submission_status == UNLOCKED and
+        if (submissionset.is_under_review() and
+            previous_submission_status == UNLOCKED and
             self.submission_status != UNLOCKED):
 
-            self.send_unlocked_credit_submission_updated_email(
-                self.get_submission_status_display())
+            self.send_unlocked_credit_submission_updated_email()
 
     def is_complete(self):
         return self.submission_status == COMPLETE
@@ -1765,17 +1775,14 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
 
         return assessed_points
 
-    def send_unlocked_credit_submission_updated_email(
-            self,
-            previous_submission_status):
+    def send_unlocked_credit_submission_updated_email(self):
         """ Send email to let STARS reviewers know a credit submission
             has just been unlocked.
         """
         email_template = EmailTemplate.objects.get(
             slug="unlocked_credit_sub_just_updated")
-        mail_to = ["stars@aashe.org"]
+        mail_to = ["stars-reviewers@aashe.org"]
         email_context = {
-            "previous_submission_status": previous_submission_status,
             "credit_user_submission": self,
             "institution": self.get_submissionset().institution}
         email_template.send_email(mail_to, email_context)
