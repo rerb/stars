@@ -20,6 +20,7 @@ from stars.apps.notifications.utils import build_message
 from stars.apps.submissions.models import (
     Boundary,
     CREDIT_SUBMISSION_REVIEW_NOTATION_KINDS,
+    CreditSubmissionReviewNotation,
     CreditUserSubmission,
     RATING_VALID_PERIOD,
     ResponsibleParty,
@@ -411,9 +412,11 @@ class CreditSubmissionDetailView(UserCanEditSubmissionMixin):
             self.get_creditsubmission().is_locked())
 
         if self.get_submissionset().is_under_review():
+            submissionset = self.get_object().get_submissionset()
             context['num_notations_to_send'] = (
-                self.get_object().creditsubmissionreviewnotation_set.filter(
-                    send_email=True).count())
+                CreditSubmissionReviewNotation.objects.filter(
+                    send_email=True,
+                    credit_user_submission__subcategory_submission__category_submission__submissionset=submissionset).count())
 
         return context
 
@@ -542,11 +545,13 @@ class SendCreditSubmissionReviewNotationEmailView(UserCanEditSubmissionMixin,
 
     def get_email_content(self):
         self.credit_submission = self.get_creditsubmission()
+        self.submissionset = self.get_submissionset()
         self.notations_to_send = (
-            self.credit_submission.creditsubmissionreviewnotation_set.filter(
-                send_email=True))
-        self.institution = (
-            self.credit_submission.get_submissionset().institution)
+            CreditSubmissionReviewNotation.objects.filter(
+                send_email=True,
+                credit_user_submission__subcategory_submission__category_submission__submissionset=self.submissionset).order_by(
+                    "credit_user_submission__credit"))
+        self.institution = self.submissionset.institution
 
         context = {}
 
@@ -561,7 +566,7 @@ class SendCreditSubmissionReviewNotationEmailView(UserCanEditSubmissionMixin,
                 "SUGGESTION_FOR_IMPROVEMENT"])
 
         context["my_submission_url"] = (
-            self.credit_submission.get_submissionset().get_submit_url())
+            self.submissionset.get_submit_url())
 
         context["sincerely_from"] = self.request.user.get_full_name()
 
@@ -594,14 +599,13 @@ class SendCreditSubmissionReviewNotationEmailView(UserCanEditSubmissionMixin,
             from_email="stars-reviewers@aashe.org",
             to=[institution.contact_email],
             cc=["stars-reviewers@aashe.org"],
-            bcc=["bob@aashe.org"],
             headers={"Reply-To": "stars-reviewers@aashe.org"})
         # We send HTML mail only.
         message.content_subtype = "html"
         message.send()
 
     def get_success_url(self):
-        return self.credit_submission.get_submit_url()
+        return self.submissionset.get_submit_url()
 
 
 class AddResponsiblePartyView(UserCanEditSubmissionMixin, CreateView):
