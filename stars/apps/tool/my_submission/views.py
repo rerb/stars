@@ -13,6 +13,7 @@ from django.contrib.formtools.wizard.views import SessionWizardView
 from django.core.files.storage import FileSystemStorage
 from extra_views import UpdateWithInlinesView
 
+from stars.apps.accounts.mixins import IsStaffMixin
 from stars.apps.helpers.forms.forms import Confirm
 from stars.apps.institutions.models import FULL_ACCESS, MigrationHistory
 from stars.apps.notifications.models import EmailTemplate
@@ -297,7 +298,9 @@ class SubmitSuccessView(SubmissionToolMixin, TemplateView):
         return super(SubmitSuccessView, self).get(*args, **kwargs)
 
 
-class ApproveSubmissionView(SubmissionToolMixin, UpdateView):
+class ApproveSubmissionView(SubmissionToolMixin,
+                            IsStaffMixin,
+                            UpdateView):
 
     model = SubmissionSet
     template_name = 'tool/submissions/approve_submission_confirmation.html'
@@ -511,6 +514,7 @@ class CreditSubmissionResourcesView(CreditSubmissionDetailView,
 
 
 class CreditSubmissionReviewView(CreditSubmissionDetailView,
+                                 IsStaffMixin,
                                  UpdateWithInlinesView):
 
     form_class = CreditSubmissionReviewForm
@@ -524,7 +528,8 @@ class CreditSubmissionReviewView(CreditSubmissionDetailView,
         return super(CreditSubmissionReviewView, self).get_template_names()
 
 
-class SendCreditSubmissionReviewNotationEmailView(UserCanEditSubmissionMixin,
+class SendCreditSubmissionReviewNotationEmailView(SubmissionToolMixin,
+                                                  IsStaffMixin,
                                                   FormView):
 
     form_class = SendCreditSubmissionReviewNotationsEmailForm
