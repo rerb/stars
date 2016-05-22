@@ -544,6 +544,9 @@ class SendCreditSubmissionReviewNotationEmailView(UserCanEditSubmissionMixin,
         return context
 
     def get_email_content(self):
+        email_template = ("/tool/submissions/" +
+                          "credit_submission_review_notations_email.html")
+
         self.credit_submission = self.get_creditsubmission()
         self.submissionset = self.get_submissionset()
         self.notations_to_send = (
@@ -570,19 +573,16 @@ class SendCreditSubmissionReviewNotationEmailView(UserCanEditSubmissionMixin,
 
         context["sincerely_from"] = self.request.user.get_full_name()
 
-        with open((settings.TEMPLATE_DIRS[0] +
-                   "/tool/submissions/" +
-                   "credit_submission_review_notations_email.html"),
-                  "rb") as content:
-
-            email_content = build_message(content.read(), context)
+        with open(settings.TEMPLATE_DIRS[0] + email_template,
+                  "rb") as template:
+            email_content = build_message(template.read(), context)
 
         return email_content
 
     def form_valid(self, form):
         # Send the mail:
-        self.send_mail(institution=self.institution,
-                       content=form.cleaned_data["email_content"])
+        self.send_email(institution=self.institution,
+                        content=form.cleaned_data["email_content"])
         # Mark the notations as sent:
         for notation in self.notations_to_send:
             notation.email_sent = True
@@ -590,7 +590,7 @@ class SendCreditSubmissionReviewNotationEmailView(UserCanEditSubmissionMixin,
             notation.save()
         return HttpResponseRedirect(self.get_success_url())
 
-    def send_mail(self, institution, content):
+    def send_email(self, institution, content):
         subject = "AASHE Staff Review Results: {inst} STARS Report".format(
             inst=str(institution))
         message = EmailMessage(

@@ -13,6 +13,7 @@ from django.contrib.localflavor.us.models import PhoneNumberField
 from django.core import urlresolvers
 from django.core.cache import cache
 from django.core.files.uploadedfile import InMemoryUploadedFile
+from django.core.mail import EmailMessage
 from django.db import models
 from django.db.models import Q
 
@@ -25,6 +26,7 @@ from stars.apps.institutions.models import (BASIC_ACCESS,
                                             ClimateZone,
                                             Institution)
 from stars.apps.notifications.models import EmailTemplate
+from stars.apps.notifications.utils import build_message
 from stars.apps.submissions.export.pdf import build_report_pdf
 
 
@@ -1779,13 +1781,33 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
         """ Send email to let STARS reviewers know a credit submission
             has just been unlocked.
         """
-        email_template = EmailTemplate.objects.get(
-            slug="unlocked_credit_sub_just_updated")
-        mail_to = ["stars-reviewers@aashe.org"]
-        email_context = {
-            "credit_user_submission": self,
-            "institution": self.get_submissionset().institution}
-        email_template.send_email(mail_to, email_context)
+        email_template = (
+            "/tool/submissions/unlocked_credit_submission_updated_email.html")
+
+        institution = self.get_submissionset().institution
+
+        subject = ("Unlocked Credit Submission Updated: "
+                   "{institution}: {credit}".format(
+                       institution=institution,
+                       credit=self.credit))
+
+        email_context = {"credit_user_submission": self,
+                         "institution": institution}
+
+        with open(settings.TEMPLATE_DIRS[0] + email_template,
+                  "rb") as template:
+            email_content = build_message(template.read(), email_context)
+
+        email_message = EmailMessage(
+            subject=subject,
+            body=email_content,
+            from_email="stars-reviewers@aashe.org",
+            to=["stars-reviewers@aashe.org"],
+            headers={"Reply-To": "stars-reviewers@aashe.org"})
+
+        email_message.content_subtype = "html"
+
+        email_message.send()
 
 
 class CreditTestSubmission(CreditSubmission):
