@@ -996,30 +996,28 @@ class ApproveSubmissionForm(LocalizedModelFormMixin, ModelForm):
         fields = []
 
 
-class CreditReviewForm(LocalizedModelFormMixin, ModelForm):
-    """
-    Records credit review info.
-    """
+class CreditSubmissionReviewForm(LocalizedModelFormMixin, ModelForm):
 
     class Meta:
         model = CreditUserSubmission
         fields = ["review_conclusion"]
 
 
-class CreditReviewNotationForm(LocalizedModelFormMixin,
-                               ModelForm):
+class CreditSubmissionReviewNotationForm(LocalizedModelFormMixin,
+                                         ModelForm):
 
     class Meta:
-        model = CreditReviewNotation
+        model = CreditSubmissionReviewNotation
         fields = ["kind", "comment", "send_email"]
 
     def __init__(self, *args, **kwargs):
-        super(CreditReviewNotationForm, self).__init__(*args, **kwargs)
+        super(CreditSubmissionReviewNotationForm, self).__init__(*args,
+                                                                 **kwargs)
         self.fields["comment"].widget.attrs["class"] = "row-fluid"
 
 
-class CreditReviewNotationInlineFormSet(InlineFormSet):
-    model = CreditReviewNotation
+class CreditSubmissionReviewNotationInlineFormSet(InlineFormSet):
+    model = CreditSubmissionReviewNotation
     extra = 1
     can_delete = True
-    form_class = CreditReviewNotationForm
+    form_class = CreditSubmissionReviewNotationForm

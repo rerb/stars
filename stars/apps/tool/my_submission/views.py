@@ -32,8 +32,8 @@ from stars.apps.tool.my_submission import credit_history
 from stars.apps.tool.my_submission.forms import (
     ApproveSubmissionForm,
     ContactsForm,
-    CreditReviewForm,
-    CreditReviewNotationInlineFormSet,
+    CreditSubmissionReviewForm,
+    CreditSubmissionReviewNotationInlineFormSet,
     CreditUserSubmissionForm,
     CreditUserSubmissionNotesForm,
     LetterForm,
@@ -400,8 +400,14 @@ class CreditSubmissionDetailView(UserCanEditSubmissionMixin):
             *args, **kwargs)
 
         context['outline'] = self.get_submissionset_nav()
+
         context['credit_submission_locked'] = (
             self.get_creditsubmission().is_locked())
+
+        if self.get_submissionset().is_under_review():
+            context['num_notations_to_send'] = (
+                self.get_object().creditsubmissionreviewnotation_set.filter(
+                    send_email=True).count())
 
         return context
 
@@ -435,13 +441,11 @@ class CreditSubmissionReportingFieldsView(CreditSubmissionDetailView,
 class CreditSubmissionDocumentationView(CreditSubmissionDetailView,
                                         TemplateView):
 
-    template_name = "tool/submissions/credit_info.html"
-
     def get_template_names(self):
         if self.request.GET.get('popup', False):
             return ["tool/submissions/credit_info_popup.html"]
-        return super(CreditSubmissionDocumentationView,
-                     self).get_template_names()
+        else:
+            return ["tool/submissions/credit_info.html"]
 
 
 class CreditSubmissionNotesView(CreditSubmissionDetailView,
@@ -500,14 +504,14 @@ class CreditSubmissionResourcesView(CreditSubmissionDetailView,
 class CreditSubmissionReviewView(CreditSubmissionDetailView,
                                  UpdateWithInlinesView):
 
-    form_class = CreditReviewForm
-    inlines = [CreditReviewNotationInlineFormSet]
+    form_class = CreditSubmissionReviewForm
+    inlines = [CreditSubmissionReviewNotationInlineFormSet]
 
     def get_template_names(self):
         if self.request.GET.get('popup', False):
-            return ["tool/submissions/credit_review_popup.html"]
+            return ["tool/submissions/credit_submission_review_popup.html"]
         else:
-            return ["tool/submissions/credit_review.html"]
+            return ["tool/submissions/credit_submission_review.html"]
         return super(CreditSubmissionReviewView, self).get_template_names()
 
 
@@ -528,5 +532,4 @@ class AddResponsiblePartyView(UserCanEditSubmissionMixin, CreateView):
         return self.response_class(
             request=self.request,
             template=["tool/submissions/responsible_party_redirect.html"],
-            context={'rp': self.object}
-        )
+            context={'rp': self.object})

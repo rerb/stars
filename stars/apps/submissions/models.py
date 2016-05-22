@@ -2916,40 +2916,45 @@ class SubcategoryQuartiles(models.Model):
         self.save()
 
 
-CREDIT_REVIEW_NOTATION_KINDS = {
+CREDIT_SUBMISSION_REVIEW_NOTATION_KINDS = {
     "BEST_PRACTICE": "best-practice",
     "REVISION_REQUEST": "revision-request",
     "SUGGESTION_FOR_IMPROVEMENT": "suggestion-for-improvement"}
 
-CREDIT_REVIEW_NOTATION_KIND_CHOICES = (
-    (CREDIT_REVIEW_NOTATION_KINDS["BEST_PRACTICE"], "Best Practice"),
-    (CREDIT_REVIEW_NOTATION_KINDS["REVISION_REQUEST"], "Revision Request"),
-    (CREDIT_REVIEW_NOTATION_KINDS["SUGGESTION_FOR_IMPROVEMENT"],
-         "Suggestion For Improvement"))
+CREDIT_SUBMISSION_REVIEW_NOTATION_KIND_CHOICES = (
+    (CREDIT_SUBMISSION_REVIEW_NOTATION_KINDS["BEST_PRACTICE"],
+     "Best Practice"),
+    (CREDIT_SUBMISSION_REVIEW_NOTATION_KINDS["REVISION_REQUEST"],
+     "Revision Request"),
+    (CREDIT_SUBMISSION_REVIEW_NOTATION_KINDS["SUGGESTION_FOR_IMPROVEMENT"],
+     "Suggestion For Improvement"))
 
 
-class CreditReviewNotation(models.Model):
+class CreditSubmissionReviewNotation(models.Model):
 
     credit_user_submission = models.ForeignKey(CreditUserSubmission)
-    kind = models.CharField(max_length="32",
-                            choices=CREDIT_REVIEW_NOTATION_KIND_CHOICES)
+    kind = models.CharField(
+        max_length="32",
+        choices=CREDIT_SUBMISSION_REVIEW_NOTATION_KIND_CHOICES)
     comment = models.TextField(blank=True, null=True)
     send_email = models.BooleanField(blank=True, default=True)
     email_sent = models.BooleanField(blank=True, default=False)
 
     def save(self, *args, **kwargs):
-        new_credit_review_notification = not self.pk
+        new_credit_submission_review_notification = not self.pk
 
         if self.pk:
-            # Don't let the kind of this CreditReviewNotation change.
-            self.kind = CreditReviewNotation.objects.get(pk=self.pk).kind
+            # Don't let the kind of this CreditSubmissionReviewNotation change.
+            self.kind = (
+                CreditSubmissionReviewNotation.objects.get(pk=self.pk).kind)
 
-        super(CreditReviewNotation, self).save(*args, **kwargs)
+        super(CreditSubmissionReviewNotation, self).save(*args, **kwargs)
 
-        if (new_credit_review_notification and
+        if (new_credit_submission_review_notification and
             self.kind in (
-                CREDIT_REVIEW_NOTATION_KINDS["REVISION_REQUEST"],
-                CREDIT_REVIEW_NOTATION_KINDS["SUGGESTION_FOR_IMPROVEMENT"])):
+                CREDIT_SUBMISSION_REVIEW_NOTATION_KINDS["REVISION_REQUEST"],
+                CREDIT_SUBMISSION_REVIEW_NOTATION_KINDS[
+                    "SUGGESTION_FOR_IMPROVEMENT"])):
 
             if self.credit_user_submission.is_locked():
                 self.credit_user_submission.unlock()
