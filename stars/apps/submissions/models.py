@@ -1577,7 +1577,7 @@ CREDIT_SUBMISSION_STATUS_ICONS = {
     IN_PROGRESS: ('icon-pencil', '...'),
     NOT_PURSUING: ('icon-remove', '-'),
     NOT_APPLICABLE: ('icon-tag', '-'),
-    UNLOCKED: ('icon-lock', 'r')
+    UNLOCKED: ('icon-star', 'r')
 }
 
 REVIEW_CONCLUSIONS = {
