@@ -57,7 +57,12 @@
     </thead>
     <tbody>
       <tr>
-        <td>{% show_status_icon credit_submission %}</td>
+        <td>
+          {% if credit_submission_locked %}
+            <i class="icon-lock"></i>
+          {% endif %}
+          {% show_status_icon credit_submission %}
+        </td>
         <td>{{ credit_submission.last_updated|date:"m/d/y fA" }}</td>
         {% testrule institution_has_score_feature institution %}
           {% if category.include_in_score %}
