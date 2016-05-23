@@ -622,7 +622,7 @@ class SendCreditSubmissionReviewNotationEmailView(SubmissionToolMixin,
         message.send()
 
     def get_success_url(self):
-        return self.submissionset.get_submit_url()
+        return self.credit_submission.get_submit_url() + "review"
 
 
 class AddResponsiblePartyView(UserCanEditSubmissionMixin, CreateView):
