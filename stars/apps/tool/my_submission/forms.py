@@ -1001,9 +1001,20 @@ class ApproveSubmissionForm(LocalizedModelFormMixin, ModelForm):
 
 class CreditSubmissionReviewForm(LocalizedModelFormMixin, ModelForm):
 
+    # unlock_credit_submission = forms.BooleanField()
+
     class Meta:
         model = CreditUserSubmission
         fields = ["review_conclusion"]
+
+    # def __init__(self, *args, **kwargs):
+    #     super(CreditSubmissionReviewForm, self).__init__(*args, **kwargs)
+    #     self.fields["unlock_credit_submission"].required = False
+    #     self.fields["unlock_credit_submission"].initial = (
+    #         not self.instance.is_locked())
+    #     if not self.instance.is_locked():
+    #         self.fields["unlock_credit_submission"].widget.attrs.update(
+    #             {"disabled": "disabled"})
 
 
 class CreditSubmissionReviewNotationForm(LocalizedModelFormMixin,
