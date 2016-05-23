@@ -521,11 +521,23 @@ class CreditSubmissionReviewView(CreditSubmissionDetailView,
     inlines = [CreditSubmissionReviewNotationInlineFormSet]
 
     def get_template_names(self):
-        if self.request.GET.get('popup', False):
+        if self.request.GET.get("popup", False):
             return ["tool/submissions/credit_submission_review_popup.html"]
         else:
             return ["tool/submissions/credit_submission_review.html"]
         return super(CreditSubmissionReviewView, self).get_template_names()
+
+    def get_context_data(self, **kwargs):
+        context = super(CreditSubmissionReviewView, self).get_context_data(
+            **kwargs)
+        context["popup"] = self.request.GET.get("popup", "")
+        return context
+
+    def get_success_url(self):
+        url = super(CreditSubmissionReviewView, self).get_success_url()
+        if self.request.POST.get("popup", False):
+            url += "?popup=True"
+        return url
 
 
 class SendCreditSubmissionReviewNotationEmailView(SubmissionToolMixin,
