@@ -2233,6 +2233,14 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
                 elif self.documentation_field.type == "choice":
                     return self.value.choice
 
+                elif self.documentation_field.type == "multichoice":
+                    value = ""
+                    for choice in self.value.all():
+                        if value:
+                            value += "|"
+                        value += str(choice)
+                    return value
+
                 else:
                     return self.value
 
