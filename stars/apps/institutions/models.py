@@ -318,9 +318,12 @@ class Institution(models.Model):
                     credit=ib_credit).get(
                         subcategory_submission__category_submission__submissionset=submission)
 
-                sf = [sf for sf in cus.get_submission_fields()
-                      if sf.documentation_field.title.lower() ==
-                      'institution type'][0]
+                try:
+                    sf = [sf for sf in cus.get_submission_fields()
+                          if sf.documentation_field.title.lower() ==
+                          'institution type'][0]
+                except IndexError:  # No institution type submission field.
+                    return carnegie_class
 
                 if sf.get_human_value():
                     return sf.get_human_value()
