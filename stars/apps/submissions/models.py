@@ -1696,7 +1696,8 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
         submissionset = self.get_submissionset()
 
         current_submission_status = (
-            CreditUserSubmission.objects.get(pk=self.pk).submission_status)
+                CreditUserSubmission.objects.get(pk=self.pk).submission_status
+            if self.pk else None)
 
         previous_submission_status = current_submission_status
 
