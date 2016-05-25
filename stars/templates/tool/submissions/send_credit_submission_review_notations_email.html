@@ -1,0 +1,50 @@
+{% extends 'tool/submissions/credit_base.html' %}
+
+{% load bootstrap %}
+
+{% block extra_head %}
+  {% block tinymce %}
+    <script type="text/javascript"
+            src="{{ STATIC_URL }}tp/tinymce/js/tinymce/tinymce.min.js">
+    </script>
+    <script type="text/javascript">
+     tinymce.init({plugins: "link paste table,",
+                   tools: "inserttable",
+                   convert_urls : false,
+                   selector: "textarea:not(.noMCE)"});
+    </script>
+  {% endblock %}
+{% endblock %}
+
+{% block credit_tabs %}
+  {% with active='review' %}
+    {{ block.super }}
+  {% endwith %}
+{% endblock %}
+
+{% block tab_content %}
+  <form id="sendCreditSubmissionReviewNotationsForm" method="post"
+        action="." class="generalForm">
+    <div class="container span8" style="padding-left: 50px">
+      <div class="row">
+        <h2>
+          Preview/Send Email
+        </h2>
+      </div>
+      <div class="row">
+        {{ form|bootstrap }}
+      </div>
+      <div class="row">
+        <div class="form-actions">
+          <button type="submit" id="submit_button" class="btn btn-primary">
+            Send
+          </button>
+          <button onclick="window.history.back();"
+                  class="btn btn-default">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+{% endblock %}

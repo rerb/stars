@@ -285,8 +285,18 @@ function get_selected_button(nodeList) {
     return null;
 }
 
-function open_popup(url, name) {
-    win = window.open(url, name, 'height=500,width=670,resizable=yes,scrollbars=yes');
+function open_popup(url, name, height, width) {
+    if (!height) {
+        height = 500;
+    }
+    if (!width) {
+        width = 670;
+    }
+    win = window.open(url,
+                      name,
+                      'height=' + height +
+                      ',width=' + width +
+                      ',resizable=yes,scrollbars=yes');
     win.focus();
     return false;
 }

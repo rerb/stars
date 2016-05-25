@@ -3,8 +3,8 @@ from save_snapshot import SaveSnapshot
 from forms import (LongTextSubmissionFormTest,
                    NumericSubmissionFormTest,
                    TextSubmissionFormTest)
-from views import (CreditHistoryViewTest,
-                   CreditNotesViewTest,
+from views import (CreditSubmissionHistoryViewTest,
+                   CreditSubmissionNotesViewTest,
                    EditBoundaryViewTest,
                    SubmissionSummaryViewTest)
 from credit_history import GetSubmissionsetsToIncludeInHistoryTest

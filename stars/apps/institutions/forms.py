@@ -41,7 +41,7 @@ class CreditSubmissionInquiryForm(ModelForm):
 
     class Meta:
         model = CreditSubmissionInquiry
-        exclude = ['submission_inquiry', ]
+        exclude = ['submission_inquiry']
 
     def __init__(self, creditset=None, *args, **kwargs):
         """ Use a specific creditset to populate the choices """
@@ -65,14 +65,16 @@ class CreditSubmissionInquiryFormSet(InlineFormSet):
         """
         return {"creditset": self.view.get_creditset()}
 
+
 class DataCorrectionRequestForm(ModelForm):
-    
+
     class Meta:
         model = DataCorrectionRequest
-        exclude = ['reporting_field', 'object_id', 'content_type', 'user', 'approved']
-        
+        exclude = ['reporting_field', 'object_id', 'content_type',
+                   'user', 'approved']
+
     def __init__(self, creditset=None, *args, **kwargs):
-        
+
         super(DataCorrectionRequestForm, self).__init__(*args, **kwargs)
-        
+
         self.fields['new_value'].label = "New Text:"

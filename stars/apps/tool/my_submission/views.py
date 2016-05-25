@@ -1,25 +1,33 @@
 from datetime import datetime, date
 from itertools import chain
 
+from django.conf import settings
 from django.contrib import messages
+from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.views.generic import TemplateView
-from django.views.generic.edit import UpdateView, CreateView
+from django.views.generic.edit import CreateView, FormView, UpdateView
 from django.db.models import Max, Q
 from django.contrib.formtools.wizard.views import SessionWizardView
 from django.core.files.storage import FileSystemStorage
+from extra_views import UpdateWithInlinesView
 
+from stars.apps.accounts.mixins import IsStaffMixin
 from stars.apps.helpers.forms.forms import Confirm
 from stars.apps.institutions.models import FULL_ACCESS, MigrationHistory
 from stars.apps.notifications.models import EmailTemplate
-from stars.apps.submissions.models import (Boundary,
-                                           CreditUserSubmission,
-                                           RATING_VALID_PERIOD,
-                                           ResponsibleParty,
-                                           SUBMISSION_STATUSES,
-                                           SubcategorySubmission,
-                                           SubmissionSet)
+from stars.apps.notifications.utils import build_message
+from stars.apps.submissions.models import (
+    Boundary,
+    CREDIT_SUBMISSION_REVIEW_NOTATION_KINDS,
+    CreditSubmissionReviewNotation,
+    CreditUserSubmission,
+    RATING_VALID_PERIOD,
+    ResponsibleParty,
+    SUBMISSION_STATUSES,
+    SubcategorySubmission,
+    SubmissionSet)
 from stars.apps.submissions.tasks import (
     rollover_submission,
     send_email_with_certificate_attachment,
@@ -28,14 +36,18 @@ from stars.apps.tool.mixins import (UserCanEditSubmissionMixin,
                                     UserCanEditSubmissionOrIsAdminMixin,
                                     SubmissionToolMixin)
 from stars.apps.tool.my_submission import credit_history
-from stars.apps.tool.my_submission.forms import (ApproveSubmissionForm,
-                                                 ContactsForm,
-                                                 CreditUserSubmissionForm,
-                                                 CreditUserSubmissionNotesForm,
-                                                 LetterForm,
-                                                 StatusForm,
-                                                 ResponsiblePartyForm,
-                                                 SubcategorySubmissionForm)
+from stars.apps.tool.my_submission.forms import (
+    ApproveSubmissionForm,
+    ContactsForm,
+    CreditSubmissionReviewForm,
+    CreditSubmissionReviewNotationInlineFormSet,
+    CreditUserSubmissionForm,
+    CreditUserSubmissionNotesForm,
+    LetterForm,
+    SendCreditSubmissionReviewNotationsEmailForm,
+    StatusForm,
+    ResponsiblePartyForm,
+    SubcategorySubmissionForm)
 from stars.apps.tool.my_submission.forms import NewBoundaryForm
 
 
@@ -286,7 +298,9 @@ class SubmitSuccessView(SubmissionToolMixin, TemplateView):
         return super(SubmitSuccessView, self).get(*args, **kwargs)
 
 
-class ApproveSubmissionView(SubmissionToolMixin, UpdateView):
+class ApproveSubmissionView(SubmissionToolMixin,
+                            IsStaffMixin,
+                            UpdateView):
 
     model = SubmissionSet
     template_name = 'tool/submissions/approve_submission_confirmation.html'
@@ -350,9 +364,8 @@ class ApproveSubmissionView(SubmissionToolMixin, UpdateView):
         return url
 
 
-class SubcategorySubmissionDetailView(
-        UserCanEditSubmissionOrIsAdminMixin,
-        UpdateView):
+class SubcategorySubmissionDetailView(UserCanEditSubmissionOrIsAdminMixin,
+                                      UpdateView):
 
     model = SubcategorySubmission
     template_name = 'tool/submissions/subcategory.html'
@@ -385,14 +398,37 @@ class SubcategorySubmissionDetailView(
         return super(SubcategorySubmissionDetailView, self).form_valid(form)
 
 
-class CreditSubmissionDetailView(UserCanEditSubmissionMixin, UpdateView):
+class CreditSubmissionDetailView(UserCanEditSubmissionMixin):
 
     model = CreditUserSubmission
-    template_name = "tool/submissions/credit_reporting_fields.html"
-    form_class = CreditUserSubmissionForm
 
     def get_object(self, queryset=None):
         return self.get_creditsubmission()
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(CreditSubmissionDetailView, self).get_context_data(
+            *args, **kwargs)
+
+        context['outline'] = self.get_submissionset_nav()
+
+        context['credit_submission_locked'] = (
+            self.get_creditsubmission().is_locked())
+
+        if self.get_submissionset().is_under_review():
+            submissionset = self.get_object().get_submissionset()
+            context['num_notations_to_send'] = (
+                CreditSubmissionReviewNotation.objects.filter(
+                    send_email=True,
+                    credit_user_submission__subcategory_submission__category_submission__submissionset=submissionset).count())
+
+        return context
+
+
+class CreditSubmissionReportingFieldsView(CreditSubmissionDetailView,
+                                          UpdateView):
+
+    template_name = "tool/submissions/credit_reporting_fields.html"
+    form_class = CreditUserSubmissionForm
 
     def get_success_url(self):
         return self.get_creditsubmission().get_submit_url()
@@ -401,7 +437,8 @@ class CreditSubmissionDetailView(UserCanEditSubmissionMixin, UpdateView):
         messages.error(self.request,
                        "Credit data has <b>NOT BEEN SAVED</b>! Please correct "
                        "the errors below.")
-        return super(CreditSubmissionDetailView, self).form_invalid(form)
+        return super(CreditSubmissionReportingFieldsView,
+                     self).form_invalid(form)
 
     def form_valid(self, form):
         if form.has_warnings():
@@ -409,53 +446,29 @@ class CreditSubmissionDetailView(UserCanEditSubmissionMixin, UpdateView):
             messages.info(self.request,
                           "Some data values are not within the expected range "
                           "- see notes below.")
-        return super(CreditSubmissionDetailView, self).form_valid(form)
-
-    def get_context_data(self, *args, **kwargs):
-        context = super(CreditSubmissionDetailView, self).get_context_data(
-            *args, **kwargs)
-
-        context['outline'] = self.get_submissionset_nav()
-        context['credit_submission_locked'] = (
-            self.get_creditsubmission().is_locked())
-
-        return context
+        return super(CreditSubmissionReportingFieldsView,
+                     self).form_valid(form)
 
 
-class CreditDocumentationView(UserCanEditSubmissionMixin, TemplateView):
-
-    template_name = "tool/submissions/credit_info.html"
+class CreditSubmissionDocumentationView(CreditSubmissionDetailView,
+                                        TemplateView):
 
     def get_template_names(self):
         if self.request.GET.get('popup', False):
             return ["tool/submissions/credit_info_popup.html"]
-        return super(CreditDocumentationView, self).get_template_names()
-
-    def get_context_data(self, *args, **kwargs):
-        context = super(CreditDocumentationView, self).get_context_data(
-            *args, **kwargs)
-        context['outline'] = self.get_submissionset_nav()
-        return context
+        else:
+            return ["tool/submissions/credit_info.html"]
 
 
-class CreditNotesView(UserCanEditSubmissionMixin, UpdateView):
+class CreditSubmissionNotesView(CreditSubmissionDetailView,
+                                UpdateView):
 
     template_name = "tool/submissions/credit_notes.html"
     form_class = CreditUserSubmissionNotesForm
-    model = CreditUserSubmission
-
-    def get_object(self):
-        return self.get_creditsubmission()
-
-    def get_context_data(self, *args, **kwargs):
-        context = super(CreditNotesView, self).get_context_data(
-            *args, **kwargs)
-        context['outline'] = self.get_submissionset_nav()
-        return context
 
 
-class CreditHistoryView(UserCanEditSubmissionMixin,
-                        TemplateView):
+class CreditSubmissionHistoryView(CreditSubmissionDetailView,
+                                  TemplateView):
     """
         Displays a list of submission history for a credit
         (based on DocumentationFieldSubmissions).
@@ -469,7 +482,8 @@ class CreditHistoryView(UserCanEditSubmissionMixin,
         return history
 
     def get_context_data(self, *args, **kwargs):
-        context = super(CreditHistoryView, self).get_context_data(
+        context = super(CreditSubmissionHistoryView,
+                        self).get_context_data(
             *args, **kwargs)
         history = self.get_history()
         context['history'] = history
@@ -490,20 +504,125 @@ class CreditHistoryView(UserCanEditSubmissionMixin,
         context['institution_has_full_access'] = (
             context['institution'].access_level == FULL_ACCESS)
 
-        context['outline'] = self.get_submissionset_nav()
-
         return context
 
 
-class CreditResourcesView(UserCanEditSubmissionMixin, TemplateView):
+class CreditSubmissionResourcesView(CreditSubmissionDetailView,
+                                    TemplateView):
 
     template_name = "tool/submissions/credit_resources.html"
 
-    def get_context_data(self, *args, **kwargs):
-        context = super(CreditResourcesView, self).get_context_data(
-            *args, **kwargs)
-        context['outline'] = self.get_submissionset_nav()
+
+class CreditSubmissionReviewView(CreditSubmissionDetailView,
+                                 IsStaffMixin,
+                                 UpdateWithInlinesView):
+
+    form_class = CreditSubmissionReviewForm
+    inlines = [CreditSubmissionReviewNotationInlineFormSet]
+
+    def get_template_names(self):
+        if self.request.GET.get("popup", False):
+            return ["tool/submissions/credit_submission_review_popup.html"]
+        else:
+            return ["tool/submissions/credit_submission_review.html"]
+        return super(CreditSubmissionReviewView, self).get_template_names()
+
+    def get_context_data(self, **kwargs):
+        context = super(CreditSubmissionReviewView, self).get_context_data(
+            **kwargs)
+        context["popup"] = self.request.GET.get("popup", "")
         return context
+
+    def get_success_url(self):
+        url = super(CreditSubmissionReviewView, self).get_success_url()
+        if self.request.POST.get("popup", False):
+            url += "?popup=True"
+        return url
+
+
+class SendCreditSubmissionReviewNotationEmailView(SubmissionToolMixin,
+                                                  IsStaffMixin,
+                                                  FormView):
+
+    form_class = SendCreditSubmissionReviewNotationsEmailForm
+    template_name = (
+        "tool/submissions/send_credit_submission_review_notations_email.html")
+
+    def get_initial(self):
+        initial = super(SendCreditSubmissionReviewNotationEmailView,
+                        self).get_initial()
+        initial["email_content"] = self.get_email_content()
+        return initial
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(SendCreditSubmissionReviewNotationEmailView,
+                        self).get_context_data(*args, **kwargs)
+        context["outline"] = self.get_submissionset_nav()
+        return context
+
+    def get_email_content(self):
+        email_template = ("/tool/submissions/" +
+                          "credit_submission_review_notations_email.html")
+
+        self.credit_submission = self.get_creditsubmission()
+        self.submissionset = self.get_submissionset()
+        self.notations_to_send = (
+            CreditSubmissionReviewNotation.objects.filter(
+                send_email=True,
+                credit_user_submission__subcategory_submission__category_submission__submissionset=self.submissionset).order_by(
+                    "credit_user_submission__credit"))
+        self.institution = self.submissionset.institution
+
+        context = {}
+
+        context["institution"] = self.institution
+
+        context["best_practices"] = self.notations_to_send.filter(
+            kind=CREDIT_SUBMISSION_REVIEW_NOTATION_KINDS["BEST_PRACTICE"])
+        context["revision_requests"] = self.notations_to_send.filter(
+            kind=CREDIT_SUBMISSION_REVIEW_NOTATION_KINDS["REVISION_REQUEST"])
+        context["suggestions_for_improvement"] = self.notations_to_send.filter(
+            kind=CREDIT_SUBMISSION_REVIEW_NOTATION_KINDS[
+                "SUGGESTION_FOR_IMPROVEMENT"])
+
+        context["my_submission_url"] = (
+            self.submissionset.get_submit_url())
+
+        context["sincerely_from"] = self.request.user.get_full_name()
+
+        with open(settings.TEMPLATE_DIRS[0] + email_template,
+                  "rb") as template:
+            email_content = build_message(template.read(), context)
+
+        return email_content
+
+    def form_valid(self, form):
+        # Send the mail:
+        self.send_email(institution=self.institution,
+                        content=form.cleaned_data["email_content"])
+        # Mark the notations as sent:
+        for notation in self.notations_to_send:
+            notation.email_sent = True
+            notation.send_email = False
+            notation.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+    def send_email(self, institution, content):
+        subject = "AASHE Staff Review Results: {inst} STARS Report".format(
+            inst=str(institution))
+        message = EmailMessage(
+            subject=subject,
+            body=content,
+            from_email="stars-reviewers@aashe.org",
+            to=[institution.contact_email],
+            cc=["stars-reviewers@aashe.org"],
+            headers={"Reply-To": "stars-reviewers@aashe.org"})
+        # We send HTML mail only.
+        message.content_subtype = "html"
+        message.send()
+
+    def get_success_url(self):
+        return self.credit_submission.get_submit_url() + "review"
 
 
 class AddResponsiblePartyView(UserCanEditSubmissionMixin, CreateView):
@@ -523,5 +642,4 @@ class AddResponsiblePartyView(UserCanEditSubmissionMixin, CreateView):
         return self.response_class(
             request=self.request,
             template=["tool/submissions/responsible_party_redirect.html"],
-            context={'rp': self.object}
-        )
+            context={'rp': self.object})
