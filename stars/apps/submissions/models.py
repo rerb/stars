@@ -1696,7 +1696,7 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
         submissionset = self.get_submissionset()
 
         current_submission_status = (
-                CreditUserSubmission.objects.get(pk=self.pk).submission_status
+            CreditUserSubmission.objects.get(pk=self.pk).submission_status
             if self.pk else None)
 
         previous_submission_status = current_submission_status
@@ -1739,6 +1739,11 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
 
     def unlock(self):
         self.submission_status = UNLOCKED
+
+    def is_unlocked(self):
+        """ Is the CreditUserSubmission unlocked?
+        """
+        return self.submission_status == UNLOCKED
 
     def mark_as_in_progress(self):
         self.submission_status = IN_PROGRESS

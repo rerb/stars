@@ -162,14 +162,32 @@
 	    </button>
 	  </div>
 
- 	  <div class="btn-group">
-	    <button type='button' id='saveAsComplete'
-		    onclick="saveWithStatus('c');"
-		    class="btn btn-success{% if form.errors %} errors{% endif %}">
-	      <i class='icon-check icon-white'></i>
-	      Complete
-	    </button>
-	  </div>
+          {% if not credit_submission_unlocked %}
+            <div class="btn-group">
+              <button type='button' id='saveAsComplete'
+                      onclick="saveWithStatus('c');"
+                      class="btn btn-success{% if form.errors %} errors{% endif %}">
+                <i class='icon-check icon-white'></i>
+                Complete
+              </button>
+            </div>
+          {% else %}
+            {% comment %}
+              Some Credit Submissions are unlocked when their SubmissionSet
+              is under review. For these, we display a Resubmit button in
+              place of the usual Complete button. Its action is the same
+              as the Complete button, but it has a different label and
+              help text.
+            {% endcomment %}
+            <div class="btn-group">
+              <button type='button' id='saveAsResubmitted'
+                      onclick="saveWithStatus('c');"
+                      class="btn btn-success{% if form.errors %} errors{% endif %}">
+                <i class='icon-check icon-white'></i>
+                Resubmit
+              </button>
+            </div>
+          {% endif %}
 
 	  {% if not credit.is_required %}
 	    <div class="btn-group">
@@ -217,9 +235,15 @@
 	   options["title"] = "{% get_help_context 'in_progress' %}";
 	   $("#saveAsInProgress").tooltip(options);
 
-	   // Complete
-	   options["title"] = "{% get_help_context 'complete' %}";
-	   $("#saveAsComplete").tooltip(options);
+           {% if not credit_submission_unlocked %}
+             // Complete
+             options["title"] = "{% get_help_context 'complete' %}";
+             $("#saveAsComplete").tooltip(options);
+           {% else %}
+             // Resubmit
+             options["title"] = "{% get_help_context 'resubmit' %}";
+             $("#saveAsResubmitted").tooltip(options);
+           {% endif %}
 
 	   // Not Pursuing
 	   options["title"] = "{% get_help_context 'not_pursuing' %}";

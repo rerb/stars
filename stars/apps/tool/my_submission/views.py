@@ -414,6 +414,9 @@ class CreditSubmissionDetailView(UserCanEditSubmissionMixin):
         context['credit_submission_locked'] = (
             self.get_creditsubmission().is_locked())
 
+        context['credit_submission_unlocked'] = (
+            self.get_creditsubmission().is_unlocked())
+
         if self.get_submissionset().is_under_review():
             submissionset = self.get_object().get_submissionset()
             context['num_notations_to_send'] = (
