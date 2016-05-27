@@ -44,13 +44,15 @@
          for (i = 0; i < submit_form_elements.length; i++) {
            submit_form_elements[i].disabled = true;
          }
-         anchors = $(".submit_form").find("a");
-         anchors.attr({
-           href: null,
-           target: null,
-           onclick: null
-         });
-         anchors.addClass('disabled');
+         {% if not user.is_staff %}  // So staff can read uploads.
+           anchors = $(".submit_form").find("a");
+           anchors.attr({
+             href: null,
+             target: null,
+             onclick: null
+           });
+           anchors.addClass('disabled');
+         {% endif %}
        }
       </script>
     {% endcompress %}
