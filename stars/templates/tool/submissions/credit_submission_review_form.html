@@ -31,9 +31,9 @@
             </div>
             <div class="row">
               <div class="span8">
-                {{ form.send_email }} Send Email
+                {{ form.send_email }} Include in Next Email
                 {% if form.instance.email_sent %}
-                  Again
+                  (Again)
                 {% endif %}
                 {% if form.instance.pk %}
                   <div class="pull-right">
