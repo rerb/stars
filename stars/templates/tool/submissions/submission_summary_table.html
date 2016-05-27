@@ -30,6 +30,9 @@
         </th>
       {% endtestrule %}
       <th>Export</th>
+      {% if submissionset.is_under_review %}
+        <th>President's Letter</th>
+      {% endif %}
     </tr>
   </thead>
   <tbody>
@@ -79,6 +82,13 @@
           {% include "tool/participant_only_snippet.html" %}
         {% endtestrule %}
       </td>
+      {% if submissionset.is_under_review %}
+        <td>
+          <a href="{{ submissionset.presidents_letter.url }}">
+            Click here
+          </a>
+        </td>
+      {% endif %}
     </tr>
   </tbody>
 </table>
