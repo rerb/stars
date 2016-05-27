@@ -32,7 +32,8 @@ CREDIT_PATH = "%s%s" % (SUBCAT_PATH, "/(?P<credit_identifier>[\w-]+)")
 urlpatterns = patterns(
     '',
 
-    url(r'^$', SubmissionSummaryView.as_view(),
+    url(r'^$',
+        never_cache(SubmissionSummaryView.as_view()),
         name='submission-summary'),
 
     # Export retrieval view
@@ -82,7 +83,7 @@ urlpatterns = patterns(
         name='creditdocs-submit'),
 
     url(r'^%s/notes/$' % CREDIT_PATH,
-        CreditSubmissionNotesView.as_view(),
+        never_cache(CreditSubmissionNotesView.as_view()),
         name='creditnotes-submit'),
 
     url(r'^%s/history/$' % CREDIT_PATH,
@@ -94,11 +95,11 @@ urlpatterns = patterns(
         name='credit-resources'),
 
     url(r'^%s/review/$' % CREDIT_PATH,
-        CreditSubmissionReviewView.as_view(),
+        never_cache(CreditSubmissionReviewView.as_view()),
         name='credit-submission-review'),
 
     url(r'^%s/review/send-notations-email/$' % CREDIT_PATH,
-        SendCreditSubmissionReviewNotationEmailView.as_view(),
+        never_cache(SendCreditSubmissionReviewNotationEmailView.as_view()),
         name='send-credit-submission-review-notations-email')
 )
 
