@@ -117,7 +117,8 @@
     {% testrule user_is_institution_admin user institution %}
       <div style="padding: 10px 20px 10px; text-align: center">
         <a href='{{ sub.get_submit_edit_url }}?next={{ request.get_full_path }}'
-           class='btn btn-info btn-small'>
+           class="btn btn-info btn-small"
+           style="color: white">
           <i class='icon-pencil icon-white'></i>
           {% if sub.description %}
             Edit Description
