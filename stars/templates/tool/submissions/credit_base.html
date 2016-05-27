@@ -28,13 +28,17 @@
           Review Conclusion: {{ credit_submission.get_review_conclusion_display }}
         </h5>
       </div>
-      {% if num_notations_to_send %}
+      {% if num_notations_to_send != None %}
         <div class="pull-right">
           {{ num_notations_to_send }} Notation(s) to Send
         </div>
         <div class="pull-right" style="padding-top: 5px">
           <a href="{{ credit_submission.get_submit_url }}review/send-notations-email"
-             class="btn btn-default pull-right">
+             class="btn btn-default pull-right"
+             {% if not num_notations_to_send %}
+               disabled="disabled"
+             {% endif %}
+          >
             Send Review Notations Email Now
           </a>
         </div>
