@@ -1,5 +1,19 @@
 {% load bootstrap %}
 
+{% block extra_head %}
+  {% block tinymce %}
+    <script type="text/javascript"
+            src="{{ STATIC_URL }}tp/tinymce/js/tinymce/tinymce.min.js">
+    </script>
+    <script type="text/javascript">
+     tinymce.init({plugins: "link paste table,",
+                   tools: "inserttable",
+                   convert_urls : false,
+                   selector: "textarea:not(.noMCE)"});
+    </script>
+  {% endblock %}
+{% endblock %}
+
 <div class="reviewContent">
   <h2>Credit Submission Review</h2>
 
@@ -29,7 +43,7 @@
                 {{ form.comment }}
               </div>
             </div>
-            <div class="row">
+            <div class="row" style="padding-top: 10px">
               <div class="span8">
                 {{ form.send_email }} Include in Next Email
                 {% if form.instance.email_sent %}
