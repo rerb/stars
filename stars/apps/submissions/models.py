@@ -1686,6 +1686,18 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
         if calculate_points:
             self.assessed_points = float(self._calculate_points())
 
+        # If this is an opt-in credit, NOT_PURSUING is a rather
+        # meaningless status, since opt-in credits that a submitter
+        # has opted-out of should have a status of NOT_APPLICABLE.
+        # Practically, opt-in credit submissions of type
+        # NOT_APPLICABLE are filtered out of reports and displays, and
+        # that's what we want, and don't want is to see opt-in credits
+        # labelled NOT_PURSUING. So if this is an opt-in credit and
+        # somebody's trying to save it as NOT_PURSUING, forget that
+        # and set the submission_status to NOT_APPLICABLE.
+        if self.credit.is_opt_in and self.submission_status == NOT_PURSUING:
+            self.submission_status = NOT_APPLICABLE
+
         # When this submission's SubmissionSet is under review and
         # this submission's submission_status goes from UNLOCKED to
         # something else, we need to send some mail.  To compare the
