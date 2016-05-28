@@ -618,7 +618,8 @@ class SendCreditSubmissionReviewNotationEmailView(SubmissionToolMixin,
             body=content,
             from_email="stars-reviewers@aashe.org",
             to=[institution.contact_email],
-            cc=["stars-reviewers@aashe.org"],
+            cc=["stars-reviewers@aashe.org",
+                "crystal@aashe.org"],
             headers={"Reply-To": "stars-reviewers@aashe.org"})
         # We send HTML mail only.
         message.content_subtype = "html"
