@@ -6,6 +6,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from stars.apps.credits.models import CreditSet, DocumentationField
 from stars.apps.submissions.models import (Boundary,
                                            ChoiceSubmission,
+                                           CREDIT_SUBMISSION_STATUSES,
                                            CreditUserSubmission,
                                            MultiChoiceSubmission,
                                            PENDING_SUBMISSION_STATUS,
@@ -308,9 +309,19 @@ def migrate_submission(old_submissionset,
                     credit_user_submission.assessed_points = (
                         old_credit_user_submission.assessed_points)
                 else:
-                    credit_user_submission.submission_status = 'ns'
-                    if old_credit_user_submission.submission_status != 'ns':
-                        credit_user_submission.submission_status = 'p'
+                    if credit_user_submission.credit.is_opt_in:
+                        # The opt-in-ed-ness of an opt_in credit doesn't
+                        # carry forward:
+                        credit_user_submission.submission_status = (
+                            CREDIT_SUBMISSION_STATUSES["NOT_APPLICABLE"])
+                    elif (old_credit_user_submission.submission_status !=
+                          CREDIT_SUBMISSION_STATUSES["NOT_STARTED"]):
+                        credit_user_submission.submission_status = (
+                            CREDIT_SUBMISSION_STATUSES["IN_PROGRESS"])
+                    else:
+                        credit_user_submission.submission_status = (
+                            CREDIT_SUBMISSION_STATUSES["NOT_STARTED"])
+
 
             except CreditUserSubmission.DoesNotExist:
                 continue
