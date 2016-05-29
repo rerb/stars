@@ -1,15 +1,14 @@
 import cStringIO as StringIO
 import os
 from logging import getLogger
-import sys
-
-import ho.pisa as pisa
 
 from django.conf import settings
 from django.template.loader import get_template
 from django.template import Context
+import ho.pisa as pisa
 
 from stars.apps.old_cms.models import Category
+
 
 logger = getLogger('stars')
 
