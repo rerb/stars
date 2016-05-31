@@ -1,4 +1,4 @@
-AuthorizeSauce==0.4.1
+AuthorizeSauce==0.5.0
 Django==1.4.3
 Fabric==1.4.2
 MySQL-python==1.2.5
