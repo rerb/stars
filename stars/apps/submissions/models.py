@@ -1771,11 +1771,13 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
     def _calculate_points(self):
         """ Helper: returns the number of points calculated for this
         submission"""
-        # Somewhat complex logic is required here so that i something goes
-        # wrong, we log a detailed message, but only show the user meaningful
-        # messages.
-        if not self.is_complete():  # no points for incomplete submission
+        # Run the calculation only when this credit submission is
+        # complete or under review.
+        if (not self.is_complete() and
+            not self.get_submissionset().is_under_review()):
+
             return 0
+
         assessed_points = 0  # default is zero - now re-calculate points...
         validation_error = False
 
@@ -3013,4 +3015,5 @@ class CreditSubmissionReviewNotation(models.Model):
 
             if self.credit_user_submission.is_locked():
                 self.credit_user_submission.unlock()
+
                 self.credit_user_submission.save(calculate_points=False)
