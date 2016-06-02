@@ -9,7 +9,6 @@ MEDIA_ROOT = os.environ.get('MEDIA_ROOT')
 
 HIDE_REPORTING_TOOL = False
 DEBUG = True
-TEMPLATE_DEBUG = False
 DEBUG_TOOLBAR = False
 MAINTENANCE_MODE = False
 # CELERY_ALWAYS_EAGER = True
@@ -76,9 +75,10 @@ INSTALLED_APPS += ('django_extensions',
                    'template_repl')
 
 if PROFILE:
-    INSTALLED_APPS += ('profiler',)
-    MIDDLEWARE_CLASSES.append('profiler.middleware.ProfilerMiddleware')
-#    MIDDLEWARE_CLASSES.append('profiler.middleware.StatProfMiddleware')
+    # INSTALLED_APPS += ('profiler',)
+    # MIDDLEWARE_CLASSES.append('profiler.middleware.ProfilerMiddleware')
+    # MIDDLEWARE_CLASSES.append('profiler.middleware.StatProfMiddleware')
+    MIDDLEWARE_CLASSES.append('stars.apps.tool.middleware.ProfileMiddleware')
 
 if 'TEST_RUNNER' in os.environ:  # django_nose.NoseTestSuiteRunner, for example
     if os.environ['TEST_RUNNER']:  # only use it if there's a value set
@@ -102,17 +102,22 @@ if DEBUG_TOOLBAR:
     MIDDLEWARE_CLASSES.append(
         'debug_toolbar.middleware.DebugToolbarMiddleware')
     INTERNAL_IPS = ('127.0.0.1',)
-    INSTALLED_APPS = INSTALLED_APPS + ('debug_toolbar',)
+    INSTALLED_APPS = INSTALLED_APPS + ('debug_toolbar',
+                                       'template_profiler_panel')
     DEBUG_TOOLBAR_PANELS = (
-        'debug_toolbar.panels.version.VersionDebugPanel',
-        'debug_toolbar.panels.timer.TimerDebugPanel',
-        'debug_toolbar.panels.settings_vars.SettingsVarsDebugPanel',
-        'debug_toolbar.panels.headers.HeaderDebugPanel',
-        'debug_toolbar.panels.request_vars.RequestVarsDebugPanel',
-        'debug_toolbar.panels.template.TemplateDebugPanel',
-        'debug_toolbar.panels.sql.SQLDebugPanel',
-        'debug_toolbar.panels.signals.SignalDebugPanel',
-        'debug_toolbar.panels.logger.LoggingPanel'
+        # 'debug_toolbar.panels.versions.VersionsPanel',
+        'debug_toolbar.panels.timer.TimerPanel',
+        # 'debug_toolbar.panels.settings.SettingsPanel',
+        # 'debug_toolbar.panels.headers.HeadersPanel',
+        # 'debug_toolbar.panels.request.RequestPanel',
+        'debug_toolbar.panels.sql.SQLPanel',
+        # 'debug_toolbar.panels.staticfiles.StaticFilesPanel',
+        # 'debug_toolbar.panels.templates.TemplatesPanel',
+        # 'template_profiler_panel.panels.template.TemplateProfilerPanel',
+        'debug_toolbar.panels.cache.CachePanel',
+        # 'debug_toolbar.panels.signals.SignalsPanel',
+        # 'debug_toolbar.panels.logging.LoggingPanel',
+        # 'debug_toolbar.panels.redirects.RedirectsPanel'
     )
     DEBUG_TOOLBAR_CONFIG = {'INTERCEPT_REDIRECTS': False}
     TEMPLATE_TIMINGS_SETTINGS = {
