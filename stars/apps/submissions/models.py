@@ -299,11 +299,10 @@ class SubmissionSet(models.Model, FlaggableModel):
         return self.get_status_display()
 
     def is_pending_review(self):
-        """ Return True if this submission set has been rated """
         return self.status == PROCESSSING_SUBMISSION_STATUS
 
     def is_rated(self):
-        """ Return True iff this submission set has been rated """
+        """ Return True if this submission set has been rated """
         return self.status == RATED_SUBMISSION_STATUS
 
     def is_under_review(self):
@@ -1743,8 +1742,7 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
                 self.submission_status != NOT_PURSUING)
 
     def is_locked(self):
-        """ Is this CreditUserSubmission locked (because its
-            SubmissionSet is under review?
+        """ Is this CreditUserSubmission locked?
         """
         return (self.get_submissionset().is_under_review() and
                 self.submission_status != UNLOCKED)
@@ -1769,12 +1767,14 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
         return self.get_available_points()
 
     def _calculate_points(self):
-        """ Helper: returns the number of points calculated for this
-        submission"""
+        """Returns the number of points calculated for this
+           submission
+        """
         # Run the calculation only when this credit submission is
-        # complete or under review.
-        if (not self.is_complete() and
-            not self.get_submissionset().is_under_review()):
+        # complete or under review, and is being pursued.
+        if ((not self.is_complete() and
+             not self.get_submissionset().is_under_review()) or
+            not self.is_pursued()):
 
             return 0
 
