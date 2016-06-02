@@ -1,6 +1,8 @@
 {% extends 'tool/base.html' %}
 
 {% load cache %}
+{% load collapsing_menu %}
+
 
 {% block tool_menu %}
   {% with active_menu="submission"%}{{ block.super }}{% endwith %}
@@ -9,10 +11,11 @@
 {% block body_onload %}{{ block.super }}{% endblock %}
 
 {% block left_nav %}
-  <div class="well" style="width:220px; padding: 8px 0;">
-    {% load collapsing_menu %}
-    {% show_collapsing_menu outline %}
-  </div>
+  {% cache 86400 creditset_collapsing_menu submissionset %}
+    <div class="well" style="width:220px; padding: 8px 0;">
+      {% show_collapsing_menu outline %}
+    </div>
+  {% endcache %}
 {% endblock %}
 
 {% block submission_outline %}
