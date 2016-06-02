@@ -572,8 +572,7 @@ class SendCreditSubmissionReviewNotationEmailView(SubmissionToolMixin,
         self.notations_to_send = (
             CreditSubmissionReviewNotation.objects.filter(
                 send_email=True,
-                credit_user_submission__subcategory_submission__category_submission__submissionset=self.submissionset).order_by(
-                    "credit_user_submission__credit"))
+                credit_user_submission__subcategory_submission__category_submission__submissionset=self.submissionset))
         self.institution = self.submissionset.institution
 
         context = {}

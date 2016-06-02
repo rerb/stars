@@ -2702,6 +2702,7 @@ class NumericSubmission(DocumentationFieldSubmission):
         previous_value = (NumericSubmission.objects.get(pk=self.pk).value
                           if self.pk
                           else None)
+
         if self.requires_duplication():
             if self.use_metric():
                 if self.metric_value is not None:
@@ -3000,6 +3001,11 @@ class CreditSubmissionReviewNotation(models.Model):
     comment = models.TextField(blank=True, null=True)
     send_email = models.BooleanField(blank=True, default=True)
     email_sent = models.BooleanField(blank=True, default=False)
+
+    class Meta:
+        ordering = ("kind",
+                    "credit_user_submission__credit__identifier",
+                    "id")
 
     def save(self, *args, **kwargs):
         new_credit_submission_review_notification = not self.pk
