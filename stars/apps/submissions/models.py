@@ -2315,6 +2315,13 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
         else:
             self.value = locals['value']
 
+        if (self.requires_duplication() and
+            self.use_metric() and
+            self.value):
+
+            units = self.documentation_field.us_units
+            self.metric_value = units.convert(self.value)
+
     def save(self, *args, **kwargs):
         # Only save submission fields if the overall submission has been saved.
         if not self.credit_submission.persists():
@@ -2695,10 +2702,6 @@ class NumericSubmission(DocumentationFieldSubmission):
         previous_value = (NumericSubmission.objects.get(pk=self.pk).value
                           if self.pk
                           else None)
-        # in most cases the following would have worked:
-        # self.credit_submission.get_institution().prefers_metric_system
-        # but when accessing the NumericSubmission directly, we need to connect
-        # the correct CreditUserSubmission instead of CreditSubmission
         if self.requires_duplication():
             if self.use_metric():
                 if self.metric_value is not None:
@@ -2723,6 +2726,7 @@ class NumericSubmission(DocumentationFieldSubmission):
                 # ... recalculate those fields:
                 for field_submission in NumericSubmission.objects.filter(
                         documentation_field=calculated_field):
+
                     previous_field_submission_value = field_submission.value
                     field_submission.calculate()
                     if (field_submission.value !=
