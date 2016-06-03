@@ -337,19 +337,22 @@ class SubmissionSet(models.Model, FlaggableModel):
 
     def get_STARS_score(self, recalculate=False):
         """
-            Return the total STARS score for this submission
-            Relies on the scoring method defined by the CreditSet model.
+            Return self.score.
 
-             - define version-specific scoring methods below, and add
-               to SCORING_METHOD_CHOICES in CreditSet model.
+            Update self.score if is_rated() or is_under_review(),
+            except when is_rated and there's already a score for
+            this SubmissionSet and recalculate is False.
+
+            When recalculated, self.score is updated and this
+            SubmissionSet is saved.
         """
-        if self.status == RATED_SUBMISSION_STATUS and self.score and not recalculate:
+        if self.is_rated() and self.score and not recalculate:
             return self.score
 
         scoring_method = self.creditset.scoring_method
         if hasattr(self, scoring_method):
             score = getattr(self, scoring_method)
-            if self.status == RATED_SUBMISSION_STATUS:
+            if self.is_rated() or self.is_under_review():
                 self.score = score(recalculate)
                 self.save()
                 return self.score
@@ -954,19 +957,24 @@ class CategorySubmission(models.Model):
 
     def get_STARS_score(self):
         """
-            Return the STARS score for this category
-            - this is the fractional score for points earned in this category
-            Relies on the scoring method defined for each credit set version:
-             - define a version-specific method for each credit set below.
+            Return self.score.
+
+            Recalculate the score if submissionset is rated or under review,
+            except if submissionset is rated and already has a score.
+
+            If score is recalculated, self.score is updated and this Category
+            is saved.
         """
-        if self.submissionset.status == "r" and self.score:
+        if self.submissionset.is_rated() and self.score:
             # cache the score in the model
             return self.score
 
         scoring_method = self.submissionset.creditset.scoring_method
         if hasattr(self, scoring_method):
             score = getattr(self, scoring_method)
-            if self.submissionset.status == RATED_SUBMISSION_STATUS:
+            if (self.submissionset.is_rated or
+                self.submissionset.is_under_review()):
+
                 self.score = score()
                 if type(self.score) == tuple:
                     self.score = self.score[0]
@@ -1176,7 +1184,7 @@ class SubcategorySubmission(models.Model):
         return total
 
     def get_claimed_points(self, recalculate=False):
-        rated = self.category_submission.submissionset.status == "r"
+        rated = self.category_submission.submissionset.is_rated()
         # check the cache
         if rated and self.points and self.percentage_score and not recalculate:
             return self.points
@@ -1186,7 +1194,7 @@ class SubcategorySubmission(models.Model):
                 submission_status='c'):
             score += credit.assessed_points
 
-        if self.category_submission.submissionset.status == "r":
+        if self.category_submission.submissionset.is_rated():
             # cache it on the model
             self.points = score
             available = self.get_available_points()
@@ -1207,7 +1215,7 @@ class SubcategorySubmission(models.Model):
         """Gets only the points for credits that have not been labelled as
            Not Applicable"""
 
-        rated = self.category_submission.submissionset.status == "r"
+        rated = self.category_submission.submissionset.is_rated()
         # check the cache
         if rated and self.adjusted_available_points and not recalculate:
             return self.adjusted_available_points
@@ -2075,8 +2083,9 @@ class DataCorrectionRequest(models.Model):
                 rating_changed = True
                 ss.save()
 
-        ss.pdf_report = None
-        ss.save()
+        if ss.pdf_report:
+            ss.pdf_report = None
+            ss.save()
 
         # notify institution of approval
         et = EmailTemplate.objects.get(slug='approved_data_correction')
