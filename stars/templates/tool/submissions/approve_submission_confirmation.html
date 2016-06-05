@@ -1,25 +1,30 @@
-{% extends 'tool/base.html' %}
-
-{% load logical_rules_tags %}
+{% extends 'tool/submissions/columned_layout.html' %}
 
 {% block tool_content %}
-  <div>
-    Sure you want to approve that report?
+  <h2>
+    Approve Submission
+  </h2>
+
+  {% include "tool/submissions/submission_summary_header.html" %}
+
+  <div class="well" style="padding-top: 10px">
+    <h4>
+      Sure you want to approve that report?
+    </h4>
+
+    <form method="post" action=".">
+      <div class="form-actions">
+        <button type="submit"
+                class="btn btn-primary">
+          <i class="icon-ok icon-white"></i>
+          Yes, Approve It.
+        </button>
+        <button onclick="window.history.back();"
+                class="btn btn-default">
+          <i class="icon-remove"></i>
+          No, Wait, Go Back!
+        </button>
+      </div>
+    </form>
   </div>
-
-  <form method="post" action=".">
-    <div class="form-actions">
-      <button type="submit"
-              class="btn btn-primary">
-        <i class="icon-ok icon-white"></i>
-        Yes, Approve It.
-      </button>
-      <a href="{% url submission-summary institution.slug submissionset.id %}"
-         class="btn">
-        <i class="icon-remove"></i>
-        No, Wait, Go Back!
-      </a>
-    </div>
-  </form>
-
 {% endblock %}

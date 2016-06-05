@@ -24,6 +24,7 @@ from stars.apps.submissions.models import (
     CreditSubmissionReviewNotation,
     CreditUserSubmission,
     RATING_VALID_PERIOD,
+    REVIEW_CONCLUSIONS,
     ResponsibleParty,
     SUBMISSION_STATUSES,
     SubcategorySubmission,
@@ -67,9 +68,6 @@ class SubmissionSummaryView(UserCanEditSubmissionMixin,
         context['category_submission_list'] = (
             submissionset.categorysubmission_set.all().select_related())
 
-        context['submission_under_review'] = (
-            submissionset.status == SUBMISSION_STATUSES["REVIEW"])
-
         # Show the migration message if there was a recent migration
         # and the score is zero, unless the submission is under review
         context['show_migration_warning'] = False
@@ -85,6 +83,12 @@ class SubmissionSummaryView(UserCanEditSubmissionMixin,
                 context['last_migration_date'] = max_date
 
         context['outline'] = self.get_submissionset_nav()
+
+        if submissionset.is_under_review():
+            context['num_notations_to_send'] = (
+                CreditSubmissionReviewNotation.objects.filter(
+                    send_email=True,
+                    credit_user_submission__subcategory_submission__category_submission__submissionset=submissionset).count())
 
         return context
 
@@ -363,6 +367,11 @@ class ApproveSubmissionView(SubmissionToolMixin,
             kwargs={'institution_slug': self.get_institution().slug})
         return url
 
+    def get_context_data(self, **kwargs):
+        context = super(ApproveSubmissionView, self).get_context_data(**kwargs)
+        context['outline'] = self.get_submissionset_nav()
+        return context
+
 
 class SubcategorySubmissionDetailView(UserCanEditSubmissionOrIsAdminMixin,
                                       UpdateView):
@@ -561,13 +570,13 @@ class SendCreditSubmissionReviewNotationEmailView(SubmissionToolMixin,
         context = super(SendCreditSubmissionReviewNotationEmailView,
                         self).get_context_data(*args, **kwargs)
         context["outline"] = self.get_submissionset_nav()
+        context["next"] = self.request.GET.get("next", "")
         return context
 
     def get_email_content(self):
         email_template = ("/tool/submissions/" +
                           "credit_submission_review_notations_email.html")
 
-        self.credit_submission = self.get_creditsubmission()
         self.submissionset = self.get_submissionset()
         self.notations_to_send = (
             CreditSubmissionReviewNotation.objects.filter(
@@ -625,7 +634,7 @@ class SendCreditSubmissionReviewNotationEmailView(SubmissionToolMixin,
         message.send()
 
     def get_success_url(self):
-        return self.credit_submission.get_submit_url() + "review"
+        return self.request.POST.get("next", "")
 
 
 class AddResponsiblePartyView(UserCanEditSubmissionMixin, CreateView):
@@ -646,3 +655,33 @@ class AddResponsiblePartyView(UserCanEditSubmissionMixin, CreateView):
             request=self.request,
             template=["tool/submissions/responsible_party_redirect.html"],
             context={'rp': self.object})
+
+
+class SubmissionReviewSummaryView(SubmissionToolMixin,
+                                  IsStaffMixin,
+                                  TemplateView):
+
+    template_name = "tool/submissions/submission_review_summary.html"
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(SubmissionReviewSummaryView, self).get_context_data(
+            *args, **kwargs)
+        submissionset = self.get_submissionset()
+        reviewed_credit_submissions = CreditUserSubmission.objects.filter(
+            subcategory_submission__category_submission__submissionset=submissionset).exclude(
+                review_conclusion=REVIEW_CONCLUSIONS["NOT_REVIEWED"]).order_by(
+                    "credit__identifier")
+        context["does_not_meet_criteria_list"] = (
+            reviewed_credit_submissions.filter(
+                review_conclusion=REVIEW_CONCLUSIONS["DOES_NOT_MEET_CRITERIA"]))
+        context["not_really_pursuing_list"] = (
+            reviewed_credit_submissions.filter(
+                review_conclusion=REVIEW_CONCLUSIONS["NOT_REALLY_PURSUING"]))
+        context["meets_criteria_list"] = (
+            reviewed_credit_submissions.filter(
+                review_conclusion=REVIEW_CONCLUSIONS["MEETS_CRITERIA"]))
+
+        context["outline"] = self.get_submissionset_nav()
+        context["next"] = self.request.GET.get("next", "")
+
+        return context

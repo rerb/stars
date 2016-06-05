@@ -9,110 +9,57 @@
 {% endblock %}
 
 {% block extra_head %}
-  <script type="text/javascript">
-   function getCreditUserSubmissionId(radioButton) {
-     var id = radioButton.getAttribute("id");
-     return $(id.split('-')).last()[0];
-   }
-   function setOptInCredits(subId) {
-     $("body").css("cursor", "wait");
+  {% compress js %}
+    <script type="text/javascript">
+     function getCreditUserSubmissionId(radioButton) {
+       var id = radioButton.getAttribute("id");
+       return $(id.split('-')).last()[0];
+     }
+     function setOptInCredits(subId) {
+       $("body").css("cursor", "wait");
 
-     var modal = $("#editOptInCredits" + subId);
-     var form = modal.find("form");
-     var radiobuttons = form.find(":radio");
-     var ajax_data = {};
+       var modal = $("#editOptInCredits" + subId);
+       var form = modal.find("form");
+       var radiobuttons = form.find(":radio");
+       var ajax_data = {};
 
-     radiobuttons.each(function(index, radioButton) {
-       var creditUserSubmissionId = getCreditUserSubmissionId(radioButton);
-       if (radioButton.value == "pursue") {
-         ajax_data[creditUserSubmissionId] = radioButton.checked
-       }
-     });
-
-     var ajax_request = $.ajax({
-       url: "{% url set-opt-in-credits %}",
-       type: "POST",
-       data: ajax_data,
-       error: function(data, textStatus, jqXHR) {
-         alert("Error\n\n" + data.responseText);
-         $("body").css("cursor", "default");
-
-       },
-       complete: function(data, textStatus, jqXHR) {
-         modal.modal("hide");
-         data_obj = JSON.parse(data.responseText);
-         if (data_obj["data_changed"]) {
-           location.reload();  // reload from server
+       radiobuttons.each(function(index, radioButton) {
+         var creditUserSubmissionId = getCreditUserSubmissionId(radioButton);
+         if (radioButton.value == "pursue") {
+           ajax_data[creditUserSubmissionId] = radioButton.checked
          }
-         else {
+       });
+
+       var ajax_request = $.ajax({
+         url: "{% url set-opt-in-credits %}",
+         type: "POST",
+         data: ajax_data,
+         error: function(data, textStatus, jqXHR) {
+           alert("Error\n\n" + data.responseText);
            $("body").css("cursor", "default");
+
+         },
+         complete: function(data, textStatus, jqXHR) {
+           modal.modal("hide");
+           data_obj = JSON.parse(data.responseText);
+           if (data_obj["data_changed"]) {
+             location.reload();  // reload from server
+           }
+           else {
+             $("body").css("cursor", "default");
+           }
          }
-       }
-     });
-   }
-  </script>
+       });
+     }
+    </script>
+  {% endcompress %}
 {% endblock %}
 
 {% block tool_content %}
+
+  {% include "tool/submissions/submission_summary_header.html" %}
+
   {% load submit_tags %}
-
-  {% if submission_under_review %}
-    {% load content %}
-    <div class="alert alert-warning">
-      {% display_block_content 'submission_in_review_warning' %}
-    </div>
-  {% endif %}
-
-  {% if show_migration_warning %}
-    <div class='alert alert-warning'>
-      You recently upgraded your submission data ({{ last_migration_date }}).
-      <br/>
-      As a result, your score was reset and all credits were marked as
-      "In Progress."
-    </div>
-  {% endif %}
-
-  {% include 'tool/submissions/submission_summary_table.html' %}
-
-  {% if not submission_under_review %}
-    <div class='submissionBoundary'>
-      <p style='text-align: center;'>
-
-        {% if submissionset.creditset.has_boundary_feature %}
-          {% testrule user_has_access_level user 'admin' institution %}
-            <a href='{% url boundary-edit institution.slug submissionset.id %}'
-               class='btn btn-warning'>
-              <i class="icon-edit icon-white"></i> Edit Boundary</a>
-          {% endtestrule %}
-        {% endif %}
-
-        {% testrule institution_has_snapshot_feature institution %}
-          <a href='{% url share-data institution.slug %}'
-             class='btn btn-info'>
-            <i class="icon-share icon-white"></i> Save Snapshot
-          </a>
-        {% endtestrule %}
-
-        {% testrule user_can_submit_report user submissionset %}
-        <a href='{{ submissionset.get_submit_url }}'
-           class='btn btn-success'>
-          <i class="icon-check icon-white"></i> Submit Report</a>
-        {% endtestrule %}
-      </p>
-    </div>
-  {% else %}
-    {% if request.user.is_staff %}
-      <div>
-        <p style="text-align: center">
-          <a href="{% url approve-submission submissionset.institution.slug submissionset.id %}"
-             class="btn btn-success">
-            <i class="icon-check icon-white"></i>
-            Approve Submission
-          </a>
-        </p>
-      </div>
-    {% endif %}
-  {% endif %}
 
   <div class="accordion" id="categories">
     {% for cat in category_submission_list %}

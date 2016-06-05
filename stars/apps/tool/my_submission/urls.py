@@ -18,6 +18,7 @@ from stars.apps.tool.my_submission.views import (
     SaveSnapshot,
     SendCreditSubmissionReviewNotationEmailView,
     SubcategorySubmissionDetailView,
+    SubmissionReviewSummaryView,
     SubmissionSummaryView,
     SubmitForRatingWizard)
 
@@ -98,9 +99,13 @@ urlpatterns = patterns(
         never_cache(CreditSubmissionReviewView.as_view()),
         name='credit-submission-review'),
 
-    url(r'^%s/review/send-notations-email/$' % CREDIT_PATH,
+    url(r'^send-review-notations-email/$',
         never_cache(SendCreditSubmissionReviewNotationEmailView.as_view()),
-        name='send-credit-submission-review-notations-email')
+        name='send-credit-submission-review-notations-email'),
+
+    url(r'^submission-review-summary/$',
+        never_cache(SubmissionReviewSummaryView.as_view()),
+        name='submission-review-summary')
 )
 
 # Here's an illustration of the problem with caching
