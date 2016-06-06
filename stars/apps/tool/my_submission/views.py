@@ -77,7 +77,7 @@ class SubmissionSummaryView(UserCanEditSubmissionMixin,
             max_date = migration_list.aggregate(Max('date'))['date__max']
             time_delta = datetime.now() - max_date
             if (time_delta.days < 30 and
-                not context['submission_under_review']):
+                not submissionset.is_under_review()):
 
                 context['show_migration_warning'] = True
                 context['last_migration_date'] = max_date
