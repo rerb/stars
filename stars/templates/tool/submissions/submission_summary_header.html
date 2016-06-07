@@ -45,13 +45,13 @@
       {% endtestrule %}
     </p>
   </div>
-{% else %}
+{% else %}  {# Submission is under review. #}
   {% if request.user.is_staff %}
     <div>
       <p style="text-align: center">
         <a href="{% url submission-review-summary submissionset.institution.slug submissionset.id %}"
-           class="btn btn-warning">
-          <i class="icon-folder-open icon-white"></i>
+           class="btn btn-warning" style="color: black">
+          <i class="icon-folder-open"></i>
           Review Summary
         </a>
         <a href="{% url send-credit-submission-review-notations-email submissionset.institution.slug submissionset.id %}?next={{ request.get_full_path }}"

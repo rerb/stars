@@ -189,7 +189,16 @@
                                     {{ c.credit }} <!-- {{ c.id }} -->
                                   </a>
                                 </td>
-                                <td>{% show_status_icon c %}</td>
+                                <td>
+                                  {% if submissionset.is_under_review %}
+                                    {% if c.is_unlocked_for_review %}
+                                      <i class="fa fa-unlock fa-lg fa-fw text-red" style="color:red"></i>
+                                    {% else %}
+                                      <i class="fa fa-lock fa-lg fa-fw"></i>
+                                    {% endif %}
+                                  {% endif %}
+                                  {% show_status_icon c %}
+                                </td>
                                 {% testrule institution_has_score_feature institution %}
                                   {% if cat.category.include_in_score %}
                                     <td>
