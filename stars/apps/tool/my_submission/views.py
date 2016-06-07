@@ -429,14 +429,14 @@ class CreditSubmissionDetailView(UserCanEditSubmissionMixin):
 
         context['outline'] = self.get_submissionset_nav()
 
-        context['credit_submission_locked'] = (
-            not self.get_creditsubmission().is_unlocked_for_review)
-
-        context['credit_submission_unlocked'] = (
-            self.get_creditsubmission().is_unlocked_for_review)
-
-        if self.get_submissionset().is_under_review():
-            submissionset = self.get_object().get_submissionset()
+        submissionset = self.get_submissionset()
+        if submissionset.is_under_review():
+            context['credit_submission_locked'] = (
+                self.get_submissionset().is_under_review() and
+                not self.get_creditsubmission().is_unlocked_for_review)
+            context['credit_submission_unlocked'] = (
+                self.get_submissionset().is_under_review() and
+                self.get_creditsubmission().is_unlocked_for_review)
             context['num_notations_to_send'] = (
                 CreditSubmissionReviewNotation.objects.filter(
                     send_email=True,
