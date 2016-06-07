@@ -359,6 +359,15 @@ class ApproveSubmissionView(SubmissionToolMixin,
         # Update their current submission.
         rollover_submission.delay(submissionset)
 
+        # If there are any CreditUserSubmissions for this SubmissionSet
+        # that still have is_unlocked_for_review set to True, reset them.
+        credit_submissions = submissionset.get_credit_submissions()
+        unlocked_credit_submissions = credit_submissions.filter(
+            is_unlocked_for_review=True)
+        for unlocked_credit_submission in unlocked_credit_submissions:
+            unlocked_credit_submission.is_unlocked_for_review = False
+            unlocked_credit_submission.save(calculate_points=False)
+
         return super(ApproveSubmissionView, self).form_valid(form)
 
     def get_success_url(self):
@@ -421,10 +430,10 @@ class CreditSubmissionDetailView(UserCanEditSubmissionMixin):
         context['outline'] = self.get_submissionset_nav()
 
         context['credit_submission_locked'] = (
-            self.get_creditsubmission().is_locked())
+            not self.get_creditsubmission().is_unlocked_for_review)
 
         context['credit_submission_unlocked'] = (
-            self.get_creditsubmission().is_unlocked())
+            self.get_creditsubmission().is_unlocked_for_review)
 
         if self.get_submissionset().is_under_review():
             submissionset = self.get_object().get_submissionset()
@@ -581,7 +590,9 @@ class SendCreditSubmissionReviewNotationEmailView(SubmissionToolMixin,
         self.notations_to_send = (
             CreditSubmissionReviewNotation.objects.filter(
                 send_email=True,
-                credit_user_submission__subcategory_submission__category_submission__submissionset=self.submissionset))
+                credit_user_submission__subcategory_submission__category_submission__submissionset=self.submissionset).order_by(
+                    "credit_user_submission__credit__subcategory__category__abbreviation",
+                    "credit_user_submission__credit__number"))
         self.institution = self.submissionset.institution
 
         context = {}
@@ -667,13 +678,13 @@ class SubmissionReviewSummaryView(SubmissionToolMixin,
         context = super(SubmissionReviewSummaryView, self).get_context_data(
             *args, **kwargs)
         submissionset = self.get_submissionset()
-        reviewed_credit_submissions = CreditUserSubmission.objects.filter(
-            subcategory_submission__category_submission__submissionset=submissionset).exclude(
-                review_conclusion=REVIEW_CONCLUSIONS["NOT_REVIEWED"]).order_by(
-                    "credit__identifier")
+        reviewed_credit_submissions = submissionset.get_credit_submissions().exclude(
+            review_conclusion=REVIEW_CONCLUSIONS["NOT_REVIEWED"]).order_by(
+                "credit__subcategory__category__abbreviation", "credit__number")
         context["does_not_meet_criteria_list"] = (
             reviewed_credit_submissions.filter(
-                review_conclusion=REVIEW_CONCLUSIONS["DOES_NOT_MEET_CRITERIA"]))
+                review_conclusion=REVIEW_CONCLUSIONS[
+                    "DOES_NOT_MEET_CRITERIA"]))
         context["not_really_pursuing_list"] = (
             reviewed_credit_submissions.filter(
                 review_conclusion=REVIEW_CONCLUSIONS["NOT_REALLY_PURSUING"]))

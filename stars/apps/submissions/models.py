@@ -1307,6 +1307,7 @@ class CreditSubmission(models.Model):
     """
     credit = models.ForeignKey(Credit)
     available_point_cache = models.FloatField(blank=True, null=True)
+    is_unlocked_for_review = models.BooleanField(blank=True, default=False)
 
     class Meta:
         ordering = ("credit__type", "credit__ordinal",)
@@ -1551,15 +1552,13 @@ IN_PROGRESS = "p"
 NOT_PURSUING = "np"
 NOT_APPLICABLE = "na"
 NOT_STARTED = "ns"
-UNLOCKED = "ul"
 
 CREDIT_SUBMISSION_STATUSES = {
     "COMPLETE": COMPLETE,
     "IN_PROGRESS": IN_PROGRESS,
     "NOT_PURSUING": NOT_PURSUING,
     "NOT_APPLICABLE": NOT_APPLICABLE,
-    "NOT_STARTED": NOT_STARTED,
-    "UNLOCKED": UNLOCKED
+    "NOT_STARTED": NOT_STARTED
 }
 
 CREDIT_SUBMISSION_STATUS_CHOICES_LIMITED = [
@@ -1576,15 +1575,13 @@ CREDIT_SUBMISSION_STATUS_CHOICES_W_NA.append((NOT_APPLICABLE,
                                               'Not Applicable'))
 CREDIT_SUBMISSION_STATUS_CHOICES = list(CREDIT_SUBMISSION_STATUS_CHOICES_W_NA)
 CREDIT_SUBMISSION_STATUS_CHOICES.append((NOT_STARTED, 'Not Started'))
-CREDIT_SUBMISSION_STATUS_CHOICES.append((UNLOCKED, 'Unlocked'))
 
 # used by template tag to create iconic representation of status:
 CREDIT_SUBMISSION_STATUS_ICONS = {
     COMPLETE: ('icon-ok', 'c'),
     IN_PROGRESS: ('icon-pencil', '...'),
     NOT_PURSUING: ('icon-remove', '-'),
-    NOT_APPLICABLE: ('icon-tag', '-'),
-    UNLOCKED: ('icon-star', 'r')
+    NOT_APPLICABLE: ('icon-tag', '-')
 }
 
 REVIEW_CONCLUSIONS = {
@@ -1705,35 +1702,27 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
         if self.credit.is_opt_in and self.submission_status == NOT_PURSUING:
             self.submission_status = NOT_APPLICABLE
 
-        # When this submission's SubmissionSet is under review and
-        # this submission's submission_status goes from UNLOCKED to
-        # something else, we need to send some mail.  To compare the
-        # present value with the new, we need to pull the present
-        # submission_status out of the db. Further on, we'll compare
-        # it to the new submission_status value and send some mail if
-        # it flipped from UNLOCKED to something else.
-        submissionset = self.get_submissionset()
+        # When this CreditUserSubmission is unlocked for review and
+        # its submission_status is updated, we need to send some
+        # mail. So we need to know what's in the db before we save.
+        before_image = (CreditUserSubmission.objects.get(pk=self.pk)
+                        if self.pk else None)
 
-        current_submission_status = (
-            CreditUserSubmission.objects.get(pk=self.pk).submission_status
-            if self.pk else None)
-
-        previous_submission_status = current_submission_status
-
-        # If the current submission_status of this submission is UNLOCKED,
-        # and the new submission_status is IN_PROGRESS, we don't really
-        # want to save the new value.  We want the keep the submission
-        # UNLOCKED:
-        if (self.submission_status == IN_PROGRESS and
-            current_submission_status == UNLOCKED):
-
-            self.submission_status = UNLOCKED
+        # If this CreditUserSubmission is unlocked for review,
+        # we want to lock it up if the new submission_status is
+        # COMPLETE or NOT_PURSUING or NOT_APPLICABLE.
+        if (before_image is not None and
+            before_image.is_unlocked_for_review and
+            self.submission_status in (COMPLETE,
+                                       NOT_PURSUING,
+                                       NOT_APPLICABLE)):
+            self.is_unlocked_for_review = False
 
         super(CreditUserSubmission, self).save(*args, **kwargs)
 
-        if (submissionset.is_under_review() and
-            previous_submission_status == UNLOCKED and
-            self.submission_status != UNLOCKED):
+        if (before_image is not None and
+            before_image.is_unlocked_for_review and
+            not self.is_unlocked_for_review):
 
             self.send_unlocked_credit_submission_updated_email()
 
@@ -1748,20 +1737,6 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
             or NOT_PURSUING """
         return (self.submission_status != NOT_APPLICABLE and
                 self.submission_status != NOT_PURSUING)
-
-    def is_locked(self):
-        """ Is this CreditUserSubmission locked?
-        """
-        return (self.get_submissionset().is_under_review() and
-                self.submission_status != UNLOCKED)
-
-    def unlock(self):
-        self.submission_status = UNLOCKED
-
-    def is_unlocked(self):
-        """ Is the CreditUserSubmission unlocked?
-        """
-        return self.submission_status == UNLOCKED
 
     def mark_as_in_progress(self):
         self.submission_status = IN_PROGRESS
@@ -1806,8 +1781,8 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
         return assessed_points
 
     def send_unlocked_credit_submission_updated_email(self):
-        """ Send email to let STARS reviewers know a credit submission
-            has just been unlocked.
+        """ Send email to let STARS reviewers know an unlocked
+            credit submission has been updated.
         """
         email_template = (
             "/tool/submissions/unlocked_credit_submission_updated_email.html")
@@ -3032,7 +3007,6 @@ class CreditSubmissionReviewNotation(models.Model):
                 CREDIT_SUBMISSION_REVIEW_NOTATION_KINDS[
                     "SUGGESTION_FOR_IMPROVEMENT"])):
 
-            if self.credit_user_submission.is_locked():
-                self.credit_user_submission.unlock()
-
+            if not self.credit_user_submission.is_unlocked_for_review:
+                self.credit_user_submission.is_unlocked_for_review = True
                 self.credit_user_submission.save(calculate_points=False)
