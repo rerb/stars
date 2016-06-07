@@ -85,10 +85,11 @@ TEMPLATE_LOADERS = (
     'django.template.loaders.app_directories.Loader'
 )
 
-if not DEBUG:  # Cache templates.
+if not DEBUG:
     TEMPLATE_LOADERS = (
         ('django.template.loaders.cached.Loader',
-         TEMPLATE_LOADERS))
+         TEMPLATE_LOADERS),
+    )
 
 LANGUAGES = [
     ('en', 'English'),
