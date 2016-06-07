@@ -74,16 +74,16 @@
                 <div class="span5">
                   <a href="{{ creditsubmission.get_submit_url }}">
                     <strong>
-                      {% if not creditsubmission.is_unlocked_for_review %}
-                        <i class="fa fa-lock fa-lg fa-fw"></i>
-                      {% else %}
-                        <i class="fa fa-unlock fa-lg fa-fw text-red" style="color:red"></i>
-                      {% endif %}
                       {{ creditsubmission.credit }} <!-- {{ c.id }} -->
                     </strong>
                   </a>
                 </div>
                 <div class="span2 pull-right">
+                  {% if not creditsubmission.is_unlocked_for_review %}
+                    <i class="fa fa-lock fa-lg fa-fw"></i>
+                  {% else %}
+                    <i class="fa fa-unlock fa-lg fa-fw text-red" style="color:red"></i>
+                  {% endif %}
                   {% show_status_icon creditsubmission %}
                 </div>
               </div>
