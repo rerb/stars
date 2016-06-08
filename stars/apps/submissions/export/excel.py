@@ -1,8 +1,8 @@
 import xlwt
-
 from django.core.files.temp import NamedTemporaryFile
-
 from PIL import Image
+
+from stars.apps.submissions.models import NOT_APPLICABLE
 
 
 def get_width(num_characters):
@@ -102,6 +102,9 @@ def build_category_summary_sheet(category, sheet):
         sheet.write(r, c + 1, sub.description)
         r += 1
         for cs in sub.creditusersubmission_set.all():
+            # Skip opt-in credits with status of NA:
+            if cs.credit.is_opt_in and cs.submission_status == NOT_APPLICABLE:
+                continue
             if min_width < get_width(len(unicode(cs.credit))):
                 min_width = get_width(len(unicode(cs.credit)))
             sheet.write(r, c, unicode(cs.credit))
@@ -164,15 +167,24 @@ def build_category_data_sheet(category, sheet):
     for ss in category.subcategorysubmission_set.all():
         for cs in ss.creditusersubmission_set.all():
 
+            # Skip opt-in credits with status of NA:
+            if cs.credit.is_opt_in and cs.submission_status == NOT_APPLICABLE:
+                continue
+
             responses = cs.get_submission_fields()
 
-            sheet.write_merge(r, r + len(responses) - 1, c, c, cs.credit.identifier, style=centeredBorderedStyle)
+            sheet.write_merge(r, r + len(responses) - 1, c, c,
+                              cs.credit.identifier,
+                              style=centeredBorderedStyle)
             update_width(c, cs.credit.identifier)
-            sheet.write_merge(r, r + len(responses) - 1, c + 1, c + 1, cs.credit.title, style=centeredBorderedStyle)
+            sheet.write_merge(r, r + len(responses) - 1, c + 1, c + 1,
+                              cs.credit.title,
+                              style=centeredBorderedStyle)
             update_width(c + 1, cs.credit.title)
 
             for f in responses:
-                sheet.write(r, c + 2, f.documentation_field.title, borderedStyle)
+                sheet.write(r, c + 2, f.documentation_field.title,
+                            borderedStyle)
                 update_width(c + 2, f.documentation_field.title)
                 sheet.write(r, c + 3, f.get_human_value(), borderedStyle)
                 r += 1
