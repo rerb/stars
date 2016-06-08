@@ -198,7 +198,7 @@ def build_report_export(submission):
         Builds the excel workbook for a specific submission
     """
     print "STARTING EXCEL EXPORT"
-    wb = xlwt.Workbook()
+    wb = xlwt.Workbook(encoding="UTF-8")
 
     # Summary
     summary_sheet = wb.add_sheet('Summary')
