@@ -6,40 +6,39 @@
 {% load admin_urls %}
 
 {% if not field.is_empty %}
-  {% ifequal field.documentation_field.type 'long_text' %}
+  {% if field.documentation_field.type == 'long_text' %}
     <div style='text-align: left; margin: 0px;padding: 0px;'>
       {% block long_text_disply %}
         {{ field.value|urlize|linebreaks|fix_ampersands }}
       {% endblock %}
     </div>
+  {% elif field.documentation_field.type == 'url' %}
+    {% block url_display %}
+      <a href='{{ field.value }}' target="_blank">{{ field.value }}</a>
+    {% endblock %}
+  {% elif field.documentation_field.type == 'upload' %}
+    {% if field.value %}
+      <a href='{% if host %}http://{{ host }}{% endif %}{{ field.value.url }}'>
+        {{ field.get_filename }}
+      </a>
+    {% endif %}
+  {% elif field.documentation_field.type == 'numeric' or field.documentation_field.type == 'calculated' %}
+    {{ field.value|floatformat:"-2" }}
+    {% if field.documentation_field.units %}
+      <i>{{ field.documentation_field.units }}</i>
+    {% endif %}
+  {% elif field.documentation_field.type == 'boolean' %}
+    {{ field }}
+  {% elif field.documentation_field.type == 'multichoice' %}
+    {% for choice in field.value.all %}
+      {{ choice }}
+      {% if not forloop.last %}
+        <br>
+      {% endif %}
+    {% endfor %}
   {% else %}
-    {% ifequal field.documentation_field.type 'url' %}
-      {% block url_display %}
-        <a href='{{ field.value }}' target="_blank">{{ field.value }}</a>
-      {% endblock %}
-    {% else %}
-      {% ifequal field.documentation_field.type 'upload' %}
-	{% if field.value %}
-	  <a href='{% if host %}http://{{ host }}{% endif %}{{ field.value.url }}'>
-            {{ field.get_filename }}
-          </a>
-	{% endif %}
-      {% else %}
-	{% if field.documentation_field.type == 'numeric' or field.documentation_field.type == 'calculated' %}
-	  {{ field.value|floatformat:"-2" }}
-	  {% if field.documentation_field.units %}
-	    <i>{{ field.documentation_field.units }}</i>
-	  {% endif %}
-        {% else %}
-	  {% ifequal field.documentation_field.type 'boolean' %}
-	    {{ field }}
-          {% else %}
-	    {{ field.value }}
-	  {% endifequal %}
-	{% endif %}
-      {% endifequal %}
-    {% endifequal %}
-  {% endifequal %}
+    {{ field.value }}
+  {% endif %}
 {% else %}
   <span class='green'>---</span>
 {% endif %}
