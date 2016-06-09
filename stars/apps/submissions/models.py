@@ -2318,12 +2318,15 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
         return self.value
 
     def is_empty(self):
-        if self.value is None or self.value == "":
-            return True
-        # if it's nothing but whitespace
-        if re.match("^\s+$", self.value) is not None:
-            return True
-        return False
+        if self.documentation_field.type != "multichoice":
+            if self.value is None or self.value == "":
+                return True
+            # if it's nothing but whitespace
+            if re.match("^\s+$", self.value) is not None:
+                return True
+            return False
+        else:  # This is a multichoice field.
+            return self.value.count() == 0
 
     def get_correction_url(self):
         return "%s%d/" % (self.credit_submission.get_scorecard_url(),
