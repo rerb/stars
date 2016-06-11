@@ -389,91 +389,101 @@
 	      {% if rating.publish_score %}<th style='text-align: right;'>Points</th>{% endif %}
 	    </tr>
 	    {% for credit_submission in sub.creditusersubmission_set.all %}
-	      <tr>
-		<td>
-		  <a href='#credit{{ credit_submission.credit.id }}'>{{ credit_submission }}</a>
-		</td>
-		{% if rating.publish_score %}
-		  <td align='right'>
-		    {% if credit_submission.submission_status == 'na' %}
-		      Not Applicable
-		    {% else %}
-		      {{ credit_submission.assessed_points|floatformat:2 }} /
-		      {% format_available_points credit_submission %}
-		    {% endif %}
-		  </td>
-		{% endif %}
-	      </tr>
+              {# Skip opt-ed out opt-in credits. #}
+              {% if credit_submission.credit.is_opt_in and credit_submission.submission_status == "na" %}
+                {# Do nothing. #}
+              {% else %}
+                <tr>
+                  <td>
+                    <a href='#credit{{ credit_submission.credit.id }}'>{{ credit_submission }}</a>
+                  </td>
+                  {% if rating.publish_score %}
+                    <td align='right'>
+                      {% if credit_submission.submission_status == 'na' %}
+                        Not Applicable
+                      {% else %}
+                        {{ credit_submission.assessed_points|floatformat:2 }} /
+                        {% format_available_points credit_submission %}
+                      {% endif %}
+                    </td>
+                  {% endif %}
+                </tr>
+              {% endif %}
             {% endfor %}
 	  </table>
 	  {% for credit_submission in sub.creditusersubmission_set.all %}
-	    <h4>
-	      <a name='credit{{ credit_submission.credit.id }}'></a>
-	      {{ credit_submission }}
-	    </h4>
-	    {% if rating.publish_score or credit_submission.responsible_party %}
-	      <hr/>
-	      <table class='scoreTable horizontal'>
-		<tr>
-		  {% if rating.publish_score and credit_submission.submission_status != 'na' %}
-		    <th>
-		      {% if preview %}Provisional{% endif %}
-		      Score
-		    </th>
-		  {% endif %}
-		  <th>Responsible Party</th>
-		</tr><tr>
-		  {% if rating.publish_score and credit_submission.submission_status != 'na' %}
-		    <td>
-		      {{ credit_submission.assessed_points|floatformat:2 }} /
-		      {% format_available_points credit_submission %}
-		    </td>
-		  {% endif %}
-		  <td>
-		    {% if credit_submission.responsible_party %}
-		      <b>
-			{{ credit_submission.responsible_party.first_name }}
-			{{ credit_submission.responsible_party.last_name }}
-                      </b>
-                      <br/>
-		      {{ credit_submission.responsible_party.title }}<br/>
-		      {{ credit_submission.responsible_party.department }}
-		    {% endif %}
-		  </td>
-		</tr>
-	      </table>
-	      <hr/>
-	    {% endif %}
-	    {% if credit_submission.credit.type == 't1' %}
-	      <h5>Criteria</h5>
-	      {{ credit_submission.credit.criteria }}
-	      <hr/>
-	    {% endif %}
-	    {% if credit_submission.submission_status == 'na' %}
-	      <p class='hideReportingFields'>
-		This credit was marked as <b>Not Applicable</b> for the following reason:<br/><br/>
-		<i>{{ credit_submission.applicability_reason.reason }}</i>
-	      </p>
-	    {% else %}{% if credit_submission.submission_status == 'np' or credit_submission.submission_status == 'ns' %}
-		<p class='hideReportingFields'>
-		  This credit was marked as <b>Not Pursuing</b> so Reporting Fields will not be displayed.
-		</p>
-	    {% else %}
-		<div style="text-align: right;font-size: .9em;padding:10px;">
-		  "<span class='green bold'>---</span>"
-		  <i>indicates that no data was submitted for this field</i>
-		</div>
-		{% block tab_content %}
-		  <br/>
-                  {% include "institutions/pdf/field_list.html" %}
-		{% endblock %}
-	    {% endif %}{% endif %}
-            {% if credit_submission.submission_notes %}
-	      <div class='note'>
-		<b>Data source(s) and notes about the submission:</b><br/>
-		{{ credit_submission.submission_notes|urlize|linebreaks|fix_ampersands|wraplinks:95 }}
-	      </div>
-	    {% endif %}
+            {# Skip opt-ed out opt-in credits. #}
+            {% if credit_submission.credit.is_opt_in and credit_submission.submission_status == "na" %}
+              {# Do nothing. #}
+            {% else %}
+              <h4>
+                <a name='credit{{ credit_submission.credit.id }}'></a>
+                {{ credit_submission }}
+              </h4>
+              {% if rating.publish_score or credit_submission.responsible_party %}
+                <hr/>
+                <table class='scoreTable horizontal'>
+                  <tr>
+                    {% if rating.publish_score and credit_submission.submission_status != 'na' %}
+                      <th>
+                        {% if preview %}Provisional{% endif %}
+                        Score
+                      </th>
+                    {% endif %}
+                    <th>Responsible Party</th>
+                  </tr><tr>
+                    {% if rating.publish_score and credit_submission.submission_status != 'na' %}
+                      <td>
+                        {{ credit_submission.assessed_points|floatformat:2 }} /
+                        {% format_available_points credit_submission %}
+                      </td>
+                    {% endif %}
+                    <td>
+                      {% if credit_submission.responsible_party %}
+                        <b>
+                          {{ credit_submission.responsible_party.first_name }}
+                          {{ credit_submission.responsible_party.last_name }}
+                        </b>
+                        <br/>
+                        {{ credit_submission.responsible_party.title }}<br/>
+                        {{ credit_submission.responsible_party.department }}
+                      {% endif %}
+                    </td>
+                  </tr>
+                </table>
+                <hr/>
+              {% endif %}
+              {% if credit_submission.credit.type == 't1' %}
+                <h5>Criteria</h5>
+                {{ credit_submission.credit.criteria }}
+                <hr/>
+              {% endif %}
+              {% if credit_submission.submission_status == 'na' and not credit_submission.is_opt_in %}
+                <p class='hideReportingFields'>
+                  This credit was marked as <b>Not Applicable</b> for the following reason:<br/><br/>
+                  <i>{{ credit_submission.applicability_reason.reason }}</i>
+                </p>
+              {% else %}{% if credit_submission.submission_status == 'np' or credit_submission.submission_status == 'ns' %}
+                  <p class='hideReportingFields'>
+                    This credit was marked as <b>Not Pursuing</b> so Reporting Fields will not be displayed.
+                  </p>
+              {% else %}
+                  <div style="text-align: right;font-size: .9em;padding:10px;">
+                    "<span class='green bold'>---</span>"
+                    <i>indicates that no data was submitted for this field</i>
+                  </div>
+                  {% block tab_content %}
+                    <br/>
+                    {% include "institutions/pdf/field_list.html" %}
+                  {% endblock %}
+              {% endif %}{% endif %}
+              {% if credit_submission.submission_notes %}
+                <div class='note'>
+                  <b>Data source(s) and notes about the submission:</b><br/>
+                  {{ credit_submission.submission_notes|urlize|linebreaks|fix_ampersands|wraplinks:95 }}
+                </div>
+              {% endif %}
+            {% endif %}
 	  {% endfor %}
 	{% endfor %}
       {% endif %}
