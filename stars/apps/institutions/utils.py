@@ -1,8 +1,6 @@
 import datetime
 import sys
 
-from django.db import DatabaseError
-
 from stars.apps.institutions.models import Institution
 from stars.apps.notifications.models import EmailTemplate
 from stars.apps.submissions.models import SubmissionSet
