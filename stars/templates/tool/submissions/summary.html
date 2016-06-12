@@ -120,8 +120,11 @@
                             {% if cat.category.include_in_score %}
                               Points Claimed:
                               <strong>
-                                {{ sub.get_claimed_points|floatformat:2 }} /
-                                {{ sub.get_adjusted_available_points|floatformat:2 }}
+                                {{ sub.get_claimed_points|floatformat:2 }}
+                                {% if not cat.category.abbreviation == "IN" %}
+                                  /
+                                  {{ sub.get_adjusted_available_points|floatformat:2 }}
+                                {% endif %}
                               </strong>
                             {% endif %}
                           </div>
