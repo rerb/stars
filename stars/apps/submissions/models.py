@@ -16,6 +16,8 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.mail import EmailMessage
 from django.db import models
 from django.db.models import Q
+from django.db.models.signals import pre_delete
+from django.dispatch import receiver
 
 from file_cache_tag.templatetags.custom_caching import (generate_cache_key,
                                                         invalidate_filecache)
@@ -2994,6 +2996,17 @@ class CreditSubmissionReviewNotation(models.Model):
                     "credit_user_submission__credit__identifier",
                     "id")
 
+    def is_unlocking_kind(self):
+        """Is this a kind of Notation that should unlock a Credit Submission
+           when it's under review?
+        """
+        unlocking_kinds = [
+            CREDIT_SUBMISSION_REVIEW_NOTATION_KINDS[
+                "REVISION_REQUEST"],
+            CREDIT_SUBMISSION_REVIEW_NOTATION_KINDS[
+                "SUGGESTION_FOR_IMPROVEMENT"]]
+        return self.kind in unlocking_kinds
+
     def save(self, *args, **kwargs):
         new_credit_submission_review_notification = not self.pk
 
@@ -3005,11 +3018,26 @@ class CreditSubmissionReviewNotation(models.Model):
         super(CreditSubmissionReviewNotation, self).save(*args, **kwargs)
 
         if (new_credit_submission_review_notification and
-            self.kind in (
-                CREDIT_SUBMISSION_REVIEW_NOTATION_KINDS["REVISION_REQUEST"],
-                CREDIT_SUBMISSION_REVIEW_NOTATION_KINDS[
-                    "SUGGESTION_FOR_IMPROVEMENT"])):
+            self.is_unlocking_kind() and
+            not self.credit_user_submission.is_unlocked_for_review):
 
-            if not self.credit_user_submission.is_unlocked_for_review:
-                self.credit_user_submission.is_unlocked_for_review = True
-                self.credit_user_submission.save(calculate_points=False)
+            self.credit_user_submission.is_unlocked_for_review = True
+            self.credit_user_submission.save(calculate_points=False)
+
+
+@receiver(pre_delete)
+def pre_delete_credit_submission_review_notation(sender, instance, **kwargs):
+    """If the CreditSubmissionReviewNotation being deleted is the only one
+       for the related CreditSubmission that would cause it to be
+       unlocked for review, lock that mother back up.
+    """
+    if sender == CreditSubmissionReviewNotation:
+        credit_user_submission = instance.credit_user_submission
+        if credit_user_submission.is_unlocked_for_review:
+            for review_notation in (
+                    credit_user_submission.creditsubmissionreviewnotation_set.
+                    exclude(pk=instance.pk)):
+                if review_notation.is_unlocking_kind():
+                    return  # Keep the Credit Submission unlocked
+        credit_user_submission.is_unlocked_for_review = False
+        credit_user_submission.save(calculate_points=False)

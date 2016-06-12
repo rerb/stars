@@ -14,6 +14,7 @@ from fixtures import FixturesTest
 from calculated_field import CalculatedFieldTest
 from categorysubmission import CategorySubmissionTest
 from creditsubmission import CreditSubmissionTest
+from creditsubmissionreviewnotation import CreditSubmissionReviewNotationTest
 from choicewithothersubmission import ChoiceWithOtherSubmissionTest
 from multichoicewithothersubmission import MultiChoiceWithOtherSubmissionTest
 from numericsubmission import NumericSubmissionTest
