@@ -142,22 +142,24 @@
                       {% if not sub.subcategory.passthrough %}
                         {% if submissionset.creditset.has_submission_summary_feature %}
                           {% if not submission_under_review %}
-                            <div class='well' style='text-align: center'>
-                              {% if sub.description %}
-                                {{ sub.description|urlizetrunc:85|linebreaks|fix_ampersands }}
-                              {% endif %}
-                              <a href='{{ sub.get_submit_edit_url }}'
-                                 type="button"
-                                 class="btn btn-info btn-small"
-                                 style="color: white">
-                                  <i class='icon-pencil icon-white'></i>
+                            {% if not sub.subcategory.category.abbreviation == "IN" %}
+                              <div class='well' style='text-align: center'>
                                 {% if sub.description %}
-                                  Edit Description
-                                {% else %}
-                                  Add Description (optional)
+                                  {{ sub.description|urlizetrunc:85|linebreaks|fix_ampersands }}
                                 {% endif %}
-                              </a>
-                            </div>
+                                <a href='{{ sub.get_submit_edit_url }}'
+                                   type="button"
+                                   class="btn btn-info btn-small"
+                                   style="color: white">
+                                    <i class='icon-pencil icon-white'></i>
+                                  {% if sub.description %}
+                                    Edit Description
+                                  {% else %}
+                                    Add Description (optional)
+                                  {% endif %}
+                                </a>
+                              </div>
+                            {% endif %}
                           {% elif sub.description %}
                             <div class='well' style='text-align: center'>
                               {{ sub.description|urlizetrunc:85|linebreaks|fix_ampersands }}
