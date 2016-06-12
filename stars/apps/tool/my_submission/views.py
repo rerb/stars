@@ -582,6 +582,26 @@ class SendCreditSubmissionReviewNotationEmailView(SubmissionToolMixin,
         context["next"] = self.request.GET.get("next", "")
         return context
 
+    def list_for_humans(self, queryset):
+        """Order a queryset of CreditSubmissionReviewNotations in "human"
+        order, which is IC submissions first, followed by all others,
+        except IN submissions, which come last. This order is pulled
+        from the Reporting Tool.
+
+        Returns a list of CreditSubmissionReviewNotations, not a queryset.
+
+        Assumes queryset is already ordered by category abbreviation
+        and credit number.
+        """
+        return list(chain(
+            queryset.filter(
+                credit_user_submission__credit__subcategory__category__abbreviation="IC"),
+            queryset.exclude(
+                credit_user_submission__credit__subcategory__category__abbreviation="IC").exclude(
+                    credit_user_submission__credit__subcategory__category__abbreviation="IN"),
+            queryset.filter(
+                credit_user_submission__credit__subcategory__category__abbreviation="IN")))
+
     def get_email_content(self):
         email_template = ("/tool/submissions/" +
                           "credit_submission_review_notations_email.html")
@@ -599,13 +619,18 @@ class SendCreditSubmissionReviewNotationEmailView(SubmissionToolMixin,
 
         context["institution"] = self.institution
 
-        context["best_practices"] = self.notations_to_send.filter(
-            kind=CREDIT_SUBMISSION_REVIEW_NOTATION_KINDS["BEST_PRACTICE"])
-        context["revision_requests"] = self.notations_to_send.filter(
-            kind=CREDIT_SUBMISSION_REVIEW_NOTATION_KINDS["REVISION_REQUEST"])
-        context["suggestions_for_improvement"] = self.notations_to_send.filter(
-            kind=CREDIT_SUBMISSION_REVIEW_NOTATION_KINDS[
-                "SUGGESTION_FOR_IMPROVEMENT"])
+        context["best_practices"] = self.list_for_humans(
+            self.notations_to_send.filter(
+                kind=CREDIT_SUBMISSION_REVIEW_NOTATION_KINDS[
+                    "BEST_PRACTICE"]))
+        context["revision_requests"] = self.list_for_humans(
+            self.notations_to_send.filter(
+                kind=CREDIT_SUBMISSION_REVIEW_NOTATION_KINDS[
+                    "REVISION_REQUEST"]))
+        context["suggestions_for_improvement"] = self.list_for_humans(
+            self.notations_to_send.filter(
+                kind=CREDIT_SUBMISSION_REVIEW_NOTATION_KINDS[
+                    "SUGGESTION_FOR_IMPROVEMENT"]))
 
         context["my_submission_url"] = (
             self.submissionset.get_submit_url())
