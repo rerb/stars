@@ -67,7 +67,7 @@
 		      {% include "credits/subcategory_heading.html" %}
                       <img src='/media/static/images/expand_big.gif' alt='+'>
 		    </a>
-                    {% if show_column_charts %}
+                    {% if show_column_charts and cat.category.abbreviation != "IN" %}
                       {% if cat.category.include_in_score %}
                         <div class="container">
                           <div class="row">
