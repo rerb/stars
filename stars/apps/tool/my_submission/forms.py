@@ -917,17 +917,20 @@ class LetterForm(LocalizedModelFormMixin, ModelForm):
 
     def clean_presidents_letter(self):
         data = self.cleaned_data['presidents_letter']
-        if ('1-presidents_letter' in self.files.keys()
-            and (self.files['1-presidents_letter'].content_type !=
-                 'application/pdf')
-            and 'test' not in sys.argv):
+        if ('1-presidents_letter' in self.files.keys() and
+            (self.files['1-presidents_letter'].content_type != 'application/pdf') and
+            'test' not in sys.argv):
 
             raise forms.ValidationError("This doesn't seem to be a PDF file")
         return data
 
     def __init__(self, *args, **kwargs):
         super(LetterForm, self).__init__(*args, **kwargs)
-        self.fields['presidents_letter'].required = True
+        self.fields["presidents_letter"].required = True
+        self.fields["presidents_letter"].label = ""
+        self.fields["presidents_letter"].widget.attrs = {
+            "style": "display:none; padding-bottom: 10px;",
+            "onchange": "$('#upload-file-info').html($(this).val());"}
 
 
 class ContactsForm(LocalizedModelFormMixin, ModelForm):
