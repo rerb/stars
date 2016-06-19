@@ -1,7 +1,6 @@
 {% load list_access %}
 {% load ce_tags %}
 {% load submit_tags %}
-{% load terms %}
 
 {% if documentation_field.type == 'tabular' %}
   {% if field_form.errors %}
@@ -73,5 +72,5 @@
 
 {% endif %}
 <p class="help-block">
-  <em>{{ documentation_field.inline_help_text|replace_terms }}</em>
+  <em>{{ documentation_field.inline_help_text }}</em>
 </p>
