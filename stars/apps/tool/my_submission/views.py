@@ -320,7 +320,6 @@ class ApproveSubmissionView(SubmissionToolMixin,
         # Update the SubmissionSet.
         submissionset.rating = submissionset.get_STARS_rating()
         submissionset.status = SUBMISSION_STATUSES["RATED"]
-        submissionset.submitting_user = self.request.user
         submissionset.save()
 
         # Send email to STARS Liaison, Executive Contact,
