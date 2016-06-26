@@ -315,12 +315,11 @@ class ApproveSubmissionView(SubmissionToolMixin,
 
     def form_valid(self, form):
 
-        submissionset = self.get_submissionset(use_cache=False)
-
         # Update the SubmissionSet.
+        submissionset = self.get_submissionset(use_cache=False)
         submissionset.rating = submissionset.get_STARS_rating()
-        submissionset.status = SUBMISSION_STATUSES["RATED"]
-        submissionset.save()
+
+        response = super(ApproveSubmissionView, self).form_valid(form)
 
         # Send email to STARS Liaison, Executive Contact,
         # and institution President.
@@ -367,7 +366,7 @@ class ApproveSubmissionView(SubmissionToolMixin,
             unlocked_credit_submission.is_unlocked_for_review = False
             unlocked_credit_submission.save(calculate_points=False)
 
-        return super(ApproveSubmissionView, self).form_valid(form)
+        return response
 
     def get_success_url(self):
         url = reverse(

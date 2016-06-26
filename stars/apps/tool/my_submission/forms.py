@@ -789,7 +789,7 @@ class CreditUserSubmissionForm(CreditSubmissionForm):
     def clean(self):
         """
             Submission status depends on status of required fields -
-            can't submit as complete when its not!  An applicability
+            can't submit as complete when it's not!  An applicability
             reason must be selected if the submission status is set to
             'na'. Otherwise we want the reason to be None.
         """
@@ -997,9 +997,16 @@ class ApproveSubmissionForm(LocalizedModelFormMixin, ModelForm):
 
     class Meta:
         model = SubmissionSet
-        # This is just a confirmation form, no inputs, just
-        # two buttons, Cancel and Submit.
-        fields = []
+        fields = ["status"]
+
+    def __init__(self, *args, **kwargs):
+        super(ApproveSubmissionForm, self).__init__(*args, **kwargs)
+
+        self.fields["status"].widget = forms.HiddenInput()
+
+    def clean_status(self):
+        """Status always flips to RATED."""
+        return SUBMISSION_STATUSES["RATED"]
 
 
 class CreditSubmissionReviewForm(LocalizedModelFormMixin, ModelForm):
