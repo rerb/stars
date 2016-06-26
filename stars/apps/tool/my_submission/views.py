@@ -331,13 +331,18 @@ class ApproveSubmissionView(SubmissionToolMixin,
                       if email]
 
         if not submissionset.reporter_status:
-            email_template = EmailTemplate.objects.get(
-                slug="published_rating")
-            send_email_with_certificate_attachment(
-                submissionset=submissionset,
-                email_template=email_template,
-                email_context={'submissionset': submissionset},
-                recipients=recipients)
+            pass
+            # The below bits are commented out while we try
+            # to solve the bug that results in badly formatted
+            # certificates from being attached to email.
+            # 26 June 2016
+            # email_template = EmailTemplate.objects.get(
+            #     slug="published_rating")
+            # send_email_with_certificate_attachment(
+            #     submissionset=submissionset,
+            #     email_template=email_template,
+            #     email_context={'submissionset': submissionset},
+            #     recipients=recipients)
         else:
             email_template = EmailTemplate.objects.get(
                 slug="published_reporter")
