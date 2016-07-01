@@ -9,7 +9,7 @@ MEDIA_ROOT = os.environ.get('MEDIA_ROOT')
 
 HIDE_REPORTING_TOOL = False
 DEBUG = True
-DEBUG_TOOLBAR = False
+DEBUG_TOOLBAR = os.environ.get('DEBUG_TOOLBAR', False)
 MAINTENANCE_MODE = False
 # CELERY_ALWAYS_EAGER = True
 PROFILE = False
@@ -84,8 +84,6 @@ if 'TEST_RUNNER' in os.environ:  # django_nose.NoseTestSuiteRunner, for example
     if os.environ['TEST_RUNNER']:  # only use it if there's a value set
         TEST_RUNNER = os.environ['TEST_RUNNER'] or TEST_RUNNER
 
-# Stuff copied from ben.py that I don't know what it is:
-
 SSO_API_KEY = "8dca728d46c85b3fda4529692a7f7725"
 SSO_SERVER_URI = "http://www.aashe.org/services/xmlrpc"
 STARS_DOMAIN = "localhost"
@@ -113,7 +111,7 @@ if DEBUG_TOOLBAR:
         'debug_toolbar.panels.sql.SQLPanel',
         # 'debug_toolbar.panels.staticfiles.StaticFilesPanel',
         # 'debug_toolbar.panels.templates.TemplatesPanel',
-        # 'template_profiler_panel.panels.template.TemplateProfilerPanel',
+        'template_profiler_panel.panels.template.TemplateProfilerPanel',
         'debug_toolbar.panels.cache.CachePanel',
         # 'debug_toolbar.panels.signals.SignalsPanel',
         # 'debug_toolbar.panels.logging.LoggingPanel',
