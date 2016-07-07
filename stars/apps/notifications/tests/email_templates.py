@@ -40,6 +40,20 @@ class TestNotifications(TestCase):
         " get_message() "
         self.assertEqual(self.et.get_message(), "This is the <b>value</b> '1'.")
         
+    def test_non_ascii_chars(self):
+        " get_message() "
+        _context = {'test_val': "St. John's University"}
+        self.assertEqual(
+            self.et.get_message(context=_context),
+            "This is the <b>value</b> 'St. John's University'.")
+            
+        self.et.send_email(['ben.stookey@gmail.com',], _context)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(
+            mail.outbox[0].body,
+            "This is the <b>value</b> 'St. John's University'.")
+        
+        
     def test_send_email(self):
         " send_email() "
         context = {'test_val': 2,}
