@@ -53,61 +53,78 @@ for cs_id in cs_id_list:
 
     cs = CreditSet.objects.get(pk=cs_id)
     tp = ThirdParty.objects.get(slug="sierra")
-    print "EXPORTING: %s" % tp
+    # print "EXPORTING: %s" % tp
+    #
+    # start = datetime.date(year=2015, month=3, day=31)
+    # deadline = datetime.date(year=2016, month=3, day=31)
+    #
+    # snapshot_list = tp.get_snapshots().exclude(institution__id=447).order_by("institution__name")
+    # snapshot_list = snapshot_list.filter(creditset=cs)
+    # snapshot_list = snapshot_list.filter(date_submitted__lte=deadline)
+    # snapshot_list = snapshot_list.filter(date_submitted__gte=start)
+    #
+    # if(limit_inst_ids):
+    #     snapshot_list = snapshot_list.filter(institution__id__in=limit_inst_ids)
+    #
+    # # snapshot_list = snapshot_list | tp.get_snapshots().filter(id='1528')
+    #
+    # # latest_snapshot_list = tp.get_snapshots().filter(institution__id=267)
+    #
+    # inst_list = []
+    # latest_snapshot_list = [] # only use the latest snapshot
+    # for ss in snapshot_list:
+    #     if ss.institution.id not in inst_list:
+    #         inst_list.append(ss.institution.id)
+    #         i_ss_list = ss.institution.submissionset_set.filter(status='f').order_by('-date_submitted', '-id').filter(date_submitted__lte=deadline)
+    #         print "Available snapshots for %s" % ss.institution
+    #         for __ss in i_ss_list:
+    #             print "%s, %d" % (__ss.date_submitted, __ss.id)
+    #         if i_ss_list[0].creditset == cs:
+    #             latest_snapshot_list.append(i_ss_list[0])
+    #         else:
+    #             print "newer snapshot in version: %s" % i_ss_list[0].creditset
+    #         print "Selected snapshot:%s, %d" % (i_ss_list[0].date_submitted, i_ss_list[0].id)
 
-    start = datetime.date(year=2015, month=3, day=31)
-    deadline = datetime.date(year=2016, month=3, day=31)
 
-    snapshot_list = tp.get_snapshots().exclude(institution__id=447).order_by("institution__name")
-    snapshot_list = snapshot_list.filter(creditset=cs)
-    snapshot_list = snapshot_list.filter(date_submitted__lte=deadline)
-    snapshot_list = snapshot_list.filter(date_submitted__gte=start)
-
-    if(limit_inst_ids):
-        snapshot_list = snapshot_list.filter(institution__id__in=limit_inst_ids)
-
-    # snapshot_list = snapshot_list | tp.get_snapshots().filter(id='1528')
-
-    # latest_snapshot_list = tp.get_snapshots().filter(institution__id=267)
-
-    inst_list = []
-    latest_snapshot_list = [] # only use the latest snapshot
-    for ss in snapshot_list:
-        if ss.institution.id not in inst_list:
-            inst_list.append(ss.institution.id)
-            i_ss_list = ss.institution.submissionset_set.filter(status='f').order_by('-date_submitted', '-id').filter(date_submitted__lte=deadline)
-            print "Available snapshots for %s" % ss.institution
-            for __ss in i_ss_list:
-                print "%s, %d" % (__ss.date_submitted, __ss.id)
-            if i_ss_list[0].creditset == cs:
-                latest_snapshot_list.append(i_ss_list[0])
-            else:
-                print "newer snapshot in version: %s" % i_ss_list[0].creditset
-            print "Selected snapshot: %s, %d" % (i_ss_list[0].date_submitted, i_ss_list[0].id)
+    latest_snapshot_list = []
+    ss_id_list = [
+        5023, # Bucknell
+        5024, # Florida Gulf Coast University
+        5025, # Haverford College
+        5026, # Juniata College
+        5027, # Oregon State University
+        5028, # Pittsburg State University
+        5029, # Slippery Rock University
+        5030, # University of Texas Rio Grande Valley
+        5031, # Weber State University
+        5032, # Wilfrid Laurier University
+    ]
+    for id in ss_id_list:
+        latest_snapshot_list.append(SubmissionSet.objects.get(pk=id))
 
     print "%d Snapshots" % len(latest_snapshot_list)
 
-    for cat in cs.category_set.all():
-        for sub in cat.subcategory_set.all():
-            for c in sub.credit_set.all():
-                filename = 'export/%s/%s.csv' % (cs.version, string.replace("%s" % c, "/", "-"))
-                filename = string.replace(filename, ":", "")
-                filename = string.replace(filename, " ", "_")
+    # for cat in cs.category_set.all():
+    #     for sub in cat.subcategory_set.all():
+    #         for c in sub.credit_set.all():
+    #             filename = 'export/%s/%s.csv' % (cs.version, string.replace("%s" % c, "/", "-"))
+    #             filename = string.replace(filename, ":", "")
+    #             filename = string.replace(filename, " ", "_")
+    #
+    #             export_credit_csv(c, ss_qs=latest_snapshot_list, outfilename=filename)
 
-                export_credit_csv(c, ss_qs=latest_snapshot_list, outfilename=filename)
-
-    # # export pdfs
-    # count = 0
-    # total = len(latest_snapshot_list)
-    # for ss in latest_snapshot_list:
-    #     count += 1
-    #     print ss
-    #     print "%d of %d" % (count, total)
-    #     if count < 80:
-    #         continue
-    #     outfile = "export/pdf/%s" % ss.get_pdf_filename()
-    #     # pdf = ss.get_pdf(False)
-    #     # f = open(outfile, 'w')
-    #     # f.write(pdf)
-    #     pdf = ss.get_pdf(refresh=False, template='institutions/pdf/third_party_report.html')
-    #     os.rename(pdf, outfile)
+    # export pdfs
+    count = 0
+    total = len(latest_snapshot_list)
+    for ss in latest_snapshot_list:
+        count += 1
+        print ss
+        print "%d of %d" % (count, total)
+        # if count < 80:
+        #     continue
+        outfile = "export/pdf/%s" % ss.get_pdf_filename()
+        # pdf = ss.get_pdf(False)
+        # f = open(outfile, 'w')
+        # f.write(pdf)
+        pdf = ss.get_pdf(refresh=False, template='institutions/pdf/third_party_report.html')
+        os.rename(pdf, outfile)
