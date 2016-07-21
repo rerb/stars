@@ -29,7 +29,7 @@
             Review Conclusion: {{ credit_submission.get_review_conclusion_display }}
           </h5>
         </div>
-        {% if num_notations_to_send != None %}
+        {% if user.is_staff and num_notations_to_send != None %}
           <div class="pull-right">
             {{ num_notations_to_send }} Notation(s) to Send
           </div>
