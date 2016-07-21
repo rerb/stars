@@ -77,17 +77,20 @@ for i in Institution.objects.filter(country="Canada"):
         canada_count += 1
 print canada_count
 
-print "2013 subscription revenue"
-d13 = datetime.date(year=2013, day=1, month=1)
-d14 = datetime.date(year=2014, day=1, month=1)
+this_year = datetime.datetime.now().year
+last_year = this_year - 1
+
+print "%d subscription revenue" % last_year
+d_last = datetime.date(year=last_year, day=1, month=1)
+d_this = datetime.date(year=this_year, day=1, month=1)
 revenue = 0
-for p in SubscriptionPayment.objects.filter(date__gte=d13).filter(date__lt=d14):
+for p in SubscriptionPayment.objects.filter(date__gte=d_last).filter(date__lt=d_this):
     revenue += p.amount
 print revenue
 
-print "2014 subscription revnue (to date)"
+print "%d subscription revenue (to date)" % this_year
 revenue = 0
-for p in SubscriptionPayment.objects.filter(date__gte=d14):
+for p in SubscriptionPayment.objects.filter(date__gte=d_this):
     revenue += p.amount
 print revenue
 # $137,100

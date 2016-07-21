@@ -427,7 +427,7 @@ class Institution(models.Model):
         institution """
         if self.submissionset_set.filter(status='r').count() > 0:
             return self.submissionset_set.filter(
-                status='r').order_by('date_submitted')[0]
+                status='r').order_by('-date_submitted')[0]
 
     def is_registered(self, creditset=None):
         """ Return True if this institution is registered for the given
