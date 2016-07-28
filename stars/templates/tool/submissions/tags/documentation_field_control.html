@@ -34,7 +34,7 @@
              data-toggle="tooltip"
              title="Copy from {{ dfcopy.credit.identifier}}: {{ dfcopy.title }}";
              {% if submissionset %}
-               onclick='this.parentNode.firstElementChild.value = "{% get_documentation_field_submission_value dfcopy submissionset %}";'
+               onclick='$(this).siblings(":text")[0].value = "{% get_documentation_field_submission_value dfcopy submissionset %}";'
              {% endif %}
       >
     {% endwith %}
