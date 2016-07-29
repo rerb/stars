@@ -50,20 +50,7 @@
             {% endwith %}
           {% endwith %}
 
-          {% if documentation_field.copy_from_field %}
-            {% with documentation_field.copy_from_field as dfcopy %}
-              <input type="button"
-                     class="btn btn-primary"
-                     value="Populate"
-                     style="margin-bottom: 9px"
-                     data-toggle="tooltip"
-                     title="Copy from {{ dfcopy.credit.identifier}}: {{ dfcopy.title }}"
-                     {% if submissionset %}
-                       onclick='$(this).siblings(":text")[0].value = "{% get_documentation_field_submission_value dfcopy submissionset %}";'
-                     {% endif %}
-              >
-            {% endwith %}
-          {% endif %}
+          {% include 'tool/submissions/tags/populate_button.html' %}
 
           {% if editing %}
             <a href='{{ documentation_field.get_edit_url }}'>
