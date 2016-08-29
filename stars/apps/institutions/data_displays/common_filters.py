@@ -3,7 +3,7 @@ from stars.apps.submissions.models import SubmissionSet
 
 BASE_1_0_QS = SubmissionSet.objects.filter(status='r')
 BASE_1_0_QS = BASE_1_0_QS.filter(expired=False)
-BASE_1_0_QS = BASE_1_0_QS.exclude(creditset__version='2.0')
+BASE_1_0_QS = BASE_1_0_QS.filter(creditset__version__startswith='1.')
 
 COMMON_1_0_FILTERS = [
     Filter(
@@ -64,7 +64,7 @@ COMMON_1_0_FILTERS = [
 
 BASE_2_0_QS = SubmissionSet.objects.filter(status='r')
 BASE_2_0_QS = BASE_2_0_QS.filter(expired=False)
-BASE_2_0_QS = BASE_2_0_QS.filter(creditset__version='2.0')
+BASE_2_0_QS = BASE_2_0_QS.filter(creditset__version__startswith='2.')
 
 COMMON_2_0_FILTERS = [
     Filter(
