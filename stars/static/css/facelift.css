@@ -53,7 +53,7 @@
   padding: 10px;
 }
 .frontblock {
-  height: 320px;
+  /*height: 320px;*/
   overflow: hidden;
 }
 .frontblock .update-row {
