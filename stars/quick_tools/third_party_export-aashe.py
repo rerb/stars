@@ -14,7 +14,7 @@ from django.utils.encoding import smart_unicode, smart_str
 import csv, string
 import datetime
 
-cs_id_list = [2, 4, 5, 6]
+cs_id_list = [6, 7]
 
 for cs_id in cs_id_list:
 
@@ -41,11 +41,16 @@ for cs_id in cs_id_list:
     #
     # print "%d Snapshots" % len(latest_snapshot_list)
 
+    limit_to_credit_ids = [
+        'IC-3', 'OP-15', 'OP-16', 'OP-17', 'OP-18',
+    ]
+
     for cat in cs.category_set.all():
         for sub in cat.subcategory_set.all():
             for c in sub.credit_set.all():
-                filename = 'export/%s/%s.csv' % (cs.version, string.replace("%s" % c, "/", "-"))
-                filename = string.replace(filename, ":", "")
-                filename = string.replace(filename, " ", "_")
+                if not limit_to_credit_ids or c.identifier in limit_to_credit_ids:
+                    filename = 'export/%s/%s.csv' % (cs.version, string.replace("%s" % c, "/", "-"))
+                    filename = string.replace(filename, ":", "")
+                    filename = string.replace(filename, " ", "_")
 
-                export_credit_csv(c, ss_qs=ss_list, outfilename=filename)
+                    export_credit_csv(c, ss_qs=ss_list, outfilename=filename)
