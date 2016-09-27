@@ -14,9 +14,15 @@ from django.utils.encoding import smart_unicode, smart_str
 import csv, string
 import datetime
 
-cs_id_list = [6, 7]
+# - 2.0: IC 1, IC 2, IC 3, OP 18, OP 19, OP 20, and OP 21
+# - 2.1: IC 1, IC 2, IC 3, OP 15, OP 16, OP 17, and OP 18
 
-for cs_id in cs_id_list:
+cs_id_list = {
+    6: ['IC-1', 'IC-2', 'IC-3', 'OP-18', 'OP-19', 'OP-20', 'OP-21'],
+    7: ['IC-1', 'IC-2', 'IC-3', 'OP-15', 'OP-16', 'OP-17', 'OP-18'],
+}
+
+for cs_id, limit_to_credit_ids in cs_id_list.items():
 
     cs = CreditSet.objects.get(pk=cs_id)
 
@@ -40,10 +46,6 @@ for cs_id in cs_id_list:
     #         print "Selected snapshot: %s, %d" % (i_ss_list[0].date_submitted, i_ss_list[0].id)
     #
     # print "%d Snapshots" % len(latest_snapshot_list)
-
-    limit_to_credit_ids = [
-        'IC-3', 'OP-15', 'OP-16', 'OP-17', 'OP-18',
-    ]
 
     for cat in cs.category_set.all():
         for sub in cat.subcategory_set.all():

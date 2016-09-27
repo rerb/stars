@@ -12,3 +12,5 @@ stellar.yaml
 \#*\#
 *.flymake.py
 .idea
+
+export.zip
