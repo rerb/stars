@@ -53,7 +53,8 @@ class SubmissionSetAdmin(admin.ModelAdmin, SubmissionSetMixin):
     list_display = ('creditset', 'institution', 'date_created',
                     'date_submitted', 'status', 'rating',
                     'is_locked', 'is_visible')
-    list_filter = ('date_registered', 'status', 'is_locked', 'expired')
+    list_filter = (
+        'date_registered', 'status', 'is_locked', 'expired', 'is_visible')
     search_fields = ('institution__name',)
 
     def get_form(self, request, obj=None, **kwargs):
