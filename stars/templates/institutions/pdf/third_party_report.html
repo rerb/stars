@@ -306,6 +306,11 @@
                 This credit was marked as <b>Not Pursuing</b> so
                 Reporting Fields will not be displayed.
               </p>
+            {% elif credit_submission.submission_status == 'p' %}
+              <p class='hideReportingFields'>
+                This credit was marked as <b>In Progress</b> so
+                Reporting Fields will not be displayed.
+              </p>
             {% else %}
               <div style="text-align: right;font-size: .9em;padding:10px;">
                 "<span class='green bold'>---</span>"
