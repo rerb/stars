@@ -9,6 +9,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.db import transaction
+from django.db.models.signals import post_init
 from django.template.defaultfilters import slugify
 from django.utils.encoding import smart_unicode
 from jsonfield import JSONField
@@ -627,7 +628,8 @@ class Credit(VersionedModel):
     title = models.CharField(max_length=64)
     ordinal = models.SmallIntegerField(
         help_text='The order of this credit within sub-category.',
-        default=-1)
+        default=-1,
+        db_index=True)
     number = models.SmallIntegerField(
         help_text='The number of this credit within the main category. '
                   'EX: "ER Credit 1"',
@@ -670,7 +672,7 @@ class Credit(VersionedModel):
     scoring = models.TextField()
     measurement = models.TextField(blank=True, null=True)
     staff_notes = models.TextField('AASHE Staff Notes', blank=True, null=True)
-    identifier = models.CharField(max_length=16, default="ID?")
+    identifier = models.CharField(max_length=16, default="ID?", db_index=True)
     show_info = models.BooleanField(
         default=True,
         help_text="Indicates if this credit will have the 'info' tab")
@@ -747,7 +749,7 @@ class Credit(VersionedModel):
         # the model hierarchy)
 
     def has_dependents(self):
-        """ Return true if this Subcategory has dependent objects lower
+        """ Return true if this Credit has dependent objects lower
             in the credit hierarchy """
         return (self.documentationfield_set.all().count() > 0 or
                 self.applicabilityreason_set.all().count() > 0)
@@ -1176,7 +1178,9 @@ class DocumentationField(VersionedModel):
                               help_text=('HTML to display before field '
                                          'in Reporting Tool'))
     title = models.CharField("Promt/Question", max_length=255)
-    type = models.CharField(max_length=16, choices=DOCUMENTATION_FIELD_TYPES)
+    type = models.CharField(max_length=16,
+                            choices=DOCUMENTATION_FIELD_TYPES,
+                            db_index=True)
     last_choice_is_other = models.BooleanField(
         default=False,
         help_text='If selected, the last choice provides a box to enter '
@@ -1191,7 +1195,7 @@ class DocumentationField(VersionedModel):
     units = models.ForeignKey(Unit, null=True, blank=True)
     inline_help_text = models.TextField(null=True, blank=True)
     tooltip_help_text = models.TextField(null=True, blank=True)
-    ordinal = models.SmallIntegerField(default=-1)
+    ordinal = models.SmallIntegerField(default=-1, db_index=True)
     required = models.CharField(
         max_length=8,
         choices=REQUIRED_TYPES,
@@ -1200,7 +1204,7 @@ class DocumentationField(VersionedModel):
                   'to note that in the help-text and to define a custom '
                   'validation rule.')
     # Field identifier for the Formula editor - auto-generated.
-    identifier = models.CharField(max_length=2)
+    identifier = models.CharField(max_length=2, db_index=True)
     is_published = models.BooleanField(
         default=True,
         help_text='This documentation field will be displayed in the '
@@ -1238,6 +1242,10 @@ class DocumentationField(VersionedModel):
         ordering = ('ordinal',)
         unique_together = ("credit", "identifier")
 
+    @property
+    def init_track_fields(self):
+        return ['formula']
+
     def get_creditset(self):
         return self.credit.get_creditset()
 
@@ -1246,10 +1254,7 @@ class DocumentationField(VersionedModel):
 
     def save(self, *args, **kwargs):
         """ 1. Assign identifier and ordinal;
-            2. for calculated fields,
-               a. update formula_terms,
-               b. if formula changes, recalculate
-                  all linked DocumentFieldSubmissions.
+
         """
         if not self.identifier:
             self.identifier = self.credit.get_next_field_identifier()
@@ -1257,36 +1262,52 @@ class DocumentationField(VersionedModel):
             self.ordinal = _get_next_ordinal(
                 self.credit.documentationfield_set.all())
 
-        previous_formula = (
-            DocumentationField.objects.get(pk=self.pk).formula
-            if self.pk
-            else None) if self.type == 'calculated' else None
+        # If this DocumentationField's formula is new or has changed,
+        # update it's list of formula terms, then recalculate any
+        # CreditSubmissions that depend on the formula.
+        update_terms_and_dependents = False
+        if self.formula:
+            if (not self.pk or   # new formula
+                (self.formula != self._original_formula)):  # changed formula  # noqa
+                update_terms_and_dependents = True
+        elif self._original_formula:  # from formula to blank formula
+            update_terms_and_dependents = True
 
         super(DocumentationField, self).save(*args, **kwargs)
 
-        if self.type == 'calculated' and previous_formula != self.formula:
+        if update_terms_and_dependents:
             self.update_formula_terms()
-            from stars.apps.submissions.models import NumericSubmission
-            for calculated_submission in NumericSubmission.objects.filter(
-                    documentation_field=self):
-                previous_value = calculated_submission.value
-                calculated_submission.calculate()
-                if calculated_submission.value != previous_value:
-                    calculated_submission.save()
+            self.recalculate_dependent_submissions()
+
+    def recalculate_dependent_submissions(self):
+        """Recalculate all calculated CreditSubmissions that depend on this
+        DocumentationFields's formula.
+        """
+        from stars.apps.submissions.models import NumericSubmission
+
+        dependent_submissions = NumericSubmission.objects.filter(
+            documentation_field=self)
+
+        for dependent_submission in dependent_submissions:
+            dependent_submission.calculate()
+            if (dependent_submission.value !=
+                dependent_submission._original_value):  # NOQA
+
+                dependent_submission.save()
 
     def update_formula_terms(self):
-        """For calculated fields, update the set of fields upon
-        which the calculation depends.
+        """Update the set of fields upon which this fields' calculation
+        depends.  No-op for fields that aren't calculated fields.
         """
         if self.type != 'calculated':
             return
 
-        formula_terms = self.get_formula_terms()
-        formula_fields = self.get_fields_for_terms(
+        formula_terms = self.get_formula_terms()  # parses forumula
+        formula_fields = self.get_fields_for_terms(  # hits db
             terms_list=formula_terms)
-        self.formula_terms.clear()
-        for dependent_field in formula_fields:
-            self.formula_terms.add(dependent_field)
+
+        self.formula_terms.clear()  # hits db?
+        self.formula_terms.add(*formula_fields)  # hits db?
 
     def get_formula_terms(self):
         """Return a list of terms used in self.formula.
@@ -1416,6 +1437,19 @@ class DocumentationField(VersionedModel):
     def get_widget(self):
         """ Returns the appropriate widget for this type of field """
         return TYPE_TO_WIDGET[self.type]
+
+
+def documentation_field_post_init(sender, instance, **kwargs):
+    for field in instance.init_track_fields:
+        setattr(instance,
+                '_original_%s' % field,
+                getattr(instance, field, None))
+
+
+post_init.connect(
+    documentation_field_post_init,
+    sender=DocumentationField,
+    dispatch_uid='stars.apps.credits.models.documentation_field_post_init')  # noqa
 
 
 class Choice(VersionedModel):

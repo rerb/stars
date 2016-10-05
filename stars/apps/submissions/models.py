@@ -16,8 +16,9 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.mail import EmailMessage
 from django.db import models
 from django.db.models import Q
-from django.db.models.signals import pre_delete
+from django.db.models.signals import post_init, pre_delete
 from django.dispatch import receiver
+from django.utils.functional import memoize
 
 from file_cache_tag.templatetags.custom_caching import (generate_cache_key,
                                                         invalidate_filecache)
@@ -30,7 +31,6 @@ from stars.apps.institutions.models import (BASIC_ACCESS,
 from stars.apps.notifications.models import EmailTemplate
 from stars.apps.notifications.utils import build_message
 from stars.apps.submissions.export.pdf import build_report_pdf
-
 
 FINALIZED_SUBMISSION_STATUS = 'f'
 PENDING_SUBMISSION_STATUS = 'ps'
@@ -1427,7 +1427,7 @@ class CreditSubmission(models.Model):
         """
         return [field.get_value() for field in self.get_submission_fields()]
 
-    def get_submission_field_key(self):
+    def _get_submission_field_key(self):
         """ Returns a dictionary with identifier:value for each submission
             field
         """
@@ -1436,6 +1436,10 @@ class CreditSubmission(models.Model):
         for field in fields:
             key[field.documentation_field.identifier] = field.get_value()
         return key
+
+    get_submission_field_key = memoize(_get_submission_field_key,
+                                       cache={},
+                                       num_args=1)
 
     def print_submission_fields(self):
         print >> sys.stderr, "Fields for CreditSubmission: %s" % self
@@ -2289,7 +2293,7 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
         except Exception, exc:
             logger.exception(
                 "Formula Exception for {numeric_submission}, "
-                "formula:`{formula}`; locals: {locals}; "
+                "formula: `{formula}`; locals: {locals}; "
                 "{exc}".format(
                     numeric_submission=self,
                     formula=self.documentation_field.formula,
@@ -2303,7 +2307,7 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
 
         if (self.requires_duplication() and
             self.use_metric() and
-            self.value):
+            self.value):  # NOQA
 
             units = self.documentation_field.us_units
             self.metric_value = units.convert(self.value)
@@ -2654,6 +2658,10 @@ class NumericSubmission(DocumentationFieldSubmission):
     value = models.FloatField(blank=True, null=True)
     metric_value = models.FloatField(blank=True, null=True)
 
+    @property
+    def init_track_fields(self):
+        return ['value']
+
     def requires_duplication(self):
         """
             Determines if this instance needs to have both `value` and
@@ -2688,10 +2696,6 @@ class NumericSubmission(DocumentationFieldSubmission):
                 1. generate the metric value, and
                 2. recalculate any related calculated fields, when neccesary.
         """
-        previous_value = (NumericSubmission.objects.get(pk=self.pk).value
-                          if self.pk
-                          else None)
-
         if self.requires_duplication():
             if self.use_metric():
                 if self.metric_value is not None:
@@ -2709,20 +2713,32 @@ class NumericSubmission(DocumentationFieldSubmission):
         super(NumericSubmission, self).save(*args, **kwargs)
 
         if (recalculate_related_calculated_fields and
-            self.value != previous_value):
+            self.value != self._original_value):  # NOQA
 
             # If this field is used in any calculated fields ...
-            for calculated_field in self.documentation_field.calculated_fields.all():
+            for calculated_field in self.documentation_field.calculated_fields.all():  # NOQA
                 # ... recalculate those fields:
                 for field_submission in NumericSubmission.objects.filter(
                         documentation_field=calculated_field):
 
-                    previous_field_submission_value = field_submission.value
                     field_submission.calculate()
                     if (field_submission.value !=
-                        previous_field_submission_value):
+                        field_submission._original_value):  # NOQA
 
                         field_submission.save()
+
+
+def numeric_submission_post_init(sender, instance, **kwargs):
+    for field in instance.init_track_fields:
+        setattr(instance,
+                '_original_%s' % field,
+                getattr(instance, field, None))
+
+
+post_init.connect(
+    numeric_submission_post_init,
+    sender=NumericSubmission,
+    dispatch_uid='stars.apps.submissions.models.numeric_submission_post_init')  # noqa
 
 
 class TextSubmission(DocumentationFieldSubmission):

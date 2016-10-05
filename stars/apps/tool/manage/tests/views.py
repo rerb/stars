@@ -289,7 +289,7 @@ class AccountCreateViewTest(InstitutionAdminToolMixinTest):
         self.request.method = 'POST'
         pending_account_count_before = PendingAccount.objects.count()
         form_input = {'email': 'joe.hump@fixityourself.com',
-                      'userlevel': 'bystander'}
+                      'userlevel': 'bystr'}
         self.request.POST = form_input
         _ = views.AccountCreateView.as_view()(
             request=self.request,
@@ -305,7 +305,7 @@ class AccountCreateViewTest(InstitutionAdminToolMixinTest):
         self.request.method = 'POST'
         stars_account_count_before = StarsAccount.objects.count()
         form_input = {'email': 'joe.hump@fixityourself.com',
-                      'userlevel': 'bystander'}
+                      'userlevel': 'bystr'}
         self.request.POST = form_input
         with testfixtures.Replacer() as r:
             r.replace(

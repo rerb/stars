@@ -460,7 +460,7 @@ class CreditSubmissionForm(LocalizedModelFormMixin, ModelForm):
         super(CreditSubmissionForm, self).__init__(*args, **kwargs)
 
         self.warnings = None  # Top-level warnings for this form
-                              #(filled by custom validation)
+                              # (filled by custom validation)
         self._form_fields = None  # lazy init - don't access directly,
                                   # call get_from_fields()
 
@@ -499,21 +499,22 @@ class CreditSubmissionForm(LocalizedModelFormMixin, ModelForm):
         # build the form fields based on the data and instance bound
         # to this form.
         prefix = 0  # Ideally, form prefix would be submission field
-                    #id, but this may not be set yet, and each must be
-                    #unique.
+                    # id, but this may not be set yet, and each must be
+                    # unique.
 
         for field in self.instance.get_submission_fields():
-            prefix +=1
-            SubmissionFieldFormClass = SubmissionFieldForm.get_form_class(field)
+            prefix += 1
+            SubmissionFieldFormClass = SubmissionFieldForm.get_form_class(
+                field)
             if SubmissionFieldFormClass:
                 # bind the field form to the data (if there was any)
                 form = SubmissionFieldFormClass(
                     data, files, instance=field,
-                    prefix = "%s_%s" % (field.__class__.__name__, prefix))
+                    prefix="%s_%s" % (field.__class__.__name__, prefix))
                 form['value'].field.widget.attrs['onchange'] = (
                     'field_changed(this);')  # see include.js
             else:
-                ## Dummy Tabular form class
+                # Dummy Tabular form class
                 class DummyTabularForm(SubmissionFieldFormMixin):
                     def __init__(self, value):
                         self.cleaned_data = {'value': value}

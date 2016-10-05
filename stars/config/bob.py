@@ -50,19 +50,28 @@ def use_sqlite_for_tests():
     return True  # default
 
 
-if ((('test' in sys.argv) or
-     ('testserver' in sys.argv)) and use_sqlite_for_tests()):
-    DATABASES['default'] = dj_database_url.parse(
-        os.environ.get('STARS_SQLITE_DB_URL'))
-    DATABASES['iss'] = dj_database_url.parse(
-        os.environ.get('ISS_SQLITE_DB_URL'))
-else:
-    DATABASES['default'] = dj_database_url.parse(
-        os.environ.get('STARS_MYSQL_DB_URL'))
-    DATABASES['iss'] = dj_database_url.parse(
-        os.environ.get('ISS_MYSQL_DB_URL'))
-    DATABASES['default']['OPTIONS'] = {'init_command':
-                                       'SET storage_engine=MYISAM'}
+# if ((('test' in sys.argv) or
+#      ('testserver' in sys.argv)) and use_sqlite_for_tests()):
+#     DATABASES['default'] = dj_database_url.parse(
+#         os.environ.get('STARS_SQLITE_DB_URL',
+#                        'db/stars.sqlite'))
+#     DATABASES['iss'] = dj_database_url.parse(
+#         os.environ.get('ISS_SQLITE_DB_URL',
+#                        'db/iss.db'))
+# else:
+#     DATABASES['default'] = dj_database_url.parse(
+#         os.environ.get('STARS_MYSQL_DB_URL'))
+#     DATABASES['iss'] = dj_database_url.parse(
+#         os.environ.get('ISS_MYSQL_DB_URL'))
+#     DATABASES['default']['OPTIONS'] = {'init_command':
+#                                        'SET storage_engine=MYISAM'}
+
+DATABASES['default'] = dj_database_url.parse(
+    os.environ.get('STARS_MYSQL_DB_URL'))
+DATABASES['iss'] = dj_database_url.parse(
+    os.environ.get('ISS_MYSQL_DB_URL'))
+DATABASES['default']['OPTIONS'] = {'init_command':
+                                   'SET storage_engine=MYISAM'}
 
 DATABASE_ROUTERS = ('issdjango.router.ISSRouter',)
 

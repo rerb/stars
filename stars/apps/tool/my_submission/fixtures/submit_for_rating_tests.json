@@ -8,7 +8,7 @@
         "description": "Can have snapshots"
       }
     },
-    
+
     {
         "pk": 1,
          "model": "credits.creditset",
@@ -22,7 +22,7 @@
              "supported_features": [1]
         }
     },
-    
+
     {
         "pk": 2,
          "model": "credits.creditset",
@@ -30,7 +30,7 @@
         {
             "is_locked": false,
              "release_date": "2011-08-12",
-             "version": "Test 2",
+             "version": "Test2",
              "tier_2_points": 0.25,
              "scoring_method": "get_STARS_v1_0_score"
         }

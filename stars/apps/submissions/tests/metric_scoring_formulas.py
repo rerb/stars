@@ -1,9 +1,5 @@
 """
     Test the values passed to the point calculation formula
-
-    Print the formula variable values
-    then switch to metric
-    print the formula variable values again
 """
 
 from .metric_base_test import BaseMetricTest
@@ -25,7 +21,6 @@ class MetricScoringFormulaTest(BaseMetricTest):
     def runSwapAndPrint(self):
 
         # submit the credit with some simple initial values
-        print self.cus.get_submission_field_key()
         post_dict = {
             "responsible_party": self.rp.id,
             "responsible_party_confirm": True,
@@ -39,14 +34,12 @@ class MetricScoringFormulaTest(BaseMetricTest):
         self.assertEqual(response.status_code, 302)
 
         self.cus = CreditUserSubmission.objects.all()[0]
-        print self.cus.get_submission_field_key()
         self.evaluateFieldKey(self.cus.get_submission_field_key())
 
         self.institution.prefers_metric_system = True
         self.institution.save()
 
         self.cus = CreditUserSubmission.objects.all()[0]
-        print self.cus.get_submission_field_key()
         self.evaluateFieldKey(self.cus.get_submission_field_key())
 
         post_dict = {
@@ -61,5 +54,4 @@ class MetricScoringFormulaTest(BaseMetricTest):
         response = self.client.post(self.cus.get_submit_url(), post_dict)
 
         self.cus = CreditUserSubmission.objects.all()[0]
-        print self.cus.get_submission_field_key()
         self.evaluateFieldKey(self.cus.get_submission_field_key())
