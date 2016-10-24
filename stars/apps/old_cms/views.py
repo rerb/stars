@@ -4,6 +4,7 @@ from django.views.generic.base import RedirectView, TemplateView
 
 from stars.apps.old_cms.models import Category, NewArticle, Subcategory
 
+
 class HomePageView(TemplateView):
     template_name = 'home.html'
 
@@ -12,7 +13,8 @@ class HomePageView(TemplateView):
 
         context = super(HomePageView, self).get_context_data(*args, **kwargs)
 
-        context['categories'] = Category.objects.filter(published=True).order_by('ordinal')
+        context['categories'] = Category.objects.filter(
+            published=True).order_by('ordinal')
 
         return context
 
@@ -83,6 +85,19 @@ class ArticleDetailView(CMSView):
         Detail page for one CMS article.
     """
     template_name = 'old_cms/article_detail.html'
+
+
+class ArticleDetailWithFacebookCommentsWidgetView(ArticleDetailView):
+    """
+        Detail page for one CMS article with Facebook Comments Widget.
+    """
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(ArticleDetailWithFacebookCommentsWidgetView,
+                        self).get_context_data(*args, **kwargs)
+        context['include_facebook_comment_widget'] = True
+
+        return context
 
 
 # class CategoryDetailView(CMSView):
