@@ -3,12 +3,13 @@
 """
 import os
 
-from settings import *
+from settings import *  # noqa
 
 MEDIA_ROOT = os.environ.get('MEDIA_ROOT')
 
 HIDE_REPORTING_TOOL = False
 DEBUG = True
+DEBUG_TOOLBAR = False
 MAINTENANCE_MODE = False
 # CELERY_ALWAYS_EAGER = True
 PROFILE = False
@@ -49,28 +50,19 @@ def use_sqlite_for_tests():
     return True  # default
 
 
-# if ((('test' in sys.argv) or
-#      ('testserver' in sys.argv)) and use_sqlite_for_tests()):
-#     DATABASES['default'] = dj_database_url.parse(
-#         os.environ.get('STARS_SQLITE_DB_URL',
-#                        'db/stars.sqlite'))
-#     DATABASES['iss'] = dj_database_url.parse(
-#         os.environ.get('ISS_SQLITE_DB_URL',
-#                        'db/iss.db'))
-# else:
-#     DATABASES['default'] = dj_database_url.parse(
-#         os.environ.get('STARS_MYSQL_DB_URL'))
-#     DATABASES['iss'] = dj_database_url.parse(
-#         os.environ.get('ISS_MYSQL_DB_URL'))
-#     DATABASES['default']['OPTIONS'] = {'init_command':
-#                                        'SET storage_engine=MYISAM'}
-
-DATABASES['default'] = dj_database_url.parse(
-    os.environ.get('STARS_MYSQL_DB_URL'))
-DATABASES['iss'] = dj_database_url.parse(
-    os.environ.get('ISS_MYSQL_DB_URL'))
-DATABASES['default']['OPTIONS'] = {'init_command':
-                                   'SET storage_engine=MYISAM'}
+if ((('test' in sys.argv) or
+     ('testserver' in sys.argv)) and use_sqlite_for_tests()):
+    DATABASES['default'] = dj_database_url.parse(
+        os.environ.get('STARS_SQLITE_DB_URL'))
+    DATABASES['iss'] = dj_database_url.parse(
+        os.environ.get('ISS_SQLITE_DB_URL'))
+else:
+    DATABASES['default'] = dj_database_url.parse(
+        os.environ.get('STARS_MYSQL_DB_URL'))
+    DATABASES['iss'] = dj_database_url.parse(
+        os.environ.get('ISS_MYSQL_DB_URL'))
+    DATABASES['default']['OPTIONS'] = {'init_command':
+                                       'SET storage_engine=MYISAM'}
 
 DATABASE_ROUTERS = ('issdjango.router.ISSRouter',)
 
@@ -92,6 +84,8 @@ if 'TEST_RUNNER' in os.environ:  # django_nose.NoseTestSuiteRunner, for example
     if os.environ['TEST_RUNNER']:  # only use it if there's a value set
         TEST_RUNNER = os.environ['TEST_RUNNER'] or TEST_RUNNER
 
+# Stuff copied from ben.py that I don't know what it is:
+
 SSO_API_KEY = "8dca728d46c85b3fda4529692a7f7725"
 SSO_SERVER_URI = "http://www.aashe.org/services/xmlrpc"
 STARS_DOMAIN = "localhost"
@@ -102,6 +96,42 @@ XMLRPC_USE_HASH = True
 
 # Thumbnails
 THUMBNAIL_DEBUG = DEBUG
+
+MIDDLEWARE_CLASSES += (
+    'qinspect.middleware.QueryInspectMiddleware',
+)
+
+QUERY_INSPECT_ENABLED = True
+QUERY_INSPECT_LOG_QUERIES = True
+QUERY_INSPECT_LOG_TRACEBACKS = True
+QUERY_INSPECT_TRACEBACK_ROOTS = ['/Users/rerb/src/aashe/stars/']
+
+# django toolbar
+# if DEBUG_TOOLBAR:
+#     MIDDLEWARE_CLASSES.append(
+#         'debug_toolbar.middleware.DebugToolbarMiddleware')
+#     INTERNAL_IPS = ('127.0.0.1',)
+#     INSTALLED_APPS = INSTALLED_APPS + ('debug_toolbar',
+#                                        'template_profiler_panel')
+#     DEBUG_TOOLBAR_PANELS = (
+#         # 'debug_toolbar.panels.versions.VersionsPanel',
+#         'debug_toolbar.panels.timer.TimerPanel',
+#         # 'debug_toolbar.panels.settings.SettingsPanel',
+#         # 'debug_toolbar.panels.headers.HeadersPanel',
+#         # 'debug_toolbar.panels.request.RequestPanel',
+#         'debug_toolbar.panels.sql.SQLPanel',
+#         # 'debug_toolbar.panels.staticfiles.StaticFilesPanel',
+#         'debug_toolbar.panels.templates.TemplatesPanel',
+#         # 'template_profiler_panel.panels.template.TemplateProfilerPanel',
+#         'debug_toolbar.panels.cache.CachePanel',
+#         # 'debug_toolbar.panels.signals.SignalsPanel',
+#         # 'debug_toolbar.panels.logging.LoggingPanel',
+#         # 'debug_toolbar.panels.redirects.RedirectsPanel'
+#     )
+#     DEBUG_TOOLBAR_CONFIG = {'INTERCEPT_REDIRECTS': False}
+#     TEMPLATE_TIMINGS_SETTINGS = {
+#         'PRINT_TIMINGS': False,
+#     }
 
 TEMPLATE_STRING_IF_INVALID = 'INVALID EXPRESSION: %s'
 

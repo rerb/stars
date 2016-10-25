@@ -1,6 +1,7 @@
 coverage
 django-extensions
 django-hotrunner
+django-queryinspect
 django-template-repl
 elpy
 ipdb
