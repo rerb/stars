@@ -1,5 +1,4 @@
 {% load help %}
-{% load terms %}
 
 {% autoescape off %}
 <div class="control-group{% if field_form.value.errors %} error{% else %}{% if field_form.warnings %} warning{% endif %}{% endif %}">
@@ -24,7 +23,7 @@
     {% endif %}
     <strong>
       {% if show_identifier %}({{ documentation_field.identifier }}){% endif %}
-      {{ documentation_field.title|replace_terms }}
+      {{ documentation_field.title }}
     </strong>
     {% with documentation_field.get_escaped_tooltip_help_text as help_text %}
       {% with "true" as modal %}
