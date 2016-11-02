@@ -1,5 +1,6 @@
 import re
 
+from django.core.cache import cache
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.template.defaultfilters import slugify
@@ -144,7 +145,10 @@ class SubmissionStructureMixin(CreditsetStructureMixin):
         """
             Generates the outline list for the django-collapsing-menu
         """
-        current = self.get_current_selection()
+        cache_key = "submissionset_outline_%d" % self.get_submissionset().id
+        outline = cache.get(cache_key)
+        if outline:
+            return outline
         outline = []
 
         # Top Level: Categories
@@ -152,20 +156,16 @@ class SubmissionStructureMixin(CreditsetStructureMixin):
             catsub_item = {
                 'title': catsub.category.title,
                 'children': [],
-                'attrs': {'id': catsub.id}
+                'attrs': {'id': "outline_cat_%d" % catsub.id}
             }
-            if current == catsub:
-                catsub_item['attrs']['class'] = 'active'
 
             # Second Level: Subcategories
             for subcatsub in catsub.subcategorysubmission_set.all():
                 subcatsub_item = {
                     'title': subcatsub.subcategory.title,
                     'children': [],
-                    'attrs': {'id': subcatsub.id}
+                    'attrs': {'id': "outline_sub_%d" % subcatsub.id}
                 }
-                if current == subcatsub:
-                    subcatsub_item['attrs']['class'] = 'active'
 
                 # Third Level: T1 Credits
                 for creditsub in subcatsub.creditusersubmission_set.all().filter(credit__type='t1'):
@@ -173,11 +173,8 @@ class SubmissionStructureMixin(CreditsetStructureMixin):
                         'title': creditsub.credit.__unicode__(),
                         'url': self.get_creditsubmission_url(
                             creditsub, url_prefix),
-                        'attrs': {'id': creditsub.id}
+                        'attrs': {'id': "outline_cred_%d" % creditsub.id}
                     }
-                    if current == creditsub:
-                        creditsub_item['attrs']['class'] = "active"
-
                     subcatsub_item['children'].append(creditsub_item)
 
                 # Fourth Level: T2 Credits
@@ -193,10 +190,8 @@ class SubmissionStructureMixin(CreditsetStructureMixin):
                             'title': t2.__unicode__(),
                             'url': self.get_creditsubmission_url(
                                 t2, url_prefix),
-                            'attrs': {'id': t2.id}
+                            'attrs': {'id': "outline_t2_%d" % t2.id}
                         }
-                        if current == t2:
-                            t2_item['attrs']['class'] = "active"
 
                         t2_header_item['children'].append(t2_item)
 
@@ -206,6 +201,7 @@ class SubmissionStructureMixin(CreditsetStructureMixin):
 
             outline.append(catsub_item)
 
+        cache.set(cache_key, outline, 60 * 60 * 48)  # cache for 48 hours
         return outline
 
     def get_creditsubmission_url(self, creditsubmission, url_prefix="/"):
