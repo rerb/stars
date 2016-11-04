@@ -1,6 +1,7 @@
 from django.conf.urls.defaults import *
 from django.views.decorators.cache import never_cache
 
+from .feeds import LatestReportsFeed
 from stars.apps.institutions.views import *
 from stars.apps.submissions.views import CreditSubmissionStatusUpdateView
 
@@ -10,6 +11,8 @@ urlpatterns = patterns(
 
     # Active Institutions
     # (r'^$', ActiveInstitutions.as_view()),
+
+    url(r'^latest/feed/$', LatestReportsFeed()),
 
     # Rated institutions
     (r'^rated/$', RatedInstitutions.as_view()),
