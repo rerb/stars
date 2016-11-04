@@ -39,7 +39,7 @@ DATABASES = {
     'default': dj_database_url.parse(os.environ.get('STARS_DB_URL', None)),
     'iss': dj_database_url.parse(os.environ.get('ISS_DB_URL', None))
 }
-DATABASES['default']['OPTIONS'] = {'init_command': 'SET storage_engine=MYISAM'}
+DATABASES['default']['OPTIONS'] = {'init_command': 'SET default_storage_engine=MYISAM'}
 DATABASE_ROUTERS = ('issdjango.router.ISSRouter',)
 
 # Media
@@ -398,7 +398,11 @@ LOGGING = {
             'level': 'ERROR',
             'class': 'django.utils.log.AdminEmailHandler',
             'include_html': True
-        }
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+        },
     },
 
     'loggers': {
@@ -430,7 +434,12 @@ LOGGING = {
                          'mail_admins_handler'],
             'propagate': False,
             'filters': ['module_name_filter', 'request_filter']
-        }
+        },
+        'qinspect': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
     }
 }
 
@@ -510,3 +519,9 @@ if 'test' in sys.argv:
 COMPRESS_ENABLED = os.environ.get('COMPRESS_ENABLED')
 
 AUTH_USER_MODEL = 'auth.User'
+
+# Performance
+QUERY_INSPECT_ENABLED = True
+MIDDLEWARE_CLASSES += (
+    'qinspect.middleware.QueryInspectMiddleware',
+)
