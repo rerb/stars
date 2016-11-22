@@ -504,7 +504,7 @@ class SubmissionSet(models.Model, FlaggableModel):
                             subcategory_submission=subcategorysubmission)
                         creditsubmission.save()
                     if (credit.is_opt_in and
-                        creditsubmission.submission_status != NOT_APPLICABLE):
+                        creditsubmission.submission_status != NOT_APPLICABLE):  # noqa
 
                         creditsubmission.submission_status = NOT_APPLICABLE
                         creditsubmission.save()
@@ -518,16 +518,21 @@ class SubmissionSet(models.Model, FlaggableModel):
         return CreditUserSubmission.objects.filter(
             subcategory_submission__in=subcategory_subs)
 
-    def save(self, *args, **kwargs):
+    def save(self,
+             skip_init_credit_submissions=False,
+             invalidate_cache=True,
+             *args, **kwargs):
         # is this the first time save() has been called for self?
-        run_init_credit_submissions = not self.pk
-        super(SubmissionSet, self).save()  # assigns self.pk
+        run_init_credit_submissions = (
+            not skip_init_credit_submissions and not self.pk)
+        super(SubmissionSet, self).save(*args, **kwargs)
         if run_init_credit_submissions:  # only run on initial save()
             # init_credit_submissions() will fail if self.pk is None,
             # so we wait until after super(...).save() assigns self.pk
             # a value:
             self.init_credit_submissions()
-        self.invalidate_cache()
+        if invalidate_cache:
+            self.invalidate_cache()
 
     def invalidate_cache(self):
         cus_set = self.get_credit_submissions()
@@ -1332,7 +1337,9 @@ class CreditSubmission(models.Model):
         return self.subcategory_submission.get_institution()
 
     def get_submission_fields(self,
-                              recalculate_related_calculated_fields=True):
+                              recalculate_related_calculated_fields=True,
+                              using="default",
+                              restoration_in_process=False):
         """
             Returns the list of documentation field submission objects for
             this credit submission
@@ -1352,7 +1359,9 @@ class CreditSubmission(models.Model):
             self.submission_fields = (
                 self._submission_fields_for_documentation_fields(
                     self.credit.documentationfield_set.all(),
-                    recalculate_related_calculated_fields))
+                    recalculate_related_calculated_fields=recalculate_related_calculated_fields,  # noqa
+                    restoration_in_process=restoration_in_process,
+                    using=using))
 
         return self.submission_fields
 
@@ -1364,7 +1373,9 @@ class CreditSubmission(models.Model):
     def _submission_fields_for_documentation_fields(
             self,
             documentation_field_list,
-            recalculate_related_calculated_fields=True):
+            recalculate_related_calculated_fields=True,
+            restoration_in_process=False,
+            using="default"):
         """Return the list of DocumentationFieldSubmissions for this
         CreditSubmission, creating them if they don't already exist.
         """
@@ -1387,13 +1398,18 @@ class CreditSubmission(models.Model):
                     submission_field.credit_submission = self
 
                 except SubmissionFieldModelClass.DoesNotExist:
+                    credit_submission = (
+                        self if using == "default" else
+                        CreditSubmission.objects.using(using).get(pk=self.pk))
                     submission_field = SubmissionFieldModelClass(
-                        documentation_field=field, credit_submission=self)
-                    if isinstance(submission_field, NumericSubmission):
+                        documentation_field=field,
+                        credit_submission=credit_submission)
+                    if (isinstance(submission_field, NumericSubmission) and
+                        not restoration_in_process):  # noqa
+
                         submission_field.save(
-                            recalculate_related_calculated_fields=recalculate_related_calculated_fields)
-                    else:
-                        submission_field.save()
+                            recalculate_related_calculated_fields=recalculate_related_calculated_fields,  # noqa
+                            using=using)
                 submission_field_list.append(submission_field)
             else:
                 # use a dummy submission_field for tabular
@@ -1667,7 +1683,14 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
 
     def get_scorecard_url(self):
         cache_key = "cus_%d_scorecard_url" % self.id
-        url = cache.get(cache_key)
+
+        try:
+            url = cache.get(cache_key)
+        except Exception as exc:
+            logger.error("cache.get({cache_key}) raised ".format(
+                cache_key=cache_key) + exc.message)
+            url = None
+
         if url:
             return url
         else:
@@ -1715,8 +1738,11 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
         # When this CreditUserSubmission is unlocked for review and
         # its submission_status is updated, we need to send some
         # mail. So we need to know what's in the db before we save.
-        before_image = (CreditUserSubmission.objects.get(pk=self.pk)
-                        if self.pk else None)
+        try:
+            before_image = (CreditUserSubmission.objects.get(pk=self.pk)
+                            if self.pk else None)
+        except CreditUserSubmission.DoesNotExist:
+            before_image = None
 
         # If this CreditUserSubmission is unlocked for review,
         # we want to lock it up if the new submission_status is
@@ -2320,7 +2346,7 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
         # Only save submission fields if the overall submission has been saved.
         if not self.credit_submission.persists():
             return
-        super(DocumentationFieldSubmission, self).save()
+        super(DocumentationFieldSubmission, self).save(*args, **kwargs)
 
     def get_value(self):
         """ Use this accessor to get this submission's value - rather than
@@ -2693,7 +2719,9 @@ class NumericSubmission(DocumentationFieldSubmission):
             return institution.prefers_metric_system
         return False
 
-    def save(self, recalculate_related_calculated_fields=True,
+    def save(self,
+             recalculate_related_calculated_fields=True,
+             restoration_in_process=False,
              *args, **kwargs):
         """
             Override the save method to
@@ -3039,7 +3067,7 @@ class CreditSubmissionReviewNotation(models.Model):
 
         if (new_credit_submission_review_notification and
             self.is_unlocking_kind() and
-            not self.credit_user_submission.is_unlocked_for_review):
+            not self.credit_user_submission.is_unlocked_for_review):  # noqa
 
             self.credit_user_submission.is_unlocked_for_review = True
             self.credit_user_submission.save(calculate_points=False)

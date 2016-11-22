@@ -64,6 +64,12 @@ else:
     DATABASES['default']['OPTIONS'] = {'init_command':
                                        'SET storage_engine=MYISAM'}
 
+if os.environ.get('STARS_BACKUP_DB_URL', False):
+    DATABASES['stars-backup'] = dj_database_url.parse(
+        os.environ.get('STARS_BACKUP_DB_URL'))
+    DATABASES['stars-backup']['OPTIONS'] = {'init_command':
+                                            'SET storage_engine=MYISAM'}
+
 DATABASE_ROUTERS = ('issdjango.router.ISSRouter',)
 
 # Stand alone mode indicates that the server will be running using
