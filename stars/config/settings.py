@@ -101,6 +101,7 @@ CMS_TEMPLATES = (
 
 MIDDLEWARE_CLASSES = [  # a list so it can be editable during tests (see below)
     'stars.apps.helpers.utils.StripCookieMiddleware',
+    'django_password_protect.PasswordProtectMiddleware',
     'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -521,7 +522,14 @@ COMPRESS_ENABLED = os.environ.get('COMPRESS_ENABLED')
 AUTH_USER_MODEL = 'auth.User'
 
 # Performance
-QUERY_INSPECT_ENABLED = True
+QUERY_INSPECT_ENABLED = os.environ.get('QUERY_INSPECT_ENABLED', False)
 MIDDLEWARE_CLASSES += (
     'qinspect.middleware.QueryInspectMiddleware',
 )
+
+# optional password for dev sites
+PASSWORD_PROTECT = os.environ.get('PASSWORD_PROTECT', False)
+PASSWORD_PROTECT_USERNAME = os.environ.get('PASSWORD_PROTECT_USERNAME', None)
+PASSWORD_PROTECT_PASSWORD = os.environ.get('PASSWORD_PROTECT_PASSWORD', None)
+PASSWORD_PROTECT_REALM = os.environ.get(
+    'PASSWORD_PROTECT_REALM', 'Dev Site Auth')

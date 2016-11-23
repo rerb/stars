@@ -35,6 +35,7 @@ django-jsonfield==0.7.1
 django-logical-rules==0.1.1
 django-memcache-status==1.1
 django-mptt==0.5.2
+django-password-protect
 django-picklefield==0.3.0
 django-queryinspect==0.1.0
 django-recaptcha==0.0.6
