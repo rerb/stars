@@ -1410,7 +1410,7 @@ class CreditSubmission(models.Model):
                         # save them with a default recalculate_related_calculated_fields of
                         # True everytime get_submission_fields() runs?
                         submission_field.save(
-                            recalculate_related_calculated_fields,
+                            recalculate_related_calculated_fields=recalculate_related_calculated_fields,  # noqa
                             using=using)
 
                 submission_field_list.append(submission_field)
