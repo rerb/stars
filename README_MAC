@@ -15,3 +15,14 @@ PIP
 ---
 
 If you want to work with the docs, you should probably PIP install Sphinx locally. I don't include it in the buildout.
+
+Installing gevent
+-----------------
+
+pip installing gevent on Mac OS (at least Sierra) fails unless it's invoked thusly:
+
+     `CFLAGS='-std=c99' pip install gevent`
+
+You should probably just do
+
+     `CFLAGS='-std=c99' pip install -r requirements.txt`

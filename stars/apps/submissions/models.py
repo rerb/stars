@@ -1338,8 +1338,7 @@ class CreditSubmission(models.Model):
 
     def get_submission_fields(self,
                               recalculate_related_calculated_fields=True,
-                              using="default",
-                              restoration_in_process=False):
+                              using="default"):
         """
             Returns the list of documentation field submission objects for
             this credit submission
@@ -1360,7 +1359,6 @@ class CreditSubmission(models.Model):
                 self._submission_fields_for_documentation_fields(
                     self.credit.documentationfield_set.all(),
                     recalculate_related_calculated_fields=recalculate_related_calculated_fields,  # noqa
-                    restoration_in_process=restoration_in_process,
                     using=using))
 
         return self.submission_fields
@@ -1374,7 +1372,6 @@ class CreditSubmission(models.Model):
             self,
             documentation_field_list,
             recalculate_related_calculated_fields=True,
-            restoration_in_process=False,
             using="default"):
         """Return the list of DocumentationFieldSubmissions for this
         CreditSubmission, creating them if they don't already exist.
@@ -1401,20 +1398,27 @@ class CreditSubmission(models.Model):
                     credit_submission = (
                         self if using == "default" else
                         CreditSubmission.objects.using(using).get(pk=self.pk))
+
                     submission_field = SubmissionFieldModelClass(
                         documentation_field=field,
                         credit_submission=credit_submission)
-                    if (isinstance(submission_field, NumericSubmission) and
-                        not restoration_in_process):  # noqa
 
+                    if isinstance(submission_field, NumericSubmission):
+
+                        # @WTF why save submission_field here if it's a NumericSubmission?
+                        # Calculated fields are NumericSubmissions -- do we really want to
+                        # save them with a default recalculate_related_calculated_fields of
+                        # True everytime get_submission_fields() runs?
                         submission_field.save(
-                            recalculate_related_calculated_fields=recalculate_related_calculated_fields,  # noqa
+                            recalculate_related_calculated_fields,
                             using=using)
+
                 submission_field_list.append(submission_field)
             else:
                 # use a dummy submission_field for tabular
                 class TabularSubmissionField():
                     def __init__(self, credit_submission, documentation_field):
+
                         self.credit_submission = credit_submission
                         self.documentation_field = documentation_field
                         self.documentation_field_id = documentation_field.id
@@ -2721,7 +2725,6 @@ class NumericSubmission(DocumentationFieldSubmission):
 
     def save(self,
              recalculate_related_calculated_fields=True,
-             restoration_in_process=False,
              *args, **kwargs):
         """
             Override the save method to

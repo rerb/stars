@@ -19,7 +19,9 @@ from stars.apps.institutions.models import (InstitutionPreferences,
                                             StarsAccount,
                                             Subscription)
 from stars.apps.submissions.models import (CreditUserSubmission,
-                                           ResponsibleParty)
+                                           DocumentationFieldSubmission,
+                                           ResponsibleParty,
+                                           SubmissionSet)
 
 
 class Command(BaseCommand):
@@ -222,25 +224,63 @@ def restore_credit_user_submission(credit_user_submission,
     credit_user_submission = CreditUserSubmission.objects.using(
         source_db).get(pk=credit_user_submission.pk)
 
-    document_field_submissions_to_restore = (
-        credit_user_submission.get_submission_fields(
-            recalculate_related_calculated_fields=False,
-            using=source_db,
-            restoration_in_process=True))
+    documentation_field_submissions_to_restore = (
+        get_documentation_field_submissions(
+            credit_user_submission=credit_user_submission,
+            source_db=source_db))
 
-    for document_field_submission in document_field_submissions_to_restore:
-        try:
-            document_field_submission.pk
-        except AttributeError:
-            continue  # Tabular fields.
-        print("\t\t\t\t\tDocumentationField {} restoring".format(
-            document_field_submission.pk))
-        document_field_submission.save(using=target_db)
-        print("\t\t\t\t\tDocumentationField {} restored".format(
-            document_field_submission.pk))
+    for documentation_field_submission in (
+            documentation_field_submissions_to_restore):
+
+        restore_documentation_field_submission(
+            documentation_field_submission=documentation_field_submission,
+            source_db=source_db,
+            target_db=target_db)
 
     print("\t\t\t\tCreditUserSubmission {} restored".format(
         credit_user_submission.pk))
+
+
+def get_documentation_field_submissions(credit_user_submission,
+                                        source_db):
+    """Returns DocumentationFieldSubmissions for `credit_user_submission`.
+    """
+    documentation_field_submissions = []
+
+    for documentation_field in (
+            credit_user_submission.credit.documentationfield_set.using(
+                source_db).all()):
+        SubmissionFieldModelClass = (
+            DocumentationFieldSubmission.get_field_class(
+                documentation_field))
+        if SubmissionFieldModelClass:
+            try:
+                submission_field = SubmissionFieldModelClass.objects.using(
+                    source_db).get(documentation_field=documentation_field,
+                                   credit_submission=credit_user_submission)
+            except SubmissionFieldModelClass.DoesNotExist:
+                pass
+            else:
+                documentation_field_submissions.append(submission_field)
+        else:
+            # TabularSubmissionField, just skip it.
+            pass
+
+    return documentation_field_submissions
+
+
+def restore_documentation_field_submission(
+        documentation_field_submission,
+        source_db,
+        target_db):
+
+    print("\t\t\t\t\tDocumentationFieldSubmission {} restoring".format(
+        documentation_field_submission.pk))
+
+    documentation_field_submission.save(using=target_db)
+
+    print("\t\t\t\t\tDocumentationFieldSubmission {} restored".format(
+        documentation_field_submission.pk))
 
 
 def restore_subscription(subscription,
@@ -262,3 +302,54 @@ def restore_subscription(subscription,
 
     print("\t\t\t\tSubscription {} restored".format(
         subscription.pk))
+
+
+def restore_only_document_field_submissions(institution,
+                                            source_db="stars-backup",
+                                            target_db="default"):
+    submissionsets = Institution.objects.using(
+        source_db).get(
+            pk=institution.pk).submissionset_set.all()
+
+    for submissionset in submissionsets:
+
+        if not SubmissionSet.objects.using(target_db).filter(
+                    pk=submissionset.pk).count():
+            continue
+
+        category_submissions_to_restore = (
+            submissionset.categorysubmission_set.using(source_db).all())
+        for category_submission in category_submissions_to_restore:
+
+            subcategory_submissions_to_restore = (
+                category_submission.subcategorysubmission_set.using(source_db).all())  # noqa
+            for subcategory_submission in subcategory_submissions_to_restore:
+
+                credit_user_submissions_to_restore = (
+                    subcategory_submission.creditusersubmission_set.using(
+                        source_db).all())
+                for credit_user_submission in (
+                        credit_user_submissions_to_restore):
+
+                    # First, clear any documentation_field_submissions for this
+                    # credit_user_submission from the target db.
+                    documentation_field_submissions_to_clear = (
+                        get_documentation_field_submissions(
+                            credit_user_submission=credit_user_submission,
+                            source_db=target_db))
+                    for documentation_field_submission in (
+                            documentation_field_submissions_to_clear):
+                        documentation_field_submission.delete()
+
+                    documentation_field_submissions_to_restore = (
+                        get_documentation_field_submissions(
+                            credit_user_submission=credit_user_submission,
+                            source_db=source_db))
+
+                    for documentation_field_submission in (
+                            documentation_field_submissions_to_restore):
+
+                        restore_documentation_field_submission(
+                            documentation_field_submission=documentation_field_submission,
+                            source_db=source_db,
+                            target_db=target_db)

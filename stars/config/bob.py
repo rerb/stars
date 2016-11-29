@@ -163,3 +163,5 @@ EXCLUDED_TEST_APPS = ['issdjango',
                       'tastypie',
                       'terms',
                       'template_repl']
+
+SHELL_PLUS_DONT_LOAD = ['etl_export']
