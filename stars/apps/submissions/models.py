@@ -1405,13 +1405,13 @@ class CreditSubmission(models.Model):
 
                     if isinstance(submission_field, NumericSubmission):
 
-                        # @WTF why save submission_field here if it's a NumericSubmission?
-                        # Calculated fields are NumericSubmissions -- do we really want to
-                        # save them with a default recalculate_related_calculated_fields of
-                        # True everytime get_submission_fields() runs?
                         submission_field.save(
-                            recalculate_related_calculated_fields=recalculate_related_calculated_fields,  # noqa
+                            recalculate_related_calculated_fields=recalculate_related_calculated_fields,
                             using=using)
+
+                    else:
+
+                        submission_field.save(using=using)
 
                 submission_field_list.append(submission_field)
             else:

@@ -9,6 +9,7 @@ from stars.apps.submissions.models import (Boundary,
                                            CREDIT_SUBMISSION_STATUSES,
                                            CreditUserSubmission,
                                            MultiChoiceSubmission,
+                                           NumericSubmission,
                                            PENDING_SUBMISSION_STATUS,
                                            SubcategorySubmission,
                                            SubmissionSet)
@@ -386,8 +387,11 @@ def migrate_submission(old_submissionset,
                                     submission_field.value.add(new_selection)
                         else:
                             submission_field.value = old_submission_field.value
-                        submission_field.save(
-                            recalculate_related_calculated_fields=False)
+                        if isinstance(submission_field, NumericSubmission):
+                            submission_field.save(
+                                recalculate_related_calculated_fields=False)
+                        else:
+                            submission_field.save()
                     except submission_field_class.DoesNotExist:
                         pass
 
