@@ -34,12 +34,11 @@ API_TEST_MODE = get_api_test_mode()
 
 
 def use_sqlite_for_tests():
-    """If environmental variable USE_SQLITE_FOR_TESTS is not set or 1,
+    """If environmental variable USE_SQLITE_FOR_TESTS is set, use
+    sqlite.
     use sqlite.  If it's 0, don't."""
-    try:
-        use_sqlite = os.environ['USE_SQLITE_FOR_TESTS']
-    except KeyError:
-        return True
+    use_sqlite = os.environ.get('USE_SQLITE_FOR_TESTS', False)
+
     if use_sqlite:
         try:
             return bool(int(use_sqlite))
@@ -50,12 +49,16 @@ def use_sqlite_for_tests():
     return True  # default
 
 
-if ((('test' in sys.argv) or
-     ('testserver' in sys.argv)) and use_sqlite_for_tests()):
+if ((('test' in sys.argv) or ('testserver' in sys.argv))
+    and os.environ.get('USE_SQLITE_FOR_TESTS', False)):
+
     DATABASES['default'] = dj_database_url.parse(
-        os.environ.get('STARS_SQLITE_DB_URL'))
+        os.environ.get('STARS_SQLITE_DB_URL',
+                       'sqlite:///stars.sqlite.db'))
+
     DATABASES['iss'] = dj_database_url.parse(
-        os.environ.get('ISS_SQLITE_DB_URL'))
+        os.environ.get('ISS_SQLITE_DB_URL',
+                       'sqlite:///iss.sqlite.db'))
 else:
     DATABASES['default'] = dj_database_url.parse(
         os.environ.get('STARS_MYSQL_DB_URL'))
