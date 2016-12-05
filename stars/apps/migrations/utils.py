@@ -263,18 +263,20 @@ def migrate_submission(old_submissionset,
             pass
 
     # Get all the CreditUserSubmission for the new SubmissionSet ...
-    credit_user_submissions = CreditUserSubmission.objects.filter(
+    credit_user_submissions_to_migrate = CreditUserSubmission.objects.filter(
         subcategory_submission__category_submission__submissionset=new_submissionset)
 
     # ... and maybe filter out Innovation Credits:
     if not migrate_innovation_credits:
-        credit_user_submissions = credit_user_submissions.exclude(
-            subcategory_submission__subcategory__slug="innovation")
+        credit_user_submissions_to_migrate = (
+            credit_user_submissions_to_migrate.exclude(
+                subcategory_submission__subcategory__slug="innovation"))
 
-    for credit_user_submission in credit_user_submissions:
+    for credit_user_submission_to_migrate in (
+            credit_user_submissions_to_migrate):
 
         # find the parent credit
-        prev_credit = credit_user_submission.credit.get_for_creditset(
+        prev_credit = credit_user_submission_to_migrate.credit.get_for_creditset(
             old_submissionset.creditset)
 
         if prev_credit:
@@ -283,58 +285,52 @@ def migrate_submission(old_submissionset,
                     subcategory_submission__category_submission__submissionset=old_submissionset,
                     credit=prev_credit)
 
-                credit_user_submission.last_updated = (
+                credit_user_submission_to_migrate.last_updated = (
                     old_credit_user_submission.last_updated)
                 try:
-                    credit_user_submission.user = (
+                    credit_user_submission_to_migrate.user = (
                         old_credit_user_submission.user)
                 except:
-                    credit_user_submission.user = None
-                credit_user_submission.internal_notes = (
+                    credit_user_submission_to_migrate.user = None
+                credit_user_submission_to_migrate.internal_notes = (
                     old_credit_user_submission.internal_notes)
-                credit_user_submission.submission_notes = (
+                credit_user_submission_to_migrate.submission_notes = (
                     old_credit_user_submission.submission_notes)
-                credit_user_submission.responsible_party = (
+                credit_user_submission_to_migrate.responsible_party = (
                     old_credit_user_submission.responsible_party)
 
-                # can only keep status if the
                 if (keep_status and
                     old_submissionset.creditset.version == new_submissionset.creditset.version):
 
-                    credit_user_submission.submission_status = (
+                    credit_user_submission_to_migrate.submission_status = (
                         old_credit_user_submission.submission_status)
-                    credit_user_submission.responsible_party_confirm = (
+                    credit_user_submission_to_migrate.responsible_party_confirm = (
                         old_credit_user_submission.responsible_party_confirm)
-                    credit_user_submission.applicability_reason = (
+                    credit_user_submission_to_migrate.applicability_reason = (
                         old_credit_user_submission.applicability_reason)
-                    credit_user_submission.assessed_points = (
+                    credit_user_submission_to_migrate.assessed_points = (
                         old_credit_user_submission.assessed_points)
                 else:
-                    if credit_user_submission.credit.is_opt_in:
+                    if credit_user_submission_to_migrate.credit.is_opt_in:
                         # The opt-in-ed-ness of an opt_in credit doesn't
                         # carry forward:
-                        credit_user_submission.submission_status = (
+                        credit_user_submission_to_migrate.submission_status = (
                             CREDIT_SUBMISSION_STATUSES["NOT_APPLICABLE"])
                     elif (old_credit_user_submission.submission_status !=
                           CREDIT_SUBMISSION_STATUSES["NOT_STARTED"]):
-                        credit_user_submission.submission_status = (
+                        credit_user_submission_to_migrate.submission_status = (
                             CREDIT_SUBMISSION_STATUSES["IN_PROGRESS"])
                     else:
-                        credit_user_submission.submission_status = (
+                        credit_user_submission_to_migrate.submission_status = (
                             CREDIT_SUBMISSION_STATUSES["NOT_STARTED"])
-
 
             except CreditUserSubmission.DoesNotExist:
                 continue
 
         # get all the fields in this credit
-        submission_fields = credit_user_submission.get_submission_fields(
-            recalculate_related_calculated_fields=False)
+        submission_fields = credit_user_submission_to_migrate.get_submission_fields()  # noqa
 
         for submission_field in submission_fields:
-
-            if submission_field.documentation_field.type == 'calculated':
-                continue
 
             prev_documentation_field = (
                 submission_field.documentation_field.get_for_creditset(
@@ -350,7 +346,7 @@ def migrate_submission(old_submissionset,
                     try:
                         prev_cus = CreditUserSubmission.objects.get(
                             credit=prev_documentation_field.credit,
-                            subcategory_submission__category_submission__submissionset=old_submissionset)
+                            subcategory_submission__category_submission__submissionset=old_submissionset)  # noqa
                         old_submission_field = (
                             submission_field_class.objects.get(
                                 documentation_field=prev_documentation_field,
@@ -358,22 +354,22 @@ def migrate_submission(old_submissionset,
                         if isinstance(submission_field,
                                       ChoiceSubmission):
                             if old_submission_field.value is not None:
-                                old_selection = old_submission_field.value.choice
+                                old_selection = old_submission_field.value.choice  # noqa
                                 new_choices = (
                                     submission_field.get_choice_queryset())
                                 try:
-                                    new_selection = new_choices.get(choice=old_selection)
+                                    new_selection = new_choices.get(
+                                        choice=old_selection)
                                 except ObjectDoesNotExist:
                                     submission_field.value = None
                                 else:
                                     submission_field.value = new_selection
                         elif isinstance(submission_field,
                                         MultiChoiceSubmission):
-                            # Hey there, sorry, but this bit of code -- the part
-                            # that handles MultiChoiceSubmissions -- hasn't been
+                            # Hey there, sorry, but this bit of code
+                            # -- the part that handles
+                            # MultiChoiceSubmissions -- hasn't been
                             # tested.
-                            old_choices = (
-                                old_submission_field.get_choice_queryset())
                             new_choices = (
                                 submission_field.get_choice_queryset())
                             old_selections = old_submission_field.get_value()
@@ -388,7 +384,11 @@ def migrate_submission(old_submissionset,
                         else:
                             submission_field.value = old_submission_field.value
 
-                        submission_field.save()
+                        if isinstance(submission_field, NumericSubmission):
+                            submission_field.save(
+                                recalculate_related_calculated_fields=False)
+                        else:
+                            submission_field.save()
 
                     except submission_field_class.DoesNotExist:
                         pass
@@ -397,11 +397,13 @@ def migrate_submission(old_submissionset,
         # submission fields have values.
         for submission_field in submission_fields:
             if submission_field.documentation_field.type == 'calculated':
-                submission_field.calculate(check_for_nones=True)
-                submission_field.save()
+                submission_field.calculate(log_exceptions=False)
+                submission_field.save(
+                    recalculate_related_calculated_fields=False,
+                    log_calculation_exceptions=False)
 
         # don't save until all the fields are updated
-        credit_user_submission.save()
+        credit_user_submission_to_migrate.save()
 
     try:
         new_boundary = copy.copy(old_submissionset.boundary)

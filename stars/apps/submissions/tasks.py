@@ -264,7 +264,11 @@ def expireRatings():
 
 @shared_task(name='submissions.load_subcategory_quartiles')
 def load_subcategory_quartiles():
-    """Update the SubcategoryQuartiles table.
+    """Load the SubcategoryQuartiles table.
+
+    Creates SubcategoryQuartiles records for subcategories that don't
+    have them.
+
     """
     # Make sure there's a SubcategoryQuartiles object for each
     # combination of org_type and Subcategory:

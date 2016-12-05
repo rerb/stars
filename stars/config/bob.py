@@ -168,3 +168,5 @@ EXCLUDED_TEST_APPS = ['issdjango',
                       'template_repl']
 
 SHELL_PLUS_DONT_LOAD = ['etl_export']
+
+PROFILE_LOG_BASE = "profiling-data"

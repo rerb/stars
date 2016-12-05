@@ -22,6 +22,7 @@ from stars.apps.submissions.models import (CreditUserSubmission,
                                            DocumentationFieldSubmission,
                                            ResponsibleParty,
                                            SubmissionSet)
+from stars.apps.submissions.utils import get_documentation_field_submissions
 
 
 class Command(BaseCommand):
@@ -61,7 +62,8 @@ def restore_institution(name,
     # Restore SubmissionSets.
     submissionsets = Institution.objects.using(
         source_db).get(
-            pk=institution_to_restore.pk).submissionset_set.all().order_by("-pk")  # noqa
+            pk=institution_to_restore.pk).submissionset_set.all().order_by(
+                "-pk")
 
     for submissionset in submissionsets:
         restore_submissionset(submissionset=submissionset,
@@ -141,12 +143,10 @@ def restore_submissionset(submissionset,
     print("\tSubmissionSet {} restoring".format(submissionset.pk))
     date_created = submissionset.date_created
     submissionset.save(using=target_db,
-                       skip_init_credit_submissions=True,
-                       invalidate_cache=False)
+                       skip_init_credit_submissions=True)
     submissionset.date_created = date_created
     submissionset.save(using=target_db,
-                       skip_init_credit_submissions=True,
-                       invalidate_cache=False)
+                       skip_init_credit_submissions=True)
 
     category_submissions_to_restore = (
         submissionset.categorysubmission_set.using(source_db).all())
@@ -239,34 +239,6 @@ def restore_credit_user_submission(credit_user_submission,
 
     print("\t\t\t\tCreditUserSubmission {} restored".format(
         credit_user_submission.pk))
-
-
-def get_documentation_field_submissions(credit_user_submission,
-                                        source_db):
-    """Returns DocumentationFieldSubmissions for `credit_user_submission`.
-    """
-    documentation_field_submissions = []
-
-    for documentation_field in (
-            credit_user_submission.credit.documentationfield_set.using(
-                source_db).all()):
-        SubmissionFieldModelClass = (
-            DocumentationFieldSubmission.get_field_class(
-                documentation_field))
-        if SubmissionFieldModelClass:
-            try:
-                submission_field = SubmissionFieldModelClass.objects.using(
-                    source_db).get(documentation_field=documentation_field,
-                                   credit_submission=credit_user_submission)
-            except SubmissionFieldModelClass.DoesNotExist:
-                pass
-            else:
-                documentation_field_submissions.append(submission_field)
-        else:
-            # TabularSubmissionField, just skip it.
-            pass
-
-    return documentation_field_submissions
 
 
 def restore_documentation_field_submission(

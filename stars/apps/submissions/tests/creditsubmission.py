@@ -6,7 +6,8 @@ import testfixtures
 
 from stars.apps.credits.models import Credit
 from stars.apps.submissions.models import CreditSubmission
-from stars.test_factories import (CreditSubmissionFactory,
+from stars.test_factories import (CreditFactory,
+                                  CreditSubmissionFactory,
                                   CreditTestSubmissionFactory,
                                   CreditUserSubmissionFactory)
 
@@ -25,12 +26,15 @@ class CreditSubmissionTest(TestCase):
             'Error converting formula'))
 
     def test_validate_points_logging(self):
-        """Does validate_points log an error when there's an exception?
+        """Does validate_points log an error when there's an out of range
+        error?
+
         """
-        creditsubmission = CreditSubmission()
-        creditsubmission.credit = Credit(point_value=10)
+        credit_user_submission = CreditUserSubmissionFactory(
+            credit=CreditFactory(point_value=10))
+
         with testfixtures.LogCapture('stars') as log:
-            creditsubmission.validate_points(points=-1.0, log_error=True)
+            credit_user_submission.validate_points(points=-1.0, log_error=True)
 
         self.assertEqual(len(log.records), 1)
         self.assertEqual(log.records[0].levelname, 'ERROR')

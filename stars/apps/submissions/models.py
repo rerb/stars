@@ -18,7 +18,6 @@ from django.db import models
 from django.db.models import Q
 from django.db.models.signals import post_init, pre_delete
 from django.dispatch import receiver
-from django.utils.functional import memoize
 
 from file_cache_tag.templatetags.custom_caching import (generate_cache_key,
                                                         invalidate_filecache)
@@ -31,6 +30,7 @@ from stars.apps.institutions.models import (BASIC_ACCESS,
 from stars.apps.notifications.models import EmailTemplate
 from stars.apps.notifications.utils import build_message
 from stars.apps.submissions.export.pdf import build_report_pdf
+
 
 FINALIZED_SUBMISSION_STATUS = 'f'
 PENDING_SUBMISSION_STATUS = 'ps'
@@ -520,19 +520,28 @@ class SubmissionSet(models.Model, FlaggableModel):
 
     def save(self,
              skip_init_credit_submissions=False,
-             invalidate_cache=True,
              *args, **kwargs):
-        # is this the first time save() has been called for self?
+        """If this is the first time save() has been called for this
+        SubmissionSet, and `skip_init_credit_submissions` is False,
+        initialize this SubmissionSet's CreditSubmissions.
+
+        CreditSubmission initialization is not always desired, e.g.,
+        during the Institution restoration process
+        (e.g., see ./management/commands/restore_institution.py).
+
+        Additionally, this SubmissionSet is flushed from the
+        file-based cache, a surprisingly expensive operation.
+
+        """
         run_init_credit_submissions = (
             not skip_init_credit_submissions and not self.pk)
+
         super(SubmissionSet, self).save(*args, **kwargs)
-        if run_init_credit_submissions:  # only run on initial save()
-            # init_credit_submissions() will fail if self.pk is None,
-            # so we wait until after super(...).save() assigns self.pk
-            # a value:
+
+        if run_init_credit_submissions:
             self.init_credit_submissions()
-        if invalidate_cache:
-            self.invalidate_cache()
+
+        self.invalidate_cache()
 
     def invalidate_cache(self):
         cus_set = self.get_credit_submissions()
@@ -1336,9 +1345,7 @@ class CreditSubmission(models.Model):
     def get_institution(self):
         return self.subcategory_submission.get_institution()
 
-    def get_submission_fields(self,
-                              recalculate_related_calculated_fields=True,
-                              using="default"):
+    def get_submission_fields(self, using="default"):
         """
             Returns the list of documentation field submission objects for
             this credit submission
@@ -1357,8 +1364,7 @@ class CreditSubmission(models.Model):
         if not self.submission_fields:  # cache.
             self.submission_fields = (
                 self._submission_fields_for_documentation_fields(
-                    self.credit.documentationfield_set.all(),
-                    recalculate_related_calculated_fields=recalculate_related_calculated_fields,  # noqa
+                    documentation_field_list=self.credit.documentationfield_set.all(),  # noqa
                     using=using))
 
         return self.submission_fields
@@ -1371,7 +1377,6 @@ class CreditSubmission(models.Model):
     def _submission_fields_for_documentation_fields(
             self,
             documentation_field_list,
-            recalculate_related_calculated_fields=True,
             using="default"):
         """Return the list of DocumentationFieldSubmissions for this
         CreditSubmission, creating them if they don't already exist.
@@ -1403,15 +1408,7 @@ class CreditSubmission(models.Model):
                         documentation_field=field,
                         credit_submission=credit_submission)
 
-                    if isinstance(submission_field, NumericSubmission):
-
-                        submission_field.save(
-                            recalculate_related_calculated_fields=recalculate_related_calculated_fields,
-                            using=using)
-
-                    else:
-
-                        submission_field.save(using=using)
+                    submission_field.save(using=using)
 
                 submission_field_list.append(submission_field)
             else:
@@ -1445,9 +1442,10 @@ class CreditSubmission(models.Model):
         """ Returns the list of documentation field values for this
             submission
         """
-        return [field.get_value() for field in self.get_submission_fields()]
+        return [field.get_value() for field
+                in self.get_submission_fields()]
 
-    def _get_submission_field_key(self):
+    def get_submission_field_key(self):
         """ Returns a dictionary with identifier:value for each submission
             field
         """
@@ -1456,10 +1454,6 @@ class CreditSubmission(models.Model):
         for field in fields:
             key[field.documentation_field.identifier] = field.get_value()
         return key
-
-    get_submission_field_key = memoize(_get_submission_field_key,
-                                       cache={},
-                                       num_args=1)
 
     def print_submission_fields(self):
         print >> sys.stderr, "Fields for CreditSubmission: %s" % self
@@ -1669,6 +1663,9 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
         # @todo: the unique clause needs to be added at the DB level now :-(
         # unique_together = ("subcategory_submission", "credit")
         pass
+
+    def get_institution(self):
+        return self.subcategory_submission.category_submission.submissionset.institution  # noqa
 
     def get_submit_url(self):
         category_submission = self.subcategory_submission.category_submission
@@ -2287,65 +2284,6 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
                 else:
                     return self.value
 
-    # @TODO - move calculate() into NumericSubmission.
-    def calculate(self, check_for_nones=True):
-        """Calculate self.documentation_field.formula.
-        For calculated fields only.
-
-        If check_for_nones is True, calculation won't happen if any
-        of the formula terms is None.  This, essentially, prevents
-        the Exception that would occur if calculation proceeded.  It's
-        useful for, e.g., when migrating a SubmissionSet, when the values
-        for formula terms might not get migrated before the calculated field
-        that depends on them.
-        """
-        if not self.documentation_field.formula:
-            self.value = None
-            return
-        if check_for_nones:
-            # Check that all formula terms are not None:
-            for formula_term in self.documentation_field.formula_terms.all():
-                numeric_submission = NumericSubmission.objects.get(
-                    documentation_field=formula_term,
-                    credit_submission=self.credit_submission)
-                if numeric_submission.value is None:
-                    self.value = None
-                    return
-        # get the key that relates field identifiers to their values
-        field_key = self.credit_submission.get_submission_field_key()
-        value = 0
-        # exec formula in restricted namespace
-        globals = {}  # __builtins__ gets added automatically
-        locals = {"value": value}
-        locals.update(field_key)
-        try:
-            exec self.documentation_field.formula in globals, locals
-        # Assertions may be used in formula for extra validation -
-        # assume assertion text is intended for user
-        except AssertionError:
-            raise
-        except Exception, exc:
-            logger.exception(
-                "Formula Exception for {numeric_submission}, "
-                "formula: `{formula}`; locals: {locals}; "
-                "{exc}".format(
-                    numeric_submission=self,
-                    formula=self.documentation_field.formula,
-                    locals={key: value for key, value in locals.items()
-                            if (type(value) in (int, float) or
-                                value is None)},
-                    exc=exc))
-            self.value = None
-        else:
-            self.value = locals['value']
-
-        if (self.requires_duplication() and
-            self.use_metric() and
-            self.value):  # NOQA
-
-            units = self.documentation_field.us_units
-            self.metric_value = units.convert(self.value)
-
     def save(self, *args, **kwargs):
         # Only save submission fields if the overall submission has been saved.
         if not self.credit_submission.persists():
@@ -2723,8 +2661,53 @@ class NumericSubmission(DocumentationFieldSubmission):
             return institution.prefers_metric_system
         return False
 
+    def calculate(self, log_exceptions=True):
+        """Calculate self.documentation_field.formula.
+
+        """
+        if not self.documentation_field.formula:
+            self.value = None
+            return
+
+        # get the key that relates field identifiers to their values
+        field_key = self.credit_submission.get_submission_field_key()
+        value = 0
+        # exec formula in restricted namespace
+        globals = {}  # __builtins__ gets added automatically
+        locals = {"value": value}
+        locals.update(field_key)
+        try:
+            exec self.documentation_field.formula in globals, locals
+        # Assertions may be used in formula for extra validation -
+        # assume assertion text is intended for user
+        except AssertionError:
+            raise
+        except Exception, exc:
+            if log_exceptions:
+                logger.exception(
+                    "Formula Exception for {numeric_submission}, "
+                    "formula: `{formula}`; locals: {locals}; "
+                    "{exc}".format(
+                        numeric_submission=self,
+                        formula=self.documentation_field.formula,
+                        locals={key: value for key, value in locals.items()
+                                if (type(value) in (int, float) or
+                                    value is None)},
+                        exc=exc))
+            self.value = None
+        else:
+            self.value = locals['value']
+
+        if (self.requires_duplication() and
+            self.use_metric() and
+            self.value):  # NOQA
+
+            units = self.documentation_field.us_units
+            self.metric_value = units.convert(self.value)
+
     def save(self,
              recalculate_related_calculated_fields=True,
+             log_calculation_exceptions=True,
              *args, **kwargs):
         """
             Override the save method to
@@ -2747,20 +2730,30 @@ class NumericSubmission(DocumentationFieldSubmission):
 
         super(NumericSubmission, self).save(*args, **kwargs)
 
-        if (recalculate_related_calculated_fields and
-            self.value != self._original_value):  # NOQA
+        if (self.value != self._original_value and
+            recalculate_related_calculated_fields):  # noqa
 
             # If this field is used in any calculated fields ...
-            for calculated_field in self.documentation_field.calculated_fields.all():  # NOQA
+            for calculated_field in (
+                    self.documentation_field.calculated_fields.all()):
                 # ... recalculate those fields:
-                for field_submission in NumericSubmission.objects.filter(
-                        documentation_field=calculated_field):
 
-                    field_submission.calculate()
-                    if (field_submission.value !=
-                        field_submission._original_value):  # NOQA
+                for calculated_field_submission in (
+                        NumericSubmission.objects.filter(
+                            documentation_field=calculated_field,
+                            credit_submission=self.credit_submission).exclude(
+                                pk=self.pk)):
 
-                        field_submission.save()
+                    calculated_field_submission.calculate(
+                        log_exceptions=log_calculation_exceptions)
+
+                    if (calculated_field_submission.value !=
+                        calculated_field_submission._original_value):  # NOQA
+
+                        calculated_field_submission.save(
+                            recalculate_related_calculated_fields,
+                            log_calculation_exceptions,
+                            *args, **kwargs)
 
 
 def numeric_submission_post_init(sender, instance, **kwargs):
@@ -2773,7 +2766,7 @@ def numeric_submission_post_init(sender, instance, **kwargs):
 post_init.connect(
     numeric_submission_post_init,
     sender=NumericSubmission,
-    dispatch_uid='stars.apps.submissions.models.numeric_submission_post_init')  # noqa
+    dispatch_uid='stars.apps.submissions.models.numeric_submission_post_init')
 
 
 class TextSubmission(DocumentationFieldSubmission):

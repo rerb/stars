@@ -12,5 +12,7 @@ stellar.yaml
 \#*\#
 *.flymake.py
 .idea
+*~undo-tree~
+.python-version
 
 export.zip
