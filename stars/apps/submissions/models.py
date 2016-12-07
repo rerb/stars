@@ -2684,16 +2684,23 @@ class NumericSubmission(DocumentationFieldSubmission):
             raise
         except Exception, exc:
             if log_exceptions:
+                concrete_credit_submission = (
+                    self.credit_submission.creditusersubmission or
+                    self.credit_submission.credittestsubmission)
                 logger.exception(
-                    "Formula Exception for {numeric_submission}, "
-                    "formula: `{formula}`; locals: {locals}; "
-                    "{exc}".format(
-                        numeric_submission=self,
+                    "Formula Exception for formula `{formula}`: "
+                    "{exception}; "
+                    "Documentation field: {documentation_field_edit_url}; "
+                    "Submission credit: {credit_submission_submit_url}; "
+                    "locals: {locals}.".format(
                         formula=self.documentation_field.formula,
+                        exception=str(exc),
+                        documentation_field_edit_url=self.documentation_field.get_edit_url(),
+                        credit_submission_submit_url=concrete_credit_submission.get_submit_url(),
+                        documentation_field=self.documentation_field,
                         locals={key: value for key, value in locals.items()
                                 if (type(value) in (int, float) or
-                                    value is None)},
-                        exc=exc))
+                                    value is None)}))
             self.value = None
         else:
             self.value = locals['value']
