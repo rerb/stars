@@ -40,9 +40,20 @@
     {% compress js %}
       <script>
        function lockdown() {
+         // For text and textarea inputs, set their readOnly flag.
+         // This allows the reviewers to copy text from the submission.
+         // Setting the disabled flag on text inputs disallows this.
+         // For non-text form elements, set the disabled flag instead
+         // because it prevents interaction with the widgets.  That
+         // sounds bogus.  I smell code.
          var submit_form_elements = $(".submit_form").find(":input");
          for (i = 0; i < submit_form_elements.length; i++) {
-           submit_form_elements[i].disabled = true;
+           if (submit_form_elements[i].type == "text") {
+             submit_form_elements[i].readOnly = true;
+           }
+           else {
+             submit_form_elements[i].disabled = true;
+           }
          }
          {% if not user.is_staff %}  // So staff can read uploads.
            anchors = $(".submit_form").find("a");
@@ -51,7 +62,7 @@
              target: null,
              onclick: null
            });
-           anchors.addClass('disabled');
+           anchors.addClass("disabled");
          {% endif %}
        }
       </script>
