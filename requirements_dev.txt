@@ -6,4 +6,6 @@ django-template-repl
 elpy
 ipdb
 pyflakes
+pyzmq  # for iPython notebook
 rope
+tornado  # for iPython notebook

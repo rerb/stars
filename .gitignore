@@ -16,3 +16,5 @@ stellar.yaml
 .python-version
 
 export.zip
+.ignore
+*.ipynb
