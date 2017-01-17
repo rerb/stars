@@ -142,7 +142,13 @@ def get_populate_button_context(doc_field, submissionset):
         )
 
         _context['dfcopyval'] = df_submission.value
-        if submissionset.institution.prefers_metric_system:
+        if (
+            submissionset.institution.prefers_metric_system and
+            df_submission.documentation_field.units
+        ):
+            # in most cases, there will be a metric value, but
+            # if there are no units associated with this numeric field
+            # then there is no need for a metric value
             _context['dfcopyval'] = df_submission.metric_value
 
     return _context
