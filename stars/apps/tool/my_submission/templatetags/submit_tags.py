@@ -1,7 +1,7 @@
 from django import template
 
 from stars.apps.submissions.models import CreditUserSubmission, \
-    DocumentationFieldSubmission
+    DocumentationFieldSubmission, NumericSubmission
 
 
 register = template.Library()
@@ -136,10 +136,16 @@ def get_populate_button_context(doc_field, submissionset):
             credit=dfcopy.credit,
             subcategory_submission__category_submission__submissionset=submissionset
         )
-        df_submission = df_class.objects.get(
-            documentation_field=dfcopy,
-            credit_submission=df_cus
-        )
+        try:
+            df_submission = df_class.objects.get(
+                documentation_field=dfcopy,
+                credit_submission=df_cus
+            )
+        except NumericSubmission.DoesNotExist:
+            # the documentation field hasn't been created yet,
+            # because the credit hasn't been opened
+            _context['dfcopyval'] = None
+            return _context
 
         _context['dfcopyval'] = df_submission.value
         if (
