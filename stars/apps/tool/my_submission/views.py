@@ -470,8 +470,9 @@ class CreditSubmissionReportingFieldsView(CreditSubmissionDetailView,
             messages.info(self.request,
                           "Some data values are not within the expected range "
                           "- see notes below.")
-            for warning in form.warnings:
-                messages.warning(self.request, warning)
+            if form.warnings:  # other warnings are tied to fields
+                for warning in form.warnings:
+                    messages.warning(self.request, warning)
         return super(CreditSubmissionReportingFieldsView,
                      self).form_valid(form)
 
