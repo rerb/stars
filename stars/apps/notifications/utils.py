@@ -10,8 +10,7 @@ def build_message(content, context):
     """
     # mark strings safe in context
     for k in context.keys():
-        if type(context[k]) == str:
-            context[k] = mark_safe(unicode(context[k]))
+        context[k] = mark_safe(unicode(context[k]))
     t = Template(mark_safe(content))
     c = Context(context)
     return t.render(c)
