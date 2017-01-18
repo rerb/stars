@@ -8,9 +8,6 @@ def build_message(content, context):
         `content` - a string template
         `context` - the context to be applied to the template
     """
-    # mark strings safe in context
-    for k in context.keys():
-        context[k] = mark_safe(unicode(context[k]))
-    t = Template(mark_safe(content))
+    t = Template("{%% autoescape off %%}%s{%% endautoescape %%}" % content)
     c = Context(context)
     return t.render(c)

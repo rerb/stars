@@ -46,16 +46,23 @@ class TestNotifications(TestCase):
 
     def test_non_ascii_chars(self):
         " get_message() "
-        _context = {'test_val': "St. John's University & Test"}
+
+        class ObjTest(object):
+            def __str__(self):
+                return "testin' & stuff"
+
+        test_obj = ObjTest()
+
+        _context = {'test_val': test_obj}
         self.assertEqual(
             self.et.get_message(context=_context),
-            "This is the <b>value</b> 'St. John's University & Test'.")
+            "This is the <b>value</b> 'testin' & stuff'.")
 
         self.et.send_email(['ben.stookey@gmail.com', ], _context)
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(
             mail.outbox[0].body,
-            "This is the <b>value</b> 'St. John's University & Test'.")
+            "This is the <b>value</b> 'testin' & stuff'.")
 
     def test_send_email(self):
         " send_email() "
