@@ -1,5 +1,6 @@
 import re
 
+from django.contrib import messages
 from django.core.cache import cache
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -269,17 +270,32 @@ class CreditSubmissionStatusUpdateView(UpdateView):
 
         submissionset = credit_user_submission.get_submissionset()
 
+        message = "<b>%s</b>: <br>" % credit_user_submission.credit.identifier
+        message += "Changed status from %s to %s <br>" % (
+            credit_user_submission.submission_status,
+            form.cleaned_data["submission_status"]
+        )
+
         original_submission_status = self.request.POST[
             "original_submission_status"]
 
         credit_user_submission.submission_status = (
             form.cleaned_data["submission_status"])
 
-        if ((credit_user_submission.assessed_points !=
-             credit_user_submission._calculate_points()) or
+        credit_original_points = credit_user_submission.assessed_points
+        credit_calculated_points = credit_user_submission._calculate_points()
+
+        if ((credit_original_points != credit_calculated_points) or
             credit_user_submission.submission_status == 'c' or
             original_submission_status == 'na' or
             credit_user_submission.submission_status == 'na'):
+
+            credit_user_submission.assessed_points = credit_calculated_points
+            credit_user_submission.save(calculate_points=False)
+
+            message += "Score changed from %f to %f <br>" % (
+                credit_original_points, credit_calculated_points
+            )
 
             subcategory_submission = (
                 credit_user_submission.subcategory_submission)
@@ -293,14 +309,25 @@ class CreditSubmissionStatusUpdateView(UpdateView):
             category_submission.score = category_submission.get_STARS_score()
             category_submission.save()
 
+            submissionset_original_score = submissionset.score
             submissionset.score = None
             submissionset.score = submissionset.get_STARS_score()
             submissionset.save()
 
+            message += "Report score changed from %f to %f <br>" % (
+                submissionset_original_score, submissionset.score
+            )
+
             new_rating = submissionset.get_STARS_rating(recalculate=True)
             if submissionset.rating != new_rating:
+                message += "Rating changed from %s to %s! <br>" % (
+                    submissionset.rating, new_rating)
                 submissionset.rating = new_rating
                 submissionset.save()
+            else:
+                message += "Rating unchanged.<br>"
+
+        messages.info(self.request, (message))
 
         credit_user_submission.save()
         submissionset.pdf_report = None
