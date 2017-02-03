@@ -17,6 +17,7 @@ from stars.apps.registration.forms import (SelectSchoolForm,
                                            ContactForm)
 from stars.apps.tool.mixins import InstitutionAdminToolMixin
 from stars.apps.accounts.mixins import StarsAccountMixin
+from stars.apps.notifications.models import EmailTemplate
 
 from .utils import init_starsaccount, init_submissionset
 from ..payments.views import (FAILURE,
@@ -306,6 +307,11 @@ class BasicAccessRegistrationWizard(RegistrationWizard):
             except UnboundLocalError:
                 pass
             raise exc
+
+        # now send the email
+        et = EmailTemplate.objects.get(slug='welcome_respondent')
+        et.send_email(
+            [institution.contact_email], {'institution': institution})
 
 
 class SurveyView(InstitutionAdminToolMixin, CreateView):
