@@ -259,7 +259,7 @@ class Institution(models.Model):
                                        iss_field="account_num",
                                        decode=False),
                           FieldMapping(stars_field="org_type",
-                                       iss_field="org_type",
+                                       iss_field="carnegie_class",
                                        decode=True),
                           FieldMapping(stars_field="fte",
                                        iss_field="enrollment_fte",
