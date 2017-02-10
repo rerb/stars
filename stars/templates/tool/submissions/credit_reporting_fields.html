@@ -3,6 +3,7 @@
 {% load bootstrap %}
 {% load help %}
 {% load compress %}
+{% load content %}
 
 {% block body_onload %}
   {{ block.super }}
@@ -101,6 +102,7 @@
     <div class='creditContent'>
       <h2>Reporting Fields</h2>
       <br>
+      {% display_block_content "global_credit_notice" user %}
       {% with form as submission_form %}
         {% include "tool/submissions/submission_fields_form.html" %}
       {% endwith %}
