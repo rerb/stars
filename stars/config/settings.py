@@ -6,6 +6,8 @@ import re
 import sys
 
 import django
+import django_cache_url
+import dj_database_url
 from django.contrib.messages import constants as messages
 
 sys.path.append('../')
@@ -34,12 +36,12 @@ USE_L10N = True
 USE_THOUSAND_SEPARATOR = True
 
 # Database
-import dj_database_url
 DATABASES = {
     'default': dj_database_url.parse(os.environ.get('STARS_DB_URL', None)),
     'iss': dj_database_url.parse(os.environ.get('ISS_DB_URL', None))
 }
-DATABASES['default']['OPTIONS'] = {'init_command': 'SET default_storage_engine=MYISAM'}
+DATABASES['default']['OPTIONS'] = {
+    'init_command': 'SET default_storage_engine=MYISAM'}
 DATABASE_ROUTERS = ('issdjango.router.ISSRouter',)
 
 # Media
@@ -118,7 +120,6 @@ MIDDLEWARE_CLASSES = [  # a list so it can be editable during tests (see below)
     # 'cms.middleware.language.LanguageCookieMiddleware',
     ]
 
-import django_cache_url
 CACHES = {
     'default': django_cache_url.parse(
         os.environ.get('CACHE_URL', 'dummy://')),
