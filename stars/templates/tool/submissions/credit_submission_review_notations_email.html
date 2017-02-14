@@ -4,12 +4,12 @@
 
 <p>
   Congratulations on finalizing your institution's STARS report!
-  AASHE staff conduct a 25-credit review of all finalized STARS 2.0
+  AASHE staff review one-third of credits in all finalized STARS
   reports to ensure that credit criteria and intent are being
   satisfied, while also working with institutions to improve quality
   of current and future reports. This is the final step before
-  publishing your institution’s STARS rating and making the report
-  available on the STARS website.
+  awarding your institution’s STARS rating and publishing the report
+  on the STARS website.
 </p>
 
 {% if best_practices %}
@@ -20,8 +20,7 @@
       {% for best_practice in best_practices %}
         <li>
           <a href="https://stars.aashe.org{{ best_practice.credit_user_submission.get_submit_url }}">
-            {{ best_practice.credit_user_submission.credit }}</a>:
-          {{ best_practice.comment }}
+            {{ best_practice.credit_user_submission.credit }}</a>: {{ best_practice.comment }}
         </li>
       {% endfor %}
     </ul>
@@ -36,8 +35,7 @@
     60 days from today. The credit(s) listed below have been unlocked
     for editing in the
     <a href="https://stars.aashe.org{{ my_submission_url }}">
-      My Submission
-    </a>
+      My Submission</a>
     section of the Reporting Tool. Once all inconsistencies are
     addressed, your institution’s report will go public and we will
     forward a certificate of rating to the STARS Liaison, Executive
@@ -47,8 +45,7 @@
       {% for revision_request in revision_requests %}
         <li>
           <a href="https://stars.aashe.org{{ revision_request.credit_user_submission.get_submit_url }}">
-            {{ revision_request.credit_user_submission.credit }}</a>:
-          {{ revision_request.comment }}
+            {{ revision_request.credit_user_submission.credit }}</a>: {{ revision_request.comment }}
         </li>
       {% endfor %}
     </ul>
@@ -57,21 +54,19 @@
 
 {% if suggestions_for_improvement %}
   <p>
-    Below are areas where credit intent were satisfied, but AASHE
+    Below are areas where credit intent was satisfied, but AASHE
     staff identified one or more suggestions for improvement. The
     credit(s) listed below have also been unlocked for editing in the
     <a href="https://stars.aashe.org{{ my_submission_url }}">
-      My Submission
-    </a>
+      My Submission</a>
     section of the Reporting Tool, and we encourage you to make the
-    suggested changes The issue(s) below do not have to be addressed
+    suggested changes. The issue(s) below do not have to be addressed
     in order to receive your rating and certificate:
     <ul>
       {% for suggestion_for_improvement in suggestions_for_improvement %}
         <li>
           <a href="https://stars.aashe.org{{ suggestion_for_improvement.credit_user_submission.get_submit_url }}">
-            {{ suggestion_for_improvement.credit_user_submission.credit }}</a>:
-          {{ suggestion_for_improvement.comment }}
+            {{ suggestion_for_improvement.credit_user_submission.credit }}</a>: {{ suggestion_for_improvement.comment }}
         </li>
       {% endfor %}
     </ul>
