@@ -8,6 +8,10 @@
 
     "recent" means since the last deadline
 """
+# encoding=utf8
+import sys
+reload(sys)
+sys.setdefaultencoding('utf8')
 
 import datetime
 from django.db.models import Q
@@ -30,7 +34,7 @@ for ss in qs:
 for i in institution_with_reports:
     snapshot_qs = i.submissionset_set.all().filter(status='f')
     if not snapshot_qs.filter(date_submitted__gt=LAST_DEADLINE).count():
-        print i
+        print "%s, %s" % (i, i.contact_email)
 
 # Recent Snapshots w/ no sharing
 print
@@ -45,7 +49,7 @@ for ss in qs:
         institution_with_snapshots.append(ss.institution)
 for i in institution_with_snapshots:
     if not i.third_parties.count():
-        print i
+        print "%s, %s" % (i, i.contact_email)
 
 # Sharing w/ no recent Snapshot
 print
@@ -56,4 +60,4 @@ institutions_with_sharing = Institution.objects.exclude(third_parties=None)
 for i in institutions_with_sharing.order_by('name'):
     snapshots = i.submissionset_set.filter(status='f')
     if not snapshots.filter(date_submitted__gt=LAST_DEADLINE).count():
-        print i
+        print "%s, %s" % (i, i.contact_email)
