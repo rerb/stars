@@ -385,6 +385,7 @@ def migrate_submission(old_submissionset,
                             submission_field.value = old_submission_field.value
 
                         if isinstance(submission_field, NumericSubmission):
+                            submission_field.metric_value = old_submission_field.metric_value
                             submission_field.save(
                                 recalculate_related_calculated_fields=False)
                         else:
