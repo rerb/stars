@@ -6,7 +6,8 @@ from django.test import TestCase
 from stars.apps.credits.models import (Category,
                                        Credit,
                                        Subcategory,
-                                       DocumentationField)
+                                       DocumentationField,
+                                       Unit)
 from stars.apps.migrations import utils
 from stars.apps.submissions.models import (CreditUserSubmission,
                                            NumericSubmission)
@@ -62,9 +63,23 @@ class MigrateSubmissionTestCase(TestCase):
             subcategory=self.innovations_subcategory,
             identifier="INNOVATION",
             point_value=10)
+
+        self.us_unit = Unit(name='imperial units',
+                            is_metric=False,
+                            ratio=.5)  # 1 us is .5 metric
+        self.us_unit.save()
+        # metric value is twice the us unit
+        self.metric_unit = Unit(name="metric units",
+                                is_metric=True,
+                                ratio=2,  # 1 metric is 2 us
+                                equivalent=self.us_unit)
+        self.metric_unit.save()
+        self.us_unit.equivalent = self.metric_unit
+        self.us_unit.save()
         self.innovations_documentation_field = (
             DocumentationField.objects.create(
                 credit=self.innovations_credit,
+                units=self.us_unit,
                 type="numeric"))
 
         self.not_innovations_subcategory = Subcategory.objects.create(
@@ -81,14 +96,16 @@ class MigrateSubmissionTestCase(TestCase):
 
         return creditset
 
-    def get_submissionset(self, creditset):
+    def get_submissionset(self, creditset, metric_preference=False):
         submissionset = SubmissionSetFactory(creditset=creditset)
+        submissionset.institution.prefers_metric_system = metric_preference
+        submissionset.institution.save()
 
         self.innovations_numeric_submission = NumericSubmission.objects.create(
             documentation_field=self.innovations_documentation_field,
             credit_submission=CreditUserSubmission.objects.get(
                 subcategory_submission__subcategory__slug='innovation'),
-            value=10)
+            value=10, metric_value=5)
 
         self.not_innovations_numeric_submission = (
             NumericSubmission.objects.create(
@@ -135,11 +152,14 @@ class MigrateSubmissionTestCase(TestCase):
         self.assertEqual(20, new_not_innovations_numericsubmission.value)
 
     def test_innovations_credits_migrate_if_specified(self):
-        """Do Innovation credits migrate from rated submissions if told to?
+        """
+        Do Innovation credits migrate from rated submissions if told to?
+        This test uses metric.    
         """
         creditset = self.get_creditset()
 
-        submissionset = self.get_submissionset(creditset=creditset)
+        submissionset = self.get_submissionset(
+            creditset=creditset, metric_preference=True)
         submissionset.status = "r"
         submissionset.save()
 

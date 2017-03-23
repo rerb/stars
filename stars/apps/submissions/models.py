@@ -141,7 +141,7 @@ class SubmissionManager(models.Manager):
         return SubmissionSet.objects.filter(
             institution=institution).filter(
                 status=FINALIZED_SUBMISSION_STATUS).order_by(
-                    '-date_submitted')
+                    '-date_submitted').order_by('-id')
 
 
 class SubmissionSet(models.Model, FlaggableModel):

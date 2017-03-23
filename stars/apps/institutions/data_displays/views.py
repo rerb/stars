@@ -380,7 +380,7 @@ class AggregateFilter(DisplayAccessMixin, CommonFilterMixin, FilteringMixin,
             credit_set = CreditSet.objects.get(version="1.2")
             _context['display_version'] = "1.0"
         elif self.kwargs["cs_version"] == "2.0":
-            credit_set = CreditSet.objects.get(version="2.0")
+            credit_set = CreditSet.objects.get(version="2.1")
             _context['display_version'] = "2.0"
         else:
             raise Http404
@@ -611,7 +611,7 @@ class ScoreFilter(DisplayAccessMixin, CommonFilterMixin,
             credit_set = CreditSet.objects.get(version="1.2")
             _context['display_version'] = "1.0"
         elif self.kwargs["cs_version"] == "2.0":
-            credit_set = CreditSet.objects.get(version="2.0")
+            credit_set = CreditSet.objects.get(version="2.1")
             _context['display_version'] = "2.0"
         else:
             raise Http404
@@ -855,7 +855,7 @@ class ContentFilter(DisplayAccessMixin, CommonFilterMixin,
             credit_set = CreditSet.objects.get(version="1.2")
             _context['display_version'] = "1.0"
         elif self.kwargs["cs_version"] == "2.0":
-            credit_set = CreditSet.objects.get(version="2.0")
+            credit_set = CreditSet.objects.get(version="2.1")
             _context['display_version'] = "2.0"
         else:
             raise Http404
