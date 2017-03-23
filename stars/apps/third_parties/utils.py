@@ -1,15 +1,14 @@
-from django.utils.encoding import smart_unicode, smart_str
+import csv
+import cStringIO
+import codecs
+import os
+
 from django.core.files.temp import NamedTemporaryFile
+from django.utils.encoding import smart_unicode
 
 from stars.apps.submissions.models import (SubmissionSet,
                                            CreditUserSubmission,
-                                           DocumentationFieldSubmission
-                                           )
-
-import string, csv
-import io
-import cStringIO
-import codecs
+                                           DocumentationFieldSubmission)
 
 
 class UnicodeWriter:
@@ -41,6 +40,7 @@ class UnicodeWriter:
         for row in rows:
             self.writerow(row)
 
+
 def export_credit_csv(credit, ss_qs=None, outfilename=None):
     """
         Returns a NamedTemporaryFile with data from each submisisonset
@@ -48,15 +48,18 @@ def export_credit_csv(credit, ss_qs=None, outfilename=None):
     """
     if not outfilename:
         outfile = NamedTemporaryFile(suffix='.csv', delete=False)
-        csvWriter = UnicodeWriter(outfile)
     else:
-#         outfile = io.open(outfilename, 'w', encoding='utf8')
+        path = os.path.dirname(outfilename)
+        if not os.path.exists(path):
+            os.makedirs(path)
         outfile = open(outfilename, 'wb')
-        csvWriter = UnicodeWriter(outfile)
+
+    csvWriter = UnicodeWriter(outfile)
 
     # Get the list of submissions for columns
     if not ss_qs:
-        ss_qs = SubmissionSet.objects.filter(status='r').order_by("institution__name")
+        ss_qs = SubmissionSet.objects.filter(status='r').order_by(
+            "institution__name")
     ss_list = []
     cus_list = []
     for ss in ss_qs:
@@ -83,11 +86,6 @@ def export_credit_csv(credit, ss_qs=None, outfilename=None):
                 u"Date Submitted",
                 u"Last Updated",
                 u"Liason Email",
-#                "City",
-#                "State",
-#                "Country",
-#                "Org type",
-#                "FTE-Enrollment",
                 u"Version",
                 u"Status",
                ]
@@ -110,11 +108,6 @@ def export_credit_csv(credit, ss_qs=None, outfilename=None):
                 unicode(ss.date_submitted),
                 unicode(cus.last_updated),
                 institution.contact_email,
-#                profile.city,
-#                profile.state,
-#                institution.country,
-#                institution.org_type,
-#                institution.fte,
                 ss.creditset.version
                 ]
 
@@ -133,7 +126,7 @@ def export_credit_csv(credit, ss_qs=None, outfilename=None):
             if (cus.submission_status == "na" or
                 cus.submission_status == 'np' or
                 cus.submission_status == 'ns' or
-                cus.submission_status == 'p'):
+                cus.submission_status == 'p'):  # noqa
                 row.append("--")
             else:
                 field_class = DocumentationFieldSubmission.get_field_class(df)
