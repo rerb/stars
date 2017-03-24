@@ -52,7 +52,7 @@ gunicorn==0.17.0
 hg-git==0.3.4
 html5lib==0.90
 httplib2==0.8
-ipython==0.13.1
+ipython
 lxml==3.6.4
 mercurial==2.7
 mimeparse==0.1.3
