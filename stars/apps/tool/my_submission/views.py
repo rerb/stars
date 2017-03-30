@@ -31,7 +31,7 @@ from stars.apps.submissions.models import (
     SubmissionSet)
 from stars.apps.submissions.tasks import (
     rollover_submission,
-    send_email_with_certificate_attachment,
+    # send_email_with_certificate_attachment,
     take_snapshot_task)
 from stars.apps.tool.mixins import (UserCanEditSubmissionMixin,
                                     UserCanEditSubmissionOrIsAdminMixin,
@@ -443,7 +443,7 @@ class CreditSubmissionDetailView(UserCanEditSubmissionMixin):
             context['num_notations_to_send'] = (
                 CreditSubmissionReviewNotation.objects.filter(
                     send_email=True,
-                    credit_user_submission__subcategory_submission__category_submission__submissionset=submissionset).count())
+                    credit_user_submission__subcategory_submission__category_submission__submissionset=submissionset).count())  # noqa
 
         return context
 
@@ -610,12 +610,12 @@ class SendCreditSubmissionReviewNotationEmailView(SubmissionToolMixin,
         """
         return list(chain(
             queryset.filter(
-                credit_user_submission__credit__subcategory__category__abbreviation="IC"),
+                credit_user_submission__credit__subcategory__category__abbreviation="IC"),  # noqa
             queryset.exclude(
-                credit_user_submission__credit__subcategory__category__abbreviation="IC").exclude(
-                    credit_user_submission__credit__subcategory__category__abbreviation="IN"),
+                credit_user_submission__credit__subcategory__category__abbreviation="IC").exclude(  # noqa
+                    credit_user_submission__credit__subcategory__category__abbreviation="IN"),  # noqa
             queryset.filter(
-                credit_user_submission__credit__subcategory__category__abbreviation="IN")))
+                credit_user_submission__credit__subcategory__category__abbreviation="IN")))  # noqa
 
     def get_email_content(self):
         email_template = ("/tool/submissions/" +
@@ -625,8 +625,9 @@ class SendCreditSubmissionReviewNotationEmailView(SubmissionToolMixin,
         self.notations_to_send = (
             CreditSubmissionReviewNotation.objects.filter(
                 send_email=True,
-                credit_user_submission__subcategory_submission__category_submission__submissionset=self.submissionset).order_by(
-                    "credit_user_submission__credit__subcategory__category__abbreviation",
+                credit_user_submission__subcategory_submission__category_submission__submissionset=self.submissionset).order_by(  # noqa
+                    "credit_user_submission__credit__subcategory__"
+                    "category__abbreviation",
                     "credit_user_submission__credit__number"))
         self.institution = self.submissionset.institution
 
@@ -649,8 +650,6 @@ class SendCreditSubmissionReviewNotationEmailView(SubmissionToolMixin,
 
         context["my_submission_url"] = (
             self.submissionset.get_submit_url())
-
-        context["sincerely_from"] = self.request.user.get_full_name()
 
         with open(settings.TEMPLATE_DIRS[0] + email_template,
                   "rb") as template:
@@ -718,9 +717,11 @@ class SubmissionReviewSummaryView(SubmissionToolMixin,
         context = super(SubmissionReviewSummaryView, self).get_context_data(
             *args, **kwargs)
         submissionset = self.get_submissionset()
-        reviewed_credit_submissions = submissionset.get_credit_submissions().exclude(
-            review_conclusion=REVIEW_CONCLUSIONS["NOT_REVIEWED"]).order_by(
-                "credit__subcategory__category__abbreviation", "credit__number")
+        reviewed_credit_submissions = (
+            submissionset.get_credit_submissions().exclude(
+                review_conclusion=REVIEW_CONCLUSIONS["NOT_REVIEWED"]).order_by(
+                    "credit__subcategory__category__abbreviation",
+                    "credit__number"))
         context["does_not_meet_criteria_list"] = (
             reviewed_credit_submissions.filter(
                 review_conclusion=REVIEW_CONCLUSIONS[
