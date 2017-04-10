@@ -67,8 +67,8 @@ class InstitutionResource(StarsApiResource):
 
     def dehydrate_submission_sets(self, bundle):
         """Filter unrated submission sets."""
-        rated_submissions = [ ss for ss in bundle.data['submission_sets']
-                              if ss.obj.rating ]
+        rated_submissions = [ss for ss in bundle.data['submission_sets']
+                             if ss.obj.rating]
         return rated_submissions
 
 

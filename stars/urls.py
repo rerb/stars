@@ -1,23 +1,24 @@
-import os
-
-from django.conf.urls.defaults import *
-from django.conf import settings
-from django.contrib import admin
-admin.autodiscover()
+import logging
 
 import logical_rules
-logical_rules.autodiscover()
+from django.conf import settings
+from django.conf.urls.defaults import include, patterns, url
+from django.contrib import admin
+from sorl.thumbnail.log import ThumbnailLogHandler
 
 from stars.apps.helpers.old_path_preserver import (OldPathPreserverView,
                                                    OLD_PATHS_TO_PRESERVE)
-
 from stars.apps.old_cms.views import (HomePageView)
+
+
+admin.autodiscover()
+logical_rules.autodiscover()
 
 handler403 = 'stars.apps.helpers.views.permission_denied'
 handler500 = 'stars.apps.helpers.views.server_error'
 
-
-urlpatterns = patterns('',
+urlpatterns = patterns(
+    '',
 
     # catch old paths we need to preserve first:
     url(r'^{old_paths_to_preserve}$'.format(
@@ -28,7 +29,7 @@ urlpatterns = patterns('',
     (r'^api/', include('stars.apps.api.urls')),
     (r'^api/', include('stars.apps.submissions.urls')),
     # tool:
-    #(r'^$', 'stars.apps.tool.views.stars_home_page'),
+    # (r'^$', 'stars.apps.tool.views.stars_home_page'),
     (r'^$', HomePageView.as_view(), {'template_name': 'home.html'}),
 
     # articles (cms):
@@ -38,8 +39,8 @@ urlpatterns = patterns('',
     (r'^tool/', include('stars.apps.tool.urls')),
 
     # accounts:
-#    (r'^accounts/', include('stars.apps.accounts.urls')),
-    ('^accounts/', include('aashe.aasheauth.urls')),
+    # (r'^accounts/', include('stars.apps.accounts.urls')),
+    ('^accounts/', include('django.contrib.auth.urls')),
 
     # admin
     (r'^_ad/', include(admin.site.urls)),
@@ -69,23 +70,26 @@ urlpatterns = patterns('',
 )
 
 if settings.DEBUG:
-    urlpatterns += patterns('',
-        (r'^styles/$', 'django.views.generic.simple.direct_to_template', {'template': 'styles.html'}),
+    urlpatterns += patterns(
+        '',
+        (r'^styles/$',
+         'django.views.generic.simple.direct_to_template',
+         {'template': 'styles.html'}),
     )
 
 if settings.DEBUG:
-    urlpatterns += patterns('',
-        url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {
-            'document_root': settings.MEDIA_ROOT,
-        }),
-   )
+    urlpatterns += patterns(
+        '',
+        url(r'^media/(?P<path>.*)$',
+            'django.views.static.serve', {
+                'document_root':
+                settings.MEDIA_ROOT,
+            }),
+    )
 
 if settings.PROFILE:
     urlpatterns += patterns('',
                             url(r'^profiler/', include('profiler.urls')))
-
-import logging
-from sorl.thumbnail.log import ThumbnailLogHandler
 
 handler = ThumbnailLogHandler()
 handler.setLevel(logging.ERROR)

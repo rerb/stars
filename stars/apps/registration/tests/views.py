@@ -8,7 +8,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.select import Select
 from selenium.webdriver.support.wait import TimeoutException
 
-import stars.apps.institutions.rules  # registers logical rules
 from stars.apps.institutions.models import (Institution,
                                             StarsAccount,
                                             Subscription,

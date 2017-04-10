@@ -3,11 +3,11 @@ import time
 
 import factory
 
-from issdjango.models import Organizations
+from iss.models import Organization
 
 
-class OrganizationsFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = Organizations
+class OrganizationFactory(factory.DjangoModelFactory):
+    FACTORY_FOR = Organization
 
     enabled = True
     slug = factory.Sequence(

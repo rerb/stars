@@ -5,7 +5,7 @@ import datetime
 from django.test import TestCase
 from django.test.client import Client
 
-from issdjango.models import Organizations
+from iss.models import Organization
 
 from stars.apps.institutions import views
 from stars.apps.institutions.models import Institution
@@ -126,12 +126,11 @@ class ScorecardViewTest(TestCase):
 
     def setUp(self):
         for i in Institution.objects.all():
-            o = Organizations(account_num=i.aashe_id,
-                              org_name=i.name,
-                              city='city',
-                              state='state',
-                              exclude_from_website=False)
-            o.save()
+            Organization.objects.create(account_num=i.aashe_id,
+                                        org_name=i.name,
+                                        city='city',
+                                        state='state',
+                                        exclude_from_website=False)
         self.client = Client()
 
     def test_GET_returns_200(self):

@@ -1,5 +1,5 @@
 #!/bin/sh
-APPS="migrations custom_forms etl_export helpers third_parties notifications old_cms registration tasks submissions institutions credits data_displays"
+APPS="migrations custom_forms helpers third_parties notifications old_cms registration tasks submissions institutions credits data_displays"
 
 for APP in $APPS
 do

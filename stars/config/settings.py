@@ -12,8 +12,7 @@ from django.contrib.messages import constants as messages
 
 sys.path.append('../')
 
-ADMINS = (('Benjamin Stookey', 'ben@aashe.org'),
-          ('Bob Erb', 'bob.erb@aashe.org'),
+ADMINS = (('Bob Erb', 'bob.erb@aashe.org'),
           ('Scott Johnson', 'scott@aashe.org'),
           ('Chris Pelton', 'chris.pelton@aashe.org'))
 MANAGERS = ADMINS
@@ -37,12 +36,11 @@ USE_THOUSAND_SEPARATOR = True
 
 # Database
 DATABASES = {
-    'default': dj_database_url.parse(os.environ.get('STARS_DB_URL', None)),
-    'iss': dj_database_url.parse(os.environ.get('ISS_DB_URL', None))
+    'default': dj_database_url.parse(os.environ.get('STARS_DB_URL', None))
 }
-DATABASES['default']['OPTIONS'] = {
-    'init_command': 'SET default_storage_engine=MYISAM'}
-DATABASE_ROUTERS = ('issdjango.router.ISSRouter',)
+
+DATABASES['default']['OPTIONS'] = {'init_command':
+                                   'SET default_storage_engine=MYISAM'}
 
 # Media
 USE_S3 = os.environ.get('USE_S3', None)
@@ -76,7 +74,6 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-    # 'django.contrib.staticfiles.finders.DefaultStorageFinder',
     'compressor.finders.CompressorFinder',
 )
 
@@ -108,17 +105,11 @@ MIDDLEWARE_CLASSES = [  # a list so it can be editable during tests (see below)
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    # 'aashe.aasheauth.middleware.AASHEAccountMiddleware',
     'django.middleware.cache.FetchFromCacheMiddleware',
     'django.contrib.redirects.middleware.RedirectFallbackMiddleware',
     'django.middleware.doc.XViewMiddleware',
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    # 'cms.middleware.page.CurrentPageMiddleware',
-    # 'cms.middleware.user.CurrentUserMiddleware',
-    # 'cms.middleware.toolbar.ToolbarMiddleware',
-    # 'cms.middleware.language.LanguageCookieMiddleware',
-    ]
+    'django.contrib.messages.middleware.MessageMiddleware']
 
 CACHES = {
     'default': django_cache_url.parse(
@@ -127,14 +118,12 @@ CACHES = {
         os.environ.get('FILE_CACHE_URL', 'file:///tmp/filecache'))
 }
 
-AUTH_PROFILE_MODULE = 'accounts.UserProfile'
-AUTHENTICATION_BACKENDS = ('aashe.aasheauth.backends.AASHEBackend',)
+AUTHENTICATION_BACKENDS = (
+    'django_membersuite_auth.backends.MemberSuiteBackend',)
 if 'test' in sys.argv:
     AUTHENTICATION_BACKENDS = (
         'django.contrib.auth.backends.ModelBackend',
-        'aashe.aasheauth.backends.AASHEBackend',
-        # 'stars.apps.accounts.aashe.AASHEAuthBackend',
-        )
+        'django_membersuite_auth.backends.MemberSuiteBackend')
 
 DASHBOARD_URL = "/tool/"
 LOGIN_URL = "/accounts/login/"
@@ -158,8 +147,6 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.messages.context_processors.messages',
     "django.contrib.auth.context_processors.auth",
     'django.core.context_processors.request',
-    # 'cms.context_processors.media',
-    # 'sekizai.context_processors.sekizai',
     )
 
 INSTALLED_APPS = (
@@ -191,7 +178,6 @@ INSTALLED_APPS = (
     'stars.apps.helpers',
     'stars.apps.helpers.forms',  # included here for testing
     'stars.apps.old_cms',
-    'stars.apps.etl_export',
     'stars.apps.custom_forms',
     'stars.apps.tasks',
     'stars.apps.notifications',
@@ -203,51 +189,27 @@ INSTALLED_APPS = (
     'stars.test_factories',
     # 'stars.tests',
 
-    'aashe.aasheauth',
+    'adv_cache_tag',
     'bootstrapform',
     'captcha',
     'collapsing_menu',
     'compressor',
+    'compressor',
     'django_celery_downloader',
     'django_celery_downloader.tests.demo_app',
     'django_extensions',
+    'django_membersuite_auth',
     'djcelery',
+    'file_cache_tag',
     'gunicorn',
-    'issdjango',
+    'iss',
     'logical_rules',
     'raven.contrib.django.raven_compat',
     's3_folder_storage',
     'sorl.thumbnail',
     'south',
     'tastypie',
-    # 'cms',
-    # 'cms.plugins.file',
-    # 'cms.plugins.flash',
-    # 'cms.plugins.googlemap',
-    # 'cms.plugins.link',
-    # 'cms.plugins.picture',
-    # 'cms.plugins.snippet',
-    # 'cms.plugins.teaser',
-    # 'cms.plugins.text',
-    # 'cms.plugins.video',
-    # 'cms.plugins.twitter',
-    # 'mptt',
-    # 'menus',
-    # 'sekizai',
-    'compressor',
-    'adv_cache_tag',
-    'file_cache_tag',
 )
-
-# auth config
-AASHE_DRUPAL_URI = os.environ.get('AASHE_DRUPAL_URI', None)
-AASHE_DRUPAL_KEY = os.environ.get('AASHE_DRUPAL_KEY', None)
-AASHE_DRUPAL_KEY_DOMAIN = os.environ.get('AASHE_DRUPAL_KEY_DOMAIN', None)
-AASHE_DRUPAL_COOKIE_SESSION = os.environ.get('AASHE_DRUPAL_COOKIE_SESSION',
-                                             None)
-AASHE_DRUPAL_COOKIE_DOMAIN = os.environ.get('AASHE_DRUPAL_COOKIE_DOMAIN',
-                                            None)
-AASHE_AUTH_VERBOSE = os.environ.get('AASHE_AUTH_VERBOSE', False)
 
 # Permissions or user levels for STARS users
 STARS_PERMISSIONS = (
@@ -534,3 +496,15 @@ PASSWORD_PROTECT_USERNAME = os.environ.get('PASSWORD_PROTECT_USERNAME', None)
 PASSWORD_PROTECT_PASSWORD = os.environ.get('PASSWORD_PROTECT_PASSWORD', None)
 PASSWORD_PROTECT_REALM = os.environ.get(
     'PASSWORD_PROTECT_REALM', 'Dev Site Auth')
+
+SOUTH_MIGRATION_MODULES = {
+    'iss': 'iss.south_migrations',
+}
+
+############################
+# Membersuite
+############################
+MS_ACCESS_KEY = os.environ["MS_ACCESS_KEY"]
+MS_SECRET_KEY = os.environ["MS_SECRET_KEY"]
+MS_ASSOCIATION_ID = os.environ["MS_ASSOCIATION_ID"]
+STARS_MS_PUBLICATION_ID = os.environ["STARS_MS_PUBLICATION_ID"]

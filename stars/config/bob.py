@@ -73,8 +73,6 @@ if os.environ.get('STARS_BACKUP_DB_URL', False):
     DATABASES['stars-backup']['OPTIONS'] = {'init_command':
                                             'SET storage_engine=MYISAM'}
 
-DATABASE_ROUTERS = ('issdjango.router.ISSRouter',)
-
 # Stand alone mode indicates that the server will be running using
 # the django dev server so we will need to serve the static files (see urls.py)
 STANDALONE_MODE = True
@@ -145,8 +143,7 @@ QUERY_INSPECT_TRACEBACK_ROOTS = ['/Users/rerb/src/aashe/stars/']
 TEMPLATE_STRING_IF_INVALID = 'INVALID EXPRESSION: %s'
 
 TEST_RUNNER = 'hotrunner.HotRunner'
-EXCLUDED_TEST_APPS = ['issdjango',
-                      'bootstrapform',
+EXCLUDED_TEST_APPS = ['bootstrapform',
                       'captcha',
                       'collapsing_menu',
                       'django_extensions',
@@ -166,7 +163,5 @@ EXCLUDED_TEST_APPS = ['issdjango',
                       'tastypie',
                       'terms',
                       'template_repl']
-
-SHELL_PLUS_DONT_LOAD = ['etl_export']
 
 PROFILE_LOG_BASE = "profiling-data"

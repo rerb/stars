@@ -12,8 +12,7 @@ from stars.apps.tests.live_server import StarsLiveServerTest
 from stars.apps.institutions.data_displays.views import (
     Dashboard,
     ScoreFilter)
-from stars.test_factories import (AASHEUserFactory,
-                                  CategoryFactory,
+from stars.test_factories import (CategoryFactory,
                                   InstitutionFactory,
                                   RatingFactory,
                                   SubmissionSetFactory,
@@ -85,9 +84,7 @@ def member(user=None):
     """Return a User that will be identified as a member.
     """
     user = user or UserFactory(password=PASSWORD)
-    aashe_user = AASHEUserFactory(user=user)
-    aashe_user.set_drupal_user_dict({'roles': {'Member': 'Member'}})
-    aashe_user.save()
+    MemberSuitePortalUserFactory(user=user, is_member=True)
     return user
 
 
@@ -95,7 +92,7 @@ def new_non_member():
     """Return a User that will NOT be identified as a member.
     """
     non_member = UserFactory(password=PASSWORD)
-    AASHEUserFactory(user=non_member)
+    MemberSuitePortalUserFactory(user=non_member, is_member=False)
     return non_member
 
 

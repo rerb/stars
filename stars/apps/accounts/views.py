@@ -16,7 +16,7 @@ from stars.apps.accounts.utils import change_institution
 from stars.apps.accounts.forms import LoginForm, TOSForm
 from stars.apps.accounts.utils import respond
 
-from aashe.aasheauth.backends import login
+from django_membersuite_auth.services import MemberSuitePortalUserService
 
 logger = getLogger('stars.request')
 
@@ -37,7 +37,7 @@ def login_view(request, redirect_field_name=REDIRECT_FIELD_NAME):
             # Light security check -- make sure redirect_to isn't garbage.
             if not redirect_to or '//' in redirect_to or ' ' in redirect_to:
                 redirect_to = settings.LOGIN_REDIRECT_URL
-            login(request, form.get_user())
+            MemberSuitePortalUserService().login(request, form.get_user())
             if request.session.test_cookie_worked():
                 request.session.delete_test_cookie()
             return HttpResponseRedirect(redirect_to)

@@ -4,6 +4,7 @@ from stars.apps.institutions.tests import (stars_account, permissions,
 from stars.apps.institutions.tests.institution import InstitutionTest
 from stars.apps.institutions.tests.accuracy_inquiry import AccuracyInquiryTest
 from stars.apps.institutions.tests.subscription import SubscriptionTest
+from stars.apps.institutions.tests.subscription_etl import SubscriptionSyncTest
 from stars.apps.institutions.tests.views import (ActiveInstitutionsViewTest,
                                                  RatedInstitutionsViewTest,
                                                  ScorecardViewTest,
@@ -21,6 +22,7 @@ __test__ = {
     'RatedInstitutionsViewTest': RatedInstitutionsViewTest,
     'ScorecardViewTest': ScorecardViewTest,
     'SubscriptionTest': SubscriptionTest,
+    'SubscriptionSyncTest': SubscriptionSyncTest,
     'TopLevelTest': TopLevelTest,
     'InstitutionResourceTestCase': InstitutionResourceTestCase,
     'ExpiredRatingTest': ExpiredRatingTest,

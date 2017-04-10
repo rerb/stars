@@ -2,9 +2,9 @@ from django import test
 from django.contrib.auth.models import User
 
 from stars.apps.helpers.old_path_preserver import OLD_PATHS_TO_PRESERVE
-from stars.test_factories import (InstitutionFactory, StarsAccountFactory,
-                                  SubmissionSetFactory, UserFactory,
-                                  UserProfileFactory)
+from stars.test_factories import (InstitutionFactory,
+                                  StarsAccountFactory,
+                                  SubmissionSetFactory)
 
 
 class OldPathPreserverViewTest(test.TestCase):
@@ -14,7 +14,7 @@ class OldPathPreserverViewTest(test.TestCase):
         """
         user = User.objects.create_user(username='john', password='doe')
         user.save()
-        institution = InstitutionFactory()
+        InstitutionFactory()
 
         test_client = test.client.Client()
 
@@ -28,8 +28,7 @@ class OldPathPreserverViewTest(test.TestCase):
         """
         user = User.objects.create_user(username='john', password='doe')
         user.save()
-        user_profile = UserProfileFactory(user=user)
-        institution = InstitutionFactory()
+        InstitutionFactory()
 
         test_client = test.client.Client()
         self.assertTrue(test_client.login(username=user.username,
@@ -46,10 +45,10 @@ class OldPathPreserverViewTest(test.TestCase):
         user = User.objects.create_user(username='john', password='doe')
         user.save()
         institution = InstitutionFactory()
-        stars_account = StarsAccountFactory(user=user,
-                                            institution=institution,
-                                            user_level='admin',
-                                            terms_of_service=True)
+        StarsAccountFactory(user=user,
+                            institution=institution,
+                            user_level='admin',
+                            terms_of_service=True)
         submission_set = SubmissionSetFactory(institution=institution)
         institution.current_submission = submission_set
         institution.save()
@@ -70,17 +69,17 @@ class OldPathPreserverViewTest(test.TestCase):
         user.save()
         institution1 = InstitutionFactory()
         institution2 = InstitutionFactory()
-        stars_account = StarsAccountFactory(user=user,
-                                            institution=institution1,
-                                            user_level='admin',
-                                            terms_of_service=True)
+        StarsAccountFactory(user=user,
+                            institution=institution1,
+                            user_level='admin',
+                            terms_of_service=True)
         submission_set1 = SubmissionSetFactory(institution=institution1)
         institution1.current_submission = submission_set1
         institution1.save()
-        stars_account = StarsAccountFactory(user=user,
-                                            institution=institution2,
-                                            user_level='admin',
-                                            terms_of_service=True)
+        StarsAccountFactory(user=user,
+                            institution=institution2,
+                            user_level='admin',
+                            terms_of_service=True)
         submission_set2 = SubmissionSetFactory(institution=institution1)
         institution2.current_submission = submission_set2
         institution2.save()
@@ -92,7 +91,4 @@ class OldPathPreserverViewTest(test.TestCase):
         for old_path in OLD_PATHS_TO_PRESERVE:
             path = '/' + old_path
             response = test_client.get(path, follow=True)
-            if response.status_code != 200:
-                import pdb; pdb.set_trace()
-
             self.assertEqual(response.status_code, 200)

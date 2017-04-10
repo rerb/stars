@@ -12,10 +12,12 @@ from django.db.models import Max
 from django.core.mail import send_mail
 from django.contrib.auth.signals import user_logged_in
 from django.dispatch import receiver
+from iss.models import Organization
 
 from stars.apps.credits.models import Category, CreditSet
 from stars.apps.registration.models import get_current_discount
 from stars.apps.notifications.models import EmailTemplate
+
 
 logger = getLogger('stars')
 
@@ -43,6 +45,28 @@ class ClimateZone(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class MemberSuiteInstitutionManager(models.Manager):
+
+    def get_queryset(self):
+        qs = super(MemberSuiteInstitutionManager, self).get_queryset()
+        qs = qs.filter(org_type__name='Campus')
+        return qs.exclude(exclude_from_website=True)
+
+
+class MemberSuiteInstitution(Organization):
+
+    objects = MemberSuiteInstitutionManager()
+
+    class Meta:
+        proxy = True
+
+    def __str__(self):
+        if self.state:
+            return '{}, {}'.format(self.org_name, self.state)
+        else:
+            return self.org_name
 
 
 class InstitutionManager(models.Manager):
@@ -74,6 +98,12 @@ class Institution(models.Model):
         is a mirror of Salesforce and will require regular updating
     """
     objects = InstitutionManager()
+
+    # After initial load of MemberSuiteInstitutions, the "null=True"
+    # constrain should be removed.
+    ms_institution = models.OneToOneField(MemberSuiteInstitution,
+                                          null=True)
+
     slug = models.SlugField(max_length=255)
     enabled = models.BooleanField(
         help_text=("This is a staff-only flag for disabling an "
@@ -224,13 +254,10 @@ class Institution(models.Model):
             self.current_rating = None
             self.rating_expires = None
 
-            # @todo should i add an automated email here or put it
-            # in notifications?
-
         # Check subscription is current
         if self.current_subscription:
             if (self.current_subscription.start_date <= date.today() and
-                self.current_subscription.end_date >= date.today()):
+                self.current_subscription.end_date >= date.today()):  # noqa
                 self.is_participant = True
             else:
                 self.is_participant = False
@@ -239,7 +266,7 @@ class Institution(models.Model):
                 # that is current
                 for sub in self.subscription_set.all():
                     if (sub.start_date <= date.today() and
-                        sub.end_date >= date.today()):
+                        sub.end_date >= date.today()):  # noqa
                         self.is_participant = True
                         self.current_subscription = sub
                         break
@@ -459,14 +486,13 @@ class Institution(models.Model):
 
     @property
     def profile(self):
-        from issdjango.models import Organizations
         try:
-            org = Organizations.objects.get(account_num=self.aashe_id)
+            org = Organization.objects.get(account_num=self.aashe_id)
             return org
-        except Organizations.DoesNotExist:
+        except Organization.DoesNotExist:
             logger.info("No ISS institution found for aashe_id %s" %
                         self.aashe_id)
-        except Organizations.MultipleObjectsReturned:
+        except Organization.MultipleObjectsReturned:
             logger.warning("Multiple ISS Institutions for aashe_id %s" %
                            self.aashe_id)
         return None
@@ -535,6 +561,7 @@ class MigrationHistory(models.Model):
                                  self.target_ss.creditset.version,
                                  self.date)
 
+
 RATINGS_PER_SUBSCRIPTION = 1
 SUBSCRIPTION_DURATION = 365
 
@@ -543,13 +570,16 @@ class Subscription(models.Model):
     """
     Describes a subscription to the reporting tool.
     """
-    institution = models.ForeignKey(Institution)
+    ms_id = models.CharField(max_length=64, blank=True, null=True)
+    ms_institution = models.ForeignKey(MemberSuiteInstitution,
+                                       blank=True, null=True)
+    institution = models.ForeignKey(Institution, blank=True, null=True)
     start_date = models.DateField()
     end_date = models.DateField()
     ratings_allocated = models.SmallIntegerField(
         default=RATINGS_PER_SUBSCRIPTION)
     ratings_used = models.IntegerField(default=0)
-    amount_due = models.FloatField()
+    amount_due = models.FloatField(default=0)
     reason = models.CharField(max_length='16', blank=True, null=True)
     paid_in_full = models.BooleanField(default=False)
     late = models.BooleanField(default=False)
@@ -822,7 +852,7 @@ class Subscription(models.Model):
         return subscription_payment
 
     def __unicode__(self):
-        return "%s (%s - %s)" % (self.institution.name,
+        return "%s (%s - %s)" % (self.ms_institution.org_name,
                                  self.start_date,
                                  self.end_date)
 

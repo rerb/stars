@@ -8,9 +8,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.functional import memoize
 from django.views.generic import (CreateView, DeleteView, FormView, ListView,
                                   TemplateView, UpdateView)
-
-from aashe.aasheauth.services import AASHEUserService
-from aashe.aasheauth.backends import AASHEBackend
+from django_membersuite_auth.models import MemberSuitePortalUser
 
 # from stars.apps.accounts import xml_rpc
 from stars.apps.credits.models import CreditSet
@@ -33,7 +31,6 @@ from stars.apps.tool.manage.forms import (AccountForm,
                                           MigrateSubmissionSetForm,
                                           NotifyUsersForm,
                                           ParticipantContactForm,
-                                          RespondentContactForm,
                                           ResponsibleParty,
                                           ResponsiblePartyForm,
                                           ThirdPartiesForm)
@@ -59,17 +56,13 @@ def _update_preferences(request, institution):
     return (preferences, notify_form)
 
 
-def _get_user_level_description(user_level):
+def get_user_level_description(user_level):
     """Returns the description for a user level."""
     permissions = dict(settings.STARS_PERMISSIONS)
     try:
         return permissions[user_level]
     except KeyError:
         return user_level
-
-get_user_level_description = memoize(_get_user_level_description,
-                                     cache={},
-                                     num_args=1)
 
 
 class ContactView(InstitutionAdminToolMixin, ValidationMessageFormMixin,
@@ -270,23 +263,6 @@ class AccountCreateView(InstitutionAdminToolMixin, ValidationMessageFormMixin,
         self.notify_form = None
         super(AccountCreateView, self).__init__(*args, **kwargs)
 
-    def get_aashe_user(self, email):
-        """
-            Returns the User object that ties together a STARS user account
-            and an AASHE (Drupal) account.  If there's no matching AASHE
-            account, None is returned.
-        """
-        service = AASHEUserService()
-        backend = AASHEBackend()
-        user_list = service.get_by_email(email)
-        if user_list:
-            # a hack to make these compatible
-            user_dict = {'user': user_list[0],
-                         'sessid': "no-session-key"}
-            return backend.get_user_from_user_dict(user_dict)
-        else:
-            return None
-
     def get_context_data(self, **kwargs):
         context = super(AccountCreateView, self).get_context_data(**kwargs)
         context['notify_form'] = self.notify_form
@@ -305,35 +281,31 @@ class AccountCreateView(InstitutionAdminToolMixin, ValidationMessageFormMixin,
             request, *args, **kwargs)
 
     def form_valid(self, form):
-        # Get the AASHE account info for this email
+        # Get the MemberSuite account info for this email
         user_level = form.cleaned_data['userlevel']
         user_email = form.cleaned_data['email']
         aashe_user = self.get_aashe_user(email=user_email)
 
-        if aashe_user:
-
-            if aashe_user.email.lower() != user_email.lower():
-                logger.error("Inconsistent Emails: %s and %s. This means the AASHE Account is out of sync with drupal." % (user_email, aashe_user.email),
-                         extra={'request': self.request})
-
-            StarsAccount.update_account(
-                self.request.user,
-                self.preferences.notify_users,
-                self.get_institution(),
-                user_level,
-                user=aashe_user)
-        else:
+        try:
+            MemberSuitePortalUser.objects.get(user__email=user_email)
+        except MemberSuitePortalUser.DoesNotExist:
             messages.info(self.request,
                           "There is no AASHE user with e-mail: %s. "
                           "STARS Account is pending user's registration "
                           "at www.aashe.org." % user_email)
             self.valid_message = ''  # So no "Account created." message shows.
-            PendingAccount.update_account(
-                self.request.user,
-                self.preferences.notify_users,
-                self.get_institution(),
-                user_level,
-                user_email=user_email)
+            PendingAccount.update_account(self.request.user,
+                                          self.preferences.notify_users,
+                                          self.get_institution(),
+                                          user_level,
+                                          user_email=user_email)
+        else:
+            StarsAccount.update_account(self.request.user,
+                                        self.preferences.notify_users,
+                                        self.get_institution(),
+                                        user_level,
+                                        user=aashe_user)
+
         return super(AccountCreateView, self).form_valid(form)
 
 

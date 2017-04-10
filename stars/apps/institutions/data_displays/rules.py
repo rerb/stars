@@ -30,7 +30,7 @@ def user_has_member_displays(user):
     """
         User can access displays that require member level access
     """
-    if user.aasheuser.is_member():
+    if user.membersuiteportaluser.is_member:
         return True
 
     # all participants have member display access

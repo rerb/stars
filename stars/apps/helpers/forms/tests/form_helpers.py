@@ -19,9 +19,6 @@ class FormHelpersTest(TestCase):
     def setUp(self):
         self.request = HttpRequest()
         self.request.user = User()
-        # self.request.institution = Institution()
-        # self.request.user.current_inst = self.request.institution
-        # self.request.user.has_perm = lambda x: True
         self.request.session = {}
         self.request.method = 'POST'
 

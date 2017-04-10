@@ -3,7 +3,7 @@ from django.forms import widgets
 from django.forms import ModelForm
 from django.forms.util import ErrorList
 
-from issdjango.models import Organizations
+from iss.models import Organization
 from stars.apps.institutions.models import (Institution,
                                             RegistrationSurvey,
                                             RespondentSurvey)
@@ -79,7 +79,7 @@ class SelectSchoolForm(forms.Form):
     def get_institution_choices(self):
         institution_choices = []
 
-        for org in Organizations.objects.filter(
+        for org in Organization.objects.filter(
                 org_type__in=self.ORG_TYPES).order_by('org_name'):
 
             choice_label = org.org_name

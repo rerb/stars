@@ -3,15 +3,16 @@
 import time
 from logging import getLogger, CRITICAL
 
+import logical_rules
+import testfixtures
 from bs4 import BeautifulSoup
 from django.conf import settings
 from django.contrib import messages
 from django.shortcuts import render
+from django_membersuite_auth.models import MemberSuitePortalUser
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import TimeoutException
-import testfixtures
 
-import logical_rules
 from stars.apps import payments
 from stars.apps.credits.models import CreditSet
 from stars.apps.institutions.models import (PendingAccount, StarsAccount,
@@ -19,7 +20,6 @@ from stars.apps.institutions.models import (PendingAccount, StarsAccount,
                                             Institution)
 from stars.apps.institutions.tests.subscription import (GOOD_CREDIT_CARD,
                                                         BAD_CREDIT_CARD)
-import stars.apps.institutions.rules  # registers logical rules
 from stars.apps.submissions.models import ResponsibleParty
 from stars.apps.tests.live_server import StarsLiveServerTest
 from stars.apps.tool.manage import views
@@ -73,7 +73,7 @@ class ResponsiblePartyCreateViewTest(InstitutionAdminToolMixinTest):
                       'phone': new_responsible_party.phone}
         self.request.POST = form_input
         self.request.FILES = None
-        _ = views.ResponsiblePartyCreateView.as_view()(
+        views.ResponsiblePartyCreateView.as_view()(
             request=self.request,
             institution_slug=self.institution.slug)
         self.assertEqual(responsible_party_count_before + 1,
@@ -95,7 +95,7 @@ class ResponsiblePartyCreateViewTest(InstitutionAdminToolMixinTest):
                       'phone': new_responsible_party.phone}
         self.request.POST = form_input
         self.request.FILES = None
-        _ = views.ResponsiblePartyCreateView.as_view()(
+        views.ResponsiblePartyCreateView.as_view()(
             request=self.request,
             institution_slug=self.institution.slug)
         self.assertEqual(responsible_party_count_before,
@@ -135,7 +135,7 @@ class ResponsiblePartyDeleteViewTest(InstitutionAdminToolMixinTest):
         responsible_party_count_before = ResponsibleParty.objects.count()
         self.request.POST = {}
         self.request.FILES = None
-        _ = views.ResponsiblePartyDeleteView.as_view()(
+        views.ResponsiblePartyDeleteView.as_view()(
             request=self.request,
             institution_slug=self.institution.slug,
             pk=self.responsible_party.id)
@@ -151,7 +151,7 @@ class ResponsiblePartyDeleteViewTest(InstitutionAdminToolMixinTest):
         self.request.FILES = None
         self._make_credits_for_responsible_party()
         responsible_party_count_before = ResponsibleParty.objects.count()
-        _ = views.ResponsiblePartyDeleteView.as_view()(
+        views.ResponsiblePartyDeleteView.as_view()(
             request=self.request,
             institution_slug=self.institution.slug,
             pk=self.responsible_party.id)
@@ -166,7 +166,7 @@ class ResponsiblePartyDeleteViewTest(InstitutionAdminToolMixinTest):
         self.request.method = 'POST'
         self.request.POST = {}
         self.request.FILES = None
-        _ = views.ResponsiblePartyDeleteView.as_view()(
+        views.ResponsiblePartyDeleteView.as_view()(
             request=self.request,
             institution_slug=self.institution.slug,
             pk=self.responsible_party.id)
@@ -186,7 +186,7 @@ class ResponsiblePartyDeleteViewTest(InstitutionAdminToolMixinTest):
         self.request.POST = {}
         self.request.FILES = None
         self._make_credits_for_responsible_party()
-        _ = views.ResponsiblePartyDeleteView.as_view()(
+        views.ResponsiblePartyDeleteView.as_view()(
             request=self.request,
             institution_slug=self.institution.slug,
             pk=self.responsible_party.id)
@@ -281,8 +281,8 @@ class AccountCreateViewTest(InstitutionAdminToolMixinTest):
 
     view_class = views.AccountCreateView
 
-    def test_form_valid_no_aashe_user_account_creates_pendingaccount(self):
-        """Does form_valid() create a PendingAccount if no ASSHE acct exists?
+    def test_form_valid_no_msportaluser_account_creates_pendingaccount(self):
+        """Does form_valid() create a PendingAccount if no MS acct exists?
         """
         self.account.user_level = 'admin'
         self.account.save()
@@ -291,43 +291,29 @@ class AccountCreateViewTest(InstitutionAdminToolMixinTest):
         form_input = {'email': 'joe.hump@fixityourself.com',
                       'userlevel': 'bystr'}
         self.request.POST = form_input
-        _ = views.AccountCreateView.as_view()(
+        views.AccountCreateView.as_view()(
             request=self.request,
             institution_slug=self.institution.slug)
         self.assertEqual(pending_account_count_before + 1,
                          PendingAccount.objects.count())
 
-    def test_form_valid_aashe_user_account_creates_starsaccount(self):
-        """Does form_valid() create a StarsAccount if an ASSHE account exists?
+    def test_form_valid_creates_starsaccount(self):
+        """Does form_valid() create a StarsAccount?
         """
         self.account.user_level = 'admin'
         self.account.save()
         self.request.method = 'POST'
+        MemberSuitePortalUser.objects.create(
+            email="joe.hump@fixityourself.com")
         stars_account_count_before = StarsAccount.objects.count()
         form_input = {'email': 'joe.hump@fixityourself.com',
                       'userlevel': 'bystr'}
         self.request.POST = form_input
-        with testfixtures.Replacer() as r:
-            r.replace(
-                'aashe.aasheauth.services.AASHEUserService.get_by_email',
-                lambda s, e: [
-                    {'replaced': 'replaced',
-                     'mollom': {'session_id': 'replaced'}}
-                ]
-            )
-            r.replace(
-                'aashe.aasheauth.backends.AASHEBackend.'
-                'get_user_from_user_dict',
-                lambda x, y: UserFactory())
-            _ = views.AccountCreateView.as_view()(
-                request=self.request,
-                institution_slug=self.institution.slug)
+        views.AccountCreateView.as_view()(
+            request=self.request,
+            institution_slug=self.institution.slug)
         self.assertEqual(stars_account_count_before + 1,
                          StarsAccount.objects.count())
-
-#    def test_notify_user(self):
-#        """Is a user notified when his account is created?"""
-#        raise NotImplemented()
 
 
 class AccountEditViewTest(InstitutionAdminToolMixinTest):
@@ -353,16 +339,12 @@ class AccountDeleteViewTest(InstitutionAdminToolMixinTest):
         stars_account_count_before = StarsAccount.objects.count()
         self.request.POST = {}
         self.request.FILES = None
-        _ = views.AccountDeleteView.as_view()(
+        views.AccountDeleteView.as_view()(
             request=self.request,
             institution_slug=self.institution.slug,
             pk=self.account.id)
         self.assertEqual(stars_account_count_before - 1,
                          StarsAccount.objects.count())
-
-#    def test_notify_user(self):
-#        """Is a user notified when his account is deleted?"""
-#        raise NotImplemented()
 
 
 class PendingAccountDeleteViewTest(InstitutionAdminToolMixinTest):
@@ -385,7 +367,7 @@ class PendingAccountDeleteViewTest(InstitutionAdminToolMixinTest):
         pending_account_count_before = PendingAccount.objects.count()
         self.request.POST = {}
         self.request.FILES = None
-        _ = views.PendingAccountDeleteView.as_view()(
+        views.PendingAccountDeleteView.as_view()(
             request=self.request,
             institution_slug=self.institution.slug,
             pk=self.pending_account.id)
@@ -525,7 +507,7 @@ class MigrateVersionViewTest(MigrateViewTest):
         self.submissionset.creditset = latest_creditset
         self.submissionset.save()
         try:
-            _ = self.view_class().dispatch(
+            self.view_class().dispatch(
                 self.request,
                 institution_slug=self.institution.slug,
                 pk=self._get_pk())
@@ -638,7 +620,7 @@ class SubscriptionCreateWizardLiveServerTest(StarsLiveServerTest):
         """Is the early renewal discount applied?"""
         self.click_purchase_subscription_button()
         amount_due_without_renewal_discount = self.amount_due
-        _ = SubscriptionFactory(institution=self.institution)
+        SubscriptionFactory(institution=self.institution)
         self.click_purchase_subscription_button()
         amount_due_with_renewal_discount = self.amount_due
         self.assertLess(amount_due_with_renewal_discount,
@@ -1025,7 +1007,7 @@ class SubscriptionPaymentCreateViewTest(InstitutionViewOnlyToolMixinTest):
 
         initial_payment_count = SubscriptionPayment.objects.count()
 
-        _ = self.view_class.as_view()(request=self.request,
+        self.view_class.as_view()(request=self.request,
                                       institution_slug=self.institution.slug,
                                       pk=self.subscription.id)
 
@@ -1050,7 +1032,7 @@ class SubscriptionPaymentCreateViewTest(InstitutionViewOnlyToolMixinTest):
 
         initial_payment_count = SubscriptionPayment.objects.count()
 
-        _ = self.view_class.as_view()(
+        self.view_class.as_view()(
             request=self.request,
             institution_slug=self.institution.slug,
             pk=self.subscription.id)

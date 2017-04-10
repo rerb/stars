@@ -6,7 +6,7 @@ from django.views.generic import CreateView
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 
-from issdjango.models import Organizations
+from iss.models import Organization
 
 from stars.apps.institutions.models import (Institution,
                                             RegistrationSurvey,
@@ -160,7 +160,7 @@ class RegistrationWizard(StarsAccountMixin, SubscriptionPurchaseWizard):
             cleaned_data = (self.get_cleaned_data_for_step(str(self.SELECT))
                             or {})
             aashe_id = cleaned_data.get('aashe_id', None)
-            org = Organizations.objects.get(account_num=aashe_id)
+            org = Organization.objects.get(account_num=aashe_id)
             institution = Institution(aashe_id=aashe_id, name=org.org_name)
             institution.update_from_iss()
             institution.set_slug_from_iss_institution(institution.aashe_id)

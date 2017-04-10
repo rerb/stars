@@ -1,6 +1,6 @@
 import time
 
-from aashe.aasheauth.models import AASHEUser
+from django_membersuite_auth.models import MemberSuitePortalUser
 from django.contrib.auth.models import User
 import factory
 
@@ -25,8 +25,8 @@ class UserFactory(factory.DjangoModelFactory):
         return user
 
 
-class AASHEUserFactory(factory.DjangoModelFactory):
-    FACTORY_FOR = AASHEUser
+class MemberSuitePortalUserFactory(factory.DjangoModelFactory):
+    FACTORY_FOR = MemberSuitePortalUser
 
-    drupal_id = factory.Sequence(lambda i: i)
+    membersuite_id = factory.Sequence(lambda i: i)
     user = factory.SubFactory(UserFactory)

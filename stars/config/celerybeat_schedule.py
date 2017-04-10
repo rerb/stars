@@ -19,24 +19,13 @@ python manage.py execfile stars/apps/submissions/cron.py
 from django.core.management import call_command
 call_command('my_command', 'foo', bar='baz')
 
-15 4 * * * /var/www/stars/tasks/etl_export.py
-python manage.py execfile stars/apps/etl_export/cron_task.py
-
 0 5 * * * /var/www/stars/tasks/notify.py
 python manage.py execfile stars/apps/tasks/notify_cron.py
 """
-
 from celery.schedules import crontab
-from datetime import timedelta
-# 'schedule': timedelta(seconds=30), # testing
+
 
 STARS_TASK_SCHEDULE = {
-
-    # runs regularly to let us know celerybeat is working
-    # 'run beacon': {
-    #     'task': 'tasks.beacon',
-    #     'schedule': timedelta(seconds=30),
-    # },
 
     # Executes every morning at 6:15 A.M
     # stars.apps.institutions.tasks.monitor_subscription
@@ -65,14 +54,6 @@ STARS_TASK_SCHEDULE = {
         'schedule': crontab(0, 0, day_of_month='1'),
         # 'schedule': timedelta(seconds=60),
     },
-
-    # # Executes once a month
-    # # stars.apps.etl_export.tasks.update
-    # 'Update the ETL models': {
-    #     'task': 'etl_export.update',
-    #     'schedule': crontab(0, 0, day_of_month='1'),
-    # },
-
     # Executes every morning at 5am
     # stars.apps.tasks.tasks.send_notifications
     'send out notifications when necessary': {
