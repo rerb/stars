@@ -2,10 +2,10 @@ from logging import getLogger
 
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404
-from django.utils.functional import memoize
 from django.views.generic import (CreateView, DeleteView, FormView, ListView,
                                   TemplateView, UpdateView)
 from django_membersuite_auth.models import MemberSuitePortalUser
@@ -284,27 +284,29 @@ class AccountCreateView(InstitutionAdminToolMixin, ValidationMessageFormMixin,
         # Get the MemberSuite account info for this email
         user_level = form.cleaned_data['userlevel']
         user_email = form.cleaned_data['email']
-        aashe_user = self.get_aashe_user(email=user_email)
 
         try:
-            MemberSuitePortalUser.objects.get(user__email=user_email)
+            portal_user = MemberSuitePortalUser.objects.get(
+                user__email=user_email)
         except MemberSuitePortalUser.DoesNotExist:
             messages.info(self.request,
                           "There is no AASHE user with e-mail: %s. "
                           "STARS Account is pending user's registration "
                           "at www.aashe.org." % user_email)
             self.valid_message = ''  # So no "Account created." message shows.
-            PendingAccount.update_account(self.request.user,
-                                          self.preferences.notify_users,
-                                          self.get_institution(),
-                                          user_level,
-                                          user_email=user_email)
+            PendingAccount.update_account(
+                admin=self.request.user,
+                notify_user=self.preferences.notify_users,
+                institution=self.get_institution(),
+                user_level=user_level,
+                user_email=user_email)
         else:
-            StarsAccount.update_account(self.request.user,
-                                        self.preferences.notify_users,
-                                        self.get_institution(),
-                                        user_level,
-                                        user=aashe_user)
+            StarsAccount.update_account(
+                admin=self.request.user,
+                notify_user=self.preferences.notify_users,
+                institution=self.get_institution(),
+                user_level=user_level,
+                user=portal_user.user)
 
         return super(AccountCreateView, self).form_valid(form)
 

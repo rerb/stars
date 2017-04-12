@@ -1278,32 +1278,37 @@ class AbstractAccount(BaseAccount):
 
     @classmethod
     def update_account(cls, admin, notify_user, institution, user_level,
-                       **user_params):
+                       user_email=None, user=None):
         """
             Create or update an account
 
             admin is the user who is doing the update - used for
             notifying user of account change.
 
-            user_params are passed through to cls to uniquely identify
-            or create account.
-
             returns the updated or newly created account.
         """
         has_changed = True
         is_create = False
         try:
-            # See if there is already a  Account for this user
-            account = cls.objects.get(institution=institution, **user_params)
+            # See if there is already a Account for this institution or
+            # institution and user
+            if user:
+                account = cls.objects.get(institution=institution,
+                                          user=user)
+            else:
+                account = cls.objects.get(institution=institution)
             if account.user_level != user_level:
                 account.user_level = user_level
             else:
                 has_changed = False
         except cls.DoesNotExist:
             # Or create one
-            account = cls(institution=institution, user_level=user_level,
-                          **user_params)
+            if user:
+                account = cls(institution=institution, user=user)
+            else:
+                account = cls(institution=institution)
             is_create = True
+
         account.save()
 
         # Notify the user only if something actually changes AND admin
@@ -1341,6 +1346,16 @@ class StarsAccount(AbstractAccount):
 
     def __unicode__(self):
         return "%s" % self.user.email
+
+    @classmethod
+    def update_account(cls, admin, notify_user, institution, user_level,
+                       user):
+        cls.user = user
+        super(StarsAccount, cls).update_account(admin=admin,
+                                                notify_user=notify_user,
+                                                institution=institution,
+                                                user_level=user_level,
+                                                user=user)
 
     def select(self):
         """Make this account the user's active account, and so de-select all
@@ -1413,6 +1428,15 @@ class PendingAccount(AbstractAccount):
 
     def is_pending(self):
         return True
+
+    @classmethod
+    def update_account(cls, admin, notify_user, institution, user_level,
+                       user_email):
+        cls.user_email = user_email
+        super(PendingAccount, cls).update_account(admin=admin,
+                                                  notify_user=notify_user,
+                                                  institution=institution,
+                                                  user_level=user_level)
 
     def _get_user(self):
         """
