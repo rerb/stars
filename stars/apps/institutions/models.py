@@ -49,8 +49,8 @@ class ClimateZone(models.Model):
 
 class MemberSuiteInstitutionManager(models.Manager):
 
-    def get_queryset(self):
-        qs = super(MemberSuiteInstitutionManager, self).get_queryset()
+    def get_query_set(self):
+        qs = super(MemberSuiteInstitutionManager, self).get_query_set()
         qs = qs.filter(org_type__name='Campus')
         return qs.exclude(exclude_from_website=True)
 
@@ -99,10 +99,9 @@ class Institution(models.Model):
     """
     objects = InstitutionManager()
 
-    # After initial load of MemberSuiteInstitutions, the "null=True"
-    # constrain should be removed.
     ms_institution = models.OneToOneField(MemberSuiteInstitution,
-                                          null=True)
+                                          null=True,
+                                          blank=True)
 
     slug = models.SlugField(max_length=255)
     enabled = models.BooleanField(
@@ -566,13 +565,34 @@ RATINGS_PER_SUBSCRIPTION = 1
 SUBSCRIPTION_DURATION = 365
 
 
+class SubscriptionManager(models.Manager):
+    """Filter archived Subscriptions."""
+
+    def get_query_set(self):
+        qs = super(SubscriptionManager, self).get_query_set()
+        qs = qs.exclude(archived=True)
+        return qs
+
+    def include_archived(self):
+        qs = super(SubscriptionManager, self).get_query_set()
+        return qs
+
+    def archived(self):
+        qs = super(SubscriptionManager, self).get_query_set()
+        qs = qs.exclude(archived=False)
+        return qs
+
+
 class Subscription(models.Model):
     """
     Describes a subscription to the reporting tool.
     """
+    objects = SubscriptionManager()
+
     ms_id = models.CharField(max_length=64, blank=True, null=True)
     ms_institution = models.ForeignKey(MemberSuiteInstitution,
-                                       blank=True, null=True)
+                                       blank=True,
+                                       null=True)
     institution = models.ForeignKey(Institution, blank=True, null=True)
     start_date = models.DateField()
     end_date = models.DateField()
@@ -583,6 +603,8 @@ class Subscription(models.Model):
     reason = models.CharField(max_length='16', blank=True, null=True)
     paid_in_full = models.BooleanField(default=False)
     late = models.BooleanField(default=False)
+
+    archived = models.BooleanField(default=False, db_index=True)
 
     MEMBER_BASE_PRICE = 900
     NONMEMBER_BASE_PRICE = 1400
@@ -852,9 +874,14 @@ class Subscription(models.Model):
         return subscription_payment
 
     def __unicode__(self):
-        return "%s (%s - %s)" % (self.ms_institution.org_name,
-                                 self.start_date,
-                                 self.end_date)
+        if self.ms_institution:
+            return "%s (%s - %s)" % (self.ms_institution.org_name,
+                                     self.start_date,
+                                     self.end_date)
+        else:
+            return "No MS Institution (%s - %s)" % (
+                self.start_date,
+                self.end_date)
 
     def _apply_promo_code(self, price, promo_code=None):
         """
