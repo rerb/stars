@@ -81,7 +81,6 @@ zope.exceptions==4.0.5
 zope.interface==4.0.3
 zope.testing==4.1.1
 
-https://github.com/AASHE/python-membersuite-api-client/archive/master.zip
 https://github.com/AASHE/iss/archive/master.zip
 
 https://github.com/AASHE/django-membersuite-auth/archive/master.zip
