@@ -239,8 +239,8 @@ class AccountListView(InstitutionAdminToolMixin, TemplateView):
         return context
 
 
-class AccountCreateView(InstitutionAdminToolMixin, ValidationMessageFormMixin,
-                        FormView):
+class AccountCreateView(
+        InstitutionAdminToolMixin, ValidationMessageFormMixin, FormView):
     """
         Allows creation of StarsAccount (and PendingAccount) objects.
 
@@ -285,39 +285,80 @@ class AccountCreateView(InstitutionAdminToolMixin, ValidationMessageFormMixin,
         user_level = form.cleaned_data['userlevel']
         user_email = form.cleaned_data['email']
 
+        # if the user exists, create a StarsAccount
+        # if they don't, then we create a Pending Account
         try:
-            portal_user = MemberSuitePortalUser.objects.get(
-                user__email=user_email)
-        except MemberSuitePortalUser.DoesNotExist:
-            messages.info(self.request,
-                          "There is no AASHE user with e-mail: %s. "
-                          "STARS Account is pending user's registration "
-                          "at www.aashe.org." % user_email)
-            self.valid_message = ''  # So no "Account created." message shows.
-            PendingAccount.update_account(
-                admin=self.request.user,
-                notify_user=self.preferences.notify_users,
-                institution=self.get_institution(),
-                user_level=user_level,
-                user_email=user_email)
+            user = User.objects.get(email=user_email)
+        except User.DoesNotExist:
+            user = None
+
+        was_created = False
+        if user:
+            # if the user exists make sure there isn't already an account
+            # before creating one
+            try:
+                account = StarsAccount.objects.get(
+                    institution=self.get_institution(),
+                    user=user)
+                messages.error(
+                    self.request,
+                    "You already have an account for %s" % user_email)
+                self.valid_message = ''
+            except StarsAccount.DoesNotExist:
+                account = StarsAccount.objects.create(
+                    institution=self.get_institution(),
+                    user_level=user_level,
+                    user=user)
+                was_created = True
+
         else:
-            StarsAccount.update_account(
-                admin=self.request.user,
-                notify_user=self.preferences.notify_users,
-                institution=self.get_institution(),
-                user_level=user_level,
-                user=portal_user.user)
+            # if the user doesn't exist, confirm there isn't already an invites
+            # before creating one
+            try:
+                account = PendingAccount.objects.get(
+                    institution=self.get_institution(),
+                    user_email=user_email)
+                messages.error(
+                    self.request,
+                    "You have already invited " % user_email)
+                self.valid_message = ''
+            except PendingAccount.DoesNotExist:
+                messages.info(self.request,
+                              "An invitation has been sent to %s" % user_email)
+                self.valid_message = ''
+                account = PendingAccount.objects.create(
+                    institution=self.get_institution(),
+                    user_level=user_level,
+                    user_email=user_email)
+                was_created = True
+
+        if self.preferences.notify_users and was_created:
+            account.notify(
+                StarsAccount.NEW_ACCOUNT,
+                self.request.user,
+                self.get_institution())
 
         return super(AccountCreateView, self).form_valid(form)
 
 
-class AccountEditView(AccountCreateView):
+class AccountEditView(
+        InstitutionAdminToolMixin, ValidationMessageFormMixin, FormView):
     """
         Provides an edit view for StarsAccount and PendingAccount objects.
     """
     form_class = AccountForm
+    success_url_name = 'account-list'
+    template_name = 'tool/manage/account_detail.html'
     tab_content_title = 'edit a user'
     valid_message = 'User updated.'
+
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            self.account = StarsAccount.objects.get(id=kwargs['pk'])
+        except StarsAccount.DoesNotExist:
+            self.account = get_object_or_404(PendingAccount, id=kwargs['pk'])
+        return super(AccountEditView, self).dispatch(
+            request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(AccountEditView, self).get_context_data(
@@ -327,12 +368,13 @@ class AccountEditView(AccountCreateView):
         return context
 
     def get_initial(self):
-        try:
-            account = get_object_or_404(StarsAccount, id=self.kwargs['pk'])
-        except Http404:
-            account = get_object_or_404(PendingAccount, id=self.kwargs['pk'])
-        return {'userlevel': account.user_level,
-                'email': account.user.email}
+        return {'userlevel': self.account.user_level,
+                'email': self.account.user.email}
+
+    def form_valid(self, form):
+        self.account.user_level = form.cleaned_data['userlevel']
+        self.account.save()
+        return super(AccountEditView, self).form_valid(form)
 
 
 class AccountDeleteView(InstitutionAdminToolMixin,
