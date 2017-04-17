@@ -8,8 +8,6 @@
 
 from datetime import timedelta, datetime, date
 from dateutil.relativedelta import relativedelta
-import sys
-import calendar
 
 # required for execfile management func
 from stars.apps.institutions.models import *
@@ -84,83 +82,83 @@ def get_overdue_payments(weeks, current_date=date.today()):
     return ss_list
 
 
-def send_overdue_notifications(current_time=datetime.now()):
-    """
-        This is separated from `get_overdue_contacts` for testing purposes
-    """
+# def send_overdue_notifications(current_time=datetime.now()):
+#     """
+#         This is separated from `get_overdue_contacts` for testing purposes
+#     """
 
-    sent_list = []
+#     sent_list = []
 
-    for ss in get_overdue_payments(8, current_time):
+#     for ss in get_overdue_payments(8, current_time):
 
-        email_context = {
-            "amount_due": ss.get_amount_due(),
-            "ss": ss
-        }
+#         email_context = {
+#             "amount_due": ss.get_amount_due(),
+#             "ss": ss
+#         }
 
-        send_notification(
-            n_type='8wk',
-            identifier="8wk-%d" % ss.id,
-            mail_to=[ss.institution.contact_email],
-            template_slug="overdue_payment",
-            email_context=email_context
-        )
-        sent_list.append(ss)
+#         send_notification(
+#             n_type='8wk',
+#             identifier="8wk-%d" % ss.id,
+#             mail_to=[ss.institution.contact_email],
+#             template_slug="overdue_payment",
+#             email_context=email_context
+#         )
+#         sent_list.append(ss)
 
-    for ss in get_overdue_payments(4, current_time):
+#     for ss in get_overdue_payments(4, current_time):
 
-        if ss not in sent_list:  # don't send twice.
+#         if ss not in sent_list:  # don't send twice.
 
-            email_context = {
-                "amount_due": ss.get_amount_due(),
-                "ss": ss
-            }
+#             email_context = {
+#                 "amount_due": ss.get_amount_due(),
+#                 "ss": ss
+#             }
 
-            send_notification(
-                n_type='4wk',
-                identifier="4wk-%d" % ss.id,
-                mail_to=[ss.institution.contact_email],
-                template_slug="overdue_payment",
-                email_context=email_context
-                )
+#             send_notification(
+#                 n_type='4wk',
+#                 identifier="4wk-%d" % ss.id,
+#                 mail_to=[ss.institution.contact_email],
+#                 template_slug="overdue_payment",
+#                 email_context=email_context
+#                 )
 
 
-def send_renewal_reminder(current_date=date.today()):
-    """
-        Send one reminder immediately after a subscription expires
-        and then another 60 days later (30 days before the discount expires)
+# def send_renewal_reminder(current_date=date.today()):
+#     """
+#         Send one reminder immediately after a subscription expires
+#         and then another 60 days later (30 days before the discount expires)
 
-        Don't send the email if they have renewed. This uses the is_participant
-        field, which assumes that the subscription monitor is working
-    """
+#         Don't send the email if they have renewed. This uses the is_participant
+#         field, which assumes that the subscription monitor is working
+#     """
 
-    print "* Sending Renewal Reminders *"
+#     print "* Sending Renewal Reminders *"
 
-    sub_list = Subscription.objects.filter(institution__is_participant=False)
-    sub_list = sub_list.filter(institution__international=False)
+#     sub_list = Subscription.objects.filter(institution__is_participant=False)
+#     sub_list = sub_list.filter(institution__international=False)
 
-    n_type = '30r'
+#     n_type = '30r'
 
-    message_list = []
+#     message_list = []
 
-    for sub in sub_list:
+#     for sub in sub_list:
 
-        days_ago = current_date - sub.end_date
+#         days_ago = current_date - sub.end_date
 
-        if days_ago.days < 90 and days_ago.days >= 60:
-            exp_date = sub.end_date + timedelta(days=90)
-            m = {
-                'mail_to': [sub.institution.contact_email],
-                'template_slug': "renewal_thirty_days",
-                'email_context': {'sub': sub,
-                                  'exp_date': exp_date},
-                'n_type': n_type,
-                'identifier': '%s-%d' % (n_type, sub.id)
-            }
-            message_list.append(m)
-            print sub
+#         if days_ago.days < 90 and days_ago.days >= 60:
+#             exp_date = sub.end_date + timedelta(days=90)
+#             m = {
+#                 'mail_to': [sub.institution.contact_email],
+#                 'template_slug': "renewal_thirty_days",
+#                 'email_context': {'sub': sub,
+#                                   'exp_date': exp_date},
+#                 'n_type': n_type,
+#                 'identifier': '%s-%d' % (n_type, sub.id)
+#             }
+#             message_list.append(m)
+#             print sub
 
-    send_notification_set(message_list)
+#     send_notification_set(message_list)
 
 
 def send_post_submission_survey(current_date=None):
