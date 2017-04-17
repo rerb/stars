@@ -5,7 +5,6 @@ MySQL-python==1.2.5
 Pillow==2.7.0
 South==1.0.2
 Werkzeug==0.8.3
-https://github.com/AASHE/django-membersuite-auth/archive/master.zip
 -e git+https://github.com/toastdriven/django-tastypie.git@32dae8d2590dde3122289118ac241ab0bd2452e8#egg=django_tastypie-dev
 -e git+https://github.com/python-excel/xlwt.git#egg=xlwt-dev
 -e git+https://github.com/AASHE/django-celery-downloader.git#egg=django-celery-downloader-dev
@@ -84,3 +83,5 @@ zope.testing==4.1.1
 
 https://github.com/AASHE/python-membersuite-api-client/archive/master.zip
 https://github.com/AASHE/iss/archive/master.zip
+
+https://github.com/AASHE/django-membersuite-auth/archive/master.zip
