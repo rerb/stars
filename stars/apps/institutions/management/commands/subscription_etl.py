@@ -45,8 +45,6 @@ class Command(BaseCommand):
 
         # pull subscriptions from Membersuite
         ms_subscription_list = service.get_subscriptions(
-                limit_to=3,
-                max_calls=3,
                 publication_id=settings.STARS_MS_PUBLICATION_ID,
                 verbose=verbose)
 
@@ -71,7 +69,7 @@ class Command(BaseCommand):
         # if any id's remain in subscription_id_list they can be removed
         # from the local list as they don't exist in MemberSuite anymore
         for sub_id in local_subscription_ids:
-            Subscription.objects.get(id=sub_id).delete()
+            Subscription.objects.filter(id=sub_id).update(archived=True)
 
     def update_subscription_from_iss(self, local_sub, iss_sub):
         """ Copy the fields over from stars """
@@ -79,8 +77,12 @@ class Command(BaseCommand):
         if not local_sub.ms_id:
             local_sub.ms_id = iss_sub.id
 
-        local_sub.ms_institution = MemberSuiteInstitution.objects.get(
-            membersuite_account_num=iss_sub.org_id)
+        try:
+            local_sub.ms_institution = MemberSuiteInstitution.objects.get(
+                membersuite_account_num=iss_sub.org_id)
+        except MemberSuiteInstitution.DoesNotExist:
+            print "ERROR: No MemberSuiteInstitution for iss_sub: {}".format(
+                iss_sub.id)
 
         local_sub.start_date = iss_sub.start
         local_sub.end_date = iss_sub.end
