@@ -4,6 +4,7 @@ import logical_rules
 from django.conf import settings
 from django.conf.urls.defaults import include, patterns, url
 from django.contrib import admin
+from longerusernameandemail.forms import AuthenticationForm
 from sorl.thumbnail.log import ThumbnailLogHandler
 
 from stars.apps.helpers.old_path_preserver import (OldPathPreserverView,
@@ -39,7 +40,10 @@ urlpatterns = patterns(
     (r'^tool/', include('stars.apps.tool.urls')),
 
     # accounts:
-    # (r'^accounts/', include('stars.apps.accounts.urls')),
+    (r'^accounts/login/$',
+     'django.contrib.auth.views.login',
+     {'authentication_form': AuthenticationForm}),
+
     ('^accounts/', include('django.contrib.auth.urls')),
 
     # admin

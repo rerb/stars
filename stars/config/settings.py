@@ -150,6 +150,8 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     )
 
 INSTALLED_APPS = (
+    'longerusernameandemail',  # might need to be first
+
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -508,3 +510,8 @@ MS_ACCESS_KEY = os.environ["MS_ACCESS_KEY"]
 MS_SECRET_KEY = os.environ["MS_SECRET_KEY"]
 MS_ASSOCIATION_ID = os.environ["MS_ASSOCIATION_ID"]
 STARS_MS_PUBLICATION_ID = os.environ["STARS_MS_PUBLICATION_ID"]
+
+############################
+# longerusernameandemail
+############################
+REQUIRE_UNIQUE_EMAIL = False
