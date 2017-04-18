@@ -4,11 +4,10 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect, Http404
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.views.generic import (CreateView, DeleteView, FormView, ListView,
                                   TemplateView, UpdateView)
-from django_membersuite_auth.models import MemberSuitePortalUser
 
 # from stars.apps.accounts import xml_rpc
 from stars.apps.credits.models import CreditSet
@@ -423,7 +422,8 @@ class ShareDataView(InstitutionAdminToolMixin,
             self.get_institution().third_parties.all())
         context['snapshot_list'] = SubmissionSet.objects.get_snapshots(
             self.get_institution())
-        context['latest_report'] = self.get_institution().get_latest_submission()
+        context['latest_report'] = (
+            self.get_institution().get_latest_submission())
         return context
 
 
@@ -440,7 +440,8 @@ class SnapshotPDFExportView(StartExportView,
         return "%s/pdf/" % self.kwargs['submissionset']
 
     def get_task_params(self):
-        return self.get_institution().submissionset_set.get(pk=self.kwargs['submissionset'])
+        return self.get_institution().submissionset_set.get(
+            pk=self.kwargs['submissionset'])
 
 
 class SnapshotPDFDownloadView(DownloadExportView,
@@ -458,9 +459,9 @@ class SnapshotPDFDownloadView(DownloadExportView,
 
 
 class SnapshotCSVExportView(StartExportView,
-                              InstitutionAdminToolMixin,
-                              ValidationMessageFormMixin,
-                              TemplateView):
+                            InstitutionAdminToolMixin,
+                            ValidationMessageFormMixin,
+                            TemplateView):
     """
         Shows the download modal and triggers task
     """
@@ -470,13 +471,14 @@ class SnapshotCSVExportView(StartExportView,
         return "%s/csv/" % self.kwargs['submissionset']
 
     def get_task_params(self):
-        return self.get_institution().submissionset_set.get(pk=self.kwargs['submissionset'])
+        return self.get_institution().submissionset_set.get(
+            pk=self.kwargs['submissionset'])
 
 
 class SnapshotCSVDownloadView(DownloadExportView,
-                                InstitutionAdminToolMixin,
-                                ValidationMessageFormMixin,
-                                TemplateView):
+                              InstitutionAdminToolMixin,
+                              ValidationMessageFormMixin,
+                              TemplateView):
     """
         Returns the result of the task (hopefully an excel export)
     """
@@ -510,10 +512,6 @@ class ShareThirdPartiesView(InstitutionAdminToolMixin,
 
     def get_object(self):
         return self.get_institution()
-
-#    def form_valid(self, form):
-#        form.save()
-#        return super(ShareThirdPartiesView, self).form_valid(form)
 
 
 class MigrateOptionsView(InstitutionAdminToolMixin, TemplateView):
@@ -631,164 +629,3 @@ class MigrateVersionView(InstitutionAdminToolMixin,
             new_cs=CreditSet.objects.get_latest(),
             user=self.request.user)
         return super(MigrateVersionView, self).form_valid(form)
-
-
-class SubscriptionCreateWizard(InstitutionToolMixin,
-                               SubscriptionPurchaseWizard):
-    """A subclass of payments.views.SubscriptionPurchaseWizard;
-
-        - with custom templates;
-
-        - that forwards to 'tool-summary' when it's done;
-
-        - and is protected by logical rules.
-
-    payments.views.SubscriptionPurchaseWizard requires subclasses to
-    provide an implementation of get_institution().  That's not
-    included below since InstitutionToolMixin provides
-    get_institution().
-    """
-    @property
-    def success_url(self):
-        return reverse(
-            'tool-summary',
-            kwargs={'institution_slug': self.get_institution().slug})
-
-    def get_template_names(self):
-        if int(self.steps.current) == self.PRICE:
-            return 'tool/manage/subscription_price.html'
-        elif int(self.steps.current) == self.PAYMENT_OPTIONS:
-            return 'tool/manage/subscription_payment_options.html'
-        elif int(self.steps.current) == self.SUBSCRIPTION_CREATE:
-            return 'tool/manage/subscription_payment_create.html'
-        return super(SubscriptionCreateWizard, self).get_template_names()
-
-    def update_logical_rules(self):
-        super(SubscriptionCreateWizard, self).update_logical_rules()
-        self.add_logical_rule({'name': 'user_has_view_access',
-                               'param_callbacks': [
-                                   ('user', 'get_request_user'),
-                                   ('institution', 'get_institution')]})
-
-    def _get_context_data_price(self, form, **kwargs):
-        context = super(SubscriptionCreateWizard,
-                        self)._get_context_data_price(form, **kwargs)
-        (subscription_start_date, subscription_end_date) = (
-            Subscription.get_date_range_for_new_subscription(
-                self.get_institution()))
-        context['tab_content_title'] = 'purchase a subscription: price'
-        context['subscription_end_date'] = subscription_end_date
-        return context
-
-    def _get_context_data_payment_options(self, form, **kwargs):
-        context = super(SubscriptionCreateWizard,
-                        self)._get_context_data_payment_options(form,
-                                                                **kwargs)
-        context.update({
-            'tab_content_title': 'purchase a subscription: payment options',
-            'success_url_name': 'subscription-create',
-            'valid_message': '',  # Only want to use invalid_message.
-            'invalid_message': 'Please choose to pay now or pay later.'})
-        return context
-
-    def _get_context_data_subscription_create(self, form, **kwargs):
-        def get_tab_content_title():
-            tab_content_title = 'purchase a subscription'
-            if float(self.request.session['amount_due']):
-                # amount due can be $0.00
-                tab_content_title += {
-                    Subscription.PAY_LATER: ': pay later',
-                    Subscription.PAY_NOW: ': pay now'}[self.pay_when]
-            return tab_content_title
-
-        context = super(SubscriptionCreateWizard,
-                        self)._get_context_data_subscription_create(form,
-                                                                    **kwargs)
-
-        context.update({'tab_content_title': get_tab_content_title(),
-                        'breadcrumb': 'purchase subscription',
-                        'new_subscription': True})
-
-        return context
-
-
-class SubscriptionPaymentCreateView(ValidationMessageFormMixin,
-                                    InstitutionToolMixin,
-                                    FormView):
-    """
-        Allows user to make a credit card payment toward a
-        subscription.  Accepts full amount due only (i.e., no
-        partial payments).
-    """
-    form_class = SubscriptionPayNowForm
-    success_url_name = 'tool-summary'
-    template_name = 'tool/manage/subscription_payment_create.html'
-    valid_message = 'Thank you! Your payment has been processed.'
-    success_url_name = 'tool-summary'
-
-    def __init__(self, *args, **kwargs):
-        self._amount_due = None
-        super(SubscriptionPaymentCreateView, self).__init__(*args, **kwargs)
-
-    @property
-    def subscription(self):
-        """
-            There's some tight coupling here with urls.py.
-            We're pulling the subscription id out of self.kwargs,
-            so if, say, that parameter is renamed in urls.py, this
-            will break.
-        """
-        self._subscription = Subscription.objects.get(pk=self.kwargs['pk'])
-        return self._subscription
-
-    @property
-    def amount_due(self):
-        """
-            A property so this view only hits the db once to get
-            self.subscription.amount_due.
-        """
-        if self._amount_due is None:
-            self._amount_due = self.subscription.amount_due
-        return self._amount_due
-
-    def update_logical_rules(self):
-        super(SubscriptionPaymentCreateView, self).update_logical_rules()
-        self.add_logical_rule({'name': 'user_has_view_access',
-                               'param_callbacks': [
-                                   ('user', 'get_request_user'),
-                                   ('institution', 'get_institution')]})
-
-    def form_valid(self, form):
-        try:
-            card_num = form.cleaned_data.get('card_number')
-            exp_date = form.get_exp_date()
-
-            self.subscription.pay(amount=self.amount_due,
-                                  user=self.request.user,
-                                  card_num=card_num,
-                                  exp_date=exp_date,
-                                  cvv=form.cleaned_data.get('cvv'))
-        except simple_credit_card.CreditCardProcessingError as ccpe:
-            messages.error(self.request, str(ccpe))
-            return self.form_invalid(form)
-
-        # if this is the current subscription, make sure the school is
-        # now marked as a participant
-        if self.subscription == self.subscription.institution.current_subscription:
-            i = self.get_institution(use_cache=False)
-            i.is_participant = True
-            i.save()
-        return super(SubscriptionPaymentCreateView, self).form_valid(form)
-
-    def get_tab_content_title(self):
-        return 'pay now; amount due: ${0:.2f}'.format(
-            self.amount_due)
-
-    def get_context_data(self, **kwargs):
-        context = super(SubscriptionPaymentCreateView,
-                        self).get_context_data(**kwargs)
-        context['breadcrumb'] = 'purchase subscription'
-        context['pay_when'] = Subscription.PAY_NOW
-        context['amount_due'] = self.amount_due
-        context['new_subscription'] = False
-        return context

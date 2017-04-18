@@ -8,7 +8,6 @@ from .views import (AccountCreateView, AccountDeleteView,
                     PendingAccountDeleteView, ResponsiblePartyCreateView,
                     ResponsiblePartyDeleteView, ResponsiblePartyEditView,
                     ResponsiblePartyListView, ShareDataView,
-                    SubscriptionCreateWizard, SubscriptionPaymentCreateView,
                     ShareThirdPartiesView, SnapshotCSVExportView,
                     SnapshotCSVDownloadView, SnapshotPDFExportView,
                     SnapshotPDFDownloadView)
@@ -73,10 +72,6 @@ urlpatterns = patterns(
         never_cache(SnapshotPDFDownloadView.as_view()),
         name='snapshot-download-pdf'),
 
-#     url(r'^share-data/(?P<submissionset>[^/]+)/pdf/$',
-#         never_cache(SnapshotPDFExportView.as_view()),
-#         name='snapshot-export-pdf'),
-
     url(r'^share-data/third-parties/$', ShareThirdPartiesView.as_view(),
         name='share-third-parties'),
 
@@ -88,16 +83,5 @@ urlpatterns = patterns(
         name='migrate-data'),
 
     url(r'^migrate/version/(?P<pk>\d+)/$', MigrateVersionView.as_view(),
-        name='migrate-version'),
-
-    # Subscription views:
-    url(r'^purchase-subscription-wiz/',
-        SubscriptionCreateWizard.as_view(
-            SubscriptionCreateWizard.get_class_form_list(),
-            condition_dict=SubscriptionCreateWizard.get_form_conditions()),
-        name='subscription-create'),
-
-    url(r'^subscription/(?P<pk>\d+)/payment/create/$',
-        SubscriptionPaymentCreateView.as_view(),
-        name='subscription-payment-create'),
+        name='migrate-version')
 )
