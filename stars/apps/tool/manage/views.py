@@ -320,7 +320,7 @@ class AccountCreateView(
                     user_email=user_email)
                 messages.error(
                     self.request,
-                    "You have already invited " % user_email)
+                    "You have already invited %s." % user_email)
                 self.valid_message = ''
             except PendingAccount.DoesNotExist:
                 messages.info(self.request,
