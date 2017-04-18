@@ -3,7 +3,6 @@ import sys
 
 from stars.apps.institutions.models import Institution
 from stars.apps.notifications.models import EmailTemplate
-from stars.apps.submissions.models import SubmissionSet
 
 
 def eval_participant_status(i):
@@ -38,27 +37,6 @@ def eval_rated_submission(i):
             '-date_submitted')[0]
     except:
         return None
-
-
-def expire_ratings():
-    """
-        Expire any ratings that are over 3 years old
-    """
-    d = datetime.date.today()
-    expire_date = d - datetime.timedelta(days=365*3)
-    print "** Expiring Ratings **"
-    for ss in SubmissionSet.objects.filter(date_submitted__lt=expire_date):
-        ss.expired = True
-        ss.save()
-        print "Rating expired for %s (%s)" % (ss, ss.date_submitted)
-        # remove it if it's the current submission for an institution
-        if ss.institution.rated_submission == ss:
-            ss.institution.rated_submission = None
-            ss.institution.current_rating = None
-            ss.institution.latest_expired_submission = ss
-            ss.institution.save()
-        else:
-            print "Not their current rating"
 
 
 def update_institution_properties():
@@ -151,8 +129,3 @@ def update_institution_properties():
                 i.rated_submission = None
                 i.current_rating = None
                 i.save()
-
-            # else:
-            #
-            #     if i.rated_submission is None:
-            #         print >> sys.stdout, "Warning: evaluation found rating that wasn't saved for %s!" % i
