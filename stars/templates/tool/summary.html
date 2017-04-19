@@ -93,17 +93,6 @@
                                         {{ s.start_date }} -
                                         {{ s.end_date }}
                                     </td>
-                                    <td>
-                                        {% if not s.paid_in_full %}
-                                            Due: ${{ s.amount_due|floatformat:"-2" }}
-                                            <br/>
-                                            <a
-                                              href="{% url subscription-payment-create institution.slug s.id %}"
-                                              class='btn {% if not institution.current_subscription.paid_in_full and institution.current_subscription.late %}btn-danger{% else %}btn-primary{% endif %}'>
-                                                Pay Now
-                                            </a>
-                                        {% endif %}
-                                    </td>
                                 </tr>
                             {% endfor %}
                         {% else %}
