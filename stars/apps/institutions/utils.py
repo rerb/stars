@@ -1,8 +1,6 @@
 import datetime
-import sys
 
 from stars.apps.institutions.models import Institution
-from stars.apps.notifications.models import EmailTemplate
 
 
 def eval_participant_status(i):
@@ -23,20 +21,6 @@ def eval_participant_status(i):
             return (True, sub)
 
     return (False, None)
-
-
-def eval_rated_submission(i):
-    """
-        Get the latest rated submission set for an institution
-
-        @todo test chronological order
-    """
-
-    try:
-        return i.submissionset_set.filter(status='r').order_by(
-            '-date_submitted')[0]
-    except:
-        return None
 
 
 def update_institution_properties():
@@ -68,16 +52,14 @@ def update_institution_properties():
         thirty = datetime.timedelta(days=30)
 
         if current_subscription and not current_subscription.paid_in_full:
-            if (datetime.date.today() - thirty) > current_subscription.start_date:
+            if ((datetime.date.today() - thirty) >
+                current_subscription.start_date):  # noqa
+
                 current_subscription.late = True
                 current_subscription.save()
                 is_participant = False
-                print >> sys.stdout, "Late payment: %s" % current_subscription
-
-        rated_submission = eval_rated_submission(i)
 
         # Participation Status
-
         if i.is_participant != is_participant:
             """
                 potential @bug - although might be desirable
@@ -88,26 +70,13 @@ def update_institution_properties():
             # if participation status has changed
 
             if not i.is_participant:
-                # renewal: wasn't an now is
+                # renewal: wasn't and now is
                 i.is_participant = True
-                if i.current_subscription:
-                    print "Inconsistent status w/ subscription for %s" % i
                 i.current_subscription = current_subscription
-                print "Found subscription for %s" % i
             else:
-                # expiration: was an now isn't
+                # expiration: was and now isn't
                 i.is_participant = False
                 i.current_subscription = None
-                print "**********"
-                print >> sys.stdout, "%s subscription expired" % i
-                print "sending expiration notice to %s" % i.contact_email
-                for sub in i.subscription_set.order_by('start_date'):
-                    print "%s - %s" % (sub.start_date, sub.end_date)
-                print "**********"
-                # @todo email institution
-                et = EmailTemplate.objects.get(
-                    slug='stars_subscription_expired')
-                et.send_email([i.contact_email], {'institution': i})
             i.save()
 
         else:
@@ -115,17 +84,17 @@ def update_institution_properties():
             # check if there's a rollover subscription
             if i.current_subscription != current_subscription:
                 i.current_subscription = current_subscription
-                print >> sys.stdout, "%s had a rollover subscription" % i
                 i.save()
 
         # Rating
+        try:
+            rated_submission = i.submissionset_set.filter(status='r').order_by(
+                '-date_submitted')[0]
+        except IndexError:
+            rated_submission = None
 
-        if i.rated_submission != rated_submission:
-
-            if rated_submission is None:
-
-                # expired rating
-
-                i.rated_submission = None
-                i.current_rating = None
-                i.save()
+        if i.rated_submission != rated_submission and rated_submission is None:
+            # expired rating
+            i.rated_submission = None
+            i.current_rating = None
+            i.save()
