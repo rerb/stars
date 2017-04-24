@@ -1140,11 +1140,19 @@ class SubcategorySubmission(models.Model):
             if not credit.is_opt_in:
                 total += 1
             else:
-                cus = CreditUserSubmission.objects.get(
-                    subcategory_submission=self,
-                    credit=credit)
-                if cus.submission_status != NOT_APPLICABLE:
-                    total += 1
+                try:
+                    cus = CreditUserSubmission.objects.get(
+                        subcategory_submission=self,
+                        credit=credit)
+                except CreditUserSubmission.DoesNotExist:
+                    # I don't know why this would happen
+                    # but it's happening.
+                    logger.error(
+                        "Credit pk={} has no CreditUserSubmission ".format(
+                            credit.pk))
+                else:
+                    if cus.submission_status != NOT_APPLICABLE:
+                        total += 1
         return total
 
     def get_submissionset(self):
@@ -1306,7 +1314,7 @@ class ResponsibleParty(models.Model):
                                 'credit__subcategory')
         qs = self.creditusersubmission_set
         qs = qs.order_by(*order_by)
-        qs = qs.exclude(subcategory_submission__category_submission__submissionset__is_visible=False)
+        qs = qs.exclude(subcategory_submission__category_submission__submissionset__is_visible=False)  # noqa
         return qs
 
 
