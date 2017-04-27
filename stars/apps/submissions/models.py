@@ -216,8 +216,11 @@ class SubmissionSet(models.Model, FlaggableModel):
             model (unless refresh is set)
         """
         if self.status == RATED_SUBMISSION_STATUS and not refresh:
-            if self.pdf_report:
-                return self.pdf_report.file
+            try:
+                if self.pdf_report:
+                    return self.pdf_report.file
+            except IOError:
+                pass
 
         pdf_result = build_report_pdf(self, template)
 
