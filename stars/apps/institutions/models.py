@@ -617,6 +617,7 @@ class Subscription(models.Model):
                                        blank=True,
                                        null=True)
     institution = models.ForeignKey(Institution, blank=True, null=True)
+    name = models.CharField(max_length=512, blank=True, null=True)
     start_date = models.DateField()
     end_date = models.DateField()
     ratings_allocated = models.SmallIntegerField(
@@ -637,6 +638,20 @@ class Subscription(models.Model):
 
     class Meta:
         ordering = ['-start_date']
+
+    @property
+    def access_level(self):
+        if not self.name:
+            return BASIC_ACCESS
+        elif FULL_ACCESS in self.name:
+            return FULL_ACCESS
+        elif BASIC_ACCESS in self.name:
+            return BASIC_ACCESS
+        else:
+            logger.error(
+                "Can't tell what type of subscription this one is "
+                "by its name, '{}'".format(self.name),
+                exc_info=True)
 
     def get_available_ratings(self):
         return self.ratings_allocated - self.ratings_used
