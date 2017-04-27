@@ -22,6 +22,7 @@ from membersuite_api_client.subscriptions.services import SubscriptionService
 from stars.apps.institutions.models import (Institution,
                                             MemberSuiteInstitution,
                                             Subscription)
+from stars.apps.institutions.utils import update_one_institutions_properties
 
 
 pickler = None
@@ -109,8 +110,8 @@ class Command(BaseCommand):
                 print "ERROR: No Institution for MS Subscription: {}: {}".format(
                     ms_sub.id, local_sub.ms_institution.org_name.encode("utf-8"))
                 pickler.dump(local_sub)
+            else:
+                update_one_institutions_properties(local_sub.institution)
 
         local_sub.start_date = ms_sub.start
         local_sub.end_date = ms_sub.end
-
-        return local_sub
