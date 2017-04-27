@@ -69,10 +69,9 @@ def export_credit_csv(credit, ss_qs=None, outfilename=None):
                 credit=credit.get_for_creditset(ss.creditset),
                 subcategory_submission__category_submission__submissionset=ss)
         except CreditUserSubmission.DoesNotExist:
-            print "MISSING CreditUserSubmission"
-            print credit
-            print ss
-        cus_list.append(cus)
+            print "MISSING CreditUserSubmission", credit, ss
+        else:
+            cus_list.append(cus)
 
     # Get the list of fields in the credit for rows
     df_list = []
