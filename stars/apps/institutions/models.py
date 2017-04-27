@@ -68,6 +68,28 @@ class MemberSuiteInstitution(Organization):
         else:
             return self.org_name
 
+    def save(self, create_institution=True, *args, **kwargs):
+        super(MemberSuiteInstitution, self).save(*args, **kwargs)
+        if create_institution:
+            # Is there already in Institution for this MemberSuiteInstitution?
+            try:
+                Institution.objects.get(ms_institution=self)
+            except Institution.DoesNotExist:
+                try:
+                    institution = Institution.objects.get(
+                        ms_institution=None, name=self.org_name)
+                except Institution.DoesNotExist:
+                    institution = Institution()
+                except Institution.MultipleObjectsReturned:
+                    institution = Institution.objects.filter(
+                        ms_institution=None, name=self.org_name).order_by(
+                            "account_num")[0]
+                institution.ms_institution = self
+
+        institution.name = self.org_name
+        institution.update_from_iss()
+        institution.save()
+
 
 class InstitutionManager(models.Manager):
     """
@@ -485,16 +507,17 @@ class Institution(models.Model):
 
     @property
     def profile(self):
+        org = None
         try:
-            org = Organization.objects.get(account_num=self.aashe_id)
-            return org
+            org = Organization.objects.get(org_name=self.name)
         except Organization.DoesNotExist:
             logger.info("No ISS institution found for aashe_id %s" %
                         self.aashe_id)
         except Organization.MultipleObjectsReturned:
-            logger.warning("Multiple ISS Institutions for aashe_id %s" %
-                           self.aashe_id)
-        return None
+            org = Organization.objects.filter(org_name=self.name).order_by(
+                "account_num")[0]
+
+        return org
 
     def is_member_institution(self):
         """
