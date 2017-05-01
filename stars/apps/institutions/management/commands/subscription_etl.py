@@ -76,7 +76,6 @@ class Command(BaseCommand):
         # pull subscriptions from Membersuite
         membersuite_subscription_list = service.get_subscriptions(
             publication_id=settings.STARS_MS_PUBLICATION_ID,
-            start_record=1500,
             verbose=verbose)
 
         return membersuite_subscription_list
@@ -89,6 +88,7 @@ class Command(BaseCommand):
 
         stars_subscription.start_date = membersuite_subscription.start_date
         stars_subscription.end_date = membersuite_subscription.expiration_date
+        stars_subscription.name = membersuite_subscription.name
         stars_subscription.access_level = get_access_level(
             membersuite_subscription=membersuite_subscription,
             client=self.client)
