@@ -1,79 +1,35 @@
 import datetime
 
-from stars.apps.institutions.models import Institution, FULL_ACCESS
+from stars.apps.institutions.models import Institution
 
 
-def update_one_institutions_properties(institution):
+def deduce_current_subscription(institution):
 
-    for sub in institution.subscription_set.order_by('start_date'):
-        if (sub.start_date <= datetime.date.today() and
-            sub.end_date >= datetime.date.today()):  # noqa
-
-            current_subscription = sub
-            is_participant = sub.access_level == FULL_ACCESS
-            break
-    else:
-        current_subscription = None
-        is_participant = False
-
-    # if the current_subscription is over 30 days old, then mark as late
-    thirty = datetime.timedelta(days=30)
-
-    if current_subscription and not current_subscription.paid_in_full:
-        if ((datetime.date.today() - thirty) >
-            current_subscription.start_date):  # noqa
-
-            current_subscription.late = True
-            current_subscription.save()
-            is_participant = False
-
-    # Participation Status
-    if institution.is_participant != is_participant:
-        """
-            potential @bug - although might be desirable
-            when there's an unpaid rollover subscription, the school will
-            still get an expiration notice
-        """
-
-        # if participation status has changed
-
-        if not institution.is_participant:
-            # renewal: wasn't and now is
-            institution.is_participant = True
-            institution.current_subscription = current_subscription
-        else:
-            # expiration: was and now isn't
-            institution.is_participant = False
-            institution.current_subscription = None
-        institution.save()
-
-    else:
-
-        # check if there's a rollover subscription
-        if institution.current_subscription != current_subscription:
-            institution.current_subscription = current_subscription
-            institution.save()
-
-    # Rating
     try:
-        rated_submission = institution.submissionset_set.filter(
-            status='r').order_by(
-            '-date_submitted')[0]
+        current_subscription = institution.subscription_set.filter(
+            start_date__lte=datetime.date.today(),
+            end_date__gte=datetime.date.today()).order_by('start_date')[0]
     except IndexError:
-        rated_submission = None
+        current_subscription = None
 
-    if (institution.rated_submission != rated_submission and
-        rated_submission is None):  # noqa
-
-        # expired rating
-        institution.rated_submission = None
-        institution.current_rating = None
-        institution.save()
+    return current_subscription
 
 
-def update_institution_properties():
-    """
-        Nightly cron to maintain institution properties:
+def deduce_is_participant(institution):
+
+    current_sub = institution.current_subscription
+
+    if current_sub:
+        return current_sub.access_level == current_sub.FULL_ACCESS
+    else:
+        return False
+
+
+def update_institution_properties(institution):
+    """Update one Institution's properties.
+
+        Updates the following properties:
+
             is_participant
             current_subscription
             current_rating, rated_submission
@@ -91,5 +47,42 @@ def update_institution_properties():
                 check for rating expiration
                     send email
     """
+    institution.current_subscription = deduce_current_subscription(
+        institution)
+    institution.is_participant = deduce_is_participant(institution)
+
+    # if the current_subscription is over 30 days old, then mark as late
+    thirty = datetime.timedelta(days=30)
+
+    if (institution.current_subscription and
+        not institution.current_subscription.paid_in_full):  # noqa
+
+        if ((datetime.date.today() - thirty) >
+            institution.current_subscription.start_date):  # noqa
+
+            institution.current_subscription.late = True
+            institution.current_subscription.save()
+
+    # Rating
+    try:
+        rated_submission = institution.submissionset_set.filter(
+            status='r').order_by(
+            '-date_submitted')[0]
+    except IndexError:
+        rated_submission = None
+
+    institution.rated_submission = (
+        rated_submission if rated_submission is not None else None)
+
+    institution.current_rating = (
+        rated_submission.rating if institution.current_rating is not None
+        else None)
+
+    institution.save()
+
+
+def update_all_institution_properties():
+    """Update properties for all Institutions.
+    """
     for institution in Institution.objects.all():
-        update_one_institutions_properties(institution=institution)
+        update_institution_properties(institution=institution)

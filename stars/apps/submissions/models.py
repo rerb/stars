@@ -24,9 +24,9 @@ from file_cache_tag.templatetags.custom_caching import (generate_cache_key,
 from stars.apps.credits.models import (ApplicabilityReason, Category, Choice,
                                        Credit, CreditSet, DocumentationField,
                                        Rating, Subcategory)
-from stars.apps.institutions.models import (BASIC_ACCESS,
-                                            ClimateZone,
-                                            Institution)
+from stars.apps.institutions.models import (ClimateZone,
+                                            Institution,
+                                            Subscription)
 from stars.apps.notifications.models import EmailTemplate
 from stars.apps.notifications.utils import build_message
 from stars.apps.submissions.export.pdf import build_report_pdf
@@ -125,9 +125,12 @@ class SubmissionManager(models.Manager):
         """
 
         deadline = REGISTRATION_PUBLISH_DEADLINE
-        qs1 = SubmissionSet.objects.filter(institution__enabled=True).filter(payment__isnull=False).filter(is_visible=True).filter(is_locked=False)
+        qs1 = SubmissionSet.objects.filter(institution__enabled=True).filter(
+            payment__isnull=False).filter(is_visible=True).filter(
+                is_locked=False)
         qs2 = qs1.filter(
-                (Q(payment__type='later') & Q(date_registered__lte=deadline)) | ~Q(payment__type='later'))
+                (Q(payment__type='later') &
+                 Q(date_registered__lte=deadline)) | ~Q(payment__type='later'))
         return qs2.distinct()
 
     def get_rated(self):
@@ -332,7 +335,7 @@ class SubmissionSet(models.Model, FlaggableModel):
         if (self.reporter_status or
             self.status == FINALIZED_SUBMISSION_STATUS or
             (not self.is_rated() and
-             self.institution.access_level == BASIC_ACCESS)):
+             self.institution.access_level == Subscription.BASIC_ACCESS)):
             return self.creditset.rating_set.get(name='Reporter')
 
         if self.is_rated() and not recalculate:

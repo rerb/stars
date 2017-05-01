@@ -15,8 +15,6 @@ from django.dispatch import receiver
 from iss.models import Organization
 
 from stars.apps.credits.models import Category, CreditSet
-from stars.apps.registration.models import get_current_discount
-from stars.apps.notifications.models import EmailTemplate
 
 
 logger = getLogger('stars')
@@ -108,10 +106,6 @@ class InstitutionManager(models.Manager):
 
 class InvalidAccessLevelError(Exception):
     pass
-
-
-BASIC_ACCESS = "basic"
-FULL_ACCESS = "full"
 
 
 class Institution(models.Model):
@@ -248,18 +242,10 @@ class Institution(models.Model):
 
     @property
     def access_level(self):
-        """Shadows is_participant, now that we don't have participants
-        and respondents, but institutions with full or basic access."""
-        if self.is_participant:
-            return FULL_ACCESS
+        if self.current_subscription:
+            return self.current_subscription.access_level
         else:
-            return BASIC_ACCESS
-
-    @access_level.setter
-    def access_level(self, level):
-        if level not in [BASIC_ACCESS, FULL_ACCESS]:
-            raise InvalidAccessLevelError(level)
-        self.is_participant = (level == FULL_ACCESS)
+            return None
 
     def update_status(self):
         """
@@ -620,6 +606,12 @@ class Subscription(models.Model):
     name = models.CharField(max_length=512, blank=True, null=True)
     start_date = models.DateField()
     end_date = models.DateField()
+
+    access_level = models.CharField(max_length=8,
+                                    choices=(("Basic", "Basic"),
+                                             ("Full", "Full")),
+                                    default="Basic")
+
     ratings_allocated = models.SmallIntegerField(
         default=RATINGS_PER_SUBSCRIPTION)
     ratings_used = models.IntegerField(default=0)
@@ -636,22 +628,11 @@ class Subscription(models.Model):
     PAY_LATER = 'later'
     PAY_NOW = 'now'
 
+    BASIC_ACCESS = "Basic"  # Don't change this. It's the default access level.
+    FULL_ACCESS = "Full"
+
     class Meta:
         ordering = ['-start_date']
-
-    @property
-    def access_level(self):
-        if not self.name:
-            return BASIC_ACCESS
-        elif FULL_ACCESS in self.name:
-            return FULL_ACCESS
-        elif BASIC_ACCESS in self.name:
-            return BASIC_ACCESS
-        else:
-            logger.error(
-                "Can't tell what type of subscription this one is "
-                "by its name, '{}'".format(self.name),
-                exc_info=True)
 
     def get_available_ratings(self):
         return self.ratings_allocated - self.ratings_used

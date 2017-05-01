@@ -45,7 +45,7 @@ django-terms==1.0.4
 dj-database-url==0.2.1
 factory-boy==2.1.2
 functools32==3.2.3-2
-gevent==1.0
+gevent==1.0.2
 greenlet==0.4.1
 gunicorn==0.17.0
 hg-git==0.3.4
