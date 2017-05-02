@@ -10,7 +10,7 @@ from stars.apps.credits.models import Rating
 
 
 class InstitutionAdmin(admin.ModelAdmin):
-    list_display = ('name', 'aashe_id', 'enabled', 'is_participant', 'current_rating')
+    list_display = ('name', 'aashe_id', 'enabled', 'current_rating')
     search_fields = ('name',)
 
     def get_form(self, request, obj=None, **kwargs):
