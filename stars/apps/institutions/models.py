@@ -229,6 +229,7 @@ class Institution(models.Model):
         if self.current_subscription:
             return (self.current_subscription.access_level ==
                     self.current_subscription.FULL_ACCESS)
+        return False
 
     def __unicode__(self):
         return self.name
