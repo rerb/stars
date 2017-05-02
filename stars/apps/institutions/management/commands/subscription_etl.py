@@ -154,6 +154,10 @@ class Command(BaseCommand):
                                                           membersuite_subscription)
                 stars_subscription.save()
 
+                if stars_subscription.institution:
+                    stars_subscription.institution.update_status()
+                    stars_subscription.institution.save()
+
             # if any id's remain in subscription_id_list they can be removed
             # from the local list as they don't exist in MemberSuite anymore
             for sub_id in stars_subscription_ids:

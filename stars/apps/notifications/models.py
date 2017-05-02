@@ -2,17 +2,12 @@
     Templating tool to store email templates in the database
     and allow them to be edited and previewed
 """
-
-from django.db import models
-from django.utils.safestring import mark_safe
-from django.core.mail import EmailMessage
-from django.conf import settings
-
 from jsonfield import JSONField
-
 from utils import build_message
 
-import sys
+from django.db import models
+from django.core.mail import EmailMessage
+from django.conf import settings
 
 
 class EmailTemplate(models.Model):
@@ -27,7 +22,8 @@ class EmailTemplate(models.Model):
         help_text="Example context for the template. Do not change.",
         blank=True, null=True)
     active = models.BooleanField(
-        help_text="Checked indicates that the code is using this email. For Webdev's use only")
+        help_text=("Checked indicates that the code is using this "
+                   "email. For Webdev's use only"))
 
     class Meta:
         ordering = ('slug',)
@@ -56,7 +52,8 @@ class EmailTemplate(models.Model):
         """
 
         if not settings.EMAIL_REPLY_TO:
-            raise NameError('Please define the EMAIL_REPLY_TO variable in settings')
+            raise NameError('Please define the EMAIL_REPLY_TO '
+                            'variable in settings')
 
         cc_list = []
         bcc_list = []

@@ -203,10 +203,6 @@ class Institution(models.Model):
     country = models.CharField(max_length=128, blank=True, null=True)
 
     # State properties
-    is_participant = models.BooleanField(
-        default=False,
-        help_text=("An institution that isn't a participant is simply "
-                   "considered a Survey Respondent"))
     current_rating = models.ForeignKey("credits.Rating", blank=True, null=True)
     rating_expires = models.DateField(blank=True, null=True)
     current_submission = models.ForeignKey("submissions.SubmissionSet",
@@ -227,6 +223,12 @@ class Institution(models.Model):
         null=True,
         related_name='latest_expired')
     prefers_metric_system = models.BooleanField(default=False)
+
+    @property
+    def is_participant(self):
+        if self.current_subscription:
+            return (self.current_subscription.access_level ==
+                    self.current_subscription.FULL_ACCESS)
 
     def __unicode__(self):
         return self.name
@@ -265,20 +267,16 @@ class Institution(models.Model):
         if self.current_subscription:
             if (self.current_subscription.start_date <= date.today() and
                 self.current_subscription.end_date >= date.today()):  # noqa
-                self.is_participant = True
+                pass
             else:
-                self.is_participant = False
                 self.current_subscription = None
                 # if it has expired, check and see if there is another
                 # that is current
                 for sub in self.subscription_set.all():
                     if (sub.start_date <= date.today() and
                         sub.end_date >= date.today()):  # noqa
-                        self.is_participant = True
                         self.current_subscription = sub
                         break
-        else:
-            self.is_participant = False
 
     def update_from_iss(self):
         "Method to update properties from the parent org in the ISS"
@@ -604,8 +602,8 @@ class Subscription(models.Model):
                                        null=True)
     institution = models.ForeignKey(Institution, blank=True, null=True)
     name = models.CharField(max_length=512, blank=True, null=True)
-    start_date = models.DateField()
-    end_date = models.DateField()
+    start_date = models.DateField(db_index=True)
+    end_date = models.DateField(db_index=True)
 
     access_level = models.CharField(max_length=8,
                                     choices=(("Basic", "Basic"),
@@ -649,16 +647,6 @@ class Subscription(models.Model):
             return "No MS Institution (%s - %s)" % (
                 self.start_date,
                 self.end_date)
-
-    def _update_institution_after_purchase(self):
-        """
-            Updates the subscription-related attributes of this
-            subscription's institution.
-        """
-        self.institution.current_subscription = (
-            self.institution.current_subscription or self)
-        self.institution.is_participant = True
-        self.institution.save()
 
 
 METHOD_CHOICES = (('credit', 'credit'),

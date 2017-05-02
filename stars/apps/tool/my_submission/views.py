@@ -15,7 +15,7 @@ from extra_views import UpdateWithInlinesView
 
 from stars.apps.accounts.mixins import IsStaffMixin
 from stars.apps.helpers.forms.forms import Confirm
-from stars.apps.institutions.models import FULL_ACCESS, MigrationHistory
+from stars.apps.institutions.models import MigrationHistory, Subscription
 from stars.apps.notifications.models import EmailTemplate
 from stars.apps.notifications.utils import build_message
 from stars.apps.submissions.models import (
@@ -538,7 +538,7 @@ class CreditSubmissionHistoryView(CreditSubmissionDetailView,
             ]
         )
         context['institution_has_full_access'] = (
-            context['institution'].access_level == FULL_ACCESS)
+            context['institution'].access_level == Subscription.FULL_ACCESS)
 
         return context
 
