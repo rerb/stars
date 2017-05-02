@@ -30,7 +30,7 @@ from stars.apps.institutions.utils import update_institution_properties
 pickler = None
 
 
-def get_access_level(membersuite_subscription, client=None):
+def get_access_level(membersuite_subscription, client):
     """Return the access level for `membersuite_subscription`.
 
     Note a big assumption made here: namely, that the first line
@@ -39,21 +39,10 @@ def get_access_level(membersuite_subscription, client=None):
     order line except the first.
 
     """
-    MEMBERSUITE_CUTOVER_DATE = datetime.datetime(2017, 4, 9, 20, 0)
-
-    client = client or get_new_client(request_session=True)
-    if not client.session_id:
-        client.request_session()
-
     product = membersuite_subscription.get_product(client=client)
 
     if product and "full" in product.name.lower():
         return Subscription.FULL_ACCESS
-
-    elif (membersuite_subscription.fields["CreatedDate"] ==
-          MEMBERSUITE_CUTOVER_DATE):
-        return Subscription.FULL_ACCESS
-
     else:
         return Subscription.BASIC_ACCESS
 
@@ -83,12 +72,11 @@ class Command(BaseCommand):
     def update_subscription_from_membersuite(self, stars_subscription,
                                              membersuite_subscription):
 
-        if not stars_subscription.ms_id:
-            stars_subscription.ms_id = membersuite_subscription.id
-
+        stars_subscription.ms_id = membersuite_subscription.id
         stars_subscription.start_date = membersuite_subscription.start_date
         stars_subscription.end_date = membersuite_subscription.expiration_date
         stars_subscription.name = membersuite_subscription.name
+
         stars_subscription.access_level = get_access_level(
             membersuite_subscription=membersuite_subscription,
             client=self.client)
@@ -98,7 +86,8 @@ class Command(BaseCommand):
                 membersuite_account_num=membersuite_subscription.owner_id)
         except MemberSuiteInstitution.DoesNotExist:
             print("ERROR: No MemberSuiteInstitution for "
-                  "membersuite_subscription: {}: {}".format(
+                  "membersuite_subscription: "
+                  "(sub) {}: (owner id) {}".format(
                       membersuite_subscription.membersuite_id,
                       membersuite_subscription.owner_id))
             # OR should we create a MemberSuiteInstitution?
@@ -123,8 +112,8 @@ class Command(BaseCommand):
 
         # store a list of existing subscription id's
         # those that aren't found in the update, will be removed
-        stars_subscription_ids = Subscription.objects.values_list('id',
-                                                                  flat=True)
+        stars_subscription_ms_ids = Subscription.objects.values_list("ms_id",
+                                                                      flat=True)
 
         membersuite_subscription_list = self.get_subscriptions(verbose=verbose)
 
@@ -138,12 +127,12 @@ class Command(BaseCommand):
 
                 # is it an existing subscription?
                 if (membersuite_subscription.membersuite_id in
-                    stars_subscription_ids):  # noqa
+                    stars_subscription_ms_ids):  # noqa
 
                     stars_subscription = Subscription.objects.get(
                         ms_id=membersuite_subscription.membersuite_id)
                     # remove this from the list of subscriptions to be removed
-                    stars_subscription_ids.remove(stars_subscription.id)
+                    stars_subscription_ms_ids.remove(stars_subscription.ms_id)
                 else:
                     # add a new subscription
                     stars_subscription = Subscription(
@@ -160,5 +149,5 @@ class Command(BaseCommand):
 
             # if any id's remain in subscription_id_list they can be removed
             # from the local list as they don't exist in MemberSuite anymore
-            for sub_id in stars_subscription_ids:
-                Subscription.objects.filter(id=sub_id).update(archived=True)
+            for ms_id in stars_subscription_ms_ids:
+                Subscription.objects.filter(ms_id=ms_id).update(archived=True)

@@ -5,10 +5,12 @@ from stars.apps.institutions.models import Institution
 
 def get_current_subscription(institution):
 
+    today = datetime.date.today()
+
     try:
         current_subscription = institution.subscription_set.filter(
-            start_date__lte=datetime.date.today(),
-            end_date__gte=datetime.date.today()).order_by('start_date')[0]
+            start_date__lte=today,
+            end_date__gte=today).order_by("start_date")[0]
     except IndexError:
         current_subscription = None
 
