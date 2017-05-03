@@ -248,7 +248,7 @@ class Institution(models.Model):
         if self.current_subscription:
             return self.current_subscription.access_level
         else:
-            return None
+            return Subscription.BASIC_ACCESS
 
     def update_status(self):
         """
@@ -601,7 +601,10 @@ class Subscription(models.Model):
     ms_institution = models.ForeignKey(MemberSuiteInstitution,
                                        blank=True,
                                        null=True)
-    institution = models.ForeignKey(Institution, blank=True, null=True)
+    institution = models.ForeignKey(Institution,
+                                    blank=True,
+                                    null=True,
+                                    on_delete=models.SET_NULL)
     name = models.CharField(max_length=512, blank=True, null=True)
     start_date = models.DateField(db_index=True)
     end_date = models.DateField(db_index=True)

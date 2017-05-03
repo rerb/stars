@@ -12,6 +12,8 @@
     default match fields:
         ['membersuite_id']
 """
+from __future__ import unicode_literals
+
 import datetime
 import pickle
 
@@ -21,11 +23,16 @@ from django.conf import settings
 from membersuite_api_client.client import ConciergeClient
 from membersuite_api_client.subscriptions.services import SubscriptionService
 from membersuite_api_client.utils import get_new_client
+
+from stars.apps.institutions.management.commands.preloaded_subscription_names \
+    import PRELOADED_SUBSCRIPTION_NAMES
 from stars.apps.institutions.models import (Institution,
                                             MemberSuiteInstitution,
                                             Subscription)
 from stars.apps.institutions.utils import update_institution_properties
 
+
+MEMBERSUITE_PREPRODUCTION_DATA_LOAD = datetime.datetime(2017, 4, 9, 20, 0)
 
 pickler = None
 
@@ -39,12 +46,22 @@ def get_access_level(membersuite_subscription, client):
     order line except the first.
 
     """
-    product = membersuite_subscription.get_product(client=client)
+    order = membersuite_subscription.get_order(client=client)
 
-    if product and "full" in product.name.lower():
+    if order:
+        products = order.get_products(client=client)
+        for product in products:
+            if "full" in product.name.lower():
+                return Subscription.FULL_ACCESS
+            elif "basic" in product.name.lower():
+                return Subscription.BASIC_ACCESS
+
+    elif ((membersuite_subscription.fields["CreatedDate"] ==
+           MEMBERSUITE_PREPRODUCTION_DATA_LOAD) and
+          membersuite_subscription.name in PRELOADED_SUBSCRIPTION_NAMES):
         return Subscription.FULL_ACCESS
-    else:
-        return Subscription.BASIC_ACCESS
+
+    return Subscription.BASIC_ACCESS  # default
 
 
 class Command(BaseCommand):
@@ -72,18 +89,22 @@ class Command(BaseCommand):
     def update_subscription_from_membersuite(self, stars_subscription,
                                              membersuite_subscription):
 
-        stars_subscription.ms_id = membersuite_subscription.id
+        stars_subscription.ms_id = membersuite_subscription.membersuite_id
         stars_subscription.start_date = membersuite_subscription.start_date
         stars_subscription.end_date = membersuite_subscription.expiration_date
         stars_subscription.name = membersuite_subscription.name
 
-        stars_subscription.access_level = get_access_level(
-            membersuite_subscription=membersuite_subscription,
-            client=self.client)
+        try:
+            stars_subscription.access_level = get_access_level(
+                membersuite_subscription=membersuite_subscription,
+                client=self.client)
+        except Exception as exc:
+            print "ERROR: ", exc
 
         try:
-            stars_subscription.ms_institution = MemberSuiteInstitution.objects.get(
-                membersuite_account_num=membersuite_subscription.owner_id)
+            stars_subscription.ms_institution = (
+                MemberSuiteInstitution.objects.get(
+                    membersuite_account_num=membersuite_subscription.owner_id))
         except MemberSuiteInstitution.DoesNotExist:
             print("ERROR: No MemberSuiteInstitution for "
                   "membersuite_subscription: "
@@ -112,8 +133,8 @@ class Command(BaseCommand):
 
         # store a list of existing subscription id's
         # those that aren't found in the update, will be removed
-        stars_subscription_ms_ids = Subscription.objects.values_list("ms_id",
-                                                                      flat=True)
+        stars_subscription_ms_ids = list(
+            Subscription.objects.values_list("ms_id", flat=True))
 
         membersuite_subscription_list = self.get_subscriptions(verbose=verbose)
 
@@ -132,15 +153,18 @@ class Command(BaseCommand):
                     stars_subscription = Subscription.objects.get(
                         ms_id=membersuite_subscription.membersuite_id)
                     # remove this from the list of subscriptions to be removed
-                    stars_subscription_ms_ids.remove(stars_subscription.ms_id)
+                    del(stars_subscription_ms_ids[
+                        stars_subscription_ms_ids.index(
+                            stars_subscription.ms_id)])
                 else:
                     # add a new subscription
                     stars_subscription = Subscription(
                         ms_id=membersuite_subscription.membersuite_id)
 
                 # update and save the local subscription
-                self.update_subscription_from_membersuite(stars_subscription,
-                                                          membersuite_subscription)
+                self.update_subscription_from_membersuite(
+                    stars_subscription,
+                    membersuite_subscription)
                 stars_subscription.save()
 
                 if stars_subscription.institution:
