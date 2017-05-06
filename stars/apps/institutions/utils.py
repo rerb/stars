@@ -24,18 +24,6 @@ def update_institution_properties(institution):
 
             current_subscription
             current_rating, rated_submission
-
-            evaluate current_subscription
-            evaluate current_rating
-
-            compare with existing values
-
-            if changed:
-                check for subscription expiration
-                    send email
-                    create empty submission
-                check for rating expiration
-                    send email
     """
     institution.current_subscription = get_current_subscription(institution)
 
