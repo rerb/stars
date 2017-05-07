@@ -145,9 +145,16 @@ class Command(BaseCommand):
                             institution.name))
                     raise NoSTARSLiaisonError
 
-                self.update_institution_contact_info(
-                    institution=institution,
-                    liaison=membersuite_stars_liaison)
+                try:
+                    self.update_institution_contact_info(
+                        institution=institution,
+                        liaison=membersuite_stars_liaison)
+                except Exception as exc:
+                    logger.error(
+                        "Unable to update institution contact info for "
+                        "{}; can't load subscription.".format(
+                            institution.name))
+                    next
 
                 # institution must have a pk before creating related
                 # StarsAccount and SubmissionSet records, so save it
@@ -169,7 +176,7 @@ class Command(BaseCommand):
     def update_institution_contact_info(self, institution, liaison):
         institution.contact_first_name = liaison.first_name
         institution.contact_last_name = liaison.last_name
-        institution.contact_title = liaison.title
+        institution.contact_title = liaison.title or "STARS Liaison"
         institution.contact_phone = liaison.phone_number
         institution.contact_email = liaison.email_address
 
