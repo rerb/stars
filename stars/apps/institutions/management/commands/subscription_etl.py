@@ -16,7 +16,6 @@ from __future__ import unicode_literals
 
 import datetime
 import logging
-import pickle
 
 from django.core.management.base import BaseCommand
 from django.conf import settings
@@ -39,13 +38,7 @@ from stars.apps.registration.utils import (init_starsaccount,
 
 MEMBERSUITE_PREPRODUCTION_DATA_LOAD = datetime.datetime(2017, 4, 9, 20, 0)
 
-pickler = None
-
 logger = logging.getLogger()
-
-
-class NoSTARSLiaisonError(Exception):
-    pass
 
 
 def get_access_level(membersuite_subscription, client):
@@ -82,7 +75,10 @@ class Command(BaseCommand):
         Syncs subscriptions from Membersuite
     """
 
-    client = get_new_client(request_session=True)
+    def __init__(self, *args, **kwargs):
+        self.client = get_new_client(request_session=True)
+        self.organization_service = OrganizationService(
+            client=self.client)
 
     def handle(self, verbose=True, *args, **options):
         self.sync_subscriptions(verbose=verbose)
@@ -127,34 +123,35 @@ class Command(BaseCommand):
                 stars_subscription.institution = Institution.objects.get(
                     ms_institution=stars_subscription.ms_institution)
             except Institution.DoesNotExist:
+                membersuite_stars_liaison = (
+                    self.organization_service.get_stars_liaison_for_organization(
+                        organization=ms_institution))
+
+                if not membersuite_stars_liaison:
+                    logger.error(
+                        "No STARS Liaison for Institution {}; "
+                        "cannot load STARS subscription".format(
+                            stars_subscription.ms_institution.org_name))
+                    next
+
+                if (not membersuite_stars_liaison.first_name or
+                    not membersuite_stars_liaison.last_name or
+                    not membersuite_stars_liaison.email_address):  # noqa
+                    logger.error(
+                        "Incomplete STARS Liaison for Institution {}; "
+                        "first_name: {}, last_name {}, email {}; "
+                        "cannot Load STARS subscription".format(
+                            stars_subscription.ms_institution.org_name,
+                            membersuite_stars_liaison.first_name,
+                            membersuite_stars_liaison.last_name,
+                            membersuite_stars_liaison.email_address))
+                    next
+
                 # Make one.
                 institution = Institution(name=ms_institution.org_name,
                                           ms_institution=ms_institution)
                 institution.update_from_iss()
                 institution.set_slug_from_iss_institution(institution.aashe_id)
-
-                services = OrganizationService(client=self.client)
-
-                membersuite_stars_liaison = (
-                    services.get_stars_liaison_for_organization(
-                        organization=ms_institution))
-
-                if not membersuite_stars_liaison:
-                    logger.error(
-                        "No STARS Liaison for Institution '{}'".format(
-                            institution.name))
-                    raise NoSTARSLiaisonError
-
-                try:
-                    self.update_institution_contact_info(
-                        institution=institution,
-                        liaison=membersuite_stars_liaison)
-                except Exception as exc:
-                    logger.error(
-                        "Unable to update institution contact info for "
-                        "{}; can't load subscription.".format(
-                            institution.name))
-                    next
 
                 # institution must have a pk before creating related
                 # StarsAccount and SubmissionSet records, so save it
@@ -170,19 +167,25 @@ class Command(BaseCommand):
                 # Make Submission Set:
                 init_submissionset(institution, user)
 
-            if stars_subscription.institution:
-                update_institution_properties(stars_subscription.institution)
+                institution.contact_first_name = (
+                    membersuite_stars_liaison.first_name)
+                institution.contact_last_name = (
+                    membersuite_stars_liaison.last_name)
+                institution.contact_title = (
+                    membersuite_stars_liaison.title)
+                institution.contact_phone = (
+                    membersuite_stars_liaison.phone_number)
+                institution.contact_email = (
+                    membersuite_stars_liaison.email_address)
 
-    def update_institution_contact_info(self, institution, liaison):
-        institution.contact_first_name = liaison.first_name
-        institution.contact_last_name = liaison.last_name
-        institution.contact_title = liaison.title or "STARS Liaison"
-        institution.contact_phone = liaison.phone_number
-        institution.contact_email = liaison.email_address
+                stars_subscription.institution = institution
+
+            stars_subscription.save()
+
+            # update_institution_properties saves institution.
+            update_institution_properties(stars_subscription.institution)
 
     def sync_subscriptions(self, verbose=True):
-
-        global pickler
 
         # store a list of existing subscription id's
         # those that aren't found in the update, will be removed
@@ -191,44 +194,38 @@ class Command(BaseCommand):
 
         membersuite_subscription_list = self.get_subscriptions(verbose=verbose)
 
-        with open("pickle.jar", "wb") as f:
-            pickler = pickle.Pickler(f)
+        # loop through each MS Subscription
+        # add/update local subscriptions as necessary
+        # remove from stars_subscription_ids so it won't be archived
+        for membersuite_subscription in membersuite_subscription_list:
 
-            # loop through each MS Subscription
-            # add/update local subscriptions as necessary
-            # remove from stars_subscription_ids so it won't be archived
-            for membersuite_subscription in membersuite_subscription_list:
+            # is it an existing subscription?
+            if (membersuite_subscription.membersuite_id in
+                stars_subscription_ms_ids):  # noqa
 
-                # is it an existing subscription?
-                if (membersuite_subscription.membersuite_id in
-                    stars_subscription_ms_ids):  # noqa
+                stars_subscription = Subscription.objects.get(
+                    ms_id=membersuite_subscription.membersuite_id)
+                # remove this from the list of subscriptions to be archived
+                del(stars_subscription_ms_ids[
+                    stars_subscription_ms_ids.index(
+                        stars_subscription.ms_id)])
+            else:
+                # add a new subscription
+                stars_subscription = Subscription(
+                    ms_id=membersuite_subscription.membersuite_id)
 
-                    stars_subscription = Subscription.objects.get(
-                        ms_id=membersuite_subscription.membersuite_id)
-                    # remove this from the list of subscriptions to be archived
-                    del(stars_subscription_ms_ids[
-                        stars_subscription_ms_ids.index(
-                            stars_subscription.ms_id)])
-                else:
-                    # add a new subscription
-                    stars_subscription = Subscription(
-                        ms_id=membersuite_subscription.membersuite_id)
+            # update and save the local subscription
+            self.update_subscription_from_membersuite(
+                stars_subscription,
+                membersuite_subscription)
 
-                # update and save the local subscription
-                try:
-                    self.update_subscription_from_membersuite(
-                        stars_subscription,
-                        membersuite_subscription)
-                except NoSTARSLiaisonError:
-                    next
+            stars_subscription.save()
 
-                stars_subscription.save()
+            if stars_subscription.institution:
+                stars_subscription.institution.update_status()
+                stars_subscription.institution.save()
 
-                if stars_subscription.institution:
-                    stars_subscription.institution.update_status()
-                    stars_subscription.institution.save()
-
-            # if any id's remain in subscription_id_list they can be archived
-            # as they don't exist in MemberSuite anymore
-            for ms_id in stars_subscription_ms_ids:
-                Subscription.objects.filter(ms_id=ms_id).update(archived=True)
+        # if any id's remain in subscription_id_list they can be archived
+        # as they don't exist in MemberSuite anymore
+        for ms_id in stars_subscription_ms_ids:
+            Subscription.objects.filter(ms_id=ms_id).update(archived=True)

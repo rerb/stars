@@ -29,17 +29,13 @@ def update_institution_properties(institution):
 
     # Rating
     try:
-        rated_submission = institution.submissionset_set.filter(
+        institution.rated_submission = institution.submissionset_set.filter(
             status='r').order_by(
                 '-date_submitted')[0]
     except IndexError:
-        rated_submission = None
+        institution.rated_submission = None
 
-    institution.rated_submission = (rated_submission
-                                    if rated_submission
-                                    else None)
-
-    institution.current_rating = (rated_submission.rating
+    institution.current_rating = (institution.rated_submission.rating
                                   if institution.rated_submission
                                   else None)
 
