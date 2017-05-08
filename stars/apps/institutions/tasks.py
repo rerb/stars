@@ -1,9 +1,13 @@
 from __future__ import absolute_import
 
+import logging
 from celery import shared_task
 
 from .utils import update_all_institution_properties
 from .models import Institution
+
+
+logger = logging.getLogger()
 
 
 @shared_task(name='institutions.monitor_subscription')
@@ -18,4 +22,9 @@ def update_from_iss():
     for i in Institution.objects.all():
         print i.name
         i.update_from_iss()
-        i.save()
+        try:
+            i.save()
+        except Exception as exc:
+            logger.error(
+                "Can't save institution {}: {}".format(
+                    i.name, exc))
