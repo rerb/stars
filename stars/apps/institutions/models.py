@@ -49,7 +49,8 @@ class MemberSuiteInstitutionManager(models.Manager):
 
     def get_query_set(self):
         qs = super(MemberSuiteInstitutionManager, self).get_query_set()
-        qs = qs.filter(org_type__name='Campus')
+        qs = qs.filter(models.Q(org_type__name='Campus') |
+                       models.Q(org_type__name='Other'))
         return qs.exclude(exclude_from_website=True)
 
 
