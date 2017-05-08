@@ -115,14 +115,20 @@ class Command(BaseCommand):
                       membersuite_subscription.membersuite_id,
                       membersuite_subscription.name,
                       membersuite_subscription.owner_id))
-            # OR should we create a MemberSuiteInstitution?
-        else:
-            stars_subscription.ms_institution = ms_institution
+            return
 
+        stars_subscription.ms_institution = ms_institution
+
+        try:
+            stars_subscription.institution = Institution.objects.get(
+                ms_institution=stars_subscription.ms_institution)
+        except Institution.DoesNotExist:
             try:
                 stars_subscription.institution = Institution.objects.get(
-                    ms_institution=stars_subscription.ms_institution)
-            except Institution.DoesNotExist:
+                    name=ms_institution.org_name)
+            except (Institution.DoesNotExist,
+                    Institution.MultipleObjectsReturned):
+
                 membersuite_stars_liaison = (
                     self.organization_service.get_stars_liaison_for_organization(
                         organization=ms_institution))
@@ -132,7 +138,7 @@ class Command(BaseCommand):
                         "No STARS Liaison for Institution {}; "
                         "cannot load STARS subscription".format(
                             stars_subscription.ms_institution.org_name))
-                    next
+                    return
 
                 if (not membersuite_stars_liaison.first_name or
                     not membersuite_stars_liaison.last_name or
@@ -145,7 +151,7 @@ class Command(BaseCommand):
                             membersuite_stars_liaison.first_name,
                             membersuite_stars_liaison.last_name,
                             membersuite_stars_liaison.email_address))
-                    next
+                    return
 
                 # Make one.
                 institution = Institution(name=ms_institution.org_name,
@@ -179,11 +185,14 @@ class Command(BaseCommand):
                     membersuite_stars_liaison.email_address)
 
                 stars_subscription.institution = institution
+            else:  # Matched on name.
+                stars_subscription.institution.ms_institution = (
+                    ms_institution)
 
             stars_subscription.save()
 
-            # update_institution_properties saves institution.
-            update_institution_properties(stars_subscription.institution)
+        # update_institution_properties saves institution.
+        update_institution_properties(stars_subscription.institution)
 
     def sync_subscriptions(self, verbose=True):
 
