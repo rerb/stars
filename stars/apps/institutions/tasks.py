@@ -17,10 +17,7 @@ def monitor_subscription():
 
 @shared_task(name='institutions.update_from_iss')
 def update_from_iss():
-    print "RUNNING Update from ISS"
-
     for i in Institution.objects.all():
-        print i.name
         i.update_from_iss()
         try:
             i.save()
