@@ -1,16 +1,8 @@
 """
-    subscription_etl.py
+    load_membersuite_subscriptions.py
 
     prereqs:
-        - ISS is synced with the latest membersuite ids
-
-    This management command connects to MemberSuite using the
-    `python_membersuite_api_client` library.
-
-    This sync simply matches on the `membersuite_id` column,
-
-    default match fields:
-        ['membersuite_id']
+        - ISS is synced with the latest MemberSuite organizations.
 """
 from __future__ import unicode_literals
 
@@ -24,10 +16,8 @@ from membersuite_api_client.organizations.services import OrganizationService
 from membersuite_api_client.security.services import (
     get_user_for_membersuite_entity)
 from membersuite_api_client.subscriptions.services import SubscriptionService
-from membersuite_api_client.utils import get_new_client
+from membersuite_api_client.utils import get_new_client, submit_msql_query
 
-from stars.apps.institutions.management.commands.preloaded_subscription_names \
-    import PRELOADED_SUBSCRIPTION_NAMES
 from stars.apps.institutions.models import (Institution,
                                             MemberSuiteInstitution,
                                             Subscription)
@@ -41,6 +31,22 @@ MEMBERSUITE_PREPRODUCTION_DATA_LOAD = datetime.datetime(2017, 4, 9, 20, 0)
 logger = logging.getLogger()
 
 
+_subscription_fee_names = {}
+
+
+def get_subscription_fee_name(subscription_fee_id, client):
+    global _subscription_fee_names
+    try:
+        return _subscription_fee_names[subscription_fee_id]
+    except KeyError:
+        subscription_fee = submit_msql_query(
+            "SELECT Object() FROM SUBSCRIPTIONFEE WHERE ID = '{}'".format(
+                subscription_fee_id, client=client))[0]
+        _subscription_fee_names[subscription_fee_id] = (
+            subscription_fee.fields["Name"])
+    return _subscription_fee_names[subscription_fee_id]
+
+
 def get_access_level(membersuite_subscription, client):
     """Return the access level for `membersuite_subscription`.
 
@@ -52,7 +58,7 @@ def get_access_level(membersuite_subscription, client):
     """
     order = membersuite_subscription.get_order(client=client)
 
-    if order:
+    if order:  # Subscriptions entered through MemberSuite.
         products = order.get_products(client=client)
         for product in products:
             if "full" in product.name.lower():
@@ -60,12 +66,22 @@ def get_access_level(membersuite_subscription, client):
             elif "basic" in product.name.lower():
                 return Subscription.BASIC_ACCESS
 
-    elif ((membersuite_subscription.fields["CreatedDate"] ==
-           MEMBERSUITE_PREPRODUCTION_DATA_LOAD) and
-          membersuite_subscription.name in PRELOADED_SUBSCRIPTION_NAMES):
-        return Subscription.FULL_ACCESS
+    # Subscriptions preloaded into MemberSuite.
+    elif (membersuite_subscription.fields["CreatedDate"] ==
+          MEMBERSUITE_PREPRODUCTION_DATA_LOAD):
+        fee_id = membersuite_subscription.fields["Fee"]
+        fee_name = get_subscription_fee_name(
+            subscription_fee_id=fee_id,
+            client=client)
+        if "full" in fee_name.lower():
+            return Subscription.FULL_ACCESS
+        elif "basic" in fee_name.lower():
+            return Subscription.BASIC_ACCESS
 
-    return Subscription.BASIC_ACCESS  # default
+    logger.error("Can't determine access level for "
+                 "subscription '{}'".format(membersuite_subscription))
+
+    return Subscription.BASIC_ACCESS  # Default access level.
 
 
 class Command(BaseCommand):
