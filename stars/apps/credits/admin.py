@@ -61,7 +61,7 @@ admin.site.register(Credit, CreditAdmin)
 
 
 class UnitAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('name', 'equivalent', 'ratio', 'is_metric')
 admin.site.register(Unit, UnitAdmin)
 
 
