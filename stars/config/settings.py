@@ -225,12 +225,13 @@ EMAIL_BACKEND = os.environ.get(
 EMAIL_FILE_PATH = os.environ.get(
     'EMAIL_FILE_PATH', '/tmp/stars-email-messages')
 EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', True)
-EMAIL_HOST = os.environ['EMAIL_HOST']
-EMAIL_HOST_USER = os.environ['EMAIL_HOST_USER']
-EMAIL_HOST_PASSWORD = os.environ['EMAIL_HOST_PASSWORD']
-EMAIL_PORT = os.environ['EMAIL_PORT']
-DEFAULT_FROM_EMAIL = os.environ['DEFAULT_FROM_EMAIL']
-EMAIL_REPLY_TO = os.environ['EMAIL_REPLY_TO']
+
+EMAIL_HOST = os.environ.get('EMAIL_HOST', None)
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', None)
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', None)
+EMAIL_PORT = os.environ.get('EMAIL_PORT', None)
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', None)
+EMAIL_REPLY_TO = os.environ.get('EMAIL_REPLY_TO', None)
 
 # sorl thumbnail
 # THUMBNAIL_ENGINE = "sorl.thumbnail.engines.pgmagick_engine.Engine"
