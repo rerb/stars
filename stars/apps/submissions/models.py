@@ -2176,6 +2176,18 @@ class ReportingFieldDataCorrection(models.Model):
     explanation = models.TextField(blank=True, null=True)
 
 
+class DocumentationFieldSubmissionManager(models.Manager):
+
+    def by_submissionset(self, ss):
+        """
+        Get all the DocumentationFieldSubmissions tied to a SubmissionSet
+        """
+        lookup = "credit_submission__creditusersubmission"
+        lookup += "__subcategory_submission__category_submission"
+        lookup += "__submissionset"
+        return self.model.objects.filter(**{lookup: ss})
+
+
 class DocumentationFieldSubmission(models.Model, FlaggableModel):
     """
         The submitted value for a documentation field (abstract).
@@ -2186,6 +2198,7 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
     corrections = generic.GenericRelation(ReportingFieldDataCorrection,
                                           content_type_field='content_type',
                                           object_id_field='object_id')
+    objects = DocumentationFieldSubmissionManager()
 
     class Meta:
         abstract = True
