@@ -30,11 +30,6 @@
               Contact
             </a>
         </li>
-        <li{% if active_tab == 'payments' %} class="active" {% endif %}>
-            <a href="{% url institution-payments institution.slug %}">
-              Payments
-            </a>
-        </li>
         <li{% if active_tab == 'rps' %} class="active" {% endif %}>
             <a href="{% url responsible-party-list institution.slug %}">
               Responsible Parties
@@ -49,7 +44,7 @@
         {% endtestrule %}
     </ul>
     {% endblock %}
-    
+
 
     <div class='tabContent'>
         <p>
