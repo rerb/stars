@@ -93,6 +93,17 @@
                                         {{ s.start_date }} -
                                         {{ s.end_date }}
                                     </td>
+                                    <td align="left">
+                                      {% if institution.is_participant %}
+                                        <span class='label label-success'>
+                                          Full
+                                        </span>
+                                      {% else %}
+                                        <span class='label label-important'>
+                                          Basic
+                                        </span>
+                                      {% endif %}
+                                    </td>
                                 </tr>
                             {% endfor %}
                         {% else %}
