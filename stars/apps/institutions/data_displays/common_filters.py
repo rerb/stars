@@ -7,10 +7,10 @@ BASE_1_0_QS = BASE_1_0_QS.filter(creditset__version__startswith='1.')
 
 COMMON_1_0_FILTERS = [
     Filter(
-        key='institution__country',
+        key='institution__ms_institution__country',
         title='Country',
         item_list=[
-            ('United States', "United States of America"),
+            ('United States', "United States"),
             ('Canada', 'Canada'),
             ('All Other', 'ALL_OTHER_COUNTRIES')
         ],
@@ -68,10 +68,10 @@ BASE_2_0_QS = BASE_2_0_QS.filter(creditset__version__startswith='2.')
 
 COMMON_2_0_FILTERS = [
     Filter(
-        key='institution__country',
+        key='institution__ms_institution__country',
         title='Country',
         item_list=[
-            ('United States', "United States of America"),
+            ('United States', "United States"),
             ('Canada', 'Canada'),
             ('All Other', 'ALL_OTHER_COUNTRIES')
         ],
