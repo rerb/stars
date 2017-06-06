@@ -205,7 +205,11 @@ class Command(BaseCommand):
                 stars_subscription.institution.ms_institution = (
                     ms_institution)
 
-            stars_subscription.save()
+            try:
+                stars_subscription.save()
+            except Exception as exc:
+                print "ERROR: {}".format(exc)
+                return
 
         # update_institution_properties saves institution.
         update_institution_properties(stars_subscription.institution)
