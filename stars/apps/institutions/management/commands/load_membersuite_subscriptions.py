@@ -205,7 +205,12 @@ class Command(BaseCommand):
                 stars_subscription.institution.ms_institution = (
                     ms_institution)
 
-            stars_subscription.save()
+            try:
+                stars_subscription.save()
+            except Exception as exc:
+                print "ERROR: Can't load subscription {}: {}".format(
+                    membersuite_subscription, exc)
+                return
 
         # update_institution_properties saves institution.
         update_institution_properties(stars_subscription.institution)
@@ -244,7 +249,12 @@ class Command(BaseCommand):
                 stars_subscription,
                 membersuite_subscription)
 
-            stars_subscription.save()
+            try:
+                stars_subscription.save()
+            except Exception as exc:
+                print "ERROR: Can't load subscription {}: {}".format(
+                    membersuite_subscription, exc)
+                continue
 
             if stars_subscription.institution:
                 stars_subscription.institution.update_status()

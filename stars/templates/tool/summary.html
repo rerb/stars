@@ -93,6 +93,13 @@
                                         {{ s.start_date }} -
                                         {{ s.end_date }}
                                     </td>
+                                    <td align="left">
+                                      {% if institution.is_participant %}
+                                        Full
+                                      {% else %}
+                                        Basic
+                                      {% endif %}
+                                    </td>
                                 </tr>
                             {% endfor %}
                         {% else %}
@@ -106,7 +113,7 @@
             {% testrule user_has_access_level user 'admin' institution %}
                 <a href='https://customer2597942ba.portal.membersuite.com/Login.aspx'
                    class='btn btn-primary'>
-                    Purchase STARS Full Access Subscription
+                    Renew Subscription
                 </a>
             {% endtestrule %}
         </div>

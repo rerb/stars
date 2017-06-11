@@ -77,7 +77,7 @@ class SubmissionSummaryView(UserCanEditSubmissionMixin,
             max_date = migration_list.aggregate(Max('date'))['date__max']
             time_delta = datetime.now() - max_date
             if (time_delta.days < 30 and
-                not submissionset.is_under_review()):
+                not submissionset.is_under_review()):  # noqa
 
                 context['show_migration_warning'] = True
                 context['last_migration_date'] = max_date
@@ -118,8 +118,8 @@ class SubmitRedirectMixin():
 
     def redirect_to_boundary(self):
         messages.error(self.request,
-                      ("You must complete your Institutional Boundary"
-                       " before submitting for a rating."))
+                       ("You must complete your Institutional Boundary"
+                        " before submitting for a rating."))
         return HttpResponseRedirect(reverse('boundary-edit',
                                             kwargs={
                                                 'institution_slug':
@@ -280,14 +280,17 @@ class SubmitForRatingWizard(SubmitRedirectMixin,
         submissionset.save()
 
         # Send mail to STARS Liaison.
-        if not submissionset.reporter_status:
-            email_template = EmailTemplate.objects.get(
-                slug="submission_for_rating")
-        else:
+        if (submissionset.reporter_status or
+            not submissionset.institution.is_participant):  # noqa
+
             email_template = EmailTemplate.objects.get(
                 slug="submission_as_reporter")
+        else:
+            email_template = EmailTemplate.objects.get(
+                slug="submission_for_rating")
 
-        stars_liaison_email = submissionset.institution.contact_email
+        stars_liaison_email = (
+            submissionset.institution.contact_email)
         email_template.send_email([stars_liaison_email],
                                   {'submissionset': submissionset})
 
