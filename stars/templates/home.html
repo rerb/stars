@@ -67,7 +67,7 @@
 
   <div class="row">
 
-    <div class="span6">
+    <div class="span12">
       <div class="frontblock boxleft">
         <h2>Latest Updates</h2>
 	     {% display_block_content "highlights" user %}
@@ -87,6 +87,7 @@
          <div class="modal-body">
            {% include "helpers/stars_update_reg.html" %}
          </div>
+
          <div class="modal-footer">
            <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
          </div>
@@ -94,13 +95,15 @@
       </div>
     </div>
 
-    <div class="span6 social-tabs">
-      <div class="frontblock boxleft" style="text-align: center; color: #aaa;">
-        <small>Advertisement</small>
-        <div id="mv" style="border: 1px solid #bbb; padding: 10px;margin:auto">
+    {% comment %}
+      <div class="span6 social-tabs">
+        <div class="frontblock boxleft" style="text-align: center; color: #aaa;">
+          <small>Advertisement</small>
+          <div id="mv" style="border: 1px solid #bbb; padding: 10px;margin:auto">
+          </div>
         </div>
       </div>
-    </div>
+    {% endcomment %}
 
   </div><!-- end row -->
 
@@ -110,7 +113,9 @@
     });
   </script>
 
-  {% show_institutions_map %}
+  {% comment %}
+    {% show_institutions_map %}
+  {% endcomment %}
 
   {% endcache %}
 {% endblock %}

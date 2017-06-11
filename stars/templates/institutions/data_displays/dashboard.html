@@ -242,5 +242,7 @@
 
 {% block extra_footer %}
   {{ block.super }}
-  {% show_institutions_map %}
+  {% comment %}
+    {% show_institutions_map %}
+  {% endcomment %}
 {% endblock %}
