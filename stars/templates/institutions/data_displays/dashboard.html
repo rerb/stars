@@ -201,12 +201,16 @@
     <div class="span12">
       <h2 class='dashboard'>Participants by Country</h2>
     </div>
-    <div class="span12 dashboard-map" id="map_canvas" style='height: 500px;'></div>
+    {% comment %}
+      <div class="span12 dashboard-map" id="map_canvas" style='height: 500px;'></div>
+    {% endcomment %}
   </div>
-  <div class="well well-sm">
-    STARS pins represent rated institutions. Green dots are unrated institutions
-    with full access. Blue dots are unrated institutions with basic access.
-  </div>
+  {% comment %}
+    <div class="well well-sm">
+      STARS pins represent rated institutions. Green dots are unrated institutions
+      with full access. Blue dots are unrated institutions with basic access.
+    </div>
+  {% endcomment %}
 
   <div class="row">
     <div class="span6">
@@ -242,5 +246,7 @@
 
 {% block extra_footer %}
   {{ block.super }}
-  {% show_institutions_map %}
+  {% comment %}
+    {% show_institutions_map %}
+  {% endcomment %}
 {% endblock %}
