@@ -3,68 +3,38 @@
         $ PYTHONIOENCODING=UTF-8 ./manage.py shell
         In [1]: %run stars/quick_tools/reports/sci_export.py
 """
-
-"""
-
-- Report format
-    - Excel, CSV or Google sheet file(s)
-    - Ideal to have a single file with multiple tabs, but it's fine if it
-ends up being a folder with lots of files.
-    - Ideal to include version 1, 2.0, and 2.1 reports in the same file,
-but it's fine if they have to be presented in separate files.
-- Report structure:
-    - Score data for each STARS subcategory (Curriculum, Research, Campus
-Engagement, Public Engagement, ...), plus a file or tab that has all
-institutions by OVERALL Score.
-    - See the report I created last year (attached) to get a sense of the
-ideal structure.
-    - Report must include data in the following columns:
-    - Institution Name
-    - Submit Date
-    - STARS version
-    - Points earned in X
-    - Points available for X - Make sure there is a difference between
-Not Applicable and Not Pursuing since in subcategories like Research,
-institutions select Not Applicable across all credits
-    - Not Applicable means points available is zero, or simply state
-Not Applicable in this field)
-- Not Pursuing means points available is whatever their
-subcategory score was based on - greater than zero
-- Nice to include but not necessary if it's extra work (I can add
-this myself pretty easily using Excel data merge)
-- Institution Type based on Salesforce Data
-- Country
-- Calculated Percentage based on points earned/available
-- Nth report and total reports submitted (see attached file)
-"""
-
-from django.db.models import Q
-
-from stars.apps.submissions.models import (
-    SubmissionSet, SubcategorySubmission, SUBMISSION_STATUSES)
-from stars.apps.credits.models import CreditSet
-
 import datetime
 
+from stars.apps.submissions.models import (CreditUserSubmission,
+                                           SubmissionSet,
+                                           SubcategorySubmission,
+                                           SUBMISSION_STATUSES)
+from stars.apps.credits.models import CreditSet
+
+
 """
-- All published version 1, 2.0 and 2.1 reports that are valid (i.e. not
-Expired) at 11:59pm EST on June 30, 2016 (anything with a submit date of
-July 1, 2013 and later)
+- All published version 2.0 and 2.1 reports that are valid (i.e. not
+Expired) at 11:59pm EST on June 30, 2017.
 - Need to include reports that have been FINALIZED BUT NOT PUBLISHED,
 i.e., those that submitted in May/June 2016 that have not yet addressed the
 review results.
-- If an institution submitted more than one report, make sure they are
-all included.
 """
 
-DEADLINE = datetime.date(year=2016, month=6, day=30)
+def get_institution_org_type_from_submission_set(submission_set):
 
-cs_id_list = [2, 4, 5, 6, 7]  # 1.0 - 2.1
-# response = raw_input("Enter a Creditset ID: ")
-# cs_id_list = [response]
+    credit_user_submission = CreditUserSubmission.objects.get(
+        credit__identifier="IC-1",
+        subcategory_submission__category_submission__submissionset=submission_set)
 
-for cs_id in cs_id_list:
-    cs = CreditSet.objects.get(pk=cs_id)
+    field = credit_user_submission.get_submission_fields()[0]
+
+    return str(field.value)
+
+
+DEADLINE = datetime.date(year=2017, month=6, day=30)
+
+
+for cs in CreditSet.objects.filter(version__startswith="2"):
 
     ss_qs = SubmissionSet.objects.filter(creditset=cs)
     ss_qs = ss_qs.filter(
@@ -108,9 +78,9 @@ for cs_id in cs_id_list:
         row.append(ss.status)
         row.append(unicode(ss.date_submitted))
         row.append(ss.creditset.version)
-        row.append("%f.2" % ss.score)
+        row.append("%f.2" % ss.score if ss.score else "0.00")
         row.append(ss.rating.name)
-        row.append(ss.institution.org_type)
+        row.append(get_institution_org_type_from_submission_set(ss))
         row.append(ss.institution.country)
 
         # calculated total reports submitted
@@ -132,9 +102,6 @@ for cs_id in cs_id_list:
             row.append(unicode(subcatsub.get_claimed_points()))
             row.append(unicode(subcatsub.get_adjusted_available_points()))
 
-        try:
-            print >>outfile, u"\t".join(row)
-        except:
-            print "***Failed to encode"
-            print u"\t".join(row)
+        print >>outfile, u"\t".join(row)
+
     outfile.close()
