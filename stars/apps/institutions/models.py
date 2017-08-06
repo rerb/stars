@@ -497,11 +497,13 @@ class Institution(models.Model):
     def profile(self):
         org = None
         try:
-            org = Organization.objects.get(org_name=self.name)
+            org = Organization.objects.get(membersuite_id=self.aashe_id)
         except Organization.DoesNotExist:
-            logger.info("No ISS institution found for aashe_id %s" %
-                        self.aashe_id)
+            logger.error("No ISS institution found for aashe_id %s" %
+                         self.aashe_id)
         except Organization.MultipleObjectsReturned:
+            logger.error("Multiple ISS institutions found for aashe_id %s" %
+                         self.aashe_id)
             org = Organization.objects.filter(org_name=self.name).order_by(
                 "account_num")[0]
 
