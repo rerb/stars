@@ -217,20 +217,23 @@ class CommonFilterMixin(object):
 
     def get_available_filters(self):
 
-        cache_key = '-'.join(['institution__org_type_filter',
+        cache_key = '-'.join(['institution__institution_type_filter',
                               self.kwargs['cs_version']])
 
         filters = cache.get(cache_key, None)
         if filters:
             return filters
 
-        qs = Institution.objects.get_rated().values('org_type').distinct()
-        org_type_list = []
-        for ot in qs:
-            if ot['org_type'] and ot['org_type'] != '':
-                org_type_list.append((ot['org_type'], ot['org_type']))
+        qs = Institution.objects.get_rated().values(
+            'institution_type').distinct()
+        institution_type_list = []
+        for it in qs:
+            if it['institution_type'] and it['institution_type'] != '':
+                institution_type_list.append((it['institution_type'],
+                                              it['institution_type']))
         # value means "don't filter base_qs"
-        org_type_list.insert(0, ('All Institutions', 'DO_NOT_FILTER'))
+        institution_type_list.insert(0, ('All Institutions',
+                                         'DO_NOT_FILTER'))
 
         if self.kwargs["cs_version"] == "2.0":
             common_filters = COMMON_2_0_FILTERS
@@ -241,9 +244,9 @@ class CommonFilterMixin(object):
 
         filters = [
             Filter(
-                key='institution__org_type',
-                title='Organization Type',
-                item_list=org_type_list,
+                key='institution__institution_type',
+                title='Institution Type',
+                item_list=institution_type_list,
                 base_qs=base_qs
             )
         ] + common_filters
@@ -695,7 +698,7 @@ class ScoreExcelFilter(ExcelMixin, ScoreFilter):
         for o in context['object_list']:
             row = ["%s" % o['ss'].institution,
                    "%s" % o['ss'].institution.country,
-                   "%s" % o['ss'].institution.org_type,
+                   "%s" % o['ss'].institution.institution_type,
                    "%s" % o['ss'].creditset.version]
 
             for c in o['cols']:
@@ -901,7 +904,7 @@ class ContentExcelFilter(ExcelMixin, ContentFilter):
 
             row = ["%s" % o['ss'].institution,
                    "%s" % o['ss'].institution.country,
-                   "%s" % o['ss'].institution.org_type,
+                   "%s" % o['ss'].institution.institution_type,
                    "%s" % o['ss'].creditset.version]
             if o['assessed_points']:
                 row.append(o['assessed_points'])

@@ -78,7 +78,7 @@ def export_credit_content(credit, ss_qs=None):
 #                profile.city,
 #                profile.state,
 #                institution.country,
-#                institution.org_type,
+#                institution.institution_type,
 #                institution.fte,
                 ss.creditset.version
                 ]

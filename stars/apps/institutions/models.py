@@ -1,5 +1,5 @@
 import collections
-from datetime import date, timedelta
+from datetime import date
 from logging import getLogger
 
 from django.conf import settings
@@ -14,7 +14,7 @@ from django.contrib.auth.signals import user_logged_in
 from django.dispatch import receiver
 from iss.models import Organization
 
-from stars.apps.credits.models import Category, CreditSet
+from stars.apps.credits.models import CreditSet
 
 
 logger = getLogger('stars')
@@ -49,11 +49,12 @@ class MemberSuiteInstitutionManager(models.Manager):
 
     def get_query_set(self):
         qs = super(MemberSuiteInstitutionManager, self).get_query_set()
-        qs = qs.filter(models.Q(org_type__name='Campus') |
-                       models.Q(org_type__name='Other'))
         return qs.exclude(exclude_from_website=True)
 
 
+# HEY! Here's something to notice: though the model below is called
+# MemberSuiteInstitution, it's a subclass of Organization, not
+# Institution, as you might assume.
 class MemberSuiteInstitution(Organization):
 
     objects = MemberSuiteInstitutionManager()
@@ -67,25 +68,22 @@ class MemberSuiteInstitution(Organization):
         else:
             return self.org_name
 
-    def save(self, create_institution=True, *args, **kwargs):
+    def save(self, *args, **kwargs):
+
+        # Is there already an Institution for this MemberSuiteInstitution?
+        try:
+            institution = Institution.objects.get(ms_institution=self)
+
+        except Institution.DoesNotExist:
+            logger.error("No Institution for MemberSuiteInstitution "
+                         "{0}, {1}".format(self.pk,
+                                           self.org_name.decode('utf-8')))
+            return
+
         super(MemberSuiteInstitution, self).save(*args, **kwargs)
-        if create_institution:
-            # Is there already in Institution for this MemberSuiteInstitution?
-            try:
-                Institution.objects.get(ms_institution=self)
-            except Institution.DoesNotExist:
-                try:
-                    institution = Institution.objects.get(
-                        ms_institution=None, name=self.org_name)
-                except Institution.DoesNotExist:
-                    institution = Institution()
-                except Institution.MultipleObjectsReturned:
-                    institution = Institution.objects.filter(
-                        ms_institution=None, name=self.org_name).order_by(
-                            "account_num")[0]
-                institution.ms_institution = self
 
         institution.name = self.org_name
+
         institution.update_from_iss()
         institution.save()
 
@@ -198,12 +196,12 @@ class Institution(models.Model):
     # ISS properties
     name = models.CharField(max_length=255)
     aashe_id = models.IntegerField(unique=True, blank=True, null=True)
-    org_type = models.CharField(max_length=32, blank=True, null=True)
     fte = models.IntegerField(blank=True, null=True)
     is_pcc_signatory = models.NullBooleanField(default=False)
     is_member = models.NullBooleanField(default=False)
     is_pilot_participant = models.NullBooleanField(default=False)
     country = models.CharField(max_length=128, blank=True, null=True)
+    institution_type = models.CharField(max_length=128, blank=True, null=True)
 
     # State properties
     current_rating = models.ForeignKey("credits.Rating", blank=True, null=True)
@@ -238,13 +236,13 @@ class Institution(models.Model):
         return self.name
 
     @classmethod
-    def get_org_types(cls):
-        institutions = cls.objects.values('org_type').distinct()
-        org_types = []
+    def get_institution_types(cls):
+        institutions = cls.objects.values('institution_type').distinct()
+        institution_types = []
         for institution in institutions:
-            if institution['org_type']:
-                org_types.append(institution['org_type'])
-        return org_types
+            if institution['institution_type']:
+                institution_types.append(institution['institution_type'])
+        return institution_types
 
     @property
     def access_level(self):
@@ -294,9 +292,9 @@ class Institution(models.Model):
                           FieldMapping(stars_field="aashe_id",
                                        iss_field="account_num",
                                        decode=False),
-                          FieldMapping(stars_field="org_type",
-                                       iss_field="carnegie_class",
-                                       decode=True),
+                          FieldMapping(stars_field="institution_type",
+                                       iss_field="institution_type",
+                                       decode=False),
                           FieldMapping(stars_field="fte",
                                        iss_field="enrollment_fte",
                                        decode=False),
@@ -313,60 +311,8 @@ class Institution(models.Model):
                                        iss_field="country",
                                        decode=True))
 
-        def get_institutional_boundary_credit(creditset):
-            category = Category.objects.filter(creditset=creditset).get(
-                title='Institutional Characteristics')
-            subcategory = category.subcategory_set.get(
-                title='Institutional Characteristics')
-            ib_credit = subcategory.credit_set.get(
-                title='Institutional Boundary')
-            return ib_credit
-
-        def get_org_type(self, carnegie_class):
-            """Get org type, based on Salesforce Carnegie Classifications
-            for pre 2.0 submissions, and the submission's Institutional
-            Characteristics for 2.0+ submissions.
-            """
-            # Import way down here to avoid circular dependency:
-            from stars.apps.submissions.models import CreditUserSubmission
-
-            submission = self.get_latest_rated_submission()
-
-            # No rated submission?  Or rated submission a pre-2.0 creditset?
-            # Then check the most recently created submission.  That's the
-            # one that's being worked on.  Right?
-            if not submission or submission.creditset.version < '2':
-                try:
-                    submission = self.submissionset_set.filter(
-                        institution=self).order_by(
-                            '-date_submitted').order_by(
-                                '-date_created')[0]
-                except IndexError:
-                    pass
-
-            if (submission and submission.creditset.version >= '2'):
-
-                # Get IB credit for this submission.
-                ib_credit = get_institutional_boundary_credit(
-                    creditset=submission.creditset)
-
-                cus = CreditUserSubmission.objects.filter(
-                    credit=ib_credit).get(
-                        subcategory_submission__category_submission__submissionset=submission)
-
-                try:
-                    sf = [sf for sf in cus.get_submission_fields()
-                          if sf.documentation_field.title.lower() ==
-                          'institution type'][0]
-                except IndexError:  # No institution type submission field.
-                    return carnegie_class
-
-                if sf.get_human_value():
-                    return sf.get_human_value()
-
-            return carnegie_class
-
         iss_org = self.profile
+
         if iss_org:
             for fm in field_mappings:
                 val = getattr(iss_org, fm.iss_field)
@@ -380,12 +326,8 @@ class Institution(models.Model):
                 if getattr(iss_org, 'member_type') == "Child Member":
                     self.is_member = True
 
-            # handle org-type specially:
-            self.org_type = get_org_type(self,
-                                         carnegie_class=getattr(
-                                             iss_org, 'carnegie_class'))
-        else:
-            logger.warning("No ISS institution found %s" % (self.name))
+            logger.warning("No ISS institution found %s" % (
+                self.name.decode('utf-8')))
 
     def get_admin_url(self):
         """ Returns the base URL for AASHE Staff to administer aspects of
@@ -495,33 +437,34 @@ class Institution(models.Model):
 
     @property
     def profile(self):
-        org = None
-        # The process which selects the iss.Organization that matches
-        # this Institution is bogus.  First, it tries to match on name,
-        # then, failing that, tries a couple hard-coded exceptions.
-        # What can we match on other than name?
-        try:
-            org = Organization.objects.get(org_name=self.name)
+        return self.ms_institution
+        # org = None
+        # # The process which selects the iss.Organization that matches
+        # # this Institution is bogus.  First, it tries to match on name,
+        # # then, failing that, tries a couple hard-coded exceptions.
+        # # What can we match on other than name?
+        # try:
+        #     org = Organization.objects.get(org_name=self.name)
 
-        except Organization.DoesNotExist:
-            logger.error("No ISS organization found for aashe_id %s" %
-                         self.aashe_id)
+        # except Organization.DoesNotExist:
+        #     logger.error("No ISS organization found for aashe_id %s" %
+        #                  self.aashe_id)
 
-        except Organization.MultipleObjectsReturned:
-            # A couple exceptions to the rules. These really must go away
-            # after this selection process is rewritten.
+        # except Organization.MultipleObjectsReturned:
+        #     # A couple exceptions to the rules. These really must go away
+        #     # after this selection process is rewritten.
 
-            if self.aashe_id == 2967:  # Concordia University, Montreal
-                org = Organization.objects.get(membersuite_id="2976")
+        #     if self.aashe_id == 2967:  # Concordia University, Montreal
+        #         org = Organization.objects.get(membersuite_id="2976")
 
-            elif self.aashe_id == 2951:  # Concordia College, Moorhead
-                org = Organization.objects.get(membersuite_id="2951")
+        #     elif self.aashe_id == 2951:  # Concordia College, Moorhead
+        #         org = Organization.objects.get(membersuite_id="2951")
 
-            else:
-                logger.error("Too many ISS organizations found for "
-                             "aashe_id %s" % self.aashe_id)
+        #     else:
+        #         logger.error("Too many ISS organizations found for "
+        #                      "aashe_id %s" % self.aashe_id)
 
-        return org
+        # return org
 
     def is_member_institution(self):
         """

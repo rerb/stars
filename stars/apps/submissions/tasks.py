@@ -271,16 +271,16 @@ def load_subcategory_quartiles():
 
     """
     # Make sure there's a SubcategoryQuartiles object for each
-    # combination of org_type and Subcategory:
-    for org_type in Institution.get_org_types():
+    # combination of institution_type and Subcategory:
+    for institution_type in Institution.get_institution_types():
         for subcategory in Subcategory.objects.all():
             try:
                 SubcategoryQuartiles.objects.get(
-                    org_type=org_type,
+                    institution_type=institution_type,
                     subcategory=subcategory)
             except SubcategoryQuartiles.DoesNotExist:
                 SubcategoryQuartiles.objects.create(
-                    org_type=org_type,
+                    institution_type=institution_type,
                     subcategory=subcategory)
     # Calculate the quartiles:
     for subcategory_quartiles in SubcategoryQuartiles.objects.all():

@@ -49,39 +49,40 @@ def subcategory_quartiles(subcategory_submission):
 
     subcategory = subcategory_submission.subcategory
     submission_set = subcategory_submission.get_submissionset()
-    org_type = submission_set.institution.org_type
+    institution_type = submission_set.institution.institution_type
 
-    if not org_type:
-        # It might be the case that institution.org_type is blank
-        # because there have been no SubmissionSets rated for this
-        # Institution.  We might, in these cases, be able to deduce
-        # an org_type from the current, unrated submission.  There's
-        # logic in Institution.update_from_iss() to do just that, so
-        # let's give that a shot here.  (Because maybe the org_type
-        # has been updated in the SubmissionSet since the last time
+    if not institution_type:
+        # It might be the case that institution.institution_type is
+        # blank because there have been no SubmissionSets rated for
+        # this Institution.  We might, in these cases, be able to
+        # deduce an institution_type from the current, unrated
+        # submission.  There's logic in Institution.update_from_iss()
+        # to do just that, so let's give that a shot here.  (Because
+        # maybe the institution_type has been updated in the
+        # SubmissionSet since the last time
         # Institution.update_from_iss() ran.)
         submission_set.institution.update_from_iss()
-        if submission_set.institution.org_type:
+        if submission_set.institution.institution_type:
             submission_set.institution.save()
-            org_type = submission_set.institution.org_type
+            institution_type = submission_set.institution.institution_type
 
     absolute_first = 0
     absolute_second = 0
     absolute_third = 0
     absolute_fourth = 0
 
-    if org_type:
+    if institution_type:
         try:
             cached_quartiles = SubcategoryQuartiles.objects.get(
                 subcategory=subcategory,
-                org_type=org_type)
+                institution_type=institution_type)
         except SubcategoryQuartiles.DoesNotExist:
             logger.error(
                 'No SubcategoryQuartiles for subcategory: {0}, '
-                'org_type: {1}; institution: {2}; '
+                'institution_type: {1}; institution: {2}; '
                 'submissionset.pk: {3}'.format(
                     subcategory,
-                    org_type,
+                    institution_type,
                     subcategory_submission.get_institution(),
                     subcategory_submission.get_submissionset().pk))
         else:

@@ -129,7 +129,7 @@ class Command(BaseCommand):
                   "membersuite_subscription: "
                   "(sub) {}, (name) {}, (owner id) {}".format(
                       membersuite_subscription.membersuite_id,
-                      membersuite_subscription.name,
+                      membersuite_subscription.name.encode("utf-8"),
                       membersuite_subscription.owner_id))
             return
 
@@ -140,13 +140,14 @@ class Command(BaseCommand):
                 ms_institution=stars_subscription.ms_institution)
         except Institution.DoesNotExist:
             try:
+                # MATCH ON NAME?
                 stars_subscription.institution = Institution.objects.get(
                     name=ms_institution.org_name)
             except (Institution.DoesNotExist,
                     Institution.MultipleObjectsReturned):
 
                 membersuite_stars_liaison = (
-                    self.organization_service.get_stars_liaison_for_organization(
+                    self.organization_service.get_stars_liaison_for_organization(  # noqa
                         organization=ms_institution))
 
                 if not membersuite_stars_liaison:

@@ -20,7 +20,7 @@ i.e., those that submitted in May/June 2016 that have not yet addressed the
 review results.
 """
 
-def get_institution_org_type_from_submission_set(submission_set):
+def get_institution_institution_type_from_submission_set(submission_set):
 
     credit_user_submission = CreditUserSubmission.objects.get(
         credit__identifier="IC-1",
@@ -80,7 +80,7 @@ for cs in CreditSet.objects.filter(version__startswith="2"):
         row.append(ss.creditset.version)
         row.append("%f.2" % ss.score if ss.score else "0.00")
         row.append(ss.rating.name)
-        row.append(get_institution_org_type_from_submission_set(ss))
+        row.append(get_institution_institution_type_from_submission_set(ss))
         row.append(ss.institution.country)
 
         # calculated total reports submitted

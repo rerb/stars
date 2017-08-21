@@ -74,7 +74,10 @@ function updateChildOptions(url_prefix, parent_id, child_sel, current) {
 
 /*
 choices_lookup = {
-	org_type: ['Two Year Institution', 'Four Year Institution', 'Graduate Institution', 'System Office'],
+	institution_type: ['Two Year Institution',
+                           'Four Year Institution',
+                           'Graduate Institution',
+                           'System Office'],
 	rating__name: ['Bronze', 'Silver', 'Gold', 'Platinum']
 }
 */

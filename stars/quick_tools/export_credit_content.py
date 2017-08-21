@@ -19,7 +19,7 @@ def export_credit_content(credit, ss_qs=None):
     filename = string.replace(filename, " ", "_")
     print filename
     csvWriter = csv.writer(open(filename, 'wb'))
-    
+
     # Get the list of submissions for columns
     if not ss_qs:
         ss_qs = SubmissionSet.objects.filter(status='r').order_by("institution__name")
@@ -70,7 +70,7 @@ def export_credit_content(credit, ss_qs=None):
                 profile.city,
                 profile.state,
                 institution.country,
-                institution.org_type,
+                institution.institution_type,
                 institution.fte,
                 cus.subcategory_submission.category_submission.submissionset.creditset.version
                 ]

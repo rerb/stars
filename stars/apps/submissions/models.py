@@ -614,11 +614,11 @@ class SubmissionSet(models.Model, FlaggableModel):
             to_mail.append(self.institution.contact_email)
         et.send_email(to_mail, {'ss': self})
 
-    def get_org_type(self):
-        """Return the org type for the institution associated with this
-        submissionset.
+    def get_institution_type(self):
+        """Return the institution type for the institution associated with
+        this submissionset.
 
-        For creditsets >= 2.0, pull the org type off the institution
+        For creditsets >= 2.0, pull the institution type off the institution
         boundary credit.  For others, pull from the institution record.
         """
         if self.creditset.version > '2.':
@@ -627,7 +627,7 @@ class SubmissionSet(models.Model, FlaggableModel):
                 creditset=self.creditset)
             institutional_characteristics_credit_submissions = (
                 self.get_credit_submissions().filter(
-                    subcategory_submission__category_submission__category=
+                    subcategory_submission__category_submission__category=  # noqa
                     institutional_characteristics_category))
             boundary_credit_submission = (
                 institutional_characteristics_credit_submissions.get(
@@ -635,11 +635,12 @@ class SubmissionSet(models.Model, FlaggableModel):
             boundary_credit_submission_fields = (
                 boundary_credit_submission.get_submission_fields())
             institution_type_submission_field = filter(
-                lambda x: x.documentation_field.title.startswith('Institution type'),
+                lambda x: x.documentation_field.title.startswith(
+                    'Institution type'),
                 boundary_credit_submission_fields)[0]
             return institution_type_submission_field.get_human_value()
         else:
-            return self.institution.org_type
+            return self.institution.institution_type
 
 
 INSTITUTION_TYPE_CHOICES = (("associate", "Associate"),
@@ -2999,21 +3000,22 @@ class ExtensionRequest(models.Model):
 class SubcategoryQuartiles(models.Model):
     """Cached statistics for Subcategories.
 
-    Caches the quartiles for submissions, grouped by subcategory and org_type.
+    Caches the quartiles for submissions, grouped by subcategory and institution_type.
 
     Values cached (first, second, third, fourth) are the highest numbers
     of each quartile.  The numbers represent the percentage of available
     points granted to a submission, not the number of points granted.
     """
     subcategory = models.ForeignKey(Subcategory)
-    org_type = models.CharField(max_length=32)
+    institution_type = models.CharField(max_length=128,
+                                        default='')
     first = models.FloatField(default=0)
     second = models.FloatField(default=0)
     third = models.FloatField(default=0)
     fourth = models.FloatField(default=0)
 
     class Meta:
-        unique_together = ("subcategory", "org_type")
+        unique_together = ("subcategory", "institution_type")
 
     def calculate(self):
         """Calculate the quartiles.  Only count rated submissions.
@@ -3024,8 +3026,8 @@ class SubcategoryQuartiles(models.Model):
         points_percent = []
 
         for subcategory_submission in subcategory_submissions:
-            if (subcategory_submission.get_submissionset().get_org_type() ==
-                self.org_type):
+            if (subcategory_submission.get_submissionset().get_institution_type() ==  # noqa
+                self.institution_type):  # noqa
 
                 adjusted_available_points = (
                     subcategory_submission.get_adjusted_available_points())

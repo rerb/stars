@@ -12,7 +12,7 @@ from stars.apps.credits.models import (CreditSet,
 
 TYPE_CHOICES = (
                     ("", "-------"),
-                    ('org_type', 'Organization Type'),
+                    ('institution_type', 'Institution Type'),
                     ('rating__name', 'STARS Rating'),
                 )
 EMPTY_CHOICES = (
