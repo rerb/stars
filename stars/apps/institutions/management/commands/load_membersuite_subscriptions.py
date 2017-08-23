@@ -136,85 +136,78 @@ class Command(BaseCommand):
         stars_subscription.ms_institution = ms_institution
 
         try:
-            stars_subscription.institution = Institution.objects.get(
-                ms_institution=stars_subscription.ms_institution)
+            institution = Institution.objects.get(
+                ms_institution=ms_institution)
+
         except Institution.DoesNotExist:
-            try:
-                # MATCH ON NAME?
-                stars_subscription.institution = Institution.objects.get(
-                    name=ms_institution.org_name)
-            except (Institution.DoesNotExist,
-                    Institution.MultipleObjectsReturned):
 
-                membersuite_stars_liaison = (
-                    self.organization_service.get_stars_liaison_for_organization(  # noqa
-                        organization=ms_institution))
+            membersuite_stars_liaison = (
+                self.organization_service.get_stars_liaison_for_organization(  # noqa
+                    organization=ms_institution))
 
-                if not membersuite_stars_liaison:
-                    logger.error(
-                        "No STARS Liaison for Institution {}; "
-                        "cannot load STARS subscription".format(
-                            stars_subscription.ms_institution.org_name))
-                    return
-
-                if (not membersuite_stars_liaison.first_name or
-                    not membersuite_stars_liaison.last_name or
-                    not membersuite_stars_liaison.email_address):  # noqa
-                    logger.error(
-                        "Incomplete STARS Liaison for Institution {}; "
-                        "first_name: {}, last_name {}, email {}; "
-                        "cannot Load STARS subscription".format(
-                            stars_subscription.ms_institution.org_name,
-                            membersuite_stars_liaison.first_name,
-                            membersuite_stars_liaison.last_name,
-                            membersuite_stars_liaison.email_address))
-                    return
-
-                # Make one.
-                institution = Institution(name=ms_institution.org_name,
-                                          ms_institution=ms_institution)
-                institution.update_from_iss()
-                institution.set_slug_from_iss_institution(institution.aashe_id)
-
-                # institution must have a pk before creating related
-                # StarsAccount and SubmissionSet records, so save it
-                # now:
-                institution.save()
-
-                user, _ = get_user_for_membersuite_entity(
-                    membersuite_entity=membersuite_stars_liaison)
-
-                # Make a STARS Account:
-                init_starsaccount(user, institution)
-
-                # Make Submission Set:
-                init_submissionset(institution, user)
-
-                institution.contact_first_name = (
-                    membersuite_stars_liaison.first_name)
-                institution.contact_last_name = (
-                    membersuite_stars_liaison.last_name)
-                institution.contact_title = (
-                    membersuite_stars_liaison.title)
-                institution.contact_phone = (
-                    membersuite_stars_liaison.phone_number)
-                institution.contact_email = (
-                    membersuite_stars_liaison.email_address)
-
-                stars_subscription.institution = institution
-            else:  # Matched on name.
-                stars_subscription.institution.ms_institution = (
-                    ms_institution)
-
-            try:
-                stars_subscription.save()
-            except Exception as exc:
-                print "ERROR: Can't load subscription {}: {}".format(
-                    membersuite_subscription, exc)
+            if not membersuite_stars_liaison:
+                logger.error(
+                    "No STARS Liaison for Institution {}; "
+                    "cannot load STARS subscription".format(
+                        stars_subscription.ms_institution.org_name))
                 return
 
+            if (not membersuite_stars_liaison.first_name or
+                not membersuite_stars_liaison.last_name or
+                not membersuite_stars_liaison.email_address):  # noqa
+                logger.error(
+                    "Incomplete STARS Liaison for Institution {}; "
+                    "first_name: {}, last_name {}, email {}; "
+                    "cannot Load STARS subscription".format(
+                        stars_subscription.ms_institution.org_name,
+                        membersuite_stars_liaison.first_name,
+                        membersuite_stars_liaison.last_name,
+                        membersuite_stars_liaison.email_address))
+                return
+
+            # Make one.
+            institution = Institution(name=ms_institution.org_name,
+                                      ms_institution=ms_institution)
+            institution.update_from_iss()
+            institution.set_slug_from_iss_institution(institution.aashe_id)
+
+            # institution must have a pk before creating related
+            # StarsAccount and SubmissionSet records, so save it
+            # now:
+            institution.save()
+
+            user, _ = get_user_for_membersuite_entity(
+                membersuite_entity=membersuite_stars_liaison)
+
+            # Make a STARS Account:
+            init_starsaccount(user, institution)
+
+            # Make Submission Set:
+            init_submissionset(institution, user)
+
+            institution.contact_first_name = (
+                membersuite_stars_liaison.first_name)
+            institution.contact_last_name = (
+                membersuite_stars_liaison.last_name)
+            institution.contact_title = (
+                membersuite_stars_liaison.title)
+            institution.contact_phone = (
+                membersuite_stars_liaison.phone_number)
+            institution.contact_email = (
+                membersuite_stars_liaison.email_address)
+
+            stars_subscription.institution = institution
+
+        else:
+            institution.update_from_iss()
+            stars_subscription.institution = institution
+            stars_subscription.institution.ms_institution = (
+                ms_institution)
+
+        stars_subscription.save()
+
         # update_institution_properties saves institution.
-        update_institution_properties(stars_subscription.institution)
+        update_institution_properties(institution)
 
     def sync_subscriptions(self, verbose=True):
 
@@ -250,12 +243,7 @@ class Command(BaseCommand):
                 stars_subscription,
                 membersuite_subscription)
 
-            try:
-                stars_subscription.save()
-            except Exception as exc:
-                print "ERROR: Can't load subscription {}: {}".format(
-                    membersuite_subscription, exc)
-                continue
+            stars_subscription.save()
 
             if stars_subscription.institution:
                 stars_subscription.institution.update_status()
