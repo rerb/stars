@@ -68,24 +68,15 @@ class MemberSuiteInstitution(Organization):
         else:
             return self.org_name
 
-    def save(self, *args, **kwargs):
-
-        # Is there already an Institution for this MemberSuiteInstitution?
+    def update_related_institution(self):
         try:
             institution = Institution.objects.get(ms_institution=self)
-
         except Institution.DoesNotExist:
-            logger.error("No Institution for MemberSuiteInstitution "
-                         "{0}, {1}".format(self.pk,
-                                           self.org_name.decode('utf-8')))
             return
-
-        super(MemberSuiteInstitution, self).save(*args, **kwargs)
-
-        institution.name = self.org_name
-
-        institution.update_from_iss()
-        institution.save()
+        else:
+            institution.name = self.org_name
+            institution.update_from_iss()
+            institution.save()
 
 
 class InstitutionManager(models.Manager):
@@ -237,11 +228,13 @@ class Institution(models.Model):
 
     @classmethod
     def get_institution_types(cls):
-        institutions = cls.objects.values('institution_type').distinct()
-        institution_types = []
-        for institution in institutions:
-            if institution['institution_type']:
-                institution_types.append(institution['institution_type'])
+        institution_type_values = cls.objects.exclude(
+            institution_type=None).values(
+                'institution_type').distinct()
+        institution_types = [
+            institution_type_value["institution_type"]
+            for institution_type_value
+            in institution_type_values]
         return institution_types
 
     @property
@@ -326,6 +319,7 @@ class Institution(models.Model):
                 if getattr(iss_org, 'member_type') == "Child Member":
                     self.is_member = True
 
+        else:
             logger.warning("No ISS institution found %s" % (
                 self.name.decode('utf-8')))
 
