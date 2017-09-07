@@ -44,7 +44,9 @@ urlpatterns = patterns(
      'django.contrib.auth.views.login',
      {'authentication_form': AuthenticationForm}),
 
-    ('^accounts/', include('django.contrib.auth.urls')),
+    (r'^accounts/logout',
+     'django.contrib.auth.views.logout_then_login'),
+    # ('^accounts/', include('django.contrib.auth.urls')),
 
     # admin
     (r'^_ad/', include(admin.site.urls)),
