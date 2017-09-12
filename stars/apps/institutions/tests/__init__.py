@@ -4,8 +4,7 @@ from stars.apps.institutions.tests import (stars_account, permissions,
 from stars.apps.institutions.tests.institution import InstitutionTest
 from stars.apps.institutions.tests.accuracy_inquiry import AccuracyInquiryTest
 from stars.apps.institutions.tests.subscription import SubscriptionTest
-from stars.apps.institutions.tests.load_membersuite_subscriptions import (
-    SubscriptionSyncTest)
+from stars.apps.institutions.tests.subscription_etl import SubscriptionSyncTest
 from stars.apps.institutions.tests.views import (ActiveInstitutionsViewTest,
                                                  RatedInstitutionsViewTest,
                                                  ScorecardViewTest,
