@@ -15,6 +15,7 @@ subcategory_submissions = set()
 credit_submissions = set()
 documentation_field_submissions = list()
 
+
 def fill_buckets(submission_set=None):
     submission_set = submission_set or get_random_visible_resource(
         submissions_resource_models.SubmissionSetResource)
@@ -36,13 +37,15 @@ def fill_buckets(submission_set=None):
           category_submission.subcategorysubmission_set.all()[0]
         subcategory_submissions.add(subcategory_submission)
         for credit_submission in \
-          subcategory_submission.creditusersubmission_set.all():
+          subcategory_submission.creditusersubmission_set.all():  # noqa
             credit_submissions.add(credit_submission)
             for field in credit_submission.get_submission_fields():
                 documentation_field_submissions.append(field)
 
+
 def get_dump_filename(model_name):
     return 'test_api_{0}.json'.format(model_name)
+
 
 def dump_buckets():
     dump_bucket(bucket=institutions, model_name='institution')
@@ -55,6 +58,7 @@ def dump_buckets():
     dump_bucket(bucket=credit_submissions, model_name='creditsubmission')
     dump_bucket(bucket=documentation_field_submissions,
                 model_name='documentationfieldsubmission')
+
 
 def dump_bucket(bucket, model_name):
     JSONSerializer = serializers.get_serializer("json")
