@@ -4,10 +4,13 @@
 from datetime import timedelta, datetime
 from django.test import TestCase
 from stars.apps.institutions.models import Subscription
-from stars.apps.institutions.management.commands.subscription_etl import (
-    Command)
+from stars.apps.institutions.management.commands import (
+    load_membersuite_subscriptions)
 
 VERBOSE = True
+
+
+Command = load_membersuite_subscriptions.Command
 
 
 class SubscriptionSyncTest(TestCase):
