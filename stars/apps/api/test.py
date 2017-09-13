@@ -10,6 +10,10 @@ class StarsApiTestCase(ResourceTestCase):
 
     fixtures = ['api_test_fixture.json']
 
+    # list_path and detail_path should be set in classes derived from this one.
+    list_path = ''
+    detail_path = ''
+
     def setUp(self):
         super(StarsApiTestCase, self).setUp()
 

@@ -3,11 +3,11 @@
 """
 from django.core import serializers
 
+import stars.apps.api.make_submissions_test_fixtures as submissions_fixtures
 import stars.apps.credits.api.resources as credits_resource_models
 from stars.apps.submissions.models import SubmissionSet
 from stars.apps.submissions.newapi.resources import SubmissionSetResource
 from stars.apps.api.test import get_random_visible_resource
-import stars.apps.api.make_submissions_test_fixtures as submissions_fixtures
 
 CREDITS_TO_DUMP = 5
 
@@ -16,6 +16,7 @@ categories = set()
 subcategories = set()
 credits = set()
 documentation_fields = list()
+
 
 def fill_buckets():
 
@@ -31,6 +32,7 @@ def fill_buckets():
             submissions_fixtures.fill_buckets(submissionset)
             break
 
+
 def fill_buckets_for_credit(credit):
     global documentation_fields
     documentation_fields += credit.documentationfield_set.all()
@@ -41,8 +43,10 @@ def fill_buckets_for_credit(credit):
     for submissionset in creditset.submissionset_set.all()[:2]:
         submissions_fixtures.fill_buckets(submissionset)
 
+
 def get_dump_filename(model_name):
     return 'test_api_{0}.json'.format(model_name)
+
 
 def dump_buckets():
     dump_bucket(bucket=creditsets, model_name='creditset')
@@ -51,6 +55,7 @@ def dump_buckets():
     dump_bucket(bucket=credits, model_name='credit')
     dump_bucket(bucket=documentation_fields, model_name='documentationfield')
     submissions_fixtures.dump_buckets()
+
 
 def dump_bucket(bucket, model_name):
     JSONSerializer = serializers.get_serializer("json")
