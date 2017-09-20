@@ -551,6 +551,7 @@ class ScoreFilter(DisplayAccessMixin, CommonFilterMixin,
                             claimed_points = "--"
                             available_points = None
                             units = ""
+                            url = ""
 
                             if isinstance(col_obj, Category):
                                 # Get the related version in this creditset.
