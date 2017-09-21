@@ -551,7 +551,6 @@ class ScoreFilter(DisplayAccessMixin, CommonFilterMixin,
                             claimed_points = "--"
                             available_points = None
                             units = ""
-                            url = ""
 
                             if isinstance(col_obj, Category):
                                 # Get the related version in this creditset.
@@ -598,11 +597,20 @@ class ScoreFilter(DisplayAccessMixin, CommonFilterMixin,
                                 claimed_points = ss.get_STARS_score()
                                 url = ss.get_scorecard_url()
 
-                            row['cols'].append({
-                                'claimed_points': claimed_points,
-                                'available_points': available_points,
-                                'units': units,
-                                'url': url})
+                            # Sometimes `url` isn't bound here.  Dunno why.
+                            # When it isn't, substitute '' for `url`.
+                            try:
+                                row['cols'].append({
+                                    'claimed_points': claimed_points,
+                                    'available_points': available_points,
+                                    'units': units,
+                                    'url': url})
+                            except UnboundLocalError:
+                                row['cols'].append({
+                                    'claimed_points': claimed_points,
+                                    'available_points': available_points,
+                                    'units': units,
+                                    'url': ''})
 
                     object_list.append(row)
 
