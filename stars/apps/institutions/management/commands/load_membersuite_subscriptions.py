@@ -227,12 +227,23 @@ class Command(BaseCommand):
             if (membersuite_subscription.membersuite_id in
                 stars_subscription_ms_ids):  # noqa
 
-                stars_subscription = Subscription.objects.get(
-                    ms_id=membersuite_subscription.membersuite_id)
-                # remove this from the list of subscriptions to be archived
-                del(stars_subscription_ms_ids[
-                    stars_subscription_ms_ids.index(
-                        stars_subscription.ms_id)])
+                try:
+                    stars_subscription = Subscription.objects.get(
+                        ms_id=membersuite_subscription.membersuite_id)
+                except Subscription.MultipleObjectsReturned:
+                    logger.error(
+                        "Multiple Subscriptions with ms_id = '{}'".format(
+                            membersuite_subscription.membersuite_id))
+                    for ms_id in [id for id in stars_subscription_ms_ids
+                                  if id ==
+                                  membersuite_subscription.membersuite_id]:
+                        del(stars_subscription_ms_ids[
+                            stars_subscription_ms_ids.index(ms_id)])
+                else:  # remove this from the list of subscriptions
+                       # to be archived  # noqa
+                    del(stars_subscription_ms_ids[
+                        stars_subscription_ms_ids.index(
+                            stars_subscription.ms_id)])
             else:
                 # add a new subscription
                 stars_subscription = Subscription(
