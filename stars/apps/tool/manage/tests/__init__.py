@@ -10,8 +10,10 @@ from views import (AccountCreateViewTest, AccountDeleteViewTest,
                    ResponsiblePartyDeleteViewTest,
                    ResponsiblePartyEditViewTest,
                    ResponsiblePartyListViewTest, ShareDataViewTest,
-                   SubscriptionCreateWizardLiveServerTest,
-                   SubscriptionPaymentCreateViewTest)
+                   SubscriptionCreateWizardLiveServerTest,)
+
+#removed:
+#SubscriptionPaymentCreateViewTest
 
 from stars.apps.tool.tests.views import (NoStarsAccountViewTest,
                                          SelectInstitutionViewTest,
@@ -38,9 +40,12 @@ __test__ = {
     'ResponsiblePartyListViewTest': ResponsiblePartyListViewTest,
     'SelectInstitutionViewTest': SelectInstitutionViewTest,
     'ShareDataViewTest': ShareDataViewTest,
-    'SubscriptionPaymentCreateViewTest': SubscriptionPaymentCreateViewTest,
     'SubscriptionCreateWizardLiveServerTest':
     SubscriptionCreateWizardLiveServerTest,
     'SummaryToolViewTest': SummaryToolViewTest,
     'ToolLandingPageViewTest': ToolLandingPageViewTest
     }
+
+
+#removed:
+#'SubscriptionPaymentCreateViewTest': SubscriptionPaymentCreateViewTest,

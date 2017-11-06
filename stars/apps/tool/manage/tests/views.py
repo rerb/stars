@@ -975,12 +975,14 @@ class SubscriptionCreateWizardLiveServerTest(StarsLiveServerTest):
         self.assertEqual(payments_before, payments_after)
 
 
+"""
+views.SubscriptionPaymentCreateView does not exists
 class SubscriptionPaymentCreateViewTest(InstitutionViewOnlyToolMixinTest):
 
     view_class = views.SubscriptionPaymentCreateView
 
     def setUp(self):
-        """Depends on Subscription.create()."""
+        #Depends on Subscription.create().
         super(SubscriptionPaymentCreateViewTest, self).setUp()
         self.subscription = Subscription.create(institution=self.institution)
         self.subscription.save()
@@ -996,7 +998,7 @@ class SubscriptionPaymentCreateViewTest(InstitutionViewOnlyToolMixinTest):
         i = Institution.objects.get(pk=1)
         self.assertFalse(i.is_participant)
 
-        """Does form_valid() create a payment?"""
+        #Does form_valid() create a payment?
         self.account.user_level = self.blessed_user_level
         self.account.save()
         self.request.method = 'POST'
@@ -1019,8 +1021,8 @@ class SubscriptionPaymentCreateViewTest(InstitutionViewOnlyToolMixinTest):
         self.assertTrue(i.is_participant)
 
     def test_form_valid_no_payment_created_when_purchase_error(self):
-        """Does form_valid *not* create a payment if there's a purchase error?
-        """
+        #Does form_valid *not* create a payment if there's a purchase error?
+
         self.account.user_level = self.blessed_user_level
         self.account.save()
         self.request.session[payments.views.PAY_WHEN] = Subscription.PAY_NOW
@@ -1039,3 +1041,4 @@ class SubscriptionPaymentCreateViewTest(InstitutionViewOnlyToolMixinTest):
 
         self.assertEqual(SubscriptionPayment.objects.count(),
                          initial_payment_count)
+"""

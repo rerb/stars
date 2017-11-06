@@ -12,8 +12,7 @@ from stars.apps.tests.views import (ProtectedFormMixinViewTest,
                                     ProtectedViewTest, ViewTest)
 from stars.apps.tool.views import (NoStarsAccountView, ToolLandingPageView,
                                    SelectInstitutionView, SummaryToolView)
-from stars.test_factories import (AASHEAccountFactory,
-                                  CreditSetFactory,
+from stars.test_factories import (CreditSetFactory,
                                   InstitutionFactory,
                                   StarsAccountFactory,
                                   SubmissionSetFactory,
