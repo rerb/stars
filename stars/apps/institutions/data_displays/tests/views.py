@@ -17,7 +17,8 @@ from stars.test_factories import (CategoryFactory,
                                   RatingFactory,
                                   SubmissionSetFactory,
                                   SubscriptionFactory,
-                                  UserFactory)
+                                  UserFactory,
+                                  MemberSuitePortalUserFactory)
 
 
 class DashboardTestCase(TestCase):
