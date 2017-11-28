@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 import os
 
 import django.core.cache as caches
@@ -29,11 +29,12 @@ class FileCacheTest(TestCase):
             self.documentation_field_submission.get_submissionset())
         self.submissionset.status = "r"
         self.submissionset.date_submitted = '2016-01-19'
-        self.submissionset.presidents_letter = os.path.join(
+        preliminary_path = os.path.join(
             os.path.dirname(__file__),
             "..",
             "..",
             "tool/my_submission/tests/test.pdf")
+        self.submissionset.presidents_letter = preliminary_path[1:]
         self.submissionset.save()
 
         credit = documentation_field.credit

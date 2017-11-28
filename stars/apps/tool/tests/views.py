@@ -18,6 +18,7 @@ from stars.test_factories import (CreditSetFactory,
                                   SubmissionSetFactory,
                                   UserFactory)
 
+import logical_rules
 
 class InstitutionToolMixinTest(ProtectedFormMixinViewTest):
     """

@@ -6,8 +6,7 @@ from stars.apps.institutions.tests.accuracy_inquiry import AccuracyInquiryTest
 from stars.apps.institutions.tests.subscription import SubscriptionTest
 from stars.apps.institutions.tests.load_membersuite_subscriptions import (
     SubscriptionSyncTest)
-from stars.apps.institutions.tests.views import (ActiveInstitutionsViewTest,
-                                                 RatedInstitutionsViewTest,
+from stars.apps.institutions.tests.views import (RatedInstitutionsViewTest,
                                                  ScorecardViewTest,
                                                  TopLevelTest)
 
@@ -19,7 +18,6 @@ __test__ = {
     'test_tags': test_tags,
     'InstitutionTest': InstitutionTest,
     "AccuracyInquiryTest": AccuracyInquiryTest,
-    'ActiveInstitutionsViewTest': ActiveInstitutionsViewTest,
     'RatedInstitutionsViewTest': RatedInstitutionsViewTest,
     'ScorecardViewTest': ScorecardViewTest,
     'SubscriptionTest': SubscriptionTest,
