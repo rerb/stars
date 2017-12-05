@@ -29,23 +29,18 @@ class SubscriptionSyncTest(TestCase):
         """
         pass
 
-    def testInitialSync(self):
-        " ensure subscriptions are created "
-        syncCommand = Command()
-        syncCommand.get_subscriptions(verbose=VERBOSE)
-        self.assertGreater(Subscription.objects.count(), 0)
-
     def testChangesCaptured(self):
         """
             - catch subscriptions that have been deleted
             - catch a change to a subscription
         """
         syncCommand = Command()
-        syncCommand.get_subscriptions(verbose=VERBOSE)
+        syncCommand.sync_subscriptions(verbose=VERBOSE)
 
         # change a subscription
         # rerun sync and confirm that that subscription is udpated
         test_sub = Subscription.objects.all()[0]
+
         sub_ms_id = test_sub.ms_id
 
         old_start = test_sub.start_date
@@ -55,7 +50,7 @@ class SubscriptionSyncTest(TestCase):
         test_sub.save()
         self.assertNotEqual(old_start, test_sub.start_date)
 
-        syncCommand.get_subscriptions(verbose=VERBOSE)
+        syncCommand.sync_subscriptions(verbose=VERBOSE)
         # refetch from db
         test_sub = Subscription.objects.get(ms_id=sub_ms_id)
         self.assertEqual(old_start, test_sub.start_date)
@@ -73,6 +68,6 @@ class SubscriptionSyncTest(TestCase):
         subscription_list = Subscription.objects.filter(id=test_sub.id)
         self.assertEqual(len(subscription_list), 1)
 
-        syncCommand.get_subscriptions(verbose=VERBOSE)
+        syncCommand.sync_subscriptions(verbose=VERBOSE)
         subscription_list = Subscription.objects.filter(id=test_sub.id)
         self.assertEqual(len(subscription_list), 0)
