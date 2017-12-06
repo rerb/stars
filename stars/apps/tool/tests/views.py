@@ -18,7 +18,8 @@ from stars.test_factories import (CreditSetFactory,
                                   SubmissionSetFactory,
                                   UserFactory)
 
-import logical_rules
+import logical_rules  # loads rules   # noqa
+
 
 class InstitutionToolMixinTest(ProtectedFormMixinViewTest):
     """
