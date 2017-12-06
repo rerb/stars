@@ -1,4 +1,3 @@
-
 from views import (AccountCreateViewTest, AccountDeleteViewTest,
                    AccountEditViewTest, AccountListViewTest,
                    ContactViewTest, InstitutionPaymentsViewTest,
@@ -10,7 +9,6 @@ from views import (AccountCreateViewTest, AccountDeleteViewTest,
                    ResponsiblePartyEditViewTest,
                    ResponsiblePartyListViewTest, ShareDataViewTest,
                    SubscriptionCreateWizardLiveServerTest,)
-
 
 from stars.apps.tool.tests.views import (NoStarsAccountViewTest,
                                          SelectInstitutionViewTest,

@@ -1,6 +1,5 @@
 """Tests for apps/tool/manage/views.py.
 """
-import time
 from logging import getLogger, CRITICAL
 
 import logical_rules
@@ -11,25 +10,20 @@ from django.contrib import messages
 from django.shortcuts import render
 from django_membersuite_auth.models import MemberSuitePortalUser
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import TimeoutException
 
-from stars.apps import payments
 from stars.apps.credits.models import CreditSet
 from stars.apps.institutions.models import (PendingAccount, StarsAccount,
-                                            Subscription, SubscriptionPayment,
-                                            Institution)
-from stars.apps.institutions.tests.subscription import (GOOD_CREDIT_CARD,
-                                                        BAD_CREDIT_CARD)
+                                            Subscription)
+import stars.apps.institutions.rules  # loads rules   # noqa
 from stars.apps.submissions.models import ResponsibleParty
 from stars.apps.tests.live_server import StarsLiveServerTest
 from stars.apps.tool.manage import views
-from stars.apps.tool.tests.views import (InstitutionAdminToolMixinTest,
-                                         InstitutionViewOnlyToolMixinTest)
+from stars.apps.tool.tests.views import InstitutionAdminToolMixinTest
 from stars.test_factories import (CreditUserSubmissionFactory,
                                   PendingAccountFactory,
                                   ResponsiblePartyFactory,
-                                  SubscriptionFactory,
                                   SubmissionSetFactory,
+                                  SubscriptionFactory,
                                   StarsAccountFactory,
                                   UserFactory,
                                   ValueDiscountFactory)
@@ -428,11 +422,16 @@ class MigrateViewTest(InstitutionAdminToolMixinTest):
 
     def setUp(self):
         super(MigrateViewTest, self).setUp()
-        self.institution.is_participant = True
+
         self.submissionset = SubmissionSetFactory(
             institution=self.institution, status='r')
         self.institution.current_submission = self.submissionset
         self.institution.save()
+
+        current_subscription = SubscriptionFactory(
+            institution=self.institution,
+            access_level=Subscription.FULL_ACCESS)
+        current_subscription.save()
 
     def _get_pk(self):
         return self.submissionset.id
@@ -463,7 +462,6 @@ class MigrateViewTest(InstitutionAdminToolMixinTest):
         self.account.save()
         self.request.method = 'POST'
         self.request.POST = {'is_locked': True}
-
 
         class migrationTask(object):
             def delay(self, *args, **kwargs):
