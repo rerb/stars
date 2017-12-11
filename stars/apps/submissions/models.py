@@ -471,9 +471,15 @@ class SubmissionSet(models.Model, FlaggableModel):
 
         return total
 
-    def init_credit_submissions(self):
+    def init_credit_submissions(self,
+                                delete_documentation_field_submissions=False):
         """
-            Initializes all CreditUserSubmissions in a SubmissionSet
+        Initializes all CreditUserSubmissions in a SubmissionSet
+
+        When delete_documentation_field_submissions is True, all
+        DocumentationFieldSubmissions related to the credit submissions
+        are deleted.  This is handy when a user wants to "blank out"
+        their submission or "start from scratch".
         """
         # Build the category list if necessary
         for category in self.creditset.category_set.all():
@@ -514,6 +520,10 @@ class SubmissionSet(models.Model, FlaggableModel):
 
                         creditsubmission.submission_status = NOT_APPLICABLE
                         creditsubmission.save()
+                    if delete_documentation_field_submissions:
+                        for doc_field_sub in (
+                                creditsubmission.get_submission_fields()):
+                            doc_field_sub.delete()
 
     def get_credit_submissions(self):
         """Returns all the credit submissions for this SubmissionSet."""
