@@ -75,9 +75,17 @@ def overview_report(request):
         Provide a quick summary report
     """
 
+    all_institutions = Institutions.objects.all()
+    participants, repsondents = []
+    for inst in all_institutions:
+        if inst.is_participant():
+            participants.append(inst)
+        else:
+            respondents.append(inst)
+
     context = {
-                "current_participants": Institution.objects.filter(is_participant=True).count(),
-                "current_respondents": Institution.objects.filter(is_participant=False).count(),
+                "current_participants": len(participants),
+                "current_respondents": len(respondents),
                }
 
     count = 0
