@@ -76,6 +76,8 @@ def overview_report(request):
     """
 
     all_institutions = Institution.objects.all()
+    all_snapshotted_submissionsets = (SubmissionSet.objects.filter(status='f')
+                                        .values_list('institution', flat=True))
     participants = 0
     respondents = 0
     count = 0
@@ -87,9 +89,9 @@ def overview_report(request):
             respondents += 1
         if inst.subscription_set.count() == 0:
             count += 1
-        if inst.submissionset_set.filter(status='f').count() > 0:
+        if inst.id in all_snapshotted_submissionsets:
             c += 1
-    
+
     context = {
                 "current_participants": participants,
                 "current_respondents": respondents,
