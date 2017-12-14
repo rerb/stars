@@ -387,6 +387,16 @@ class AccountDeleteView(InstitutionAdminToolMixin,
     tab_content_title = 'delete a user'
     template_name = 'tool/manage/account_confirm_delete.html'
 
+    def get_context_data(self, **kwargs):
+        context = super(AccountDeleteView, self).get_context_data(**kwargs)
+        try:
+            self.account = StarsAccount.objects.get(id=kwargs['object'].id)
+        except StarsAccount.DoesNotExist:
+            self.account = get_object_or_404(PendingAccount, id=kwargs['object'].id)
+        context['user_level_description'] = get_user_level_description(self.account.user_level)
+        context['object'] = kwargs['object']
+        return context
+
     def delete(self, request, *args, **kwargs):
 
         (preferences, notify_form) = _update_preferences(
