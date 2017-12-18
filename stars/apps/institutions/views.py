@@ -301,7 +301,7 @@ class ParticipantReportsView(SortableTableViewWithInstProps):
                     {
                         'key': 'country',
                         'sort_field': 'country',
-                        'title': 'Country',
+                        'title': 'Location',
                     },
                     {
                         'key': 'version',
@@ -324,6 +324,7 @@ class ParticipantReportsView(SortableTableViewWithInstProps):
         qs = Institution.objects.get_participants_and_reports()
         qs = qs.select_related('rated_submission')
         qs = qs.select_related('rated_submission__creditset')
+        qs = qs.select_related('ms_institution__state')
         return qs
 
 

@@ -59,7 +59,7 @@
         {% include "institutions/inst_property_icons.html" %}
       </td>
       <td>
-        {{ institution.country }}
+        {{ institution.country }}, {{ institution.ms_institution.state }}
       </td>
       <td>
         {{ institution.rated_submission.creditset.version }}
@@ -67,8 +67,9 @@
       <td>
 	   {% if institution.current_rating %}
           {{ institution.current_rating }}
-       {% elif institution.latest_expired_submission %}
-        <em>Expired</em>
+     {% endif %}
+     {% if institution.older_than_three_years %}
+        <em>*</em>
 	   {% endif %}
       </td>
       <td>
