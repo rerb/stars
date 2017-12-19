@@ -38,7 +38,7 @@ urlpatterns = patterns(
         name='responsible-party-delete'),
 
     # User/Account views:
-    url(r'^user/$', AccountListView.as_view(),
+    url(r'^user/$', never_cache(AccountListView.as_view()),
         name='account-list'),
 
     url(r'^user/create/$', AccountCreateView.as_view(),
