@@ -47,7 +47,7 @@
   <tbody>
     {% for institution in object_list %}
     <tr class="{% cycle 'even' 'odd' %}">
-      <td style='text-align: left'>
+      <td style='text-align: left' class="span4">
 	{% if institution.rated_submission %}
         <a href='{% url scorecard-list institution.slug %}'
            id='scorecard-list'>
@@ -58,21 +58,21 @@
 	{% endif %}
         {% include "institutions/inst_property_icons.html" %}
       </td>
-      <td>
+      <td class="span3">
         {{ institution.country }}, {{ institution.ms_institution.state }}
       </td>
-      <td>
+      <td class="span1">
         {{ institution.rated_submission.creditset.version }}
       </td>
-      <td>
+      <td class="span2">
 	   {% if institution.current_rating %}
           {{ institution.current_rating }}
      {% endif %}
      {% if institution.older_than_three_years %}
-        <em>*</em>
+          <em>exp.</em>
 	   {% endif %}
       </td>
-      <td>
+      <td class="span2">
         {% if institution.rated_submission %}
             <a href='{% url scorecard-summary institution.slug institution.rated_submission.date_submitted %}'>
               {{ institution.rated_submission.date_submitted }}
