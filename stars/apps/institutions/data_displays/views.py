@@ -90,12 +90,13 @@ class Dashboard(TemplateView):
                 start_date__lte=current_month).all():
             # create a "slice" from the current month
             slice = {}
+            
             subscription_count = Subscription.objects.filter(
                 start_date__lte=current_month).values(
                     'institution').count()
             slice['subscription_count'] = subscription_count
-            if len(slices) == 0:
-                context['total_subscription_count'] = subscription_count
+            # if len(slices) == 0:
+            #     context['total_subscription_count'] = subscription_count
 
             rating_count = SubmissionSet.objects.filter(status='r')
             rating_count = rating_count.filter(is_visible=True)
