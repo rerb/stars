@@ -22,6 +22,8 @@ def user_has_participant_displays(user):
     except AuthorizedUser.DoesNotExist:
         pass
     return False
+
+
 logical_rules.site.register("user_has_participant_displays",
                             user_has_participant_displays)
 
@@ -46,5 +48,7 @@ def user_has_member_displays(user):
     except AuthorizedUser.DoesNotExist:
         pass
     return False
+
+
 logical_rules.site.register("user_has_member_displays",
                             user_has_member_displays)
