@@ -21,7 +21,8 @@
       {{ member_count }} are AASHE members
     </b>
     (<sup class='symbol'>m</sup>).
-    Each institution's most recent report is listed below.
+    Each institution's most recent report is listed below. Ratings that have
+    not been updated in more than three years are considered to be expired (*).
     Click on an institution's name to view all STARS reports.
 </p> </span>
 {% load help %}
@@ -59,7 +60,10 @@
         {% include "institutions/inst_property_icons.html" %}
       </td>
       <td class="span3">
-        {{ institution.country }}, {{ institution.ms_institution.state }}
+        {{ institution.country }}
+        {% if institution.ms_institution.state %}
+          , {{ institution.ms_institution.state }}
+        {% endif %}
       </td>
       <td class="span1">
         {{ institution.rated_submission.creditset.version }}
@@ -69,7 +73,7 @@
           {{ institution.current_rating }}
      {% endif %}
      {% if institution.older_than_three_years %}
-          <em>exp.</em>
+          *
 	   {% endif %}
       </td>
       <td class="span2">
