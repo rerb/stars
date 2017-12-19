@@ -55,11 +55,12 @@ class Dashboard(TemplateView):
 
     def get_ratings_context(self):
         """Return a context for the Ratings graph."""
+        # if the institution's rating_expires == none,
+        # then their rating has expired
         ratings = collections.defaultdict(int)
         for i in Institution.objects.filter(current_rating__isnull=False):
-            if i.current_submission.expired:
-                continue
-            ratings[i.current_rating.name] += 1
+            if i.rating_expires:
+                ratings[i.current_rating.name] += 1
         return ratings
 
     def get_participation_context(self):
