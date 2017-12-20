@@ -90,7 +90,20 @@ class Dashboard(TemplateView):
                 start_date__lte=current_month).all():
             # create a "slice" from the current month
             slice = {}
-            
+
+            # active participants
+            # No. of institutions that were rated and/or full
+            # access subscribers at some point during the year (or at the end of the year).
+
+            #need to test for access level, and end date is greater than current month
+            active_participants = Subscription.objects.filter(start_date__lte=current_month).values('institution')
+            active_participants = active_participants.filter(end_date__gt=current_month)
+            active_participants = active_participants.filter(access_level="Full").count()
+
+            slice['active_participants'] = active_participants
+            if len(slices) == 0:
+                context['current_active_participants'] = active_participants
+
             subscription_count = Subscription.objects.filter(
                 start_date__lte=current_month).values(
                     'institution').count()
@@ -136,6 +149,8 @@ class Dashboard(TemplateView):
         context['total_participant_count'] += num_extras
 
         context['ratings_subscriptions_participants'] = slices
+
+
 
         return context
 

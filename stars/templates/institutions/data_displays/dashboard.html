@@ -72,13 +72,13 @@
 
      var data = new google.visualization.DataTable();
      data.addColumn('string', 'Month');
-     data.addColumn('number', 'Subscriptions');
      data.addColumn('number', 'Participants');
+     data.addColumn('number', 'Active Participants');
      data.addColumn('number', 'Ratings');
 
      data.addRows([
        {% for row in ratings_subscriptions_participants %}
-         ["{{ row.date|date:"M y" }}", {{ row.subscription_count|stringformat:"d" }}, {{ row.participant_count|stringformat:"d" }}, {{ row.rating_count|stringformat:"d" }}]{% if not forloop.last %},{% endif %}
+         ["{{ row.date|date:"M y" }}", {{ row.participant_count|stringformat:"d" }}, {{ row.active_participants|stringformat:"d" }}, {{ row.rating_count|stringformat:"d" }}]{% if not forloop.last %},{% endif %}
        {% endfor %}
      ]);
 
@@ -184,7 +184,7 @@
 	  </tr>
           <tr>
 	    <th>Active Participants</th>
-	    <td style="text-align:right">Holding</td>
+	    <td style="text-align:right">{{ current_active_participants }}</td>
 	  </tr>
 	  </tr>
           <tr>
