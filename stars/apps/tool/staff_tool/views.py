@@ -75,25 +75,31 @@ def overview_report(request):
         Provide a quick summary report
     """
 
-    context = {
-                "current_participants": Institution.objects.filter(is_participant=True).count(),
-                "current_respondents": Institution.objects.filter(is_participant=False).count(),
-               }
-
+    all_institutions = Institution.objects.all()
+    all_snapshotted_submissionsets = (SubmissionSet.objects.filter(status='f')
+                                        .values_list('institution', flat=True))
+    participants = 0
+    respondents = 0
     count = 0
-    for i in Institution.objects.all():
-        if i.subscription_set.count() == 0:
+    c = 0
+    for inst in all_institutions:
+        if inst.is_participant:
+            participants += 1
+        else:
+            respondents += 1
+        if inst.subscription_set.count() == 0:
             count += 1
+        if inst.id in all_snapshotted_submissionsets:
+            c += 1
+
+    context = {
+                "current_participants": participants,
+                "current_respondents": respondents,
+               }
 
     context["registered_respondents"] = count
     context['third_party_list'] = ThirdParty.objects.all()
-
     context['snapshot_count'] = SubmissionSet.objects.filter(status='f').count()
-
-    c = 0
-    for i in Institution.objects.all():
-        if i.submissionset_set.filter(status='f').count() > 0:
-            c += 1
     context['institutions_with_snapshots'] = c
 
     template = "tool/admin/reports/quick_overview.html"
