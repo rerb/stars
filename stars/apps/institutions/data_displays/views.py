@@ -1,5 +1,6 @@
 import collections
 from datetime import date, datetime
+from dateutil.relativedelta import relativedelta
 from logging import getLogger
 import re
 import hashlib
@@ -91,14 +92,30 @@ class Dashboard(TemplateView):
             # create a "slice" from the current month
             slice = {}
 
+            #create an expiration month
+            expiration_month = current_month - relativedelta(years=3)
+            one_year = current_month - relativedelta(years=1)
+
+            # #just doing this for testing, will need to be refactored
+            active_rating = SubmissionSet.objects.filter(status='r')
+            active_rating = active_rating.filter(is_visible=True)
+            active_rating = active_rating.filter(
+                 date_submitted__lte=current_month)
+            active_rating = active_rating.filter(date_submitted__gt=expiration_month).values_list('institution', flat=True)
+
+
             # active participants
             # No. of institutions that were rated and/or full
             # access subscribers at some point during the year (or at the end of the year).
 
             #need to test for access level, and end date is greater than current month
-            active_participants = Subscription.objects.filter(start_date__lte=current_month).values('institution')
-            active_participants = active_participants.filter(end_date__gt=current_month)
-            active_participants = active_participants.filter(access_level="Full").count()
+            partial_active_participants = Subscription.objects.filter(start_date__lte=current_month).values('institution')
+            partial_active_participants = partial_active_participants.filter(end_date__gt=current_month)
+            partial_active_participants = partial_active_participants.filter(access_level="Full")
+            partial_active_participants = partial_active_participants.exclude(institution__in=active_rating).count()
+
+            active_participants = len(active_rating) + partial_active_participants
+
 
             slice['active_participants'] = active_participants
             if len(slices) == 0:
@@ -111,14 +128,26 @@ class Dashboard(TemplateView):
             # if len(slices) == 0:
             #     context['total_subscription_count'] = subscription_count
 
+            # rating_count = SubmissionSet.objects.filter(status='r')
+            # rating_count = rating_count.filter(is_visible=True)
+            # rating_count = rating_count.filter(
+            #     date_submitted__lt=current_month)
+            # rating_count = rating_count.count()
+
             rating_count = SubmissionSet.objects.filter(status='r')
             rating_count = rating_count.filter(is_visible=True)
             rating_count = rating_count.filter(
-                date_submitted__lt=current_month)
+                date_submitted__year=current_month.year)
             rating_count = rating_count.count()
+
+            # changing the rating count for experimentation
             slice['rating_count'] = rating_count
             if len(slices) == 0:
                 context['total_rating_count'] = rating_count
+
+            # slice['rating_count'] = len(active_rating)
+            # if len(slices) == 0:
+            #     context['total_rating_count'] = len(active_rating)
 
             participant_count = Institution.objects.filter(
                 date_created__lt=current_month).count()
