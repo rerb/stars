@@ -27,6 +27,8 @@ h2 {
 	color: #17365D;
 	text-align: center;
 	font-size: 24pt;
+	-pdf-outline: true;
+	-pdf-level: 0;
 	padding: 0cm;
 	margin: 0cm;
 }
@@ -45,6 +47,8 @@ h2.toc {
 h3 {
 	color: #1F497D;
 	font-size: 18pt;
+	-pdf-outline: true;
+	-pdf-level: 1;
 }
 
 /* Credit */
@@ -53,13 +57,10 @@ h4 {
 	font-size: 16pt;
 }
 
-<<<<<<< Updated upstream
 h1, h4, h5, h6 {
 	-pdf-outline: false;	
 }
 
-=======
->>>>>>> Stashed changes
 div.seals {
 	padding-top: 5cm;
 	text-align: center;
@@ -152,7 +153,9 @@ span.scorecardFieldTitle {
 div.greyBox, div.greyBoxSmall {
     padding: 10px;
     margin: 10px 2cm 0px 1.5cm;
-    page-break-before: avoid;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+	page-break-before: avoid;
 }
 
 div.greyBoxSmall {
@@ -212,14 +215,9 @@ pdftoc.pdftoclevel0 {
 }*/
 pdftoc.pdftoclevel1 {
 	font-weight: bold;
-        margin-left: 0cm;
+    margin-left: 0cm;
 }
 pdftoc.pdftoclevel2 {
 	font-weight: normal;
-<<<<<<< Updated upstream
     margin-left: 1.5cm;
 }
-=======
-        margin-left: 1.5cm;
-}
->>>>>>> Stashed changes
