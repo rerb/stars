@@ -15,7 +15,7 @@ logger = getLogger('stars')
 
 def render_to_pdf(template_src, context_dict):
     """
-        Creates a pdf from a temlate and context
+        Creates a pdf from a template and context
         Returns a StringIO.StringIO object
     """
     template = get_template(template_src)
@@ -38,26 +38,29 @@ def link_path_callback(path):
 
 def build_report_pdf(submission_set, template=None):
     """
-        Build a PDF export of a specific submission
-        store it in outfile, if submitted
-        if save if True, the file will be saved
+    Build a PDF export of a specific submission.
+
+    If the institution has a valid full access subscription,
+    scores are included.
+
     """
-    context = {
-                'ss': submission_set,
-                'preview': False,
-                'media_root': settings.MEDIA_ROOT,
-                'project_path': settings.PROJECT_PATH,
-                'rating': submission_set.get_STARS_rating(),
-                'institution': submission_set.institution,
-                'host': "stars.aashe.org",
-                'about_text': Category.objects.get(slug='about').content,
-                'pdf': True
-            }
+    context = {'ss': submission_set,
+               'show_scores': submission_set.institution.is_participant,
+               'preview': False,
+               'media_root': settings.MEDIA_ROOT,
+               'project_path': settings.PROJECT_PATH,
+               'rating': submission_set.get_STARS_rating(),
+               'institution': submission_set.institution,
+               'host': "stars.aashe.org",
+               'about_text': Category.objects.get(slug='about').content,
+               'pdf': True}
+
     if submission_set.status != 'r':
         context['preview'] = True
 
     if not template:
         template = 'institutions/pdf/report.html'
+
     return render_to_pdf(template, context)
 
 
@@ -65,8 +68,7 @@ def build_certificate_pdf(ss):
     """
         Build a PDF certificate for Institution Presidents
     """
-    context = {
-                'ss': ss,
-                'project_path': settings.PROJECT_PATH,
-                }
+    context = {'ss': ss,
+               'project_path': settings.PROJECT_PATH}
+
     return render_to_pdf('institutions/pdf/certificate.html', context)
