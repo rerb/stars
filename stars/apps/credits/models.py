@@ -524,8 +524,10 @@ class Subcategory(VersionedModel):
     ordinal = models.SmallIntegerField(default=-1)
     max_point_value = models.IntegerField(default=0)
     description = models.TextField()
-    passthrough = models.BooleanField(default=False,
-        help_text="makes the subcategory sorta invisible, for use with Inst. Characteristics")
+    passthrough = models.BooleanField(
+        default=False,
+        help_text=("makes the subcategory sorta invisible, for use with "
+                   "Inst. Characteristics"))
 
     class Meta:
         ordering = ('category', 'ordinal',)
