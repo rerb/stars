@@ -320,31 +320,39 @@
                 </td>
               </tr>
             {% endif %}
-            {% for credit in sub.creditusersubmission_set.all %}
-              <tr class="tocCreditRow">
-                <td width="50%">
-                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                  <a class="tocCredit" href="#credit{{ credit.id }}">{{ credit }}</a>
-                </td>
-                <td width="35%" align="right">
-                  {% if credit.submission_status == "c" %}
-                    Complete
-                  {% elif credit.submission_status == "p" %}
-                    In progress
-                  {% elif credit.submission_status == "np" %}
-                    Not pursuing
-                  {% elif credit.submission_status == "na" %}
-                    Not applicable
-                  {% elif credit.submission_status == "ns" %}
-                    Not started
-                  {% endif %}
-                </td>
-                <td align="right" width="15%">
-                  {{ credit.assessed_points|floatformat }} /
-                  {{ credit.get_adjusted_available_points|floatformat }}
-                </td>
-              </tr>
+            {% for credit_submission in sub.creditusersubmission_set.all %}
+              {# Skip opt-ed out opt-in credits. #}
+              {% if credit_submission.credit.is_opt_in and credit_submission.submission_status == "na" %}
+                {# Do nothing. #}
+              {% else %}
+                <tr class="tocCreditRow">
+                  <td width="50%">
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a class="tocCredit"
+                       href="#credit{{ credit_submission.id }}">
+                      {{ credit_submission }}
+                    </a>
+                  </td>
+                  <td width="35%" align="right">
+                    {% if credit_submission.submission_status == "c" %}
+                      Complete
+                    {% elif credit_submission.submission_status == "p" %}
+                      In progress
+                    {% elif credit_submission.submission_status == "np" %}
+                      Not pursuing
+                    {% elif credit_submission.submission_status == "na" %}
+                      Not applicable
+                    {% elif credit_submission.submission_status == "ns" %}
+                      Not started
+                    {% endif %}
+                  </td>
+                  <td align="right" width="15%">
+                    {{ credit_submission.assessed_points|floatformat }} /
+                    {{ credit_submission.get_adjusted_available_points|floatformat }}
+                  </td>
+                </tr>
+              {% endif %}
             {% endfor %}
           {% endfor %}
         {% endif %}
@@ -368,7 +376,6 @@
 	</h2>
 	{% if show_scores %}
 	  {% if ss.creditset.has_category_scoring_feature %}
-
 	    <table class='scoreTable vertical'>
 	      <tr>
 		<th>
@@ -384,7 +391,6 @@
 		</td>
 	      </tr>
 	    </table>
-
 	  {% endif %}
 	{% endif %}
 	{% for sub in cat.subcategorysubmission_set.all %}
@@ -393,7 +399,6 @@
 	    {{ sub }}
 	  </h3>
 	  {% if show_scores %}
-
 	    <table class='scoreTable vertical'>
 	      <tr>
 		<th>Points Claimed</th>
