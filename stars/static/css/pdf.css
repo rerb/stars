@@ -77,7 +77,7 @@ table.submissionSummary td {
 	text-align: left;
 }
 
-table.tableOfContents {
+table.summary {
 	margin: 0cm .25cm;
 }
 
@@ -131,7 +131,6 @@ tr.oddRow, tr.evenRow {
 #headerContent {
 	text-align: center;
 	color: red;
-	font-style: italic;
 }
 
 table.creditList {
