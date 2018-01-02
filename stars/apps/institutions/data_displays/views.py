@@ -96,7 +96,7 @@ class Dashboard(TemplateView):
             expiration_month = current_month - relativedelta(years=3)
             one_year = current_month - relativedelta(years=1)
 
-            # #just doing this for testing, will need to be refactored
+            #just doing this for testing, will need to be refactored
             active_rating = SubmissionSet.objects.filter(status='r')
             active_rating = active_rating.filter(is_visible=True)
             active_rating = active_rating.filter(
@@ -134,20 +134,20 @@ class Dashboard(TemplateView):
             #     date_submitted__lt=current_month)
             # rating_count = rating_count.count()
 
-            rating_count = SubmissionSet.objects.filter(status='r')
-            rating_count = rating_count.filter(is_visible=True)
-            rating_count = rating_count.filter(
-                date_submitted__year=current_month.year)
-            rating_count = rating_count.count()
+            # rating_count = SubmissionSet.objects.filter(status='r')
+            # rating_count = rating_count.filter(is_visible=True)
+            # rating_count = rating_count.filter(
+            #     date_submitted__year=current_month.year)
+            # rating_count = rating_count.count()
 
             # changing the rating count for experimentation
-            slice['rating_count'] = rating_count
-            if len(slices) == 0:
-                context['total_rating_count'] = rating_count
-
-            # slice['rating_count'] = len(active_rating)
+            # slice['rating_count'] = rating_count
             # if len(slices) == 0:
-            #     context['total_rating_count'] = len(active_rating)
+            #     context['total_rating_count'] = rating_count
+
+            slice['rating_count'] = len(active_rating)
+            if len(slices) == 0:
+                context['total_rating_count'] = len(active_rating)
 
             participant_count = Institution.objects.filter(
                 date_created__lt=current_month).count()
