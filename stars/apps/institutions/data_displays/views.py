@@ -68,6 +68,9 @@ class Dashboard(TemplateView):
         """Return a context for the participation line graph."""
         current_month = date.today()
         current_month = current_month.replace(day=1)
+        #create beginning month to replace query on while loop
+        #saves 5 seconds of processing
+        beginning_date = date(2009, 9, 1)
 
         def change_month(d, delta):
             if d.month + delta == 13:
@@ -87,8 +90,7 @@ class Dashboard(TemplateView):
         context['total_participant_count'] = 0
 
         # go back through all months until we don't have any subscriptions
-        while Subscription.objects.filter(
-                start_date__lte=current_month).all():
+        while beginning_date <= current_month:
             # create a "slice" from the current month
             slice = {}
 
@@ -178,8 +180,6 @@ class Dashboard(TemplateView):
         context['total_participant_count'] += num_extras
 
         context['ratings_subscriptions_participants'] = slices
-
-
 
         return context
 
