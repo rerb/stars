@@ -74,7 +74,7 @@
      data.addColumn('string', 'Month');
      data.addColumn('number', 'Participants');
      data.addColumn('number', 'Active Participants');
-     data.addColumn('number', 'Ratings');
+     data.addColumn('number', 'Active Ratings');
 
      data.addRows([
        {% for row in ratings_subscriptions_participants %}
@@ -188,7 +188,7 @@
 	  </tr>
 	  </tr>
           <tr>
-	    <th>Ratings</th>
+	    <th>Ratings (cumulative)</th>
 	    <td style="text-align:right">{{ total_rating_count }}</td>
 	  </tr>
 	</tbody>
@@ -246,7 +246,7 @@
 
 {% block extra_footer %}
   {{ block.super }}
-  
+
     {% show_institutions_map %}
 
 {% endblock %}
