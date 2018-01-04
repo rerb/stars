@@ -58,9 +58,9 @@
        colors: [
          "#8E8C8A", // platinum
          "#A39161", // gold
-	 "#A7A9AC", // silver
-	 "#8C7459", // bronze
-	 "#848E2B", // reporter
+	       "#A7A9AC", // silver
+	       "#8C7459", // bronze
+	       "#848E2B", // reporter
        ],
        pieResidueSliceColor: "#1b617f"
      });
@@ -74,7 +74,7 @@
      data.addColumn('string', 'Month');
      data.addColumn('number', 'Participants');
      data.addColumn('number', 'Active Participants');
-     data.addColumn('number', 'Active Ratings');
+     data.addColumn('number', 'Rated Institutions');
 
      data.addRows([
        {% for row in ratings_subscriptions_participants %}
@@ -83,7 +83,7 @@
      ]);
 
      // Create and draw the visualization.
-     var ac = new google.visualization.AreaChart(document.getElementById('areaChart'));
+     var ac = new google.visualization.LineChart(document.getElementById('areaChart'));
      ac.draw(data, {
        backgroundColor: "#f5f5f5",
        colors: ["#00A060", "#6BBC49", "#CEDC45"],
