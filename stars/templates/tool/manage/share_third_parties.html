@@ -18,24 +18,19 @@
     <table class='table'>
     	<thead>
         <tr>
-            <th>Organization</th>
-            <th>Next Deadline</th>
-            <th>Grant Access?</th>
+            <th>Organization and Publication</th>
+            <th>Opt-in?</th>
         </tr>
         </thead>
         <tbody>
         {% for tp in third_party_list %}
           <tr class="{% cycle 'even' 'odd' %}"  {% if tp.disabled %}style="color: #888;"{% endif %}>
             <td>
-              {{ tp.name }}
-              {% if tp.publication %}
-                <br/>({{ tp.publication }})
-              {% endif %}
-            </td>
-            <td>
-              {% if tp.next_deadline %}
-                {{ tp.next_deadline }}
-              {% endif %}
+							{% if tp.name == 'The Princeton Review'%}
+								The Princeton Review’s Guide to Green Colleges
+							{% else %}
+								Sierra’s Cool Schools Ranking
+							{% endif %}
             </td>
             <td>
               <input  type="checkbox"
