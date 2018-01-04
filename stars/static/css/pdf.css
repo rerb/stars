@@ -27,8 +27,6 @@ h2 {
 	color: #17365D;
 	text-align: center;
 	font-size: 24pt;
-	-pdf-outline: true;
-	-pdf-level: 0;
 	padding: 0cm;
 	margin: 0cm;
 }
@@ -47,18 +45,12 @@ h2.toc {
 h3 {
 	color: #1F497D;
 	font-size: 18pt;
-	-pdf-outline: true;
-	-pdf-level: 1;
 }
 
 /* Credit */
 h4 {
 	color: #365F8F;
 	font-size: 16pt;
-}
-
-h1, h4, h5, h6 {
-	-pdf-outline: false;
 }
 
 div.seals {
@@ -153,9 +145,7 @@ span.scorecardFieldTitle {
 div.greyBox, div.greyBoxSmall {
     padding: 10px;
     margin: 10px 2cm 0px 1.5cm;
-    -moz-border-radius: 10px;
-    -webkit-border-radius: 10px;
-	page-break-before: avoid;
+    page-break-before: avoid;
 }
 
 div.greyBoxSmall {

@@ -1596,6 +1596,7 @@ class CreditSubmission(models.Model):
 #        return "<CreditSubmission %s credit_id=%s  %s>"%(
 #                self.id, self.credit.id, persists)
 
+
 COMPLETE = "c"
 IN_PROGRESS = "p"
 NOT_PURSUING = "np"
