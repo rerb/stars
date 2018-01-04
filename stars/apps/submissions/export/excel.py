@@ -5,14 +5,33 @@ from PIL import Image
 from stars.apps.submissions.models import NOT_APPLICABLE
 
 
-def get_width(num_characters):
-    return int((1 + num_characters) * 256)
+def build_report_export(submission):
+    """
+        Builds the excel workbook for a specific submission
+    """
+    wb = xlwt.Workbook(encoding="UTF-8")
+
+    # Summary
+    summary_sheet = wb.add_sheet('Summary')
+    get_summary_sheet(submission, summary_sheet)
+
+    # Categories
+    for category in submission.categorysubmission_set.all():
+        sheet = wb.add_sheet("%s Summary" % category.category.abbreviation)
+        build_category_summary_sheet(category, sheet)
+        sheet = wb.add_sheet("%s Data" % category.category.abbreviation)
+        build_category_data_sheet(category, sheet)
+
+    tempfile = NamedTemporaryFile(suffix='.xls', delete=False)
+
+    wb.save(tempfile.name)
+    return tempfile.name
 
 
-def get_summary_sheet(submission, sheet):
+def get_summary_sheet(submissionset, sheet):
     """
         Builds the first sheet of an exported report that
-        has the summary of the submission
+        has the summary of the submissionset
     """
     boldFont = xlwt.Font()
     boldFont.bold = True
@@ -20,33 +39,39 @@ def get_summary_sheet(submission, sheet):
     boldStyle.font = boldFont
 
     r, c = 0, 0
-    min_width = get_width(len(submission.institution.name))
+    min_width = get_width(len(submissionset.institution.name))
 
-    sheet.write_merge(r, r, c, c + 1, submission.institution.name, boldStyle)
+    sheet.write_merge(r, r, c, c + 1,
+                      submissionset.institution.name, boldStyle)
     r += 1
 
     sheet.write_merge(r, r, c, c + 1, 'STARS Report Summary')
     r += 1
 
-    sheet.write(r, c, "Submitted:")
-    sheet.write(r, c + 1, "%s" % submission.date_submitted)
+    export_type = get_export_type(submissionset)
+
+    if export_type == "preview":
+        sheet.write(r, c, "Exported:")
+    elif export_type == "snapshot":
+        sheet.write(r, c, "Snapshot:")
+    else:
+        sheet.write(r, c, "Submitted:")
+    sheet.write(r, c + 1, "%s" % submissionset.date_submitted)
     r += 1
 
     sheet.write(r, c, "Rating:")
-    sheet.write(r, c + 1, "%s" % submission.rating)
+    sheet.write(r, c + 1, "%s" % submissionset.rating)
     r += 2
 
     sheet.write(r, c, "Category")
     sheet.write(r, c + 1, "Score")
     r += 1
 
-    for cs in submission.categorysubmission_set.all():
+    for cs in submissionset.categorysubmission_set.all():
         if min_width < get_width(len(cs.category.title)):
             min_width = get_width(len(cs.category.title))
         sheet.write(r, c, cs.category.title)
-        if (submission.creditset.version == "1.0" or
-            submission.creditset.version == "1.1" or
-            submission.creditset.version == "1.2"):
+        if submissionset.creditset.version in ("1.0", "1.1", "1.2"):
             sheet.write(r, c + 1, str(cs.get_STARS_score()))
         else:
             sheet.write(r, c + 1, str(cs.get_score_ratio()[0]))
@@ -61,8 +86,8 @@ def get_summary_sheet(submission, sheet):
     sheet.col(2).width = 1000
     sheet.col(3).width = (256 * 40)
 
-    if submission.rating:
-        rating_png = submission.rating.image_large.path
+    if submissionset.rating:
+        rating_png = submissionset.rating.image_large.path
         img = Image.open(rating_png)
         red, g, b, __a = img.split()
         img = Image.merge("RGB", (red, g, b))
@@ -91,6 +116,8 @@ def build_category_summary_sheet(category, sheet):
     sheet.write(r, c + 1, "Points Earned")
     sheet.write(r, c + 2, "Available Points")
     sheet.write(r, c + 3, "Status")
+    sheet.write(r, c + 4, "Last Updated")
+    sheet.write(r, c + 5, "Responsible Party")
 
     r += 1
 
@@ -111,6 +138,9 @@ def build_category_summary_sheet(category, sheet):
             sheet.write(r, c + 1, cs.assessed_points)
             sheet.write(r, c + 2, cs.credit.point_value)
             sheet.write(r, c + 3, cs.get_submission_status_display())
+            sheet.write(r, c + 4, cs.last_updated)
+            sheet.write(r, c + 5, ' '.join((cs.responsible_party.first_name,
+                                            cs.responsible_party.last_name)))
             r += 1
         r += 1
 
@@ -193,32 +223,17 @@ def build_category_data_sheet(category, sheet):
         sheet.col(c).width = w
 
 
-def build_report_export(submission):
-    """
-        Builds the excel workbook for a specific submission
-    """
-    print "STARTING EXCEL EXPORT"
-    wb = xlwt.Workbook(encoding="UTF-8")
+def get_width(num_characters):
+    return int((1 + num_characters) * 256)
 
-    # Summary
-    summary_sheet = wb.add_sheet('Summary')
-    get_summary_sheet(submission, summary_sheet)
 
-    # Categories
-    for category in submission.categorysubmission_set.all():
-        sheet = wb.add_sheet("%s Summary" % category.category.abbreviation)
-        build_category_summary_sheet(category, sheet)
-        sheet = wb.add_sheet("%s Data" % category.category.abbreviation)
-        build_category_data_sheet(category, sheet)
+def get_export_type(submissionset):
 
-#     filename = "%s.xls" % slugify("%s" % submission)
-    tempfile = NamedTemporaryFile(suffix='.xls', delete=False)
-#     filename = "report_export.xls"
+    if submissionset.status == 'f':
+        report_type = "snapshot"
+    elif submissionset.status == 'r':
+        report_type = "rated"
+    else:
+        report_type = "preview"
 
-    print tempfile.name
-    wb.save(tempfile.name)
-    return tempfile.name
-
-# from stars.apps.submissions.models import SubmissionSet
-# ss = SubmissionSet.objects.get(pk=1157)
-# build_report_export(ss)
+    return report_type
