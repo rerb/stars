@@ -515,7 +515,8 @@ class ShareThirdPartiesView(InstitutionAdminToolMixin,
     def get_context_data(self, **kwargs):
         context = super(ShareThirdPartiesView, self).get_context_data(**kwargs)
         context['help_content_name'] = 'edit_account'
-        context['third_party_list'] = ThirdParty.objects.all()
+        context['third_party_list'] = (ThirdParty.objects
+            .exclude(name='Sustainable Endowments Institute'))
         context['snapshot_count'] = SubmissionSet.objects.get_snapshots(
             self.get_institution()).count()
         return context

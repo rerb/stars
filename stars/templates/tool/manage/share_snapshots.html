@@ -8,6 +8,7 @@
 	{% with active_tab="snapshots"%}{{ block.super }}{% endwith %}
 {% endblock %}
 
+
 {% block help_content %}
 	{% display_block_content 'third-party_snapshots' user %}
 {% endblock %}
@@ -16,22 +17,7 @@
 	{% include "download_async_task/modal_container.html" %}
 
     <h3>Snapshots</h3>
-    
-	{% if third_party_sharing_list %}
-		<div class="alert alert-success">
-			You are currently sharing any snapshots with the following third parties:
-			<ul>
-				{% for tp in third_party_sharing_list %}
-					<li>{{ tp.name }}</li>
-				{% endfor %}
-			</ul>
-		</div>
-	{% else %}
-		<div class='alert alert-warning'>
-			<strong>Note:</strong> You are <em>not</em> currently sharing these snapshots.
-		</div>
-	{% endif %}
-    
+
     <table class='table'>
     	<thead>
         <tr>
@@ -52,7 +38,7 @@
               </td>
 			  {% testrule user_can_view_export user ss %}
 	            <td>
-	            	<a 
+	            	<a
 						class='modal-link'
 						href='{{ ss.id|unlocalize }}/csv/'>
 						<i class='icon-download-alt'></i> CSV
@@ -75,26 +61,7 @@
         {% endif %}
         </tbody>
     </table>
-    
-    <p align='center'>
-      {% testrule user_can_submit_snapshot user institution.current_submission %}
-		<a href='{% url save-snapshot institution.slug institution.current_submission.id %}' class='btn btn-success'>
-			<i class="icon-share-alt icon-white"></i> Take a Snapshot of Your Current "My Submission" Data Now</a>
-        {% if latest_report %}
-          {% testrule user_can_submit_snapshot user latest_report %}
-          <br/><br/>or<br/><br/>
-          <a href='{% url save-snapshot institution.slug latest_report.id %}' class='btn btn-info'>
-            <i class="icon-share-alt icon-white"></i> Take a Snapshot of Your Most Recent STARS Report ({{ latest_report.date_submitted }})</a>
-          {% endtestrule %}
-        {% endif %}
-      {% else %}
-        <a href='{% url migrate-options institution.slug  %}' class='btn'>
-        	<i class='icon-share-alt'></i> Migrate</a>
-        	to the latest version of STARS to start taking snapshots.
 
-      {% endtestrule %}
-    </p>
-    
 	{% include "download_async_task/modal_js.html" %}
-    
+
 {% endblock %}
