@@ -91,7 +91,9 @@
 	  {% else %}
 	    <th>Date Submitted:</th>
 	  {% endif %}
-	  <td> {{ ss.date_submitted }}</td>
+	  <td>
+            {{ ss.date_submitted }}
+          </td>
         {% endif %}
       </tr>
       <tr>
@@ -268,7 +270,9 @@
       <table class='scoreTable vertical'>
         <tr>
           <th>
-            {% if preview %}Provisional{% endif %}
+            {% if preview %}
+              Provisional
+            {% endif %}
             Score
           </th>
           <td>
@@ -335,13 +339,6 @@
                   </td>
                 {% endif %}
               </tr>
-              {% if sub.description %}
-                <tr>
-                  <td colspan="3" align="center">
-                    {{ sub.description|urlizetrunc:85|linebreaks|fix_ampersands }}
-                  </td>
-                </tr>
-              {% endif %}
             {% endif %}
 
             {% for credit_submission in sub.creditusersubmission_set.all %}
@@ -371,12 +368,16 @@
                       Not started
                     {% endif %}
                   </td>
-                  <td align="right" width="15%">
-                    {% if sub.subcategory.title != "Institutional Characteristics" %}
-                      {{ credit_submission.assessed_points|floatformat }} /
-                      {{ credit_submission.get_adjusted_available_points|floatformat }}
-                    {% endif %}
-                  </td>
+                  {% if show_scores %}
+                    <td align="right" width="15%">
+                      {% if sub.subcategory.title != "Institutional Characteristics" %}
+                        {{ credit_submission.assessed_points|floatformat }} /
+                        {{ credit_submission.get_adjusted_available_points|floatformat }}
+                      {% endif %}
+                    </td>
+                  {% else %}
+                    <td></td>
+                  {% endif %}
                 </tr>
               {% endif %}
             {% endfor %}
@@ -528,12 +529,17 @@
               {% endif %}
               {% if credit_submission.submission_status == 'na' and not credit_submission.is_opt_in %}
                 <p class='hideReportingFields'>
-                  This credit was marked as <b>Not Applicable</b> for the following reason:<br/><br/>
-                  <i>{{ credit_submission.applicability_reason.reason }}</i>
+                  This credit was marked as <b>Not Applicable</b> for
+                  the following reason:
+                  <br/><br/>
+                  <i>
+                    {{ credit_submission.applicability_reason.reason }}
+                  </i>
                 </p>
               {% else %}{% if credit_submission.submission_status == 'np' or credit_submission.submission_status == 'ns' %}
                   <p class='hideReportingFields'>
-                    This credit was marked as <b>Not Pursuing</b> so Reporting Fields will not be displayed.
+                    This credit was marked as <b>Not Pursuing</b> so
+                    Reporting Fields will not be displayed.
                   </p>
               {% else %}
                   <div style="text-align: right;font-size: .9em;padding:10px;">
