@@ -66,6 +66,7 @@ def build_report_pdf(submissionset, template=None):
                "show_scores": submissionset.institution.is_participant,
                "report_type": report_type,
                "preview": report_type == "preview",
+               "use_metric": submissionset.institution.prefers_metric_system,
                "media_root": settings.MEDIA_ROOT,
                "project_path": settings.PROJECT_PATH,
                "rating": submissionset.get_STARS_rating(),
