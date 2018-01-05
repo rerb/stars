@@ -129,8 +129,7 @@ class Dashboard(TemplateView):
 
             slice['rating_count'] = len(active_rating)
             if len(slices) == 0:
-                context['total_rating_count'] = SubmissionSet.objects.filter(
-                    status='r').count()
+                context['total_rating_count'] = len(active_rating)
 
             participant_count = Institution.objects.filter(
                 date_created__lt=current_month).count()
