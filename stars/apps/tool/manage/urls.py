@@ -55,7 +55,7 @@ urlpatterns = patterns(
         name='pending-account-delete'),
 
     # Share Data views:
-    url(r'^share-data/$', ShareDataView.as_view(),
+    url(r'^share-data/snapshot-archive/$', ShareDataView.as_view(),
         name='share-data'),
 
     url(r'^share-data/(?P<submissionset>[^/]+)/csv/$',
@@ -72,7 +72,7 @@ urlpatterns = patterns(
         never_cache(SnapshotPDFDownloadView.as_view()),
         name='snapshot-download-pdf'),
 
-    url(r'^share-data/third-parties/$', ShareThirdPartiesView.as_view(),
+    url(r'^share-data/$', ShareThirdPartiesView.as_view(),
         name='share-third-parties'),
 
     # Migration views:
