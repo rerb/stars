@@ -128,7 +128,10 @@ logical_rules.site.register("institution_has_my_resources",
 
 
 def institution_has_export(institution):
-    return institution.is_participant
+    # return institution.is_participant
+    # change rule so all institutions have the ability to export
+    # even if they are basic access
+    return True
 
 
 logical_rules.site.register("institution_has_export", institution_has_export)
