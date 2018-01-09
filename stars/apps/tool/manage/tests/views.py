@@ -391,6 +391,7 @@ class MigrateOptionsViewTest(InstitutionAdminToolMixinTest):
                 institution=self.institution, status='f'))
 
     def test__get_available_submissions_not_participant(self):
+
         self.institution.is_participant = False
         view = views.MigrateOptionsView
         available_submissions = view._get_available_submissions(
@@ -400,6 +401,7 @@ class MigrateOptionsViewTest(InstitutionAdminToolMixinTest):
                          len(self.f_status_submissionsets))
 
     def test__get_available_submissions_is_participant(self):
+
         self.institution.is_participant = True
         view = views.MigrateOptionsView
         available_submissions = view._get_available_submissions(

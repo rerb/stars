@@ -32,3 +32,9 @@ class UserProfile(models.Model):
                     return True
 
         return False
+
+    #change
+    # def set_drupal_user_dict(self, *args, **kwargs):
+    #     for key in kwargs:
+    #         print key
+    #     self.profile_instlist = kwargs[profile_instlist]
