@@ -20,9 +20,7 @@ from stars.apps.accounts.mixins import StarsAccountMixin
 from stars.apps.notifications.models import EmailTemplate
 
 from .utils import init_starsaccount, init_submissionset
-from ..payments.views import (FAILURE,
-                              SubscriptionPurchaseWizard,
-                              amount_due_more_than_zero)
+from ..payments.views import FAILURE, SubscriptionPurchaseWizard
 
 
 logger = getLogger('stars')
@@ -30,7 +28,6 @@ logger = getLogger('stars')
 
 MEMBER = True
 NON_MEMBER = False
-BASE_REGISTRATION_PRICE = {MEMBER: 900, NON_MEMBER: 1400}
 
 FULL_ACCESS = 1
 BASIC_ACCESS = 'use the constants, luke'
@@ -59,22 +56,12 @@ class RegistrationWizard(StarsAccountMixin, SubscriptionPurchaseWizard):
     """
     __metaclass__ = abc.ABCMeta
 
-    SELECT, CONTACT = 0, 1
-
-    PRICE, PAYMENT_OPTIONS, SUBSCRIPTION_CREATE = 2, 3, 4
+    SELECT, CONTACT, SUBSCRIPTION_CREATE = 0, 1, 2
 
     REGISTRATION_FORMS = [(SELECT, SelectSchoolForm),
                           (CONTACT, ContactForm)]
 
-    FORMS = SubscriptionPurchaseWizard.insert_forms_into_form_list(
-        REGISTRATION_FORMS)
-
-    TEMPLATES = {SELECT: 'registration/wizard_select.html',
-                 PRICE: 'registration/wizard_price.html'}
-
-    # Tack TEMPLATES from SubscriptionPurchaseWizard on the the end:
-    for (key, value) in SubscriptionPurchaseWizard.TEMPLATES.items():
-        TEMPLATES[key + len(REGISTRATION_FORMS)] = value
+    TEMPLATES = {SELECT: 'registration/wizard_select.html'}
 
     def __init__(self, *args, **kwargs):
         self._institution = None
@@ -94,27 +81,11 @@ class RegistrationWizard(StarsAccountMixin, SubscriptionPurchaseWizard):
     def get_template_names(self):
         if self.steps.current == str(self.CONTACT):
             return "registration/wizard_contact.html"
-        elif self.steps.current == str(self.PRICE):
-            return "registration/wizard_price.html"
-        elif self.steps.current == str(self.PAYMENT_OPTIONS):
-            return "registration/wizard_payment_options.html"
         elif self.steps.current == str(self.SUBSCRIPTION_CREATE):
             return "registration/wizard_subscription_create.html"
         return super(RegistrationWizard, self).get_template_names()
 
     def get_context_data(self, form, **kwargs):
-        # First, something that has nothing to do with the context
-        # data for the price step . . . here because it needs to be
-        # called before the form is displayed . . .
-        #
-        # If the amount due is $0.00, we skip the payment steps.
-        # Since amount_due_is_more_than_zero() checks the request.session
-        # for the amount due, we'll clear it if it's already set.
-        if self.steps.current == str(self.SELECT):
-            try:
-                del(self.request.session['amount_due'])
-            except KeyError:
-                pass
 
         context = super(RegistrationWizard, self).get_context_data(form=form,
                                                                    **kwargs)
@@ -202,8 +173,6 @@ class RegistrationWizard(StarsAccountMixin, SubscriptionPurchaseWizard):
         shown.
         """
         form_conditions = {
-            str(cls.PRICE): registering_for_full_access,
-            str(cls.PAYMENT_OPTIONS): amount_due_more_than_zero,
             str(cls.SUBSCRIPTION_CREATE): registering_for_full_access}
         return form_conditions
 
