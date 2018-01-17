@@ -2,9 +2,10 @@ import abc
 from logging import getLogger
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.views.generic import CreateView
+from django.views.generic import CreateView, TemplateView
 from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
+from django.shortcuts import render
 
 from iss.models import Organization
 
@@ -14,7 +15,7 @@ from stars.apps.institutions.models import (Institution,
 from stars.apps.registration.forms import (SelectSchoolForm,
                                            RegistrationSurveyForm,
                                            RespondentRegistrationSurveyForm,
-                                           ContactForm)
+                                           ContactForm,)
 from stars.apps.tool.mixins import InstitutionAdminToolMixin
 from stars.apps.accounts.mixins import StarsAccountMixin
 from stars.apps.notifications.models import EmailTemplate
@@ -47,6 +48,26 @@ CONTACT_FIELD_NAMES = ['contact_department',
                        'executive_contact_title',
                        'executive_contact_department',
                        'executive_contact_email']
+
+
+class InstitutionCreateView(TemplateView):
+
+    template_name = 'registration/new_institution.html'
+
+    def get(self, request, *args, **kwargs):
+        contact_form = ContactForm(self.request.GET or None)
+        organization_form = SelectSchoolForm(self.request.GET or None)
+        orgs = Organization.objects.all()
+        context = self.get_context_data(**kwargs)
+        context['contact_form'] = contact_form
+        context['orgs'] = orgs
+        # context['organization_form'] = organization_form
+        return self.render_to_response(context)
+
+
+
+def gimme_that_templat(request):
+    return render(request, 'registration/wizard_base.html', {'select_school': RegistrationSurveyForm})
 
 
 class RegistrationWizard(StarsAccountMixin, SubscriptionPurchaseWizard):

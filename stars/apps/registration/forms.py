@@ -91,6 +91,7 @@ class SelectSchoolForm(forms.Form):
         return institution_choices
 
 
+
 class ContactForm(ModelForm):
     """
         Contact form that takes the option to have show executive contact
@@ -115,21 +116,21 @@ class ContactForm(ModelForm):
     def __init__(self, *args, **kwargs):
 
         super(ContactForm, self).__init__(*args, **kwargs)
-        self.fields['contact_first_name'].label = "First Name"
-        self.fields['contact_middle_name'].label = "Middle Name"
-        self.fields['contact_last_name'].label = "Last Name"
-        self.fields['contact_title'].label = "Title"
-        self.fields['contact_department'].label = "Department/Office"
-        self.fields['contact_phone'].label = "Phone"
-        self.fields['contact_email'].label = "Email"
+        self.fields['contact_first_name'].label = "Liason First Name"
+        self.fields['contact_middle_name'].label = "Liason Middle Name"
+        self.fields['contact_last_name'].label = "Liason Last Name"
+        self.fields['contact_title'].label = "Liason Title"
+        self.fields['contact_department'].label = "Liason Department/Office"
+        self.fields['contact_phone'].label = "Liason Phone"
+        self.fields['contact_email'].label = "Liason Email"
 
-        self.fields['executive_contact_first_name'].label = "First Name"
-        self.fields['executive_contact_middle_name'].label = "Middle Name"
-        self.fields['executive_contact_last_name'].label = "Last Name"
-        self.fields['executive_contact_title'].label = "Title"
+        self.fields['executive_contact_first_name'].label = "Executive First Name"
+        self.fields['executive_contact_middle_name'].label = "Executive Middle Name"
+        self.fields['executive_contact_last_name'].label = "Executive Last Name"
+        self.fields['executive_contact_title'].label = "Executive Title"
         self.fields['executive_contact_department'].label = (
-            "Department/Office")
-        self.fields['executive_contact_email'].label = "Email"
+            "Executive Department/Office")
+        self.fields['executive_contact_email'].label = "Executive Email"
 
         self.fields['executive_contact_first_name'].required = True
         self.fields['executive_contact_middle_name'].required = False
