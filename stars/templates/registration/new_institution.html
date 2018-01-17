@@ -8,24 +8,48 @@
 {% block content %}
   <div class="container">
     <div class="span12">
+
       <div class="row">
-        <div class="span8 offset2">
-          <form class="navbar-search">
-            <input type="text" placeholder="Search" id="school-finder">
-          </form>
+        <div class="offset2">
+          <h1>STARS Institution Registration Form</h1>
+          <div class="offset1">
+            <h4>Begin by selecting the Search Institutions text field.</h4>
+            <h4>Filter institutions by typing in the search box.</h4>
+            <h4>Select an institution by clicking.</h4>
+          </div>
         </div>
       </div>
-      <div class="span8 offset2 org-list">
+
+
+      <div class="row">
+        <div class="span8 offset2">
+          <div class="search-panel">
+            <h3>Find your institution</p>
+
+              <input class="span7" type="text" placeholder="Click here to begin search" id="school-finder">
+
+          </div>
+        </div>
+      </div>
+
+      <div class="span7 offset2 org-list">
         <ul class="nav nav-list nav-stacked">
         {% for org in orgs %}
-          <li id="org-list-name">{{ org.org_name }}</li>
+          <a><li id="org-list-name" value="{{ org.account_num }}">{{ org.org_name }}</li></a>
         {% endfor %}
         </ul>
       </div>
       <form method="post">
+        {% csrf_token %}
         <div class="span8 offset2">
-          <h2>Organization Name:</h2>
-          <input id="org-name">
+          <h2>Institution Name</h2>
+          <div class="input-append">
+            <input readonly class="input-xxlarge" name="org-name" id="org-name" type="text">
+            <span class="add-on">
+              <div class="green-dot"></div>
+            </span>
+          </div>
+          <input type="hidden" name="aashe_id" id="asshe-id">
         </div>
         <div class="span4 offset2">
           <h3>STARS Liason</h3>
@@ -58,7 +82,10 @@
           {{ contact_form.executive_contact_department }}
           <label for="contact_form.executive_contact_email">{{contact_form.executive_contact_email.label}}</label>
           {{ contact_form.executive_contact_email }}
+          <input class="span3 btn btn-success" type="submit" value="Register Institution" id="institution-submit-btn">
         </div>
+        </div>
+
       </form>
     </div>
   </div>

@@ -1,11 +1,13 @@
 $(document).ready(function(){
 
-  // hideList();
-
   $('.org-list li').click(function(){
     var orgName = $(this).text();
-    console.log("fired");
-    $('#org-name').val("Joey");
+    var orgID = $(this).val();
+    $('#org-name').val(orgName);
+    $('#asshe-id').val(orgID);
+    $('.green-dot').show();
+    hideList();
+    clearSearch();
   });
 
   $('#school-finder').focus(function(){
@@ -29,5 +31,13 @@ $(document).ready(function(){
 
 
 function showOrgs(){
-  $('.org-list').slideDown(10000);
+  $('.org-list').show();
+}
+
+function hideList(){
+  $('.org-list').css("display","none");
+}
+
+function clearSearch(){
+  $('#school-finder').val('');
 }
