@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
 
 {% load bootstrap %}
-<!-- <script src="{{ STATIC_URL }}js/registration.js" type="text/javascript"></script> -->
 
 {% block title %}Register | {{ block.super }}{% endblock %}
 
@@ -25,9 +24,7 @@
         <div class="span8 offset2">
           <div class="search-panel">
             <h3>Find your institution</p>
-
-              <input class="span7" type="text" placeholder="Click here to begin search" id="school-finder">
-
+            <input class="span7" type="text" placeholder="Click here to begin search" id="school-finder">
           </div>
         </div>
       </div>
@@ -35,7 +32,7 @@
       <div class="span7 offset2 org-list">
         <ul class="nav nav-list nav-stacked">
         {% for org in orgs %}
-          <a><li id="org-list-name" value="{{ org.account_num }}">{{ org.org_name }}</li></a>
+          <li value="{{ org.account_num }}">{{ org.org_name }}</li>
         {% endfor %}
         </ul>
       </div>
@@ -49,7 +46,7 @@
               <div class="green-dot"></div>
             </span>
           </div>
-          <input type="hidden" name="aashe_id" id="asshe-id">
+          <input type="hidden" name="aashe_id" id="asshe_id">
         </div>
         <div class="span4 offset2">
           <h3>STARS Liason</h3>

@@ -15,7 +15,8 @@ from stars.apps.institutions.models import (Institution,
 from stars.apps.registration.forms import (SelectSchoolForm,
                                            RegistrationSurveyForm,
                                            RespondentRegistrationSurveyForm,
-                                           ContactForm,)
+                                           ContactForm,
+                                           InstitutionRegistrationForm,)
 from stars.apps.tool.mixins import InstitutionAdminToolMixin
 from stars.apps.accounts.mixins import StarsAccountMixin
 from stars.apps.notifications.models import EmailTemplate
@@ -55,7 +56,7 @@ class InstitutionCreateView(TemplateView):
     template_name = 'registration/new_institution.html'
 
     def get(self, request, *args, **kwargs):
-        contact_form = ContactForm(self.request.GET or None)
+        contact_form = InstitutionRegistrationForm(self.request.GET or None)
         orgs = Organization.objects.values('account_num', 'org_name').order_by('org_name')
         context = self.get_context_data(**kwargs)
         context['contact_form'] = contact_form

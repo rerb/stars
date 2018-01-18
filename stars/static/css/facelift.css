@@ -236,20 +236,30 @@ h2 {
   padding: 8px 25px;
   font-size: 18px;
 }
-.org-name-check{
+/* .org-name-check{
   display: none;
-  /* margin-left: 5px;
-  margin-bottom: 7px; */
-}
+  margin-left: 5px;
+  margin-bottom: 7px;
+} */
 .org-list{
   display: none;
 }
-#org-list-name{
+/* #org-list-name{
   border: 1px solid #e5e5e5;
   border-radius: 2px;
   padding: 7px;
 }
 #org-list-name:hover{
+  cursor: pointer;
+  padding-top: 30px;
+  height: 40px;
+} */
+.org-list li{
+  border: 1px solid #e5e5e5;
+  border-radius: 2px;
+  padding: 7px;
+}
+.org-list li:hover{
   cursor: pointer;
   padding-top: 30px;
   height: 40px;

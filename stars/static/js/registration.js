@@ -4,7 +4,7 @@ $(document).ready(function(){
     var orgName = $(this).text();
     var orgID = $(this).val();
     $('#org-name').val(orgName);
-    $('#asshe-id').val(orgID);
+    $('#asshe_id').val(orgID);
     $('.green-dot').show();
     hideList();
     clearSearch();
@@ -31,7 +31,7 @@ $(document).ready(function(){
 
 
 function showOrgs(){
-  $('.org-list').show();
+  $('.org-list').css("display","block");
 }
 
 function hideList(){
