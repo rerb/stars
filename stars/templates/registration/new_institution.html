@@ -36,7 +36,7 @@
         {% endfor %}
         </ul>
       </div>
-      <form method="post">
+      <form method="POST">
         {% csrf_token %}
         <div class="span8 offset2">
           <h2>Institution Name</h2>
@@ -48,8 +48,9 @@
           </div>
           <input type="hidden" name="aashe_id" id="asshe_id">
         </div>
+        {{ contact_form.errors }}
         <div class="span4 offset2">
-          <h3>STARS Liason</h3>
+          <h3>STARS Liaison</h3>
           <label for="contact_form.contact_first_name">{{contact_form.contact_first_name.label}}</label>
           {{ contact_form.contact_first_name }}
           <label for="contact_form.contact_middle_name">{{contact_form.contact_middle_name.label}}</label>

@@ -51,23 +51,49 @@ CONTACT_FIELD_NAMES = ['contact_department',
                        'executive_contact_email']
 
 
-class InstitutionCreateView(TemplateView):
+# class InstitutionCreateView(TemplateView):
+#
+#     template_name = 'registration/new_institution.html'
+#
+#     def get(self, request, *args, **kwargs):
+#         contact_form = InstitutionRegistrationForm(self.request.GET or None)
+#         orgs = Organization.objects.values('account_num', 'org_name').order_by('org_name')
+#         context = self.get_context_data(**kwargs)
+#         context['contact_form'] = contact_form
+#         context['orgs'] = orgs
+#         # context['organization_form'] = organization_form
+#         return self.render_to_response(context)
+#
+#     #should I create a post to process the form?
+#     def post(self, request, *args, **kwargs):
 
+class InstitutionCreateView(CreateView):
+
+    model = Institution
     template_name = 'registration/new_institution.html'
+    form_class = InstitutionRegistrationForm()
 
-    def get(self, request, *args, **kwargs):
-        contact_form = InstitutionRegistrationForm(self.request.GET or None)
-        orgs = Organization.objects.values('account_num', 'org_name').order_by('org_name')
-        context = self.get_context_data(**kwargs)
+    def get_context_data(self, **kwargs):
+        context = super(InstitutionCreateView, self).get_context_data(**kwargs)
+        contact_form = self.get_form_class()
+        institution_ids = Institution.objects.values('aashe_id')
+        orgs = (Organization.objects.values('account_num', 'org_name')
+            .order_by('org_name'))
+        # orgs = orgs.exclude(account_num__in=institution_ids)
         context['contact_form'] = contact_form
         context['orgs'] = orgs
-        # context['organization_form'] = organization_form
-        return self.render_to_response(context)
+        return context
+
+    def form_valid(self, form):
+        print self
+        return super(InstitutionCreateView, self).form_valid(form)
+
+    def post(self, request, *args, **kwargs):
+        print "I POSTED"
+        print request.POST
+        return super(InstitutionCreateView, self).post(request, *args, **kwargs)
 
 
-
-def gimme_that_templat(request):
-    return render(request, 'registration/wizard_base.html', {'select_school': RegistrationSurveyForm})
 
 
 class RegistrationWizard(StarsAccountMixin, SubscriptionPurchaseWizard):

@@ -175,42 +175,40 @@ class InstitutionRegistrationForm(ModelForm):
     class Meta:
         model = Institution
         fields = ['contact_first_name',
-                  'contact_middle_name',
                   'contact_last_name',
                   'contact_title',
                   'contact_department',
                   'contact_phone',
                   'contact_email',
                   'executive_contact_first_name',
-                  'executive_contact_middle_name',
                   'executive_contact_last_name',
                   'executive_contact_title',
                   'executive_contact_department',
-                  'executive_contact_email',
-                  'aashe_id',
-                  'name']
+                  'executive_contact_email']
 
     def __init__(self, *args, **kwargs):
 
         super(InstitutionRegistrationForm, self).__init__(*args, **kwargs)
-        self.fields['contact_first_name'].label = "Liason First Name"
-        self.fields['contact_middle_name'].label = "Liason Middle Name"
-        self.fields['contact_last_name'].label = "Liason Last Name"
-        self.fields['contact_title'].label = "Liason Title"
-        self.fields['contact_department'].label = "Liason Department/Office"
-        self.fields['contact_phone'].label = "Liason Phone"
-        self.fields['contact_email'].label = "Liason Email"
+        self.fields['contact_first_name'].label = "First Name"
+        self.fields['contact_last_name'].label = "Last Name"
+        self.fields['contact_title'].label = "Title"
+        self.fields['contact_department'].label = "Department/Office"
+        self.fields['contact_phone'].label = "Phone"
+        self.fields['contact_email'].label = "Email"
 
-        self.fields['executive_contact_first_name'].label = "Executive First Name"
-        self.fields['executive_contact_middle_name'].label = "Executive Middle Name"
-        self.fields['executive_contact_last_name'].label = "Executive Last Name"
-        self.fields['executive_contact_title'].label = "Executive Title"
-        self.fields['executive_contact_department'].label = (
-            "Executive Department/Office")
+        self.fields['executive_contact_first_name'].label = "First Name"
+        self.fields['executive_contact_last_name'].label = "Last Name"
+        self.fields['executive_contact_title'].label = "Title"
+        self.fields['executive_contact_department'].label = "Department/Office"
         self.fields['executive_contact_email'].label = "Executive Email"
 
+        self.fields['contact_first_name'].required = True
+        self.fields['contact_last_name'].required = True
+        self.fields['contact_title'].required = True
+        self.fields['contact_department'].required = True
+        self.fields['contact_phone'].required = True
+        self.fields['contact_email'].required = True
         self.fields['executive_contact_first_name'].required = True
-        self.fields['executive_contact_middle_name'].required = False
         self.fields['executive_contact_last_name'].required = True
         self.fields['executive_contact_title'].required = True
         self.fields['executive_contact_department'].required = True

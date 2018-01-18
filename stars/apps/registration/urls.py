@@ -3,15 +3,12 @@ from django.conf.urls.defaults import patterns, url
 from .views import (BasicAccessRegistrationWizard,
                     FullAccessRegistrationWizard,
                     SurveyView,
-                    gimme_that_templat,
                     InstitutionCreateView)
 
 urlpatterns = patterns(
     'stars.apps.registration.views',
 
     url(r'^$', InstitutionCreateView.as_view(), name='institution-create'),
-
-    url(r'^gimme-that/$', gimme_that_templat, name='gimme'),
 
     url(r'^basic-access/$',
         BasicAccessRegistrationWizard.as_view(
