@@ -50,48 +50,81 @@ CONTACT_FIELD_NAMES = ['contact_department',
                        'executive_contact_department',
                        'executive_contact_email']
 
-
-# class InstitutionCreateView(TemplateView):
-#
-#     template_name = 'registration/new_institution.html'
-#
-#     def get(self, request, *args, **kwargs):
-#         contact_form = InstitutionRegistrationForm(self.request.GET or None)
-#         orgs = Organization.objects.values('account_num', 'org_name').order_by('org_name')
-#         context = self.get_context_data(**kwargs)
-#         context['contact_form'] = contact_form
-#         context['orgs'] = orgs
-#         # context['organization_form'] = organization_form
-#         return self.render_to_response(context)
-#
-#     #should I create a post to process the form?
-#     def post(self, request, *args, **kwargs):
+BUSINESS_ORG_TYPE_ID = ('6faf90e4-000b-c40a-9b23-0b3c7f76be63',)
 
 class InstitutionCreateView(CreateView):
 
     model = Institution
     template_name = 'registration/new_institution.html'
-    form_class = InstitutionRegistrationForm()
+    form_class = InstitutionRegistrationForm
 
     def get_context_data(self, **kwargs):
         context = super(InstitutionCreateView, self).get_context_data(**kwargs)
         contact_form = self.get_form_class()
-        institution_ids = Institution.objects.values('aashe_id')
-        orgs = (Organization.objects.values('account_num', 'org_name')
-            .order_by('org_name'))
-        # orgs = orgs.exclude(account_num__in=institution_ids)
+        institution_ids = Institution.objects.values_list('aashe_id',flat=True)
+
+        institution_ids = [element for element in institution_ids
+                           if element is not None]
+
+        orgs = Organization.objects.exclude(org_type_id__in=BUSINESS_ORG_TYPE_ID)
+        orgs = orgs.exclude(account_num__in=institution_ids)
+        orgs = orgs.values('account_num', 'org_name').order_by('org_name')
+
         context['contact_form'] = contact_form
         context['orgs'] = orgs
         return context
 
     def form_valid(self, form):
-        print self
-        return super(InstitutionCreateView, self).form_valid(form)
+        # This method is called when valid form data has been POSTed.
+        # It should return an HttpResponse.
 
-    def post(self, request, *args, **kwargs):
-        print "I POSTED"
-        print request.POST
-        return super(InstitutionCreateView, self).post(request, *args, **kwargs)
+        #if aashe_id is not set, it should return the form
+        #return form_invalid
+
+        aashe_id = self.request.POST['aashe_id']
+        org = Organization.objects.get(account_num=aashe_id)
+        institution = Institution(aashe_id=aashe_id, name=org.org_name)
+        institution.update_from_iss()
+        institution.set_slug_from_iss_institution(institution.aashe_id)
+
+        #set contact info
+        institution.contact_first_name = form.fields["contact_first_name"]
+        institution.contact_last_name = form.fields["contact_last_name"]
+        institution.contact_title = form.fields["contact_title"]
+        institution.contact_department = form.fields["contact_department"]
+        institution.contact_phone = form.fields["contact_phone"]
+        institution.contact_email = form.fields["contact_email"]
+
+        institution.executive_contact_first_name = form.fields["executive_contact_first_name"]
+        institution.executive_contact_last_name = form.fields["executive_contact_last_name"]
+        institution.executive_contact_title = form.fields["executive_contact_title"]
+        institution.executive_contact_department = form.fields["executive_contact_department"]
+        institution.executive_contact_email = form.fields["executive_contact_email"]
+
+        institution.save()
+
+        try:
+            account = init_starsaccount(self.request.user, institution)
+        except Exception as exc:
+            delete_objects([institution])
+            try:
+                delete_objects([account])
+            except UnboundLocalError:
+                pass
+            raise exc
+
+        try:
+            submissionset = init_submissionset(institution, self.request.user)
+        except Exception as exc:
+            delete_objects([institution, account])
+            try:
+                delete_objects([submissionset])
+            except UnboundLocalError:
+                pass
+            raise exc
+
+
+        return super(InstitutionRegistrationForm, self).form_valid(form)
 
 
 
