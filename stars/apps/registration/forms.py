@@ -218,6 +218,27 @@ class InstitutionRegistrationForm(ModelForm):
             if field.required:
                 field.label += " *"
 
+    def clean(self):
+        cleaned_data = self.cleaned_data
+
+        if ("contact_email" in cleaned_data.keys() and
+            "executive_contact_email" in cleaned_data.keys()):
+
+            contact = cleaned_data.get("contact_email")
+            executive = cleaned_data.get("executive_contact_email")
+
+            if contact == executive:
+                msg = ("Oops, you've entered the same information for both"
+                       " the primary and executive contact. Please make"
+                       " sure these contacts are two different individuals"
+                       " at your institution.")
+                self._errors["executive_contact_email"] = ErrorList([msg])
+
+                # The executive field is no longer valid
+                del cleaned_data["executive_contact_email"]
+
+        return cleaned_data
+
 
 class ParticipationLevelForm(forms.Form):
     level = forms.fields.ChoiceField(widget=forms.widgets.RadioSelect,

@@ -431,7 +431,8 @@ class Institution(models.Model):
 
     @property
     def profile(self):
-        return self.ms_institution
+        return Organization.objects.get(account_num=self.aashe_id)
+        # return self.ms_institution
         # org = None
         # # The process which selects the iss.Organization that matches
         # # this Institution is bogus.  First, it tries to match on name,

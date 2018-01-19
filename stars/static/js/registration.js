@@ -2,7 +2,8 @@ $(document).ready(function(){
 
   $('.org-list li').click(function(){
     var orgName = $(this).text();
-    var orgID = $(this).val();
+    var orgID = $(this).attr("name");
+    console.log(orgID);
     $('#org-name').val(orgName);
     $('#asshe_id').val(orgID);
     $('.green-dot').show();

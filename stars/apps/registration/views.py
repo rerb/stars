@@ -62,7 +62,6 @@ class InstitutionCreateView(CreateView):
         context = super(InstitutionCreateView, self).get_context_data(**kwargs)
         contact_form = self.get_form_class()
         institution_ids = Institution.objects.values_list('aashe_id',flat=True)
-
         institution_ids = [element for element in institution_ids
                            if element is not None]
 
@@ -81,13 +80,24 @@ class InstitutionCreateView(CreateView):
         #if aashe_id is not set, it should return the form
         #return form_invalid
 
-        aashe_id = self.request.POST['aashe_id']
+        aashe_id = self.request.POST.get('aashe_id')
+        aashe_id = str(aashe_id)
+        print type(aashe_id)
+        aashe_id = aashe_id.strip(',')
+        print aashe_id.strip(',')
+        aashe_id = int(aashe_id)
+        print "this is the ID"
+        print aashe_id
         org = Organization.objects.get(account_num=aashe_id)
+        print "this is the ORG"
+        print org
         institution = Institution(aashe_id=aashe_id, name=org.org_name)
+        print "this is the institution"
+        print institution
         institution.update_from_iss()
         institution.set_slug_from_iss_institution(institution.aashe_id)
 
-        #set contact info
+        # set contact info
         institution.contact_first_name = form.fields["contact_first_name"]
         institution.contact_last_name = form.fields["contact_last_name"]
         institution.contact_title = form.fields["contact_title"]
@@ -101,6 +111,7 @@ class InstitutionCreateView(CreateView):
         institution.executive_contact_department = form.fields["executive_contact_department"]
         institution.executive_contact_email = form.fields["executive_contact_email"]
 
+        raise False
         institution.save()
 
         try:
@@ -125,6 +136,11 @@ class InstitutionCreateView(CreateView):
 
 
         return super(InstitutionRegistrationForm, self).form_valid(form)
+
+    def get_success_url(self):
+        institution = self.object
+        return reverse('reg_survey',
+                       kwargs={'institution_slug': institution.slug})
 
 
 
