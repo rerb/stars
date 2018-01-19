@@ -306,17 +306,14 @@
             </td>
             <td>
             </td>
-            {% if show_scores %}
-      	      <td align='right' width="15%">
+      	    <td align='right' width="15%">
+              {% if show_scores %}
       	        {% if ss.creditset.has_category_scoring_feature %}
-      	          {% if cat.category.title != 'Innovation' %}
-      	            {{ cat.get_STARS_score|floatformat }}%
-      	          {% else %}
-      	            {{ cat.get_STARS_score|floatformat }}
-      	          {% endif %}
-      	        {% endif %}
-      	      </td>
-            {% endif %}
+                  {{ cat.get_claimed_points|floatformat }} /
+                  {{ cat.get_adjusted_available_points|floatformat }}
+                {% endif %}
+              {% endif %}
+      	    </td>
           </tr>
 
           {% for sub in cat.subcategorysubmission_set.all %}
@@ -332,12 +329,15 @@
                 </td>
                 <td>
                 </td>
-                {% if show_scores %}
-                  <td align='right' width="15%">
-                    {{ sub.get_claimed_points|floatformat }} /
-                    {{ sub.get_adjusted_available_points|floatformat }}
-                  </td>
-                {% endif %}
+                <td align='right' width="15%">
+                  {% if show_scores %}
+                    {{ sub.get_claimed_points|floatformat }}
+                    {% if cat.category.title != "Innovation & Leadership" %}
+                      /
+                      {{ sub.get_adjusted_available_points|floatformat }}
+                    {% endif %}
+                  {% endif %}
+                </td>
               </tr>
             {% endif %}
 
