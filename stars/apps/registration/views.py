@@ -80,20 +80,10 @@ class InstitutionCreateView(CreateView):
         #if aashe_id is not set, it should return the form
         #return form_invalid
 
-        aashe_id = self.request.POST.get('aashe_id')
-        aashe_id = str(aashe_id)
-        print type(aashe_id)
-        aashe_id = aashe_id.strip(',')
-        print aashe_id.strip(',')
-        aashe_id = int(aashe_id)
-        print "this is the ID"
-        print aashe_id
+        aashe_id = str(self.request.POST.get('aashe_id'))
+        aashe_id = int(aashe_id.replace(',',''))
         org = Organization.objects.get(account_num=aashe_id)
-        print "this is the ORG"
-        print org
         institution = Institution(aashe_id=aashe_id, name=org.org_name)
-        print "this is the institution"
-        print institution
         institution.update_from_iss()
         institution.set_slug_from_iss_institution(institution.aashe_id)
 
@@ -111,7 +101,6 @@ class InstitutionCreateView(CreateView):
         institution.executive_contact_department = form.fields["executive_contact_department"]
         institution.executive_contact_email = form.fields["executive_contact_email"]
 
-        raise False
         institution.save()
 
         try:

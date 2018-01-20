@@ -32,7 +32,7 @@
       <div class="span7 offset2 org-list">
         <ul class="nav nav-list nav-stacked">
         {% for org in orgs %}
-          <li name="{{ org.account_num }}" value="{{ org.account_num }}">{{ org.org_name }}, {{ org.account_num }}</li>
+          <li name="{{ org.account_num }}">{{ org.org_name }}</li>
         {% endfor %}
         </ul>
       </div>
@@ -46,7 +46,7 @@
               <div class="green-dot"></div>
             </span>
           </div>
-          <input type="text" name="aashe_id" id="asshe_id">
+          <input type="hidden" name="aashe_id" id="asshe_id">
         </div>
         {{ contact_form.errors }}
         <div class="span4 offset2">
