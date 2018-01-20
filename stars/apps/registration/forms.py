@@ -59,11 +59,11 @@ class SelectSchoolForm(forms.Form):
     """
     aashe_id = forms.IntegerField()
 
-    ORG_TYPES = ('I',
-                 'Four Year Institution',
-                 'Two Year Institution',
-                 'Graduate Institution',
-                 'System Office')
+    INST_TYPES = ("Associate",
+                  "Baccalaureate",
+                  "Master",
+                  "Doctoral/Research")
+
     # COUNTRIES = ('Canada', 'United States of America', 'Mexico')
 
     def __init__(self, *args, **kwargs):
@@ -80,7 +80,7 @@ class SelectSchoolForm(forms.Form):
         institution_choices = []
 
         for org in Organization.objects.filter(
-                org_type__in=self.ORG_TYPES).order_by('org_name'):
+                institution_type__in=self.INST_TYPES).order_by('org_name'):
 
             choice_label = org.org_name
             if org.city and org.state:

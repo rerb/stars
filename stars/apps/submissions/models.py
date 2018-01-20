@@ -227,6 +227,9 @@ class SubmissionSet(models.Model, FlaggableModel):
 
         pdf_result = build_report_pdf(self, template)
 
+        # There's a bug here.  InMemoryUploadedFile() below is at
+        # EOF after creation.
+
         # Rated institutions can have their pdf saved
         if self.status == RATED_SUBMISSION_STATUS:
             name = self.get_pdf_filename()
@@ -1439,7 +1442,7 @@ class CreditSubmission(models.Model):
                         # dummy
                         return None
 
-                    def get_human_value(self):
+                    def get_human_value(self, *args, **kwargs):
                         return ""
 
                     def __unicode__(self):
@@ -2262,9 +2265,12 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
         return None
     get_field_class = staticmethod(get_field_class)
 
-    def get_human_value(self):
+    def get_human_value(self, get_metric=False):
         """
-            Returns a human readable version of the value
+            Returns a human readable version of the value.
+
+            Pass True as get_metric and for number fields,
+            you'll get back a metric value.
         """
         if self.documentation_field.type == 'tabluar':
             return ""
@@ -2286,16 +2292,16 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
 
                 elif self.documentation_field.type in ('numeric',
                                                        'calculated'):
+                    value = self.metric_value if get_metric else self.value
+                    units = (self.documentation_field.metric_units
+                             if get_metric
+                             else self.documentation_field.units)
 
-                    str_val = "%.2f" % self.value
+                    str_val = "%.2f" % value if value is not None else ''
                     if str_val[-3:] == '.00':
                         str_val = str_val[:-3]
-
-                    units = self.documentation_field.units
-
                     if units:
                         return "%s %s" % (str_val, units)
-
                     return str_val
 
                 elif self.documentation_field.type == "choice":
@@ -2654,6 +2660,8 @@ class NumericSubmission(DocumentationFieldSubmission):
             the other. For example, if the institution's preference is for
             metric, but the form displays `value` because there are no units,
             then the
+
+            "then the" what?  I'm confused!
     """
     value = models.FloatField(blank=True, null=True)
     metric_value = models.FloatField(blank=True, null=True)
