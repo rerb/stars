@@ -70,9 +70,8 @@ class SelectSchoolForm(forms.Form):
         self.fields['aashe_id'].label = "Institution"
         self.fields['aashe_id'].widget = widgets.Select(
             choices=self.institution_list,
-            attrs={
-                'style': "width: 700px",
-                'id': "school_select"})
+            attrs={'style': "width: 700px",
+                   'id': "school_select"})
 
     def get_institution_choices(self):
         institution_choices = []
@@ -167,78 +166,6 @@ PARTICIPATION_CHOICES = (("participant", "STARS Participant"),
 
 
 class InstitutionRegistrationForm(ModelForm):
-    """
-        All the necessary information to register an institution
-    """
-    class Meta:
-        model = Institution
-        fields = ['contact_first_name',
-                  'contact_last_name',
-                  'contact_title',
-                  'contact_department',
-                  'contact_phone',
-                  'contact_email',
-                  'executive_contact_first_name',
-                  'executive_contact_last_name',
-                  'executive_contact_title',
-                  'executive_contact_department',
-                  'executive_contact_email']
-
-    def __init__(self, *args, **kwargs):
-
-        super(InstitutionRegistrationForm, self).__init__(*args, **kwargs)
-        self.fields['contact_first_name'].label = "First Name"
-        self.fields['contact_last_name'].label = "Last Name"
-        self.fields['contact_title'].label = "Title"
-        self.fields['contact_department'].label = "Department/Office"
-        self.fields['contact_phone'].label = "Phone"
-        self.fields['contact_email'].label = "Email"
-
-        self.fields['executive_contact_first_name'].label = "First Name"
-        self.fields['executive_contact_last_name'].label = "Last Name"
-        self.fields['executive_contact_title'].label = "Title"
-        self.fields['executive_contact_department'].label = "Department/Office"
-        self.fields['executive_contact_email'].label = "Executive Email"
-
-        self.fields['contact_first_name'].required = True
-        self.fields['contact_last_name'].required = True
-        self.fields['contact_title'].required = True
-        self.fields['contact_department'].required = True
-        self.fields['contact_phone'].required = True
-        self.fields['contact_email'].required = True
-        self.fields['executive_contact_first_name'].required = True
-        self.fields['executive_contact_last_name'].required = True
-        self.fields['executive_contact_title'].required = True
-        self.fields['executive_contact_department'].required = True
-        self.fields['executive_contact_email'].required = True
-
-        for field in self.fields.values():
-            if field.required:
-                field.label += " *"
-
-    def clean(self):
-        cleaned_data = self.cleaned_data
-
-        if ("contact_email" in cleaned_data.keys() and
-            "executive_contact_email" in cleaned_data.keys()):
-
-            contact = cleaned_data.get("contact_email")
-            executive = cleaned_data.get("executive_contact_email")
-
-            if contact == executive:
-                msg = ("Oops, you've entered the same information for both"
-                       " the primary and executive contact. Please make"
-                       " sure these contacts are two different individuals"
-                       " at your institution.")
-                self._errors["executive_contact_email"] = ErrorList([msg])
-
-                # The executive field is no longer valid
-                del cleaned_data["executive_contact_email"]
-
-        return cleaned_data
-
-
-class NewInstitutionRegistrationForm(ModelForm):
     """
         All the necessary information to register an institution
     """

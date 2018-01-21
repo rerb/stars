@@ -1,6 +1,6 @@
-import abc
 from logging import getLogger
 
+from django.contrib.formtools.wizard.views import SessionWizardView
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
@@ -13,14 +13,12 @@ from stars.apps.institutions.models import (Institution,
 from stars.apps.registration.forms import (SelectSchoolForm,
                                            RegistrationSurveyForm,
                                            RespondentRegistrationSurveyForm,
-                                           ContactForm,
-                                           InstitutionRegistrationForm,)
+                                           InstitutionRegistrationForm)
 from stars.apps.tool.mixins import InstitutionAdminToolMixin
 from stars.apps.accounts.mixins import StarsAccountMixin
 from stars.apps.notifications.models import EmailTemplate
 
 from .utils import init_starsaccount, init_submissionset
-from ..payments.views import FAILURE, SubscriptionPurchaseWizard
 
 
 logger = getLogger('stars')
@@ -36,7 +34,6 @@ CONTACT_FIELD_NAMES = ['contact_department',
                        'contact_email',
                        'contact_first_name',
                        'contact_last_name',
-                       'contact_middle_name',
                        'contact_phone',
                        'contact_title',
                        'executive_contact_first_name',
@@ -127,15 +124,15 @@ class InstitutionCreateView(CreateView):
                        kwargs={'institution_slug': institution.slug})
 
 
-class RegistrationWizard(StarsAccountMixin, SubscriptionPurchaseWizard):
+class RegistrationWizard(StarsAccountMixin, SessionWizardView):
     """
         A wizard that runs a user through the forms required to register
         for STARS.
     """
     SELECT, CONTACT = 0, 1
 
-    REGISTRATION_FORMS = [(SELECT, SelectSchoolForm),
-                          (CONTACT, ContactForm)]
+    FORMS = [(SELECT, SelectSchoolForm),
+             (CONTACT, InstitutionRegistrationForm)]
 
     TEMPLATES = {SELECT: 'registration/wizard_select.html',
                  CONTACT: 'registration/wizard_contact.html'}
@@ -150,18 +147,16 @@ class RegistrationWizard(StarsAccountMixin, SubscriptionPurchaseWizard):
         return reverse('reg_survey',
                        kwargs={'institution_slug': institution.slug})
 
-    def get_institution(self):
-        if not self._institution:
-            self._institution = self.get_form_instance(str(self.CONTACT))
-        return self._institution
+    @classmethod
+    def get_class_form_list(cls):
+        return [form[1] for form in cls.FORMS]
 
     def get_template_names(self):
-        if self.steps.current == str(self.CONTACT):
-            return "registration/wizard_contact.html"
-        return super(RegistrationWizard, self).get_template_names()
+        return [self.TEMPLATES[int(self.steps.current)]]
 
     def get_context_data(self, form, **kwargs):
-        context = {}
+        context = super(RegistrationWizard, self).get_context_data(
+            form=form, kwargs=kwargs)
         if self.steps.current == str(self.SELECT + 1):
             # If the selected institution is already registered,
             # redirect to the tool summary page.  Then the user can be
@@ -212,6 +207,11 @@ class RegistrationWizard(StarsAccountMixin, SubscriptionPurchaseWizard):
             self._process_step_contact_info(form)
         return super(RegistrationWizard, self).process_step(form)
 
+    def get_institution(self):
+        if not self._institution:
+            self._institution = self.get_form_instance(str(self.CONTACT))
+        return self._institution
+
     def _process_step_contact_info(self, form):
 
         clean_form_info = form.clean()
@@ -252,6 +252,9 @@ class RegistrationWizard(StarsAccountMixin, SubscriptionPurchaseWizard):
             setattr(institution,
                     field_name,
                     self.request.session[field_name])
+
+    def done(self, forms, **kwargs):
+        return HttpResponseRedirect(self.success_url)
 
 
 def delete_objects(dead_men_walking):

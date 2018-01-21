@@ -9,7 +9,7 @@ urlpatterns = patterns(
 
     url(r'^$', InstitutionCreateView.as_view(), name='institution-create'),
 
-    url(r'^/wizard/$',
+    url(r'^wizard/$',
         RegistrationWizard.as_view(
             RegistrationWizard.get_class_form_list(),
             condition_dict={}
