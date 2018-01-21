@@ -55,7 +55,7 @@ class SelectSchoolForm(forms.Form):
     """
     A form for selecting an Organization from Organization names.
 
-    Organizations limited to ORG_TYPES and COUNTRIES listed.
+    Organizations limited to institution types listed.
     """
     aashe_id = forms.IntegerField()
 
@@ -63,8 +63,6 @@ class SelectSchoolForm(forms.Form):
                   "Baccalaureate",
                   "Master",
                   "Doctoral/Research")
-
-    # COUNTRIES = ('Canada', 'United States of America', 'Mexico')
 
     def __init__(self, *args, **kwargs):
         super(SelectSchoolForm, self).__init__(*args, **kwargs)
@@ -89,7 +87,6 @@ class SelectSchoolForm(forms.Form):
             institution_choices.append((org.account_num, choice_label))
 
         return institution_choices
-
 
 
 class ContactForm(ModelForm):
@@ -168,7 +165,80 @@ class ContactForm(ModelForm):
 PARTICIPATION_CHOICES = (("participant", "STARS Participant"),
                          ("respondent", "Survey Respondent"),)
 
+
 class InstitutionRegistrationForm(ModelForm):
+    """
+        All the necessary information to register an institution
+    """
+    class Meta:
+        model = Institution
+        fields = ['contact_first_name',
+                  'contact_last_name',
+                  'contact_title',
+                  'contact_department',
+                  'contact_phone',
+                  'contact_email',
+                  'executive_contact_first_name',
+                  'executive_contact_last_name',
+                  'executive_contact_title',
+                  'executive_contact_department',
+                  'executive_contact_email']
+
+    def __init__(self, *args, **kwargs):
+
+        super(InstitutionRegistrationForm, self).__init__(*args, **kwargs)
+        self.fields['contact_first_name'].label = "First Name"
+        self.fields['contact_last_name'].label = "Last Name"
+        self.fields['contact_title'].label = "Title"
+        self.fields['contact_department'].label = "Department/Office"
+        self.fields['contact_phone'].label = "Phone"
+        self.fields['contact_email'].label = "Email"
+
+        self.fields['executive_contact_first_name'].label = "First Name"
+        self.fields['executive_contact_last_name'].label = "Last Name"
+        self.fields['executive_contact_title'].label = "Title"
+        self.fields['executive_contact_department'].label = "Department/Office"
+        self.fields['executive_contact_email'].label = "Executive Email"
+
+        self.fields['contact_first_name'].required = True
+        self.fields['contact_last_name'].required = True
+        self.fields['contact_title'].required = True
+        self.fields['contact_department'].required = True
+        self.fields['contact_phone'].required = True
+        self.fields['contact_email'].required = True
+        self.fields['executive_contact_first_name'].required = True
+        self.fields['executive_contact_last_name'].required = True
+        self.fields['executive_contact_title'].required = True
+        self.fields['executive_contact_department'].required = True
+        self.fields['executive_contact_email'].required = True
+
+        for field in self.fields.values():
+            if field.required:
+                field.label += " *"
+
+    def clean(self):
+        cleaned_data = self.cleaned_data
+
+        if ("contact_email" in cleaned_data.keys() and
+            "executive_contact_email" in cleaned_data.keys()):
+
+            contact = cleaned_data.get("contact_email")
+            executive = cleaned_data.get("executive_contact_email")
+
+            if contact == executive:
+                msg = ("Oops, you've entered the same information for both"
+                       " the primary and executive contact. Please make"
+                       " sure these contacts are two different individuals"
+                       " at your institution.")
+                self._errors["executive_contact_email"] = ErrorList([msg])
+
+                # The executive field is no longer valid
+                del cleaned_data["executive_contact_email"]
+
+        return cleaned_data
+
+
+class NewInstitutionRegistrationForm(ModelForm):
     """
         All the necessary information to register an institution
     """
