@@ -131,18 +131,14 @@ class RegistrationWizard(StarsAccountMixin, SubscriptionPurchaseWizard):
     """
         A wizard that runs a user through the forms required to register
         for STARS.
-
-        This is an abstract class, by virtue of its abstract property
-        access_level.
     """
-    __metaclass__ = abc.ABCMeta
-
-    SELECT, CONTACT, SUBSCRIPTION_CREATE = 0, 1, 2
+    SELECT, CONTACT = 0, 1
 
     REGISTRATION_FORMS = [(SELECT, SelectSchoolForm),
                           (CONTACT, ContactForm)]
 
-    TEMPLATES = {SELECT: 'registration/wizard_select.html'}
+    TEMPLATES = {SELECT: 'registration/wizard_select.html',
+                 CONTACT: 'registration/wizard_contact.html'}
 
     def __init__(self, *args, **kwargs):
         self._institution = None
@@ -162,20 +158,11 @@ class RegistrationWizard(StarsAccountMixin, SubscriptionPurchaseWizard):
     def get_template_names(self):
         if self.steps.current == str(self.CONTACT):
             return "registration/wizard_contact.html"
-        elif self.steps.current == str(self.SUBSCRIPTION_CREATE):
-            return "registration/wizard_subscription_create.html"
         return super(RegistrationWizard, self).get_template_names()
 
     def get_context_data(self, form, **kwargs):
-
-        context = super(RegistrationWizard, self).get_context_data(form=form,
-                                                                   **kwargs)
-        if self.steps.current == str(self.SUBSCRIPTION_CREATE):
-            context.update({
-                'institution': self.get_form_instance(str(self.CONTACT)),
-                'contact': self.get_cleaned_data_for_step(str(self.CONTACT)),
-                'new_registration': True})
-        elif self.steps.current == str(self.SELECT + 1):
+        context = {}
+        if self.steps.current == str(self.SELECT + 1):
             # If the selected institution is already registered,
             # redirect to the tool summary page.  Then the user can be
             # surprised, maybe he didn't realize his institution as
@@ -220,24 +207,43 @@ class RegistrationWizard(StarsAccountMixin, SubscriptionPurchaseWizard):
 
         return None
 
-    @abc.abstractproperty
-    def access_level(self):
-        """What access level is this person registering for?"""
-        pass
-
     def process_step(self, form):
         if int(self.steps.current) == self.CONTACT:
             self._process_step_contact_info(form)
         return super(RegistrationWizard, self).process_step(form)
 
     def _process_step_contact_info(self, form):
-        """Save the contact info so we'll have it to pop into the
-        Institution later, when it's finally created.
-        """
+
         clean_form_info = form.clean()
+
         for contact_field_name in CONTACT_FIELD_NAMES:
             self.request.session[contact_field_name] = clean_form_info[
                 contact_field_name]
+
+        institution = self.get_institution()
+
+        self.update_institution_contact_info(institution)
+
+        # institution must have a pk before creating related StarsAccount
+        # and SubmissionSet records, so save it now:
+        institution.save()
+
+        try:
+            account = init_starsaccount(self.request.user, institution)
+        except Exception as exc:
+            delete_objects([institution])
+            raise exc
+
+        try:
+            init_submissionset(institution, self.request.user)
+        except Exception as exc:
+            delete_objects([institution, account])
+            raise exc
+
+        # now send the email
+        et = EmailTemplate.objects.get(slug='welcome_respondent')
+        et.send_email(
+            [institution.contact_email], {'institution': institution})
 
     def update_institution_contact_info(self, institution):
         """Updates the contact info stored on Institution `institution`
@@ -247,23 +253,6 @@ class RegistrationWizard(StarsAccountMixin, SubscriptionPurchaseWizard):
                     field_name,
                     self.request.session[field_name])
 
-    @classmethod
-    def get_form_conditions(cls):
-        """Returns a dictionary of conditionally displayed forms and
-        the conditional which must evaluate to True for the form to be
-        shown.
-        """
-        form_conditions = {
-            str(cls.SUBSCRIPTION_CREATE): registering_for_full_access}
-        return form_conditions
-
-
-def registering_for_full_access(wizard):
-    """Returns True if this registration is for Full Access,
-    False otherwise.
-    """
-    return wizard.access_level == FULL_ACCESS
-
 
 def delete_objects(dead_men_walking):
     for dead_man in dead_men_walking:
@@ -271,89 +260,6 @@ def delete_objects(dead_men_walking):
             dead_man.delete()
         except ObjectDoesNotExist:
             pass
-
-
-class FullAccessRegistrationWizard(RegistrationWizard):
-
-    @property
-    def access_level(self):
-        return FULL_ACCESS
-
-    def _process_step_subscription_create(self, form):
-
-        institution = self.get_institution()
-
-        self.update_institution_contact_info(institution)
-
-        # institution must have a pk before creating related StarsAccount
-        # and SubmissionSet records, so save it now:
-        institution.save()
-
-        try:
-            account = init_starsaccount(self.request.user, institution)
-        except Exception as exc:
-            delete_objects([institution])
-            raise exc
-
-        try:
-            submissionset = init_submissionset(institution, self.request.user)
-        except Exception as exc:
-            delete_objects([institution, account])
-            raise exc
-
-        try:
-            result = super(FullAccessRegistrationWizard,
-                           self)._process_step_subscription_create(form)
-        except:
-            delete_objects([account, submissionset, institution])
-            raise
-        else:
-            if result == FAILURE:
-                delete_objects([account, submissionset, institution])
-
-
-class BasicAccessRegistrationWizard(RegistrationWizard):
-
-    @property
-    def access_level(self):
-        return BASIC_ACCESS
-
-    def _process_step_contact_info(self, form):
-        super(BasicAccessRegistrationWizard,
-              self)._process_step_contact_info(form)
-
-        institution = self.get_institution()
-
-        self.update_institution_contact_info(institution)
-
-        # institution must have a pk before creating related StarsAccount
-        # and SubmissionSet records, so save it now:
-        institution.save()
-
-        try:
-            account = init_starsaccount(self.request.user, institution)
-        except Exception as exc:
-            delete_objects([institution])
-            try:
-                delete_objects([account])
-            except UnboundLocalError:
-                pass
-            raise exc
-
-        try:
-            submissionset = init_submissionset(institution, self.request.user)
-        except Exception as exc:
-            delete_objects([institution, account])
-            try:
-                delete_objects([submissionset])
-            except UnboundLocalError:
-                pass
-            raise exc
-
-        # now send the email
-        et = EmailTemplate.objects.get(slug='welcome_respondent')
-        et.send_email(
-            [institution.contact_email], {'institution': institution})
 
 
 class SurveyView(InstitutionAdminToolMixin, CreateView):
