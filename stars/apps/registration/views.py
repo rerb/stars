@@ -2,11 +2,9 @@ import abc
 from logging import getLogger
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.views.generic import CreateView, TemplateView
-from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
-from django.shortcuts import render
-
+from django.http import HttpResponseRedirect
+from django.views.generic import CreateView
 from iss.models import Organization
 
 from stars.apps.institutions.models import (Institution,
@@ -48,6 +46,7 @@ CONTACT_FIELD_NAMES = ['contact_department',
                        'executive_contact_email']
 
 BUSINESS_ORG_TYPE_ID = ('6faf90e4-000b-c40a-9b23-0b3c7f76be63',)
+
 
 class InstitutionCreateView(CreateView):
 
@@ -120,15 +119,12 @@ class InstitutionCreateView(CreateView):
                 pass
             raise exc
 
-
         return super(InstitutionRegistrationForm, self).form_valid(form)
 
     def get_success_url(self):
         institution = self.object
         return reverse('reg_survey',
                        kwargs={'institution_slug': institution.slug})
-
-
 
 
 class RegistrationWizard(StarsAccountMixin, SubscriptionPurchaseWizard):
@@ -297,20 +293,12 @@ class FullAccessRegistrationWizard(RegistrationWizard):
             account = init_starsaccount(self.request.user, institution)
         except Exception as exc:
             delete_objects([institution])
-            try:
-                delete_objects([account])
-            except UnboundLocalError:
-                pass
             raise exc
 
         try:
             submissionset = init_submissionset(institution, self.request.user)
         except Exception as exc:
             delete_objects([institution, account])
-            try:
-                delete_objects([submissionset])
-            except UnboundLocalError:
-                pass
             raise exc
 
         try:
