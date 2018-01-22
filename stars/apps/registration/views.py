@@ -127,6 +127,9 @@ class InstitutionCreateView(CreateView):
 
         return super(InstitutionCreateView, self).form_valid(form)
 
+    def get_success_url(self):
+        return reverse('tool-summary',
+                       kwargs={'institution_slug': self.return_slug})
 
 
 class RegistrationWizard(StarsAccountMixin, SessionWizardView):
