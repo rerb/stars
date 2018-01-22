@@ -47,38 +47,45 @@
             </span>
           </div>
           <input type="hidden" name="aashe_id" id="asshe_id">
+          {{ form.non_field_errors }}
         </div>
-        {{ contact_form.errors }}
         <div class="span4 offset2">
           <h3>STARS Liaison</h3>
           <label for="contact_form.contact_first_name">{{contact_form.contact_first_name.label}}</label>
+          {{form.contact_first_name.errors}}
           {{ contact_form.contact_first_name }}
-          <label for="contact_form.contact_middle_name">{{contact_form.contact_middle_name.label}}</label>
-          {{ contact_form.contact_middle_name }}
           <label for="contact_form.contact_last_name">{{contact_form.contact_last_name.label}}</label>
+          {{ form.contact_last_name.errors }}
           {{ contact_form.contact_last_name }}
           <label for="contact_form.contact_title">{{contact_form.contact_title.label}}</label>
+          {{ form.contact_title.errors }}
           {{ contact_form.contact_title }}
           <label for="contact_form.contact_department">{{contact_form.contact_department.label}}</label>
+          {{ form.contact_department.errors }}
           {{ contact_form.contact_department }}
           <label for="contact_form.contact_phone">{{contact_form.contact_phone.label}}</label>
+          {{ form.contact_phone.errors }}
           {{ contact_form.contact_phone }}
           <label for="contact_form.contact_email">{{contact_form.contact_email.label}}</label>
+          {{ form.contact_email.errors }}
           {{ contact_form.contact_email }}
         </div>
         <div class="span4">
           <h3>Executive Contact</h3>
           <label for="contact_form.executive_contact_first_name">{{contact_form.executive_contact_first_name.label}}</label>
+          {{ form.executive_contact_first_name.errors }}
           {{ contact_form.executive_contact_first_name }}
-          <label for="contact_form.executive_contact_middle_name">{{contact_form.executive_contact_middle_name.label}}</label>
-          {{ contact_form.executive_contact_middle_name }}
           <label for="contact_form.executive_contact_last_name">{{contact_form.executive_contact_last_name.label}}</label>
+          {{ form.executive_contact_last_name.errors }}
           {{ contact_form.executive_contact_last_name }}
           <label for="contact_form.executive_contact_title">{{contact_form.executive_contact_title.label}}</label>
+          {{ form.executive_contact_title.errors }}
           {{ contact_form.executive_contact_title }}
           <label for="contact_form.executive_contact_department">{{contact_form.executive_contact_department.label}}</label>
+          {{ form.executive_contact_department.errors }}
           {{ contact_form.executive_contact_department }}
           <label for="contact_form.executive_contact_email">{{contact_form.executive_contact_email.label}}</label>
+          {{ form.executive_contact_email.errors }}
           {{ contact_form.executive_contact_email }}
           <input class="span3 btn btn-success" type="submit" value="Register Institution" id="institution-submit-btn">
         </div>

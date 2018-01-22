@@ -239,6 +239,13 @@ class InstitutionRegistrationForm(ModelForm):
 
         return cleaned_data
 
+    def add_selection_error(self):
+        """
+        Add Error message for missing institution selection
+        """
+        msg = ("You must find and select an institution to register.")
+        self._errors['__all__'] = ErrorList([msg])
+
 
 class ParticipationLevelForm(forms.Form):
     level = forms.fields.ChoiceField(widget=forms.widgets.RadioSelect,

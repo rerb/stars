@@ -83,6 +83,10 @@ class InstitutionCreateView(CreateView):
         #if aashe_id is not set, it should return the form
         #return form_invalid
 
+        if (str(self.request.POST.get('aashe_id')) == ''):
+            form.add_selection_error()
+            return self.form_invalid(form)
+
         aashe_id = str(self.request.POST.get('aashe_id'))
         aashe_id = int(aashe_id.replace(',',''))
         org = Organization.objects.get(account_num=aashe_id)
@@ -129,6 +133,8 @@ class InstitutionCreateView(CreateView):
 
 
         return super(InstitutionCreateView, self).form_valid(form)
+
+
 
     def get_success_url(self):
         return reverse('tool-summary',

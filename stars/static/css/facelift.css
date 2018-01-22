@@ -276,3 +276,9 @@ h2 {
 #institution-submit-btn{
   margin-top: 20px;
 }
+.errorlist{
+  margin: 0 0 9px 0;
+}
+.errorlist li{
+  color: red;
+}
