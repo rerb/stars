@@ -218,10 +218,10 @@ class Institution(models.Model):
 
     @property
     def is_participant(self):
-        if self.current_subscription:
-            return (self.current_subscription.access_level ==
-                    self.current_subscription.FULL_ACCESS)
-        return False
+        return (
+            self.current_subscription and
+            self.current_subscription.access_level == Subscription.FULL_ACCESS
+        )
 
     def __unicode__(self):
         return self.name

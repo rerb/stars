@@ -55,16 +55,14 @@ class SelectSchoolForm(forms.Form):
     """
     A form for selecting an Organization from Organization names.
 
-    Organizations limited to ORG_TYPES and COUNTRIES listed.
+    Organizations limited to institution types listed.
     """
     aashe_id = forms.IntegerField()
 
-    ORG_TYPES = ('I',
-                 'Four Year Institution',
-                 'Two Year Institution',
-                 'Graduate Institution',
-                 'System Office')
-    # COUNTRIES = ('Canada', 'United States of America', 'Mexico')
+    INST_TYPES = ("Associate",
+                  "Baccalaureate",
+                  "Master",
+                  "Doctoral/Research")
 
     def __init__(self, *args, **kwargs):
         super(SelectSchoolForm, self).__init__(*args, **kwargs)
@@ -72,15 +70,14 @@ class SelectSchoolForm(forms.Form):
         self.fields['aashe_id'].label = "Institution"
         self.fields['aashe_id'].widget = widgets.Select(
             choices=self.institution_list,
-            attrs={
-                'style': "width: 700px",
-                'id': "school_select"})
+            attrs={'style': "width: 700px",
+                   'id': "school_select"})
 
     def get_institution_choices(self):
         institution_choices = []
 
         for org in Organization.objects.filter(
-                org_type__in=self.ORG_TYPES).order_by('org_name'):
+                institution_type__in=self.INST_TYPES).order_by('org_name'):
 
             choice_label = org.org_name
             if org.city and org.state:
@@ -89,7 +86,6 @@ class SelectSchoolForm(forms.Form):
             institution_choices.append((org.account_num, choice_label))
 
         return institution_choices
-
 
 
 class ContactForm(ModelForm):
@@ -167,6 +163,7 @@ class ContactForm(ModelForm):
 
 PARTICIPATION_CHOICES = (("participant", "STARS Participant"),
                          ("respondent", "Survey Respondent"),)
+
 
 class InstitutionRegistrationForm(ModelForm):
     """

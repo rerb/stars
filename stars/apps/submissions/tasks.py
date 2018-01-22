@@ -31,11 +31,6 @@ def hello_world():
 @task()
 def build_pdf_export(ss):
     print "starting pdf export(ss: %d)" % ss.id
-#     s = False
-#     if ss.pdf_report:
-#         print "existing report %s" % ss.pdf_report)
-#         return str(ss.pdf_report)
-#     s = True
     pdf = ss.get_pdf()
 #     pdf = build_certificate_pdf(ss)
 #     from django.core.files.temp import NamedTemporaryFile
