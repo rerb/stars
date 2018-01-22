@@ -88,18 +88,20 @@ class InstitutionCreateView(CreateView):
         institution.set_slug_from_iss_institution(institution.aashe_id)
 
         # set contact info
-        institution.contact_first_name = form.fields["contact_first_name"]
-        institution.contact_last_name = form.fields["contact_last_name"]
-        institution.contact_title = form.fields["contact_title"]
-        institution.contact_department = form.fields["contact_department"]
-        institution.contact_phone = form.fields["contact_phone"]
+        institution.contact_first_name = form.cleaned_data["contact_first_name"]
+        print "This is the first name"
+        print institution.contact_first_name
+        institution.contact_last_name = form.cleaned_data["contact_last_name"]
+        institution.contact_title = form.cleaned_data["contact_title"]
+        institution.contact_department = form.cleaned_data["contact_department"]
+        institution.contact_phone = form.cleaned_data["contact_phone"]
         institution.contact_email = form.fields["contact_email"]
 
-        institution.executive_contact_first_name = form.fields["executive_contact_first_name"]
-        institution.executive_contact_last_name = form.fields["executive_contact_last_name"]
-        institution.executive_contact_title = form.fields["executive_contact_title"]
-        institution.executive_contact_department = form.fields["executive_contact_department"]
-        institution.executive_contact_email = form.fields["executive_contact_email"]
+        institution.executive_contact_first_name = form.cleaned_data["executive_contact_first_name"]
+        institution.executive_contact_last_name = form.cleaned_data["executive_contact_last_name"]
+        institution.executive_contact_title = form.cleaned_data["executive_contact_title"]
+        institution.executive_contact_department = form.cleaned_data["executive_contact_department"]
+        institution.executive_contact_email = form.cleaned_data["executive_contact_email"]
 
         institution.save()
 
@@ -124,7 +126,7 @@ class InstitutionCreateView(CreateView):
             raise exc
 
 
-        return super(InstitutionRegistrationForm, self).form_valid(form)
+        return super(InstitutionCreateView, self).form_valid(form)
 
     def get_success_url(self):
         institution = self.object
