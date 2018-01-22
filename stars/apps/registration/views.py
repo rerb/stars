@@ -56,7 +56,6 @@ class InstitutionCreateView(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(InstitutionCreateView, self).get_context_data(**kwargs)
-        contact_form = self.get_form_class()
         institution_ids = Institution.objects.values_list('aashe_id',flat=True)
         institution_ids = [element for element in institution_ids
                            if element is not None]
@@ -65,7 +64,6 @@ class InstitutionCreateView(CreateView):
         orgs = orgs.exclude(account_num__in=institution_ids)
         orgs = orgs.values('account_num', 'org_name').order_by('org_name')
 
-        context['contact_form'] = contact_form
         context['orgs'] = orgs
         return context
 
