@@ -57,6 +57,9 @@ class InstitutionCreateView(CreateView):
     model = Institution
     template_name = 'registration/new_institution.html'
     form_class = InstitutionRegistrationForm
+    # for some reason, we do not have access to self.object in get_success_url
+    # so I will set the slug to return inside of form_valid
+    reverse_slug = None
 
     def get_context_data(self, **kwargs):
         context = super(InstitutionCreateView, self).get_context_data(**kwargs)
@@ -89,8 +92,6 @@ class InstitutionCreateView(CreateView):
 
         # set contact info
         institution.contact_first_name = form.cleaned_data["contact_first_name"]
-        print "This is the first name"
-        print institution.contact_first_name
         institution.contact_last_name = form.cleaned_data["contact_last_name"]
         institution.contact_title = form.cleaned_data["contact_title"]
         institution.contact_department = form.cleaned_data["contact_department"]
@@ -104,6 +105,7 @@ class InstitutionCreateView(CreateView):
         institution.executive_contact_email = form.cleaned_data["executive_contact_email"]
 
         institution.save()
+        self.return_slug = institution.slug
 
         try:
             account = init_starsaccount(self.request.user, institution)
@@ -129,9 +131,8 @@ class InstitutionCreateView(CreateView):
         return super(InstitutionCreateView, self).form_valid(form)
 
     def get_success_url(self):
-        institution = self.object
         return reverse('reg_survey',
-                       kwargs={'institution_slug': institution.slug})
+                       kwargs={'institution_slug': self.return_slug})
 
 
 
