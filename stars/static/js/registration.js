@@ -31,7 +31,8 @@ $(document).ready(function(){
 
 
 function showOrgs(){
-  $('.org-list').css("display","block");
+  // $('.org-list').css("display","block");
+  $('.org-list').slideDown();
 }
 
 function hideList(){

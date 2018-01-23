@@ -9,12 +9,13 @@
     <div class="span12">
 
       <div class="row">
-        <div class="offset2">
+        <div class="offset2 span8">
           <h1>STARS Institution Registration Form</h1>
           <div class="offset1">
             <h4>Begin by selecting the Search Institutions text field.</h4>
             <h4>Filter institutions by typing in the search box.</h4>
             <h4>Select an institution by clicking.</h4>
+            <h4>If your institution is not listed, please email <a href="mailto:stars@aashe.org">stars@aashe.org</a> and we will help you get started.</h4>
           </div>
         </div>
       </div>
@@ -32,7 +33,7 @@
       <div class="span7 offset2 org-list">
         <ul class="nav nav-list nav-stacked">
         {% for org in orgs %}
-          <li name="{{ org.account_num }}">{{ org.org_name }}</li>
+          <a><li name="{{ org.account_num }}">{{ org.org_name }}{% if org.city %}, {{ org.city }} {% endif %}</li></a>
         {% endfor %}
         </ul>
       </div>

@@ -62,7 +62,8 @@ class InstitutionCreateView(CreateView):
 
         orgs = Organization.objects.exclude(org_type_id__in=BUSINESS_ORG_TYPE_ID)
         orgs = orgs.exclude(account_num__in=institution_ids)
-        orgs = orgs.values('account_num', 'org_name').order_by('org_name')
+        orgs = (orgs.values('account_num', 'org_name', 'city')
+            .order_by('org_name'))
 
         context['orgs'] = orgs
         return context
@@ -121,7 +122,6 @@ class InstitutionCreateView(CreateView):
             except UnboundLocalError:
                 pass
             raise exc
-
 
         return super(InstitutionCreateView, self).form_valid(form)
 
