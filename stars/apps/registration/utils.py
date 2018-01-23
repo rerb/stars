@@ -1,4 +1,4 @@
-from stars.apps.institutions.models import StarsAccount
+from stars.apps.institutions.models import StarsAccount, PendingAccount
 from stars.apps.submissions.models import (PENDING_SUBMISSION_STATUS,
                                            SubmissionSet)
 from stars.apps.credits.models import CreditSet
@@ -15,6 +15,15 @@ def init_starsaccount(user, institution):
                            terms_of_service=True)
     account.save()
     account.select()
+    return account
+
+def init_pending_starsaccount(email, institution):
+    """
+        Add a PendingAccount to institution for email with admin persmission.
+    """
+    account = PendingAccount(user_email=email, institution=institution,
+                            user_level='admin', terms_of_service=True)
+    account.save()
     return account
 
 

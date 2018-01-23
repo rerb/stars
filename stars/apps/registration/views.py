@@ -1,5 +1,6 @@
 from logging import getLogger
 
+from django.contrib.auth.models import User
 from django.contrib.formtools.wizard.views import SessionWizardView
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
@@ -18,7 +19,9 @@ from stars.apps.tool.mixins import InstitutionAdminToolMixin
 from stars.apps.accounts.mixins import StarsAccountMixin
 from stars.apps.notifications.models import EmailTemplate
 
-from .utils import init_starsaccount, init_submissionset
+from .utils import (init_starsaccount,
+                    init_submissionset,
+                    init_pending_starsaccount)
 
 
 logger = getLogger('stars')
@@ -42,7 +45,8 @@ CONTACT_FIELD_NAMES = ['contact_department',
                        'executive_contact_department',
                        'executive_contact_email']
 
-BUSINESS_ORG_TYPE_ID = ('6faf90e4-000b-c40a-9b23-0b3c7f76be63',)
+EXCLUDED_ORG_TYPE_ID = ('6faf90e4-000b-c40a-9b23-0b3c7f76be63',
+                        '6faf90e4-000b-c639-9b81-0b3c7f76c336',)
 
 
 class InstitutionCreateView(CreateView):
@@ -60,7 +64,7 @@ class InstitutionCreateView(CreateView):
         institution_ids = [element for element in institution_ids
                            if element is not None]
 
-        orgs = Organization.objects.exclude(org_type_id__in=BUSINESS_ORG_TYPE_ID)
+        orgs = Organization.objects.exclude(org_type_id__in=EXCLUDED_ORG_TYPE_ID)
         orgs = orgs.exclude(account_num__in=institution_ids)
         orgs = (orgs.values('account_num', 'org_name', 'city')
             .order_by('org_name'))
@@ -92,7 +96,7 @@ class InstitutionCreateView(CreateView):
         institution.contact_title = form.cleaned_data["contact_title"]
         institution.contact_department = form.cleaned_data["contact_department"]
         institution.contact_phone = form.cleaned_data["contact_phone"]
-        institution.contact_email = form.fields["contact_email"]
+        institution.contact_email = form.cleaned_data["contact_email"]
 
         institution.executive_contact_first_name = form.cleaned_data["executive_contact_first_name"]
         institution.executive_contact_last_name = form.cleaned_data["executive_contact_last_name"]
@@ -101,27 +105,53 @@ class InstitutionCreateView(CreateView):
         institution.executive_contact_email = form.cleaned_data["executive_contact_email"]
 
         institution.save()
+
         self.return_slug = institution.slug
 
-        try:
-            account = init_starsaccount(self.request.user, institution)
-        except Exception as exc:
-            delete_objects([institution])
+        if not (self.request.user.is_anonymous):
+            print "We are here 0"
+            if(str(self.request.user.email) == str(institution.contact_email)):
+                print "We are here 1"
+                try:
+                    account = init_starsaccount(self.request.user, institution)
+                except Exception as exc:
+                    delete_objects([institution])
+                    try:
+                        delete_objects([account])
+                    except UnboundLocalError:
+                        pass
+                    raise exc
+                try:
+                    submissionset = init_submissionset(institution, self.request.user)
+                except Exception as exc:
+                    delete_objects([institution, account])
+                    try:
+                        delete_objects([submissionset])
+                    except UnboundLocalError:
+                        pass
+                    raise exc
+        elif(User.objects.filter(email=institution.contact_email).exists()):
+            print "We are here 2"
             try:
-                delete_objects([account])
-            except UnboundLocalError:
-                pass
-            raise exc
-
-        try:
-            submissionset = init_submissionset(institution, self.request.user)
-        except Exception as exc:
-            delete_objects([institution, account])
+                account = init_starsaccount(User.objects.get(email=institution.contact_email), institution)
+            except Exception as exc:
+                delete_objects([institution])
+                try:
+                    delete_objects([account])
+                except UnboundLocalError:
+                    pass
+                raise exc
+        else:
+            print "We are here 3"
             try:
-                delete_objects([submissionset])
-            except UnboundLocalError:
-                pass
-            raise exc
+                account = init_pending_starsaccount(institution.contact_email, institution)
+            except Exception as exc:
+                delete_objects([institution])
+                try:
+                    delete_objects([account])
+                except UnboundLocalError:
+                    pass
+                raise exc
 
         return super(InstitutionCreateView, self).form_valid(form)
 

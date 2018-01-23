@@ -197,7 +197,7 @@ class InstitutionRegistrationForm(ModelForm):
         self.fields['executive_contact_last_name'].label = "Last Name"
         self.fields['executive_contact_title'].label = "Title"
         self.fields['executive_contact_department'].label = "Department/Office"
-        self.fields['executive_contact_email'].label = "Executive Email"
+        self.fields['executive_contact_email'].label = "Email"
 
         self.fields['contact_first_name'].required = True
         self.fields['contact_last_name'].required = True
