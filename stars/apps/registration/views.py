@@ -78,7 +78,6 @@ class InstitutionCreateView(CreateView):
 
         #if aashe_id is not set, it should return the form
         #return form_invalid
-
         if (str(self.request.POST.get('aashe_id')) == ''):
             form.add_selection_error()
             return self.form_invalid(form)
@@ -109,55 +108,67 @@ class InstitutionCreateView(CreateView):
         self.return_slug = institution.slug
 
         if not (self.request.user.is_anonymous):
-            print "We are here 0"
             if(str(self.request.user.email) == str(institution.contact_email)):
-                print "We are here 1"
-                try:
-                    account = init_starsaccount(self.request.user, institution)
-                except Exception as exc:
-                    delete_objects([institution])
-                    try:
-                        delete_objects([account])
-                    except UnboundLocalError:
-                        pass
-                    raise exc
-                try:
-                    submissionset = init_submissionset(institution, self.request.user)
-                except Exception as exc:
-                    delete_objects([institution, account])
-                    try:
-                        delete_objects([submissionset])
-                    except UnboundLocalError:
-                        pass
-                    raise exc
+                self.set_up_account(person=self.request.user, institution=institution)
+                self.set_up_submissionset(person=self.request.user, institution=institution)
         elif(User.objects.filter(email=institution.contact_email).exists()):
-            print "We are here 2"
-            try:
-                account = init_starsaccount(User.objects.get(email=institution.contact_email), institution)
-            except Exception as exc:
-                delete_objects([institution])
-                try:
-                    delete_objects([account])
-                except UnboundLocalError:
-                    pass
-                raise exc
+            the_person = User.objects.get(email=institution.contact_email)
+            self.set_up_account(person=the_person, institution=institution)
+            self.set_up_submissionset(person=the_person, institution=institution)
         else:
-            print "We are here 3"
-            try:
-                account = init_pending_starsaccount(institution.contact_email, institution)
-            except Exception as exc:
-                delete_objects([institution])
-                try:
-                    delete_objects([account])
-                except UnboundLocalError:
-                    pass
-                raise exc
+            # Set up a PendingAccount in this case
+            # Cannot initialize a submissionset
+            self.set_up_pending_account(person=institution.contact_email, institution=institution)
 
         return super(InstitutionCreateView, self).form_valid(form)
 
     def get_success_url(self):
         return reverse('tool-summary',
                        kwargs={'institution_slug': self.return_slug})
+
+    def set_up_account(self, person, institution):
+        """
+            After it is determined who should be associated with the
+            institution, set up the admin account for that person
+        """
+        try:
+            account = init_starsaccount(person, institution)
+        except Exception as exc:
+            delete_objects([institution])
+            try:
+                delete_objects([account])
+            except UnboundLocalError:
+                pass
+            raise exc
+
+    def set_up_submissionset(self, person, institution):
+        """
+            After it is determined who should be associated with the
+            institution, initialize a submissionset if User is available
+        """
+        try:
+            submissionset = init_submissionset(institution, person)
+        except Exception as exc:
+            delete_objects([institution, account])
+            try:
+                delete_objects([submissionset])
+            except UnboundLocalError:
+                pass
+            raise exc
+
+    def set_up_pending_account(self, person, institution):
+        """
+            If there is no User record for liaison, set up a PendingAccount
+        """
+        try:
+            account = init_pending_starsaccount(person, institution)
+        except Exception as exc:
+            delete_objects([institution])
+            try:
+                delete_objects([account])
+            except UnboundLocalError:
+                pass
+            raise exc
 
 
 class RegistrationWizard(StarsAccountMixin, SessionWizardView):
