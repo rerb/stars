@@ -107,17 +107,17 @@ class InstitutionCreateView(CreateView):
 
         self.return_slug = institution.slug
 
-        if not (self.request.user.is_anonymous):
-            if(str(self.request.user.email) == str(institution.contact_email)):
+        if(str(self.request.user.email) == str(institution.contact_email)):
                 self.set_up_account(person=self.request.user, institution=institution)
                 self.set_up_submissionset(person=self.request.user, institution=institution)
         elif(User.objects.filter(email=institution.contact_email).exists()):
-            the_person = User.objects.get(email=institution.contact_email)
-            self.set_up_account(person=the_person, institution=institution)
-            self.set_up_submissionset(person=the_person, institution=institution)
+            liaison = User.objects.get(email=institution.contact_email)
+            self.set_up_account(person=self.request.user, institution=institution)
+            self.set_up_submissionset(person=self.request.user, institution=institution)
+            self.set_up_account(person=liaison, institution=institution)
         else:
-            # Set up a PendingAccount in this case
-            # Cannot initialize a submissionset
+            self.set_up_account(person=self.request.user, institution=institution)
+            self.set_up_submissionset(person=self.request.user, institution=institution)
             self.set_up_pending_account(person=institution.contact_email, institution=institution)
 
         return super(InstitutionCreateView, self).form_valid(form)
@@ -128,8 +128,7 @@ class InstitutionCreateView(CreateView):
 
     def set_up_account(self, person, institution):
         """
-            After it is determined who should be associated with the
-            institution, set up the admin account for that person
+            Set up the admin account for user provided
         """
         try:
             account = init_starsaccount(person, institution)
@@ -143,8 +142,7 @@ class InstitutionCreateView(CreateView):
 
     def set_up_submissionset(self, person, institution):
         """
-            After it is determined who should be associated with the
-            institution, initialize a submissionset if User is available
+            Initializes submissionset with provided User
         """
         try:
             submissionset = init_submissionset(institution, person)

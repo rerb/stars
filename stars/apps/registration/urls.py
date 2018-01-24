@@ -1,4 +1,5 @@
 from django.conf.urls.defaults import patterns, url
+from django.contrib.auth.decorators import login_required
 
 from .views import (RegistrationWizard,
                     SurveyView,
@@ -7,7 +8,9 @@ from .views import (RegistrationWizard,
 urlpatterns = patterns(
     'stars.apps.registration.views',
 
-    url(r'^$', InstitutionCreateView.as_view(), name='institution-create'),
+    url(r'^$',
+        login_required(InstitutionCreateView.as_view()),
+        name='institution-create'),
 
     url(r'^wizard/$',
         RegistrationWizard.as_view(
