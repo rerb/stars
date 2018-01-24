@@ -120,6 +120,11 @@ class InstitutionCreateView(CreateView):
             self.set_up_submissionset(person=self.request.user, institution=institution)
             self.set_up_pending_account(person=institution.contact_email, institution=institution)
 
+        et = EmailTemplate.objects.get(slug='welcome_respondent')
+        et.send_email(
+            [institution.contact_email, institution.executive_contact_email],
+            {'institution': institution})
+
         return super(InstitutionCreateView, self).form_valid(form)
 
     def get_success_url(self):
