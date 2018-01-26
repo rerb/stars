@@ -36,7 +36,7 @@
             </a>
         </li>
         <li{% if active_tab == 'share' %} class="active" {% endif %}>
-            <a href="{% url share-data institution.slug %}">Share Data</a>
+            <a href="{% url share-third-parties institution.slug %}">Share Data</a>
         </li>
         <li{% if active_tab == 'manage_data' %} class="active" {% endif %}>
             <a href="{% url migrate-options institution.slug %}">Manage Data</a>

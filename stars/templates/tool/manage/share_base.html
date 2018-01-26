@@ -8,11 +8,11 @@
 
 {% block subtabs %}
 	<ul class="nav nav-pills">
-	  <li{% if active_tab == 'snapshots' %} class="active" {% endif %}>
-	    <a href="{% url share-data institution.slug %}">My Snapshots</a>
+		<li{% if active_tab == 'third-parties' %} class="active" {% endif %}>
+	  	<a href="{% url share-third-parties institution.slug %}">Data Sharing Instructions</a>
 	  </li>
-	  <li{% if active_tab == 'third-parties' %} class="active" {% endif %}>
-	  	<a href="{% url share-third-parties institution.slug %}">Who am I sharing with?</a>
+	  <li{% if active_tab == 'snapshots' %} class="active" {% endif %}>
+	    <a href="{% url share-data institution.slug %}">My Snapshots (archive)</a>
 	  </li>
 	</ul>
 {% endblock %}

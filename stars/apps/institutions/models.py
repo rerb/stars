@@ -1,5 +1,6 @@
 import collections
 from datetime import date
+from dateutil.relativedelta import relativedelta
 from logging import getLogger
 
 from django.conf import settings
@@ -243,6 +244,14 @@ class Institution(models.Model):
             return self.current_subscription.access_level
         else:
             return Subscription.BASIC_ACCESS
+
+    def older_than_three_years(self):
+        try:
+            return (date.today() > (self.rated_submission.date_submitted +
+                                    relativedelta(years=3)))
+        except AttributeError:
+            return False
+        return True
 
     def update_status(self):
         """

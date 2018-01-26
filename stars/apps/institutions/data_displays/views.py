@@ -1,5 +1,6 @@
 import collections
 from datetime import date, datetime
+from dateutil.relativedelta import relativedelta
 from logging import getLogger
 import re
 import hashlib
@@ -55,17 +56,21 @@ class Dashboard(TemplateView):
 
     def get_ratings_context(self):
         """Return a context for the Ratings graph."""
+        # if the institution's rating_expires == none,
+        # then their rating has expired
         ratings = collections.defaultdict(int)
         for i in Institution.objects.filter(current_rating__isnull=False):
-            if i.current_submission.expired:
-                continue
-            ratings[i.current_rating.name] += 1
+            if i.rating_expires:
+                ratings[i.current_rating.name] += 1
         return ratings
 
     def get_participation_context(self):
         """Return a context for the participation line graph."""
         current_month = date.today()
         current_month = current_month.replace(day=1)
+        #create beginning month to replace query on while loop
+        #saves 5 seconds of processing
+        beginning_date = date(2009, 9, 1)
 
         def change_month(d, delta):
             if d.month + delta == 13:
@@ -85,25 +90,46 @@ class Dashboard(TemplateView):
         context['total_participant_count'] = 0
 
         # go back through all months until we don't have any subscriptions
-        while Subscription.objects.filter(
-                start_date__lte=current_month).all():
+        while beginning_date <= current_month:
             # create a "slice" from the current month
             slice = {}
+
+            #create an expiration month
+            expiration_month = current_month - relativedelta(years=3)
+
+            # active_participants
+            # find all the institutions with active ratings
+            # then find the count of all the institutions with subscriptions,
+            # that are not in that list.
+            # add them together and you have active_participants
+            active_rating = (SubmissionSet.objects.filter(status='r')
+                .filter(is_visible=True)
+                .filter(date_submitted__lte=current_month)
+                .filter(date_submitted__gt=expiration_month)
+                .values_list('institution', flat=True))
+
+            partial_active_participants = (Subscription.objects
+                .filter(start_date__lte=current_month).values('institution')
+                .filter(end_date__gt=current_month)
+                .filter(access_level="Full")
+                .exclude(institution__in=active_rating).count())
+
+            active_participants = len(active_rating) + partial_active_participants
+
+            slice['active_participants'] = active_participants
+            if len(slices) == 0:
+                context['current_active_participants'] = active_participants
+
             subscription_count = Subscription.objects.filter(
                 start_date__lte=current_month).values(
                     'institution').count()
             slice['subscription_count'] = subscription_count
-            if len(slices) == 0:
-                context['total_subscription_count'] = subscription_count
+            # if len(slices) == 0:
+            #     context['total_subscription_count'] = subscription_count
 
-            rating_count = SubmissionSet.objects.filter(status='r')
-            rating_count = rating_count.filter(is_visible=True)
-            rating_count = rating_count.filter(
-                date_submitted__lt=current_month)
-            rating_count = rating_count.count()
-            slice['rating_count'] = rating_count
+            slice['rating_count'] = len(active_rating)
             if len(slices) == 0:
-                context['total_rating_count'] = rating_count
+                context['total_rating_count'] = len(active_rating)
 
             participant_count = Institution.objects.filter(
                 date_created__lt=current_month).count()

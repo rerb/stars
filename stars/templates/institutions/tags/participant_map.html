@@ -59,11 +59,12 @@
 					{% endfor %}
 			]
 
-			var centerPos = new google.maps.LatLng(49.496675,-108.632812);
+			// var centerPos = new google.maps.LatLng(49.496675,-108.632812);
 			  var myOptions = {
-			    zoom: 3,
-			    center: centerPos,
+			    zoom: 2,
+			    center: {lat: 29, lng: 0},
 			    //disableDefaultUI: true,
+					fitBounds: false,
 			    streetViewControl: false,
 			    scaleControl: true,
 			    mapTypeControl: true,
@@ -108,7 +109,9 @@
 			  		m = createMarker(school_list[i]);
 			  		//bounds.extend(m.getPosition());
 			  }
-			  map.fitBounds(bounds);
+				// uncomment below if you would like to evenly
+				// space map on all data points
+			  // map.fitBounds(bounds);
 	  }
         function loadScript() {
             var script = document.createElement('script');

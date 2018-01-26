@@ -21,7 +21,8 @@
       {{ member_count }} are AASHE members
     </b>
     (<sup class='symbol'>m</sup>).
-    Each institution's most recent report is listed below.
+    Each institution's most recent report is listed below. Ratings that have
+    not been updated in more than three years are considered to be expired (*).
     Click on an institution's name to view all STARS reports.
 </p> </span>
 {% load help %}
@@ -47,7 +48,7 @@
   <tbody>
     {% for institution in object_list %}
     <tr class="{% cycle 'even' 'odd' %}">
-      <td style='text-align: left'>
+      <td style='text-align: left' class="span4">
 	{% if institution.rated_submission %}
         <a href='{% url scorecard-list institution.slug %}'
            id='scorecard-list'>
@@ -58,20 +59,24 @@
 	{% endif %}
         {% include "institutions/inst_property_icons.html" %}
       </td>
-      <td>
+      <td class="span3">
         {{ institution.country }}
+        {% if institution.ms_institution.state %}
+          , {{ institution.ms_institution.state }}
+        {% endif %}
       </td>
-      <td>
+      <td class="span1">
         {{ institution.rated_submission.creditset.version }}
       </td>
-      <td>
+      <td class="span2">
 	   {% if institution.current_rating %}
           {{ institution.current_rating }}
-       {% elif institution.latest_expired_submission %}
-        <em>Expired</em>
+     {% endif %}
+     {% if institution.older_than_three_years %}
+          *
 	   {% endif %}
       </td>
-      <td>
+      <td class="span2">
         {% if institution.rated_submission %}
             <a href='{% url scorecard-summary institution.slug institution.rated_submission.date_submitted %}'>
               {{ institution.rated_submission.date_submitted }}
