@@ -440,35 +440,7 @@ class Institution(models.Model):
 
     @property
     def profile(self):
-        return Organization.objects.get(account_num=self.aashe_id)
-        # return self.ms_institution
-        # org = None
-        # # The process which selects the iss.Organization that matches
-        # # this Institution is bogus.  First, it tries to match on name,
-        # # then, failing that, tries a couple hard-coded exceptions.
-        # # What can we match on other than name?
-        # try:
-        #     org = Organization.objects.get(org_name=self.name)
-
-        # except Organization.DoesNotExist:
-        #     logger.error("No ISS organization found for aashe_id %s" %
-        #                  self.aashe_id)
-
-        # except Organization.MultipleObjectsReturned:
-        #     # A couple exceptions to the rules. These really must go away
-        #     # after this selection process is rewritten.
-
-        #     if self.aashe_id == 2967:  # Concordia University, Montreal
-        #         org = Organization.objects.get(membersuite_id="2976")
-
-        #     elif self.aashe_id == 2951:  # Concordia College, Moorhead
-        #         org = Organization.objects.get(membersuite_id="2951")
-
-        #     else:
-        #         logger.error("Too many ISS organizations found for "
-        #                      "aashe_id %s" % self.aashe_id)
-
-        # return org
+        return self.ms_institution
 
     def is_member_institution(self):
         """
