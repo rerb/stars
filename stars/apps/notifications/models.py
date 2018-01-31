@@ -45,7 +45,7 @@ class EmailTemplate(models.Model):
 
         return build_message(content, context)
 
-    def send_email(self, mail_to, context, title=None, attachments=None):
+    def send_email(self, mail_to, context, title=None, attachments=None, reply_to=None):
         """
             Sends an email based on this template to the passed list of emails
             and using the passed context dictionary
@@ -54,6 +54,11 @@ class EmailTemplate(models.Model):
         if not settings.EMAIL_REPLY_TO:
             raise NameError('Please define the EMAIL_REPLY_TO '
                             'variable in settings')
+
+        if reply_to is not None:
+            reply = reply_to
+        else:
+            reply = settings.EMAIL_REPLY_TO
 
         cc_list = []
         bcc_list = []
@@ -72,7 +77,7 @@ class EmailTemplate(models.Model):
             to=mail_to,
             cc=cc_list,
             bcc=bcc_list,
-            headers={'Reply-To': settings.EMAIL_REPLY_TO},
+            headers={'Reply-To': reply},
             attachments=attachments
         )
         m.send()
