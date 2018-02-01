@@ -23,7 +23,9 @@
     (<sup class='symbol'>m</sup>).
     Each institution's most recent report is listed below. Ratings that have
     not been updated in more than three years are considered to be expired (*).
-    Click on an institution's name to view all STARS reports.
+    Institutions awarded Reporter designation elected not to publish scoring
+    information or pursue a rating. Click on an institution's name to view all
+    STARS reports.
 </p> </span>
 {% load help %}
 {% show_help_context 'rated_institutions_page' 0 %}
@@ -60,9 +62,7 @@
         {% include "institutions/inst_property_icons.html" %}
       </td>
       <td class="span3">
-        {{ institution.country }}
-        {% if institution.ms_institution.state %}
-          , {{ institution.ms_institution.state }}
+        {{ institution.country }}{% if institution.ms_institution.state %}, {{ institution.ms_institution.state }}
         {% endif %}
       </td>
       <td class="span1">
