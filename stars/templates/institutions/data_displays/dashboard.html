@@ -72,7 +72,7 @@
 
      var data = new google.visualization.DataTable();
      data.addColumn('string', 'Month');
-     data.addColumn('number', 'Participants');
+     data.addColumn('number', 'Registrants');
      data.addColumn('number', 'Active Participants');
      data.addColumn('number', 'Rated Institutions');
 
@@ -179,7 +179,7 @@
       <table class="table table-condensed">
 	<tbody>
 	  <tr>
-	    <th>Participants</th>
+	    <th>Registrants</th>
 	    <td style="text-align:right">{{ total_participant_count }}</td>
 	  </tr>
           <tr>
@@ -188,7 +188,7 @@
 	  </tr>
 	  </tr>
           <tr>
-	    <th>Ratings</th>
+	    <th>Rated Institutions</th>
 	    <td style="text-align:right">{{ total_rating_count }}</td>
 	  </tr>
 	</tbody>
