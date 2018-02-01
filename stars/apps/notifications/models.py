@@ -45,7 +45,8 @@ class EmailTemplate(models.Model):
 
         return build_message(content, context)
 
-    def send_email(self, mail_to, context, title=None, attachments=None, reply_to=None):
+    def send_email(self, mail_to, context, title=None, attachments=None,
+        reply_to=None):
         """
             Sends an email based on this template to the passed list of emails
             and using the passed context dictionary
