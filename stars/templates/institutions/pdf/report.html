@@ -79,7 +79,6 @@
       {% endif %}
     </h2>
 
-
     <table class='submissionSummary vertical'>
       <tr>
 	{% if preview %}
@@ -137,21 +136,19 @@
 	<td>{{ ss.creditset.version }}</td>
       </tr>
       <tr>
-        {% if preview %}
-	  <td colspan='2' style='text-align: center;'>
+	<td colspan='2' style='text-align: center;'>
+          {% if preview %}
 	    <br/><br/>This is a preview of the final STARS Report.<br/><br/>
             The final version of the report will be available upon
             publication, at which time the final rating will be
             awarded and the data contained in the report will become
             publicly available on the STARS website.<br/>
-	  </td>
-        {% elif report_type == "snapshot" %}
-	  <td colspan="2" style="text-align: center;">
+          {% elif report_type == "snapshot" %}
 	    <br/><br/>This snapshot includes all data from credits
             that were marked as “complete” in the STARS Reporting
             Tool. It is a not necessarily a complete STARS report.
-	  </td>
-        {% endif %}
+          {% endif %}
+        </td>
       </tr>
     </table>
 
