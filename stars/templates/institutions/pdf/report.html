@@ -1,4 +1,5 @@
 {% autoescape off %}
+{% load static %}
 {% load submit_tags %}
 {% load report_tags %}
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -67,7 +68,7 @@
              alt='{{ ss.rating }}' height='300px'/>
 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       {% endif %}
-      <img src="https://stars.aashe.org/media/static/images/stars_logo.png"
+      <img src="{% static 'images/another_stars_logo.png' %}"
            alt="STARS Logo" height="300px" />
     </div>
     <h1>{{ ss.institution.name }}</h1>
@@ -293,6 +294,7 @@
     {% endif %}
 
     <table class="summary">
+
       {% for cat in ss.categorysubmission_set.all %}
         {% if cat.category.include_in_report %}
           <tr class='tocCatRow'>
@@ -305,20 +307,17 @@
             </td>
             {% if show_scores %}
       	      <td align='right' width="15%">
-      	        {% if ss.creditset.has_category_scoring_feature %}
-      	          {% if cat.category.title != "Innovation & Leadership" %}
-      	            {{ cat.get_claimed_points|floatformat }}/
-                    {{ cat.get_available_points }}
-      	          {% else %}
-      	            {{ cat.get_claimed_points|floatformat }}/4
-      	          {% endif %}
+      	        {% if cat.category.title != "Innovation & Leadership" %}
+      	          {{ cat.get_claimed_points|floatformat }}/
+                  {{ cat.get_available_points }}
+      	        {% else %}
+      	          {{ cat.get_claimed_points|floatformat }}/4
       	        {% endif %}
       	      </td>
             {% endif %}
           </tr>
 
           {% for sub in cat.subcategorysubmission_set.all %}
-
             {% if sub.subcategory.title != "Institutional Characteristics" %}
               <tr class='{% cycle 'evenRow' 'oddRow' %}'>
                 <td width="50%">
@@ -330,7 +329,7 @@
                 </td>
                 <td>
                 </td>
-                {% if show_scores %}
+                {% if show_scores and sub.subcategory.title != "Exemplary Practice" and sub.subcategory.title != "Innovation" %}
                   <td align='right' width="15%">
                     {{ sub.get_claimed_points|floatformat }} /
                     {{ sub.get_adjusted_available_points|floatformat }}
@@ -338,7 +337,6 @@
                 {% endif %}
               </tr>
             {% endif %}
-
             {% for credit_submission in sub.creditusersubmission_set.all %}
               {# Skip opt-ed out opt-in credits. #}
               {% if credit_submission.credit.is_opt_in and credit_submission.submission_status == "na" %}
@@ -401,31 +399,29 @@
 	  <a name='cat{{ cat.category.id }}'></a>
 	  {{ cat }}
 	</h2>
-	{% if show_scores %}
-	  {% if ss.creditset.has_category_scoring_feature %}
-	    <table class='scoreTable vertical'>
-	      <tr>
-		<th>
-		  {% if preview %}Provisional{% endif %}
-		  Score
-		</th>
-		<td>
-		  {% if cat.category.title != 'Innovation' %}
-		    {{ cat.get_STARS_score|floatformat }}%
-		  {% else %}
-		    {{ cat.get_STARS_score|floatformat }}
-		  {% endif %}
-		</td>
-	      </tr>
-	    </table>
-	  {% endif %}
+	{% if show_scores and cat.category.title != "Institutional Characteristics" %}
+	  <table class='scoreTable vertical'>
+	    <tr>
+	      <th>
+		{% if preview %}Provisional{% endif %}
+		Score
+	      </th>
+	      <td>
+		{% if cat.category.title != 'Innovation & Leadership' %}
+		  {{ cat.get_STARS_score|floatformat }}%
+		{% else %}
+		  {{ cat.get_STARS_score|floatformat }}
+		{% endif %}
+	      </td>
+	    </tr>
+	  </table>
 	{% endif %}
 	{% for sub in cat.subcategorysubmission_set.all %}
 	  <h3 class='{% if forloop.counter0 == 0 %}noBreak{% endif %}'>
 	    <a name='sub{{ sub.subcategory.id }}'></a>
 	    {{ sub }}
 	  </h3>
-	  {% if show_scores and sub.subcategory.title != "Institutional Characteristics" %}
+	  {% if show_scores and sub.subcategory.title != "Institutional Characteristics" and sub.subcategory.title != "Exemplary Practice" and sub.subcategory.title != "Innovation" %}
 	    <table class='scoreTable vertical'>
 	      <tr>
 		<th>Points Claimed</th>
