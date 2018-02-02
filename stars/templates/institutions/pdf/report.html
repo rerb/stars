@@ -306,10 +306,11 @@
             {% if show_scores %}
       	      <td align='right' width="15%">
       	        {% if ss.creditset.has_category_scoring_feature %}
-      	          {% if cat.category.title != 'Innovation' %}
-      	            {{ cat.get_STARS_score|floatformat }}%
+      	          {% if cat.category.title != "Innovation & Leadership" %}
+      	            {{ cat.get_claimed_points|floatformat }}/
+                    {{ cat.get_available_points }}
       	          {% else %}
-      	            {{ cat.get_STARS_score|floatformat }}
+      	            {{ cat.get_claimed_points|floatformat }}/4
       	          {% endif %}
       	        {% endif %}
       	      </td>
@@ -570,7 +571,11 @@
 	    <a href='http://stars.aashe.org{{ ss.get_scorecard_url }}'>
               {{ ss.institution }}
             </a>
-            |  STARS Report  |  <pdf:pagenumber>
+            {% if report_type != "snapshot" %}
+              |  STARS Report  |  <pdf:pagenumber>
+            {% else %}
+              |  STARS Snapshot  |  <pdf:pagenumber>
+            {% endif %}
 	  </td>
 	</tr>
       </table>
