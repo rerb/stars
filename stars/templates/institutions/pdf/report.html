@@ -13,7 +13,10 @@
        margin: 1cm;
        margin-bottom: 1cm;
        size: letter;
-       {% if preview or report_type == "snapshot" %}
+       {% if preview %}
+         /*background-image: url("{{ project_path }}/static/images/preview.jpg");
+           background-repeat: repeat;
+           background-position: top-left;*/
          @frame header {
 	   -pdf-frame-content: headerContent;
 	   top: .5cm;
@@ -38,7 +41,7 @@
      }
 
      table.tabular tr {
-       vertical-align: middle;
+       virtical-align: middle;
      }
 
      table.tabular td, table.tabular th {
@@ -56,45 +59,33 @@
 
     </style>
 
-    <link href='{{ project_path }}/static/css/pdf.css'
-          rel='stylesheet' type='text/css' />
+    <link href='{{ project_path }}/static/css/pdf.css' rel='stylesheet' type='text/css' />
   </head>
 
   <body>
     <div class='seals'>
       {% if not preview %}
-	<img src='{{ ss.rating.get_large_image_path }}'
-             alt='{{ ss.rating }}' height='300px'/>
+	<img src='{{ ss.rating.get_large_image_path }}' alt='{{ ss.rating }}' height='300px'/>
 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       {% endif %}
-      <img src="https://stars.aashe.org/media/static/images/stars_logo.png"
-           alt="STARS Logo" height="300px" />
-    </div>
-    <h1>{{ ss.institution.name }}</h1>
-    <h2 style="page-break-before: never; -pdf-outline: false;">
-      {% if report_type == "snapshot" %}
-        Data Sharing Snapshot
+      {% if ss.institution.charter_participant %}
+	<img src='https://stars.aashe.org/media/static/images/seals/Stars_Seal_Charter_Particip_RGB_300.jpg' alt='Charter Participant' height='300px' />
       {% else %}
-        STARS Report
+	<img src='https://stars.aashe.org/media/static/images/seals/Stars_Seal_Participant_RGB_300.jpg' alt='Participant' height='300px' />
       {% endif %}
-    </h2>
-
+    </div>
+    <h1>{{ ss.institution.name }}<br/><i>STARS REPORT</i></h1>
 
     <table class='submissionSummary vertical'>
       <tr>
-	{% if preview %}
-          <th>Preview Date:</th>
-          <td>{% now "N j, Y" %}</td>
-        {% else %}
-          {% if report_type == "snapshot" %}
-            <th>Snapshot Date:</th>
+	<th>Date Submitted:</th>
+	<td>
+	  {% if preview %}
+	    <span style='color: red;'>Preview</span>
 	  {% else %}
-	    <th>Date Submitted:</th>
+	    {{ ss.date_submitted }}
 	  {% endif %}
-	  <td>
-            {{ ss.date_submitted }}
-          </td>
-        {% endif %}
+	</td>
       </tr>
       <tr>
 	<th>
@@ -115,29 +106,23 @@
 	  Score:
 	</th>
 	<td>
-	  {% if show_scores %}
-	    {{ ss.get_STARS_score|floatformat }}
+	  {% if rating.publish_score %}
+	    {{ ss.get_STARS_score|floatformat:2 }}
 	  {% else %}
 	    Reporter
 	  {% endif %}
 	</td>
       </tr>
-      {% if report_type != "preview" %}
-        <tr>
-	  <th>Online Report:</th>
-	  <td>
-            <a href='http://stars.aashe.org{{ ss.get_scorecard_url }}'>
-              {{ ss.institution }}
-            </a>
-          </td>
-        </tr>
-      {% endif %}
+      <tr>
+	<th>Online Report:</th>
+	<td><a href='http://stars.aashe.org{{ ss.get_scorecard_url }}'>{{ ss.institution }}</a></td>
+      </tr>
       <tr>
 	<th>STARS Version:</th>
 	<td>{{ ss.creditset.version }}</td>
       </tr>
-      <tr>
-        {% if preview %}
+      {% if preview %}
+	<tr>
 	  <td colspan='2' style='text-align: center;'>
 	    <br/><br/>This is a preview of the final STARS Report.<br/><br/>
             The final version of the report will be available upon
@@ -145,14 +130,7 @@
             awarded and the data contained in the report will become
             publicly available on the STARS website.<br/>
 	  </td>
-        {% elif report_type == "snapshot" %}
-	  <td colspan="2" style="text-align: center;">
-	    <br/><br/>This snapshot includes all data from credits
-            that were marked as “complete” in the STARS Reporting
-            Tool. It is a not necessarily a complete STARS report.
-	  </td>
-        {% endif %}
-      </tr>
+      {% endif %}
     </table>
 
     <h2 style='-pdf-outline: false;'>Wait, Wait! Don’t Print Me!</h2>
@@ -162,11 +140,13 @@
       Reader. The following special features have been embedded:</p>
     <b>Moving Around in the Document</b>
     <ul>
-      <li>
-	<b>Summary Links</b> - Headings in the Summary are links,
-        which can be clicked to take you directly to the referenced
-        page.
-      </li>
+      {% if rating.publish_score %}
+	<li>
+	  <b>Summary of Results Links</b> - Headings in the Summary of
+          Results are links, which can be clicked to take you directly
+          to the referenced page.
+        </li>
+      {% endif %}
       <li>
 	<b>Bookmarks</b> - You can jump to segments of the document
         quickly and easily using the Bookmarks provided in the
@@ -250,11 +230,13 @@
     <p>
       STARS is a program of AASHE, the
       <a href="http://www.aashe.org" target="_self">
-        Association for the Advancement of Sustainability in Higher
-        Education</a>.
-      AASHE is a member-driven organization with a mission to empower
-      higher education to lead the sustainability transformation.
-      <a href="http://www.aashe.org/" target="_self">
+        Association for the Advancement of Sustainability in Higher Education</a>.
+      AASHE is a
+      <a href="http://www.aashe.org/membership/description.php" target="_self">
+        member-driven organization</a>
+      with a mission to empower higher education to lead the sustainability
+      transformation.
+      <a href="http://www.aashe.org/about/about.php" target="_self">
         Learn more about AASHE</a>.
     </p>
 
@@ -264,138 +246,89 @@
       <pdf:toc />
     </div>
 
-    <h2>Summary</h2>
+    {% if rating.publish_score %}
+      <h2>Summary of Results</h2>
 
-    {% if show_scores %}
-      <table class='scoreTable vertical'>
-        <tr>
-          <th>
-            {% if preview %}
-              Provisional
-            {% endif %}
-            Score
-          </th>
-          <td>
-            {{ ss.get_STARS_score|floatformat }}
-          </td>
-        </tr>
-        <tr>
-          <th>
-            {% if preview %}Provisional{% endif %}
-            Rating:
-          </th>
-          <td>
-            {% if rating.publish_score %}
-      	      {{ rating }}
-            {% else %}
-      	      Reporter
-            {% endif %}
-          </td>
-        </tr>
-      </table>
-    {% endif %}
+      {% if rating.publish_score %}
 
-    <table class="summary">
-      {% for cat in ss.categorysubmission_set.all %}
-        {% if cat.category.include_in_report %}
-          <tr class='tocCatRow'>
-            <td width="50%">
-      	      <a class='tocCat' href="#cat{{ cat.subcategory.id }}">
-                {{ cat }}
-              </a>
-            </td>
-            <td>
-            </td>
-            {% if show_scores %}
-      	      <td align='right' width="15%">
-      	        {% if ss.creditset.has_category_scoring_feature %}
-      	          {% if cat.category.title != 'Innovation' %}
-      	            {{ cat.get_STARS_score|floatformat }}%
-      	          {% else %}
-      	            {{ cat.get_STARS_score|floatformat }}
-      	          {% endif %}
-      	        {% endif %}
-      	      </td>
-            {% endif %}
-          </tr>
+	<table class='scoreTable vertical'>
+	  <tr>
+	    <th>
+	      {% if preview %}Provisional{% endif %}
+	      Score
+	    </th>
+	    <td>
+	      {{ ss.get_STARS_score|floatformat:2 }}
+	    </td>
+	  </tr>
+	  <tr>
+	    <th>
+	      {% if preview %}Provisional{% endif %}
+	      Rating:
+	    </th>
+	    <td>
+	      {% if rating.publish_score %}
+		{{ rating }}
+	      {% else %}
+		Reporter
+	      {% endif %}
+	    </td>
+	  </tr>
+	</table>
+      {% endif %}
 
-          {% for sub in cat.subcategorysubmission_set.all %}
-
-            {% if sub.subcategory.title != "Institutional Characteristics" %}
-              <tr class='{% cycle 'evenRow' 'oddRow' %}'>
-                <td width="50%">
-                  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                  &nbsp;&nbsp;
-                  <a class='tocSub' href="#sub{{ sub.subcategory.id }}">
-                    {{ sub }}
-                  </a>
-                </td>
-                <td>
-                </td>
-                {% if show_scores %}
-                  <td align='right' width="15%">
-                    {{ sub.get_claimed_points|floatformat }} /
-                    {{ sub.get_adjusted_available_points|floatformat }}
+      <table class='tableOfContents'>
+	{% for cat in ss.categorysubmission_set.all %}
+          {% if cat.category.include_in_report %}
+	    <tr class='tocCatRow'>
+	      <td width="50%">
+		<a class='tocCat' href="#cat{{ cat.subcategory.id }}">{{ cat }}</a>
+	      </td>
+	      {% if rating.publish_score %}
+		<td align='right' width="50%">
+		  {% if ss.creditset.has_category_scoring_feature %}
+		    {% if cat.category.title != 'Innovation' %}
+		      {{ cat.get_STARS_score|floatformat:2 }}%
+		    {% else %}
+		      {{ cat.get_STARS_score|floatformat:2 }}
+		    {% endif %}
+		  {% endif %}
+		</td>
+	      {% endif %}
+	    </tr>
+	    {% for sub in cat.subcategorysubmission_set.all %}
+	      <tr class='{% cycle 'evenRow' 'oddRow' %}'>
+		<td>
+	b	  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		  <a class='tocSub' href="#sub{{ sub.subcategory.id }}">{{ sub }}</a>
+		</td>
+		{% if rating.publish_score %}
+		  <td align='right'>
+		    {{ sub.get_claimed_points|floatformat:2 }} /
+		    {{ sub.get_adjusted_available_points|floatformat:2 }}
+		  </td>
+		{% endif %}
+	      </tr>
+              {% if sub.description %}
+                <tr>
+                  <td colspan="2" align="center">
+                    {{ sub.description|urlizetrunc:85|linebreaks|fix_ampersands }}
                   </td>
-                {% endif %}
-              </tr>
-            {% endif %}
-
-            {% for credit_submission in sub.creditusersubmission_set.all %}
-              {# Skip opt-ed out opt-in credits. #}
-              {% if credit_submission.credit.is_opt_in and credit_submission.submission_status == "na" %}
-                {# Do nothing. #}
-              {% else %}
-                <tr class="tocCreditRow">
-                  <td width="50%">
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    <a class="tocCredit"
-                       href="#credit{{ credit_submission.id }}">
-                      {{ credit_submission }}
-                    </a>
-                  </td>
-                  <td width="35%" align="right">
-                    {% if credit_submission.submission_status == "c" %}
-                      Complete
-                    {% elif credit_submission.submission_status == "p" %}
-                      In progress
-                    {% elif credit_submission.submission_status == "np" %}
-                      Not pursuing
-                    {% elif credit_submission.submission_status == "na" %}
-                      Not applicable
-                    {% elif credit_submission.submission_status == "ns" %}
-                      Not started
-                    {% endif %}
-                  </td>
-                  {% if show_scores %}
-                    <td align="right" width="15%">
-                      {% if sub.subcategory.title != "Institutional Characteristics" %}
-                        {{ credit_submission.assessed_points|floatformat }} /
-                        {{ credit_submission.get_adjusted_available_points|floatformat }}
-                      {% endif %}
-                    </td>
-                  {% else %}
-                    <td></td>
-                  {% endif %}
                 </tr>
               {% endif %}
-            {% endfor %}
-          {% endfor %}
-        {% endif %}
-      {% endfor %}
-    </table>  <!-- summary -->
-
+	    {% endfor %}
+          {% endif %}
+	{% endfor %}
+      </table>
+    {% endif %}
     <p class='disclaimer'>
       The information presented in this submission is self-reported
       and has not been verified by AASHE or a third party. If you
       believe any of this information is erroneous, please see the
-      <a href="http://stars.aashe.org/pages/faqs/4105/?root_category=about#Erroneous_Data">
+      <a href='http://stars.aashe.org/pages/faqs/4105/?root_category=about#Erroneous_Data'>
         process for inquiring</a>
       about the information reported by an institution.
     </p>
-
-    <!-- main meat of the report, pages of details on credit submissions -->
 
     {% for cat in ss.categorysubmission_set.all %}
       {% if cat.category.include_in_report %}
@@ -403,8 +336,9 @@
 	  <a name='cat{{ cat.category.id }}'></a>
 	  {{ cat }}
 	</h2>
-	{% if show_scores %}
+	{% if rating.publish_score %}
 	  {% if ss.creditset.has_category_scoring_feature %}
+
 	    <table class='scoreTable vertical'>
 	      <tr>
 		<th>
@@ -413,13 +347,14 @@
 		</th>
 		<td>
 		  {% if cat.category.title != 'Innovation' %}
-		    {{ cat.get_STARS_score|floatformat }}%
+		    {{ cat.get_STARS_score|floatformat:2 }}%
 		  {% else %}
-		    {{ cat.get_STARS_score|floatformat }}
+		    {{ cat.get_STARS_score|floatformat:2 }}
 		  {% endif %}
 		</td>
 	      </tr>
 	    </table>
+
 	  {% endif %}
 	{% endif %}
 	{% for sub in cat.subcategorysubmission_set.all %}
@@ -427,18 +362,19 @@
 	    <a name='sub{{ sub.subcategory.id }}'></a>
 	    {{ sub }}
 	  </h3>
-	  {% if show_scores and sub.subcategory.title != "Institutional Characteristics" %}
+	  {% if rating.publish_score %}
+
 	    <table class='scoreTable vertical'>
 	      <tr>
 		<th>Points Claimed</th>
 		<td>
-		  {{ sub.get_claimed_points|floatformat }}
+		  {{ sub.get_claimed_points|floatformat:2 }}
 		</td>
 	      </tr>
 	      <tr>
 		<th>Points Available</th>
 		<td>
-		  {{ sub.get_adjusted_available_points|floatformat }}
+		  {{ sub.get_adjusted_available_points|floatformat:2 }}
 		</td>
 	      </tr>
 	    </table>
@@ -452,9 +388,7 @@
 	  <table class='creditList'>
 	    <tr>
 	      <th style='text-align: left;'>Credit</th>
-	      {% if show_scores and sub.subcategory.title != "Institutional Characteristics" %}
-                <th style='text-align: right;'>Points</th>
-              {% endif %}
+	      {% if rating.publish_score %}<th style='text-align: right;'>Points</th>{% endif %}
 	    </tr>
 	    {% for credit_submission in sub.creditusersubmission_set.all %}
               {# Skip opt-ed out opt-in credits. #}
@@ -463,15 +397,15 @@
               {% else %}
                 <tr>
                   <td>
-                    <a href='#credit{{ credit_submission.id }}'>{{ credit_submission }}</a>
+                    <a href='#credit{{ credit_submission.credit.id }}'>{{ credit_submission }}</a>
                   </td>
-                  {% if show_scores and sub.subcategory.title != "Institutional Characteristics" %}
+                  {% if rating.publish_score %}
                     <td align='right'>
                       {% if credit_submission.submission_status == 'na' %}
                         Not Applicable
                       {% else %}
-                        {{ credit_submission.assessed_points|floatformat }} /
-                        {{ credit_submission.get_adjusted_available_points|floatformat }}
+                        {{ credit_submission.assessed_points|floatformat:2 }} /
+                        {% format_available_points credit_submission %}
                       {% endif %}
                     </td>
                   {% endif %}
@@ -485,26 +419,25 @@
               {# Do nothing. #}
             {% else %}
               <h4>
-                <a name="credit{{ credit_submission.id }}"></a>
+                <a name='credit{{ credit_submission.credit.id }}'></a>
                 {{ credit_submission }}
               </h4>
-              {% if show_scores or credit_submission.responsible_party %}
+              {% if rating.publish_score or credit_submission.responsible_party %}
                 <hr/>
                 <table class='scoreTable horizontal'>
                   <tr>
-                    {% if show_scores and credit_submission.submission_status != 'na' and sub.subcategory.title != "Institutional Characteristics" %}
+                    {% if rating.publish_score and credit_submission.submission_status != 'na' %}
                       <th>
                         {% if preview %}Provisional{% endif %}
                         Score
                       </th>
                     {% endif %}
                     <th>Responsible Party</th>
-                  </tr>
-                  <tr>
-                    {% if show_scores and credit_submission.submission_status != 'na' and sub.subcategory.title != "Institutional Characteristics" %}
+                  </tr><tr>
+                    {% if rating.publish_score and credit_submission.submission_status != 'na' %}
                       <td>
-                        {{ credit_submission.assessed_points|floatformat }} /
-                        {{ credit_submission.get_adjusted_available_points|floatformat }}
+                        {{ credit_submission.assessed_points|floatformat:2 }} /
+                        {% format_available_points credit_submission %}
                       </td>
                     {% endif %}
                     <td>
@@ -529,17 +462,12 @@
               {% endif %}
               {% if credit_submission.submission_status == 'na' and not credit_submission.is_opt_in %}
                 <p class='hideReportingFields'>
-                  This credit was marked as <b>Not Applicable</b> for
-                  the following reason:
-                  <br/><br/>
-                  <i>
-                    {{ credit_submission.applicability_reason.reason }}
-                  </i>
+                  This credit was marked as <b>Not Applicable</b> for the following reason:<br/><br/>
+                  <i>{{ credit_submission.applicability_reason.reason }}</i>
                 </p>
               {% else %}{% if credit_submission.submission_status == 'np' or credit_submission.submission_status == 'ns' %}
                   <p class='hideReportingFields'>
-                    This credit was marked as <b>Not Pursuing</b> so
-                    Reporting Fields will not be displayed.
+                    This credit was marked as <b>Not Pursuing</b> so Reporting Fields will not be displayed.
                   </p>
               {% else %}
                   <div style="text-align: right;font-size: .9em;padding:10px;">
@@ -562,7 +490,6 @@
 	{% endfor %}
       {% endif %}
     {% endfor %}
-
     <div id="footerContent">
       <table style='margin: 0px; font-size: 1em; border:0px; padding: 0px;'>
 	<tr>
@@ -570,23 +497,15 @@
 	    <a href='http://stars.aashe.org'>stars.aashe.org</a>
 	  </td>
 	  <td align='right'>
-	    <a href='http://stars.aashe.org{{ ss.get_scorecard_url }}'>
-              {{ ss.institution }}
-            </a>
+	    <a href='http://stars.aashe.org{{ ss.get_scorecard_url }}'>{{ ss.institution }}</a>
             |  STARS Report  |  <pdf:pagenumber>
 	  </td>
 	</tr>
       </table>
     </div>
-
-    <div id="headerContent">
-      {% if report_type == "preview" %}
-        PREVIEW
-      {% elif report_type == "snapshot" %}
-        SNAPSHOT
-      {% endif %}
-    </div>
-
+    {% if preview %}
+      <div id='headerContent'>PREVIEW</div>
+    {% endif %}
   </body>
 
 </html>
