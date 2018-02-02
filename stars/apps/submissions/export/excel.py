@@ -1,40 +1,18 @@
 import xlwt
 from django.core.files.temp import NamedTemporaryFile
+from PIL import Image
 
 from stars.apps.submissions.models import NOT_APPLICABLE
 
 
-def build_report_export(submission):
-    """
-        Builds the excel workbook for a specific submission
-    """
-    wb = xlwt.Workbook(encoding="UTF-8")
-
-    # Summary
-    summary_sheet = wb.add_sheet('Summary')
-    get_summary_sheet(submission, summary_sheet)
-
-    # Categories
-    for category in submission.categorysubmission_set.all():
-
-        sheet = wb.add_sheet("%s Summary" % category.category.abbreviation)
-        build_category_detail_sheet(category, sheet)
-
-        sheet = wb.add_sheet("%s Data" % category.category.abbreviation)
-        build_credit_detail_sheet(
-            category, sheet,
-            use_metric=submission.institution.prefers_metric_system)
-
-    tempfile = NamedTemporaryFile(suffix='.xls', delete=False)
-
-    wb.save(tempfile.name)
-    return tempfile.name
+def get_width(num_characters):
+    return int((1 + num_characters) * 256)
 
 
-def get_summary_sheet(submissionset, sheet):
+def get_summary_sheet(submission, sheet):
     """
         Builds the first sheet of an exported report that
-        has the summary of the submissionset
+        has the summary of the submission
     """
     boldFont = xlwt.Font()
     boldFont.bold = True
@@ -42,40 +20,33 @@ def get_summary_sheet(submissionset, sheet):
     boldStyle.font = boldFont
 
     r, c = 0, 0
-    min_width = get_width(len(submissionset.institution.name))
+    min_width = get_width(len(submission.institution.name))
 
-    sheet.write_merge(r, r, c, c + 1,
-                      submissionset.institution.name, boldStyle)
+    sheet.write_merge(r, r, c, c + 1, submission.institution.name, boldStyle)
     r += 1
 
     sheet.write_merge(r, r, c, c + 1, 'STARS Report Summary')
     r += 1
 
-    export_type = get_export_type(submissionset)
-
-    if export_type == "preview":
-        sheet.write(r, c, "Exported:")
-    elif export_type == "snapshot":
-        sheet.write(r, c, "Snapshot:")
-    else:
-        sheet.write(r, c, "Submitted:")
-    sheet.write(r, c + 1, "%s" % submissionset.date_submitted)
+    sheet.write(r, c, "Submitted:")
+    sheet.write(r, c + 1, "%s" % submission.date_submitted)
     r += 1
 
     sheet.write(r, c, "Rating:")
-    sheet.write(r, c + 1, "%s" % submissionset.rating)
+    sheet.write(r, c + 1, "%s" % submission.rating)
     r += 2
 
     sheet.write(r, c, "Category")
-    sheet.write(r, c + 1, "Points Earned")
-    sheet.write(r, c + 2, "Available Points")
+    sheet.write(r, c + 1, "Score")
     r += 1
 
-    for cs in submissionset.categorysubmission_set.all():
+    for cs in submission.categorysubmission_set.all():
         if min_width < get_width(len(cs.category.title)):
             min_width = get_width(len(cs.category.title))
         sheet.write(r, c, cs.category.title)
-        if submissionset.creditset.version in ("1.0", "1.1", "1.2"):
+        if (submission.creditset.version == "1.0" or
+            submission.creditset.version == "1.1" or
+            submission.creditset.version == "1.2"):
             sheet.write(r, c + 1, str(cs.get_STARS_score()))
         else:
             sheet.write(r, c + 1, str(cs.get_score_ratio()[0]))
@@ -83,16 +54,27 @@ def get_summary_sheet(submissionset, sheet):
 
         r += 1
 
-    r += 1
-    sheet.write(r, c, "Total Score")
-    sheet.write(r, c + 1, str(submissionset.get_STARS_score()))
-
     sheet.col(c).width = min_width
 
+    # Image
+    sheet.write(17, 0, "http://stars.aashe.org")
+    sheet.col(2).width = 1000
+    sheet.col(3).width = (256 * 40)
 
-def build_category_detail_sheet(category, sheet):
+    if submission.rating:
+        rating_png = submission.rating.image_large.path
+        img = Image.open(rating_png)
+        red, g, b, __a = img.split()
+        img = Image.merge("RGB", (red, g, b))
+        rating_bmp = NamedTemporaryFile(suffix='.bmp')
+        img.thumbnail([256, 256], Image.ANTIALIAS)
+        img.save(rating_bmp.name)
+        sheet.insert_bitmap(rating_bmp.name, 1, 3)
+
+
+def build_category_summary_sheet(category, sheet):
     """
-        Builds the detail sheet for a category.
+        Builds the summary sheet for a category
     """
     boldFont = xlwt.Font()
     boldFont.bold = True
@@ -109,9 +91,6 @@ def build_category_detail_sheet(category, sheet):
     sheet.write(r, c + 1, "Points Earned")
     sheet.write(r, c + 2, "Available Points")
     sheet.write(r, c + 3, "Status")
-    sheet.write(r, c + 4, "Last Updated")
-    sheet.write(r, c + 5, "Responsible Party")
-    sheet.write(r, c + 6, "Data Source(s) and Notes")
 
     r += 1
 
@@ -132,20 +111,6 @@ def build_category_detail_sheet(category, sheet):
             sheet.write(r, c + 1, cs.assessed_points)
             sheet.write(r, c + 2, cs.credit.point_value)
             sheet.write(r, c + 3, cs.get_submission_status_display())
-            sheet.write(r, c + 4, cs.last_updated)
-
-            full_name = ''
-            if cs.responsible_party:  # might be None
-                if cs.responsible_party.first_name:
-                    full_name += cs.responsible_party.first_name
-                    if cs.responsible_party.last_name:
-                        if full_name:
-                            full_name += ' '
-                        full_name += cs.responsible_party.last_name
-
-            sheet.write(r, c + 5, full_name)
-
-            sheet.write(r, c + 6, cs.submission_notes)
             r += 1
         r += 1
 
@@ -154,7 +119,7 @@ def build_category_detail_sheet(category, sheet):
         sheet.col(c).width = 5000
 
 
-def build_credit_detail_sheet(category, sheet, use_metric):
+def build_category_data_sheet(category, sheet):
     """
         Builds the data sheet for a category
     """
@@ -199,53 +164,61 @@ def build_credit_detail_sheet(category, sheet, use_metric):
     sheet.write(r, c + 3, "Response", boldBorderedStyle)
 
     r += 1
-    for subcategory_submission in category.subcategorysubmission_set.all():
-        for credit_submission in (
-             subcategory_submission.creditusersubmission_set.all()):
+    for ss in category.subcategorysubmission_set.all():
+        for cs in ss.creditusersubmission_set.all():
 
             # Skip opt-in credits with status of NA:
-            if (credit_submission.credit.is_opt_in and
-                credit_submission.submission_status == NOT_APPLICABLE):  # noqa
-
+            if cs.credit.is_opt_in and cs.submission_status == NOT_APPLICABLE:
                 continue
 
-            submission_fields = credit_submission.get_submission_fields()
+            responses = cs.get_submission_fields()
 
-            sheet.write_merge(r, r + len(submission_fields) - 1, c, c,
-                              credit_submission.credit.identifier,
+            sheet.write_merge(r, r + len(responses) - 1, c, c,
+                              cs.credit.identifier,
                               style=centeredBorderedStyle)
-            update_width(c, credit_submission.credit.identifier)
-            sheet.write_merge(r, r + len(submission_fields) - 1, c + 1, c + 1,
-                              credit_submission.credit.title,
+            update_width(c, cs.credit.identifier)
+            sheet.write_merge(r, r + len(responses) - 1, c + 1, c + 1,
+                              cs.credit.title,
                               style=centeredBorderedStyle)
-            update_width(c + 1, credit_submission.credit.title)
+            update_width(c + 1, cs.credit.title)
 
-            for submission_field in submission_fields:
-                sheet.write(r, c + 2,
-                            submission_field.documentation_field.title,
+            for f in responses:
+                sheet.write(r, c + 2, f.documentation_field.title,
                             borderedStyle)
-                update_width(c + 2, submission_field.documentation_field.title)
-                sheet.write(
-                    r, c + 3,
-                    submission_field.get_human_value(get_metric=use_metric),
-                    borderedStyle)
+                update_width(c + 2, f.documentation_field.title)
+                sheet.write(r, c + 3, f.get_human_value(), borderedStyle)
                 r += 1
 
     for c, w in enumerate(col_widths):
         sheet.col(c).width = w
 
 
-def get_width(num_characters):
-    return int((1 + num_characters) * 256)
+def build_report_export(submission):
+    """
+        Builds the excel workbook for a specific submission
+    """
+    print "STARTING EXCEL EXPORT"
+    wb = xlwt.Workbook(encoding="UTF-8")
 
+    # Summary
+    summary_sheet = wb.add_sheet('Summary')
+    get_summary_sheet(submission, summary_sheet)
 
-def get_export_type(submissionset):
+    # Categories
+    for category in submission.categorysubmission_set.all():
+        sheet = wb.add_sheet("%s Summary" % category.category.abbreviation)
+        build_category_summary_sheet(category, sheet)
+        sheet = wb.add_sheet("%s Data" % category.category.abbreviation)
+        build_category_data_sheet(category, sheet)
 
-    if submissionset.status == 'f':
-        report_type = "snapshot"
-    elif submissionset.status == 'r':
-        report_type = "rated"
-    else:
-        report_type = "preview"
+#     filename = "%s.xls" % slugify("%s" % submission)
+    tempfile = NamedTemporaryFile(suffix='.xls', delete=False)
+#     filename = "report_export.xls"
 
-    return report_type
+    print tempfile.name
+    wb.save(tempfile.name)
+    return tempfile.name
+
+# from stars.apps.submissions.models import SubmissionSet
+# ss = SubmissionSet.objects.get(pk=1157)
+# build_report_export(ss)
