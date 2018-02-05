@@ -292,7 +292,8 @@ class SubmitForRatingWizard(SubmitRedirectMixin,
         stars_liaison_email = (
             submissionset.institution.contact_email)
         email_template.send_email([stars_liaison_email],
-                                  {'submissionset': submissionset})
+                                  {'submissionset': submissionset},
+                                  reply_to="stars-reviewers@aashe.org")
 
 
 class SubmitSuccessView(SubmissionToolMixin, TemplateView):
