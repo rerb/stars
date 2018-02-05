@@ -53,14 +53,14 @@
         {% for institution in object_list %}
           <tr class="{% cycle 'even' 'odd' %}">
             <td style='text-align: left' class="span4">
-	      {% if institution.rated_submission %}
+              {% if institution.rated_submission %}
                 <a href='{% url scorecard-list institution.slug %}'
                    id='scorecard-list'>
                   {{ institution.name }}
                 </a>
-	      {% else %}
-	        {{ institution.name }}
-	      {% endif %}
+              {% else %}
+                {{ institution.name }}
+              {% endif %}
               {% include "institutions/inst_property_icons.html" %}
             </td>
             <td class="span3">
