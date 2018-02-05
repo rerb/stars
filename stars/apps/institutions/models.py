@@ -1,5 +1,6 @@
 import collections
 from datetime import date
+from dateutil.relativedelta import relativedelta
 from logging import getLogger
 
 from django.conf import settings
@@ -218,10 +219,10 @@ class Institution(models.Model):
 
     @property
     def is_participant(self):
-        if self.current_subscription:
-            return (self.current_subscription.access_level ==
-                    self.current_subscription.FULL_ACCESS)
-        return False
+        return (
+            self.current_subscription and
+            self.current_subscription.access_level == Subscription.FULL_ACCESS
+        )
 
     def __unicode__(self):
         return self.name
@@ -243,6 +244,14 @@ class Institution(models.Model):
             return self.current_subscription.access_level
         else:
             return Subscription.BASIC_ACCESS
+
+    def older_than_three_years(self):
+        try:
+            return (date.today() > (self.rated_submission.date_submitted +
+                                    relativedelta(years=3)))
+        except AttributeError:
+            return False
+        return True
 
     def update_status(self):
         """
@@ -432,33 +441,6 @@ class Institution(models.Model):
     @property
     def profile(self):
         return self.ms_institution
-        # org = None
-        # # The process which selects the iss.Organization that matches
-        # # this Institution is bogus.  First, it tries to match on name,
-        # # then, failing that, tries a couple hard-coded exceptions.
-        # # What can we match on other than name?
-        # try:
-        #     org = Organization.objects.get(org_name=self.name)
-
-        # except Organization.DoesNotExist:
-        #     logger.error("No ISS organization found for aashe_id %s" %
-        #                  self.aashe_id)
-
-        # except Organization.MultipleObjectsReturned:
-        #     # A couple exceptions to the rules. These really must go away
-        #     # after this selection process is rewritten.
-
-        #     if self.aashe_id == 2967:  # Concordia University, Montreal
-        #         org = Organization.objects.get(membersuite_id="2976")
-
-        #     elif self.aashe_id == 2951:  # Concordia College, Moorhead
-        #         org = Organization.objects.get(membersuite_id="2951")
-
-        #     else:
-        #         logger.error("Too many ISS organizations found for "
-        #                      "aashe_id %s" % self.aashe_id)
-
-        # return org
 
     def is_member_institution(self):
         """

@@ -8,7 +8,7 @@
     {% if site_status.maintenance_mode %} {% comment %} because login is available for staff while site is in maintenance mode {% endcomment %}
         {% include 'helpers/temporary_unavailable.html' %}
     {% endif %}
-        {% if site_status.maintenance_mode %} 
+        {% if site_status.maintenance_mode %}
             <h1> Login is presently restricted to AASHE Staff only.</h1>
         {% else %}{% if user.is_authenticated %}
             <h1>You are already logged in</h1>
@@ -16,10 +16,26 @@
         {% else %}
             <h1>Login with your AASHE Account</h1>
         <div class='row'><div class='span8 offset2'>
+            {% if form.non_field_errors %}
+              <div class="alert alert-error">
+                <a class="close" data-dismiss="alert">x</a>
+                {{ form.non_field_errors }}
+              </div>
+            {% endif %}
             <form action='.' method='post' class='form-horizontal'>
             	{% csrf_token %}
                 <input type='hidden' name='next' value='{{ next }}' />
-                {{ form|bootstrap }}
+                {% for field in form %}
+                  <div class="control-group required">
+                    <div class="control-label">
+  						        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    </div>
+                    <div class="controls">
+  						        {{ field }}
+                      {{ field.errors }}
+                    </div>
+  					      </div>
+                {% endfor %}
                 <div class='form-actions'>
                		<button class='btn btn-primary' type='submit'>Log in</button>
                 </div>
@@ -33,5 +49,5 @@
 
         {% endif %}{% endif %}
     </div>
-    
+
 {% endblock %}

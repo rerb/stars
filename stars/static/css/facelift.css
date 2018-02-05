@@ -236,3 +236,44 @@ h2 {
   padding: 8px 25px;
   font-size: 18px;
 }
+.org-list{
+  display: none;
+}
+.org-list li{
+  border: 1px solid #e5e5e5;
+  border-radius: 2px;
+  padding: 7px;
+}
+.org-list li:hover{
+  cursor: pointer;
+  padding-top: 30px;
+  height: 40px;
+}
+.search-panel{
+  padding: 15px;
+  height: 75px;
+  margin: 7px;
+  border: 1px solid #bdbdbd;
+  border-radius: 6px;
+}
+#school-finder{
+  margin: 5px;
+}
+.green-dot{
+  display: none;
+  margin-top: 2px;
+  height: 12px;
+  width: 12px;
+  border: 1px solid #eeeeee;
+  border-radius: 50%;
+  background-color: #5bb75b;
+}
+#institution-submit-btn{
+  margin-top: 20px;
+}
+.errorlist{
+  margin: 0 0 9px 0;
+}
+.errorlist li{
+  color: red;
+}

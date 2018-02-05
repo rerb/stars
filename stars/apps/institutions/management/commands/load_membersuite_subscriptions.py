@@ -249,6 +249,16 @@ class Command(BaseCommand):
                 stars_subscription = Subscription(
                     ms_id=membersuite_subscription.membersuite_id)
 
+            # Sometimes there's no end date, and that's a problem.
+            if not membersuite_subscription.expiration_date:
+                logger.error("No expiration date for "
+                             "membersuite_subscription: "
+                             "(sub) {}, (name) {}, (owner id) {}".format(
+                                 membersuite_subscription.membersuite_id,
+                                 membersuite_subscription.name.encode("utf-8"),
+                                 membersuite_subscription.owner_id))
+                continue
+
             # update and save the local subscription
             self.update_subscription_from_membersuite(
                 stars_subscription,
