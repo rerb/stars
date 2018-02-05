@@ -169,7 +169,9 @@ class Dashboard(TemplateView):
         participants = collections.defaultdict(int)
 
         for participant in Institution.objects.all():
-            participants[participant.country] += 1
+            if participant.country is not None:
+                participants[participant.country] += 1
+
 
         # Sort by country.
         ordered_participants = collections.OrderedDict()

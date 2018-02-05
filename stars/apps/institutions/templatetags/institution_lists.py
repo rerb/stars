@@ -42,7 +42,7 @@ def show_institutions_map():
                 'institution': i.profile,
                 'current_rating': i.current_rating,
                 'rated_submission': i.rated_submission,
-                'subscription': i.current_subscription
+                'subscription': i.is_participant
             }
         # if i.charter_participant:
         #     d['image_path'] = "https://stars.aashe.org/media/static/images/seals/Stars_Seal_Charter_Particip_RGB_300.png"
