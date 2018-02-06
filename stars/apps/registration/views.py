@@ -10,7 +10,8 @@ from iss.models import Organization
 
 from stars.apps.institutions.models import (Institution,
                                             RegistrationSurvey,
-                                            RespondentSurvey)
+                                            RespondentSurvey,
+                                            MemberSuiteInstitution)
 from stars.apps.registration.forms import (SelectSchoolForm,
                                            RegistrationSurveyForm,
                                            RespondentRegistrationSurveyForm,
@@ -85,7 +86,9 @@ class InstitutionCreateView(CreateView):
         aashe_id = str(self.request.POST.get('aashe_id'))
         aashe_id = int(aashe_id.replace(',',''))
         org = Organization.objects.get(account_num=aashe_id)
-        institution = Institution(aashe_id=aashe_id, name=org.org_name)
+        institution = Institution(aashe_id=aashe_id,
+            name=org.org_name,
+            ms_institution=MemberSuiteInstitution.objects.get(membersuite_id=org.membersuite_id))
         institution.update_from_iss()
         institution.set_slug_from_iss_institution(institution.aashe_id)
 
