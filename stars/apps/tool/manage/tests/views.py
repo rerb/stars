@@ -390,9 +390,20 @@ class MigrateOptionsViewTest(InstitutionAdminToolMixinTest):
             self.f_status_submissionsets.append(SubmissionSetFactory(
                 institution=self.institution, status='f'))
 
-    def test__get_available_submissions_not_participant(self):
+    def make_institution_participant(self, institution):
+        current_subscription = SubscriptionFactory(
+            institution=self.institution,
+            access_level=Subscription.FULL_ACCESS)
+        current_subscription.save()
+        self.institution.current_subscription = current_subscription
+        self.institution.save()
 
-        self.institution.is_participant = False
+    def make_institution_not_participant(self, institution):
+        self.institution.current_submission = None
+        self.institution.save()
+
+    def test__get_available_submissions_not_participant(self):
+        self.make_institution_not_participant(self.institution)
         view = views.MigrateOptionsView
         available_submissions = view._get_available_submissions(
             institution=self.institution)
@@ -401,8 +412,7 @@ class MigrateOptionsViewTest(InstitutionAdminToolMixinTest):
                          len(self.f_status_submissionsets))
 
     def test__get_available_submissions_is_participant(self):
-
-        self.institution.is_participant = True
+        self.make_institution_participant(self.institution)
         view = views.MigrateOptionsView
         available_submissions = view._get_available_submissions(
             institution=self.institution)
