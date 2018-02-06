@@ -88,7 +88,8 @@ class InstitutionCreateView(CreateView):
         org = Organization.objects.get(account_num=aashe_id)
         institution = Institution(aashe_id=aashe_id,
             name=org.org_name,
-            ms_institution=MemberSuiteInstitution.objects.get(membersuite_id=org.membersuite_id))
+            ms_institution=(MemberSuiteInstitution.objects
+                .get(membersuite_id=org.membersuite_id)))
         institution.update_from_iss()
         institution.set_slug_from_iss_institution(institution.aashe_id)
 
@@ -128,7 +129,7 @@ class InstitutionCreateView(CreateView):
             [institution.contact_email, institution.executive_contact_email],
             {'institution': institution})
 
-        return super(InstitutionCreateView, self).form_valid(form)
+        return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
         return reverse('tool-summary',
