@@ -27,8 +27,6 @@ class RatingTest(TestCase):
 
     def setUp(self):
 
-        print " Testing submission for rating"
-
         settings.CELERY_ALWAYS_EAGER = True
 
         self.ss = SubmissionSet.objects.get(pk=1)
@@ -50,8 +48,6 @@ class RatingTest(TestCase):
             '2-confirm': 'on'}
 
     def test_process(self):
-
-        print " - testing process"
 
         c = Client()
         c.login(username='test_user', password='test')

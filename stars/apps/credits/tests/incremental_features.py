@@ -16,7 +16,6 @@ class TestIncrementalFeatures(TestCase):
         pass
 
     def testGetAttribute(self):
-        print >> sys.stderr, "Test Incremental Features"
         cs = CreditSet.objects.get(pk=1)
         self.assertFalse(cs.is_locked)
 

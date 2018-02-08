@@ -19,8 +19,6 @@ class SaveSnapshot(TestCase):
 
     def setUp(self):
 
-        print " Testing submission for rating"
-
         settings.CELERY_ALWAYS_EAGER = True
 
         self.ss = SubmissionSet.objects.get(pk=1)
@@ -31,9 +29,8 @@ class SaveSnapshot(TestCase):
 
     def test_snapshot(self):
 
-        print " - testing snapshot creation"
         self.assertEqual(SubmissionSet.objects.filter(status='f').count(), 0)
-        
+
         c = Client()
         c.login(username='test_user', password='test')
         response = c.get(self.url)

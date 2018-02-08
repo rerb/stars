@@ -21,53 +21,48 @@ from stars.apps.submissions.export.pdf import build_certificate_pdf
 from stars.apps.submissions.models import (SubcategoryQuartiles,
                                            SubmissionSet)
 
+logger = getLogger()
+
 
 @task()
 def hello_world():
     " A simple test task so I can test celery "
-    print >> sys.stdout, "Hello World"
+    logger.info("Hello World")
 
 
 @task()
 def build_pdf_export(ss):
-    print "starting pdf export(ss: %d)" % ss.id
+    logger.info("starting pdf export(ss: %d)" % ss.id)
     pdf = ss.get_pdf()
-#     pdf = build_certificate_pdf(ss)
-#     from django.core.files.temp import NamedTemporaryFile
-#     tempfile = NamedTemporaryFile(suffix='.pdf', delete=False)
-#     tempfile.write(pdf.getvalue())
-#     tempfile.close()
-#
-#     print tempfile.name
-    print "pdf export done(ss: %d)" % ss.id
+    logger.info("pdf export done(ss: %d)" % ss.id)
     return str(pdf)
 
 
 @task()
 def build_excel_export(ss):
-    print "starting excel export(ss: %d)" % ss.id
+    logger.info("starting excel export(ss: %d)" % ss.id)
     report = build_report_export(ss)
-    print "excel export done(ss: %d)" % ss.id
+    logger.info("excel export done(ss: %d)" % ss.id)
     return report
 
 
 @task()
 def take_snapshot_task(ss, user):
-    print "starting snapshot: (%d) %s" % (ss.id, ss)
+    logger.info("starting snapshot: (%d) %s" % (ss.id, ss))
     ss.take_snapshot(user=user)
-    print "snapshot completed: (%d) %s" % (ss.id, ss)
+    logger.info("snapshot completed: (%d) %s" % (ss.id, ss))
 
 
 @task()
 def build_certificate_export(ss):
-    print "starting certificate export(ss: %d)" % ss.id
+    logger.info("starting certificate export(ss: %d)" % ss.id)
     # cert_pdf = build_certificate_pdf(ss)
     pdf = build_certificate_pdf(ss)
     from django.core.files.temp import NamedTemporaryFile
     tempfile = NamedTemporaryFile(suffix='.pdf', delete=False)
     tempfile.write(pdf.getvalue())
     tempfile.close()
-    print "cert export done(ss: %d)" % ss.id
+    logger.info("cert export done(ss: %d)" % ss.id)
     return tempfile.name
 
 
@@ -201,27 +196,22 @@ def update_pie_api_cache():
     s_view = SubategoryPieChart()
 
     key = "v1:summary-pie-chart:detail:"
-    print key
     cache.delete(key)
 
     summary = summary_view.obj_get_list()
 
     # summary
     for cat in cs.category_set.filter(include_in_score=True):
-        print cat
         kwargs = {"pk": cat.id}
         c_key = cat_view.generate_cache_key('detail', **kwargs)
 #        c_key = 'v1:category-pie-chart:detail:pk=%d' % cat.id
-        print c_key
         cache.delete(c_key)
         cat_view.obj_get(**kwargs)
 
         for sub in cat.subcategory_set.all():
-            print sub
             kwargs = {"pk": sub.id}
             s_key = s_view.generate_cache_key('detail', **kwargs)
 #            s_key = "v1:subcategory-pie-chart:detail:pk=%d" % sub.id
-            print s_key
             cache.delete(s_key)
 
             s_view.obj_get(**kwargs)
@@ -240,9 +230,8 @@ def expireRatings():
     for ss in SubmissionSet.objects.filter(status="r").exclude(expired=True):
 
         if ss.date_submitted + td < today:
-            print ""  # newline
-            print "Expired: %s" % ss
-            print "Date Submitted: %s" % ss.date_submitted
+            logger.info("Expired: %s" % ss)
+            logger.info("Date Submitted: %s" % ss.date_submitted)
             ss.expired = True
             ss.save()
 
@@ -250,7 +239,7 @@ def expireRatings():
             # latest rated submission
             i = ss.institution
             if i.rated_submission == ss:
-                print "**Only Rating (dropping current rating)"
+                logger.info("**Only Rating (dropping current rating)")
                 i.rated_submission = None
                 i.current_rating = None
                 i.latest_expired_submission = ss
