@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import datetime
-import time
 
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
@@ -17,7 +16,8 @@ from stars.test_factories import (CategoryFactory,
                                   RatingFactory,
                                   SubmissionSetFactory,
                                   SubscriptionFactory,
-                                  UserFactory)
+                                  UserFactory,
+                                  MemberSuitePortalUserFactory)
 
 
 class DashboardTestCase(TestCase):
@@ -37,12 +37,12 @@ class DashboardTestCase(TestCase):
         """Does get_ratings_context return a sensible context?
         """
         gold_rating = RatingFactory(name='gold')
-        _ = InstitutionFactory(
-            current_rating=gold_rating,
-            current_submission=SubmissionSetFactory())
-        _ = InstitutionFactory(
-            current_rating=gold_rating,
-            current_submission=SubmissionSetFactory())
+
+        for factory in range(2):
+            InstitutionFactory(
+                current_rating=gold_rating,
+                current_submission=SubmissionSetFactory(),
+                rating_expires=datetime.date(2020, 1, 1))
 
         ratings_context = Dashboard().get_ratings_context()
 
@@ -58,10 +58,10 @@ class DashboardTestCase(TestCase):
     def test_get_particpants_context_sorts_by_country(self):
         """Does get_participants_context sort its result by country?
         """
-        _ = InstitutionFactory(country='Bolivia')
-        _ = InstitutionFactory(country='Austrailia')
-        _ = InstitutionFactory(country='Denmark')
-        _ = InstitutionFactory(country='Columbia')
+        InstitutionFactory(country='Bolivia')
+        InstitutionFactory(country='Austrailia')
+        InstitutionFactory(country='Denmark')
+        InstitutionFactory(country='Columbia')
         participants_context = Dashboard().get_participants_context()
         participants = participants_context['participants']
         self.assertEqual(participants.pop()[0], 'Denmark')
@@ -117,6 +117,7 @@ def create_creditsets():
     create_creditset('1.0')
     create_creditset('1.2')
     create_creditset('2.0')
+    create_creditset('2.1')
 
 
 class AggregateFilterTestCase(TestCase):

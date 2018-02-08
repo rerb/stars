@@ -915,7 +915,7 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
                       new_registration=True)
         self._initial_object_counts_are_still_correct()
 
-
+        
 class SurveyViewTest(InstitutionAdminToolMixinTest):
 
     view_class = views.SurveyView

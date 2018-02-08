@@ -6,6 +6,7 @@
 .envrc
 htmlcov
 ghostdriver.log
+geckodriver.log
 celerybeat-schedule
 celerybeat.pid
 stellar.yaml

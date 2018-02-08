@@ -13,13 +13,10 @@ from django.views.generic import (CreateView, DeleteView, FormView, ListView,
 from stars.apps.credits.models import CreditSet
 from stars.apps.helpers.forms import form_helpers
 from stars.apps.helpers.mixins import ValidationMessageFormMixin
-from stars.apps.institutions.models import (StarsAccount, Subscription,
+from stars.apps.institutions.models import (StarsAccount,
                                             SubscriptionPayment,
                                             PendingAccount)
 from stars.apps.institutions.models import Institution
-from stars.apps.payments import simple_credit_card
-from stars.apps.payments.forms import SubscriptionPayNowForm
-from stars.apps.payments.views import SubscriptionPurchaseWizard
 from stars.apps.submissions.models import SubmissionSet
 from stars.apps.submissions.tasks import (perform_migration,
                                           perform_data_migration)
@@ -33,8 +30,7 @@ from stars.apps.tool.manage.forms import (AccountForm,
                                           ResponsibleParty,
                                           ResponsiblePartyForm,
                                           ThirdPartiesForm)
-from stars.apps.tool.mixins import (InstitutionAdminToolMixin,
-                                    InstitutionToolMixin)
+from stars.apps.tool.mixins import InstitutionAdminToolMixin
 from stars.apps.download_async_task.views import (StartExportView,
                                                   DownloadExportView)
 
@@ -253,11 +249,6 @@ class AccountCreateView(
     valid_message = 'Account created.'
 
     def __init__(self, *args, **kwargs):
-        """
-            Declares new attributes; preferences and notify_form.
-            Sure, this isn't necessary, but after they're declared
-            here, they won't be a surprise when they're used later.
-        """
         self.preferences = None
         self.notify_form = None
         super(AccountCreateView, self).__init__(*args, **kwargs)

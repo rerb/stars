@@ -18,54 +18,6 @@ from stars.test_factories import InstitutionFactory,\
     SubmissionSetFactory
 
 
-class ActiveInstitutionsViewTest(TestCase):
-    """Test the ActiveInstitutionsView
-
-    This should also test SortableTableView and
-    SortableTableViewWithInstProps
-    """
-    def setUp(self):
-
-        today = datetime.date.today()
-        td = datetime.timedelta(days=1)
-
-        # create 3 active Institutions
-        for _ in range(3):
-            i = InstitutionFactory(is_participant=True)
-            s = SubscriptionFactory(start_date=today,
-                                    end_date=today+td,
-                                    institution=i)
-            i.current_subscription = s
-            i.save()
-
-        # create 1 non-active Institutions
-        for _ in range(1):
-            i = InstitutionFactory()
-            s = SubscriptionFactory(end_date=today - td, institution=i)
-            i.current_subscription = s
-            i.save()
-
-    def test_with_client(self):
-        """
-            This test is enough to cover the code and bring up any
-            500 errors. It is not a complete functionality test.
-        """
-
-        c = Client()
-
-        # confirm we get a 200 just querying
-        url = "/institutions/participants-and-reports/"
-        response = c.get(url)
-        self.assertEqual(response.status_code, 200)
-
-        view = views.ActiveInstitutions()
-        qs = view.get_queryset()
-        self.assertEqual(len(qs), 3)
-
-        url = "/institutions/participants-and-reports/?sort=rating"
-        response = c.get(url)
-        self.assertEqual(response.status_code, 200)
-
 
 class RatedInstitutionsViewTest(TestCase):
     """
