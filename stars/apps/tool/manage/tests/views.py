@@ -7,6 +7,7 @@ import testfixtures
 from bs4 import BeautifulSoup
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.models import User
 from django.shortcuts import render
 from django_membersuite_auth.models import MemberSuitePortalUser
 from selenium.webdriver.common.by import By
@@ -297,10 +298,14 @@ class AccountCreateViewTest(InstitutionAdminToolMixinTest):
         self.account.user_level = 'admin'
         self.account.save()
         self.request.method = 'POST'
+        email = "joehump@fixityourself.com"
+        user = User.objects.create(email=email)
+        membersuite_id = "bo-o-o-o-o-o-o-gus"
         MemberSuitePortalUser.objects.create(
-            email="joe.hump@fixityourself.com")
+            membersuite_id=membersuite_id,
+            user=user)
         stars_account_count_before = StarsAccount.objects.count()
-        form_input = {'email': 'joe.hump@fixityourself.com',
+        form_input = {'email': email,
                       'userlevel': 'bystr'}
         self.request.POST = form_input
         views.AccountCreateView.as_view()(
