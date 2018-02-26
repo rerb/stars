@@ -44,9 +44,7 @@ def get_summary_sheet(submission, sheet):
         if min_width < get_width(len(cs.category.title)):
             min_width = get_width(len(cs.category.title))
         sheet.write(r, c, cs.category.title)
-        if (submission.creditset.version == "1.0" or
-            submission.creditset.version == "1.1" or
-            submission.creditset.version == "1.2"):
+        if submission.creditset.version in ("1.0", "1.1", "1.2"):
             sheet.write(r, c + 1, str(cs.get_STARS_score()))
         else:
             sheet.write(r, c + 1, str(cs.get_score_ratio()[0]))
@@ -62,7 +60,7 @@ def get_summary_sheet(submission, sheet):
     sheet.col(3).width = (256 * 40)
 
     if submission.rating:
-        rating_png = submission.rating.image_large.path
+        rating_png = submission.rating.image_large.name
         img = Image.open(rating_png)
         red, g, b, __a = img.split()
         img = Image.merge("RGB", (red, g, b))
