@@ -419,12 +419,13 @@ class ShareDataView(InstitutionAdminToolMixin,
 
     def get_context_data(self, **kwargs):
         context = super(ShareDataView, self).get_context_data(**kwargs)
+        institution = self.get_institution()
         context['third_party_sharing_list'] = (
-            self.get_institution().third_parties.all())
+            institution.third_parties.all())
         context['snapshot_list'] = SubmissionSet.objects.get_snapshots(
-            self.get_institution())
+            institution)
         context['latest_report'] = (
-            self.get_institution().get_latest_submission())
+            institution.get_latest_submission())
         return context
 
 
@@ -483,8 +484,6 @@ class SnapshotCSVDownloadView(DownloadExportView,
     """
         Returns the result of the task (hopefully an excel export)
     """
-#     mimetype = 'application/vnd.ms-excel'
-#     extension = "xls"
     mimetype = "application/octet-stream"
     extension = "zip"
 
