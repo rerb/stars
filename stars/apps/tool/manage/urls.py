@@ -58,17 +58,17 @@ urlpatterns = patterns(
     url(r'^share-data/snapshot-archive/$', ShareDataView.as_view(),
         name='share-data'),
 
-    url(r'^share-data/(?P<submissionset>[^/]+)/csv/$',
+    url(r'^share-data/snapshot-archive/(?P<submissionset>[^/]+)/csv/$',
         never_cache(SnapshotCSVExportView.as_view()),
         name='snapshot-export-csv'),
-    url(r'^share-data/(?P<submissionset>[^/]+)/csv/download/(?P<task>[^/]+)/$',
+    url(r'^share-data/snapshot-archive/(?P<submissionset>[^/]+)/csv/download/(?P<task>[^/]+)/$',
         never_cache(SnapshotCSVDownloadView.as_view()),
         name='snapshot-download-csv'),
 
-    url(r'^share-data/(?P<submissionset>[^/]+)/pdf/$',
+    url(r'^share-data/snapshot-archive/(?P<submissionset>[^/]+)/pdf/$',
         never_cache(SnapshotPDFExportView.as_view()),
         name='snapshot-export-pdf'),
-    url(r'^share-data/(?P<submissionset>[^/]+)/pdf/download/(?P<task>[^/]+)/$',
+    url(r'^share-data/snapshot-archive/(?P<submissionset>[^/]+)/pdf/download/(?P<task>[^/]+)/$',
         never_cache(SnapshotPDFDownloadView.as_view()),
         name='snapshot-download-pdf'),
 

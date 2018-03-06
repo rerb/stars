@@ -7,9 +7,8 @@ from django.core.cache import cache
 from models import SubmissionSet, SubcategorySubmission, CreditUserSubmission
 from stars.apps.credits.models import Category, Subcategory, CreditSet
 
-import sys
-
 from logging import getLogger
+
 logger = getLogger('stars.request')
 
 
@@ -27,7 +26,8 @@ class Slice(object):
     """
         A representation of a pie chart slice
     """
-    def __init__(self, title, long_title, id, value, fill_fraction, child_chart=None):
+    def __init__(self, title, long_title, id, value,
+                 fill_fraction, child_chart=None):
         self.title = title
         self.long_title = long_title
         self.id = id
@@ -46,7 +46,8 @@ class SliceMixin(object):
 
         self.newest_creditset_id = 5
         try:
-            self.newest_creditset_to_use = CreditSet.objects.get(pk=self.newest_creditset_id)
+            self.newest_creditset_to_use = CreditSet.objects.get(
+                pk=self.newest_creditset_id)
         except CreditSet.DoesNotExist:
             self.newest_creditset_to_use = CreditSet.objects.get_latest()
 
