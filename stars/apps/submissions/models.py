@@ -178,6 +178,7 @@ class SubmissionSet(models.Model, FlaggableModel):
         "Executive Letter",
         upload_to=upload_path_callback,
         blank=True,
+        max_length=255,
         null=True,
         help_text=("Please upload a letter from your institution's "
                    "president, chancellor or other high ranking executive "
@@ -188,6 +189,7 @@ class SubmissionSet(models.Model, FlaggableModel):
                    "from AASHE."))
     pdf_report = models.FileField(upload_to=upload_path_callback,
                                   blank=True,
+                                  max_length=255,
                                   null=True)
     is_locked = models.BooleanField(default=False)
     is_visible = models.BooleanField(
@@ -2853,6 +2855,7 @@ class UploadSubmission(DocumentationFieldSubmission):
     value = models.FileField(
         upload_to=upload_path_callback,
         blank=True,
+        max_length=255,
         null=True)
 
     def get_filename(self):

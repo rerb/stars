@@ -26,7 +26,7 @@ class TAApplication(models.Model):
     subcategories = models.ManyToManyField(Subcategory)
     skills_and_experience = models.TextField()
     related_associations = models.TextField()
-    resume = models.FileField(upload_to='ta_apps')
+    resume = models.FileField(upload_to='ta_apps', max_length=255)
     credit_weakness = models.TextField(null=True, blank=True)
     date_registered = models.DateTimeField(auto_now_add=True)
 
@@ -44,7 +44,7 @@ class DataDisplayAccessRequest(models.Model):
 
     summary = models.TextField("Summary description of your research")
     how_data_used = models.TextField("How will STARS data be used in your research?")
-    will_publish = models.BooleanField("Click here if you will be distributing or publishing the data?") 
+    will_publish = models.BooleanField("Click here if you will be distributing or publishing the data?")
     audience = models.TextField("Who is the intended audience for your research?")
     period = models.DateField("Requesting access starting on this date (mm/dd/yyyy)")
     end = models.DateField("Access requested until (mm/dd/yyyy)")
@@ -73,7 +73,7 @@ class SteeringCommitteeNomination(models.Model):
     successful = models.TextField("How can you help STARS become a successful rating system?")
     strengths = models.TextField("What do you consider to be the strengths and weaknesses of STARS?")
     perspectives = models.TextField("What perspectives or representation of stakeholder groups would you bring to the STARS Steering Committee?")
-    resume = models.FileField(upload_to='sc_apps')
+    resume = models.FileField(upload_to='sc_apps', max_length=255)
     date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
