@@ -138,8 +138,13 @@ def export_credit_csv(credit, ss_qs=None, outfilename=None):
                 else:
                     if df.type == 'upload':
                         if dfs.value:
-                            row.append("http://stars.aashe.org%s" %
-                                       dfs.value.url)
+                            try:
+                                dfs.value.url
+                            except Exception:
+                                row.append("")
+                            else:
+                                row.append("http://stars.aashe.org%s" %
+                                           dfs.value.url)
                         else:
                             row.append("")
                     else:

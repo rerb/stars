@@ -10,9 +10,10 @@ class ThirdParty(models.Model):
     publication = models.CharField(max_length=128, blank=True, null=True)
     logo = models.ImageField(upload_to="tps", blank=True, null=True)
     next_deadline = models.DateField(blank=True, null=True)
-    access_to_institutions = models.ManyToManyField("institutions.Institution",
-                                                    related_name='third_parties',
-                                                    blank=True, null=True)
+    access_to_institutions = models.ManyToManyField(
+        "institutions.Institution",
+        related_name='third_parties',
+        blank=True, null=True)
     disabled = models.BooleanField(default=False)
     help_text = models.TextField(blank=True, null=True)
     authorized_users = models.ManyToManyField(User)
