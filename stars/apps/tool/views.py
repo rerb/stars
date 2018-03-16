@@ -86,7 +86,7 @@ class NoStarsAccountView(TemplateView):
         context = super(NoStarsAccountView, self).get_context_data(**kwargs)
         institution = self.get_institution(user=self.request.user)
         context['institution'] = institution
-        context['liaison_name'] = self.get_liaison_name(institution
+        context['liaison_name'] = self.get_liaison_name(institution)
         context['liaison_email'] = (institution.contact_email if institution
                                     else None)
         return context

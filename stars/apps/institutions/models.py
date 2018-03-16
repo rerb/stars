@@ -126,10 +126,6 @@ class Institution(models.Model):
                                      blank=True, null=True)
     contact_department = models.CharField("Liaison Department", max_length=64,
                                           blank=True, null=True)
-    contact_phone = PhoneNumberField("Liaison Phone", blank=True, null=True)
-    contact_phone_ext = models.SmallIntegerField("Extension",
-                                                 blank=True,
-                                                 null=True)
     contact_email = models.EmailField("Liaison Email", blank=True, null=True)
     executive_contact_first_name = models.CharField(max_length=32,
                                                     blank=True,

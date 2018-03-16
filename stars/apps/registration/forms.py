@@ -100,7 +100,6 @@ class ContactForm(ModelForm):
                   'contact_last_name',
                   'contact_title',
                   'contact_department',
-                  'contact_phone',
                   'contact_email',
                   'executive_contact_first_name',
                   'executive_contact_middle_name',
@@ -117,7 +116,6 @@ class ContactForm(ModelForm):
         self.fields['contact_last_name'].label = "Liason Last Name"
         self.fields['contact_title'].label = "Liason Title"
         self.fields['contact_department'].label = "Liason Department/Office"
-        self.fields['contact_phone'].label = "Liason Phone"
         self.fields['contact_email'].label = "Liason Email"
 
         self.fields['executive_contact_first_name'].label = "Executive First Name"
@@ -175,7 +173,6 @@ class InstitutionRegistrationForm(ModelForm):
                   'contact_last_name',
                   'contact_title',
                   'contact_department',
-                  'contact_phone',
                   'contact_email',
                   'executive_contact_first_name',
                   'executive_contact_last_name',
@@ -190,7 +187,6 @@ class InstitutionRegistrationForm(ModelForm):
         self.fields['contact_last_name'].label = "Last Name"
         self.fields['contact_title'].label = "Title"
         self.fields['contact_department'].label = "Department/Office"
-        self.fields['contact_phone'].label = "Phone"
         self.fields['contact_email'].label = "Email"
 
         self.fields['executive_contact_first_name'].label = "First Name"
@@ -203,7 +199,6 @@ class InstitutionRegistrationForm(ModelForm):
         self.fields['contact_last_name'].required = True
         self.fields['contact_title'].required = True
         self.fields['contact_department'].required = True
-        self.fields['contact_phone'].required = True
         self.fields['contact_email'].required = True
         self.fields['executive_contact_first_name'].required = True
         self.fields['executive_contact_last_name'].required = True
