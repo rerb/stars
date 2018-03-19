@@ -1,6 +1,6 @@
 [
 {"pk": 1, "model": "submissions.submissionset", "fields": {"status": "ps", "rating": null, "submitting_user": 8697, "date_reviewed": null, "creditset": 1, "date_submitted": null, "date_registered": "2009-01-01", "registering_user": 8697, "institution": 1}},
-{"pk": 1, "model": "institutions.institution", "fields": {"name": "AASHE", "contact_last_name": "Matson", "enabled": true, "aashe_id": 4335, "contact_email": "laura@aashe.org", "contact_first_name": "Laura", "contact_title": "STARS coordinator", "contact_phone": "555-555-5555"}},
+{"pk": 1, "model": "institutions.institution", "fields": {"name": "AASHE", "contact_last_name": "Matson", "enabled": true, "aashe_id": 4335, "contact_email": "laura@aashe.org", "contact_first_name": "Laura", "contact_title": "STARS coordinator"}},
 {"pk": 1, "model": "institutions.starsaccount", "fields": {"user_level": "admin", "user": 8697, "institution": 1}},
 {"pk": 2, "model": "institutions.starsaccount", "fields": {"user_level": "admin", "user": 5214, "institution": 1}},
 {"pk": 3, "model": "institutions.starsaccount", "fields": {"user_level": "admin", "user": 14, "institution": 1}},
