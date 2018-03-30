@@ -346,7 +346,14 @@ function enable_submit(enable, ignore_errors) {
     }
 }
 
+function informPage(){
+	console.log("change!")
+	div = document.getElementById('data-changed');
+	div.className = "form-has-changed";
+}
+
 /* We may find other uses for this in future, so I abstracted it */
 function field_changed(el) {
-    enable_submit(true);
+    // enable_submit(true);
+		informPage();
 }
