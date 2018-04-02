@@ -21,8 +21,13 @@ $(document).ready(function(){
             type: frm.attr('method'),
             url: frm.attr('action'),
             data: frm.serialize(),
-            success: function (data) {
+            success: function (data, status) {
+
+								console.log(status);
+								$('.spinner').hide();
+								$('.checkmark').show();
 								window.location.href = thisHref;
+
             },
             error: function(data) {
                 $("#modal-p").html("Something went wrong!");

@@ -266,3 +266,25 @@ ul.nav-pills li.active a:hover {
         transform: rotate(360deg);
     }
 }
+
+/* check mark */
+
+.checkmark {
+    width: 37px;
+    height: 70px;
+
+    border-right: 10px solid #00b300;
+    border-top: 10px solid #f25a41;
+    /*border-top: 10px solid #90ABD6;*/
+
+    position: static;
+    top: 0;
+    bottom: 0;
+    left:0;
+    right: 0;
+    margin: auto;
+    margin-bottom: 18px;
+    display: none;
+
+    transform: scaleX(-1) rotate(135deg);
+}
