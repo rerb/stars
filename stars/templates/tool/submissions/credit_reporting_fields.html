@@ -274,19 +274,22 @@
 
   <!-- Modal -->
   <div id="unsaved-data" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="unsaved-dataLabel" aria-hidden="true">
-    <div class="modal-header">
-      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-      <h3 id="myModalLabel">Store your changes!</h3>
-    </div>
-    <div class="modal-body">
-      <p id="modal-p">There may be unsaved changes. Save this credit as 'in progress,' or...dont!</p>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-success">
-        Save changes as in progress
-      </button>
-      <button class="btn modal-close-button btn-danger" aria-hidden="true">Nah, ditch 'em</button>
-    </div>
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel">Store your changes!</h3>
+      </div>
+      <div class="modal-body">
+        <p id="modal-p">There may be unsaved changes. Save this credit as 'in progress,' or...dont!</p>
+        <div class="spinner"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-success modal-stash-changes">
+          Save changes as in progress
+        </button>
+        <button class="btn modal-close-button btn-danger" aria-hidden="true">
+          Nah, ditch 'em
+        </button>
+      </div>
   </div>
 
   <div id="data-changed"></div><!-- find a generic way to say if data changed on the page -->

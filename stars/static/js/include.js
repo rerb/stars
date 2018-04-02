@@ -347,7 +347,6 @@ function enable_submit(enable, ignore_errors) {
 }
 
 function informPage(){
-	console.log("change!")
 	div = document.getElementById('data-changed');
 	div.className = "form-has-changed";
 }
