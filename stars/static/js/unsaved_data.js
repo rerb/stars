@@ -21,12 +21,20 @@ $(document).ready(function(){
             type: frm.attr('method'),
             url: frm.attr('action'),
             data: frm.serialize(),
-            success: function (data, status) {
+            success: function (data) {
 
-								console.log(status);
-								$('.spinner').hide();
-								$('.checkmark').show();
-								window.location.href = thisHref;
+							  console.log(data);
+
+								if(data.indexOf("errorlist") >= 0){
+									$('.spinner').hide();
+									$('#modal-p').html("Hmmm, there's an issue...");
+									$('#modal-p').show();
+								}
+								else{
+									$('.spinner').hide();
+									$('.checkmark').show();
+									window.location.href = thisHref;
+							}		
 
             },
             error: function(data) {
