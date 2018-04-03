@@ -31,7 +31,6 @@ CONTACT_INFO = {'contact_first_name': u'Jimmy',
                 'contact_last_name': u'Jonesy',
                 'contact_title': u'Humble Servant',
                 'contact_department': u'Refreshments',
-                'contact_phone': u'123-123-1234',
                 'contact_email': u'jimmy@jonestown.gy'}
 
 EXECUTIVE_CONTACT_INFO = {
@@ -915,7 +914,7 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
                       new_registration=True)
         self._initial_object_counts_are_still_correct()
 
-        
+
 class SurveyViewTest(InstitutionAdminToolMixinTest):
 
     view_class = views.SurveyView
