@@ -56,21 +56,12 @@ def permission_denied(request):
     if (request.user.is_authenticated() and
         request.user.starsaccount_set.filter(
             institution=institution_in_url)):
-        liaison_phone = institution_in_url.get_liaison_phone()
         liaison_email = institution_in_url.get_liaison_email()
-        if liaison_phone or liaison_email:
+        if liaison_email:
             liaison_contact_info = '{liaison_name} is available'.format(
                 liaison_name=institution_in_url.get_liaison_name())
-            if liaison_phone:
-                liaison_contact_info += ' by phone at {liaison_phone}'.format(
-                    liaison_phone=liaison_phone)
-                if liaison_email:
-                    liaison_contact_info += ', and'
-                else:
-                    liaison_contact_info += '.'
-            if liaison_email:
-                liaison_contact_info += ' via email at {liaison_email}.'.format(
-                    liaison_email=liaison_email)
+            liaison_contact_info += ' via email at {liaison_email}.'.format(
+                liaison_email=liaison_email)
 
     context = {'institution_in_url': institution_in_url,
                'liaison_contact_info': liaison_contact_info}

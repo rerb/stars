@@ -38,7 +38,6 @@ CONTACT_FIELD_NAMES = ['contact_department',
                        'contact_email',
                        'contact_first_name',
                        'contact_last_name',
-                       'contact_phone',
                        'contact_title',
                        'executive_contact_first_name',
                        'executive_contact_last_name',
@@ -98,7 +97,6 @@ class InstitutionCreateView(CreateView):
         institution.contact_last_name = form.cleaned_data["contact_last_name"]
         institution.contact_title = form.cleaned_data["contact_title"]
         institution.contact_department = form.cleaned_data["contact_department"]
-        institution.contact_phone = form.cleaned_data["contact_phone"]
         institution.contact_email = form.cleaned_data["contact_email"]
 
         institution.executive_contact_first_name = form.cleaned_data["executive_contact_first_name"]

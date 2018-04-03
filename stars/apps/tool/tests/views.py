@@ -345,17 +345,7 @@ class NoStarsAccountViewTest(ViewTest):
             contact_last_name='Burroughs')
         self.assertEqual(self.view.get_liaison_name(institution),
                          'William Burroughs')
-
-    def test_get_liaison_phone_no_extension(self):
-        institution = InstitutionFactory(contact_phone='8675309')
-        self.assertEqual(self.view.get_liaison_phone(institution),
-                         '8675309')
-
-    def test_get_liaison_phone_with_extension(self):
-        institution = InstitutionFactory(contact_phone='8675309',
-                                         contact_phone_ext='9')
-        self.assertEqual(self.view.get_liaison_phone(institution),
-                         '8675309 x9')
+                         
 
     # def test_liaison_name_shown(self):
     #     institution = InstitutionFactory(is_participant=True,

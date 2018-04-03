@@ -39,8 +39,6 @@ class ParticipantContactForm(AdminInstitutionForm):
                   'contact_last_name',
                   'contact_title',
                   'contact_department',
-                  'contact_phone',
-                  'contact_phone_ext',
                   'contact_email',
                   'executive_contact_first_name',
                   'executive_contact_middle_name',
@@ -70,8 +68,6 @@ class RespondentContactForm(AdminInstitutionForm):
                   'contact_last_name',
                   'contact_title',
                   'contact_department',
-                  'contact_phone',
-                  'contact_phone_ext',
                   'contact_email']
 
 

@@ -944,8 +944,6 @@ class ContactsForm(LocalizedModelFormMixin, ModelForm):
                   'contact_last_name',
                   'contact_title',
                   'contact_department',
-                  'contact_phone',
-                  'contact_phone_ext',
                   'contact_email',
                   'executive_contact_first_name',
                   'executive_contact_last_name',
@@ -963,7 +961,6 @@ class ContactsForm(LocalizedModelFormMixin, ModelForm):
                   'contact_last_name',
                   'contact_title',
                   'contact_department',
-                  'contact_phone',
                   'contact_email',
                   'executive_contact_first_name',
                   'executive_contact_last_name',
@@ -976,8 +973,6 @@ class ContactsForm(LocalizedModelFormMixin, ModelForm):
         self.fields['contact_last_name'].label = "Last Name"
         self.fields['contact_title'].label = "Title"
         self.fields['contact_department'].label = "Department/Office"
-        self.fields['contact_phone'].label = "Phone"
-        self.fields['contact_phone_ext'].label = "Extension"
         self.fields['contact_email'].label = "Email"
         self.fields['executive_contact_first_name'].label = "First Name"
         self.fields['executive_contact_last_name'].label = "Last Name"

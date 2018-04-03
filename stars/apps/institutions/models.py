@@ -126,10 +126,6 @@ class Institution(models.Model):
                                      blank=True, null=True)
     contact_department = models.CharField("Liaison Department", max_length=64,
                                           blank=True, null=True)
-    contact_phone = PhoneNumberField("Liaison Phone", blank=True, null=True)
-    contact_phone_ext = models.SmallIntegerField("Extension",
-                                                 blank=True,
-                                                 null=True)
     contact_email = models.EmailField("Liaison Email", blank=True, null=True)
     executive_contact_first_name = models.CharField(max_length=32,
                                                     blank=True,
@@ -479,15 +475,6 @@ class Institution(models.Model):
         return ' '.join([self.contact_first_name,
                          self.contact_middle_name,
                          self.contact_last_name]).replace('  ', ' ')
-
-    def get_liaison_phone(self):
-        phone = self.contact_phone
-        if self.contact_phone_ext:
-            if phone:
-                phone += ' x' + str(self.contact_phone_ext)
-            else:
-                phone = 'x' + str(self.contact_phone_ext)
-        return phone
 
     def get_liaison_email(self):
         return self.contact_email

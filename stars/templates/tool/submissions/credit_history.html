@@ -19,7 +19,7 @@
                 <div class="control-group">
                     <label class="control-label">
                         <strong>
-                            {{ doc_field }} 
+                            {{ doc_field }}
                         </strong>
                     </label>
                     {% for doc_field_history in doc_field_sub_histories %}
@@ -92,7 +92,7 @@
                   <span class="caret"></span>
                 </a>
               {% endif %} {% comment %} inst has full access {% endcomment %}
-            {% endfor %} {% comment %} for each submissionset {% endcomment %} 
+            {% endfor %} {% comment %} for each submissionset {% endcomment %}
           </div>
         {% endif %}
     </div>
@@ -120,19 +120,13 @@
           administrator for {{ institution.name }}, to upgrade your
           priveleges.
         </p>
-        {% if institution.get_liaison_phone %}
-          <p>
-            {{ institution.get_liaison_name }} is available
-            by phone at {{ institution.get_liaison_phone }}.
-          </p>
-        {% endif %}
         {% if institution.get_liaison_email %}
           <p>
-            You can email {{ institution.get_liaison_name }} 
+            You can email {{ institution.get_liaison_name }}
             at <mailto="{{ institution.get_liaison_email }}">
             {{ institution.get_liaison_email }}</mailto>.
           </p>
-        {% endif %}          
+        {% endif %}
       </div>
       <div class="modal-footer">
         <button class="btn"
@@ -163,7 +157,7 @@
         </p>
         <p>
           You can upgrade to Full Access by purchasing a STARS
-          subscription from your 
+          subscription from your
           <a href="{% url tool-summary institution.slug %}">
             My Summary</a>
           page.
@@ -177,7 +171,7 @@
         </button>
       </div>
     </div>
-    
+
     {% comment %}
       downloadModal below lifted from submission_summary_table.html
     {% endcomment %}
@@ -211,4 +205,3 @@
     </script>
 
 {% endblock %}
-

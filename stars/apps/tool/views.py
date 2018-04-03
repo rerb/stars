@@ -87,7 +87,6 @@ class NoStarsAccountView(TemplateView):
         institution = self.get_institution(user=self.request.user)
         context['institution'] = institution
         context['liaison_name'] = self.get_liaison_name(institution)
-        context['liaison_phone'] = self.get_liaison_phone(institution)
         context['liaison_email'] = (institution.contact_email if institution
                                     else None)
         return context
@@ -154,20 +153,6 @@ class NoStarsAccountView(TemplateView):
                 if name:
                     full_name += name + ' '
             return full_name.strip()
-        else:
-            return None
-
-    def get_liaison_phone(self, institution):
-        if institution:
-            if institution.contact_phone:
-                if institution.contact_phone_ext:
-                    return '{phone} x{ext}'.format(
-                        phone=institution.contact_phone,
-                        ext=institution.contact_phone_ext)
-                else:
-                    return institution.contact_phone
-            else:
-                return None
         else:
             return None
 

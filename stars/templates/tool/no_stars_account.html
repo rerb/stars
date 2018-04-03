@@ -24,18 +24,10 @@
         {% endif %}
         can grant you can grant you access;  please contact him
         or her.
-        {% if liaison_phone or liaison_email %}
+        {% if liaison_email %}
           Our records indicate that
           {% firstof liaison_name "your liaison"%}
-          can be contacted
-          {% if liaison_phone and liaison_email %}
-            by phone at {{ liaison_phone }}
-            and by email at {{ liaison_email }}.
-          {% elif liaison_phone %}
-            by phone at {{ liaison_phone }}.
-          {% else %}
-            by email at {{ liaison_email }}.
-          {% endif %}
+          can be contacted by email at {{ liaison_email }}.
         {% endif %}
       {% else %}
         {% if institution %}
