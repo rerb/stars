@@ -29,8 +29,8 @@ $(document).ready(function(){
 									if(data.indexOf("errorlist") >= 0){
 										$('.spinner').hide();
 										$('#myModalLabel').html("Errors found");
-										$('#modal-p').html("It appears that there were some issues"
-											+ " with the new data. If you would like to make sure that"
+										$('#modal-p').html("It appears that there were reporting"
+											+ " field errors. If you would like to make sure that"
 											+ " your changes are saved, you can validate"
 											+ " them by using the save as 'In progress'"
 											+ " button at the bottom of the form. Otherwise, continue"
@@ -57,8 +57,8 @@ $(document).ready(function(){
 				window.location.href = thisHref;
 			}
 
-			}
-		});
+		}
+	});
 
 
 });
