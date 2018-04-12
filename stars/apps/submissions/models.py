@@ -157,6 +157,7 @@ class SubmissionSet(models.Model, FlaggableModel):
     date_registered = models.DateField()
     date_submitted = models.DateField(blank=True, null=True)
     date_reviewed = models.DateField(blank=True, null=True)
+    date_published = models.DateField(blank=True, null=True)
     expired = models.BooleanField(default=False)
     registering_user = models.ForeignKey(
         User,
