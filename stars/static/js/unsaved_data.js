@@ -40,6 +40,7 @@ $(document).ready(function(){
 										$('.modal-stash-changes').hide();
 									}
 									else{
+										$('#myModalLabel').html("Routing");
 										$('.spinner').hide();
 										$('.checkmark').show();
 										window.location.href = thisHref;
