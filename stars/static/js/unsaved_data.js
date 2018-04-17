@@ -6,13 +6,16 @@ $(document).ready(function(){
 			e.preventDefault();
 			var thisHref = $(this).attr('href');
 
+      // if the form has changed
 			if($('#data-changed').hasClass("form-has-changed")){
 
 				$("#id_submission_status").val('p');
 				$('#unsaved-data').modal();
+				// if the user clicks the disregard button
 				$('.modal-close-button').click(function(){
 					window.location.href = thisHref;
 				});
+				// if the user clicks to save changes
 				$('.modal-stash-changes').click(function(){
 					$('#myModalLabel').html("One moment...");
 					$('.modal-footer').hide();
