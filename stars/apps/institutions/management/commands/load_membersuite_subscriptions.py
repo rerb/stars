@@ -191,8 +191,6 @@ class Command(BaseCommand):
                 membersuite_stars_liaison.last_name)
             institution.contact_title = (
                 membersuite_stars_liaison.title)
-            institution.contact_phone = (
-                membersuite_stars_liaison.phone_number)
             institution.contact_email = (
                 membersuite_stars_liaison.email_address)
 
