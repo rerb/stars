@@ -20,6 +20,7 @@
 {% block extra_head %}
   {{ block.super }}
   {% compress js %}
+    <script src="{{ STATIC_URL }}js/unsaved_data.js" type="text/javascript"></script>
     <script type="text/javascript"
             src="{{ STATIC_URL }}admin/js/admin/RelatedObjectLookups.js">
     </script>
@@ -270,4 +271,27 @@
       </div>
     </div>
   </form>
+
+  <!-- Modal -->
+  <div id="unsaved-data" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="unsaved-dataLabel" aria-hidden="true">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel">Save your changes?</h3>
+      </div>
+      <div class="modal-body">
+        <p id="modal-p">It looks like you have been editing this credit. If you leave before saving, any changes will be lost.</p>
+        <div class="spinner"></div>
+        <div class="checkmark"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-success modal-stash-changes">
+          Save credit as 'in progress'
+        </button>
+        <button class="btn modal-close-button btn-danger" aria-hidden="true">
+          Continue without saving
+        </button>
+      </div>
+  </div>
+
+  <div id="data-changed"></div><!-- provide a generic way to say if data changed on the page -->
 {% endblock %}
