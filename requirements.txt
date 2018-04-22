@@ -32,6 +32,7 @@ django-form-utils==0.2.0
 django-jsonfield==0.7.1
 django-logical-rules==0.1.1
 django-longerusernameandemail
+django-membersuite-auth==2.0
 django-memcache-status==1.1
 django-mptt==0.5.2
 django-password-protect
@@ -83,5 +84,3 @@ zope.interface==4.0.3
 zope.testing==4.1.1
 
 https://github.com/AASHE/iss/archive/v2.5.10.zip
-
-https://github.com/AASHE/django-membersuite-auth/archive/v1.6.3.zip
