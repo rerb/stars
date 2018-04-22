@@ -238,3 +238,53 @@ ul.nav-pills li.active a:hover {
 .required_note {
   color: red;
 }
+
+/* css spinner */
+.spinner{
+    width: 70px;
+    height: 70px;
+
+    border: 2px solid #f3f3f3;
+    border-top:3px solid #f25a41;
+    border-radius: 100%;
+
+    position: static;
+    top:0;
+    bottom: 10;
+    left:0;
+    right: 0;
+    margin: auto;
+    display: none;
+
+    animation: spin 1s infinite linear;
+}
+
+@keyframes spin {
+    from{
+        transform: rotate(0deg);
+    }to{
+        transform: rotate(360deg);
+    }
+}
+
+/* check mark */
+
+.checkmark {
+    width: 37px;
+    height: 70px;
+
+    border-right: 10px solid #00b300;
+    border-top: 10px solid #f25a41;
+    /*border-top: 10px solid #90ABD6;*/
+
+    position: static;
+    top: 0;
+    bottom: 0;
+    left:0;
+    right: 0;
+    margin: auto;
+    margin-bottom: 18px;
+    display: none;
+
+    transform: scaleX(-1) rotate(135deg);
+}
