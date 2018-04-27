@@ -4,8 +4,10 @@ from unittest import TestCase
 
 import testfixtures
 
-from stars.apps.institutions.models import Institution
-from stars.test_factories import InstitutionFactory
+from stars.apps.institutions.models import (REVIEW_SUBMISSION_STATUS,
+                                            Institution,
+                                            Subscription)
+from stars.test_factories import InstitutionFactory, SubmissionSetFactory
 
 
 class InstitutionTest(TestCase):
@@ -95,6 +97,26 @@ class InstitutionTest(TestCase):
             institution = InstitutionFactory()
             self.assertEqual(institution.get_location_string(),
                              '')
+
+    def test_is_participant_in_review_mode(self):
+        """When a submission is in review mode, is is_particpant True?
+        """
+        institution = InstitutionFactory()
+        self.assertFalse(institution.is_participant)
+        institution.current_submission = SubmissionSetFactory(
+            status=REVIEW_SUBMISSION_STATUS)
+        institution.save()
+        self.assertTrue(institution.is_participant)
+
+    def test_access_level_in_review_mode(self):
+        """When a submission is in review mode, is access_level correct?
+        """
+        institution = InstitutionFactory()
+        self.assertEqual(institution.access_level, Subscription.BASIC_ACCESS)
+        institution.current_submission = SubmissionSetFactory(
+            status=REVIEW_SUBMISSION_STATUS)
+        institution.save()
+        self.assertEqual(institution.access_level, Subscription.FULL_ACCESS)
 
 
 class MockProfile(object):

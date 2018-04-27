@@ -20,6 +20,9 @@ from stars.apps.credits.models import CreditSet
 logger = getLogger('stars')
 
 
+REVIEW_SUBMISSION_STATUS = "rv"
+
+
 @receiver(user_logged_in)
 def pending_accounts_callback(sender, **kwargs):
     """
@@ -215,9 +218,9 @@ class Institution(models.Model):
     @property
     def is_participant(self):
         # Folks with a report in review mode always get full access.
-        submission = self.current_Submission
+        submission = self.current_submission
         if (submission and
-            (submission.status == submission.REVIEW_SUBMISSION_STATUS)):  # noqa
+            (submission.status == REVIEW_SUBMISSION_STATUS)):  # noqa
 
             return True
 
@@ -246,7 +249,7 @@ class Institution(models.Model):
         submission = self.current_submission
 
         if (submission and
-            (submission.status == submission.REVIEW_SUBMISSION_STATUS)):  # noqa
+            (submission.status == REVIEW_SUBMISSION_STATUS)):  # noqa
 
             # Everybody gets full access while their submission
             # is in review mode.
