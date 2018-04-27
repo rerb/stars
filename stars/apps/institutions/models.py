@@ -7,7 +7,6 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.contrib.auth.models import User
-from django.contrib.localflavor.us.models import PhoneNumberField
 from django.template.defaultfilters import slugify
 from django.db.models import Max
 from django.core.mail import send_mail
@@ -19,6 +18,9 @@ from stars.apps.credits.models import CreditSet
 
 
 logger = getLogger('stars')
+
+
+REVIEW_SUBMISSION_STATUS = "rv"
 
 
 @receiver(user_logged_in)
@@ -215,10 +217,17 @@ class Institution(models.Model):
 
     @property
     def is_participant(self):
-        return (
-            self.current_subscription and
-            self.current_subscription.access_level == Subscription.FULL_ACCESS
-        )
+        # Folks with a report in review mode always get full access.
+        submission = self.current_submission
+        if (submission and
+            (submission.status == REVIEW_SUBMISSION_STATUS)):  # noqa
+
+            return True
+
+        else:
+            return (self.current_subscription and
+                    self.current_subscription.access_level ==
+                        Subscription.FULL_ACCESS)
 
     def __unicode__(self):
         return self.name
@@ -236,8 +245,19 @@ class Institution(models.Model):
 
     @property
     def access_level(self):
-        if self.current_subscription:
+
+        submission = self.current_submission
+
+        if (submission and
+            (submission.status == REVIEW_SUBMISSION_STATUS)):  # noqa
+
+            # Everybody gets full access while their submission
+            # is in review mode.
+            return Subscription.FULL_ACCESS
+
+        elif self.current_subscription:
             return self.current_subscription.access_level
+
         else:
             return Subscription.BASIC_ACCESS
 
