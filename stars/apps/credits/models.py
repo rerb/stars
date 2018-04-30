@@ -867,14 +867,14 @@ else:
             if not debug:
                 return(False,
                        "There was an error processing this credit. AASHE "
-                       "has noted the error and will work to resolve the issue.",
-                       e, points)
+                       "has noted the error and will work to resolve the "
+                       "issue.", e, points)
             else:
                 debugging += "\n***Exception***\n %s" % e
                 return(False,
                        "There was an error processing this credit. AASHE "
-                       "has noted the error and will work to resolve the issue.",
-                       e, points, debugging)
+                       "has noted the error and will work to resolve the "
+                       "issue.", e, points, debugging)
         if not debug:
             return (True, "Formula executed successfully", None, points)
         else:
@@ -995,7 +995,8 @@ else:
             Returns a list of documentation fields, excluding those that are
             nested in the table of another
         """
-        return self.documentationfield_set.exclude(id__in=self.get_child_fields())
+        return self.documentationfield_set.exclude(
+            id__in=self.get_child_fields())
 
 
 def compile_formula(formula, label='Formula'):

@@ -20,9 +20,6 @@ from stars.apps.credits.models import CreditSet
 logger = getLogger('stars')
 
 
-REVIEW_SUBMISSION_STATUS = "rv"
-
-
 @receiver(user_logged_in)
 def pending_accounts_callback(sender, **kwargs):
     """
@@ -217,6 +214,8 @@ class Institution(models.Model):
 
     @property
     def is_participant(self):
+        # Import in here to avoid circular dependency.
+        from stars.apps.submissions.models import REVIEW_SUBMISSION_STATUS
         # Folks with a report in review mode always get full access.
         submission = self.current_submission
         if (submission and
@@ -227,7 +226,7 @@ class Institution(models.Model):
         else:
             return (self.current_subscription and
                     self.current_subscription.access_level ==
-                        Subscription.FULL_ACCESS)
+                        Subscription.FULL_ACCESS)  # noqa
 
     def __unicode__(self):
         return self.name
@@ -245,6 +244,8 @@ class Institution(models.Model):
 
     @property
     def access_level(self):
+        # Import in here to avoid circular dependency.
+        from stars.apps.submissions.models import REVIEW_SUBMISSION_STATUS
 
         submission = self.current_submission
 
@@ -269,20 +270,45 @@ class Institution(models.Model):
             return False
         return True
 
-    def update_status(self):
-        """
-            Update the status of this institution, based on subscriptions and
-            submissions
+    def get_relative_rating(self):
+        """New ratings aren't always considered an Insitution's 'current'
+        rating.  A 'Reporter' rating, for instance, shouldn't obscure
+        any higher-rated submission that has not yet expired.
 
-            NOTE: does not save the institution
         """
-        # Update current_rating
+        # Import in here to avoid circular dependency.
+        from stars.apps.submissions.models import RATING_VALID_PERIOD
+
+        if (self.current_rating and
+            self.current_rating.name == "Reporter"):  # noqa
+            # Is there another public, rated submission for this
+            # Institution with a current, non-reporter rating?
+            other_submissions = self.submissionset_set.filter(
+                rating__publish_score=True,
+                date_submitted__gte=(
+                    date.today() -
+                    RATING_VALID_PERIOD)).exclude(
+                        rating__name="Reporter").order_by(
+                            "-date_submitted")
+            if other_submissions:
+                return other_submissions[0].rating
+            else:
+                return self.current_rating
+        else:
+            return self.current_rating
+
+    def update_current_rating(self):
+        # Clear current_rating if it's expired.
         if self.rating_expires and self.rating_expires <= date.today():
             # if the rated submission has expired remove the rating
             self.rated_submission = None
             self.current_rating = None
             self.rating_expires = None
+        else:
+            # update the rating
+            self.current_rating = self.get_relative_rating()
 
+    def update_current_subscription(self):
         # Check subscription is current
         if self.current_subscription:
             if (self.current_subscription.start_date <= date.today() and

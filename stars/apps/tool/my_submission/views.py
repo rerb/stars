@@ -358,7 +358,10 @@ class ApproveSubmissionView(SubmissionToolMixin,
             institution.current_subscription.ratings_used += 1
             institution.current_subscription.save()
 
-        institution.current_rating = submissionset.rating
+        if submissionset.reporter_status:
+            institution.current_rating = institution.get_relative_rating()
+        else:
+            institution.current_rating = submissionset.rating
         institution.rated_submission = submissionset
         institution.rating_expires = date.today() + RATING_VALID_PERIOD
         institution.save()

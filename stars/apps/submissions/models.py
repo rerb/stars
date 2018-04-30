@@ -1586,11 +1586,6 @@ class CreditSubmission(models.Model):
         return urlresolvers.reverse('credit-submission-status-update',
                                     kwargs={'pk': self.id})
 
-#    def __str__(self):  #  For DEBUG - comment out __unicode__ method above
-#        if self.persists(): persists="persists"
-#        else: persists="not saved"
-#        return "<CreditSubmission %s credit_id=%s  %s>"%(
-#                self.id, self.credit.id, persists)
 
 COMPLETE = "c"
 IN_PROGRESS = "p"
@@ -1780,7 +1775,7 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
 
         if (before_image is not None and
             before_image.is_unlocked_for_review and
-            not self.is_unlocked_for_review):
+            not self.is_unlocked_for_review):  # noqa
 
             self.send_unlocked_credit_submission_updated_email()
 
@@ -2101,7 +2096,7 @@ class DataCorrectionRequest(models.Model):
 
             cus.subcategory_submission.category_submission.score = None
             cus.subcategory_submission.category_submission.score = (
-                cus.subcategory_submission.category_submission.get_STARS_score())
+                cus.subcategory_submission.category_submission.get_STARS_score())  # noqa
             cus.subcategory_submission.category_submission.save()
 
             ss.score = None
@@ -2110,11 +2105,13 @@ class DataCorrectionRequest(models.Model):
 
             new_rating = ss.get_STARS_rating(recalculate=True)
             if ss.rating != new_rating:
-                ss.rating = new_rating
-                ss.institution.current_rating = new_rating
-                ss.institution.save()
                 rating_changed = True
+                ss.rating = new_rating
                 ss.save()
+
+                institution = ss.institution
+                institution.current_rating = institution.get_relative_rating()
+                institution.save()
 
         if ss.pdf_report:
             ss.pdf_report = None

@@ -3,14 +3,14 @@
     what proportion of submissions to Sierra are from paying STARS users vs
     non-paying reporters/snapshot takers.
 """
-
-from stars.apps.submissions.models import SubmissionSet
-from stars.apps.third_parties.models import ThirdParty
 import datetime
 
+from stars.apps.third_parties.models import ThirdParty
+
+
 date_window = (
-    datetime.date(year=2013, month=6, day=1),
-    datetime.date(year=2014, month=6, day=1)
+    datetime.date(year=2016, month=3, day=1),
+    datetime.date(year=2017, month=3, day=3)
 )
 sierra = ThirdParty.objects.get(slug="sierra")
 
@@ -27,7 +27,7 @@ for i in sierra.access_to_institutions.all():
 participants = []
 non_participants = []
 for i in i_list:
-    if i.was_participant_on_date(date_window[1]):
+    if i.is_participant:
         participants.append(i)
     else:
         non_participants.append(i)
