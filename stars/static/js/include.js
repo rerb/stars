@@ -353,6 +353,6 @@ function informPage(){
 
 /* We may find other uses for this in future, so I abstracted it */
 function field_changed(el) {
-    enable_submit(true);
     informPage();
+    enable_submit(true);
 }
