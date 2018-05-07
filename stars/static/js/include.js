@@ -352,7 +352,6 @@ function informPage(){
     if (div != null){
         div.className = "form-has-changed";
     }
-
 }
 
 /* We may find other uses for this in future, so I abstracted it */
