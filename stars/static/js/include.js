@@ -347,12 +347,15 @@ function enable_submit(enable, ignore_errors) {
 }
 
 function informPage(){
+    //check if #data-changed exists in DOM before informing the page
 	div = document.getElementById('data-changed');
-	div.className = "form-has-changed";
+    if (div != null){
+        div.className = "form-has-changed";
+    }
 }
 
 /* We may find other uses for this in future, so I abstracted it */
 function field_changed(el) {
-    enable_submit(true);
     informPage();
+    enable_submit(true);
 }
