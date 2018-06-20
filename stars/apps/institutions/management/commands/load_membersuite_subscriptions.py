@@ -16,7 +16,8 @@ from membersuite_api_client.organizations.services import OrganizationService
 from membersuite_api_client.security.services import (
     get_user_for_membersuite_entity)
 from membersuite_api_client.subscriptions.services import SubscriptionService
-from membersuite_api_client.utils import get_new_client, submit_msql_query
+from membersuite_api_client.utils import (get_new_client,
+                                          submit_msql_object_query)
 
 from stars.apps.institutions.models import (Institution,
                                             MemberSuiteInstitution,
@@ -39,7 +40,7 @@ def get_subscription_fee_name(subscription_fee_id, client):
     try:
         return _subscription_fee_names[subscription_fee_id]
     except KeyError:
-        subscription_fee = submit_msql_query(
+        subscription_fee = submit_msql_object_query(
             "SELECT Object() FROM SUBSCRIPTIONFEE WHERE ID = '{}'".format(
                 subscription_fee_id, client=client))[0]
         _subscription_fee_names[subscription_fee_id] = (
