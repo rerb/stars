@@ -18,7 +18,8 @@ urlpatterns = patterns(
     (r'^rated/$', RatedInstitutions.as_view()),
 
     # Rated institutions
-    url(r'^participants-and-reports/$', ParticipantReportsView.as_view(),
+    url(r'^participants-and-reports/$',
+        never_cache(ParticipantReportsView.as_view()),
         name='participants-reports'),
 
     # Submission Inquiry Form
