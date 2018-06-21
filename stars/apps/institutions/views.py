@@ -2,7 +2,7 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404
 from django.http import Http404, HttpResponseRedirect
 from django.views.generic import (FormView, CreateView, TemplateView,
-                                  RedirectView)
+                                  RedirectView, DetailView)
 from django.views.generic.simple import direct_to_template
 
 from extra_views import CreateWithInlinesView
@@ -511,6 +511,13 @@ class ScorecardView(RulesMixin,
 class ScorecardSummary(ScorecardView):
     template_name = 'institutions/scorecards/summary.html'
 
+
+class ExecutiveSummary(InstitutionStructureMixin, SubmissionStructureMixin, TemplateView):
+    template_name = 'institutions/executive_summary/base.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ExecutiveSummary, self).get_context_data(**kwargs)
+        return context
 
 class ScorecardCredit(ScorecardView):
     template_name = 'institutions/scorecards/credit.html'

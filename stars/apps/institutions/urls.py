@@ -33,6 +33,10 @@ urlpatterns = patterns(
     url(r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/$',
         ScorecardSummary.as_view(), name='scorecard-summary'),
 
+    # Specific executive summary for an institution's submission
+    url(r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/summary/$',
+        ExecutiveSummary.as_view(), name='executive-summary'),
+
     # Submission inquiry for an institution
     url(r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/inquiry/$',
         SubmissionInquiryView.as_view(),
