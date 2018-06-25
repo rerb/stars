@@ -18,7 +18,11 @@ from stars.apps.institutions.models import Institution, Subscription
 from stars.apps.notifications.models import EmailTemplate
 from stars.apps.submissions.models import (DataCorrectionRequest,
                                            SubmissionInquiry,
-                                           SUBMISSION_STATUSES)
+                                           SUBMISSION_STATUSES,
+                                           SubmissionSet,
+                                           CategorySubmission,
+                                           CreditUserSubmission,
+                                           SubcategorySubmission)
 from stars.apps.submissions.views import SubmissionStructureMixin
 from stars.apps.submissions.tasks import (
     build_excel_export, build_pdf_export, build_certificate_export)
@@ -512,11 +516,28 @@ class ScorecardSummary(ScorecardView):
     template_name = 'institutions/scorecards/summary.html'
 
 
-class ExecutiveSummary(InstitutionStructureMixin, SubmissionStructureMixin, TemplateView):
+class ExecutiveSummary(TemplateView):
     template_name = 'institutions/executive_summary/base.html'
 
     def get_context_data(self, **kwargs):
+
+        # using what I've demonstrated in base.HTML
+        # build the list from context['credit_submissions']
+
         context = super(ExecutiveSummary, self).get_context_data(**kwargs)
+        my_final_list = []
+        lookup = kwargs['institution_slug']
+        ss = kwargs['submissionset']
+        inst = Institution.objects.get(slug=lookup)
+        submset = SubmissionSet.objects.get(institution=inst, date_submitted=ss)
+        category_submission = CategorySubmission.objects.filter(submissionset=submset)
+        # subcategory_submission = SubcategorySubmission.objects.filter(category_submission=category_submission)
+        context['category_submission'] = category_submission
+        context['institution'] = inst
+        context['submissionset'] = submset
+
+        context['credit_submissions'] = submset.get_credit_submissions()
+
         return context
 
 class ScorecardCredit(ScorecardView):

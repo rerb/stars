@@ -1,2 +1,8 @@
 
-<h1>{{ submissionset }}</h1>
+<h1>{{ institution }}</h1>
+<p>{{ submissionset }}</p>
+
+{% for thing in credit_submissions %}
+    <h4>{{ thing.subcategory_submission.category_submission }}</h4>
+    <p>{{ thing.subcategory_submission }}:  {{ thing.subcategory_submission.points }}</p>
+{% endfor %}
