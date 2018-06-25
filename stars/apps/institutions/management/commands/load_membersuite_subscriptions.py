@@ -16,7 +16,8 @@ from membersuite_api_client.organizations.services import OrganizationService
 from membersuite_api_client.security.services import (
     get_user_for_membersuite_entity)
 from membersuite_api_client.subscriptions.services import SubscriptionService
-from membersuite_api_client.utils import get_new_client, submit_msql_query
+from membersuite_api_client.utils import (get_new_client,
+                                          submit_msql_object_query)
 
 from stars.apps.institutions.models import (Institution,
                                             MemberSuiteInstitution,
@@ -39,7 +40,7 @@ def get_subscription_fee_name(subscription_fee_id, client):
     try:
         return _subscription_fee_names[subscription_fee_id]
     except KeyError:
-        subscription_fee = submit_msql_query(
+        subscription_fee = submit_msql_object_query(
             "SELECT Object() FROM SUBSCRIPTIONFEE WHERE ID = '{}'".format(
                 subscription_fee_id, client=client))[0]
         _subscription_fee_names[subscription_fee_id] = (
@@ -96,7 +97,7 @@ class Command(BaseCommand):
         self.organization_service = OrganizationService(
             client=self.client)
 
-    def handle(self, verbose=True, *args, **options):
+    def handle(self, verbose=False, *args, **options):
         self.sync_subscriptions(verbose=verbose)
 
     def get_subscriptions(self, verbose=True):
@@ -125,11 +126,16 @@ class Command(BaseCommand):
             ms_institution = (MemberSuiteInstitution.objects.get(
                 membersuite_account_num=membersuite_subscription.owner_id))
         except MemberSuiteInstitution.DoesNotExist:
+            try:
+                institution_name = membersuite_subscription.name.encode(
+                    "ascii")
+            except UnicodeEncodeError:
+                institution_name = "ORG NAME IS BAD UNICODE"
             print("ERROR: No MemberSuiteInstitution for "
                   "membersuite_subscription: "
                   "(sub) {}, (name) {}, (owner id) {}".format(
                       membersuite_subscription.membersuite_id,
-                      membersuite_subscription.name.encode("utf-8"),
+                      institution_name,
                       membersuite_subscription.owner_id))
             return
 
@@ -248,12 +254,17 @@ class Command(BaseCommand):
                     ms_id=membersuite_subscription.membersuite_id)
 
             # Sometimes there's no end date, and that's a problem.
+            try:
+                institution_name = membersuite_subscription.name.encode(
+                    "ascii")
+            except UnicodeEncodeError:
+                institution_name = "ORG NAME IS BAD UNICODE"
             if not membersuite_subscription.expiration_date:
                 logger.error("No expiration date for "
                              "membersuite_subscription: "
                              "(sub) {}, (name) {}, (owner id) {}".format(
                                  membersuite_subscription.membersuite_id,
-                                 membersuite_subscription.name.encode("utf-8"),
+                                 institution_name,
                                  membersuite_subscription.owner_id))
                 continue
 
