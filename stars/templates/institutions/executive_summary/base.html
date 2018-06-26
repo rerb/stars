@@ -2,7 +2,18 @@
 <h1>{{ institution }}</h1>
 <p>{{ submissionset }}</p>
 
-{% for thing in credit_submissions %}
-    <h4>{{ thing.subcategory_submission.category_submission }}</h4>
-    <p>{{ thing.subcategory_submission }}:  {{ thing.subcategory_submission.points }}</p>
+{% for category in report %}
+    <h2>{{ category.name }}</h2>
+    <p>points: {{ category.points }}</p>
+    <p>available: {{ category.available_points }}</p>
+    <blockquote>
+        <h4>Subcategories:</h4>
+        <blockquote>
+            {% for subcategory in category.subcategories %}
+                <p>name: {{ subcategory.name }}</p>
+                <p>points: {{ subcategory.points }}</p>
+                <p>available: {{ subcategory.available_points }}</p>
+            {% endfor %}
+        </blockquote>
+    </blockquote>
 {% endfor %}

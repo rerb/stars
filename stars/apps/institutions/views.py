@@ -522,21 +522,35 @@ class ExecutiveSummary(TemplateView):
     def get_context_data(self, **kwargs):
 
         # using what I've demonstrated in base.HTML
-        # build the list from context['credit_submissions']
-
         context = super(ExecutiveSummary, self).get_context_data(**kwargs)
-        my_final_list = []
-        lookup = kwargs['institution_slug']
-        ss = kwargs['submissionset']
-        inst = Institution.objects.get(slug=lookup)
-        submset = SubmissionSet.objects.get(institution=inst, date_submitted=ss)
+
+        report = []
+        inst = Institution.objects.get(slug=kwargs['institution_slug'])
+        submset = SubmissionSet.objects.get(institution=inst, date_submitted=kwargs['submissionset'])
         category_submission = CategorySubmission.objects.filter(submissionset=submset)
-        # subcategory_submission = SubcategorySubmission.objects.filter(category_submission=category_submission)
-        context['category_submission'] = category_submission
+        subcategory_submission = SubcategorySubmission.objects.filter(category_submission__in=category_submission)
+        # begin building the data for javascript use
+        for category in category_submission:
+            report.append(
+                {
+                'name': category.category.title,
+                'points': category.score,
+                'available_points': category.get_adjusted_available_points(),
+                'subcategories': [{'name': subcategory.subcategory.title, 'points': subcategory.points, 'available_points': subcategory.adjusted_available_points} for subcategory in subcategory_submission if subcategory.subcategory.category == category.category]
+                }
+            )
+        # remove Institutional Characteristics because it isn't a real category
+        for ob in report:
+            if ob['name'] == 'Institutional Characteristics':
+                report.remove(ob)
+        #remove Innovation because it will not be graphed
+        for ob in report:
+            if ob['name'] == 'Innovation':
+                report.remove(ob)
+
+        context['report'] = report
         context['institution'] = inst
         context['submissionset'] = submset
-
-        context['credit_submissions'] = submset.get_credit_submissions()
 
         return context
 
