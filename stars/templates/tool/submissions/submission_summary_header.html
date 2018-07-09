@@ -1,10 +1,6 @@
 {% load logical_rules_tags %}
 {% load content %}
 
-<div class="alert alert-info">
-  {% display_block_content 'review_template_teaser' %}
-</div>
-
 {% if submissionset.is_under_review %}
   <div class="alert alert-warning">
     {% display_block_content 'submission_in_review_warning' %}
