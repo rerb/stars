@@ -1,0 +1,18 @@
+# Environment
+
+Had to vary the requirements a little to use:
+
+    - `mysql-python`
+    - `mysqlclient`
+    - new version of `numpy`
+    
+# Importing latest STARS db:
+
+        $ mysql -u root
+        mysql> drop database stars;
+        mysql> create database stars;
+        $ unzip -p stars.sql.zip | mysql -u root -p stars
+        
+Note: I had to set `max_allowed_packet=64M` to fix:
+
+        MySQL server has gone away issues.
