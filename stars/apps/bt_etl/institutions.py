@@ -36,7 +36,7 @@ for i in Institution.objects.all():
 
     # only export institutions with rated submissions
     if i.submissionset_set.filter(status='r', creditset__version="2.1"):
-    
+
         inst_obj = {
             'model': model_string,
             'pk': i.pk,
@@ -59,10 +59,13 @@ for i in Institution.objects.all():
 
         if i.current_rating:
             inst_obj['fields']['current_rating_name'] = i.current_rating.name
-            inst_obj['fields']['current_rating_ordinal'] = i.current_rating.minimal_score
-            inst_obj['fields']['latest_report_version'] = i.rated_submission.creditset.version
+            inst_obj['fields']['current_rating_ordinal'] = (
+                i.current_rating.minimal_score)
+            inst_obj['fields']['latest_report_version'] = (
+                i.rated_submission.creditset.version)
         else:
-            inst_obj['fields']['latest_report_version'] = i.latest_expired_submission.creditset.version
+            inst_obj['fields']['latest_report_version'] = (
+                i.latest_expired_submission.creditset.version)
 
         obj_list.append(inst_obj)
 
