@@ -6,10 +6,10 @@ from stars.apps.submissions.models import SubmissionSet
 
 
 def extract_and_transform(filename='report.json'):
-    
+
     MODEL_STRING = "stars_content.report"
     STARS_URL = "https://stars.aashe.org"
-    
+
     """
     [
     {
@@ -30,14 +30,14 @@ def extract_and_transform(filename='report.json'):
     },
     ...]
     """
-    
+
     obj_list = []
-    
+
     qs = SubmissionSet.objects.get_rated()
-    qs = qs.filter(creditset__version="2.1")
-    
+    qs = qs.filter(creditset__version__startswith="2")
+
     for ss in qs:
-    
+
         ss_obj = {
             'model': MODEL_STRING,
             'pk': ss.pk,
@@ -56,9 +56,9 @@ def extract_and_transform(filename='report.json'):
                 'rating_ordinal': ss.rating.minimal_score,
                 'version_name': ss.creditset.version,
                 'version_ordinal': ss.creditset.id,
-                'is_current': ss.id == ss.institution.rated_submission.id,
+                'is_current': ss == ss.institution.rated_submission,
                 'is_latest': (
-                    ss.id == ss.institution.rated_submission.id or
+                    ss == ss.institution.rated_submission or
                     (
                         not ss.institution.rated_submission and
                         ss.institution.latest_expired_submission != None and
@@ -69,8 +69,8 @@ def extract_and_transform(filename='report.json'):
                 'report_url': "%s%s" % (STARS_URL, ss.get_scorecard_url())
             }
         }
-        
+
         obj_list.append(ss_obj)
-        
+
     with io.open(filename, 'w', encoding='utf-8') as f:
-      f.write(json.dumps(obj_list, ensure_ascii=False, indent=2))
+        f.write(json.dumps(obj_list, ensure_ascii=False, indent=2))

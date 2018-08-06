@@ -8,8 +8,8 @@ from django.db.models import Q
 
 MODEL_STRING = "stars_content.datapoint"
 
+
 def extract_and_transform(filename='datapoint.json'):
-    
     """
     [
     {
@@ -25,11 +25,11 @@ def extract_and_transform(filename='datapoint.json'):
     },
     ...]
     """
-    
+
     obj_list = []
-    
+
     cs = CreditSet.objects.get_latest()
-    
+
     def get_datapoint(obj, type, parent, is_numeric, metric_units=None, imperial_units=None):
         return {
             'model': MODEL_STRING,
@@ -45,18 +45,18 @@ def extract_and_transform(filename='datapoint.json'):
                 'imperial_units': imperial_units
             }
         }
-    
-    
+
     for cat in cs.category_set.all():
-    
+
         obj_list.append(get_datapoint(cat, "cat", None, True, "%", "%"))
-    
+
         for sub in cat.subcategory_set.all():
             obj_list.append(get_datapoint(sub, "sub", cat.id, True, "%", "%"))
-    
+
             for credit in sub.credit_set.all():
-                obj_list.append(get_datapoint(credit, "cred", sub.id, True, "%", "%"))
-    
+                obj_list.append(get_datapoint(
+                    credit, "cred", sub.id, True, "%", "%"))
+
                 q_filter = Q(type='numeric') | Q(type='calculated')
                 for df in credit.documentationfield_set.filter(q_filter):
                     imperial_units = df.us_units.name if df.us_units else None
@@ -67,10 +67,9 @@ def extract_and_transform(filename='datapoint.json'):
                             imperial_units = "%"
                     obj_list.append(get_datapoint(
                         df, "field", credit.id, True, metric_units, imperial_units))
-    
-    
+
     with io.open(filename, 'w', encoding='utf-8') as f:
-    
+
         r_json = json.dumps(obj_list, ensure_ascii=False, indent=2)
         # print type(r_json)
         f.write(r_json)

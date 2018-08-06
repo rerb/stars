@@ -79,5 +79,7 @@ class ApplicabilityReasonFactory(factory.DjangoModelFactory):
 class RatingFactory(factory.DjangoModelFactory):
     FACTORY_FOR = Rating
 
+    name = factory.Sequence(
+        lambda i: 'Rating-{0}'.format(i))
     creditset = factory.SubFactory(CreditSetFactory)
     minimal_score = 1

@@ -11,7 +11,7 @@ from stars.apps.bt_etl.utils import (
 def extract_and_transform(filename='institution.json'):
 
     MODEL_STRING = "stars_content.institution"
-    
+
     """
     [
     {
@@ -31,14 +31,16 @@ def extract_and_transform(filename='institution.json'):
     },
     ...]
     """
-    
+
     obj_list = []
-    
+
+    # maybe should have some filters here on current_rating and latest_expired_submission 
     for i in Institution.objects.all():
-    
+
         # only export institutions with rated submissions
-        if i.submissionset_set.filter(status='r', creditset__version="2.1"):
-    
+        if i.submissionset_set.filter(
+            status='r', creditset__version__startswith="2"):
+
             inst_obj = {
                 'model': MODEL_STRING,
                 'pk': i.pk,
@@ -58,21 +60,24 @@ def extract_and_transform(filename='institution.json'):
                     'latest_report_version': None
                 }
             }
-    
+
             if i.current_rating:
                 inst_obj['fields']['current_rating_name'] = i.current_rating.name
                 inst_obj['fields']['current_rating_ordinal'] = (
                     i.current_rating.minimal_score)
                 inst_obj['fields']['latest_report_version'] = (
                     i.rated_submission.creditset.version)
-            else:
+            elif i.latest_expired_submission:
                 inst_obj['fields']['latest_report_version'] = (
                     i.latest_expired_submission.creditset.version)
-    
+            else:
+                print("no latest report for %s" % i)
+                inst_obj['fields']['latest_report_version'] = None
+
             obj_list.append(inst_obj)
-    
+
     with io.open(filename, 'w', encoding='utf-8') as f:
-    
+
         i_json = json.dumps(obj_list, ensure_ascii=False, indent=2)
         # print type(i_json)
         f.write(i_json)
