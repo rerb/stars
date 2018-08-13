@@ -65,13 +65,13 @@ else:
     DATABASES['iss'] = dj_database_url.parse(
         os.environ.get('ISS_MYSQL_DB_URL'))
     DATABASES['default']['OPTIONS'] = {'init_command':
-                                       'SET storage_engine=MYISAM'}
+                                       'SET default_storage_engine=MYISAM'}
 
 if os.environ.get('STARS_BACKUP_DB_URL', False):
     DATABASES['stars-backup'] = dj_database_url.parse(
         os.environ.get('STARS_BACKUP_DB_URL'))
     DATABASES['stars-backup']['OPTIONS'] = {'init_command':
-                                            'SET storage_engine=MYISAM'}
+                                            'SET default_storage_engine=MYISAM'}
 
 # Stand alone mode indicates that the server will be running using
 # the django dev server so we will need to serve the static files (see urls.py)
