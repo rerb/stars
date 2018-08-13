@@ -71,7 +71,7 @@ def extract_and_transform(filename='submissionvalue.json'):
         f.write(u"[")
         qs = SubmissionSet.objects.filter(status='r')
         qs = qs.filter(creditset__version__startswith="2")
-        qs.select_related('creditset')
+        qs = qs.select_related('creditset')
         total = qs.count()
         count = 0
         for ss in qs:
@@ -87,7 +87,8 @@ def extract_and_transform(filename='submissionvalue.json'):
                 if (count != total or inner_count != len(obj_list)):
                     f.write(u",")
         f.write(u"]")
-    print("total elapsed time: %s" % timedelta(seconds=int(time.time() - start)))
+    print("total elapsed time: %s" %
+          timedelta(seconds=int(time.time() - start)))
 
 
 def get_ss_obj(ss):
@@ -295,7 +296,13 @@ def get_df_etl_obj(df, ss):
                 display_value=(None if cus.is_pursued() else "NP")
             )
             etl_obj['fields']['imperial_value'] = field_submission.value
-            etl_obj['fields']['metric_value'] = field_submission.metric_value
+            # this is to work around some inconsistencies in STARS
+            if imperial_units is None or imperial_units == "%":
+                etl_obj['fields']['metric_value'] = field_submission.value
+            else:
+                # values without units don't store a metric_value
+                etl_obj['fields']['metric_value'] = field_submission.metric_value
+            
             return etl_obj
         except NumericSubmission.DoesNotExist:
             print("No submission found")
