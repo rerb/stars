@@ -13,8 +13,10 @@ from stars.apps.submissions.models import (SubmissionInquiry,
 
 class SubmissionSelectForm(Form):
 
-    institution = forms.ModelChoiceField(queryset=SubmissionSet.objects.get_rated().order_by('institution__name'),
-                                         empty_label="Please Select an Institution's Submission")
+    institution = forms.ModelChoiceField(
+        queryset=SubmissionSet.objects.get_rated().order_by(
+            'institution__name'),
+        empty_label="Please Select an Institution's Submission")
 
     def __init__(self, *args, **kwargs):
         super(SubmissionSelectForm, self).__init__(*args, **kwargs)
@@ -23,7 +25,8 @@ class SubmissionSelectForm(Form):
 
 class SubmissionInquiryForm(ModelForm):
 
-    captcha = ReCaptchaField(label='Please verify that you are a living, breathing human being.')
+    # captcha = ReCaptchaField(
+    #     label='Please verify that you are a living, breathing human being.')
 
     class Meta:
         model = SubmissionInquiry
@@ -34,7 +37,8 @@ class SubmissionInquiryForm(ModelForm):
         self.fields['anonymous'].widget = forms.CheckboxInput(attrs={
             'onchange': 'toggleFormCollapse(this);'})
         self.fields['anonymous'].required = False
-        self.fields['additional_comments'].widget.attrs['style'] = "width: 600px;"
+        self.fields['additional_comments'].widget.attrs['style'] = (
+            "width: 600px;")
 
 
 class CreditSubmissionInquiryForm(ModelForm):
