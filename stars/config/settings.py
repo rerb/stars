@@ -189,6 +189,7 @@ INSTALLED_APPS = (
     'stars.apps.download_async_task',
     'stars.apps.payments',  # included here for testing
     'stars.test_factories',
+    'stars.apps.bt_etl',
     # 'stars.tests',
 
     'adv_cache_tag',
