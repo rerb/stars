@@ -180,7 +180,6 @@ class Institution(models.Model):
                                         db_index=True)
     international = models.BooleanField(default=False)
 
-    # ISS properties
     name = models.CharField(max_length=255)
     aashe_id = models.IntegerField(unique=True, blank=True, null=True)
     fte = models.IntegerField(blank=True, null=True)
@@ -190,7 +189,6 @@ class Institution(models.Model):
     country = models.CharField(max_length=128, blank=True, null=True)
     institution_type = models.CharField(max_length=128, blank=True, null=True)
 
-    # State properties
     current_rating = models.ForeignKey("credits.Rating", blank=True, null=True)
     rating_expires = models.DateField(blank=True, null=True)
     current_submission = models.ForeignKey("submissions.SubmissionSet",
@@ -211,6 +209,7 @@ class Institution(models.Model):
         null=True,
         related_name='latest_expired')
     prefers_metric_system = models.BooleanField(default=False)
+    is_test_institution = models.BooleanField(default=False)
 
     @property
     def is_participant(self):
