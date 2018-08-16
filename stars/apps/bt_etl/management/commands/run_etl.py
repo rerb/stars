@@ -1,15 +1,15 @@
-from django.core.management.base import BaseCommand, CommandError
-from django.conf import settings
-
-from stars.apps.bt_etl import (
-    datapoints, institutions, reports, submissionvalues)
-
 import os
 import requests
 import shutil
 import time
-from datetime import timedelta
 import uuid
+from datetime import timedelta
+from django.conf import settings
+
+from django.core.management.base import BaseCommand
+
+from stars.apps.bt_etl import (
+    datapoints, institutions, reports, submissionvalues)
 
 
 ETL_SCRIPTS = [
@@ -91,7 +91,8 @@ class Command(BaseCommand):
 # exports should be deleted after some time period (a week?)
 # key must be unique timestamp is the time of the export
 
-# The tar archive must contain a director named key. So, fk12jf.tar.gz should expand to a folder called fk12jf.
+# The tar archive must contain a directory named key. So,
+# fk12jf.tar.gz should expand to a folder called fk12jf.
 
 # It must also contain the following files:
 
