@@ -209,7 +209,8 @@ class Institution(models.Model):
         null=True,
         related_name='latest_expired')
     prefers_metric_system = models.BooleanField(default=False)
-    is_test_institution = models.BooleanField(default=False)
+    is_test_institution = models.BooleanField(default=False,
+                                              db_index=True)
 
     @property
     def is_participant(self):
@@ -308,6 +309,14 @@ class Institution(models.Model):
             self.current_rating = self.get_relative_rating()
 
     def update_current_subscription(self):
+
+        def look_for_current_subscription():
+            for sub in self.subscription_set.all():
+                if (sub.start_date <= date.today() and
+                    sub.end_date >= date.today()):  # noqa
+                    self.current_subscription = sub
+                    break
+
         # Check subscription is current
         if self.current_subscription:
             if (self.current_subscription.start_date <= date.today() and
@@ -317,11 +326,10 @@ class Institution(models.Model):
                 self.current_subscription = None
                 # if it has expired, check and see if there is another
                 # that is current
-                for sub in self.subscription_set.all():
-                    if (sub.start_date <= date.today() and
-                        sub.end_date >= date.today()):  # noqa
-                        self.current_subscription = sub
-                        break
+                look_for_current_subscription()
+        # If no current subscription, look for one:
+        else:
+            look_for_current_subscription()
 
     def update_from_iss(self):
         "Method to update properties from the parent org in the ISS"
