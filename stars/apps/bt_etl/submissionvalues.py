@@ -1,4 +1,3 @@
-from django.db.models import Q
 from datetime import timedelta
 import io
 import json
@@ -7,7 +6,6 @@ import time
 from stars.apps.credits.models import CreditSet
 from stars.apps.submissions.models import (
     SubmissionSet,
-    CategorySubmission,
     SubcategorySubmission,
     CreditUserSubmission,
     NumericSubmission
@@ -58,7 +56,8 @@ def extract_and_transform(filename='submissionvalue.json'):
         inst_country = models.CharField(max_length=128, blank=True, null=True)
         inst_type = models.CharField(
             max_length=128, blank=True, null=True)
-        inst_rating_name = models.CharField(max_length=16, blank=True, null=True)
+        inst_rating_name =
+            models.CharField(max_length=16, blank=True, null=True)
         inst_rating_ordinal = models.IntegerField()
       }
     },
@@ -119,7 +118,8 @@ def get_ss_obj(ss):
                 if etl_obj:
                     obj_list.append(etl_obj)
 
-                # for field in credit.numericsubmission_set.filter(value__isnull=False):
+                # for field in credit.numericsubmission_
+                # set.filter(value__isnull=False):
 
                 for df in credit.documentationfield_set.filter(type="numeric"):
 
@@ -230,9 +230,11 @@ def get_credit_etl_obj(credit, ss):
             dv = "Not Pursued"
 
         score = 0
-        if cus.assessed_points > 0 and cus.get_available_points(use_cache=True) > 0:
-            score = float(cus.assessed_points) / \
-                cus.get_available_points(use_cache=True) * 100
+        if (cus.assessed_points > 0 and
+            cus.get_available_points(use_cache=True) > 0):  # noqa
+
+            score = (float(cus.assessed_points) /
+                     cus.get_available_points(use_cache=True) * 100)
 
         update_score_fields(
             etl_obj,
@@ -301,8 +303,9 @@ def get_df_etl_obj(df, ss):
                 etl_obj['fields']['metric_value'] = field_submission.value
             else:
                 # values without units don't store a metric_value
-                etl_obj['fields']['metric_value'] = field_submission.metric_value
-            
+                etl_obj['fields']['metric_value'] = (
+                    field_submission.metric_value)
+
             return etl_obj
         except NumericSubmission.DoesNotExist:
             print("No submission found")
@@ -325,17 +328,14 @@ def get_base_subdata(obj, ss):
             'rating_name': ss.rating.name,
             'rating_ordinal': ss.rating.minimal_score,
             'is_current': (
-                ss.institution.rated_submission != None and
+                ss.institution.rated_submission is not None and
                 ss.id == ss.institution.rated_submission.id),
             'is_latest': (
-                (
-                    ss.institution.rated_submission != None and
-                    ss.id == ss.institution.rated_submission.id
-                ) or
-                (
-                    ss.institution.latest_expired_submission != None and
-                    ss.id == ss.institution.latest_expired_submission.id
-                )
+                (ss.institution.rated_submission is not None and
+                 ss.id == ss.institution.rated_submission.id)
+                or
+                (ss.institution.latest_expired_submission is not None and
+                 ss.id == ss.institution.latest_expired_submission.id)
             ),
             'is_expired': ss.expired,
             'report_url': "%s%s" % (STARS_URL, ss.get_scorecard_url()),
@@ -361,7 +361,9 @@ def get_base_subdata(obj, ss):
     return obj
 
 
-def update_score_fields(etl_obj, obj, parent, title, short_title, value, url, imperial_units, metric_units, display_value=None):
+def update_score_fields(etl_obj, obj, parent, title, short_title,
+                        value, url, imperial_units, metric_units,
+                        display_value=None):
 
     etl_obj['fields']['data_point_key'] = get_datapoint_key(parent)
     etl_obj['fields']['title'] = title
