@@ -8,12 +8,13 @@ import sys
 import django
 import django_cache_url
 import dj_database_url
+from celerybeat_schedule import STARS_TASK_SCHEDULE
 from django.contrib.messages import constants as messages
 
 sys.path.append('../')
 
 ADMINS = (('Bob Erb', 'bob.erb@aashe.org'),
-          ('Scott Johnson', 'scott@aashe.org'),
+          ('Tylor Dodge', 'tylor@aashe.org'),
           ('Chris Pelton', 'chris.pelton@aashe.org'))
 MANAGERS = ADMINS
 
@@ -99,6 +100,8 @@ CMS_TEMPLATES = (
 )
 
 MIDDLEWARE_CLASSES = [  # a list so it can be editable during tests (see below)
+    ('raven.contrib.django.raven_compat.middleware.'
+     'SentryResponseErrorIdMiddleware'),
     'stars.apps.helpers.utils.StripCookieMiddleware',
     'django_password_protect.PasswordProtectMiddleware',
     'django.middleware.cache.UpdateCacheMiddleware',
@@ -244,7 +247,6 @@ THUMBNAIL_DEBUG = os.environ.get("THUMBNAIL_DEBUG", False)
 # import djcelery
 # djcelery.setup_loader()
 CELERY_TIMEZONE = 'US/Eastern'
-from celerybeat_schedule import STARS_TASK_SCHEDULE
 CELERYBEAT_SCHEDULE = STARS_TASK_SCHEDULE
 BROKER_URL = os.environ.get(
     'CELERY_BROKER_URL', 'amqp://guest:guest@localhost:5672/')
@@ -290,6 +292,11 @@ TERMS_REPLACE_FIRST_ONLY = False
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,
+
+    'root': {
+        'level': 'WARNING',
+        'handlers': ['sentry']
+    },
 
     'formatters': {
         # For log messages from third-parties, to which we can't
@@ -371,35 +378,40 @@ LOGGING = {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
         },
+        'sentry': {
+            'level': 'ERROR',
+            'class': ('raven.contrib.django.raven_compat.handlers.'
+                      'SentryHandler')
+        }
     },
 
     'loggers': {
         # root logger, for third party log messages:
         '': {
-            'handlers': ['simple_console_handler', 'mail_admins_handler']
+            'handlers': ['simple_console_handler', 'sentry']
         },
         'django.request': {
-            'handlers': ['mail_admins_handler'],
+            'handlers': ['sentry'],
             'level': 'ERROR',
             'propagate': True,
         },
         # logger with module_name added to log record:
         'stars': {
-            'handlers': ['stars_console_handler', 'mail_admins_handler'],
+            'handlers': ['stars_console_handler', 'sentry'],
             'propagate': False,
             'filters': ['module_name_filter']
         },
         # logger with module_name and username added to log record:
         'stars.user': {
             'handlers': ['stars_user_console_handler',
-                         'mail_admins_handler'],
+                         'sentry'],
             'propagate': False,
             'filters': ['module_name_filter', 'user_filter']
         },
         # logger with module_name and request elements added to log record:
         'stars.request': {
             'handlers': ['stars_request_console_handler',
-                         'mail_admins_handler'],
+                         'sentry'],
             'propagate': False,
             'filters': ['module_name_filter', 'request_filter']
         },
@@ -408,6 +420,16 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
+        'raven': {
+            'level': 'DEBUG',
+            'handlers': ['console', 'mail_admins_handler'],
+            'propagate': False
+        },
+        'sentry.errors': {
+            'level': 'DEBUG',
+            'handlers': ['console', 'mail_admins_handler'],
+            'propagate': False
+        }
     }
 }
 
