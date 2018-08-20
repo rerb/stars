@@ -3,7 +3,6 @@ import requests
 import shutil
 import time
 import uuid
-from datetime import timedelta
 from django.conf import settings
 
 from django.core.management.base import BaseCommand
@@ -34,29 +33,20 @@ class Command(BaseCommand):
         self.key = uuid.uuid4().get_hex()
         self.etl_dir = os.path.join(settings.MEDIA_ROOT, "etl")
         self.target_dir = os.path.join(self.etl_dir, self.key)
-        print("making directory: %s" % self.target_dir)
         os.mkdir(self.target_dir)
         self.bt_host = "%s/api/etl/" % BT_HOST
-        print self.bt_host
 
     def handle(self, *args, **options):
 
         self.run_etl_scripts()
-        archive_name = self.package_files_for_bt()
-        print("archived to: %s" % archive_name)
-
-        response = self.trigger_bt_webworker()
-        print response
-
-        print("full export time: %s" % timedelta(
-            seconds=int(time.time() - self.start_time)))
+        self.package_files_for_bt()
+        self.trigger_bt_webworker()
 
         # cull_old_exports()
 
     def run_etl_scripts(self):
         """Runs ETL scripts, returns list of files generated."""
         for etl_script, outfile in ETL_SCRIPTS:
-            print("running script: %s" % etl_script)
             out_path = os.path.join(self.target_dir, outfile)
             etl_script.extract_and_transform(out_path)
 
@@ -76,8 +66,6 @@ class Command(BaseCommand):
             'key': self.key,
             'timestamp': '%d' % int(time.time()),
         }
-        print("getting: %s" % self.bt_host)
-        print(post_data)
         response = requests.post(self.bt_host, data=post_data)
 
         return response
