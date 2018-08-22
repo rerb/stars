@@ -1,13 +1,31 @@
 Hello {{ institution.contact_first_name }} {{ institution.contact_last_name }}.
 
-An inquiry about specific content in your institution's STARS Report has been submitted to the STARS Team. Please review the details of this inquiry which are highlighted below.  
+An inquiry about specific content in your institution's STARS Report
+has been submitted to the STARS Team. Please review the details of
+this inquiry which are highlighted below.
 
-The STARS Team encourages you to work with the individual that is reporting questionable information within your STARS Submission to resolve the issue. However, if you are unable to resolve the issue through direct communication with this individual, please contact stars@aashe.org. At that point, a STARS staff member will evaluate the inquiry related to your STARS Submission and guide you through the next steps in the process.
+The STARS Team encourages you to work with the individual that is
+reporting questionable information within your STARS Submission to
+resolve the issue. However, if you are unable to resolve the issue
+through direct communication with this individual, please contact
+stars@aashe.org. At that point, a STARS staff member will evaluate the
+inquiry related to your STARS Submission and guide you through the
+next steps in the process.
 
-STARS is a voluntary, self-assessment which does not required third-party verification. If an individual has a question about particular content in an institution's STARS Report, the individual may document their concern by completing the STARS Submission Accuracy Form (http://stars.aashe.org/institutions/inquiry/). You can find out more about this process in the related FAQ (http://stars.aashe.org/pages/faqs/4105/?root_category=about#Erroneous_Data) or the Submission Review Policy (http://www.aashe.org/files/documents/STARS/Submission Review Proposal.pdf) approved by the STARS Steering Committee.
+STARS is a voluntary, self-assessment which does not required
+third-party verification. If an individual has a question about
+particular content in an institution's STARS Report, the individual
+may document their concern by completing the STARS Submission Accuracy
+Form (http://stars.aashe.org/institutions/inquiry/). You can find out
+more about this process in the related FAQ
+(http://stars.aashe.org/pages/faqs/4105/?root_category=about#Erroneous_Data)
+or the Submission Review Policy
+(http://www.aashe.org/files/documents/STARS/Submission Review
+Proposal.pdf) approved by the STARS Steering Committee.
 
 
-We thank you for your participation in STARS and involvement in this public review process.
+We thank you for your participation in STARS and involvement in this
+public review process.
 
 The STARS Team
 

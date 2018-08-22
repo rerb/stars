@@ -53,12 +53,14 @@
             {{ fieldset|bootstrap }}
           </div>
         </div>
-        <div id="checkboxCollapse" class="accordion-body collapse in">
-          <div class="accordion-inner">
-            {% get_fieldset additional_comments,captcha as fieldset from form %}
-            {{ fieldset|bootstrap }}
+        {% comment %}
+          <div id="checkboxCollapse" class="accordion-body collapse in">
+            <div class="accordion-inner">
+              {% get_fieldset captcha as fieldset from form %}
+              {{ fieldset|bootstrap }}
+            </div>
           </div>
-        </div>
+        {% endcomment %}
       </div>
     </div>
     <h2>
