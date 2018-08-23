@@ -2,7 +2,6 @@
     Celery tasks
 """
 import datetime
-import sys
 from logging import getLogger
 
 from celery import shared_task
@@ -198,25 +197,22 @@ def update_pie_api_cache():
     key = "v1:summary-pie-chart:detail:"
     cache.delete(key)
 
-    summary = summary_view.obj_get_list()
-
     # summary
     for cat in cs.category_set.filter(include_in_score=True):
         kwargs = {"pk": cat.id}
         c_key = cat_view.generate_cache_key('detail', **kwargs)
-#        c_key = 'v1:category-pie-chart:detail:pk=%d' % cat.id
         cache.delete(c_key)
         cat_view.obj_get(**kwargs)
 
         for sub in cat.subcategory_set.all():
             kwargs = {"pk": sub.id}
             s_key = s_view.generate_cache_key('detail', **kwargs)
-#            s_key = "v1:subcategory-pie-chart:detail:pk=%d" % sub.id
             cache.delete(s_key)
 
             s_view.obj_get(**kwargs)
 
 
+@task()
 def expireRatings():
     """
         Mark submissions as expired if they are over 3 years old
