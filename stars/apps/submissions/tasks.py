@@ -213,7 +213,7 @@ def update_pie_api_cache():
 
 
 @task()
-def expireRatings():
+def expire_ratings():
     """
         Mark submissions as expired if they are over 3 years old
         and adjust the institution's current rating appropriately
