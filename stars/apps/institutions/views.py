@@ -722,16 +722,21 @@ class SubmissionInquiryView(InstitutionStructureMixin,
             formset.save()
 
         # Send confirmation email
-        email_to = [_context['institution'].contact_email]
-        if not self.object.anonymous and self.object.email_address:
-            email_to.append(self.object.email_address)
+        # email_to = [_context['institution'].contact_email]
+        # if not self.object.anonymous and self.object.email_address:
+        #     email_to.append(self.object.email_address)
+        #
+        # Used to send email directly to liaison, but STARS
+        # admins want it sent to them only now, so they may
+        # ensure the request is valid before forwarding on
+        # to liaison.
+        email_to = ["stars@aashe.org"]
 
         et = EmailTemplate.objects.get(
             slug="submission_accuracy_inquiry")
         email_context = {
             "inquiry": self.object,
-            "institution": self.object.submissionset.institution
-        }
+            "institution": self.object.submissionset.institution}
         et.send_email(email_to, email_context)
 
         return direct_to_template(self.request,

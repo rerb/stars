@@ -3,7 +3,7 @@ from django import forms
 
 from extra_views import InlineFormSet
 
-from captcha.fields import ReCaptchaField
+# from captcha.fields import ReCaptchaField
 
 from stars.apps.submissions.models import (SubmissionInquiry,
                                            SubmissionSet,
