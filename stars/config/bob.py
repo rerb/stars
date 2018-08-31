@@ -19,7 +19,8 @@ MANAGERS = ADMINS
 
 # Send emails to to django.core.mail.outbox rather than the console:
 # EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
-
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_FILE_PATH = '/tmp/stars-email-messages'
 
 def get_api_test_mode():
     try:
