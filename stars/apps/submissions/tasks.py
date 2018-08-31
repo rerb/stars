@@ -190,7 +190,6 @@ def update_pie_api_cache():
     v1_api.register(CategoryPieChart())
     v1_api.register(SubategoryPieChart())
 
-    summary_view = SummaryPieChart()
     cat_view = CategoryPieChart()
     s_view = SubategoryPieChart()
 
@@ -210,36 +209,6 @@ def update_pie_api_cache():
             cache.delete(s_key)
 
             s_view.obj_get(**kwargs)
-
-
-@task()
-def expire_ratings():
-    """
-        Mark submissions as expired if they are over 3 years old
-        and adjust the institution's current rating appropriately
-    """
-
-    today = datetime.date.today()
-    td = datetime.timedelta(days=365 * 3)  # 3 years
-
-    # all rated submissions that haven't already expired
-    for ss in SubmissionSet.objects.filter(status="r").exclude(expired=True):
-
-        if ss.date_submitted + td < today:
-            logger.info("Expired: %s" % ss)
-            logger.info("Date Submitted: %s" % ss.date_submitted)
-            ss.expired = True
-            ss.save()
-
-            # update the institution if this is still their
-            # latest rated submission
-            i = ss.institution
-            if i.rated_submission == ss:
-                logger.info("**Only Rating (dropping current rating)")
-                i.rated_submission = None
-                i.current_rating = None
-                i.latest_expired_submission = ss
-                i.save()
 
 
 @shared_task(name='submissions.load_subcategory_quartiles')
