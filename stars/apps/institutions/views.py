@@ -61,12 +61,11 @@ class InstitutionStructureMixin(StructureMixin):
         """
         if self.get_institution():
             return self.get_obj_or_call(
-                                    cache_key='subscription',
-                                    kwargs_key='subscription_id',
-                                    klass=self.get_institution().subscription_set.all(),
-                                    property="id",
-                                    use_cache=use_cache
-                                    )
+                cache_key='subscription',
+                kwargs_key='subscription_id',
+                klass=self.get_institution().subscription_set.all(),
+                property="id",
+                use_cache=use_cache)
         return None
 
     def get_payment(self, use_cache=True):
@@ -77,12 +76,11 @@ class InstitutionStructureMixin(StructureMixin):
         """
         if self.get_subscription():
             return self.get_obj_or_call(
-                                    cache_key='payment',
-                                    kwargs_key='payment_id',
-                                    klass=self.get_subscription().subscriptionpayment_set.all(),
-                                    property="id",
-                                    use_cache=use_cache
-                                    )
+                cache_key='payment',
+                kwargs_key='payment_id',
+                klass=self.get_subscription().subscriptionpayment_set.all(),
+                property="id",
+                use_cache=use_cache)
         return None
 
 
@@ -99,17 +97,18 @@ class SortableTableView(TemplateView):
 
     def __init__(self, *args, **kwargs):
 
-        # make sure that the extending class has defined the required properties.
-        assert (self.columns and self.default_key), "Must set `colums` and `default_key` when extending this class"
         return super(SortableTableView, self).__init__(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
         """ Add/update any context variables """
         _context = super(SortableTableView, self).get_context_data(**kwargs)
 
-        _context.update({'sort_columns': self.columns, 'default_key': self.default_key})
+        _context.update({'sort_columns': self.columns,
+                         'default_key': self.default_key})
 
-        (_context['sort_key'], _context['rev'], _context['object_list']) = self.get_object_list()
+        (_context['sort_key'],
+         _context['rev'],
+         _context['object_list']) = self.get_object_list()
 
         return _context
 
@@ -147,14 +146,16 @@ class SortableTableView(TemplateView):
         for col in self.columns:
             if col['key'] == sort_key:
                 if col['key'] == 'country':
-                    queryset = queryset.order_by("%s%s" %
-                                             (asc, col['sort_field']),
-                                             'ms_institution__state',
-                                             self.secondary_order_field)
+                    queryset = queryset.order_by(
+                        "%s%s" %
+                        (asc, col['sort_field']),
+                        'ms_institution__state',
+                        self.secondary_order_field)
                 else:
-                    queryset = queryset.order_by("%s%s" %
-                                             (asc, col['sort_field']),
-                                             self.secondary_order_field)
+                    queryset = queryset.order_by(
+                        "%s%s" %
+                        (asc, col['sort_field']),
+                        self.secondary_order_field)
                 break
 
         return (sort_key, rev, queryset)
@@ -171,7 +172,8 @@ class SortableTableViewWithInstProps(SortableTableView):
             update the context with the # of members and charter participants
         """
 
-        _context = super(SortableTableViewWithInstProps, self).get_context_data(**kwargs)
+        _context = super(SortableTableViewWithInstProps,
+                         self).get_context_data(**kwargs)
 
         inst_list = []
         inst_count = 0
@@ -211,33 +213,12 @@ class ActiveInstitutions(SortableTableViewWithInstProps):
     default_key = 'name'
     default_rev = '-'
     secondary_order_field = 'name'
-    columns = [
-                    {
-                        'key': 'name',
-                        'sort_field': 'name',
-                        'title': 'Institution',
-                    },
-                    # {
-                    #     'key': 'status',
-                    #     'sort_field': 'status',
-                    #     'title': 'Status',
-                    # },
-                    {
-                        'key': 'rating',
-                        'sort_field': 'current_rating',
-                        'title': 'Current Rating',
-                    },
-#                    {
-#                        'key': 'version',
-#                        'sort_field': 'creditset__version',
-#                        'title': 'Version',
-#                    },
-                    # {
-                    #     'key': 'date_registered',
-                    #     'sort_field': 'date_registered',
-                    #     'title': 'Date Registered',
-                    # },
-              ]
+    columns = [{'key': 'name',
+                'sort_field': 'name',
+                'title': 'Institution'},
+               {'key': 'rating',
+                'sort_field': 'current_rating',
+                'title': 'Current Rating'}]
 
     def get_queryset(self):
         """
@@ -248,7 +229,6 @@ class ActiveInstitutions(SortableTableViewWithInstProps):
                 - unrated institutions show their next due date
         """
         return Institution.objects.filter(is_participant=True)
-#        return SubmissionSet.objects.published().select_related('institution')
 
 
 class RatedInstitutions(SortableTableViewWithInstProps):
@@ -261,31 +241,22 @@ class RatedInstitutions(SortableTableViewWithInstProps):
     default_key = 'name'
     default_rev = '-'
     secondary_order_field = 'name'
-    columns = [
-                    {
-                        'key': 'name',
-                        'sort_field': 'name',
-                        'title': 'Institution',
-                    },
-                    {
-                        'key': 'version',
-                        'sort_field': 'rated_submission__creditset__version',
-                        'title': 'Version',
-                    },
-                    {
-                        'key': 'rating',
-                        'sort_field': 'current_rating',
-                        'title': 'Rating',
-                    },
-                    {
-                        'key':'date_submitted',
-                        'sort_field':'rated_submission__date_submitted',
-                        'title':'Submission Date',
-                    },
-              ]
+    columns = [{'key': 'name',
+                'sort_field': 'name',
+                'title': 'Institution'},
+               {'key': 'version',
+                'sort_field': 'rated_submission__creditset__version',
+                'title': 'Version'},
+               {'key': 'rating',
+                'sort_field': 'current_rating',
+                'title': 'Rating'},
+               {'key': 'date_submitted',
+                'sort_field': 'rated_submission__date_submitted',
+                'title': 'Submission Date'}]
 
     def get_queryset(self):
-        return Institution.objects.get_rated().select_related('rated_submission').select_related('rated_submission__creditset')
+        return Institution.objects.get_rated().select_related(
+            'rated_submission').select_related('rated_submission__creditset')
 
 
 class ParticipantReportsView(SortableTableViewWithInstProps):
@@ -298,33 +269,21 @@ class ParticipantReportsView(SortableTableViewWithInstProps):
     default_key = 'date_submitted'
     default_rev = ''
     secondary_order_field = 'name'
-    columns = [
-                    {
-                        'key': 'name',
-                        'sort_field': 'name',
-                        'title': 'Institution',
-                    },
-                    {
-                        'key': 'country',
-                        'sort_field': 'country',
-                        'title': 'Location',
-                    },
-                    {
-                        'key': 'version',
-                        'sort_field': 'rated_submission__creditset__version',
-                        'title': 'Version',
-                    },
-                    {
-                        'key': 'rating',
-                        'sort_field': 'current_rating',
-                        'title': 'Rating',
-                    },
-                    {
-                        'key':'date_submitted',
-                        'sort_field':'rated_submission__date_submitted',
-                        'title':'Submission Date',
-                    },
-              ]
+    columns = [{'key': 'name',
+                'sort_field': 'name',
+                'title': 'Institution'},
+               {'key': 'country',
+                'sort_field': 'country',
+                'title': 'Location'},
+               {'key': 'version',
+                'sort_field': 'rated_submission__creditset__version',
+                'title': 'Version'},
+               {'key': 'rating',
+                'sort_field': 'current_rating',
+                'title': 'Rating'},
+               {'key': 'date_submitted',
+                'sort_field': 'rated_submission__date_submitted',
+                'title': 'Submission Date'}]
 
     def get_queryset(self):
         qs = Institution.objects.get_participants_and_reports()
@@ -346,7 +305,8 @@ class InstitutionScorecards(InstitutionStructureMixin, TemplateView):
     template_name = 'institutions/scorecards/list.html'
 
     def get_context_data(self, **kwargs):
-        _context = super(InstitutionScorecards, self).get_context_data(**kwargs)
+        _context = super(InstitutionScorecards,
+                         self).get_context_data(**kwargs)
 
         institution = self.get_institution()
 
@@ -386,8 +346,7 @@ def get_submissions_for_scorecards(institution):
         institution.submissionset_set.filter(
             status=SUBMISSION_STATUSES["RATED"]) |
         institution.submissionset_set.filter(
-            status=SUBMISSION_STATUSES["REVIEW"])
-    )
+            status=SUBMISSION_STATUSES["REVIEW"]))
 
 
 class RedirectOldScorecardCreditURLsView(InstitutionStructureMixin,
@@ -526,13 +485,9 @@ class ExportRules(RulesMixin):
 
         super(ExportRules, self).update_logical_rules()
         self.add_logical_rule({
-                    'name': 'user_can_view_export',
-                    'param_callbacks':
-                        [
-                            ('user', "get_request_user"),
-                            ('submission', "get_submissionset")
-                        ],
-                })
+            'name': 'user_can_view_export',
+            'param_callbacks': [('user', "get_request_user"),
+                                ('submission', "get_submissionset")]})
 
     def get_object_list(self):
         """
@@ -613,7 +568,8 @@ class ScorecardCertPreview(ScorecardView):
 
     def get_context_data(self, **kwargs):
         """ Expects arguments for category_id/subcategory_id/credit_id """
-        _context = super(ScorecardCertPreview, self).get_context_data(**kwargs)
+        _context = super(ScorecardCertPreview,
+                         self).get_context_data(**kwargs)
 
         from django.conf import settings
 
@@ -698,14 +654,16 @@ class DataCorrectionView(RulesMixin,
         _context = self.get_context_data()
         _context.update(context)
 
-        return direct_to_template(self.request,
-                                  "institutions/data_correction_request/success.html",
-                                  _context)
+        return direct_to_template(
+            self.request,
+            "institutions/data_correction_request/success.html",
+            _context)
 
     def get_form_kwargs(self):
         kwargs = super(DataCorrectionView, self).get_form_kwargs()
-        kwargs['instance'] = DataCorrectionRequest(user=self.request.user,
-                                                   reporting_field=self.get_fieldsubmission())
+        kwargs['instance'] = DataCorrectionRequest(
+            user=self.request.user,
+            reporting_field=self.get_fieldsubmission())
         return kwargs
 
 
