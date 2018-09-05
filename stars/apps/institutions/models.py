@@ -109,7 +109,7 @@ class Institution(models.Model):
                                           null=True,
                                           blank=True)
 
-    slug = models.SlugField(max_length=255)
+    slug = models.SlugField(unique=True, max_length=255)
     enabled = models.BooleanField(
         help_text=("This is a staff-only flag for disabling an "
                    "institution. An institution will NOT appear on "
