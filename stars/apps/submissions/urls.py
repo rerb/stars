@@ -4,7 +4,9 @@ from tastypie.api import Api
 from stars.apps.submissions.api import (CategoryPieChart,
                                         SubategoryPieChart,
                                         SummaryPieChart)
-from stars.apps.submissions.views import SetOptInCreditsView
+from stars.apps.submissions.views import (
+    CurrentRatingsView,
+    SetOptInCreditsView)
 
 
 v1_api = Api(api_name='v1')
@@ -16,5 +18,8 @@ urlpatterns = [
     url(r'^api/', include(v1_api.urls)),
     url(r'^set-opt-in-credits/$',
         SetOptInCreditsView.as_view(),
-        name='set-opt-in-credits')
+        name='set-opt-in-credits'),
+    url(r'^current-ratings/$',
+        CurrentRatingsView.as_view(),
+        name='current-ratings')
 ]
