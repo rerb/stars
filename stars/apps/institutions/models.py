@@ -505,8 +505,9 @@ class Institution(models.Model):
         try:
             if self.aashe_id is None:
                 self.aashe_id = iss_institution_id
-            slug_base = '%s-%s' % (self.profile.org_name,
-                                   self.profile.state.lower())
+            state = (self.profile.state.lower() if self.profile.state
+                     else "no-state")
+            slug_base = '%s-%s' % (self.profile.org_name, state)
             self.slug = slugify(slug_base)
         except Exception, e:
             logger.error("ISS Institution profile relationship error: %s" % e,
