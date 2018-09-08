@@ -214,7 +214,7 @@ def get_credit_etl_obj(credit, ss):
         current_credit = credit
     else:
         current_credit = credit.get_for_creditset(ss.creditset)
-    # print("\t\t\t%s >> %s" % (credit, current_credit))
+
     if current_credit:
 
         cus = CreditUserSubmission.objects.get(
@@ -223,11 +223,11 @@ def get_credit_etl_obj(credit, ss):
 
         etl_obj = get_base_subdata(cus, ss)
 
-        dv = None
+        display_value = None
         if cus.is_na():
-            dv = "Not Applicable"
-        if not cus.is_pursued():
-            dv = "Not Pursued"
+            display_value = "Not Applicable"
+        elif not cus.is_pursued():
+            display_value = "Not Pursued"
 
         score = 0
         if (cus.assessed_points > 0 and
@@ -245,7 +245,7 @@ def get_credit_etl_obj(credit, ss):
             score,
             cus.get_scorecard_url(),
             "%", "%",
-            display_value=dv
+            display_value=display_value
         )
         return etl_obj
     return None
