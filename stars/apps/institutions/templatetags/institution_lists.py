@@ -38,11 +38,12 @@ def show_institutions_map():
     i_qs = Institution.objects.filter(enabled=True)
 
     for i in i_qs:
+
         d = {
                 'institution': i.profile,
                 'current_rating': i.current_rating,
                 'rated_submission': i.rated_submission,
-                'subscription': i.is_participant
+                'subscription': i.access_level == "Full"
             }
         # if i.charter_participant:
         #     d['image_path'] = "https://stars.aashe.org/media/static/images/seals/Stars_Seal_Charter_Particip_RGB_300.png"

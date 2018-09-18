@@ -1,3 +1,4 @@
+import collections
 import re
 
 from django.contrib import messages
@@ -9,6 +10,7 @@ from django.utils import simplejson as json
 from django.views.generic import UpdateView, View
 
 from stars.apps.credits.views import CreditsetStructureMixin
+from stars.apps.institutions.models import Institution
 from stars.apps.submissions.forms import CreditSubmissionStatusUpdateForm
 from stars.apps.submissions.models import (CreditUserSubmission,
                                            DocumentationFieldSubmission)
@@ -335,3 +337,17 @@ class CreditSubmissionStatusUpdateView(UpdateView):
         submissionset.invalidate_cache()
 
         return super(CreditSubmissionStatusUpdateView, self).form_valid(form)
+
+
+class CurrentRatingsView(View):
+
+    def get(self, request):
+
+        rating_totals = collections.defaultdict(int)
+        for institution in Institution.objects.filter(
+                current_rating__isnull=False):
+            if institution.rating_expires:
+                rating_totals[institution.current_rating.name] += 1
+
+        return HttpResponse(json.dumps(rating_totals),
+                            mimetype='application/json')

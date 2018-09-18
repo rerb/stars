@@ -27,11 +27,6 @@ STARS_TASK_SCHEDULE = {
         'task': 'tasks.run_cleanup',
         'schedule': crontab(0, 0, day_of_month='1'),
     },
-    # Every morning at 4:45am
-    'expire ratings': {
-        'task': 'tasks.expireRatings',
-        'schedule': crontab(hour=4, minute=45)
-    },
     # Executes every morning at 5am
     # stars.apps.tasks.tasks.send_notifications
     'send out notifications when necessary': {

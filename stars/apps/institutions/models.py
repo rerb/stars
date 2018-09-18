@@ -109,7 +109,7 @@ class Institution(models.Model):
                                           null=True,
                                           blank=True)
 
-    slug = models.SlugField(max_length=255)
+    slug = models.SlugField(unique=True, max_length=255)
     enabled = models.BooleanField(
         help_text=("This is a staff-only flag for disabling an "
                    "institution. An institution will NOT appear on "
@@ -505,8 +505,9 @@ class Institution(models.Model):
         try:
             if self.aashe_id is None:
                 self.aashe_id = iss_institution_id
-            slug_base = '%s-%s' % (self.profile.org_name,
-                                   self.profile.state.lower())
+            state = (self.profile.state.lower() if self.profile.state
+                     else "no-state")
+            slug_base = '%s-%s' % (self.profile.org_name, state)
             self.slug = slugify(slug_base)
         except Exception, e:
             logger.error("ISS Institution profile relationship error: %s" % e,

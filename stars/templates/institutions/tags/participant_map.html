@@ -25,11 +25,9 @@
 									{% thumbnail i.image_path "70x70" as im %}
 										<img src='{{ im.url }}' style='margin: 5px;' title='{{i.image_title}}' />
 									{% endthumbnail %}
-								{% endif %}
-
-								</p>",
+								{% endif %}</p>",
 								{% if i.current_rating %}
-						      icon: "{{ i.current_rating.map_icon.url }}"
+						            icon: "{{ i.current_rating.map_icon.url }}"
 								{% elif i.subscription == True %}
 									icon: {
 										path: google.maps.SymbolPath.CIRCLE,
@@ -40,18 +38,18 @@
 										fillOpacity: 1,
 										strokeOpacity: .8
 									}
-					      {% else %}
-		               icon: {
-		          			path: google.maps.SymbolPath.CIRCLE,
-		          			scale: 3,
-		          			fillColor: '#4B7DE1',
-										strokeColor: '#15387f',
-		          			strokeWeight: 1,
+					            {% else %}
+		                            icon: {
+		          			            path: google.maps.SymbolPath.CIRCLE,
+		          			            scale: 3,
+		          			            fillColor: '#4B7DE1',
+							            strokeColor: '#15387f',
+		          			            strokeWeight: 1,
 										opacity: 1,
 										fillOpacity: 1
-		               }
+		                           }
 	                // icon: "{{ STATIC_URL }}images/map_icons/participant.png"
-					      {% endif %}
+					            {% endif %}
 							}
 							{% if not forloop.last %},{% endif %}
 						{% endif %}
