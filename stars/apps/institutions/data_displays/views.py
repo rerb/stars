@@ -98,15 +98,16 @@ class Dashboard(TemplateView):
             expiration_month = current_month - relativedelta(years=3)
 
             # active_participants
-            # find all the institutions with active ratings
-            # then find the count of all the institutions with subscriptions,
+            # find all the distinct institutions with active ratings
+            # then find the count of all the institutions with subscriptions
             # that are not in that list.
             # add them together and you have active_participants
             active_rating = (SubmissionSet.objects.filter(status='r')
                 .filter(is_visible=True)
                 .filter(date_submitted__lte=current_month)
                 .filter(date_submitted__gt=expiration_month)
-                .values_list('institution', flat=True))
+                .values_list('institution', flat=True)
+                .distinct())
 
             partial_active_participants = (Subscription.objects
                 .filter(start_date__lte=current_month).values('institution')
@@ -205,7 +206,7 @@ class Dashboard(TemplateView):
             cache.set('stars_dashboard_context',
                       context,
                       twenty_four_hours)
-            
+
         context.update(super(Dashboard, self).get_context_data(**kwargs))
 
         return context
