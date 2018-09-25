@@ -28,7 +28,7 @@ def expire_ratings():
 
     # all rated submissions that haven't already expired
     for submissionset in SubmissionSet.objects.filter(
-            status="r").exclude(expired=True):
+            status="r").exclude(expired=True).order_by("-date_submitted"):
 
         if submissionset.date_submitted + rating_good_for < today:
             logger.info("Expired: %s" % submissionset)
@@ -36,12 +36,13 @@ def expire_ratings():
             submissionset.expired = True
             submissionset.save()
 
-            # update the institution if this is still their
-            # latest rated submission
             institution = submissionset.institution
+
+            institution.latest_expired_submission = submissionset
+
             if institution.rated_submission == submissionset:
                 logger.info("**Only Rating (dropping current rating)")
                 institution.rated_submission = None
                 institution.current_rating = None
-                institution.latest_expired_submission = submissionset
-                institution.save()
+
+            institution.save()
