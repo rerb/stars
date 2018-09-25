@@ -68,8 +68,8 @@ class Dashboard(TemplateView):
         """Return a context for the participation line graph."""
         current_month = date.today()
         current_month = current_month.replace(day=1)
-        #create beginning month to replace query on while loop
-        #saves 5 seconds of processing
+        # create beginning month to replace query on while loop
+        # saves 5 seconds of processing
         beginning_date = date(2009, 9, 1)
 
         def change_month(d, delta):
@@ -94,7 +94,7 @@ class Dashboard(TemplateView):
             # create a "slice" from the current month
             slice = {}
 
-            #create an expiration month
+            # create an expiration month
             expiration_month = current_month - relativedelta(years=3)
 
             # active_participants
@@ -114,7 +114,8 @@ class Dashboard(TemplateView):
                 .filter(access_level="Full")
                 .exclude(institution__in=active_rating).count())
 
-            active_participants = len(active_rating) + partial_active_participants
+            active_participants = (len(active_rating) +
+                                   partial_active_participants)
 
             slice['active_participants'] = active_participants
             if len(slices) == 0:
@@ -171,7 +172,6 @@ class Dashboard(TemplateView):
         for participant in Institution.objects.all():
             if participant.country is not None:
                 participants[participant.country] += 1
-
 
         # Sort by country.
         ordered_participants = collections.OrderedDict()
@@ -583,7 +583,8 @@ class ScoreFilter(DisplayAccessMixin, CommonFilterMixin,
                                     obj = CategorySubmission.objects.get(
                                         submissionset=ss, category=cat)
                                     claimed_points = obj.get_STARS_score()
-                                    available_points = obj.get_adjusted_available_points()
+                                    available_points = (
+                                        obj.get_adjusted_available_points())
                                     if obj.category.abbreviation != "IN":
                                         units = "%"
                                     url = obj.get_scorecard_url()
@@ -594,7 +595,8 @@ class ScoreFilter(DisplayAccessMixin, CommonFilterMixin,
                                         category_submission__submissionset=ss,
                                         subcategory=sub)
                                     claimed_points = obj.get_claimed_points()
-                                    available_points = obj.get_adjusted_available_points()
+                                    available_points = (
+                                        obj.get_adjusted_available_points())
                                     url = obj.get_scorecard_url()
                             elif isinstance(col_obj, Credit):
                                 credit = col_obj.get_for_creditset(
@@ -609,11 +611,15 @@ class ScoreFilter(DisplayAccessMixin, CommonFilterMixin,
                                             claimed_points = "Not Applicable"
                                         else:
                                             if cred.credit.type == "t1":
-                                                claimed_points = cred.assessed_points
-                                                available_points = cred.credit.point_value
+                                                claimed_points = (
+                                                    cred.assessed_points)
+                                                available_points = (
+                                                    cred.credit.point_value)
                                             else:
-                                                claimed_points = cred.assessed_points
-                                                available_points = ss.creditset.tier_2_points
+                                                claimed_points = (
+                                                    cred.assessed_points)
+                                                available_points = (
+                                                    ss.creditset.tier_2_points)
                                     else:
                                         claimed_points = "Reporter"
                             elif isinstance(col_obj, CreditSet):
@@ -866,9 +872,11 @@ class ContentFilter(DisplayAccessMixin, CommonFilterMixin,
                                 # aren't reporting.
                                 row['field'] = None
                             else:
-                                row['assessed_points'] = "%.2f" % cred.assessed_points
+                                row['assessed_points'] = (
+                                    "%.2f" % cred.assessed_points)
                                 row['point_value'] = cred.credit.point_value
-                                if cred.submission_status == 'np' or cred.submission_status == 'ns':
+                                if (cred.submission_status == 'np' or
+                                    cred.submission_status == 'ns'):
                                     row['field'] = None
                         else:
                             row['assessed_points'] = "Reporter"
@@ -879,7 +887,7 @@ class ContentFilter(DisplayAccessMixin, CommonFilterMixin,
                                "assessed_points": None, 'point_value': None}
                     object_list.append(row)
 
-        cache.set(cache_key, object_list, 60*120)  # Cache for 2 hours
+        cache.set(cache_key, object_list, 60 * 120)  # Cache for 2 hours
         return object_list
 
     def get_context_data(self, **kwargs):
