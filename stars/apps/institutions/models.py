@@ -509,9 +509,9 @@ class Institution(models.Model):
                      else "no-state")
             slug_base = '%s-%s' % (self.profile.org_name, state)
             self.slug = slugify(slug_base)
-        except Exception, e:
-            logger.error("ISS Institution profile relationship error: %s" % e,
-                         exc_info=True)
+        except Exception as e:
+            logger.error("Can't set slug for %s: %s" % (
+                self.profile.org_name, e), exc_info=True)
             self.slug = iss_institution_id
 
     def get_last_subscription_end(self):
@@ -820,8 +820,6 @@ class AbstractAccount(BaseAccount):
 
         if self.is_pending():
             return None
-        last_login = self.user.last_login.replace(microsecond=0)
-        date_joined = self.user.date_joined.replace(microsecond=0)
         return (None if (self.user.last_login < self.user.date_joined) else
                 self.user.last_login)
 
