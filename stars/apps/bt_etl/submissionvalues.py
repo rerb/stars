@@ -3,6 +3,8 @@ import io
 import json
 import time
 
+from django.db.models import Q
+
 from stars.apps.credits.models import CreditSet
 from stars.apps.submissions.models import (
     SubmissionSet,
@@ -121,7 +123,8 @@ def get_ss_obj(ss):
                 # for field in credit.numericsubmission_
                 # set.filter(value__isnull=False):
 
-                for df in credit.documentationfield_set.filter(type="numeric"):
+                q_filter = Q(type='numeric') | Q(type='calculated')
+                for df in credit.documentationfield_set.filter(q_filter):
 
                     etl_obj = get_df_etl_obj(df, ss)
                     if etl_obj:
@@ -299,7 +302,8 @@ def get_df_etl_obj(df, ss):
             )
             etl_obj['fields']['imperial_value'] = field_submission.value
             # this is to work around some inconsistencies in STARS
-            if imperial_units is None or imperial_units == "%":
+            if (imperial_units is None or imperial_units == "%" or
+                    imperial_units == metric_units):
                 etl_obj['fields']['metric_value'] = field_submission.value
             else:
                 # values without units don't store a metric_value
