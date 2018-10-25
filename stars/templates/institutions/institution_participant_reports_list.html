@@ -69,28 +69,38 @@
                 , {{ institution.ms_institution.state }}
               {% endif %}
             </td>
-            <td class="span1">
-              {{ institution.rated_submission.creditset.version }}
-            </td>
-            <td class="span2">
-	      {% if institution.current_rating %}
-                {{ institution.current_rating }}
-              {% endif %}
-              {% if institution.older_than_three_years %}
-                *
-	      {% endif %}
-            </td>
-            <td class="span2">
-              {% if institution.rated_submission %}
-                <a href='{% url scorecard-summary institution.slug institution.rated_submission.date_submitted %}'>
-                  {{ institution.rated_submission.date_submitted }}
-                </a>
-              {% elif institution.latest_expired_submission %}
-                <a href='{% url scorecard-summary institution.slug institution.latest_expired_submission.date_submitted %}'>
-                  {{ institution.latest_expired_submission.date_submitted }}
-                </a>
-              {% endif %}
-            </td>
+            {% if institution.rated_submission %}
+                <td class="span1">
+                  {{ institution.rated_submission.creditset.version }}
+                </td>
+                <td class="span2">
+                {{ institution.rated_submission.rating }}
+                {% if institution.older_than_three_years %}
+                    *
+	            {% endif %}
+                </td>
+                <td class="span2">
+                    <a href='{% url scorecard-summary institution.slug institution.rated_submission.date_submitted %}'>
+                      {{ institution.rated_submission.date_submitted }}
+                    </a>
+                </td>
+            {% elif institution.latest_expired_submission %}
+                <td class="span1">
+                  {{ institution.latest_expired_submission.creditset.version }}
+                </td>
+                <td class="span2">
+                {{ institution.latest_expired_submission.rating }}*
+                </td>
+                <td class="span2">
+                    <a href='{% url scorecard-summary institution.slug institution.latest_expired_submission.date_submitted %}'>
+                      {{ institution.latest_expired_submission.date_submitted }}
+                    </a>
+                </td>
+            {% else %}
+                <td class="span1"></td>
+                <td class="span2"></td>
+                <td class="span2"></td>
+            {% endif %}
           </tr>
         {% endfor %}
       </tbody>
