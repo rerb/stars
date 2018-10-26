@@ -30,6 +30,7 @@ class InstitutionStructureMixin(StructureMixin):
     """
         Extends the StructureMixin to work with Institutions
     """
+
     def __init__(self, *args, **kwargs):
         super(InstitutionStructureMixin, self).__init__(*args, **kwargs)
 
@@ -46,12 +47,12 @@ class InstitutionStructureMixin(StructureMixin):
             Raises 404 if key in kwargs and not found.
         """
         return self.get_obj_or_call(
-                                    cache_key='institution',
-                                    kwargs_key='institution_slug',
-                                    klass=Institution,
-                                    property="slug",
-                                    use_cache=use_cache
-                                    )
+            cache_key='institution',
+            kwargs_key='institution_slug',
+            klass=Institution,
+            property="slug",
+            use_cache=use_cache
+        )
 
     def get_subscription(self, use_cache=True):
         """
@@ -371,6 +372,7 @@ class RedirectOldScorecardCreditURLsView(InstitutionStructureMixin,
         /<subcategory.slug>
         /<credit.identifier>
     """
+
     def get_redirect_url(self, **kwargs):
         institution = self.get_institution()
         submissionset = self.get_submissionset()
@@ -605,13 +607,13 @@ class ScorecardInternalNotesView(ScorecardView):
 
         super(ScorecardInternalNotesView, self).update_logical_rules()
         self.add_logical_rule({
-                    'name': 'user_has_view_access',
+            'name': 'user_has_view_access',
                     'param_callbacks':
                         [
                             ('user', "get_request_user"),
                             ('submission', "get_institution")
                         ],
-                })
+        })
 
     template_name = 'institutions/scorecards/internal_notes.html'
 
@@ -633,13 +635,13 @@ class DataCorrectionView(RulesMixin,
     def update_logical_rules(self):
         super(DataCorrectionView, self).update_logical_rules()
         self.add_logical_rule({
-                    'name': 'user_is_institution_admin',
+            'name': 'user_is_institution_admin',
                     'param_callbacks':
                         [
                             ('user', "get_request_user"),
                             ('submission', "get_institution")
                         ],
-                })
+        })
 
     def form_valid(self, form):
         self.object = form.save()
