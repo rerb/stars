@@ -155,9 +155,9 @@ class SubmissionSet(models.Model, FlaggableModel):
     creditset = models.ForeignKey(CreditSet)
     institution = models.ForeignKey(Institution)
     date_registered = models.DateField()
-    date_submitted = models.DateField(blank=True, null=True)
-    date_reviewed = models.DateField(blank=True, null=True)
     date_published = models.DateField(blank=True, null=True)
+    date_reviewed = models.DateField(blank=True, null=True)
+    date_submitted = models.DateField(blank=True, null=True)
     expired = models.BooleanField(default=False)
     registering_user = models.ForeignKey(
         User,
@@ -2590,7 +2590,6 @@ class MultiChoiceWithOtherSubmission(MultiChoiceSubmission,
                 (other_value, last_choice.choice))
 
         return choice_list
-
 
 class URLSubmission(DocumentationFieldSubmission):
     """

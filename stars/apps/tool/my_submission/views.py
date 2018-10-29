@@ -322,6 +322,7 @@ class ApproveSubmissionView(SubmissionToolMixin,
         # Update the SubmissionSet.
         submissionset = self.get_submissionset(use_cache=False)
         submissionset.rating = submissionset.get_STARS_rating()
+        submissionset.date_published = date.today()
 
         response = super(ApproveSubmissionView, self).form_valid(form)
 
