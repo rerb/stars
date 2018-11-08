@@ -7,6 +7,7 @@
 from django.test import TestCase
 from django.core import mail
 from django.test.client import Client
+from django.core.urlresolvers import reverse
 
 from stars.apps.custom_forms.models import SteeringCommitteeNomination
 
@@ -17,20 +18,9 @@ class SCAppTest(TestCase):
     fixtures = ['notification_emailtemplate_tests.json', ]
 
     def setUp(self):
-        pass
-
-    def testFormSubmission(self):
-        """
-            Tests:
-                - Request returns 200 status code
-                - Form saves the SC model
-                - view sends email
-        """
-        self.assertEqual(SteeringCommitteeNomination.objects.count(), 0)
-
-        c = Client()
-        f = open(os.path.join(os.path.dirname(__file__), '__init__.py'))
-        post_dict = {
+        self.c = Client()
+        self.f = open(os.path.join(os.path.dirname(__file__), '__init__.py'))
+        self.post_dict = {
             'first_name': 'ben',
             'last_name': 'stookey',
             'phone_number': '800 555 1212',
@@ -41,9 +31,20 @@ class SCAppTest(TestCase):
             'successful': 'of course',
             'strengths': 'mind',
             'perspectives': 'blah blah',
-            'resume': f,
+            'resume': self.f,
         }
-        response = c.post('/cfm/sc-app/', post_dict)
+        self.url = reverse('steering-committee-nomination')
+
+    def testFormSubmission(self):
+        """
+            Tests:
+                - Request returns 200 status code
+                - Form saves the SC model
+                - view sends email
+        """
+        self.assertEqual(SteeringCommitteeNomination.objects.count(), 0)
+
+        response = self.c.post(self.url, self.post_dict)
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(mail.outbox), 1)
