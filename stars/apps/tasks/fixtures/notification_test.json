@@ -1,34 +1,34 @@
 [
-    {
-      "pk": 5214,
-      "model": "auth.user",
-      "fields": {
-        "username": "ben__aashe_org",
-        "first_name": "",
-        "last_name": "",
-        "is_active": true,
-        "is_superuser": true,
-        "is_staff": true,
-        "last_login": "2010-05-28 14:46:15",
-        "groups": [],
-        "user_permissions": [],
-        "password": "d0eea20d2852705a89b7cb61dd04f56f",
-        "email": "ben@aashe.org",
-        "date_joined": "2010-05-28 14:46:15"
-      }
-    },
-    {
-        "pk": 1,
-        "model": "credits.creditset",
-        "fields": {
-            "is_locked": false,
-            "release_date": "2010-05-28",
-            "version": "Test",
-            "tier_2_points": 0.25,
-            "scoring_method": "get_STARS_v1_0_score"
-       }
-     },
-     {
+  {
+    "pk": 5214,
+    "model": "auth.user",
+    "fields": {
+      "username": "ben__aashe_org",
+      "first_name": "",
+      "last_name": "",
+      "is_active": true,
+      "is_superuser": true,
+      "is_staff": true,
+      "last_login": "2010-05-28 14:46:15",
+      "groups": [],
+      "user_permissions": [],
+      "password": "d0eea20d2852705a89b7cb61dd04f56f",
+      "email": "ben@aashe.org",
+      "date_joined": "2010-05-28 14:46:15"
+    }
+  },
+  {
+    "pk": 1,
+    "model": "credits.creditset",
+    "fields": {
+      "is_locked": false,
+      "release_date": "2010-05-28",
+      "version": "Test",
+      "tier_2_points": 0.25,
+      "scoring_method": "get_STARS_v1_0_score"
+    }
+  },
+  {
     "pk": 1,
     "model": "institutions.institution",
     "fields": {
@@ -47,7 +47,8 @@
       "executive_contact_title": "",
       "contact_title": "",
       "contact_middle_name": null,
-      "executive_contact_last_name": ""
+      "executive_contact_last_name": "",
+      "slug": "test-institution-one"
     }
   },
   {
@@ -69,7 +70,8 @@
       "executive_contact_title": "",
       "contact_title": "",
       "contact_middle_name": null,
-      "executive_contact_last_name": ""
+      "executive_contact_last_name": "",
+      "slug": "test-institution-two"
     }
   },
   {
@@ -91,7 +93,8 @@
       "executive_contact_title": "",
       "contact_title": "",
       "contact_middle_name": null,
-      "executive_contact_last_name": ""
+      "executive_contact_last_name": "",
+      "slug": "test-institution-three"
     }
   },
   {
@@ -113,7 +116,8 @@
       "executive_contact_title": "",
       "contact_title": "",
       "contact_middle_name": null,
-      "executive_contact_last_name": ""
+      "executive_contact_last_name": "",
+      "slug": "test-institution-four"
     }
   },
   {
@@ -135,7 +139,8 @@
       "executive_contact_title": "",
       "contact_title": "",
       "contact_middle_name": null,
-      "executive_contact_last_name": ""
+      "executive_contact_last_name": "",
+      "slug": "test-institution-five"
     }
   },
   {
@@ -157,18 +162,19 @@
       "executive_contact_title": "",
       "contact_title": "",
       "contact_middle_name": null,
-      "executive_contact_last_name": ""
+      "executive_contact_last_name": "",
+      "slug": "test-institution-six"
     }
   },
   {
-      "pk": 1,
-      "model": "credits.rating",
-      "fields": {
-          "name": "Test Rating",
-          "minimal_score": 10,
-          "creditset": 1,
-          "publish_score": true
-      }
+    "pk": 1,
+    "model": "credits.rating",
+    "fields": {
+      "name": "Test Rating",
+      "minimal_score": 10,
+      "creditset": 1,
+      "publish_score": true
+    }
   },
   {
     "pk": 1,

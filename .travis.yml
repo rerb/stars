@@ -13,7 +13,7 @@ env:
   - secure: H1YaLrE19qgVTS+dU+aHP0Fl/FYu3griMLzr4isYgOdR2vNSBHCybZI6vWMoNQGjHRONjJQCJ7LxePlYYrGTt6xdXbeY7Ay/admwS83SLXN+RpaHV7CShqQYdX4rAtmllVvAFYYeATZ3ED0n1WLej1/YXcdK81yWzY+DhvwD+go=
   - CACHE_URL=dummy://
   - CELERY_ALWAYS_EAGER=1
-  - CONFIG=settings
+  - CONFIG=bob
   - DEBUG=1
   - EMAIL_REPLY_TO=stars@aashe.org
   - STARS_DB_URL=mysql://travis@localhost/stars

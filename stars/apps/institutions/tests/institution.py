@@ -49,7 +49,7 @@ class InstitutionTest(TestCase):
 
         self.assertEqual(len(log.records), 1)
         self.assertEqual(log.records[0].levelname, 'ERROR')
-        self.assertTrue('profile relationship error' in log.records[0].msg)
+        self.assertTrue('set slug for' in log.records[0].msg)
 
     def test_get_location_string_no_city(self):
         """Does get_location_string() work when there's no city?"""
