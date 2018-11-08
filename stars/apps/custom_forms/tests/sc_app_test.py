@@ -14,7 +14,7 @@ import os
 
 
 class SCAppTest(TestCase):
-    fixtures = ['notification_emailtemplate_tests.json',]
+    fixtures = ['notification_emailtemplate_tests.json', ]
 
     def setUp(self):
         pass
@@ -43,7 +43,7 @@ class SCAppTest(TestCase):
             'perspectives': 'blah blah',
             'resume': f,
         }
-        response = c.post('/cfm/sc-app/', post_dict, follow=True)
+        response = c.post('/cfm/sc-app/', post_dict)
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(mail.outbox), 1)

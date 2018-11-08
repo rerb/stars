@@ -15,7 +15,8 @@ import os
 
 
 class TAAppTest(TestCase):
-    fixtures = ['credits_testdata.json','notification_emailtemplate_tests.json']
+    fixtures = ['credits_testdata.json',
+                'notification_emailtemplate_tests.json']
 
     def setUp(self):
         pass
@@ -45,13 +46,13 @@ class TAAppTest(TestCase):
             'state': 'ST',
             'zipcode': '01234',
             'instituion_type': '2-year',
-            'subcategories': ['1',],
+            'subcategories': ['1', ],
             'skills_and_experience': 'blah blah',
             'related_associations': 'blah blah',
             'resume': f,
             'credit_weakness': 'blah blah',
         }
-        response = c.post('/cfm/ta-app/', post_dict, follow=True)
+        response = c.post('/cfm/ta-app/', post_dict)
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(mail.outbox), 1)
