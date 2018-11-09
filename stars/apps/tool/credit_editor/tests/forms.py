@@ -4,7 +4,7 @@ import tempfile
 
 import django
 
-import stars.apps.tests.live_server
+from stars.apps.tests.live_server import StarsLiveServerTest
 from stars.apps.tool.credit_editor.forms import RightSizeInputModelForm
 
 
@@ -13,8 +13,7 @@ from stars.apps.tool.credit_editor.forms import RightSizeInputModelForm
 # since bootstrap is doing the right-sizing, we can't check the sizes.
 
 
-class RightSizeInputModelFormLiveServerTest(
-        stars.apps.tests.live_server.LiveServerTestCase):
+class RightSizeInputModelFormLiveServerTest(StarsLiveServerTest):
 
     def runTest(self):
         super(RightSizeInputModelFormLiveServerTest, self).runTest()
@@ -43,7 +42,7 @@ class RightSizeInputModelFormLiveServerTest(
                           test_form=test_model_form.as_ul()))
         html.flush()
         self.selenium.get('file:///' + html.name)
-        
+
 
 class TestModel(django.db.models.Model):
     text_input_1 = django.db.models.CharField(
@@ -141,6 +140,3 @@ class TestModel(django.db.models.Model):
 class TestModelForm(RightSizeInputModelForm):
     class Meta:
         model = TestModel
-
-        
-        
