@@ -58,7 +58,7 @@
         {% for institution in object_list %}
           <tr class="{% cycle 'even' 'odd' %}">
             <td style='text-align: left'>
-                <a href='{% url scorecard-list institution.slug %}'
+                <a href="{% url 'scorecard-list' institution.slug %}"
                    id='scorecard-list'>
                     {{ institution }}
                 </a>
@@ -71,7 +71,7 @@
               {{ institution.current_rating }}
             </td>
             <td>
-                <a href='{% url scorecard-summary institution.slug institution.rated_submission.date_submitted %}'>
+                <a href="{% url 'scorecard-summary' institution.slug institution.rated_submission.date_submitted %}">
                     {{ institution.rated_submission.date_submitted }}
                 </a>
             </td>

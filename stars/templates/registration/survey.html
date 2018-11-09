@@ -30,7 +30,7 @@
         	{{ form|bootstrap }}
             <div class='form-actions'>
                 <button type='submit' class='btn btn-primary pull-right' style='margin-left: 10px'>Submit</button>
-                <a href="{%url tool-summary institution.slug %}" class='btn pull-right'>Skip &gt;&gt;</a>
+                <a href="{% url 'tool-summary' institution.slug %}" class='btn pull-right'>Skip &gt;&gt;</a>
             </div>
         </form>
     </div>

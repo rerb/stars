@@ -131,7 +131,7 @@
 	{{ form.errors.responsible_party }}
       {% endif %}
       {{ form.responsible_party|bootstrap }}
-      <a href="{% url add-responsible-party institution.slug submissionset.id %}"
+      <a href="{% url 'add-responsible-party' institution.slug submissionset.id %}"
 	 class="btn btn-info btn-small" id="add_id_responsible_party"
 	 onclick="return showAddAnotherPopup(this);"
 	 title='Add New Responsible Party'>

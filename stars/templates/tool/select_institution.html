@@ -21,7 +21,7 @@
             <tr>
               <td>
                 {% if not stars_account.next_url %}
-                  <a href='{% url tool-summary stars_account.institution.slug %}'>
+                  <a href="{% url 'tool-summary' stars_account.institution.slug %}">
                 {% else %}
                   <a href='{{ stars_account.next_url }}'>
                 {% endif %}
