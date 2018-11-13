@@ -191,7 +191,7 @@
     },
 
     {
-        "pk": 1,
+        "pk": 12,
         "model": "credits.credit",
         "fields": {
             "ordinal": 0,
@@ -214,7 +214,7 @@
         "pk": 1,
         "model": "submissions.creditsubmission",
         "fields": {
-            "credit": 1
+            "credit": 12
         }
     },
 
@@ -230,7 +230,7 @@
     },
 
     {
-        "pk": 1,
+        "pk": 1002394,
         "model": "credits.documentationfield",
         "fields": {
             "ordinal": 0,
@@ -240,7 +240,7 @@
             "tooltip_help_text": "",
             "last_choice_is_other": false,
             "min_range": 0,
-            "credit": 1,
+            "credit": 12,
             "inline_help_text": "",
             "units": null,
             "identifier": "A",
@@ -252,7 +252,7 @@
         "pk": 1,
         "model": "submissions.numericsubmission",
         "fields": {
-            "documentation_field": 1,
+            "documentation_field": 1002394,
             "value": 5.0,
             "credit_submission": 1
         }

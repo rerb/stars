@@ -206,7 +206,7 @@ class MultiChoiceWithOtherSubmissionForm(AbstractMultiFieldSubmissionForm):
 
 
 class URLSubmissionForm(SubmissionFieldForm):
-    value = forms.URLField(required=False, verify_exists=False,
+    value = forms.URLField(required=False,
                            widget=TextInput(attrs={'style': 'width: 600px;'}))
 
     class Meta:
@@ -426,8 +426,8 @@ class UploadSubmissionForm(SubmissionFieldForm):
         instance = super(UploadSubmissionForm, self).save(*args, **kwargs)
         # Once the POST data has been saved, force form to be bound to
         # the saved instance.  See ticket #338
-        self.files={}
-        self.data={}
+        self.files = {}
+        self.data = {}
         from django.forms import model_to_dict
         self.initial.update(model_to_dict(instance))
         return instance
@@ -449,6 +449,7 @@ class CreditSubmissionForm(LocalizedModelFormMixin, ModelForm):
         "tool/submissions/submission_fields_form.html" to render the
         submission field elements themselves.
     """
+
     def __init__(self, *args, **kwargs):
         """
             Construct a form to edit a CreditSubmission instance
@@ -460,9 +461,9 @@ class CreditSubmissionForm(LocalizedModelFormMixin, ModelForm):
         super(CreditSubmissionForm, self).__init__(*args, **kwargs)
 
         self.warnings = None  # Top-level warnings for this form
-                              # (filled by custom validation)
+        # (filled by custom validation)
         self._form_fields = None  # lazy init - don't access directly,
-                                  # call get_from_fields()
+        # call get_from_fields()
 
     def form_name():
         return u"Credit Submission Form"
@@ -499,8 +500,8 @@ class CreditSubmissionForm(LocalizedModelFormMixin, ModelForm):
         # build the form fields based on the data and instance bound
         # to this form.
         prefix = 0  # Ideally, form prefix would be submission field
-                    # id, but this may not be set yet, and each must be
-                    # unique.
+        # id, but this may not be set yet, and each must be
+        # unique.
 
         for field in self.instance.get_submission_fields():
             prefix += 1
@@ -613,9 +614,9 @@ class CreditSubmissionForm(LocalizedModelFormMixin, ModelForm):
                         form_value = form_value or field['field'].get_value()
                     if (doc_field.is_required() and
                         form_value in (None, "", []) and
-                        doc_field.type != 'tabular'):
-                        field['form'].append_error( u"This field is required to "
-                                                "mark this credit complete.")
+                            doc_field.type != 'tabular'):
+                        field['form'].append_error(u"This field is required to "
+                                                   "mark this credit complete.")
                 except AttributeError:
                     assert False
 
@@ -624,7 +625,7 @@ class CreditSubmissionForm(LocalizedModelFormMixin, ModelForm):
         during basic validation of each field"""
         for field in self.get_submission_fields_and_forms():
             if ("value" in field['form']._errors or
-                "metric_value" in field['form']._errors):
+                    "metric_value" in field['form']._errors):
                 return True
         # assert:  none of the fields had errors defined.
         return len(self.non_field_errors()) > 0
@@ -659,7 +660,7 @@ class CreditSubmissionForm(LocalizedModelFormMixin, ModelForm):
                 has_warnings = True
 
         if 'top' in validation_warnings:
-            self.warnings = WarningList([ validation_warnings['top'] ])
+            self.warnings = WarningList([validation_warnings['top']])
             has_warnings = True
         return has_warnings
 
@@ -800,14 +801,14 @@ class CreditUserSubmissionForm(CreditSubmissionForm):
         marked_complete = (status == 'c')
         error = False
 
-        if not status :
+        if not status:
             msg = u"Please tick the appropriate status for this submission."
             self._errors["submission_status"] = ErrorList([msg])
         if status == 'na' and not reason:
             msg = u"Please select a reason why this does not apply."
             self._errors["applicability_reason"] = ErrorList([msg])
-            error = marked_complete # this is only an error if the
-                                    # submission is marked complete.
+            error = marked_complete  # this is only an error if the
+            # submission is marked complete.
         if not status == 'na':
             cleaned_data["applicability_reason"] = None
 
@@ -815,7 +816,7 @@ class CreditUserSubmissionForm(CreditSubmissionForm):
         # if marked complete and responsible parties aren't optional for
         # this creditset.
         if (marked_complete and
-            not self.instance.credit.get_creditset().has_optional_responsible_parties_feature):
+                not self.instance.credit.get_creditset().has_optional_responsible_parties_feature):
             rp = cleaned_data.get("responsible_party")
             if rp == None or rp == "":
                 msg = u"This field is required to mark this credit complete."
@@ -838,8 +839,8 @@ class CreditUserSubmissionForm(CreditSubmissionForm):
         """ Return True iff there is an error with the responsible
         party fields on this form"""
         return self._errors and \
-               ("responsible_party" in self._errors or \
-                "responsible_party_confirm" in self._errors)
+            ("responsible_party" in self._errors or
+             "responsible_party_confirm" in self._errors)
 
 
 class CreditUserSubmissionNotesForm(LocalizedModelFormMixin, ModelForm):
@@ -920,7 +921,7 @@ class LetterForm(LocalizedModelFormMixin, ModelForm):
         data = self.cleaned_data['presidents_letter']
         if ('1-presidents_letter' in self.files.keys() and
             (self.files['1-presidents_letter'].content_type != 'application/pdf') and
-            'test' not in sys.argv):
+                'test' not in sys.argv):
 
             raise forms.ValidationError("This doesn't seem to be a PDF file")
         return data

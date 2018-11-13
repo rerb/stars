@@ -28,6 +28,7 @@ API_TEST_MODE = os.environ.get("API_TEST_MODE", DEBUG)
 FIXTURE_DIRS = ('fixtures', os.path.join(PROJECT_PATH, 'apps/api/fixtures'),)
 PROFILE = os.environ.get("PROFILE", False)
 
+USE_TZ = True
 TIME_ZONE = 'America/Lima'
 LANGUAGE_CODE = 'en-us'
 SITE_ID = 1
@@ -150,7 +151,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.messages.context_processors.messages',
     "django.contrib.auth.context_processors.auth",
     'django.core.context_processors.request',
-    )
+)
 
 INSTALLED_APPS = (
     'longerusernameandemail',  # might need to be first

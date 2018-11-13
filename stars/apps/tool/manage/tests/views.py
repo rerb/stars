@@ -516,11 +516,13 @@ class MigrateVersionViewTest(MigrateViewTest):
     def test_dispatch_prevents_migration_when_already_at_latest_version(self):
         """Does dispatch prevent migration if current sub is at latest version?
         """
+
         self.account.user_level = 'admin'
         self.account.save()
         latest_creditset = CreditSet.objects.get_latest()
         self.submissionset.creditset = latest_creditset
         self.submissionset.save()
+
         try:
             self.view_class().dispatch(
                 self.request,
@@ -535,6 +537,7 @@ class MigrateVersionViewTest(MigrateViewTest):
         """
         self.account.user_level = 'admin'
         self.account.save()
+
         response = self.view_class().dispatch(
             self.request,
             institution_slug=self.institution.slug,

@@ -8,7 +8,7 @@
             "release_date": "2011-02-09",
             "credit_identifier": "get_1_1_identifier",
             "scoring_method": "get_STARS_v1_0_score",
-            "version": "1.1",
+            "version": "1.1-",
             "tier_2_points": 0.25,
             "supported_features": [
                 1,
@@ -25,7 +25,7 @@
             "release_date": "2012-02-08",
             "credit_identifier": "get_1_1_identifier",
             "scoring_method": "get_STARS_v1_0_score",
-            "version": "1.2",
+            "version": "1.2-",
             "tier_2_points": 0.25,
             "supported_features": [
                 1,
@@ -280,7 +280,7 @@
             "release_date": "2010-11-02",
             "credit_identifier": "get_1_0_identifier",
             "scoring_method": "get_STARS_v1_0_score",
-            "version": "1.0",
+            "version": "1.0-",
             "tier_2_points": 0.25,
             "supported_features": []
         }
@@ -596,7 +596,7 @@
             "credit": 1,
             "inline_help_text": "",
             "units": null,
-            "identifier": "U",
+            "identifier": "U1",
             "type": "numeric",
             "is_published": true
         }
@@ -625,7 +625,7 @@
             "credit": 1,
             "inline_help_text": "",
             "units": null,
-            "identifier": "B",
+            "identifier": "B1",
             "type": "text",
             "is_published": true
         }
@@ -654,7 +654,7 @@
             "credit": 1,
             "inline_help_text": "",
             "units": null,
-            "identifier": "Q",
+            "identifier": "Q1",
             "type": "text",
             "is_published": true
         }
@@ -690,7 +690,7 @@
             "credit": 1,
             "inline_help_text": "",
             "units": null,
-            "identifier": "H",
+            "identifier": "H1",
             "type": "long_text",
             "is_published": true
         }
@@ -719,7 +719,7 @@
             "credit": 1,
             "inline_help_text": "",
             "units": null,
-            "identifier": "P",
+            "identifier": "P1",
             "type": "numeric",
             "is_published": true
         }
@@ -808,7 +808,7 @@
             "release_date": "2008-09-01",
             "credit_identifier": "get_1_0_identifier",
             "scoring_method": "",
-            "version": "0.5",
+            "version": "0.5-",
             "tier_2_points": 0.25,
             "supported_features": []
         }
@@ -1034,7 +1034,7 @@
             "credit": 143,
             "inline_help_text": "",
             "units": null,
-            "identifier": "C",
+            "identifier": "C1",
             "type": "url",
             "is_published": true
         }
@@ -1054,7 +1054,7 @@
             "credit": 143,
             "inline_help_text": "",
             "units": null,
-            "identifier": "B",
+            "identifier": "B1",
             "type": "upload",
             "is_published": true
         }
@@ -1074,7 +1074,7 @@
             "credit": 143,
             "inline_help_text": "",
             "units": null,
-            "identifier": "A",
+            "identifier": "A1",
             "type": "long_text",
             "is_published": true
         }
@@ -1116,7 +1116,7 @@
             "credit": 25,
             "inline_help_text": "",
             "units": null,
-            "identifier": "C",
+            "identifier": "C1",
             "type": "url",
             "is_published": true
         }
@@ -1136,7 +1136,7 @@
             "credit": 25,
             "inline_help_text": "",
             "units": null,
-            "identifier": "F",
+            "identifier": "F1",
             "type": "upload",
             "is_published": true
         }
@@ -1156,7 +1156,7 @@
             "credit": 25,
             "inline_help_text": "",
             "units": null,
-            "identifier": "E",
+            "identifier": "E1",
             "type": "url",
             "is_published": true
         }
@@ -1176,7 +1176,7 @@
             "credit": 25,
             "inline_help_text": "<p><span><span>The website URL where the inventory is posted or a copy of the inventory may be provided instead of this list if the inventory includes the relevant information.</span></span></p>",
             "units": null,
-            "identifier": "D",
+            "identifier": "D1",
             "type": "long_text",
             "is_published": true
         }
@@ -1196,7 +1196,7 @@
             "credit": 25,
             "inline_help_text": "",
             "units": null,
-            "identifier": "B",
+            "identifier": "B1",
             "type": "numeric",
             "is_published": true
         }
@@ -1216,7 +1216,7 @@
             "credit": 25,
             "inline_help_text": "",
             "units": null,
-            "identifier": "A",
+            "identifier": "A1",
             "type": "numeric",
             "is_published": true
         }
@@ -1379,7 +1379,7 @@
             "credit": 282,
             "inline_help_text": "",
             "units": null,
-            "identifier": "G",
+            "identifier": "G1",
             "type": "boolean",
             "is_published": false
         }
@@ -1399,7 +1399,7 @@
             "credit": 282,
             "inline_help_text": "",
             "units": null,
-            "identifier": "F",
+            "identifier": "F1",
             "type": "boolean",
             "is_published": false
         }
@@ -1419,7 +1419,7 @@
             "credit": 282,
             "inline_help_text": "",
             "units": null,
-            "identifier": "E",
+            "identifier": "E1",
             "type": "boolean",
             "is_published": false
         }
@@ -1439,7 +1439,7 @@
             "credit": 282,
             "inline_help_text": "",
             "units": null,
-            "identifier": "D",
+            "identifier": "D1",
             "type": "boolean",
             "is_published": false
         }
@@ -1459,7 +1459,7 @@
             "credit": 282,
             "inline_help_text": "",
             "units": null,
-            "identifier": "C",
+            "identifier": "C1",
             "type": "url",
             "is_published": true
         }
@@ -1479,7 +1479,7 @@
             "credit": 282,
             "inline_help_text": "",
             "units": null,
-            "identifier": "B",
+            "identifier": "B1",
             "type": "upload",
             "is_published": true
         }
@@ -1499,7 +1499,7 @@
             "credit": 282,
             "inline_help_text": "",
             "units": null,
-            "identifier": "A",
+            "identifier": "A1",
             "type": "long_text",
             "is_published": true
         }
@@ -1535,7 +1535,7 @@
             "credit": 142,
             "inline_help_text": "",
             "units": null,
-            "identifier": "C",
+            "identifier": "C2",
             "type": "url",
             "is_published": true
         }
@@ -1555,7 +1555,7 @@
             "credit": 142,
             "inline_help_text": "",
             "units": null,
-            "identifier": "B",
+            "identifier": "B2",
             "type": "upload",
             "is_published": true
         }
@@ -1575,7 +1575,7 @@
             "credit": 142,
             "inline_help_text": "",
             "units": null,
-            "identifier": "A",
+            "identifier": "A2",
             "type": "long_text",
             "is_published": true
         }
@@ -1595,7 +1595,7 @@
             "credit": 167,
             "inline_help_text": "",
             "units": null,
-            "identifier": "C",
+            "identifier": "C2",
             "type": "url",
             "is_published": true
         }
@@ -1615,7 +1615,7 @@
             "credit": 167,
             "inline_help_text": "",
             "units": null,
-            "identifier": "F",
+            "identifier": "F2",
             "type": "upload",
             "is_published": true
         }
@@ -1635,7 +1635,7 @@
             "credit": 167,
             "inline_help_text": "",
             "units": null,
-            "identifier": "E",
+            "identifier": "E2",
             "type": "url",
             "is_published": true
         }
@@ -1655,7 +1655,7 @@
             "credit": 167,
             "inline_help_text": "<p><span><span>The website URL where the inventory is posted or a copy of the inventory may be provided instead of this list if the inventory includes the relevant information.</span></span></p>",
             "units": null,
-            "identifier": "D",
+            "identifier": "D2",
             "type": "long_text",
             "is_published": true
         }
@@ -1675,7 +1675,7 @@
             "credit": 167,
             "inline_help_text": "",
             "units": null,
-            "identifier": "B",
+            "identifier": "B2",
             "type": "numeric",
             "is_published": true
         }
@@ -1695,7 +1695,7 @@
             "credit": 167,
             "inline_help_text": "",
             "units": null,
-            "identifier": "A",
+            "identifier": "A3",
             "type": "numeric",
             "is_published": true
         }
@@ -1726,7 +1726,7 @@
             "credit": 141,
             "inline_help_text": "",
             "units": null,
-            "identifier": "C",
+            "identifier": "C3",
             "type": "url",
             "is_published": true
         }
@@ -1746,7 +1746,7 @@
             "credit": 141,
             "inline_help_text": "",
             "units": null,
-            "identifier": "B",
+            "identifier": "B3",
             "type": "upload",
             "is_published": true
         }
@@ -1766,7 +1766,7 @@
             "credit": 141,
             "inline_help_text": "",
             "units": null,
-            "identifier": "A",
+            "identifier": "A3",
             "type": "long_text",
             "is_published": true
         }
@@ -3641,7 +3641,7 @@
             "credit": 12,
             "inline_help_text": "",
             "units": null,
-            "identifier": "D",
+            "identifier": "D3",
             "type": "url",
             "is_published": true
         }
@@ -3661,7 +3661,7 @@
             "credit": 12,
             "inline_help_text": "",
             "units": null,
-            "identifier": "B",
+            "identifier": "B4",
             "type": "long_text",
             "is_published": true
         }
@@ -3681,7 +3681,7 @@
             "credit": 12,
             "inline_help_text": "",
             "units": null,
-            "identifier": "A",
+            "identifier": "A4",
             "type": "boolean",
             "is_published": true
         }
@@ -5990,7 +5990,7 @@
             "credit": 421,
             "inline_help_text": "",
             "units": null,
-            "identifier": "G",
+            "identifier": "G4",
             "type": "boolean",
             "is_published": false
         }
@@ -6010,7 +6010,7 @@
             "credit": 421,
             "inline_help_text": "",
             "units": null,
-            "identifier": "F",
+            "identifier": "F4",
             "type": "boolean",
             "is_published": false
         }
@@ -6030,7 +6030,7 @@
             "credit": 421,
             "inline_help_text": "",
             "units": null,
-            "identifier": "E",
+            "identifier": "E4",
             "type": "boolean",
             "is_published": false
         }
@@ -6050,7 +6050,7 @@
             "credit": 421,
             "inline_help_text": "",
             "units": null,
-            "identifier": "D",
+            "identifier": "D4",
             "type": "boolean",
             "is_published": false
         }
@@ -6070,7 +6070,7 @@
             "credit": 421,
             "inline_help_text": "",
             "units": null,
-            "identifier": "C",
+            "identifier": "C4",
             "type": "url",
             "is_published": true
         }
@@ -6090,7 +6090,7 @@
             "credit": 421,
             "inline_help_text": "",
             "units": null,
-            "identifier": "B",
+            "identifier": "B4",
             "type": "upload",
             "is_published": true
         }
@@ -6110,7 +6110,7 @@
             "credit": 421,
             "inline_help_text": "",
             "units": null,
-            "identifier": "A",
+            "identifier": "A4",
             "type": "long_text",
             "is_published": true
         }
@@ -8267,7 +8267,7 @@
             "credit": 281,
             "inline_help_text": "",
             "units": null,
-            "identifier": "G",
+            "identifier": "G5",
             "type": "boolean",
             "is_published": false
         }
@@ -8287,7 +8287,7 @@
             "credit": 281,
             "inline_help_text": "",
             "units": null,
-            "identifier": "F",
+            "identifier": "F5",
             "type": "boolean",
             "is_published": false
         }
@@ -8307,7 +8307,7 @@
             "credit": 281,
             "inline_help_text": "",
             "units": null,
-            "identifier": "E",
+            "identifier": "E5",
             "type": "boolean",
             "is_published": false
         }
@@ -8327,7 +8327,7 @@
             "credit": 281,
             "inline_help_text": "",
             "units": null,
-            "identifier": "D",
+            "identifier": "D5",
             "type": "boolean",
             "is_published": false
         }
@@ -8347,7 +8347,7 @@
             "credit": 281,
             "inline_help_text": "",
             "units": null,
-            "identifier": "C",
+            "identifier": "C6",
             "type": "url",
             "is_published": true
         }
@@ -8367,7 +8367,7 @@
             "credit": 281,
             "inline_help_text": "",
             "units": null,
-            "identifier": "B",
+            "identifier": "B6",
             "type": "upload",
             "is_published": true
         }
@@ -8387,7 +8387,7 @@
             "credit": 281,
             "inline_help_text": "",
             "units": null,
-            "identifier": "A",
+            "identifier": "A6",
             "type": "long_text",
             "is_published": true
         }
@@ -10696,7 +10696,7 @@
             "credit": 306,
             "inline_help_text": "",
             "units": null,
-            "identifier": "C",
+            "identifier": "C6",
             "type": "url",
             "is_published": true
         }
@@ -10716,7 +10716,7 @@
             "credit": 306,
             "inline_help_text": "",
             "units": null,
-            "identifier": "G",
+            "identifier": "G6",
             "type": "long_text",
             "is_published": true
         }
@@ -10736,7 +10736,7 @@
             "credit": 306,
             "inline_help_text": "",
             "units": null,
-            "identifier": "F",
+            "identifier": "F6",
             "type": "upload",
             "is_published": true
         }
@@ -10756,7 +10756,7 @@
             "credit": 306,
             "inline_help_text": "",
             "units": null,
-            "identifier": "E",
+            "identifier": "E6",
             "type": "url",
             "is_published": true
         }
@@ -10776,7 +10776,7 @@
             "credit": 306,
             "inline_help_text": "<p><span><span>The website URL where the inventory is posted or a copy of the inventory may be provided instead of this list if the inventory includes the relevant information.</span></span></p>",
             "units": null,
-            "identifier": "D",
+            "identifier": "D6",
             "type": "long_text",
             "is_published": true
         }
@@ -10796,7 +10796,7 @@
             "credit": 306,
             "inline_help_text": "",
             "units": null,
-            "identifier": "B",
+            "identifier": "B7",
             "type": "numeric",
             "is_published": true
         }
@@ -10816,7 +10816,7 @@
             "credit": 306,
             "inline_help_text": "",
             "units": null,
-            "identifier": "A",
+            "identifier": "A7",
             "type": "numeric",
             "is_published": true
         }
@@ -12975,7 +12975,7 @@
             "credit": 280,
             "inline_help_text": "",
             "units": null,
-            "identifier": "G",
+            "identifier": "G7",
             "type": "boolean",
             "is_published": false
         }
@@ -12995,7 +12995,7 @@
             "credit": 280,
             "inline_help_text": "",
             "units": null,
-            "identifier": "F",
+            "identifier": "F7",
             "type": "boolean",
             "is_published": false
         }
@@ -13015,7 +13015,7 @@
             "credit": 280,
             "inline_help_text": "",
             "units": null,
-            "identifier": "E",
+            "identifier": "E7",
             "type": "boolean",
             "is_published": false
         }
@@ -13035,7 +13035,7 @@
             "credit": 280,
             "inline_help_text": "",
             "units": null,
-            "identifier": "D",
+            "identifier": "D7",
             "type": "boolean",
             "is_published": false
         }
@@ -13055,7 +13055,7 @@
             "credit": 280,
             "inline_help_text": "",
             "units": null,
-            "identifier": "C",
+            "identifier": "C7",
             "type": "url",
             "is_published": true
         }
@@ -13075,7 +13075,7 @@
             "credit": 280,
             "inline_help_text": "",
             "units": null,
-            "identifier": "B",
+            "identifier": "B8",
             "type": "upload",
             "is_published": true
         }
@@ -13095,7 +13095,7 @@
             "credit": 280,
             "inline_help_text": "",
             "units": null,
-            "identifier": "A",
+            "identifier": "A8",
             "type": "long_text",
             "is_published": true
         }
@@ -13115,7 +13115,7 @@
             "credit": 31,
             "inline_help_text": "",
             "units": null,
-            "identifier": "A",
+            "identifier": "A8",
             "type": "date",
             "is_published": true
         }
@@ -14843,7 +14843,7 @@
             "credit": 113,
             "inline_help_text": "",
             "units": null,
-            "identifier": "E",
+            "identifier": "E8",
             "type": "url",
             "is_published": true
         }
@@ -14863,7 +14863,7 @@
             "credit": 113,
             "inline_help_text": "",
             "units": null,
-            "identifier": "B",
+            "identifier": "B8",
             "type": "numeric",
             "is_published": true
         }
@@ -14883,7 +14883,7 @@
             "credit": 113,
             "inline_help_text": "",
             "units": null,
-            "identifier": "A",
+            "identifier": "A9",
             "type": "long_text",
             "is_published": true
         }
@@ -14903,7 +14903,7 @@
             "credit": 113,
             "inline_help_text": "",
             "units": null,
-            "identifier": "G",
+            "identifier": "G9",
             "type": "numeric",
             "is_published": true
         }
@@ -14923,7 +14923,7 @@
             "credit": 113,
             "inline_help_text": "",
             "units": null,
-            "identifier": "F",
+            "identifier": "F9",
             "type": "numeric",
             "is_published": true
         }
@@ -14943,7 +14943,7 @@
             "credit": 29,
             "inline_help_text": "<p>adf</p>",
             "units": null,
-            "identifier": "A",
+            "identifier": "A9",
             "type": "upload",
             "is_published": true
         }
@@ -15889,7 +15889,7 @@
             "credit": 131,
             "inline_help_text": "",
             "units": null,
-            "identifier": "A",
+            "identifier": "A9",
             "tooltip_help_text": "",
             "is_published": true
         }
@@ -15909,7 +15909,7 @@
             "credit": 131,
             "inline_help_text": "",
             "units": null,
-            "identifier": "B",
+            "identifier": "B9",
             "tooltip_help_text": "",
             "is_published": true
         }
@@ -15929,7 +15929,7 @@
             "credit": 131,
             "inline_help_text": "",
             "units": null,
-            "identifier": "C",
+            "identifier": "C9",
             "tooltip_help_text": "",
             "is_published": true
         }
@@ -15976,7 +15976,7 @@
             "credit": 117,
             "inline_help_text": "",
             "units": null,
-            "identifier": "I",
+            "identifier": "I9",
             "tooltip_help_text": "",
             "is_published": true
         }
