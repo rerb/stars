@@ -77,7 +77,6 @@ class MetricConversionTest(BaseMetricTest):
         self.runTestMetric()
         self.runTestPreferenceSwitch()
         self.runTestNullValues()
-        self.runTestDataCorrections()
 
     def runTestImperial(self):
         """
@@ -321,65 +320,3 @@ class MetricConversionTest(BaseMetricTest):
 
         response = self.client.post(self.cus.get_submit_url(), post_dict)
         self.assertEqual(response.status_code, 302)
-
-    def runTestDataCorrections(self):
-        """
-            Tests that data corrections are applied using the correct units
-        """
-        self.institution.prefers_metric_system = True
-        self.institution.save()
-
-        # save field with value 1
-        post_dict = {
-            "responsible_party": self.rp.id,
-            "responsible_party_confirm": True,
-            "submission_status": 'p',
-            "NumericSubmission_1-value": "",
-            "NumericSubmission_1-metric_value": "1",
-            "NumericSubmission_2-value": "",
-            "NumericSubmission_2-metric_value": "1"
-        }
-
-        response = self.client.post(self.cus.get_submit_url(), post_dict)
-        self.assertEqual(response.status_code, 302)
-
-        # create a data correction request for df1
-        self.ns1 = NumericSubmission.objects.get(documentation_field=self.df1)
-
-        dcr = DataCorrectionRequest(
-            reporting_field=self.ns1,
-            new_value=2,
-            explanation='testing',
-            user=self.user,
-            approved=False
-        )
-        dcr.save()
-        dcr.approved = True
-        dcr.save()
-
-        self.ns1 = NumericSubmission.objects.get(documentation_field=self.df1)
-        rfdc = ReportingFieldDataCorrection.objects.get(request=dcr)
-        self.assertEqual(self.ns1.metric_value, 2)
-        self.assertEqual(self.ns1.value, 4)
-        self.assertEqual(rfdc.previous_value, "1 metric units")
-
-        # Ok now try it with the other unit
-        self.institution.prefers_metric_system = False
-        self.institution.save()
-
-        dcr = DataCorrectionRequest(
-            reporting_field=self.ns1,
-            new_value=3,
-            explanation='testing',
-            user=self.user,
-            approved=False
-        )
-        dcr.save()
-        dcr.approved = True
-        dcr.save()
-
-        self.ns1 = NumericSubmission.objects.get(documentation_field=self.df1)
-        rfdc = ReportingFieldDataCorrection.objects.get(request=dcr)
-        self.assertEqual(self.ns1.metric_value, 1.5)
-        self.assertEqual(self.ns1.value, 3)
-        self.assertEqual(rfdc.previous_value, "4 imperial units")
