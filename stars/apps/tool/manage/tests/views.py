@@ -516,6 +516,25 @@ class MigrateVersionViewTest(MigrateViewTest):
     gatekeeper_aashe_rule = 'user_can_migrate_version'
     migration_task_name = 'perform_migration'
 
+    def test_dispatch_prevents_migration_when_already_at_latest_version(self):
+        """Does dispatch prevent migration if current sub is at latest version?
+        """
+
+        self.account.user_level = 'admin'
+        self.account.save()
+
+        latest_creditset = CreditSet.objects.get_latest()
+        self.submissionset.creditset = latest_creditset
+        self.submissionset.save()
+
+        try:
+            views.MigrateVersionView.as_view()(
+                request=self.request,
+                institution_slug=self.institution.slug,
+                pk=self._get_pk())
+        except Exception, e:
+            self.assertEqual(e.__class__.__name__, "PermissionDenied")
+
     def test_dispatch_allows_migration_when_not_already_at_latest_version(
             self):
         """Does dispatch allow migration if current sub isn't latest version?
@@ -523,8 +542,8 @@ class MigrateVersionViewTest(MigrateViewTest):
         self.account.user_level = 'admin'
         self.account.save()
 
-        response = self.view_class().dispatch(
-            self.request,
+        response = views.MigrateVersionView.as_view()(
+            request=self.request,
             institution_slug=self.institution.slug,
             pk=self._get_pk())
         self.assertEqual(response.status_code, 200)
