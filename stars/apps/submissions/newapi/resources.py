@@ -113,8 +113,9 @@ class SubmissionSetResource(StarsApiResource):
                 CategorySubmissionResource.Meta.allowed_methods):
             return HttpMethodNotAllowed()
         self.is_authenticated(request)
+        basic_bundle = self.build_bundle(request=request)
         try:
-            obj = self.cached_obj_get(request=request,
+            obj = self.cached_obj_get(bundle=basic_bundle,
                                       **self.remove_api_resource_names(kwargs))
         except ObjectDoesNotExist:
             return HttpGone()
@@ -137,8 +138,9 @@ class SubmissionSetResource(StarsApiResource):
             return HttpMethodNotAllowed()
         self.is_authenticated(request)
         category_id = kwargs.pop('catpk')
+        basic_bundle = self.build_bundle(request=request)
         try:
-            obj = self.cached_obj_get(request=request,
+            obj = self.cached_obj_get(bundle=basic_bundle,
                                       **self.remove_api_resource_names(kwargs))
         except ObjectDoesNotExist:
             return HttpGone()
@@ -159,8 +161,9 @@ class SubmissionSetResource(StarsApiResource):
                 SubcategorySubmissionResource.Meta.allowed_methods):
             return HttpMethodNotAllowed()
         self.is_authenticated(request)
+        basic_bundle = self.build_bundle(request=request)
         try:
-            obj = self.cached_obj_get(request=request,
+            obj = self.cached_obj_get(bundle=basic_bundle,
                                       **self.remove_api_resource_names(kwargs))
         except ObjectDoesNotExist:
             return HttpGone()
@@ -183,8 +186,9 @@ class SubmissionSetResource(StarsApiResource):
         self.is_authenticated(request)
         subcategory_id = kwargs.pop('subcatpk')
         # Make sure the submission set is valid:
+        basic_bundle = self.build_bundle(request=request)
         try:
-            obj = self.cached_obj_get(request=request,
+            obj = self.cached_obj_get(bundle=basic_bundle,
                                       **self.remove_api_resource_names(kwargs))
         except ObjectDoesNotExist:
             return HttpGone()
@@ -208,8 +212,9 @@ class SubmissionSetResource(StarsApiResource):
                 CreditSubmissionResource.Meta.allowed_methods):
             return HttpMethodNotAllowed()
         self.is_authenticated(request)
+        basic_bundle = self.build_bundle(request=request)
         try:
-            obj = self.cached_obj_get(request=request,
+            obj = self.cached_obj_get(bundle=basic_bundle,
                                       **self.remove_api_resource_names(kwargs))
         except ObjectDoesNotExist:
             return HttpGone()
@@ -233,9 +238,10 @@ class SubmissionSetResource(StarsApiResource):
             return HttpMethodNotAllowed()
         self.is_authenticated(request)
         credit_id = kwargs.pop('credpk')
+        basic_bundle = self.build_bundle(request=request)
         try:
             submissionset = self.cached_obj_get(
-                request=request,
+                bundle=basic_bundle,
                 **self.remove_api_resource_names(kwargs))
         except ObjectDoesNotExist:
             return HttpGone()
@@ -355,13 +361,13 @@ class CategorySubmissionResource(StarsApiResource):
         category_id = str(bundle_or_obj.obj.category_id)
         return '/'.join(uri.split('/')[:-2] + [category_id, ''])
 
-    def obj_get(self, request=None, **kwargs):
+    def obj_get(self, bundle, **kwargs):
         """Given the id's for a SubmissionSet and a Category, get
         the matching CategorySubmission."""
         kwargs['submissionset'] = SubmissionSet.objects.get(
             pk=kwargs.pop('submissionset_id'))
         kwargs['category'] = Category.objects.get(pk=kwargs.pop('category_id'))
-        return super(CategorySubmissionResource, self).obj_get(request,
+        return super(CategorySubmissionResource, self).obj_get(bundle,
                                                                **kwargs)
 
 
@@ -425,7 +431,7 @@ class SubcategorySubmissionResource(StarsApiResource):
         subcategory_id = str(bundle_or_obj.obj.subcategory_id)
         return '/'.join(uri.split('/')[:-2] + [subcategory_id, ''])
 
-    def obj_get(self, request=None, **kwargs):
+    def obj_get(self, bundle, **kwargs):
         """Given the id of a Subcategory and a SubmissionSet,
         get the matching SubcategorySubmission.
         """
@@ -437,7 +443,7 @@ class SubcategorySubmissionResource(StarsApiResource):
         return subcategory.subcategorysubmission_set.get(
             category_submission__submissionset=submissionset)
 
-    def obj_get_list(self, request=None, **kwargs):
+    def obj_get_list(self, bundle, **kwargs):
         submissionset_id = kwargs.pop('submissionset_id')
         categories_for_submissionset = CategorySubmission.objects.filter(
             submissionset=submissionset_id)
@@ -562,7 +568,7 @@ class CreditSubmissionResource(StarsApiResource):
         credit_id = str(bundle_or_obj.obj.credit_id)
         return '/'.join(uri.split('/')[:-2] + [credit_id, ''])
 
-    def obj_get(self, request=None, **kwargs):
+    def obj_get(self, bundle, **kwargs):
         """Given the id of a Credit and a SubmissionSet, get the matching
         CreditSubmission.
         """
@@ -570,7 +576,7 @@ class CreditSubmissionResource(StarsApiResource):
         credit = Credit.objects.get(pk=kwargs['credpk'])
         return credit.creditsubmission_set.get(creditusersubmission__subcategory_submission__category_submission__submissionset=kwargs['submissionset']).creditusersubmission
 
-    def obj_get_list(self, request=None, **kwargs):
+    def obj_get_list(self, bundle, **kwargs):
         submissionset_id = kwargs.pop('submissionset_id')
         categories_for_submissionset = CategorySubmission.objects.filter(
             submissionset=submissionset_id)
@@ -639,17 +645,17 @@ class DocumentationFieldSubmissionResource(StarsApiResource):
         return '/'.join(bundle_or_obj.request.path.split('/')[:5] +
                         ['field', field_id, ''])
 
-    def obj_get(self, request=None, **kwargs):
+    def obj_get(self, bundle, **kwargs):
         """Given the id's of a SubmissionSet (kwargs['submissionset_id']) and
         and a DocumentationField (kwargs['fieldpk']), get the
         matching DocumentationFieldSubmission.
         """
         field_id = kwargs.pop('fieldpk')
-        field_list = self.obj_get_list(request, **kwargs)
+        field_list = self.obj_get_list(bundle=bundle, **kwargs)
         field = field_list.get(documentation_field__id=field_id)
         return field
 
-    def obj_get_list(self, request=None, **kwargs):
+    def obj_get_list(self, bundle, **kwargs):
         """Get the DocumentationFieldSubmissionResource's *of this type*
         for the SubmissionSet where id = kwargs['submissionset_id'].
 
