@@ -187,7 +187,7 @@ class SubmissionSet(models.Model, FlaggableModel):
     reporter_status = models.BooleanField(
         help_text=("Check this box if you would like to be given "
                    "reporter status and not receive a STARS rating "
-                   "from AASHE."))
+                   "from AASHE."), default=False)
     pdf_report = models.FileField(upload_to=upload_path_callback,
                                   blank=True,
                                   max_length=255,
@@ -1665,7 +1665,7 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
                    'along with your submission.'),
         blank=True,
         null=True)
-    responsible_party_confirm = models.BooleanField()
+    responsible_party_confirm = models.BooleanField(default=False)
     responsible_party = models.ForeignKey(ResponsibleParty,
                                           blank=True,
                                           null=True,
@@ -2956,7 +2956,7 @@ class SubmissionInquiry(models.Model):
 
     submissionset = models.ForeignKey(SubmissionSet)
     date = models.DateTimeField(auto_now_add=True)
-    anonymous = models.BooleanField()
+    anonymous = models.BooleanField(default=False)
     first_name = models.CharField(max_length=128, null=True, blank=True)
     last_name = models.CharField(max_length=128, null=True, blank=True)
     affiliation = models.CharField(max_length=128, null=True, blank=True)

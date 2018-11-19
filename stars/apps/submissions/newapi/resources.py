@@ -1,7 +1,7 @@
 """
     STARS Submissions API
 """
-from django.conf.urls.defaults import url
+from django.conf.urls import url
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from tastypie import fields
 from tastypie.constants import ALL_WITH_RELATIONS
@@ -110,7 +110,7 @@ class SubmissionSetResource(StarsApiResource):
         # explicitly because the URL fiddling done above
         # bypasses the usual check:
         if (request.method.lower() not in
-            CategorySubmissionResource.Meta.allowed_methods):
+                CategorySubmissionResource.Meta.allowed_methods):
             return HttpMethodNotAllowed()
         self.is_authenticated(request)
         try:
@@ -133,7 +133,7 @@ class SubmissionSetResource(StarsApiResource):
         # explicitly because the URL fiddling done above
         # bypasses the usual check:
         if (request.method.lower() not in
-            CategorySubmissionResource.Meta.allowed_methods):
+                CategorySubmissionResource.Meta.allowed_methods):
             return HttpMethodNotAllowed()
         self.is_authenticated(request)
         category_id = kwargs.pop('catpk')
@@ -156,7 +156,7 @@ class SubmissionSetResource(StarsApiResource):
         # explicitly because the URL fiddling done above
         # bypasses the usual check:
         if (request.method.lower() not in
-            SubcategorySubmissionResource.Meta.allowed_methods):
+                SubcategorySubmissionResource.Meta.allowed_methods):
             return HttpMethodNotAllowed()
         self.is_authenticated(request)
         try:
@@ -178,7 +178,7 @@ class SubmissionSetResource(StarsApiResource):
         # explicitly because the URL fiddling done above
         # bypasses the usual check:
         if (request.method.lower() not in
-            SubcategorySubmissionResource.Meta.allowed_methods):
+                SubcategorySubmissionResource.Meta.allowed_methods):
             return HttpMethodNotAllowed()
         self.is_authenticated(request)
         subcategory_id = kwargs.pop('subcatpk')
@@ -205,7 +205,7 @@ class SubmissionSetResource(StarsApiResource):
         # explicitly because the URL fiddling done above
         # bypasses the usual check:
         if (request.method.lower() not in
-            CreditSubmissionResource.Meta.allowed_methods):
+                CreditSubmissionResource.Meta.allowed_methods):
             return HttpMethodNotAllowed()
         self.is_authenticated(request)
         try:
@@ -229,7 +229,7 @@ class SubmissionSetResource(StarsApiResource):
         # explicitly because the URL fiddling done above
         # bypasses the usual check:
         if (request.method.lower() not in
-            CreditSubmissionResource.Meta.allowed_methods):
+                CreditSubmissionResource.Meta.allowed_methods):
             return HttpMethodNotAllowed()
         self.is_authenticated(request)
         credit_id = kwargs.pop('credpk')
@@ -260,7 +260,7 @@ class SubmissionSetResource(StarsApiResource):
         # explicitly because the URL fiddling done above bypasses the
         # usual check:
         if (request.method.lower() not in
-            DocumentationFieldSubmissionResource.Meta.allowed_methods):
+                DocumentationFieldSubmissionResource.Meta.allowed_methods):
             return HttpMethodNotAllowed()
         self.is_authenticated(request)
         for field_resource_type in (NumericSubmissionResource,
@@ -566,7 +566,7 @@ class CreditSubmissionResource(StarsApiResource):
         """Given the id of a Credit and a SubmissionSet, get the matching
         CreditSubmission.
         """
-        #TODO: BEN - what about this crazy get()?
+        # TODO: BEN - what about this crazy get()?
         credit = Credit.objects.get(pk=kwargs['credpk'])
         return credit.creditsubmission_set.get(creditusersubmission__subcategory_submission__category_submission__submissionset=kwargs['submissionset']).creditusersubmission
 

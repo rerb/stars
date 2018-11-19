@@ -1,4 +1,4 @@
-from django.conf.urls.defaults import patterns, url
+from django.conf.urls import patterns, url
 from django.views.decorators.cache import never_cache
 
 from views import (
@@ -40,8 +40,8 @@ urlpatterns = patterns(
         AddSubscriptionPayment.as_view(),
         name="add_payment"),
 
-#     (r'^payments/$', 'latest_payments'),
-#    (r'^payments/(?P<payment_id>\d+)/edit/$', 'edit_payment'),
-#    (r'^payments/(?P<payment_id>\d+)/receipt/$', 'send_receipt'),
-#    (r'^payments/(?P<payment_id>\d+)/delete/$', 'delete_payment'),
+    #     (r'^payments/$', 'latest_payments'),
+    #    (r'^payments/(?P<payment_id>\d+)/edit/$', 'edit_payment'),
+    #    (r'^payments/(?P<payment_id>\d+)/receipt/$', 'send_receipt'),
+    #    (r'^payments/(?P<payment_id>\d+)/delete/$', 'delete_payment'),
 )

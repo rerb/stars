@@ -1,4 +1,4 @@
-from django.conf.urls.defaults import include, url
+from django.conf.urls import include, url
 from tastypie.api import Api
 
 from stars.apps.submissions.api import (CategoryPieChart,

@@ -2,7 +2,7 @@ import logging
 
 import logical_rules
 from django.conf import settings
-from django.conf.urls.defaults import include, patterns, url
+from django.conf.urls import include, patterns, url
 from django.views.generic import TemplateView
 from django.contrib import admin
 from longerusernameandemail.forms import AuthenticationForm

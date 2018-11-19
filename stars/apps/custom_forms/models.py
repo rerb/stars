@@ -50,7 +50,8 @@ class DataDisplayAccessRequest(models.Model):
     how_data_used = models.TextField(
         "How will STARS data be used in your research?")
     will_publish = models.BooleanField(
-        "Click here if you will be distributing or publishing the data?")
+        "Click here if you will be distributing or publishing the data?",
+        default=False)
     audience = models.TextField(
         "Who is the intended audience for your research?")
     period = models.DateField(
@@ -101,9 +102,9 @@ class EligibilityQuery(models.Model):
     institution = models.CharField(max_length=128)
     requesting_institution = models.CharField(max_length=128, blank=True,
                                               null=True)
-    other_affiliates = models.BooleanField()
-    included_in_boundary = models.BooleanField()
-    separate_administration = models.BooleanField()
+    other_affiliates = models.BooleanField(default=False)
+    included_in_boundary = models.BooleanField(default=False)
+    separate_administration = models.BooleanField(default=False)
     rationale = models.TextField()
     date = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 

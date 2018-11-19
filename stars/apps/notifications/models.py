@@ -23,7 +23,7 @@ class EmailTemplate(models.Model):
         blank=True, null=True)
     active = models.BooleanField(
         help_text=("Checked indicates that the code is using this "
-                   "email. For Webdev's use only"))
+                   "email. For Webdev's use only"), default=False)
 
     class Meta:
         ordering = ('slug',)
@@ -46,7 +46,7 @@ class EmailTemplate(models.Model):
         return build_message(content, context)
 
     def send_email(self, mail_to, context, title=None, attachments=None,
-        reply_to=None):
+                   reply_to=None):
         """
             Sends an email based on this template to the passed list of emails
             and using the passed context dictionary
@@ -90,7 +90,8 @@ class EmailTemplate(models.Model):
 class CopyEmail(models.Model):
     template = models.ForeignKey(EmailTemplate)
     address = models.EmailField()
-    bcc = models.BooleanField(help_text='Check to copy this user using BCC')
+    bcc = models.BooleanField(help_text='Check to copy this user using BCC',
+                              default=False)
 
     def __str__(self):
         if self.bcc:
