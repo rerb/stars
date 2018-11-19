@@ -1,5 +1,5 @@
 AuthorizeSauce==0.5.0
-Django==1.5.12
+Django==1.6.11
 Fabric==1.4.2
 mysql-python
 mysqlclient
@@ -83,5 +83,6 @@ zc.ssl==1.2
 zope.exceptions==4.0.5
 zope.interface==4.0.3
 zope.testing==4.1.1
+django-localflavor==1.2
 
 https://github.com/AASHE/iss/archive/v2.12.zip

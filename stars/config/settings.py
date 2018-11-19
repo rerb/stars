@@ -216,6 +216,7 @@ INSTALLED_APPS = (
     'sorl.thumbnail',
     'south',
     'tastypie',
+    'localflavor',
 )
 
 # Permissions or user levels for STARS users

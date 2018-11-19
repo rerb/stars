@@ -2,14 +2,14 @@ import re
 
 from django.conf import settings
 from django.core.cache import cache
-from django.utils.hashcompat import md5_constructor
 from django.utils.html import escape
 from django.utils.http import urlquote
+from hashlib import md5
 
 
 def invalidate_template_cache(fragment_name, *variables):
     joined_vars = u':'.join([urlquote(var) for var in variables])
-    args = md5_constructor(joined_vars)
+    args = md5(joined_vars)
     cache_key = 'template.cache.%s.%s' % (fragment_name, args.hexdigest())
     cache.delete(cache_key)
 
@@ -55,6 +55,7 @@ class StripCookieMiddleware(object):
 def add_required_label_tag(original_function):
     """Adds the 'required' CSS class and an asterisks to required field labels.
     """
+
     def required_label_tag(self, contents=None, attrs=None):
         contents = contents or escape(self.label)
         if self.field.required:
