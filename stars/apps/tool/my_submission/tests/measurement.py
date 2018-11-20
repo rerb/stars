@@ -9,7 +9,9 @@ from stars.apps.tests.live_server import StarsLiveServerTest
 
 class MeasurementLiveServerTest(StarsLiveServerTest):
 
-    fixtures = ['creditset_v2.json']
+    fixtures = ['basic_creditset.json']
+    # the fixture used to be creditset_v2.json, but it had integrity issues
+    # when loading
 
     def setUp(self, *args, **kwargs):
         super(MeasurementLiveServerTest, self).setUp(*args, **kwargs)

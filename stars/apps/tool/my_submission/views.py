@@ -126,7 +126,7 @@ class SubmitRedirectMixin():
                                                 self.get_institution().slug,
                                                 'submissionset':
                                                 self.get_submissionset().id
-                                                }))
+                                            }))
 
     def redirect_to_my_submission(self):
         messages.error(self.request,
@@ -241,12 +241,15 @@ class SubmitForRatingWizard(SubmitRedirectMixin,
 
         if self.steps.current == '0':
             qs = CreditUserSubmission.objects.all()
-            qs = qs.filter(subcategory_submission__category_submission__submissionset=self.get_submissionset())
+            qs = qs.filter(
+                subcategory_submission__category_submission__submissionset=self.get_submissionset())
             qs = qs.filter(Q(submission_status='p') |
                            Q(submission_status='ns'))
-            qs = qs.order_by('subcategory_submission__category_submission__category__ordinal','credit__number')
+            qs = qs.order_by(
+                'subcategory_submission__category_submission__category__ordinal', 'credit__number')
             _context['credit_list'] = qs
-            _context['reporter_rating'] = self.get_submissionset().creditset.rating_set.get(name='Reporter')
+            _context['reporter_rating'] = self.get_submissionset(
+            ).creditset.rating_set.get(name='Reporter')
 
         return _context
 
@@ -414,10 +417,10 @@ class SubcategorySubmissionDetailView(UserCanEditSubmissionOrIsAdminMixin,
     def get_success_url(self):
         url = self.request.POST.get('next', False)
         if not url:
-            url = reverse(
+            return HttpResponseRedirect(reverse(
                 'submission-summary',
                 kwargs={'institution_slug': self.get_institution().slug,
-                        'submissionset': self.get_submissionset().id})
+                        'submissionset': self.get_submissionset().id}))
         return url
 
     def form_valid(self, form):

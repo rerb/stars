@@ -4,7 +4,8 @@ from django.test import TestCase
 from django.test.client import Client
 from django.contrib.auth.models import User
 
-from stars.apps.institutions.models import Subscription
+from stars.apps.institutions.models import Subscription, Institution
+from stars.test_factories import CreditSetFactory, SubmissionSetFactory
 
 
 class PaymentsTest(TestCase):
@@ -21,6 +22,10 @@ class PaymentsTest(TestCase):
         """
         c = Client()
         c.login(username='test_user', password='test')
+        creditset = CreditSetFactory()
+        self.submission = SubmissionSetFactory(
+            institution=Institution.objects.get(slug='test-institution'),
+            creditset=creditset)
 
         url = "/tool/test-institution/manage/payments/"
         response = c.get(url)
