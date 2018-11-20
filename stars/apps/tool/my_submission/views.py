@@ -417,10 +417,10 @@ class SubcategorySubmissionDetailView(UserCanEditSubmissionOrIsAdminMixin,
     def get_success_url(self):
         url = self.request.POST.get('next', False)
         if not url:
-            return HttpResponseRedirect(reverse(
+            url = reverse(
                 'submission-summary',
                 kwargs={'institution_slug': self.get_institution().slug,
-                        'submissionset': self.get_submissionset().id}))
+                        'submissionset': self.get_submissionset().id})
         return url
 
     def form_valid(self, form):
