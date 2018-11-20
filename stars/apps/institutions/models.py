@@ -47,8 +47,8 @@ class ClimateZone(models.Model):
 
 class MemberSuiteInstitutionManager(models.Manager):
 
-    def get_query_set(self):
-        qs = super(MemberSuiteInstitutionManager, self).get_query_set()
+    def get_queryset(self):
+        qs = super(MemberSuiteInstitutionManager, self).get_queryset()
         return qs.exclude(exclude_from_website=True)
 
 
@@ -555,17 +555,17 @@ SUBSCRIPTION_DURATION = 365
 class SubscriptionManager(models.Manager):
     """Filter archived Subscriptions."""
 
-    def get_query_set(self):
-        qs = super(SubscriptionManager, self).get_query_set()
+    def get_queryset(self):
+        qs = super(SubscriptionManager, self).get_queryset()
         qs = qs.exclude(archived=True)
         return qs
 
     def include_archived(self):
-        qs = super(SubscriptionManager, self).get_query_set()
+        qs = super(SubscriptionManager, self).get_queryset()
         return qs
 
     def archived(self):
-        qs = super(SubscriptionManager, self).get_query_set()
+        qs = super(SubscriptionManager, self).get_queryset()
         qs = qs.exclude(archived=False)
         return qs
 
