@@ -233,7 +233,7 @@
     },
 
     {
-        "pk": 1,
+        "pk": 111119,
         "model": "credits.documentationfield",
         "fields": {
             "ordinal": 0,
@@ -255,7 +255,7 @@
         "pk": 1,
         "model": "submissions.numericsubmission",
         "fields": {
-            "documentation_field": 1,
+            "documentation_field": 111119,
             "value": 5.0,
             "credit_submission": 1
         }

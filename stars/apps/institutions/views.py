@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404
 from django.http import Http404, HttpResponseRedirect
 from django.views.generic import (FormView, CreateView, TemplateView,
                                   RedirectView)
-from django.views.generic.simple import direct_to_template
+from django.template.response import TemplateResponse
 
 from extra_views import CreateWithInlinesView
 from logical_rules.mixins import RulesMixin
@@ -656,7 +656,7 @@ class DataCorrectionView(RulesMixin,
         _context = self.get_context_data()
         _context.update(context)
 
-        return direct_to_template(
+        return TemplateResponse(
             self.request,
             "institutions/data_correction_request/success.html",
             _context)
@@ -741,6 +741,6 @@ class SubmissionInquiryView(InstitutionStructureMixin,
             "institution": self.object.submissionset.institution}
         et.send_email(email_to, email_context)
 
-        return direct_to_template(self.request,
-                                  "institutions/inquiries/success.html",
-                                  extra_context=_context)
+        return TemplateResponse(self.request,
+                                "institutions/inquiries/success.html",
+                                context=_context)

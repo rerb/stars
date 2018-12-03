@@ -5,7 +5,7 @@
 
 {% block crumbs-tool %}
 	<li>
-		<a href='{% url submission-summary institution.slug institution.current_submission.id %}'>{{ institution.current_submission.creditset.version }}</a>
+		<a href="{% url 'submission-summary' institution.slug institution.current_submission.id %}">{{ institution.current_submission.creditset.version }}</a>
 		<span class="divider">/</span>
 	</li>
 	<li>Manage Data</li>
@@ -26,7 +26,7 @@
 			<p>Upgrade Submission to <strong>{{ latest_creditset }}</strong>.</p>
 			{% if active_submission.creditset != latest_creditset %}
 				{% testrule user_can_migrate_version user institution %}
-					<a href="{% url migrate-version institution.slug active_submission.id %}" class='btn btn-primary'>Upgrade Now</a>
+					<a href="{% url 'migrate-version' institution.slug active_submission.id %}" class='btn btn-primary'>Upgrade Now</a>
 				{% else %}
 					<div class="alert">Sorry, you do not have permission to upgrade versions. Please contact your STARS liaison to get admin privileges.</div>
 				{% endtestrule %}
@@ -73,9 +73,9 @@
 									{{ sub.creditset }}
 								</td>
 								<td>
-									<a href="{% url migrate-data institution.slug sub.id %}" class='btn btn-mini'>
-										<i class='icon-share-alt'></i >Migrate</a>
-									</a>
+									<a href="{% url 'migrate-data' institution.slug sub.id %}" class='btn btn-mini'>
+										<i class='icon-share-alt'></i >Migrate
+                                    </a>
 								</td>
 							</tr>
 							{% endfor %}

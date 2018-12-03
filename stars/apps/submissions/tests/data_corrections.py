@@ -1,6 +1,6 @@
 """
     DataCorrectionTest Unit Tests
-    
+
     Test Premises:
      - saved corrections will notify users
      - corrections will modify scores
@@ -19,32 +19,32 @@ class DataCorrectionTest(TestCase):
 
     def testCorrection(self):
         """
-            
+
         """
         ss = SubmissionSet.objects.get(pk=1)
         self.assertEqual(ss.score, 100.0)
-        
+
         platinum = Rating.objects.get(pk=5)
         self.assertEqual(ss.rating, platinum)
 
         cus = CreditUserSubmission.objects.get(pk=1)
         field = NumericSubmission.objects.get(pk=1)
         user = User.objects.get(pk=1)
-        
+
         correction = DataCorrectionRequest(
                                             date=datetime.now(),
                                             reporting_field=field,
                                             new_value=4,
                                             explanation='just cuz',
                                             user=user,
-                                            approved=False)        
+                                            approved=False)
         correction.save()
-        
+
         correction.approved = True
         correction.save()
-        
+
         ss = SubmissionSet.objects.get(pk=1)
         self.assertEqual(ss.score, 80.0)
-        
+
         gold = Rating.objects.get(pk=4)
         self.assertEqual(ss.rating, gold)

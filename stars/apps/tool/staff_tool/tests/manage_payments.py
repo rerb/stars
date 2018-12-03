@@ -2,7 +2,7 @@
 """
 from django.test import TestCase
 from django.test.client import Client
-from django.contrib.admin.models import User
+from django.contrib.auth.models import User
 
 from stars.apps.institutions.models import Subscription
 
@@ -31,12 +31,12 @@ class PaymentsTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
         post_dict = {
-                     "date": "2013-1-1",
-                     "amount": "450",
-                     "user": "5215",
-                     "method": "check",
-                     "confirmation": "123"
-                     }
+            "date": "2013-1-1",
+            "amount": "450",
+            "user": "5215",
+            "method": "check",
+            "confirmation": "123"
+        }
         response = c.post(url, post_dict)
         self.assertEqual(response.status_code, 302)
 

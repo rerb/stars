@@ -1,7 +1,7 @@
 """
 Tests for submissions API.
 """
-import json
+import simplejson
 
 from stars.apps.api.test import ReadOnlyResourceTestCase
 
@@ -19,6 +19,7 @@ def submissions_detail_path(submissionset_id):
     return '{list_path}{submissionset_id}/'.format(
         list_path=submissions_list_path,
         submissionset_id=submissionset_id)
+
 
 RATED_SUBMISSIONSET_ID = 75
 UNRATED_SUBMISSIONSET_ID = 688
@@ -55,7 +56,7 @@ class SubmissionSetResourceTestCase(ReadOnlyResourceTestCase):
 
     def test_unrated_submissions_are_hidden(self):
         resp = self.get(self.list_path + '?limit=0')
-        payload = json.loads(resp.content)
+        payload = simplejson.loads(resp.content)
         visible_submissionsets = payload['objects']
         visible_submissionset_ids = [ss['id'] for ss
                                      in visible_submissionsets]
@@ -69,7 +70,7 @@ class SubmissionSetResourceTestCase(ReadOnlyResourceTestCase):
 
     def test_locked_submissions_are_hidden(self):
         resp = self.get(self.list_path + '?limit=0')
-        payload = json.loads(resp.content)
+        payload = simplejson.loads(resp.content)
         visible_submissionsets = payload['objects']
         visible_submissionset_ids = [ss['id'] for ss
                                      in visible_submissionsets]
@@ -78,7 +79,7 @@ class SubmissionSetResourceTestCase(ReadOnlyResourceTestCase):
 
     def test_rated_unlocked_submissions_are_visible(self):
         resp = self.get(self.list_path + '?limit=0')
-        payload = json.loads(resp.content)
+        payload = simplejson.loads(resp.content)
         visible_submissionsets = payload['objects']
         visible_submissionset_ids = [ss['id'] for ss
                                      in visible_submissionsets]
@@ -92,13 +93,13 @@ class SubmissionSetResourceTestCase(ReadOnlyResourceTestCase):
     def test_scoring_hidden_for_reporter(self):
         path = submissions_detail_path(RATED_REPORTER_SUBMISSIONSET_ID)
         resp = self.get(path)
-        payload = json.loads(resp.content)
+        payload = simplejson.loads(resp.content)
         self.assertTrue(payload['score'] is None)
 
     def test_scoring_shown_for_non_reporter(self):
         path = submissions_detail_path(RATED_NON_REPORTER_SUBMISSIONSET_ID)
         resp = self.get(path)
-        payload = json.loads(resp.content)
+        payload = simplejson.loads(resp.content)
         self.assertFalse(payload['score'] is None)
 
 
@@ -246,7 +247,7 @@ class SubcategorySubmissionResourceTestCase(ReadOnlyResourceTestCase):
         resp = self.get(path)
 
         self.assertValidJSONResponse(resp)
-        payload = json.loads(resp.content)
+        payload = simplejson.loads(resp.content)
         self.assertTrue(payload['points'] is not None)
 
         # Now check that they're None for reporters:
@@ -259,7 +260,7 @@ class SubcategorySubmissionResourceTestCase(ReadOnlyResourceTestCase):
         resp = self.get(path)
 
         self.assertValidJSONResponse(resp)
-        payload = json.loads(resp.content)
+        payload = simplejson.loads(resp.content)
         self.assertTrue(payload['points'] is None)
 
 
