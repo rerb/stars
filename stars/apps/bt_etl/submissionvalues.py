@@ -161,6 +161,10 @@ def get_cat_etl_obj(category, ss):
         category_submission = ss.categorysubmission_set.get(
             category=current_category)
 
+        display_value = None
+        if ss.rating.name == "Reporter":
+            display_value = "Reporter"
+
         etl_obj = get_base_subdata(category_submission, ss)
         r = category_submission.get_score_ratio()
         score = 0
@@ -174,7 +178,8 @@ def get_cat_etl_obj(category, ss):
             category.title,
             score,
             ss.get_scorecard_url(),
-            "%", "%"
+            "%", "%",
+            display_value=display_value
         )
         return etl_obj
     return None
@@ -192,6 +197,10 @@ def get_sub_etl_obj(subcategory, ss):
             subcategory=current_subcategory,
             category_submission__submissionset=ss)
 
+        display_value = None
+        if ss.rating.name == "Reporter":
+            display_value = "Reporter"
+
         etl_obj = get_base_subdata(subcategory_submission, ss)
 
         if subcategory_submission.percentage_score:
@@ -206,7 +215,8 @@ def get_sub_etl_obj(subcategory, ss):
             subcategory.title,
             score,
             ss.get_scorecard_url(),
-            "%", "%"
+            "%", "%",
+            display_value=display_value
         )
         return etl_obj
     return None
@@ -227,10 +237,13 @@ def get_credit_etl_obj(credit, ss):
         etl_obj = get_base_subdata(cus, ss)
 
         display_value = None
-        if cus.is_na():
-            display_value = "Not Applicable"
-        elif not cus.is_pursued():
-            display_value = "Not Pursued"
+        if ss.rating.name == "Reporter":
+            display_value = "Reporter"
+        else:
+            if cus.is_na():
+                display_value = "Not Applicable"
+            elif not cus.is_pursued():
+                display_value = "Not Pursued"
 
         score = 0
         if (cus.assessed_points > 0 and
