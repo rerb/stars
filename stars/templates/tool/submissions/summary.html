@@ -31,7 +31,7 @@
        });
 
        var ajax_request = $.ajax({
-         url: "{% url set-opt-in-credits %}",
+         url: "{% url 'set-opt-in-credits' %}",
          type: "POST",
          data: ajax_data,
          error: function(data, textStatus, jqXHR) {

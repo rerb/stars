@@ -15,31 +15,31 @@
     {% block tabs %}
     <ul class="nav nav-tabs">
         <li{% if active_tab == "summary" %} class="active" {% endif %}>
-            <a href="{% url tool-summary institution.slug %}">Summary</a>
+            <a href="{% url 'tool-summary' institution.slug %}">Summary</a>
         </li>
 
         {% testrule user_has_access_level user 'admin' institution %}
 
         <li{% if active_tab == 'users' %} class="active" {% endif %}>
-            <a href="{% url account-list institution.slug %}">
+            <a href="{% url 'account-list' institution.slug %}">
               Users
             </a>
         </li>
         <li{% if active_tab == 'contact' %} class="active" {% endif %}>
-            <a href="{% url institution-contact institution.slug %}">
+            <a href="{% url 'institution-contact' institution.slug %}">
               Contact
             </a>
         </li>
         <li{% if active_tab == 'rps' %} class="active" {% endif %}>
-            <a href="{% url responsible-party-list institution.slug %}">
+            <a href="{% url 'responsible-party-list' institution.slug %}">
               Responsible Parties
             </a>
         </li>
         <li{% if active_tab == 'share' %} class="active" {% endif %}>
-            <a href="{% url share-third-parties institution.slug %}">Share Data</a>
+            <a href="{% url 'share-third-parties' institution.slug %}">Share Data</a>
         </li>
         <li{% if active_tab == 'manage_data' %} class="active" {% endif %}>
-            <a href="{% url migrate-options institution.slug %}">Manage Data</a>
+            <a href="{% url 'migrate-options' institution.slug %}">Manage Data</a>
         </li>
         {% endtestrule %}
     </ul>

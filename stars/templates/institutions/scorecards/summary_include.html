@@ -7,7 +7,7 @@
 {% load custom_caching %}
 
 {% block h1 %}
-  <a href='{% url scorecard-list institution.slug %}'>
+  <a href="{% url 'scorecard-list' institution.slug %}">
     {{ institution }}
   </a>
   <h4>
@@ -49,7 +49,7 @@
       <p>
         This is a preview of your report. To continue editing your
         final report please go to
-        <a href='{% url submission-summary institution.slug submissionset.id %}'>
+        <a href="{% url 'submission-summary' institution.slug submissionset.id %}">
           My Submission</a>.
       </p>
       <p>

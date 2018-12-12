@@ -129,8 +129,8 @@ class SubmissionManager(models.Manager):
             payment__isnull=False).filter(is_visible=True).filter(
                 is_locked=False)
         qs2 = qs1.filter(
-                (Q(payment__type='later') &
-                 Q(date_registered__lte=deadline)) | ~Q(payment__type='later'))
+            (Q(payment__type='later') &
+             Q(date_registered__lte=deadline)) | ~Q(payment__type='later'))
         return qs2.distinct()
 
     def get_rated(self):
@@ -838,23 +838,23 @@ class Boundary(models.Model):
     @classmethod
     def get_characteristic_field_names(cls):
         return [
-                    'fte_students',
-                    'undergrad_count',
-                    'graduate_count',
-                    'fte_employmees',
-                    'institution_type',
-                    'institutional_control',
-                    'endowment_size',
-                    'student_residential_percent',
-                    'student_ftc_percent',
-                    'student_ptc_percent',
-                    'student_online_percent',
-                    'gsf_building_space',
-                    'gsf_lab_space',
-                    'cultivated_grounds_acres',
-                    'undeveloped_land_acres',
-                    'climate_region',
-                ]
+            'fte_students',
+            'undergrad_count',
+            'graduate_count',
+            'fte_employmees',
+            'institution_type',
+            'institutional_control',
+            'endowment_size',
+            'student_residential_percent',
+            'student_ftc_percent',
+            'student_ptc_percent',
+            'student_online_percent',
+            'gsf_building_space',
+            'gsf_lab_space',
+            'cultivated_grounds_acres',
+            'undeveloped_land_acres',
+            'climate_region',
+        ]
 
 
 def get_active_submissions(creditset=None,
@@ -1002,7 +1002,7 @@ class CategorySubmission(models.Model):
         if hasattr(self, scoring_method):
             score = getattr(self, scoring_method)
             if (self.submissionset.is_rated or
-                self.submissionset.is_under_review()):
+                    self.submissionset.is_under_review()):
 
                 self.score = score()
                 if type(self.score) == tuple:
@@ -1314,7 +1314,7 @@ class ResponsibleParty(models.Model):
 
     def get_manage_url(self):
         return "/tool/{slug}/manage/responsible-party/{id}/".format(
-              slug=self.institution.slug, id=self.id)
+            slug=self.institution.slug, id=self.id)
 
     def get_creditusersubmissions(self, order_by=None):
         """
@@ -1453,8 +1453,8 @@ class CreditSubmission(models.Model):
                                 self.credit_submission.credit.title)
 
                 submission_field_list.append(TabularSubmissionField(
-                      credit_submission=self,
-                      documentation_field=field))
+                    credit_submission=self,
+                    documentation_field=field))
 
         self.submission_fields = submission_field_list
         return self.submission_fields
@@ -1810,7 +1810,7 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
         # complete or under review, and is being pursued.
         if ((not self.is_complete() and
              not self.get_submissionset().is_under_review()) or
-            not self.is_pursued()):
+                not self.is_pursued()):
 
             return 0
 
@@ -2394,6 +2394,7 @@ class AbstractChoiceWithOther(object):
         A base class for sharing the compress / decompress logig needed
         for Choice-with-other type submisssions
     """
+
     def compress(self, choice, other_value):
         """
             Given a decompressed choice / other value pair into a single
@@ -2590,6 +2591,7 @@ class MultiChoiceWithOtherSubmission(MultiChoiceSubmission,
                 (other_value, last_choice.choice))
 
         return choice_list
+
 
 class URLSubmission(DocumentationFieldSubmission):
     """

@@ -21,7 +21,5 @@ from numericsubmission import NumericSubmissionTest
 from responsibleparty import ResponsiblePartyTest
 from submissionset import SubmissionSetTest
 from views import TestSubmissionStructureMixin
-from metric_conversion import MetricConversionTest
-from metric_scoring_formulas import MetricScoringFormulaTest
 
 from filecache_tests import FileCacheTest

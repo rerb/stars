@@ -2,9 +2,13 @@
 # Note: systems don't have to use this file to get the local settings
 # apache calls /config/[env].py explicitly
 
-import os, re, sys
+import os
+import re
+import sys
 
 ROOT_PATH = os.path.dirname(os.path.abspath(__file__))
+
+ALLOWED_HOSTS = ('*',)
 
 # if there is a "local.py" file then use that
 if os.path.exists(os.path.join(ROOT_PATH, "config/local.py")):

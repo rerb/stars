@@ -8,8 +8,10 @@ urlpatterns = patterns(
     'django.views.generic.simple',
     # data views
     url(r'^$',
-        "direct_to_template",
-        {'template': 'institutions/data_views/index.html'}),
+        TemplateView.as_view(
+            template_name='institutions/data_views/index.html'),
+        name="data_view_index"
+        ),
     url(r'^pie-chart-visualization/$',
         PieChartView.as_view(),
         name="piechart"),

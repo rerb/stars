@@ -18,9 +18,9 @@
     	{% testrule user_has_access_level user 'admin' institution %}
             <li{% if active_menu == "summary"%} class='active'{% endif %}>
                 {% if institution %}
-                    <a href='{% url tool-summary institution.slug %}'>
+                    <a href="{% url 'tool-summary' institution.slug %}">
                 {% else %}
-                    <a href='{% url tool-landing-page %}'>
+                    <a href="{% url 'tool-landing-page' %}">
                 {% endif %}
                         <i class="icon-home"></i>
                         My Summary
@@ -29,7 +29,7 @@
         {% endtestrule %}
         {% testrule user_has_access_level user 'submit' institution %}
             <li{% if active_menu == "submission" %} class='active'{% endif %}>
-                   <a href='{% url submission-summary institution.slug institution.current_submission.id %}'>
+                   <a href="{% url 'submission-summary' institution.slug institution.current_submission.id %}">
                     <i class="icon-folder-close"></i>
                     My Submission
                 </a>
@@ -45,7 +45,7 @@
           </li>
         {% endtestrule %}
         <li{% if active_menu == "resources"%} class='active'{% endif %}>
-            <a href='{% url my-resources institution.slug %}'>
+            <a href="{% url 'my-resources' institution.slug %}">
                 <i class='icon-briefcase'></i>
                 My Resources
             </a>
@@ -61,9 +61,9 @@
     	{% testrule user_has_access_level user 'admin' institution %}
             <li{% if active_menu == "settings"%} class='active'{% endif %}>
                 {% if institution %}
-                    <a href='{% url settings institution.slug %}'>
+                    <a href="{% url 'settings' institution.slug %}">
                 {% else %}
-                    <a href='{% url tool-landing-page %}'>
+                    <a href="{% url 'tool-landing-page' %}">
                 {% endif %}
                         <i class="icon-wrench"></i>
                         Settings

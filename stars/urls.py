@@ -3,6 +3,7 @@ import logging
 import logical_rules
 from django.conf import settings
 from django.conf.urls.defaults import include, patterns, url
+from django.views.generic import TemplateView
 from django.contrib import admin
 from longerusernameandemail.forms import AuthenticationForm
 from sorl.thumbnail.log import ThumbnailLogHandler
@@ -23,7 +24,7 @@ urlpatterns = patterns(
 
     # catch old paths we need to preserve first:
     url(r'^{old_paths_to_preserve}$'.format(
-            old_paths_to_preserve='|'.join(OLD_PATHS_TO_PRESERVE)),
+        old_paths_to_preserve='|'.join(OLD_PATHS_TO_PRESERVE)),
         OldPathPreserverView.as_view(), name='old-path-preserver'),
 
     # api:
@@ -76,12 +77,10 @@ urlpatterns = patterns(
 )
 
 if settings.DEBUG:
-    urlpatterns += patterns(
-        '',
-        (r'^styles/$',
-         'django.views.generic.simple.direct_to_template',
-         {'template': 'styles.html'}),
-    )
+    urlpatterns += patterns('',
+                            url(r'^styles/$', TemplateView.as_view(
+                                template_name='styles.html'), name="styles")
+                            )
 
 if settings.DEBUG:
     urlpatterns += patterns(

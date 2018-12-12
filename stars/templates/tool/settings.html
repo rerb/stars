@@ -16,7 +16,7 @@
 
 {% block tool_content %}
   <form method="post" action="." class="form-horizontal">
-    
+
     {{ form|bootstrap }}
 
     <div class="form-actions">
@@ -27,7 +27,7 @@
       </button>
       <button type="button"
               class="btn"
-              onclick="document.location='{% url tool-summary institution.slug %}'">
+              onclick="document.location='{% url 'tool-summary' institution.slug %}'">
         Cancel
       </button>
     </div>

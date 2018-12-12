@@ -12,13 +12,14 @@ from django.shortcuts import render
 
 from stars.apps.accounts import decorators
 
+
 class DecoratorsTest(TestCase):
 
     def setUp(self):
         self.request = HttpRequest()
         self.request.user = User()
         self.request.user.has_perm = lambda x: True
-        self.request.user.is_authenticated = lambda : True
+        self.request.user.is_authenticated = lambda: True
         self.request.user.is_staff = True
         self.request.session = {}
         self.request.method = 'POST'
@@ -39,4 +40,3 @@ class DecoratorsTest(TestCase):
             {'class': settings.MESSAGE_TAGS[messages.INFO]})
         self.assertEqual(len(info_message_divs), 1)
         self.assertTrue('lease login to access' in info_message_divs[0].text)
-

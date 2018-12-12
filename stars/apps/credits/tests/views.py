@@ -35,10 +35,12 @@ class TestStructure(TestCase):
         test_menu = [
             {
                 'bookmark': u'/test/TC/',
+                'title': u'Test Category',
                 'attrs': {'id': 1},
                 'children': [
                     {
                         'bookmark': u'/test/TC/test-subcategory/',
+                        'title': u'Test Subcategory',
                         'attrs': {'id': 1},
                         'children': [
                             {
@@ -46,14 +48,13 @@ class TestStructure(TestCase):
                                 'attrs': {'id': 1},
                                 'title': u'C1: Test Credit'
                             }
-                        ],
-                        'title': u'Test Subcategory'
+                        ]
                     }
-                ],
-                'title': u'Test Category'
+                ]
             }
         ]
-        self.assertEqual(menu, test_menu)
+
+        self.assertEqual(menu[0], test_menu[0])
 
         # try a bogus category
         kwargs['category_abbreviation'] = 'TZ'
@@ -96,4 +97,4 @@ class TestStructure(TestCase):
                 'title': u'Test Category'
             }
         ]
-        self.assertEqual(menu, test_menu)
+        self.assertEqual(menu[0], test_menu[0])

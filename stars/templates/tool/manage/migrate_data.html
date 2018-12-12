@@ -19,7 +19,7 @@
 	<div class='row'>
 		<div class='span9'>
     		{% display_block_content 'data_migration_warning' user %}
-    		
+
     		<div class='alert alert-warning'>
     			{% display_block_content 'data_migration_alert' user %}
 			</div>
@@ -32,7 +32,7 @@
                             id='migrate-my-data-button'>
                         Migrate My Data
                     </button>
-    				<a href='{% url migrate-options institution.slug %}'
+    				<a href="{% url 'migrate-options' institution.slug %}"
                        class='btn'>
                         Cancel
                     </a>

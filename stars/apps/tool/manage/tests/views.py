@@ -10,6 +10,7 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.shortcuts import render
 from django_membersuite_auth.models import MemberSuitePortalUser
+from django.test.client import Client
 from selenium.webdriver.common.by import By
 
 from stars.apps.credits.models import CreditSet
@@ -450,6 +451,8 @@ class MigrateViewTest(InstitutionAdminToolMixinTest):
             access_level=Subscription.FULL_ACCESS)
         current_subscription.save()
 
+        self.c = Client()
+
     def _get_pk(self):
         return self.submissionset.id
 
@@ -516,14 +519,17 @@ class MigrateVersionViewTest(MigrateViewTest):
     def test_dispatch_prevents_migration_when_already_at_latest_version(self):
         """Does dispatch prevent migration if current sub is at latest version?
         """
+
         self.account.user_level = 'admin'
         self.account.save()
+
         latest_creditset = CreditSet.objects.get_latest()
         self.submissionset.creditset = latest_creditset
         self.submissionset.save()
+
         try:
-            self.view_class().dispatch(
-                self.request,
+            views.MigrateVersionView.as_view()(
+                request=self.request,
                 institution_slug=self.institution.slug,
                 pk=self._get_pk())
         except Exception, e:
@@ -535,8 +541,9 @@ class MigrateVersionViewTest(MigrateViewTest):
         """
         self.account.user_level = 'admin'
         self.account.save()
-        response = self.view_class().dispatch(
-            self.request,
+
+        response = views.MigrateVersionView.as_view()(
+            request=self.request,
             institution_slug=self.institution.slug,
             pk=self._get_pk())
         self.assertEqual(response.status_code, 200)
