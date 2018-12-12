@@ -2595,7 +2595,7 @@ class URLSubmission(DocumentationFieldSubmission):
     """
         The submitted value for a URL Documentation Field
     """
-    value = models.URLField(blank=True, null=True, verify_exists=False)
+    value = models.URLField(blank=True, null=True)
 
 
 class DateSubmission(DocumentationFieldSubmission):

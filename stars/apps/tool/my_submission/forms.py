@@ -206,7 +206,7 @@ class MultiChoiceWithOtherSubmissionForm(AbstractMultiFieldSubmissionForm):
 
 
 class URLSubmissionForm(SubmissionFieldForm):
-    value = forms.URLField(required=False, verify_exists=False,
+    value = forms.URLField(required=False,
                            widget=TextInput(attrs={'style': 'width: 600px;'}))
 
     class Meta:
