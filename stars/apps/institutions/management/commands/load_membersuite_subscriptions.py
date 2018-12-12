@@ -93,6 +93,7 @@ class Command(BaseCommand):
     """
 
     def __init__(self, *args, **kwargs):
+        super(Command, self).__init__(*args, **kwargs)
         self.client = get_new_client(request_session=True)
         self.organization_service = OrganizationService(
             client=self.client)
