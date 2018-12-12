@@ -1,4 +1,4 @@
-from datetime import datetime, date
+from datetime import date
 from itertools import chain
 
 from django.conf import settings
@@ -11,6 +11,7 @@ from django.views.generic.edit import CreateView, FormView, UpdateView
 from django.db.models import Max, Q
 from django.contrib.formtools.wizard.views import SessionWizardView
 from django.core.files.storage import FileSystemStorage
+from django.utils import timezone
 from extra_views import UpdateWithInlinesView
 
 from stars.apps.accounts.mixins import IsStaffMixin
@@ -75,7 +76,7 @@ class SubmissionSummaryView(UserCanEditSubmissionMixin,
         migration_list = MigrationHistory.objects.filter(institution=i)
         if migration_list:
             max_date = migration_list.aggregate(Max('date'))['date__max']
-            time_delta = datetime.now() - max_date
+            time_delta = timezone.now() - max_date
             if (time_delta.days < 30 and
                 not submissionset.is_under_review()):  # noqa
 

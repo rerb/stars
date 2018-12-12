@@ -47,26 +47,27 @@ def extract_and_transform(filename='datapoint.json'):
         }
 
     for cat in cs.category_set.all():
+        if cat.title not "Institutional Characteristics":
+            obj_list.append(get_datapoint(cat, "cat", None, True, "%", "%"))
 
-        obj_list.append(get_datapoint(cat, "cat", None, True, "%", "%"))
-
-        for sub in cat.subcategory_set.all():
-            obj_list.append(get_datapoint(sub, "sub", cat.id, True, "%", "%"))
-
-            for credit in sub.credit_set.all():
+            for sub in cat.subcategory_set.all():
                 obj_list.append(get_datapoint(
-                    credit, "cred", sub.id, True, "%", "%"))
+                    sub, "sub", cat.id, True, "%", "%"))
 
-                q_filter = Q(type='numeric') | Q(type='calculated')
-                for df in credit.documentationfield_set.filter(q_filter):
-                    imperial_units = df.us_units.name if df.us_units else None
-                    metric_units = df.metric_units.name if df.metric_units else None
-                    if not imperial_units:
-                        if 'percentage' in df.title or "Percentage" in df.title:
-                            metric_units = "%"
-                            imperial_units = "%"
+                for credit in sub.credit_set.all():
                     obj_list.append(get_datapoint(
-                        df, "field", credit.id, True, metric_units, imperial_units))
+                        credit, "cred", sub.id, True, "%", "%"))
+
+                    q_filter = Q(type='numeric') | Q(type='calculated')
+                    for df in credit.documentationfield_set.filter(q_filter):
+                        imperial_units = df.us_units.name if df.us_units else None
+                        metric_units = df.metric_units.name if df.metric_units else None
+                        if not imperial_units:
+                            if 'percentage' in df.title or "Percentage" in df.title:
+                                metric_units = "%"
+                                imperial_units = "%"
+                        obj_list.append(get_datapoint(
+                            df, "field", credit.id, True, metric_units, imperial_units))
 
     with io.open(filename, 'w', encoding='utf-8') as f:
 

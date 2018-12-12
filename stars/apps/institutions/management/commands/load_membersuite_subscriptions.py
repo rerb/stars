@@ -93,6 +93,7 @@ class Command(BaseCommand):
     """
 
     def __init__(self, *args, **kwargs):
+        super(Command, self).__init__(*args, **kwargs)
         self.client = get_new_client(request_session=True)
         self.organization_service = OrganizationService(
             client=self.client)
@@ -253,19 +254,12 @@ class Command(BaseCommand):
                 stars_subscription = Subscription(
                     ms_id=membersuite_subscription.membersuite_id)
 
-            # Sometimes there's no end date, and that's a problem.
-            try:
-                institution_name = membersuite_subscription.name.encode(
-                    "ascii")
-            except UnicodeEncodeError:
-                institution_name = "ORG NAME IS BAD UNICODE"
             if not membersuite_subscription.expiration_date:
-                logger.error("No expiration date for "
-                             "membersuite_subscription: "
-                             "(sub) {}, (name) {}, (owner id) {}".format(
-                                 membersuite_subscription.membersuite_id,
-                                 institution_name,
-                                 membersuite_subscription.owner_id))
+                # Used to raise an error when no expiration_date
+                # was available, then folks started leaving
+                # expiration date blank in MemberSuite to signify
+                # that the subscription hasn't been paid for.
+                # So now we just silently trudge on.
                 continue
 
             # update and save the local subscription
