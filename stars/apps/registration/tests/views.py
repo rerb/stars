@@ -16,8 +16,8 @@ from stars.apps.institutions.tests.subscription import GOOD_CREDIT_CARD
 from stars.apps.submissions.models import SubmissionSet
 from stars.apps.tests.live_server import StarsLiveServerTest
 from stars.apps.tool.tests.views import InstitutionAdminToolMixinTest
-from stars.test_factories import (OrganizationFactory,
-                                  ValueDiscountFactory)
+from stars.test_factories.models import (OrganizationFactory,
+                                         ValueDiscountFactory)
 
 from .. import views
 
@@ -148,7 +148,7 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
         buttons.reverse()
         for button in buttons:
             if (button.text == 'Register' and
-                button.get_attribute('type') == 'submit'):
+                    button.get_attribute('type') == 'submit'):
                 return button
         raise CannotFindElementError('no final registration button?')
 
@@ -565,7 +565,7 @@ class RegistrationWizardLiveServerTest(StarsLiveServerTest):
         school = school or self.school
 
         if (new_registration or
-            self._register_args != self._previous_register_args):
+                self._register_args != self._previous_register_args):
 
             try:
                 _register()

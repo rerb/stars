@@ -5,13 +5,13 @@ from django.test import TestCase
 
 from stars.apps.submissions.models import (RATED_SUBMISSION_STATUS,
                                            SubmissionSet)
-from stars.test_factories import InstitutionFactory, SubmissionSetFactory
+from stars.test_factories.models import InstitutionFactory, SubmissionSetFactory
 
 from ..credit_history import get_submissionsets_to_include_in_history
 
 
 class GetSubmissionsetsToIncludeInHistoryTest(TestCase):
-    
+
     def setUp(self):
         SubmissionSet.objects.all().delete()
         self.institution = InstitutionFactory()
@@ -23,9 +23,9 @@ class GetSubmissionsetsToIncludeInHistoryTest(TestCase):
             institution=self.institution,
             date_submitted=datetime.date.today())
         self.assertEqual(
-            [ historicalsubmissionset.submissionset for
-              historicalsubmissionset in
-              get_submissionsets_to_include_in_history(self.institution) ],
+            [historicalsubmissionset.submissionset for
+             historicalsubmissionset in
+             get_submissionsets_to_include_in_history(self.institution)],
             [ss])
 
     def test_unrated_and_not_migrated_to_are_excluded(self):
@@ -44,22 +44,6 @@ class GetSubmissionsetsToIncludeInHistoryTest(TestCase):
         historical_submissionsets = (
             get_submissionsets_to_include_in_history(self.institution))
         self.assertEqual(
-            [ historical_submissionset.submissionset for
-              historical_submissionset in historical_submissionsets ],
+            [historical_submissionset.submissionset for
+             historical_submissionset in historical_submissionsets],
             [ss1])
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-        

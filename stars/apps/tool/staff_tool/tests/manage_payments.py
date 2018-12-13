@@ -5,7 +5,7 @@ from django.test.client import Client
 from django.contrib.auth.models import User
 
 from stars.apps.institutions.models import Subscription, Institution
-from stars.test_factories import CreditSetFactory, SubmissionSetFactory
+from stars.test_factories.models import CreditSetFactory, SubmissionSetFactory
 
 
 class PaymentsTest(TestCase):

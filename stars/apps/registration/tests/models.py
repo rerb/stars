@@ -4,7 +4,7 @@ import unittest
 from django.core.exceptions import ValidationError
 
 from .. import models
-from stars.test_factories import ValueDiscountFactory
+from stars.test_factories.models import ValueDiscountFactory
 
 
 class ValueDiscountTest(unittest.TestCase):
@@ -66,7 +66,7 @@ class AutomaticDiscountTest(unittest.TestCase):
             end_date=date.today() + timedelta(days=10),
             automatic=True)
         self.other_auto_disc.save()
-        
+
     def test__overlapping_automatic_discount_same_start_date(self):
         """Does _overlapping_automatic_discount handle same start date?"""
         with self.assertRaises(ValidationError):
@@ -160,7 +160,7 @@ class AutomaticDiscountTest(unittest.TestCase):
     def test_clean_no_amount_or_percentage(self):
         """Does clean reject if there's no amount or percentage?"""
         with self.assertRaises(ValidationError):
-            ValueDiscountFactory(amount=None, 
+            ValueDiscountFactory(amount=None,
                                  percentage=None,
                                  automatic=True)
 
@@ -236,8 +236,8 @@ class ModelsTopLevelTest(unittest.TestCase):
         """Does get_automatic_discount raise an error for an expired code?
         """
         expired_discount = ValueDiscountFactory(start_date="1960-02-18",
-                                                    end_date="1969-06-20",
-                                                    automatic=True)
+                                                end_date="1969-06-20",
+                                                automatic=True)
         expired_discount.save()
         with self.assertRaises(models.NoActiveAutomaticDiscountError):
             models.get_automatic_discount()

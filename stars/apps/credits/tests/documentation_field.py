@@ -4,11 +4,11 @@ from unittest import TestCase
 
 from stars.apps.credits.models import DocumentationField
 from stars.apps.submissions.models import NumericSubmission
-from stars.test_factories import (CreditFactory,
-                                  CreditTestSubmissionFactory,
-                                  CreditUserSubmissionFactory,
-                                  DocumentationFieldFactory,
-                                  NumericDocumentationFieldSubmissionFactory)
+from stars.test_factories.models import (CreditFactory,
+                                         CreditTestSubmissionFactory,
+                                         CreditUserSubmissionFactory,
+                                         DocumentationFieldFactory,
+                                         NumericDocumentationFieldSubmissionFactory)
 
 
 def make_numeric_fields(credit, num):

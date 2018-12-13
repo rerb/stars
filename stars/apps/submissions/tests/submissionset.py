@@ -3,9 +3,9 @@
 import testfixtures
 from django.test import TestCase
 
-from stars.test_factories import (CreditFactory,
-                                  CreditSetFactory,
-                                  SubmissionSetFactory)
+from stars.test_factories.models import (CreditFactory,
+                                         CreditSetFactory,
+                                         SubmissionSetFactory)
 
 
 class SubmissionSetTest(TestCase):

@@ -11,10 +11,10 @@ from stars.apps.submissions.models import CreditUserSubmission
 from stars.apps.tests.views import ViewTest
 from stars.apps.tool.my_submission.views import (
     CreditSubmissionReportingFieldsView)
-from stars.test_factories import (DocumentationFieldFactory,
-                                  InstitutionFactory,
-                                  StarsAccountFactory,
-                                  ResponsiblePartyFactory)
+from stars.test_factories.models import (DocumentationFieldFactory,
+                                         InstitutionFactory,
+                                         StarsAccountFactory,
+                                         ResponsiblePartyFactory)
 
 
 class ValueErrorTest(ViewTest):

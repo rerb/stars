@@ -11,8 +11,8 @@ from stars.apps.credits.models import (Category,
 from stars.apps.migrations import utils
 from stars.apps.submissions.models import (CreditUserSubmission,
                                            NumericSubmission)
-from stars.test_factories import (CreditSetFactory,
-                                  SubmissionSetFactory)
+from stars.test_factories.models import (CreditSetFactory,
+                                         SubmissionSetFactory)
 
 
 def make_two_creditsets():
@@ -154,7 +154,7 @@ class MigrateSubmissionTestCase(TestCase):
     def test_innovations_credits_migrate_if_specified(self):
         """
         Do Innovation credits migrate from rated submissions if told to?
-        This test uses metric.    
+        This test uses metric.
         """
         creditset = self.get_creditset()
 

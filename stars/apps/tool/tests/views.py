@@ -12,12 +12,12 @@ from stars.apps.tests.views import (ProtectedFormMixinViewTest,
                                     ProtectedViewTest, ViewTest)
 from stars.apps.tool.views import (NoStarsAccountView, ToolLandingPageView,
                                    SelectInstitutionView, SummaryToolView)
-from stars.test_factories import (CreditSetFactory,
-                                  InstitutionFactory,
-                                  StarsAccountFactory,
-                                  SubmissionSetFactory,
-                                  UserFactory,
-                                  UserProfileFactory)
+from stars.test_factories.models import (CreditSetFactory,
+                                         InstitutionFactory,
+                                         StarsAccountFactory,
+                                         SubmissionSetFactory,
+                                         UserFactory,
+                                         UserProfileFactory)
 
 import logical_rules  # loads rules   # noqa
 

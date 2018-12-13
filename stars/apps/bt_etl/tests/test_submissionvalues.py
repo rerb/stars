@@ -1,7 +1,7 @@
 from unittest import TestCase
 from datetime import date, timedelta
 
-from stars.test_factories import (
+from stars.test_factories.models import (
     CategoryFactory, CreditSetFactory, CreditFactory, NumericSubmissionFactory,
     DocumentationFieldFactory, SubcategoryFactory, SubmissionSetFactory,
     UnitFactory)
@@ -30,16 +30,16 @@ class SubmissionValuesTestCase(TestCase):
         self.df1 = DocumentationFieldFactory(
             credit=self.cred1, type='numeric', title="doc field 1")
         self.ss1 = SubmissionSetFactory(creditset=self.cs1)
-        
+
         self.m_unit = UnitFactory(
             name="met",
             equivalent=self.df1.units,
             is_metric=True
-            )
+        )
         self.df1.units.name = "imp"
-        self.df1.units.equivalent=self.m_unit
+        self.df1.units.equivalent = self.m_unit
         self.df1.units.save()
-        
+
         # SubmissionSetFactory doesn't seem to create a numeric submission
         # self.assertEqual(NumericSubmission.objects.count(), 1)  # fails
         self.ns1 = NumericSubmissionFactory(

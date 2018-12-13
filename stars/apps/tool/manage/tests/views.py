@@ -21,14 +21,14 @@ from stars.apps.submissions.models import ResponsibleParty
 from stars.apps.tests.live_server import StarsLiveServerTest
 from stars.apps.tool.manage import views
 from stars.apps.tool.tests.views import InstitutionAdminToolMixinTest
-from stars.test_factories import (CreditUserSubmissionFactory,
-                                  PendingAccountFactory,
-                                  ResponsiblePartyFactory,
-                                  SubmissionSetFactory,
-                                  SubscriptionFactory,
-                                  StarsAccountFactory,
-                                  UserFactory,
-                                  ValueDiscountFactory)
+from stars.test_factories.models import (CreditUserSubmissionFactory,
+                                         PendingAccountFactory,
+                                         ResponsiblePartyFactory,
+                                         SubmissionSetFactory,
+                                         SubscriptionFactory,
+                                         StarsAccountFactory,
+                                         UserFactory,
+                                         ValueDiscountFactory)
 # Don't bother me:
 logger = getLogger('stars')
 logger.setLevel(CRITICAL)

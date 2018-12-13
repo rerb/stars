@@ -6,7 +6,7 @@ import os
 from django.test import TestCase
 
 from stars.apps.payments import simple_credit_card
-from stars.test_factories import SubscriptionFactory, UserFactory
+from stars.test_factories.models import SubscriptionFactory, UserFactory
 
 # Don't bother me:
 logger = getLogger('stars')

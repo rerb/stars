@@ -7,7 +7,7 @@ import testfixtures
 from stars.apps.credits.models import DocumentationField, Unit
 from stars.apps.submissions.models import CreditSubmission, TextSubmission
 from stars.apps.tool.my_submission import forms
-from stars.test_factories import NumericDocumentationFieldSubmissionFactory
+from stars.test_factories.models import NumericDocumentationFieldSubmissionFactory
 
 
 class NumericSubmissionFormTest(TestCase):
@@ -125,7 +125,8 @@ class TextSubmissionFormTest(TestCase):
         text_submission.documentation_field = DocumentationField()
         text_submission.credit_submission = CreditSubmission()
 
-        text_submission_form = forms.TextSubmissionForm(instance=text_submission)
+        text_submission_form = forms.TextSubmissionForm(
+            instance=text_submission)
         text_submission_form.cleaned_data = {'value': None}
         text_submission_form.instance = None
 

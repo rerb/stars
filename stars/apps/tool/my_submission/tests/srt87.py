@@ -13,10 +13,10 @@ from stars.apps.submissions.models import (CreditUserSubmission,
                                            NumericSubmission)
 
 from stars.apps.registration.views import init_submissionset
-from stars.test_factories import (DocumentationFieldFactory,
-                                  InstitutionFactory,
-                                  StarsAccountFactory,
-                                  ResponsiblePartyFactory)
+from stars.test_factories.models import (DocumentationFieldFactory,
+                                         InstitutionFactory,
+                                         StarsAccountFactory,
+                                         ResponsiblePartyFactory)
 
 
 class SRT87Test(ViewTest):
@@ -52,11 +52,11 @@ class SRT87Test(ViewTest):
         self.category = self.subcategory.category
 
         tabular_field_dict = {
-                                "numRows": 1,
-                                "fields": [["1"]],
-                                "rowHeadings": ["Row 1"],
-                                "colHeadings": ["Col 1"],
-                                "numCols": 1}
+            "numRows": 1,
+            "fields": [["1"]],
+            "rowHeadings": ["Row 1"],
+            "colHeadings": ["Col 1"],
+            "numCols": 1}
         self.tabular_field = DocumentationFieldFactory(
             type='tabular',
             required=True,

@@ -15,8 +15,8 @@ from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support.wait import TimeoutException
 
-from stars.test_factories import (InstitutionFactory, StarsAccountFactory,
-                                  UserFactory)
+from stars.test_factories.models import (InstitutionFactory, StarsAccountFactory,
+                                         UserFactory)
 
 
 class NoWebdriverForPlatformError(Exception):
