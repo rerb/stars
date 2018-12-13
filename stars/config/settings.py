@@ -200,7 +200,6 @@ INSTALLED_APPS = (
     'captcha',
     'collapsing_menu',
     'compressor',
-    'compressor',
     'django_celery_downloader',
     'django_celery_downloader.tests.demo_app',
     'django_extensions',
@@ -213,7 +212,6 @@ INSTALLED_APPS = (
     'raven.contrib.django.raven_compat',
     's3_folder_storage',
     'sorl.thumbnail',
-    'south',
     'tastypie',
     'localflavor',
 )

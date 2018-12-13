@@ -1,7 +1,6 @@
-import simplejson
+import json
 
 from django.contrib.auth.models import User
-# from django.utils import simplejson
 from tastypie.models import ApiKey
 from tastypie.test import ResourceTestCase
 
@@ -31,7 +30,6 @@ class StarsApiTestCase(ResourceTestCase):
             ApiKey.objects.get(user=self.user).delete()
         if self.created_user:
             User.objects.get(pk=self.user.id).delete()
-
 
     # HTTP method wrappers:
 

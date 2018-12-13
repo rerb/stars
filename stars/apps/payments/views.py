@@ -5,7 +5,7 @@ from django.contrib.formtools.wizard.views import SessionWizardView
 from django.http import (HttpResponse,
                          HttpResponseBadRequest,
                          HttpResponseRedirect)
-from django.utils import simplejson as json
+import json
 
 from . import forms
 from ..institutions.models import Subscription, SubscriptionPurchaseError

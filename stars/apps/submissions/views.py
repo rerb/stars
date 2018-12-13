@@ -1,13 +1,12 @@
 import collections
 import re
-import simplejson
+import json
 
 from django.contrib import messages
 from django.core.cache import cache
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.template.defaultfilters import slugify
-# from django.utils import simplejson as json
 from django.views.generic import UpdateView, View
 
 from stars.apps.credits.views import CreditsetStructureMixin
