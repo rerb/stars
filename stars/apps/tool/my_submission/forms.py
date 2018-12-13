@@ -215,7 +215,7 @@ class URLSubmissionForm(SubmissionFieldForm):
 
 
 class DateSubmissionForm(SubmissionFieldForm):
-    value = forms.DateField(widget=SelectDateWidget(required=False),
+    value = forms.DateField(widget=SelectDateWidget(attrs={'required': False}),
                             required=False)
 
     def __init__(self, *args, **kwargs):

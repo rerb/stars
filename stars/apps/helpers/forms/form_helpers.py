@@ -1,10 +1,11 @@
 from django.contrib import messages
 from django.forms.forms import BoundField
 from django.utils.html import conditional_escape
-from django.utils.encoding import StrAndUnicode, smart_unicode, force_unicode
+from django.utils.encoding import smart_unicode, force_unicode
 from django.utils.safestring import mark_safe
 
 from stars.apps.helpers.forms.forms import Confirm
+
 
 def object_editing_list(request, object_list, form_class, ignore_errors=False,
                         ignore_post=False, ignore_objects=[]):
@@ -68,6 +69,7 @@ def object_editing_list(request, object_list, form_class, ignore_errors=False,
             object_editing_list.append({'obj': obj, 'form': form})
 
     return [object_editing_list, saved]
+
 
 def object_ordering(request, object_list, form_class, ignore_errors=True,
                     ignore_post=False, ignore_objects=[]):
@@ -149,27 +151,31 @@ def object_ordering(request, object_list, form_class, ignore_errors=True,
 
     return [object_ordering, reordered]
 
+
 def _get_class_label(klass, method, plural=False):
     """ Helper: Get a user-friendly label for the given class using the given method name"""
     if plural:
-        label = "%ss"%getattr(klass, method)() if hasattr(klass, method) \
-                                               else unicode(klass._meta.verbose_name_plural) if hasattr(klass._meta, 'verbose_name_plural') \
-                                               else ''
+        label = "%ss" % getattr(klass, method)() if hasattr(klass, method) \
+            else unicode(klass._meta.verbose_name_plural) if hasattr(klass._meta, 'verbose_name_plural') \
+            else ''
     else:
         label = getattr(klass, method)() if hasattr(klass, method) \
-                                         else unicode(klass._meta.verbose_name) if hasattr(klass._meta, 'verbose_name') \
-                                         else ''
+            else unicode(klass._meta.verbose_name) if hasattr(klass._meta, 'verbose_name') \
+            else ''
 
     return label.capitalize()
+
 
 def _get_form_label(klass, plural=False):
     """ Helper: Get a user-friendly label for the given form class """
     label = _get_class_label(klass, "form_name", plural)
-    return '%s: '%label if label else ''
+    return '%s: ' % label if label else ''
+
 
 def _get_model_label(klass, plural=False):
     """ Helper: Get a user-friendly label for the given model class """
     return _get_class_label(klass, "model_name", plural)
+
 
 def _perform_save_form(request, instance, prefix, form_class,
                        save_msg="Changes saved successfully", commit=True,
@@ -194,7 +200,7 @@ def _perform_save_form(request, instance, prefix, form_class,
             instance = object_form.save(commit=commit)
             if commit:
                 saved = True
-        #@todo: only send message if form.has_change()
+        # @todo: only send message if form.has_change()
         if saved and show_message:
             messages.success(request,
                              "%s '%s': %s" % (
@@ -208,6 +214,8 @@ def _perform_save_form(request, instance, prefix, form_class,
     return [object_form, instance, saved]
 
 #    @todo: get a nice name from the form_class
+
+
 def basic_save_form(request, instance, prefix, form_class, commit=True,
                     show_message=True, fail_msg=None):
     """
@@ -221,18 +229,21 @@ def basic_save_form(request, instance, prefix, form_class, commit=True,
         show_message=show_message, fail_msg=fail_msg)
     return [object_form, saved]
 
+
 def basic_save_new_form(request, instance, prefix, form_class, commit=True, fail_msg=None):
     """
         Provides basic form handling for saving a new model
         Returns the object form and a saved flag, which is true if the form data was saved to the instance
     """
-    (object_form, instance, saved) = _perform_save_form(request, instance, prefix, form_class, save_msg="Created successfully", commit=commit, fail_msg=fail_msg)
+    (object_form, instance, saved) = _perform_save_form(request, instance, prefix,
+                                                        form_class, save_msg="Created successfully", commit=commit, fail_msg=fail_msg)
     if saved:
         try:  # Notify the parent object that a new child object was just added.
             instance.get_parent().update_ordering()
         except:  # if parent didn't have an update_ordering method, no worries!
             pass
     return [object_form, saved]
+
 
 def save_new_form_rows(request, prefix, form_class, instance_class,
                        **instance_constructor_args):
@@ -289,7 +300,8 @@ def save_new_form_rows(request, prefix, form_class, instance_class,
             instances[0].get_parent().update_ordering()
         except:  # if parent didn't have an update_ordering method, no worries!
             pass
-    return [instances, len(errors)>0]
+    return [instances, len(errors) > 0]
+
 
 def confirm_form(request, instance=None):
     """
@@ -314,6 +326,7 @@ def confirm_form(request, instance=None):
         form.instance = instance
     return (form, confirmed)
 
+
 def confirm_unlock_form(request, instance):
     """
         Provides basic form handling for confirming unlock for a
@@ -332,6 +345,7 @@ def confirm_unlock_form(request, instance):
         messages.success(request, "%s %s was unlocked." % msg_parms)
 
     return (form, unlocked)
+
 
 def confirm_delete_form(request, instance, delete_method=None):
     """
@@ -355,6 +369,7 @@ def confirm_delete_form(request, instance, delete_method=None):
 
     return (form, deleted)
 
+
 def confirm_delete_and_update_form(request, instance):
     """
         Exactly as above, but calls instance.delete_and_update() to perform the deletion.
@@ -362,7 +377,7 @@ def confirm_delete_and_update_form(request, instance):
     return confirm_delete_form(request, instance, instance.delete_and_update)
 
 #  Not used anywhere (AFAICT) and duplicates work of form rendering templates
-#def two_column_layout(form):
+# def two_column_layout(form):
 #    """
 #        Helper function that displays a form in two columns
 #        mostly copied from django.forms.forms.py

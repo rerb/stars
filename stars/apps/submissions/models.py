@@ -97,23 +97,6 @@ class Flag(models.Model):
         return "%s" % self.target
 
 
-class FlaggableModel():
-
-    def get_flag_url(self):
-
-        link = "%s?content_type=%s&object_id=%d" % (
-            urlresolvers.reverse('admin:submissions_flag_add'),
-            ContentType.objects.get_for_model(self).id,
-            self.id
-        )
-        return link
-
-    @property
-    def flags(self):
-        type = ContentType.objects.get_for_model(self)
-        return Flag.objects.filter(content_type__pk=type.id, object_id=self.id)
-
-
 class SubmissionManager(models.Manager):
     """
         Adds some custom query functionality to the SubmissionSet object
@@ -147,7 +130,7 @@ class SubmissionManager(models.Manager):
                     '-date_submitted').order_by('-id')
 
 
-class SubmissionSet(models.Model, FlaggableModel):
+class SubmissionSet(models.Model):
     """
         A creditset (ex: 1.0) that is being submitted
     """
@@ -207,6 +190,20 @@ class SubmissionSet(models.Model, FlaggableModel):
 
     def __unicode__(self):
         return '%s (%s)' % (self.institution.name, self.creditset.version)
+
+    def get_flag_url(self):
+
+        link = "%s?content_type=%s&object_id=%d" % (
+            urlresolvers.reverse('admin:submissions_flag_add'),
+            ContentType.objects.get_for_model(self).id,
+            self.id
+        )
+        return link
+
+    @property
+    def flags(self):
+        type = ContentType.objects.get_for_model(self)
+        return Flag.objects.filter(content_type__pk=type.id, object_id=self.id)
 
     def missed_deadline(self):
         return not self.institution.is_participant
@@ -1637,7 +1634,7 @@ REVIEW_CONCLUSION_CHOICES = (
     (REVIEW_CONCLUSIONS["NOT_REALLY_PURSUING"], "Not Really Pursuing"))
 
 
-class CreditUserSubmission(CreditSubmission, FlaggableModel):
+class CreditUserSubmission(CreditSubmission):
     """
         An individual submitted credit for an institutions STARS submission
         set
@@ -1679,6 +1676,20 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
         # @todo: the unique clause needs to be added at the DB level now :-(
         # unique_together = ("subcategory_submission", "credit")
         pass
+
+    def get_flag_url(self):
+
+        link = "%s?content_type=%s&object_id=%d" % (
+            urlresolvers.reverse('admin:submissions_flag_add'),
+            ContentType.objects.get_for_model(self).id,
+            self.id
+        )
+        return link
+
+    @property
+    def flags(self):
+        type = ContentType.objects.get_for_model(self)
+        return Flag.objects.filter(content_type__pk=type.id, object_id=self.id)
 
     def get_institution(self):
         return self.subcategory_submission.category_submission.submissionset.institution  # noqa
@@ -2192,7 +2203,7 @@ class DocumentationFieldSubmissionManager(models.Manager):
         return self.model.objects.filter(**{lookup: ss})
 
 
-class DocumentationFieldSubmission(models.Model, FlaggableModel):
+class DocumentationFieldSubmission(models.Model):
     """
         The submitted value for a documentation field (abstract).
     """
@@ -2211,6 +2222,20 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
     def __unicode__(self):
         """ return the title of this submission field """
         return self.documentation_field.__unicode__()
+
+    def get_flag_url(self):
+
+        link = "%s?content_type=%s&object_id=%d" % (
+            urlresolvers.reverse('admin:submissions_flag_add'),
+            ContentType.objects.get_for_model(self).id,
+            self.id
+        )
+        return link
+
+    @property
+    def flags(self):
+        type = ContentType.objects.get_for_model(self)
+        return Flag.objects.filter(content_type__pk=type.id, object_id=self.id)
 
     def get_parent(self):
         """ Used for building crumbs """
