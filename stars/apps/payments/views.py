@@ -245,7 +245,7 @@ class SubscriptionPurchaseWizard(SessionWizardView):
                     step=self.steps.current)
                 ajax_data['form-errors'] = {promo_code_id: exc.message}
                 return HttpResponseBadRequest(json.dumps(ajax_data),
-                                              mimetype='application/json')
+                                              content_type='application/json')
         finally:
             # always store the promo_code and amount_due in the
             # session, exception or not, is_ajax() or not:
@@ -278,7 +278,7 @@ class SubscriptionPurchaseWizard(SessionWizardView):
                      'discount_percentage': discount.percentage,
                      'discount_description': discount_description})
                 return HttpResponse(json.dumps(ajax_data),
-                                    mimetype='application/json')
+                                    content_type='application/json')
 
     def _process_step_payment_options(self, form):
         # Pass on the payment option selected:

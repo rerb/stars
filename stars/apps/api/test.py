@@ -69,7 +69,7 @@ class StarsApiTestCase(ResourceTestCase):
     def assertValidJSONResponseNotError(self, response):
         """Response is valid JSON and not an error message."""
         self.assertValidJSONResponse(response)
-        content_dict = simplejson.loads(response.content)
+        content_dict = json.loads(response.content)
         self.assertNotIn('error_message', content_dict)
 
     def get_credentials(self):

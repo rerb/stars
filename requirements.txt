@@ -71,7 +71,6 @@ pytz==2015.2
 raven==3.3.7
 gnureadline==6.3.8
 reportlab==2.4
-simplejson==3.3.0
 six==1.10.0
 sorl-thumbnail==12.2
 ssh==1.8.0

@@ -8,12 +8,13 @@ from django.template import loader, Context
 
 logger = getLogger('stars')
 
+
 def render_to_any_response(HttpResponseClass, *args, **kwargs):
     """
     This is a version of Django's shortcut that takes the HttpResponse class
     as an argument, so we can render custom 404 or 500 pages.
     """
-    httpresponse_kwargs = {'mimetype': kwargs.pop('mimetype', None)}
+    httpresponse_kwargs = {'content_type': kwargs.pop('content_type', None)}
     return HttpResponseClass(loader.render_to_string(*args, **kwargs),
                              **httpresponse_kwargs)
 

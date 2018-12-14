@@ -42,8 +42,8 @@ class DownloadExportView(TemplateView):
         task_id = self.kwargs['task']
         result = AsyncResult(task_id)
         f = open(result.result, 'r')
-        response = HttpResponse(f, mimetype=self.mimetype)
+        response = HttpResponse(f, content_type=self.mimetype)
         response['Content-Disposition'] = ('attachment; filename=%s.%s' %
                                            (self.get_filename(),
-                                           self.extension))
+                                            self.extension))
         return response
