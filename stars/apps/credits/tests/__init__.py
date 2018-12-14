@@ -25,4 +25,4 @@ __test__ = {
     'CreditSetTest': CreditSetTest,
     'TestStructure': TestStructure,
     'UnitTest': UnitTest
-    }
+}

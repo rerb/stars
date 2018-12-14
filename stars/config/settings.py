@@ -168,6 +168,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
 
     'terms',  # must come before stars.apps.tool, which overrides the admin
+    'test_without_migrations',
 
     'stars.apps.credits',
     'stars.apps.tool.credit_editor',
@@ -262,9 +263,6 @@ AUTHORIZENET_LOGIN = os.environ.get('AUTHORIZENET_LOGIN', None)
 AUTHORIZENET_KEY = os.environ.get('AUTHORIZENET_KEY', None)
 
 ANALYTICS_ID = os.environ.get('ANALYTICS_ID', None)
-
-SKIP_SOUTH_TESTS = True
-SOUTH_TESTS_MIGRATE = False
 
 RECAPTCHA_PUBLIC_KEY = os.environ.get('RECAPTCHA_PUBLIC_KEY', None)
 RECAPTCHA_PRIVATE_KEY = os.environ.get('RECAPTCHA_PRIVATE_KEY', None)

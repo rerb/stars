@@ -70,7 +70,7 @@ REGISTRATION_PUBLISH_DEADLINE = date(2010, 5, 29)
 logger = getLogger('stars')
 
 
-def upload_path_callback(instance, filename):
+def submission_upload_path_callback(instance, filename):
     """
         Dynamically alters the upload path based on the instance
     """
@@ -160,7 +160,7 @@ class SubmissionSet(models.Model):
                    "The University hospital and campus farm are excluded."))
     presidents_letter = models.FileField(
         "Executive Letter",
-        upload_to=upload_path_callback,
+        upload_to=submission_upload_path_callback,
         blank=True,
         max_length=255,
         null=True,
@@ -171,7 +171,7 @@ class SubmissionSet(models.Model):
         help_text=("Check this box if you would like to be given "
                    "reporter status and not receive a STARS rating "
                    "from AASHE."), default=False)
-    pdf_report = models.FileField(upload_to=upload_path_callback,
+    pdf_report = models.FileField(upload_to=submission_upload_path_callback,
                                   blank=True,
                                   max_length=255,
                                   null=True)

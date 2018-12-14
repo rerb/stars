@@ -83,5 +83,6 @@ zope.exceptions==4.0.5
 zope.interface==4.0.3
 zope.testing==4.1.1
 django-localflavor==1.2
+django-test-without-migrations
 
 https://github.com/AASHE/iss/archive/v2.12.zip

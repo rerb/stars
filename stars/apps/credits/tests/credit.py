@@ -18,7 +18,7 @@ class CreditTest(TestCase):
                 r.replace(
                     'stars.apps.credits.models.Credit.subcategory',
                     MockSubcategory(MockCategory(MockCreditset())),
-                    )
+                )
                 r.replace('stars.apps.credits.models.Credit.get_1_0_identifier',
                           lambda x: True)
                 credit.get_identifier()

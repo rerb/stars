@@ -143,6 +143,7 @@ QUERY_INSPECT_TRACEBACK_ROOTS = ['/Users/rerb/src/aashe/stars/']
 #     }
 
 TEMPLATE_STRING_IF_INVALID = 'INVALID EXPRESSION: %s'
+TEST_WITHOUT_MIGRATIONS_COMMAND = 'django_nose.management.commands.test.Command'
 
 TEST_RUNNER = 'hotrunner.HotRunner'
 EXCLUDED_TEST_APPS = ['bootstrapform',
@@ -156,7 +157,6 @@ EXCLUDED_TEST_APPS = ['bootstrapform',
                       'memcache_status',
                       's3_folder_storage',
                       'sorl.thumbnail',
-                      'south',
                       'stars.apps',
                       'stars.apps.accounts',
                       'stars.apps.api',
