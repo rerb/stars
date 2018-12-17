@@ -6,7 +6,7 @@ from django import forms
 from django.forms import Form, ModelForm
 from django.forms.extras.widgets import SelectDateWidget
 from django.utils.safestring import mark_safe
-from django.forms.util import ErrorList
+from django.forms.utils import ErrorList
 from django.forms.widgets import TextInput, ClearableFileInput, HiddenInput
 from extra_views import InlineFormSet
 from form_utils.forms import BetterModelForm

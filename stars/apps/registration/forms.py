@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import widgets
 from django.forms import ModelForm
-from django.forms.util import ErrorList
+from django.forms.utils import ErrorList
 
 from iss.models import Organization
 from stars.apps.institutions.models import (Institution,
@@ -141,7 +141,7 @@ class ContactForm(ModelForm):
         cleaned_data = self.cleaned_data
 
         if ("contact_email" in cleaned_data.keys() and
-            "executive_contact_email" in cleaned_data.keys()):
+                "executive_contact_email" in cleaned_data.keys()):
 
             contact = cleaned_data.get("contact_email")
             executive = cleaned_data.get("executive_contact_email")
@@ -214,7 +214,7 @@ class InstitutionRegistrationForm(ModelForm):
         cleaned_data = self.cleaned_data
 
         if ("contact_email" in cleaned_data.keys() and
-            "executive_contact_email" in cleaned_data.keys()):
+                "executive_contact_email" in cleaned_data.keys()):
 
             contact = cleaned_data.get("contact_email")
             executive = cleaned_data.get("executive_contact_email")

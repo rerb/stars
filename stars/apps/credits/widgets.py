@@ -1,6 +1,5 @@
 from django.forms import Widget
 from django.template import loader, Context
-# from django.forms.util import flatatt
 from django.utils.safestring import mark_safe
 
 from stars.apps.credits.models import (CreditSet,
@@ -62,20 +61,20 @@ class CategorySelectTree(SelectTreeWidget):
 
     def get_select_list(self, attrs):
         return [
-                {
-                 "label": "Creditset",
-                 "data_callback": "populateCreditsets",
-                 "data_child": attrs["id"],
-                 "data_child_callback": "populateCategories",
-                 "name": "creditset",
-                 "id": self.ordinal_id("creditset"),
-                },
-                {
-                 "label": "Category",
-                 "name": attrs["name"],
-                 "id": attrs["id"]
-                }
-            ]
+            {
+                "label": "Creditset",
+                "data_callback": "populateCreditsets",
+                "data_child": attrs["id"],
+                "data_child_callback": "populateCategories",
+                "name": "creditset",
+                "id": self.ordinal_id("creditset"),
+            },
+            {
+                "label": "Category",
+                "name": attrs["name"],
+                "id": attrs["id"]
+            }
+        ]
 
 
 class SubcategorySelectTree(CategorySelectTree):
@@ -105,9 +104,9 @@ class SubcategorySelectTree(CategorySelectTree):
 
         # now add the parent back
         parent_select = {
-                         "data_child": attrs['id'],
-                         "data_child_callback": callback,
-                         }
+            "data_child": attrs['id'],
+            "data_child_callback": callback,
+        }
         parent_select['label'] = parent_select['name'] = parent_select['id'] = parent_id
         select_list.insert(-1, parent_select)
         return select_list
@@ -128,7 +127,8 @@ class CreditSelectTree(SubcategorySelectTree):
         return self.update_select_list(old_list=select_list,
                                        attrs=attrs,
                                        label="credit",
-                                       parent_id=self.ordinal_id("subcategory"),
+                                       parent_id=self.ordinal_id(
+                                           "subcategory"),
                                        callback="populateCredits")
 
 
@@ -144,7 +144,8 @@ class DocumentationFieldSelectTree(CreditSelectTree):
 
     def get_select_list(self, attrs):
 
-        select_list = super(DocumentationFieldSelectTree, self).get_select_list(attrs)
+        select_list = super(DocumentationFieldSelectTree,
+                            self).get_select_list(attrs)
         return self.update_select_list(old_list=select_list,
                                        attrs=attrs,
                                        label="field",
