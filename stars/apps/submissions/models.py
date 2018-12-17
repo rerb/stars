@@ -7,7 +7,7 @@ from logging import getLogger
 import numpy
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from localflavor.us.models import PhoneNumberField
 from django.core import urlresolvers
@@ -630,7 +630,7 @@ class SubmissionSet(models.Model):
                 creditset=self.creditset)
             institutional_characteristics_credit_submissions = (
                 self.get_credit_submissions().filter(
-                    subcategory_submission__category_submission__category=  # noqa
+                    subcategory_submission__category_submission__category=# noqa
                     institutional_characteristics_category))
             boundary_credit_submission = (
                 institutional_characteristics_credit_submissions.get(
@@ -2210,9 +2210,9 @@ class DocumentationFieldSubmission(models.Model):
     documentation_field = models.ForeignKey(DocumentationField,
                                             related_name="%(class)s_set")
     credit_submission = models.ForeignKey(CreditSubmission)
-    corrections = generic.GenericRelation(ReportingFieldDataCorrection,
-                                          content_type_field='content_type',
-                                          object_id_field='object_id')
+    corrections = GenericRelation(ReportingFieldDataCorrection,
+                                  content_type_field='content_type',
+                                  object_id_field='object_id')
     objects = DocumentationFieldSubmissionManager()
 
     class Meta:
