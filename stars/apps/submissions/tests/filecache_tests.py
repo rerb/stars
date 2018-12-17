@@ -1,7 +1,7 @@
 from datetime import datetime
 import os
 
-import django.core.cache as caches
+import django.core.cache import caches
 from django.core.exceptions import SuspiciousOperation
 from django.core.management import call_command
 from django.test import TestCase
@@ -10,9 +10,9 @@ from file_cache_tag.templatetags import custom_caching
 
 from stars.apps.submissions.models import DataCorrectionRequest
 from stars.test_factories.submissions_factories import (
-        DocumentationFieldFactory,
-        NumericDocumentationFieldSubmissionFactory
-    )
+    DocumentationFieldFactory,
+    NumericDocumentationFieldSubmissionFactory
+)
 
 
 class FileCacheTest(TestCase):
@@ -60,7 +60,7 @@ class FileCacheTest(TestCase):
     def test_create_cache(self):
         response = self.get_self_url()
         self.assertEqual(response.status_code, 200)
-        filecache = caches.get_cache('filecache')
+        filecache = caches['filecache']
         self.assertTrue(filecache)
         key = custom_caching.generate_cache_key(
             self.url, [self.submissionset.id, False, "NO_EXPORT", False])
@@ -69,7 +69,7 @@ class FileCacheTest(TestCase):
 
     def test_invalidate_cache(self):
         _ = self.get_self_url()  # noqa
-        filecache = caches.get_cache('filecache')
+        filecache = caches['filecache']
         key = custom_caching.generate_cache_key(
             self.url, [self.submissionset.id, False, "NO_EXPORT", False])
         cached_response = filecache.get(key)
@@ -80,7 +80,7 @@ class FileCacheTest(TestCase):
 
     def test_invalidate_after_correction_approval(self):
         _ = self.get_self_url()  # noqa
-        filecache = caches.get_cache('filecache')
+        filecache = caches['filecache']
         key = custom_caching.generate_cache_key(
             self.url, [self.submissionset.id, False, "NO_EXPORT", False])
         cached_response = filecache.get(key)
@@ -99,7 +99,7 @@ class FileCacheTest(TestCase):
 
     def test_invalidate_after_manual_edit(self):
         _ = self.get_self_url()  # noqa
-        filecache = caches.get_cache('filecache')
+        filecache = caches['filecache']
         key = custom_caching.generate_cache_key(
             self.url, [self.submissionset.id, False, "NO_EXPORT", False])
         cached_response = filecache.get(key)
@@ -111,7 +111,7 @@ class FileCacheTest(TestCase):
     def test_managament_invalidation(self):
         url = 'http://stars.aashe.org' + self.url
         _ = self.get_self_url()  # noqa
-        filecache = caches.get_cache('filecache')
+        filecache = caches['filecache']
         key = custom_caching.generate_cache_key(
             self.url, [self.submissionset.id, False, "NO_EXPORT", False])
         cached_response = filecache.get(key)
