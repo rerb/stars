@@ -44,8 +44,8 @@ def select_institution(request, id):
     if not institution:
         raise Http404("No such institution.")
     redirect_url = request.GET.get('redirect',
-                                    reverse('tool-summary',
-                                    args=(institution.slug,)))
+                                   reverse('tool-summary',
+                                           args=(institution.slug,)))
     return HttpResponseRedirect(redirect_url)
 
 # @user_is_staff
@@ -77,7 +77,7 @@ def overview_report(request):
 
     all_institutions = Institution.objects.all()
     all_snapshotted_submissionsets = (SubmissionSet.objects.filter(status='f')
-                                        .values_list('institution', flat=True))
+                                      .values_list('institution', flat=True))
     participants = 0
     respondents = 0
     count = 0
@@ -93,13 +93,14 @@ def overview_report(request):
             c += 1
 
     context = {
-                "current_participants": participants,
-                "current_respondents": respondents,
-               }
+        "current_participants": participants,
+        "current_respondents": respondents,
+    }
 
     context["registered_respondents"] = count
     context['third_party_list'] = ThirdParty.objects.all()
-    context['snapshot_count'] = SubmissionSet.objects.filter(status='f').count()
+    context['snapshot_count'] = SubmissionSet.objects.filter(
+        status='f').count()
     context['institutions_with_snapshots'] = c
 
     template = "tool/admin/reports/quick_overview.html"
@@ -114,18 +115,22 @@ def financial_report(request):
     """
 
     d = today = date.today()
-    participants_today = Subscription.objects.filter(start_date__lte=d).filter(end_date__gte=d).count()
+    participants_today = Subscription.objects.filter(
+        start_date__lte=d).filter(end_date__gte=d).count()
     d = last_year = add_months(d, -12)
-    participants_last_year = Subscription.objects.filter(start_date__lte=d).filter(end_date__gte=d).count()
+    participants_last_year = Subscription.objects.filter(
+        start_date__lte=d).filter(end_date__gte=d).count()
 
     d = date(year=2009, month=10, day=1)
     tbl = []
     while d <= date.today():
 
-        subs = Subscription.objects.filter(start_date__lte=d).filter(end_date__gte=d)
+        subs = Subscription.objects.filter(
+            start_date__lte=d).filter(end_date__gte=d)
 
         revenue = 0
-        payments = SubscriptionPayment.objects.filter(date__year=d.year).filter(date__month=d.month)
+        payments = SubscriptionPayment.objects.filter(
+            date__year=d.year).filter(date__month=d.month)
         for p in payments:
             revenue += p.amount
 
@@ -206,7 +211,7 @@ class AccrualExcelDownloadView(ReportMixin, DownloadExportView):
     """
         Returns the result of the task (hopefully an excel export)
     """
-    mimetype = 'text/csv'
+    content_type = 'text/csv'
     extension = "csv"
 
     def get_filename(self):
@@ -233,42 +238,42 @@ class InstitutionList(ReportMixin, SortableTableView):
     default_rev = '-'
     secondary_order_field = 'name'
     columns = [
-                    {
-                        'key': 'name',
-                        'sort_field': 'name',
-                        'title': 'Institution',
-                    },
-                    {
-                        'key': 'rating',
-                        'sort_field': 'current_rating',
-                        'title': 'Rating',
-                    },
-                    {
-                        'key': 'version',
-                        'sort_field': 'current_submission__creditset__version',
-                        'title': 'Version',
-                    },
-                    {
-                        'key': 'participation',
-                        'sort_field': 'is_participant',
-                        'title': 'Access Level',
-                    },
-                    {
-                        'key': 'contact_email',
-                        'sort_field': 'contact_email',
-                        'title': 'Liaison',
-                    },
-                    {
-                        'key': 'submission',
-                        'sort_field': 'rated_submission__date_submitted',
-                        'title': 'Submission Date',
-                    },
-                    # {
-                    #     'key':'subscription',
-                    #     'sort_field':'current_subscription__start_date',
-                    #     'title':'Subscription',
-                    # },
-              ]
+        {
+            'key': 'name',
+            'sort_field': 'name',
+            'title': 'Institution',
+        },
+        {
+            'key': 'rating',
+            'sort_field': 'current_rating',
+            'title': 'Rating',
+        },
+        {
+            'key': 'version',
+            'sort_field': 'current_submission__creditset__version',
+            'title': 'Version',
+        },
+        {
+            'key': 'participation',
+            'sort_field': 'is_participant',
+            'title': 'Access Level',
+        },
+        {
+            'key': 'contact_email',
+            'sort_field': 'contact_email',
+            'title': 'Liaison',
+        },
+        {
+            'key': 'submission',
+            'sort_field': 'rated_submission__date_submitted',
+            'title': 'Submission Date',
+        },
+        # {
+        #     'key':'subscription',
+        #     'sort_field':'current_subscription__start_date',
+        #     'title':'Subscription',
+        # },
+    ]
 
     def get_queryset(self):
         return Institution.objects.annotate(reg_date=Min('subscription__start_date')).select_related()
@@ -283,8 +288,8 @@ class SubscriptionPaymentBaseMixin(InstitutionToolMixin):
     def update_logical_rules(self):
         super(SubscriptionPaymentBaseMixin, self).update_logical_rules()
         self.add_logical_rule({
-                'name': 'user_is_staff',
-                'param_callbacks': [('user', 'get_request_user')],
+            'name': 'user_is_staff',
+            'param_callbacks': [('user', 'get_request_user')],
         })
 
     def get_form_kwargs(self):
@@ -293,14 +298,14 @@ class SubscriptionPaymentBaseMixin(InstitutionToolMixin):
         """
         kwargs = super(SubscriptionPaymentBaseMixin, self).get_form_kwargs()
         kwargs.update({
-                        'current_user':
-                            self.request.user
-                        })
+            'current_user':
+            self.request.user
+        })
         return kwargs
 
     def get_success_url(self):
         return reverse('institution-payments',
-                kwargs={'institution_slug': self.get_institution().slug})
+                       kwargs={'institution_slug': self.get_institution().slug})
 
 
 class AddSubscriptionPayment(SubscriptionPaymentBaseMixin, CreateView):
@@ -311,10 +316,10 @@ class AddSubscriptionPayment(SubscriptionPaymentBaseMixin, CreateView):
         """
         kwargs = super(AddSubscriptionPayment, self).get_form_kwargs()
         kwargs.update({
-                        'instance':
-                            SubscriptionPayment(subscription=self.get_subscription(),
-                                                date=date.today())
-                        })
+            'instance':
+            SubscriptionPayment(subscription=self.get_subscription(),
+                                date=date.today())
+        })
         return kwargs
 
     def form_valid(self, form):
@@ -326,11 +331,11 @@ class AddSubscriptionPayment(SubscriptionPaymentBaseMixin, CreateView):
         amount_paid = self.object.amount
         if subscription.amount_due < amount_paid:
             logger.error("Payment is greater than amount due for: %s"
-                           % subscription)
+                         % subscription)
         if subscription.amount_due >= amount_paid:
             if subscription.amount_due > amount_paid:
                 logger.info("Payment is less than amount due for: %s"
-                               % subscription)
+                            % subscription)
             subscription.amount_due -= amount_paid
             if subscription.amount_due == 0:
                 subscription.paid_in_full = True

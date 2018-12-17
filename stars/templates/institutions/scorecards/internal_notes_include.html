@@ -6,8 +6,8 @@
 	    {% with "notes" as active %}
     		{% include "institutions/scorecards/credit_tabs.html" %}
     	{% endwith %}
-    
+
 
         <h2>Internal Notes</h2>
-        {{ credit_submission.internal_notes|urlizetrunc:85|linebreaks|fix_ampersands }}
+        {{ credit_submission.internal_notes|urlizetrunc:85|linebreaks }}
 {% endblock %}

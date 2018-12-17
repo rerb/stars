@@ -7,7 +7,7 @@ from logging import getLogger
 import numpy
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.contrib.contenttypes import generic
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from localflavor.us.models import PhoneNumberField
 from django.core import urlresolvers
@@ -87,7 +87,7 @@ class Flag(models.Model):
     description = models.TextField()
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
-    target = generic.GenericForeignKey('content_type', 'object_id')
+    target = GenericForeignKey('content_type', 'object_id')
 
     def get_admin_url(self):
         return urlresolvers.reverse("admin:submissions_flag_change",
@@ -1978,7 +1978,7 @@ class DataCorrectionRequest(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
-    reporting_field = generic.GenericForeignKey('content_type', 'object_id')
+    reporting_field = GenericForeignKey('content_type', 'object_id')
     new_value = models.TextField(
         help_text=("Note: if this is a numeric field, be sure to use the "
                    "institution's preference for metric/imperial. You can "
@@ -2187,7 +2187,7 @@ class ReportingFieldDataCorrection(models.Model):
     change_date = models.DateField()
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
-    reporting_field = generic.GenericForeignKey('content_type', 'object_id')
+    reporting_field = GenericForeignKey('content_type', 'object_id')
     explanation = models.TextField(blank=True, null=True)
 
 

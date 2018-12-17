@@ -40,9 +40,9 @@
   {% if submissionset.boundary.additional_details %}
      <h4 style='text-align: center;'>Additional Details</h4>
     <p style='font-size: .9em;'>
-      {{ submissionset.boundary.additional_details|urlizetrunc:55|linebreaks|fix_ampersands }}
+      {{ submissionset.boundary.additional_details|urlizetrunc:55|linebreaks }}
     </p>
   {% endif %}
 {% else %}
-  {{ submissionset.submission_boundary|urlizetrunc:55|linebreaks|fix_ampersands }}
+  {{ submissionset.submission_boundary|urlizetrunc:55|linebreaks }}
 {% endif %}
