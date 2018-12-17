@@ -215,7 +215,7 @@ class URLSubmissionForm(SubmissionFieldForm):
 
 
 class DateSubmissionForm(SubmissionFieldForm):
-    value = forms.DateField(widget=SelectDateWidget(attrs={'required': False}),
+    value = forms.DateField(widget=SelectDateWidget(),
                             required=False)
 
     def __init__(self, *args, **kwargs):
@@ -226,7 +226,7 @@ class DateSubmissionForm(SubmissionFieldForm):
             max = self.instance.documentation_field.max_range
             if min is not None and max is not None:
                 self.fields['value'].widget = SelectDateWidget(
-                    required=False, years=range(min, max+1))
+                    years=range(min, max+1))
 
     class Meta:
         model = DateSubmission
