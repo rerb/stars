@@ -1,7 +1,7 @@
 from datetime import datetime
 import os
 
-import django.core.cache import caches
+from django.core.cache import caches
 from django.core.exceptions import SuspiciousOperation
 from django.core.management import call_command
 from django.test import TestCase
