@@ -136,6 +136,11 @@ def get_ss_obj(ss):
 
 def get_ss_etl_obj(ss):
     print(ss)
+
+    display_value = None
+    if ss.rating.name == "Reporter":
+        display_value = "Reporter"
+
     etl_obj = get_base_subdata(ss, ss)
     update_score_fields(
         etl_obj,
@@ -145,7 +150,8 @@ def get_ss_etl_obj(ss):
         "Overall Score",
         ss.score,
         ss.get_scorecard_url(),
-        "%", "%")
+        "%", "%",
+        display_value=display_value)
     return etl_obj
 
 
