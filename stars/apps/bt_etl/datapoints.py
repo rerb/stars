@@ -1,4 +1,3 @@
-from datetime import datetime
 import io
 import json
 
@@ -47,7 +46,7 @@ def extract_and_transform(filename='datapoint.json'):
         }
 
     for cat in cs.category_set.all():
-        if cat.title not "Institutional Characteristics":
+        if not cat.title == "Institutional Characteristics":
             obj_list.append(get_datapoint(cat, "cat", None, True, "%", "%"))
 
             for sub in cat.subcategory_set.all():

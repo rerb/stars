@@ -1,3 +1,4 @@
+import logging
 import os
 import requests
 import shutil
@@ -5,7 +6,7 @@ import time
 import uuid
 from django.conf import settings
 
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 
 from stars.apps.bt_etl import (
     datapoints, institutions, reports, submissionvalues)
@@ -17,7 +18,11 @@ ETL_SCRIPTS = [
     (reports, "report.json"),
     (submissionvalues, "submissionvalue.json")]
 
-BT_HOST = os.environ.get('BT_HOST', "https://stars-bt-stage.herokuapp.com")
+
+BT_HOST = os.environ.get("BT_HOST", None)
+
+
+logger = logging.getLogger()
 
 
 class Command(BaseCommand):
@@ -37,6 +42,13 @@ class Command(BaseCommand):
         self.bt_host = "%s/api/etl/" % BT_HOST
 
     def handle(self, *args, **options):
+
+        if BT_HOST is None:
+            error_message = (
+                "No BT_HOST variable set in environment.  ETL failed.")
+            logger.error(error_message)
+            raise CommandError(error_message)
+            return
 
         self.run_etl_scripts()
         self.package_files_for_bt()
