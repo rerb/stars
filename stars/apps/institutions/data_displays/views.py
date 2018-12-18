@@ -59,7 +59,7 @@ class Dashboard(TemplateView):
         # if the institution's rating_expires == none,
         # then their rating has expired
         ratings = collections.defaultdict(int)
-        for i in Institution.objects.filter(current_rating__isnull=False):
+        for i in Institution.objects.filter(current_rating__isnull=False).select_related('current_rating__name'):
             if i.rating_expires:
                 ratings[i.current_rating.name] += 1
         return ratings
@@ -103,17 +103,17 @@ class Dashboard(TemplateView):
             # that are not in that list.
             # add them together and you have active_participants
             active_rating = (SubmissionSet.objects.filter(status='r')
-                .filter(is_visible=True)
-                .filter(date_submitted__lte=current_month)
-                .filter(date_submitted__gt=expiration_month)
-                .values_list('institution', flat=True)
-                .distinct())
+                             .filter(is_visible=True)
+                             .filter(date_submitted__lte=current_month)
+                             .filter(date_submitted__gt=expiration_month)
+                             .values_list('institution', flat=True)
+                             .distinct())
 
             partial_active_participants = (Subscription.objects
-                .filter(start_date__lte=current_month).values('institution')
-                .filter(end_date__gt=current_month)
-                .filter(access_level="Full")
-                .exclude(institution__in=active_rating).count())
+                                           .filter(start_date__lte=current_month).values('institution')
+                                           .filter(end_date__gt=current_month)
+                                           .filter(access_level="Full")
+                                           .exclude(institution__in=active_rating).count())
 
             active_participants = (len(active_rating) +
                                    partial_active_participants)
@@ -227,6 +227,7 @@ class DisplayAccessMixin(StarsAccountMixin, RulesMixin):
 
         @todo: temporary access
     """
+
     def access_denied_callback(self):
         self.template_name = self.denied_template_name
         return self.render_to_response(
@@ -703,6 +704,7 @@ class ScoreExcelFilter(ExcelMixin, ScoreFilter):
     """
         An extension of the score filter for export to Excel
     """
+
     def render_to_response(self, context, **response_kwargs):
         """
         Returns a response with a template rendered with the given context.
@@ -877,7 +879,7 @@ class ContentFilter(DisplayAccessMixin, CommonFilterMixin,
                                     "%.2f" % cred.assessed_points)
                                 row['point_value'] = cred.credit.point_value
                                 if (cred.submission_status == 'np' or
-                                    cred.submission_status == 'ns'):
+                                        cred.submission_status == 'ns'):
                                     row['field'] = None
                         else:
                             row['assessed_points'] = "Reporter"
@@ -926,6 +928,7 @@ class ContentExcelFilter(ExcelMixin, ContentFilter):
     """
         An extension of the content filter for export to Excel
     """
+
     def render_to_response(self, context, **response_kwargs):
         """
         Returns a response with a template rendered with the given context.
@@ -1007,6 +1010,7 @@ class CategoryInCreditSetCallback(CallbackView):
         A callback method that accepts returns a list of
         categories as <options> for a <select>
     """
+
     def get_object_list(self, **kwargs):
 
         cs = CreditSet.objects.get(pk=kwargs['cs_id'])
@@ -1018,6 +1022,7 @@ class SubcategoryInCategoryCallback(CallbackView):
         A callback method that accepts returns a list of
         subcategories as <options> for a <select>
     """
+
     def get_object_list(self, **kwargs):
 
         cat = Category.objects.get(pk=kwargs['category_id'])
@@ -1029,6 +1034,7 @@ class CreditInSubcategoryCallback(CallbackView):
         A callback method that accepts returns a list of
         credits as <options> for a <select>
     """
+
     def get_object_list(self, **kwargs):
 
         sub = Subcategory.objects.get(pk=kwargs['subcategory_id'])
@@ -1040,6 +1046,7 @@ class FieldInCreditCallback(CallbackView):
         A callback method that accepts returns a list of
         documentation fields as <options> for a <select>
     """
+
     def get_object_list(self, **kwargs):
 
         credit = Credit.objects.get(pk=kwargs['credit_id'])

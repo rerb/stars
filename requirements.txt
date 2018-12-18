@@ -23,7 +23,7 @@ django-cms==3.0.18
 django-codemirror-widget==0.4.0
 -e git+https://github.com/AASHE/django-collapsing-menu#egg=django_collapsing_menu-dev
 django-compressor==1.5
-django-debug-toolbar==0.9.4
+django-debug-toolbar==1.4
 django-excel-response==1.0
 django-extensions==1.1.1
 django-extra-views==0.6.2
@@ -83,5 +83,6 @@ zope.interface==4.0.3
 zope.testing==4.1.1
 django-localflavor==1.2
 django-test-without-migrations
+sqlparse==0.1.19
 
 https://github.com/AASHE/iss/archive/v2.12.zip

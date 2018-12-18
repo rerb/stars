@@ -109,6 +109,7 @@ MIDDLEWARE_CLASSES = [  # a list so it can be editable during tests (see below)
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.cache.FetchFromCacheMiddleware',
     'django.contrib.redirects.middleware.RedirectFallbackMiddleware',
     'django.middleware.doc.XViewMiddleware',
@@ -460,16 +461,24 @@ if os.path.exists(os.path.join(os.path.dirname(__file__), 'hg_info.py')):
     from hg_info import revision
     HG_REVISION = revision
 
-# django toolbar
+# django debug toolbar
 DEBUG_TOOLBAR = os.environ.get('DEBUG_TOOLBAR', False)
 if DEBUG_TOOLBAR:
-    MIDDLEWARE_CLASSES = MIDDLEWARE_CLASSES + [
-        'debug_toolbar.middleware.DebugToolbarMiddleware']
     INTERNAL_IPS = ('127.0.0.1',)
     INSTALLED_APPS = INSTALLED_APPS + ('debug_toolbar',)
     DEBUG_TOOLBAR_CONFIG = {
         'INTERCEPT_REDIRECTS': False,
     }
+    DEBUG_TOOLBAR_PATCH_SETTINGS = False
+    DEBUG_TOOLBAR_PANELS = [
+        'debug_toolbar.panels.versions.VersionsPanel',
+        'debug_toolbar.panels.timer.TimerPanel',
+        'debug_toolbar.panels.settings.SettingsPanel',
+        'debug_toolbar.panels.request.RequestPanel',
+        'debug_toolbar.panels.sql.SQLPanel',
+        'debug_toolbar.panels.templates.TemplatesPanel',
+        'debug_toolbar.panels.logging.LoggingPanel',
+    ]
 
 AUTHORIZE_CLIENT_TEST = os.environ.get('AUTHORIZE_CLIENT_TEST', False)
 AUTHORIZE_CLIENT_DEBUG = os.environ.get('AUTHORIZE_CLIENT_DEBUG', False)

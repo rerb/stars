@@ -6,11 +6,13 @@ register = template.Library()
 from stars.apps.submissions.models import SubmissionSet, Rating
 from stars.apps.institutions.models import Institution
 
+
 @register.inclusion_tag('institutions/tags/latest_registrants.html')
 def show_latest_registrants(count='5'):
     """ Display the (count) most recently registered institutions """
 
-    inst_list = Institution.objects.filter(is_participant=True).filter(current_subscription__isnull=False).order_by("-current_subscription__start_date").distinct()[:count]
+    inst_list = Institution.objects.filter(is_participant=True).filter(
+        current_subscription__isnull=False).order_by("-current_subscription__start_date").distinct()[:count]
 
 #    query_set = SubmissionSet.objects.published().order_by('-date_registered').select_related("institution")
 #
@@ -19,6 +21,7 @@ def show_latest_registrants(count='5'):
 #        inst_list.append(s.institution)
 
     return {'inst_list': inst_list}
+
 
 @register.inclusion_tag('institutions/tags/rated_list.html')
 def show_rated_registrants(count='5'):
@@ -35,16 +38,23 @@ def show_institutions_map():
     """ Displays a map of institution participating in STARS """
 
     i_list = []
-    i_qs = Institution.objects.filter(enabled=True)
+    i_qs = (Institution.objects.filter(enabled=True)
+            .select_related(
+            'ms_institution',
+            'current_rating',
+            'rated_submission',
+            'access_level',
+            )
+            )
 
     for i in i_qs:
 
         d = {
-                'institution': i.profile,
-                'current_rating': i.current_rating,
-                'rated_submission': i.rated_submission,
-                'subscription': i.access_level == "Full"
-            }
+            'institution': i.ms_institution,
+            'current_rating': i.current_rating,
+            'rated_submission': i.rated_submission,
+            'subscription': i.access_level == "Full"
+        }
         # if i.charter_participant:
         #     d['image_path'] = "https://stars.aashe.org/media/static/images/seals/Stars_Seal_Charter_Particip_RGB_300.png"
         #     d['image_title'] = "Charter Participant"

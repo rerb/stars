@@ -276,7 +276,15 @@ class InstitutionList(ReportMixin, SortableTableView):
     ]
 
     def get_queryset(self):
-        return Institution.objects.annotate(reg_date=Min('subscription__start_date')).select_related()
+        return (Institution.objects
+                .annotate(reg_date=Min('subscription__start_date'))
+                .select_related(
+                    'current_rating',
+                    'current_submission',
+                    'current_submission__creditset__version',
+                    'is_participant'
+                )
+                )
 
 
 class SubscriptionPaymentBaseMixin(InstitutionToolMixin):

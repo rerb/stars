@@ -75,10 +75,12 @@ urlpatterns = patterns(
 )
 
 if settings.DEBUG:
-    urlpatterns += patterns('',
-                            url(r'^styles/$', TemplateView.as_view(
-                                template_name='styles.html'), name="styles")
-                            )
+    import debug_toolbar
+    urlpatterns += patterns(
+        '',
+        url(r'^__debug__/', include(debug_toolbar.urls)),
+        url(r'^styles/$', TemplateView.as_view(template_name='styles.html'), name="styles")
+    )
 
 if settings.DEBUG:
     urlpatterns += patterns(
