@@ -244,11 +244,13 @@ class Command(BaseCommand):
                                   membersuite_subscription.membersuite_id]:
                         del(stars_subscription_ms_ids[
                             stars_subscription_ms_ids.index(ms_id)])
+                    continue
                 else:  # remove this from the list of subscriptions
                        # to be archived  # noqa
                     del(stars_subscription_ms_ids[
                         stars_subscription_ms_ids.index(
                             stars_subscription.ms_id)])
+                    continue
             else:
                 # add a new subscription
                 stars_subscription = Subscription(
