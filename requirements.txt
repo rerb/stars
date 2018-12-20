@@ -70,7 +70,7 @@ python-dateutil==1.5
 python-memcached==1.48
 pytz==2015.2
 raven==3.3.7
-readline==6.2.4.1
+gnureadline==6.3.8
 reportlab==2.4
 simplejson==3.3.0
 six==1.10.0
