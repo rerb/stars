@@ -307,6 +307,12 @@ def get_df_etl_obj(df, ss):
 
             cus = field_submission.credit_submission.creditusersubmission
 
+            display_value = None
+            if cus.is_na():
+                display_value = "Not Applicable"
+            elif not cus.is_pursued():
+                display_value = "Not Pursued"
+
             update_score_fields(
                 etl_obj,
                 field_submission,
@@ -317,7 +323,7 @@ def get_df_etl_obj(df, ss):
                 cus.get_scorecard_url(),
                 imperial_units,
                 metric_units,
-                display_value=(None if cus.is_pursued() else "NP")
+                display_value=display_value
             )
             etl_obj['fields']['imperial_value'] = field_submission.value
             # this is to work around some inconsistencies in STARS
