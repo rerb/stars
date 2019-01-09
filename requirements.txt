@@ -43,7 +43,7 @@ django-recaptcha==1.0.6
 django-s3-folder-storage==0.1
 django-sekizai==0.7
 django-storages==1.1.5
-django-terms==1.0.4
+django-terms==1.1.0
 dj-database-url==0.2.1
 factory-boy==2.1.2
 functools32==3.2.3-2
@@ -70,7 +70,7 @@ python-dateutil==1.5
 python-memcached==1.48
 pytz==2015.2
 raven==3.3.7
-readline==6.2.4.1
+gnureadline==6.3.8
 reportlab==2.4
 simplejson==3.3.0
 six==1.10.0

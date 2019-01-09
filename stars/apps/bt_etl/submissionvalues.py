@@ -311,7 +311,7 @@ def get_df_etl_obj(df, ss):
             if cus.is_na():
                 display_value = "Not Applicable"
             elif not cus.is_pursued():
-                display_value = "Not Pursued"
+                display_value = "--"
 
             update_score_fields(
                 etl_obj,
