@@ -4,7 +4,7 @@ python:
 env:
   global:
   - STARS_REPORTS_HOST="reports.aashe.org"
-  - STARS_BENCHMARK_HOST="benchmarks.aashe.org"
+  - STARS_BENCHMARKS_HOST="benchmarks.aashe.org"
   - STARS_BROCHURE_HOST="stars.aashe.org"
   - STARS_DB_URL=mysql://travis@localhost/stars
   - AASHE_DRUPAL_COOKIE_DOMAIN=.aashe.org
