@@ -151,6 +151,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.messages.context_processors.messages',
     "django.contrib.auth.context_processors.auth",
     'django.core.context_processors.request',
+    'django_settings_export.settings_export'
 )
 
 INSTALLED_APPS = (
@@ -541,3 +542,11 @@ STARS_MS_PUBLICATION_ID = os.environ["STARS_MS_PUBLICATION_ID"]
 # longerusernameandemail
 ############################
 REQUIRE_UNIQUE_EMAIL = False
+
+STARS_BROCHURE_HOST = os.environ["STARS_BROCHURE_HOST"]
+STARS_REPORTS_HOST = os.environ["STARS_REPORTS_HOST"]
+STARS_BENCHMARKS_HOST = os.environ["STARS_BENCHMARKS_HOST"]
+
+SETTINGS_EXPORT = ["STARS_BROCHURE_HOST",
+                   "STARS_REPORTS_HOST",
+                   "STARS_BENCHMARKS_HOST"]
