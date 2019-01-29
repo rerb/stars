@@ -109,7 +109,7 @@ class FileCacheTest(TestCase):
         self.assertFalse(no_cache)
 
     def test_managament_invalidation(self):
-        url = 'http://stars.aashe.org' + self.url
+        url = 'https://reports.aashe.org' + self.url
         _ = self.get_self_url()  # noqa
         filecache = caches.get_cache('filecache')
         key = custom_caching.generate_cache_key(

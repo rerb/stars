@@ -49,7 +49,7 @@ def build_report_pdf(submission_set, template=None):
                 'project_path': settings.PROJECT_PATH,
                 'rating': submission_set.get_STARS_rating(),
                 'institution': submission_set.institution,
-                'host': "stars.aashe.org",
+                'host': "reports.aashe.org",
                 'about_text': Category.objects.get(slug='about').content,
                 'pdf': True
             }

@@ -4,7 +4,7 @@ from django.utils.feedgenerator import Rss201rev2Feed
 
 from stars.apps.submissions.models import SubmissionSet
 
-OFFICIAL_URL = "https://stars.aashe.org"
+OFFICIAL_URL = "https://reports.aashe.org"
 
 
 class LatestReportsFeed(Feed):

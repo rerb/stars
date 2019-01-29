@@ -8,7 +8,7 @@ from stars.apps.submissions.models import SubmissionSet
 def extract_and_transform(filename='report.json'):
 
     MODEL_STRING = "stars_content.report"
-    STARS_URL = "https://stars.aashe.org"
+    STARS_URL = "https://reports.aashe.org"
 
     """
     [
