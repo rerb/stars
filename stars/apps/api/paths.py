@@ -4,7 +4,7 @@
     Pulled them here out of apps' resource.py files to avoid circular
     dependencies.
 """
-CREDITS_RESOURCE_PATH = 'reports.apps.credits.api.resources.'
-INSTITUTIONS_RESOURCE_PATH = 'reports.apps.institutions.api.resources.'
-SUBMISSIONS_RESOURCE_PATH = 'reports.apps.submissions.newapi.resources.'
-HELPERS_RESOURCE_PATH = 'reports.apps.helpers.api.resources.'
+CREDITS_RESOURCE_PATH = 'stars.apps.credits.api.resources.'
+INSTITUTIONS_RESOURCE_PATH = 'stars.apps.institutions.api.resources.'
+SUBMISSIONS_RESOURCE_PATH = 'stars.apps.submissions.newapi.resources.'
+HELPERS_RESOURCE_PATH = 'stars.apps.helpers.api.resources.'
