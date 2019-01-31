@@ -31,7 +31,7 @@
 /* @todo: get actual rgb */
 h1 {
   color: #394a58;
-  font-size: 2.0em;
+  font-size: 2em;
 }
 h2 {
   color: #5160ab;
@@ -76,7 +76,7 @@ h4.home {
   background-color: rgba(0, 128, 207, 0.8);
   color: white;
   font-weight: bold;
-  font-size: .9em;
+  font-size: 0.9em;
   padding-top: 10px;
   padding-bottom: 10px;
 }
@@ -86,7 +86,7 @@ h4.home {
   font-size: 2.1em;
   padding: 0px;
   margin: 0px;
-  line-height: 2.0;
+  line-height: 2;
 }
 .stars-hero-title2 {
   margin-bottom: 20px;
@@ -125,7 +125,7 @@ h4.home {
 }
 .user-menu {
   text-align: right;
-  font-size: .9em;
+  font-size: 0.9em;
 }
 .header {
   padding-top: 15px;
@@ -148,7 +148,7 @@ h4.home {
   padding-right: 20px;
 }
 .footer {
-  font-size: .8em;
+  font-size: 0.8em;
   margin-top: 30px;
   color: #394a58;
 }
@@ -174,7 +174,7 @@ a.right-link {
   padding-top: 40px;
   padding-bottom: 20px;
   text-align: right;
-  font-size: .8em;
+  font-size: 0.8em;
   opacity: 0.9;
   filter: alpha(opacity=90);
 }
@@ -216,7 +216,7 @@ ul.nav-pills li.active a:hover {
   color: #00a060;
 }
 .subcategory_accordion .accordion-inner {
-  font-size: .9em;
+  font-size: 0.9em;
 }
 .subcategory_accordion .accordion-inner a {
   color: #15387f;
@@ -240,51 +240,52 @@ ul.nav-pills li.active a:hover {
 }
 
 /* css spinner */
-.spinner{
-    width: 70px;
-    height: 70px;
+.spinner {
+  width: 70px;
+  height: 70px;
 
-    border: 2px solid #f3f3f3;
-    border-top:3px solid #f25a41;
-    border-radius: 100%;
+  border: 2px solid #f3f3f3;
+  border-top: 3px solid #f25a41;
+  border-radius: 100%;
 
-    position: static;
-    top:0;
-    bottom: 10;
-    left:0;
-    right: 0;
-    margin: auto;
-    display: none;
+  position: static;
+  top: 0;
+  bottom: 10;
+  left: 0;
+  right: 0;
+  margin: auto;
+  display: none;
 
-    animation: spin 1s infinite linear;
+  animation: spin 1s infinite linear;
 }
 
 @keyframes spin {
-    from{
-        transform: rotate(0deg);
-    }to{
-        transform: rotate(360deg);
-    }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* check mark */
 
 .checkmark {
-    width: 37px;
-    height: 70px;
+  width: 37px;
+  height: 70px;
 
-    border-right: 10px solid #00b300;
-    border-top: 10px solid #f25a41;
-    /*border-top: 10px solid #90ABD6;*/
+  border-right: 10px solid #00b300;
+  border-top: 10px solid #f25a41;
+  /*border-top: 10px solid #90ABD6;*/
 
-    position: static;
-    top: 0;
-    bottom: 0;
-    left:0;
-    right: 0;
-    margin: auto;
-    margin-bottom: 18px;
-    display: none;
+  position: static;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+  margin-bottom: 18px;
+  display: none;
 
-    transform: scaleX(-1) rotate(135deg);
+  transform: scaleX(-1) rotate(135deg);
 }
