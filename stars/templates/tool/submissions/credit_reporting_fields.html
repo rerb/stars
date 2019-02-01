@@ -131,12 +131,11 @@
 	{{ form.errors.responsible_party }}
       {% endif %}
       {{ form.responsible_party|bootstrap }}
-      <a href="{% url 'add-responsible-party' institution.slug submissionset.id %}"
-	 class="btn btn-info btn-small" id="add_id_responsible_party"
-	 onclick="return showAddAnotherPopup(this);"
-	 title='Add New Responsible Party'>
-	Add
-      </a>
+      <button type='button' class="btn"
+          onclick="openAddResponsibleParty();"
+	      title='Add New Responsible Party'>
+	  Create New Responsible Party
+      </button>
       {% show_help_context 'responsible_party' %}
       <br/>
       {% if form.responsible_party_confirm.errors %}
@@ -160,6 +159,55 @@
        function saveWithReason(reason) {
          $("#id_applicability_reason").val(reason);
          saveWithStatus('na');
+       }
+
+       function openAddResponsibleParty(){
+           $("#new-responsible-party").modal();
+       }
+
+       function postResponsibleParty(){
+           var frm = $(".responsible-party-form");
+           $(".modal-footer").hide();
+           $("#responsible-party-p").hide();
+           $(".responsible-party-form").hide();
+           $(".spinner").slideDown();
+           var empty = frm.find("input").filter(function(){
+               return this.value === "";
+           });
+           if (empty.length){
+               $(".spinner").hide();
+               $("#responsible-party-p").html("All fields are required. Did not save.");
+               $("#responsible-party-p").show();
+           }
+           else {
+               $.ajax({
+                 type: "POST",
+                 url: frm.attr("id"),
+                 data: frm.serialize(),
+                 success: function(data) {
+                   if (data.indexOf("errorlist") >= 0) {
+                     console.log("error");
+                     $(".spinner").hide();
+                     $("#responsible-party-p").html("It appears there was an error.");
+                     $("#responsible-party-p").show();
+                     $(".responsible-party-form").show();
+                   } else {
+                     console.log("ok");
+                     $("#rsModalLabel").html("One moment please.");
+                     $(".spinner").hide();
+                     $(".checkmark").show();
+                   }
+                 },
+                 error: function(data) {
+                     console.log("error");
+                     $(".spinner").hide();
+                     $("#responsible-party-p").html("It appears there was an error.");
+                     $("#responsible-party-p").show();
+                     $(".responsible-party-form").show();
+                 }
+               });
+           }
+
        }
       </script>
 
@@ -291,6 +339,62 @@
           Continue without saving
         </button>
       </div>
+  </div>
+
+  <div id="new-responsible-party" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="new-responsible-party" aria-hidden="true">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="rsModalLabel">Create New Responsible Party</h3>
+      </div>
+      <div class="modal-body">
+        <p id="responsible-party-p">Please, save any changes to this credit before performing this action.</p>
+        <div class="spinner"></div>
+        <div class="checkmark"></div>
+        <form class="form-horizontal responsible-party-form" id="{% url 'responsible-party-create' institution.slug %}">
+            <div class="control-group required">
+                <label class="control-label" for="id_first_name">First name</label>
+                <div class="controls">
+                  <input type="text" id="id_first_name" maxlength="32" name="first_name">
+                </div>
+            </div>
+            <div class="control-group required">
+                <label class="control-label" for="id_last_name">Last name</label>
+                <div class="controls">
+                  <input type="text" id="id_last_name" maxlength="32" name="last_name">
+                </div>
+            </div>
+            <div class="control-group required">
+                <label class="control-label" for="id_title">Title</label>
+                <div class="controls">
+                  <input type="text" id="id_title" maxlength="128" name="title">
+                </div>
+            </div>
+            <div class="control-group required">
+                <label class="control-label" for="id_department">Department</label>
+                <div class="controls">
+                  <input type="text" id="id_department" maxlength="128" name="department">
+                </div>
+            </div>
+            <div class="control-group required">
+                <label class="control-label" for="id_email">Email</label>
+                <div class="controls">
+                  <input type="text" id="id_email" maxlength="75" name="email">
+                </div>
+            </div>
+            <div class="control-group required">
+                <label class="control-label" for="id_phone">Phone</label>
+                <div class="controls">
+                  <input type="text" id="id_phone" maxlength="20" name="phone">
+                </div>
+            </div>
+            <div class='modal-footer'>
+                <button onclick="postResponsibleParty();" class='btn btn-primary'>
+                        Save
+                </button>
+            </div>
+        </form>
+      </div>
+
   </div>
 
   <div id="data-changed"></div><!-- provide a generic way to say if data changed on the page -->
