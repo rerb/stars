@@ -17,7 +17,7 @@ from stars.apps.bt_etl.utils import get_datapoint_key
 
 LATEST_CS = CreditSet.objects.get_latest()
 MODEL_STRING = "stars_content.submissionvalue"
-STARS_URL = "https://stars.aashe.org"
+STARS_URL = "https://reports.aashe.org"
 
 
 def extract_and_transform(filename='submissionvalue.json'):
