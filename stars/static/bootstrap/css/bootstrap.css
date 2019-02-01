@@ -751,12 +751,12 @@ textarea {
   line-height: 18px;
 }
 
-input,
+/* input,
 button,
 select,
 textarea {
   font-family: "DejaVuSans", Helvetica, Arial, sans-serif;
-}
+} */
 
 label {
   display: block;
@@ -3732,14 +3732,6 @@ input[type="submit"].btn.btn-mini {
   -ms-transition: none;
   -o-transition: none;
   transition: none;
-}
-
-.navbar-search .search-query:-moz-placeholder {
-  color: #cccccc;
-}
-
-.navbar-search .search-query::-webkit-input-placeholder {
-  color: #cccccc;
 }
 
 .navbar-search .search-query:focus,
