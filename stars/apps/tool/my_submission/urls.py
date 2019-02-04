@@ -1,4 +1,4 @@
-from django.conf.urls.defaults import patterns, url
+from django.conf.urls import patterns, url
 
 from stars.apps.helpers.forms.forms import Confirm
 from stars.apps.tool.my_submission.forms import (ContactsForm,

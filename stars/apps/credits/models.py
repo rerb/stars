@@ -47,7 +47,7 @@ class CreditSetManager(models.Manager):
         """
         try:
             return super(CreditSetManager,
-                         self).get_query_set().filter(
+                         self).get_queryset().filter(
                              release_date__lte=date.today()).order_by(
                                  '-release_date')[0]
         except:

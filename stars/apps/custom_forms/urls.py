@@ -1,4 +1,4 @@
-from django.conf.urls.defaults import patterns, url
+from django.conf.urls import patterns, url
 from stars.apps.custom_forms.views import (EligibilityView,
                                            SteeringCommitteeNominationView,
                                            TechnicalAdvisorApplicationView,

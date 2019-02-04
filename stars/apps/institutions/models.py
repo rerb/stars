@@ -47,8 +47,8 @@ class ClimateZone(models.Model):
 
 class MemberSuiteInstitutionManager(models.Manager):
 
-    def get_query_set(self):
-        qs = super(MemberSuiteInstitutionManager, self).get_query_set()
+    def get_queryset(self):
+        qs = super(MemberSuiteInstitutionManager, self).get_queryset()
         return qs.exclude(exclude_from_website=True)
 
 
@@ -172,7 +172,7 @@ class Institution(models.Model):
     president_state = models.CharField(max_length=2, blank=True, null=True)
     president_zip = models.CharField(max_length=8, blank=True, null=True)
 
-    charter_participant = models.BooleanField()
+    charter_participant = models.BooleanField(default=False)
     stars_staff_notes = models.TextField(blank=True, null=True)
     date_created = models.DateTimeField(auto_now_add=True,
                                         blank=True,
@@ -555,17 +555,17 @@ SUBSCRIPTION_DURATION = 365
 class SubscriptionManager(models.Manager):
     """Filter archived Subscriptions."""
 
-    def get_query_set(self):
-        qs = super(SubscriptionManager, self).get_query_set()
+    def get_queryset(self):
+        qs = super(SubscriptionManager, self).get_queryset()
         qs = qs.exclude(archived=True)
         return qs
 
     def include_archived(self):
-        qs = super(SubscriptionManager, self).get_query_set()
+        qs = super(SubscriptionManager, self).get_queryset()
         return qs
 
     def archived(self):
-        qs = super(SubscriptionManager, self).get_query_set()
+        qs = super(SubscriptionManager, self).get_queryset()
         qs = qs.exclude(archived=False)
         return qs
 
@@ -759,7 +759,7 @@ class AbstractAccount(BaseAccount):
         2) so that unique_together constraints can be handled by Django
     """
     institution = models.ForeignKey(Institution)
-    terms_of_service = models.BooleanField()
+    terms_of_service = models.BooleanField(default=False)
     # user_level is a role
     user_level = models.CharField("Role", max_length='6',
                                   choices=STARS_USERLEVEL_CHOICES)
@@ -1002,6 +1002,7 @@ class DuckUser(object):
         Why?
             - to satisfy the needs of PendingAccount
      """
+
     def __init__(self, user_email):
         self.email = user_email
 
@@ -1032,6 +1033,7 @@ class DuckAccount(object):
         This is not being used right now - it was just an idea I was
         toying with... may be useful in future.
     """
+
     def __init__(self, user, institution=None, user_level=None):
         self.user = user
         self.institution = institution

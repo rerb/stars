@@ -36,6 +36,10 @@ class InstitutionToolMixinTest(ProtectedFormMixinViewTest):
         self.institution = InstitutionFactory(slug='on-the-beach-soldier')
         self.account = StarsAccountFactory(institution=self.institution)
         self.request.user = self.account.user
+        creditset = CreditSetFactory()
+        self.submission = SubmissionSetFactory(
+            institution=self.institution,
+            creditset=creditset)
 
     def open_gate(self):
         self._assign_user_level(self.blessed_user_level)
@@ -103,6 +107,7 @@ class UserCanEditSubmissionMixinTest(ProtectedViewTest):
         Provides a base TestCase for views that inherit from
         UserCanEditSubmissionMixin.
     """
+
     def setUp(self):
         super(UserCanEditSubmissionMixinTest, self).setUp()
         self.institution = InstitutionFactory(slug='on-the-beach-soldier')
@@ -146,6 +151,7 @@ class SubmissionSetIsNotLockedMixinTest(ProtectedViewTest):
         Provides a base TestCase for views that inherit from
         SubmissionSetIsNotLockedMixin.
     """
+
     def setUp(self):
         super(SubmissionSetIsNotLockedMixinTest, self).setUp()
         self.institution = InstitutionFactory(slug='hey-baby-you-look-lonely')
@@ -241,7 +247,7 @@ class NoStarsAccountViewTest(ViewTest):
 
     def setUp(self):
         super(NoStarsAccountViewTest, self).setUp()
-        #changed
+        # changed
         # self.user_aashe_account = MemberSuitePortalUserFactory()
         # self.user_aashe_account = AASHEAccountFactory()
         self.user_aashe_account = UserProfileFactory()
@@ -345,7 +351,6 @@ class NoStarsAccountViewTest(ViewTest):
             contact_last_name='Burroughs')
         self.assertEqual(self.view.get_liaison_name(institution),
                          'William Burroughs')
-                         
 
     # def test_liaison_name_shown(self):
     #     institution = InstitutionFactory(is_participant=True,

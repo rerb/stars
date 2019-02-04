@@ -1,4 +1,4 @@
-from django.conf.urls.defaults import patterns, url
+from django.conf.urls import patterns, url
 from django.views.decorators.cache import never_cache
 
 from stars.apps.tool.credit_editor.views import *
@@ -56,4 +56,4 @@ urlpatterns = patterns(
     url(r'^%sformula/(?P<pk>\d+)/delete/$' % cr_prefix,
         DeleteTestCase.as_view(),
         name="test-case-delete"),
-  )
+)

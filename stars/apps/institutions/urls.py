@@ -1,4 +1,4 @@
-from django.conf.urls.defaults import *
+from django.conf.urls import *
 from django.views.decorators.cache import never_cache
 
 from .feeds import LatestReportsFeed
@@ -45,19 +45,19 @@ urlpatterns = patterns(
 
     # PDF Export of Submission
     url(r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/pdf/$',
-     never_cache(PDFExportView.as_view())),
+        never_cache(PDFExportView.as_view())),
 
     # PDF retrieval view
     url(r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/pdf/download/(?P<task>[^/]+)/$',
-     never_cache(PDFDownloadView.as_view())),
+        never_cache(PDFDownloadView.as_view())),
 
     # Excel Export of Submission
     url(r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/excel/$',
-     never_cache(ExcelExportView.as_view())),
+        never_cache(ExcelExportView.as_view())),
 
     # Export retrieval view
     url(r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/excel/download/(?P<task>[^/]+)/$',
-     never_cache(ExcelDownloadView.as_view())),
+        never_cache(ExcelDownloadView.as_view())),
 
     # Certificate Export of Submission
     url(r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/cert/$',
@@ -68,7 +68,7 @@ urlpatterns = patterns(
     url(r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/cert/download/(?P<task>[^/]+)/$',
         never_cache(CertificateDownloadView.as_view()),
         name="cert-download"
-    ),
+        ),
 
     # Certificate preview
     url(r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/cert-preview/$',
@@ -99,10 +99,12 @@ urlpatterns = patterns(
         name='credit-submission-status-update'),
 
     # Credit Documentation
-    (r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/(?P<category_abbreviation>[^/]+)/(?P<subcategory_slug>[^/]+)/(?P<credit_identifier>[^/]+)/documentation/$', ScorecardCreditDocumentation.as_view()),
+    (r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/(?P<category_abbreviation>[^/]+)/(?P<subcategory_slug>[^/]+)/(?P<credit_identifier>[^/]+)/documentation/$',
+     ScorecardCreditDocumentation.as_view()),
 
     # Internal Notes
-    (r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/(?P<category_abbreviation>[^/]+)/(?P<subcategory_slug>[^/]+)/(?P<credit_identifier>[^/]+)/internal-notes/$', ScorecardInternalNotesView.as_view()),
+    (r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/(?P<category_abbreviation>[^/]+)/(?P<subcategory_slug>[^/]+)/(?P<credit_identifier>[^/]+)/internal-notes/$',
+     ScorecardInternalNotesView.as_view()),
 
     (r'^data-displays/', include('stars.apps.institutions.data_displays.urls')),
 )
