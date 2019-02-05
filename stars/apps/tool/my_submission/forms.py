@@ -766,6 +766,7 @@ class CreditUserSubmissionForm(CreditSubmissionForm):
 
         # Select only the responsible parties associated with that institution
         self.fields['responsible_party'].queryset = self.instance.subcategory_submission.category_submission.submissionset.institution.responsibleparty_set.all()
+        self.fields['responsible_party'].label = "Select Responsible Party"
 
         if not self.instance.credit.get_creditset().has_optional_responsible_parties_feature:
             self.fields['responsible_party_confirm'].label = (

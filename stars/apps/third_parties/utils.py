@@ -143,7 +143,7 @@ def export_credit_csv(credit, ss_qs=None, outfilename=None):
                             except Exception:
                                 row.append("")
                             else:
-                                row.append("http://stars.aashe.org%s" %
+                                row.append("https://reports.aashe.org%s" %
                                            dfs.value.url)
                         else:
                             row.append("")

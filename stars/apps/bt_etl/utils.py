@@ -24,19 +24,20 @@ def get_datapoint_key(obj):
 def get_latest_df_val_for_institution(df_id, institution):
 
     df = DocumentationField.objects.get(pk=df_id)
-    
+
     # try to get it from the most recent submission
     try:
-        ss = institution.submissionset_set.filter(status='r').order_by('-date_submitted')[0]
+        ss = institution.submissionset_set.filter(
+            status='r').order_by('-date_submitted')[0]
     except IndexError:
         return None
-        
+
     # get the field for this creditset
     rel_df = df.get_for_creditset(ss.creditset)
     Klass = DocumentationFieldSubmission.get_field_class(df)
     dfs = Klass.objects.by_submissionset(ss)
     dfs = dfs.get(documentation_field=rel_df)
-    
+
     if dfs.value:
         if Klass.__name__ == 'ChoiceSubmission':
             return dfs.value.choice
@@ -53,6 +54,10 @@ def get_institution_type(institution):
     _type = get_latest_df_val_for_institution(4368, institution)
 
     if _type:
+        if _type == "Master's":
+            return 'Master'
+        elif _type == 'Doctorate':
+            return 'Doctoral/Research'
         return _type
 
     # this should go to sentry

@@ -55,7 +55,7 @@ def get_summary_sheet(submission, sheet):
     sheet.col(c).width = min_width
 
     # Image
-    sheet.write(17, 0, "http://stars.aashe.org")
+    sheet.write(17, 0, "https://reports.aashe.org")
     sheet.col(2).width = 1000
     sheet.col(3).width = (256 * 40)
 

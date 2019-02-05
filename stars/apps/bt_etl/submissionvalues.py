@@ -17,7 +17,7 @@ from stars.apps.bt_etl.utils import get_datapoint_key
 
 LATEST_CS = CreditSet.objects.get_latest()
 MODEL_STRING = "stars_content.submissionvalue"
-STARS_URL = "https://stars.aashe.org"
+STARS_URL = "https://reports.aashe.org"
 
 
 def extract_and_transform(filename='submissionvalue.json'):
@@ -307,6 +307,10 @@ def get_df_etl_obj(df, ss):
 
             cus = field_submission.credit_submission.creditusersubmission
 
+            display_value = None
+            if cus.is_na():
+                display_value = "Not Applicable"
+
             update_score_fields(
                 etl_obj,
                 field_submission,
@@ -317,7 +321,7 @@ def get_df_etl_obj(df, ss):
                 cus.get_scorecard_url(),
                 imperial_units,
                 metric_units,
-                display_value=(None if cus.is_pursued() else "NP")
+                display_value=display_value
             )
             etl_obj['fields']['imperial_value'] = field_submission.value
             # this is to work around some inconsistencies in STARS

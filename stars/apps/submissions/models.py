@@ -2301,7 +2301,7 @@ class DocumentationFieldSubmission(models.Model):
             return ""
         if self.documentation_field.type == 'upload':
             if self.value:
-                return "http://stars.aashe.org%s" % self.value.url
+                return "https://reports.aashe.org%s" % self.value.url
             else:
                 return ""
         else:
