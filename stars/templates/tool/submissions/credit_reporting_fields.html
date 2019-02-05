@@ -152,8 +152,10 @@
 
       <script>
        function saveWithStatus(status) {
+         console.log("SAVING")
          $("#id_submission_status").val(status);
-         $("form").submit()
+         console.log($("#id_submission_status").val())
+         $(".submit_form").submit()
        }
 
        function saveWithReason(reason) {
