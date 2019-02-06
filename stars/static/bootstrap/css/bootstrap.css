@@ -1723,7 +1723,7 @@ table .span24 {
   margin-left: 0;
 }
 
-/* [class^="icon-"],
+[class^="icon-"],
 [class*=" icon-"] {
   display: inline-block;
   width: 14px;
@@ -1734,7 +1734,7 @@ table .span24 {
   background-image: url("../img/glyphicons-halflings.png");
   background-position: 14px 14px;
   background-repeat: no-repeat;
-} */
+}
 
 [class^="icon-"]:last-child,
 [class*=" icon-"]:last-child {
@@ -5317,4 +5317,18 @@ a.badge:hover {
 
 .invisible {
   visibility: hidden;
+}
+
+.icon-portal {
+    display: inline-block;
+    padding: 16px 20px 16px 40px;
+    background-position: 10px 14px;
+    background-size: 20px 20px;
+
+    width: unset;
+    height: unset;
+    *margin-right: unset;
+    line-height: unset;
+    vertical-align: unset;
+
 }
