@@ -58,6 +58,8 @@
   {% endif %}
 
 {% endif %}
-<p class="help-block">
-  <em>{{ documentation_field.inline_help_text }}</em>
-</p>
+{% if documentation_field.inline_help_text %}
+    <p class="help-block">
+      <em>{{ documentation_field.inline_help_text }}</em>
+    </p>
+{% endif %}
