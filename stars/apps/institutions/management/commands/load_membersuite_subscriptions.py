@@ -250,19 +250,17 @@ class Command(BaseCommand):
                     del(stars_subscription_ms_ids[
                         stars_subscription_ms_ids.index(
                             stars_subscription.ms_id)])
-                    continue
             else:
+                if not membersuite_subscription.expiration_date:
+                    # Used to raise an error when no expiration_date
+                    # was available, then folks started leaving
+                    # expiration date blank in MemberSuite to signify
+                    # that the subscription hasn't been paid for.
+                    # So now we just silently trudge on.
+                    continue
                 # add a new subscription
                 stars_subscription = Subscription(
                     ms_id=membersuite_subscription.membersuite_id)
-
-            if not membersuite_subscription.expiration_date:
-                # Used to raise an error when no expiration_date
-                # was available, then folks started leaving
-                # expiration date blank in MemberSuite to signify
-                # that the subscription hasn't been paid for.
-                # So now we just silently trudge on.
-                continue
 
             # update and save the local subscription
             self.update_subscription_from_membersuite(
@@ -275,8 +273,12 @@ class Command(BaseCommand):
                 stars_subscription.institution.update_current_rating()
                 stars_subscription.institution.update_current_subscription()
                 stars_subscription.institution.save()
+            else:
+                logger.error("no stars_subscription.institution for "
+                             "subscription with pk =" + stars_subscription.pk)
 
         # if any id's remain in subscription_id_list they can be archived
         # as they don't exist in MemberSuite anymore
+
         for ms_id in stars_subscription_ms_ids:
             Subscription.objects.filter(ms_id=ms_id).update(archived=True)
