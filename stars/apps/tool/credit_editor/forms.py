@@ -230,7 +230,7 @@ class NewT2CreditForm(NewCreditForm):
 class AbstractFormWithFormula(object):
 
     class Meta:
-      abstract = True
+        abstract = True
 
     def clean_formula(self):
         return self._clean_code_field('formula')
@@ -335,10 +335,13 @@ class DocumentationFieldForm(AbstractFormWithFormula,
 
     def clean(self):
         cleaned_data = self.cleaned_data
+        if cleaned_data['tabular_fields'] != '':
+            self.instance.credit.reorder_children(
+                cleaned_data['tabular_fields']['fields'], self.instance)
 
         # detect if we are moving between credits
         if (self.instance.credit and
-            self.instance.credit != cleaned_data['credit']):
+                self.instance.credit != cleaned_data['credit']):
 
             self.instance.identifier = None
             self.instance.ordinal = -1

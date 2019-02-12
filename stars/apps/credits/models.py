@@ -87,6 +87,7 @@ def _get_next_ordinal(objects):
         ordinal = last.ordinal + 1
     return ordinal
 
+
 # These choices are the names of scoring methods in the SubmissionSet
 # model used to score a credit set.
 # Method names stored in the DB have a maximum length of 25 characters
@@ -259,7 +260,7 @@ class CreditSet(VersionedModel):
             # Unconfirmed lock attempt: determine if confirmation is
             # required and reset lock if so.
             if (lock_changed and not self.is_locked and
-                not self._unlock_confirmed):
+                    not self._unlock_confirmed):
                 self._confirm_unlock_attempt = (self.is_released() and
                                                 self.num_submissions() > 0)
                 if self._confirm_unlock_attempt:
@@ -998,6 +999,25 @@ else:
         return self.documentationfield_set.exclude(
             id__in=self.get_child_fields())
 
+    def reorder_children(self, tab_fields, field):
+        current_order = self.documentationfield_set.all().order_by('ordinal')
+        list_of_pks = list(
+            self.documentationfield_set.all().values_list('pk', flat=True))
+        i = 0
+        for ob in current_order:
+            if ob.pk in list_of_pks:
+                list_of_pks.remove(ob.pk)
+                ob.ordinal = i
+                i += 1
+                if ob == field:
+                    for f in tab_fields:
+                        my_field = DocumentationField.objects.get(pk=f[0])
+                        my_field.ordinal = i
+                        list_of_pks.remove(my_field.pk)
+                        my_field.save()
+                        i += 1
+                ob.save()
+
 
 def compile_formula(formula, label='Formula'):
     """
@@ -1080,6 +1100,7 @@ class ApplicabilityReason(VersionedModel):
             self.ordinal = _get_next_ordinal(
                 self.credit.applicabilityreason_set.all())
         super(ApplicabilityReason, self).save(*args, **kwargs)
+
 
 DOCUMENTATION_FIELD_TYPES = (
     ('text', 'text'),
