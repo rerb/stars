@@ -999,7 +999,10 @@ else:
         return self.documentationfield_set.exclude(
             id__in=self.get_child_fields())
 
-    def reorder_children(self, tab_fields, field):
+    def reorder_children_tabular_save(self, tab_fields, field):
+        """
+            Reorder children when a tabular field is saved.
+        """
         current_order = self.documentationfield_set.all().order_by('ordinal')
         list_of_pks = list(
             self.documentationfield_set.all().values_list('pk', flat=True))
@@ -1011,11 +1014,12 @@ else:
                 i += 1
                 if ob == field:
                     for f in tab_fields:
-                        my_field = DocumentationField.objects.get(pk=f[0])
-                        my_field.ordinal = i
-                        list_of_pks.remove(my_field.pk)
-                        my_field.save()
-                        i += 1
+                        if f[0] != '':
+                            my_field = DocumentationField.objects.get(pk=f[0])
+                            my_field.ordinal = i
+                            list_of_pks.remove(my_field.pk)
+                            my_field.save()
+                            i += 1
                 ob.save()
 
 
