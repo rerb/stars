@@ -430,11 +430,6 @@ class CreditReportingFields(CreditEditorFormView):
 
         return form_list, _context
 
-    def post(self, request, *args, **kwargs):
-        print "request"
-        print request
-        return super(CreditReportingFields, self).post(request, *args, **kwargs)
-
     def get_success_response(self, request, context):
         return HttpResponseRedirect("%sfields/" %
                                     context['credit'].get_edit_url())

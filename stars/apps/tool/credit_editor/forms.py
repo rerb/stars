@@ -335,9 +335,6 @@ class DocumentationFieldForm(AbstractFormWithFormula,
 
     def clean(self):
         cleaned_data = self.cleaned_data
-        if cleaned_data['tabular_fields'] != '':
-            self.instance.credit.reorder_children_tabular_save(
-                cleaned_data['tabular_fields']['fields'], self.instance)
 
         # detect if we are moving between credits
         if (self.instance.credit and
@@ -364,7 +361,7 @@ class NewDocumentationFieldForm(DocumentationFieldForm):
 
 
 class DocumentationFieldOrderingForm(RightSizeInputModelForm):
-    ordinal = forms.IntegerField(widget=widgets.HiddenInput(
+    ordinal = forms.FloatField(widget=widgets.HiddenInput(
         attrs={'size': '3', 'class': 'ordinal'}))
     value = forms.CharField()
 
@@ -387,16 +384,6 @@ class DocumentationFieldOrderingForm(RightSizeInputModelForm):
             self.fields['value'].widget.choices = (
                 (r.id, r.choice) for r in self.instance.choice_set.all()
             )
-
-    def save(self, commit=True):
-        instance = super(DocumentationFieldOrderingForm,
-                         self).save(commit=False)
-        instance.save()
-        if instance.type == 'tabular':
-            instance.credit.reorder_children_tabular_save(
-                instance.tabular_fields['fields'], instance)
-        print instance.type
-        return instance
 
 
 class ChoiceForm(RightSizeInputModelForm):

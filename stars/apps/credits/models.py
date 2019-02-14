@@ -999,29 +999,6 @@ else:
         return self.documentationfield_set.exclude(
             id__in=self.get_child_fields())
 
-    def reorder_children_tabular_save(self, tab_fields, field):
-        """
-            Reorder children when a tabular field is saved.
-        """
-        current_order = self.documentationfield_set.all().order_by('ordinal')
-        list_of_pks = list(
-            self.documentationfield_set.all().values_list('pk', flat=True))
-        i = 0
-        for ob in current_order:
-            if ob.pk in list_of_pks:
-                list_of_pks.remove(ob.pk)
-                ob.ordinal = i
-                i += 1
-                if ob == field:
-                    for f in tab_fields:
-                        if f[0] != '':
-                            my_field = DocumentationField.objects.get(pk=f[0])
-                            my_field.ordinal = i
-                            list_of_pks.remove(my_field.pk)
-                            my_field.save()
-                            i += 1
-                ob.save()
-
 
 def compile_formula(formula, label='Formula'):
     """
@@ -1223,7 +1200,7 @@ class DocumentationField(VersionedModel):
     units = models.ForeignKey(Unit, null=True, blank=True)
     inline_help_text = models.TextField(null=True, blank=True)
     tooltip_help_text = models.TextField(null=True, blank=True)
-    ordinal = models.SmallIntegerField(default=-1, db_index=True)
+    ordinal = models.FloatField(default=-1.0, db_index=True)
     required = models.CharField(
         max_length=8,
         choices=REQUIRED_TYPES,
@@ -1286,7 +1263,7 @@ class DocumentationField(VersionedModel):
         """
         if not self.identifier:
             self.identifier = self.credit.get_next_field_identifier()
-        if self.ordinal == -1:
+        if self.ordinal == -1.0:
             self.ordinal = _get_next_ordinal(
                 self.credit.documentationfield_set.all())
 
@@ -1306,6 +1283,8 @@ class DocumentationField(VersionedModel):
         if update_terms_and_dependents:
             self.update_formula_terms()
             self.recalculate_dependent_submissions()
+        if self.type == 'tabular':
+            self.reorder_tabular_children()
 
     def recalculate_dependent_submissions(self):
         """Recalculate all calculated CreditSubmissions that depend on this
@@ -1465,6 +1444,19 @@ class DocumentationField(VersionedModel):
     def get_widget(self):
         """ Returns the appropriate widget for this type of field """
         return TYPE_TO_WIDGET[self.type]
+
+    def reorder_tabular_children(self):
+        """
+            Reassign the ordinal value of child documentation fields in
+            tabular field.
+        """
+        i = self.ordinal + 0.1
+        for row in self.tabular_fields['fields']:
+            for cell in [cell for cell in row if cell != '']:
+                field = DocumentationField.objects.get(pk=int(cell))
+                field.ordinal = i
+                field.save()
+                i += 1
 
 
 def documentation_field_post_init(sender, instance, **kwargs):
