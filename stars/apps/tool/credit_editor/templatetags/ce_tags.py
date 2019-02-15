@@ -10,10 +10,13 @@ def _get_form(doc_field, editing=False):
     """
         Gets a form for a documentation field
     """
-    SubmissionFieldModelClass = DocumentationFieldSubmission.get_field_class(doc_field)
-    submission_field = SubmissionFieldModelClass(documentation_field=doc_field) if SubmissionFieldModelClass else None
+    SubmissionFieldModelClass = DocumentationFieldSubmission.get_field_class(
+        doc_field)
+    submission_field = SubmissionFieldModelClass(
+        documentation_field=doc_field) if SubmissionFieldModelClass else None
 
-    SubmissionFieldFormClass = SubmissionFieldForm.get_form_class(submission_field)
+    SubmissionFieldFormClass = SubmissionFieldForm.get_form_class(
+        submission_field)
     form = SubmissionFieldFormClass(None, instance=submission_field)
     form.fields['value'].widget.attrs = {'class': 'noMCE',
                                          'disabled': 'disabled'}
@@ -31,9 +34,10 @@ def show_field_form(doc_field, editing=True):
 @register.inclusion_tag('tool/submissions/tags/documentation_field_inside_table.html')
 def show_field_form_inside_table(doc_field, editing=True):
     """ Displays the submission form for a documentation field """
-    return{"documentation_field": doc_field,
-           "field_form": _get_form(doc_field, editing),
-           "editing": editing}
+    if doc_field != '':
+        return{"documentation_field": doc_field,
+               "field_form": _get_form(doc_field, editing),
+               "editing": editing}
 
 
 @register.inclusion_tag('tool/credit_editor/tags/crumbs.html')
@@ -57,7 +61,7 @@ def show_dependent_objects(object, depth=-1):
         This tag is recursive - it displays the dependency hierarchy to the given depth.
         If a depth is given, the depth'th level (when depth==1) is shown as counts only.
     """
-    dependents = [(None,[])]
+    dependents = [(None, [])]
     if hasattr(object, 'get_dependents'):
         dependents = object.get_dependents()
-    return {'dependents': dependents, 'depth':depth-1, 'counts_only':depth==1}
+    return {'dependents': dependents, 'depth': depth-1, 'counts_only': depth == 1}
