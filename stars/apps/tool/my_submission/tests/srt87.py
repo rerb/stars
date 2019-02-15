@@ -52,11 +52,11 @@ class SRT87Test(ViewTest):
         self.category = self.subcategory.category
 
         tabular_field_dict = {
-                                "numRows": 1,
-                                "fields": [["1"]],
-                                "rowHeadings": ["Row 1"],
-                                "colHeadings": ["Col 1"],
-                                "numCols": 1}
+            "numRows": 1,
+            "fields": [["1"]],
+            "rowHeadings": ["Row 1"],
+            "colHeadings": ["Col 1"],
+            "numCols": 1}
         self.tabular_field = DocumentationFieldFactory(
             type='tabular',
             required=True,
@@ -90,7 +90,7 @@ class SRT87Test(ViewTest):
                              "responsible_party_confirm": 'on',
                              "submission_status": 'c'}
         response = self.view_class.as_view()(self.request, **self.view_kwargs)
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 200)
 
         cus = CreditUserSubmission.objects.all()[0]
         self.assertEqual(cus.submission_status, 'c')
