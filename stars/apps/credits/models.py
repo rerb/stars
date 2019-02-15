@@ -1450,13 +1450,13 @@ class DocumentationField(VersionedModel):
             Reassign the ordinal value of child documentation fields in
             tabular field.
         """
-        i = self.ordinal + 0.1
+        i = self.ordinal + 0.01
         for row in self.tabular_fields['fields']:
             for cell in [cell for cell in row if cell != '']:
                 field = DocumentationField.objects.get(pk=int(cell))
                 field.ordinal = i
                 field.save()
-                i += 1
+                i += 0.01
 
 
 def documentation_field_post_init(sender, instance, **kwargs):
