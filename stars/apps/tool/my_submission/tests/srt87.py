@@ -90,7 +90,7 @@ class SRT87Test(ViewTest):
                              "responsible_party_confirm": 'on',
                              "submission_status": 'c'}
         response = self.view_class.as_view()(self.request, **self.view_kwargs)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 302)
 
         cus = CreditUserSubmission.objects.all()[0]
         self.assertEqual(cus.submission_status, 'c')
