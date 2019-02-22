@@ -184,7 +184,14 @@ def build_category_data_sheet(category, sheet):
                 sheet.write(r, c + 2, f.documentation_field.title,
                             borderedStyle)
                 update_width(c + 2, f.documentation_field.title)
-                sheet.write(r, c + 3, f.get_human_value(), borderedStyle)
+                if (f.documentation_field.type == 'numeric' or f.documentation_field.type == 'calculated'):
+                    metric = False
+                    if f.use_metric != None and field.use_metric:
+                        metric = True
+                    sheet.write(
+                        r, c + 3, f.get_human_value(get_metric=metric), borderedStyle)
+                else:
+                    sheet.write(r, c + 3, f.get_human_value(), borderedStyle)
                 r += 1
 
     for c, w in enumerate(col_widths):
