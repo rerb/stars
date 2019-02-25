@@ -1,6 +1,6 @@
 import xlwt
 from django.core.files.temp import NamedTemporaryFile
-
+from PIL import Image
 
 from stars.apps.submissions.models import NOT_APPLICABLE
 
