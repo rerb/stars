@@ -87,6 +87,7 @@ def _get_next_ordinal(objects):
         ordinal = last.ordinal + 1
     return ordinal
 
+
 # These choices are the names of scoring methods in the SubmissionSet
 # model used to score a credit set.
 # Method names stored in the DB have a maximum length of 25 characters
@@ -259,7 +260,7 @@ class CreditSet(VersionedModel):
             # Unconfirmed lock attempt: determine if confirmation is
             # required and reset lock if so.
             if (lock_changed and not self.is_locked and
-                not self._unlock_confirmed):
+                    not self._unlock_confirmed):
                 self._confirm_unlock_attempt = (self.is_released() and
                                                 self.num_submissions() > 0)
                 if self._confirm_unlock_attempt:
@@ -1081,6 +1082,7 @@ class ApplicabilityReason(VersionedModel):
                 self.credit.applicabilityreason_set.all())
         super(ApplicabilityReason, self).save(*args, **kwargs)
 
+
 DOCUMENTATION_FIELD_TYPES = (
     ('text', 'text'),
     ('long_text', 'long text'),
@@ -1198,7 +1200,7 @@ class DocumentationField(VersionedModel):
     units = models.ForeignKey(Unit, null=True, blank=True)
     inline_help_text = models.TextField(null=True, blank=True)
     tooltip_help_text = models.TextField(null=True, blank=True)
-    ordinal = models.SmallIntegerField(default=-1, db_index=True)
+    ordinal = models.FloatField(default=-1.0, db_index=True)
     required = models.CharField(
         max_length=8,
         choices=REQUIRED_TYPES,
@@ -1261,7 +1263,7 @@ class DocumentationField(VersionedModel):
         """
         if not self.identifier:
             self.identifier = self.credit.get_next_field_identifier()
-        if self.ordinal == -1:
+        if self.ordinal == -1.0:
             self.ordinal = _get_next_ordinal(
                 self.credit.documentationfield_set.all())
 
@@ -1281,6 +1283,8 @@ class DocumentationField(VersionedModel):
         if update_terms_and_dependents:
             self.update_formula_terms()
             self.recalculate_dependent_submissions()
+        if self.type == 'tabular':
+            self.reorder_tabular_children()
 
     def recalculate_dependent_submissions(self):
         """Recalculate all calculated CreditSubmissions that depend on this
@@ -1440,6 +1444,19 @@ class DocumentationField(VersionedModel):
     def get_widget(self):
         """ Returns the appropriate widget for this type of field """
         return TYPE_TO_WIDGET[self.type]
+
+    def reorder_tabular_children(self):
+        """
+            Reassign the ordinal value of child documentation fields in
+            tabular field.
+        """
+        i = self.ordinal + 0.01
+        for row in self.tabular_fields['fields']:
+            for cell in [cell for cell in row if cell != '']:
+                field = DocumentationField.objects.get(pk=int(cell))
+                field.ordinal = i
+                field.save()
+                i += 0.01
 
 
 def documentation_field_post_init(sender, instance, **kwargs):

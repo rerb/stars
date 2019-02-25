@@ -28,7 +28,7 @@
     {% endif %}
 
   {% elif field.documentation_field.type == 'numeric' or field.documentation_field.type == 'calculated' %}
-    {% if use_metric != None and use_metric %}
+    {% if field.use_metric != None and field.use_metric %}
       {{ field.metric_value|floatformat:"-2" }}
       {% if field.documentation_field.metric_units %}
         <i>{{ field.documentation_field.metric_units }}</i>
