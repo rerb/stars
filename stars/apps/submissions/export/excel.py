@@ -1,6 +1,6 @@
 import xlwt
 from django.core.files.temp import NamedTemporaryFile
-from PIL import Image
+
 
 from stars.apps.submissions.models import NOT_APPLICABLE
 
@@ -186,7 +186,7 @@ def build_category_data_sheet(category, sheet):
                 update_width(c + 2, f.documentation_field.title)
                 if (f.documentation_field.type == 'numeric' or f.documentation_field.type == 'calculated'):
                     metric = False
-                    if f.use_metric != None and field.use_metric:
+                    if f.use_metric != None and f.use_metric:
                         metric = True
                     sheet.write(
                         r, c + 3, f.get_human_value(get_metric=metric), borderedStyle)
