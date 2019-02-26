@@ -193,8 +193,6 @@ INSTALLED_APPS = (
     'stars.apps.third_parties',
     'stars.apps.api',
     'stars.apps.download_async_task',
-    'stars.apps.payments',  # included here for testing
-    'stars.test_factories',
     'stars.apps.bt_etl',
     # 'stars.tests',
 
@@ -218,6 +216,10 @@ INSTALLED_APPS = (
     'tastypie',
     'localflavor',
 )
+
+if 'test' in sys.argv:
+    INSTALLED_APPS += ('stars.test_factories',
+                       'stars.apps.payments')
 
 # Permissions or user levels for STARS users
 STARS_PERMISSIONS = (

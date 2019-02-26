@@ -32,7 +32,7 @@ django-form-utils==0.2.0
 django-jsonfield==0.9.19
 django-logical-rules==0.1.1
 django-longerusernameandemail
-django-membersuite-auth==2.7.1
+django-membersuite-auth==2.7.2
 django-memcache-status==1.1
 django-mptt==0.6
 django-password-protect
@@ -55,6 +55,7 @@ html5lib==1.0b8
 httplib2==0.8
 ipython==5.4
 lxml==3.6.4
+membersuite-api-client==1.1.5  # why doesn't django-membersuite-auth install this?
 mercurial==2.7
 mimeparse==0.1.3
 mock==1.0.1

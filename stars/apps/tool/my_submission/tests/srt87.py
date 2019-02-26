@@ -53,7 +53,7 @@ class SRT87Test(ViewTest):
 
         tabular_field_dict = {
             "numRows": 1,
-            "fields": [["1"]],
+            "fields": [['']],
             "rowHeadings": ["Row 1"],
             "colHeadings": ["Col 1"],
             "numCols": 1}

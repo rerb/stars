@@ -230,7 +230,7 @@ class NewT2CreditForm(NewCreditForm):
 class AbstractFormWithFormula(object):
 
     class Meta:
-      abstract = True
+        abstract = True
 
     def clean_formula(self):
         return self._clean_code_field('formula')
@@ -338,7 +338,7 @@ class DocumentationFieldForm(AbstractFormWithFormula,
 
         # detect if we are moving between credits
         if (self.instance.credit and
-            self.instance.credit != cleaned_data['credit']):
+                self.instance.credit != cleaned_data['credit']):
 
             self.instance.identifier = None
             self.instance.ordinal = -1
@@ -361,7 +361,7 @@ class NewDocumentationFieldForm(DocumentationFieldForm):
 
 
 class DocumentationFieldOrderingForm(RightSizeInputModelForm):
-    ordinal = forms.IntegerField(widget=widgets.HiddenInput(
+    ordinal = forms.FloatField(widget=widgets.HiddenInput(
         attrs={'size': '3', 'class': 'ordinal'}))
     value = forms.CharField()
 
