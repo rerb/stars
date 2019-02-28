@@ -12,10 +12,10 @@
           title="No value set in {{ dfcopy.credit.identifier}}: {{ dfcopy.title }} to copy from";
          {% endif %}
          {% if not dfcopyval %}
-           disabled="disabled"
+           disabled
          {% endif %}
          {% if submissionset %}
-           onclick="$(this).siblings(':text')[0].value = '{{ dfcopyval }}';"
+           onclick="$(this).siblings('input').not(':hidden')[0].value = '{{ dfcopyval }}';"
          {% endif %}
   ><i class="icon-share-alt"></i> copy from {{ dfcopy.credit.identifier }}</button>
 {% endif %}
