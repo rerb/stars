@@ -103,6 +103,7 @@ class CreditSetForm(RightSizeInputModelForm):
 class NewCreditSetForm(CreditSetForm):
     class Meta:
         model = CreditSet
+        fields = '__all__'
 
 
 class CreditSetScoringForm(RightSizeInputModelForm):
@@ -427,3 +428,4 @@ class UnitForm(RightSizeInputModelForm):
     """
     class Meta:
         model = Unit
+        fields = '__all__'

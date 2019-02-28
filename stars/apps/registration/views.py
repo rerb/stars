@@ -1,7 +1,7 @@
 from logging import getLogger
 
 from django.contrib.auth.models import User
-from django.contrib.formtools.wizard.views import SessionWizardView
+from formtools.wizard.views import SessionWizardView
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
@@ -60,14 +60,16 @@ class InstitutionCreateView(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(InstitutionCreateView, self).get_context_data(**kwargs)
-        institution_ids = Institution.objects.values_list('aashe_id',flat=True)
+        institution_ids = Institution.objects.values_list(
+            'aashe_id', flat=True)
         institution_ids = [element for element in institution_ids
                            if element is not None]
 
-        orgs = Organization.objects.exclude(org_type_id__in=EXCLUDED_ORG_TYPE_ID)
+        orgs = Organization.objects.exclude(
+            org_type_id__in=EXCLUDED_ORG_TYPE_ID)
         orgs = orgs.exclude(account_num__in=institution_ids)
         orgs = (orgs.values('account_num', 'org_name', 'city')
-            .order_by('org_name'))
+                .order_by('org_name'))
 
         context['orgs'] = orgs
         return context
@@ -76,19 +78,19 @@ class InstitutionCreateView(CreateView):
         # This method is called when valid form data has been POSTed.
         # It should return an HttpResponse.
 
-        #if aashe_id is not set, it should return the form
-        #return form_invalid
+        # if aashe_id is not set, it should return the form
+        # return form_invalid
         if (str(self.request.POST.get('aashe_id')) == ''):
             form.add_selection_error()
             return self.form_invalid(form)
 
         aashe_id = str(self.request.POST.get('aashe_id'))
-        aashe_id = int(aashe_id.replace(',',''))
+        aashe_id = int(aashe_id.replace(',', ''))
         org = Organization.objects.get(account_num=aashe_id)
         institution = Institution(aashe_id=aashe_id,
-            name=org.org_name,
-            ms_institution=(MemberSuiteInstitution.objects
-                .get(membersuite_id=org.membersuite_id)))
+                                  name=org.org_name,
+                                  ms_institution=(MemberSuiteInstitution.objects
+                                                  .get(membersuite_id=org.membersuite_id)))
         institution.update_from_iss()
         institution.set_slug_from_iss_institution(institution.aashe_id)
 
@@ -99,10 +101,12 @@ class InstitutionCreateView(CreateView):
         institution.contact_department = form.cleaned_data["contact_department"]
         institution.contact_email = form.cleaned_data["contact_email"]
 
-        institution.executive_contact_first_name = form.cleaned_data["executive_contact_first_name"]
+        institution.executive_contact_first_name = form.cleaned_data[
+            "executive_contact_first_name"]
         institution.executive_contact_last_name = form.cleaned_data["executive_contact_last_name"]
         institution.executive_contact_title = form.cleaned_data["executive_contact_title"]
-        institution.executive_contact_department = form.cleaned_data["executive_contact_department"]
+        institution.executive_contact_department = form.cleaned_data[
+            "executive_contact_department"]
         institution.executive_contact_email = form.cleaned_data["executive_contact_email"]
 
         institution.save()
@@ -110,17 +114,24 @@ class InstitutionCreateView(CreateView):
         self.return_slug = institution.slug
 
         if(str(self.request.user.email) == str(institution.contact_email)):
-                self.set_up_account(person=self.request.user, institution=institution)
-                self.set_up_submissionset(person=self.request.user, institution=institution)
+            self.set_up_account(person=self.request.user,
+                                institution=institution)
+            self.set_up_submissionset(
+                person=self.request.user, institution=institution)
         elif(User.objects.filter(email=institution.contact_email).exists()):
             liaison = User.objects.get(email=institution.contact_email)
-            self.set_up_account(person=self.request.user, institution=institution)
-            self.set_up_submissionset(person=self.request.user, institution=institution)
+            self.set_up_account(person=self.request.user,
+                                institution=institution)
+            self.set_up_submissionset(
+                person=self.request.user, institution=institution)
             self.set_up_account(person=liaison, institution=institution)
         else:
-            self.set_up_account(person=self.request.user, institution=institution)
-            self.set_up_submissionset(person=self.request.user, institution=institution)
-            self.set_up_pending_account(person=institution.contact_email, institution=institution)
+            self.set_up_account(person=self.request.user,
+                                institution=institution)
+            self.set_up_submissionset(
+                person=self.request.user, institution=institution)
+            self.set_up_pending_account(
+                person=institution.contact_email, institution=institution)
 
         et = EmailTemplate.objects.get(slug='welcome_respondent')
         et.send_email(

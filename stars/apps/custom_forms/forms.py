@@ -6,7 +6,7 @@ from django.template import Context
 from django.template.loader import get_template
 
 from stars.apps.custom_forms.models import EligibilityQuery, \
-     SteeringCommitteeNomination, TAApplication, DataDisplayAccessRequest
+    SteeringCommitteeNomination, TAApplication, DataDisplayAccessRequest
 
 from stars.apps.credits.models import Subcategory, CreditSet
 
@@ -15,6 +15,7 @@ class SteeringCommitteeNominationForm(ModelForm):
 
     class Meta:
         model = SteeringCommitteeNomination
+        fields = '__all__'
 
 
 class DataDisplayAccessRequestForm(ModelForm):
@@ -62,13 +63,15 @@ class TAApplicationForm(ModelForm):
             title='Demo').exclude(
             title='Innovation').exclude(
             title='Institutional Characteristics')
-        self.fields['subcategories'].choices = [(s.id, s.title) for s in subset]
+        self.fields['subcategories'].choices = [
+            (s.id, s.title) for s in subset]
 
 
 class EligibilityForm(ModelForm):
 
     class Meta:
         model = EligibilityQuery
+        fields = '__all__'
 
     def __init__(self, *args, **kwargs):
 
@@ -111,11 +114,11 @@ class EligibilityForm(ModelForm):
                     value = "NO"
             responses.append({'label': field.label, 'value': value})
 
-        _context = Context({'responses': responses,})
+        _context = Context({'responses': responses, })
         t = get_template("custom_forms/eligibility_staff_email.txt")
         message = t.render(_context)
 
-        email_to = ['stars@aashe.org',]
+        email_to = ['stars@aashe.org', ]
         send_mail("Eligibility Query from %s at %s" % (
             self.cleaned_data['name'], self.cleaned_data['institution']),
             message,
