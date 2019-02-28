@@ -13,7 +13,7 @@ class ThirdParty(models.Model):
     access_to_institutions = models.ManyToManyField(
         "institutions.Institution",
         related_name='third_parties',
-        blank=True, null=True)
+        blank=True)
     disabled = models.BooleanField(default=False)
     help_text = models.TextField(blank=True, null=True)
     authorized_users = models.ManyToManyField(User)

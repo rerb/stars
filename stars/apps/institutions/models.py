@@ -673,7 +673,7 @@ class RegistrationSurvey(models.Model):
     source = models.TextField("How did you hear about STARS?",
                               blank=True, null=True)
     reasons = models.ManyToManyField('RegistrationReason',
-                                     blank=True, null=True)
+                                     blank=True)
     other = models.CharField(max_length=64, blank=True, null=True)
     primary_reason = models.ForeignKey('RegistrationReason',
                                        related_name='primary_surveys',
@@ -706,7 +706,7 @@ class RespondentSurvey(models.Model):
     source = models.TextField("How did you hear about the CSDC?",
                               blank=True, null=True)
     reasons = models.ManyToManyField('RespondentRegistrationReason',
-                                     blank=True, null=True)
+                                     blank=True)
     other = models.CharField(max_length=64, blank=True, null=True)
     potential_stars = models.NullBooleanField("Is your institution "
                                               "considering registering as "

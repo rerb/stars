@@ -2524,7 +2524,7 @@ class MultiChoiceSubmission(AbstractChoiceSubmission):
     """
     # should be called values, really, since it potentially
     # represents multiple values
-    value = models.ManyToManyField(Choice, blank=True, null=True)
+    value = models.ManyToManyField(Choice, blank=True)
 
     def get_value(self):
         """ Value is a list of Choice objects, or None """

@@ -470,7 +470,7 @@ class Category(VersionedModel):
     def get_short_name(self):
         return self.abbreviation
 
-    @transaction.commit_on_success
+    @transaction.atomic
     def update_ordering(self):
         """
             Updates all the credit numbers for credits in this category.
@@ -1220,7 +1220,6 @@ class DocumentationField(VersionedModel):
         related_name='calculated_fields',
         help_text='Fields used in this field\'s formula calculation.',
         blank=True,
-        null=True,
         symmetrical=False)
     copy_from_field = models.ForeignKey(
         'self',
