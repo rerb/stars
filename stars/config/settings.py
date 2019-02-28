@@ -165,7 +165,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.redirects',
     'django.contrib.flatpages',
-    'django.contrib.formtools',
+    'formtools',
     'django.contrib.humanize',
     'django.contrib.staticfiles',
 
