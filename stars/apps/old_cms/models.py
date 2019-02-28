@@ -22,7 +22,7 @@ class AbstractContent(models.Model):
     def get_django_admin_url(self):
         return "/_ad/%s/%s/%d" % (
             self._meta.app_label,
-            self._meta.module_name,
+            self.model_name,
             self.id,
         )
 
