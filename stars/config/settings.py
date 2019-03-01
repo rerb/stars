@@ -81,16 +81,42 @@ STATICFILES_FINDERS = (
 
 SECRET_KEY = 'omxxweql@m7!@yh5a-)=f^_xo*(m2+gaz#+8dje)e6wv@q$v%@'
 
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader'
-)
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+            os.path.join(os.path.dirname(__file__), "..", "templates")
+        ],
+        'OPTIONS': {
+            'context_processors': [
+                # Use a custom context processor to get all the account and user info
+                # to the templates
+                'stars.apps.accounts.utils.account_context',
+                'stars.apps.helpers.utils.settings_context',
+                'django.core.context_processors.static',
+                'django.core.context_processors.media',
+                'django.contrib.messages.context_processors.messages',
+                "django.contrib.auth.context_processors.auth",
+                'django.core.context_processors.request',
+                'django_settings_export.settings_export',
+            ],
+            'loaders': [
+                'django.template.loaders.filesystem.Loader',
+                'django.template.loaders.app_directories.Loader'
+            ]
+        },
+    },
+]
 
 if not DEBUG:
-    TEMPLATE_LOADERS = (
-        ('django.template.loaders.cached.Loader',
-         TEMPLATE_LOADERS),
-    )
+    TEMPLATES[0]['OPTIONS'].update({
+        'loaders': [
+            'django.template.loaders.cached.Loader',
+            'django.template.loaders.filesystem.Loader',
+            'django.template.loaders.app_directories.Loader'
+        ]
+    })
 
 LANGUAGES = [
     ('en', 'English'),
@@ -139,21 +165,6 @@ MANAGE_INSTITUTION_URL = "/tool/"
 MANAGE_USERS_URL = MANAGE_INSTITUTION_URL + "manage/users/"
 
 ROOT_URLCONF = 'stars.urls'
-
-TEMPLATE_DIRS = [os.path.join(os.path.dirname(__file__), "..", "templates")]
-
-# Use a custom context processor to get all the account and user info
-# to the templates
-TEMPLATE_CONTEXT_PROCESSORS = (
-    "stars.apps.accounts.utils.account_context",
-    'stars.apps.helpers.utils.settings_context',
-    'django.core.context_processors.static',
-    'django.core.context_processors.media',
-    'django.contrib.messages.context_processors.messages',
-    "django.contrib.auth.context_processors.auth",
-    'django.core.context_processors.request',
-    'django_settings_export.settings_export'
-)
 
 INSTALLED_APPS = (
     'longerusernameandemail',  # might need to be first
