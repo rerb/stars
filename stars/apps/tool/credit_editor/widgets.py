@@ -1,5 +1,4 @@
 from django.forms.widgets import Textarea
-from django.template import Context
 from django.template.loader import get_template
 
 import json
@@ -16,12 +15,10 @@ class TabularFieldEdit(Textarea):
 
     def render(self, name, value, attrs=None):
 
-        t = get_template(self.template_name)
+        template = get_template(self.template_name)
         context_dict = {
-                        'fields': self.fields_in_credit,
-                        'name': name,
-                        'value': json.dumps(value)
-                        }
-
-        c = Context(context_dict)
-        return t.render(c)
+            'fields': self.fields_in_credit,
+            'name': name,
+            'value': json.dumps(value)
+        }
+        return template.render(context_dict)

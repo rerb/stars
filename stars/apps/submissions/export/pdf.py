@@ -4,7 +4,6 @@ from logging import getLogger
 
 from django.conf import settings
 from django.template.loader import get_template
-from django.template import Context
 import ho.pisa as pisa
 
 from stars.apps.old_cms.models import Category
@@ -19,8 +18,7 @@ def render_to_pdf(template_src, context_dict):
         Returns a StringIO.StringIO object
     """
     template = get_template(template_src)
-    context = Context(context_dict)
-    html = template.render(context)
+    html = template.render(context_dict)
     result = StringIO.StringIO()
     pdf = pisa.pisaDocument(html, result)
 
@@ -43,16 +41,16 @@ def build_report_pdf(submission_set, template=None):
         if save if True, the file will be saved
     """
     context = {
-                'ss': submission_set,
-                'preview': False,
-                'media_root': settings.MEDIA_ROOT,
-                'project_path': settings.PROJECT_PATH,
-                'rating': submission_set.get_STARS_rating(),
-                'institution': submission_set.institution,
-                'host': "reports.aashe.org",
+        'ss': submission_set,
+        'preview': False,
+        'media_root': settings.MEDIA_ROOT,
+        'project_path': settings.PROJECT_PATH,
+        'rating': submission_set.get_STARS_rating(),
+        'institution': submission_set.institution,
+        'host': "reports.aashe.org",
                 'about_text': Category.objects.get(slug='about').content,
                 'pdf': True
-            }
+    }
     if submission_set.status != 'r':
         context['preview'] = True
 
@@ -66,7 +64,7 @@ def build_certificate_pdf(ss):
         Build a PDF certificate for Institution Presidents
     """
     context = {
-                'ss': ss,
-                'project_path': settings.PROJECT_PATH,
-                }
+        'ss': ss,
+        'project_path': settings.PROJECT_PATH,
+    }
     return render_to_pdf('institutions/pdf/certificate.html', context)

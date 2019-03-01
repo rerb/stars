@@ -4,7 +4,7 @@ modelled on Django's shortcuts module
 """
 from logging import getLogger
 
-from django.template import loader, Context
+from django.template.loader import get_template
 
 logger = getLogger('stars')
 
@@ -24,6 +24,5 @@ def render_help_text(help_text, as_tooltip=True):
     templates to render and return formatted help text """
     from stars.apps.helpers.templatetags.help import show_help_text
 
-    help_template = loader.get_template('helpers/tags/help_text.html')
-    return help_template.render(Context(show_help_text(help_text,
-                                                       as_tooltip)))
+    template = get_template('helpers/tags/help_text.html')
+    return help_template.render(show_help_text(help_text, as_tooltip))

@@ -1,5 +1,5 @@
 from django.forms import Widget
-from django.template import loader, Context
+from django.template.loader import get_template
 from django.utils.safestring import mark_safe
 
 from stars.apps.credits.models import (CreditSet,
@@ -7,14 +7,6 @@ from stars.apps.credits.models import (CreditSet,
                                        Subcategory,
                                        Credit,
                                        DocumentationField)
-
-"""
-template = loader.get_template('polls/index.html')
-    context = RequestContext(request, {
-        'latest_poll_list': latest_poll_list,
-    })
-    return HttpResponse(template.render(context))
-"""
 
 
 class SelectTreeWidget(Widget):
@@ -37,11 +29,13 @@ class SelectTreeWidget(Widget):
         final_attrs = self.build_attrs(attrs,
                                        name=name)
         select_list = self.get_select_list(final_attrs)
-        template = loader.get_template(self.template_name)
-        context = Context({'value': init_val,
-                           'name': name,
-                           'select_list': select_list,
-                           'attrs': final_attrs})
+        template = get_template(self.template_name)
+        context = {
+            'value': init_val,
+            'name': name,
+            'select_list': select_list,
+            'attrs': final_attrs
+        }
         result = mark_safe(template.render(context))
         return result
 

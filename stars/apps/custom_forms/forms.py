@@ -2,7 +2,6 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.forms import ModelForm
 from django.forms.fields import BooleanField
-from django.template import Context
 from django.template.loader import get_template
 
 from stars.apps.custom_forms.models import EligibilityQuery, \
@@ -114,9 +113,8 @@ class EligibilityForm(ModelForm):
                     value = "NO"
             responses.append({'label': field.label, 'value': value})
 
-        _context = Context({'responses': responses, })
-        t = get_template("custom_forms/eligibility_staff_email.txt")
-        message = t.render(_context)
+        t = get_template('custom_forms/eligibility_staff_email.txt')
+        message = t.render({'responses': responses, })
 
         email_to = ['stars@aashe.org', ]
         send_mail("Eligibility Query from %s at %s" % (
@@ -126,8 +124,8 @@ class EligibilityForm(ModelForm):
             email_to,
             fail_silently=False)
 
-        t = get_template("custom_forms/eligibility_query_response.txt")
-        message = t.render(_context)
+        t = get_template('custom_forms/eligibility_query_response.txt')
+        message = t.render({'responses': responses, })
         send_mail("Thank you for your enquiry",
                   message,
                   settings.EMAIL_HOST_USER,
