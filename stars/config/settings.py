@@ -23,7 +23,6 @@ DEFAULT_CHARSET = 'utf-8'
 PROJECT_PATH = os.path.join(os.path.dirname(__file__), '..')
 
 DEBUG = os.environ.get("DEBUG", False)
-TEMPLATE_DEBUG = DEBUG
 API_TEST_MODE = os.environ.get("API_TEST_MODE", DEBUG)
 FIXTURE_DIRS = ('fixtures', os.path.join(PROJECT_PATH, 'apps/api/fixtures'),)
 PROFILE = os.environ.get("PROFILE", False)
@@ -94,17 +93,18 @@ TEMPLATES = [
                 # to the templates
                 'stars.apps.accounts.utils.account_context',
                 'stars.apps.helpers.utils.settings_context',
-                'django.core.context_processors.static',
-                'django.core.context_processors.media',
+                'django.template.context_processors.static',
+                'django.template.context_processors.media',
                 'django.contrib.messages.context_processors.messages',
                 "django.contrib.auth.context_processors.auth",
-                'django.core.context_processors.request',
+                'django.template.context_processors.request',
                 'django_settings_export.settings_export',
             ],
             'loaders': [
                 'django.template.loaders.filesystem.Loader',
                 'django.template.loaders.app_directories.Loader'
-            ]
+            ],
+            'debug': DEBUG
         },
     },
 ]

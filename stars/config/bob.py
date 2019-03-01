@@ -142,7 +142,12 @@ QUERY_INSPECT_TRACEBACK_ROOTS = ['/Users/rerb/src/aashe/stars/']
 #         'PRINT_TIMINGS': False,
 #     }
 
-TEMPLATE_STRING_IF_INVALID = 'INVALID EXPRESSION: %s'
+
+#  Only enable for debug purposes
+# TEMPLATES[0]['OPTIONS'].update({
+#     'string_if_invalid': 'INVALID EXPRESSION: %s',
+# })
+
 TEST_WITHOUT_MIGRATIONS_COMMAND = 'django_nose.management.commands.test.Command'
 
 TEST_RUNNER = 'hotrunner.HotRunner'
