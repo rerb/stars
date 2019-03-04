@@ -16,8 +16,8 @@ summaries = {}
 for cs in [CreditSet.objects.get(version=2.0),
            CreditSet.objects.get(version=2.1)]:
 
-    start_date = datetime.date(year=2015, month=3, day=2)
-    end_date = datetime.date(year=2018, month=3, day=8)
+    start_date = datetime.date(year=2016, month=3, day=2)
+    end_date = datetime.date(year=2019, month=3, day=8)
 
     reports = SubmissionSet.objects.filter(
         institution__in=tp.access_to_institutions.all()).exclude(
