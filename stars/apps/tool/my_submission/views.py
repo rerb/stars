@@ -555,12 +555,6 @@ class CreditSubmissionHistoryView(CreditSubmissionDetailView,
         return context
 
 
-class CreditSubmissionResourcesView(CreditSubmissionDetailView,
-                                    TemplateView):
-
-    template_name = "tool/submissions/credit_resources.html"
-
-
 class CreditSubmissionReviewView(CreditSubmissionDetailView,
                                  IsStaffMixin,
                                  UpdateWithInlinesView):
