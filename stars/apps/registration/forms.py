@@ -10,34 +10,6 @@ from stars.apps.institutions.models import (Institution,
 from stars.apps.registration.models import (ExpiredDiscountCodeError,
                                             InvalidDiscountCodeError,
                                             get_current_discount)
-from stars.apps.payments.forms import PaymentFormWithPayLater
-
-
-class RegistrationPaymentForm(PaymentFormWithPayLater):
-    discount_code = forms.CharField(max_length=16, required=False)
-
-    def __init__(self, *args, **kwargs):
-        self.discount = None
-        super(RegistrationPaymentForm, self).__init__(*args, **kwargs)
-
-    def get_amount(self):
-        if self.discount:
-            return self.discount.apply(self.amount)
-        else:
-            return self.amount
-
-    def clean_discount_code(self):
-        discount_code = self.cleaned_data['discount_code']
-
-        if discount_code:
-            try:
-                self.discount = get_current_discount(code=discount_code)
-            except InvalidDiscountCodeError:
-                raise forms.ValidationError("Invalid Discount Code")
-            except ExpiredDiscountCodeError:
-                raise forms.ValidationError("Expired Discount Code")
-
-        return discount_code
 
 
 class WriteInInstitutionForm(forms.Form):

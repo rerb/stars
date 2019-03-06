@@ -218,8 +218,7 @@ INSTALLED_APPS = (
 )
 
 if 'test' in sys.argv:
-    INSTALLED_APPS += ('stars.test_factories',
-                       'stars.apps.payments')
+    INSTALLED_APPS += ('stars.test_factories',)
 
 # Permissions or user levels for STARS users
 STARS_PERMISSIONS = (
