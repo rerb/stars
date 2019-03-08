@@ -282,7 +282,6 @@ class InstitutionList(ReportMixin, SortableTableView):
                     'current_rating',
                     'current_submission',
                     'current_submission__creditset__version',
-                    'is_participant'
                 )
                 )
 
