@@ -221,8 +221,6 @@ class AccrualExcelDownloadView(ReportMixin, DownloadExportView):
 class InstitutionList(ReportMixin, SortableTableView):
     """
         A quick report on registration for Jillian
-
-
         Institution Name
         Reg date
         Renewal Date
@@ -281,7 +279,7 @@ class InstitutionList(ReportMixin, SortableTableView):
                 .select_related(
                     'current_rating',
                     'current_submission',
-                    'current_submission__creditset__version',
+                    'current_submission__creditset__version'
                 )
                 )
 
