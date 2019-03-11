@@ -1,13 +1,12 @@
 import collections
 import re
-import simplejson
+import json
 
 from django.contrib import messages
 from django.core.cache import cache
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.template.defaultfilters import slugify
-# from django.utils import simplejson as json
 from django.views.generic import UpdateView, View
 
 from stars.apps.credits.views import CreditsetStructureMixin
@@ -247,8 +246,8 @@ class SetOptInCreditsView(View):
 
         ajax_data = {'data_changed': data_changed}
 
-        return HttpResponse(simplejson.dumps(ajax_data),
-                            mimetype='application/json')
+        return HttpResponse(json.dumps(ajax_data),
+                            content_type='application/json')
 
 
 class CreditSubmissionStatusUpdateView(UpdateView):
@@ -350,5 +349,5 @@ class CurrentRatingsView(View):
             if institution.rating_expires:
                 rating_totals[institution.current_rating.name] += 1
 
-        return HttpResponse(simplejson.dumps(rating_totals),
-                            mimetype='application/json')
+        return HttpResponse(json.dumps(rating_totals),
+                            content_type='application/json')

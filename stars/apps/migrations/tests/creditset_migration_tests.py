@@ -12,11 +12,11 @@ from stars.apps.credits.models import (ApplicabilityReason,
                                        Subcategory)
 from stars.apps.migrations.utils import migrate_creditset
 from stars.apps.submissions.models import CreditTestSubmission
-from stars.test_factories import (CategoryFactory,
-                                  CreditFactory,
-                                  CreditSetFactory,
-                                  DocumentationFieldFactory,
-                                  SubcategoryFactory)
+from stars.test_factories.models import (CategoryFactory,
+                                         CreditFactory,
+                                         CreditSetFactory,
+                                         DocumentationFieldFactory,
+                                         SubcategoryFactory)
 
 from datetime import date
 

@@ -4,7 +4,7 @@ from unittest import TestCase
 
 from ..models import (CREDIT_SUBMISSION_REVIEW_NOTATION_KINDS,
                       CreditSubmissionReviewNotation)
-from stars.test_factories import CreditUserSubmissionFactory
+from stars.test_factories.models import CreditUserSubmissionFactory
 
 
 class CreditSubmissionReviewNotationTest(TestCase):

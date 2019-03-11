@@ -12,8 +12,6 @@ from stars.apps.helpers.old_path_preserver import (OldPathPreserverView,
                                                    OLD_PATHS_TO_PRESERVE)
 from stars.apps.old_cms.views import (HomePageView)
 
-
-admin.autodiscover()
 logical_rules.autodiscover()
 
 handler403 = 'stars.apps.helpers.views.permission_denied'
@@ -77,10 +75,12 @@ urlpatterns = patterns(
 )
 
 if settings.DEBUG:
-    urlpatterns += patterns('',
-                            url(r'^styles/$', TemplateView.as_view(
-                                template_name='styles.html'), name="styles")
-                            )
+    import debug_toolbar
+    urlpatterns += patterns(
+        '',
+        url(r'^__debug__/', include(debug_toolbar.urls)),
+        url(r'^styles/$', TemplateView.as_view(template_name='styles.html'), name="styles")
+    )
 
 if settings.DEBUG:
     urlpatterns += patterns(

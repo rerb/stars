@@ -2,10 +2,10 @@
 """
 from unittest import TestCase
 
-from stars.test_factories import (CreditFactory,
-                                  CreditUserSubmissionFactory,
-                                  DocumentationFieldFactory,
-                                  NumericSubmissionFactory)
+from stars.test_factories.models import (CreditFactory,
+                                         CreditUserSubmissionFactory,
+                                         DocumentationFieldFactory,
+                                         NumericSubmissionFactory)
 from stars.apps.credits.models import DocumentationField, Unit
 from stars.apps.submissions.models import NumericSubmission
 

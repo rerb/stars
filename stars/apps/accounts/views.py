@@ -7,7 +7,8 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.http import Http404
 from django.views.decorators.cache import never_cache
-from django.contrib.sites.models import Site, RequestSite
+from django.contrib.sites.models import Site
+from django.contrib.sites.requests import RequestSite
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 
@@ -19,6 +20,7 @@ from stars.apps.accounts.utils import respond
 from django_membersuite_auth.services import MemberSuitePortalUserService
 
 logger = getLogger('stars.request')
+
 
 @never_cache
 def login_view(request, redirect_field_name=REDIRECT_FIELD_NAME):
@@ -73,25 +75,3 @@ def select_school(request, institution_id):
                                                 args=(institution.slug,)))
     else:
         return HttpResponseRedirect(settings.LOGIN_URL)
-
-
-def terms_of_service(request):
-    """
-        Provide a form where a user can agree to the terms of service
-    """
-
-    if not request.user.account:
-        logger.error("User passed to TOS w/out StarsAccount: uid",
-                     extra={'request': request})
-        return HttpResponseRedirect("/")
-
-    next = request.REQUEST.get('next', '/')
-
-    form = TOSForm(instance=request.user.account)
-    if request.method == "POST":
-        form = TOSForm(request.POST, instance=request.user.account)
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(next)
-
-    return respond(request, "auth/tos_agree.html", {'form': form, 'next': next,})

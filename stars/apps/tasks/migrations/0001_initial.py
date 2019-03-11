@@ -1,40 +1,27 @@
 # -*- coding: utf-8 -*-
-import datetime
-from south.db import db
-from south.v2 import SchemaMigration
-from django.db import models
+from __future__ import unicode_literals
+
+from django.db import models, migrations
 
 
-class Migration(SchemaMigration):
+class Migration(migrations.Migration):
 
-    def forwards(self, orm):
-        # Adding model 'EmailNotification'
-        db.create_table('tasks_emailnotification', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('sent_date', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('sent_to', self.gf('django.db.models.fields.CharField')(max_length=128)),
-            ('subject', self.gf('django.db.models.fields.CharField')(max_length=128)),
-            ('notification_type', self.gf('django.db.models.fields.CharField')(max_length=7)),
-            ('identifier', self.gf('django.db.models.fields.CharField')(max_length=16)),
-        ))
-        db.send_create_signal('tasks', ['EmailNotification'])
+    dependencies = [
+    ]
 
-
-    def backwards(self, orm):
-        # Deleting model 'EmailNotification'
-        db.delete_table('tasks_emailnotification')
-
-
-    models = {
-        'tasks.emailnotification': {
-            'Meta': {'object_name': 'EmailNotification'},
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'identifier': ('django.db.models.fields.CharField', [], {'max_length': '16'}),
-            'notification_type': ('django.db.models.fields.CharField', [], {'max_length': '7'}),
-            'sent_date': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'sent_to': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
-            'subject': ('django.db.models.fields.CharField', [], {'max_length': '128'})
-        }
-    }
-
-    complete_apps = ['tasks']
+    operations = [
+        migrations.CreateModel(
+            name='EmailNotification',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('sent_date', models.DateTimeField(auto_now_add=True)),
+                ('sent_to', models.CharField(max_length=128)),
+                ('subject', models.CharField(max_length=128)),
+                ('notification_type', models.CharField(max_length=7, choices=[(b'4wk', b'4 Weeks Late'), (b'6mn', b'6 months left'), (b'wel', b'Welcome')])),
+                ('identifier', models.CharField(max_length=16)),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+    ]

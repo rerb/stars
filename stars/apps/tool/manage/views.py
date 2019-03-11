@@ -383,8 +383,10 @@ class AccountDeleteView(InstitutionAdminToolMixin,
         try:
             self.account = StarsAccount.objects.get(id=kwargs['object'].id)
         except StarsAccount.DoesNotExist:
-            self.account = get_object_or_404(PendingAccount, id=kwargs['object'].id)
-        context['user_level_description'] = get_user_level_description(self.account.user_level)
+            self.account = get_object_or_404(
+                PendingAccount, id=kwargs['object'].id)
+        context['user_level_description'] = get_user_level_description(
+            self.account.user_level)
         context['object'] = kwargs['object']
         return context
 
@@ -453,7 +455,7 @@ class SnapshotPDFDownloadView(DownloadExportView,
     """
         Returns the result of the task (hopefully an excel export)
     """
-    mimetype = 'application/pdf'
+    content_type = 'application/pdf'
     extension = "pdf"
 
     def get_filename(self):
@@ -484,7 +486,7 @@ class SnapshotCSVDownloadView(DownloadExportView,
     """
         Returns the result of the task (hopefully an excel export)
     """
-    mimetype = "application/octet-stream"
+    content_type = "application/octet-stream"
     extension = "zip"
 
     def get_filename(self):
@@ -506,7 +508,7 @@ class ShareThirdPartiesView(InstitutionAdminToolMixin,
         context = super(ShareThirdPartiesView, self).get_context_data(**kwargs)
         context['help_content_name'] = 'edit_account'
         context['third_party_list'] = (ThirdParty.objects
-            .exclude(name='Sustainable Endowments Institute'))
+                                       .exclude(name='Sustainable Endowments Institute'))
         context['snapshot_count'] = SubmissionSet.objects.get_snapshots(
             self.get_institution()).count()
         return context

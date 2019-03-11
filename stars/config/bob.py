@@ -22,6 +22,7 @@ MANAGERS = ADMINS
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = '/tmp/stars-email-messages'
 
+
 def get_api_test_mode():
     try:
         return int(os.environ['API_TEST_MODE'])
@@ -30,6 +31,7 @@ def get_api_test_mode():
             return False  # Unintuitive, isn't it? Should rename to AUTH_ON.
         else:
             return True  # If True, auth is turned off
+
 
 API_TEST_MODE = get_api_test_mode()
 
@@ -51,7 +53,7 @@ def use_sqlite_for_tests():
 
 
 if ((('test' in sys.argv) or ('testserver' in sys.argv))
-    and os.environ.get('USE_SQLITE_FOR_TESTS', False)):
+        and os.environ.get('USE_SQLITE_FOR_TESTS', False)):
 
     DATABASES['default'] = dj_database_url.parse(
         os.environ.get('STARS_SQLITE_DB_URL',
@@ -78,8 +80,7 @@ if os.environ.get('STARS_BACKUP_DB_URL', False):
 # the django dev server so we will need to serve the static files (see urls.py)
 STANDALONE_MODE = True
 
-INSTALLED_APPS += ('django_extensions',
-                   'django_nose',
+INSTALLED_APPS += ('django_nose',
                    'template_repl')
 
 if PROFILE:
@@ -142,12 +143,12 @@ QUERY_INSPECT_TRACEBACK_ROOTS = ['/Users/rerb/src/aashe/stars/']
 #     }
 
 TEMPLATE_STRING_IF_INVALID = 'INVALID EXPRESSION: %s'
+TEST_WITHOUT_MIGRATIONS_COMMAND = 'django_nose.management.commands.test.Command'
 
 TEST_RUNNER = 'hotrunner.HotRunner'
 EXCLUDED_TEST_APPS = ['bootstrapform',
                       'captcha',
                       'collapsing_menu',
-                      'django_extensions',
                       'django_extensions',
                       'django_nose',
                       'djcelery',
@@ -156,7 +157,6 @@ EXCLUDED_TEST_APPS = ['bootstrapform',
                       'memcache_status',
                       's3_folder_storage',
                       'sorl.thumbnail',
-                      'south',
                       'stars.apps',
                       'stars.apps.accounts',
                       'stars.apps.api',

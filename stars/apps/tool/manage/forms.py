@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import ModelForm
 from django.forms import widgets
-from django.forms.util import ErrorList
+from django.forms.utils import ErrorList
 
 from stars.apps.helpers.forms.forms import LocalizedModelFormMixin
 from stars.apps.institutions.models import (Institution,
@@ -205,6 +205,7 @@ class DisabledAccountForm(AccountForm):
     """
         An account form with all fields disabled
     """
+
     def __init__(self, *args, **kwargs):
         super(DisabledAccountForm, self).__init__(*args, **kwargs)
         self.fields['email'].widget.attrs.update({"disabled": "disabled"})

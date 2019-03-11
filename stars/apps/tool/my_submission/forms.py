@@ -6,7 +6,7 @@ from django import forms
 from django.forms import Form, ModelForm
 from django.forms.extras.widgets import SelectDateWidget
 from django.utils.safestring import mark_safe
-from django.forms.util import ErrorList
+from django.forms.utils import ErrorList
 from django.forms.widgets import TextInput, ClearableFileInput, HiddenInput
 from extra_views import InlineFormSet
 from form_utils.forms import BetterModelForm
@@ -215,7 +215,7 @@ class URLSubmissionForm(SubmissionFieldForm):
 
 
 class DateSubmissionForm(SubmissionFieldForm):
-    value = forms.DateField(widget=SelectDateWidget(required=False),
+    value = forms.DateField(widget=SelectDateWidget(),
                             required=False)
 
     def __init__(self, *args, **kwargs):
@@ -226,7 +226,7 @@ class DateSubmissionForm(SubmissionFieldForm):
             max = self.instance.documentation_field.max_range
             if min is not None and max is not None:
                 self.fields['value'].widget = SelectDateWidget(
-                    required=False, years=range(min, max+1))
+                    years=range(min, max+1))
 
     class Meta:
         model = DateSubmission

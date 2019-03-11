@@ -670,8 +670,8 @@ class Credit(VersionedModel):
                   'this credit.')
     type = models.CharField(max_length=2, choices=CREDIT_TYPE_CHOICES,
                             db_index=True)
-    criteria = models.TextField()
     applicability = models.TextField(blank=True, null=True)
+    criteria = models.TextField()
     scoring = models.TextField()
     measurement = models.TextField(blank=True, null=True)
     staff_notes = models.TextField('AASHE Staff Notes', blank=True, null=True)

@@ -60,7 +60,8 @@ class DataDisplayAccessRequest(models.Model):
 
     has_instructor = models.BooleanField(
         "Is there an academic instructor or advisor who will provide guidance"
-        " on how this data will be used?")
+        " on how this data will be used?",
+        default=False)
     instructor = models.TextField(
         "If yes, list name of instructor, title of instructor, and e-mail address.",
         null=True, blank=True)

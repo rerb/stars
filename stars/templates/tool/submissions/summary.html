@@ -148,7 +148,7 @@
                             {% if not sub.subcategory.category.abbreviation == "IN" %}
                               <div class='well' style='text-align: center'>
                                 {% if sub.description %}
-                                  {{ sub.description|urlizetrunc:85|linebreaks|fix_ampersands }}
+                                  {{ sub.description|urlizetrunc:85|linebreaks }}
                                 {% endif %}
                                 <a href='{{ sub.get_submit_edit_url }}'
                                    type="button"
@@ -165,7 +165,7 @@
                             {% endif %}
                           {% elif sub.description %}
                             <div class='well' style='text-align: center'>
-                              {{ sub.description|urlizetrunc:85|linebreaks|fix_ampersands }}
+                              {{ sub.description|urlizetrunc:85|linebreaks }}
                             </div>
                           {% endif %}
                         {% endif %}

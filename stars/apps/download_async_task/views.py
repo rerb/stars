@@ -28,7 +28,7 @@ class StartExportView(TemplateView):
 
 class DownloadExportView(TemplateView):
     """
-        Extend and define mimetype and extension
+        Extend and define content_type and extension
 
         The generic View class doesn't have a get method, so this is it.
     """
@@ -42,8 +42,8 @@ class DownloadExportView(TemplateView):
         task_id = self.kwargs['task']
         result = AsyncResult(task_id)
         f = open(result.result, 'r')
-        response = HttpResponse(f, mimetype=self.mimetype)
+        response = HttpResponse(f, content_type=self.content_type)
         response['Content-Disposition'] = ('attachment; filename=%s.%s' %
                                            (self.get_filename(),
-                                           self.extension))
+                                            self.extension))
         return response

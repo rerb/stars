@@ -514,7 +514,7 @@ class ExcelDownloadView(ExportRules,
                         InstitutionStructureMixin,
                         SubmissionStructureMixin,
                         DownloadExportView):
-    mimetype = 'application/vnd.ms-excel'
+    content_type = 'application/vnd.ms-excel'
     extension = "xls"
 
     def get_filename(self):
@@ -540,7 +540,7 @@ class PDFDownloadView(ExportRules,
                       InstitutionStructureMixin,
                       SubmissionStructureMixin,
                       DownloadExportView):
-    mimetype = 'application/pdf'
+    content_type = 'application/pdf'
     extension = "pdf"
 
     def get_filename(self):
@@ -585,7 +585,7 @@ class ScorecardCertPreview(ScorecardView):
 class CertificateDownloadView(InstitutionStructureMixin,
                               SubmissionStructureMixin,
                               DownloadExportView):
-    mimetype = 'application/pdf'
+    content_type = 'application/pdf'
     extension = "pdf"
 
     def get_filename(self):

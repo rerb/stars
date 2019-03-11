@@ -13,10 +13,10 @@ from stars.apps.submissions.models import (CreditUserSubmission,
                                            NumericSubmission)
 
 from stars.apps.registration.views import init_submissionset
-from stars.test_factories import (DocumentationFieldFactory,
-                                  InstitutionFactory,
-                                  StarsAccountFactory,
-                                  ResponsiblePartyFactory)
+from stars.test_factories.models import (DocumentationFieldFactory,
+                                         InstitutionFactory,
+                                         StarsAccountFactory,
+                                         ResponsiblePartyFactory)
 
 
 class SRT87Test(ViewTest):

@@ -3,8 +3,6 @@ from django.contrib import admin
 
 from stars.apps.credits.api.urls import api
 
-admin.autodiscover()
-
 import logical_rules
 logical_rules.autodiscover()
 

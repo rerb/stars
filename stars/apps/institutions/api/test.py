@@ -1,7 +1,7 @@
 """
 Tests for institutions API.
 """
-import simplejson
+import json
 
 from stars.apps.api.test import ReadOnlyResourceTestCase
 
@@ -32,7 +32,7 @@ class InstitutionResourceTestCase(ReadOnlyResourceTestCase):
     def test_unrated_submissionsets_are_hidden_in_list(self):
         resp = self.get(self.list_path)
         self.assertValidJSONResponse(resp)
-        institutions = simplejson.loads(resp.content)['objects']
+        institutions = json.loads(resp.content)['objects']
         for institution in institutions:
             for submission_set in institution['submission_sets']:
                 self.assertFalse(

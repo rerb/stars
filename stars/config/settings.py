@@ -109,6 +109,7 @@ MIDDLEWARE_CLASSES = [  # a list so it can be editable during tests (see below)
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.cache.FetchFromCacheMiddleware',
     'django.contrib.redirects.middleware.RedirectFallbackMiddleware',
     'django.middleware.doc.XViewMiddleware',
@@ -161,7 +162,6 @@ INSTALLED_APPS = (
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
-    'django.contrib.staticfiles',
     'django.contrib.admin',
     'django.contrib.redirects',
     'django.contrib.flatpages',
@@ -170,6 +170,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
 
     'terms',  # must come before stars.apps.tool, which overrides the admin
+    'test_without_migrations',
 
     'stars.apps.credits',
     'stars.apps.tool.credit_editor',
@@ -200,7 +201,6 @@ INSTALLED_APPS = (
     'captcha',
     'collapsing_menu',
     'compressor',
-    'compressor',
     'django_celery_downloader',
     'django_celery_downloader.tests.demo_app',
     'django_extensions',
@@ -213,14 +213,12 @@ INSTALLED_APPS = (
     'raven.contrib.django.raven_compat',
     's3_folder_storage',
     'sorl.thumbnail',
-    'south',
     'tastypie',
     'localflavor',
 )
 
 if 'test' in sys.argv:
-    INSTALLED_APPS += ('stars.test_factories',
-                       'stars.apps.payments')
+    INSTALLED_APPS += ('stars.test_factories',)
 
 # Permissions or user levels for STARS users
 STARS_PERMISSIONS = (
@@ -268,9 +266,6 @@ AUTHORIZENET_LOGIN = os.environ.get('AUTHORIZENET_LOGIN', None)
 AUTHORIZENET_KEY = os.environ.get('AUTHORIZENET_KEY', None)
 
 ANALYTICS_ID = os.environ.get('ANALYTICS_ID', None)
-
-SKIP_SOUTH_TESTS = True
-SOUTH_TESTS_MIGRATE = False
 
 RECAPTCHA_PUBLIC_KEY = os.environ.get('RECAPTCHA_PUBLIC_KEY', None)
 RECAPTCHA_PRIVATE_KEY = os.environ.get('RECAPTCHA_PRIVATE_KEY', None)
@@ -468,16 +463,24 @@ if os.path.exists(os.path.join(os.path.dirname(__file__), 'hg_info.py')):
     from hg_info import revision
     HG_REVISION = revision
 
-# django toolbar
+# django debug toolbar
 DEBUG_TOOLBAR = os.environ.get('DEBUG_TOOLBAR', False)
 if DEBUG_TOOLBAR:
-    MIDDLEWARE_CLASSES = MIDDLEWARE_CLASSES + [
-        'debug_toolbar.middleware.DebugToolbarMiddleware']
     INTERNAL_IPS = ('127.0.0.1',)
     INSTALLED_APPS = INSTALLED_APPS + ('debug_toolbar',)
     DEBUG_TOOLBAR_CONFIG = {
         'INTERCEPT_REDIRECTS': False,
     }
+    DEBUG_TOOLBAR_PATCH_SETTINGS = False
+    DEBUG_TOOLBAR_PANELS = [
+        'debug_toolbar.panels.versions.VersionsPanel',
+        'debug_toolbar.panels.timer.TimerPanel',
+        'debug_toolbar.panels.settings.SettingsPanel',
+        'debug_toolbar.panels.request.RequestPanel',
+        'debug_toolbar.panels.sql.SQLPanel',
+        'debug_toolbar.panels.templates.TemplatesPanel',
+        'debug_toolbar.panels.logging.LoggingPanel',
+    ]
 
 AUTHORIZE_CLIENT_TEST = os.environ.get('AUTHORIZE_CLIENT_TEST', False)
 AUTHORIZE_CLIENT_DEBUG = os.environ.get('AUTHORIZE_CLIENT_DEBUG', False)

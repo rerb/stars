@@ -8,9 +8,9 @@ import testfixtures
 from stars.apps.institutions.models import (Institution,
                                             Subscription)
 from stars.apps.submissions.models import REVIEW_SUBMISSION_STATUS
-from stars.test_factories import (InstitutionFactory,
-                                  RatingFactory,
-                                  SubmissionSetFactory)
+from stars.test_factories.models import (InstitutionFactory,
+                                         RatingFactory,
+                                         SubmissionSetFactory)
 
 
 class InstitutionTest(TestCase):

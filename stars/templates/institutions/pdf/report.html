@@ -312,7 +312,7 @@
               {% if sub.description %}
                 <tr>
                   <td colspan="2" align="center">
-                    {{ sub.description|urlizetrunc:85|linebreaks|fix_ampersands }}
+                    {{ sub.description|urlizetrunc:85|linebreaks }}
                   </td>
                 </tr>
               {% endif %}
@@ -383,7 +383,7 @@
 	  {% if sub.description %}
 	    <hr/>
 	    <h5>From the institution:</h5>
-	    {{ sub.description|urlizetrunc:85|linebreaks|fix_ampersands }}
+	    {{ sub.description|urlizetrunc:85|linebreaks }}
 	  {% endif %}
 	  <table class='creditList'>
 	    <tr>
@@ -482,7 +482,7 @@
               {% if credit_submission.submission_notes %}
                 <div class='note'>
                   <b>Data source(s) and notes about the submission:</b><br/>
-                  {{ credit_submission.submission_notes|urlize|linebreaks|fix_ampersands|wraplinks:95 }}
+                  {{ credit_submission.submission_notes|urlize|linebreaks|wraplinks:95 }}
                 </div>
               {% endif %}
             {% endif %}

@@ -1,61 +1,47 @@
 # -*- coding: utf-8 -*-
-import datetime
-from south.db import db
-from south.v2 import SchemaMigration
-from django.db import models
+from __future__ import unicode_literals
+
+from django.db import models, migrations
+import jsonfield.fields
 
 
-class Migration(SchemaMigration):
+class Migration(migrations.Migration):
 
-    def forwards(self, orm):
-        # Adding model 'EmailTemplate'
-        db.create_table('notifications_emailtemplate', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('slug', self.gf('django.db.models.fields.SlugField')(unique=True, max_length=32)),
-            ('title', self.gf('django.db.models.fields.CharField')(max_length=128)),
-            ('description', self.gf('django.db.models.fields.TextField')()),
-            ('content', self.gf('django.db.models.fields.TextField')()),
-            ('example_data', self.gf('jsonfield.fields.JSONField')(null=True, blank=True)),
-            ('active', self.gf('django.db.models.fields.BooleanField')(default=False)),
-        ))
-        db.send_create_signal('notifications', ['EmailTemplate'])
+    dependencies = [
+    ]
 
-        # Adding model 'CopyEmail'
-        db.create_table('notifications_copyemail', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('template', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['notifications.EmailTemplate'])),
-            ('address', self.gf('django.db.models.fields.EmailField')(max_length=75)),
-            ('bcc', self.gf('django.db.models.fields.BooleanField')(default=False)),
-        ))
-        db.send_create_signal('notifications', ['CopyEmail'])
-
-
-    def backwards(self, orm):
-        # Deleting model 'EmailTemplate'
-        db.delete_table('notifications_emailtemplate')
-
-        # Deleting model 'CopyEmail'
-        db.delete_table('notifications_copyemail')
-
-
-    models = {
-        'notifications.copyemail': {
-            'Meta': {'object_name': 'CopyEmail'},
-            'address': ('django.db.models.fields.EmailField', [], {'max_length': '75'}),
-            'bcc': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'template': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['notifications.EmailTemplate']"})
-        },
-        'notifications.emailtemplate': {
-            'Meta': {'ordering': "('slug',)", 'object_name': 'EmailTemplate'},
-            'active': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'content': ('django.db.models.fields.TextField', [], {}),
-            'description': ('django.db.models.fields.TextField', [], {}),
-            'example_data': ('jsonfield.fields.JSONField', [], {'null': 'True', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'slug': ('django.db.models.fields.SlugField', [], {'unique': 'True', 'max_length': '32'}),
-            'title': ('django.db.models.fields.CharField', [], {'max_length': '128'})
-        }
-    }
-
-    complete_apps = ['notifications']
+    operations = [
+        migrations.CreateModel(
+            name='CopyEmail',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('address', models.EmailField(max_length=75)),
+                ('bcc', models.BooleanField(default=False, help_text=b'Check to copy this user using BCC')),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='EmailTemplate',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('slug', models.SlugField(help_text=b'Unique name. Please do not change.', unique=True, max_length=32)),
+                ('title', models.CharField(help_text=b'The subjuect line of the email.', max_length=128)),
+                ('description', models.TextField()),
+                ('content', models.TextField()),
+                ('example_data', jsonfield.fields.JSONField(help_text=b'Example context for the template. Do not change.', null=True, blank=True)),
+                ('active', models.BooleanField(default=False, help_text=b"Checked indicates that the code is using this email. For Webdev's use only")),
+            ],
+            options={
+                'ordering': ('slug',),
+            },
+            bases=(models.Model,),
+        ),
+        migrations.AddField(
+            model_name='copyemail',
+            name='template',
+            field=models.ForeignKey(to='notifications.EmailTemplate'),
+            preserve_default=True,
+        ),
+    ]

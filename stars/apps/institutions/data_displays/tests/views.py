@@ -11,13 +11,13 @@ from stars.apps.tests.live_server import StarsLiveServerTest
 from stars.apps.institutions.data_displays.views import (
     Dashboard,
     ScoreFilter)
-from stars.test_factories import (CategoryFactory,
-                                  InstitutionFactory,
-                                  RatingFactory,
-                                  SubmissionSetFactory,
-                                  SubscriptionFactory,
-                                  UserFactory,
-                                  MemberSuitePortalUserFactory)
+from stars.test_factories.models import (CategoryFactory,
+                                         InstitutionFactory,
+                                         RatingFactory,
+                                         SubmissionSetFactory,
+                                         SubscriptionFactory,
+                                         UserFactory,
+                                         MemberSuitePortalUserFactory)
 
 
 class DashboardTestCase(TestCase):

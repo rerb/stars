@@ -15,7 +15,7 @@ from stars.apps.submissions.models import (FINALIZED_SUBMISSION_STATUS,
                                            PENDING_SUBMISSION_STATUS,
                                            PROCESSSING_SUBMISSION_STATUS,
                                            RATED_SUBMISSION_STATUS)
-from stars.test_factories import InstitutionFactory,\
+from stars.test_factories.models import InstitutionFactory,\
     SubscriptionFactory, RatingFactory, CreditSetFactory, \
     SubmissionSetFactory
 

@@ -7,7 +7,7 @@ from logging import getLogger
 import numpy
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.contrib.contenttypes import generic
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from localflavor.us.models import PhoneNumberField
 from django.core import urlresolvers
@@ -70,7 +70,7 @@ REGISTRATION_PUBLISH_DEADLINE = date(2010, 5, 29)
 logger = getLogger('stars')
 
 
-def upload_path_callback(instance, filename):
+def submission_upload_path_callback(instance, filename):
     """
         Dynamically alters the upload path based on the instance
     """
@@ -87,7 +87,7 @@ class Flag(models.Model):
     description = models.TextField()
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
-    target = generic.GenericForeignKey('content_type', 'object_id')
+    target = GenericForeignKey('content_type', 'object_id')
 
     def get_admin_url(self):
         return urlresolvers.reverse("admin:submissions_flag_change",
@@ -95,23 +95,6 @@ class Flag(models.Model):
 
     def __unicode__(self):
         return "%s" % self.target
-
-
-class FlaggableModel():
-
-    def get_flag_url(self):
-
-        link = "%s?content_type=%s&object_id=%d" % (
-            urlresolvers.reverse('admin:submissions_flag_add'),
-            ContentType.objects.get_for_model(self).id,
-            self.id
-        )
-        return link
-
-    @property
-    def flags(self):
-        type = ContentType.objects.get_for_model(self)
-        return Flag.objects.filter(content_type__pk=type.id, object_id=self.id)
 
 
 class SubmissionManager(models.Manager):
@@ -147,7 +130,7 @@ class SubmissionManager(models.Manager):
                     '-date_submitted').order_by('-id')
 
 
-class SubmissionSet(models.Model, FlaggableModel):
+class SubmissionSet(models.Model):
     """
         A creditset (ex: 1.0) that is being submitted
     """
@@ -177,7 +160,7 @@ class SubmissionSet(models.Model, FlaggableModel):
                    "The University hospital and campus farm are excluded."))
     presidents_letter = models.FileField(
         "Executive Letter",
-        upload_to=upload_path_callback,
+        upload_to=submission_upload_path_callback,
         blank=True,
         max_length=255,
         null=True,
@@ -188,7 +171,7 @@ class SubmissionSet(models.Model, FlaggableModel):
         help_text=("Check this box if you would like to be given "
                    "reporter status and not receive a STARS rating "
                    "from AASHE."), default=False)
-    pdf_report = models.FileField(upload_to=upload_path_callback,
+    pdf_report = models.FileField(upload_to=submission_upload_path_callback,
                                   blank=True,
                                   max_length=255,
                                   null=True)
@@ -207,6 +190,20 @@ class SubmissionSet(models.Model, FlaggableModel):
 
     def __unicode__(self):
         return '%s (%s)' % (self.institution.name, self.creditset.version)
+
+    def get_flag_url(self):
+
+        link = "%s?content_type=%s&object_id=%d" % (
+            urlresolvers.reverse('admin:submissions_flag_add'),
+            ContentType.objects.get_for_model(self).id,
+            self.id
+        )
+        return link
+
+    @property
+    def flags(self):
+        type = ContentType.objects.get_for_model(self)
+        return Flag.objects.filter(content_type__pk=type.id, object_id=self.id)
 
     def missed_deadline(self):
         return not self.institution.is_participant
@@ -1586,6 +1583,9 @@ class CreditSubmission(models.Model):
         return urlresolvers.reverse('credit-submission-status-update',
                                     kwargs={'pk': self.id})
 
+    def get_help_center_search_url(self):
+        return "https://{}/resources-support/help-center/search/{}".format(settings.STARS_BROCHURE_HOST, self.credit.title)
+
 
 COMPLETE = "c"
 IN_PROGRESS = "p"
@@ -1637,7 +1637,7 @@ REVIEW_CONCLUSION_CHOICES = (
     (REVIEW_CONCLUSIONS["NOT_REALLY_PURSUING"], "Not Really Pursuing"))
 
 
-class CreditUserSubmission(CreditSubmission, FlaggableModel):
+class CreditUserSubmission(CreditSubmission):
     """
         An individual submitted credit for an institutions STARS submission
         set
@@ -1679,6 +1679,20 @@ class CreditUserSubmission(CreditSubmission, FlaggableModel):
         # @todo: the unique clause needs to be added at the DB level now :-(
         # unique_together = ("subcategory_submission", "credit")
         pass
+
+    def get_flag_url(self):
+
+        link = "%s?content_type=%s&object_id=%d" % (
+            urlresolvers.reverse('admin:submissions_flag_add'),
+            ContentType.objects.get_for_model(self).id,
+            self.id
+        )
+        return link
+
+    @property
+    def flags(self):
+        type = ContentType.objects.get_for_model(self)
+        return Flag.objects.filter(content_type__pk=type.id, object_id=self.id)
 
     def get_institution(self):
         return self.subcategory_submission.category_submission.submissionset.institution  # noqa
@@ -1967,7 +1981,7 @@ class DataCorrectionRequest(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
-    reporting_field = generic.GenericForeignKey('content_type', 'object_id')
+    reporting_field = GenericForeignKey('content_type', 'object_id')
     new_value = models.TextField(
         help_text=("Note: if this is a numeric field, be sure to use the "
                    "institution's preference for metric/imperial. You can "
@@ -2176,7 +2190,7 @@ class ReportingFieldDataCorrection(models.Model):
     change_date = models.DateField()
     content_type = models.ForeignKey(ContentType)
     object_id = models.PositiveIntegerField()
-    reporting_field = generic.GenericForeignKey('content_type', 'object_id')
+    reporting_field = GenericForeignKey('content_type', 'object_id')
     explanation = models.TextField(blank=True, null=True)
 
 
@@ -2192,16 +2206,16 @@ class DocumentationFieldSubmissionManager(models.Manager):
         return self.model.objects.filter(**{lookup: ss})
 
 
-class DocumentationFieldSubmission(models.Model, FlaggableModel):
+class DocumentationFieldSubmission(models.Model):
     """
         The submitted value for a documentation field (abstract).
     """
     documentation_field = models.ForeignKey(DocumentationField,
                                             related_name="%(class)s_set")
     credit_submission = models.ForeignKey(CreditSubmission)
-    corrections = generic.GenericRelation(ReportingFieldDataCorrection,
-                                          content_type_field='content_type',
-                                          object_id_field='object_id')
+    corrections = GenericRelation(ReportingFieldDataCorrection,
+                                  content_type_field='content_type',
+                                  object_id_field='object_id')
     objects = DocumentationFieldSubmissionManager()
 
     class Meta:
@@ -2211,6 +2225,20 @@ class DocumentationFieldSubmission(models.Model, FlaggableModel):
     def __unicode__(self):
         """ return the title of this submission field """
         return self.documentation_field.__unicode__()
+
+    def get_flag_url(self):
+
+        link = "%s?content_type=%s&object_id=%d" % (
+            urlresolvers.reverse('admin:submissions_flag_add'),
+            ContentType.objects.get_for_model(self).id,
+            self.id
+        )
+        return link
+
+    @property
+    def flags(self):
+        type = ContentType.objects.get_for_model(self)
+        return Flag.objects.filter(content_type__pk=type.id, object_id=self.id)
 
     def get_parent(self):
         """ Used for building crumbs """

@@ -6,10 +6,10 @@ import testfixtures
 
 from stars.apps.credits.models import Credit
 from stars.apps.submissions.models import CreditSubmission
-from stars.test_factories import (CreditFactory,
-                                  CreditSubmissionFactory,
-                                  CreditTestSubmissionFactory,
-                                  CreditUserSubmissionFactory)
+from stars.test_factories.models import (CreditFactory,
+                                         CreditSubmissionFactory,
+                                         CreditTestSubmissionFactory,
+                                         CreditUserSubmissionFactory)
 
 
 class CreditSubmissionTest(TestCase):

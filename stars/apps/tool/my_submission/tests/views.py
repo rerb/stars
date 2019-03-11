@@ -3,17 +3,17 @@
 from stars.apps.tool.my_submission import views
 from stars.apps.tool.tests.views import (InstitutionToolMixinTest,
                                          UserCanEditSubmissionMixinTest)
-from stars.test_factories import (CategoryFactory,
-                                  CategorySubmissionFactory,
-                                  CreditFactory,
-                                  CreditUserSubmissionFactory,
-                                  DocumentationFieldFactory,
-                                  DocumentationFieldSubmissionFactory,
-                                  InstitutionFactory,
-                                  StarsAccountFactory,
-                                  SubcategoryFactory,
-                                  SubcategorySubmissionFactory,
-                                  SubmissionSetFactory)
+from stars.test_factories.models import (CategoryFactory,
+                                         CategorySubmissionFactory,
+                                         CreditFactory,
+                                         CreditUserSubmissionFactory,
+                                         DocumentationFieldFactory,
+                                         DocumentationFieldSubmissionFactory,
+                                         InstitutionFactory,
+                                         StarsAccountFactory,
+                                         SubcategoryFactory,
+                                         SubcategorySubmissionFactory,
+                                         SubmissionSetFactory)
 
 # @TODO - we definitely need tests here for all the form submission tools
 

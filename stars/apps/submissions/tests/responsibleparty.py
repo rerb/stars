@@ -5,8 +5,8 @@ from unittest import TestCase
 
 from stars.apps.submissions.models import (CreditUserSubmission,
                                            ResponsibleParty)
-from stars.test_factories import (CreditUserSubmissionFactory,
-                                  ResponsiblePartyFactory)
+from stars.test_factories.models import (CreditUserSubmissionFactory,
+                                         ResponsiblePartyFactory)
 
 
 def _hide_creditusersubmission(creditusersubmission):

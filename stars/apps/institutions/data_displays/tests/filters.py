@@ -54,13 +54,13 @@ class FilterTestCase(TestCase):
         """Does get_results handle a filter?
         """
         self.make_some_users()
-        one = User.objects.get(pk=1)
+        one = User.objects.get(username='one')
         one.is_active = True
         one.save()
-        two = User.objects.get(pk=2)
+        two = User.objects.get(username='two')
         two.is_active = False
         two.save()
-        three = User.objects.get(pk=3)
+        three = User.objects.get(username='three')
         three.is_active = False
         three.save()
 

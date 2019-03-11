@@ -6,10 +6,10 @@ from unittest import TestCase
 
 from stars.apps.credits.models import DocumentationField
 from stars.apps.submissions.models import NumericSubmission
-from stars.test_factories import (CreditFactory,
-                                  CreditUserSubmissionFactory,
-                                  DocumentationFieldFactory,
-                                  NumericDocumentationFieldSubmissionFactory)
+from stars.test_factories.models import (CreditFactory,
+                                         CreditUserSubmissionFactory,
+                                         DocumentationFieldFactory,
+                                         NumericDocumentationFieldSubmissionFactory)
 
 
 class CalculatedFieldTest(TestCase):

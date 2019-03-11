@@ -2,9 +2,9 @@ from django import test
 from django.contrib.auth.models import User
 
 from stars.apps.helpers.old_path_preserver import OLD_PATHS_TO_PRESERVE
-from stars.test_factories import (InstitutionFactory,
-                                  StarsAccountFactory,
-                                  SubmissionSetFactory)
+from stars.test_factories.models import (InstitutionFactory,
+                                         StarsAccountFactory,
+                                         SubmissionSetFactory)
 
 
 class OldPathPreserverViewTest(test.TestCase):
