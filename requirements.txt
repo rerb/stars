@@ -24,7 +24,7 @@ django-codemirror-widget==0.4.0
 -e git+https://github.com/AASHE/django-collapsing-menu#egg=django_collapsing_menu-dev
 django-compressor==1.5
 django-debug-toolbar==1.4
-django-excel-response==1.0
+django-excel-response==2.0.3
 django-extensions==1.1.1
 django-extra-views==0.6.2
 -e git+https://github.com/baronvonvaderham/django-file-cache-tag.git#egg=filecache
