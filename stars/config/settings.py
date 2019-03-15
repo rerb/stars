@@ -531,9 +531,6 @@ PASSWORD_PROTECT_PASSWORD = os.environ.get('PASSWORD_PROTECT_PASSWORD', None)
 PASSWORD_PROTECT_REALM = os.environ.get(
     'PASSWORD_PROTECT_REALM', 'Dev Site Auth')
 
-SOUTH_MIGRATION_MODULES = {
-    'iss': 'iss.south_migrations',
-}
 
 ############################
 # Membersuite
