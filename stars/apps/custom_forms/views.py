@@ -71,43 +71,6 @@ class BaseCustomFormView(ValidationMessageFormMixin, FormView):
             # https://bitbucket.org/aashe/stars/issue/9/emailtemplatesend_email-should-take-to
 
 
-class EligibilityView(BaseCustomFormView):
-    """
-        View for the form that lets folks petition for STARS membership for
-        an institution that doesn't qualify under the usual conditions.
-    """
-
-    form_class = EligibilityForm
-    form_title = 'Eligibility Inquiry'
-    block_content_slug = "elig_form_top"
-
-    def send_confirmation_email(self, form):
-        form.send_email()
-
-
-class SteeringCommitteeNominationView(BaseCustomFormView):
-    """
-       View for the form that lest folks apply to be sit on the STARS
-       steering committee.
-    """
-
-    form_class = SteeringCommitteeNominationForm
-    email_template_slug = "sc_application"
-    form_title = 'STARS Steering Committee Nomination'
-    block_content_slug = "sc_app"
-
-
-class TechnicalAdvisorApplicationView(BaseCustomFormView):
-    """
-        View for the form that allows folks to apply to be STARS
-        Technical Advisors.
-    """
-    form_class = TAApplicationForm
-    email_template_slug = "ta_application"
-    form_title = 'Technical Advisor Application'
-    block_content_slug = "ta_app"
-
-
 class DataDisplaysAccessRequestView(BaseCustomFormView):
     """
         People can request access to the Data Displays
