@@ -19,7 +19,7 @@ ETL_SCRIPTS = [
     (submissionvalues, "submissionvalue.json")]
 
 
-BT_HOST = os.environ.get("BT_HOST", None)
+BT_HOST = settings.STARS_BENCHMARKS_HOST
 
 
 logger = logging.getLogger()

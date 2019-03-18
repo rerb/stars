@@ -56,16 +56,6 @@
      </a>
    </li>
 
-    <li
-      {% if active == "resources" %}
-        class="active"
-      {% endif %}
-      >
-      <a href="{{ credit_submission.get_submit_url }}resources/">
-        Resources <sup style="color: red;">NEW</sup>
-      </a>
-    </li>
-
     {% if credit_submission.subcategory_submission.category_submission.submissionset.is_under_review %}
       <li class="dropdown{% if active == 'review' %} active{% endif %}">
         <a class="dropdown-toggle"

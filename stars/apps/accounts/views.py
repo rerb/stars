@@ -75,25 +75,3 @@ def select_school(request, institution_id):
                                                 args=(institution.slug,)))
     else:
         return HttpResponseRedirect(settings.LOGIN_URL)
-
-
-def terms_of_service(request):
-    """
-        Provide a form where a user can agree to the terms of service
-    """
-
-    if not request.user.account:
-        logger.error("User passed to TOS w/out StarsAccount: uid",
-                     extra={'request': request})
-        return HttpResponseRedirect("/")
-
-    next = request.REQUEST.get('next', '/')
-
-    form = TOSForm(instance=request.user.account)
-    if request.method == "POST":
-        form = TOSForm(request.POST, instance=request.user.account)
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(next)
-
-    return respond(request, "auth/tos_agree.html", {'form': form, 'next': next, })

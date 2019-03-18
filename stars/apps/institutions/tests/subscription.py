@@ -14,8 +14,7 @@ from stars.apps.institutions.models import (Subscription,
                                             SubscriptionPayment,
                                             SubscriptionPurchaseError,
                                             SUBSCRIPTION_DURATION)
-from stars.apps.payments.simple_credit_card import (CreditCardPaymentProcessor,
-                                                    CreditCardProcessingError)
+
 from stars.apps.registration.models import (ExpiredDiscountCodeError,
                                             InvalidDiscountCodeError,
                                             ValueDiscount)
@@ -25,16 +24,6 @@ from stars.test_factories.models import (InstitutionFactory, SubscriptionFactory
 # Don't bother me:
 logger = getLogger('stars')
 logger.setLevel(CRITICAL)
-
-GOOD_CREDIT_CARD = '4007000000027'  # good test credit card number
-BAD_CREDIT_CARD = '123412341234'
-
-
-class MockCreditCardPaymentProcessor(CreditCardPaymentProcessor):
-    """For mocking the actual credit card payment processing."""
-
-    def process_subscription_payment(self, *args, **kwargs):
-        return (None, None)
 
 
 class SubscriptionTest(TestCase):
@@ -46,60 +35,6 @@ class SubscriptionTest(TestCase):
             institution=InstitutionFactory())
         self.member = InstitutionFactory(is_member=True)
         self.nonmember = InstitutionFactory(is_member=False)
-
-    #################################
-    # _calculate_reason() tests:
-    #################################
-
-    # _calculate_reason() removed from class Subscription
-
-    ################################
-    # calculate_start_date() tests:
-    ################################
-
-    # calculate_start_date() removed from class Subscription
-
-    ####################################
-    # qualifies_for_early_renewal_discount() tests:
-    ####################################
-
-    # qualifies_for_early_renewal_discount() removed from class Subscription
-
-    #############################
-    # _apply_promo_code() tests:
-    #############################
-
-    # _apply_promo_code() removed from class Subscription
-
-    ###########################
-    # calculate_price() tests:
-    ###########################
-
-    # calculate_price() removed from class Subscription
-
-    ######################
-    # tests for create():
-    ######################
-
-    # create() removed from class Subscription
-
-    ###################################################
-    # tests for get_date_range_for_new_subscription():
-    ###################################################
-
-    # get_date_range_for_new_subscription() removed from class Subscription
-
-    ###################
-    # tests for pay():
-    ###################
-
-    # pay() was removed from class Subscription
-
-    ########################
-    # tests for purchase():
-    ########################
-
-    # purchase() was removed from class Subscription
 
     ###################################################################
     # test that the email templates get the context they're expecting:

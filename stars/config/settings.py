@@ -229,8 +229,7 @@ INSTALLED_APPS = (
 )
 
 if 'test' in sys.argv:
-    INSTALLED_APPS += ('stars.test_factories',
-                       'stars.apps.payments')
+    INSTALLED_APPS += ('stars.test_factories',)
 
 # Permissions or user levels for STARS users
 STARS_PERMISSIONS = (
@@ -543,9 +542,6 @@ PASSWORD_PROTECT_PASSWORD = os.environ.get('PASSWORD_PROTECT_PASSWORD', None)
 PASSWORD_PROTECT_REALM = os.environ.get(
     'PASSWORD_PROTECT_REALM', 'Dev Site Auth')
 
-SOUTH_MIGRATION_MODULES = {
-    'iss': 'iss.south_migrations',
-}
 
 ############################
 # Membersuite

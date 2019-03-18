@@ -117,7 +117,7 @@ def build_category_summary_sheet(category, sheet):
         sheet.col(c).width = 5000
 
 
-def build_category_data_sheet(category, sheet):
+def build_category_data_sheet(category, sheet, metric):
     """
         Builds the data sheet for a category
     """
@@ -185,9 +185,6 @@ def build_category_data_sheet(category, sheet):
                             borderedStyle)
                 update_width(c + 2, f.documentation_field.title)
                 if (f.documentation_field.type == 'numeric' or f.documentation_field.type == 'calculated'):
-                    metric = False
-                    if f.use_metric != None and f.use_metric:
-                        metric = True
                     sheet.write(
                         r, c + 3, f.get_human_value(get_metric=metric), borderedStyle)
                 else:
@@ -214,7 +211,8 @@ def build_report_export(submission):
         sheet = wb.add_sheet("%s Summary" % category.category.abbreviation)
         build_category_summary_sheet(category, sheet)
         sheet = wb.add_sheet("%s Data" % category.category.abbreviation)
-        build_category_data_sheet(category, sheet)
+        build_category_data_sheet(
+            category, sheet, submission.institution.prefers_metric_system)
 
 #     filename = "%s.xls" % slugify("%s" % submission)
     tempfile = NamedTemporaryFile(suffix='.xls', delete=False)

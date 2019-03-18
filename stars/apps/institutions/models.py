@@ -526,9 +526,9 @@ class Institution(models.Model):
         return last_subscription_end
 
     def get_liaison_name(self):
-        return ' '.join([self.contact_first_name,
-                         self.contact_middle_name,
-                         self.contact_last_name]).replace('  ', ' ')
+        return ' '.join([self.contact_first_name or '',
+                         self.contact_middle_name or '',
+                         self.contact_last_name or '']).replace('  ', ' ')
 
     def get_liaison_email(self):
         return self.contact_email

@@ -1583,6 +1583,9 @@ class CreditSubmission(models.Model):
         return urlresolvers.reverse('credit-submission-status-update',
                                     kwargs={'pk': self.id})
 
+    def get_help_center_search_url(self):
+        return "https://{}/resources-support/help-center/search/{}".format(settings.STARS_BROCHURE_HOST, self.credit.title)
+
 
 COMPLETE = "c"
 IN_PROGRESS = "p"

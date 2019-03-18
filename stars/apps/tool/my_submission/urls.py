@@ -10,7 +10,6 @@ from stars.apps.tool.my_submission.views import (
     CreditSubmissionDocumentationView,
     CreditSubmissionHistoryView,
     CreditSubmissionNotesView,
-    CreditSubmissionResourcesView,
     CreditSubmissionReviewView,
     CreditSubmissionReportingFieldsView,
     EditBoundaryView,
@@ -90,10 +89,6 @@ urlpatterns = patterns(
     url(r'^%s/history/$' % CREDIT_PATH,
         CreditSubmissionHistoryView.as_view(),
         name='credit-history'),
-
-    url(r'^%s/resources/$' % CREDIT_PATH,
-        CreditSubmissionResourcesView.as_view(),
-        name='credit-resources'),
 
     url(r'^%s/review/$' % CREDIT_PATH,
         never_cache(CreditSubmissionReviewView.as_view()),

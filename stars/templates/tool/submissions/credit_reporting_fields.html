@@ -186,20 +186,17 @@
                  data: frm.serialize(),
                  success: function(data) {
                    if (data.indexOf("errorlist") >= 0) {
-                     console.log("error");
                      $(".spinner").hide();
                      $("#responsible-party-p").html("It appears there was an error.");
                      $("#responsible-party-p").show();
                      $(".responsible-party-form").show();
                    } else {
-                     console.log("ok");
                      $("#rsModalLabel").html("One moment please.");
                      $(".spinner").hide();
                      $(".checkmark").show();
                    }
                  },
                  error: function(data) {
-                     console.log("error");
                      $(".spinner").hide();
                      $("#responsible-party-p").html("It appears there was an error.");
                      $("#responsible-party-p").show();

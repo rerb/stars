@@ -24,7 +24,7 @@
   -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#CC0081D1,endColorstr=#CC0081D1)";
   filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#CC0081D1,endColorstr=#CC0081D1)";
   zoom: 1;
-  opacity: .9;
+  opacity: 0.9;
   font-weight: bold;
   font-size: 16px;
   line-height: 20px;
@@ -57,16 +57,17 @@
   overflow: hidden;
 }
 .frontblock .update-row {
-  border-bottom: 1px solid #DFDFDF;
+  border-bottom: 1px solid #dfdfdf;
   margin-right: 25px;
   padding: 5px 0px 3px 0px;
-  color: #4A4A4A;
+  color: #4a4a4a;
 }
 .frontblock .update-title {
   font-size: 14px;
 }
 .frontblock .update-date {
-  background: transparent url("/media/static/bootstrap/img/calendar.png") no-repeat 0 2px;
+  background: transparent url("/media/static/bootstrap/img/calendar.png")
+    no-repeat 0 2px;
   padding-left: 16px;
 }
 .tweet-list img {
@@ -87,8 +88,8 @@
   color: #ffffff;
 }
 .caret {
-  border-top-color: #F2F2F2;
-  border-bottom-color: #F2F2F2;
+  border-top-color: #f2f2f2;
+  border-bottom-color: #f2f2f2;
 }
 /* social tabs */
 .social-tabs .tab-nav {
@@ -107,7 +108,7 @@ ul.tab-nav {
   float: right;
 }
 .social-tabs .tab-nav a {
-  background-image: url('/media/static/images/social-icons.png');
+  background-image: url("/media/static/images/social-icons.png");
   background-repeat: no-repeat;
   display: block;
   height: 37px;
@@ -182,7 +183,7 @@ h2 {
 .plan-name-full {
   padding: 20px;
   color: #fff;
-  background-color: #00A160;
+  background-color: #00a160;
   -moz-border-radius: 5px 5px 0 0;
   -webkit-border-radius: 5px 5px 0 0;
   border-radius: 5px 5px 0 0;
@@ -190,7 +191,7 @@ h2 {
 .plan-name-basic {
   padding: 20px;
   color: #fff;
-  background-color: #A78FC3;
+  background-color: #a78fc3;
   -moz-border-radius: 5px 5px 0 0;
   -webkit-border-radius: 5px 5px 0 0;
   border-radius: 5px 5px 0 0;
@@ -236,30 +237,30 @@ h2 {
   padding: 8px 25px;
   font-size: 18px;
 }
-.org-list{
+.org-list {
   display: none;
 }
-.org-list li{
+.org-list li {
   border: 1px solid #e5e5e5;
   border-radius: 2px;
   padding: 7px;
 }
-.org-list li:hover{
+.org-list li:hover {
   cursor: pointer;
   padding-top: 30px;
   height: 40px;
 }
-.search-panel{
+.search-panel {
   padding: 15px;
   height: 75px;
   margin: 7px;
   border: 1px solid #bdbdbd;
   border-radius: 6px;
 }
-#school-finder{
+#school-finder {
   margin: 5px;
 }
-.green-dot{
+.green-dot {
   display: none;
   margin-top: 2px;
   height: 12px;
@@ -268,12 +269,12 @@ h2 {
   border-radius: 50%;
   background-color: #5bb75b;
 }
-#institution-submit-btn{
+#institution-submit-btn {
   margin-top: 20px;
 }
-.errorlist{
+.errorlist {
   margin: 0 0 9px 0;
 }
-.errorlist li{
-  color: red;
+.errorlist li {
+  color: #b94a48;
 }
