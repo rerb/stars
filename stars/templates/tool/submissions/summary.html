@@ -143,7 +143,7 @@
                        class="accordion-body in">
                     <div class="accordion-inner">
                       {% if not sub.subcategory.passthrough %}
-                        {% if submissionset.creditset.has_submission_summary_feature %}
+                        {% if submissionset.creditset.has_subcategory_description_feature %}
                           {% if not submission_under_review %}
                             {% if not sub.subcategory.category.abbreviation == "IN" %}
                               <div class='well' style='text-align: center'>

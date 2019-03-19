@@ -331,6 +331,10 @@ class CreditSet(VersionedModel):
             category__in=categories)
         return Credit.objects.filter(subcategory__in=subcategories)
 
+    def has_subcategory_description_feature(self):
+        """ Checks if the creditset should have subcat descriptions """
+        return self.has_feature('subcategory_description')
+
 
 class Rating(models.Model):
     """
