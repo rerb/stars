@@ -192,6 +192,24 @@ SUBMISSION_STEPS = [
     },
 ]
 
+SUBMISSION_STEPS_WITHOUT_LETTER = [
+    {
+        'form': StatusForm,
+        'template': 'status',
+        'instance_callback': 'get_submissionset'
+    },
+    {
+        'form': ContactsForm,
+        'template': 'contacts',
+        'instance_callback': 'get_institution'
+    },
+    {
+        'form': Confirm,
+        'template': 'finalize',
+        'instance_callback': None
+    },
+]
+
 
 class SubmitForRatingWizard(SubmitRedirectMixin,
                             SubmissionToolMixin,
@@ -227,13 +245,20 @@ class SubmitForRatingWizard(SubmitRedirectMixin,
         })
 
     def get_template_names(self):
+        if self.get_creditset.has_president_letter_feature:
+            return ("tool/submissions/submit_wizard_%s.html" %
+                    SUBMISSION_STEPS[int(self.steps.current)]['template'])
         return ("tool/submissions/submit_wizard_%s.html" %
-                SUBMISSION_STEPS[int(self.steps.current)]['template'])
+                SUBMISSION_STEPS_WITHOUT_LETTER[int(self.steps.current)]['template'])
 
     def get_form_instance(self, step):
-        if SUBMISSION_STEPS[int(step)]['instance_callback']:
+        if self.get_creditset.has_president_letter_feature:
+            if SUBMISSION_STEPS[int(step)]['instance_callback']:
+                return getattr(self,
+                               SUBMISSION_STEPS[int(step)]['instance_callback'])()
+        elif SUBMISSION_STEPS_WITHOUT_LETTER[int(step)]['instance_callback']:
             return getattr(self,
-                           SUBMISSION_STEPS[int(step)]['instance_callback'])()
+                           SUBMISSION_STEPS_WITHOUT_LETTER[int(step)]['instance_callback'])()
         return None
 
     def get_context_data(self, form, **kwargs):

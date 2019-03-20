@@ -335,6 +335,10 @@ class CreditSet(VersionedModel):
         """ Checks if the creditset should have subcat descriptions """
         return self.has_feature('subcategory_description')
 
+    def has_president_letter_feature(self):
+        """ Checks if the creditset should have subcat descriptions """
+        return self.has_feature('pres_letter_in_submission_process')
+
 
 class Rating(models.Model):
     """
