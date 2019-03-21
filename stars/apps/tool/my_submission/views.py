@@ -245,14 +245,14 @@ class SubmitForRatingWizard(SubmitRedirectMixin,
         })
 
     def get_template_names(self):
-        if self.get_submissionset.creditset.has_president_letter_feature:
+        if self.get_creditset().has_president_letter_feature():
             return ("tool/submissions/submit_wizard_%s.html" %
                     SUBMISSION_STEPS[int(self.steps.current)]['template'])
         return ("tool/submissions/submit_wizard_%s.html" %
                 SUBMISSION_STEPS_WITHOUT_LETTER[int(self.steps.current)]['template'])
 
     def get_form_instance(self, step):
-        if self.get_submissionset.creditset.has_president_letter_feature:
+        if self.get_creditset().has_president_letter_feature():
             if SUBMISSION_STEPS[int(step)]['instance_callback']:
                 return getattr(self,
                                SUBMISSION_STEPS[int(step)]['instance_callback'])()
