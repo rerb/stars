@@ -39,7 +39,7 @@ class Command(BaseCommand):
         self.etl_dir = os.path.join(settings.MEDIA_ROOT, "etl")
         self.target_dir = os.path.join(self.etl_dir, self.key)
         os.mkdir(self.target_dir)
-        self.bt_host = "%s/api/etl/" % BT_HOST
+        self.bt_api_url = "https://%s/api/etl/" % BT_HOST
 
     def handle(self, *args, **options):
 
@@ -78,7 +78,7 @@ class Command(BaseCommand):
             'key': self.key,
             'timestamp': '%d' % int(time.time()),
         }
-        response = requests.post(self.bt_host, data=post_data)
+        response = requests.post(self.bt_api_url, data=post_data)
 
         return response
 
