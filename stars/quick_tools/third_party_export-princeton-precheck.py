@@ -11,15 +11,13 @@ Produces 3 lists:
 
 """
 import datetime
-import string
 
 from stars.apps.credits.models import CreditSet
 from stars.apps.submissions.models import SubmissionSet
 from stars.apps.third_parties.models import ThirdParty
-from stars.apps.third_parties.utils import export_credit_csv
 
 
-tp = ThirdParty.objects.get(slug="princeton")
+princeton = ThirdParty.objects.get(slug="princeton")
 
 reports_set_to_go = {}
 reports_not_shared = {}
@@ -42,7 +40,7 @@ for cs in [CreditSet.objects.get(version=2.0),
     reporting_institutions = []
 
     for report in reports.filter(
-            institution__in=tp.access_to_institutions.all()):
+            institution__in=princeton.access_to_institutions.all()):
         # Just take first report for each institution.
         if report.institution in reporting_institutions:
             continue  # Not the first report for this institution.
@@ -53,7 +51,7 @@ for cs in [CreditSet.objects.get(version=2.0),
     institutions_not_sharing = []
 
     for report in reports.exclude(
-            institution__in=tp.access_to_institutions.all()):
+            institution__in=princeton.access_to_institutions.all()):
         # Just take first report for each institution.
         if report.institution in institutions_not_sharing:
             continue  # Not the first report for this institution.
@@ -61,7 +59,7 @@ for cs in [CreditSet.objects.get(version=2.0),
         reports_not_shared[report.institution] = report
 
 # institutions set up to share with princeton w/o a report to share
-for institution in tp.access_to_institutions.all():
+for institution in princeton.access_to_institutions.all():
     for cs in [CreditSet.objects.get(version=2.0),
                CreditSet.objects.get(version=2.1)]:
 
