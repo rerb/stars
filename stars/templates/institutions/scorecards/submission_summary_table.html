@@ -79,11 +79,11 @@
         {% endif %}
       </td>
       {% if submissionset.creditset.has_president_letter_feature %}
-      <td>
-        {% if not preview %}
-          <a href='{{ submissionset.presidents_letter.url }}'>Download</a>
-        {% endif %}
-      </td>
+          <td>
+            {% if not preview %}
+              <a href='{{ submissionset.presidents_letter.url }}'>Download</a>
+            {% endif %}
+          </td>
       {% endif %}
       {% testrule user_can_view_export user submissionset %}
         <td>

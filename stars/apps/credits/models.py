@@ -336,7 +336,7 @@ class CreditSet(VersionedModel):
         return self.has_feature('subcategory_description')
 
     def has_president_letter_feature(self):
-        """ Checks if the creditset should have subcat descriptions """
+        """ Checks if the creditset should have president letter during submission """
         return self.has_feature('pres_letter_in_submission_process')
 
 

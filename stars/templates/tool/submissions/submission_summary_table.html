@@ -30,8 +30,10 @@
         </th>
       {% endtestrule %}
       <th>Export</th>
-      {% if submissionset.is_under_review %}
-        <th>Executive Letter</th>
+      {% if submissionset.creditset.has_president_letter_feature %}
+          {% if submissionset.is_under_review %}
+            <th>Executive Letter</th>
+          {% endif %}
       {% endif %}
     </tr>
   </thead>
@@ -82,12 +84,14 @@
           {% include "tool/participant_only_snippet.html" %}
         {% endtestrule %}
       </td>
-      {% if submissionset.is_under_review %}
-        <td>
-          <a href="{{ submissionset.presidents_letter.url }}">
-            Click here
-          </a>
-        </td>
+      {% if submissionset.creditset.has_president_letter_feature %}
+          {% if submissionset.is_under_review %}
+            <td>
+              <a href="{{ submissionset.presidents_letter.url }}">
+                Click here
+              </a>
+            </td>
+          {% endif %}
       {% endif %}
     </tr>
   </tbody>
