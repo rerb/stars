@@ -107,6 +107,8 @@ def get_ss_obj(ss):
         etl_obj = get_cat_etl_obj(category, ss)
         if etl_obj:
             obj_list.append(etl_obj)
+        else:
+            print "no category etl_obj"
 
         for subcategory in category.subcategory_set.all():
 
