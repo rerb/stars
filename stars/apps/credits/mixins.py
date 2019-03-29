@@ -20,7 +20,7 @@ class VersionedModel(models.Model):
         """
         try:
             return self._next_version
-        except self.__class__.DoesNotExist: # presumably Object.DoesNotExist
+        except self.__class__.DoesNotExist:  # presumably Object.DoesNotExist
             return None
 
     def get_for_creditset(self, cs):
@@ -74,6 +74,15 @@ class VersionedModel(models.Model):
         obj = self
 
         while obj.next_version != None:
+            obj = obj.next_version
+
+        return obj
+
+    def get_latest_published_version(self):
+
+        obj = self
+
+        while obj.next_version != None and obj.next_version.get_creditset().is_released() == True:
             obj = obj.next_version
 
         return obj

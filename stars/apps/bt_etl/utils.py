@@ -18,7 +18,7 @@ def get_datapoint_key(obj):
     }
     return "%s_%d" % (
         lookups[obj.__class__.__name__],
-        obj.get_latest_version().id)
+        obj.get_latest_published_version().id)
 
 
 def get_latest_df_val_for_institution(df_id, institution):
