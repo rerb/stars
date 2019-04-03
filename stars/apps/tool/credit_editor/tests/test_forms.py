@@ -4,7 +4,7 @@ import tempfile
 
 import django
 
-from stars.apps.tests.live_server import StarsLiveServerTest
+from stars.apps.test_utils.live_server import StarsLiveServerTest
 from stars.apps.tool.credit_editor.forms import RightSizeInputModelForm
 
 
@@ -140,3 +140,4 @@ class TestModel(django.db.models.Model):
 class TestModelForm(RightSizeInputModelForm):
     class Meta:
         model = TestModel
+        fields = '__all__'

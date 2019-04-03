@@ -7,7 +7,7 @@ from django.test import Client, TestCase
 from selenium.webdriver.support.ui import Select
 
 from stars.apps.credits.models import CreditSet
-from stars.apps.tests.live_server import StarsLiveServerTest
+from stars.apps.test_utils.live_server import StarsLiveServerTest
 from stars.apps.institutions.data_displays.views import (
     Dashboard,
     ScoreFilter)

@@ -4,7 +4,7 @@ import time
 from selenium.webdriver.common.by import By
 
 from stars.apps.registration.utils import init_submissionset
-from stars.apps.tests.live_server import StarsLiveServerTest
+from stars.apps.test_utils.live_server import StarsLiveServerTest
 
 
 class MeasurementLiveServerTest(StarsLiveServerTest):

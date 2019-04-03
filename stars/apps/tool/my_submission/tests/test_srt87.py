@@ -5,7 +5,7 @@
 
     This test is designed to duplicate the issue so we can debug it.
 """
-from stars.apps.tests.views import ViewTest
+from stars.apps.test_utils.views import ViewTest
 
 from stars.apps.tool.my_submission.views import (
     CreditSubmissionReportingFieldsView)

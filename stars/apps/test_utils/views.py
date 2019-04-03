@@ -1,5 +1,7 @@
 """Base tests for views.
 """
+import unittest
+
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.contrib.messages.middleware import MessageMiddleware
 from django.core.exceptions import PermissionDenied
@@ -22,6 +24,7 @@ class ViewTest(TestCase):
         self.request = self._get_middleworn_request()
         self.request.method = 'GET'
 
+    @unittest.skipIf(view_class == None, "Only to be run by subclass.")
     def test_get_succeeds(self, status_code=200, **kwargs):
         """Is view.as_view() GET-able?
 
@@ -45,6 +48,8 @@ class FormMixinViewTest(ViewTest):
         Adds a test to check that a view's success_url is loadable to
         those defined in ViewTest.
     """
+
+    @unittest.skipIf(view_class == None, "Only to be run by subclass.")
     def test_success_url_is_loadable(self, **kwargs):
         """Is the url returned by get_success_url() loadable?
         """
@@ -75,18 +80,21 @@ class ProtectedViewTest(ViewTest):
             2. is *non* GET-able when the gatekeeper rule is
                not satisfied.
     """
+
     def open_gate(self):
         raise NotImplemented
 
     def close_gate(self):
         raise NotImplemented
 
+    @unittest.skipIf(view_class == None, "Only to be run by subclass.")
     def test_get_succeeds(self, **kwargs):
         """Is view.as_view() GET-able when the gate is open?
         """
         self.open_gate()
         super(ProtectedViewTest, self).test_get_succeeds(**kwargs)
 
+    @unittest.skipIf(view_class == None, "Only to be run by subclass.")
     def test_get_is_blocked(self, **kwargs):
         """Is view_class.as_view() blocked when the gate is closed?
         """
@@ -103,6 +111,8 @@ class ProtectedFormMixinViewTest(ProtectedViewTest, FormMixinViewTest):
         when the gatekeeper rule is satisfied, to those tests defined
         in ProtectedViewTest.
     """
+
+    @unittest.skipIf(view_class == None, "Only to be run by subclass.")
     def test_success_url_is_loadable(self, **kwargs):
         """Is the url returned by get_success_url() loadable?
         """

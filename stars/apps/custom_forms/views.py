@@ -1,10 +1,7 @@
 from django.shortcuts import render
 from django.views.generic.edit import FormView
 
-from stars.apps.custom_forms.forms import (EligibilityForm,
-                                           SteeringCommitteeNominationForm,
-                                           TAApplicationForm,
-                                           DataDisplayAccessRequestForm)
+from stars.apps.custom_forms.forms import DataDisplayAccessRequestForm
 from stars.apps.helpers.mixins import ValidationMessageFormMixin
 from stars.apps.notifications.models import EmailTemplate
 

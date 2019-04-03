@@ -8,8 +8,8 @@ from django.core.exceptions import SuspiciousOperation
 from django.http import Http404
 from mock import patch
 
-from stars.apps.tests.views import (ProtectedFormMixinViewTest,
-                                    ProtectedViewTest, ViewTest)
+from stars.apps.test_utils.views import (ProtectedFormMixinViewTest,
+                                         ProtectedViewTest, ViewTest)
 from stars.apps.tool.views import (NoStarsAccountView, ToolLandingPageView,
                                    SelectInstitutionView, SummaryToolView)
 from stars.test_factories.models import (CreditSetFactory,

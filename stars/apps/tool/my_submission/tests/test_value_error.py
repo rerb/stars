@@ -8,7 +8,7 @@
 """
 from stars.apps.registration.views import init_submissionset
 from stars.apps.submissions.models import CreditUserSubmission
-from stars.apps.tests.views import ViewTest
+from stars.apps.test_utils.views import ViewTest
 from stars.apps.tool.my_submission.views import (
     CreditSubmissionReportingFieldsView)
 from stars.test_factories.models import (DocumentationFieldFactory,

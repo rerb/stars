@@ -1,4 +1,4 @@
-import django.test import TestCase
+from django.test import TestCase
 
 from stars.apps import credits
 from stars.test_factories import credits_factories

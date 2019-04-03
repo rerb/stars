@@ -1,4 +1,4 @@
-import django.test import TestCase
+from django.test import TestCase
 
 from stars.apps import notifications
 from stars.test_factories import notifications_factories
