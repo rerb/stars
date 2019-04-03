@@ -64,6 +64,7 @@ class FileCacheTest(TestCase):
         self.assertTrue(filecache)
         key = custom_caching.generate_cache_key(
             self.url, [self.submissionset.id, False, "NO_EXPORT", False])
+        print key
         cached_response = filecache.get(key)
         self.assertTrue(cached_response)
 
@@ -72,6 +73,7 @@ class FileCacheTest(TestCase):
         filecache = caches['filecache']
         key = custom_caching.generate_cache_key(
             self.url, [self.submissionset.id, False, "NO_EXPORT", False])
+        print key
         cached_response = filecache.get(key)
         custom_caching.invalidate_filecache(key)
         no_more_cache = filecache.get(key)
@@ -83,6 +85,7 @@ class FileCacheTest(TestCase):
         filecache = caches['filecache']
         key = custom_caching.generate_cache_key(
             self.url, [self.submissionset.id, False, "NO_EXPORT", False])
+        print key
         cached_response = filecache.get(key)
         self.assertTrue(cached_response)
 
@@ -102,6 +105,7 @@ class FileCacheTest(TestCase):
         filecache = caches['filecache']
         key = custom_caching.generate_cache_key(
             self.url, [self.submissionset.id, False, "NO_EXPORT", False])
+        print key
         cached_response = filecache.get(key)
         self.assertTrue(cached_response)
         self.submissionset.save()
@@ -114,6 +118,7 @@ class FileCacheTest(TestCase):
         filecache = caches['filecache']
         key = custom_caching.generate_cache_key(
             self.url, [self.submissionset.id, False, "NO_EXPORT", False])
+        print key
         cached_response = filecache.get(key)
         self.assertTrue(cached_response)
         call_command('clear_cache', url)
