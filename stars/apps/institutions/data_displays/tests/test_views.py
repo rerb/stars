@@ -56,7 +56,7 @@ class DashboardTestCase(TestCase):
         # when data_displays is tested in isolation 'total_participant_count'
         # returns 2
         # when the full suite is run, it returns 6
-        self.assertEqual(6, participation_context['total_participant_count'])
+        self.assertEqual(2, participation_context['total_participant_count'])
 
     def test_get_particpants_context_sorts_by_country(self):
         """Does get_participants_context sort its result by country?

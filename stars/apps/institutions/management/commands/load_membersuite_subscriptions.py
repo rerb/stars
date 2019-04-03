@@ -275,7 +275,7 @@ class Command(BaseCommand):
                 stars_subscription.institution.save()
             else:
                 logger.error("no stars_subscription.institution for "
-                             "subscription with pk =" + stars_subscription.pk)
+                             "subscription with pk =" + str(stars_subscription.pk))
 
         # if any id's remain in subscription_id_list they can be archived
         # as they don't exist in MemberSuite anymore

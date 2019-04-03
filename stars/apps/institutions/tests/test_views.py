@@ -65,7 +65,7 @@ class RatedInstitutionsViewTest(TestCase):
 
         view = views.RatedInstitutions()
         qs = view.get_queryset()
-        self.assertEqual(len(qs), 8)
+        self.assertEqual(len(qs), 4)
 
         url = "/institutions/rated/?sort=rating"
         response = c.get(url)

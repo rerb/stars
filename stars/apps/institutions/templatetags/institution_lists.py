@@ -43,7 +43,6 @@ def show_institutions_map():
             'ms_institution',
             'current_rating',
             'rated_submission',
-            'access_level',
             )
             )
 

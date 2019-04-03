@@ -24,7 +24,6 @@ class ViewTest(TestCase):
         self.request = self._get_middleworn_request()
         self.request.method = 'GET'
 
-    @unittest.skipIf(view_class == None, "Only to be run by subclass.")
     def test_get_succeeds(self, status_code=200, **kwargs):
         """Is view.as_view() GET-able?
 
@@ -33,6 +32,9 @@ class ViewTest(TestCase):
         so a successful GET returns a 301 -- so status_code can be
         specified.
         """
+        if self.view_class == None:
+            # Test is only meant to be run in subclass wher view_class is set
+            return
         response = self.view_class.as_view()(self.request, **kwargs)
         self.assertEqual(response.status_code, status_code)
 
@@ -49,11 +51,13 @@ class FormMixinViewTest(ViewTest):
         those defined in ViewTest.
     """
 
-    @unittest.skipIf(view_class == None, "Only to be run by subclass.")
     def test_success_url_is_loadable(self, **kwargs):
         """Is the url returned by get_success_url() loadable?
         """
         view = self.view_class()
+        if self.view_class == None:
+            # Test is only meant to be run in subclass wher view_class is set
+            return
         # Hack a request object onto the view, since it'll be
         # referenced if no success_url or success_url_name is specified
         # in the view:
@@ -87,17 +91,21 @@ class ProtectedViewTest(ViewTest):
     def close_gate(self):
         raise NotImplemented
 
-    @unittest.skipIf(view_class == None, "Only to be run by subclass.")
     def test_get_succeeds(self, **kwargs):
         """Is view.as_view() GET-able when the gate is open?
         """
+        if self.view_class == None:
+            # Test is only meant to be run in subclass wher view_class is set
+            return
         self.open_gate()
         super(ProtectedViewTest, self).test_get_succeeds(**kwargs)
 
-    @unittest.skipIf(view_class == None, "Only to be run by subclass.")
     def test_get_is_blocked(self, **kwargs):
         """Is view_class.as_view() blocked when the gate is closed?
         """
+        if self.view_class == None:
+            # Test is only meant to be run in subclass wher view_class is set
+            return
         self.close_gate()
         self.assertRaises(PermissionDenied,
                           self.view_class.as_view(),
@@ -112,10 +120,12 @@ class ProtectedFormMixinViewTest(ProtectedViewTest, FormMixinViewTest):
         in ProtectedViewTest.
     """
 
-    @unittest.skipIf(view_class == None, "Only to be run by subclass.")
     def test_success_url_is_loadable(self, **kwargs):
         """Is the url returned by get_success_url() loadable?
         """
+        if self.view_class == None:
+            # Test is only meant to be run in subclass wher view_class is set
+            return
         self.open_gate()
         super(ProtectedFormMixinViewTest,
               self).test_success_url_is_loadable(**kwargs)

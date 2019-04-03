@@ -4,7 +4,7 @@ modelled on Django's shortcuts module
 """
 from logging import getLogger
 
-from django.template.loader import get_template
+from django.template.loader import get_template, render_to_string
 
 logger = getLogger('stars')
 
@@ -15,7 +15,7 @@ def render_to_any_response(HttpResponseClass, *args, **kwargs):
     as an argument, so we can render custom 404 or 500 pages.
     """
     httpresponse_kwargs = {'content_type': kwargs.pop('content_type', None)}
-    return HttpResponseClass(loader.render_to_string(*args, **kwargs),
+    return HttpResponseClass(render_to_string(*args, **kwargs),
                              **httpresponse_kwargs)
 
 
