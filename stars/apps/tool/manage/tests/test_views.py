@@ -478,29 +478,31 @@ class MigrateViewTest(InstitutionAdminToolMixinTest):
     def test_form_valid_starts_migration(self):
         """When all is ok, is a migration task started?
         """
-        self.account.user_level = 'admin'
-        self.account.save()
-        self.request.method = 'POST'
-        self.request.POST = {'is_locked': True}
+        if self.migration_task_name:
+            # only run in subclass where attributes are set.
+            self.account.user_level = 'admin'
+            self.account.save()
+            self.request.method = 'POST'
+            self.request.POST = {'is_locked': True}
 
-        class migrationTask(object):
-            def delay(self, *args, **kwargs):
-                return 1 / 0
+            class migrationTask(object):
+                def delay(self, *args, **kwargs):
+                    return 1 / 0
 
-        with testfixtures.Replacer() as r:
-            self.open_gate()
-            # stub out the migration function with a lambda that'll
-            # raise a ZeroDivisionError, then we can check to
-            # see if that error's raised when the migration
-            # function should be called.
-            r.replace('stars.apps.tool.manage.views.' +
-                      self.migration_task_name,
-                      migrationTask())
-            self.assertRaises(ZeroDivisionError,
-                              self.view_class.as_view(),
-                              self.request,
-                              institution_slug=self.institution.slug,
-                              pk=self._get_pk())
+            with testfixtures.Replacer() as r:
+                self.open_gate()
+                # stub out the migration function with a lambda that'll
+                # raise a ZeroDivisionError, then we can check to
+                # see if that error's raised when the migration
+                # function should be called.
+                r.replace('stars.apps.tool.manage.views.' +
+                          self.migration_task_name,
+                          migrationTask())
+                self.assertRaises(ZeroDivisionError,
+                                  self.view_class.as_view(),
+                                  self.request,
+                                  institution_slug=self.institution.slug,
+                                  pk=self._get_pk())
 
 
 class MigrateDataViewTest(MigrateViewTest):
