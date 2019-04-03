@@ -1864,7 +1864,7 @@ class CreditUserSubmission(CreditSubmission):
         email_context = {"credit_user_submission": self,
                          "institution": institution}
 
-        with open(settings.TEMPLATE_DIRS[0] + email_template,
+        with open(settings.TEMPLATES[0]['DIRS'][0] + email_template,
                   "rb") as template:
             email_content = build_message(template.read(), email_context)
 

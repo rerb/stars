@@ -657,7 +657,7 @@ class SendCreditSubmissionReviewNotationEmailView(SubmissionToolMixin,
         context["my_submission_url"] = (
             self.submissionset.get_submit_url())
 
-        with open(settings.TEMPLATE_DIRS[0] + email_template,
+        with open(settings.TEMPLATES[0]['DIRS'][0] + email_template,
                   "rb") as template:
             email_content = build_message(template.read(), context)
 
