@@ -118,8 +118,8 @@ class FileCacheTest(TestCase):
         filecache = caches['filecache']
         key = custom_caching.generate_cache_key(
             self.url, [self.submissionset.id, False, "NO_EXPORT", False])
-        print key
         cached_response = filecache.get(key)
+        print cached_response
         self.assertTrue(cached_response)
         call_command('clear_cache', url)
         no_cache = filecache.get(key)
