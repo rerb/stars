@@ -811,17 +811,9 @@ class AbstractAccount(BaseAccount):
             Return the date of the last access to this account, or None
             Currently, this just uses the date of user's last login to STARS.
         """
-        # HACK alert - Django stores a default of now() in last_login
-        #              field when account is created.
-        #            - as a result, last_login < date_joined when user
-        #              hasn't logged in yet.
-        #  - seems a bit fragile, but that's really the only way I can
-        #    think of to determine if user has not logged in yet...
-
         if self.is_pending():
             return None
-        return (None if (self.user.last_login < self.user.date_joined) else
-                self.user.last_login)
+        return self.user.last_login
 
     # Each action below corresponds to an e-mail template for a
     # notification message
