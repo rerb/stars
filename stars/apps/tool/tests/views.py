@@ -182,6 +182,61 @@ class SubmissionSetIsNotLockedMixinTest(ProtectedViewTest):
             submissionset=str(self.submission.id))
 
 
+class NoStarsAccountViewTest(ViewTest):
+
+    middleware = (ViewTest.middleware +
+                  [AuthenticationMiddleware])
+    view_class = NoStarsAccountView
+
+    def setUp(self):
+        super(NoStarsAccountViewTest, self).setUp()
+        # changed
+        # self.user_aashe_account = MemberSuitePortalUserFactory()
+        # self.user_aashe_account = AASHEAccountFactory()
+        self.user_aashe_account = UserProfileFactory()
+        self.user = self.user_aashe_account.user
+        self.request.user = self.user
+        self.view = self.view_class()
+
+    def test_get_institution_empty_profile_instlist(self):
+        """Does get_institution work when profile has no institutions?"""
+        self.assertEqual(self.view.get_institution(user=self.user),
+                         None)
+
+    def test_get_liaison_name(self):
+        institution = InstitutionFactory(
+            contact_first_name='William',
+            contact_middle_name='S',
+            contact_last_name='Burroughs')
+        self.assertEqual(self.view.get_liaison_name(institution),
+                         'William S Burroughs')
+
+    def test_get_liaison_name_no_middle_name(self):
+        institution = InstitutionFactory(
+            contact_first_name='William',
+            contact_last_name='Burroughs')
+        self.assertEqual(self.view.get_liaison_name(institution),
+                         'William Burroughs')
+
+
+class SelectInstitutionViewTest(ViewTest):
+
+    middleware = ViewTest.middleware + [AuthenticationMiddleware]
+    view_class = SelectInstitutionView
+
+    def setUp(self):
+        """
+            Creates some data to show on the page.
+            Gives ViewTest.test_get_succeeds a little bit
+            more of a work out.
+        """
+        super(SelectInstitutionViewTest, self).setUp()
+        institution = InstitutionFactory()
+        stars_account = StarsAccountFactory(institution=institution,
+                                            user=UserFactory())
+        self.request.user = stars_account.user
+
+
 class SummaryToolViewTest(InstitutionViewOnlyToolMixinTest):
     view_class = SummaryToolView
 
@@ -237,234 +292,3 @@ class ToolLandingPageViewTest(ViewTest):
             except SuspiciousOperation:  # Django doesn't like reverse mocked.
                 pass
             reverse_mock.assert_called_with('select-institution')
-
-
-class NoStarsAccountViewTest(ViewTest):
-
-    middleware = (ViewTest.middleware +
-                  [AuthenticationMiddleware])
-    view_class = NoStarsAccountView
-
-    def setUp(self):
-        super(NoStarsAccountViewTest, self).setUp()
-        # changed
-        # self.user_aashe_account = MemberSuitePortalUserFactory()
-        # self.user_aashe_account = AASHEAccountFactory()
-        self.user_aashe_account = UserProfileFactory()
-        self.user = self.user_aashe_account.user
-        self.request.user = self.user
-        self.view = self.view_class()
-
-    def test_get_institution_empty_profile_instlist(self):
-        """Does get_institution work when profile has no institutions?"""
-        self.assertEqual(self.view.get_institution(user=self.user),
-                         None)
-
-    # def test_get_institution_one_valid_entry_profile_instlist(self):
-    #     """Does get_institution work when profile has 1 valid institution?"""
-    #     institution = InstitutionFactory()
-    #     self.user_aashe_account.set_drupal_user_dict({'profile_instlist':
-    #                                                   str(institution.id)})
-    #     self.user_aashe_account.save()
-    #     self.assertEqual(self.view.get_institution(user=self.user),
-    #                      institution)
-
-    # def test_get_institution_one_invalid_entry_profile_instlist(self):
-    #     """Does get_institution work when profile has 1 invalid institution?"""
-    #     self.user_aashe_account.set_drupal_user_dict(
-    #         {'profile_instlist': '-999'})
-    #     self.user_aashe_account.save()
-    #     self.assertEqual(self.view.get_institution(user=self.user),
-    #                      None)
-
-    # def test_get_institution_two_valid_entries_profile_instlist(self):
-    #     """Does get_institution work when profile has 2 valid institutions?"""
-    #     first_institution = InstitutionFactory()
-    #     second_institution = InstitutionFactory()
-    #     self.user_aashe_account.set_drupal_user_dict(
-    #         {'profile_instlist': ','.join(
-    #             (str(first_institution.id), str(second_institution.id)))})
-    #     self.user_aashe_account.save()
-    #     self.assertEqual(self.view.get_institution(user=self.user),
-    #                      first_institution)
-
-    # def test_get_institution_two_invalid_entries_profile_instlist(self):
-    #     """Does get_institution work when profile has 2 invalid institutions?
-    #     """
-    #     self.user_aashe_account.set_drupal_user_dict(
-    #         {'profile_instlist': '-999,-888'})
-    #     self.user_aashe_account.save()
-    #     self.assertEqual(self.view.get_institution(user=self.user),
-    #                      None)
-
-    # def test_get_institution_one_valid_one_invalid_entries_profile_instlist(
-    #         self):
-    #     """Does get_institution work when profile has 2 institutions,
-    #     1 valid and 1 invalid?
-    #     """
-    #     institution = InstitutionFactory()
-    #     self.user_aashe_account.set_drupal_user_dict(
-    #         {'profile_instlist': '-999,' + str(institution.id)})
-    #     self.user_aashe_account.save()
-    #     self.assertEqual(self.view.get_institution(user=self.user),
-    #                      institution)
-
-    # def test_get_institution_one_participant_of_two_entries_profile_instlist(
-    #         self):
-    #     """Does get_institution work when profile has 2 institutions,
-    #     1 a participant?
-    #     """
-    #     first_institution = InstitutionFactory()
-    #     second_institution = InstitutionFactory(is_participant=True)
-    #     self.user_aashe_account.set_drupal_user_dict(
-    #         {'profile_instlist': ','.join(
-    #             (str(first_institution.id), str(second_institution.id)))})
-    #     self.user_aashe_account.save()
-    #     self.assertEqual(self.view.get_institution(user=self.user),
-    #                      second_institution)
-
-    # def test_get_institution_no_participant_of_two_entries_profile_instlist(
-    #         self):
-    #     """Does get_institution work when profile has 2 institutions,
-    #     neither a participant?
-    #     """
-    #     first_institution = InstitutionFactory(is_participant=False)
-    #     second_institution = InstitutionFactory(is_participant=False)
-    #     self.user_aashe_account.set_drupal_user_dict(
-    #         {'profile_instlist': ','.join(
-    #             (str(first_institution.id), str(second_institution.id)))})
-    #     self.user_aashe_account.save()
-    #     self.assertEqual(self.view.get_institution(user=self.user),
-    #                      first_institution)
-
-    def test_get_liaison_name(self):
-        institution = InstitutionFactory(
-            contact_first_name='William',
-            contact_middle_name='S',
-            contact_last_name='Burroughs')
-        self.assertEqual(self.view.get_liaison_name(institution),
-                         'William S Burroughs')
-
-    def test_get_liaison_name_no_middle_name(self):
-        institution = InstitutionFactory(
-            contact_first_name='William',
-            contact_last_name='Burroughs')
-        self.assertEqual(self.view.get_liaison_name(institution),
-                         'William Burroughs')
-
-    # def test_liaison_name_shown(self):
-    #     institution = InstitutionFactory(is_participant=True,
-    #                                      contact_first_name='Joan')
-    #     self.user_aashe_account.set_drupal_user_dict({'profile_instlist':
-    #                                                   str(institution.id)})
-    #     self.user_aashe_account.save()
-    #     response = self.view_class.as_view()(request=self.request)
-    #     self.assertTrue(re.search(',\s*Joan,\s*can grant you',
-    #                               response.rendered_content))
-
-    # def test_no_liaison_name_shown(self):
-    #     institution = InstitutionFactory(name='Grantland State',
-    #                                      is_participant=True)
-    #     self.user_aashe_account.set_drupal_user_dict({'profile_instlist':
-    #                                                   str(institution.id)})
-    #     self.user_aashe_account.save()
-    #     response = self.view_class.as_view()(request=self.request)
-    #     self.assertTrue(re.search('Grantland State\s*can grant you',
-    #                               response.rendered_content))
-
-    # def test_liaison_phone_shown(self):
-    #     institution = InstitutionFactory(name='Grantland State',
-    #                                      is_participant=True,
-    #                                      contact_phone='4561234')
-    #     self.user_aashe_account.set_drupal_user_dict({'profile_instlist':
-    #                                                   str(institution.id)})
-    #     self.user_aashe_account.save()
-    #     response = self.view_class.as_view()(request=self.request)
-    #     self.assertTrue(re.search('by phone at 4561234.',
-    #                               response.rendered_content))
-
-    # def test_no_liaison_phone_shown(self):
-    #     institution = InstitutionFactory(is_participant=True)
-    #     self.user_aashe_account.set_drupal_user_dict({'profile_instlist':
-    #                                                   str(institution.id)})
-    #     self.user_aashe_account.save()
-    #     response = self.view_class.as_view()(request=self.request)
-    #     self.assertFalse(re.search('by phone at',
-    #                                response.rendered_content))
-
-    # def test_liaison_email_shown(self):
-    #     institution = InstitutionFactory(is_participant=True,
-    #                                      contact_email='j@b.c')
-    #     self.user_aashe_account.set_drupal_user_dict({'profile_instlist':
-    #                                                   str(institution.id)})
-    #     self.user_aashe_account.save()
-    #     response = self.view_class.as_view()(request=self.request)
-    #     self.assertTrue(re.search('by email at j@b.c.',
-    #                               response.rendered_content))
-
-    # def test_no_liaison_email_shown(self):
-    #     institution = InstitutionFactory(is_participant=True)
-    #     self.user_aashe_account.set_drupal_user_dict({'profile_instlist':
-    #                                                   str(institution.id)})
-    #     self.user_aashe_account.save()
-    #     response = self.view_class.as_view()(request=self.request)
-    #     self.assertFalse(re.search('by email at',
-    #                                response.rendered_content))
-
-    # def test_liaison_phone_and_email_shown(self):
-    #     institution = InstitutionFactory(is_participant=True,
-    #                                      contact_phone='4561234',
-    #                                      contact_email='j@b.c')
-    #     self.user_aashe_account.set_drupal_user_dict({'profile_instlist':
-    #                                                   str(institution.id)})
-    #     self.user_aashe_account.save()
-    #     response = self.view_class.as_view()(request=self.request)
-    #     self.assertTrue(re.search(
-    #         'by phone at 4561234\s*and by email at j@b.c.',
-    #         response.rendered_content))
-
-    # def test_no_institution_name_shown(self):
-    #     institution = InstitutionFactory(name='Bully For U',
-    #                                      is_participant=True)
-    #     self.user_aashe_account.set_drupal_user_dict({'profile_instlist':
-    #                                                   str(institution.id)})
-    #     self.user_aashe_account.save()
-    #     response = self.view_class.as_view()(request=self.request)
-    #     self.assertTrue(re.search('Bully For U', response.rendered_content))
-
-    # def test_institution_is_participant_shown(self):
-    #     institution = InstitutionFactory(is_participant=True)
-    #     self.user_aashe_account.set_drupal_user_dict({'profile_instlist':
-    #                                                   str(institution.id)})
-    #     self.user_aashe_account.save()
-    #     response = self.view_class.as_view()(request=self.request)
-    #     self.assertTrue(re.search('The STARS Liaison for',
-    #                               response.rendered_content))
-
-    # def test_institution_is_not_participant_shown(self):
-    #     institution = InstitutionFactory(is_participant=False)
-    #     self.user_aashe_account.set_drupal_user_dict({'profile_instlist':
-    #                                                   str(institution.id)})
-    #     self.user_aashe_account.save()
-    #     response = self.view_class.as_view()(request=self.request)
-    #     self.assertTrue(re.search(
-    #         "Your AASHE Account has not been granted access",
-    #         response.rendered_content))
-
-
-class SelectInstitutionViewTest(ViewTest):
-
-    middleware = ViewTest.middleware + [AuthenticationMiddleware]
-    view_class = SelectInstitutionView
-
-    def setUp(self):
-        """
-            Creates some data to show on the page.
-            Gives ViewTest.test_get_succeeds a little bit
-            more of a work out.
-        """
-        super(SelectInstitutionViewTest, self).setUp()
-        institution = InstitutionFactory()
-        stars_account = StarsAccountFactory(institution=institution,
-                                            user=UserFactory())
-        self.request.user = stars_account.user

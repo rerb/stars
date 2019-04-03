@@ -1,11 +1,11 @@
-import unittest
+import django.test import TestCase
 
 from django.contrib.auth.models import User
 
 from stars.test_factories import auth_factories
 
 
-class AASHEAccountFactoryTest(unittest.TestCase):
+class AASHEAccountFactoryTest(TestCase):
 
     def test_user_is_created(self):
         """Does AASHEAccountFactory create a user?"""
@@ -21,4 +21,3 @@ class AASHEAccountFactoryTest(unittest.TestCase):
         aashe_account = auth_factories.AASHEAccountFactory(
             user=user)
         self.assertIs(user, aashe_account.user)
-        

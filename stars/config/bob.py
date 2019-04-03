@@ -80,18 +80,13 @@ if os.environ.get('STARS_BACKUP_DB_URL', False):
 # the django dev server so we will need to serve the static files (see urls.py)
 STANDALONE_MODE = True
 
-INSTALLED_APPS += ('django_nose',
-                   'template_repl')
+INSTALLED_APPS += ('template_repl',)
 
 if PROFILE:
     # INSTALLED_APPS += ('profiler',)
     # MIDDLEWARE_CLASSES.append('profiler.middleware.ProfilerMiddleware')
     # MIDDLEWARE_CLASSES.append('profiler.middleware.StatProfMiddleware')
     MIDDLEWARE_CLASSES.append('stars.apps.tool.middleware.ProfileMiddleware')
-
-if 'TEST_RUNNER' in os.environ:  # django_nose.NoseTestSuiteRunner, for example
-    if os.environ['TEST_RUNNER']:  # only use it if there's a value set
-        TEST_RUNNER = os.environ['TEST_RUNNER'] or TEST_RUNNER
 
 # Stuff copied from ben.py that I don't know what it is:
 
@@ -147,27 +142,5 @@ QUERY_INSPECT_TRACEBACK_ROOTS = ['/Users/rerb/src/aashe/stars/']
 # TEMPLATES[0]['OPTIONS'].update({
 #     'string_if_invalid': 'INVALID EXPRESSION: %s',
 # })
-
-TEST_WITHOUT_MIGRATIONS_COMMAND = 'django_nose.management.commands.test.Command'
-
-TEST_RUNNER = 'hotrunner.HotRunner'
-EXCLUDED_TEST_APPS = ['bootstrapform',
-                      'captcha',
-                      'collapsing_menu',
-                      'django_extensions',
-                      'django_nose',
-                      'djcelery',
-                      'gunicorn',
-                      'logical_rules',
-                      'memcache_status',
-                      's3_folder_storage',
-                      'sorl.thumbnail',
-                      'stars.apps',
-                      'stars.apps.accounts',
-                      'stars.apps.api',
-                      'stars.tests',
-                      'tastypie',
-                      'terms',
-                      'template_repl']
 
 PROFILE_LOG_BASE = "profiling-data"
