@@ -499,9 +499,6 @@ AUTHORIZE_CLIENT_DEBUG = os.environ.get('AUTHORIZE_CLIENT_DEBUG', False)
 # Test backends
 if 'test' in sys.argv:
     # until fix for http://code.djangoproject.com/ticket/14105
-    MIDDLEWARE_CLASSES.remove(
-        'django.middleware.cache.FetchFromCacheMiddleware')
-    MIDDLEWARE_CLASSES.remove('django.middleware.cache.UpdateCacheMiddleware')
     DATABASES['default'] = dj_database_url.parse(
         os.environ.get('STARS_TEST_DB',
                        "sqlite:////tmp/stars_tests.db"))

@@ -4,7 +4,7 @@ import os
 from django.core.cache import caches
 from django.core.exceptions import SuspiciousOperation
 from django.core.management import call_command
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.test.client import Client
 from file_cache_tag.templatetags import custom_caching
 
@@ -64,7 +64,6 @@ class FileCacheTest(TestCase):
         self.assertTrue(filecache)
         key = custom_caching.generate_cache_key(
             self.url, [self.submissionset.id, False, "NO_EXPORT", False])
-        print key
         cached_response = filecache.get(key)
         self.assertTrue(cached_response)
 
@@ -73,7 +72,6 @@ class FileCacheTest(TestCase):
         filecache = caches['filecache']
         key = custom_caching.generate_cache_key(
             self.url, [self.submissionset.id, False, "NO_EXPORT", False])
-        print key
         cached_response = filecache.get(key)
         custom_caching.invalidate_filecache(key)
         no_more_cache = filecache.get(key)
@@ -85,7 +83,6 @@ class FileCacheTest(TestCase):
         filecache = caches['filecache']
         key = custom_caching.generate_cache_key(
             self.url, [self.submissionset.id, False, "NO_EXPORT", False])
-        print key
         cached_response = filecache.get(key)
         self.assertTrue(cached_response)
 
@@ -105,7 +102,6 @@ class FileCacheTest(TestCase):
         filecache = caches['filecache']
         key = custom_caching.generate_cache_key(
             self.url, [self.submissionset.id, False, "NO_EXPORT", False])
-        print key
         cached_response = filecache.get(key)
         self.assertTrue(cached_response)
         self.submissionset.save()
@@ -119,7 +115,6 @@ class FileCacheTest(TestCase):
         key = custom_caching.generate_cache_key(
             self.url, [self.submissionset.id, False, "NO_EXPORT", False])
         cached_response = filecache.get(key)
-        print cached_response
         self.assertTrue(cached_response)
         call_command('clear_cache', url)
         no_cache = filecache.get(key)
