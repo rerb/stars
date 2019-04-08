@@ -1,11 +1,10 @@
-from django.conf.urls import *
+from django.conf.urls import url
 from django.views.decorators.cache import never_cache
 from django.views.generic import TemplateView
 
 from stars.apps.institutions.data_displays.views import *
 
-urlpatterns = patterns(
-    'django.views.generic.simple',
+urlpatterns = [
     # data views
     url(r'^$',
         TemplateView.as_view(
@@ -40,4 +39,4 @@ urlpatterns = patterns(
         CreditInSubcategoryCallback.as_view()),
     url(r'^callback/credit/(?P<credit_id>\d+)/$',
         FieldInCreditCallback.as_view()),
-)
+]

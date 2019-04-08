@@ -1,8 +1,6 @@
-from django.conf.urls import *
+from django.conf.urls import url
 from stars.apps.third_parties.views import SnapshotList
 
-urlpatterns = patterns(
-    'stars.apps.third_parties.views',
-
-    (r'^(?P<slug>[^/]+)/$', SnapshotList.as_view()),
-)
+urlpatterns = [
+    url(r'^(?P<slug>[^/]+)/$', SnapshotList.as_view()),
+]

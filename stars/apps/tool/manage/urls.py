@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 from django.views.decorators.cache import never_cache
 
 from .views import (AccountCreateView, AccountDeleteView,
@@ -12,9 +12,7 @@ from .views import (AccountCreateView, AccountDeleteView,
                     SnapshotCSVDownloadView, SnapshotPDFExportView,
                     SnapshotPDFDownloadView)
 
-urlpatterns = patterns(
-    'stars.apps.tool.manage.views',
-
+urlpatterns = [
     url(r'^contact/$', ContactView.as_view(), name='institution-contact'),
 
     url(r'^payments/$', InstitutionPaymentsView.as_view(),
@@ -84,4 +82,4 @@ urlpatterns = patterns(
 
     url(r'^migrate/version/(?P<pk>\d+)/$', MigrateVersionView.as_view(),
         name='migrate-version')
-)
+]

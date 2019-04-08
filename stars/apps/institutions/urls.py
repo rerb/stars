@@ -1,4 +1,4 @@
-from django.conf.urls import *
+from django.conf.urls import include, url
 from django.views.decorators.cache import never_cache
 
 from .feeds import LatestReportsFeed
@@ -6,16 +6,14 @@ from stars.apps.institutions.views import *
 from stars.apps.submissions.views import CreditSubmissionStatusUpdateView
 
 
-urlpatterns = patterns(
-    'stars.apps.institutions.views',
-
+urlpatterns = [
     # Active Institutions
     # (r'^$', ActiveInstitutions.as_view()),
 
     url(r'^latest/feed/$', LatestReportsFeed()),
 
     # Rated institutions
-    (r'^rated/$', RatedInstitutions.as_view()),
+    url(r'^rated/$', RatedInstitutions.as_view()),
 
     # Rated institutions
     url(r'^participants-and-reports/$',
@@ -77,13 +75,13 @@ urlpatterns = patterns(
 
     # Old Credit Scorecard - all ints for category_id, subcategory_id, and
     # credit_id; redirects to new Credit Scorecard url below:
-    (r'^(?P<institution_slug>[^/]+)'
-     '/report'
-     '/(?P<submissionset>[^/]+)'
-     '/(?P<category_id>\d+)'
-     '/(?P<subcategory_id>\d+)'
-     '/(?P<credit_id>\d+)/$',
-     RedirectOldScorecardCreditURLsView.as_view()),
+    url(r'^(?P<institution_slug>[^/]+)'
+        '/report'
+        '/(?P<submissionset>[^/]+)'
+        '/(?P<category_id>\d+)'
+        '/(?P<subcategory_id>\d+)'
+        '/(?P<credit_id>\d+)/$',
+        RedirectOldScorecardCreditURLsView.as_view()),
 
     # Credit Scorecard
     url(r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/(?P<category_abbreviation>[^/]+)/(?P<subcategory_slug>[^/]+)/(?P<credit_identifier>[^/]+)/$',
@@ -91,7 +89,7 @@ urlpatterns = patterns(
         name='scorecard-credit'),
 
     # Data correction request
-    (r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/(?P<category_abbreviation>[^/]+)/(?P<subcategory_slug>[^/]+)/(?P<credit_identifier>[^/]+)/(?P<field_id>\d+)/$', DataCorrectionView.as_view()),
+    url(r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/(?P<category_abbreviation>[^/]+)/(?P<subcategory_slug>[^/]+)/(?P<credit_identifier>[^/]+)/(?P<field_id>\d+)/$', DataCorrectionView.as_view()),
 
     # Credit status update
     url(r'^credit_submission_status_update/(?P<pk>[^/]+)/$',
@@ -99,12 +97,12 @@ urlpatterns = patterns(
         name='credit-submission-status-update'),
 
     # Credit Documentation
-    (r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/(?P<category_abbreviation>[^/]+)/(?P<subcategory_slug>[^/]+)/(?P<credit_identifier>[^/]+)/documentation/$',
-     ScorecardCreditDocumentation.as_view()),
+    url(r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/(?P<category_abbreviation>[^/]+)/(?P<subcategory_slug>[^/]+)/(?P<credit_identifier>[^/]+)/documentation/$',
+        ScorecardCreditDocumentation.as_view()),
 
     # Internal Notes
-    (r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/(?P<category_abbreviation>[^/]+)/(?P<subcategory_slug>[^/]+)/(?P<credit_identifier>[^/]+)/internal-notes/$',
-     ScorecardInternalNotesView.as_view()),
+    url(r'^(?P<institution_slug>[^/]+)/report/(?P<submissionset>[^/]+)/(?P<category_abbreviation>[^/]+)/(?P<subcategory_slug>[^/]+)/(?P<credit_identifier>[^/]+)/internal-notes/$',
+        ScorecardInternalNotesView.as_view()),
 
-    (r'^data-displays/', include('stars.apps.institutions.data_displays.urls')),
-)
+    url(r'^data-displays/', include('stars.apps.institutions.data_displays.urls')),
+]

@@ -1,12 +1,8 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
-from views import (ArticleDetailView,
-                   # ArticleDetailWithFacebookCommentsWidgetView,
-                   OldPathRedirectView)
+from views import ArticleDetailView, OldPathRedirectView
 
-urlpatterns = patterns(
-    '',
-
+urlpatterns = [
     url(r'^[^\/]+/(?P<nid>\d+)/$',
         OldPathRedirectView.as_view(),
         name='cms-old-path-redirect'),
@@ -22,4 +18,4 @@ urlpatterns = patterns(
     url(r'^(?P<category_slug>[^\/]+)/(?P<article_slug>[^\/]+).html$',
         ArticleDetailView.as_view(),
         name='cms-article-detail')
-)
+]
