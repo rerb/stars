@@ -1,10 +1,13 @@
 from django.conf.urls import url
+from django.contrib.auth.views import logout_then_login
+
+from stars.apps.accounts.views import login_view, select_school
 
 
 urlpatterns = [
-    url(r'^login/$', 'stars.apps.accounts.views.login_view'),
-    url(r'^logout/$', 'django.contrib.auth.views.logout_then_login'),
+    url(r'^login/$', login_view),
+    url(r'^logout/$', logout_then_login),
     url(r'^select-school/(?P<institution_id>\d+)/$',
-        'stars.apps.accounts.views.select_school',
+        select_school,
         name='select-school'),
 ]
