@@ -4,7 +4,9 @@ import logical_rules
 from django.conf import settings
 from django.conf.urls import include, url
 from django.views.generic import TemplateView
+from django.views.static import serve
 from django.contrib import admin
+from django.contrib.auth.views import login, logout_then_login
 from longerusernameandemail.forms import AuthenticationForm
 from sorl.thumbnail.log import ThumbnailLogHandler
 
@@ -39,12 +41,10 @@ urlpatterns = [
 
     # accounts:
     url(r'^accounts/login/$',
-        'django.contrib.auth.views.login',
+        login,
         {'authentication_form': AuthenticationForm}),
 
-    url(r'^accounts/logout',
-        'django.contrib.auth.views.logout_then_login'),
-    # ('^accounts/', include('django.contrib.auth.urls')),
+    url(r'^accounts/logout', logout_then_login),
 
     # admin
     url(r'^_ad/', include(admin.site.urls)),
@@ -64,8 +64,6 @@ urlpatterns = [
     # custom forms
     url(r'^cfm/', include('stars.apps.custom_forms.urls')),
 
-    # url(r'^new-pages/', include('cms.urls')),
-
     # djcelery
     url('^tasks/', include('djcelery.urls')),
 
@@ -83,7 +81,7 @@ if settings.DEBUG:
 if settings.DEBUG:
     urlpatterns.extend([
         url(r'^media/(?P<path>.*)$',
-            'django.views.static.serve', {
+            serve, {
                 'document_root':
                 settings.MEDIA_ROOT,
             }),
