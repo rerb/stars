@@ -156,13 +156,11 @@ if 'test' in sys.argv:
         'django.contrib.auth.backends.ModelBackend',
         'django_membersuite_auth.backends.MemberSuiteBackend')
 
-DASHBOARD_URL = "/tool/"
-LOGIN_URL = "/accounts/login/"
-LOGOUT_URL = "/accounts/logout/"
-LOGIN_REDIRECT_URL = "/"
+LOGIN_URL = '/accounts/login/'
+LOGOUT_URL = 'logout'
+LOGIN_REDIRECT_URL = 'tool-landing-page'
 ADMIN_URL = "/tool/admin/"
 MANAGE_INSTITUTION_URL = "/tool/"
-MANAGE_USERS_URL = MANAGE_INSTITUTION_URL + "manage/users/"
 
 ROOT_URLCONF = 'stars.urls'
 

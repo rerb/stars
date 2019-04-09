@@ -11,7 +11,6 @@ from django.utils.http import urlquote
 from stars.apps.institutions.models import StarsAccount
 
 
-
 logger = getLogger('stars.request')
 
 
@@ -40,13 +39,7 @@ class StarsMixin(object):
         ?next= parameter back to the current request path """
         messages.info(request, "Please login to access STARS tools.")
         path = urlquote(request.get_full_path())
-        return HttpResponseRedirect('%s?next=%s' %(settings.LOGIN_URL, path))
-
-    def redirect_to_tool(self, request, message):
-        """ Returns a Redirect Response to the STARS tool, showing the
-        given message """
-        messages.info(request, message)
-        return HttpResponseRedirect(settings.DASHBOARD_URL)
+        return HttpResponseRedirect('%s?next=%s' % (settings.LOGIN_URL, path))
 
 
 class IsStaffMixin(StarsMixin):
@@ -67,6 +60,7 @@ class IsStaffMixin(StarsMixin):
 
         # Unauthorized users get a PermissionDenied response
         if not request.user.is_staff:
-            raise PermissionDenied("You do not have permission to access this page.")
+            raise PermissionDenied(
+                "You do not have permission to access this page.")
 
         return super(IsStaffMixin, self).__call__(request, *args, **kwargs)

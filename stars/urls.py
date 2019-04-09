@@ -39,12 +39,8 @@ urlpatterns = [
     # tool
     url(r'^tool/', include('stars.apps.tool.urls')),
 
-    # accounts:
-    url(r'^accounts/login/$',
-        login,
-        {'authentication_form': AuthenticationForm}),
-
-    url(r'^accounts/logout', logout_then_login),
+    # accounts
+    url(r'^accounts/', include('stars.apps.accounts.urls')),
 
     # admin
     url(r'^_ad/', include(admin.site.urls)),

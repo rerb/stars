@@ -42,16 +42,3 @@ class StarsMixinTest(MixinTestCase):
             {'class': settings.MESSAGE_TAGS[messages.INFO]})
         self.assertEqual(len(info_message_divs), 1)
         self.assertTrue('lease login to access' in info_message_divs[0].text)
-
-    def test_redirect_to_tool_message(self):
-        """Does redirect_to_tool show a message?
-        """
-        MESSAGE = 'love love love'
-        mixins.StarsMixin().redirect_to_tool(self.request, MESSAGE)
-        response = render(self.request, 'base.html')
-        soup = BeautifulSoup(response.content)
-        info_message_divs = soup.find_all(
-            'div',
-            {'class': settings.MESSAGE_TAGS[messages.INFO]})
-        self.assertEqual(len(info_message_divs), 1)
-        self.assertTrue(MESSAGE in info_message_divs[0].text)
