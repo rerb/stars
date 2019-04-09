@@ -23,6 +23,7 @@ else:
     if not config:
         configs = {
             '/Users/rerb/src/.*': 'bob',
+            '/Users/rerb/.*': 'bob',
             '/Users/tylor/src/.*': 'bob',
         }
 
