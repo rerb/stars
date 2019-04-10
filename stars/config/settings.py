@@ -156,6 +156,8 @@ if 'test' in sys.argv:
         'django.contrib.auth.backends.ModelBackend',
         'django_membersuite_auth.backends.MemberSuiteBackend')
 
+AUTH_USER_MODEL = 'auth.User'
+
 LOGIN_URL = '/accounts/login/'
 LOGOUT_URL = 'logout'
 LOGIN_REDIRECT_URL = 'tool-landing-page'
@@ -165,7 +167,6 @@ MANAGE_INSTITUTION_URL = "/tool/"
 ROOT_URLCONF = 'stars.urls'
 
 INSTALLED_APPS = (
-    'longerusernameandemail',  # might need to be first
 
     'django.contrib.auth',
     'django.contrib.contenttypes',
