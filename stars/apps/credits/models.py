@@ -336,7 +336,7 @@ class Rating(models.Model):
     """
         The official stars ratings: Platinum, Gold, Silver, Bronze, Reporter
     """
-    name = models.CharField(max_length='16')
+    name = models.CharField(max_length=16)
     minimal_score = models.SmallIntegerField(
         help_text="The minimal STARS score required to achieve this rating")
     creditset = models.ForeignKey(CreditSet)

@@ -597,7 +597,7 @@ class Subscription(models.Model):
         default=RATINGS_PER_SUBSCRIPTION)
     ratings_used = models.IntegerField(default=0)
     amount_due = models.FloatField(default=0)
-    reason = models.CharField(max_length='16', blank=True, null=True)
+    reason = models.CharField(max_length=16, blank=True, null=True)
     paid_in_full = models.BooleanField(default=False)
     late = models.BooleanField(default=False)
 
@@ -646,8 +646,8 @@ class SubscriptionPayment(models.Model):
     date = models.DateTimeField()
     amount = models.FloatField()
     user = models.ForeignKey(User)
-    method = models.CharField(max_length='8', choices=METHOD_CHOICES)
-    confirmation = models.CharField(max_length='16', blank=True, null=True)
+    method = models.CharField(max_length=8, choices=METHOD_CHOICES)
+    confirmation = models.CharField(max_length=16, blank=True, null=True)
 
     def __str__(self):
         return "%s: $%.2f (%s)" % (self.subscription.institution,
@@ -761,7 +761,7 @@ class AbstractAccount(BaseAccount):
     institution = models.ForeignKey(Institution)
     terms_of_service = models.BooleanField(default=False)
     # user_level is a role
-    user_level = models.CharField("Role", max_length='6',
+    user_level = models.CharField("Role", max_length=6,
                                   choices=STARS_USERLEVEL_CHOICES)
 
     class Meta:

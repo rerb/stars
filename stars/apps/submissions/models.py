@@ -2944,10 +2944,10 @@ class Payment(models.Model):
     date = models.DateTimeField()
     amount = models.FloatField()
     user = models.ForeignKey(User)
-    reason = models.CharField(max_length='16', choices=PAYMENT_REASON_CHOICES)
-    type = models.CharField(max_length='8', choices=PAYMENT_TYPE_CHOICES)
+    reason = models.CharField(max_length=16, choices=PAYMENT_REASON_CHOICES)
+    type = models.CharField(max_length=8, choices=PAYMENT_TYPE_CHOICES)
     confirmation = models.CharField(
-        max_length='16', blank=True, null=True,
+        max_length=16, blank=True, null=True,
         help_text='The CC confirmation code or check number')
 
     def __unicode__(self):
@@ -3106,7 +3106,7 @@ class CreditSubmissionReviewNotation(models.Model):
 
     credit_user_submission = models.ForeignKey(CreditUserSubmission)
     kind = models.CharField(
-        max_length="32",
+        max_length=32,
         choices=CREDIT_SUBMISSION_REVIEW_NOTATION_KIND_CHOICES)
     comment = models.TextField(blank=True, null=True)
     send_email = models.BooleanField(blank=True, default=True)
