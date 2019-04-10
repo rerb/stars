@@ -13,9 +13,11 @@ from django.contrib.messages import constants as messages
 
 sys.path.append('../')
 
-ADMINS = (('Bob Erb', 'bob.erb@aashe.org'),
-          ('Tylor Dodge', 'tylor@aashe.org'),
-          ('Chris Pelton', 'chris.pelton@aashe.org'))
+ADMINS = [
+    ('Bob Erb', 'bob.erb@aashe.org'),
+    ('Tylor Dodge', 'tylor@aashe.org'),
+    ('Chris Pelton', 'chris.pelton@aashe.org')
+]
 MANAGERS = ADMINS
 
 DEFAULT_CHARSET = 'utf-8'
@@ -24,7 +26,7 @@ PROJECT_PATH = os.path.join(os.path.dirname(__file__), '..')
 
 DEBUG = os.environ.get("DEBUG", False)
 API_TEST_MODE = os.environ.get("API_TEST_MODE", DEBUG)
-FIXTURE_DIRS = ('fixtures', os.path.join(PROJECT_PATH, 'apps/api/fixtures'),)
+FIXTURE_DIRS = ['fixtures', os.path.join(PROJECT_PATH, 'apps/api/fixtures'), ]
 PROFILE = os.environ.get("PROFILE", False)
 
 USE_TZ = True
@@ -68,15 +70,15 @@ else:
     MEDIA_ROOT = os.environ.get("MEDIA_ROOT", None)
     STATIC_ROOT = os.environ.get("STATIC_ROOT", '')
 
-STATICFILES_DIRS = (
+STATICFILES_DIRS = [
     os.path.join(os.path.dirname(__file__), "..", "static"),
-)
+]
 
-STATICFILES_FINDERS = (
+STATICFILES_FINDERS = [
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
     'compressor.finders.CompressorFinder',
-)
+]
 
 SECRET_KEY = 'omxxweql@m7!@yh5a-)=f^_xo*(m2+gaz#+8dje)e6wv@q$v%@'
 
@@ -140,7 +142,8 @@ MIDDLEWARE_CLASSES = [  # a list so it can be editable during tests (see below)
     'django.contrib.redirects.middleware.RedirectFallbackMiddleware',
     'django.contrib.admindocs.middleware.XViewMiddleware',
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware']
+    'django.contrib.messages.middleware.MessageMiddleware'
+]
 
 CACHES = {
     'default': django_cache_url.parse(
@@ -166,7 +169,7 @@ MANAGE_INSTITUTION_URL = "/tool/"
 
 ROOT_URLCONF = 'stars.urls'
 
-INSTALLED_APPS = (
+INSTALLED_APPS = [
 
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -224,17 +227,18 @@ INSTALLED_APPS = (
     's3_folder_storage',
     'sorl.thumbnail',
     'tastypie',
-    'localflavor',
-)
+    'localflavor'
+]
 
 if 'test' in sys.argv:
-    INSTALLED_APPS += ('stars.test_factories',)
+    INSTALLED_APPS.append('stars.test_factories')
 
 # Permissions or user levels for STARS users
 STARS_PERMISSIONS = (
     ('admin', 'Administrator'),
     ('submit', 'Data Entry'),
-    ('view', 'Observer'))
+    ('view', 'Observer')
+)
 
 # Email
 EMAIL_BACKEND = os.environ.get(
@@ -467,7 +471,8 @@ MESSAGE_TAGS = {
     messages.INFO: 'alert fade in alert-info',
     messages.SUCCESS: 'alert fade in alert-success',
     messages.WARNING: 'alert fade in alert-warning',
-    messages.ERROR: 'alert fade in alert-error'}
+    messages.ERROR: 'alert fade in alert-error'
+}
 
 if os.path.exists(os.path.join(os.path.dirname(__file__), 'hg_info.py')):
     from hg_info import revision
@@ -476,8 +481,8 @@ if os.path.exists(os.path.join(os.path.dirname(__file__), 'hg_info.py')):
 # django debug toolbar
 DEBUG_TOOLBAR = os.environ.get('DEBUG_TOOLBAR', False)
 if DEBUG_TOOLBAR:
-    INTERNAL_IPS = ('127.0.0.1',)
-    INSTALLED_APPS = INSTALLED_APPS + ('debug_toolbar',)
+    INTERNAL_IPS = ['127.0.0.1', ]
+    INSTALLED_APPS.append('debug_toolbar')
     DEBUG_TOOLBAR_CONFIG = {
         'INTERCEPT_REDIRECTS': False,
     }
@@ -489,7 +494,7 @@ if DEBUG_TOOLBAR:
         'debug_toolbar.panels.request.RequestPanel',
         'debug_toolbar.panels.sql.SQLPanel',
         'debug_toolbar.panels.templates.TemplatesPanel',
-        'debug_toolbar.panels.logging.LoggingPanel',
+        'debug_toolbar.panels.logging.LoggingPanel'
     ]
 
 AUTHORIZE_CLIENT_TEST = os.environ.get('AUTHORIZE_CLIENT_TEST', False)
@@ -526,9 +531,7 @@ AUTH_USER_MODEL = 'auth.User'
 
 # Performance
 QUERY_INSPECT_ENABLED = os.environ.get('QUERY_INSPECT_ENABLED', False)
-MIDDLEWARE_CLASSES += (
-    'qinspect.middleware.QueryInspectMiddleware',
-)
+MIDDLEWARE_CLASSES.append('qinspect.middleware.QueryInspectMiddleware')
 
 # optional password for dev sites
 PASSWORD_PROTECT = os.environ.get('PASSWORD_PROTECT', False)

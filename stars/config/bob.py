@@ -14,7 +14,6 @@ MAINTENANCE_MODE = False
 # CELERY_ALWAYS_EAGER = True
 PROFILE = False
 
-ADMINS = (('Bob Erb', 'bob@aashe.org'),)
 MANAGERS = ADMINS
 
 # Send emails to to django.core.mail.outbox rather than the console:
@@ -80,7 +79,7 @@ if os.environ.get('STARS_BACKUP_DB_URL', False):
 # the django dev server so we will need to serve the static files (see urls.py)
 STANDALONE_MODE = True
 
-INSTALLED_APPS += ('template_repl',)
+INSTALLED_APPS.append('template_repl')
 
 if PROFILE:
     # INSTALLED_APPS += ('profiler',)
@@ -101,9 +100,7 @@ XMLRPC_USE_HASH = True
 # Thumbnails
 THUMBNAIL_DEBUG = DEBUG
 
-MIDDLEWARE_CLASSES += (
-    'qinspect.middleware.QueryInspectMiddleware',
-)
+MIDDLEWARE_CLASSES.append('qinspect.middleware.QueryInspectMiddleware')
 
 QUERY_INSPECT_ENABLED = True
 QUERY_INSPECT_LOG_QUERIES = True
