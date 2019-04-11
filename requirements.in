@@ -26,7 +26,6 @@ django-form-utils==0.2.0
 django-jsonfield==0.9.19
 django-localflavor==1.2
 django-logical-rules==0.1.1
-django-longerusernameandemail
 django-membersuite-auth==2.7.2
 django-memcache-status==1.1
 django-mptt==0.6

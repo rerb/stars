@@ -549,10 +549,6 @@ MS_SECRET_KEY = os.environ["MS_SECRET_KEY"]
 MS_ASSOCIATION_ID = os.environ["MS_ASSOCIATION_ID"]
 STARS_MS_PUBLICATION_ID = os.environ["STARS_MS_PUBLICATION_ID"]
 
-############################
-# longerusernameandemail
-############################
-REQUIRE_UNIQUE_EMAIL = False
 
 STARS_BROCHURE_HOST = os.environ["STARS_BROCHURE_HOST"]
 STARS_REPORTS_HOST = os.environ["STARS_REPORTS_HOST"]

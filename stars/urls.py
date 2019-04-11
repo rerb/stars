@@ -7,7 +7,6 @@ from django.views.generic import TemplateView
 from django.views.static import serve
 from django.contrib import admin
 from django.contrib.auth.views import login, logout_then_login
-from longerusernameandemail.forms import AuthenticationForm
 from sorl.thumbnail.log import ThumbnailLogHandler
 
 from stars.apps.helpers.old_path_preserver import (OldPathPreserverView,
