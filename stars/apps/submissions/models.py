@@ -3,6 +3,7 @@ import re
 import sys
 from datetime import date, datetime, timedelta
 from logging import getLogger
+import hashlib
 
 import numpy
 from django.conf import settings
@@ -11,16 +12,15 @@ from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelatio
 from django.contrib.contenttypes.models import ContentType
 from localflavor.us.models import PhoneNumberField
 from django.core import urlresolvers
-from django.core.cache import cache
+from django.core.cache import cache, caches
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.mail import EmailMessage
 from django.db import models
 from django.db.models import Q
 from django.db.models.signals import post_init, pre_delete
 from django.dispatch import receiver
+from django.utils.http import urlquote
 
-from file_cache_tag.templatetags.custom_caching import (generate_cache_key,
-                                                        invalidate_filecache)
 from stars.apps.credits.models import (ApplicabilityReason, Category, Choice,
                                        Credit, CreditSet, DocumentationField,
                                        Rating, Subcategory)
@@ -553,6 +553,7 @@ class SubmissionSet(models.Model):
         self.invalidate_cache()
 
     def invalidate_cache(self):
+
         cus_set = self.get_credit_submissions()
         for cus in cus_set:
             report_url = cus.get_scorecard_url()
@@ -630,7 +631,7 @@ class SubmissionSet(models.Model):
                 creditset=self.creditset)
             institutional_characteristics_credit_submissions = (
                 self.get_credit_submissions().filter(
-                    subcategory_submission__category_submission__category=# noqa
+                    subcategory_submission__category_submission__category=  # noqa
                     institutional_characteristics_category))
             boundary_credit_submission = (
                 institutional_characteristics_credit_submissions.get(
@@ -2146,6 +2147,7 @@ class DataCorrectionRequest(models.Model):
         self.cache_invalidate()
 
     def cache_invalidate(self):
+
         report_url = self.get_absolute_url()
         self.submissionset = self.get_submissionset()
         summary_url = self.submissionset.get_scorecard_url()
@@ -3162,3 +3164,15 @@ def pre_delete_credit_submission_review_notation(sender, instance, **kwargs):
                     return  # Keep the Credit Submission unlocked
         credit_user_submission.is_unlocked_for_review = False
         credit_user_submission.save(calculate_points=False)
+
+
+def generate_cache_key(url, vary_on):
+    hash = hashlib.md5(u':'.join([urlquote(var)
+                                  for var in vary_on])).hexdigest()
+    key = 'filecache.' + url + '.' + hash
+    return key
+
+
+def invalidate_filecache(key):
+    file_cache = caches['filecache']
+    file_cache.delete(key)

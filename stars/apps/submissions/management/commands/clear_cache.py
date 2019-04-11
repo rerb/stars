@@ -2,9 +2,11 @@
 """
     Clears file-bsed cache for provided URL
 """
-from file_cache_tag.templatetags.custom_caching import generate_cache_key, invalidate_filecache
+
 from django.core.management.base import BaseCommand
-from stars.apps.submissions.models import SubmissionSet
+from stars.apps.submissions.models import (SubmissionSet,
+                                           generate_cache_key,
+                                           invalidate_filecache)
 from stars.apps.institutions.models import Institution
 
 
@@ -24,5 +26,6 @@ def clear_cache(url):
     slug = pieces[4]
     institution = Institution.objects.get(slug=slug)
 
-    ss = SubmissionSet.objects.get(institution=institution, date_submitted=date_submitted, status="r")
+    ss = SubmissionSet.objects.get(
+        institution=institution, date_submitted=date_submitted, status="r")
     ss.invalidate_cache()
