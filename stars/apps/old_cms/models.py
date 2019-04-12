@@ -2,7 +2,6 @@ import time
 from django.db import models, IntegrityError
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models.signals import post_save
 
 from stars.apps.helpers.utils import invalidate_template_cache
 
@@ -120,20 +119,6 @@ class NewArticle(AbstractContent):
         #     sub.save()
         for cat in Category.objects.all():
             cat.save()
-
-
-def post_save_article_rec(sender, instance, **kwargs):
-    instance.update_timestamps()
-
-
-post_save.connect(post_save_article_rec, sender=NewArticle)
-
-
-def post_save_sub_rec(sender, instance, **kwargs):
-    instance.update_timestamps()
-
-
-post_save.connect(post_save_sub_rec, sender=Subcategory)
 
 
 class HomepageUpdate(AbstractContent):

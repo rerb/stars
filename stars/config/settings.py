@@ -404,6 +404,10 @@ LOGGING = {
         '': {
             'handlers': ['simple_console_handler', 'sentry']
         },
+        'django': {
+            'handlers': ['console'],
+            'propagate': True,
+        },
         'django.request': {
             'handlers': ['sentry'],
             'level': 'ERROR',
