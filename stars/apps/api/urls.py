@@ -25,5 +25,6 @@ api.register(institutions_resources.InstitutionResource())
 
 api.register(helpers_resources.BlockContentResource())
 
+app_name = 'api'
 
 urlpatterns = api.urls

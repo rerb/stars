@@ -29,6 +29,8 @@ from stars.apps.institutions.views import PDFDownloadView, ExcelDownloadView
 SUBCAT_PATH = "(?P<category_abbreviation>[\w-]+)/(?P<subcategory_slug>[\w-]+)"
 CREDIT_PATH = "%s%s" % (SUBCAT_PATH, "/(?P<credit_identifier>[\w-]+)")
 
+app_name = 'my_submission'
+
 urlpatterns = [
     url(r'^$',
         never_cache(SubmissionSummaryView.as_view()),

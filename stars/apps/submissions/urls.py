@@ -14,6 +14,8 @@ v1_api.register(CategoryPieChart())
 v1_api.register(SubategoryPieChart())
 v1_api.register(SummaryPieChart())
 
+app_name = 'submissions'
+
 urlpatterns = [
     url(r'^api/', include(v1_api.urls)),
     url(r'^set-opt-in-credits/$',

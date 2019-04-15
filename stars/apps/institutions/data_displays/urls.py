@@ -4,6 +4,8 @@ from django.views.generic import TemplateView
 
 from stars.apps.institutions.data_displays.views import *
 
+app_name = 'data_displays'
+
 urlpatterns = [
     # data views
     url(r'^$',

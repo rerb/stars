@@ -2,6 +2,8 @@ from django.conf.urls import url
 
 from views import ArticleDetailView, OldPathRedirectView
 
+app_name = 'old_cms'
+
 urlpatterns = [
     url(r'^[^\/]+/(?P<nid>\d+)/$',
         OldPathRedirectView.as_view(),

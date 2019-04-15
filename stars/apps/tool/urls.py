@@ -7,6 +7,8 @@ from stars.apps.tool.views import (NoStarsAccountView,
                                    SummaryToolView,
                                    ToolLandingPageView)
 
+app_name = 'tool'
+
 urlpatterns = [
 
     url('^$', ToolLandingPageView.as_view(), name='tool-landing-page'),

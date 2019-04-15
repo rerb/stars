@@ -12,6 +12,8 @@ from .views import (AccountCreateView, AccountDeleteView,
                     SnapshotCSVDownloadView, SnapshotPDFExportView,
                     SnapshotPDFDownloadView)
 
+app_name = 'manage'
+
 urlpatterns = [
     url(r'^contact/$', ContactView.as_view(), name='institution-contact'),
 

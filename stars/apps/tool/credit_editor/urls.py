@@ -10,6 +10,7 @@ ct_prefix = cs_prefix + "(?P<category_id>\d+)/"
 sb_prefix = ct_prefix + "(?P<subcategory_id>\d+)/"
 cr_prefix = sb_prefix + "(?P<credit_id>\d+)/"
 
+app_name = 'credit_editor'
 
 urlpatterns = [
     url(r'^$', home),

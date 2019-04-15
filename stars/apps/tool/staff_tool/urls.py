@@ -3,6 +3,8 @@ from django.views.decorators.cache import never_cache
 
 from views import InstitutionList, institutions_search, select_institution
 
+app_name = 'staff_tool'
+
 urlpatterns = [
 
     # Institutional Admin

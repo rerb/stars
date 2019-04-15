@@ -5,6 +5,7 @@ from .feeds import LatestReportsFeed
 from stars.apps.institutions.views import *
 from stars.apps.submissions.views import CreditSubmissionStatusUpdateView
 
+app_name = 'institutions'
 
 urlpatterns = [
     # Active Institutions

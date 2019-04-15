@@ -42,7 +42,7 @@ urlpatterns = [
     url(r'^accounts/', include('stars.apps.accounts.urls')),
 
     # admin
-    url(r'^_ad/', include(admin.site.urls)),
+    url(r'^_ad/', admin.site.urls),
 
     # admin
     url(r'^notifications/', include('stars.apps.notifications.urls')),

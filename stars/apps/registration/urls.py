@@ -3,6 +3,8 @@ from django.contrib.auth.decorators import login_required
 
 from .views import SurveyView, InstitutionCreateView
 
+app_name = 'registration'
+
 urlpatterns = [
     url(r'^$',
         login_required(InstitutionCreateView.as_view()),
