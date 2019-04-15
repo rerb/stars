@@ -3,7 +3,6 @@ import sys
 from django.forms import ModelForm
 from django import forms
 from django.forms import widgets
-from django.forms.extras import widgets as extra_widgets  # +1 A+
 
 from codemirror.widgets import CodeMirrorTextarea
 
@@ -85,7 +84,7 @@ class RightSizeInputModelForm(ModelForm):
 
 
 class CreditSetForm(RightSizeInputModelForm):
-    release_date = forms.DateField(widget=extra_widgets.SelectDateWidget())
+    release_date = forms.DateField(widget=widgets.SelectDateWidget())
 
     class Meta:
         model = CreditSet
@@ -96,7 +95,7 @@ class CreditSetForm(RightSizeInputModelForm):
 
         # opt for the last 10 years and next 2
         year = date.today().year
-        widget = extra_widgets.SelectDateWidget(years=range(year-15, year+2))
+        widget = widgets.SelectDateWidget(years=range(year-15, year+2))
         self.fields['release_date'].widget = widget
 
 

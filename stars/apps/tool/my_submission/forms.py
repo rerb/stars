@@ -4,7 +4,7 @@ from logging import getLogger
 
 from django import forms
 from django.forms import Form, ModelForm
-from django.forms.extras.widgets import SelectDateWidget
+from django.forms.widgets import SelectDateWidget
 from django.utils.safestring import mark_safe
 from django.forms.utils import ErrorList
 from django.forms.widgets import TextInput, ClearableFileInput, HiddenInput
