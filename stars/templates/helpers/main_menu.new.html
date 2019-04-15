@@ -6,7 +6,7 @@
         <a href='/pages/get-organized/'>Get Organized</a>
     </li>
     <li {% if selected == "mm_tool" %}class='active'{% endif %}>
-        <a href="{% url 'tool-landing-page' %}">Report</a>
+        <a href="{% url 'tool:tool-landing-page' %}">Report</a>
     </li>
     <li {% if selected == "submit" %}class='active'{% endif %}>
         <a href='/pages/submit/'>Submit</a>

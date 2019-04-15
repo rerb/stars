@@ -151,7 +151,7 @@ class ResponsiblePartyDeleteView(InstitutionAdminToolMixin,
                            "he/she is listed with one or more credits.")
             return HttpResponseRedirect(
                 reverse(
-                    'responsible-party-list',
+                    'manage:responsible-party-list',
                     kwargs={'institution_slug': self.get_institution().slug}))
 
         else:

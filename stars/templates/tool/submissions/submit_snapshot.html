@@ -3,7 +3,7 @@
 {% load bootstrap %}
 
 {% block crumbs-tool %}
-    <a href="{% url 'submission-summary' institution.slug submissionset.id %}">
+    <a href="{% url 'my_submission:submission-summary' institution.slug submissionset.id %}">
         My Submission
     </a>
     <span class="divider">/</span>
@@ -23,7 +23,7 @@
     <div id="finished" style="display: none">
       <h2>Success!</h2>
       <p>Your snapshot has been saved.</p>
-      <p><a href="{% url 'share-data' institution.slug %}">Back to Snapshots</a></p>
+      <p><a href="{% url 'manage:share-data' institution.slug %}">Back to Snapshots</a></p>
     </div>
 
   	<script type="text/javascript">

@@ -33,16 +33,16 @@ class SummaryToolView(InstitutionToolMixin,
 
     def update_logical_rules(self):
         super(SummaryToolView, self).update_logical_rules()
-        self.add_logical_rule({ 'name': 'user_has_view_access',
-                                'param_callbacks': [
-                                    ('user', 'get_request_user'),
-                                    ('institution', 'get_institution')] })
+        self.add_logical_rule({'name': 'user_has_view_access',
+                               'param_callbacks': [
+                                   ('user', 'get_request_user'),
+                                   ('institution', 'get_institution')]})
 
     def get_context_data(self, **kwargs):
         context = super(SummaryToolView, self).get_context_data(**kwargs)
         context['rating_list'] = (
             self.get_institution().submissionset_set.filter(
-            status='r').filter(is_visible=True).order_by('date_submitted'))
+                status='r').filter(is_visible=True).order_by('date_submitted'))
         return context
 
 
@@ -64,13 +64,13 @@ class ToolLandingPageView(StarsAccountMixin, RedirectView):
         stars_accounts = self.get_stars_account_list()
 
         if stars_accounts.count() is 0:
-            return reverse('no-stars-account')
+            return reverse('tool:no-stars-account')
         elif stars_accounts.count() is 1:
             return reverse(
-                'tool-summary',
+                'tool:tool-summary',
                 kwargs={'institution_slug': stars_accounts[0].institution.slug})
         else:
-            return reverse('select-institution')
+            return reverse('tool:select-institution')
 
 
 class NoStarsAccountView(TemplateView):

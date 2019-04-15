@@ -768,16 +768,16 @@ class AbstractAccount(BaseAccount):
         abstract = True
 
     def get_manage_url(self):
-        return reverse('account-list',
+        return reverse('manage:account-list',
                        kwargs={'institution_slug': self.institution.slug})
 
     def get_edit_url(self):
-        return reverse('account-edit',
+        return reverse('manage:account-edit',
                        kwargs={'institution_slug': self.institution.slug,
                                'pk': self.id})
 
     def get_delete_url(self):
-        return reverse('account-delete',
+        return reverse('manage:account-delete',
                        kwargs={'institution_slug': self.institution.slug,
                                'pk': self.id})
 

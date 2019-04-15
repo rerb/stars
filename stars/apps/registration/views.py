@@ -141,7 +141,7 @@ class InstitutionCreateView(CreateView):
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
-        return reverse('tool-summary',
+        return reverse('tool:tool-summary',
                        kwargs={'institution_slug': self.return_slug})
 
     def set_up_account(self, person, institution):
@@ -219,6 +219,6 @@ class SurveyView(InstitutionAdminToolMixin, CreateView):
             return RespondentRegistrationSurveyForm
 
     def get_success_url(self):
-        return reverse('tool-summary',
+        return reverse('tool:tool-summary',
                        kwargs={'institution_slug':
                                self.get_institution().slug})

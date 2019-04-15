@@ -34,7 +34,7 @@
             {{ num_notations_to_send }} Notation(s) to Send
           </div>
           <div class="pull-right" style="padding-top: 5px">
-            <a href="{% url 'send-credit-submission-review-notations-email' submissionset.institution.slug submissionset.id %}?next={{ request.get_full_path }}"
+            <a href="{% url 'my_submission:send-credit-submission-review-notations-email' submissionset.institution.slug submissionset.id %}?next={{ request.get_full_path }}"
                class="btn btn-primary"
                data-toggle="tooltip"
                title="{{ num_notations_to_send }} Notation Email(s) to Send">

@@ -44,7 +44,7 @@ def select_institution(request, id):
     if not institution:
         raise Http404("No such institution.")
     redirect_url = request.GET.get('redirect',
-                                   reverse('tool-summary',
+                                   reverse('tool:tool-summary',
                                            args=(institution.slug,)))
     return HttpResponseRedirect(redirect_url)
 

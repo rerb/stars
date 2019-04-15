@@ -5,7 +5,7 @@
 {% block institution_content %}
     <h2>Add Submission Set</h2>
     {% if not user.current_inst.starsaccount_set.all %}
-        <p>You must <a href="{% url 'account-create' institution.slug %}">add</a>
+        <p>You must <a href="{% url 'manage:account-create' institution.slug %}">add</a>
            at least one user to this institution before you can create a
            submission set.
         </p>

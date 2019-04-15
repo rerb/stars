@@ -347,7 +347,7 @@
         <p id="responsible-party-p">Please, save any changes to this credit before performing this action.</p>
         <div class="spinner"></div>
         <div class="checkmark"></div>
-        <form class="form-horizontal responsible-party-form" id="{% url 'responsible-party-create' institution.slug %}">
+        <form class="form-horizontal responsible-party-form" id="{% url 'manage:responsible-party-create' institution.slug %}">
             <div class="control-group required">
                 <label class="control-label" for="id_first_name">First name</label>
                 <div class="controls">

@@ -381,7 +381,7 @@ class RedirectOldScorecardCreditURLsView(InstitutionStructureMixin,
                                         id=kwargs['subcategory_id'])
         credit = get_object_or_404(Credit, id=kwargs['credit_id'])
         return reverse(
-            'scorecard-credit',
+            'institutions:scorecard-credit',
             kwargs={
                 'institution_slug': institution.slug,
                 'submissionset': submissionset.date_submitted,

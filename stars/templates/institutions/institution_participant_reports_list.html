@@ -54,12 +54,12 @@
           <tr class="{% cycle 'even' 'odd' %}">
             <td style='text-align: left' class="span4">
               {% if institution.rated_submission %}
-                <a href="{% url 'scorecard-list' institution.slug %}"
+                <a href="{% url 'institutions:corecard-list' institution.slug %}"
                    id='scorecard-list'>
                   {{ institution.name }}
                 </a>
               {% elif institution.latest_expired_submission %}
-                <a href="{% url 'scorecard-list' institution.slug %}"
+                <a href="{% url 'institutions:scorecard-list' institution.slug %}"
                    id='scorecard-list'>
                   {{ institution.name }}
                 </a>
@@ -85,7 +85,7 @@
 	            {% endif %}
                 </td>
                 <td class="span2">
-                    <a href="{% url 'scorecard-summary' institution.slug institution.rated_submission.date_submitted %}">
+                    <a href="{% url 'institutions:scorecard-summary' institution.slug institution.rated_submission.date_submitted %}">
                       {{ institution.rated_submission.date_submitted }}
                     </a>
                 </td>
@@ -97,7 +97,7 @@
                 {{ institution.latest_expired_submission.rating }} *
                 </td>
                 <td class="span2">
-                    <a href="{% url 'scorecard-summary' institution.slug institution.latest_expired_submission.date_submitted %}">
+                    <a href="{% url 'institutions:scorecard-summary' institution.slug institution.latest_expired_submission.date_submitted %}">
                       {{ institution.latest_expired_submission.date_submitted }}
                     </a>
                 </td>

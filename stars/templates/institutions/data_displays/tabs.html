@@ -5,17 +5,17 @@
 		</a>
 	</li>
 	<li{% if active == 'categories' %} class="active" {% endif %}>
-		<a href="{% url 'categories_data_display' display_version %}?institution__institution_type=DO_NOT_FILTER">
+		<a href="{% url 'data_displays:categories_data_display' display_version %}?institution__institution_type=DO_NOT_FILTER">
 			Category Display
 		</a>
 	</li>
 	<li{% if active == 'scores' %} class="active" {% endif %}>
-		<a href="{% url 'scores_data_display' display_version %}?institution__institution_type=DO_NOT_FILTER">
+		<a href="{% url 'data_displays:scores_data_display' display_version %}?institution__institution_type=DO_NOT_FILTER">
 			Score Display
 		</a>
 	</li>
 	<li{% if active == 'content' %} class="active" {% endif %}>
-		<a href="{% url 'content_data_display' display_version %}?institution__institution_type=DO_NOT_FILTER">
+		<a href="{% url 'data_displays:content_data_display' display_version %}?institution__institution_type=DO_NOT_FILTER">
 			Content Display
 		</a>
 	</li>

@@ -90,7 +90,7 @@ class Flag(models.Model):
     target = GenericForeignKey('content_type', 'object_id')
 
     def get_admin_url(self):
-        return urlresolvers.reverse("admin:submissions_flag_change",
+        return urlresolvers.reverse('admin:submissions_flag_change',
                                     args=[self.id])
 
     def __unicode__(self):
@@ -273,13 +273,13 @@ class SubmissionSet(models.Model):
 
     def get_manage_url(self):
         return urlresolvers.reverse(
-            'submission-summary',
+            'my_submission:submission-summary',
             kwargs={'institution_slug': self.institution.slug,
                     'submissionset': self.id})
 
     def get_submit_url(self):
         return urlresolvers.reverse(
-            'submission-submit',
+            'my_submission:submission-submit',
             kwargs={'institution_slug': self.institution.slug,
                     'submissionset': self.id})
 
@@ -1581,7 +1581,7 @@ class CreditSubmission(models.Model):
         return points, messages
 
     def get_status_update_url(self):
-        return urlresolvers.reverse('credit-submission-status-update',
+        return urlresolvers.reverse('institutions:credit-submission-status-update',
                                     kwargs={'pk': self.id})
 
     def get_help_center_search_url(self):
@@ -1702,7 +1702,7 @@ class CreditUserSubmission(CreditSubmission):
         category_submission = self.subcategory_submission.category_submission
         submissionset = category_submission.submissionset
         url = urlresolvers.reverse(
-            'creditsubmission-submit',
+            'my_submission:creditsubmission-submit',
             kwargs={
                 'institution_slug': submissionset.institution.slug,
                 'submissionset': submissionset.id,

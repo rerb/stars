@@ -172,7 +172,7 @@ class CreditSet(VersionedModel):
         # the credits models?
         if submissionset:
             return(reverse(
-                'submission-summary',
+                'my_submission:submission-summary',
                 kwargs={'institution_slug': submissionset.institution.slug,
                         'submissionset': submissionset.id}))
         else:
@@ -434,7 +434,7 @@ class Category(VersionedModel):
 
     def get_delete_url(self):
         """ Returns the URL of the page to confirm deletion of this object """
-        return reverse("admin:credits_category_delete", args=(self.id,))
+        return reverse('admin:credits_category_delete', args=(self.id,))
 
     def get_parent(self):
         """ Returns the parent element for crumbs """
@@ -618,7 +618,7 @@ class Subcategory(VersionedModel):
 
     def get_delete_url(self):
         """ Returns the URL of the page to confirm deletion of this object """
-        return reverse("admin:credits_subcategory_delete", args=(self.id,))
+        return reverse('admin:credits_subcategory_delete', args=(self.id,))
 
 
 CREDIT_TYPE_CHOICES = (
@@ -806,7 +806,7 @@ else:
 
     def get_delete_url(self):
         """ Returns the URL of the page to confirm deletion of this object """
-        return reverse("admin:credits_credit_delete", args=(self.id,))
+        return reverse('admin:credits_credit_delete', args=(self.id,))
 
     def get_formula_url(self):
         """ Returns the URL of the page to edit the forumula for
@@ -1053,7 +1053,7 @@ class ApplicabilityReason(VersionedModel):
 
     def get_delete_url(self):
         """ Returns the URL of the page to confirm deletion of this object """
-        return reverse("applicability-reason-delete", args=(self.id,))
+        return reverse('credit_editor:applicability-reason-delete', args=(self.id,))
 
     def get_parent(self):
         """ Returns the parent element for crumbs """
@@ -1371,7 +1371,7 @@ class DocumentationField(VersionedModel):
 
     def get_delete_url(self):
         """ Returns the URL of the page to confirm deletion of this object """
-        return reverse("admin:credits_documentationfield_delete",
+        return reverse('admin:credits_documentationfield_delete',
                        args=(self.id,))
 
     def is_required(self):

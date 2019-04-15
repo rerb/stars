@@ -121,7 +121,7 @@ class SubmitRedirectMixin():
         messages.error(self.request,
                        ("You must complete your Institutional Boundary"
                         " before submitting for a rating."))
-        return HttpResponseRedirect(reverse('boundary-edit',
+        return HttpResponseRedirect(reverse('my_submission:boundary-edit',
                                             kwargs={
                                                 'institution_slug':
                                                 self.get_institution().slug,
@@ -133,7 +133,7 @@ class SubmitRedirectMixin():
         messages.error(self.request,
                        ("One or more required credits are not complete."))
         return HttpResponseRedirect(reverse(
-            'submission-summary',
+            'my_submission:submission-summary',
             kwargs={'institution_slug': self.get_institution().slug,
                     'submissionset': self.get_submissionset().id}))
 
@@ -267,7 +267,7 @@ class SubmitForRatingWizard(SubmitRedirectMixin,
         # like it's not under review, so flush that mother here.
         submissionset.invalidate_cache()
 
-        redirect_url = reverse('submit-success',
+        redirect_url = reverse('my_submission:submit-success',
                                kwargs={'institution_slug':
                                        self.get_institution().slug,
                                        'submissionset':
@@ -387,7 +387,7 @@ class ApproveSubmissionView(SubmissionToolMixin,
 
     def get_success_url(self):
         url = reverse(
-            'tool-summary',
+            'tool:tool-summary',
             kwargs={'institution_slug': self.get_institution().slug})
         return url
 
@@ -419,7 +419,7 @@ class SubcategorySubmissionDetailView(UserCanEditSubmissionOrIsAdminMixin,
         url = self.request.POST.get('next', False)
         if not url:
             url = reverse(
-                'submission-summary',
+                'my_submission:submission-summary',
                 kwargs={'institution_slug': self.get_institution().slug,
                         'submissionset': self.get_submissionset().id})
         return url
