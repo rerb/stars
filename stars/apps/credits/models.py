@@ -172,7 +172,7 @@ class CreditSet(VersionedModel):
         # the credits models?
         if submissionset:
             return(reverse(
-                'my_submission:submission-summary',
+                'tool:my_submission:submission-summary',
                 kwargs={'institution_slug': submissionset.institution.slug,
                         'submissionset': submissionset.id}))
         else:
@@ -1053,7 +1053,7 @@ class ApplicabilityReason(VersionedModel):
 
     def get_delete_url(self):
         """ Returns the URL of the page to confirm deletion of this object """
-        return reverse('credit_editor:applicability-reason-delete', args=(self.id,))
+        return reverse('tool:credit_editor:applicability-reason-delete', args=(self.id,))
 
     def get_parent(self):
         """ Returns the parent element for crumbs """

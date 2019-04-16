@@ -29,7 +29,7 @@
         {% endtestrule %}
         {% testrule user_has_access_level user 'submit' institution %}
             <li{% if active_menu == "submission" %} class='active'{% endif %}>
-                   <a href="{% url 'my_submission:submission-summary' institution.slug institution.current_submission.id %}">
+                   <a href="{% url 'tool:my_submission:submission-summary' institution.slug institution.current_submission.id %}">
                     <i class="icon-folder-close"></i>
                     My Submission
                 </a>
@@ -45,7 +45,7 @@
           </li>
         {% endtestrule %}
         <li{% if active_menu == "resources"%} class='active'{% endif %}>
-            <a href="{% url 'my_resources:my-resources' institution.slug %}">
+            <a href="{% url 'tool:my_resources:my-resources' institution.slug %}">
                 <i class='icon-briefcase'></i>
                 My Resources
             </a>

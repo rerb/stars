@@ -116,7 +116,7 @@ class ResponsiblePartyEditView(InstitutionAdminToolMixin,
     context_object_name = 'responsible_party'
     form_class = ResponsiblePartyForm
     model = ResponsibleParty
-    success_url_name = 'responsible-party-list'
+    success_url_name = 'tool:manage:responsible-party-list'
     tab_content_title = 'edit a responsible party'
     template_name = 'tool/manage/responsible_party_edit.html'
 
@@ -135,7 +135,7 @@ class ResponsiblePartyDeleteView(InstitutionAdminToolMixin,
        Deletes a responsible party if they aren't tied to any submissions.
     """
     model = ResponsibleParty
-    success_url_name = 'responsible-party-list'
+    success_url_name = 'tool:manage:responsible-party-list'
     tab_content_title = 'delete a responsible party'
     template_name = 'tool/manage/responsible_party_confirm_delete.html'
 
@@ -151,7 +151,7 @@ class ResponsiblePartyDeleteView(InstitutionAdminToolMixin,
                            "he/she is listed with one or more credits.")
             return HttpResponseRedirect(
                 reverse(
-                    'manage:responsible-party-list',
+                    'tool:manage:responsible-party-list',
                     kwargs={'institution_slug': self.get_institution().slug}))
 
         else:
@@ -170,7 +170,7 @@ class ResponsiblePartyCreateView(InstitutionAdminToolMixin,
     """
     form_class = ResponsiblePartyForm
     model = ResponsibleParty
-    success_url_name = 'responsible-party-list'
+    success_url_name = 'tool:manage:responsible-party-list'
     tab_content_title = 'add a responsible party'
     template_name = 'tool/manage/responsible_party_edit.html'
     valid_message = 'Responsible Party Added.'
@@ -243,7 +243,7 @@ class AccountCreateView(
         a PendingAccount is created instead.
     """
     form_class = AccountForm
-    success_url_name = 'account-list'
+    success_url_name = 'tool:manage:account-list'
     tab_content_title = 'add a user'
     template_name = 'tool/manage/account_detail.html'
     valid_message = 'Account created.'
@@ -337,7 +337,7 @@ class AccountEditView(
         Provides an edit view for StarsAccount and PendingAccount objects.
     """
     form_class = AccountForm
-    success_url_name = 'account-list'
+    success_url_name = 'tool:manage:account-list'
     template_name = 'tool/manage/account_detail.html'
     tab_content_title = 'edit a user'
     valid_message = 'User updated.'
@@ -374,7 +374,7 @@ class AccountDeleteView(InstitutionAdminToolMixin,
        Deletes a StarsAccount.
     """
     model = StarsAccount
-    success_url_name = 'account-list'
+    success_url_name = 'tool:manage:account-list'
     tab_content_title = 'delete a user'
     template_name = 'tool/manage/account_confirm_delete.html'
 
@@ -550,7 +550,7 @@ class MigrateDataView(InstitutionAdminToolMixin,
     """
     form_class = MigrateSubmissionSetForm
     model = SubmissionSet
-    success_url_name = 'tool-summary'
+    success_url_name = 'tool:tool-summary'
     tab_content_title = 'data migration'
     template_name = 'tool/manage/migrate_data.html'
     valid_message = ("Your migration is in progress. Please allow a "
@@ -598,7 +598,7 @@ class MigrateVersionView(InstitutionAdminToolMixin,
     """
     form_class = MigrateSubmissionSetForm
     model = SubmissionSet
-    success_url_name = 'migrate-options'
+    success_url_name = 'tool:manage:migrate-options'
     template_name = 'tool/manage/migrate_version.html'
     tab_content_title = 'version upgrade'
     valid_message = ("Your upgrade is in progress. Please allow a "

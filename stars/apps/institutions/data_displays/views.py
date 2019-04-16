@@ -418,10 +418,10 @@ class AggregateFilter(DisplayAccessMixin, CommonFilterMixin, FilteringMixin,
         _context['url_2_0'] = "#"
         if self.kwargs["cs_version"] == "2.0":
             _context['url_1_0'] = reverse(
-                'data_displays:categories_data_display', kwargs={"cs_version": "1.0"})
+                'institutions:data_displays:categories_data_display', kwargs={"cs_version": "1.0"})
         if self.kwargs["cs_version"] == "1.0":
             _context['url_2_0'] = reverse(
-                'data_displays:categories_data_display', kwargs={"cs_version": "2.0"})
+                'institutions:data_displays:categories_data_display', kwargs={"cs_version": "2.0"})
 
         subcategory_list = Subcategory.objects.filter(
             category__creditset=credit_set,
@@ -664,10 +664,10 @@ class ScoreFilter(DisplayAccessMixin, CommonFilterMixin,
         _context['url_2_0'] = "#"
         if self.kwargs["cs_version"] == "2.0":
             _context['url_1_0'] = reverse(
-                'data_displays:scores_data_display', kwargs={"cs_version": "1.0"})
+                'institutions:data_displays:scores_data_display', kwargs={"cs_version": "1.0"})
         elif self.kwargs["cs_version"] == "1.0":
             _context['url_2_0'] = reverse(
-                'data_displays:scores_data_display', kwargs={"cs_version": "2.0"})
+                'institutions:data_displays:scores_data_display', kwargs={"cs_version": "2.0"})
         else:
             raise Http404
 
@@ -911,10 +911,10 @@ class ContentFilter(DisplayAccessMixin, CommonFilterMixin,
         _context['url_2_0'] = "#"
         if self.kwargs["cs_version"] == "2.0":
             _context['url_1_0'] = reverse(
-                'data_displays:content_data_display', kwargs={"cs_version": "1.0"})
+                'institutions:data_displays:content_data_display', kwargs={"cs_version": "1.0"})
         if self.kwargs["cs_version"] == "1.0":
             _context['url_2_0'] = reverse(
-                'data_displays:content_data_display', kwargs={"cs_version": "2.0"})
+                'institutions:data_displays:content_data_display', kwargs={"cs_version": "2.0"})
 
         _context['top_help_text'] = self.get_description_help_context_name()
         _context['reporting_field'] = self.get_selected_field()

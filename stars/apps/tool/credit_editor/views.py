@@ -581,7 +581,7 @@ class EditApplicabilityReason(CreditEditorFormView):
 class DeleteApplicabilityReason(DeleteView, IsStaffMixin):
 
     model = ApplicabilityReason
-    success_url_name = 'applicability-reason-list'
+    success_url_name = 'tool:credit_editor:applicability-reason-list'
     tab_content_title = 'delete an applicability reason'
     template_name = ('tool/credit_editor/'
                      'applicability_reason_confirm_delete.html')

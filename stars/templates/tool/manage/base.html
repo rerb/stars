@@ -21,25 +21,25 @@
         {% testrule user_has_access_level user 'admin' institution %}
 
         <li{% if active_tab == 'users' %} class="active" {% endif %}>
-            <a href="{% url 'manage:account-list' institution.slug %}">
+            <a href="{% url 'tool:manage:account-list' institution.slug %}">
               Users
             </a>
         </li>
         <li{% if active_tab == 'contact' %} class="active" {% endif %}>
-            <a href="{% url 'manage:institution-contact' institution.slug %}">
+            <a href="{% url 'tool:manage:institution-contact' institution.slug %}">
               Contact
             </a>
         </li>
         <li{% if active_tab == 'rps' %} class="active" {% endif %}>
-            <a href="{% url 'manage:responsible-party-list' institution.slug %}">
+            <a href="{% url 'tool:manage:responsible-party-list' institution.slug %}">
               Responsible Parties
             </a>
         </li>
         <li{% if active_tab == 'share' %} class="active" {% endif %}>
-            <a href="{% url 'manage:share-third-parties' institution.slug %}">Share Data</a>
+            <a href="{% url 'tool:manage:share-third-parties' institution.slug %}">Share Data</a>
         </li>
         <li{% if active_tab == 'manage_data' %} class="active" {% endif %}>
-            <a href="{% url 'manage:migrate-options' institution.slug %}">Manage Data</a>
+            <a href="{% url 'tool:manage:migrate-options' institution.slug %}">Manage Data</a>
         </li>
         {% endtestrule %}
     </ul>

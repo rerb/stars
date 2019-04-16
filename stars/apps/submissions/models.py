@@ -273,13 +273,13 @@ class SubmissionSet(models.Model):
 
     def get_manage_url(self):
         return urlresolvers.reverse(
-            'my_submission:submission-summary',
+            'tool:my_submission:submission-summary',
             kwargs={'institution_slug': self.institution.slug,
                     'submissionset': self.id})
 
     def get_submit_url(self):
         return urlresolvers.reverse(
-            'my_submission:submission-submit',
+            'tool:my_submission:submission-submit',
             kwargs={'institution_slug': self.institution.slug,
                     'submissionset': self.id})
 
@@ -1702,7 +1702,7 @@ class CreditUserSubmission(CreditSubmission):
         category_submission = self.subcategory_submission.category_submission
         submissionset = category_submission.submissionset
         url = urlresolvers.reverse(
-            'my_submission:creditsubmission-submit',
+            'tool:my_submission:creditsubmission-submit',
             kwargs={
                 'institution_slug': submissionset.institution.slug,
                 'submissionset': submissionset.id,

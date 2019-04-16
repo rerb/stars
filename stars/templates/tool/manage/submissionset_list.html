@@ -81,7 +81,7 @@
                 {% if not user.current_inst.starsaccount_set.all %}
                     <p>
                         You must
-                        <a href="{% url 'manage:account-create' institution.slug %}">
+                        <a href="{% url 'tool:manage:account-create' institution.slug %}">
                             add
                         </a>
                         at least one user to this institution before you can

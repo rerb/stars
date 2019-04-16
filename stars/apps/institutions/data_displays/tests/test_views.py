@@ -30,7 +30,7 @@ class DashboardTestCase(TestCase):
         """Does the dashboard load?
         """
         client = Client()
-        resp = client.get(reverse('dashboard'))
+        resp = client.get(reverse('institutions:data_displays:dashboard'))
         self.assertEqual(200, resp.status_code)
 
     def test_get_ratings_context(self):
@@ -136,7 +136,7 @@ class AggregateFilterTestCase(TestCase):
         """
         self.client.login(username=self.member.username,
                           password=PASSWORD)
-        resp = self.client.get(reverse('categories_data_display',
+        resp = self.client.get(reverse('institutions:data_displays:categories_data_display',
                                        kwargs={'cs_version': '1.0'}))
         self.assertEqual(200, resp.status_code)
         self.assertIn(FILTERS_SHOW_SENTINEL, resp.content)
@@ -146,7 +146,7 @@ class AggregateFilterTestCase(TestCase):
         """
         self.client.login(username=self.non_member.username,
                           password=PASSWORD)
-        resp = self.client.get(reverse('categories_data_display',
+        resp = self.client.get(reverse('institutions:data_displays:categories_data_display',
                                        kwargs={'cs_version': '1.0'}))
         self.assertEqual(200, resp.status_code)
         self.assertIn(GOTTA_BE_A_MEMBER_SENTINEL, resp.content)
@@ -156,7 +156,7 @@ class AggregateFilterTestCase(TestCase):
         """
         self.client.login(username=self.member.username,
                           password=PASSWORD)
-        resp = self.client.get(reverse('categories_data_display',
+        resp = self.client.get(reverse('institutions:data_displays:categories_data_display',
                                        kwargs={'cs_version': '2.0'}))
         self.assertEqual(200, resp.status_code)
         self.assertIn(FILTERS_SHOW_SENTINEL, resp.content)
@@ -175,7 +175,7 @@ class ScoreFilterTestCase(TestCase):
         """
         self.client.login(username=self.member.username,
                           password=PASSWORD)
-        resp = self.client.get(reverse('scores_data_display',
+        resp = self.client.get(reverse('institutions:data_displays:scores_data_display',
                                        kwargs={'cs_version': '1.0'}))
         self.assertEqual(200, resp.status_code)
         self.assertIn(FILTERS_SHOW_SENTINEL, resp.content)
@@ -185,7 +185,7 @@ class ScoreFilterTestCase(TestCase):
         """
         self.client.login(username=self.non_member.username,
                           password=PASSWORD)
-        resp = self.client.get(reverse('scores_data_display',
+        resp = self.client.get(reverse('institutions:data_displays:scores_data_display',
                                        kwargs={'cs_version': '1.0'}))
         self.assertEqual(200, resp.status_code)
         self.assertIn(GOTTA_BE_A_MEMBER_SENTINEL, resp.content)
@@ -195,7 +195,7 @@ class ScoreFilterTestCase(TestCase):
         """
         self.client.login(username=self.member.username,
                           password=PASSWORD)
-        resp = self.client.get(reverse('scores_data_display',
+        resp = self.client.get(reverse('institutions:data_displays:scores_data_display',
                                        kwargs={'cs_version': '2.0'}))
         self.assertEqual(200, resp.status_code)
         self.assertIn(FILTERS_SHOW_SENTINEL, resp.content)
@@ -222,7 +222,7 @@ class ContentFilterTestCase(TestCase):
         """
         self.client.login(username=self.member.username,
                           password=PASSWORD)
-        resp = self.client.get(reverse('content_data_display',
+        resp = self.client.get(reverse('institutions:data_displays:content_data_display',
                                        kwargs={'cs_version': '1.0'}))
         self.assertEqual(200, resp.status_code)
         self.assertIn(FILTERS_SHOW_SENTINEL, resp.content)
@@ -232,7 +232,7 @@ class ContentFilterTestCase(TestCase):
         """
         self.client.login(username=self.non_member.username,
                           password=PASSWORD)
-        resp = self.client.get(reverse('content_data_display',
+        resp = self.client.get(reverse('institutions:data_displays:content_data_display',
                                        kwargs={'cs_version': '1.0'}))
         self.assertEqual(200, resp.status_code)
         self.assertIn(GOTTA_BE_A_MEMBER_SENTINEL, resp.content)
@@ -242,7 +242,7 @@ class ContentFilterTestCase(TestCase):
         """
         self.client.login(username=self.member.username,
                           password=PASSWORD)
-        resp = self.client.get(reverse('content_data_display',
+        resp = self.client.get(reverse('institutions:data_displays:content_data_display',
                                        kwargs={'cs_version': '2.0'}))
         self.assertEqual(200, resp.status_code)
         self.assertIn(FILTERS_SHOW_SENTINEL, resp.content)
