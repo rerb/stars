@@ -2,7 +2,6 @@ coverage
 django-extensions
 django-queryinspect
 django-template-repl
-elpy
 ipdb
 pyflakes
 pyzmq  # for iPython notebook
