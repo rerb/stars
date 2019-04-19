@@ -188,7 +188,11 @@ class SubmissionSet(models.Model):
         ordering = ("date_registered",)
 
     def __unicode__(self):
-        return '%s (%s)' % (self.institution.name, self.creditset.version)
+        if self.date_submitted:
+            return '%s -- %s (%s)' % (self.institution.name,
+                                      self.creditset.version,
+                                      self.date_submitted.strftime("%m/%d/%Y"))
+        return '%s -- %s' % (self.institution.name, self.creditset.version)
 
     def get_flag_url(self):
 
@@ -588,7 +592,7 @@ class SubmissionSet(models.Model):
                 creditset=self.creditset)
             institutional_characteristics_credit_submissions = (
                 self.get_credit_submissions().filter(
-                    subcategory_submission__category_submission__category=  # noqa
+                    subcategory_submission__category_submission__category=# noqa
                     institutional_characteristics_category))
             boundary_credit_submission = (
                 institutional_characteristics_credit_submissions.get(

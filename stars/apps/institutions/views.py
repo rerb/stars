@@ -712,12 +712,14 @@ class SubmissionInquiryView(InstitutionStructureMixin,
         return kwargs
 
     def forms_invalid(self, form, inlines):
+        print "INVALID"
         return super(SubmissionInquiryView, self).forms_invalid(form, inlines)
 
     def forms_valid(self, form, inlines):
         """
         If the form and formsets are valid, save the associated models.
         """
+
         _context = self.get_context_data()
         self.object = form.save()
         for formset in inlines:
@@ -740,6 +742,7 @@ class SubmissionInquiryView(InstitutionStructureMixin,
             "inquiry": self.object,
             "institution": self.object.submissionset.institution}
         et.send_email(email_to, email_context)
+        print "VALID"
 
         return TemplateResponse(self.request,
                                 "institutions/inquiries/success.html",
