@@ -12,7 +12,6 @@ from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelatio
 from django.contrib.contenttypes.models import ContentType
 from localflavor.us.models import PhoneNumberField
 from django.core import urlresolvers
-from django.core.cache import cache, caches
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.mail import EmailMessage
 from django.db import models
@@ -284,19 +283,13 @@ class SubmissionSet(models.Model):
                     'submissionset': self.id})
 
     def get_scorecard_url(self):
-        cache_key = "submission_%d_scorecard_url" % self.id
-        url = cache.get(cache_key)
-        if url:
-            return url
+
+        if self.date_submitted:
+            return '/institutions/%s/report/%s/' % (self.institution.slug,
+                                                    self.date_submitted)
         else:
-            if self.date_submitted:
-                url = '/institutions/%s/report/%s/' % (self.institution.slug,
-                                                       self.date_submitted)
-            else:
-                url = '/institutions/%s/report/%s/' % (self.institution.slug,
-                                                       self.id)
-            cache.set(cache_key, url, 60 * 60 * 24)  # cache for 24 hours
-            return url
+            return '/institutions/%s/report/%s/' % (self.institution.slug,
+                                                    self.id)
 
     def get_parent(self):
         """ Used for building crumbs """
@@ -549,42 +542,6 @@ class SubmissionSet(models.Model):
 
         if run_init_credit_submissions:
             self.init_credit_submissions()
-
-        self.invalidate_cache()
-
-    def invalidate_cache(self):
-
-        cus_set = self.get_credit_submissions()
-        for cus in cus_set:
-            report_url = cus.get_scorecard_url()
-            summary_url = self.get_scorecard_url()
-            # Set up all the different cache version data lists
-            versions = ['anon', 'admin', 'staff']
-            id = self.id
-            # vary_on template: [submissionset.id, preview (boolean),
-            # EXPORT/NO_EXPORT, user.is_staff]
-            vary_on = [
-                [id, True, 'EXPORT', True],
-                [id, False, 'EXPORT', True],
-                [id, True, 'EXPORT', False],
-                [id, False, 'EXPORT', False],
-                [id, True, 'NO_EXPORT', True],
-                [id, False, 'NO_EXPORT', True],
-                [id, True, 'NO_EXPORT', False],
-                [id, False, 'NO_EXPORT', False],
-            ]
-            # Loop through them and generate the cache keys
-            keys = []
-            for x in versions:
-                vary = [x]
-                key = generate_cache_key(report_url, vary)
-                keys.append(key)
-            for x in vary_on:
-                key = generate_cache_key(summary_url, x)
-                keys.append(key)
-            # Loop through the keys and invalidate each
-            for key in keys:
-                invalidate_filecache(key)
 
     def take_snapshot(self, user):
         """
@@ -972,15 +929,8 @@ class CategorySubmission(models.Model):
         return self.submissionset
 
     def get_scorecard_url(self):
-        cache_key = "category_%d_scorecard_url" % self.id
-        url = cache.get(cache_key)
-        if url:
-            return url
-        else:
-            url = '%s%s' % (self.submissionset.get_scorecard_url(),
-                            self.category.get_browse_url())
-            cache.set(cache_key, url, 60*60*24)  # cache for 24 hours
-            return url
+        return '%s%s' % (self.submissionset.get_scorecard_url(),
+                         self.category.get_browse_url())
 
     def get_STARS_score(self):
         """
@@ -1714,22 +1664,8 @@ class CreditUserSubmission(CreditSubmission):
         return url
 
     def get_scorecard_url(self):
-        cache_key = "cus_%d_scorecard_url" % self.id
-
-        try:
-            url = cache.get(cache_key)
-        except Exception as exc:
-            logger.error("cache.get({cache_key}) raised ".format(
-                cache_key=cache_key) + exc.message)
-            url = None
-
-        if url:
-            return url
-        else:
-            url = self.credit.get_scorecard_url(
-                self.subcategory_submission.category_submission.submissionset)
-            cache.set(cache_key, url, 60 * 60 * 24)  # cache for 24 hours
-            return url
+        return self.credit.get_scorecard_url(
+            self.subcategory_submission.category_submission.submissionset)
 
     def get_parent(self):
         """ Used for building crumbs """
@@ -2144,40 +2080,6 @@ class DataCorrectionRequest(models.Model):
                          "old_rating": old_rating,
                          "old_score": old_score}
         et.send_email(mail_to, email_context)
-        self.cache_invalidate()
-
-    def cache_invalidate(self):
-
-        report_url = self.get_absolute_url()
-        self.submissionset = self.get_submissionset()
-        summary_url = self.submissionset.get_scorecard_url()
-        # Set up all the different cache version data lists
-        versions = ['anon', 'admin', 'staff']
-        id = self.submissionset.id
-        # vary_on template: [submissionset.id, preview (boolean),
-        # EXPORT/NO_EXPORT, user.is_staff]
-        vary_on = [
-            [id, True, 'EXPORT', True],
-            [id, False, 'EXPORT', True],
-            [id, True, 'EXPORT', False],
-            [id, False, 'EXPORT', False],
-            [id, True, 'NO_EXPORT', True],
-            [id, False, 'NO_EXPORT', True],
-            [id, True, 'NO_EXPORT', False],
-            [id, False, 'NO_EXPORT', False],
-        ]
-        # Loop through them and generate the cache keys
-        keys = []
-        for x in versions:
-            vary = [x]
-            key = generate_cache_key(report_url, vary)
-            keys.append(key)
-        for x in vary_on:
-            key = generate_cache_key(summary_url, x)
-            keys.append(key)
-        # Loop through the keys and invalidate each
-        for key in keys:
-            invalidate_filecache(key)
 
 
 class ReportingFieldDataCorrection(models.Model):
@@ -3164,15 +3066,3 @@ def pre_delete_credit_submission_review_notation(sender, instance, **kwargs):
                     return  # Keep the Credit Submission unlocked
         credit_user_submission.is_unlocked_for_review = False
         credit_user_submission.save(calculate_points=False)
-
-
-def generate_cache_key(url, vary_on):
-    hash = hashlib.md5(u':'.join([urlquote(var)
-                                  for var in vary_on])).hexdigest()
-    key = 'filecache.' + url + '.' + hash
-    return key
-
-
-def invalidate_filecache(key):
-    file_cache = caches['filecache']
-    file_cache.delete(key)

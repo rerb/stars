@@ -54,7 +54,7 @@
           <tr class="{% cycle 'even' 'odd' %}">
             <td style='text-align: left' class="span4">
               {% if institution.rated_submission %}
-                <a href="{% url 'institutions:corecard-list' institution.slug %}"
+                <a href="{% url 'institutions:scorecard-list' institution.slug %}"
                    id='scorecard-list'>
                   {{ institution.name }}
                 </a>

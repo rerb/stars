@@ -1,17 +1,5 @@
 {% load logical_rules_tags %}
-{% load custom_caching %}
 
-{% define "anon" as version %}
-
-{% testrule user_is_institution_admin user institution %}
-    {% define "admin" as version %}
-{% endtestrule %}
-
-{% if user.is_staff %}
-    {% define "staff" as version %}
-{% endif %}
-
-{% file_cache 2592000 request.path version %}
 <table class='table table-bordered table-condensed' style='font-size: .9em;'>
     {% if preview %}
         <tr>
@@ -77,4 +65,3 @@
     </tr>
     {% endif %}
 </table>
-{% endfile_cache %}

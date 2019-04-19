@@ -4,10 +4,10 @@
 {% load submit_tags %}
 {% load report_tags %}
 {% load thumbnail %}
-{% load custom_caching %}
+
 
 {% block h1 %}
-  <a href="{% url 'institutions:corecard-list' institution.slug %}">
+  <a href="{% url 'institutions:scorecard-list' institution.slug %}">
     {{ institution }}
   </a>
   <h4>
@@ -43,7 +43,7 @@
 {% endblock %}
 
 {% block summaryTable %}
-  <!-- template cached: {% now "jS F Y H:i" %} -->
+  
   {% if preview %}
     <div class="alert">
       <p>

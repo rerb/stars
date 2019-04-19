@@ -193,21 +193,13 @@ def update_pie_api_cache():
     cat_view = CategoryPieChart()
     s_view = SubategoryPieChart()
 
-    key = "v1:summary-pie-chart:detail:"
-    cache.delete(key)
-
     # summary
     for cat in cs.category_set.filter(include_in_score=True):
         kwargs = {"pk": cat.id}
-        c_key = cat_view.generate_cache_key('detail', **kwargs)
-        cache.delete(c_key)
         cat_view.obj_get(**kwargs)
 
         for sub in cat.subcategory_set.all():
             kwargs = {"pk": sub.id}
-            s_key = s_view.generate_cache_key('detail', **kwargs)
-            cache.delete(s_key)
-
             s_view.obj_get(**kwargs)
 
 

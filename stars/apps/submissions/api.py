@@ -2,8 +2,6 @@ from tastypie import fields
 from tastypie.resources import ModelResource, Resource
 from tastypie.bundle import Bundle
 
-from django.core.cache import cache
-
 from models import SubmissionSet, SubcategorySubmission, CreditUserSubmission
 from stars.apps.credits.models import Category, Subcategory, CreditSet
 
@@ -16,6 +14,7 @@ class Chart(object):
     """
         A pie chart representation
     """
+
     def __init__(self, name, id, slices):
         self.name = name
         self.id = id
@@ -26,6 +25,7 @@ class Slice(object):
     """
         A representation of a pie chart slice
     """
+
     def __init__(self, title, long_title, id, value,
                  fill_fraction, child_chart=None):
         self.title = title
@@ -55,13 +55,13 @@ class SliceMixin(object):
         slices = []
         for obj in bundle.obj.slices:
             slices.append({
-                            'title': obj.title,
-                            'long_title': obj.long_title,
-                            'id': obj.id,
-                            'value': obj.value,
-                            'fill_fraction': obj.fill_fraction,
-                            'child_chart': obj.child_chart
-                            })
+                'title': obj.title,
+                'long_title': obj.long_title,
+                'id': obj.id,
+                'value': obj.value,
+                'fill_fraction': obj.fill_fraction,
+                'child_chart': obj.child_chart
+            })
         return slices
 
 
@@ -87,11 +87,6 @@ class SummaryPieChart(SliceMixin, Resource):
                 }
             }
         """
-
-        key = self.generate_cache_key('detail', **kwargs)
-        object = cache.get(key)
-        if object:
-            return object
 
         scores = {}
 
@@ -126,17 +121,17 @@ class SummaryPieChart(SliceMixin, Resource):
         slices = []
         for k, v in scores.items():
             slices.append(
-                            Slice(
-                                    title=v['title'],
-                                    long_title=v['long_title'],
-                                    id="cat_%d" % v['id'],
-                                    value=v['value'],
-                                    fill_fraction=(v['running_total'] / v['running_count']) / v['max'],
-                                    child_chart="/api/v1/category-pie-chart/%d/" % v['id']
-                          ))
+                Slice(
+                    title=v['title'],
+                    long_title=v['long_title'],
+                    id="cat_%d" % v['id'],
+                    value=v['value'],
+                    fill_fraction=(v['running_total'] /
+                                   v['running_count']) / v['max'],
+                    child_chart="/api/v1/category-pie-chart/%d/" % v['id']
+                ))
 
         c = Chart("top_level_chart", "1", slices)
-        cache.set(key, [c], 60 * 60 * 24)
         return [c]
 
 
@@ -157,7 +152,8 @@ class CategoryPieChart(SliceMixin, Resource):
         }
 
         if isinstance(bundle_or_obj, Bundle):
-            kwargs['pk'] = bundle_or_obj.obj.id  # pk is referenced in ModelResource
+            # pk is referenced in ModelResource
+            kwargs['pk'] = bundle_or_obj.obj.id
         else:
             kwargs['pk'] = bundle_or_obj.id
 
@@ -173,15 +169,9 @@ class CategoryPieChart(SliceMixin, Resource):
             using a 1.1 category, should have the same result as a 1.2 category
             because I use the abbreviation instead of the id
         """
-        key = self.generate_cache_key('detail', **kwargs)
-        object = cache.get(key)
-        if object:
-            return object
-
         pk = int(kwargs['pk'])
         try:
             obj = self.build_chart_from_category(Category.objects.get(pk=pk))
-            cache.set(key, obj, 60 * 60 * 24)
             return obj
         except Category.DoesNotExist:
             logger.error("Category, %s, not found." % pk,
@@ -209,17 +199,20 @@ class CategoryPieChart(SliceMixin, Resource):
 
     def build_chart_from_category(self, category):
 
-        qs = SubcategorySubmission.objects.filter(category_submission__category__abbreviation=category.abbreviation)
+        qs = SubcategorySubmission.objects.filter(
+            category_submission__category__abbreviation=category.abbreviation)
         qs = qs.filter(category_submission__submissionset__status='r')
         qs = qs.filter(category_submission__submissionset__is_locked=False)
         qs = qs.filter(category_submission__submissionset__is_visible=True)
-        qs = qs.filter(category_submission__submissionset__creditset__id__lte=self.newest_creditset_id)
+        qs = qs.filter(
+            category_submission__submissionset__creditset__id__lte=self.newest_creditset_id)
 
         slice_dict = {}
 
         for sub in qs:
             if sub.category_submission.submissionset.rating.publish_score:
-                latest = sub.subcategory.get_for_creditset(self.newest_creditset_to_use)
+                latest = sub.subcategory.get_for_creditset(
+                    self.newest_creditset_to_use)
                 if latest.id in slice_dict.keys():
                     slice_dict[latest.id]['running_total'] += sub.get_claimed_points()
                     slice_dict[latest.id]['running_count'] += 1
@@ -235,16 +228,18 @@ class CategoryPieChart(SliceMixin, Resource):
         slices = []
         for k, v in slice_dict.items():
             slices.append(
-                            Slice(
-                                    title=v['title'],
-                                    long_title=v['long_title'],
-                                    id="sub_%d" % v['id'],
-                                    value=v['max'],
-                                    fill_fraction=(v['running_total'] / v['running_count']) / v['max'],
-                                    child_chart="/api/v1/subcategory-pie-chart/%d/" % v['id']
-                          ))
+                Slice(
+                    title=v['title'],
+                    long_title=v['long_title'],
+                    id="sub_%d" % v['id'],
+                    value=v['max'],
+                    fill_fraction=(v['running_total'] /
+                                   v['running_count']) / v['max'],
+                    child_chart="/api/v1/subcategory-pie-chart/%d/" % v['id']
+                ))
 
-        c = Chart(category.title, category.id, sorted(slices, key=lambda slice:slice.title))
+        c = Chart(category.title, category.id, sorted(
+            slices, key=lambda slice: slice.title))
         return c
 
 
@@ -258,12 +253,6 @@ class SubategoryPieChart(SliceMixin, Resource):
         object_class = Chart
         allowed_methods = ['get']
 
-#    def generate_cache_key(self, title, **kwargs):
-#        key = "%s_%s" % (title, self._meta.resource_name)
-#        if kwargs.has_key('pk'):
-#            return "%s_%s" % (key, kwargs['pk'])
-#        return key
-
     # https://gist.github.com/794424
     def get_resource_uri(self, bundle_or_obj):
         kwargs = {
@@ -271,7 +260,8 @@ class SubategoryPieChart(SliceMixin, Resource):
         }
 
         if isinstance(bundle_or_obj, Bundle):
-            kwargs['pk'] = bundle_or_obj.obj.id  # pk is referenced in ModelResource
+            # pk is referenced in ModelResource
+            kwargs['pk'] = bundle_or_obj.obj.id
         else:
             kwargs['pk'] = bundle_or_obj.id
 
@@ -287,15 +277,10 @@ class SubategoryPieChart(SliceMixin, Resource):
             using a 1.1 category, should have the same result as a 1.2 category
             because I use the abbreviation instead of the id
         """
-        key = self.generate_cache_key('detail', **kwargs)
-        object = cache.get(key)
-        if object:
-            return object
-
         pk = int(kwargs['pk'])
         try:
-            obj = self.build_chart_from_subcategory(Subcategory.objects.get(pk=pk))
-            cache.set(key, obj, 60 * 60 * 24)
+            obj = self.build_chart_from_subcategory(
+                Subcategory.objects.get(pk=pk))
             return obj
         except Subcategory.DoesNotExist:
             logger.error("Subcategory, %s, not found." % pk,
@@ -325,12 +310,18 @@ class SubategoryPieChart(SliceMixin, Resource):
         """
         sub_list = subcategory.get_all_versions()
 
-        qs = CreditUserSubmission.objects.filter(subcategory_submission__subcategory__in=sub_list)
-        qs = qs.filter(subcategory_submission__category_submission__submissionset__status='r')
-        qs = qs.filter(subcategory_submission__category_submission__submissionset__is_locked=False)
-        qs = qs.filter(subcategory_submission__category_submission__submissionset__is_visible=True)
-        qs = qs.filter(subcategory_submission__category_submission__category__include_in_score=True)
-        qs = qs.filter(subcategory_submission__category_submission__submissionset__creditset__id__lte=self.newest_creditset_id)
+        qs = CreditUserSubmission.objects.filter(
+            subcategory_submission__subcategory__in=sub_list)
+        qs = qs.filter(
+            subcategory_submission__category_submission__submissionset__status='r')
+        qs = qs.filter(
+            subcategory_submission__category_submission__submissionset__is_locked=False)
+        qs = qs.filter(
+            subcategory_submission__category_submission__submissionset__is_visible=True)
+        qs = qs.filter(
+            subcategory_submission__category_submission__category__include_in_score=True)
+        qs = qs.filter(
+            subcategory_submission__category_submission__submissionset__creditset__id__lte=self.newest_creditset_id)
 
         slice_dict = {}
 
@@ -346,25 +337,27 @@ class SubategoryPieChart(SliceMixin, Resource):
                 slice_dict[key]['running_count'] += 1
             else:
                 slice_dict[key] = {
-                                    "running_total": c.assessed_points,
-                                    "running_count": 1,
-                                    "title": key,
-                                    "long_title": "%s: %s" % (key, latest.title),
-                                    "id": latest.id,
-                                    "max": latest.point_value,
-                                    }
+                    "running_total": c.assessed_points,
+                    "running_count": 1,
+                    "title": key,
+                    "long_title": "%s: %s" % (key, latest.title),
+                    "id": latest.id,
+                    "max": latest.point_value,
+                }
         slices = []
         for k, v in slice_dict.items():
             slices.append(
-                            Slice(
-                                    title=v['title'],
-                                    long_title=v['long_title'],
-                                    id="credit_%d" % v['id'],
-                                    value=v['max'],
-                                    fill_fraction=(v['running_total'] / v['running_count']) / v['max']
-                          ))
+                Slice(
+                    title=v['title'],
+                    long_title=v['long_title'],
+                    id="credit_%d" % v['id'],
+                    value=v['max'],
+                    fill_fraction=(v['running_total'] /
+                                   v['running_count']) / v['max']
+                ))
 
-        c = Chart(subcategory.title, subcategory.id, sorted(slices, key=lambda slice:slice.title))
+        c = Chart(subcategory.title, subcategory.id, sorted(
+            slices, key=lambda slice: slice.title))
 
         return c
 
@@ -387,11 +380,11 @@ class SubmissionSetResource(ModelResource):
             else:
                 available_points = 100
             cat_dict = {
-                            "id": cat.id,
-                            "abbreviation": cat.category.abbreviation,
-                            "title": cat.category.title,
-                            "available_points": available_points,
-                            "assessed_points": round(cat.get_STARS_score(), 2),
+                "id": cat.id,
+                "abbreviation": cat.category.abbreviation,
+                "title": cat.category.title,
+                "available_points": available_points,
+                "assessed_points": round(cat.get_STARS_score(), 2),
             }
             for sub in cat.subcategorysubmission_set.all():
                 for cus in sub.creditusersubmission_set.all():

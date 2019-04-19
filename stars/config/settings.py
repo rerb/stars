@@ -209,7 +209,6 @@ INSTALLED_APPS = [
     'stars.apps.bt_etl',
     # 'stars.tests',
 
-    'adv_cache_tag',
     'bootstrapform',
     'captcha',
     'collapsing_menu',
@@ -219,7 +218,6 @@ INSTALLED_APPS = [
     'django_extensions',
     'django_membersuite_auth',
     'djcelery',
-    'file_cache_tag',
     'gunicorn',
     'iss',
     'logical_rules',
