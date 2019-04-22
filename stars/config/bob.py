@@ -80,18 +80,13 @@ if os.environ.get('STARS_BACKUP_DB_URL', False):
 # the django dev server so we will need to serve the static files (see urls.py)
 STANDALONE_MODE = True
 
-INSTALLED_APPS += ('django_nose',
-                   'template_repl')
+INSTALLED_APPS += ('template_repl',)
 
 if PROFILE:
     # INSTALLED_APPS += ('profiler',)
     # MIDDLEWARE_CLASSES.append('profiler.middleware.ProfilerMiddleware')
     # MIDDLEWARE_CLASSES.append('profiler.middleware.StatProfMiddleware')
     MIDDLEWARE_CLASSES.append('stars.apps.tool.middleware.ProfileMiddleware')
-
-if 'TEST_RUNNER' in os.environ:  # django_nose.NoseTestSuiteRunner, for example
-    if os.environ['TEST_RUNNER']:  # only use it if there's a value set
-        TEST_RUNNER = os.environ['TEST_RUNNER'] or TEST_RUNNER
 
 # Stuff copied from ben.py that I don't know what it is:
 
@@ -115,54 +110,6 @@ QUERY_INSPECT_LOG_QUERIES = True
 QUERY_INSPECT_LOG_TRACEBACKS = True
 QUERY_INSPECT_TRACEBACK_ROOTS = ['/Users/rerb/src/aashe/stars/']
 
-# django toolbar
-# if DEBUG_TOOLBAR:
-#     MIDDLEWARE_CLASSES.append(
-#         'debug_toolbar.middleware.DebugToolbarMiddleware')
-#     INTERNAL_IPS = ('127.0.0.1',)
-#     INSTALLED_APPS = INSTALLED_APPS + ('debug_toolbar',
-#                                        'template_profiler_panel')
-#     DEBUG_TOOLBAR_PANELS = (
-#         # 'debug_toolbar.panels.versions.VersionsPanel',
-#         'debug_toolbar.panels.timer.TimerPanel',
-#         # 'debug_toolbar.panels.settings.SettingsPanel',
-#         # 'debug_toolbar.panels.headers.HeadersPanel',
-#         # 'debug_toolbar.panels.request.RequestPanel',
-#         'debug_toolbar.panels.sql.SQLPanel',
-#         # 'debug_toolbar.panels.staticfiles.StaticFilesPanel',
-#         'debug_toolbar.panels.templates.TemplatesPanel',
-#         # 'template_profiler_panel.panels.template.TemplateProfilerPanel',
-#         'debug_toolbar.panels.cache.CachePanel',
-#         # 'debug_toolbar.panels.signals.SignalsPanel',
-#         # 'debug_toolbar.panels.logging.LoggingPanel',
-#         # 'debug_toolbar.panels.redirects.RedirectsPanel'
-#     )
-#     DEBUG_TOOLBAR_CONFIG = {'INTERCEPT_REDIRECTS': False}
-#     TEMPLATE_TIMINGS_SETTINGS = {
-#         'PRINT_TIMINGS': False,
-#     }
-
 TEMPLATE_STRING_IF_INVALID = 'INVALID EXPRESSION: %s'
-TEST_WITHOUT_MIGRATIONS_COMMAND = 'django_nose.management.commands.test.Command'
-
-TEST_RUNNER = 'hotrunner.HotRunner'
-EXCLUDED_TEST_APPS = ['bootstrapform',
-                      'captcha',
-                      'collapsing_menu',
-                      'django_extensions',
-                      'django_nose',
-                      'djcelery',
-                      'gunicorn',
-                      'logical_rules',
-                      'memcache_status',
-                      's3_folder_storage',
-                      'sorl.thumbnail',
-                      'stars.apps',
-                      'stars.apps.accounts',
-                      'stars.apps.api',
-                      'stars.tests',
-                      'tastypie',
-                      'terms',
-                      'template_repl']
 
 PROFILE_LOG_BASE = "profiling-data"

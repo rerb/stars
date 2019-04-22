@@ -82,52 +82,52 @@ def restore_institution(name,
     # Restore ResponsiblePartys.
     for responsible_party in ResponsibleParty.objects.using(
             source_db).filter(institution=institution_to_restore):
-        print("\t\tResponsible Party {} restoring".format(
+        print("**Responsible Party {} restoring".format(
             responsible_party.pk))
         responsible_party.save(using=target_db)
-        print("\t\tResponsible Party {} restored".format(
+        print("**Responsible Party {} restored".format(
             responsible_party.pk))
 
     # Restore StarsAccounts.
     for stars_account in StarsAccount.objects.using(
             source_db).filter(institution=institution_to_restore):
-        print("\t\tSTARS Account {} restoring".format(stars_account.pk))
+        print("**STARS Account {} restoring".format(stars_account.pk))
         stars_account.save(using=target_db)
-        print("\t\t\tUser {} restoring".format(stars_account.user.pk))
+        print("***User {} restoring".format(stars_account.user.pk))
         stars_account.user.save(using=target_db)
-        print("\t\t\tUser {} restored".format(stars_account.user.pk))
-        print("\t\tSTARS Account {} restored".format(stars_account.pk))
+        print("***User {} restored".format(stars_account.user.pk))
+        print("**STARS Account {} restored".format(stars_account.pk))
 
     # Restore MigrationHistorys.
     for migration_history in MigrationHistory.objects.using(
             source_db).filter(institution=institution_to_restore):
-        print("\t\tMigrationHistory {} restoring".format(migration_history.pk))
+        print("**MigrationHistory {} restoring".format(migration_history.pk))
         migration_history.save(using=target_db)
-        print("\t\tMigrationHistory {} restored".format(migration_history.pk))
+        print("**MigrationHistory {} restored".format(migration_history.pk))
 
     # Restore RegistrationSurveys.
     for registration_survey in RegistrationSurvey.objects.using(
             source_db).filter(institution=institution_to_restore):
-        print("\t\tRegistrationSurvey {} restoring".format(
+        print("**RegistrationSurvey {} restoring".format(
             registration_survey.pk))
         registration_survey.save(using=target_db)
-        print("\t\tRegistrationSurvey {} restored".format(
+        print("**RegistrationSurvey {} restored".format(
             registration_survey.pk))
 
     # Restore RespondentSurveys.
     for respondent_survey in RespondentSurvey.objects.using(
             source_db).filter(institution=institution_to_restore):
-        print("\t\tRespondentSurvey {} restoring".format(respondent_survey.pk))
+        print("**RespondentSurvey {} restoring".format(respondent_survey.pk))
         respondent_survey.save(using=target_db)
-        print("\t\tRespondentSurvey {} restored".format(respondent_survey.pk))
+        print("**RespondentSurvey {} restored".format(respondent_survey.pk))
 
     # Restore InstitutionPreferences.
     for institution_preference in InstitutionPreferences.objects.using(
             source_db).filter(institution=institution_to_restore):
-        print("\t\tInstitutionPreference {} restoring".format(
+        print("**InstitutionPreference {} restoring".format(
             institution_preference.pk))
         institution_preference.save(using=target_db)
-        print("\t\tInstitutionPreference {} restored".format(
+        print("**InstitutionPreference {} restored".format(
             institution_preference.pk))
 
     print("Institution {} restored".format(institution_to_restore.pk))
@@ -140,7 +140,7 @@ def restore_submissionset(submissionset,
     `source_db` to `target_db`.
 
     """
-    print("\tSubmissionSet {} restoring".format(submissionset.pk))
+    print("*SubmissionSet {} restoring".format(submissionset.pk))
     date_created = submissionset.date_created
     submissionset.save(using=target_db,
                        skip_init_credit_submissions=True)
@@ -156,20 +156,20 @@ def restore_submissionset(submissionset,
                                     target_db)
 
     if submissionset.rating_id:
-        print("\t\tRating {} restoring".format(submissionset.rating_id))
+        print("**Rating {} restoring".format(submissionset.rating_id))
         rating = Rating.objects.using(source_db).get(
             submissionset=submissionset)
         rating.save(using=target_db)
-        print("\t\tRating {} restored".format(rating.pk))
+        print("**Rating {} restored".format(rating.pk))
 
-    print("\tSubmissionSet {} restored".format(submissionset.pk))
+    print("*SubmissionSet {} restored".format(submissionset.pk))
 
 
 def restore_category_submission(category_submission, source_db, target_db):
     """Restores `category_submission` and all related SubcategorySubmissions.
     """
 
-    print("\t\tCategorySubmission {} restoring".format(
+    print("**CategorySubmission {} restoring".format(
         category_submission.pk))
     category_submission.save(using=target_db)
 
@@ -180,7 +180,7 @@ def restore_category_submission(category_submission, source_db, target_db):
                                        source_db,
                                        target_db)
 
-    print("\t\tCategorySubmission {} restored".format(
+    print("**CategorySubmission {} restored".format(
         category_submission.pk))
 
 
@@ -192,7 +192,7 @@ def restore_subcategory_submission(subcategory_submission,
 
     """
 
-    print("\t\t\tSubCategorySubmission {} restoring".format(
+    print("***SubCategorySubmission {} restoring".format(
         subcategory_submission.pk))
     subcategory_submission.save(using=target_db)
 
@@ -204,7 +204,7 @@ def restore_subcategory_submission(subcategory_submission,
                                        source_db,
                                        target_db)
 
-    print("\t\t\tSubCategorySubmission {} restored".format(
+    print("***SubCategorySubmission {} restored".format(
         subcategory_submission.pk))
 
 
@@ -216,7 +216,7 @@ def restore_credit_user_submission(credit_user_submission,
 
     """
 
-    print("\t\t\t\tCreditUserSubmission {} restoring".format(
+    print("****CreditUserSubmission {} restoring".format(
         credit_user_submission.pk))
     credit_user_submission.save(using=target_db,
                                 calculate_points=False)
@@ -237,7 +237,7 @@ def restore_credit_user_submission(credit_user_submission,
             source_db=source_db,
             target_db=target_db)
 
-    print("\t\t\t\tCreditUserSubmission {} restored".format(
+    print("****CreditUserSubmission {} restored".format(
         credit_user_submission.pk))
 
 
@@ -246,12 +246,12 @@ def restore_documentation_field_submission(
         source_db,
         target_db):
 
-    print("\t\t\t\t\tDocumentationFieldSubmission {} restoring".format(
+    print("*****DocumentationFieldSubmission {} restoring".format(
         documentation_field_submission.pk))
 
     documentation_field_submission.save(using=target_db)
 
-    print("\t\t\t\t\tDocumentationFieldSubmission {} restored".format(
+    print("*****DocumentationFieldSubmission {} restored".format(
         documentation_field_submission.pk))
 
 
@@ -262,17 +262,17 @@ def restore_subscription(subscription,
 
     """
 
-    print("\t\t\t\tSubscription {} restoring".format(subscription.pk))
+    print("****Subscription {} restoring".format(subscription.pk))
     subscription.save(using=target_db)
 
     for subscription_payment in subscription.subscriptionpayment_set.all():
-        print("\t\t\t\t\tSubscriptionPayment {} restoring".format(
+        print("*****SubscriptionPayment {} restoring".format(
             subscription_payment.pk))
         subscription_payment.save(using=target_db, subscription=subscription)
-        print("\t\t\t\t\tSubscriptionPayment {} restored".format(
+        print("*****SubscriptionPayment {} restored".format(
             subscription_payment.pk))
 
-    print("\t\t\t\tSubscription {} restored".format(
+    print("****Subscription {} restored".format(
         subscription.pk))
 
 
