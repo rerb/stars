@@ -57,10 +57,13 @@
         <tr>
             <th>Submission Date</th>
             <td>{{ submissionset.date_submitted }}</td>
-        </tr><tr>
-            <th>Executive Letter</th>
-            <td><a href='{{ submissionset.presidents_letter.url }}'>Download</a></td>
         </tr>
+        {% if submissionset.creditset.has_president_letter_feature %}
+            <tr>
+                <th>Executive Letter</th>
+                <td><a href='{{ submissionset.presidents_letter.url }}'>Download</a></td>
+            </tr>
+        {% endif %}
     {% endif %}
     {% if user_tied_to_institution %}
     <tr>

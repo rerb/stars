@@ -21,7 +21,9 @@
       <th>Score</th>
       <th>Liaison</th>
       <th>Submission Date</th>
-      <th>Executive Letter</th>
+      {% if submissionset.creditset.has_president_letter_feature %}
+          <th>Executive Letter</th>
+      {% endif %}
       {% testrule user_can_view_export user submissionset %}
         <th>Export</th>
       {% endtestrule %}
@@ -76,11 +78,13 @@
           {{ submissionset.date_submitted }}
         {% endif %}
       </td>
-      <td>
-        {% if not preview %}
-          <a href='{{ submissionset.presidents_letter.url }}'>Download</a>
-        {% endif %}
-      </td>
+      {% if submissionset.creditset.has_president_letter_feature %}
+          <td>
+            {% if not preview %}
+              <a href='{{ submissionset.presidents_letter.url }}'>Download</a>
+            {% endif %}
+          </td>
+      {% endif %}
       {% testrule user_can_view_export user submissionset %}
         <td>
           <div class="btn-group">
