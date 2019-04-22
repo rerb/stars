@@ -93,7 +93,7 @@
 {% endblock %}
 
 {% block subcategory_description %}
-  {% if submissionset.creditset.has_submission_summary_feature %}
+  {% if submissionset.creditset.has_subcategory_description_feature %}
     {% if sub.description %}
       {% if sub.description|wordcount < 35 %}
         <div style='margin: 10px 50px 0px'>
