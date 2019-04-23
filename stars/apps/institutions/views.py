@@ -440,17 +440,15 @@ class ScorecardView(RulesMixin,
         if not ss.status == 'r':
             _context['preview'] = True
 
-        _context['show_column_charts'] = self.show_column_charts_or_not(ss,
-                                                                        rating)
+        _context['show_column_charts'] = self.show_column_charts_or_not(ss)
 
         return _context
 
-    def show_column_charts_or_not(self, submissionset, rating):
+    def show_column_charts_or_not(self, submissionset):
         """Should we show the column charts for this SubmissionSet?
 
         Only for preview reports for folks with FULL_ACCESS."""
         if (submissionset.creditset.has_basic_benchmarking_feature and
-            submissionset.status != 'r' and
             submissionset.institution.access_level ==
                 Subscription.FULL_ACCESS):
             return True
