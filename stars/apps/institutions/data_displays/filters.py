@@ -42,6 +42,7 @@ class Filter(object):
         Note: the `key` should be unique to the list of filters
         you are using
     """
+
     def __init__(self, key, title, item_list, base_qs):
         self.key = key
         self.title = title
@@ -78,11 +79,12 @@ class Filter(object):
         " Returns a queryset with the applied filter for item. "
 
         if item == 'DO_NOT_FILTER':
-            return self.base_qs
+            return self.base_qs.exclude(institution__name__icontains="AASHE")
         elif item == 'ALL_OTHER_COUNTRIES':
             return self.base_qs.exclude(
                 institution__ms_institution__country='United States').exclude(
-                    institution__ms_institution__country='Canada')
+                    institution__ms_institution__country='Canada').exclude(
+                    institution__name__icontains="AASHE")
         else:
             # convert True and False from text
             if item == "True":
@@ -92,9 +94,10 @@ class Filter(object):
 
             kwargs = {self.key: item}
 
-            return self.base_qs.filter(**kwargs)
+            return self.base_qs.filter(**kwargs).exclude(
+                institution__name__icontains="AASHE")
 
-        return self.base_qs
+        return self.base_qs.exclude(institution__name__icontains="AASHE")
 
 
 class RangeFilter(Filter):
