@@ -710,7 +710,6 @@ class SubmissionInquiryView(InstitutionStructureMixin,
         return kwargs
 
     def forms_invalid(self, form, inlines):
-        print "INVALID"
         return super(SubmissionInquiryView, self).forms_invalid(form, inlines)
 
     def forms_valid(self, form, inlines):
@@ -740,7 +739,6 @@ class SubmissionInquiryView(InstitutionStructureMixin,
             "inquiry": self.object,
             "institution": self.object.submissionset.institution}
         et.send_email(email_to, email_context)
-        print "VALID"
 
         return TemplateResponse(self.request,
                                 "institutions/inquiries/success.html",

@@ -1,25 +1,32 @@
-from django.contrib.auth.models import User
 from django.test import TestCase
 
 from stars.apps.institutions.data_displays.filters import Filter
+from stars.test_factories.models import InstitutionFactory, CreditSetFactory, SubmissionSetFactory
+from stars.apps.submissions.models import SubmissionSet
 
 
 class FilterTestCase(TestCase):
 
     def setUp(self):
-        self.filter = Filter(key='is_active',
-                             title='Is Active',
+        self.institution_one = InstitutionFactory(name='First One')
+        self.institution_two = InstitutionFactory(name='Second One')
+        self.institution_three = InstitutionFactory(name='AASHE Test')
+        creditset = CreditSetFactory()
+        self.submission_one = SubmissionSetFactory(
+            institution=self.institution_one,
+            creditset=creditset)
+        self.submission_two = SubmissionSetFactory(
+            institution=self.institution_two,
+            creditset=creditset)
+        self.submission_three = SubmissionSetFactory(
+            institution=self.institution_three,
+            creditset=creditset)
+
+        self.filter = Filter(key='institution',
+                             title='Name',
                              item_list=(('Yes', 'True'),
                                         ('No', 'False')),
-                             base_qs=User.objects.all())
-
-    def make_some_users(self):
-        User.objects.create(email='one@example.com',
-                            username='one')
-        User.objects.create(email='two@example.com',
-                            username='two')
-        User.objects.create(email='three@example.com',
-                            username='three')
+                             base_qs=SubmissionSet.objects.all())
 
     def test_get_active_title_when_key_rating_name(self):
         """Does get_active_title work when key == 'rating_name'?
@@ -45,24 +52,14 @@ class FilterTestCase(TestCase):
     def test_get_results_DO_NOT_FILTER(self):
         """Does get_results handle the DO_NOT_FILTER flag?
         """
-        self.make_some_users()
         self.assertEqual(
-            3,
+            2,
             self.filter.get_results(item='DO_NOT_FILTER').count())
 
     def test_get_results_filter(self):
         """Does get_results handle a filter?
         """
-        self.make_some_users()
-        one = User.objects.get(username='one')
-        one.is_active = True
-        one.save()
-        two = User.objects.get(username='two')
-        two.is_active = False
-        two.save()
-        three = User.objects.get(username='three')
-        three.is_active = False
-        three.save()
+        filter_on = self.institution_one
 
-        self.assertEqual(2,
-                         self.filter.get_results(item='False').count())
+        self.assertEqual(1,
+                         self.filter.get_results(item=filter_on).count())
