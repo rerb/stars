@@ -69,7 +69,7 @@
              data-parent="#categories" href="#ec_{{ cat.category.id }}">
             <strong>{{ cat }}</strong>
 	    {% if creditset.has_category_scoring_feature %}
-              {% testrule institution_has_score_feature institution %}
+              {% testrule institution_is_participant institution %}
                 <div style='float: right;'>
                   {% if cat.category.include_in_score %}
                     {% ifnotequal cat.category.title 'Innovation' %}
@@ -115,7 +115,7 @@
                          data-parent="#accordion_{{ sub.subcategory.id }}"
                          href="#ec_{{ cat.category.id }}_{{ sub.subcategory.id }}">
                         {{ sub }}
-                        {% testrule institution_has_score_feature institution %}
+                        {% testrule institution_is_participant institution %}
                           <div style='float: right;'>
                             {% if cat.category.include_in_score %}
                               Points Claimed:
@@ -175,7 +175,7 @@
                           <tr>
                             <th>Credit</th>
                             <th>Status</th>
-                            {% testrule institution_has_score_feature institution %}
+                            {% testrule institution_is_participant institution %}
                               {% if cat.category.include_in_score %}
                                 <th>Points</th>
                               {% endif %}
@@ -204,7 +204,7 @@
                                   {% endif %}
                                   {% show_status_icon c %}
                                 </td>
-                                {% testrule institution_has_score_feature institution %}
+                                {% testrule institution_is_participant institution %}
                                   {% if cat.category.include_in_score %}
                                     <td>
                                       {{ c.assessed_points|floatformat:2 }} /

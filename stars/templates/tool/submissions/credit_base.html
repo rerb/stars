@@ -51,7 +51,7 @@
         <tr>
           <th>Status</th>
           <th>Last Updated</th>
-          {% testrule institution_has_score_feature institution %}
+          {% testrule institution_is_participant institution %}
           {% if category.include_in_score %}
               <th>Possible Points</th>
               <th>Points Earned</th>
@@ -72,7 +72,7 @@
             {% show_status_icon credit_submission %}
           </td>
           <td>{{ credit_submission.last_updated|date:"m/d/y fA" }}</td>
-          {% testrule institution_has_score_feature institution %}
+          {% testrule institution_is_participant institution %}
             {% if category.include_in_score %}
               <td>{% format_available_points credit_submission %}</td>
               <td>

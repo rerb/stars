@@ -19,7 +19,7 @@
       <th>
         STARS Version
       </th>
-      {% testrule institution_has_score_feature institution %}
+      {% testrule institution_is_participant institution %}
         <th>
           Provisional STARS Rating
           {% show_help_context 'provisional_rating' %}
@@ -52,7 +52,7 @@
           {% endif %}
         {% endtestrule %}
       </td>
-      {% testrule institution_has_score_feature institution %}
+      {% testrule institution_is_participant institution %}
         <td>
           {{ submissionset.get_STARS_rating }}
         </td>

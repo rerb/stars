@@ -35,7 +35,7 @@
      {% if active == "notes" %}
        class="active"
      {% else %}
-       {% testrule institution_has_internal_notes_feature institution %}
+       {% testrule institution_is_participant institution %}
        {% else %}
          class="disabled"
        {% endtestrule %}
