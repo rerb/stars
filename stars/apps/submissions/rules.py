@@ -3,7 +3,6 @@ import logical_rules
 from stars.apps.institutions.rules import (institution_can_get_rated,
                                            institution_can_submit_report,
                                            user_has_access_level,
-                                           institution_has_export,
                                            user_is_institution_admin,
                                            user_is_participant)
 from stars.apps.credits.models import CreditSet
