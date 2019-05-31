@@ -141,26 +141,3 @@ QUERY_INSPECT_TRACEBACK_ROOTS = ['/Users/rerb/src/aashe/stars/']
 # })
 
 PROFILE_LOG_BASE = "profiling-data"
-
-TEST_WITHOUT_MIGRATIONS_COMMAND = 'django_nose.management.commands.test.Command'
-
-TEST_RUNNER = 'hotrunner.HotRunner'
-EXCLUDED_TEST_APPS = [
-    'bootstrapform',
-    'captcha',
-    'collapsing_menu',
-    'django_extensions',
-    'django_nose',
-    'djcelery',
-    'gunicorn',
-    'logical_rules',
-    'memcache_status',
-    's3_folder_storage',
-    'sorl.thumbnail',
-    'stars.apps',
-    'stars.apps.accounts',
-    'stars.apps.api',
-    'stars.tests',
-    'tastypie',
-    'terms',
-    'template_repl']
