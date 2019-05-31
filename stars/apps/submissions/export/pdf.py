@@ -4,7 +4,8 @@ from logging import getLogger
 
 from django.conf import settings
 from django.template.loader import get_template
-import ho.pisa as pisa
+from django.template import Context
+from xhtml2pdf import pisa as pisa
 
 from stars.apps.old_cms.models import Category
 

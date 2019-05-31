@@ -161,7 +161,11 @@ def export_credit_csv(credit, ss_qs=None, outfilename=None):
 
                         else:
                             if dfs.value:
-                                row.append(unicode(dfs.value))
+                                try:
+                                    row.append(unicode(dfs.value))
+                                except StopIteration:
+                                    row.append(
+                                        ','.join([unicode(v) for v in dfs.value.all()]))
                             else:
                                 row.append(u"--")
         if cus.submission_notes:
