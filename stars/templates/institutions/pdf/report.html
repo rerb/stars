@@ -1,6 +1,7 @@
 {% autoescape off %}
 {% load submit_tags %}
 {% load report_tags %}
+{% load staticfiles %}
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 
@@ -41,7 +42,7 @@
      }
 
      table.tabular tr {
-       virtical-align: middle;
+       vertical-align: middle;
      }
 
      table.tabular td, table.tabular th {
@@ -59,7 +60,7 @@
 
     </style>
 
-    <link href='{{ project_path }}/static/css/pdf.css' rel='stylesheet' type='text/css' />
+    <link href="{% static "/css/pdf.css" %}" rel="stylesheet" type="text/css" />
   </head>
 
   <body>
@@ -69,9 +70,9 @@
 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       {% endif %}
       {% if ss.institution.charter_participant %}
-	<img src='https://stars.aashe.org/media/static/images/seals/Stars_Seal_Charter_Particip_RGB_300.jpg' alt='Charter Participant' height='300px' />
+	<img src="{% static "/images/seals/Stars_Seal_Charter_Particip_RGB_300.jpg" %}" alt="Charter Participant" height="300px" />
       {% else %}
-	<img src='https://stars.aashe.org/media/static/images/seals/Stars_Seal_Participant_RGB_300.jpg' alt='Participant' height='300px' />
+	<img src="{% static "/images/seals/Stars_Seal_Participant_RGB_300.jpg" %}" alt="Participant" height="300px" />
       {% endif %}
     </div>
     <h1>{{ ss.institution.name }}<br/><i>STARS REPORT</i></h1>
@@ -115,7 +116,7 @@
       </tr>
       <tr>
 	<th>Online Report:</th>
-	<td><a href='http://stars.aashe.org{{ ss.get_scorecard_url }}'>{{ ss.institution }}</a></td>
+	<td><a href='http://reports.aashe.org{{ ss.get_scorecard_url }}'>{{ ss.institution }}</a></td>
       </tr>
       <tr>
 	<th>STARS Version:</th>
@@ -497,7 +498,7 @@
 	    <a href='http://stars.aashe.org'>stars.aashe.org</a>
 	  </td>
 	  <td align='right'>
-	    <a href='http://stars.aashe.org{{ ss.get_scorecard_url }}'>{{ ss.institution }}</a>
+	    <a href='http://reports.aashe.org{{ ss.get_scorecard_url }}'>{{ ss.institution }}</a>
             |  STARS Report  |  <pdf:pagenumber>
 	  </td>
 	</tr>

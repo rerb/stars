@@ -1,6 +1,7 @@
 {% autoescape off %}
 {% load submit_tags %}
 {% load report_tags %}
+{% load staticfiles %}
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
   <head>
@@ -28,7 +29,7 @@
      }
 
      table.tabular tr {
-       virtical-align: middle;
+       vertical-align: middle;
      }
 
      table.tabular td, table.tabular th {
@@ -45,7 +46,7 @@
      }
     </style>
 
-    <link href='{{ project_path }}/static/css/pdf.css' rel='stylesheet' type='text/css' />
+    <link href="{% static "/static/css/pdf.css" %}" rel='stylesheet' type='text/css' />
   </head>
 
   <body>
@@ -53,13 +54,9 @@
     {% if ss.institution.is_participant %}
       <div class='seals'>
         {% if ss.institution.charter_participant %}
-          <a href='http://stars.aashe.org'>
-            <img src='https://stars.aashe.org/media/static/images/seals/Stars_Seal_Charter_Particip_RGB_300.jpg' alt='Charter Participant' height='300px' />
-          </a>
+          <img src="{% static "/images/seals/Stars_Seal_Charter_Particip_RGB_300.jpg" %}" alt="Charter Participant" height="300px" />
         {% else %}
-          <a href='http://stars.aashe.org'>
-            <img src='https://stars.aashe.org/media/static/images/seals/Stars_Seal_Participant_RGB_300.jpg' alt='Participant' height='300px' />
-          </a>
+          <img src="{% static "/images/seals/Stars_Seal_Participant_RGB_300.jpg" %}" alt="Participant" height="300px" />
         {% endif %}
       </div>
     {% endif %}
@@ -70,7 +67,7 @@
 
     <p>
       The following information was submitted through the
-      <a href='https://stars.aashe.org/'>STARS Reporting Tool</a>.
+      <a href='https://reports.aashe.org/tool'>STARS Reporting Tool</a>.
     </p>
 
     <table class='submissionSummary vertical'>
@@ -339,7 +336,7 @@
         <tr>
           <td align='left' width="70%">
             {% if ss.institution.is_participant %}
-              <a href='https://stars.aashe.org/'>STARS Reporting Tool</a>
+              <a href='https://reports.aashe.org/tool/'>STARS Reporting Tool</a>
             {% else %}
               <a href='https://stars.aashe.org/pages/get-involved/campus-sustainability-data-collector/'>Campus Sustainability Data Collector</a>
             {% endif %} |
