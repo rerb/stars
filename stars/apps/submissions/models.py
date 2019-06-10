@@ -1,13 +1,15 @@
 import os
 import re
 import sys
+from cStringIO import StringIO
 from datetime import date, datetime, timedelta
 from logging import getLogger
 
 import numpy
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.fields import (GenericForeignKey,
+                                                GenericRelation)
 from django.contrib.contenttypes.models import ContentType
 from localflavor.us.models import PhoneNumberField
 from django.core import urlresolvers
@@ -225,23 +227,21 @@ class SubmissionSet(models.Model):
             except IOError:
                 pass
 
-        pdf_result = build_report_pdf(self, template)
-
-        # There's a bug here.  InMemoryUploadedFile() below is at
-        # EOF after creation.
+        pdf = build_report_pdf(self, template)
 
         # Rated institutions can have their pdf saved
         if self.status == RATED_SUBMISSION_STATUS:
-            name = self.get_pdf_filename()
-            f = InMemoryUploadedFile(pdf_result, "pdf", name, None,
-                                     pdf_result.tell(), None)
-            self.pdf_report.save(name, f)
+            pdf_filename = self.get_pdf_filename()
+            f = InMemoryUploadedFile(
+                file=StringIO(pdf), field_name="pdf",
+                name=pdf_filename, content_type="pdf",
+                size=len(pdf), charset="utf8")
+            self.pdf_report.save(pdf_filename, f)
             return self.pdf_report.file
 
         from django.core.files.temp import NamedTemporaryFile
-        tempfile = NamedTemporaryFile(suffix='.pdf', delete=False)
-        tempfile.write(pdf_result.getvalue())
-        tempfile.close()
+        with NamedTemporaryFile(suffix='.pdf', delete=False) as tempfile:
+            pdf.write_pdf(target=tempfile)
         return tempfile.name
 
     def get_pdf_filename(self):
