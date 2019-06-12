@@ -225,24 +225,24 @@ class SubmissionSet(models.Model):
             except IOError:
                 pass
 
-        pdf_result = build_report_pdf(self, template)
+        pdf_file = build_report_pdf(self, template)
 
-        # There's a bug here.  InMemoryUploadedFile() below is at
-        # EOF after creation.
+        # # There's a bug here.  InMemoryUploadedFile() below is at
+        # # EOF after creation.
 
-        # Rated institutions can have their pdf saved
-        if self.status == RATED_SUBMISSION_STATUS:
-            name = self.get_pdf_filename()
-            f = InMemoryUploadedFile(pdf_result, "pdf", name, None,
-                                     pdf_result.tell(), None)
-            self.pdf_report.save(name, f)
-            return self.pdf_report.file
+        # # Rated institutions can have their pdf saved
+        # if self.status == RATED_SUBMISSION_STATUS:
+        #     name = self.get_pdf_filename()
+        #     f = InMemoryUploadedFile(pdf_result, "pdf", name, None,
+        #                              pdf_result.tell(), None)
+        #     self.pdf_report.save(name, f)
+        #     return self.pdf_report.file
 
-        from django.core.files.temp import NamedTemporaryFile
-        tempfile = NamedTemporaryFile(suffix='.pdf', delete=False)
-        tempfile.write(pdf_result.getvalue())
-        tempfile.close()
-        return tempfile.name
+        # from django.core.files.temp import NamedTemporaryFile
+        # tempfile = NamedTemporaryFile(suffix='.pdf', delete=False)
+        # tempfile.write(pdf_result.getvalue())
+        # tempfile.close()
+        return pdf_file.name
 
     def get_pdf_filename(self):
         return '%s.pdf' % self.institution.slug[:64]

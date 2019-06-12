@@ -1,11 +1,11 @@
-import cStringIO as StringIO
 import os
+import subprocess
+import tempfile
 from logging import getLogger
 
 from django.conf import settings
 from django.template.loader import get_template
 from django.template import Context
-from xhtml2pdf import pisa as pisa
 
 from stars.apps.old_cms.models import Category
 
@@ -15,21 +15,30 @@ logger = getLogger('stars')
 
 def render_to_pdf(template_src, context_dict):
     """
-        Creates a pdf from a temlate and context
-        Returns a StringIO.StringIO object
+        Creates a pdf from a template and context
+
+        Returns a tempfile.NamedTemporaryFile
     """
     template = get_template(template_src)
     context = Context(context_dict)
     html = template.render(context)
-    result = StringIO.StringIO()
-    pdf = pisa.pisaDocument(html, result)
 
-    if not pdf.err:
-        return result
-    else:
-        msg = "PDF Generation Failed %s" % html
-        logger.error(msg)
-        return None
+    pipe = subprocess.Popen("/usr/local/var/pyenv/versions/3.6.7/bin/pyppdf",  # settings.PYPPDF,
+                            stdin=subprocess.PIPE,
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE)
+
+    output, error = pipe.communicate(html.encode('utf8'))
+
+    if pipe.returncode:
+        logger.error("pypdf return code: {returncode} - error: {error}".format(
+            returncode=pipe.returncode, error=error))
+        we_should_throw_an_excpetion_here()
+
+    with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as f:
+        f.write(output)
+
+    return f
 
 
 def link_path_callback(path):
