@@ -217,7 +217,6 @@ INSTALLED_APPS = [
     'django_celery_downloader.tests.demo_app',
     'django_extensions',
     'django_membersuite_auth',
-    'djcelery',
     'gunicorn',
     'iss',
     'logical_rules',
@@ -259,16 +258,13 @@ THUMBNAIL_FORMAT = 'PNG'
 THUMBNAIL_DEBUG = os.environ.get("THUMBNAIL_DEBUG", False)
 
 # Celery
-# import djcelery
-# djcelery.setup_loader()
+
 CELERY_TIMEZONE = 'US/Eastern'
 CELERYBEAT_SCHEDULE = STARS_TASK_SCHEDULE
 BROKER_URL = os.environ.get(
     'CELERY_BROKER_URL', 'amqp://guest:guest@localhost:5672/')
 CELERY_ALWAYS_EAGER = os.environ.get('CELERY_ALWAYS_EAGER', False)
-CELERY_RESULT_BACKEND = os.environ.get(
-    'CELERY_RESULT_BACKEND',
-    'djcelery.backends.database:DatabaseBackend')
+CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'django-db')
 CELERY_RESULT_DBURI = os.environ.get('CELERY_RESULT_DBURI',
                                      "sqlite:///tmp/stars-celery-results.db")
 CELERY_CACHE_BACKEND = os.environ.get('CELERY_CACHE_BACKEND', 'dummy')

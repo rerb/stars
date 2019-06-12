@@ -59,9 +59,6 @@ urlpatterns = [
     # custom forms
     url(r'^cfm/', include('stars.apps.custom_forms.urls')),
 
-    # djcelery
-    url('^tasks/', include('djcelery.urls')),
-
     # django-terms
     url(r'^terms/', include('terms.urls')),
 ]

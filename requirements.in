@@ -13,7 +13,6 @@ dj-database-url==0.2.1
 django-adv-cache-tag==0.2.1
 django-bootstrap-form==2.0.6
 django-cache-url==0.3.2
-django-celery==3.2.2
 django-classy-tags==0.7.2
 django-cms==3.2.5
 django-codemirror-widget==0.4.0
@@ -68,7 +67,7 @@ python-memcached==1.48
 pytz==2015.2
 raven==3.3.7
 six==1.10.0
-sorl-thumbnail==12.4.1
+sorl-thumbnail==12.3
 sqlparse==0.1.19
 ssh==1.8.0
 wsgiref==0.1.2
