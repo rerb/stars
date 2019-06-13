@@ -15,7 +15,7 @@ logger = getLogger('stars')
 def render_to_pdf(template_src, context_dict):
     """
         Creates a pdf from a temlate and context
-        Returns a StringIO.StringIO object
+        Returns a weasyprint.pdf.
     """
     template = get_template(template_src)
     context = Context(context_dict)
@@ -44,12 +44,46 @@ def build_report_pdf(submission_set, template=None):
                'host': "reports.aashe.org",
                'about_text': Category.objects.get(slug='about').content,
                'pdf': True}
+
     if submission_set.status != 'r':
         context['preview'] = True
 
     if not template:
         template = 'institutions/pdf/report.html'
-    return render_to_pdf(template, context)
+
+    pdf = render_to_pdf(template, context)
+
+    # return insert_table_of_contents(pdf)  # table of contents sucks
+
+    return pdf
+
+
+def insert_table_of_contents(pdf):
+
+    pdf_document = pdf.render()
+
+    table_of_contents_string = generate_outline_str(
+        pdf_document.make_bookmark_tree())
+
+    table_of_contents_document = weasyprint.HTML(
+        string=table_of_contents_string).render()
+
+    table_of_contents_document.pages.reverse()
+
+    for page in table_of_contents_document.pages:
+        pdf_document.pages.insert(0, page)
+
+    return pdf_document
+
+
+def generate_outline_str(bookmarks, indent=0):
+    outline_str = ""
+    for i, (label, (page, _, _), children) in enumerate(bookmarks, 1):
+        outline_str += (
+            "<div>%s%d. %s <span style=\"float:right\">(page %d)</span></div>"
+            % (' ' * indent, i, label.lstrip('0123456789. '), page))
+        outline_str += generate_outline_str(children, indent + 2)
+    return outline_str
 
 
 def build_certificate_pdf(ss):
