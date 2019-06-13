@@ -15,9 +15,6 @@
        margin-bottom: 1cm;
        size: letter;
        {% if preview %}
-         /*background-image: url("{{ project_path }}/static/images/preview.jpg");
-           background-repeat: repeat;
-           background-position: top-left;*/
          @frame header {
 	   -pdf-frame-content: headerContent;
 	   top: .5cm;
@@ -60,7 +57,7 @@
 
     </style>
 
-    <link href="{% static "/css/pdf.css" %}" rel="stylesheet" type="text/css" />
+    <link href="{% static "css/pdf.css" %}" rel="stylesheet" type="text/css" />
   </head>
 
   <body>
@@ -70,9 +67,9 @@
 	&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       {% endif %}
       {% if ss.institution.charter_participant %}
-	<img src="{% static "/images/seals/Stars_Seal_Charter_Particip_RGB_300.jpg" %}" alt="Charter Participant" height="300px" />
+	<img src="{% static "images/seals/Stars_Seal_Charter_Particip_RGB_300.jpg" %}" alt="Charter Participant" height="300px" />
       {% else %}
-	<img src="{% static "/images/seals/Stars_Seal_Participant_RGB_300.jpg" %}" alt="Participant" height="300px" />
+	<img src="{% static "images/seals/Stars_Seal_Participant_RGB_300.jpg" %}" alt="Participant" height="300px" />
       {% endif %}
     </div>
     <h1>{{ ss.institution.name }}<br/><i>STARS REPORT</i></h1>
@@ -134,7 +131,7 @@
       {% endif %}
     </table>
 
-    <h2 style='-pdf-outline: false;'>Wait, Wait! Don’t Print Me!</h2>
+    <h2>Wait, Wait! Don’t Print Me!</h2>
     <p>
       To reduce paper consumption, this document has been designed to
       be browsed quickly and easily on computer screens using Adobe
@@ -182,7 +179,7 @@
       already been printed on one side.
     </p>
 
-    <h2 style='-pdf-outline: false;'>About STARS</h2>
+    <h2>About STARS</h2>
     <p>
       The Sustainability Tracking, Assessment &amp; Rating System
       (STARS<sup>&reg;</sup>) is a transparent, self-reporting framework
@@ -227,7 +224,7 @@
       recognition for institutions that are taking first steps toward
       sustainability.
     </p>
-    <h3 style="-pdf-outline: false;" class="noBreak">About AASHE</h3>
+    <h3 class="noBreak">About AASHE</h3>
     <p>
       STARS is a program of AASHE, the
       <a href="http://www.aashe.org" target="_self">
@@ -241,7 +238,7 @@
         Learn more about AASHE</a>.
     </p>
 
-    <h2 style='-pdf-outline: false;'>Table of Contents</h2>
+    <h2>Table of Contents</h2>
 
     <div>
       <pdf:toc />
