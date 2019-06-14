@@ -303,7 +303,7 @@ LOGGING = {
 
     'root': {
         'level': 'WARNING',
-        'handlers': ['sentry']
+        'handlers': ['console', 'sentry']
     },
 
     'formatters': {
@@ -409,20 +409,21 @@ LOGGING = {
         },
         # logger with module_name added to log record:
         'stars': {
-            'handlers': ['stars_console_handler', 'sentry'],
+            'handlers': ['stars_console_handler', 'console',
+                         'sentry'],
             'propagate': False,
             'filters': ['module_name_filter']
         },
         # logger with module_name and username added to log record:
         'stars.user': {
-            'handlers': ['stars_user_console_handler',
+            'handlers': ['stars_user_console_handler', 'console',
                          'sentry'],
             'propagate': False,
             'filters': ['module_name_filter', 'user_filter']
         },
         # logger with module_name and request elements added to log record:
         'stars.request': {
-            'handlers': ['stars_request_console_handler',
+            'handlers': ['stars_request_console_handler', 'console',
                          'sentry'],
             'propagate': False,
             'filters': ['module_name_filter', 'request_filter']

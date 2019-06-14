@@ -1,7 +1,6 @@
 """
     Celery tasks
 """
-import datetime
 from logging import getLogger
 
 from celery import shared_task
@@ -17,8 +16,7 @@ from stars.apps.submissions.api import (CategoryPieChart, SubategoryPieChart,
                                         SummaryPieChart)
 from stars.apps.submissions.export.excel import build_report_export
 from stars.apps.submissions.export.pdf import build_certificate_pdf
-from stars.apps.submissions.models import (SubcategoryQuartiles,
-                                           SubmissionSet)
+from stars.apps.submissions.models import SubcategoryQuartiles
 
 logger = getLogger()
 
@@ -31,10 +29,11 @@ def hello_world():
 
 @task()
 def build_pdf_export(ss):
+    # returns the name of the exported file.
     logger.info("starting pdf export(ss: %d)" % ss.id)
     pdf = ss.get_pdf()
     logger.info("pdf export done(ss: %d)" % ss.id)
-    return str(pdf)
+    return pdf.name
 
 
 @task()

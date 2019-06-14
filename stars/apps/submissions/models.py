@@ -8,10 +8,12 @@ import hashlib
 import numpy
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.fields import (GenericForeignKey,
+                                                GenericRelation)
 from django.contrib.contenttypes.models import ContentType
 from localflavor.us.models import PhoneNumberField
 from django.core import urlresolvers
+from django.core.files.temp import NamedTemporaryFile
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.mail import EmailMessage
 from django.db import models
@@ -221,31 +223,63 @@ class SubmissionSet(models.Model):
             If the submission is rated the report can be saved in the
             model (unless refresh is set)
         """
-        if self.status == RATED_SUBMISSION_STATUS and not refresh:
-            try:
-                if self.pdf_report:
-                    return self.pdf_report.file
-            except IOError:
-                pass
+        # see block comment below about the following commented-out
+        # code, and when you uncomment that block down there, uncomment
+        # this one, too.
+        #
+        # probably real good idea to clear all SubmissionSet.pdf_file
+        # fields sometime, too.
 
-        pdf_result = build_report_pdf(self, template)
+        # if self.status == RATED_SUBMISSION_STATUS and not refresh:
+        #     try:
+        #         if self.pdf_report:
+        #             return self.pdf_report.file
+        #     except IOError:
+        #         pass
 
-        # There's a bug here.  InMemoryUploadedFile() below is at
-        # EOF after creation.
+        pdf = build_report_pdf(self, template)
 
-        # Rated institutions can have their pdf saved
-        if self.status == RATED_SUBMISSION_STATUS:
-            name = self.get_pdf_filename()
-            f = InMemoryUploadedFile(pdf_result, "pdf", name, None,
-                                     pdf_result.tell(), None)
-            self.pdf_report.save(name, f)
-            return self.pdf_report.file
+        pdf_tempfile = NamedTemporaryFile(suffix='.pdf', delete=False)
 
-        from django.core.files.temp import NamedTemporaryFile
-        tempfile = NamedTemporaryFile(suffix='.pdf', delete=False)
-        tempfile.write(pdf_result.getvalue())
-        tempfile.close()
-        return tempfile.name
+        # do not close pdf_tempfile, or boto will complain if django
+        # tries to save it to s3 (if the report is rated).
+
+        pdf.write_pdf(target=pdf_tempfile)
+
+        # the following commented-out code saves pdfs generated for
+        # rated reports, and returns that saved pdf; for unrated reports,
+        # the tempfile where the pdf is stored is returned.
+        #
+        # problem is, some kind of caching or static files bug
+        # causes attempts to read, eg., <SubmissionSet>.pdf_file
+        # to 404.
+        #
+        # once that's ironed out, go ahead and uncomment the code
+        # below. until then, we're going to ignore SubmissionStatus.pdf_report
+        # and always return the pdf tempfile.
+
+        pdf_tempfile.close()  # delete this line when you uncomment the rest
+        return pdf_tempfile   # delete this line when you uncomment the rest
+
+        # # Rated institutions can have their pdf saved
+        # if self.status == RATED_SUBMISSION_STATUS:
+        #     pdf_filename = self.get_pdf_filename()
+        #     # resetting file pointer for boto, in case we're storing
+        #     # stuff on s3.
+        #     pdf_tempfile.seek(0)
+        #     pdf_uploaded_file = InMemoryUploadedFile(
+        #         file=pdf_tempfile, field_name="pdf",
+        #         name=pdf_filename, content_type="pdf",
+        #         size=os.path.getsize(pdf_tempfile.name),
+        #         charset="utf8")
+        #     self.pdf_report.save(pdf_filename,
+        #                          pdf_uploaded_file)
+        #     pdf_tempfile.close()
+        #     return self.pdf_report.file
+
+        # else:
+        #     pdf_tempfile.close()
+        #     return pdf_tempfile
 
     def get_pdf_filename(self):
         return '%s.pdf' % self.institution.slug[:64]
