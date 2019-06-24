@@ -7,12 +7,8 @@ env:
   - STARS_BENCHMARKS_HOST="benchmarks.aashe.org"
   - STARS_BROCHURE_HOST="stars.aashe.org"
   - STARS_DB_URL=mysql://travis@localhost/stars
-  - AASHE_DRUPAL_COOKIE_DOMAIN=.aashe.org
-  - AASHE_DRUPAL_KEY_DOMAIN=stars.aashe.org
-  - AASHE_DRUPAL_URI=http://www.aashe.org/services/xmlrpc
   - secure: n0aHUou+oD3ylZo7ypxqWXegLEM0dtIA7QcgK4bySahWjARYG7saLlXAdLeXYXx1xx7/8Z3BaS8tKsJc4Pr+VqgaqMG0lcTOfcHd26p8o0WhbsnfbJWq25MnuJr1deU+NdN65cEuOnhZ+2s1XKjw5fTMMPiu4YVKgjvE+J71frc=
   - secure: SVOTd32cU2Ad9WWDCwgKGyp+PpmWZXV/yYmfasts9QI+8xnYVuWThobSNiqleRaFhZq/4r+qP2YEHx/aDwtoZEXxx18GE1vB1Gq6RpV8hto4VLh965oNjcRHm5J5bgIToRSR06o6JCRM3N37agilAK2ZS6h3JKcbQTEZ4clLPHs=
-  - AUTHORIZENET_TEST_SERVER=test.authorize.net
   - secure: PQV9/G19jlwH3+qK/p+j9vpVoKpKEzQR2G7fY5aZiZZ982CFTN4KEaxLWfbMfGfIEy8Qq3KEuD7KolItE9zjYPqgsC7iDUD4WSSRNUJBjp6hkzq3rB9VasqlIWgpGA3Po/6ViBaqdFZsdqrQ8RQaBmbme6otWyMJHD/fECqnVTA=
   - secure: H1YaLrE19qgVTS+dU+aHP0Fl/FYu3griMLzr4isYgOdR2vNSBHCybZI6vWMoNQGjHRONjJQCJ7LxePlYYrGTt6xdXbeY7Ay/admwS83SLXN+RpaHV7CShqQYdX4rAtmllVvAFYYeATZ3ED0n1WLej1/YXcdK81yWzY+DhvwD+go=
   - CACHE_URL=dummy://
@@ -28,7 +24,7 @@ env:
   - FILECACHE_DIRECTORY=file:///tmp/filecache
   - FILE_CACHE_URL_TEST=file:///tmp/filecache
 install:
-- pip install -r requirements.txt --process-dependency-links --trusted-host download.zope.org
+- pip install -r requirements.txt --trusted-host download.zope.org
 - pip install -r requirements_dev.txt
 - pip install -r requirements_test.txt
 - pip install --upgrade six
@@ -39,5 +35,4 @@ before_script:
   - mysql -e 'create database iss_tests;'
 script: sh run_tests.sh
 notifications:
-  hipchat: 5534a6204d6caa1a45ac2444282aca@WebDevActivity
   email: false

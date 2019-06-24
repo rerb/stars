@@ -798,6 +798,7 @@ class Credit(VersionedModel):
         subcategory.update_ordering()
 
     def save(self, *args, **kwargs):
+        self.identifier = self.get_identifier()
         if self.ordinal == -1:
             self.ordinal = _get_next_ordinal(
                 self.subcategory.credit_set.filter(type=self.type))
@@ -1006,6 +1007,9 @@ else:
         """
         return self.documentationfield_set.exclude(
             id__in=self.get_child_fields())
+
+    def update_abbreviation_identifier(self):
+        """ Resave the credit identifier """
 
 
 def compile_formula(formula, label='Formula'):
