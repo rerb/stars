@@ -67,7 +67,7 @@ python-memcached==1.48
 pytz==2015.2
 raven==3.3.7
 six==1.10.0
-sorl-thumbnail==12.3
+sorl-thumbnail==12.4.1
 sqlparse==0.1.19
 ssh==1.8.0
 wsgiref==0.1.2
