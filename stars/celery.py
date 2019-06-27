@@ -11,8 +11,9 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'stars.settings')
 from django.conf import settings
 from django.core.management import call_command
 
-app = Celery('stars')
+app = Celery('stars', broker='amqp://guest:guest@localhost:5672/')
 logger = get_task_logger(__name__)
+
 
 # Using a string here means the worker will not have to
 # pickle the object when using Windows.

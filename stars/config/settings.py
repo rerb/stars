@@ -215,6 +215,7 @@ INSTALLED_APPS = [
     'compressor',
     'django_celery_downloader',
     'django_celery_downloader.tests.demo_app',
+    'django_celery_results',
     'django_extensions',
     'django_membersuite_auth',
     'gunicorn',
