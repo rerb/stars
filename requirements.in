@@ -50,6 +50,7 @@ hg-git==0.3.4
 html5lib>=1.0.1
 httplib2==0.8
 ipython==5.4
+kombu==4.1.0
 lxml==3.6.4
 mercurial==2.7
 mimeparse==0.1.3
