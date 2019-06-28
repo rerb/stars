@@ -96,7 +96,7 @@ def send_email_with_certificate_attachment(submissionset,
 
 
 @task()
-def perform_migration(old_ss, new_cs, user):
+def perform_migration(old_ss, new_cs, user_email):
     """
         Run the migration and then
         email the Liaison, copying the user
@@ -107,8 +107,8 @@ def perform_migration(old_ss, new_cs, user):
     new_ss = migrate_ss_version(old_ss, new_cs)
 
     email_to = [old_ss.institution.contact_email]
-    if user.email not in email_to:
-        email_to.append(user.email)
+    if user_email not in email_to:
+        email_to.append(user_email)
 
     try:
         et = EmailTemplate.objects.get(slug='migration_success')
@@ -117,7 +117,7 @@ def perform_migration(old_ss, new_cs, user):
 
     except EmailTemplate.DoesNotExist:
         logger.error('Migration email template missing',
-                     extra={'user': user}, exc_info=True)
+                     extra={'user_email': user_email}, exc_info=True)
 
     mh = MigrationHistory(institution=new_ss.institution,
                           source_ss=old_ss,
@@ -126,7 +126,7 @@ def perform_migration(old_ss, new_cs, user):
 
 
 @task()
-def perform_data_migration(old_ss, user):
+def perform_data_migration(old_ss, req):
     """
         Just duplicates a submission and archives the old one
 
@@ -136,7 +136,7 @@ def perform_data_migration(old_ss, user):
     new_ss = create_ss_mirror(
         old_submissionset=old_ss,
         new_creditset=old_ss.institution.current_submission.creditset,
-        registering_user=user)
+        registering_user=req.user)
     new_ss.is_locked = False
     new_ss.save()
 

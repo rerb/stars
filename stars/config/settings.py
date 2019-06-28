@@ -216,6 +216,7 @@ INSTALLED_APPS = [
     'django_celery_downloader',
     'django_celery_downloader.tests.demo_app',
     'django_celery_results',
+    'djcelery',
     'django_extensions',
     'django_membersuite_auth',
     'gunicorn',
@@ -266,9 +267,11 @@ BROKER_URL = os.environ.get(
     'CELERY_BROKER_URL', 'amqp://guest:guest@localhost:5672/')
 CELERY_ALWAYS_EAGER = os.environ.get('CELERY_ALWAYS_EAGER', False)
 CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'django-db')
-CELERY_RESULT_DBURI = os.environ.get('CELERY_RESULT_DBURI',
-                                     "sqlite:///tmp/stars-celery-results.db")
-CELERY_CACHE_BACKEND = os.environ.get('CELERY_CACHE_BACKEND', 'dummy')
+# CELERY_RESULT_DBURI = os.environ.get('CELERY_RESULT_DBURI',
+#                                      "sqlite:///tmp/stars-celery-results.db")
+CELERY_CACHE_BACKEND = os.environ.get('CELERY_CACHE_BACKEND', 'django-cache')
+CELERY_TASK_SERIALIZER = 'pickle'
+CELERY_ACCEPT_CONTENT = ['pickle', 'json', 'msgpack', 'yaml']
 
 # default is test mode
 AUTHORIZENET_LOGIN = os.environ.get('AUTHORIZENET_LOGIN', None)

@@ -585,7 +585,7 @@ class MigrateDataView(InstitutionAdminToolMixin,
             return self.form_invalid(form)
         # otherwise, start a migration task
         perform_data_migration.delay(self._get_old_submission(),
-                                     self.request.user)
+                                     self.request)
         return super(MigrateDataView, self).form_valid(form)
 
 
@@ -630,5 +630,5 @@ class MigrateVersionView(InstitutionAdminToolMixin,
         perform_migration.delay(
             old_ss=self.get_institution().current_submission,
             new_cs=CreditSet.objects.get_latest(),
-            user=self.request.user)
+            user_email=self.request.user.email)
         return super(MigrateVersionView, self).form_valid(form)

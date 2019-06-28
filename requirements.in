@@ -13,6 +13,7 @@ dj-database-url==0.2.1
 django-adv-cache-tag==0.2.1
 django-bootstrap-form==2.0.6
 django-cache-url==0.3.2
+# django-celery==3.2.2 # Insert this line into requirements.txt manually after running pip-compile.
 django-celery-results==1.0.1
 django-classy-tags==0.7.2
 django-cms==3.2.5

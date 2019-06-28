@@ -12,6 +12,9 @@ from django.conf import settings
 from django.core.management import call_command
 
 app = Celery('stars', broker='amqp://guest:guest@localhost:5672/')
+app.conf.update(
+    accept_content=['pickle', ]
+)
 logger = get_task_logger(__name__)
 
 

@@ -28,6 +28,10 @@ urlpatterns = [
     # api:
     url(r'^api/', include('stars.apps.api.urls')),
     url(r'^api/', include('stars.apps.submissions.urls')),
+
+    # celery task status
+    url('^tasks/', include('djcelery.urls')),
+
     # tool:
     # (r'^$', 'stars.apps.tool.views.stars_home_page'),
     url(r'^$', HomePageView.as_view(), {'template_name': 'home.html'}),
