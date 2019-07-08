@@ -3,7 +3,7 @@
     library from django
 """
 
-from django.contrib.formtools.wizard.views import SessionWizardView
+from formtools.wizard.views import SessionWizardView
 
 
 class RevalidationFailure(Exception):
@@ -36,10 +36,11 @@ class BetterWizardView(SessionWizardView):
         # walk through the form list and try to validate the data again.
         for form_key in self.get_form_list():
             form_obj = self.get_form(step=form_key,
-                data=self.storage.get_step_data(form_key),
-                files=self.storage.get_step_files(form_key))
+                                     data=self.storage.get_step_data(form_key),
+                                     files=self.storage.get_step_files(form_key))
             if not form_obj.is_valid():
-                raise RevalidationFailure("revalidate", form_key, form_obj, **kwargs)
+                raise RevalidationFailure(
+                    "revalidate", form_key, form_obj, **kwargs)
 #                return self.render_revalidation_failure(form_key, form_obj, **kwargs)
             final_form_list.append(form_obj)
 

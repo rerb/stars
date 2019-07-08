@@ -192,24 +192,6 @@ SUBMISSION_STEPS = [
     },
 ]
 
-SUBMISSION_STEPS_WITHOUT_LETTER = [
-    {
-        'form': StatusForm,
-        'template': 'status',
-        'instance_callback': 'get_submissionset'
-    },
-    {
-        'form': ContactsForm,
-        'template': 'contacts',
-        'instance_callback': 'get_institution'
-    },
-    {
-        'form': Confirm,
-        'template': 'finalize',
-        'instance_callback': None
-    },
-]
-
 
 class SubmitForRatingWizard(SubmitRedirectMixin,
                             SubmissionToolMixin,
@@ -244,31 +226,18 @@ class SubmitForRatingWizard(SubmitRedirectMixin,
             'response_callback': 'redirect_to_my_submission'
         })
 
-    def get_template_names(self):
-        if self.get_creditset().has_president_letter_feature():
-            return ("tool/submissions/submit_wizard_%s.html" %
-                    SUBMISSION_STEPS[int(self.steps.current)]['template'])
-        return ("tool/submissions/submit_wizard_%s.html" %
-                SUBMISSION_STEPS_WITHOUT_LETTER[int(self.steps.current)]['template'])
+    def has_letter_feature(self):
+        return self.get_creditset().has_president_letter_feature()
 
-    # def get_form_instance(self, step):
-    #     if self.get_creditset().has_president_letter_feature():
-    #         if SUBMISSION_STEPS[int(step)]['instance_callback']:
-    #             return getattr(self,
-    #                            SUBMISSION_STEPS[int(step)]['instance_callback'])()
-    #     elif SUBMISSION_STEPS_WITHOUT_LETTER[int(step)]['instance_callback']:
-    #         return getattr(self,
-    #                        SUBMISSION_STEPS_WITHOUT_LETTER[int(step)]['instance_callback'])()
-    #     return None
+    def get_template_names(self):
+        return ("tool/submissions/submit_wizard_%s.html" %
+                SUBMISSION_STEPS[int(self.steps.current)]['template'])
 
     def get_form_instance(self, step):
 
         if SUBMISSION_STEPS[int(step)]['instance_callback']:
             return getattr(self,
                            SUBMISSION_STEPS[int(step)]['instance_callback'])()
-        # elif SUBMISSION_STEPS_WITHOUT_LETTER[int(step)]['instance_callback']:
-        #     return getattr(self,
-        #                    SUBMISSION_STEPS_WITHOUT_LETTER[int(step)]['instance_callback'])()
         return None
 
     def get_context_data(self, form, **kwargs):
@@ -300,7 +269,7 @@ class SubmitForRatingWizard(SubmitRedirectMixin,
 
         # My Submission gets cached, and in the cache it still looks
         # like it's not under review, so flush that mother here.
-        submissionset.invalidate_cache()
+        # submissionset.invalidate_cache()
 
         redirect_url = reverse('tool:my_submission:submit-success',
                                kwargs={'institution_slug':
@@ -462,7 +431,7 @@ class SubcategorySubmissionDetailView(UserCanEditSubmissionOrIsAdminMixin,
     def form_valid(self, form):
         if form.has_changed():
             submissionset = self.get_object().get_submissionset()
-            submissionset.invalidate_cache()
+            # submissionset.invalidate_cache()
         return super(SubcategorySubmissionDetailView, self).form_valid(form)
 
 

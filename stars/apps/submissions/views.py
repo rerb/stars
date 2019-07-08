@@ -334,7 +334,6 @@ class CreditSubmissionStatusUpdateView(UpdateView):
         credit_user_submission.save()
         submissionset.pdf_report = None
         submissionset.save()
-        submissionset.invalidate_cache()
 
         return super(CreditSubmissionStatusUpdateView, self).form_valid(form)
 

@@ -52,7 +52,8 @@ urlpatterns = [
         SubmitForRatingWizard.as_view([StatusForm,
                                        LetterForm,
                                        ContactsForm,
-                                       Confirm]),
+                                       Confirm],
+                                      condition_dict={'1': SubmitForRatingWizard.has_letter_feature}),
         name='submission-submit'),
 
     url(r'^submit/success/$', SubmitSuccessView.as_view(),

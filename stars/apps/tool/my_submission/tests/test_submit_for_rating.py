@@ -53,7 +53,8 @@ class RatingTest(TestCase):
         c.login(username='test_user', password='test')
 
         self.confirmView(c)
-        self.letterView(c)
+        # letter is no longer part of the submission process post version 2.1
+        # self.letterView(c)
         self.execContactView(c)
         self.finalizeView(c)
 
@@ -82,7 +83,7 @@ class RatingTest(TestCase):
         post_dict = {
             'submit_for_rating_wizard-current_step': '1',
             '1-presidents_letter': letter_file,
-            }
+        }
         response = c.post(self.url, post_dict)
         self.assertTrue(response.status_code == 200)
 
