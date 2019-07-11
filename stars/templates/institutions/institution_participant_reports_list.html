@@ -58,11 +58,6 @@
                    id='scorecard-list'>
                   {{ institution.name }}
                 </a>
-              {% elif institution.latest_expired_submission %}
-                <a href="{% url 'institutions:scorecard-list' institution.slug %}"
-                   id='scorecard-list'>
-                  {{ institution.name }}
-                </a>
               {% else %}
                 {{ institution.name }}
               {% endif %}
@@ -87,18 +82,6 @@
                 <td class="span2">
                     <a href="{% url 'institutions:scorecard-summary' institution.slug institution.rated_submission.date_submitted %}">
                       {{ institution.rated_submission.date_submitted }}
-                    </a>
-                </td>
-            {% elif institution.latest_expired_submission %}
-                <td class="span1">
-                  {{ institution.latest_expired_submission.creditset.version }}
-                </td>
-                <td class="span2">
-                {{ institution.latest_expired_submission.rating }} *
-                </td>
-                <td class="span2">
-                    <a href="{% url 'institutions:scorecard-summary' institution.slug institution.latest_expired_submission.date_submitted %}">
-                      {{ institution.latest_expired_submission.date_submitted }}
                     </a>
                 </td>
             {% else %}
