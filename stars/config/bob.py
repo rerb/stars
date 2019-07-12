@@ -102,10 +102,10 @@ THUMBNAIL_DEBUG = DEBUG
 
 MIDDLEWARE_CLASSES.append('qinspect.middleware.QueryInspectMiddleware')
 
-QUERY_INSPECT_ENABLED = True
-QUERY_INSPECT_LOG_QUERIES = True
-QUERY_INSPECT_LOG_TRACEBACKS = True
-QUERY_INSPECT_TRACEBACK_ROOTS = ['/Users/rerb/src/aashe/stars/']
+# QUERY_INSPECT_ENABLED = True
+# QUERY_INSPECT_LOG_QUERIES = True
+# QUERY_INSPECT_LOG_TRACEBACKS = True
+# QUERY_INSPECT_TRACEBACK_ROOTS = ['/Users/rerb/src/aashe/stars/']
 
 # django toolbar
 # if DEBUG_TOOLBAR:

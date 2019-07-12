@@ -432,11 +432,11 @@ LOGGING = {
             'propagate': False,
             'filters': ['module_name_filter', 'request_filter']
         },
-        'qinspect': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
+        # 'qinspect': {
+        #     'handlers': ['console'],
+        #     'level': 'DEBUG',
+        #     'propagate': True,
+        # },
         'raven': {
             'level': 'DEBUG',
             'handlers': ['console', 'mail_admins_handler'],

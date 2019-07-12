@@ -1510,16 +1510,6 @@ class CreditSubmission(models.Model):
             self.available_point_cache = self.credit.point_value
             return self.credit.point_value
 
-        # if the credit is saved as 'np' and there is a variable denominator
-        # then don't default them to point_minimum. Set it to an average
-        # between the point_minimum and point_value
-        # check that creditset is 2.2, but remove this check once all Submissionsets
-        # have been migrated
-        if isinstance(self, CreditUserSubmission) and self.credit.point_minimum:
-            if self.submission_status is 'np' and self.get_creditset() == '2.2':
-                added_points = self.credit.point_value + self.credit.point_minimum
-                return numpy.ceil(added_points / 2.0)
-
         # but if there's not then we need to execute the formula
         (ran, message, exception, available_points) = (
             self.credit.execute_point_value_formula(self))
