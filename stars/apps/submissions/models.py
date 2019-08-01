@@ -4,7 +4,7 @@ import sys
 from datetime import date, datetime, timedelta
 from logging import getLogger
 import hashlib
-
+import math
 import numpy
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -626,7 +626,7 @@ class SubmissionSet(models.Model):
                 creditset=self.creditset)
             institutional_characteristics_credit_submissions = (
                 self.get_credit_submissions().filter(
-                    subcategory_submission__category_submission__category=  # noqa
+                    subcategory_submission__category_submission__category=# noqa
                     institutional_characteristics_category))
             boundary_credit_submission = (
                 institutional_characteristics_credit_submissions.get(
@@ -1502,7 +1502,7 @@ class CreditSubmission(models.Model):
         """Does this CreditSubmission persist in the DB?"""
         return self.pk is not None
 
-    def get_available_points(self, use_cache=False):
+    def get_parent_available_points(self, use_cache=False):
         if use_cache and self.available_point_cache is not None:
             return self.available_point_cache
         # in most cases there's a fixed point value
@@ -1854,6 +1854,15 @@ class CreditUserSubmission(CreditSubmission):
 
         email_message.send()
 
+    def get_available_points(self, use_cache=False):
+        '''
+            Check if the credit is NP and if it has point_minimum.
+            Otherwise return the parent's method for calculating available_points
+        '''
+        if self.credit.point_minimum is not None and self.submission_status == NOT_PURSUING:
+            return math.floor((self.credit.point_minimum + self.credit.point_value) / 2)
+        return self.get_parent_available_points(use_cache=use_cache)
+
 
 class CreditTestSubmission(CreditSubmission):
     """
@@ -1947,6 +1956,10 @@ class CreditTestSubmission(CreditSubmission):
 
     def __unicode__(self):
         return "f( %s ) = %s" % (self.parameter_list(), self.expected_value)
+
+    def get_available_points(self, use_cache=False):
+        '''Call CreditSubmission method for reduction of duplication'''
+        return self.get_parent_available_points(use_cache=use_cache)
 
 
 class DataCorrectionRequest(models.Model):
