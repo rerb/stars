@@ -37,7 +37,7 @@ defusedxml==0.6.0         # via zeep
 dj-database-url==0.2.1
 django-adv-cache-tag==0.2.1
 django-appconf==1.0.3     # via django-compressor
-django-bootstrap-form==2.0.6
+django-bootstrap-form==3.3
 django-cache-url==0.3.2
 django-celery==3.2.2
 django-celery-results==1.0.1

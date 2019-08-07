@@ -51,7 +51,7 @@ def get_help_context(context_name):
     if not help_context:
         #        return "<a href='%s?key=%s'>Add Help Context</a>" % (urlresolvers.reverse('admin:helpers_helpcontext_add'), context_name)
         return "..."
-    return help_context.help_text
+    return mark_safe(help_context.help_text)
 
 
 @register.inclusion_tag('helpers/tags/help_text.html')
