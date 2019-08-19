@@ -626,7 +626,7 @@ class SubmissionSet(models.Model):
                 creditset=self.creditset)
             institutional_characteristics_credit_submissions = (
                 self.get_credit_submissions().filter(
-                    subcategory_submission__category_submission__category=# noqa
+                    subcategory_submission__category_submission__category=  # noqa
                     institutional_characteristics_category))
             boundary_credit_submission = (
                 institutional_characteristics_credit_submissions.get(
@@ -1860,7 +1860,7 @@ class CreditUserSubmission(CreditSubmission):
             Otherwise return the parent's method for calculating available_points
         '''
         if self.credit.point_minimum is not None and self.submission_status == NOT_PURSUING:
-            return math.floor((self.credit.point_minimum + self.credit.point_value) / 2)
+            return ((self.credit.point_minimum + self.credit.point_value) / 2)
         return self.get_parent_available_points(use_cache=use_cache)
 
 

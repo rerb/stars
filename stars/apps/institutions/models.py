@@ -425,12 +425,15 @@ class Institution(models.Model):
 
     def get_location_string(self):
         """Returns a string specifying the location of this institution."""
-        if self.profile:
+        if self.profile is not None:
             location = self.profile.city
-            for field in (self.profile.state, self.profile.country_iso):
-                if location and field:
-                    location += ', '
-                location += field
+            if location is not None:
+                for field in (self.profile.state, self.profile.country_iso):
+                    if location and field:
+                        location += ', '
+                    location += field
+            else:
+                location = ''
         else:
             location = ''
         return location
