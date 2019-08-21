@@ -1863,7 +1863,7 @@ class CreditUserSubmission(CreditSubmission):
             Otherwise return the parent's method for calculating available_points
         '''
         if self.credit.point_minimum is not None and self.submission_status == NOT_PURSUING:
-            return math.ceiling((self.credit.point_minimum + self.credit.point_value) / 2)
+            return math.ceil((self.credit.point_minimum + self.credit.point_value) / 2)
         return self.get_parent_available_points(use_cache=use_cache)
 
 
