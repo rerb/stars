@@ -82,12 +82,28 @@
                   {% endif %}
                 </div>
               {% endtestrule %}
+
+            {% elif cat.category.abbreviation == 'IN' %}
+                {% testrule institution_is_participant institution %}
+                  <div style='float: right;'>
+                    {% if cat.category.include_in_score %}
+                      Points Claimed:
+                      <strong>
+                        {{ cat.get_claimed_points|floatformat:2 }}
+                          /
+                          {{ cat.get_available_points|floatformat:2 }}
+                      </strong>
+                    {% endif %}
+                  </div>
+                {% endtestrule %}
             {% endif %}
           </a>
           <table class='table' style='margin-bottom: 0px;'>
             <tr>
               <td>
-                {% show_progress_icon cat %}
+                {% if not cat.category.abbreviation == "IN" %}
+                  {% show_progress_icon cat %}
+                {% endif %}
               </td>
             </tr>
           </table>
@@ -116,24 +132,26 @@
                          href="#ec_{{ cat.category.id }}_{{ sub.subcategory.id }}">
                         {{ sub }}
                         {% testrule institution_is_participant institution %}
-                          <div style='float: right;'>
-                            {% if cat.category.include_in_score %}
-                              Points Claimed:
-                              <strong>
-                                {{ sub.get_claimed_points|floatformat:2 }}
-                                {% if not cat.category.abbreviation == "IN" %}
-                                  /
-                                  {{ sub.get_adjusted_available_points|floatformat:2 }}
-                                {% endif %}
-                              </strong>
-                            {% endif %}
-                          </div>
+                          {% if cat.category.abbreviation != "IN"%}
+                            <div style='float: right;'>
+                              {% if cat.category.include_in_score %}
+                                Points Claimed:
+                                <strong>
+                                  {{ sub.get_claimed_points|floatformat:2 }}
+                                    /
+                                    {{ sub.get_adjusted_available_points|floatformat:2 }}
+                                </strong>
+                              {% endif %}
+                            </div>
+                          {% endif %}
                         {% endtestrule %}
                       </a>
                       <table class='table' style='margin-bottom: 0px;'>
                         <tr>
                           <td>
-                            {% show_progress_icon sub %}
+                            {% if not cat.category.abbreviation == "IN" %}
+                              {% show_progress_icon sub %}
+                            {% endif %}
                           </td>
                         </tr>
                       </table>

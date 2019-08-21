@@ -1026,6 +1026,8 @@ class CategorySubmission(models.Model):
         score = 0
         for sub in self.subcategorysubmission_set.all().select_related():
             score += sub.get_available_points()
+        if self.category.abbreviation == 'IN':
+            score = 4
         return score
 
     def get_score_ratio(self, recalculate=False):
@@ -1251,6 +1253,7 @@ class SubcategorySubmission(models.Model):
             # cache the result
             self.adjusted_available_points = points
             self.save()
+
         return points
 
     def get_percent_complete(self):
