@@ -87,12 +87,11 @@
                 {% testrule institution_is_participant institution %}
                   <div style='float: right;'>
                     {% if cat.category.include_in_score %}
-                      Points Claimed:
+                      Bonus Points Claimed:
                       <strong>
                         {{ cat.get_claimed_points|floatformat:2 }}
-                          /
-                          {{ cat.get_available_points|floatformat:2 }}
                       </strong>
+                       (4 Maximum)
                     {% endif %}
                   </div>
                 {% endtestrule %}
