@@ -3,7 +3,8 @@ import re
 import sys
 from datetime import date, datetime, timedelta
 from logging import getLogger
-
+import hashlib
+import math
 import numpy
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -12,7 +13,6 @@ from django.contrib.contenttypes.fields import (GenericForeignKey,
 from django.contrib.contenttypes.models import ContentType
 from localflavor.us.models import PhoneNumberField
 from django.core import urlresolvers
-from django.core.cache import cache
 from django.core.files.temp import NamedTemporaryFile
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.mail import EmailMessage
@@ -20,9 +20,8 @@ from django.db import models
 from django.db.models import Q
 from django.db.models.signals import post_init, pre_delete
 from django.dispatch import receiver
+from django.utils.http import urlquote
 
-from file_cache_tag.templatetags.custom_caching import (generate_cache_key,
-                                                        invalidate_filecache)
 from stars.apps.credits.models import (ApplicabilityReason, Category, Choice,
                                        Credit, CreditSet, DocumentationField,
                                        Rating, Subcategory)
@@ -92,7 +91,7 @@ class Flag(models.Model):
     target = GenericForeignKey('content_type', 'object_id')
 
     def get_admin_url(self):
-        return urlresolvers.reverse("admin:submissions_flag_change",
+        return urlresolvers.reverse('admin:submissions_flag_change',
                                     args=[self.id])
 
     def __unicode__(self):
@@ -191,7 +190,11 @@ class SubmissionSet(models.Model):
         ordering = ("date_registered",)
 
     def __unicode__(self):
-        return '%s (%s)' % (self.institution.name, self.creditset.version)
+        if self.date_submitted:
+            return '%s -- %s (%s)' % (self.institution.name,
+                                      self.creditset.version,
+                                      self.date_submitted.strftime("%m/%d/%Y"))
+        return '%s -- %s' % (self.institution.name, self.creditset.version)
 
     def get_flag_url(self):
 
@@ -307,30 +310,24 @@ class SubmissionSet(models.Model):
 
     def get_manage_url(self):
         return urlresolvers.reverse(
-            'submission-summary',
+            'tool:my_submission:submission-summary',
             kwargs={'institution_slug': self.institution.slug,
                     'submissionset': self.id})
 
     def get_submit_url(self):
         return urlresolvers.reverse(
-            'submission-submit',
+            'tool:my_submission:submission-submit',
             kwargs={'institution_slug': self.institution.slug,
                     'submissionset': self.id})
 
     def get_scorecard_url(self):
-        cache_key = "submission_%d_scorecard_url" % self.id
-        url = cache.get(cache_key)
-        if url:
-            return url
+
+        if self.date_submitted:
+            return '/institutions/%s/report/%s/' % (self.institution.slug,
+                                                    self.date_submitted)
         else:
-            if self.date_submitted:
-                url = '/institutions/%s/report/%s/' % (self.institution.slug,
-                                                       self.date_submitted)
-            else:
-                url = '/institutions/%s/report/%s/' % (self.institution.slug,
-                                                       self.id)
-            cache.set(cache_key, url, 60 * 60 * 24)  # cache for 24 hours
-            return url
+            return '/institutions/%s/report/%s/' % (self.institution.slug,
+                                                    self.id)
 
     def get_parent(self):
         """ Used for building crumbs """
@@ -584,41 +581,6 @@ class SubmissionSet(models.Model):
         if run_init_credit_submissions:
             self.init_credit_submissions()
 
-        self.invalidate_cache()
-
-    def invalidate_cache(self):
-        cus_set = self.get_credit_submissions()
-        for cus in cus_set:
-            report_url = cus.get_scorecard_url()
-            summary_url = self.get_scorecard_url()
-            # Set up all the different cache version data lists
-            versions = ['anon', 'admin', 'staff']
-            id = self.id
-            # vary_on template: [submissionset.id, preview (boolean),
-            # EXPORT/NO_EXPORT, user.is_staff]
-            vary_on = [
-                [id, True, 'EXPORT', True],
-                [id, False, 'EXPORT', True],
-                [id, True, 'EXPORT', False],
-                [id, False, 'EXPORT', False],
-                [id, True, 'NO_EXPORT', True],
-                [id, False, 'NO_EXPORT', True],
-                [id, True, 'NO_EXPORT', False],
-                [id, False, 'NO_EXPORT', False],
-            ]
-            # Loop through them and generate the cache keys
-            keys = []
-            for x in versions:
-                vary = [x]
-                key = generate_cache_key(report_url, vary)
-                keys.append(key)
-            for x in vary_on:
-                key = generate_cache_key(summary_url, x)
-                keys.append(key)
-            # Loop through the keys and invalidate each
-            for key in keys:
-                invalidate_filecache(key)
-
     def take_snapshot(self, user):
         """
             Creates a new SubmissionSet, based on this one, for the
@@ -664,7 +626,7 @@ class SubmissionSet(models.Model):
                 creditset=self.creditset)
             institutional_characteristics_credit_submissions = (
                 self.get_credit_submissions().filter(
-                    subcategory_submission__category_submission__category=# noqa
+                    subcategory_submission__category_submission__category=  # noqa
                     institutional_characteristics_category))
             boundary_credit_submission = (
                 institutional_characteristics_credit_submissions.get(
@@ -1005,15 +967,8 @@ class CategorySubmission(models.Model):
         return self.submissionset
 
     def get_scorecard_url(self):
-        cache_key = "category_%d_scorecard_url" % self.id
-        url = cache.get(cache_key)
-        if url:
-            return url
-        else:
-            url = '%s%s' % (self.submissionset.get_scorecard_url(),
-                            self.category.get_browse_url())
-            cache.set(cache_key, url, 60*60*24)  # cache for 24 hours
-            return url
+        return '%s%s' % (self.submissionset.get_scorecard_url(),
+                         self.category.get_browse_url())
 
     def get_STARS_score(self):
         """
@@ -1065,12 +1020,16 @@ class CategorySubmission(models.Model):
         score = 0
         for sub in self.subcategorysubmission_set.all().select_related():
             score += sub.get_claimed_points()
+        if self.category.abbreviation == "IN":
+            score = 4 if score > 4 else score
         return score
 
     def get_available_points(self):
         score = 0
         for sub in self.subcategorysubmission_set.all().select_related():
             score += sub.get_available_points()
+        if self.category.abbreviation == 'IN':
+            score = 4
         return score
 
     def get_score_ratio(self, recalculate=False):
@@ -1296,6 +1255,7 @@ class SubcategorySubmission(models.Model):
             # cache the result
             self.adjusted_available_points = points
             self.save()
+
         return points
 
     def get_percent_complete(self):
@@ -1547,19 +1507,19 @@ class CreditSubmission(models.Model):
         """Does this CreditSubmission persist in the DB?"""
         return self.pk is not None
 
-    def get_available_points(self, use_cache=False):
+    def get_parent_available_points(self, use_cache=False):
         if use_cache and self.available_point_cache is not None:
             return self.available_point_cache
         # in most cases there's a fixed point value
         if self.credit.point_minimum is None:
             self.available_point_cache = self.credit.point_value
             return self.credit.point_value
+
         # but if there's not then we need to execute the formula
-        else:
-            (ran, message, exception, available_points) = (
-                self.credit.execute_point_value_formula(self))
-            self.available_point_cache = available_points
-            return available_points
+        (ran, message, exception, available_points) = (
+            self.credit.execute_point_value_formula(self))
+        self.available_point_cache = available_points
+        return available_points
 
     @staticmethod
     def round_points(points, log_error=True):
@@ -1614,7 +1574,7 @@ class CreditSubmission(models.Model):
         return points, messages
 
     def get_status_update_url(self):
-        return urlresolvers.reverse('credit-submission-status-update',
+        return urlresolvers.reverse('institutions:credit-submission-status-update',
                                     kwargs={'pk': self.id})
 
     def get_help_center_search_url(self):
@@ -1735,7 +1695,7 @@ class CreditUserSubmission(CreditSubmission):
         category_submission = self.subcategory_submission.category_submission
         submissionset = category_submission.submissionset
         url = urlresolvers.reverse(
-            'creditsubmission-submit',
+            'tool:my_submission:creditsubmission-submit',
             kwargs={
                 'institution_slug': submissionset.institution.slug,
                 'submissionset': submissionset.id,
@@ -1747,22 +1707,8 @@ class CreditUserSubmission(CreditSubmission):
         return url
 
     def get_scorecard_url(self):
-        cache_key = "cus_%d_scorecard_url" % self.id
-
-        try:
-            url = cache.get(cache_key)
-        except Exception as exc:
-            logger.error("cache.get({cache_key}) raised ".format(
-                cache_key=cache_key) + exc.message)
-            url = None
-
-        if url:
-            return url
-        else:
-            url = self.credit.get_scorecard_url(
-                self.subcategory_submission.category_submission.submissionset)
-            cache.set(cache_key, url, 60 * 60 * 24)  # cache for 24 hours
-            return url
+        return self.credit.get_scorecard_url(
+            self.subcategory_submission.category_submission.submissionset)
 
     def get_parent(self):
         """ Used for building crumbs """
@@ -1898,7 +1844,7 @@ class CreditUserSubmission(CreditSubmission):
         email_context = {"credit_user_submission": self,
                          "institution": institution}
 
-        with open(settings.TEMPLATE_DIRS[0] + email_template,
+        with open(settings.TEMPLATES[0]['DIRS'][0] + email_template,
                   "rb") as template:
             email_content = build_message(template.read(), email_context)
 
@@ -1912,6 +1858,15 @@ class CreditUserSubmission(CreditSubmission):
         email_message.content_subtype = "html"
 
         email_message.send()
+
+    def get_available_points(self, use_cache=False):
+        '''
+            Check if the credit is NP and if it has point_minimum.
+            Otherwise return the parent's method for calculating available_points
+        '''
+        if self.credit.point_minimum is not None and self.submission_status == NOT_PURSUING:
+            return math.ceil((self.credit.point_minimum + self.credit.point_value) / 2)
+        return self.get_parent_available_points(use_cache=use_cache)
 
 
 class CreditTestSubmission(CreditSubmission):
@@ -2006,6 +1961,10 @@ class CreditTestSubmission(CreditSubmission):
 
     def __unicode__(self):
         return "f( %s ) = %s" % (self.parameter_list(), self.expected_value)
+
+    def get_available_points(self, use_cache=False):
+        '''Call CreditSubmission method for reduction of duplication'''
+        return self.get_parent_available_points(use_cache=use_cache)
 
 
 class DataCorrectionRequest(models.Model):
@@ -2177,39 +2136,6 @@ class DataCorrectionRequest(models.Model):
                          "old_rating": old_rating,
                          "old_score": old_score}
         et.send_email(mail_to, email_context)
-        self.cache_invalidate()
-
-    def cache_invalidate(self):
-        report_url = self.get_absolute_url()
-        self.submissionset = self.get_submissionset()
-        summary_url = self.submissionset.get_scorecard_url()
-        # Set up all the different cache version data lists
-        versions = ['anon', 'admin', 'staff']
-        id = self.submissionset.id
-        # vary_on template: [submissionset.id, preview (boolean),
-        # EXPORT/NO_EXPORT, user.is_staff]
-        vary_on = [
-            [id, True, 'EXPORT', True],
-            [id, False, 'EXPORT', True],
-            [id, True, 'EXPORT', False],
-            [id, False, 'EXPORT', False],
-            [id, True, 'NO_EXPORT', True],
-            [id, False, 'NO_EXPORT', True],
-            [id, True, 'NO_EXPORT', False],
-            [id, False, 'NO_EXPORT', False],
-        ]
-        # Loop through them and generate the cache keys
-        keys = []
-        for x in versions:
-            vary = [x]
-            key = generate_cache_key(report_url, vary)
-            keys.append(key)
-        for x in vary_on:
-            key = generate_cache_key(summary_url, x)
-            keys.append(key)
-        # Loop through the keys and invalidate each
-        for key in keys:
-            invalidate_filecache(key)
 
 
 class ReportingFieldDataCorrection(models.Model):
@@ -2561,7 +2487,7 @@ class MultiChoiceSubmission(AbstractChoiceSubmission):
     """
     # should be called values, really, since it potentially
     # represents multiple values
-    value = models.ManyToManyField(Choice, blank=True, null=True)
+    value = models.ManyToManyField(Choice, blank=True)
 
     def get_value(self):
         """ Value is a list of Choice objects, or None """
@@ -2786,19 +2712,14 @@ class NumericSubmission(DocumentationFieldSubmission):
             raise
         except Exception, exc:
             if log_exceptions:
-                concrete_credit_submission = (
-                    self.credit_submission.creditusersubmission or
-                    self.credit_submission.credittestsubmission)
                 logger.exception(
                     "Formula Exception for formula `{formula}`: "
                     "{exception}; "
                     "Documentation field: {documentation_field_edit_url}; "
-                    "Submission credit: {credit_submission_submit_url}; "
                     "locals: {locals}.".format(
                         formula=self.documentation_field.formula,
                         exception=str(exc),
                         documentation_field_edit_url=self.documentation_field.get_edit_url(),
-                        credit_submission_submit_url=concrete_credit_submission.get_submit_url(),
                         documentation_field=self.documentation_field,
                         locals={key: value for key, value in locals.items()
                                 if (type(value) in (int, float) or
@@ -2978,10 +2899,10 @@ class Payment(models.Model):
     date = models.DateTimeField()
     amount = models.FloatField()
     user = models.ForeignKey(User)
-    reason = models.CharField(max_length='16', choices=PAYMENT_REASON_CHOICES)
-    type = models.CharField(max_length='8', choices=PAYMENT_TYPE_CHOICES)
+    reason = models.CharField(max_length=16, choices=PAYMENT_REASON_CHOICES)
+    type = models.CharField(max_length=8, choices=PAYMENT_TYPE_CHOICES)
     confirmation = models.CharField(
-        max_length='16', blank=True, null=True,
+        max_length=16, blank=True, null=True,
         help_text='The CC confirmation code or check number')
 
     def __unicode__(self):
@@ -3140,7 +3061,7 @@ class CreditSubmissionReviewNotation(models.Model):
 
     credit_user_submission = models.ForeignKey(CreditUserSubmission)
     kind = models.CharField(
-        max_length="32",
+        max_length=32,
         choices=CREDIT_SUBMISSION_REVIEW_NOTATION_KIND_CHOICES)
     comment = models.TextField(blank=True, null=True)
     send_email = models.BooleanField(blank=True, default=True)

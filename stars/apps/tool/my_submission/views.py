@@ -9,7 +9,7 @@ from django.http import HttpResponseRedirect
 from django.views.generic import TemplateView
 from django.views.generic.edit import CreateView, FormView, UpdateView
 from django.db.models import Max, Q
-from django.contrib.formtools.wizard.views import SessionWizardView
+from formtools.wizard.views import SessionWizardView
 from django.core.files.storage import FileSystemStorage
 from django.utils import timezone
 from extra_views import UpdateWithInlinesView
@@ -121,7 +121,7 @@ class SubmitRedirectMixin():
         messages.error(self.request,
                        ("You must complete your Institutional Boundary"
                         " before submitting for a rating."))
-        return HttpResponseRedirect(reverse('boundary-edit',
+        return HttpResponseRedirect(reverse('tool:my_submission:boundary-edit',
                                             kwargs={
                                                 'institution_slug':
                                                 self.get_institution().slug,
@@ -133,7 +133,7 @@ class SubmitRedirectMixin():
         messages.error(self.request,
                        ("One or more required credits are not complete."))
         return HttpResponseRedirect(reverse(
-            'submission-summary',
+            'tool:my_submission:submission-summary',
             kwargs={'institution_slug': self.get_institution().slug,
                     'submissionset': self.get_submissionset().id}))
 
@@ -192,24 +192,6 @@ SUBMISSION_STEPS = [
     },
 ]
 
-SUBMISSION_STEPS_WITHOUT_LETTER = [
-    {
-        'form': StatusForm,
-        'template': 'status',
-        'instance_callback': 'get_submissionset'
-    },
-    {
-        'form': ContactsForm,
-        'template': 'contacts',
-        'instance_callback': 'get_institution'
-    },
-    {
-        'form': Confirm,
-        'template': 'finalize',
-        'instance_callback': None
-    },
-]
-
 
 class SubmitForRatingWizard(SubmitRedirectMixin,
                             SubmissionToolMixin,
@@ -244,21 +226,18 @@ class SubmitForRatingWizard(SubmitRedirectMixin,
             'response_callback': 'redirect_to_my_submission'
         })
 
+    def has_letter_feature(self):
+        return self.get_creditset().has_president_letter_feature()
+
     def get_template_names(self):
-        if self.get_creditset().has_president_letter_feature():
-            return ("tool/submissions/submit_wizard_%s.html" %
-                    SUBMISSION_STEPS[int(self.steps.current)]['template'])
         return ("tool/submissions/submit_wizard_%s.html" %
-                SUBMISSION_STEPS_WITHOUT_LETTER[int(self.steps.current)]['template'])
+                SUBMISSION_STEPS[int(self.steps.current)]['template'])
 
     def get_form_instance(self, step):
-        if self.get_creditset().has_president_letter_feature():
-            if SUBMISSION_STEPS[int(step)]['instance_callback']:
-                return getattr(self,
-                               SUBMISSION_STEPS[int(step)]['instance_callback'])()
-        elif SUBMISSION_STEPS_WITHOUT_LETTER[int(step)]['instance_callback']:
+
+        if SUBMISSION_STEPS[int(step)]['instance_callback']:
             return getattr(self,
-                           SUBMISSION_STEPS_WITHOUT_LETTER[int(step)]['instance_callback'])()
+                           SUBMISSION_STEPS[int(step)]['instance_callback'])()
         return None
 
     def get_context_data(self, form, **kwargs):
@@ -290,9 +269,9 @@ class SubmitForRatingWizard(SubmitRedirectMixin,
 
         # My Submission gets cached, and in the cache it still looks
         # like it's not under review, so flush that mother here.
-        submissionset.invalidate_cache()
+        # submissionset.invalidate_cache()
 
-        redirect_url = reverse('submit-success',
+        redirect_url = reverse('tool:my_submission:submit-success',
                                kwargs={'institution_slug':
                                        self.get_institution().slug,
                                        'submissionset':
@@ -412,7 +391,7 @@ class ApproveSubmissionView(SubmissionToolMixin,
 
     def get_success_url(self):
         url = reverse(
-            'tool-summary',
+            'tool:tool-summary',
             kwargs={'institution_slug': self.get_institution().slug})
         return url
 
@@ -444,7 +423,7 @@ class SubcategorySubmissionDetailView(UserCanEditSubmissionOrIsAdminMixin,
         url = self.request.POST.get('next', False)
         if not url:
             url = reverse(
-                'submission-summary',
+                'tool:my_submission:submission-summary',
                 kwargs={'institution_slug': self.get_institution().slug,
                         'submissionset': self.get_submissionset().id})
         return url
@@ -452,7 +431,7 @@ class SubcategorySubmissionDetailView(UserCanEditSubmissionOrIsAdminMixin,
     def form_valid(self, form):
         if form.has_changed():
             submissionset = self.get_object().get_submissionset()
-            submissionset.invalidate_cache()
+            # submissionset.invalidate_cache()
         return super(SubcategorySubmissionDetailView, self).form_valid(form)
 
 
@@ -682,7 +661,7 @@ class SendCreditSubmissionReviewNotationEmailView(SubmissionToolMixin,
         context["my_submission_url"] = (
             self.submissionset.get_submit_url())
 
-        with open(settings.TEMPLATE_DIRS[0] + email_template,
+        with open(settings.TEMPLATES[0]['DIRS'][0] + email_template,
                   "rb") as template:
             email_content = build_message(template.read(), context)
 

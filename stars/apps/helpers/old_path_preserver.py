@@ -65,7 +65,7 @@ def new_path_for_old_path(old_path, institution):
         # add the id of the institution's current submission to the path:
         sub_id = unicode(institution.current_submission.id)
         new_path = path_with_substitutions.replace("/submissions/",
-                                        "/submission/%s/" % sub_id)
+                                                   "/submission/%s/" % sub_id)
         return new_path
 
     else:
@@ -89,11 +89,11 @@ class OldPathPreserverView(RedirectView):
             # More than one StarsAccount for this user;
             # redirect to the 'pick an institution, dude' page,
             # passing the requested URL as a GET 'next' parameter:
-            return '?'.join([urlresolvers.reverse('select-institution'),
+            return '?'.join([urlresolvers.reverse('tool:select-institution'),
                              'next={path}'.format(path=self.request.path)])
         except StarsAccount.DoesNotExist:
             # User has no StarsAccounts!
-            return urlresolvers.reverse('no-stars-account')
+            return urlresolvers.reverse('tool:no-stars-account')
         else:
             return new_path_for_old_path(old_path=self.request.path,
                                          institution=stars_account.institution)

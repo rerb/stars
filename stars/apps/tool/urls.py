@@ -1,4 +1,4 @@
-from django.conf.urls import include, patterns, url
+from django.conf.urls import include, url
 
 from stars.apps.tool.views import (NoStarsAccountView,
                                    SelectInstitutionView,
@@ -7,8 +7,9 @@ from stars.apps.tool.views import (NoStarsAccountView,
                                    SummaryToolView,
                                    ToolLandingPageView)
 
-urlpatterns = patterns(
-    "",
+app_name = 'tool'
+
+urlpatterns = [
 
     url('^$', ToolLandingPageView.as_view(), name='tool-landing-page'),
 
@@ -21,15 +22,15 @@ urlpatterns = patterns(
     url(r'^submission-locked/$', SubmissionLockedView.as_view(),
         name='submission-locked'),
 
-    (r'^credit-editor/', include('stars.apps.tool.credit_editor.urls')),
+    url(r'^credit-editor/', include('stars.apps.tool.credit_editor.urls')),
 
-    (r'^admin/', include('stars.apps.tool.staff_tool.urls')),
+    url(r'^admin/', include('stars.apps.tool.staff_tool.urls')),
 
-    (r'^(?P<institution_slug>[^/]*)/submission/(?P<submissionset>\d+)/',
-     include('stars.apps.tool.my_submission.urls')),
+    url(r'^(?P<institution_slug>[^/]*)/submission/(?P<submissionset>\d+)/',
+        include('stars.apps.tool.my_submission.urls')),
 
-    (r'^(?P<institution_slug>[^/]*)/my-resources/',
-     include('stars.apps.tool.my_resources.urls')),
+    url(r'^(?P<institution_slug>[^/]*)/my-resources/',
+        include('stars.apps.tool.my_resources.urls')),
 
     url(r'^(?P<institution_slug>[^/]*)/$', SummaryToolView.as_view(),
         name='tool-summary'),
@@ -38,6 +39,6 @@ urlpatterns = patterns(
         SettingsUpdateView.as_view(),
         name='settings'),
 
-    (r'^(?P<institution_slug>[^/]*)/manage/',
-     include('stars.apps.tool.manage.urls')),
-)
+    url(r'^(?P<institution_slug>[^/]*)/manage/',
+        include('stars.apps.tool.manage.urls')),
+]

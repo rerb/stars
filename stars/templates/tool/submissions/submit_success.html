@@ -1,7 +1,7 @@
 {% extends "tool/base.html" %}
 
 {% block crumbs-tool %}
-  <a href="{% url 'submission-summary' institution.slug submissionset.id %}">
+  <a href="{% url 'tool:my_submission:submission-summary' institution.slug submissionset.id %}">
     My Submission
   </a>
   <span class="divider">/</span>

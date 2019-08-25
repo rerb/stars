@@ -1,4 +1,4 @@
-from unittest import TestCase
+from django.test import TestCase
 from datetime import date, timedelta
 
 from stars.test_factories.models import (

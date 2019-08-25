@@ -33,4 +33,10 @@ STARS_TASK_SCHEDULE = {
         'task': 'tasks.send_notifications',
         'schedule': crontab(hour=7, minute=0),
     },
+    # Executes every morning at 5am
+    # stars.apps.institutions.tasks.email_expiring_ratings
+    'send out email of expiring ratings': {
+        'task': 'institutions.email_expiring_ratings',
+        'schedule': crontab(hour=5, minute=0),
+    },
 }

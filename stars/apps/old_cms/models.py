@@ -2,7 +2,6 @@ import time
 from django.db import models, IntegrityError
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models.signals import post_save
 
 from stars.apps.helpers.utils import invalidate_template_cache
 
@@ -14,29 +13,33 @@ class AbstractContent(models.Model):
 
     class Meta:
         abstract = True
-        ordering = ('ordinal','title')
+        ordering = ('ordinal', 'title')
 
     def __str__(self):
         return self.title
 
     def get_django_admin_url(self):
         return "/_ad/%s/%s/%d" % (
-                                    self._meta.app_label,
-                                    self._meta.module_name,
-                                    self.id,
-                                )
+            self._meta.app_label,
+            self.model_name,
+            self.id,
+        )
+
 
 class CategoryMixin(models.Model):
 
     title = models.CharField(max_length=64)
-    slug = models.SlugField(help_text='This is a URL-friendly version of the title. Do not change unless you want to change the link')
-    content = models.TextField(blank=True, null=True, help_text='If left blank, the page will be populated with the teaser text from all the articles.')
+    slug = models.SlugField(
+        help_text='This is a URL-friendly version of the title. Do not change unless you want to change the link')
+    content = models.TextField(
+        blank=True, null=True, help_text='If left blank, the page will be populated with the teaser text from all the articles.')
 
     class Meta:
-        abstract=True
+        abstract = True
 
     def get_articles(self):
         return self.newarticle_set.filter(published=True).order_by('ordinal')
+
 
 class Category(CategoryMixin, AbstractContent):
     """
@@ -52,6 +55,7 @@ class Category(CategoryMixin, AbstractContent):
     def get_published_subcategories(self):
         return self.subcategory_set.filter(published=True).order_by('ordinal')
 
+
 class Subcategory(CategoryMixin, AbstractContent):
     parent = models.ForeignKey(Category)
 
@@ -63,7 +67,7 @@ class Subcategory(CategoryMixin, AbstractContent):
 
     def save(self, *args, **kwargs):
         super(Subcategory, self).save(*args, **kwargs)
-        self.parent.save() # Update timestamp for caching
+        self.parent.save()  # Update timestamp for caching
 
     def update_timestamps(self):
         """
@@ -78,6 +82,7 @@ class Subcategory(CategoryMixin, AbstractContent):
     def get_published_articles(self):
         return self.newarticle_set.filter(published=True).order_by('ordinal')
 
+
 class NewArticle(AbstractContent):
     """
         Django-hosted CMS article
@@ -86,10 +91,11 @@ class NewArticle(AbstractContent):
     slug = models.SlugField(max_length=255)
     content = models.TextField()
     teaser = models.TextField(blank=True, null=True)
-    categories = models.ManyToManyField(Category, blank=True, null=True)
+    categories = models.ManyToManyField(Category, blank=True)
     # subcategories = models.ManyToManyField(Subcategory, blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True)
-    irc_id = models.IntegerField(blank=True, null=True, help_text='Only necessary for pages that used to exist in the IRC. New pages will not need this.')
+    irc_id = models.IntegerField(
+        blank=True, null=True, help_text='Only necessary for pages that used to exist in the IRC. New pages will not need this.')
 
     class Meta:
         ordering = ('ordinal', 'title', 'timestamp',)
@@ -114,13 +120,6 @@ class NewArticle(AbstractContent):
         for cat in Category.objects.all():
             cat.save()
 
-def post_save_article_rec(sender, instance, **kwargs):
-    instance.update_timestamps()
-post_save.connect(post_save_article_rec, sender=NewArticle)
-
-def post_save_sub_rec(sender, instance, **kwargs):
-    instance.update_timestamps()
-post_save.connect(post_save_sub_rec, sender=Subcategory)
 
 class HomepageUpdate(AbstractContent):
     """

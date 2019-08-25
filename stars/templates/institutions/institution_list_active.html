@@ -41,7 +41,7 @@
           <tr class="{% cycle 'even' 'odd' %}">
             <td style='text-align: left'>
                 {% if institution.current_rating %}
-                    <a href="{% url 'scorecard-list' institution.slug %}">
+                    <a href="{% url 'institutions:scorecard-list' institution.slug %}">
                         {{ institution }}
                     </a>
                 {% else %}

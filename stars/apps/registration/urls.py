@@ -1,11 +1,11 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 from django.contrib.auth.decorators import login_required
 
 from .views import SurveyView, InstitutionCreateView
 
-urlpatterns = patterns(
-    'stars.apps.registration.views',
+app_name = 'registration'
 
+urlpatterns = [
     url(r'^$',
         login_required(InstitutionCreateView.as_view()),
         name='institution-create'),
@@ -13,4 +13,4 @@ urlpatterns = patterns(
     url(r'^(?P<institution_slug>[^/]*)/survey/$',
         SurveyView.as_view(),
         name='reg_survey')
-)
+]

@@ -31,7 +31,7 @@
        });
 
        var ajax_request = $.ajax({
-         url: "{% url 'set-opt-in-credits' %}",
+         url: "{% url 'submissions:set-opt-in-credits' %}",
          type: "POST",
          data: ajax_data,
          error: function(data, textStatus, jqXHR) {
@@ -69,7 +69,7 @@
              data-parent="#categories" href="#ec_{{ cat.category.id }}">
             <strong>{{ cat }}</strong>
 	    {% if creditset.has_category_scoring_feature %}
-              {% testrule institution_has_score_feature institution %}
+              {% testrule institution_is_participant institution %}
                 <div style='float: right;'>
                   {% if cat.category.include_in_score %}
                     {% ifnotequal cat.category.title 'Innovation' %}
@@ -82,12 +82,27 @@
                   {% endif %}
                 </div>
               {% endtestrule %}
+
+            {% elif cat.category.abbreviation == 'IN' %}
+                {% testrule institution_is_participant institution %}
+                  <div style='float: right;'>
+                    {% if cat.category.include_in_score %}
+                      Bonus Points Claimed:
+                      <strong>
+                        {{ cat.get_claimed_points|floatformat:2 }}
+                      </strong>
+                       (4 Maximum)
+                    {% endif %}
+                  </div>
+                {% endtestrule %}
             {% endif %}
           </a>
           <table class='table' style='margin-bottom: 0px;'>
             <tr>
               <td>
-                {% show_progress_icon cat %}
+                {% if not cat.category.abbreviation == "IN" %}
+                  {% show_progress_icon cat %}
+                {% endif %}
               </td>
             </tr>
           </table>
@@ -115,25 +130,27 @@
                          data-parent="#accordion_{{ sub.subcategory.id }}"
                          href="#ec_{{ cat.category.id }}_{{ sub.subcategory.id }}">
                         {{ sub }}
-                        {% testrule institution_has_score_feature institution %}
-                          <div style='float: right;'>
-                            {% if cat.category.include_in_score %}
-                              Points Claimed:
-                              <strong>
-                                {{ sub.get_claimed_points|floatformat:2 }}
-                                {% if not cat.category.abbreviation == "IN" %}
-                                  /
-                                  {{ sub.get_adjusted_available_points|floatformat:2 }}
-                                {% endif %}
-                              </strong>
-                            {% endif %}
-                          </div>
+                        {% testrule institution_is_participant institution %}
+                          {% if cat.category.abbreviation != "IN"%}
+                            <div style='float: right;'>
+                              {% if cat.category.include_in_score %}
+                                Points Claimed:
+                                <strong>
+                                  {{ sub.get_claimed_points|floatformat:2 }}
+                                    /
+                                    {{ sub.get_adjusted_available_points|floatformat:2 }}
+                                </strong>
+                              {% endif %}
+                            </div>
+                          {% endif %}
                         {% endtestrule %}
                       </a>
                       <table class='table' style='margin-bottom: 0px;'>
                         <tr>
                           <td>
-                            {% show_progress_icon sub %}
+                            {% if not cat.category.abbreviation == "IN" %}
+                              {% show_progress_icon sub %}
+                            {% endif %}
                           </td>
                         </tr>
                       </table>
@@ -175,7 +192,7 @@
                           <tr>
                             <th>Credit</th>
                             <th>Status</th>
-                            {% testrule institution_has_score_feature institution %}
+                            {% testrule institution_is_participant institution %}
                               {% if cat.category.include_in_score %}
                                 <th>Points</th>
                               {% endif %}
@@ -204,7 +221,7 @@
                                   {% endif %}
                                   {% show_status_icon c %}
                                 </td>
-                                {% testrule institution_has_score_feature institution %}
+                                {% testrule institution_is_participant institution %}
                                   {% if cat.category.include_in_score %}
                                     <td>
                                       {{ c.assessed_points|floatformat:2 }} /

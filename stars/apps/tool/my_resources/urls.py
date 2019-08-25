@@ -1,8 +1,9 @@
-from django.conf.urls import url, patterns
+from django.conf.urls import url
 
 from views import MyResourcesView
 
-urlpatterns = patterns(
-    '',
+app_name = 'my_resources'
+
+urlpatterns = [
     url(r'^$', MyResourcesView.as_view(), name='my-resources'),
-)
+]

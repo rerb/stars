@@ -1,9 +1,9 @@
-from django.conf.urls import *
+from django.conf.urls import url
 
 from stars.apps.notifications.views import *
 
-urlpatterns = patterns(
-    'stars.apps.registration.views',
+app_name = 'notifications'
 
-    (r'^preview/(?P<slug>[^/]+)/$', PreviewEmailTemplate.as_view())
-)
+urlpatterns = [
+    url(r'^preview/(?P<slug>[^/]+)/$', PreviewEmailTemplate.as_view())
+]

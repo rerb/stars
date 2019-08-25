@@ -28,7 +28,7 @@ def category_color(category_abbreviation):
     return color_map[category_abbreviation]
 
 
-@register.assignment_tag
+@register.simple_tag
 def subcategory_quartiles(subcategory_submission):
 
     class Quartiles(object):

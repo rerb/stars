@@ -14,7 +14,6 @@ MAINTENANCE_MODE = False
 # CELERY_ALWAYS_EAGER = True
 PROFILE = False
 
-ADMINS = (('Bob Erb', 'bob@aashe.org'),)
 MANAGERS = ADMINS
 
 # Send emails to to django.core.mail.outbox rather than the console:
@@ -80,7 +79,7 @@ if os.environ.get('STARS_BACKUP_DB_URL', False):
 # the django dev server so we will need to serve the static files (see urls.py)
 STANDALONE_MODE = True
 
-INSTALLED_APPS += ('template_repl',)
+INSTALLED_APPS.append('template_repl')
 
 if PROFILE:
     # INSTALLED_APPS += ('profiler',)
@@ -101,38 +100,44 @@ XMLRPC_USE_HASH = True
 # Thumbnails
 THUMBNAIL_DEBUG = DEBUG
 
-MIDDLEWARE_CLASSES += (
-    'qinspect.middleware.QueryInspectMiddleware',
-)
+MIDDLEWARE_CLASSES.append('qinspect.middleware.QueryInspectMiddleware')
 
-QUERY_INSPECT_ENABLED = True
-QUERY_INSPECT_LOG_QUERIES = True
-QUERY_INSPECT_LOG_TRACEBACKS = True
-QUERY_INSPECT_TRACEBACK_ROOTS = ['/Users/rerb/src/aashe/stars/']
+# QUERY_INSPECT_ENABLED = True
+# QUERY_INSPECT_LOG_QUERIES = True
+# QUERY_INSPECT_LOG_TRACEBACKS = True
+# QUERY_INSPECT_TRACEBACK_ROOTS = ['/Users/rerb/src/aashe/stars/']
 
-TEMPLATE_STRING_IF_INVALID = 'INVALID EXPRESSION: %s'
+# django toolbar
+# if DEBUG_TOOLBAR:
+#     MIDDLEWARE_CLASSES.append(
+#         'debug_toolbar.middleware.DebugToolbarMiddleware')
+#     INTERNAL_IPS = ('127.0.0.1',)
+#     INSTALLED_APPS = INSTALLED_APPS + ('debug_toolbar',
+#                                        'template_profiler_panel')
+#     DEBUG_TOOLBAR_PANELS = (
+#         # 'debug_toolbar.panels.versions.VersionsPanel',
+#         'debug_toolbar.panels.timer.TimerPanel',
+#         # 'debug_toolbar.panels.settings.SettingsPanel',
+#         # 'debug_toolbar.panels.headers.HeadersPanel',
+#         # 'debug_toolbar.panels.request.RequestPanel',
+#         'debug_toolbar.panels.sql.SQLPanel',
+#         # 'debug_toolbar.panels.staticfiles.StaticFilesPanel',
+#         'debug_toolbar.panels.templates.TemplatesPanel',
+#         # 'template_profiler_panel.panels.template.TemplateProfilerPanel',
+#         'debug_toolbar.panels.cache.CachePanel',
+#         # 'debug_toolbar.panels.signals.SignalsPanel',
+#         # 'debug_toolbar.panels.logging.LoggingPanel',
+#         # 'debug_toolbar.panels.redirects.RedirectsPanel'
+#     )
+#     DEBUG_TOOLBAR_CONFIG = {'INTERCEPT_REDIRECTS': False}
+#     TEMPLATE_TIMINGS_SETTINGS = {
+#         'PRINT_TIMINGS': False,
+#     }
+
+
+#  Only enable for debug purposes
+# TEMPLATES[0]['OPTIONS'].update({
+#     'string_if_invalid': 'INVALID EXPRESSION: %s',
+# })
 
 PROFILE_LOG_BASE = "profiling-data"
-
-TEST_WITHOUT_MIGRATIONS_COMMAND = 'django_nose.management.commands.test.Command'
-
-TEST_RUNNER = 'hotrunner.HotRunner'
-EXCLUDED_TEST_APPS = [
-    'bootstrapform',
-    'captcha',
-    'collapsing_menu',
-    'django_extensions',
-    'django_nose',
-    'djcelery',
-    'gunicorn',
-    'logical_rules',
-    'memcache_status',
-    's3_folder_storage',
-    'sorl.thumbnail',
-    'stars.apps',
-    'stars.apps.accounts',
-    'stars.apps.api',
-    'stars.tests',
-    'tastypie',
-    'terms',
-    'template_repl']

@@ -10,7 +10,7 @@
     {% if not object_list %}
         <p>
           No responsible parties yet.
-          <a href="{% url 'responsible-party-create' institution.slug %}">
+          <a href="{% url 'tool:manage:responsible-party-create' institution.slug %}">
             Add one</a>.
         </p>
     {% else %}
@@ -29,10 +29,10 @@
                     <td>{{ rp.title }}</td>
                     <td><a href='mailto:{{ rp.email }}'>{{ rp.email }}</a></td>
                     <td class='buttonColumn'>
-                        <a href="{% url 'responsible-party-edit' institution.slug rp.id %}">
+                        <a href="{% url 'tool:manage:responsible-party-edit' institution.slug rp.id %}">
                             <i class='icon-pencil'></i>
                         </a>
-                        <a href="{% url 'responsible-party-delete' institution.slug rp.id %}">
+                        <a href="{% url 'tool:manage:responsible-party-delete' institution.slug rp.id %}">
                             <i class='icon-trash'></i>
                         </a>
 
@@ -41,7 +41,7 @@
             {% endfor %}
             </tbody>
         </table>
-        <a href="{% url 'responsible-party-create' institution.slug %}"
+        <a href="{% url 'tool:manage:responsible-party-create' institution.slug %}"
            class='btn btn-primary'>
             Add a Responsible Party
         </a>

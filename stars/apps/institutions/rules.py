@@ -67,11 +67,11 @@ logical_rules.site.register("user_is_institution_admin",
 
 
 def institution_can_get_rated(institution):
-        if(institution.is_participant and
-           institution.current_subscription.get_available_ratings() > 0 and
-           institution.current_subscription.paid_in_full):
-            return True
-        return False
+    if(institution.is_participant and
+       institution.current_subscription.get_available_ratings() > 0 and
+       institution.current_subscription.paid_in_full):
+        return True
+    return False
 
 
 logical_rules.site.register("institution_can_get_rated",
@@ -86,20 +86,12 @@ logical_rules.site.register("institution_can_submit_report",
                             institution_can_submit_report)
 
 
-def institution_has_score_feature(institution):
+def institution_is_participant(institution):
     return institution.is_participant
 
 
-logical_rules.site.register("institution_has_score_feature",
-                            institution_has_score_feature)
-
-
-def institution_has_internal_notes_feature(institution):
-    return institution.is_participant
-
-
-logical_rules.site.register("institution_has_internal_notes_feature",
-                            institution_has_internal_notes_feature)
+logical_rules.site.register("institution_is_participant",
+                            institution_is_participant)
 
 
 def institution_has_my_resources(institution):
@@ -125,24 +117,6 @@ def institution_has_my_resources(institution):
 
 logical_rules.site.register("institution_has_my_resources",
                             institution_has_my_resources)
-
-
-def institution_has_export(institution):
-    # return institution.is_participant
-    # change rule so all institutions have the ability to export
-    # even if they are basic access
-    return True
-
-
-logical_rules.site.register("institution_has_export", institution_has_export)
-
-
-def institution_has_my_reports(institution):
-    return institution.is_participant
-
-
-logical_rules.site.register("institution_has_my_reports",
-                            institution_has_my_reports)
 
 
 def institution_has_snapshot_feature(institution):

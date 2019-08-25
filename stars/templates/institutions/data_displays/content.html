@@ -188,13 +188,13 @@
 	      {% endif %}
 	    </td>
 	    <td>
-       	      {% with field=o.field %}{% with data_display=1 %}
-       		{% if field and not field.is_empty %}
-       		  {% include 'institutions/scorecards/field_formatting.html' %}
-       		{% else %}
-       		  --
-       		{% endif %}
-       	      {% endwith %}{% endwith %}
+       	    {% with field=o.field %}{% with data_display=1 %}
+       		    {% if field and not field.is_empty %}
+       		        {% include 'institutions/scorecards/field_formatting.html' %}
+       		    {% else %}
+       		        --
+       		    {% endif %}
+       	    {% endwith %}{% endwith %}
 	    </td>
 	  </tr>
 	{% endfor %}

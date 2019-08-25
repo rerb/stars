@@ -40,11 +40,7 @@
               {% endif %}
             </td>
             <td>
-              {% if i.is_participant %}
-                Full
-              {% else %}
-                Basic
-              {% endif %}
+              {{ i.access_level }}
             </td>
             <td>
               {% if i.contact_email %}

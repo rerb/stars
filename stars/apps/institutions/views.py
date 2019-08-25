@@ -381,7 +381,7 @@ class RedirectOldScorecardCreditURLsView(InstitutionStructureMixin,
                                         id=kwargs['subcategory_id'])
         credit = get_object_or_404(Credit, id=kwargs['credit_id'])
         return reverse(
-            'scorecard-credit',
+            'institutions:scorecard-credit',
             kwargs={
                 'institution_slug': institution.slug,
                 'submissionset': submissionset.date_submitted,
@@ -440,17 +440,15 @@ class ScorecardView(RulesMixin,
         if not ss.status == 'r':
             _context['preview'] = True
 
-        _context['show_column_charts'] = self.show_column_charts_or_not(ss,
-                                                                        rating)
+        _context['show_column_charts'] = self.show_column_charts_or_not(ss)
 
         return _context
 
-    def show_column_charts_or_not(self, submissionset, rating):
+    def show_column_charts_or_not(self, submissionset):
         """Should we show the column charts for this SubmissionSet?
 
         Only for preview reports for folks with FULL_ACCESS."""
         if (submissionset.creditset.has_basic_benchmarking_feature and
-            submissionset.status != 'r' and
             submissionset.institution.access_level ==
                 Subscription.FULL_ACCESS):
             return True
@@ -718,6 +716,7 @@ class SubmissionInquiryView(InstitutionStructureMixin,
         """
         If the form and formsets are valid, save the associated models.
         """
+
         _context = self.get_context_data()
         self.object = form.save()
         for formset in inlines:

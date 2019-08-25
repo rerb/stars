@@ -172,7 +172,7 @@ class CreditSet(VersionedModel):
         # the credits models?
         if submissionset:
             return(reverse(
-                'submission-summary',
+                'tool:my_submission:submission-summary',
                 kwargs={'institution_slug': submissionset.institution.slug,
                         'submissionset': submissionset.id}))
         else:
@@ -344,7 +344,7 @@ class Rating(models.Model):
     """
         The official stars ratings: Platinum, Gold, Silver, Bronze, Reporter
     """
-    name = models.CharField(max_length='16')
+    name = models.CharField(max_length=16)
     minimal_score = models.SmallIntegerField(
         help_text="The minimal STARS score required to achieve this rating")
     creditset = models.ForeignKey(CreditSet)
@@ -442,7 +442,7 @@ class Category(VersionedModel):
 
     def get_delete_url(self):
         """ Returns the URL of the page to confirm deletion of this object """
-        return reverse("admin:credits_category_delete", args=(self.id,))
+        return reverse('admin:credits_category_delete', args=(self.id,))
 
     def get_parent(self):
         """ Returns the parent element for crumbs """
@@ -478,7 +478,7 @@ class Category(VersionedModel):
     def get_short_name(self):
         return self.abbreviation
 
-    @transaction.commit_on_success
+    @transaction.atomic
     def update_ordering(self):
         """
             Updates all the credit numbers for credits in this category.
@@ -626,7 +626,7 @@ class Subcategory(VersionedModel):
 
     def get_delete_url(self):
         """ Returns the URL of the page to confirm deletion of this object """
-        return reverse("admin:credits_subcategory_delete", args=(self.id,))
+        return reverse('admin:credits_subcategory_delete', args=(self.id,))
 
 
 CREDIT_TYPE_CHOICES = (
@@ -798,6 +798,7 @@ class Credit(VersionedModel):
         subcategory.update_ordering()
 
     def save(self, *args, **kwargs):
+        self.identifier = self.get_identifier()
         if self.ordinal == -1:
             self.ordinal = _get_next_ordinal(
                 self.subcategory.credit_set.filter(type=self.type))
@@ -814,7 +815,7 @@ else:
 
     def get_delete_url(self):
         """ Returns the URL of the page to confirm deletion of this object """
-        return reverse("admin:credits_credit_delete", args=(self.id,))
+        return reverse('admin:credits_credit_delete', args=(self.id,))
 
     def get_formula_url(self):
         """ Returns the URL of the page to edit the forumula for
@@ -1007,6 +1008,9 @@ else:
         return self.documentationfield_set.exclude(
             id__in=self.get_child_fields())
 
+    def update_abbreviation_identifier(self):
+        """ Resave the credit identifier """
+
 
 def compile_formula(formula, label='Formula'):
     """
@@ -1061,7 +1065,7 @@ class ApplicabilityReason(VersionedModel):
 
     def get_delete_url(self):
         """ Returns the URL of the page to confirm deletion of this object """
-        return reverse("applicability-reason-delete", args=(self.id,))
+        return reverse('tool:credit_editor:applicability-reason-delete', args=(self.id,))
 
     def get_parent(self):
         """ Returns the parent element for crumbs """
@@ -1228,7 +1232,6 @@ class DocumentationField(VersionedModel):
         related_name='calculated_fields',
         help_text='Fields used in this field\'s formula calculation.',
         blank=True,
-        null=True,
         symmetrical=False)
     copy_from_field = models.ForeignKey(
         'self',
@@ -1380,7 +1383,7 @@ class DocumentationField(VersionedModel):
 
     def get_delete_url(self):
         """ Returns the URL of the page to confirm deletion of this object """
-        return reverse("admin:credits_documentationfield_delete",
+        return reverse('admin:credits_documentationfield_delete',
                        args=(self.id,))
 
     def is_required(self):

@@ -3,8 +3,6 @@ from django.core.serializers import serialize
 
 from stars.apps.credits.models import CreditSet, Unit, IncrementalFeature
 
-from optparse import make_option
-
 import re
 
 IND = 2
@@ -14,13 +12,16 @@ NK = True
 class Command(BaseCommand):
     args = '<creditset_id>'
     help = ('Exports a specific Creditset as JSON from the id.')
-    option_list = BaseCommand.option_list + (
-        make_option('--exclude-previous',
-                    action='store_true',
-                    dest='exclude-previous',
-                    default=False,
-                    help='Nullify links to previous versions'),
-    )
+
+    def add_arguments(self, parser):
+
+        parser.add_argument(
+            '--exclude-previous',
+            action='store_true',
+            dest='exclude-previous',
+            default=False,
+            help='Nullify links to previous versions',
+        )
 
     def handle(self, *args, **options):
         try:

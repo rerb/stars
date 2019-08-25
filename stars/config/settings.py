@@ -13,9 +13,11 @@ from django.contrib.messages import constants as messages
 
 sys.path.append('../')
 
-ADMINS = (('Bob Erb', 'bob.erb@aashe.org'),
-          ('Tylor Dodge', 'tylor@aashe.org'),
-          ('Chris Pelton', 'chris.pelton@aashe.org'))
+ADMINS = [
+    ('Bob Erb', 'bob.erb@aashe.org'),
+    ('Tylor Dodge', 'tylor@aashe.org'),
+    ('Chris Pelton', 'chris.pelton@aashe.org')
+]
 MANAGERS = ADMINS
 
 DEFAULT_CHARSET = 'utf-8'
@@ -23,9 +25,8 @@ DEFAULT_CHARSET = 'utf-8'
 PROJECT_PATH = os.path.join(os.path.dirname(__file__), '..')
 
 DEBUG = os.environ.get("DEBUG", False)
-TEMPLATE_DEBUG = DEBUG
 API_TEST_MODE = os.environ.get("API_TEST_MODE", DEBUG)
-FIXTURE_DIRS = ('fixtures', os.path.join(PROJECT_PATH, 'apps/api/fixtures'),)
+FIXTURE_DIRS = ['fixtures', os.path.join(PROJECT_PATH, 'apps/api/fixtures'), ]
 PROFILE = os.environ.get("PROFILE", False)
 
 USE_TZ = True
@@ -69,28 +70,55 @@ else:
     MEDIA_ROOT = os.environ.get("MEDIA_ROOT", None)
     STATIC_ROOT = os.environ.get("STATIC_ROOT", '')
 
-STATICFILES_DIRS = (
+STATICFILES_DIRS = [
     os.path.join(os.path.dirname(__file__), "..", "static"),
-)
+]
 
-STATICFILES_FINDERS = (
+STATICFILES_FINDERS = [
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
     'compressor.finders.CompressorFinder',
-)
+]
 
 SECRET_KEY = 'omxxweql@m7!@yh5a-)=f^_xo*(m2+gaz#+8dje)e6wv@q$v%@'
 
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader'
-)
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+            os.path.join(os.path.dirname(__file__), "..", "templates")
+        ],
+        'OPTIONS': {
+            'context_processors': [
+                # Use a custom context processor to get all the account and user info
+                # to the templates
+                'stars.apps.accounts.utils.account_context',
+                'stars.apps.helpers.utils.settings_context',
+                'django.template.context_processors.static',
+                'django.template.context_processors.media',
+                'django.contrib.messages.context_processors.messages',
+                "django.contrib.auth.context_processors.auth",
+                'django.template.context_processors.request',
+                'django_settings_export.settings_export',
+            ],
+            'loaders': [
+                'django.template.loaders.filesystem.Loader',
+                'django.template.loaders.app_directories.Loader'
+            ],
+            'debug': DEBUG
+        },
+    },
+]
 
 if not DEBUG:
-    TEMPLATE_LOADERS = (
-        ('django.template.loaders.cached.Loader',
-         TEMPLATE_LOADERS),
-    )
+    TEMPLATES[0]['OPTIONS'].update({
+        'loaders': [
+            'django.template.loaders.cached.Loader',
+            'django.template.loaders.filesystem.Loader',
+            'django.template.loaders.app_directories.Loader'
+        ]
+    })
 
 LANGUAGES = [
     ('en', 'English'),
@@ -112,9 +140,10 @@ MIDDLEWARE_CLASSES = [  # a list so it can be editable during tests (see below)
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.cache.FetchFromCacheMiddleware',
     'django.contrib.redirects.middleware.RedirectFallbackMiddleware',
-    'django.middleware.doc.XViewMiddleware',
+    'django.contrib.admindocs.middleware.XViewMiddleware',
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware']
+    'django.contrib.messages.middleware.MessageMiddleware'
+]
 
 CACHES = {
     'default': django_cache_url.parse(
@@ -130,33 +159,17 @@ if 'test' in sys.argv:
         'django.contrib.auth.backends.ModelBackend',
         'django_membersuite_auth.backends.MemberSuiteBackend')
 
-DASHBOARD_URL = "/tool/"
-LOGIN_URL = "/accounts/login/"
-LOGOUT_URL = "/accounts/logout/"
-LOGIN_REDIRECT_URL = "/"
+AUTH_USER_MODEL = 'auth.User'
+
+LOGIN_URL = '/accounts/login/'
+LOGOUT_URL = 'logout'
+LOGIN_REDIRECT_URL = 'tool-landing-page'
 ADMIN_URL = "/tool/admin/"
 MANAGE_INSTITUTION_URL = "/tool/"
-MANAGE_USERS_URL = MANAGE_INSTITUTION_URL + "manage/users/"
 
 ROOT_URLCONF = 'stars.urls'
 
-TEMPLATE_DIRS = [os.path.join(os.path.dirname(__file__), "..", "templates")]
-
-# Use a custom context processor to get all the account and user info
-# to the templates
-TEMPLATE_CONTEXT_PROCESSORS = (
-    "stars.apps.accounts.utils.account_context",
-    'stars.apps.helpers.utils.settings_context',
-    'django.core.context_processors.static',
-    'django.core.context_processors.media',
-    'django.contrib.messages.context_processors.messages',
-    "django.contrib.auth.context_processors.auth",
-    'django.core.context_processors.request',
-    'django_settings_export.settings_export'
-)
-
-INSTALLED_APPS = (
-    'longerusernameandemail',  # might need to be first
+INSTALLED_APPS = [
 
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -165,7 +178,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.redirects',
     'django.contrib.flatpages',
-    'django.contrib.formtools',
+    'formtools',
     'django.contrib.humanize',
     'django.contrib.staticfiles',
 
@@ -196,17 +209,16 @@ INSTALLED_APPS = (
     'stars.apps.bt_etl',
     # 'stars.tests',
 
-    'adv_cache_tag',
     'bootstrapform',
     'captcha',
     'collapsing_menu',
     'compressor',
     'django_celery_downloader',
     'django_celery_downloader.tests.demo_app',
+    'django_celery_results',
+    'djcelery',
     'django_extensions',
     'django_membersuite_auth',
-    'djcelery',
-    'file_cache_tag',
     'gunicorn',
     'iss',
     'logical_rules',
@@ -214,17 +226,18 @@ INSTALLED_APPS = (
     's3_folder_storage',
     'sorl.thumbnail',
     'tastypie',
-    'localflavor',
-)
+    'localflavor'
+]
 
 if 'test' in sys.argv:
-    INSTALLED_APPS += ('stars.test_factories',)
+    INSTALLED_APPS.append('stars.test_factories')
 
 # Permissions or user levels for STARS users
 STARS_PERMISSIONS = (
     ('admin', 'Administrator'),
     ('submit', 'Data Entry'),
-    ('view', 'Observer'))
+    ('view', 'Observer')
+)
 
 # Email
 EMAIL_BACKEND = os.environ.get(
@@ -247,19 +260,18 @@ THUMBNAIL_FORMAT = 'PNG'
 THUMBNAIL_DEBUG = os.environ.get("THUMBNAIL_DEBUG", False)
 
 # Celery
-# import djcelery
-# djcelery.setup_loader()
+
 CELERY_TIMEZONE = 'US/Eastern'
 CELERYBEAT_SCHEDULE = STARS_TASK_SCHEDULE
 BROKER_URL = os.environ.get(
     'CELERY_BROKER_URL', 'amqp://guest:guest@localhost:5672/')
 CELERY_ALWAYS_EAGER = os.environ.get('CELERY_ALWAYS_EAGER', False)
-CELERY_RESULT_BACKEND = os.environ.get(
-    'CELERY_RESULT_BACKEND',
-    'djcelery.backends.database:DatabaseBackend')
-CELERY_RESULT_DBURI = os.environ.get('CELERY_RESULT_DBURI',
-                                     "sqlite:///tmp/stars-celery-results.db")
-CELERY_CACHE_BACKEND = os.environ.get('CELERY_CACHE_BACKEND', 'dummy')
+CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'django-db')
+# CELERY_RESULT_DBURI = os.environ.get('CELERY_RESULT_DBURI',
+#                                      "sqlite:///tmp/stars-celery-results.db")
+CELERY_CACHE_BACKEND = os.environ.get('CELERY_CACHE_BACKEND', 'django-cache')
+CELERY_TASK_SERIALIZER = 'pickle'
+CELERY_ACCEPT_CONTENT = ['pickle', 'json', 'msgpack', 'yaml']
 
 # default is test mode
 AUTHORIZENET_LOGIN = os.environ.get('AUTHORIZENET_LOGIN', None)
@@ -390,6 +402,10 @@ LOGGING = {
         '': {
             'handlers': ['simple_console_handler', 'sentry']
         },
+        'django': {
+            'handlers': ['console'],
+            'propagate': True,
+        },
         'django.request': {
             'handlers': ['sentry'],
             'level': 'ERROR',
@@ -416,11 +432,11 @@ LOGGING = {
             'propagate': False,
             'filters': ['module_name_filter', 'request_filter']
         },
-        'qinspect': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
+        # 'qinspect': {
+        #     'handlers': ['console'],
+        #     'level': 'DEBUG',
+        #     'propagate': True,
+        # },
         'raven': {
             'level': 'DEBUG',
             'handlers': ['console', 'mail_admins_handler'],
@@ -458,7 +474,8 @@ MESSAGE_TAGS = {
     messages.INFO: 'alert fade in alert-info',
     messages.SUCCESS: 'alert fade in alert-success',
     messages.WARNING: 'alert fade in alert-warning',
-    messages.ERROR: 'alert fade in alert-error'}
+    messages.ERROR: 'alert fade in alert-error'
+}
 
 if os.path.exists(os.path.join(os.path.dirname(__file__), 'hg_info.py')):
     from hg_info import revision
@@ -467,8 +484,8 @@ if os.path.exists(os.path.join(os.path.dirname(__file__), 'hg_info.py')):
 # django debug toolbar
 DEBUG_TOOLBAR = os.environ.get('DEBUG_TOOLBAR', False)
 if DEBUG_TOOLBAR:
-    INTERNAL_IPS = ('127.0.0.1',)
-    INSTALLED_APPS = INSTALLED_APPS + ('debug_toolbar',)
+    INTERNAL_IPS = ['127.0.0.1', ]
+    INSTALLED_APPS.append('debug_toolbar')
     DEBUG_TOOLBAR_CONFIG = {
         'INTERCEPT_REDIRECTS': False,
     }
@@ -480,7 +497,7 @@ if DEBUG_TOOLBAR:
         'debug_toolbar.panels.request.RequestPanel',
         'debug_toolbar.panels.sql.SQLPanel',
         'debug_toolbar.panels.templates.TemplatesPanel',
-        'debug_toolbar.panels.logging.LoggingPanel',
+        'debug_toolbar.panels.logging.LoggingPanel'
     ]
 
 AUTHORIZE_CLIENT_TEST = os.environ.get('AUTHORIZE_CLIENT_TEST', False)
@@ -488,10 +505,6 @@ AUTHORIZE_CLIENT_DEBUG = os.environ.get('AUTHORIZE_CLIENT_DEBUG', False)
 
 # Test backends
 if 'test' in sys.argv:
-    # until fix for http://code.djangoproject.com/ticket/14105
-    MIDDLEWARE_CLASSES.remove(
-        'django.middleware.cache.FetchFromCacheMiddleware')
-    MIDDLEWARE_CLASSES.remove('django.middleware.cache.UpdateCacheMiddleware')
     DATABASES['default'] = dj_database_url.parse(
         os.environ.get('STARS_TEST_DB',
                        "sqlite:////tmp/stars_tests.db"))
@@ -521,9 +534,7 @@ AUTH_USER_MODEL = 'auth.User'
 
 # Performance
 QUERY_INSPECT_ENABLED = os.environ.get('QUERY_INSPECT_ENABLED', False)
-MIDDLEWARE_CLASSES += (
-    'qinspect.middleware.QueryInspectMiddleware',
-)
+MIDDLEWARE_CLASSES.append('qinspect.middleware.QueryInspectMiddleware')
 
 # optional password for dev sites
 PASSWORD_PROTECT = os.environ.get('PASSWORD_PROTECT', False)
@@ -541,10 +552,6 @@ MS_SECRET_KEY = os.environ["MS_SECRET_KEY"]
 MS_ASSOCIATION_ID = os.environ["MS_ASSOCIATION_ID"]
 STARS_MS_PUBLICATION_ID = os.environ["STARS_MS_PUBLICATION_ID"]
 
-############################
-# longerusernameandemail
-############################
-REQUIRE_UNIQUE_EMAIL = False
 
 STARS_BROCHURE_HOST = os.environ["STARS_BROCHURE_HOST"]
 STARS_REPORTS_HOST = os.environ["STARS_REPORTS_HOST"]

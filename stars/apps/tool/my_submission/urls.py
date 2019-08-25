@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
 from stars.apps.helpers.forms.forms import Confirm
 from stars.apps.tool.my_submission.forms import (ContactsForm,
@@ -29,9 +29,9 @@ from stars.apps.institutions.views import PDFDownloadView, ExcelDownloadView
 SUBCAT_PATH = "(?P<category_abbreviation>[\w-]+)/(?P<subcategory_slug>[\w-]+)"
 CREDIT_PATH = "%s%s" % (SUBCAT_PATH, "/(?P<credit_identifier>[\w-]+)")
 
-urlpatterns = patterns(
-    '',
+app_name = 'my_submission'
 
+urlpatterns = [
     url(r'^$',
         never_cache(SubmissionSummaryView.as_view()),
         name='submission-summary'),
@@ -52,7 +52,8 @@ urlpatterns = patterns(
         SubmitForRatingWizard.as_view([StatusForm,
                                        LetterForm,
                                        ContactsForm,
-                                       Confirm]),
+                                       Confirm],
+                                      condition_dict={'1': SubmitForRatingWizard.has_letter_feature}),
         name='submission-submit'),
 
     url(r'^submit/success/$', SubmitSuccessView.as_view(),
@@ -101,7 +102,7 @@ urlpatterns = patterns(
     url(r'^submission-review-summary/$',
         never_cache(SubmissionReviewSummaryView.as_view()),
         name='submission-review-summary')
-)
+]
 
 # Here's an illustration of the problem with caching
 # CreditSubmissionReportingFieldsView, noted above.

@@ -425,12 +425,15 @@ class Institution(models.Model):
 
     def get_location_string(self):
         """Returns a string specifying the location of this institution."""
-        if self.profile:
+        if self.profile is not None:
             location = self.profile.city
-            for field in (self.profile.state, self.profile.country_iso):
-                if location and field:
-                    location += ', '
-                location += field
+            if location is not None:
+                for field in (self.profile.state, self.profile.country_iso):
+                    if location and field:
+                        location += ', '
+                    location += field
+            else:
+                location = ''
         else:
             location = ''
         return location
@@ -597,7 +600,7 @@ class Subscription(models.Model):
         default=RATINGS_PER_SUBSCRIPTION)
     ratings_used = models.IntegerField(default=0)
     amount_due = models.FloatField(default=0)
-    reason = models.CharField(max_length='16', blank=True, null=True)
+    reason = models.CharField(max_length=16, blank=True, null=True)
     paid_in_full = models.BooleanField(default=False)
     late = models.BooleanField(default=False)
 
@@ -646,8 +649,8 @@ class SubscriptionPayment(models.Model):
     date = models.DateTimeField()
     amount = models.FloatField()
     user = models.ForeignKey(User)
-    method = models.CharField(max_length='8', choices=METHOD_CHOICES)
-    confirmation = models.CharField(max_length='16', blank=True, null=True)
+    method = models.CharField(max_length=8, choices=METHOD_CHOICES)
+    confirmation = models.CharField(max_length=16, blank=True, null=True)
 
     def __str__(self):
         return "%s: $%.2f (%s)" % (self.subscription.institution,
@@ -673,7 +676,7 @@ class RegistrationSurvey(models.Model):
     source = models.TextField("How did you hear about STARS?",
                               blank=True, null=True)
     reasons = models.ManyToManyField('RegistrationReason',
-                                     blank=True, null=True)
+                                     blank=True)
     other = models.CharField(max_length=64, blank=True, null=True)
     primary_reason = models.ForeignKey('RegistrationReason',
                                        related_name='primary_surveys',
@@ -706,7 +709,7 @@ class RespondentSurvey(models.Model):
     source = models.TextField("How did you hear about the CSDC?",
                               blank=True, null=True)
     reasons = models.ManyToManyField('RespondentRegistrationReason',
-                                     blank=True, null=True)
+                                     blank=True)
     other = models.CharField(max_length=64, blank=True, null=True)
     potential_stars = models.NullBooleanField("Is your institution "
                                               "considering registering as "
@@ -761,23 +764,23 @@ class AbstractAccount(BaseAccount):
     institution = models.ForeignKey(Institution)
     terms_of_service = models.BooleanField(default=False)
     # user_level is a role
-    user_level = models.CharField("Role", max_length='6',
+    user_level = models.CharField("Role", max_length=6,
                                   choices=STARS_USERLEVEL_CHOICES)
 
     class Meta:
         abstract = True
 
     def get_manage_url(self):
-        return reverse('account-list',
+        return reverse('tool:manage:account-list',
                        kwargs={'institution_slug': self.institution.slug})
 
     def get_edit_url(self):
-        return reverse('account-edit',
+        return reverse('tool:manage:account-edit',
                        kwargs={'institution_slug': self.institution.slug,
                                'pk': self.id})
 
     def get_delete_url(self):
-        return reverse('account-delete',
+        return reverse('tool:manage:account-delete',
                        kwargs={'institution_slug': self.institution.slug,
                                'pk': self.id})
 
@@ -811,17 +814,9 @@ class AbstractAccount(BaseAccount):
             Return the date of the last access to this account, or None
             Currently, this just uses the date of user's last login to STARS.
         """
-        # HACK alert - Django stores a default of now() in last_login
-        #              field when account is created.
-        #            - as a result, last_login < date_joined when user
-        #              hasn't logged in yet.
-        #  - seems a bit fragile, but that's really the only way I can
-        #    think of to determine if user has not logged in yet...
-
         if self.is_pending():
             return None
-        return (None if (self.user.last_login < self.user.date_joined) else
-                self.user.last_login)
+        return self.user.last_login
 
     # Each action below corresponds to an e-mail template for a
     # notification message

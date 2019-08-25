@@ -3,6 +3,7 @@
 """
     Tool to export data for SCI.
 """
+import codecs
 import datetime
 import string
 
@@ -14,8 +15,8 @@ from stars.apps.submissions.models import (CreditUserSubmission,
 from stars.apps.third_parties.utils import export_credit_csv
 
 
-START_DATE = datetime.date(year=2015, month=3, day=2)
-END_DATE = datetime.date(year=2018, month=3, day=30)
+START_DATE = datetime.date(year=2016, month=3, day=2)
+END_DATE = datetime.date(year=2019, month=3, day=1)
 
 
 """
@@ -92,7 +93,7 @@ for creditset in [CreditSet.objects.get(version="2.0"),
 
     # export subcategory score sheets
     filename = "%s_subcategory_scores.tsv" % creditset.version
-    outfile = open(filename, 'w+')
+    outfile = codecs.open(filename, encoding='utf-8', mode='w+')
 
     subcategory_headers = [
         "Institution Name",

@@ -44,7 +44,7 @@ def select_institution(request, id):
     if not institution:
         raise Http404("No such institution.")
     redirect_url = request.GET.get('redirect',
-                                   reverse('tool-summary',
+                                   reverse('tool:tool-summary',
                                            args=(institution.slug,)))
     return HttpResponseRedirect(redirect_url)
 
@@ -62,8 +62,6 @@ class ReportMixin(RulesMixin):
 class InstitutionList(ReportMixin, SortableTableView):
     """
         A quick report on registration for Jillian
-
-
         Institution Name
         Reg date
         Renewal Date
@@ -122,7 +120,6 @@ class InstitutionList(ReportMixin, SortableTableView):
                 .select_related(
                     'current_rating',
                     'current_submission',
-                    'current_submission__creditset__version',
-                    'is_participant'
+                    'current_submission__creditset__version'
                 )
                 )

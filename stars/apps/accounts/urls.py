@@ -1,12 +1,9 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
+from django.contrib.auth.views import login, logout_then_login
 
+app_name = 'accounts'
 
-urlpatterns = patterns(
-    '',
-    (r'^login/$', 'stars.apps.accounts.views.login_view'),
-    (r'^logout/$', 'django.contrib.auth.views.logout_then_login'),
-
-    url(r'^select-school/(?P<institution_id>\d+)/$',
-        'stars.apps.accounts.views.select_school',
-        name='select-school'),
-)
+urlpatterns = [
+    url(r'^login/$', login, name='login'),
+    url(r'^logout/$', logout_then_login, name='logout'),
+]

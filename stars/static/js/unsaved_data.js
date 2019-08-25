@@ -21,6 +21,7 @@ $(document).ready(function() {
           $(".modal-footer").hide();
           $("#modal-p").hide();
           $(".spinner").slideDown();
+
           var frm = $(".submit_form");
 
           $.ajax({

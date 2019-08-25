@@ -13,6 +13,7 @@ logger = getLogger('stars')
 
 register = template.Library()
 
+
 def lookup_help_context(context_name):
     """ Pulls the help text from the DB if it's available """
     try:
@@ -21,6 +22,7 @@ def lookup_help_context(context_name):
         logger.info("HelpContext, '%s', not found." % context_name)
         return None
 
+
 @register.inclusion_tag('helpers/tags/help_text.html')
 def show_help_context(context_name, as_tooltip=True, icon='icon-question-sign'):
     """ Displays a tool-tip for the help text for the given context. """
@@ -28,16 +30,18 @@ def show_help_context(context_name, as_tooltip=True, icon='icon-question-sign'):
 
     if help_context:
         return {
-                'help_text': re.sub(r'\r\n|\r|\n', ' ', help_context.help_text.replace("\"", "'")), #_clean(help_context.help_text, as_tooltip),
-                "tooltip": as_tooltip,
-                "id": context_name,
-                "help_text_title": help_context.title,
-                'icon': icon
-                }
+            # _clean(help_context.help_text, as_tooltip),
+            'help_text': re.sub(r'\r\n|\r|\n', ' ', help_context.help_text.replace("\"", "'")),
+            'tooltip': as_tooltip,
+            'id': context_name,
+            'help_text_title': help_context.title,
+            'icon': icon
+        }
     else:
         return {
-                    'help_text': None
-                }
+            'help_text': None
+        }
+
 
 @register.simple_tag
 def get_help_context(context_name):
@@ -45,9 +49,10 @@ def get_help_context(context_name):
     help_context = lookup_help_context(context_name)
 
     if not help_context:
-#        return "<a href='%s?key=%s'>Add Help Context</a>" % (urlresolvers.reverse('admin:helpers_helpcontext_add'), context_name)
+        #        return "<a href='%s?key=%s'>Add Help Context</a>" % (urlresolvers.reverse('admin:helpers_helpcontext_add'), context_name)
         return "..."
-    return help_context.help_text
+    return mark_safe(help_context.help_text)
+
 
 @register.inclusion_tag('helpers/tags/help_text.html')
 def show_help_text(help_text, as_tooltip=True, id=None, icon='icon-question-sign'):
@@ -56,6 +61,7 @@ def show_help_text(help_text, as_tooltip=True, id=None, icon='icon-question-sign
             "tooltip": as_tooltip,
             "id": id,
             'icon': icon}
+
 
 def _clean(text, as_tooltip):
     """ Helper to prepare the help text """
@@ -66,5 +72,6 @@ def _clean(text, as_tooltip):
         js_encoded = escape(js_encoded)
         js_encoded = re.sub(r'\r\n|\r|\n', '', js_encoded)
         js_encoded = re.sub(r'\"', "'", js_encoded)
-        js_encoded = js_encoded.replace('&quot;', '\&quot;').replace("&amp;", '\&amp;').replace("&#39;", '\&#39;')
+        js_encoded = js_encoded.replace('&quot;', '\&quot;').replace(
+            "&amp;", '\&amp;').replace("&#39;", '\&#39;')
     return mark_safe(js_encoded)

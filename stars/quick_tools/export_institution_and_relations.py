@@ -2,7 +2,7 @@ import sys
 from itertools import chain
 
 from django.core import serializers
-from django.contrib.admin.util import NestedObjects
+from django.contrib.admin.utils import NestedObjects
 
 from stars.apps.institutions.models import Institution
 

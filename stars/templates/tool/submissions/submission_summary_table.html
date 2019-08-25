@@ -19,7 +19,7 @@
       <th>
         STARS Version
       </th>
-      {% testrule institution_has_score_feature institution %}
+      {% testrule institution_is_participant institution %}
         <th>
           Provisional STARS Rating
           {% show_help_context 'provisional_rating' %}
@@ -44,7 +44,7 @@
         {% testrule user_can_migrate_version user institution %}
           {% if not submission_under_review %}
             <br/>
-            <a href="{% url 'migrate-options' institution.slug %}"
+            <a href="{% url 'tool:manage:migrate-options' institution.slug %}"
                class='btn btn-mini'>
               <i class='icon-share-alt'></i>
               Upgrade
@@ -52,7 +52,7 @@
           {% endif %}
         {% endtestrule %}
       </td>
-      {% testrule institution_has_score_feature institution %}
+      {% testrule institution_is_participant institution %}
         <td>
           {{ submissionset.get_STARS_rating }}
         </td>

@@ -195,7 +195,7 @@ def show_submission_form_for_field_inside_table(doc_field,
     return _context
 
 
-@register.assignment_tag
+@register.simple_tag
 def subcategory_has_opt_in_credits(subcategory):
     """Does `subcategory` have any opt-in Credits?"""
     return bool(subcategory.credit_set.filter(is_opt_in=True).count())

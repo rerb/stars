@@ -20,7 +20,7 @@
 {% block extra_head %}
   {{ block.super }}
   {% compress js %}
-    <script src="{{ STATIC_URL }}js/unsaved_data.js" type="text/javascript"></script>
+    <!-- <script src="{{ STATIC_URL }}js/unsaved_data.js" type="text/javascript"></script> -->
     <script type="text/javascript"
             src="{{ STATIC_URL }}admin/js/admin/RelatedObjectLookups.js">
     </script>
@@ -318,7 +318,7 @@
   </form>
 
   <!-- Modal -->
-  <div id="unsaved-data" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="unsaved-dataLabel" aria-hidden="true">
+  <!-- <div id="unsaved-data" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="unsaved-dataLabel" aria-hidden="true">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
         <h3 id="myModalLabel">Save your changes?</h3>
@@ -336,7 +336,7 @@
           Continue without saving
         </button>
       </div>
-  </div>
+  </div> -->
 
   <div id="new-responsible-party" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="new-responsible-party" aria-hidden="true">
       <div class="modal-header">
@@ -347,7 +347,7 @@
         <p id="responsible-party-p">Please, save any changes to this credit before performing this action.</p>
         <div class="spinner"></div>
         <div class="checkmark"></div>
-        <form class="form-horizontal responsible-party-form" id="{% url 'responsible-party-create' institution.slug %}">
+        <form class="form-horizontal responsible-party-form" id="{% url 'tool:manage:responsible-party-create' institution.slug %}">
             <div class="control-group required">
                 <label class="control-label" for="id_first_name">First name</label>
                 <div class="controls">

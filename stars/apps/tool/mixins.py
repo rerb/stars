@@ -55,6 +55,7 @@ class InstitutionAdminToolMixin(InstitutionToolMixin):
     """
         An InstitutionToolMixin that's available only to institution admins.
     """
+
     def update_logical_rules(self):
         super(InstitutionAdminToolMixin, self).update_logical_rules()
         self.add_logical_rule({'name': 'user_is_institution_admin',
@@ -76,42 +77,43 @@ class UserCanEditSubmissionMixin(SubmissionToolMixin):
         A SubmissionToolMixin that's available only to users with
         permission to edit submissions.
     """
+
     def update_logical_rules(self):
         super(UserCanEditSubmissionMixin, self).update_logical_rules()
         self.add_logical_rule({
-                               'name': 'submission_is_not_locked',
-                               'param_callbacks': [
-                                                   ('submission',
-                                                    'get_submissionset')
-                                                   ],
-                               'redirect_url': reverse('submission-locked')
-                               })
+            'name': 'submission_is_not_locked',
+            'param_callbacks': [
+                ('submission',
+                 'get_submissionset')
+            ],
+            'redirect_url': reverse('tool:submission-locked')
+        })
 
         self.add_logical_rule({
-                                'name': 'user_can_edit_submission',
-                                'param_callbacks': [
-                                    ('user', 'get_request_user'),
-                                    ('submission', 'get_submissionset')
-                                ],
-                               'message': (
-                                            "Sorry, but you do not have access"
-                                            " to edit this submission"
-                                            )
-                               })
+            'name': 'user_can_edit_submission',
+            'param_callbacks': [
+                ('user', 'get_request_user'),
+                ('submission', 'get_submissionset')
+            ],
+            'message': (
+                "Sorry, but you do not have access"
+                " to edit this submission"
+            )
+        })
 
 
 class UserCanEditSubmissionOrIsAdminMixin(SubmissionToolMixin):
 
-        def update_logical_rules(self):
-            super(UserCanEditSubmissionOrIsAdminMixin,
-                  self).update_logical_rules()
-            self.add_logical_rule(
-                {'name': 'user_can_edit_submission_or_is_admin',
-                 'param_callbacks': [('user', 'get_request_user'),
-                                     ('submission', 'get_submissionset')],
-                 'redirect_url': reverse('submission-locked'),
-                 'message': ("Sorry, but you do not have access"
-                             " to edit this submission")})
+    def update_logical_rules(self):
+        super(UserCanEditSubmissionOrIsAdminMixin,
+              self).update_logical_rules()
+        self.add_logical_rule(
+            {'name': 'user_can_edit_submission_or_is_admin',
+             'param_callbacks': [('user', 'get_request_user'),
+                                 ('submission', 'get_submissionset')],
+             'redirect_url': reverse('tool:submission-locked'),
+             'message': ("Sorry, but you do not have access"
+                         " to edit this submission")})
 
 
 class SubmissionSetIsNotLockedMixin(SubmissionToolMixin):
@@ -119,9 +121,10 @@ class SubmissionSetIsNotLockedMixin(SubmissionToolMixin):
         A SubmissionToolMixin that's available only if the current
         submissionset is not locked.
     """
+
     def update_logical_rules(self):
         super(SubmissionSetIsNotLockedMixin, self).update_logical_rules()
         self.add_logical_rule({
             'name': 'submission_is_not_locked',
             'param_callbacks': [('submission', 'get_submissionset')],
-            'redirect_url': reverse('submission-locked') })
+            'redirect_url': reverse('tool:submission-locked')})

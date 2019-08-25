@@ -4,10 +4,10 @@
 {% load submit_tags %}
 {% load report_tags %}
 {% load thumbnail %}
-{% load custom_caching %}
+
 
 {% block h1 %}
-  <a href="{% url 'scorecard-list' institution.slug %}">
+  <a href="{% url 'institutions:scorecard-list' institution.slug %}">
     {{ institution }}
   </a>
   <h4>
@@ -43,13 +43,13 @@
 {% endblock %}
 
 {% block summaryTable %}
-  <!-- template cached: {% now "jS F Y H:i" %} -->
+  
   {% if preview %}
     <div class="alert">
       <p>
         This is a preview of your report. To continue editing your
         final report please go to
-        <a href="{% url 'submission-summary' institution.slug submissionset.id %}">
+        <a href="{% url 'tool:my_submission:submission-summary' institution.slug submissionset.id %}">
           My Submission</a>.
       </p>
       <p>

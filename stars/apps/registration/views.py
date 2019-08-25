@@ -1,7 +1,7 @@
 from logging import getLogger
 
 from django.contrib.auth.models import User
-from django.contrib.formtools.wizard.views import SessionWizardView
+from formtools.wizard.views import SessionWizardView
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
@@ -141,7 +141,7 @@ class InstitutionCreateView(CreateView):
         return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
-        return reverse('tool-summary',
+        return reverse('tool:tool-summary',
                        kwargs={'institution_slug': self.return_slug})
 
     def set_up_account(self, person, institution):
@@ -219,6 +219,6 @@ class SurveyView(InstitutionAdminToolMixin, CreateView):
             return RespondentRegistrationSurveyForm
 
     def get_success_url(self):
-        return reverse('tool-summary',
+        return reverse('tool:tool-summary',
                        kwargs={'institution_slug':
                                self.get_institution().slug})

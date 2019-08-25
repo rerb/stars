@@ -14,7 +14,7 @@
 
 {% block crumb-tab %}
 	<li>
-		<a href="{% url 'scorecard-list' institution.slug %}">{{ institution }}</a>
+		<a href="{% url 'institutions:scorecard-list' institution.slug %}">{{ institution }}</a>
 		<span class="divider">/</span>
 	</li>
 	<li>

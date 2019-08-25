@@ -53,23 +53,23 @@
                     <td class='buttonColumn'>
                         {% ifnotequal account.user user %}
                             <a href=
-                            "{% url 'account-edit' institution.slug account.id %}"
+                            "{% url 'tool:manage:account-edit' institution.slug account.id %}"
                             >
                                 <i class='icon-pencil'></i>
                             </a>
                             {% if account.is_pending %}
-                                <a href="{% url 'pending-account-delete' institution.slug account.id %}">
+                                <a href="{% url 'tool:manage:pending-account-delete' institution.slug account.id %}">
                             {% else %}
-                                <a href="{% url 'account-delete' institution.slug account.id %}">
+                                <a href="{% url 'tool:manage:account-delete' institution.slug account.id %}">
                             {% endif %}
                                 <i class='icon-trash'></i>
                             </a>
                         {% else %}
                             {% if user.is_staff %}
                                 {% if account.is_pending %}
-                                    <a href="{% url 'pending-account-delete' institution.slug account.id %}">
+                                    <a href="{% url 'tool:manage:pending-account-delete' institution.slug account.id %}">
                                 {% else %}
-                                    <a href="{% url 'account-delete' institution.slug account.id %}">
+                                    <a href="{% url 'tool:manage:account-delete' institution.slug account.id %}">
                                 {% endif %}
                                   <i class='icon-trash'></i>
                               </a>
@@ -80,7 +80,7 @@
              {% endfor %}
          </tbody>
      </table>
-     <a href="{% url 'account-create' institution.slug %}"
+     <a href="{% url 'tool:manage:account-create' institution.slug %}"
         class='btn btn-primary'>
          Add a User
      </a>
