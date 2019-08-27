@@ -91,8 +91,8 @@ TEMPLATES = [
         ],
         'OPTIONS': {
             'context_processors': [
-                # Use a custom context processor to get all the account and user info
-                # to the templates
+                # Use a custom context processor to get all the
+                # account and user info to the templates
                 'stars.apps.accounts.utils.account_context',
                 'stars.apps.helpers.utils.settings_context',
                 'django.template.context_processors.static',
@@ -111,14 +111,14 @@ TEMPLATES = [
     },
 ]
 
-if not DEBUG:
-    TEMPLATES[0]['OPTIONS'].update({
-        'loaders': [
-            'django.template.loaders.cached.Loader',
-            'django.template.loaders.filesystem.Loader',
-            'django.template.loaders.app_directories.Loader'
-        ]
-    })
+# if not DEBUG:
+#     TEMPLATES[0]['OPTIONS'].update({
+#         'loaders': [
+#             'django.template.loaders.cached.Loader',
+#             'django.template.loaders.filesystem.Loader',
+#             'django.template.loaders.app_directories.Loader'
+#         ]
+#     })
 
 LANGUAGES = [
     ('en', 'English'),
