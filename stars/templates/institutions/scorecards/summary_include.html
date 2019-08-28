@@ -43,7 +43,7 @@
 {% endblock %}
 
 {% block summaryTable %}
-  
+
   {% if preview %}
     <div class="alert">
       <p>
@@ -51,16 +51,6 @@
         final report please go to
         <a href="{% url 'tool:my_submission:submission-summary' institution.slug submissionset.id %}">
           My Submission</a>.
-      </p>
-      <p>
-        Benchmarking charts are included below for full access
-        subscribers. Because benchmarking is based on institution
-        type, the data might be unavailable until your institution's
-        type is declared in IC-1: Institutional Boundary.
-      </p>
-      <p>
-        The charts will not appear in the public report and are not
-        available to basic access users.
       </p>
     </div>
   {% endif %}
