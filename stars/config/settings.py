@@ -111,15 +111,6 @@ TEMPLATES = [
     },
 ]
 
-# if not DEBUG:
-#     TEMPLATES[0]['OPTIONS'].update({
-#         'loaders': [
-#             'django.template.loaders.cached.Loader',
-#             'django.template.loaders.filesystem.Loader',
-#             'django.template.loaders.app_directories.Loader'
-#         ]
-#     })
-
 LANGUAGES = [
     ('en', 'English'),
 ]

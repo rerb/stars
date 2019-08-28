@@ -1560,11 +1560,15 @@ class CreditSubmission(models.Model):
             messages.append(numeric_error)
 
         if points < 0 or points > self.credit.point_value:  # is it in range?
+            try:
+                error_institution = self.get_institution()
+            except AttributeError:
+                error_institution = "TEST CREDIT"
             range_error = (
                 "Points ({points}) are out of range (0 - {limit}) "
                 "(Institution: {institution}; credit: {credit}.)".format(
                     points=points, limit=self.credit.point_value,
-                    institution=self.get_institution(),
+                    institution=error_institution,
                     credit=str(self.credit).strip()))
             if log_error:
                 logger.error(range_error)
