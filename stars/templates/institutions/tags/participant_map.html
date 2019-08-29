@@ -15,7 +15,7 @@
 								content: "<p style='text-align: center'>
 								<b>{{ i.institution.org_name }}</b><br/>
 								{% if i.current_rating %}
-									{% thumbnail i.current_rating.image_large "70x70" as im %}
+									{% thumbnail i.image_large "70x70" as im %}
 										<a href='{{ i.rated_submission.get_scorecard_url }}'>
 										    <img src='{{ im.url }}' style='margin: 5px;' /></a>
 									{% endthumbnail %}
