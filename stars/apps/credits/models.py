@@ -13,6 +13,7 @@ from django.db.models.signals import post_init
 from django.template.defaultfilters import slugify
 from django.utils.encoding import smart_unicode
 from jsonfield import JSONField
+from sorl.thumbnail import ImageField
 
 from stars.apps.credits.utils import get_next_variable_name
 from mixins import VersionedModel
