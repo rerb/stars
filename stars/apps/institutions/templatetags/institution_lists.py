@@ -54,11 +54,13 @@ def show_institutions_map():
             'rated_submission': i.rated_submission,
             'subscription': i.access_level == "Full"
         }
-        # if i.charter_participant:
-        #     d['image_path'] = "https://stars.aashe.org/media/static/images/seals/Stars_Seal_Charter_Particip_RGB_300.png"
-        #     d['image_title'] = "Charter Participant"
+
+        if i.current_rating:
+            d['image_large'] = i.current_rating.image_large
+            d['map_icon'] = i.current_rating.map_icon.url
+
         if i.current_subscription:
-            d['image_path'] = "https://stars.aashe.org/media/static/images/seals/Stars_Seal_Participant_RGB_300.png"
+            d['image_path'] = "https://reports.aashe.org/media/static/images/seals/Stars_Seal_Participant_RGB_300.png"
             d['image_title'] = "Current STARS Participant"
         i_list.append(d)
 

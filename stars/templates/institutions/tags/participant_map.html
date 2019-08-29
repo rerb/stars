@@ -27,7 +27,7 @@
 									{% endthumbnail %}
 								{% endif %}</p>",
 								{% if i.current_rating %}
-						            icon: "{{ i.current_rating.map_icon.url }}"
+						            icon: "{{ i.map_icon }}"
 								{% elif i.subscription == True %}
 									icon: {
 										path: google.maps.SymbolPath.CIRCLE,

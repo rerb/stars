@@ -185,8 +185,7 @@
 	    <th>Active Participants</th>
 	    <td style="text-align:right">{{ current_active_participants }}</td>
 	  </tr>
-	  </tr>
-          <tr>
+      <tr>
 	    <th>Rated Institutions</th>
 	    <td style="text-align:right">{{ total_rating_count }}</td>
 	  </tr>
@@ -200,16 +199,14 @@
     <div class="span12">
       <h2 class='dashboard'>Participants by Country</h2>
     </div>
-    <!--put a comment here-->
       <div class="span12 dashboard-map" id="map_canvas" style='height: 500px;'></div>
-    <!-- -->
   </div>
-  <!--put a comment here-->
-    <div class="well well-sm">
+  <div class="well well-sm">
       STARS pins represent rated institutions. Green dots are unrated institutions
       with full access. Blue dots are unrated institutions with basic access.
-    </div>
-  <!-- -->
+  </div>
+
+  <br>
 
   <div class="row">
     <div class="span6">
@@ -246,6 +243,6 @@
 {% block extra_footer %}
   {{ block.super }}
 
-    {% show_institutions_map %}
+  {% show_institutions_map %}
 
 {% endblock %}
