@@ -1,19 +1,17 @@
 {% load thumbnail %}
 
-<div id="ratingCarousel" class="carousel slide" data-interval="1000">
-  <!-- Carousel items -->
+<div id="ratingCarousel" class="carousel slide" data-ride="carousel">
   <div class="carousel-inner">
     {% for ss in ss_list %}
-    <div class="{% if forloop.first %}active{% endif %} item"
-    style="text-align: center;">
+    <div class="{% if forloop.first %}active{% endif %} carousel-item">
         <a href="{{ ss.get_scorecard_url }}">
           {% thumbnail ss.rating.image_large "70x70" as im %}
-          <img src="{{ im.url }}" width="70" height="70" alt="{{ss.rating}}"/>
+          <img class="d-block" src="{{ im.url }}" width="70" height="70" alt="{{ss.rating}}"/>
           {% endthumbnail %}
           <h4>{{ ss.institution }}</h4>
         </a>
         <span class="small">Submitted {{ ss.date_submitted|date:"F Y" }}</span>
     </div>
     {% endfor %}
-  </div><!-- /.carousel-inner -->
-</div><!-- /#regCarousel -->
+  </div>
+</div>

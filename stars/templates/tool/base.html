@@ -29,20 +29,20 @@
 {% block content %}
   {% include "terms/modal_container.html" %}
 
-  <div class='row'>
-    <div class='span3'>
+
+    <div class='col-12 col-sm-4 col-md-3'>
       {% block tool_menu %}
         {% include "tool/menu.html" %}
       {% endblock %}
       {% block left_nav %}{% endblock %}
     </div>
-    <div class='span9'>
+    <div class='col'>
       {% if institution %}
         <h1>{{ institution }}</h1><br/>
       {% endif %}
       {% block tool_content %}{% endblock %}
     </div>
-  </div>
+ 
 {% endblock %}
 
 {% block extra_footer %}

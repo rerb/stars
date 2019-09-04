@@ -7,7 +7,7 @@
 {% block institution_content %}
 
 	<div class='row'>
-		<div class='span5 offset2'>
+		<div class='col'>
 			<div class='alert alert-info' style='text-align: center;'>
 				{{ current_submission.creditset }}
 				<i class='icon-arrow-right icon-white'></i>
@@ -16,7 +16,7 @@
 		</div>
 	</div>
 	<div class='row'>
-		<div class='span9'>
+		<div class='col'>
     		{% display_block_content 'version_migration_warning' user %}
 
 			<div class='alert alert-warning'>

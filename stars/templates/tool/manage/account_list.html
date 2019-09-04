@@ -2,17 +2,23 @@
 
 {% load content %}
 
-{% block crumbs-tool %}<li>Users</li>{% endblock %}
-
 {% block tabs %}
 	{% with active_tab="users" %}{{ block.super }}{% endwith %}
 {% endblock %}
 
+{% block crumbs-tool %}
+    <li>Users</li>
+{% endblock %}
+
+<div class="col-8">
 {% block help_content %}
     {% display_block_content 'list_accounts' user %}
 {% endblock %}
+</div>
+
 
 {% block institution_content %}
+
     <table class='table'>
     	<thead>
             <tr>
@@ -55,14 +61,14 @@
                             <a href=
                             "{% url 'tool:manage:account-edit' institution.slug account.id %}"
                             >
-                                <i class='icon-pencil'></i>
+                                <i class='fa fa-pencil'></i>
                             </a>
                             {% if account.is_pending %}
                                 <a href="{% url 'tool:manage:pending-account-delete' institution.slug account.id %}">
                             {% else %}
                                 <a href="{% url 'tool:manage:account-delete' institution.slug account.id %}">
                             {% endif %}
-                                <i class='icon-trash'></i>
+                                <i class='fa fa-trash'></i>
                             </a>
                         {% else %}
                             {% if user.is_staff %}
@@ -71,7 +77,7 @@
                                 {% else %}
                                     <a href="{% url 'tool:manage:account-delete' institution.slug account.id %}">
                                 {% endif %}
-                                  <i class='icon-trash'></i>
+                                  <i class='fa fa-trash'></i>
                               </a>
                             {% endif %}
                         {% endifnotequal %}
@@ -92,4 +98,5 @@
              <a href='http://www.aashe.org/user/register'>www.aashe.org/user/register</a>.
          </span>
      </p>
+
 {% endblock %}

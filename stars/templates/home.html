@@ -10,7 +10,7 @@
 <!-- template cached: {% now "jS F Y H:i" %} -->
 <div class="row" style="padding-top: 10px;padding-bottom: 10px;background-repeat: no-repeat;">
 
-  <div class="span3" style="text-align: center;">
+  <div class="col" style="text-align: center;">
     <a
       href="/pages/participate/register-stars.html"
       class="btn btn-success btn-large"
@@ -21,13 +21,9 @@
     style='background-color: white;'>
       Why Participate?
     </a>
-    <!-- <div style='background-color: #eee; border: 1px solid #ddd; margin-top: 3em;'>
-      <label for="report-search">Find an Institution:</label>
-      <input type="text" class="input-large" />
-    </div> -->
   </div>
 
-  <div class="span3" style='text-align: center;padding-bottom: 20px;'>
+  <div class="col" style='text-align: center;padding-bottom: 20px;'>
     <a href="/pages/about/technical-manual.html"
       class='btn'
       style='margin-bottom: 5px;'>
@@ -36,7 +32,7 @@
     <img src="{{ STATIC_URL }}images/home/tm.png" height="130" alt="STARS Technical Manual"/></a>
   </div>
 
-  <div class="span3" style="text-align: center;">
+  <div class="col" style="text-align: center;">
     <a href="{% url 'institutions:participants-reports' %}"
       class="btn"
       style='margin-bottom: 5px;'>
@@ -44,7 +40,7 @@
     {% show_rated_registrants %}
   </div>
 
-  <div class="span3" style="text-align: center;">
+  <div class="col" style="text-align: center;">
       <a href="/institutions/data-displays/dashboard/"
         class="btn">
         Explore the Data »</a><br/><br/>
@@ -56,19 +52,11 @@
   </div>
  </div>
 
-  {% comment %}
-   <div class="row" style='margin-top: 15px;'>
-     <div class="span12" style="text-align: center; height: 400px" id="map_canvas">
-       <!-- <img src='{{ STATIC_URL }}/images/home/map-placeholder.png' /> -->
-     </div>
-   </div>
-  {% endcomment %}
-
  <br/><br/>
 
   <div class="row">
 
-    <div class="span12">
+    <div class="col">
       <div class="frontblock boxleft">
         <h2>Latest Updates</h2>
 	     {% display_block_content "highlights" user %}
@@ -96,16 +84,6 @@
       </div>
     </div>
 
-    {% comment %}
-      <div class="span6 social-tabs">
-        <div class="frontblock boxleft" style="text-align: center; color: #aaa;">
-          <small>Advertisement</small>
-          <div id="mv" style="border: 1px solid #bbb; padding: 10px;margin:auto">
-          </div>
-        </div>
-      </div>
-    {% endcomment %}
-
   </div><!-- end row -->
 
   <script>
@@ -114,9 +92,6 @@
     });
   </script>
 
-  {% comment %}
-    {% show_institutions_map %}
-  {% endcomment %}
 
   {% endcache %}
 {% endblock %}

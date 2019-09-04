@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block institution_content %}
-
+<div class="col-8">
     <form method='post' action='.' class='form-horizontal'>
         {{ form|bootstrap }}
         <div class='form-actions'>
@@ -31,5 +31,5 @@
         <h3>Assigned Credits</h3>
         {% include "tool/manage/responsible_party_credits.html" %}
     {% endif %}
-
+</div>
 {% endblock %}

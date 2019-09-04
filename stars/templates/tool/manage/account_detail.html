@@ -8,6 +8,7 @@
 {% endblock help_content %}
 
 {% block institution_content %}
+<div class="col-8">
     <form method='post' action='.' class='form-horizontal'>
         {{ form|bootstrap }}
         {% comment %}
@@ -43,4 +44,5 @@
             </button>
         </div>
     </form>
+</div>    
 {% endblock %}

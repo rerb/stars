@@ -18,12 +18,14 @@
 {% block institution_content %}
 
 	<div class='row'>
-		<div class='span8'>
+		<div class='col-10'>
 			{% display_block_content 'migrate_base' user %}
 		</div>
-		<div class='span3'>
+    </div>
+    <div class="row">
+		<div class='col-4'>
 			<h3>Version Upgrade</h3>
-			<p>Upgrade Submission to <strong>{{ latest_creditset }}</strong>.</p>
+			<p>Latest version: <strong>{{ latest_creditset }}</strong>.</p>
 			{% if active_submission.creditset != latest_creditset %}
 				{% testrule user_can_migrate_version user institution %}
 					<a href="{% url 'tool:manage:migrate-version' institution.slug active_submission.id %}" class='btn btn-primary'>Upgrade Now</a>
@@ -36,7 +38,7 @@
 				</div>
 			{% endif %}
 		</div>
-		<div class='span5 offset1'>
+		<div class='col-6'>
 			<h3>Data Migration</h3>
 			<p>Pull data from previous Reports.</p>
 			{% testrule user_can_migrate_data user active_submission.institution %}
@@ -91,4 +93,5 @@
 			{% endtestrule %}
 		</div>
 	</div>
+    </div>
 {% endblock %}
