@@ -30,7 +30,7 @@
       	{% endwith %}
 {% endcomment %}
 
-<table class="table table-bordered tabular">
+<table class="table paper-sheet">
   <thead>
     {% for row in documentation_field.get_sub_table %}
       <tr>
@@ -49,10 +49,11 @@
         {% endfor %}
 
         {% if forloop.first %}
-          </thead>
-          <tbody>
+        </tr>
+    </thead>
+    <tbody>
         {% endif %}
-      </tr>
+
     {% endfor %}
   </tbody>
 </table>

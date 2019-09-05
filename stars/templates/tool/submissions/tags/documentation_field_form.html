@@ -1,7 +1,7 @@
 {% load help %}
 
 {% autoescape off %}
-<div class="control-group{% if field_form.value.errors %} error{% else %}{% if field_form.warnings %} warning{% endif %}{% endif %}">
+<div class="form-group{% if field_form.value.errors %} error{% else %}{% if field_form.warnings %} warning{% endif %}{% endif %}">
   <!--
   submission field:
   {{ field_form.instance }}

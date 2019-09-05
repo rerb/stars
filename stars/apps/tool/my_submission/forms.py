@@ -114,6 +114,8 @@ class SubmissionFieldForm(SubmissionFieldFormMixin,
     def __init__(self, *args, **kwargs):
         """ Add any specified options to the form's value field """
         super(SubmissionFieldForm, self).__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            field.widget.attrs['class'] = 'form-control'
         self.warnings = None
 
     def field_includes_units(self):

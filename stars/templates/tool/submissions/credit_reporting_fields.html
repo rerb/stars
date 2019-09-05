@@ -103,52 +103,59 @@
     <div class='creditContent'>
       <h2>Reporting Fields</h2>
       <br>
-      {% display_block_content "global_credit_notice" user %}
-      {% with form as submission_form %}
-        {% include "tool/submissions/submission_fields_form.html" %}
-      {% endwith %}
-      <hr/>
-      <h3>Notes</h3>
-      <label>Data source(s) and notes about the submission
-        {% if institution.is_participant %} (public){% endif %}:
-      </label>
-      {% if form.submission_notes.errors %}
-        {{ form.errors.submission_notes }}
-      {% endif %}
-      <div class='field-form'>
-        {{ form.submission_notes }}
+      <div class="col-8">
+         {% display_block_content "global_credit_notice" user %}
+      </div>
+      <div class="col-sm-12 col-md-11 col-lg-10">
+          {% with form as submission_form %}
+            {% include "tool/submissions/submission_fields_form.html" %}
+          {% endwith %}
+          <hr/>
+          <h3>Notes</h3>
+          <label>Data source(s) and notes about the submission
+            {% if institution.is_participant %} (public){% endif %}:
+          </label>
+          {% if form.submission_notes.errors %}
+            {{ form.errors.submission_notes }}
+          {% endif %}
+          <div class='field-form'>
+            {{ form.submission_notes }}
+          </div>
+
+          <hr/>
+          <h3>
+            {% if not credit.subcategory.category.creditset.has_optional_responsible_parties_feature %}
+          	  <span class="required_note"
+    	        title="This field is required to complete credit">*</span>
+            {% endif %}
+            Responsible Party
+          </h3>
+          {% if form.responsible_party.errors %}
+    	{{ form.errors.responsible_party }}
+          {% endif %}
+          {{ form.responsible_party|bootstrap }}
+          <button type='button' class="btn"
+              onclick="openAddResponsibleParty();"
+    	      title='Add New Responsible Party'>
+    	  Create New Responsible Party
+          </button>
+          {% show_help_context 'responsible_party' %}
+          <br/>
+          {% if form.responsible_party_confirm.errors %}
+    	{{ form.errors.responsible_party_confirm }}
+          {% endif %}
+          {% if not credit.subcategory.category.creditset.has_optional_responsible_parties_feature %}
+            {{ form.responsible_party_confirm|bootstrap }}
+          {% endif %}
+
+          <hr/>
+
+          {{ form.submission_status }}
+          {{ form.applicability_reason }}
       </div>
 
-      <hr/>
-      <h3>
-        {% if not credit.subcategory.category.creditset.has_optional_responsible_parties_feature %}
-      	  <span class="required_note"
-	        title="This field is required to complete credit">*</span>
-        {% endif %}
-        Responsible Party
-      </h3>
-      {% if form.responsible_party.errors %}
-	{{ form.errors.responsible_party }}
-      {% endif %}
-      {{ form.responsible_party|bootstrap }}
-      <button type='button' class="btn"
-          onclick="openAddResponsibleParty();"
-	      title='Add New Responsible Party'>
-	  Create New Responsible Party
-      </button>
-      {% show_help_context 'responsible_party' %}
-      <br/>
-      {% if form.responsible_party_confirm.errors %}
-	{{ form.errors.responsible_party_confirm }}
-      {% endif %}
-      {% if not credit.subcategory.category.creditset.has_optional_responsible_parties_feature %}
-        {{ form.responsible_party_confirm|bootstrap }}
-      {% endif %}
 
-      <hr/>
 
-      {{ form.submission_status }}
-      {{ form.applicability_reason }}
 
       <script>
        function saveWithStatus(status) {
@@ -219,7 +226,7 @@
 	    <button type='button' id='saveAsInProgress'
 		    onclick="saveWithStatus('p');"
 		    class="btn{% if form.errors %} errors{% endif %}">
-	      <i class='icon-edit'></i>
+	      <i class='fa fa-pencil'></i>
 	      In progress
 	    </button>
 	  </div>
@@ -229,7 +236,7 @@
               <button type='button' id='saveAsComplete'
                       onclick="saveWithStatus('c');"
                       class="btn btn-success{% if form.errors %} errors{% endif %}">
-                <i class='icon-check icon-white'></i>
+                <i class='fa fa-check icon-white'></i>
                 Complete
               </button>
             </div>
@@ -245,7 +252,7 @@
               <button type='button' id='saveAsResubmitted'
                       onclick="saveWithStatus('c');"
                       class="btn btn-success{% if form.errors %} errors{% endif %}">
-                <i class='icon-check icon-white'></i>
+                <i class='fa fa-check icon-white'></i>
                 Resubmit
               </button>
             </div>
@@ -256,7 +263,7 @@
 	      <button type='button' id='saveAsNotPursuing'
 		      onclick="saveWithStatus('np');"
 	              class="btn btn-warning{% if form.errors %} errors{% endif %}">
-		<i class="icon-remove-sign icon-white"></i>
+		<i class="fa fa-times-circle icon-white"></i>
 		Not pursuing
 	      </button>
 	    </div>
@@ -266,7 +273,7 @@
 	    <div class="btn-group">
 	      <button class="btn btn-info dropdown-toggle"
                       data-toggle="dropdown" type="button" id='saveAsNA'>
-		<i class="icon-ban-circle icon-white"></i>
+		<i class="fa fa-ban icon-white"></i>
 		Not Applicable
 		<span class="caret"></span>
 	      </button>

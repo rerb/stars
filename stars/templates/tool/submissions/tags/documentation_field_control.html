@@ -19,7 +19,7 @@
   {% include "credits/tabular_field.html" %}
 
 {% else %}
-  {{ field_form.value }} <!-- {{ field_form.instance.id }} -->
+  {{ field_form.value }}<!-- {{ field_form.instance.id }} -->
   {% if documentation_field.type == 'numeric' or documentation_field.type == 'calculated' and not editing %}
     {{ field_form.metric_value }}
   {% endif %}
@@ -45,7 +45,7 @@
     {% endwith %}
     {% if editing %}
       <a href='{{ documentation_field.get_edit_url }}'>
-        <i class='icon-edit'></i>
+        <i class='fa fa-pencil'></i>
       </a>
     {% endif %}
   {% endif %}

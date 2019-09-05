@@ -1,83 +1,79 @@
 {% load logical_rules_tags %}
 
 <ul class="nav nav-tabs">
-  <li {% if active == "fields"%} class='active'{% endif %}>
-  	<a href="{{ credit_submission.get_submit_url }}">Reporting Fields</a>
+  <li class="nav-item">
+  	<a href="{{ credit_submission.get_submit_url }}"
+        class="nav-link {% if active == 'fields'%}active{% endif %}">
+    Reporting Fields</a>
   </li>
 
   {% if credit_submission.credit.show_info %}
-    <li class="dropdown{% if active == 'info' %} active{% endif %}">
-      <a class="dropdown-toggle"
+    <li class="nav-item dropdown">
+      <a class="nav-link dropdown-toggle {% if active == 'info' %} active{% endif %}"
          data-toggle="dropdown"
+         role="button"
          href="#">
           Credit Info
-          <b class="caret"></b>
         </a>
-      <ul class="dropdown-menu">
-        <li>
-          <a href="{{ credit_submission.get_submit_url }}documentation/">
+      <div class="dropdown-menu">
+          <a href="{{ credit_submission.get_submit_url }}documentation/"
+             class="dropdown-item">
             Open Here
           </a>
-        </li>
-        <li>
           <a href="{{ credit_submission.get_submit_url }}documentation/?popup=True"
              target='_blank'
              onclick='return open_popup("{{ credit_submission.get_submit_url }}documentation/?popup=True", "CreditInfo");'
-             class='credit-info-popout'>
+             class='credit-info-popout dropdown-item'>
             Pop Out
           </a>
-        </li>
-      </ul>
+      </div>
     </li>
   {% endif %}
 
-  <li
-     {% if active == "notes" %}
-       class="active"
-     {% else %}
-       {% testrule institution_is_participant institution %}
-       {% else %}
-         class="disabled"
-       {% endtestrule %}
-     {% endif %}
+  <li class="nav-item">
+    <a href="{{ credit_submission.get_submit_url }}notes/"
+        class="nav-link {% if active == 'notes' %}
+          active
+        {% else %}
+          {% testrule institution_is_participant institution %}
+          {% else %}
+            disabled
+          {% endtestrule %}
+        {% endif %}"
     >
-    <a href="{{ credit_submission.get_submit_url }}notes/">
       Internal Notes
     </a>
   </li>
 
-   <li
-     {% if active == "history" %}
-       class="active"
-     {% endif %}
+   <li class="nav-item">
+     <a href="{{ credit_submission.get_submit_url }}history/"
+        class="nav-link {% if active == 'history' %}active{% endif %}"
      >
-     <a href="{{ credit_submission.get_submit_url }}history/">
        History
      </a>
    </li>
 
     {% if credit_submission.subcategory_submission.category_submission.submissionset.is_under_review %}
-      <li class="dropdown{% if active == 'review' %} active{% endif %}">
-        <a class="dropdown-toggle"
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle {% if active == 'review' %} active{% endif %}"
            data-toggle="dropdown"
+           role="button"
            href="#">
           Review
-          <b class="caret"></b>
         </a>
-        <ul class="dropdown-menu">
-          <li>
-            <a href="{{ credit_submission.get_submit_url }}review/">
+        <div class="dropdown-menu">
+            <a href="{{ credit_submission.get_submit_url }}review/"
+               class="dropdown-item">
               Open Here
             </a>
-          </li>
-          <li>
             <a href="{{ credit_submission.get_submit_url }}review/?popup=True"
+               class="dropdown-item"
                target='_blank'
                onclick='return open_popup("{{ credit_submission.get_submit_url }}review/?popup=True", "Review", 700, 700);'>
               Pop Out
             </a>
-          </li>
-        </ul>
+
+        </div>
       </li>
     {% endif %}
 </ul>

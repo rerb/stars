@@ -4,6 +4,7 @@
 
 	{% for select in select_list %}
 		<select
+            class="form-control"
 			name="{{ select.name }}"
 			id="{{ select.id }}"
 			{% if select.data_callback %}data-callback="{{ select.data_callback }}"{% endif %}

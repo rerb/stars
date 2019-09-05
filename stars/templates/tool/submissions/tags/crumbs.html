@@ -1,12 +1,16 @@
-{% for object in object_set %}
-    {% if forloop.revcounter0 %}
-    	<li>
-        	<a href='{{ object.get_crumb_url }}'>
-                {{ object.get_crumb_label }}
-            </a>
-        	<span class="divider">/</span>
-        </li>
-    {% else %}
-        <li>{{ object.get_crumb_label }}</li>
-    {% endif %}
-{% endfor %}
+
+<nav class="crumbs">
+    <ol class="breadcrumb">
+        {% for object in object_set %}
+            {% if forloop.revcounter0 %}
+            	<li class="breadcrumb-item">
+                	<a href='{{ object.get_crumb_url }}'>
+                        {{ object.get_crumb_label }}
+                    </a
+                </li>
+            {% else %}
+                <li class="breadcrumb-item">{{ object.get_crumb_label }}</li>
+            {% endif %}
+        {% endfor %}
+    </ol>
+</nav>

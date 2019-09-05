@@ -3,7 +3,7 @@
 {% if dfcopy %}
   <br>
   <button type="button"
-         class="btn btn-small"
+         class="btn btn-sm"
          style="margin-bottom: 9px"
          data-toggle="tooltip"
          {% if dfcopyval %}
@@ -17,5 +17,5 @@
          {% if submissionset %}
            onclick="$(this).siblings('input').not(':hidden')[0].value = '{{ dfcopyval }}';"
          {% endif %}
-  ><i class="icon-share-alt"></i> copy from {{ dfcopy.credit.identifier }}</button>
+  ><i class="fa fa-share"></i> copy from {{ dfcopy.credit.identifier }}</button>
 {% endif %}

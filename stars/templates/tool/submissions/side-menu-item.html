@@ -1,0 +1,34 @@
+<li{% if item.attrs %}
+	{% for key, value in item.attrs.items %}
+    	{{ key }}="{{ value }}"
+	{% endfor %}{% endif %} class="nav-item">
+
+	{% if item.children %}
+		<label class="tree-toggler nav-header">
+	{% endif %}
+	{% if item.url %}
+		<a class="nav-link" href='{{ item.url }}'>
+	{% endif %}
+
+		{{ item.title }}
+
+	{% if item.url %}
+		</a>
+	{% endif %}
+        </label>
+	{% if item.children %}
+
+
+		<ul class="nav flex-column tree"{% if item.children_attrs %}
+			{% for key, value in item.children_attrs.items %}
+		    	{{ key }}="{{ value }}"
+			{% endfor %}{% endif %}>
+
+			{% for child in item.children %}
+				{% with item=child %}{% with template_name="tool/submissions/side-menu-item.html" %}
+					{% include template_name %}
+				{% endwith %}{% endwith %}
+			{% endfor %}
+		</ul>
+	{% endif %}
+</li>

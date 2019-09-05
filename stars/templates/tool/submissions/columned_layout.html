@@ -1,7 +1,7 @@
 {% extends 'tool/base.html' %}
 
 {% load cache %}
-{% load collapsing_menu %}
+{% load collapsing_side_menu %}
 {% load l10n %}
 
 
@@ -12,13 +12,14 @@
 {% block body_onload %}{{ block.super }}{% endblock %}
 
 {% block left_nav %}
-    <div class="well" style="width:220px; padding: 8px 0;">
-      {% show_collapsing_menu outline %}
+      <div class="side-menu d-none d-md-block">
+          {% show_collapsing_menu outline %}
+      </div>
+
       <script>
       {% if credit_submission %}
         c_id = "#outline_cred_{{ credit_submission.id|unlocalize }}";
         $(c_id).addClass('active');
       {% endif %}
       </script>
-    </div>
 {% endblock %}
