@@ -11,7 +11,7 @@
   </div>
 </div>
 
-<table class='table table-striped table-bordered table-condensed'
+<table class='table'
        cellspacing='0'>
   <thead>
     <tr>
@@ -38,9 +38,9 @@
           <em>Expired</em>
         {% endif %}
         {% if user.is_staff %}
-          <a href="{{ submissionset.get_flag_url }}"
-             class='btn btn-warning btn-mini'><i class='icon-flag icon-white'>
-             </i></a>
+          <btn href="{{ submissionset.get_flag_url }}"
+             class='btn btn-warning icon-btn'><i class='fa fa-flag icon-no-margin'>
+             </i></btn>
         {% endif %}
         {% if submissionset.flags %}
           {% for f in submissionset.flags %}
@@ -49,7 +49,7 @@
                id="flag_{{ f.id }}"
                data-content="{{ f.description }}"
                data-original-title="Flagged Field">
-              <i class='icon-flag'> </i></a>
+              <i class='fa fa-flag'> </i></a>
             <script type='text/javascript'>$('#flag_{{ f.id }}').popover();
             </script>
           {% endfor %}
@@ -87,29 +87,26 @@
       {% endif %}
       {% testrule user_can_view_export user submissionset %}
         <td>
-          <div class="btn-group">
-            <a class="btn dropdown-toggle btn-small" data-toggle="dropdown"
-               href="#">
-              Download <span class="caret"></span>
-            </a>
-            <ul class="dropdown-menu">
-              <li>
-                <a class='modal-link'
-                   href="{{ submissionset.get_scorecard_url }}pdf/">
-                  <i class='icon-download-alt'></i> PDF
-                </a>
-              </li>
-              <li><a class='modal-link'
-                     href='{{ submissionset.get_scorecard_url }}excel/'>
-                <i class='icon-download-alt'></i> Excel
-              </a></li>
-              {% testrule user_can_download_certificate user submissionset %}
-                <li><a class='modal-link'
-                       href='{{ submissionset.get_scorecard_url }}cert/'>
-                  <i class='icon-download-alt'></i> Certificate
-                </a></li>
-              {% endtestrule %}
-            </ul>
+          <div class="dropdown">
+              <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Download
+              </button>
+              <div class="dropdown-menu">
+                  <a class='dropdown-item modal-link'
+                     href="{{ submissionset.get_scorecard_url }}pdf/">
+                    <i class='fa fa-download'></i> PDF
+                  </a>
+                  <a class='dropdown-item modal-link'
+                         href='{{ submissionset.get_scorecard_url }}excel/'>
+                    <i class='fa fa-download'></i> Excel
+                  </a>
+                  {% testrule user_can_download_certificate user submissionset %}
+                    <a class='dropdown-item modal-link'
+                           href='{{ submissionset.get_scorecard_url }}cert/'>
+                      <i class='fa fa-download'></i> Certificate
+                    </a>
+                  {% endtestrule %}
+              </div>
           </div>
         </td>
       {% endtestrule %}

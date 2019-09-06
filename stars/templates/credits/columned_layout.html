@@ -1,5 +1,5 @@
 <div class='row'>
-  <div class='span4'>
+  <div class='col-sm-12 col-md-3'>
     {% block railAboveMenu %}{% endblock %}
     <div id='leftMenu'>
       {% block navAbove %}{% endblock %}
@@ -9,13 +9,15 @@
 	</h4>
       {% endblock %}
       {% block left_column %}
-        <!-- {% include 'credits/outline_nav.html' %} -->
+      <div class="side-menu d-none d-md-block">
+        {% include 'credits/outline_nav.html' %}
+      </div>
       {% endblock %}
       {% block navBelow %}{% endblock %}
     </div>
   </div>
 
-  <div class='span8'>
+  <div class='col'>
     {% block center_column %}{% endblock %}
     {% block center_column_footer %}{% endblock %}
   </div>
